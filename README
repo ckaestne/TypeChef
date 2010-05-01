@@ -1,0 +1,8 @@
+source of a current research project on type checking C code
+
+builds on top of the ANTLR GNU C grammar http://www.antlr.org/grammar/cgram
+
+and the Java implementation of CPP: http://www.anarres.org/projects/jcpp/
+
+
+more to come later on...
