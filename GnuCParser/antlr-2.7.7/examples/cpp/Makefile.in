@@ -1,0 +1,19 @@
+## do not change this value 
+subdir=examples/cpp
+
+# get configured vars
+@stdvars@
+
+# List for subdirs to be left out (use "|" as separator).
+# Use some non-existing directory like "None" for an "empty" 
+# list. 
+SUBDIRS_NOT = flexLexer | inherit.tinyc | multiLexer
+
+## get configured rules
+@stdmake@
+
+## get configured deps
+@stddeps@
+
+distclean_this ::
+	@Makefile

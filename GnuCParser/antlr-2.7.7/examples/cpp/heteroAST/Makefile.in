@@ -1,0 +1,148 @@
+##############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value 
+subdir=examples/cpp/heteroAST
+
+
+srcdir = @abs_top_srcdir@/examples/cpp/heteroAST
+objdir = @abs_this_builddir@/examples/cpp/heteroAST
+
+this : test
+test : test1 
+
+all: heteroAST test
+
+g_FILES = \
+	$(srcdir)/calc.g \
+	$(eol)
+
+g_cxx_FILES = \
+  $(objdir)/CalcLexer.cpp \
+	$(objdir)/CalcParser.cpp \
+  $(eol)
+
+g_hpp_FILES = \
+	$(objdir)/CalcLexer.hpp \
+  $(objdir)/CalcParser.hpp \
+  $(objdir)/CalcParserTokenTypes.hpp \
+  $(eol)
+
+g_txt_FILES = \
+	$(objdir)/CalcParserTokenTypes.txt \
+	$(eol)
+
+g_gen_FILES = \
+	$(g_cxx_FILES) \
+	$(g_hpp_FILES) \
+	$(g_txt_FILES) \
+	$(eol)
+
+g_obj_FILES = \
+	$(objdir)/CalcLexer@OBJEXT@ \
+	$(objdir)/CalcParser@OBJEXT@ \
+  $(eol)
+
+## Source files
+heteroAST_cxx_FILES = \
+	$(g_cxx_FILES) \
+	$(srcdir)/Main.cpp  \
+	$(eol)
+
+## Object files
+heteroAST_obj_FILES = \
+	$(g_obj_FILES) \
+	$(objdir)/Main@OBJEXT@  \
+	$(eol)
+
+## Test commands ..
+test1_cmd = $(objdir)/heteroAST < $(srcdir)/test.in
+
+## Tests to be executed
+test1 : heteroAST
+	@ v="$(verbose)"; \
+    if test $$v -gt 0 ; then \
+      @ECHO@ "$(test1_cmd)" ; \
+    else \
+      @ECHO@ "exec test1 .."; \
+    fi
+	@ $(test1_cmd)
+
+## How to make binaries
+heteroAST : $(heteroAST_obj_FILES) @ANTLR_LIB@
+	@ @CXX_LINK_CMD@ $@ $(heteroAST_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(g_gen_FILES) : $(g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(g_FILES)
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ CXXINCLUDE="$(srcdir)" @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ CXXINCLUDE="$(srcdir)" @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ CXXINCLUDE="$(srcdir)" @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ CXXINCLUDE="$(srcdir)" @CXX_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	@RMF@ *.o *.obj *.exe heteroAST  $(g_gen_FILES) test 
+
+distclean: clean
+	@RMF@ Makefile
+
+# Dependencies
+$(objdir)/CalcLexer@OBJEXT@ :      \
+ $(objdir)/CalcLexer.hpp           \
+ $(srcdir)/PLUSNode.hpp            \
+ $(srcdir)/BinaryOperatorAST.hpp   \
+ $(srcdir)/CalcAST.hpp             \
+ $(srcdir)/MULTNode.hpp            \
+ $(srcdir)/INTNode.hpp             \
+ $(objdir)/CalcParserTokenTypes.hpp
+
+$(objdir)/CalcParser@OBJEXT@     :  \
+ $(objdir)/CalcParser.hpp           \
+ $(srcdir)/PLUSNode.hpp             \
+ $(srcdir)/BinaryOperatorAST.hpp    \
+ $(srcdir)/CalcAST.hpp              \
+ $(srcdir)/MULTNode.hpp             \
+ $(srcdir)/INTNode.hpp              \
+ $(objdir)/CalcParserTokenTypes.hpp
+
+$(objdir)/Main@OBJEXT@           :  \
+ $(objdir)/CalcLexer.hpp            \
+ $(objdir)/CalcParserTokenTypes.hpp \
+ $(objdir)/CalcParser.hpp           \
+ $(srcdir)/PLUSNode.hpp             \
+ $(srcdir)/BinaryOperatorAST.hpp    \
+ $(srcdir)/CalcAST.hpp              \
+ $(srcdir)/MULTNode.hpp             \
+ $(srcdir)/INTNode.hpp              
+
+## If cxx.sh script changed ..
+$(heteroAST_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+
+## If link.sh script changed ..
+$(heteroAST_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+### get configured dependencies - for example, just list
+### autoconf variable ANTLR_JAR as reference and it will
+### be  done  automatically  as stddeps contains appropr.
+### rule. For details, checkout scripts/config.vars[.in] 
+@stddeps@
+
+

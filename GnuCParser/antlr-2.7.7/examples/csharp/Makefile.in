@@ -1,0 +1,19 @@
+###############################################################################
+# $Id:$
+###############################################################################
+## do not change this value 
+subdir=examples/csharp
+
+# get configured vars
+@stdvars@
+
+# List for subdirs to be left out (use "|" as separator).
+# Use some non-existing directory like "None" for an "empty" 
+# list. 
+SUBDIRS_NOT = HTML
+
+## get configured rules
+@stdmake@
+
+## get configured deps
+@stddeps@
