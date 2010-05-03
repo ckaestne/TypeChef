@@ -5,6 +5,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cgram.GnuCLexer;
+import cgram.GnuCParser;
+import cgram.TNode;
+
 import junit.framework.Assert;
 import antlr.ANTLRException;
 import antlr.RecognitionException;

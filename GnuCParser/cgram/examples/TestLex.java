@@ -1,5 +1,7 @@
 import java.io.*;
 
+import cgram.GnuCLexer;
+
 import antlr.CommonAST;
 import antlr.DumpASTVisitor;
 import antlr.Token;

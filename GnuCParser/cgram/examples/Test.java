@@ -1,6 +1,11 @@
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 
-import antlr.*;
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+import cgram.GnuCLexer;
+import cgram.GnuCParser;
+import cgram.TNode;
 
 public class Test
 {
@@ -67,13 +72,15 @@ public class Test
             // Garbage collection hint
             System.gc();
 
-            GnuCEmitter e = new GnuCEmitter(lexer.getPreprocessorInfoChannel());
+            TNode.printTree(parser.getAST());
             
-            // set AST node type to TNode or get nasty cast class errors
-            e.setASTNodeType(TNode.class.getName());
-
-            // walk that tree
-            e.translationUnit( parser.getAST() );
+//            GnuCEmitter e = new GnuCEmitter(lexer.getPreprocessorInfoChannel());
+//            
+//            // set AST node type to TNode or get nasty cast class errors
+//            e.setASTNodeType(TNode.class.getName());
+//
+//            // walk that tree
+//            e.translationUnit( parser.getAST() );
 
             // Garbage collection hint
             System.gc();

@@ -11,6 +11,10 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import org.junit.Test;
 
+import cgram.GnuCLexer;
+import cgram.GnuCParser;
+import cgram.TNode;
+
 public class ParserTestBottomUp {
 
 	@Test

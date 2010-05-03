@@ -532,6 +532,12 @@ public class Preprocessor implements Closeable {
 		buf.append("\"").append(extra).append("\n");
 		return new Token(P_LINE, line, 0, buf.toString(), null);
 	}
+	
+	private Token ifdef_token(int line, String flag) {
+		StringBuilder	buf = new StringBuilder();
+		buf.append("#ifdef ").append(flag).append("\n");
+		return new Token(P_LINE, line, 0, buf.toString(), null);
+	}
 
 	private Token source_token()
 						throws IOException,
@@ -1758,6 +1764,7 @@ public class Preprocessor implements Closeable {
 							break;
 
 						case PP_IF:
+							System.out.println("Saw PP_IF");
 							push_state();
 							if (!isActive()) {
 								return source_skipline(false);
@@ -1819,6 +1826,7 @@ public class Preprocessor implements Closeable {
 							// break;
 
 						case PP_IFDEF:
+							System.out.println("Saw PP_IFDEF");
 							push_state();
 							if (!isActive()) {
 								return source_skipline(false);
@@ -1837,7 +1845,9 @@ public class Preprocessor implements Closeable {
 									boolean	exists =
 										macros.containsKey(text);
 									states.peek().setActive(exists);
-									return source_skipline(true);
+//									return 
+									source_skipline(true);
+									return ifdef_token(tok.getLine(),text);
 								}
 							}
 							// break;
