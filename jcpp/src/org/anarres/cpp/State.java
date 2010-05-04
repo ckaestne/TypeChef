@@ -1,67 +1,84 @@
-/*
- * Anarres C Preprocessor
- * Copyright (c) 2007-2008, Shevek
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied.  See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 package org.anarres.cpp;
 
-/* pp */ class State {
-	boolean	parent;
-	boolean	active;
-	boolean	sawElse;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-	/* pp */ State() {
-		this.parent = true;
-		this.active = true;
+import de.fosd.typechef.featureexpr.*;
+
+class State {
+	List<FeatureExpr> localFeatures = new LinkedList<FeatureExpr>();
+	final State parent;
+
+	boolean sawElse;
+
+	/* pp */State() {
+		this(null);
+	}
+
+	/* pp */State(State parent) {
+		this.parent = parent;
 		this.sawElse = false;
 	}
 
-	/* pp */ State(State parent) {
-		this.parent = parent.isParentActive() && parent.isActive();
-		this.active = true;
-		this.sawElse = false;
-	}
-
-	/* Required for #elif */
-	/* pp */ void setParentActive(boolean b) {
-		this.parent = b;
-	}
-
-	/* pp */ boolean isParentActive() {
-		return parent;
-	}
-
-	/* pp */ void setActive(boolean b) {
-		this.active = b;
-	}
-
-	/* pp */ boolean isActive() {
-		return active;
-	}
-
-	/* pp */ void setSawElse() {
+	/* pp */void setSawElse() {
 		sawElse = true;
 	}
 
-	/* pp */ boolean sawElse() {
+	/* pp */boolean sawElse() {
 		return sawElse;
 	}
 
 	public String toString() {
-		return "parent=" + parent +
-			", active=" + active +
-			", sawelse=" + sawElse;
+		return "parent=" + parent + ", active=" + localFeatures + ", sawelse="
+				+ sawElse;
+	}
+
+	/**
+	 * add a feature expression to the state. first the #if expression. if
+	 * called again, this is interpreted as an elif expression.
+	 * 
+	 * @param feature
+	 */
+	public void putLocalFeature(FeatureExpr feature) {
+		localFeatures.add(feature);
+	}
+
+	/**
+	 * returns the local feature expression (explicitly negating prior features
+	 * from other elif branches, but not including features from outer nested
+	 * ifdefs)
+	 * 
+	 * if this is already the else branch (sawElse is true) than the condition
+	 * for the else branch (negating all features) is returned
+	 * 
+	 * @return
+	 */
+	public FeatureExpr getLocalFeatureExpr() {
+		if (sawElse())
+			assert !localFeatures.isEmpty();
+
+		if (localFeatures.isEmpty())
+			return new BaseFeature();
+		FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
+		if (sawElse)
+			result = new Not(result);
+		for (int i = 0; i < localFeatures.size() - 1; i++)
+			result = new And(result, new Not(localFeatures.get(i)));
+
+		return result.simplify();
+	}
+
+	/**
+	 * returns the full feature condition that leads to the inclusion of the
+	 * current token (includes all features of nested ifdefs)
+	 * 
+	 * @return
+	 */
+	public FeatureExpr getFullPresenceCondition() {
+		FeatureExpr result = getLocalFeatureExpr();
+		if (parent != null)
+			result = new And(result, parent.getFullPresenceCondition());
+		return result;
 	}
 }

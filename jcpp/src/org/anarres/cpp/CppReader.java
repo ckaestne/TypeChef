@@ -17,11 +17,14 @@
 
 package org.anarres.cpp;
 
-import java.io.File;
+import static org.anarres.cpp.Token.CCOMMENT;
+import static org.anarres.cpp.Token.CPPCOMMENT;
+import static org.anarres.cpp.Token.EOF;
+
 import java.io.IOException;
 import java.io.Reader;
 
-import static org.anarres.cpp.Token.*;
+import de.fosd.typechef.featureexpr.BaseFeature;
 
 /**
  * A Reader wrapper around the Preprocessor.
@@ -70,7 +73,7 @@ public class CppReader extends Reader {
 	 */
 	public void addMacro(String name)
 						throws LexerException {
-		cpp.addMacro(name);
+		cpp.addMacro(name,new BaseFeature());
 	}
 
 	/**
@@ -80,7 +83,7 @@ public class CppReader extends Reader {
 	 */
 	public void addMacro(String name, String value)
 						throws LexerException {
-		cpp.addMacro(name, value);
+		cpp.addMacro(name, new BaseFeature(), value);
 	}
 
 	private boolean refill()

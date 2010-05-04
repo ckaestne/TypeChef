@@ -21,25 +21,34 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import de.fosd.typechef.featureexpr.BaseFeature;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+
 /**
  * A macro object.
- *
- * This encapsulates a name, an argument count, and a token stream
- * for replacement. The replacement token stream may contain the
- * extra tokens {@link Token#M_ARG} and {@link Token#M_STRING}.
+ * 
+ * This encapsulates a name, an argument count, and a token stream for
+ * replacement. The replacement token stream may contain the extra tokens
+ * {@link Token#M_ARG} and {@link Token#M_STRING}.
  */
 public class Macro {
-	private Source			source;
-	private String			name;
-	/* It's an explicit decision to keep these around here. We don't
-	 * need to; the argument token type is M_ARG and the value
-	 * is the index. The strings themselves are only used in
-	 * stringification of the macro, for debugging. */
-	private List<String>	args;
-	private boolean			variadic;
-	private List<Token>		tokens;
+	private Source source;
+	final private String name;
+	/**
+	 * feature in which this macro was defined
+	 */
+	final private FeatureExpr feature;
+	/*
+	 * It's an explicit decision to keep these around here. We don't need to;
+	 * the argument token type is M_ARG and the value is the index. The strings
+	 * themselves are only used in stringification of the macro, for debugging.
+	 */
+	private List<String> args;
+	private boolean variadic;
+	private List<Token> tokens;
 
-	public Macro(Source source, String name) {
+	public Macro(Source source, String name, FeatureExpr feature) {
+		this.feature = feature;
 		this.source = source;
 		this.name = name;
 		this.args = null;
@@ -48,7 +57,7 @@ public class Macro {
 	}
 
 	public Macro(String name) {
-		this(null, name);
+		this(null, name, new BaseFeature());
 	}
 
 	/**
@@ -60,9 +69,9 @@ public class Macro {
 
 	/**
 	 * Returns the Source from which this macro was parsed.
-	 *
-	 * This method may return null if the macro was not parsed
-	 * from a regular file.
+	 * 
+	 * This method may return null if the macro was not parsed from a regular
+	 * file.
 	 */
 	public Source getSource() {
 		return source;
@@ -119,39 +128,39 @@ public class Macro {
 
 	/**
 	 * Adds a "paste" operator to the expansion of this macro.
-	 *
-	 * A paste operator causes the next token added to be pasted
-	 * to the previous token when the macro is expanded.
-	 * It is an error for a macro to end with a paste token.
+	 * 
+	 * A paste operator causes the next token added to be pasted to the previous
+	 * token when the macro is expanded. It is an error for a macro to end with
+	 * a paste token.
 	 */
 	public void addPaste(Token tok) {
 		/*
-		 * Given: tok0 		 * We generate: M_PASTE, tok0, tok1
-		 * This extends as per a stack language:
-		 * tok0 		 *   M_PASTE, tok0, M_PASTE, tok1, tok2
+		 * Given: tok0 * We generate: M_PASTE, tok0, tok1 This extends as per a
+		 * stack language: tok0 * M_PASTE, tok0, M_PASTE, tok1, tok2
 		 */
 		this.tokens.add(tokens.size() - 1, tok);
 	}
 
-	/* pp */ List<Token> getTokens() {
+	/* pp */List<Token> getTokens() {
 		return tokens;
 	}
 
-	/* Paste tokens are inserted before the first of the two pasted
-	 * tokens, so it's a kind of bytecode notation. This method
-	 * swaps them around again. We know that there will never be two
-	 * sequential paste tokens, so a boolean is sufficient. */
+	/*
+	 * Paste tokens are inserted before the first of the two pasted tokens, so
+	 * it's a kind of bytecode notation. This method swaps them around again. We
+	 * know that there will never be two sequential paste tokens, so a boolean
+	 * is sufficient.
+	 */
 	public String getText() {
-		StringBuilder	buf = new StringBuilder();
-		boolean			paste = false;
+		StringBuilder buf = new StringBuilder();
+		boolean paste = false;
 		for (int i = 0; i < tokens.size(); i++) {
-			Token	tok = tokens.get(i);
+			Token tok = tokens.get(i);
 			if (tok.getType() == Token.M_PASTE) {
 				assert paste == false : "Two sequential pastes.";
 				paste = true;
 				continue;
-			}
-			else {
+			} else {
 				buf.append(tok.getText());
 			}
 			if (paste) {
@@ -164,10 +173,10 @@ public class Macro {
 	}
 
 	public String toString() {
-		StringBuilder	buf = new StringBuilder(name);
+		StringBuilder buf = new StringBuilder(name);
 		if (args != null) {
 			buf.append('(');
-			Iterator<String>	it = args.iterator();
+			Iterator<String> it = args.iterator();
 			while (it.hasNext()) {
 				buf.append(it.next());
 				if (it.hasNext())
@@ -180,6 +189,7 @@ public class Macro {
 		if (!tokens.isEmpty()) {
 			buf.append(" => ").append(getText());
 		}
+		buf.append(" if ").append(feature);
 		return buf.toString();
 	}
 

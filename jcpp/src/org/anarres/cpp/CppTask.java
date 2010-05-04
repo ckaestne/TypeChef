@@ -24,9 +24,7 @@ import java.io.IOException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import org.anarres.cpp.LexerException;
-import org.anarres.cpp.Preprocessor;
-import org.anarres.cpp.Token;
+import de.fosd.typechef.featureexpr.BaseFeature;
 
 /**
  * An ant task for jcpp.
@@ -73,7 +71,7 @@ public class CppTask extends Task {
 
 	public void addMacro(Macro macro) {
 		try {
-			cpp.addMacro(macro.getName(), macro.getValue());
+			cpp.addMacro(macro.getName(),new BaseFeature(), macro.getValue());
 		}
 		catch (LexerException e) {
 			throw new BuildException(e);
