@@ -31,13 +31,8 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  * replacement. The replacement token stream may contain the extra tokens
  * {@link Token#M_ARG} and {@link Token#M_STRING}.
  */
-public class Macro {
+public class MacroData {
 	private Source source;
-	final private String name;
-	/**
-	 * feature in which this macro was defined
-	 */
-	final private FeatureExpr feature;
 	/*
 	 * It's an explicit decision to keep these around here. We don't need to;
 	 * the argument token type is M_ARG and the value is the index. The strings
@@ -47,17 +42,15 @@ public class Macro {
 	private boolean variadic;
 	private List<Token> tokens;
 
-	public Macro(Source source, String name, FeatureExpr feature) {
-		this.feature = feature;
+	public MacroData(Source source) {
 		this.source = source;
-		this.name = name;
 		this.args = null;
 		this.variadic = false;
 		this.tokens = new ArrayList<Token>();
 	}
 
-	public Macro(String name) {
-		this(null, name, new BaseFeature());
+	public MacroData() {
+		this(null);
 	}
 
 	/**
@@ -77,12 +70,6 @@ public class Macro {
 		return source;
 	}
 
-	/**
-	 * Returns the name of this macro.
-	 */
-	public String getName() {
-		return name;
-	}
 
 	/**
 	 * Sets the arguments to this macro.
@@ -173,7 +160,7 @@ public class Macro {
 	}
 
 	public String toString() {
-		StringBuilder buf = new StringBuilder(name);
+		StringBuilder buf = new StringBuilder(/*name*/);
 		if (args != null) {
 			buf.append('(');
 			Iterator<String> it = args.iterator();
@@ -189,8 +176,15 @@ public class Macro {
 		if (!tokens.isEmpty()) {
 			buf.append(" => ").append(getText());
 		}
-		buf.append(" if ").append(feature);
+//		buf.append(" if ").append(feature);
 		return buf.toString();
 	}
-
+//
+//	public void setFeature(FeatureExpr feature) {
+//		this.feature = feature;
+//	}
+//
+//	public FeatureExpr getFeature() {
+//		return feature;
+//	}
 }

@@ -71,32 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.fosd.typechef.featureexpr.And;
-import de.fosd.typechef.featureexpr.BaseFeature;
-import de.fosd.typechef.featureexpr.BitAnd;
-import de.fosd.typechef.featureexpr.BitOr;
-import de.fosd.typechef.featureexpr.CharacterLit;
-import de.fosd.typechef.featureexpr.Complement;
-import de.fosd.typechef.featureexpr.DeadFeature;
-import de.fosd.typechef.featureexpr.Defined;
-import de.fosd.typechef.featureexpr.Division;
-import de.fosd.typechef.featureexpr.Equals;
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.GreaterThan;
-import de.fosd.typechef.featureexpr.GreaterThanEquals;
-import de.fosd.typechef.featureexpr.IntegerLit;
-import de.fosd.typechef.featureexpr.LessThan;
-import de.fosd.typechef.featureexpr.LessThanEquals;
-import de.fosd.typechef.featureexpr.Minus;
-import de.fosd.typechef.featureexpr.Mult;
-import de.fosd.typechef.featureexpr.Neg;
-import de.fosd.typechef.featureexpr.Not;
-import de.fosd.typechef.featureexpr.NotEquals;
-import de.fosd.typechef.featureexpr.Or;
-import de.fosd.typechef.featureexpr.Plus;
-import de.fosd.typechef.featureexpr.Pwr;
-import de.fosd.typechef.featureexpr.ShiftLeft;
-import de.fosd.typechef.featureexpr.ShiftRight;
+import de.fosd.typechef.featureexpr.*;
 
 /**
  * modified C preprocessor with the following changes
@@ -158,14 +133,12 @@ public class Preprocessor implements Closeable {
 			return "internal data";
 		}
 	};
-	private static final Macro __LINE__ = new Macro(INTERNAL, "__LINE__", new BaseFeature());
-	private static final Macro __FILE__ = new Macro(INTERNAL, "__FILE__", new BaseFeature());
-	private static final Macro __COUNTER__ = new Macro(INTERNAL, "__COUNTER__", new BaseFeature());
+	
 
 	private List<Source> inputs;
 
 	/* The fundamental engine. */
-	private MacroStorage macros = new MacroStorage();
+	private MacroContext macros = new MacroContext();
 	private State state;
 	private Source source;
 
@@ -184,9 +157,11 @@ public class Preprocessor implements Closeable {
 	public Preprocessor() {
 		this.inputs = new ArrayList<Source>();
 
-		macros.put(__LINE__.getName(), new BaseFeature(), __LINE__);
-		macros.put(__FILE__.getName(), new BaseFeature(), __FILE__);
-		macros.put(__COUNTER__.getName(), new BaseFeature(), __COUNTER__);
+		macros=macros.define("__LINE__",
+				new BaseFeature(),new MacroData(INTERNAL)).define("__FILE__",
+				new BaseFeature(),new MacroData(INTERNAL)).define("__COUNTER__",
+				new BaseFeature(),new MacroData(INTERNAL));
+		
 		state = new State();
 		this.source = null;
 
@@ -391,25 +366,25 @@ public class Preprocessor implements Closeable {
 	/**
 	 * Adds a Macro to this Preprocessor.
 	 * 
-	 * The given {@link Macro} object encapsulates both the name and the
+	 * The given {@link MacroData} object encapsulates both the name and the
 	 * expansion.
 	 * 
 	 * There can be multiple macros. They can have different features. Newer
 	 * macros replace older macros if they cover the same features.
+	 * @param feature 
+	 * @param name 
 	 * 
 	 */
-	public void addMacro(Macro m, FeatureExpr feature)
-			throws LexerException {
+	public void addMacro(String name, FeatureExpr feature, MacroData m) throws LexerException {
 		// System.out.println("Macro " + m);
-		String name = m.getName();
 		/* Already handled as a source error in macro(). */
 		if ("defined".equals(name))
 			throw new LexerException("Cannot redefine name 'defined'");
-		macros.put(name, feature, m);
+		macros=macros.define(name,feature,m);
 	}
 
 	public void removeMacro(String name, FeatureExpr feature) {
-		macros.remove(name, feature);
+		macros=macros.undefine(name, feature);
 	}
 
 	/**
@@ -421,7 +396,7 @@ public class Preprocessor implements Closeable {
 	public void addMacro(String name, FeatureExpr feature, String value)
 			throws LexerException {
 		try {
-			Macro m = new Macro(name);
+			MacroData m = new MacroData(null);
 			StringLexerSource s = new StringLexerSource(value);
 			for (;;) {
 				Token tok = s.token();
@@ -429,7 +404,7 @@ public class Preprocessor implements Closeable {
 					break;
 				m.addToken(tok);
 			}
-			addMacro(m, feature);
+			addMacro(name, feature, m);
 		} catch (IOException e) {
 			throw new LexerException(e);
 		}
@@ -528,8 +503,17 @@ public class Preprocessor implements Closeable {
 			state = state.parent;
 	}
 
+	/**
+	 * only returns false if a code fragment is certainly dead, i.e., there is
+	 * no variant in which it is included.
+	 * 
+	 * this can happen when a feature is explicitly undefined or explicitly
+	 * defined in the source code
+	 * 
+	 * @return
+	 */
 	private boolean isActive() {
-		return true;
+		return state.isActive();
 	}
 
 	/* Sources */
@@ -601,17 +585,18 @@ public class Preprocessor implements Closeable {
 		buf.append("#if ").append(FeatureExpr).append("\n");
 		return new Token(P_LINE, line, 0, buf.toString(), null);
 	}
+
 	private Token elif_token(int line, FeatureExpr FeatureExpr) {
 		StringBuilder buf = new StringBuilder();
 		buf.append("#endif\n#if ").append(FeatureExpr).append("\n");
 		return new Token(P_LINE, line, 0, buf.toString(), null);
 	}
+
 	private Token endif_token(int line) {
 		StringBuilder buf = new StringBuilder();
 		buf.append("#endif\n");
 		return new Token(P_LINE, line, 0, buf.toString(), null);
 	}
-	
 
 	private Token source_token() throws IOException, LexerException {
 		if (source_token != null) {
@@ -707,7 +692,7 @@ public class Preprocessor implements Closeable {
 	}
 
 	/* processes and expands a macro. */
-	private boolean macro(Macro m, Token orig) throws IOException,
+	private boolean macro(String macroName, MacroData m, Token orig) throws IOException,
 			LexerException {
 		Token tok;
 		List<Argument> args;
@@ -813,7 +798,7 @@ public class Preprocessor implements Closeable {
 				 */
 
 				if (args.size() != m.getArgs()) {
-					error(tok, "macro " + m.getName() + " has " + m.getArgs()
+					error(tok, "macro " + macroName + " has " + m.getArgs()
 							+ " parameters " + "but given " + args.size()
 							+ " args");
 					/*
@@ -843,12 +828,12 @@ public class Preprocessor implements Closeable {
 			args = null;
 		}
 
-		if (m == __LINE__) {
+		if (macroName.equals("__LINE__")) {
 			push_source(new FixedTokenSource(new Token[] { new Token(INTEGER,
 					orig.getLine(), orig.getColumn(), String.valueOf(orig
 							.getLine()), Integer.valueOf(orig.getLine())) }),
 					true);
-		} else if (m == __FILE__) {
+		} else if (macroName.equals("__FILE__")) {
 			StringBuilder buf = new StringBuilder("\"");
 			String name = getSource().getName();
 			if (name == null)
@@ -871,7 +856,7 @@ public class Preprocessor implements Closeable {
 			String text = buf.toString();
 			push_source(new FixedTokenSource(new Token[] { new Token(STRING,
 					orig.getLine(), orig.getColumn(), text, text) }), true);
-		} else if (m == __COUNTER__) {
+		} else if (macroName.equals("__COUNTER__")) {
 			/*
 			 * This could equivalently have been done by adding a special Macro
 			 * subclass which overrides getTokens().
@@ -939,7 +924,7 @@ public class Preprocessor implements Closeable {
 			return source_skipline(false);
 		}
 
-		Macro m = new Macro(getSource(), name, state.getFullPresenceCondition());
+		MacroData m = new MacroData(getSource());
 		List<String> args;
 
 		tok = source_token();
@@ -1073,13 +1058,9 @@ public class Preprocessor implements Closeable {
 
 		if (getFeature(Feature.DEBUG))
 			System.err.println("Defined macro " + m);
-		addMacro(m, getCurrentFeatureExpr());
+		addMacro(name, state.getFullPresenceCondition(), m);
 
 		return tok; /* NL or EOF. */
-	}
-
-	private FeatureExpr getCurrentFeatureExpr() {
-		return null;
 	}
 
 	private Token undef() throws IOException, LexerException {
@@ -1092,7 +1073,7 @@ public class Preprocessor implements Closeable {
 			// Macro m = macros.get(tok.getText());
 			// if (m != null) {
 			/* XXX error if predefined */
-			macros.remove(tok.getText(), getCurrentFeatureExpr());
+			macros=macros.undefine(tok.getText(), state.getFullPresenceCondition());
 			// }
 		}
 		return source_skipline(true);
@@ -1322,13 +1303,13 @@ public class Preprocessor implements Closeable {
 			Token tok = source_token();
 			// System.out.println("Source token is " + tok);
 			if (tok.getType() == IDENTIFIER) {
-				Macro m = macros.get(tok.getText());
-				if (m == null)
+//				MacroData m = macros.get(tok.getText());TODO
+//				if (m == null)
 					return tok;
-				if (source.isExpanding(m))
-					return tok;
-				if (macro(m, tok))
-					continue;
+//				if (source.isExpanding(m))
+//					return tok;
+//				if (macro(m, tok))
+//					continue;
 			}
 			return tok;
 		}
@@ -1410,8 +1391,7 @@ public class Preprocessor implements Closeable {
 		}
 	}
 
-	private FeatureExpr expr(int priority) throws IOException,
-			LexerException {
+	private FeatureExpr expr(int priority) throws IOException, LexerException {
 		/*
 		 * System.out.flush(); (new Exception("expr(" + priority +
 		 * ") called")).printStackTrace(); System.err.flush();
@@ -1434,17 +1414,16 @@ public class Preprocessor implements Closeable {
 			break;
 
 		case '~':
-			lhs = new Complement(expr(11));
+			lhs = new FeatureExpr$().createComplement(expr(11));
 			break;
 		case '!':
 			lhs = new Not(expr(11));
 			break;
 		case '-':
-			lhs = new Neg(expr(11));
+			lhs = new FeatureExpr$().createNeg(expr(11));
 			break;
 		case INTEGER:
-			lhs = new IntegerLit(((Number) tok.getValue())
-					.longValue());
+			lhs = new IntegerLit(((Number) tok.getValue()).longValue());
 			break;
 		case CHARACTER:
 			lhs = new CharacterLit((Character) tok.getValue());
@@ -1466,7 +1445,7 @@ public class Preprocessor implements Closeable {
 					lhs = new DeadFeature();
 				} else
 					// System.out.println("Found macro");
-					lhs = new Defined(la.getText());
+					lhs = new FeatureExpr$().createDefined(la.getText(),macros);
 
 				if (paren) {
 					la = source_token_nonwhite();
@@ -1503,7 +1482,7 @@ public class Preprocessor implements Closeable {
 			// System.out.println("rhs token is " + rhs);
 			switch (op.getType()) {
 			case '/':
-				lhs = new Division(lhs, rhs);
+				lhs = new FeatureExpr$().createDivision(lhs, rhs);
 				// if (rhs == 0) {
 				// error(op, "Division by zero");
 				// lhs = 0;
@@ -1512,7 +1491,7 @@ public class Preprocessor implements Closeable {
 				// }
 				break;
 			case '%':
-				lhs = new Division(lhs, rhs);
+				lhs = new FeatureExpr$().createModulo(lhs, rhs);
 				// if (rhs == 0) {
 				// error(op, "Modulus by zero");
 				// lhs = 0;
@@ -1521,57 +1500,57 @@ public class Preprocessor implements Closeable {
 				// }
 				break;
 			case '*':
-				lhs = new Mult(lhs, rhs);
+				lhs = new FeatureExpr$().createMult(lhs, rhs);
 				break;
 			case '+':
-				lhs = new Plus(lhs, rhs);
+				lhs = new FeatureExpr$().createPlus(lhs, rhs);
 				break;
 			case '-':
-				lhs = new Minus(lhs, rhs);
+				lhs = new FeatureExpr$().createMinus(lhs, rhs);
 				break;
 			case '<':
-				lhs = new LessThan(lhs, rhs);
+				lhs = new FeatureExpr$().createLessThan(lhs, rhs);
 				// lhs < rhs ? 1 : 0;
 				break;
 			case '>':
-				lhs = new GreaterThan(lhs, rhs);// lhs > rhs ?
+				lhs = new FeatureExpr$().createGreaterThan(lhs, rhs);// lhs > rhs ?
 				// 1 : 0;
 				break;
 			case '&':
-				lhs = new BitAnd(lhs, rhs);// lhs & rhs;
+				lhs = new FeatureExpr$().createBitAnd(lhs, rhs);// lhs & rhs;
 				break;
 			case '^':
-				lhs = new Pwr(lhs, rhs);// lhs ^ rhs;
+				lhs = new FeatureExpr$().createPwr(lhs, rhs);// lhs ^ rhs;
 				break;
 			case '|':
-				lhs = new BitOr(lhs, rhs);// lhs | rhs;
+				lhs = new FeatureExpr$().createBitOr(lhs, rhs);// lhs | rhs;
 				break;
 
 			case LSH:
-				lhs = new ShiftLeft(lhs, rhs);// lhs << rhs;
+				lhs = new FeatureExpr$().createShiftLeft(lhs, rhs);// lhs << rhs;
 				break;
 			case RSH:
-				lhs = new ShiftRight(lhs, rhs);// lhs >> rhs;
+				lhs = new FeatureExpr$().createShiftRight(lhs, rhs);// lhs >> rhs;
 				break;
 			case LE:
-				lhs = new LessThanEquals(lhs, rhs);// lhs <=
+				lhs = new FeatureExpr$().createLessThanEquals(lhs, rhs);// lhs <=
 				// rhs ?
 				// 1 :
 				// 0;
 				break;
 			case GE:
-				lhs = new GreaterThanEquals(lhs, rhs);// lhs
+				lhs = new FeatureExpr$().createGreaterThanEquals(lhs, rhs);// lhs
 				// >=
 				// rhs ?
 				// 1 :
 				// 0;
 				break;
 			case EQ:
-				lhs = new Equals(lhs, rhs);// lhs == rhs ? 1 :
+				lhs = new FeatureExpr$().createEquals(lhs, rhs);// lhs == rhs ? 1 :
 				// 0;
 				break;
 			case NE:
-				lhs = new NotEquals(lhs, rhs);// lhs != rhs ?
+				lhs = new FeatureExpr$().createNotEquals(lhs, rhs);// lhs != rhs ?
 				// 1 : 0;
 				break;
 			case LAND:
@@ -1757,14 +1736,14 @@ public class Preprocessor implements Closeable {
 
 			case IDENTIFIER:
 				// apply macro (in visible code)
-				Macro m = macros.get(tok.getText());
-				if (m == null)
+//				MacroData m = macros.get(tok.getText());TODO
+//				if (m == null)
 					return tok;
-				if (source.isExpanding(m))
-					return tok;
-				if (macro(m, tok))
-					break;
-				return tok;
+//				if (source.isExpanding(m))
+//					return tok;
+//				if (macro(m, tok))
+//					break;
+//				return tok;
 
 			case P_LINE:
 				if (getFeature(Feature.LINEMARKERS))
@@ -1862,17 +1841,17 @@ public class Preprocessor implements Closeable {
 					} else if (state.sawElse()) {
 						error(tok, "#elif after #" + "else");
 						return source_skipline(false);
-//					} else if (!state.isParentActive()) {
-//						/* Nested in skipped 'if' */
-//						return source_skipline(false);
-//					} else if (state.isActive()) {
-//						/* The 'if' part got executed. */
-//						state.setParentActive(false);
-//						/*
-//						 * This is like # else # if but with only one # end.
-//						 */
-//						state.setActive(false);
-//						return source_skipline(false);
+						// } else if (!state.isParentActive()) {
+						// /* Nested in skipped 'if' */
+						// return source_skipline(false);
+						// } else if (state.isActive()) {
+						// /* The 'if' part got executed. */
+						// state.setParentActive(false);
+						// /*
+						// * This is like # else # if but with only one # end.
+						// */
+						// state.setActive(false);
+						// return source_skipline(false);
 					} else {
 						expr_token = null;
 						// state.setActive(expr(0) != 0);
@@ -1880,7 +1859,8 @@ public class Preprocessor implements Closeable {
 						tok = expr_token(); /* unget */
 						if (tok.getType() != NL)
 							source_skipline(true);
-						return elif_token(tok.getLine(), state.getLocalFeatureExpr());
+						return elif_token(tok.getLine(), state
+								.getLocalFeatureExpr());
 					}
 					// break;
 
@@ -1893,7 +1873,8 @@ public class Preprocessor implements Closeable {
 					} else {
 						state.setSawElse();
 						source_skipline(warnings.contains(Warning.ENDIF_LABELS));
-						return elif_token(tok.getLine(), state.getLocalFeatureExpr());
+						return elif_token(tok.getLine(), state
+								.getLocalFeatureExpr());
 					}
 					// break;
 
@@ -1909,11 +1890,11 @@ public class Preprocessor implements Closeable {
 									+ tok.getText());
 							return source_skipline(false);
 						} else {
-							state.putLocalFeature(parseIfDef(tok
-									.getText()));
+							state.putLocalFeature(parseIfDef(tok.getText()));
 							// return
 							source_skipline(true);
-							return if_token(tok.getLine(), state.getLocalFeatureExpr());
+							return if_token(tok.getLine(), state
+									.getLocalFeatureExpr());
 						}
 					}
 					// break;
@@ -1931,16 +1912,16 @@ public class Preprocessor implements Closeable {
 						} else {
 							state.putLocalFeature(parseIfNDef(tok.getText()));
 							source_skipline(true);
-							return if_token(tok.getLine(), state.getLocalFeatureExpr());
+							return if_token(tok.getLine(), state
+									.getLocalFeatureExpr());
 						}
 					}
 					// break;
 
 				case PP_ENDIF:
 					pop_state();
-					 source_skipline(warnings
-							.contains(Warning.ENDIF_LABELS));
-					 return endif_token(tok.getLine());
+					source_skipline(warnings.contains(Warning.ENDIF_LABELS));
+					return endif_token(tok.getLine());
 					// break;
 
 				case PP_LINE:
@@ -1974,7 +1955,7 @@ public class Preprocessor implements Closeable {
 	}
 
 	private FeatureExpr parseIfDef(String feature) {
-		return new Defined(feature);
+		return new FeatureExpr$().createDefined(feature,macros);
 	}
 
 	private Token token_nonwhite() throws IOException, LexerException {

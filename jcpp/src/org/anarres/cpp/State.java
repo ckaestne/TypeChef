@@ -79,6 +79,22 @@ class State {
 		FeatureExpr result = getLocalFeatureExpr();
 		if (parent != null)
 			result = new And(result, parent.getFullPresenceCondition());
-		return result;
+		return result.simplify();
+	}
+
+	/**
+	 * only returns false if a code fragment is certainly dead, i.e., there is
+	 * no variant in which it is included.
+	 * 
+	 * this can happen when a feature is explicitly undefined or explicitly
+	 * defined in the source code
+	 * @param context 
+	 * 
+	 * @return
+	 */
+	public boolean isActive() {
+		if (getFullPresenceCondition().isDead())
+			return false;
+		return true;
 	}
 }

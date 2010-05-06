@@ -35,12 +35,12 @@ import static org.anarres.cpp.Token.*;
 /* This source should always be active, since we don't expand macros
  * in any inactive context. */
 /* pp */ class MacroTokenSource extends Source {
-	private Macro				macro;
+	private MacroData				macro;
 	private Iterator<Token>		tokens;	/* Pointer into the macro.  */
 	private List<Argument>		args;	/* { unexpanded, expanded } */
 	private Iterator<Token>		arg;	/* "current expansion" */
 
-	/* pp */ MacroTokenSource(Macro m, List<Argument> args) {
+	/* pp */ MacroTokenSource(MacroData m, List<Argument> args) {
 		this.macro = m;
 		this.tokens = m.getTokens().iterator();
 		this.args = args;
@@ -48,7 +48,7 @@ import static org.anarres.cpp.Token.*;
 	}
 
 	@Override
-	/* pp */ boolean isExpanding(Macro m) {
+	/* pp */ boolean isExpanding(MacroData m) {
 		/* When we are expanding an arg, 'this' macro is not
 		 * being expanded, and thus we may re-expand it. */
 		if (/* XXX this.arg == null && */ this.macro == m)
@@ -199,7 +199,7 @@ import static org.anarres.cpp.Token.*;
 
 	public String toString() {
 		StringBuilder	buf = new StringBuilder();
-		buf.append("expansion of ").append(macro.getName());
+//		buf.append("expansion of ").append(macro.getName());
 		Source	parent = getParent();
 		if (parent != null)
 			buf.append(" in ").append(String.valueOf(parent));
