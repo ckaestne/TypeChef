@@ -33,6 +33,10 @@ import static org.anarres.cpp.Token.*;
  * code.
  */
 public class StringLexerSource extends LexerSource {
+	
+	
+
+	private String string;
 
 	/**
 	 * Creates a new Source for lexing the given String.
@@ -43,6 +47,7 @@ public class StringLexerSource extends LexerSource {
 	public StringLexerSource(String string, boolean ppvalid)
 						throws IOException {
 		super(new StringReader(string), ppvalid);
+		this.string=string;
 	}
 
 	/**
@@ -57,6 +62,6 @@ public class StringLexerSource extends LexerSource {
 	}
 
 	public String toString() {
-		return "string literal";
+		return "string literal: "+string;
 	}
 }

@@ -80,6 +80,7 @@ public class PreprocessorListener {
 		errors++;
 		print(source.getName() + ":" + line + ":" + column +
 				": error: " + msg); 
+		throw new LexerException(msg);
 	}
 
 	public void handleSourceChange(Source source, String event) {

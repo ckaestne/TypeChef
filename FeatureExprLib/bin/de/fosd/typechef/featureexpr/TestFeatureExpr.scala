@@ -34,4 +34,6 @@ object TestFeatureExpr  extends Application {
      context = context.define("bar", Not(FeatureExpr.createDefined("bar",context)), null);
      println(FeatureExpr.createDefined("bar",context))//.possibleValues(context));
 //     println(Defined("foo").possibleValues(context));
+     
+//     println(BinaryFeatureExpr(IntegerLit(1),IntegerLit(2),"==",_==_));
 }

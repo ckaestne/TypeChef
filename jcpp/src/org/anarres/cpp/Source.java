@@ -17,20 +17,18 @@
 
 package org.anarres.cpp;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PushbackReader;
-import java.io.Reader;
-import java.io.StringReader;
+import static org.anarres.cpp.Token.CCOMMENT;
+import static org.anarres.cpp.Token.CPPCOMMENT;
+import static org.anarres.cpp.Token.EOF;
+import static org.anarres.cpp.Token.NL;
+import static org.anarres.cpp.Token.WHITESPACE;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import static org.anarres.cpp.Token.*;
+import de.fosd.typechef.featureexpr.MacroExpansion;
 
 /**
  * An input to the Preprocessor.
@@ -178,10 +176,10 @@ public abstract class Source implements Iterable<Token>, Closeable {
 	 *
 	 * This is used to prevent macro recursion.
 	 */
-	/* pp */ boolean isExpanding(MacroData m) {
+	/* pp */ boolean isExpanding(String macroName) {
 		Source	parent = getParent();
 		if (parent != null)
-			return parent.isExpanding(m);
+			return parent.isExpanding(macroName);
 		return false;
 	}
 
@@ -289,5 +287,6 @@ public abstract class Source implements Iterable<Token>, Closeable {
 	public void close()
 						throws IOException {
 	}
+
 
 }

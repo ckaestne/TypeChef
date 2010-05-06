@@ -53,10 +53,22 @@ sealed abstract class FeatureExpr {
     case Not(DeadFeature()) => BaseFeature()
     case Not(BaseFeature()) => DeadFeature()
     case Not(Not(e)) => e simplify
+    case BinaryFeatureExpr(left, right, "==",_) if left.simplify() == right.simplify() => right simplify
     case BinaryFeatureExpr(left, right, opStr, op) => BinaryFeatureExpr(left simplify, right simplify, opStr, op)
     case UnaryFeatureExpr(expr, opStr, op) => UnaryFeatureExpr(expr simplify, opStr, op)
     case Not(a)  => Not(a simplify)
-    case IntegerLit(_) => this
+    case IfExpr(c,a,b) => {
+      val as=a simplify;
+      val bs=b simplify;
+      val cs=c simplify;
+      if (cs.isBase()) as
+      else if (cs.isDead()) bs
+      else if (as==bs) as
+      else IfExpr(c simplify, a simplify, b simplify)
+    }
+    case IntegerLit(1) => BaseFeature() 
+    case IntegerLit(0) => DeadFeature()
+    case IntegerLit(_) => this 
     case CharacterLit(_) => this
     case DefinedExternal(_) => this
     case DeadFeature() => this
@@ -124,7 +136,7 @@ abstract class AbstractUnaryBoolFeatureExpr(
 
 /** external definion of a feature (cannot be decided to Base or Dead inside this file) */
 case class DefinedExternal(feature:String)extends FeatureExpr {
-  def print():String = "definedEX("+feature+")";
+  def print():String = "defined("+feature+")";
   def possibleValues():Set[Long] = Set(0,1)
 }
 
@@ -150,6 +162,12 @@ case class BaseFeature() extends FeatureExpr {
   def possibleValues():Set[Long] = Set(1)
 }
 
+case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: FeatureExpr) extends FeatureExpr {
+	def possibleValues() = if (condition.isBase()) thenBranch.possibleValues()
+                        else if (condition.isDead()) elseBranch.possibleValues()
+                        else thenBranch.possibleValues() ++ elseBranch.possibleValues()
+    def print():String = "__IF__("+condition+","+thenBranch+","+elseBranch+")";
+}
  
 case class Not(expr:FeatureExpr)extends AbstractUnaryBoolFeatureExpr(expr, "!", !_);
 //case class Complement(expr:FeatureExpr)extends UnaryFeatureExpr(expr, "~", ~_);
