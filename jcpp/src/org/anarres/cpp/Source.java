@@ -269,7 +269,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 	protected void error(int line, int column, String msg)
 						throws LexerException {
 		if (listener != null)
-			listener.handleError(this, line, column, msg);
+			listener.handleError(this, line, column, msg, null);
 		else
 			throw new LexerException("Error at " + line + ":" + column + ": " + msg);
 	}

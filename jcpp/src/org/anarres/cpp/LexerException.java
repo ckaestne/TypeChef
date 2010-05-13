@@ -17,17 +17,26 @@
 
 package org.anarres.cpp;
 
+import de.fosd.typechef.featureexpr.FeatureExpr;
+
 /**
  * A preprocessor exception.
- *
+ * 
  * Note to users: I don't really like the name of this class. S.
  */
 public class LexerException extends Exception {
+	private FeatureExpr presenceCondition;
+
 	public LexerException(String msg) {
 		super(msg);
 	}
 
 	public LexerException(Throwable cause) {
 		super(cause);
+	}
+
+	public LexerException(String msg, FeatureExpr fullPresenceCondition) {
+		this(msg + "\nPresence Condition: " + fullPresenceCondition.toString());
+		presenceCondition = fullPresenceCondition;
 	}
 }

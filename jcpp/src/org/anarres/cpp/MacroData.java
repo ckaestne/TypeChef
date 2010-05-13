@@ -70,7 +70,6 @@ public class MacroData {
 		return source;
 	}
 
-
 	/**
 	 * Sets the arguments to this macro.
 	 */
@@ -89,7 +88,7 @@ public class MacroData {
 	 * Returns the number of arguments to this macro.
 	 */
 	public int getArgs() {
-		if (args==null)
+		if (args == null)
 			return 0;
 		return args.size();
 	}
@@ -162,7 +161,7 @@ public class MacroData {
 	}
 
 	public String toString() {
-		StringBuilder buf = new StringBuilder(/*name*/);
+		StringBuilder buf = new StringBuilder(/* name */);
 		if (args != null) {
 			buf.append('(');
 			Iterator<String> it = args.iterator();
@@ -178,15 +177,34 @@ public class MacroData {
 		if (!tokens.isEmpty()) {
 			buf.append(" => ").append(getText());
 		}
-//		buf.append(" if ").append(feature);
+		// buf.append(" if ").append(feature);
 		return buf.toString();
 	}
-//
-//	public void setFeature(FeatureExpr feature) {
-//		this.feature = feature;
-//	}
-//
-//	public FeatureExpr getFeature() {
-//		return feature;
-//	}
+
+	//
+	// public void setFeature(FeatureExpr feature) {
+	// this.feature = feature;
+	// }
+	//
+	// public FeatureExpr getFeature() {
+	// return feature;
+	// }
+
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof MacroData))
+			return super.equals(other);
+		MacroData that = (MacroData) other;
+		if (this.getTokens().size() != that.getTokens().size())
+			return false;
+		for (int i = 0; i < this.getTokens().size(); i++) {
+			Token t_this = this.getTokens().get(i);
+			Token t_that = that.getTokens().get(i);
+			if (t_this.getType() != t_that.getType()
+					|| t_this.getText() == null
+					|| !t_this.getText().equals(t_that.getText()))
+				return false;
+		}
+		return true;
+	}
 }

@@ -72,4 +72,17 @@ public class IfdefTests {
 		System.out.println(expr3.simplify());
 	}
 
+  @Test 
+	public void testRecursiveMacro() throws Exception {
+		Main.main(new String[] { "test/tc_data/recursivemacro.h","-I","test/tc_data/"// ,"--debug"
+				});
+
+	}
+  
+  @Test  
+	public void testMultiMacro() throws Exception {
+		Main.main(new String[] { "test/tc_data/multimacro.c","-I","test/tc_data/"// ,"--debug"
+				});
+
+	}
 }

@@ -57,7 +57,12 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
   def or(expr: FeatureExpr):Macro = new Macro(name, Or(feature, expr).simplify(), featureExpansions) 
   def andNot(expr: FeatureExpr):Macro = 
     new Macro(name, And(feature, Not(expr)).simplify(), featureExpansions.map(_.andNot(expr)));
-  def addExpansion(exp:MacroExpansion):Macro = new Macro(name, feature, exp :: featureExpansions)
+  def addExpansion(exp:MacroExpansion):Macro = {
+    if (featureExpansions.exists(_.getExpansion() == exp.getExpansion())) 
+    	new Macro(name, feature, featureExpansions.map(_.extend(exp)))
+    else
+    	new Macro(name, feature, exp :: featureExpansions)
+   }
 //  override def equals(that:Any) = that match { case m:Macro => m.getName() == name; case _ => false; }
   override def toString() = "#define "+name+" if "+feature.toString+" expansions "+featureExpansions
 }
@@ -66,6 +71,11 @@ class MacroExpansion(feature: FeatureExpr, expansion:Any) {
   def getFeature():FeatureExpr = feature
   def getExpansion():Any = expansion
   def andNot(expr: FeatureExpr):MacroExpansion = new MacroExpansion(And(feature,Not(expr)).simplify, expansion)
-  override def toString() = expansion.toString()+" if "+feature.toString 
+  override def toString() = expansion.toString()+" if "+feature.toString
+  //if the other has the same expansion, merge features as OR
+  def extend(other:MacroExpansion):MacroExpansion =
+    if (expansion==other.getExpansion()) 
+      new MacroExpansion(Or(feature,other.getFeature()),expansion)
+    else this
 }
 

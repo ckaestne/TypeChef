@@ -28,7 +28,10 @@ object FeatureExpr {
 sealed abstract class FeatureExpr {
   //def eval(context:FeatureProvider):Long
   //TODO simplify works only at toplevel constructs
-  def simplify():FeatureExpr = this match {
+  var simplifiedExprCache:FeatureExpr = null;
+  def simplify():FeatureExpr = { 
+    if (simplifiedExprCache==null)
+    	simplifiedExprCache = this match {
     case And(a,b) => {
       val as=a simplify;
       val bs=b simplify;
@@ -74,9 +77,17 @@ sealed abstract class FeatureExpr {
     case DeadFeature() => this
     case BaseFeature() => this
   }
+    simplifiedExprCache
+  }
   def print():String
   override def toString():String = print
-  def possibleValues():Set[Long]
+  var possibleValuesCache:Set[Long] = null
+  def possibleValues():Set[Long] = {
+    if (possibleValuesCache==null)
+      possibleValuesCache = calcPossibleValues();
+    possibleValuesCache
+  }
+  def calcPossibleValues():Set[Long]
   def isDead():Boolean = possibleValues()==Set(0)
   def isBase():Boolean = possibleValues()==Set(1)
 }
@@ -89,7 +100,7 @@ abstract class AbstractBinaryFeatureExpr(
 
   //def eval(context:FeatureProvider) = op(left.eval(context), right.eval(context))
   def print() = "("+left.print + " "+ opStr +" "+right.print+")"
-  def possibleValues():Set[Long] = {
+  def calcPossibleValues():Set[Long] = {
     var result=Set[Long]()
     for (
     	a<-left.possibleValues();
@@ -119,7 +130,7 @@ abstract class AbstractUnaryFeatureExpr(
 ) extends FeatureExpr {
   //def eval(context:FeatureProvider) = op(expr.eval(context))
   def print() = opStr +"("+expr.print+")"
-  def possibleValues():Set[Long] = {
+  def calcPossibleValues():Set[Long] = {
     var result=Set[Long]()
     for (
     	a<-expr.possibleValues()
@@ -137,33 +148,33 @@ abstract class AbstractUnaryBoolFeatureExpr(
 /** external definion of a feature (cannot be decided to Base or Dead inside this file) */
 case class DefinedExternal(feature:String)extends FeatureExpr {
   def print():String = "defined("+feature+")";
-  def possibleValues():Set[Long] = Set(0,1)
+  def calcPossibleValues():Set[Long] = Set(0,1)
 }
 
 case class CharacterLit(char:Char) extends FeatureExpr {
   def print():String = "'"+char.toString+"'";
   //def eval(context:FeatureProvider):Long = char.toLong;
-  def possibleValues():Set[Long] = Set(char.toLong)
+  def calcPossibleValues():Set[Long] = Set(char.toLong)
 }
 case class IntegerLit(num:Long) extends FeatureExpr {
   def print():String = num.toString;
   //def eval(context:FeatureProvider):Long = num;
-  def possibleValues():Set[Long] = Set(num)
+  def calcPossibleValues():Set[Long] = Set(num)
 }
 
 case class DeadFeature() extends FeatureExpr {
   def print() = "DEAD"
   //def eval(context:FeatureProvider) = 0;
-  def possibleValues():Set[Long] = Set(0)
+  def calcPossibleValues():Set[Long] = Set(0)
 }
 case class BaseFeature() extends FeatureExpr {
   def print() = "BASE"
   //def eval(context:FeatureProvider) = 1;
-  def possibleValues():Set[Long] = Set(1)
+  def calcPossibleValues():Set[Long] = Set(1)
 }
 
 case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: FeatureExpr) extends FeatureExpr {
-	def possibleValues() = if (condition.isBase()) thenBranch.possibleValues()
+	def calcPossibleValues() = if (condition.isBase()) thenBranch.possibleValues()
                         else if (condition.isDead()) elseBranch.possibleValues()
                         else thenBranch.possibleValues() ++ elseBranch.possibleValues()
     def print():String = "__IF__("+condition+","+thenBranch+","+elseBranch+")";

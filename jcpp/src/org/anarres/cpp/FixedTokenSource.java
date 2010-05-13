@@ -29,37 +29,51 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
 
-/* pp */ class FixedTokenSource extends Source {
-	private static final Token	EOF =
-			new Token(Token.EOF, "<ts-eof>");
+/* pp */class FixedTokenSource extends Source {
+	private static final Token EOF = new Token(Token.EOF, "<ts-eof>");
 
-	private List<Token>	tokens;
-	private int			idx;
+	private List<Token> tokens;
+	private int idx;
 
-	/* pp */ FixedTokenSource(Token... tokens) {
+	/* pp */FixedTokenSource(Token... tokens) {
 		this.tokens = Arrays.asList(tokens);
 		this.idx = 0;
 	}
 
-	/* pp */ FixedTokenSource(List<Token> tokens) {
+	/* pp */FixedTokenSource(List<Token> tokens) {
 		this.tokens = tokens;
 		this.idx = 0;
 	}
 
-	public Token token()
-						throws IOException,
-								LexerException {
+	public Token token() throws IOException, LexerException {
 		if (idx >= tokens.size())
 			return EOF;
 		return tokens.get(idx++);
 	}
 
 	public String toString() {
-		StringBuilder	buf = new StringBuilder();
+		StringBuilder buf = new StringBuilder();
 		buf.append("constant token stream " + tokens);
-		Source	parent = getParent();
+		Source parent = getParent();
 		if (parent != null)
 			buf.append(" in ").append(String.valueOf(parent));
 		return buf.toString();
+	}
+}
+
+/* pp */class FixedUnexpandingTokenSource extends FixedTokenSource {
+	private String macroName;
+
+	FixedUnexpandingTokenSource(List<Token> tokens,String macroName) {
+		super(tokens);
+		this.macroName=macroName;
+	}
+	@Override
+	boolean isExpanding(String macroName) {
+		if (macroName.equals(this.macroName))
+			return true;
+		// if (/* XXX this.arg == null && */ this.macro == m)
+		// return true;
+		return super.isExpanding(macroName);
 	}
 }

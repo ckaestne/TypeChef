@@ -315,10 +315,10 @@ public class Preprocessor implements Closeable {
 	protected void error(int line, int column, String msg)
 			throws LexerException {
 		if (listener != null)
-			listener.handleError(source, line, column, msg);
+			listener.handleError(source, line, column, msg, state.getFullPresenceCondition());
 		else
 			throw new LexerException("Error at " + line + ":" + column + ": "
-					+ msg);
+					+ msg, state.getFullPresenceCondition());
 	}
 
 	/**
@@ -347,7 +347,7 @@ public class Preprocessor implements Closeable {
 			listener.handleWarning(source, line, column, msg);
 		else
 			throw new LexerException("Warning at " + line + ":" + column + ": "
-					+ msg);
+					+ msg, state.getFullPresenceCondition());
 	}
 
 	/**
@@ -380,7 +380,7 @@ public class Preprocessor implements Closeable {
 		// System.out.println("Macro " + m);
 		/* Already handled as a source error in macro(). */
 		if ("defined".equals(name))
-			throw new LexerException("Cannot redefine name 'defined'");
+			throw new LexerException("Cannot redefine name 'defined'", state.getFullPresenceCondition());
 		macros = macros.define(name, feature, m);
 	}
 
@@ -703,6 +703,7 @@ public class Preprocessor implements Closeable {
 	private boolean macro(String macroName, MacroExpansion[] macroExpansions,
 			Token orig, boolean inlineCondition) throws IOException,
 			LexerException {
+		System.out.println("expanding "+macroName);
 		Token tok;
 		List<Token> originalTokens = new ArrayList<Token>();
 		originalTokens.add(orig);
@@ -896,12 +897,13 @@ public class Preprocessor implements Closeable {
 					Integer.valueOf(value)) }), true);
 		} else {
 			if (macroExpansions.length == 1)
-				push_source(new MacroTokenSource(macroName,firstMacro, args), true);
+				push_source(new MacroTokenSource(macroName, firstMacro, args),
+						true);
 			// expand all alternative macros
 			else {
 				if (inlineCondition)
-					macroExpandAlternativesInline(macroName,macroExpansions, args,
-							originalTokens);
+					macroExpandAlternativesInline(macroName, macroExpansions,
+							args, originalTokens);
 				else
 					macroExpandAlternatives(macroName, macroExpansions, args,
 							originalTokens);
@@ -911,25 +913,26 @@ public class Preprocessor implements Closeable {
 		return true;
 	}
 
-	private void macroExpandAlternatives(String macroName, MacroExpansion[] macroExpansions,
-			List<Argument> args, List<Token> originalTokens) throws IOException {
+	private void macroExpandAlternatives(String macroName,
+			MacroExpansion[] macroExpansions, List<Argument> args,
+			List<Token> originalTokens) throws IOException {
 		List<Source> resultList = new ArrayList<Source>();
 		for (int i = macroExpansions.length - 1; i >= 0; i--) {
 			FeatureExpr feature = macroExpansions[i].getFeature();
 			MacroData macroData = (MacroData) macroExpansions[i].getExpansion();
 
 			if (i == macroExpansions.length - 1)
-				resultList.add(new UnnumberedStringLexerSource("\n"
+				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ if_tokenStr(feature)));
 			else
-				resultList.add(new UnnumberedStringLexerSource("\n"
+				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ elif_tokenStr(feature)));
 			resultList.add(new MacroTokenSource(macroName, macroData, args));
 			if (i == 0) {
-				resultList.add(new UnnumberedStringLexerSource("\n"
+				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ else_tokenStr()));
-				resultList.add(new FixedTokenSource(originalTokens));
-				resultList.add(new UnnumberedStringLexerSource("\n"
+				resultList.add(new FixedUnexpandingTokenSource(originalTokens,macroName));
+				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ endif_tokenStr()));
 			}
 		}
@@ -960,21 +963,16 @@ public class Preprocessor implements Closeable {
 			FeatureExpr feature = macroExpansions[i].getFeature();
 			MacroData macroData = (MacroData) macroExpansions[i].getExpansion();
 
-			resultList.add(new UnnumberedStringLexerSource("__IF__("
+			resultList.add(new UnnumberedUnexpandingStringLexerSource("__IF__("
 					+ feature.toString() + ","));
 			resultList.add(new MacroTokenSource(macroName, macroData, args));
-			resultList.add(new UnnumberedStringLexerSource(","));
+			resultList.add(new UnnumberedUnexpandingStringLexerSource(","));
 		}
-		resultList.add(new FixedTokenSource(originalTokens) {
-			@Override
-			boolean isExpanding(String lMacroName) {
-				return lMacroName.equals(macroName);
-			}
-		});
+		resultList.add(new FixedUnexpandingTokenSource(originalTokens,macroName));
 		String closingBrackets = "";
 		for (int i = macroExpansions.length - 1; i >= 0; i--)
 			closingBrackets += ")";
-		resultList.add(new UnnumberedStringLexerSource(closingBrackets));
+		resultList.add(new UnnumberedUnexpandingStringLexerSource(closingBrackets));
 		for (int i = resultList.size() - 1; i >= 0; i--)
 			push_source(resultList.get(i), true);
 	}
@@ -1044,6 +1042,12 @@ public class Preprocessor implements Closeable {
 					case IDENTIFIER:
 						args.add(tok.getText());
 						break;
+					case ELLIPSIS:
+						tok = source_token_nonwhite();
+						if (tok.getType() != ')')
+							error(tok, "ellipsis must be on last argument");
+						m.setVariadic(true);
+						break ARGS;						
 					case NL:
 					case EOF:
 						error(tok, "Unterminated macro parameter list");
@@ -1379,7 +1383,7 @@ public class Preprocessor implements Closeable {
 	}
 
 	/* For #error and #warning. */
-	private void error(Token pptok, boolean is_error) throws IOException,
+	private void cppError(Token pptok, boolean is_error) throws IOException,
 			LexerException {
 		StringBuilder buf = new StringBuilder();
 		buf.append('#').append(pptok.getText()).append(' ');
@@ -1396,10 +1400,33 @@ public class Preprocessor implements Closeable {
 			}
 			tok = source_token();
 		}
+		buf.append("\nPresence condition: "
+				+ state.getFullPresenceCondition().toString());
 		if (is_error)
 			error(pptok, buf.toString());
 		else
 			warning(pptok, buf.toString());
+	} /* For #error and #warning. */
+
+	private Token errorToken(Token pptok, boolean is_error) throws IOException,
+			LexerException {
+		StringBuilder buf = new StringBuilder();
+		buf.append('#').append(pptok.getText()).append(' ');
+		/* Peculiar construction to ditch first whitespace. */
+		Token tok = source_token_nonwhite();
+		ERROR: for (;;) {
+			switch (tok.getType()) {
+			case NL:
+			case EOF:
+				break ERROR;
+			default:
+				buf.append(tok.getText());
+				break;
+			}
+			tok = source_token();
+		}
+		return new Token(P_LINE, pptok.getLine(), pptok.getColumn(), buf
+				.toString(), null);
 	}
 
 	/*
@@ -1957,13 +1984,17 @@ public class Preprocessor implements Closeable {
 					return include(true);
 					// break;
 
+					/**
+					 * error tokens are not processed by the jcpp but left for
+					 * the type system
+					 */
 				case PP_WARNING:
 				case PP_ERROR:
 					if (!isActive())
 						return source_skipline(false);
 					else
-						error(tok, ppcmd == PP_ERROR);
-					break;
+						// cppError(tok, ppcmd == PP_ERROR);
+						return errorToken(tok, ppcmd == PP_ERROR);
 
 				case PP_IF:
 					push_state();

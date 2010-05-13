@@ -19,6 +19,8 @@ package org.anarres.cpp;
 
 import java.io.File;
 
+import de.fosd.typechef.featureexpr.FeatureExpr;
+
 /**
  * A handler for preprocessor events, primarily errors and warnings.
  *
@@ -73,13 +75,14 @@ public class PreprocessorListener {
 	 * The behaviour of this method is defined by the
 	 * implementation. It may simply record the error message, or
 	 * it may throw an exception.
-	 */
+	 * @param featureExpr 
+	 */ 
 	public void handleError(Source source, int line, int column,
-					String msg)
+					String msg, FeatureExpr featureExpr)
 						throws LexerException {
 		errors++;
 		print(source.getName() + ":" + line + ":" + column +
-				": error: " + msg); 
+				": error: " + msg+"; condition: "+featureExpr); 
 		throw new LexerException(msg);
 	}
 
