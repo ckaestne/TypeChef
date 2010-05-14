@@ -2008,7 +2008,7 @@ public class Preprocessor implements Closeable {
 					if (tok.getType() != NL)
 						source_skipline(true);
 
-					return if_token(tok.getLine(), state.getLocalFeatureExpr());
+					return if_token(tok.getLine(), state.getLocalFeatureExpr().toCNF());
 					// break;
 
 				case PP_ELIF:
@@ -2023,7 +2023,7 @@ public class Preprocessor implements Closeable {
 						if (tok.getType() != NL)
 							source_skipline(true);
 						return elif_token(tok.getLine(), state
-								.getLocalFeatureExpr());
+								.getLocalFeatureExpr().toCNF());
 					}
 					// break;
 
@@ -2037,7 +2037,7 @@ public class Preprocessor implements Closeable {
 						state.setSawElse();
 						source_skipline(warnings.contains(Warning.ENDIF_LABELS));
 						return elif_token(tok.getLine(), state
-								.getLocalFeatureExpr());
+								.getLocalFeatureExpr().toCNF());
 					}
 					// break;
 
@@ -2057,7 +2057,7 @@ public class Preprocessor implements Closeable {
 							// return
 							source_skipline(true);
 							return if_token(tok.getLine(), state
-									.getLocalFeatureExpr());
+									.getLocalFeatureExpr().toCNF());
 						}
 					}
 					// break;
@@ -2076,7 +2076,7 @@ public class Preprocessor implements Closeable {
 							state.putLocalFeature(parseIfNDef(tok.getText()));
 							source_skipline(true);
 							return if_token(tok.getLine(), state
-									.getLocalFeatureExpr());
+									.getLocalFeatureExpr().toCNF());
 						}
 					}
 					// break;

@@ -22,6 +22,7 @@ class State {
 	}
 
 	/* pp */void setSawElse() {
+		fullPresenceConditionCache=null;
 		sawElse = true;
 	}
 
@@ -41,6 +42,7 @@ class State {
 	 * @param feature
 	 */
 	public void putLocalFeature(FeatureExpr feature) {
+		fullPresenceConditionCache=null;
 		localFeatures.add(feature);
 	}
 
@@ -66,8 +68,10 @@ class State {
 		for (int i = 0; i < localFeatures.size() - 1; i++)
 			result = new And(result, new Not(localFeatures.get(i)));
 
-		return result.simplify();
+		return result;
 	}
+
+	private FeatureExpr fullPresenceConditionCache = null;
 
 	/**
 	 * returns the full feature condition that leads to the inclusion of the
@@ -76,10 +80,13 @@ class State {
 	 * @return
 	 */
 	public FeatureExpr getFullPresenceCondition() {
-		FeatureExpr result = getLocalFeatureExpr();
-		if (parent != null)
-			result = new And(result, parent.getFullPresenceCondition());
-		return result.simplify();
+		if (fullPresenceConditionCache == null) {
+			FeatureExpr result = getLocalFeatureExpr();
+			if (parent != null)
+				result = new And(result, parent.getFullPresenceCondition());
+			fullPresenceConditionCache = result.toCNF();
+		}
+		return fullPresenceConditionCache;
 	}
 
 	/**
@@ -88,7 +95,8 @@ class State {
 	 * 
 	 * this can happen when a feature is explicitly undefined or explicitly
 	 * defined in the source code
-	 * @param context 
+	 * 
+	 * @param context
 	 * 
 	 * @return
 	 */

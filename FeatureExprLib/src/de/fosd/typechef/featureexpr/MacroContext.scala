@@ -12,14 +12,14 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
   def define(name: String, feature: FeatureExpr, other: Any):MacroContext = new MacroContext(
     knownMacros.get(name) match {
       case Some(macro) => knownMacros.update(name,macro.andNot(feature).or(feature).addExpansion(new MacroExpansion(feature, other)))
-      case None => knownMacros + ((name, new Macro(name, Or(DefinedExternal(name),feature), List(new MacroExpansion(feature, other)))))
+      case None => knownMacros + ((name, new Macro(name, new Or(DefinedExternal(name),feature), List(new MacroExpansion(feature, other)))))
     }
   )
   
   def undefine(name: String, feature: FeatureExpr):MacroContext = new MacroContext(
     knownMacros.get(name) match {
       case Some(macro) => knownMacros.update(name,macro.andNot(feature))
-      case None => knownMacros + ((name, new Macro(name, And(DefinedExternal(name),Not(feature)), List())))
+      case None => knownMacros + ((name, new Macro(name, new And(DefinedExternal(name),Not(feature)), List())))
     }
   )
   
@@ -54,9 +54,9 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
   def getOther() = featureExpansions;
   def isBase():Boolean = feature.isBase();
   def isDead():Boolean = feature.isDead();
-  def or(expr: FeatureExpr):Macro = new Macro(name, Or(feature, expr).simplify(), featureExpansions) 
+  def or(expr: FeatureExpr):Macro = new Macro(name, new Or(feature, expr).simplify(), featureExpansions) 
   def andNot(expr: FeatureExpr):Macro = 
-    new Macro(name, And(feature, Not(expr)).simplify(), featureExpansions.map(_.andNot(expr)));
+    new Macro(name, new And(feature, Not(expr)).simplify(), featureExpansions.map(_.andNot(expr)));
   def addExpansion(exp:MacroExpansion):Macro = {
     if (featureExpansions.exists(_.getExpansion() == exp.getExpansion())) 
     	new Macro(name, feature, featureExpansions.map(_.extend(exp)))
@@ -70,12 +70,12 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
 class MacroExpansion(feature: FeatureExpr, expansion:Any) {
   def getFeature():FeatureExpr = feature
   def getExpansion():Any = expansion
-  def andNot(expr: FeatureExpr):MacroExpansion = new MacroExpansion(And(feature,Not(expr)).simplify, expansion)
+  def andNot(expr: FeatureExpr):MacroExpansion = new MacroExpansion(new And(feature,Not(expr)).simplify, expansion)
   override def toString() = expansion.toString()+" if "+feature.toString
   //if the other has the same expansion, merge features as OR
   def extend(other:MacroExpansion):MacroExpansion =
     if (expansion==other.getExpansion()) 
-      new MacroExpansion(Or(feature,other.getFeature()),expansion)
+      new MacroExpansion(new Or(feature,other.getFeature()),expansion)
     else this
 }
 
