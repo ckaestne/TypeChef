@@ -56,7 +56,12 @@ public class IfdefTests {
 				});
 
 	}
-  
+  @Test 
+	public void testDeadElse() throws Exception {
+		Main.main(new String[] { "test/tc_data/deadelse.h","-I","test/tc_data/"// ,"--debug"
+				});
+
+	}
   @Test@Ignore
 	public void testIfSimplify() throws Exception {
 		FeatureExpr expr=new IfExpr(new DefinedExternal("a"),new IntegerLit(2),new IntegerLit(0));

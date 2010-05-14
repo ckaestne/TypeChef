@@ -19,7 +19,19 @@ object TestSatSolver extends Application {
 		  new Or(	DefinedExternal("a"),Not(DefinedExternal("a")) )));
  assertEquals(false, new SatSolver().isSatisfiable(
 		  new And(	DefinedExternal("a"),Not(DefinedExternal("a")) )));
- 
+
+  assertEquals(true, new SatSolver().isSatisfiable(
+		  IfExpr(	DefinedExternal("a"),DefinedExternal("a"),Not(DefinedExternal("a")) )));
+  assertEquals(true, new SatSolver().isContradiction(
+		  IfExpr(	DefinedExternal("a"),Not(DefinedExternal("a")),DefinedExternal("a")) ));
+
+  assertEquals(true, new SatSolver().isContradiction(
+		  DeadFeature()));
+ assertEquals(true, new SatSolver().isTautology(
+		  BaseFeature()))
+ assertEquals(true, new SatSolver().isTautology(
+		  IntegerLit(2)))
+
  //(A||B) && (!B|| !A)
 
 }

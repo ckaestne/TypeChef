@@ -315,7 +315,8 @@ public class Preprocessor implements Closeable {
 	protected void error(int line, int column, String msg)
 			throws LexerException {
 		if (listener != null)
-			listener.handleError(source, line, column, msg, state.getFullPresenceCondition());
+			listener.handleError(source, line, column, msg, state
+					.getFullPresenceCondition());
 		else
 			throw new LexerException("Error at " + line + ":" + column + ": "
 					+ msg, state.getFullPresenceCondition());
@@ -380,7 +381,8 @@ public class Preprocessor implements Closeable {
 		// System.out.println("Macro " + m);
 		/* Already handled as a source error in macro(). */
 		if ("defined".equals(name))
-			throw new LexerException("Cannot redefine name 'defined'", state.getFullPresenceCondition());
+			throw new LexerException("Cannot redefine name 'defined'", state
+					.getFullPresenceCondition());
 		macros = macros.define(name, feature, m);
 	}
 
@@ -497,6 +499,10 @@ public class Preprocessor implements Closeable {
 	 */
 	private boolean isActive() {
 		return state.isActive();
+	}
+
+	private boolean isParentActive() {
+		return state.parent == null || state.parent.isActive();
 	}
 
 	/* Sources */
@@ -703,7 +709,7 @@ public class Preprocessor implements Closeable {
 	private boolean macro(String macroName, MacroExpansion[] macroExpansions,
 			Token orig, boolean inlineCondition) throws IOException,
 			LexerException {
-		System.out.println("expanding "+macroName);
+		System.out.println("expanding " + macroName);
 		Token tok;
 		List<Token> originalTokens = new ArrayList<Token>();
 		originalTokens.add(orig);
@@ -896,11 +902,19 @@ public class Preprocessor implements Closeable {
 					orig.getLine(), orig.getColumn(), String.valueOf(value),
 					Integer.valueOf(value)) }), true);
 		} else {
-			if (macroExpansions.length == 1)
+			if (macroExpansions.length == 1) {// TODO what happens if the macro
+				// is not always defined? check this!
+				// currentFeature => macroFeature
+				Or commonCondition = new Or(new Not(state.getFullPresenceCondition()),
+						macroExpansions[0].getFeature());
+				if (!commonCondition.isBase())
+					System.err.println(macroName + " not expanded when "
+							+ new Not(commonCondition).simplify());
+
 				push_source(new MacroTokenSource(macroName, firstMacro, args),
 						true);
-			// expand all alternative macros
-			else {
+				// expand all alternative macros
+			} else {
 				if (inlineCondition)
 					macroExpandAlternativesInline(macroName, macroExpansions,
 							args, originalTokens);
@@ -931,7 +945,8 @@ public class Preprocessor implements Closeable {
 			if (i == 0) {
 				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ else_tokenStr()));
-				resultList.add(new FixedUnexpandingTokenSource(originalTokens,macroName));
+				resultList.add(new FixedUnexpandingTokenSource(originalTokens,
+						macroName));
 				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ endif_tokenStr()));
 			}
@@ -958,6 +973,21 @@ public class Preprocessor implements Closeable {
 			List<Token> originalTokens) throws IOException {
 		assert macroExpansions.length > 1;
 
+		// check that every variant is covered, there is no case when this macro
+		// is not replaced
+		// currentstate => (alt1 || alt2|| alt3)
+		FeatureExpr commonCondition = macroExpansions[0].getFeature();
+		for (int i = macroExpansions.length - 1; i >= 1; i--)
+			commonCondition = new Or(commonCondition, macroExpansions[i]
+					.getFeature());
+		commonCondition = new Or(new Not(state.getLocalFeatureExpr()),
+				commonCondition);
+		if (!commonCondition.isBase()) {
+			// report error
+			System.err.println(macroName + " not expanded when "
+					+ new Not(commonCondition).simplify());
+		}
+
 		List<Source> resultList = new ArrayList<Source>();
 		for (int i = macroExpansions.length - 1; i >= 0; i--) {
 			FeatureExpr feature = macroExpansions[i].getFeature();
@@ -968,11 +998,16 @@ public class Preprocessor implements Closeable {
 			resultList.add(new MacroTokenSource(macroName, macroData, args));
 			resultList.add(new UnnumberedUnexpandingStringLexerSource(","));
 		}
-		resultList.add(new FixedUnexpandingTokenSource(originalTokens,macroName));
+		// resultList.add(new FixedUnexpandingTokenSource(originalTokens,
+		// macroName));
+		resultList.add(new UnnumberedUnexpandingStringLexerSource(
+				"0 /*#ERROR not expanded macro " + macroName + " when "
+						+ new Not(commonCondition).simplify() + "*/"));
 		String closingBrackets = "";
 		for (int i = macroExpansions.length - 1; i >= 0; i--)
 			closingBrackets += ")";
-		resultList.add(new UnnumberedUnexpandingStringLexerSource(closingBrackets));
+		resultList.add(new UnnumberedUnexpandingStringLexerSource(
+				closingBrackets));
 		for (int i = resultList.size() - 1; i >= 0; i--)
 			push_source(resultList.get(i), true);
 	}
@@ -1047,7 +1082,7 @@ public class Preprocessor implements Closeable {
 						if (tok.getType() != ')')
 							error(tok, "ellipsis must be on last argument");
 						m.setVariadic(true);
-						break ARGS;						
+						break ARGS;
 					case NL:
 					case EOF:
 						error(tok, "Unterminated macro parameter list");
@@ -1408,8 +1443,8 @@ public class Preprocessor implements Closeable {
 			warning(pptok, buf.toString());
 	} /* For #error and #warning. */
 
-	private Token errorToken(Token pptok, boolean is_error) throws IOException,
-			LexerException {
+	private Token parseErrorToken(Token pptok, boolean is_error)
+			throws IOException, LexerException {
 		StringBuilder buf = new StringBuilder();
 		buf.append('#').append(pptok.getText()).append(' ');
 		/* Peculiar construction to ditch first whitespace. */
@@ -1994,21 +2029,23 @@ public class Preprocessor implements Closeable {
 						return source_skipline(false);
 					else
 						// cppError(tok, ppcmd == PP_ERROR);
-						return errorToken(tok, ppcmd == PP_ERROR);
+						return parseErrorToken(tok, ppcmd == PP_ERROR);
 
 				case PP_IF:
 					push_state();
-					if (!isActive()) {
-						return source_skipline(false);
-					}
 					expr_token = null;
 					state.putLocalFeature(parseFeatureExpr(0));
 					tok = expr_token(); /* unget */
 
-					if (tok.getType() != NL)
-						source_skipline(true);
+					if (!isParentActive()) {
+						return source_skipline(false);
+					} else {
+						if (tok.getType() != NL)
+							source_skipline(true);
 
-					return if_token(tok.getLine(), state.getLocalFeatureExpr().toCNF());
+						return if_token(tok.getLine(), state
+								.getLocalFeatureExpr().simplify());
+					}
 					// break;
 
 				case PP_ELIF:
@@ -2019,11 +2056,14 @@ public class Preprocessor implements Closeable {
 						expr_token = null;
 						// state.setActive(expr(0) != 0);
 						state.putLocalFeature(parseFeatureExpr(0));
-						tok = expr_token(); /* unget */
+						Token t = tok = expr_token(); /* unget */
 						if (tok.getType() != NL)
-							source_skipline(true);
-						return elif_token(tok.getLine(), state
-								.getLocalFeatureExpr().toCNF());
+							t = source_skipline(true);
+						if (!isParentActive())
+							return t;
+						else
+							return elif_token(tok.getLine(), state
+									.getLocalFeatureExpr().simplify());
 					}
 					// break;
 
@@ -2035,56 +2075,64 @@ public class Preprocessor implements Closeable {
 						return source_skipline(false);
 					} else {
 						state.setSawElse();
-						source_skipline(warnings.contains(Warning.ENDIF_LABELS));
-						return elif_token(tok.getLine(), state
-								.getLocalFeatureExpr().toCNF());
+						Token t = source_skipline(warnings
+								.contains(Warning.ENDIF_LABELS));
+						if (!isParentActive())
+							return t;
+						else
+							return elif_token(tok.getLine(), state
+									.getLocalFeatureExpr().simplify());
 					}
 					// break;
 
 				case PP_IFDEF:
 					push_state();
-					if (!isActive()) {
+					tok = source_token_nonwhite();
+					// System.out.println("ifdef " + tok);
+					if (tok.getType() != IDENTIFIER) {
+						error(tok, "Expected identifier, not " + tok.getText());
 						return source_skipline(false);
 					} else {
-						tok = source_token_nonwhite();
-						// System.out.println("ifdef " + tok);
-						if (tok.getType() != IDENTIFIER) {
-							error(tok, "Expected identifier, not "
-									+ tok.getText());
+						state.putLocalFeature(parseIfDef(tok.getText()));
+						// return
+
+						if (!isParentActive()) {
 							return source_skipline(false);
 						} else {
-							state.putLocalFeature(parseIfDef(tok.getText()));
-							// return
 							source_skipline(true);
 							return if_token(tok.getLine(), state
-									.getLocalFeatureExpr().toCNF());
+									.getLocalFeatureExpr().simplify());
 						}
 					}
 					// break;
 
 				case PP_IFNDEF:
 					push_state();
-					if (!isActive()) {
+					tok = source_token_nonwhite();
+					if (tok.getType() != IDENTIFIER) {
+						error(tok, "Expected identifier, not " + tok.getText());
 						return source_skipline(false);
 					} else {
-						tok = source_token_nonwhite();
-						if (tok.getType() != IDENTIFIER) {
-							error(tok, "Expected identifier, not "
-									+ tok.getText());
+						state.putLocalFeature(parseIfNDef(tok.getText()));
+						if (!isParentActive()) {
 							return source_skipline(false);
 						} else {
-							state.putLocalFeature(parseIfNDef(tok.getText()));
 							source_skipline(true);
 							return if_token(tok.getLine(), state
-									.getLocalFeatureExpr().toCNF());
+									.getLocalFeatureExpr().simplify());
 						}
 					}
 					// break;
 
 				case PP_ENDIF:
 					pop_state();
-					source_skipline(warnings.contains(Warning.ENDIF_LABELS));
-					return endif_token(tok.getLine());
+
+					Token l = source_skipline(warnings
+							.contains(Warning.ENDIF_LABELS));
+					if (!isActive())
+						return l;
+					else
+						return endif_token(tok.getLine());
 					// break;
 
 				case PP_LINE:

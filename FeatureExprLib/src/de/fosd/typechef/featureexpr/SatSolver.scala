@@ -14,17 +14,27 @@ import org.sat4j.tools.SolutionCounter;
 
 class SatSolver extends Solver {
   
+	val baseFeatureName = "BASE"
   
+	private def countClauses(expr:FeatureExpr) = {
+			var clauses=0
+			expr.accept(e=>clauses=clauses+1)
+			clauses
+		}
+
 	def isSatisfiable(expr:FeatureExpr):Boolean = {
-	    val exprs=expr.simplify.toCNF;
-	    //println ("checking "+exprs)
-		if (exprs==DeadFeature()) return false;
-		if(exprs==BaseFeature()) return true;
+		if (expr==DeadFeature())return false;
+		if (expr==BaseFeature())return true;
+	  
+		println("<toCNF "+countClauses(expr)+">")
+	    val exprs=expr.simplify.toCnfEquiSat;
+		println("</toCNF "+countClauses(exprs)+">")
 	  
 	  	val solver = SolverFactory.newDefault();
         solver.setTimeoutMs(1000);
 
         var uniqueFlagIds:Map[String,Int] = Map();
+        uniqueFlagIds=uniqueFlagIds+((baseFeatureName,uniqueFlagIds.size+1))
         exprs.accept(_ match {
         	case DefinedExternal(name:String) => 
 			    if (!uniqueFlagIds.contains(name))
@@ -39,16 +49,17 @@ class SatSolver extends Solver {
 			    expr match {
 			      case And(children) => for (child<-children)  addClause(child);
 			      case e => addClause(e);
-//			      case e=>throw new RuntimeException("expression is not in cnf "+e)
 			    }
 			  } catch {
 			    case e:ContradictionException=>return true;
 			  }
 			  false
 			}
-			 def addClause(expr:FeatureExpr):Unit = {
+		def addClause(expr:FeatureExpr):Unit = {
 			   val children=expr match {
 			     case Or(c) => c
+			     case IntegerLit(i) => if (i!=0) Set(BaseFeature()) else Set(DeadFeature())
+			     case Not(IntegerLit(i)) => if (i!=0) Set(DeadFeature()) else Set(BaseFeature())
 			     case DefinedExternal(n) => Set(DefinedExternal(n))
 			     case Not(DefinedExternal(n)) => Set(Not(DefinedExternal(n)))
 			     case e => throw new RuntimeException("expression is not in cnf "+e)
@@ -57,6 +68,8 @@ class SatSolver extends Solver {
 			  var i=0
 			  for (child<-children){
 			    child match {
+			      case BaseFeature() => clauseArray(i) = uniqueFlagIds(baseFeatureName)
+			      case DeadFeature() => clauseArray(i) = -uniqueFlagIds(baseFeatureName)
 			      case DefinedExternal(name) => clauseArray(i) = uniqueFlagIds(name)
 			      case Not(DefinedExternal(name)) => clauseArray(i) = -uniqueFlagIds(name)
 			      case e => throw new RuntimeException("expression is not in cnf "+e)
@@ -66,8 +79,13 @@ class SatSolver extends Solver {
 		      solver.addClause(new VecInt(clauseArray));
 			}
 		        
-        val contradiction=addClauses(exprs)
-        return !contradiction && solver.isSatisfiable();	  
+        try {
+        	addClause(BaseFeature())
+        	val contradiction=addClauses(exprs)
+        	return !contradiction && solver.isSatisfiable();
+        } catch {
+          case e:RuntimeException => e.printStackTrace; return true;  
+        }
 	}
  
 	

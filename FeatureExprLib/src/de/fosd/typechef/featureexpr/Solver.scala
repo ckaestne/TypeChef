@@ -5,7 +5,7 @@ trait Solver {
 	def isTautology(expr:FeatureExpr):Boolean = !isSatisfiable(Not(expr))	
 	def isContradiction(expr:FeatureExpr):Boolean = {
 	  val v = !isSatisfiable(expr)
-	  if (v) println("FOUND CONTRADICTION"+expr)
+//	  if (v) println("FOUND CONTRADICTION: "+expr)
 	  v
 	}
 }

@@ -22,7 +22,7 @@ class State {
 	}
 
 	/* pp */void setSawElse() {
-		fullPresenceConditionCache=null;
+		clearCache();
 		sawElse = true;
 	}
 
@@ -42,9 +42,11 @@ class State {
 	 * @param feature
 	 */
 	public void putLocalFeature(FeatureExpr feature) {
-		fullPresenceConditionCache=null;
+		clearCache();
 		localFeatures.add(feature);
 	}
+
+	
 
 	/**
 	 * returns the local feature expression (explicitly negating prior features
@@ -58,7 +60,7 @@ class State {
 	 */
 	public FeatureExpr getLocalFeatureExpr() {
 		if (sawElse())
-			assert !localFeatures.isEmpty();
+			assert !localFeatures.isEmpty(): "else before #if?";
 
 		if (localFeatures.isEmpty())
 			return new BaseFeature();
@@ -71,7 +73,8 @@ class State {
 		return result;
 	}
 
-	private FeatureExpr fullPresenceConditionCache = null;
+	private FeatureExpr cache_fullPresenceCondition = null;
+	private Boolean cache_isActive= null;
 
 	/**
 	 * returns the full feature condition that leads to the inclusion of the
@@ -80,13 +83,13 @@ class State {
 	 * @return
 	 */
 	public FeatureExpr getFullPresenceCondition() {
-		if (fullPresenceConditionCache == null) {
+		if (cache_fullPresenceCondition == null) {
 			FeatureExpr result = getLocalFeatureExpr();
 			if (parent != null)
 				result = new And(result, parent.getFullPresenceCondition());
-			fullPresenceConditionCache = result.toCNF();
+			cache_fullPresenceCondition = result.simplify();
 		}
-		return fullPresenceConditionCache;
+		return cache_fullPresenceCondition;
 	}
 
 	/**
@@ -101,8 +104,13 @@ class State {
 	 * @return
 	 */
 	public boolean isActive() {
-		if (getFullPresenceCondition().isDead())
-			return false;
-		return true;
+		if (cache_isActive==null) 
+			cache_isActive=new Boolean(!getFullPresenceCondition().isDead());
+		return cache_isActive.booleanValue();
+	}
+	
+	private void clearCache() {
+		cache_fullPresenceCondition=null;
+		cache_isActive=null;
 	}
 }

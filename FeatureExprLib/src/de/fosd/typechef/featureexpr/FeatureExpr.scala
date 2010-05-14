@@ -23,6 +23,9 @@ object FeatureExpr {
   def createPwr(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right,  "^", _ ^ _)
   def createShiftLeft(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "<<", _ << _)
   def createShiftRight(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, ">>", _ >> _)
+  
+  private var freshFeatureNameCounter=0 
+  def calcFreshFeatureName():String = {freshFeatureNameCounter=freshFeatureNameCounter+1; "__fresh"+freshFeatureNameCounter;}
 }
 
 sealed abstract class FeatureExpr {
@@ -62,12 +65,15 @@ sealed abstract class FeatureExpr {
 		      if (childrenFlattened.size==0) return DeadFeature()
 		      return Or(childrenFlattened)
 		    }
+		    case BinaryFeatureExpr(IfExpr(c,a,b), right, opStr, op) =>
+		      IfExpr(c,BinaryFeatureExpr(a, right, opStr, op),BinaryFeatureExpr(b, right, opStr, op)).simplify
 		    case BinaryFeatureExpr(left, right, "==",_) if left.simplify() == right.simplify() => right simplify
 		    case BinaryFeatureExpr(IntegerLit(a),IntegerLit(b), "<",_) => if (a<b) BaseFeature() else DeadFeature()
-		    case BinaryFeatureExpr(DeadFeature(),IntegerLit(b), "<",_) => if (0<b) BaseFeature() else DeadFeature()
-		    case BinaryFeatureExpr(DeadFeature(),IntegerLit(b), ">=",_) => if (0>=b) BaseFeature() else DeadFeature()
-		    case BinaryFeatureExpr(DeadFeature(),IntegerLit(b), "!=",_) => if (0!=b) BaseFeature() else DeadFeature()
-		    case BinaryFeatureExpr(DeadFeature(),IntegerLit(b), "==",_) => if (0==b) BaseFeature() else DeadFeature()
+		    case BinaryFeatureExpr(IntegerLit(a),IntegerLit(b), "<=",_) => if (a<=b) BaseFeature() else DeadFeature()
+		    case BinaryFeatureExpr(IntegerLit(a),IntegerLit(b), ">",_) => if (a>b) BaseFeature() else DeadFeature()
+		    case BinaryFeatureExpr(IntegerLit(a),IntegerLit(b), ">=",_) => if (a>=b) BaseFeature() else DeadFeature()
+		    case BinaryFeatureExpr(IntegerLit(a),IntegerLit(b), "!=",_) => if (a!=b) BaseFeature() else DeadFeature()
+		    case BinaryFeatureExpr(IntegerLit(a),IntegerLit(b), "==",_) => if (a==b) BaseFeature() else DeadFeature()
 		    case BinaryFeatureExpr(left, right, opStr, op) => BinaryFeatureExpr(left simplify, right simplify, opStr, op)
 		    case UnaryFeatureExpr(expr, opStr, op) => UnaryFeatureExpr(expr simplify, opStr, op)
 		    case Not(a)  => 
@@ -86,13 +92,9 @@ sealed abstract class FeatureExpr {
 		      else if (as==bs) as
 		      else IfExpr(c simplify, a simplify, b simplify)
 		    }
-		    case IntegerLit(1) => BaseFeature() 
-		    case IntegerLit(0) => DeadFeature()
 		    case IntegerLit(_) => this 
 		    case CharacterLit(_) => this
 		    case DefinedExternal(_) => this
-		    case DeadFeature() => this
-		    case BaseFeature() => this
 		  }
     simplifiedExprCache
   }
@@ -111,27 +113,59 @@ sealed abstract class FeatureExpr {
     this==BaseFeature() || new SatSolver().isTautology(this); 
   def accept(f:FeatureExpr=>Unit):Unit;
   
-  def toCNF():FeatureExpr =
+//  def toCNF():FeatureExpr =
+//    this.simplify match {
+//      case IfExpr(c,a,b) => new Or(new And(c,a),new And(Not(c),b)).toCNF()
+//      case Not(And(children)) => Or(children.map(Not(_).toCNF())).toCNF()
+//      case Not(Or(children)) => And(children.map(Not(_).toCNF())).toCNF()
+//      case And(children) => And(children.map(_.toCNF)).simplify
+//      case Or(children) => {
+//        val cnfchildren=children.map(_.toCNF)
+//        if (cnfchildren.exists(_.isInstanceOf[And])) {
+//	        var orClauses:Set[Or] = Set(Or(Set()))//list of Or expressions
+//	        for (val child<-cnfchildren) {
+//	          child match {
+//	            case And(innerChildren) => {
+//	              var newClauses:Set[Or] = Set()
+//	              for (val innerChild<-innerChildren)
+//	                newClauses = newClauses ++ orClauses.map(_.addChild(innerChild));
+//	              orClauses=newClauses;
+//	            }
+//	            case _ => orClauses = orClauses.map(_.addChild(child));
+//	          }
+//	        }
+//	        And(orClauses.map(a=>a)).simplify
+//        } else Or(cnfchildren)
+//      }
+//      case e => e
+//    }  
+  
+  def toCnfEquiSat():FeatureExpr =
     this.simplify match {
-      case Not(And(children)) => Or(children.map(Not(_).toCNF())).toCNF()
-      case Not(Or(children)) => And(children.map(Not(_).toCNF())).toCNF()
-      case And(children) => And(children.map(_.toCNF)).simplify
+      case IfExpr(c,a,b) => new Or(new And(c,a),new And(Not(c),b)).toCnfEquiSat()
+      case Not(And(children)) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
+      case Not(Or(children)) => And(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
+      case And(children) => And(children.map(_.toCnfEquiSat)).simplify
       case Or(children) => {
-        val cnfchildren=children.map(_.toCNF)
+        val cnfchildren=children.map(_.toCnfEquiSat)
         if (cnfchildren.exists(_.isInstanceOf[And])) {
-	        var orClauses:Set[Or] = Set(Or(Set()))//list of Or expressions
-	        for (val child<-cnfchildren) {
+	        var orClauses:Set[FeatureExpr] = Set()//list of Or expressions
+//	        val freshFeatureNames:Set[FeatureExpr]=for (child<-children) yield DefinedExternal(freshFeatureName())
+         
+	        var freshFeatureNames:Set[FeatureExpr]=Set()
+        	for (val child<-cnfchildren) {
+        	  val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
 	          child match {
 	            case And(innerChildren) => {
-	              var newClauses:Set[Or] = Set()
-	              for (val innerChild<-innerChildren)
-	                newClauses = newClauses ++ orClauses.map(_.addChild(innerChild));
-	              orClauses=newClauses;
+	              for (innerChild<-innerChildren)
+	            	  orClauses += new Or(freshFeatureName,innerChild);
 	            }
-	            case _ => orClauses = orClauses.map(_.addChild(child));
+	            case e => orClauses += new Or(freshFeatureName,e);
 	          }
+        	  freshFeatureNames += Not(freshFeatureName).simplify
 	        }
-	        And(orClauses.map(a=>a)).simplify
+        	orClauses += Or(freshFeatureNames)
+	        And(orClauses).simplify
         } else Or(cnfchildren)
       }
       case e => e
@@ -231,18 +265,10 @@ case class IntegerLit(num:Long) extends FeatureExpr {
   def accept(f:FeatureExpr=>Unit):Unit = f(this)
 }
 
-case class DeadFeature() extends FeatureExpr {
-  def print() = "DEAD"
-  //def eval(context:FeatureProvider) = 0;
-  def calcPossibleValues():Set[Long] = Set(0)
-  def accept(f:FeatureExpr=>Unit):Unit = f(this)
-}
-case class BaseFeature() extends FeatureExpr {
-  def print() = "BASE"
-  //def eval(context:FeatureProvider) = 1;
-  def calcPossibleValues():Set[Long] = Set(1)
-  def accept(f:FeatureExpr=>Unit):Unit = f(this)
-}
+case class DeadFeature() extends IntegerLit(0)
+
+case class BaseFeature() extends IntegerLit(1)
+
 
 case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: FeatureExpr) extends FeatureExpr {
 	def calcPossibleValues() = if (condition.isBase()) thenBranch.possibleValues()

@@ -42,6 +42,8 @@ object TestFeatureExpr  extends Application {
    println(exprA.simplify()+" == "+ expectedResult)
    assert(exprA.simplify()==expectedResult)
  }
+ 
+ 
  def assertCNF(exprA:FeatureExpr,expectedResult:FeatureExpr){
    val cnf=exprA.toCNF().simplify()
    println(cnf+" == "+ expectedResult.simplify())
@@ -49,7 +51,11 @@ object TestFeatureExpr  extends Application {
    assert(cnf==expectedResult.simplify())
  }
  def assertIsCNF(expr:FeatureExpr){
-   val cnf=expr.toCNF
+   _assertIsCNF(expr.toCNF);
+   _assertIsCNF(expr.toCnfEquiSat);
+ }   
+
+ def _assertIsCNF(cnf:FeatureExpr){
    println("CNF: "+cnf)
    cnf match {
      case And(children) => for (child<-children) checkLevelOr(child);
@@ -66,6 +72,7 @@ object TestFeatureExpr  extends Application {
  def checkLevelLiteral(expr:FeatureExpr) {
    expr match {
      case DefinedExternal(name) =>
+     case IntegerLit(v) =>
      case Not(DefinedExternal(name)) =>
      case e=>assert(false, expr+" is not a literal")
    }
@@ -105,5 +112,10 @@ object TestFeatureExpr  extends Application {
           new Or(new And(DefinedExternal("a2"),new Or(DefinedExternal("b"),DefinedExternal("c"))),
           new Or(DefinedExternal("a1"),DefinedExternal("c"))),
           new Or(DefinedExternal("a2"),DefinedExternal("c")))))
+ 
+ val v=new Or(DefinedExternal("a"),new And(DefinedExternal("b"),DefinedExternal("c"))).toCnfEquiSat;
+ println(v)
+ val vs=v.simplify
+ println(vs)
  
 }
