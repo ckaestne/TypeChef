@@ -32,9 +32,11 @@ public class PreprocessorListener {
 
 	private int	errors;
 	private int	warnings;
+	private Preprocessor pp;
 
-	public PreprocessorListener() {
+	public PreprocessorListener(Preprocessor pp) {
 		clear();
+		this.pp=pp;
 	}
 
 	public void clear() {
@@ -83,6 +85,7 @@ public class PreprocessorListener {
 		errors++;
 		print(source.getName() + ":" + line + ":" + column +
 				": error: " + msg+"; condition: "+featureExpr); 
+//		print(pp.debugMacros());
 		throw new LexerException(msg);
 	}
 

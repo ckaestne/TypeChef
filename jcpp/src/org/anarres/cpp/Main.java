@@ -109,7 +109,7 @@ public class Main {
 		pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addWarning(Warning.IMPORT);
-		pp.setListener(new PreprocessorListener());
+		pp.setListener(new PreprocessorListener(pp));
 		pp.addMacro("__JCPP__",new BaseFeature());
 		// pp.getSystemIncludePath().add("/usr/local/include");
 		// pp.getSystemIncludePath().add("/usr/include");
@@ -192,14 +192,21 @@ public class Main {
 			FileWriter output = new FileWriter(
 					"C:/Users/ckaestne/Documents/uni/typechef/Staging/fork.c");
 
+			TokenFilter tokenFilter=new TokenFilter();
 			for (;;) {
 				Token tok = pp.token();
 				if (tok == null)
 					break;
 				if (tok.getType() == Token.EOF)
 					break;
-				System.out.print(tok.getText());
-				output.write(tok.getText());
+				
+				tokenFilter.push(tok);
+				
+				while (tokenFilter.hasLines()){
+					String l=tokenFilter.nextLine();
+					System.out.println(l);
+					output.write(l+"\n");
+				}
 			}
 			output.close();
 			System.out.println(pp.toString());

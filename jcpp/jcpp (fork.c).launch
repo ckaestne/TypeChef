@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/jcpp/src/org/anarres/cpp/Main.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.anarres.cpp.Main"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="C:\Users\ckaestne\Documents\uni\typechef\linux-2.6.33.3\kernel\fork.c&#13;&#10;-I C:/Users/ckaestne/Documents/uni/typechef/linux-2.6.33.3/include&#13;&#10;-I C:/Users/ckaestne/Documents/uni/typechef/linux-2.6.33.3/arch/x86/include&#13;&#10;-I C:/Users/ckaestne/Documents/uni/typechef/linux-2.6.33.3/arch/x86/include/asm&#13;&#10;-I C:/Users/ckaestne/Documents/uni/typechef/gcc&#13;&#10;-D __GNUC__=3&#13;&#10;-U __INTEL_COMPILER"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jcpp"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms132m -Xmx528m -ea"/>
+</launchConfiguration>

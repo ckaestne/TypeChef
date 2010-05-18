@@ -44,7 +44,7 @@ public class ErrorTestCase extends BaseTestCase {
 		p = new Preprocessor();
 		p.addFeature(Feature.CSYNTAX);
 		p.addInput(sl);
-		pl = new PreprocessorListener();
+		pl = new PreprocessorListener(p);
 		p.setListener(pl);
 		assertNotNull("CPP has listener", p.getListener());
 		assertTrue(testError(p));

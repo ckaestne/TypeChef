@@ -7,7 +7,7 @@ before include
 
 after include
 
-#if defined(x) ^ 3>>4
+#if defined(x) && 3<<4
 #ifdef A
 	if branch 1
 	#include <in2.c>

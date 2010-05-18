@@ -44,14 +44,14 @@ object TestFeatureExpr  extends Application {
  }
  
  
- def assertCNF(exprA:FeatureExpr,expectedResult:FeatureExpr){
-   val cnf=exprA.toCNF().simplify()
-   println(cnf+" == "+ expectedResult.simplify())
-   assertIsCNF(cnf)
-   assert(cnf==expectedResult.simplify())
- }
+// def assertCNF(exprA:FeatureExpr,expectedResult:FeatureExpr){
+//   val cnf=exprA.toCNF().simplify()
+//   println(cnf+" == "+ expectedResult.simplify())
+//   assertIsCNF(cnf)
+//   assert(cnf==expectedResult.simplify())
+// }
  def assertIsCNF(expr:FeatureExpr){
-   _assertIsCNF(expr.toCNF);
+//   _assertIsCNF(expr.toCNF);
    _assertIsCNF(expr.toCnfEquiSat);
  }   
 
@@ -95,18 +95,18 @@ object TestFeatureExpr  extends Application {
  assertSimplify(new And(DefinedExternal("a"),new And(DefinedExternal("b"),DefinedExternal("c"))),And(Set(DefinedExternal("a"),DefinedExternal("b"),DefinedExternal("c"))))
  assertSimplify(new Or(DefinedExternal("a"),new Or(DefinedExternal("b"),DefinedExternal("c"))),Or(Set(DefinedExternal("a"),DefinedExternal("b"),DefinedExternal("c"))))
 
- 
- assertCNF( Not(new And(Not(new Or(DefinedExternal("a"),Not(DefinedExternal("b")))),DefinedExternal("c"))),
-		 Or(Set(DefinedExternal("a"),Not(DefinedExternal("b")),Not(DefinedExternal("c"))))
- );
- 
- assertCNF(new Or(DefinedExternal("a"),new And(DefinedExternal("b"),DefinedExternal("c"))),
- 	new And(new Or(DefinedExternal("a"),DefinedExternal("b")),new Or(DefinedExternal("a"),DefinedExternal("c"))))
- assertCNF(new Or(new And(DefinedExternal("a1"),DefinedExternal("a2")),new And(DefinedExternal("b"),DefinedExternal("c"))),
- 	And(Set(new Or(DefinedExternal("a1"),DefinedExternal("b")),
-          new Or(DefinedExternal("a2"),DefinedExternal("b")),
-          new Or(DefinedExternal("a1"),DefinedExternal("c")),
-          new Or(DefinedExternal("a2"),DefinedExternal("c")))))
+// 
+// assertCNF( Not(new And(Not(new Or(DefinedExternal("a"),Not(DefinedExternal("b")))),DefinedExternal("c"))),
+//		 Or(Set(DefinedExternal("a"),Not(DefinedExternal("b")),Not(DefinedExternal("c"))))
+// );
+// 
+// assertCNF(new Or(DefinedExternal("a"),new And(DefinedExternal("b"),DefinedExternal("c"))),
+// 	new And(new Or(DefinedExternal("a"),DefinedExternal("b")),new Or(DefinedExternal("a"),DefinedExternal("c"))))
+// assertCNF(new Or(new And(DefinedExternal("a1"),DefinedExternal("a2")),new And(DefinedExternal("b"),DefinedExternal("c"))),
+// 	And(Set(new Or(DefinedExternal("a1"),DefinedExternal("b")),
+//          new Or(DefinedExternal("a2"),DefinedExternal("b")),
+//          new Or(DefinedExternal("a1"),DefinedExternal("c")),
+//          new Or(DefinedExternal("a2"),DefinedExternal("c")))))
 
  assertIsCNF(And(Set(new Or(DefinedExternal("a1"),DefinedExternal("b")),
           new Or(new And(DefinedExternal("a2"),new Or(DefinedExternal("b"),DefinedExternal("c"))),

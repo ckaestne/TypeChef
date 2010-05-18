@@ -236,12 +236,18 @@ public final class Token {
 	public static final int P_LINE = 298;
 	/** The token type INVALID. */
 	public static final int INVALID = 299;
+	/** The token type P_LINE. */
+	public static final int P_IF= 300;
+	/** The token type P_LINE. */
+	public static final int P_ENDIF = 301;
+	/** The token type P_LINE. */
+	public static final int P_ELIF = 302;
 	/**
 	 * The number of possible semantic token types.
 	 *
 	 * Please note that not all token types below 255 are used.
 	 */
-	public static final int _TOKENS = 300;
+	public static final int _TOKENS = 303;
 
 	/** The position-less space token. */
 	/* pp */ static final Token	 space = new Token(WHITESPACE, -1, -1, " ");
@@ -326,6 +332,9 @@ public final class Token {
 		names[M_PASTE] = "M_PASTE";
 		names[M_STRING] = "M_STRING";
 		names[P_LINE] = "P_LINE";
+		names[P_IF] = "P_LINE";
+		names[P_ELIF] = "P_LINE";
+		names[P_ENDIF] = "P_LINE";
 		names[INVALID] = "INVALID";
 	}
 

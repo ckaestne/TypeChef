@@ -26,9 +26,9 @@ class SatSolver extends Solver {
 		if (expr==DeadFeature())return false;
 		if (expr==BaseFeature())return true;
 	  
-		println("<toCNF "+countClauses(expr)+">")
+//		println("<toCNF "+countClauses(expr)+">")
 	    val exprs=expr.simplify.toCnfEquiSat;
-		println("</toCNF "+countClauses(exprs)+">")
+//		println("</toCNF "+countClauses(exprs)+">")
 	  
 	  	val solver = SolverFactory.newDefault();
         solver.setTimeoutMs(1000);
@@ -68,8 +68,8 @@ class SatSolver extends Solver {
 			  var i=0
 			  for (child<-children){
 			    child match {
-			      case BaseFeature() => clauseArray(i) = uniqueFlagIds(baseFeatureName)
 			      case DeadFeature() => clauseArray(i) = -uniqueFlagIds(baseFeatureName)
+			      case IntegerLit(_) => clauseArray(i) = uniqueFlagIds(baseFeatureName)
 			      case DefinedExternal(name) => clauseArray(i) = uniqueFlagIds(name)
 			      case Not(DefinedExternal(name)) => clauseArray(i) = -uniqueFlagIds(name)
 			      case e => throw new RuntimeException("expression is not in cnf "+e)

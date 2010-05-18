@@ -43,12 +43,12 @@ import static org.anarres.cpp.Token.*;
 		add(tok);
 	}
 
-	/* pp */ void expand(Preprocessor p)
+	/* pp */ void expand(Preprocessor p, boolean inlineCppExpression)
 						throws IOException,
 								LexerException {
 		/* Cache expansion. */
 		if (expansion == null) {
-			this.expansion = p.expand(this);
+			this.expansion = p.expand(this,inlineCppExpression);
 			// System.out.println("Expanded arg " + this);
 		}
 	}
