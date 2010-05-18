@@ -95,12 +95,12 @@ sealed abstract class FeatureExpr {
   def print():String
   override def toString():String = print
   var possibleValuesCache:Set[Long] = null
-  def possibleValues():Set[Long] = {
-    if (possibleValuesCache==null)
-      possibleValuesCache = calcPossibleValues();
-    possibleValuesCache
-  }
-  def calcPossibleValues():Set[Long]
+//  def possibleValues():Set[Long] = {
+//    if (possibleValuesCache==null)
+//      possibleValuesCache = calcPossibleValues();
+//    possibleValuesCache
+//  }
+//  def calcPossibleValues():Set[Long]
   def isDead():Boolean = 
     this==DeadFeature() || new SatSolver().isContradiction(this); 
   def isBase():Boolean = 
@@ -174,14 +174,14 @@ abstract class AbstractBinaryFeatureExpr(
 
   //def eval(context:FeatureProvider) = op(left.eval(context), right.eval(context))
   def print() = "("+left.print + " "+ opStr +" "+right.print+")"
-  def calcPossibleValues():Set[Long] = {
-    var result=Set[Long]()
-    for (
-    	a<-left.possibleValues();
-        b<-right.possibleValues()
-    ) result += op(a, b)
-    result
-  }
+//  def calcPossibleValues():Set[Long] = {
+//    var result=Set[Long]()
+//    for (
+//    	a<-left.possibleValues();
+//        b<-right.possibleValues()
+//    ) result += op(a, b)
+//    result
+//  }
   def accept(f:FeatureExpr=>Unit):Unit = {
     f(this)
     left.accept(f)
@@ -220,13 +220,13 @@ abstract class AbstractUnaryFeatureExpr(
 ) extends FeatureExpr {
   //def eval(context:FeatureProvider) = op(expr.eval(context))
   def print() = opStr +"("+expr.print+")"
-  def calcPossibleValues():Set[Long] = {
-    var result=Set[Long]()
-    for (
-    	a<-expr.possibleValues()
-    ) result += op(a)
-    result
-  }
+//  def calcPossibleValues():Set[Long] = {
+//    var result=Set[Long]()
+//    for (
+//    	a<-expr.possibleValues()
+//    ) result += op(a)
+//    result
+//  }
   def accept(f:FeatureExpr=>Unit):Unit = {
     f(this)
     expr.accept(f)
@@ -245,7 +245,6 @@ case class DefinedExternal(feature:String)extends FeatureExpr {
     assert(feature!="") 
     "defined("+feature+")";
   }
-  def calcPossibleValues():Set[Long] = Set(0,1)
   def accept(f:FeatureExpr=>Unit):Unit = f(this)
 }
 
@@ -268,9 +267,9 @@ case class BaseFeature() extends IntegerLit(1)
 
 
 case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: FeatureExpr) extends FeatureExpr {
-	def calcPossibleValues() = if (condition.isBase()) thenBranch.possibleValues()
-                        else if (condition.isDead()) elseBranch.possibleValues()
-                        else thenBranch.possibleValues() ++ elseBranch.possibleValues()
+//	def calcPossibleValues() = if (condition.isBase()) thenBranch.possibleValues()
+//                        else if (condition.isDead()) elseBranch.possibleValues()
+//                        else thenBranch.possibleValues() ++ elseBranch.possibleValues()
     def print():String = "__IF__("+condition+","+thenBranch+","+elseBranch+")";
     def accept(f:FeatureExpr=>Unit):Unit = { f(this); condition.accept(f);thenBranch.accept(f);elseBranch.accept(f) }
 }
@@ -278,21 +277,21 @@ case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: Fea
 case class Not(expr:FeatureExpr)extends AbstractUnaryBoolFeatureExpr(expr, "!", !_);
 case class And(children:Set[FeatureExpr]) extends AbstractNaryBinaryFeatureExpr(children, "&&", _ && _) {
   def this(left:FeatureExpr,right:FeatureExpr) = this(Set(left,right))
-  def calcPossibleValues():Set[Long] = {
-    var result:Set[Long]=Set()
-    if (children.exists(_.calcPossibleValues().exists(_==0))) result+=0
-    if (children.forall(_.calcPossibleValues().exists(_==1))) result+=1
-    result
-  }
+//  def calcPossibleValues():Set[Long] = {
+//    var result:Set[Long]=Set()
+//    if (children.exists(_.calcPossibleValues().exists(_==0))) result+=0
+//    if (children.forall(_.calcPossibleValues().exists(_==1))) result+=1
+//    result
+//  }
 }
 case class Or(children:Set[FeatureExpr]) extends AbstractNaryBinaryFeatureExpr(children, "||", _ || _){
   def this(left:FeatureExpr,right:FeatureExpr) = this(Set(left,right))
-  def calcPossibleValues():Set[Long] = {
-    var result:Set[Long]=Set()
-    if (children.exists(_.calcPossibleValues().exists(_==1))) result+=1
-    if (children.forall(_.calcPossibleValues().exists(_==0))) result+=0
-    result
-  }
+//  def calcPossibleValues():Set[Long] = {
+//    var result:Set[Long]=Set()
+//    if (children.exists(_.calcPossibleValues().exists(_==1))) result+=1
+//    if (children.forall(_.calcPossibleValues().exists(_==0))) result+=0
+//    result
+//  }
   def addChild(child:FeatureExpr) = Or(children+child);
 }
 

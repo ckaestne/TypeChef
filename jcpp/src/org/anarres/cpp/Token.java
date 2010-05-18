@@ -332,9 +332,9 @@ public final class Token {
 		names[M_PASTE] = "M_PASTE";
 		names[M_STRING] = "M_STRING";
 		names[P_LINE] = "P_LINE";
-		names[P_IF] = "P_LINE";
-		names[P_ELIF] = "P_LINE";
-		names[P_ENDIF] = "P_LINE";
+		names[P_IF] = "P_IF";
+		names[P_ELIF] = "P_ELIF";
+		names[P_ENDIF] = "P_ENDIF";
 		names[INVALID] = "INVALID";
 	}
 
