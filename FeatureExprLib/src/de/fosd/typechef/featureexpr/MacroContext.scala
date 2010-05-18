@@ -40,7 +40,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
       case None => Array()
     }
     
-  override def toString() = { var r:String =""; for (macro<-knownMacros) r+=macro.toString + "\n"; r }
+  override def toString() = { knownMacros.values.mkString("\n") }
 }
 
 /**
@@ -64,14 +64,14 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
     	new Macro(name, feature, exp :: featureExpansions)
    }
 //  override def equals(that:Any) = that match { case m:Macro => m.getName() == name; case _ => false; }
-  override def toString() = "#define "+name+" if "+feature.toString+" expansions "+featureExpansions
+  override def toString() = "#define "+name+" if "+feature.toString+" \n\texpansions \n"+featureExpansions.mkString("\n")
 }
 
 class MacroExpansion(feature: FeatureExpr, expansion:Any) {
   def getFeature():FeatureExpr = feature
   def getExpansion():Any = expansion
   def andNot(expr: FeatureExpr):MacroExpansion = new MacroExpansion(new And(feature,Not(expr)).simplify, expansion)
-  override def toString() = expansion.toString()+" if "+feature.toString
+  override def toString() = "\t\t"+expansion.toString()+" if "+feature.toString
   //if the other has the same expansion, merge features as OR
   def extend(other:MacroExpansion):MacroExpansion =
     if (expansion==other.getExpansion()) 

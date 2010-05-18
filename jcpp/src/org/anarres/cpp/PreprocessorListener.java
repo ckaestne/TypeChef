@@ -17,26 +17,28 @@
 
 package org.anarres.cpp;
 
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A handler for preprocessor events, primarily errors and warnings.
- *
- * If no PreprocessorListener is installed in a Preprocessor, all
- * error and warning events will throw an exception. Installing a
- * listener allows more intelligent handling of these events.
+ * 
+ * If no PreprocessorListener is installed in a Preprocessor, all error and
+ * warning events will throw an exception. Installing a listener allows more
+ * intelligent handling of these events.
  */
 public class PreprocessorListener {
 
-	private int	errors;
-	private int	warnings;
+	private int errors;
+	private int warnings;
 	private Preprocessor pp;
 
 	public PreprocessorListener(Preprocessor pp) {
 		clear();
-		this.pp=pp;
+		this.pp = pp;
 	}
 
 	public void clear() {
@@ -58,34 +60,31 @@ public class PreprocessorListener {
 
 	/**
 	 * Handles a warning.
-	 *
-	 * The behaviour of this method is defined by the
-	 * implementation. It may simply record the error message, or
-	 * it may throw an exception.
+	 * 
+	 * The behaviour of this method is defined by the implementation. It may
+	 * simply record the error message, or it may throw an exception.
 	 */
-	public void handleWarning(Source source, int line, int column,
-					String msg)
-						throws LexerException {
+	public void handleWarning(Source source, int line, int column, String msg)
+			throws LexerException {
 		warnings++;
-		print(source.getName() + ":" + line + ":" + column +
-				": warning: " + msg); 
+		print(source.getName() + ":" + line + ":" + column + ": warning: "
+				+ msg);
 	}
 
 	/**
 	 * Handles an error.
-	 *
-	 * The behaviour of this method is defined by the
-	 * implementation. It may simply record the error message, or
-	 * it may throw an exception.
-	 * @param featureExpr 
-	 */ 
-	public void handleError(Source source, int line, int column,
-					String msg, FeatureExpr featureExpr)
-						throws LexerException {
+	 * 
+	 * The behaviour of this method is defined by the implementation. It may
+	 * simply record the error message, or it may throw an exception.
+	 * 
+	 * @param featureExpr
+	 */
+	public void handleError(Source source, int line, int column, String msg,
+			FeatureExpr featureExpr) throws LexerException {
 		errors++;
-		print(source.getName() + ":" + line + ":" + column +
-				": error: " + msg+"; condition: "+featureExpr); 
-//		print(pp.debugMacros());
+		print(source.getName() + ":" + line + ":" + column + ": error: " + msg
+				+ "; condition: " + featureExpr);
+		pp.debugWriteMacros();
 		throw new LexerException(msg);
 	}
 

@@ -31,7 +31,8 @@ class SatSolver extends Solver {
 //		println("</toCNF "+countClauses(exprs)+">")
 	  
 	  	val solver = SolverFactory.newDefault();
-        solver.setTimeoutMs(1000);
+//        solver.setTimeoutMs(1000);
+    	solver.setTimeoutOnConflicts(100000)
 
         var uniqueFlagIds:Map[String,Int] = Map();
         uniqueFlagIds=uniqueFlagIds+((baseFeatureName,uniqueFlagIds.size+1))

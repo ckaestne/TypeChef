@@ -13,7 +13,7 @@ public class UnnumberedUnexpandingStringLexerSource extends StringLexerSource {
 	}
 	
 	@Override
-	boolean isExpanding(String macroName) {
-		return true;
+	boolean mayExpand(String macroName) {
+		return false;
 	}
 }

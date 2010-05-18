@@ -20,6 +20,7 @@ import de.fosd.typechef.featureexpr.BaseFeature;
 
 public class JcppFileTest {
 
+	private Preprocessor pp;
 	protected void testFile(String filename) throws LexerException, IOException {
 		testFile(filename, false);
 	}
@@ -50,7 +51,7 @@ public class JcppFileTest {
 			if (line.startsWith("!")) {
 				String substring = line.substring(2);
 				if (output.toString().contains(substring)) {
-					System.out.println(output);
+					System.err.println(output);
 					Assert
 							.fail(substring
 									+ " found but not expected in output");
@@ -70,7 +71,7 @@ public class JcppFileTest {
 				}
 
 				if (expected != found) {
-					System.out.println(output);
+					failOutput(output);
 					Assert.fail(substring + " found " + found
 							+ " times, but expected " + expected + " times");
 				}
@@ -81,16 +82,25 @@ public class JcppFileTest {
 				String content = output.toString();
 				int idx = content.indexOf(substring);
 				if (idx < 0) {
-					System.out.println(output);
+					failOutput(output);
 					Assert.fail(substring + " not found but expected");
 				}
+			}
+			if (line.trim().equals("print")) {
+				System.out.println(output.toString());
 			}
 		}
 	}
 
+	private void failOutput(StringBuffer output) {
+		System.err.println(output);
+		if (pp!=null)
+		System.err.println(pp.debugMacros());
+	}
+
 	private StringBuffer parse(String filename, boolean debug, String folder)
 			throws LexerException, IOException {
-		Preprocessor pp = new Preprocessor();
+		pp = new Preprocessor();
 		pp.addFeature(Feature.DIGRAPHS);
 		pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
@@ -130,5 +140,17 @@ public class JcppFileTest {
 	@Test
 	public void testIncludeGuard() throws LexerException, IOException {
 		testFile("in1.c");
+	}
+	@Test
+	public void testUnlikely() throws LexerException, IOException {
+		testFile("unlikely.h");
+	}
+	@Test
+	public void testByteOrder() throws LexerException, IOException {
+		testFile("byteorder.h");
+	}
+	@Test
+	public void testAlternativeMacros() throws LexerException, IOException {
+		testFile("macro2.c");
 	}
 }

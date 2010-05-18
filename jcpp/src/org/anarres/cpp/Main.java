@@ -109,8 +109,9 @@ public class Main {
 		pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addWarning(Warning.IMPORT);
+		pp.addWarning(Warning.UNDEF);
 		pp.setListener(new PreprocessorListener(pp));
-		pp.addMacro("__JCPP__",new BaseFeature());
+		pp.addMacro("__JCPP__", new BaseFeature());
 		// pp.getSystemIncludePath().add("/usr/local/include");
 		// pp.getSystemIncludePath().add("/usr/include");
 		// pp.getFrameworksPath().add("/System/Library/Frameworks");
@@ -125,8 +126,8 @@ public class Main {
 				if (idx == -1)
 					pp.addMacro(arg, new BaseFeature());
 				else
-					pp.addMacro(arg.substring(0, idx), new BaseFeature(),
-							arg.substring(idx + 1));
+					pp.addMacro(arg.substring(0, idx), new BaseFeature(), arg
+							.substring(idx + 1));
 				break;
 			case 'U':
 				pp.removeMacro(g.getOptarg(), new BaseFeature());
@@ -192,20 +193,20 @@ public class Main {
 			FileWriter output = new FileWriter(
 					"C:/Users/ckaestne/Documents/uni/typechef/Staging/fork.c");
 
-			TokenFilter tokenFilter=new TokenFilter();
+			TokenFilter tokenFilter = new TokenFilter();
 			for (;;) {
 				Token tok = pp.token();
 				if (tok == null)
 					break;
 				if (tok.getType() == Token.EOF)
 					break;
-				
+
 				tokenFilter.push(tok);
-				
-				while (tokenFilter.hasLines()){
-					String l=tokenFilter.nextLine();
+
+				while (tokenFilter.hasLines()) {
+					String l = tokenFilter.nextLine();
 					System.out.println(l);
-					output.write(l+"\n");
+					output.write(l + "\n");
 				}
 			}
 			output.close();
@@ -218,6 +219,7 @@ public class Main {
 				s = s.getParent();
 			}
 		}
+		pp.debugWriteMacros();
 
 	}
 

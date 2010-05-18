@@ -49,16 +49,16 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 	}
 
 	@Override
-	/* pp */boolean isExpanding(String macroName) {
+	/* pp */boolean mayExpand(String macroName) {
 		/*
 		 * When we are expanding an arg, 'this' macro is not being expanded, and
 		 * thus we may re-expand it.
 		 */
 		if (macroName.equals(this.macroName))
-			return true;
+			return false;
 		// if (/* XXX this.arg == null && */ this.macro == m)
 		// return true;
-		return super.isExpanding(macroName);
+		return super.mayExpand(macroName);
 	}
 
 	/* XXX Called from Preprocessor [ugly]. */
@@ -101,7 +101,7 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 		str.append("\"");
 		// System.out.println("Escape: " + buf + " -> " + str);
 		return new Token(STRING, pos.getLine(), pos.getColumn(),
-				str.toString(), buf.toString());
+				str.toString(), buf.toString(),this);
 	}
 
 	/*
@@ -178,7 +178,7 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 			}
 
 			if (!tokens.hasNext())
-				return new Token(EOF, -1, -1, ""); /* End of macro. */
+				return new Token(EOF, -1, -1, "",this); /* End of macro. */
 			Token tok = tokens.next();
 			int idx;
 			switch (tok.getType()) {
@@ -203,10 +203,10 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
-		// buf.append("expansion of ").append(macro.getName());
+		buf=buf.append("expansion of ").append(macroName);
 		Source parent = getParent();
 		if (parent != null)
-			buf.append(" in ").append(String.valueOf(parent));
+			buf=buf.append(" in ").append(String.valueOf(parent));
 		return buf.toString();
 	}
 }

@@ -31,30 +31,32 @@ public final class Token {
 	private int		column;
 	private Object	value;
 	private String	text;
+	private Source source;//for debugging purposes only
 
 	public Token(int type, int line, int column,
-					String text, Object value) {
+					String text, Object value, Source source) {
 		this.type = type;
 		this.line = line;
 		this.column = column;
 		this.text = text;
 		this.value = value;
+		this.source=source;
 	}
 
-	public Token(int type, int line, int column, String text) {
-		this(type, line, column, text, null);
+	public Token(int type, int line, int column, String text, Source source) {
+		this(type, line, column, text, null, source);
 	}
 
-	/* pp */ Token(int type, String text, Object value) {
-		this(type, -1, -1, text, value);
+	/* pp */ Token(int type, String text, Object value, Source source) {
+		this(type, -1, -1, text, value, source);
 	}
 
-	/* pp */ Token(int type, String text) {
-		this(type, text, null);
+	/* pp */ Token(int type, String text, Source source) {
+		this(type, text, null,source);
 	}
 
-	/* pp */ Token(int type) {
-		this(type, type < _TOKENS ? texts[type] : "TOK" + type);
+	/* pp */ Token(int type, Source source) {
+		this(type, type < _TOKENS ? texts[type] : "TOK" + type,source);
 	}
 
 	/**
@@ -250,7 +252,7 @@ public final class Token {
 	public static final int _TOKENS = 303;
 
 	/** The position-less space token. */
-	/* pp */ static final Token	 space = new Token(WHITESPACE, -1, -1, " ");
+	/* pp */ static final Token	 space = new Token(WHITESPACE, -1, -1, " ",null);
 
 	private static final String[] names = new String[_TOKENS];
 	private static final String[] texts = new String[_TOKENS];
