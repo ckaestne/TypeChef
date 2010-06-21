@@ -29,10 +29,14 @@ object FeatureExpr {
 }
 
 sealed abstract class FeatureExpr {
-  var simplifiedExprCache:FeatureExpr = null;
+  //optimization to not simplify the same expression over and over again
+  private var cache_simplifiedExpr:FeatureExpr = null;
+  private var isSimplified:Boolean = false
+  private def setSimplified():FeatureExpr = { isSimplified=true; return this }
   def simplify():FeatureExpr = { 
-    if (simplifiedExprCache==null)
-    	simplifiedExprCache = this match {
+    if (isSimplified) return this
+    if (cache_simplifiedExpr==null) {
+    	cache_simplifiedExpr = this match {
 		    case And(children) => {
 		      val childrenSimplified = children.map(_.simplify()) - BaseFeature();
 		      var childrenFlattened:Set[FeatureExpr] = Set()
@@ -72,25 +76,27 @@ sealed abstract class FeatureExpr {
 		    case BinaryFeatureExpr(left, right, opStr, op) => BinaryFeatureExpr(left simplify, right simplify, opStr, op)
 		    case UnaryFeatureExpr(expr, opStr, op) => UnaryFeatureExpr(expr simplify, opStr, op)
 		    case Not(a)  => 
-		      a.simplify match {
-		      	case IntegerLit(v) => if (v==0) BaseFeature() else DeadFeature()
-		      	case Not(e) => e
-		      	case e=>Not(e)
-		      }
+			      a.simplify match {
+				      	case IntegerLit(v) => if (v==0) BaseFeature() else DeadFeature()
+				      	case Not(e) => e
+				      	case e=>Not(e)
+			      }
 		    case IfExpr(c,a,b) => {
-		      val as=a simplify;
-		      val bs=b simplify;
-		      val cs=c simplify;
-		      if (cs.isBase()) as
-		      else if (cs.isDead()) bs
-		      else if (as==bs) as
-		      else IfExpr(c simplify, a simplify, b simplify)
+			      val as=a simplify;
+			      val bs=b simplify;
+			      val cs=c simplify;
+			      if (cs.isBase()) as
+			      else if (cs.isDead()) bs
+			      else if (as==bs) as
+			      else IfExpr(c simplify, a simplify, b simplify)
 		    }
 		    case IntegerLit(_) => this 
 		    case CharacterLit(_) => this
 		    case DefinedExternal(_) => this
-		  }
-    simplifiedExprCache
+    	}
+    	cache_simplifiedExpr = cache_simplifiedExpr.setSimplified
+    }
+    return cache_simplifiedExpr
   }
   def print():String
   override def toString():String = print
@@ -101,10 +107,25 @@ sealed abstract class FeatureExpr {
 //    possibleValuesCache
 //  }
 //  def calcPossibleValues():Set[Long]
-  def isDead():Boolean = 
-    this==DeadFeature() || new SatSolver().isContradiction(this); 
-  def isBase():Boolean = 
-    this==BaseFeature() || new SatSolver().isTautology(this); 
+  var cached_isDead:Option[Boolean] = None
+  var cached_isBase:Option[Boolean] = None
+  def isDead():Boolean = {
+	  if (cached_isBase == Some(true)) return false
+	  if (cached_isDead.isEmpty)
+		  cached_isDead=Some(this==DeadFeature() || new SatSolver().isContradiction(this))
+	  if (cached_isDead.get)
+	 	  cache_simplifiedExpr=DeadFeature();
+      cached_isDead.get
+  }
+  def isBase():Boolean = {
+	  if (cached_isDead == Some(true)) return false
+	  if (cached_isBase.isEmpty)
+	 	  cached_isBase = Some(this==BaseFeature() || new SatSolver().isTautology(this))
+	  if (cached_isBase.get)
+	 	  cache_simplifiedExpr=BaseFeature();
+	  cached_isBase.get
+  }
+    
   def accept(f:FeatureExpr=>Unit):Unit;
   
 //  def toCNF():FeatureExpr =
@@ -138,7 +159,7 @@ sealed abstract class FeatureExpr {
     this.simplify match {
       case IfExpr(c,a,b) => new Or(new And(c,a),new And(Not(c),b)).toCnfEquiSat()
       case Not(And(children)) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
-      case Not(Or(children)) => And(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
+      case Not(Or(children)) => And(children.map(Not(_).toCnfEquiSat())).simplify
       case And(children) => And(children.map(_.toCnfEquiSat)).simplify
       case Or(children) => {
         val cnfchildren=children.map(_.toCnfEquiSat)
@@ -248,7 +269,7 @@ case class DefinedExternal(feature:String)extends FeatureExpr {
   def accept(f:FeatureExpr=>Unit):Unit = f(this)
 }
 
-case class CharacterLit(char:Char) extends FeatureExpr {
+case class CharacterLit(char:Int) extends FeatureExpr {
   def print():String = "'"+char.toString+"'";
   //def eval(context:FeatureProvider):Long = char.toLong;
   def calcPossibleValues():Set[Long] = Set(char.toLong)

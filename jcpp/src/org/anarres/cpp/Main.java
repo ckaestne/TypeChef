@@ -201,13 +201,15 @@ public class Main {
 				if (tok.getType() == Token.EOF)
 					break;
 
-				tokenFilter.push(tok);
+//				tokenFilter.push(tok);
 
-				while (tokenFilter.hasLines()) {
-					String l = tokenFilter.nextLine();
-					System.out.println(l);
-					output.write(l + "\n");
-				}
+//				while (tokenFilter.hasLines()) {
+//					String l = tokenFilter.nextLine();
+//					System.out.println(l);
+//					output.write(l + "\n");
+//				}
+				System.out.print(tok.getText());
+				output.write(tok.getText());
 			}
 			output.close();
 			System.out.println(pp.toString());

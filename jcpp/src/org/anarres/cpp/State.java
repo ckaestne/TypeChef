@@ -1,10 +1,12 @@
 package org.anarres.cpp;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.fosd.typechef.featureexpr.*;
+import de.fosd.typechef.featureexpr.And;
+import de.fosd.typechef.featureexpr.BaseFeature;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.Not;
 
 class State {
 	List<FeatureExpr> localFeatures = new LinkedList<FeatureExpr>();

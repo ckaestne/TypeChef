@@ -33,7 +33,7 @@ public class IfdefTests {
 	public void testFeatureExprLib(){
 //		Defined$ d=Defined$.MODULE$;
 //		System.out.println(new FeatureExpr().test());
-		System.out.println(new Not(new FeatureExpr$().createDefined("test",new MacroContext())));
+		System.out.println(new Not(FeatureExpr$.MODULE$.createDefined("test",new MacroContext())));
 	}
 	
 	@Test @Ignore
@@ -72,7 +72,7 @@ public class IfdefTests {
 		System.out.println(expr2);
 		System.out.println(expr2.simplify());
 
-		FeatureExpr expr3=new FeatureExpr$().createEquals(expr2,new IntegerLit(1));
+		FeatureExpr expr3=FeatureExpr$.MODULE$.createEquals(expr2,new IntegerLit(1));
 		System.out.println(expr3);
 		System.out.println(expr3.simplify());
 	}

@@ -1543,13 +1543,13 @@ public class Preprocessor implements Closeable {
 			break;
 
 		case '~':
-			lhs = new FeatureExpr$().createComplement(parseFeatureExpr(11));
+			lhs = FeatureExpr$.MODULE$.createComplement(parseFeatureExpr(11));
 			break;
 		case '!':
 			lhs = new Not(parseFeatureExpr(11));
 			break;
 		case '-':
-			lhs = new FeatureExpr$().createNeg(parseFeatureExpr(11));
+			lhs = FeatureExpr$.MODULE$.createNeg(parseFeatureExpr(11));
 			break;
 		case INTEGER:
 			lhs = new IntegerLit(((Number) tok.getValue()).longValue());
@@ -1594,7 +1594,7 @@ public class Preprocessor implements Closeable {
 			// System.out.println("rhs token is " + rhs);
 			switch (op.getType()) {
 			case '/':
-				lhs = new FeatureExpr$().createDivision(lhs, rhs);
+				lhs = FeatureExpr$.MODULE$.createDivision(lhs, rhs);
 				// if (rhs == 0) {
 				// error(op, "Division by zero");
 				// lhs = 0;
@@ -1603,7 +1603,7 @@ public class Preprocessor implements Closeable {
 				// }
 				break;
 			case '%':
-				lhs = new FeatureExpr$().createModulo(lhs, rhs);
+				lhs = FeatureExpr$.MODULE$.createModulo(lhs, rhs);
 				// if (rhs == 0) {
 				// error(op, "Modulus by zero");
 				// lhs = 0;
@@ -1612,62 +1612,62 @@ public class Preprocessor implements Closeable {
 				// }
 				break;
 			case '*':
-				lhs = new FeatureExpr$().createMult(lhs, rhs);
+				lhs = FeatureExpr$.MODULE$.createMult(lhs, rhs);
 				break;
 			case '+':
-				lhs = new FeatureExpr$().createPlus(lhs, rhs);
+				lhs = FeatureExpr$.MODULE$.createPlus(lhs, rhs);
 				break;
 			case '-':
-				lhs = new FeatureExpr$().createMinus(lhs, rhs);
+				lhs = FeatureExpr$.MODULE$.createMinus(lhs, rhs);
 				break;
 			case '<':
-				lhs = new FeatureExpr$().createLessThan(lhs, rhs);
+				lhs = FeatureExpr$.MODULE$.createLessThan(lhs, rhs);
 				// lhs < rhs ? 1 : 0;
 				break;
 			case '>':
-				lhs = new FeatureExpr$().createGreaterThan(lhs, rhs);// lhs >
+				lhs = FeatureExpr$.MODULE$.createGreaterThan(lhs, rhs);// lhs >
 				// rhs ?
 				// 1 : 0;
 				break;
 			case '&':
-				lhs = new FeatureExpr$().createBitAnd(lhs, rhs);// lhs & rhs;
+				lhs = FeatureExpr$.MODULE$.createBitAnd(lhs, rhs);// lhs & rhs;
 				break;
 			case '^':
-				lhs = new FeatureExpr$().createPwr(lhs, rhs);// lhs ^ rhs;
+				lhs = FeatureExpr$.MODULE$.createPwr(lhs, rhs);// lhs ^ rhs;
 				break;
 			case '|':
-				lhs = new FeatureExpr$().createBitOr(lhs, rhs);// lhs | rhs;
+				lhs = FeatureExpr$.MODULE$.createBitOr(lhs, rhs);// lhs | rhs;
 				break;
 
 			case LSH:
-				lhs = new FeatureExpr$().createShiftLeft(lhs, rhs);// lhs <<
+				lhs = FeatureExpr$.MODULE$.createShiftLeft(lhs, rhs);// lhs <<
 				// rhs;
 				break;
 			case RSH:
-				lhs = new FeatureExpr$().createShiftRight(lhs, rhs);// lhs >>
+				lhs = FeatureExpr$.MODULE$.createShiftRight(lhs, rhs);// lhs >>
 				// rhs;
 				break;
 			case LE:
-				lhs = new FeatureExpr$().createLessThanEquals(lhs, rhs);// lhs
+				lhs = FeatureExpr$.MODULE$.createLessThanEquals(lhs, rhs);// lhs
 				// <=
 				// rhs ?
 				// 1 :
 				// 0;
 				break;
 			case GE:
-				lhs = new FeatureExpr$().createGreaterThanEquals(lhs, rhs);// lhs
+				lhs = FeatureExpr$.MODULE$.createGreaterThanEquals(lhs, rhs);// lhs
 				// >=
 				// rhs ?
 				// 1 :
 				// 0;
 				break;
 			case EQ:
-				lhs = new FeatureExpr$().createEquals(lhs, rhs);// lhs == rhs ?
+				lhs = FeatureExpr$.MODULE$.createEquals(lhs, rhs);// lhs == rhs ?
 				// 1 :
 				// 0;
 				break;
 			case NE:
-				lhs = new FeatureExpr$().createNotEquals(lhs, rhs);// lhs != rhs
+				lhs = FeatureExpr$.MODULE$.createNotEquals(lhs, rhs);// lhs != rhs
 				// ?
 				// 1 : 0;
 				break;
@@ -1715,7 +1715,7 @@ public class Preprocessor implements Closeable {
 			lhs = new DeadFeature();
 		} else
 			// System.out.println("Found macro");
-			lhs = new FeatureExpr$().createDefined(la.getText(), macros);
+			lhs = FeatureExpr$.MODULE$.createDefined(la.getText(), macros);
 
 		if (paren) {
 			la = source_token_nonwhite();
@@ -2129,7 +2129,7 @@ public class Preprocessor implements Closeable {
 	}
 
 	private FeatureExpr parseIfDef(String feature) {
-		return new FeatureExpr$().createDefined(feature, macros);
+		return FeatureExpr$.MODULE$.createDefined(feature, macros);
 	}
 
 	private Token token_nonwhite() throws IOException, LexerException {

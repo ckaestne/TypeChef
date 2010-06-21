@@ -26,9 +26,9 @@ class SatSolver extends Solver {
 		if (expr==DeadFeature())return false;
 		if (expr==BaseFeature())return true;
 	  
-//		println("<toCNF "+countClauses(expr)+">")
+		println("<toCNF "+countClauses(expr)+">")
 	    val exprs=expr.simplify.toCnfEquiSat;
-//		println("</toCNF "+countClauses(exprs)+">")
+		println("</toCNF "+countClauses(exprs)+">")
 	  
 	  	val solver = SolverFactory.newDefault();
 //        solver.setTimeoutMs(1000);

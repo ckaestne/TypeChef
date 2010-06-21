@@ -152,5 +152,8 @@ public class JcppFileTest {
 	@Test
 	public void testAlternativeMacros() throws LexerException, IOException {
 		testFile("macro2.c");
+	}	@Test
+	public void testIncludeGuards() throws LexerException, IOException {
+		testFile("includeguards.c");
 	}
 }
