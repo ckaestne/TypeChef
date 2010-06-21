@@ -18,6 +18,12 @@ import org.junit.Test;
 
 import de.fosd.typechef.featureexpr.BaseFeature;
 
+/**
+ * test output with .check files
+ * 
+ * @author kaestner
+ *
+ */
 public class JcppFileTest {
 
 	private Preprocessor pp;

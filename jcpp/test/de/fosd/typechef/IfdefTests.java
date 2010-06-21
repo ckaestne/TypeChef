@@ -7,7 +7,12 @@ import scala.actors.threadpool.Arrays;
 
 import de.fosd.typechef.featureexpr.*;
 
-
+/**
+ * isolated (often unmaintained) tests of the parser
+ * 
+ * @author kaestner
+ *
+ */
 public class IfdefTests {
 
 	@Test @Ignore

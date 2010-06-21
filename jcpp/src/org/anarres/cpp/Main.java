@@ -191,9 +191,9 @@ public class Main {
 
 		try {
 			FileWriter output = new FileWriter(
-					"C:/Users/ckaestne/Documents/uni/typechef/Staging/fork.c");
+					"f:/rosebank/Documents/uni/typechef/Staging/fork.c");
 
-			TokenFilter tokenFilter = new TokenFilter();
+//			TokenFilter tokenFilter = new TokenFilter();
 			for (;;) {
 				Token tok = pp.token();
 				if (tok == null)
