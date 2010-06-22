@@ -93,7 +93,7 @@ public class CppReader extends Reader {
 			if (token == null)
 				return false;
 			while (idx >= token.length()) {
-				Token	tok = cpp.token();
+				Token	tok = cpp.getNextToken();
 				switch (tok.getType()) {
 					case EOF:
 						token = null;

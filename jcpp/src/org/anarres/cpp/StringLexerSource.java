@@ -69,4 +69,8 @@ public class StringLexerSource extends LexerSource {
 	String debug_getContent() {
 		return string;
 	}
+	
+	public String getName(){
+		return "string input";
+	}
 }

@@ -48,7 +48,7 @@ import static org.anarres.cpp.Token.*;
 								LexerException {
 		/* Cache expansion. */
 		if (expansion == null) {
-			this.expansion = p.expand(this,inlineCppExpression);
+			this.expansion = p.macro_expandArgument(this,inlineCppExpression);
 			// System.out.println("Expanded arg " + this);
 		}
 	}

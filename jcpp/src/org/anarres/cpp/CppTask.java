@@ -88,7 +88,7 @@ public class CppTask extends Task {
 			cpp.addInput(this.input);
 			writer = new FileWriter(this.output);
 			for (;;) {
-				Token	tok = cpp.token();
+				Token	tok = cpp.getNextToken();
 				if (tok != null && tok.getType() == Token.EOF)
 					break;
 				writer.write(tok.getText());

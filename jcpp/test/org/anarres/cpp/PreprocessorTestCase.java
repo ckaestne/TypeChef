@@ -125,7 +125,7 @@ testInput("one /* one */\n", NL, I("one"), WHITESPACE, CCOMMENT);
 
 		Token	t;
 		do {
-			t = p.token();
+			t = p.getNextToken();
 			System.out.println("Remaining token " + t);
 		} while(t.getType() != EOF);
 	}
@@ -136,7 +136,7 @@ testInput("one /* one */\n", NL, I("one"), WHITESPACE, CCOMMENT);
 		writer.write(in);
 		writer.flush();
 		for (int i = 0; i < out.length; i++) {
-			Token	t = p.token();
+			Token	t = p.getNextToken();
 			System.out.println(t);
 			Object	v = out[i];
 			if (v instanceof String) {

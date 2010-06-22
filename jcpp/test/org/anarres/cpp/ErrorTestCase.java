@@ -12,7 +12,7 @@ public class ErrorTestCase extends BaseTestCase {
 						throws LexerException,
 								IOException {
 		for (;;) {
-			Token	tok = p.token();
+			Token	tok = p.getNextToken();
 			if (tok.getType() == EOF)
 				break;
 			if (tok.getType() == INVALID)

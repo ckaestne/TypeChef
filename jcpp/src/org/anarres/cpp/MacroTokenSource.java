@@ -50,15 +50,19 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 
 	@Override
 	/* pp */boolean mayExpand(String macroName) {
-		/*
-		 * When we are expanding an arg, 'this' macro is not being expanded, and
-		 * thus we may re-expand it.
-		 */
-		if (macroName.equals(this.macroName))
-			return false;
-		// if (/* XXX this.arg == null && */ this.macro == m)
-		// return true;
-		return super.mayExpand(macroName);
+//		//ChK: according to spec, an expanded macro is not expanded again
+		return false;
+		
+		
+//		/*
+//		 * When we are expanding an arg, 'this' macro is not being expanded, and
+//		 * thus we may re-expand it.
+//		 */
+//		if (macroName.equals(this.macroName))
+//			return false;
+//		// if (/* XXX this.arg == null && */ this.macro == m)
+//		// return true;
+//		return super.mayExpand(macroName);
 	}
 
 	/* XXX Called from Preprocessor [ugly]. */

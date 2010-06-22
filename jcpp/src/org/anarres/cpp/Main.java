@@ -195,7 +195,7 @@ public class Main {
 
 //			TokenFilter tokenFilter = new TokenFilter();
 			for (;;) {
-				Token tok = pp.token();
+				Token tok = pp.getNextToken();
 				if (tok == null)
 					break;
 				if (tok.getType() == Token.EOF)
