@@ -40,7 +40,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
       case None => Array()
     }
     
-  override def toString() = { knownMacros.values.mkString("\n") }
+  override def toString() = { knownMacros.values.mkString("\n\n\n") }
 }
 
 /**

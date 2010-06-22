@@ -64,4 +64,9 @@ public class StringLexerSource extends LexerSource {
 	public String toString() {
 		return "string literal: "+string;
 	}
+	
+	@Override
+	String debug_getContent() {
+		return string;
+	}
 }

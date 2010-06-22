@@ -41,7 +41,7 @@ public class SourceManager {
 	 * @see #push_source(Source,boolean)
 	 * @see #pop_source()
 	 */
-	protected Source getSource() {
+	 Source getSource() {
 		return source;
 	}
 
@@ -164,6 +164,7 @@ public class SourceManager {
 				tmpSrc = tmpSrc.getParent();
 			}
 			pp.debugFile.write(tok.getText() + "\n");
+			pp.debugFile.flush();
 			return tok;
 		}
 	}
@@ -182,6 +183,17 @@ public class SourceManager {
 		for (Source s : inputs) {
 			s.close();
 		}
+	}
+
+	String debug_sourceDelta(Source debugOrigSource) {
+		String newSources="";
+		Source _source = getSource();
+		while (_source!=debugOrigSource && _source!=null){
+			newSources=newSources+", "+_source.debug_getContent();
+			_source=_source.getSibling();
+		}
+		
+		return "["+newSources+"]";
 	}
 
 }

@@ -61,6 +61,11 @@ import java.util.Iterator;
 			buf.append(" in ").append(String.valueOf(parent));
 		return buf.toString();
 	}
+
+	@Override
+	String debug_getContent() {
+		return tokens.toString();
+	}
 }
 
 /* pp */class FixedUnexpandingTokenSource extends FixedTokenSource {

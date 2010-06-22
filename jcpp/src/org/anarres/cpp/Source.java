@@ -224,8 +224,8 @@ public abstract class Source implements Iterable<Token>, Closeable {
 				 * skipline context.
 				 */
 				/* XXX Are we sure about this? */
-				warning(tok.getLine(), tok.getColumn(),
-						"No newline before end of file");
+//				warning(tok.getLine(), tok.getColumn(),
+//						"No newline before end of file");
 				return new Token(NL, tok.getLine(), tok.getColumn(), "\n", this);
 				// return tok;
 			case NL:
@@ -271,5 +271,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 	public Source getSibling() {
 		return sibling;
 	}
+
+	abstract String debug_getContent();
 
 }

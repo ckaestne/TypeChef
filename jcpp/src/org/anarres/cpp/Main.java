@@ -221,7 +221,7 @@ public class Main {
 				s = s.getParent();
 			}
 		}
-		pp.debugWriteMacros();
+//		pp.debugWriteMacros();
 
 	}
 

@@ -51,4 +51,9 @@ import static org.anarres.cpp.Token.*;
 	public String toString() {
 		return getParent().toString();
 	}
+
+	@Override
+	String debug_getContent() {
+		return "";
+	}
 }

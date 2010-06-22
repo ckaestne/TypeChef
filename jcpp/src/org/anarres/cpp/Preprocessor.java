@@ -49,11 +49,10 @@ import static org.anarres.cpp.Token.NL;
 import static org.anarres.cpp.Token.OR_EQ;
 import static org.anarres.cpp.Token.PASTE;
 import static org.anarres.cpp.Token.PLUS_EQ;
-import static org.anarres.cpp.Token.P_LINE;
-import static org.anarres.cpp.Token.P_IF;
 import static org.anarres.cpp.Token.P_ELIF;
 import static org.anarres.cpp.Token.P_ENDIF;
-
+import static org.anarres.cpp.Token.P_IF;
+import static org.anarres.cpp.Token.P_LINE;
 import static org.anarres.cpp.Token.RANGE;
 import static org.anarres.cpp.Token.RSH;
 import static org.anarres.cpp.Token.RSH_EQ;
@@ -76,6 +75,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
@@ -136,6 +139,21 @@ import de.fosd.typechef.featureexpr.Or;
  */
 
 public class Preprocessor implements Closeable {
+
+	public static Logger logger = Logger.getLogger("de.ovgu.jcpp");
+	static {
+		try {
+			Handler fh;
+			fh = new FileHandler("jcpp.log");
+			logger.addHandler(fh);
+			logger.setLevel(Level.FINEST);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private static final Source INTERNAL = new Source() {
 		@Override
 		public Token token() throws IOException, LexerException {
@@ -151,11 +169,14 @@ public class Preprocessor implements Closeable {
 		public String getName() {
 			return "internal data";
 		}
+
+		@Override
+		String debug_getContent() {
+			return "INTERNAL";
+		}
 	};
-	
-	
+
 	SourceManager sourceManager = new SourceManager(this);
-	
 
 	/* The fundamental engine. */
 	private MacroContext macros = new MacroContext();
@@ -330,8 +351,8 @@ public class Preprocessor implements Closeable {
 	protected void error(int line, int column, String msg)
 			throws LexerException {
 		if (listener != null)
-			listener.handleError(sourceManager.getSource(), line, column, msg, state
-					.getFullPresenceCondition());
+			listener.handleError(sourceManager.getSource(), line, column, msg,
+					state.getFullPresenceCondition());
 		else
 			throw new LexerException("Error at " + line + ":" + column + ": "
 					+ msg, state.getFullPresenceCondition());
@@ -360,7 +381,8 @@ public class Preprocessor implements Closeable {
 		if (warnings.contains(Warning.ERROR))
 			error(line, column, msg);
 		else if (listener != null)
-			listener.handleWarning(sourceManager.getSource(), line, column, msg);
+			listener
+					.handleWarning(sourceManager.getSource(), line, column, msg);
 		else
 			throw new LexerException("Warning at " + line + ":" + column + ": "
 					+ msg, state.getFullPresenceCondition());
@@ -520,7 +542,6 @@ public class Preprocessor implements Closeable {
 		return state.parent == null || state.parent.isActive();
 	}
 
-
 	/* Source tokens */
 
 	private Token source_token;
@@ -571,8 +592,6 @@ public class Preprocessor implements Closeable {
 	private Token endif_token(int line) {
 		return new Token(P_ENDIF, line, 0, endif_tokenStr(), null);
 	}
-
-
 
 	BufferedWriter debugFile;
 	{
@@ -643,15 +662,16 @@ public class Preprocessor implements Closeable {
 	 *            "__if__(FeatureExpr,thenClause,elseClause)". such __if__
 	 *            statements can be nested
 	 * */
-	private boolean expandMacro(String macroName, MacroExpansion[] macroExpansions,
-			Token orig, boolean inlineCppExpression) throws IOException,
-			LexerException {
-		// System.out.println("expanding " + macroName);
+	private boolean expandMacro(String macroName,
+			MacroExpansion[] macroExpansions, Token orig,
+			boolean inlineCppExpression) throws IOException, LexerException {
 		Token tok;
 		List<Token> originalTokens = new ArrayList<Token>();
 		originalTokens.add(orig);
 		List<Argument> args;
 		assert macroExpansions.length > 0;
+
+		Source debug_origSource = sourceManager.getSource();
 
 		// check compatible macros
 		MacroData firstMacro = ((MacroData) macroExpansions[0].getExpansion());
@@ -827,18 +847,19 @@ public class Preprocessor implements Closeable {
 			}
 			buf.append("\"");
 			String text = buf.toString();
-			sourceManager.push_source(new FixedTokenSource(new Token[] { new Token(STRING,
-					orig.getLine(), orig.getColumn(), text, text, null) }),
-					true);
+			sourceManager.push_source(new FixedTokenSource(
+					new Token[] { new Token(STRING, orig.getLine(), orig
+							.getColumn(), text, text, null) }), true);
 		} else if (macroName.equals("__COUNTER__")) {
 			/*
 			 * This could equivalently have been done by adding a special Macro
 			 * subclass which overrides getTokens().
 			 */
 			int value = this.counter++;
-			sourceManager.push_source(new FixedTokenSource(new Token[] { new Token(INTEGER,
-					orig.getLine(), orig.getColumn(), String.valueOf(value),
-					Integer.valueOf(value), null) }), true);
+			sourceManager.push_source(new FixedTokenSource(
+					new Token[] { new Token(INTEGER, orig.getLine(), orig
+							.getColumn(), String.valueOf(value), Integer
+							.valueOf(value), null) }), true);
 		} else {
 			if (macroExpansions.length == 1) {// TODO what happens if the macro
 				// is not always defined? check this!
@@ -851,8 +872,8 @@ public class Preprocessor implements Closeable {
 							MacroConstraintKind.NOTEXPANDING, new Not(
 									commonCondition)));
 
-				sourceManager.push_source(new MacroTokenSource(macroName, firstMacro, args),
-						true);
+				sourceManager.push_source(new MacroTokenSource(macroName,
+						firstMacro, args), true);
 				// expand all alternative macros
 			} else {
 				if (inlineCppExpression)
@@ -863,6 +884,9 @@ public class Preprocessor implements Closeable {
 							originalTokens);
 			}
 		}
+
+		logger.info("expanding " + macroName + " by "
+				+ sourceManager.debug_sourceDelta(debug_origSource));
 
 		return true;
 	}
@@ -1159,8 +1183,7 @@ public class Preprocessor implements Closeable {
 			tok = retrieveTokenFromSource();
 		}
 
-		if (getFeature(Feature.DEBUG))
-			System.err.println("Defined macro " + m);
+		logger.info("#define " + name + " " + m);
 		addMacro(name, state.getFullPresenceCondition(), m);
 
 		return tok; /* NL or EOF. */
@@ -1292,7 +1315,8 @@ public class Preprocessor implements Closeable {
 			}
 
 			/* Do the inclusion. */
-			include(sourceManager.getSource().getPath(), tok.getLine(), name, quoted);
+			include(sourceManager.getSource().getPath(), tok.getLine(), name,
+					quoted);
 
 			/*
 			 * 'tok' is the 'nl' after the include. We use it after the #line
@@ -1432,8 +1456,10 @@ public class Preprocessor implements Closeable {
 			// System.out.println("Source token is " + tok);
 			if (tok.getType() == IDENTIFIER) {
 				MacroExpansion[] m = macros.getMacroExpansions(tok.getText());
-				if (m.length > 0 && sourceManager.getSource().mayExpand(tok.getText())
-						&& expandMacro(tok.getText(), m, tok, inlineCppExpression))
+				if (m.length > 0
+						&& sourceManager.getSource().mayExpand(tok.getText())
+						&& expandMacro(tok.getText(), m, tok,
+								inlineCppExpression))
 					continue;
 				return tok;
 			}
@@ -1537,7 +1563,8 @@ public class Preprocessor implements Closeable {
 			tok = expr_token(true);
 			if (tok.getType() != ')') {
 				expr_untoken(tok);
-				error(tok, "missing ) in expression");
+				error(tok, "missing ) in expression after " + lhs + ", found "
+						+ tok + " instead");
 				return new DeadFeature();
 			}
 			break;
@@ -1662,12 +1689,14 @@ public class Preprocessor implements Closeable {
 				// 0;
 				break;
 			case EQ:
-				lhs = FeatureExpr$.MODULE$.createEquals(lhs, rhs);// lhs == rhs ?
+				lhs = FeatureExpr$.MODULE$.createEquals(lhs, rhs);// lhs == rhs
+				// ?
 				// 1 :
 				// 0;
 				break;
 			case NE:
-				lhs = FeatureExpr$.MODULE$.createNotEquals(lhs, rhs);// lhs != rhs
+				lhs = FeatureExpr$.MODULE$.createNotEquals(lhs, rhs);// lhs !=
+				// rhs
 				// ?
 				// 1 : 0;
 				break;
@@ -2217,11 +2246,28 @@ public class Preprocessor implements Closeable {
 
 	public void debugWriteMacros() {
 		try {
-			new BufferedWriter(new FileWriter("macroDebug.txt"))
-					.write(debugMacros());
+			BufferedWriter writer = new BufferedWriter(new FileWriter(
+					"macroDebug.txt"));
+			writer.write(debugMacros());
+			writer.close();
+			debugNextTokens();
+			logger.info("macro dump written");
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
+
+	private void debugNextTokens() {
+		for (int i = 0; i < 20; i++)
+			try {
+				_token();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (LexerException e) {
+				e.printStackTrace();
+			}
+	}
+
 	private Token retrieveTokenFromSource() throws IOException, LexerException {
 		if (source_token != null) {
 			Token tok = source_token;
@@ -2235,5 +2281,6 @@ public class Preprocessor implements Closeable {
 
 	public Source getSource() {
 		return sourceManager.getSource();
+
 	}
 }

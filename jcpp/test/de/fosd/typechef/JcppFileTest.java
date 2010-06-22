@@ -156,6 +156,10 @@ public class JcppFileTest {
 		testFile("byteorder.h");
 	}
 	@Test
+	public void testIf() throws LexerException, IOException {
+		testFile("if.h");
+	}
+	@Test
 	public void testAlternativeMacros() throws LexerException, IOException {
 		testFile("macro2.c");
 	}	@Test

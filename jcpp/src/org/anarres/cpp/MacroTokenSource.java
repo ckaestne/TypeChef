@@ -35,7 +35,7 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
  * in any inactive context. */
 /* pp */class MacroTokenSource extends Source {
 	private final MacroData macro;
-	private Iterator<Token> tokens; /* Pointer into the macro. */
+	private Iterator<Token> tokenIter; /* Pointer into the macro. */
 	private List<Argument> args; /* { unexpanded, expanded } */
 	private Iterator<Token> arg; /* "current expansion" */
 	private final String macroName;
@@ -43,7 +43,7 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 	/* pp */MacroTokenSource(String macroName, MacroData m, List<Argument> args) {
 		this.macroName = macroName;
 		this.macro = m;
-		this.tokens = m.getTokens().iterator();
+		this.tokenIter = m.getTokens().iterator();
 		this.args = args;
 		this.arg = null;
 	}
@@ -119,14 +119,14 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 
 		int count = 2;
 		for (int i = 0; i < count; i++) {
-			if (!tokens.hasNext()) {
+			if (!tokenIter.hasNext()) {
 				/* XXX This one really should throw. */
 				error(ptok.getLine(), ptok.getColumn(),
 						"Paste at end of expansion");
 				buf.append(' ').append(ptok.getText());
 				break;
 			}
-			Token tok = tokens.next();
+			Token tok = tokenIter.next();
 			// System.out.println("Paste " + tok);
 			switch (tok.getType()) {
 			case M_PASTE:
@@ -177,9 +177,9 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 				arg = null;
 			}
 
-			if (!tokens.hasNext())
+			if (!tokenIter.hasNext())
 				return new Token(EOF, -1, -1, "",this); /* End of macro. */
-			Token tok = tokens.next();
+			Token tok = tokenIter.next();
 			int idx;
 			switch (tok.getType()) {
 			case M_STRING:
@@ -208,5 +208,10 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 		if (parent != null)
 			buf=buf.append(" in ").append(String.valueOf(parent));
 		return buf.toString();
+	}
+
+	@Override
+	String debug_getContent() {
+		return macro.getTokens().toString()+" args: "+args;
 	}
 }

@@ -855,4 +855,9 @@ public class LexerSource extends Source {
 		super.close();
 	}
 
+	@Override
+	String debug_getContent() {
+		return "Lexer";
+	}
+
 }
