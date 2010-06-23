@@ -155,8 +155,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		private String errorMsg;
 
 		public ParseParamException(Token tok, String string) {
-			this.tok=tok;
-			this.errorMsg=string;
+			this.tok = tok;
+			this.errorMsg = string;
 		}
 
 	}
@@ -694,18 +694,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 								+ macro.getText() + "/" + firstMacro.getText());
 		}
 
-		//parse parameters
+		// parse parameters
 		try {
 			args = parse_macroParameters(macroName, inlineCppExpression,
 					originalTokens, firstMacro);
 		} catch (ParseParamException e) {
-			error(e.tok,e.errorMsg);
+			error(e.tok, e.errorMsg);
 			return false;
 		}
-		if (firstMacro.isFunctionLike() && args==null)
-			return false;//cannot expand function-like macro here (has to start with lparan, see spec)
+		if (firstMacro.isFunctionLike() && args == null)
+			return false;// cannot expand function-like macro here (has to start
+		// with lparan, see spec)
 
-		//replace macro
+		// replace macro
 		if (macroName.equals("__LINE__")) {
 			sourceManager.push_source(new FixedTokenSource(
 					new Token[] { new Token(INTEGER, orig.getLine(), orig
@@ -778,7 +779,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	private List<Argument> parse_macroParameters(String macroName,
 			boolean inlineCppExpression, List<Token> originalTokens,
-			MacroData firstMacro) throws IOException, LexerException, ParseParamException {
+			MacroData firstMacro) throws IOException, LexerException,
+			ParseParamException {
 		Token tok;
 		List<Argument> args;
 		// attempt to parse all alternative macros in parallel (when all have
@@ -794,7 +796,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				case CPPCOMMENT:
 				case NL:
 					break; /* continue */
-					//ChK TODO whitespace will be removed in case a bracket is not found eventually
+				// ChK TODO whitespace will be removed in case a bracket is not
+				// found eventually
 				case '(':
 					break OPEN;
 				default:
@@ -885,9 +888,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 * from arguments.
 				 */
 
-				if (args.size() != firstMacro.getArgs()) 
-					throw new ParseParamException(tok, "macro " + macroName + " has "
-							+ firstMacro.getArgs() + " parameters "
+				if (args.size() != firstMacro.getArgs())
+					throw new ParseParamException(tok, "macro " + macroName
+							+ " has " + firstMacro.getArgs() + " parameters "
 							+ "but given " + args.size() + " args");
 
 				/*
@@ -1019,14 +1022,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	/* I'd rather this were done lazily, but doing so breaks spec. */
 	/* pp */List<Token> macro_expandArgument(List<Token> arg,
 			boolean inlineCppExpression) throws IOException, LexerException {
-//		return arg;//ChK lazytest
+		// return arg;//ChK lazytest
 		List<Token> expansion = new ArrayList<Token>();
 		boolean space = false;
 
 		sourceManager.push_source(new FixedTokenSource(arg), false);
 
 		EXPANSION: for (;;) {
-			Token tok = expanded_token(inlineCppExpression);
+			Token tok = expanded_token(inlineCppExpression,true);
 			switch (tok.getType()) {
 			case EOF:
 				break EXPANSION;
@@ -1468,16 +1471,36 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				.toString(), null);
 	}
 
+	/**
+	 * hack to temporarily disable expansion inside defined() statements: (a)
+	 * every time a defined is found this counter is reset (b) every time a
+	 * token is found this counter is increased. (c) every time the counter is 1
+	 * and the token is "(" the counter is reset (d) if the counter is 1, the
+	 * argument is not expanded
+	 * 
+	 * this way, we prevent to expand the argument after defined
+	 */
+	private int hack_definedCounter = 0;
+
 	/*
 	 * This bypasses token() for #elif expressions. If we don't do this, then
 	 * isActive() == false causes token() to simply chew the entire input line.
+	 * 
+	 * hack_definedActivated excludes the parameter of a defined statement from
+	 * expansion during pre-expansion of arguments
 	 */
-	private Token expanded_token(boolean inlineCppExpression)
-			throws IOException, LexerException {
+	private Token expanded_token(boolean inlineCppExpression,
+			boolean hack_definedActivated) throws IOException, LexerException {
 		for (;;) {
 			Token tok = retrieveTokenFromSource();
 			// System.out.println("Source token is " + tok);
-			if (tok.getType() == IDENTIFIER) {
+			if (tok.getText().equals("defined")
+					|| (hack_definedCounter == 0 && tok.getText().equals("(")))
+				hack_definedCounter = 0;
+			else
+				hack_definedCounter++;
+			if (tok.getType() == IDENTIFIER
+					&& (!hack_definedActivated || hack_definedCounter != 1)) {
 				MacroExpansion[] m = macros.getMacroExpansions(tok.getText());
 				if (m.length > 0
 						&& tok.mayExpand()
@@ -1495,7 +1518,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			throws IOException, LexerException {
 		Token tok;
 		do {
-			tok = expanded_token(inlineCppExpression);
+			tok = expanded_token(inlineCppExpression, false);
 			// System.out.println("expanded token is " + tok);
 		} while (isWhite(tok));
 		return tok;
@@ -1961,7 +1984,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				if (m.length == 0)
 					return tok;
 				if (!sourceManager.getSource().mayExpand(tok.getText())
-					|| !tok.mayExpand())
+						|| !tok.mayExpand())
 					return tok;
 				if (macro_expandToken(tok.getText(), m, tok, false))
 					break;
