@@ -50,19 +50,16 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 
 	@Override
 	/* pp */boolean mayExpand(String macroName) {
-//		//ChK: according to spec, an expanded macro is not expanded again
-		return false;
-		
-		
-//		/*
-//		 * When we are expanding an arg, 'this' macro is not being expanded, and
-//		 * thus we may re-expand it.
-//		 */
-//		if (macroName.equals(this.macroName))
-//			return false;
-//		// if (/* XXX this.arg == null && */ this.macro == m)
-//		// return true;
-//		return super.mayExpand(macroName);
+		// /*
+		// * When we are expanding an arg, 'this' macro is not being expanded,
+		// and
+		// * thus we may re-expand it.
+		// */
+		if (macroName.equals(this.macroName))
+			return false;
+		// if (/* XXX this.arg == null && */ this.macro == m)
+		// return true;
+		return super.mayExpand(macroName);
 	}
 
 	/* XXX Called from Preprocessor [ugly]. */
@@ -105,7 +102,7 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 		str.append("\"");
 		// System.out.println("Escape: " + buf + " -> " + str);
 		return new Token(STRING, pos.getLine(), pos.getColumn(),
-				str.toString(), buf.toString(),this);
+				str.toString(), buf.toString(), this);
 	}
 
 	/*
@@ -168,6 +165,13 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 	}
 
 	public Token token() throws IOException, LexerException {
+		Token tok = _token();
+		if (tok.getText().equals(macroName))
+			tok.setNoFurtherExpansion();
+		return tok;
+	}
+
+	public Token _token() throws IOException, LexerException {
 		for (;;) {
 			/* Deal with lexed tokens first. */
 
@@ -182,7 +186,7 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 			}
 
 			if (!tokenIter.hasNext())
-				return new Token(EOF, -1, -1, "",this); /* End of macro. */
+				return new Token(EOF, -1, -1, "", this); /* End of macro. */
 			Token tok = tokenIter.next();
 			int idx;
 			switch (tok.getType()) {
@@ -207,15 +211,15 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
-		buf=buf.append("expansion of ").append(macroName);
+		buf = buf.append("expansion of ").append(macroName);
 		Source parent = getParent();
 		if (parent != null)
-			buf=buf.append(" in ").append(String.valueOf(parent));
+			buf = buf.append(" in ").append(String.valueOf(parent));
 		return buf.toString();
 	}
 
 	@Override
 	String debug_getContent() {
-		return macro.getTokens().toString()+" args: "+args;
+		return macro.getTokens().toString() + " args: " + args;
 	}
 }

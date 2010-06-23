@@ -339,5 +339,12 @@ public final class Token {
 		names[P_ENDIF] = "P_ENDIF";
 		names[INVALID] = "INVALID";
 	}
+	private boolean mayExpand=true;
+	public void setNoFurtherExpansion() {
+		mayExpand=false;
+	}
+	public boolean mayExpand(){
+		return mayExpand;
+	}
 
 }

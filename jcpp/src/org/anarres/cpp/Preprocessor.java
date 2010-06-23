@@ -702,7 +702,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			error(e.tok,e.errorMsg);
 			return false;
 		}
-		if (firstMacro.isFunctionLike() && args.isEmpty())
+		if (firstMacro.isFunctionLike() && args==null)
 			return false;//cannot expand function-like macro here (has to start with lparan, see spec)
 
 		//replace macro
@@ -780,7 +780,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			boolean inlineCppExpression, List<Token> originalTokens,
 			MacroData firstMacro) throws IOException, LexerException, ParseParamException {
 		Token tok;
-		List<Argument> args=Collections.emptyList();
+		List<Argument> args;
 		// attempt to parse all alternative macros in parallel (when all have
 		// the same parameters)
 		if (firstMacro.isFunctionLike()) {
@@ -794,12 +794,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				case CPPCOMMENT:
 				case NL:
 					break; /* continue */
+					//ChK TODO whitespace will be removed in case a bracket is not found eventually
 				case '(':
 					break OPEN;
 				default:
 					source_untoken(tok);
 					originalTokens.remove(originalTokens.size() - 1);
-					return Collections.emptyList();
+					return null;
 				}
 			}
 
@@ -905,7 +906,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		} else {
 			/* Macro without args. */
-			args = Collections.emptyList();
+			args = null;
 		}
 		return args;
 	}
@@ -1479,6 +1480,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			if (tok.getType() == IDENTIFIER) {
 				MacroExpansion[] m = macros.getMacroExpansions(tok.getText());
 				if (m.length > 0
+						&& tok.mayExpand()
 						&& sourceManager.getSource().mayExpand(tok.getText())
 						&& macro_expandToken(tok.getText(), m, tok,
 								inlineCppExpression))
@@ -1958,7 +1960,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				MacroExpansion[] m = macros.getMacroExpansions(tok.getText());
 				if (m.length == 0)
 					return tok;
-				if (!sourceManager.getSource().mayExpand(tok.getText()))
+				if (!sourceManager.getSource().mayExpand(tok.getText())
+					|| !tok.mayExpand())
 					return tok;
 				if (macro_expandToken(tok.getText(), m, tok, false))
 					break;

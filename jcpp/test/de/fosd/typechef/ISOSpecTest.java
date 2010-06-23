@@ -34,19 +34,19 @@ public class ISOSpecTest extends AbstractCheckTests {
 		testFile("iso/ex3.c");
 	}
 	
-	@Test
-	public void testEx4() throws LexerException, IOException {
-		testFile("iso/ex4.c");
-	}
-	
-	@Test
-	public void testEx5() throws LexerException, IOException {
-		testFile("iso/ex5.c");
-	}
-	
-	@Test
-	public void testEx6() throws LexerException, IOException {
-		testFile("iso/ex6.c");
-	}
-	
+//	@Test
+//	public void testEx4() throws LexerException, IOException {
+//		testFile("iso/ex4.c");
+//	}
+//	
+//	@Test
+//	public void testEx5() throws LexerException, IOException {
+//		testFile("iso/ex5.c");
+//	}
+//	
+//	@Test
+//	public void testEx6() throws LexerException, IOException {
+//		testFile("iso/ex6.c");
+//	}
+//	
 }
