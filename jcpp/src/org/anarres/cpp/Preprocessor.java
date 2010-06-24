@@ -61,10 +61,8 @@ import static org.anarres.cpp.Token.SUB_EQ;
 import static org.anarres.cpp.Token.WHITESPACE;
 import static org.anarres.cpp.Token.XOR_EQ;
 
-import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,10 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Stack;
 
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
@@ -557,6 +552,57 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	private Token source_token;
 
+	private IfdefPrinter ifdefPrinter = new IfdefPrinter();
+
+	static class IfdefPrinter {
+		private static class IfdefBlock {
+			public IfdefBlock(boolean visible) {
+				this.visible = visible;
+			}
+
+			boolean visible = true;
+		}
+
+		private Stack<IfdefBlock> stack = new Stack<IfdefBlock>();
+
+		public Token startIf(Token tok, boolean parentActive, FeatureExpr expr,
+				FeatureExpr fullPresenceCondition) {
+			// skip output of ifdef 0 and ifdef 1
+			boolean visible = parentActive
+					&& !(fullPresenceCondition.isDead()
+							|| fullPresenceCondition.isBase() || expr.isBase());
+			stack.push(new IfdefBlock(visible));
+			if (visible)
+				return new OutputHelper().if_token(tok.getLine(), expr
+						.simplify());
+			else
+				return new OutputHelper().emptyLine(tok.getLine(), tok
+						.getColumn());
+
+		}
+
+		public Token endIf(Token tok) {
+
+			if (stack.pop().visible)
+				return new OutputHelper().endif_token(tok.getLine());
+			else
+				return new OutputHelper().emptyLine(tok.getLine(), tok
+						.getColumn());
+		}
+
+		public Token startElIf(Token tok, boolean parentActive,
+				FeatureExpr localFeatureExpr, FeatureExpr fullPresenceCondition) {
+			boolean wasVisible = stack.pop().visible;
+			boolean isVisible = parentActive
+					&& !(fullPresenceCondition.isDead() || fullPresenceCondition
+							.isBase());
+			stack.push(new IfdefBlock(isVisible));
+
+			return new OutputHelper().elif_token(tok.getLine(),
+					localFeatureExpr.simplify(), wasVisible, isVisible);
+		}
+	}
+
 	static class OutputHelper {
 		/*
 		 * XXX Make this include the NL, and make all cpp directives eat their
@@ -595,14 +641,23 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			return new Token(P_IF, line, 0, if_tokenStr(featureExpr), null);
 		}
 
-		Token elif_token(int line, FeatureExpr FeatureExpr) {
+		Token elif_token(int line, FeatureExpr FeatureExpr, boolean printEnd,
+				boolean printIf) {
 			StringBuilder buf = new StringBuilder();
-			buf.append("#endif\n#if ").append(FeatureExpr).append("\n");
+			if (printEnd)
+				buf.append("#endif\n");
+			if (printIf)
+				buf.append("#if ").append(FeatureExpr);
+			buf.append("\n");
 			return new Token(P_ELIF, line, 0, buf.toString(), null);
 		}
 
 		Token endif_token(int line) {
 			return new Token(P_ENDIF, line, 0, endif_tokenStr(), null);
+		}
+
+		public Token emptyLine(int line, int column) {
+			return new Token(NL, line, column, "\n", null);
 		}
 
 	}
@@ -673,7 +728,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	private boolean macro_expandToken(String macroName,
 			MacroExpansion[] macroExpansions, Token orig,
 			boolean inlineCppExpression) throws IOException, LexerException {
-		Token tok;
 		List<Token> originalTokens = new ArrayList<Token>();
 		originalTokens.add(orig);
 		List<Argument> args;
@@ -775,6 +829,21 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				+ sourceManager.debug_sourceDelta(debug_origSource));
 
 		return true;
+	}
+
+	private MacroExpansion[] filterApplicableMacros(
+			MacroExpansion[] macroExpansions) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private FeatureExpr getCombinedMacroCondition(
+			MacroExpansion[] macroExpansions) {
+		FeatureExpr commonCondition = new Not(state.getFullPresenceCondition());
+		for (int i = 0; i < macroExpansions.length; i++)
+			commonCondition = new Or(commonCondition, macroExpansions[i]
+					.getFeature());
+		return commonCondition;
 	}
 
 	private List<Argument> parse_macroParameters(String macroName,
@@ -1029,7 +1098,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		sourceManager.push_source(new FixedTokenSource(arg), false);
 
 		EXPANSION: for (;;) {
-			Token tok = expanded_token(inlineCppExpression,true);
+			Token tok = expanded_token(inlineCppExpression, true);
 			switch (tok.getType()) {
 			case EOF:
 				break EXPANSION;
@@ -1501,7 +1570,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				hack_definedCounter++;
 			if (tok.getType() == IDENTIFIER
 					&& (!hack_definedActivated || hack_definedCounter != 1)) {
-				MacroExpansion[] m = macros.getMacroExpansions(tok.getText());
+				MacroExpansion[] m = macros.getApplicableMacroExpansions(tok
+						.getText(), state.getFullPresenceCondition());
 				if (m.length > 0
 						&& tok.mayExpand()
 						&& sourceManager.getSource().mayExpand(tok.getText())
@@ -1980,7 +2050,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			case IDENTIFIER:
 				// apply macro (in visible code)
-				MacroExpansion[] m = macros.getMacroExpansions(tok.getText());
+				MacroExpansion[] m = macros.getApplicableMacroExpansions(tok
+						.getText(), state.getFullPresenceCondition());
 				if (m.length == 0)
 					return tok;
 				if (!sourceManager.getSource().mayExpand(tok.getText())
@@ -2077,15 +2148,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					state.putLocalFeature(parse_featureExpr(0));
 					tok = expr_token(true); /* unget */
 
-					if (!isParentActive()) {
-						return source_skipline(false);
-					} else {
-						if (tok.getType() != NL)
-							source_skipline(true);
+					if (tok.getType() != NL)
+						source_skipline(isParentActive());
 
-						return new OutputHelper().if_token(tok.getLine(), state
-								.getLocalFeatureExpr().simplify());
-					}
+					return ifdefPrinter.startIf(tok, isParentActive(), state
+							.getLocalFeatureExpr(), state
+							.getFullPresenceCondition());
+
 					// break;
 
 				case PP_ELIF:
@@ -2097,13 +2166,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						// state.setActive(expr(0) != 0);
 						state.putLocalFeature(parse_featureExpr(0));
 						Token t = tok = expr_token(true); /* unget */
+
 						if (tok.getType() != NL)
-							t = source_skipline(true);
-						if (!isParentActive())
-							return t;
-						else
-							return new OutputHelper().elif_token(tok.getLine(),
-									state.getLocalFeatureExpr().simplify());
+							source_skipline(isParentActive());
+
+						return ifdefPrinter.startElIf(tok, isParentActive(),
+								state.getLocalFeatureExpr(), state
+										.getFullPresenceCondition());
+
 					}
 					// break;
 
@@ -2117,11 +2187,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						state.setSawElse();
 						Token t = source_skipline(warnings
 								.contains(Warning.ENDIF_LABELS));
-						if (!isParentActive())
-							return t;
-						else
-							return new OutputHelper().elif_token(tok.getLine(),
-									state.getLocalFeatureExpr().simplify());
+
+						return ifdefPrinter.startElIf(tok, isParentActive(),
+								state.getLocalFeatureExpr(), state
+										.getFullPresenceCondition());
 					}
 					// break;
 
@@ -2136,13 +2205,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						state.putLocalFeature(parse_ifdefExpr(tok.getText()));
 						// return
 
-						if (!isParentActive()) {
-							return source_skipline(false);
-						} else {
-							source_skipline(true);
-							return new OutputHelper().if_token(tok.getLine(),
-									state.getLocalFeatureExpr().simplify());
-						}
+						if (tok.getType() != NL)
+							source_skipline(isParentActive());
+
+						return ifdefPrinter.startIf(tok, isParentActive(),
+								state.getLocalFeatureExpr(), state
+										.getFullPresenceCondition());
 					}
 					// break;
 
@@ -2154,13 +2222,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						return source_skipline(false);
 					} else {
 						state.putLocalFeature(parse_ifndefExpr(tok.getText()));
-						if (!isParentActive()) {
-							return source_skipline(false);
-						} else {
-							source_skipline(true);
-							return new OutputHelper().if_token(tok.getLine(),
-									state.getLocalFeatureExpr().simplify());
-						}
+						if (tok.getType() != NL)
+							source_skipline(isParentActive());
+
+						return ifdefPrinter.startIf(tok, isParentActive(),
+								state.getLocalFeatureExpr(), state
+										.getFullPresenceCondition());
+
 					}
 					// break;
 
@@ -2169,10 +2237,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 					Token l = source_skipline(warnings
 							.contains(Warning.ENDIF_LABELS));
-					if (!isActive())
-						return l;
-					else
-						return new OutputHelper().endif_token(tok.getLine());
+					return ifdefPrinter.endIf(l);
 					// break;
 
 				case PP_LINE:
@@ -2303,4 +2368,5 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return sourceManager.getSource();
 
 	}
+
 }

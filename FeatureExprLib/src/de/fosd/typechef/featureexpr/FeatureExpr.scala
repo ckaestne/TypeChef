@@ -23,6 +23,8 @@ object FeatureExpr {
   def createPwr(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right,  "^", _ ^ _)
   def createShiftLeft(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "<<", _ << _)
   def createShiftRight(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, ">>", _ >> _)
+
+  def createImplies(left:FeatureExpr, right:FeatureExpr) = new Or(Not(left),right)
   
   private var freshFeatureNameCounter=0 
   def calcFreshFeatureName():String = {freshFeatureNameCounter=freshFeatureNameCounter+1; "__fresh"+freshFeatureNameCounter;}
@@ -109,6 +111,10 @@ sealed abstract class FeatureExpr {
 //  def calcPossibleValues():Set[Long]
   var cached_isDead:Option[Boolean] = None
   var cached_isBase:Option[Boolean] = None
+  /**
+   * checks whether the formula is a contradiction
+   * @return
+   */
   def isDead():Boolean = {
 	  if (cached_isBase == Some(true)) return false
 	  if (cached_isDead.isEmpty)
@@ -117,6 +123,10 @@ sealed abstract class FeatureExpr {
 	 	  cache_simplifiedExpr=DeadFeature();
       cached_isDead.get
   }
+  /**
+   * checks whether the formula is a tautology
+   * @return
+   */
   def isBase():Boolean = {
 	  if (cached_isDead == Some(true)) return false
 	  if (cached_isBase.isEmpty)

@@ -39,6 +39,8 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
       case Some(macro) => macro.getOther().toArray.filter(!_.getFeature().isDead())
       case None => Array()
     }
+  def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr):Array[MacroExpansion] =
+	  getMacroExpansions(identifier).filter(m => !new And(currentPresenceCondition,m.getFeature()).isDead());
     
   override def toString() = { knownMacros.values.mkString("\n\n\n") }
 }

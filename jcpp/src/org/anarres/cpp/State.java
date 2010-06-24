@@ -48,8 +48,6 @@ class State {
 		localFeatures.add(feature);
 	}
 
-	
-
 	/**
 	 * returns the local feature expression (explicitly negating prior features
 	 * from other elif branches, but not including features from outer nested
@@ -62,7 +60,7 @@ class State {
 	 */
 	public FeatureExpr getLocalFeatureExpr() {
 		if (sawElse())
-			assert !localFeatures.isEmpty(): "else before #if?";
+			assert !localFeatures.isEmpty() : "else before #if?";
 
 		if (localFeatures.isEmpty())
 			return new BaseFeature();
@@ -76,7 +74,7 @@ class State {
 	}
 
 	private FeatureExpr cache_fullPresenceCondition = null;
-	private Boolean cache_isActive= null;
+	private Boolean cache_isActive = null;
 
 	/**
 	 * returns the full feature condition that leads to the inclusion of the
@@ -106,13 +104,28 @@ class State {
 	 * @return
 	 */
 	public boolean isActive() {
-		if (cache_isActive==null) 
-			cache_isActive=new Boolean(!getFullPresenceCondition().isDead());
+		if (cache_isActive == null)
+			cache_isActive = new Boolean(!getFullPresenceCondition().isDead());
 		return cache_isActive.booleanValue();
 	}
-	
+
 	private void clearCache() {
-		cache_fullPresenceCondition=null;
-		cache_isActive=null;
+		cache_fullPresenceCondition = null;
+		cache_isActive = null;
+	}
+
+	/**
+	 * normally each state represents a code block if an ifdef and endif. if the
+	 * feature expression was base or dead, then the initial ifdef definition
+	 * was skipped. the skipped expression is remembered here, so that also an
+	 * according endif is not output
+	 */
+	private boolean ifdefBegin = true;
+
+	public void setNoIfdefBegin() {
+		ifdefBegin=false;
+	}
+	public boolean hasIfdefBegin() {
+		return ifdefBegin;
 	}
 }

@@ -13,12 +13,13 @@ import de.fosd.typechef.featureexpr.MacroContext;
 
 public abstract class DebuggingPreprocessor {
 	public static Logger logger = Logger.getLogger("de.ovgu.jcpp");
+	public static boolean DEBUG_TOKENSTREAM = false;
 	static {
 		try {
 			Handler fh;
 			fh = new FileHandler("jcpp.log");
 			logger.addHandler(fh);
-			logger.setLevel(Level.FINEST);
+			logger.setLevel(Level.WARNING);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -63,6 +64,21 @@ public abstract class DebuggingPreprocessor {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (LexerException e) {
+				e.printStackTrace();
+			}
+	}
+
+	public void debug_receivedToken(Source source, Token tok) {
+		if (DEBUG_TOKENSTREAM)
+			try {
+				Source tmpSrc = source.getParent();
+				while (tmpSrc != null) {
+					debugFile.write("\t");
+					tmpSrc = tmpSrc.getParent();
+				}
+				debugFile.write(tok.getText() + "\n");
+				debugFile.flush();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 	}

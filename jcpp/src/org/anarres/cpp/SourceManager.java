@@ -158,13 +158,7 @@ public class SourceManager {
 			}
 			if (pp.getFeature(Feature.DEBUG))
 				System.err.println("Returning fresh token " + tok);
-			Source tmpSrc = source.getParent();
-			while (tmpSrc != null) {
-				pp.debugFile.write("\t");
-				tmpSrc = tmpSrc.getParent();
-			}
-			pp.debugFile.write(tok.getText() + "\n");
-			pp.debugFile.flush();
+			pp.debug_receivedToken(source,tok);
 			return tok;
 		}
 	}

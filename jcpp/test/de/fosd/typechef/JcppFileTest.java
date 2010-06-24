@@ -60,6 +60,13 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testDefDefined() throws LexerException, IOException {
 		testFile("defdefined.c");
 	}
+	@Test
+	public void testAlternativeDef() throws LexerException, IOException {
+		testFile("alternativedef.c");
+	}	@Test
+	public void testHiddenBaseAndDead() throws LexerException, IOException {
+		testFile("hiddenDeadAndBase.c");
+	}
 
 	@Test@Ignore
 	public void testMultiInclude() throws LexerException, IOException {
