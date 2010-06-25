@@ -55,6 +55,7 @@ sealed abstract class FeatureExpr {
 		      if (childrenFlattened.size==0) return BaseFeature()
 		      return And(childrenFlattened)
 		    }
+//    		case Or(And(a,Not(b)),c) if b==c => new Or(a,b)
 		    case Or(children) => {
 		      val childrenSimplified =  children.map(_.simplify()) - DeadFeature();
 		      var childrenFlattened:Set[FeatureExpr] = Set()
@@ -170,6 +171,7 @@ sealed abstract class FeatureExpr {
       case IfExpr(c,a,b) => new Or(new And(c,a),new And(Not(c),b)).toCnfEquiSat()
       case Not(And(children)) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
       case Not(Or(children)) => And(children.map(Not(_).toCnfEquiSat())).simplify
+      case Not(e:IfExpr) => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
       case And(children) => And(children.map(_.toCnfEquiSat)).simplify
       case Or(children) => {
         val cnfchildren=children.map(_.toCnfEquiSat)

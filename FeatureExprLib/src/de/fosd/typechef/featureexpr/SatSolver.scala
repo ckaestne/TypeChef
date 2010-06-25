@@ -21,15 +21,31 @@ class SatSolver extends Solver {
 			expr.accept(e=>clauses=clauses+1)
 			clauses
 		}
+	private def countFlags(expr:FeatureExpr) = {
+			var flags=Set[String]()
+			expr.accept(e=> e match { case DefinedExternal(m) => flags=flags + m; case e=>;})
+			flags.size
+		}
 
+	
+	val PROFILING = true;
+	
 	def isSatisfiable(expr:FeatureExpr):Boolean = {
 		if (expr==DeadFeature())return false;
 		if (expr==BaseFeature())return true;
-	  
-//		println("<toCNF "+countClauses(expr)+">")
+		
+		val startTime=System.currentTimeMillis();
+		
+		if (PROFILING)
+			println("<toCNF "+countClauses(expr)+" with "+countFlags(expr)+" flags>")
 	    val exprs=expr.simplify.toCnfEquiSat;
-//		println("</toCNF "+countClauses(exprs)+">")
+		if (PROFILING)
+			println("</toCNF "+countClauses(exprs)+" in "+(System.currentTimeMillis()-startTime)+" ms>")
 	  
+		val startTimeSAT=System.currentTimeMillis();
+		try {
+			
+		
 	  	val solver = SolverFactory.newDefault();
 //        solver.setTimeoutMs(1000);
     	solver.setTimeoutOnConflicts(100000)
@@ -87,6 +103,11 @@ class SatSolver extends Solver {
         } catch {
           case e:RuntimeException => e.printStackTrace; return true;  
         }
+        
+		} finally {
+			if (PROFILING)
+				println("<SAT in "+(System.currentTimeMillis()-startTimeSAT)+" ms>")
+		}
 	}
  
 	
