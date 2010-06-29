@@ -102,7 +102,9 @@ sealed abstract class FeatureExpr {
     return cache_simplifiedExpr
   }
   def print():String
-  override def toString():String = print
+  def debug_print(level:Int):String
+  def indent(level:Int):String = {var result=""; for (i <- 0 until level) result=result+"\t"; result; }
+  override def toString():String = debug_print(0)
   var possibleValuesCache:Set[Long] = null
 //  def possibleValues():Set[Long] = {
 //    if (possibleValuesCache==null)
@@ -207,6 +209,10 @@ abstract class AbstractBinaryFeatureExpr(
 
   //def eval(context:FeatureProvider) = op(left.eval(context), right.eval(context))
   def print() = "("+left.print + " "+ opStr +" "+right.print+")"
+  def debug_print(level:Int):String = 
+    			indent(level)+opStr+"\n"+
+    			left.debug_print(level+1)+
+    			right.debug_print(level+1);
 //  def calcPossibleValues():Set[Long] = {
 //    var result=Set[Long]()
 //    for (
@@ -226,7 +232,10 @@ abstract class AbstractNaryBinaryFeatureExpr(
   opStr:String, 
   op:(Boolean,Boolean)=>Boolean
 ) extends FeatureExpr {
-  def print() = children.mkString("("," "+ opStr +" ",")")
+  def print() = children.map(_.print).mkString("("," "+ opStr +" ",")")
+  def debug_print(level:Int):String = 
+    			indent(level)+opStr+"\n"+
+    			children.map(_.debug_print(level+1)).mkString("")
   def accept(f:FeatureExpr=>Unit):Unit = {
     f(this)
     for (child<-children)child.accept(f)
@@ -253,6 +262,7 @@ abstract class AbstractUnaryFeatureExpr(
 ) extends FeatureExpr {
   //def eval(context:FeatureProvider) = op(expr.eval(context))
   def print() = opStr +"("+expr.print+")"
+  def debug_print(level:Int) = indent(level)+opStr +"\n"+expr.debug_print(level+1);
 //  def calcPossibleValues():Set[Long] = {
 //    var result=Set[Long]()
 //    for (
@@ -278,17 +288,20 @@ case class DefinedExternal(feature:String)extends FeatureExpr {
     assert(feature!="") 
     "defined("+feature+")";
   }
+  def debug_print(level:Int):String = indent(level)+feature+"\n";
   def accept(f:FeatureExpr=>Unit):Unit = f(this)
 }
 
 case class CharacterLit(char:Int) extends FeatureExpr {
   def print():String = "'"+char.toString+"'";
+  def debug_print(level:Int):String = indent(level)+print()+"\n";
   //def eval(context:FeatureProvider):Long = char.toLong;
   def calcPossibleValues():Set[Long] = Set(char.toLong)
   def accept(f:FeatureExpr=>Unit):Unit = f(this)
 }
 case class IntegerLit(num:Long) extends FeatureExpr {
   def print():String = num.toString;
+  def debug_print(level:Int):String = indent(level)+print()+"\n";
   //def eval(context:FeatureProvider):Long = num;
   def calcPossibleValues():Set[Long] = Set(num)
   def accept(f:FeatureExpr=>Unit):Unit = f(this)
@@ -303,7 +316,14 @@ case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: Fea
 //	def calcPossibleValues() = if (condition.isBase()) thenBranch.possibleValues()
 //                        else if (condition.isDead()) elseBranch.possibleValues()
 //                        else thenBranch.possibleValues() ++ elseBranch.possibleValues()
-    def print():String = "__IF__("+condition+","+thenBranch+","+elseBranch+")";
+    def print():String = "__IF__("+condition.print+","+thenBranch.print+","+elseBranch.print+")";
+    def debug_print(level:Int):String = 
+    			indent(level)+"__IF__"+"\n"+
+    			condition.debug_print(level+1)+
+    			indent(level)+"__THEN__"+"\n"+
+    			thenBranch.debug_print(level+1)+
+    			indent(level)+"__ELSE__"+"\n"+
+    			elseBranch.debug_print(level+1);
     def accept(f:FeatureExpr=>Unit):Unit = { f(this); condition.accept(f);thenBranch.accept(f);elseBranch.accept(f) }
 }
  

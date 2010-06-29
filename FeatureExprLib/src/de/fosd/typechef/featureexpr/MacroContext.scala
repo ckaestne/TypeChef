@@ -33,10 +33,10 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
     knownMacros.get(feature) match {
       case Some(macro) => macro.getFeature()
       case None =>  
-//      	if (feature.startsWith("CONFIG_"))
+      	if (feature.startsWith("CONFIG_"))
       		DefinedExternal(feature)
-//      	else
-//      		DeadFeature()
+      	else
+      		DeadFeature()
     }
   } 
     
