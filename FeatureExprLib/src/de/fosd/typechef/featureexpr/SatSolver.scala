@@ -16,12 +16,12 @@ class SatSolver extends Solver {
   
 	val baseFeatureName = "BASE"
   
-	private def countClauses(expr:FeatureExpr) = {
+	private def countClauses(expr:FeatureExprTree) = {
 			var clauses=0
 			expr.accept(e=>clauses=clauses+1)
 			clauses
 		}
-	private def countFlags(expr:FeatureExpr) = {
+	private def countFlags(expr:FeatureExprTree) = {
 			var flags=Set[String]()
 			expr.accept(e=> e match { case DefinedExternal(m) => flags=flags + m; case e=>;})
 			flags.size
@@ -30,7 +30,7 @@ class SatSolver extends Solver {
 	
 	val PROFILING = true;
 	
-	def isSatisfiable(expr:FeatureExpr):Boolean = {
+	def isSatisfiable(expr:FeatureExprTree):Boolean = {
 		if (expr==DeadFeature())return false;
 		if (expr==BaseFeature())return true;
 		
@@ -38,7 +38,7 @@ class SatSolver extends Solver {
 		
 		if (PROFILING)
 			println("<toCNF "+countClauses(expr)+" with "+countFlags(expr)+" flags>")
-	    val exprs=expr.simplify.toCnfEquiSat;
+	    val exprs=expr.toCnfEquiSat;
 		if (PROFILING)
 			println("</toCNF "+countClauses(exprs)+" in "+(System.currentTimeMillis()-startTime)+" ms>")
 	  
@@ -61,7 +61,7 @@ class SatSolver extends Solver {
         
         solver.newVar(uniqueFlagIds.size)
     	
-		def addClauses(expr:FeatureExpr):Boolean = {
+		def addClauses(expr:FeatureExprTree):Boolean = {
 			  try{
 			    expr match {
 			      case And(children) => for (child<-children)  addClause(child);
@@ -72,7 +72,7 @@ class SatSolver extends Solver {
 			  }
 			  false
 			}
-		def addClause(expr:FeatureExpr):Unit = {
+		def addClause(expr:FeatureExprTree):Unit = {
 			   val children=expr match {
 			     case Or(c) => c
 			     case IntegerLit(i) => if (i!=0) Set(BaseFeature()) else Set(DeadFeature())

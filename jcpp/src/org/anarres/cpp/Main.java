@@ -26,6 +26,7 @@ import java.io.PrintStream;
 import java.util.EnumSet;
 
 import de.fosd.typechef.featureexpr.BaseFeature;
+import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * (Currently a simple test class).
@@ -111,7 +112,7 @@ public class Main {
 		pp.addWarning(Warning.IMPORT);
 		pp.addWarning(Warning.UNDEF);
 		pp.setListener(new PreprocessorListener(pp));
-		pp.addMacro("__JCPP__", new BaseFeature());
+		pp.addMacro("__JCPP__", new FeatureExpr().base());
 		// pp.getSystemIncludePath().add("/usr/local/include");
 		// pp.getSystemIncludePath().add("/usr/include");
 		// pp.getFrameworksPath().add("/System/Library/Frameworks");
@@ -124,13 +125,13 @@ public class Main {
 				arg = g.getOptarg();
 				idx = arg.indexOf('=');
 				if (idx == -1)
-					pp.addMacro(arg, new BaseFeature());
+					pp.addMacro(arg, new FeatureExpr().base());
 				else
-					pp.addMacro(arg.substring(0, idx), new BaseFeature(), arg
-							.substring(idx + 1));
+					pp.addMacro(arg.substring(0, idx),
+							new FeatureExpr().base(), arg.substring(idx + 1));
 				break;
 			case 'U':
-				pp.removeMacro(g.getOptarg(), new BaseFeature());
+				pp.removeMacro(g.getOptarg(), new FeatureExpr().base());
 				break;
 			case 'I':
 				pp.getSystemIncludePath().add(g.getOptarg());
@@ -191,9 +192,9 @@ public class Main {
 
 		try {
 			FileWriter output = new FileWriter(
-					"f:/rosebank/Documents/uni/typechef/Staging/fork.c");
+					"w:/work/typechef/Staging/fork.c");
 
-//			TokenFilter tokenFilter = new TokenFilter();
+			// TokenFilter tokenFilter = new TokenFilter();
 			for (;;) {
 				Token tok = pp.getNextToken();
 				if (tok == null)
@@ -201,13 +202,13 @@ public class Main {
 				if (tok.getType() == Token.EOF)
 					break;
 
-//				tokenFilter.push(tok);
+				// tokenFilter.push(tok);
 
-//				while (tokenFilter.hasLines()) {
-//					String l = tokenFilter.nextLine();
-//					System.out.println(l);
-//					output.write(l + "\n");
-//				}
+				// while (tokenFilter.hasLines()) {
+				// String l = tokenFilter.nextLine();
+				// System.out.println(l);
+				// output.write(l + "\n");
+				// }
 				System.out.print(tok.getText());
 				output.write(tok.getText());
 			}
@@ -221,7 +222,7 @@ public class Main {
 				s = s.getParent();
 			}
 		}
-//		pp.debugWriteMacros();
+		// pp.debugWriteMacros();
 
 	}
 

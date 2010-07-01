@@ -4,3 +4,4 @@
 *.lck
 bin
 *.class
+/tokenstream.txt

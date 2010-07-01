@@ -182,7 +182,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	/* The fundamental engine. */
 	private MacroContext macros = new MacroContext();
-	private State state;
+	State state;
 
 	protected MacroContext getMacros() {
 		return macros;
@@ -204,10 +204,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	public Preprocessor() {
 
-		macros = macros.define("__LINE__", new BaseFeature(),
-				new MacroData(INTERNAL)).define("__FILE__", new BaseFeature(),
-				new MacroData(INTERNAL)).define("__COUNTER__",
-				new BaseFeature(), new MacroData(INTERNAL));
+		macros = macros.define("__LINE__", new FeatureExpr().base(),
+				new MacroData(INTERNAL)).define("__FILE__",
+				new FeatureExpr().base(), new MacroData(INTERNAL)).define(
+				"__COUNTER__", new FeatureExpr().base(),
+				new MacroData(INTERNAL));
 
 		state = new State();
 
@@ -574,7 +575,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			stack.push(new IfdefBlock(visible));
 			if (visible)
 				return new OutputHelper().if_token(tok.getLine(), expr
-						.simplify());
+						);
 			else
 				return new OutputHelper().emptyLine(tok.getLine(), tok
 						.getColumn());
@@ -599,7 +600,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			stack.push(new IfdefBlock(isVisible));
 
 			return new OutputHelper().elif_token(tok.getLine(),
-					localFeatureExpr.simplify(), wasVisible, isVisible);
+					localFeatureExpr, wasVisible, isVisible);
 		}
 	}
 
@@ -617,15 +618,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			return new Token(P_LINE, line, 0, buf.toString(), null);
 		}
 
-		String if_tokenStr(FeatureExpr FeatureExpr) {
+		String if_tokenStr(FeatureExpr featureExpr) {
 			StringBuilder buf = new StringBuilder();
-			buf.append("#if ").append(FeatureExpr).append("\n");
+			buf.append("#if ").append(featureExpr.print()).append("\n");
 			return buf.toString();
 		}
 
-		String elif_tokenStr(FeatureExpr FeatureExpr) {
+		String elif_tokenStr(FeatureExpr featureExpr) {
 			StringBuilder buf = new StringBuilder();
-			buf.append("#elif ").append(FeatureExpr).append("\n");
+			buf.append("#elif ").append(featureExpr.print()).append("\n");
 			return buf.toString();
 		}
 
@@ -641,13 +642,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			return new Token(P_IF, line, 0, if_tokenStr(featureExpr), null);
 		}
 
-		Token elif_token(int line, FeatureExpr FeatureExpr, boolean printEnd,
+		Token elif_token(int line, FeatureExpr featureExpr, boolean printEnd,
 				boolean printIf) {
 			StringBuilder buf = new StringBuilder();
 			if (printEnd)
 				buf.append("#endif\n");
 			if (printIf)
-				buf.append("#if ").append(FeatureExpr);
+				buf.append("#if ").append(featureExpr.print());
 			buf.append("\n");
 			return new Token(P_ELIF, line, 0, buf.toString(), null);
 		}
@@ -753,7 +754,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			args = parse_macroParameters(macroName, inlineCppExpression,
 					originalTokens, firstMacro);
 		} catch (ParseParamException e) {
-			error(e.tok, e.errorMsg);
+			warning(e.tok, e.errorMsg);// ChK: skip errors for now
 			return false;
 		}
 		if (firstMacro.isFunctionLike() && args == null)
@@ -804,13 +805,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			if (macroExpansions.length == 1) {// TODO what happens if the macro
 				// is not always defined? check this!
 				// currentFeature => macroFeature
-				Or commonCondition = new Or(new Not(state
-						.getFullPresenceCondition()), macroExpansions[0]
+				FeatureExpr commonCondition = 
+					state
+					.getFullPresenceCondition().not().or(macroExpansions[0]
 						.getFeature());
 				if (!commonCondition.isBase())
 					macroConstraints.add(new MacroConstraint(macroName,
-							MacroConstraintKind.NOTEXPANDING, new Not(
-									commonCondition)));
+							MacroConstraintKind.NOTEXPANDING, commonCondition.not()));
 
 				sourceManager.push_source(new MacroTokenSource(macroName,
 						firstMacro, args), true);
@@ -839,9 +840,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	private FeatureExpr getCombinedMacroCondition(
 			MacroExpansion[] macroExpansions) {
-		FeatureExpr commonCondition = new Not(state.getFullPresenceCondition());
+		FeatureExpr commonCondition = state.getFullPresenceCondition().not();
 		for (int i = 0; i < macroExpansions.length; i++)
-			commonCondition = new Or(commonCondition, macroExpansions[i]
+			commonCondition = commonCondition.or(macroExpansions[i]
 					.getFeature());
 		return commonCondition;
 	}
@@ -1039,8 +1040,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		if (!alternativesExaustive)
 			macroConstraints
 					.add(new MacroConstraint(macroName,
-							MacroConstraintKind.NOTEXPANDING, new Not(
-									commonCondition)));
+							MacroConstraintKind.NOTEXPANDING, 
+									commonCondition.not()));
 
 		List<Source> resultList = new ArrayList<Source>();
 		for (int i = macroExpansions.length - 1; i >= 0; i--) {
@@ -1049,7 +1050,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			if (i > 0 || !alternativesExaustive)
 				resultList.add(new UnnumberedUnexpandingStringLexerSource(
-						"__IF__(" + feature.toString() + ","));
+						"__IF__(" + feature.print() + ","));
 			resultList.add(new MacroTokenSource(macroName, macroData, args));
 			if (i > 0 || !alternativesExaustive)
 				resultList.add(new UnnumberedUnexpandingStringLexerSource(","));
@@ -1058,7 +1059,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		if (!alternativesExaustive)
 			resultList.add(new UnnumberedUnexpandingStringLexerSource(
 					"0 /*#ERROR not expanded macro " + macroName + " when "
-							+ new Not(commonCondition).simplify() + "*/"));
+							+ commonCondition.not() + "*/"));
 		String closingBrackets = "";
 		for (int i = macroExpansions.length - 2; i >= 0; i--)
 			closingBrackets += ")";
@@ -1076,10 +1077,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	private FeatureExpr getCommonCondition(MacroExpansion[] macroExpansions) {
 		FeatureExpr commonCondition = macroExpansions[0].getFeature();
 		for (int i = macroExpansions.length - 1; i >= 1; i--)
-			commonCondition = new Or(commonCondition, macroExpansions[i]
+			commonCondition = commonCondition.or(macroExpansions[i]
 					.getFeature());
-		commonCondition = new Or(new Not(state.getLocalFeatureExpr()),
-				commonCondition);
+		commonCondition =state.getLocalFeatureExpr().not().or(commonCondition);
 		return commonCondition;
 	}
 
@@ -1512,7 +1512,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			tok = retrieveTokenFromSource();
 		}
 		buf.append("\nPresence condition: "
-				+ state.getFullPresenceCondition().toString());
+				+ state.getFullPresenceCondition().print());
 		if (is_error)
 			error(pptok, buf.toString());
 		else
@@ -1682,7 +1682,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				expr_untoken(tok);
 				error(tok, "missing ) in expression after " + lhs + ", found "
 						+ tok + " instead");
-				return new DeadFeature();
+				return new FeatureExpr().dead();
 			}
 			break;
 
@@ -1690,22 +1690,22 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			lhs = FeatureExpr$.MODULE$.createComplement(parse_featureExpr(11));
 			break;
 		case '!':
-			lhs = new Not(parse_featureExpr(11));
+			lhs = parse_featureExpr(11).not();
 			break;
 		case '-':
 			lhs = FeatureExpr$.MODULE$.createNeg(parse_featureExpr(11));
 			break;
 		case INTEGER:
-			lhs = new IntegerLit(((Number) tok.getValue()).longValue());
+			lhs = new FeatureExpr(new IntegerLit(((Number) tok.getValue()).longValue()));
 			break;
 		case CHARACTER:
-			lhs = new CharacterLit((Character) tok.getValue());
+			lhs = new FeatureExpr(new CharacterLit((Character) tok.getValue()));
 			break;
 		case IDENTIFIER:
 			if (tok.getText().equals("BASE"))
-				lhs = new BaseFeature();
+				lhs = new FeatureExpr().base();
 			else if (tok.getText().equals("DEAD"))
-				lhs = new DeadFeature();
+				lhs = new FeatureExpr().dead();
 			else if (tok.getText().equals("__IF__")) {
 				lhs = parse_ifExpr();
 			} else if (tok.getText().equals("defined")) {
@@ -1715,14 +1715,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				if (warnings.contains(Warning.UNDEF))
 					warning(tok, "Undefined token '" + tok.getText()
 							+ "' encountered in conditional.");
-				lhs = new DeadFeature();
+				lhs = new FeatureExpr().dead();
 			}
 			break;
 
 		default:
 			expr_untoken(tok);
 			error(tok, "Bad token in expression: " + tok.getText());
-			return new DeadFeature();
+			return new FeatureExpr().dead();
 		}
 
 		EXPR: for (;;) {
@@ -1818,11 +1818,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				// 1 : 0;
 				break;
 			case LAND:
-				lhs = new And(lhs, rhs);// (lhs != 0) && (rhs
+				lhs =lhs.and(rhs);// (lhs != 0) && (rhs
 				// != 0) ? 1 : 0;
 				break;
 			case LOR:
-				lhs = new Or(lhs, rhs);// (lhs != 0) || (rhs
+				lhs =lhs.or(rhs);// (lhs != 0) || (rhs
 				// != 0) ? 1 : 0;
 				break;
 
@@ -1831,7 +1831,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			default:
 				error(op, "Unexpected operator " + op.getText());
-				return new DeadFeature();
+				return new FeatureExpr().dead();
 
 			}
 		}
@@ -1858,7 +1858,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		if (la.getType() != IDENTIFIER) {
 			error(la, "defined() needs identifier, not " + la.getText());
-			lhs = new DeadFeature();
+			lhs = new FeatureExpr().dead();
 		} else
 			// System.out.println("Found macro");
 			lhs = FeatureExpr$.MODULE$.createDefined(la.getText(), macros);
@@ -1883,7 +1883,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		consumeToken(',', true);
 		FeatureExpr elseBranch = parse_featureExpr(0);
 		consumeToken(')', true);
-		return new IfExpr(condition, thenBranch, elseBranch);
+		return new FeatureExpr(new IfExpr(condition, thenBranch, elseBranch));
 	}
 
 	private void consumeToken(int tokenType, boolean inlineCppExpression)
@@ -2145,7 +2145,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				case PP_IF:
 					push_state();
 					expr_token = null;
-					state.putLocalFeature(parse_featureExpr(0));
+					FeatureExpr localFeatureExpr = parse_featureExpr(0);
+					state.putLocalFeature(localFeatureExpr);
 					tok = expr_token(true); /* unget */
 
 					if (tok.getType() != NL)
@@ -2202,7 +2203,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						error(tok, "Expected identifier, not " + tok.getText());
 						return source_skipline(false);
 					} else {
-						state.putLocalFeature(parse_ifdefExpr(tok.getText()));
+						FeatureExpr localFeatureExpr2 = parse_ifdefExpr(tok
+								.getText());
+						state.putLocalFeature(localFeatureExpr2);
 						// return
 
 						if (tok.getType() != NL)
@@ -2267,7 +2270,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	}
 
 	private FeatureExpr parse_ifndefExpr(String feature) {
-		return new Not(parse_ifdefExpr(feature));
+		return parse_ifdefExpr(feature).not();
 	}
 
 	private FeatureExpr parse_ifdefExpr(String feature) {

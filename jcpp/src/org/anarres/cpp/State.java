@@ -63,12 +63,12 @@ class State {
 			assert !localFeatures.isEmpty() : "else before #if?";
 
 		if (localFeatures.isEmpty())
-			return new BaseFeature();
+			return  new FeatureExpr().base();
 		FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
 		if (sawElse)
-			result = new Not(result);
+			result = result.not();
 		for (int i = 0; i < localFeatures.size() - 1; i++)
-			result = new And(result, new Not(localFeatures.get(i)));
+			result = result.and(localFeatures.get(i).not());
 
 		return result;
 	}
@@ -86,8 +86,8 @@ class State {
 		if (cache_fullPresenceCondition == null) {
 			FeatureExpr result = getLocalFeatureExpr();
 			if (parent != null)
-				result = new And(result, parent.getFullPresenceCondition());
-			cache_fullPresenceCondition = result.simplify();
+				result = result.and(parent.getFullPresenceCondition());
+			cache_fullPresenceCondition = result;
 		}
 		return cache_fullPresenceCondition;
 	}

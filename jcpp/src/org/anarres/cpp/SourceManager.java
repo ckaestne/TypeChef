@@ -76,6 +76,7 @@ public class SourceManager {
 	 */
 	void push_source(Source source, boolean autopop) {
 		_push_source(source, autopop, false);
+		pp.debugSourceBegin(source,pp.state);
 	}
 
 	/**
@@ -98,6 +99,8 @@ public class SourceManager {
 	 * @see #push_source(Source,boolean)
 	 */
 	protected void pop_source() throws IOException {
+		pp.debugSourceEnd(source);
+
 		if (pp.listener != null)
 			pp.listener.handleSourceChange(this.source, "pop");
 		Source s = this.source;

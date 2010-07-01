@@ -1,5 +1,12 @@
 package de.fosd.typechef.featureexpr
 
+
+object MacroContext {
+	  var EXTERNAL_CONFIG_ONLY = true
+	  def setEXTERNAL_CONFIG_ONLY(v:Boolean) {
+	 	  EXTERNAL_CONFIG_ONLY =v
+	  }
+}
 /**
  * represents the knowledge about macros at a specific point in time time
  * 
@@ -8,19 +15,30 @@ package de.fosd.typechef.featureexpr
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
 class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
+  /**
+   * when true, only CONFIG_ flags can be defined externally (simplifies the handling signficiantly)
+   */
+
+	
   def this() = { this(Map()) }
   def define(name: String, feature: FeatureExpr, other: Any):MacroContext = new MacroContext(
     knownMacros.get(name) match {
       case Some(macro) => knownMacros.update(name,macro.addNewAlternative(new MacroExpansion(feature, other)))
 //      case Some(macro) => knownMacros.update(name,macro.andNot(feature).or(feature).addExpansion(new MacroExpansion(feature, other)))
-      case None => knownMacros + ((name, new Macro(name, new Or(DefinedExternal(name),feature).simplify(), List(new MacroExpansion(feature, other)))))
+      case None => {
+    	  val initialFeatureExpr = if (!MacroContext.EXTERNAL_CONFIG_ONLY || name.startsWith("CONFIG_")) 
+    	 	  feature.or(DefinedExternal(name))
+    	  else 
+    	 	  feature
+    	  knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
+      }
     }
   )
   
   def undefine(name: String, feature: FeatureExpr):MacroContext = new MacroContext(
     knownMacros.get(name) match {
       case Some(macro) => knownMacros.update(name,macro.andNot(feature))
-      case None => knownMacros + ((name, new Macro(name, new And(DefinedExternal(name),Not(feature)).simplify(), List())))
+      case None => knownMacros + ((name, new Macro(name, feature.not().and(DefinedExternal(name)), List())))
     }
   )
   
@@ -33,10 +51,10 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
     knownMacros.get(feature) match {
       case Some(macro) => macro.getFeature()
       case None =>  
-      	if (feature.startsWith("CONFIG_"))
-      		DefinedExternal(feature)
+      	if (!MacroContext.EXTERNAL_CONFIG_ONLY || feature.startsWith("CONFIG_"))
+      		new FeatureExpr(DefinedExternal(feature))
       	else
-      		DeadFeature()
+      		new FeatureExpr(DeadFeature())
     }
   } 
     
@@ -50,7 +68,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
       case None => Array()
     }
   def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr):Array[MacroExpansion] =
-	  getMacroExpansions(identifier).filter(m => !new And(currentPresenceCondition,m.getFeature()).isDead());
+	  getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
     
   override def toString() = { knownMacros.values.mkString("\n\n\n") }
 }
@@ -67,7 +85,7 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
   def isBase():Boolean = feature.isBase();
   def isDead():Boolean = feature.isDead();
   def addNewAlternative(exp:MacroExpansion):Macro = {
-	  new Macro(name, new Or(feature,exp.getFeature()), addExpansion(exp))
+	  new Macro(name,feature.or(exp.getFeature()), addExpansion(exp))
   }
   /**
    * add an expansion (either by extending an existing one or by adding a new one). 
@@ -93,12 +111,12 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
 class MacroExpansion(feature: FeatureExpr, expansion:Any) {
   def getFeature():FeatureExpr = feature
   def getExpansion():Any = expansion
-  def andNot(expr: FeatureExpr):MacroExpansion = new MacroExpansion(new And(feature,Not(expr)).simplify, expansion)
+  def andNot(expr: FeatureExpr):MacroExpansion = new MacroExpansion(feature.and(expr.not), expansion)
   override def toString() = "\t\t"+expansion.toString()+" if "+feature.toString
   //if the other has the same expansion, merge features as OR
   def extend(other:MacroExpansion):MacroExpansion =
     if (expansion==other.getExpansion()) 
-      new MacroExpansion(new Or(feature,other.getFeature()),expansion)
+      new MacroExpansion(feature.or(other.getFeature()),expansion)
     else this
 }
 

@@ -24,7 +24,7 @@ import static org.anarres.cpp.Token.EOF;
 import java.io.IOException;
 import java.io.Reader;
 
-import de.fosd.typechef.featureexpr.BaseFeature;
+import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A Reader wrapper around the Preprocessor.
@@ -73,9 +73,9 @@ public class CppReader extends Reader {
 	 */
 	public void addMacro(String name)
 						throws LexerException {
-		cpp.addMacro(name,new BaseFeature());
+		cpp.addMacro(name,new FeatureExpr().base());
 	}
-
+ 
 	/**
 	 * Defines the given name as a macro.
 	 *
@@ -83,7 +83,7 @@ public class CppReader extends Reader {
 	 */
 	public void addMacro(String name, String value)
 						throws LexerException {
-		cpp.addMacro(name, new BaseFeature(), value);
+		cpp.addMacro(name, new FeatureExpr().base(), value);
 	}
 
 	private boolean refill()

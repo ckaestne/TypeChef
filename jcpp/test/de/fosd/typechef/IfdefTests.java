@@ -19,18 +19,18 @@ public class IfdefTests {
 	public void testMacroContext(){
 		MacroContext c = new MacroContext();
 		System.out.println(c);
-		c=c.define("test",new BaseFeature(),"=>0");
+		c=c.define("test",new FeatureExpr().base(),"=>0");
 		System.out.println(Arrays.toString(c.getMacroExpansions("test")));//0 if BASE
-		c=c.define("test",new BaseFeature(),"=>1");
+		c=c.define("test",new FeatureExpr().base(),"=>1");
 		System.out.println(Arrays.toString(c.getMacroExpansions("test")));//1 if BASE; 0 if DEAD
-		c=c.define("test",new DefinedExternal("X"),"=>2");
+		c=c.define("test",new FeatureExpr(new DefinedExternal("X")),"=>2");
 		System.out.println(Arrays.toString(c.getMacroExpansions("test")));//2 if X; 1 if !X; 0 if DEAD
-		c=c.define("test",new BaseFeature(),"=>3");
+		c=c.define("test",new FeatureExpr().base(),"=>3");
 		System.out.println(Arrays.toString(c.getMacroExpansions("test")));//3 if BASE
 		
 		c = new MacroContext();
 		System.out.println(c);
-		c=c.define("test",new DefinedExternal("X"),"=>0");
+		c=c.define("test",new FeatureExpr(new DefinedExternal("X")),"=>0");
 		System.out.println(Arrays.toString(c.getMacroExpansions("test")));//0 if X
 	}
   
@@ -38,7 +38,7 @@ public class IfdefTests {
 	public void testFeatureExprLib(){
 //		Defined$ d=Defined$.MODULE$;
 //		System.out.println(new FeatureExpr().test());
-		System.out.println(new Not(FeatureExpr$.MODULE$.createDefined("test",new MacroContext())));
+		System.out.println(FeatureExpr$.MODULE$.createDefined("test",new MacroContext()).not());
 	}
 	
 	@Test @Ignore
@@ -67,21 +67,7 @@ public class IfdefTests {
 				});
 
 	}
-  @Test@Ignore
-	public void testIfSimplify() throws Exception {
-		FeatureExpr expr=new IfExpr(new DefinedExternal("a"),new IntegerLit(2),new IntegerLit(0));
-		System.out.println(expr);
-		System.out.println(expr.simplify());
-
-		FeatureExpr expr2=new IfExpr(new DefinedExternal("b"),new IntegerLit(1),expr);
-		System.out.println(expr2);
-		System.out.println(expr2.simplify());
-
-		FeatureExpr expr3=FeatureExpr$.MODULE$.createEquals(expr2,new IntegerLit(1));
-		System.out.println(expr3);
-		System.out.println(expr3.simplify());
-	}
-
+  
   @Test 
 	public void testRecursiveMacro() throws Exception {
 		Main.main(new String[] { "test/tc_data/recursivemacro.h","-I","test/tc_data/"// ,"--debug"

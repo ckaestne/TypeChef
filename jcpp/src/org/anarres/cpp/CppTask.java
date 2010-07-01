@@ -25,6 +25,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 import de.fosd.typechef.featureexpr.BaseFeature;
+import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * An ant task for jcpp.
@@ -71,7 +72,7 @@ public class CppTask extends Task {
 
 	public void addMacro(Macro macro) {
 		try {
-			cpp.addMacro(macro.getName(),new BaseFeature(), macro.getValue());
+			cpp.addMacro(macro.getName(),new FeatureExpr().base(), macro.getValue());
 		}
 		catch (LexerException e) {
 			throw new BuildException(e);

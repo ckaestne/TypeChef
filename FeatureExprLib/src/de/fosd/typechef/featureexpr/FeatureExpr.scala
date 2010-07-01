@@ -3,45 +3,86 @@ package de.fosd.typechef.featureexpr
 
 object FeatureExpr {
   def createDefined(feature:String, context:FeatureProvider):FeatureExpr = 
-    context.getMacroCondition(feature) simplify
+    context.getMacroCondition(feature)
   
-  def createComplement(expr:FeatureExpr) = UnaryFeatureExpr(expr, "~", ~_)
-  def createNeg(expr:FeatureExpr) = UnaryFeatureExpr(expr, "-", -_)
-  def createBitAnd(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "&", _ & _)
-  def createBitOr(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "|", _ | _)
-  def createDivision(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "/", _ / _)
-  def createModulo(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "%", _ % _)
-  def createEquals(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "==", (a,b) => if (a==b) 1 else 0)
-  def createNotEquals(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "!=", (a,b) => if (a!=b) 1 else 0)
-  def createLessThan(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right,  "<", (a,b) => if (a<b) 1 else 0)
-  def createLessThanEquals(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "<=", (a,b) => if (a<=b) 1 else 0)
-  def createGreaterThan(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, ">", (a,b) => if (a>b) 1 else 0)
-  def createGreaterThanEquals(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, ">=", (a,b) => if (a>=b) 1 else 0)
-  def createMinus(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "-", _ - _)
-  def createMult(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "*", _ * _)
-  def createPlus(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "+", _ + _)
-  def createPwr(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right,  "^", _ ^ _)
-  def createShiftLeft(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, "<<", _ << _)
-  def createShiftRight(left:FeatureExpr, right:FeatureExpr) = BinaryFeatureExpr(left, right, ">>", _ >> _)
+  def createComplement(expr:FeatureExpr) = new FeatureExpr(UnaryFeatureExprTree(expr.expr, "~", ~_))
+  def createNeg(expr:FeatureExpr) = new FeatureExpr(UnaryFeatureExprTree(expr.expr, "-", -_))
+  def createBitAnd(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "&", _ & _))
+  def createBitOr(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "|", _ | _))
+  def createDivision(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "/", _ / _))
+  def createModulo(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "%", _ % _))
+  def createEquals(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "==", (a,b) => if (a==b) 1 else 0))
+  def createNotEquals(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "!=", (a,b) => if (a!=b) 1 else 0))
+  def createLessThan(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr,  "<", (a,b) => if (a<b) 1 else 0))
+  def createLessThanEquals(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "<=", (a,b) => if (a<=b) 1 else 0))
+  def createGreaterThan(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">", (a,b) => if (a>b) 1 else 0))
+  def createGreaterThanEquals(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">=", (a,b) => if (a>=b) 1 else 0))
+  def createMinus(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "-", _ - _))
+  def createMult(left:FeatureExpr, right:FeatureExpr) =new FeatureExpr( BinaryFeatureExprTree(left.expr, right.expr, "*", _ * _))
+  def createPlus(left:FeatureExpr, right:FeatureExpr) =new FeatureExpr( BinaryFeatureExprTree(left.expr, right.expr, "+", _ + _))
+  def createPwr(left:FeatureExpr, right:FeatureExpr) =new FeatureExpr( BinaryFeatureExprTree(left.expr, right.expr,  "^", _ ^ _))
+  def createShiftLeft(left:FeatureExpr, right:FeatureExpr) =new FeatureExpr( BinaryFeatureExprTree(left.expr, right.expr, "<<", _ << _))
+  def createShiftRight(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
 
-  def createImplies(left:FeatureExpr, right:FeatureExpr) = new Or(Not(left),right)
+  def createImplies(left:FeatureExpr, right:FeatureExpr) = left.not().or(right)
   
   private var freshFeatureNameCounter=0 
   def calcFreshFeatureName():String = {freshFeatureNameCounter=freshFeatureNameCounter+1; "__fresh"+freshFeatureNameCounter;}
 }
 
-sealed abstract class FeatureExpr {
+class FeatureExpr {
+	var isSimplified = false;
+	var expr:FeatureExprTree = null;
+	def this(that:FeatureExprTree) { this(); expr=that; isSimplified = false;}
+	
+	def simplify():Unit = {
+		if (!isSimplified) {
+			expr=expr.simplify();
+			isSimplified=true;
+		}
+	}
+		
+	override def toString():String = this.debug_print()
+	def isDead():Boolean = {
+		simplify(); 
+		var result=expr.isDead();
+		if (result) expr=DeadFeature();
+		result
+	}
+	def isBase():Boolean = {
+		simplify(); 
+		var result=expr.isBase();
+		if (result) expr=BaseFeature();
+		result
+	}
+	def accept(f:FeatureExprTree=>Unit):Unit = { simplify(); expr.accept(f) }
+	def toCnfEquiSat():FeatureExprTree = { simplify(); expr.toCnfEquiSat(); }
+	def print():String = { simplify(); expr.print(); }
+	def debug_print():String = {simplify();  expr.debug_print(0);}
+	
+	def or(that:FeatureExprTree):FeatureExpr = new FeatureExpr(new Or(expr,that));
+	def or(that:FeatureExpr):FeatureExpr = new FeatureExpr(new Or(expr,that.expr));
+	def and(that:FeatureExprTree):FeatureExpr = new FeatureExpr(new And(expr,that));
+	def and(that:FeatureExpr):FeatureExpr = new FeatureExpr(new And(expr,that.expr));
+	def not():FeatureExpr = new FeatureExpr(Not(expr));
+	def base():FeatureExpr = new FeatureExpr(BaseFeature())
+	def dead():FeatureExpr = new FeatureExpr(DeadFeature())
+}
+
+sealed abstract class FeatureExprTree {
   //optimization to not simplify the same expression over and over again
-  private var cache_simplifiedExpr:FeatureExpr = null;
+//  private var cache_simplifiedExpr:FeatureExprTree = null;
   private var isSimplified:Boolean = false
-  private def setSimplified():FeatureExpr = { isSimplified=true; return this }
-  def simplify():FeatureExpr = { 
-    if (isSimplified) return this
-    if (cache_simplifiedExpr==null) {
-    	cache_simplifiedExpr = this match {
+  private def setSimplified():FeatureExprTree = { isSimplified=true; return this }
+  def simplify():FeatureExprTree = { 
+    if (isSimplified) 
+    	return this
+//    if (cache_simplifiedExpr==null) {
+//    	cache_simplifiedExpr = this match {
+	 val result = this match {
 		    case And(children) => {
 		      val childrenSimplified = children.map(_.simplify()) - BaseFeature();
-		      var childrenFlattened:Set[FeatureExpr] = Set()
+		      var childrenFlattened:Set[FeatureExprTree] = Set()
 		      for (childs<-childrenSimplified)
 		    	  	childs match {
 		    	  	  case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
@@ -53,12 +94,26 @@ sealed abstract class FeatureExpr {
 		      if (childrenFlattened.exists(_==DeadFeature())) return DeadFeature()
 		      if (childrenFlattened.size==1) return (childrenFlattened.elements).next()
 		      if (childrenFlattened.size==0) return BaseFeature()
-		      return And(childrenFlattened)
+		      //look for pattern AND(a,b,c,NOT(AND(b,c))) => false
+		      if (childrenFlattened.exists(
+		     		  _ match { 
+		     		 	  case Not(And(innerChildren)) => innerChildren.forall(childrenFlattened.contains(_))
+		     		 	  case _ => false;
+		     		  }
+		      )) return DeadFeature();
+
+		       return And(childrenFlattened)
 		    }
 //    		case Or(And(a,Not(b)),c) if b==c => new Or(a,b)
 		    case Or(children) => {
+//		      if (children.size==2) {
+//		     	  optimizeOrAndNotPattern(children) match {
+//		     	 	  case Some(e) => return e.simplify;
+//		     	 	  case _ =>;
+//		     	  }
+//		      }
 		      val childrenSimplified =  children.map(_.simplify()) - DeadFeature();
-		      var childrenFlattened:Set[FeatureExpr] = Set()
+		      var childrenFlattened:Set[FeatureExprTree] = Set()
 		      for (childs<-childrenSimplified)
 		    	  	childs match {
 		    	  	  case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
@@ -70,14 +125,23 @@ sealed abstract class FeatureExpr {
 		      if (childrenFlattened.exists(_==BaseFeature())) return BaseFeature()
 		      if (childrenFlattened.size==1) return (childrenFlattened.elements).next()
 		      if (childrenFlattened.size==0) return DeadFeature()
+		      
+		      //look for pattern OR(a,b,c,NOT(OR(b,c))) => true
+		      if (childrenFlattened.exists(
+		     		  _ match { 
+		     		 	  case Not(Or(innerChildren)) => innerChildren.forall(childrenFlattened.contains(_))
+		     		 	  case _ => false;
+		     		  }
+		      )) return BaseFeature();
+		      
 		      return Or(childrenFlattened)
 		    }
-		    case BinaryFeatureExpr(IfExpr(c,a,b), right, opStr, op) =>
-		      IfExpr(c,BinaryFeatureExpr(a, right, opStr, op),BinaryFeatureExpr(b, right, opStr, op)).simplify
-		    case BinaryFeatureExpr(left, right, "==",_) if left.simplify() == right.simplify() => BaseFeature()
-		    case BinaryFeatureExpr(IntegerLit(a),IntegerLit(b), _,op) => IntegerLit(op(a,b))
-		    case BinaryFeatureExpr(left, right, opStr, op) => BinaryFeatureExpr(left simplify, right simplify, opStr, op)
-		    case UnaryFeatureExpr(expr, opStr, op) => UnaryFeatureExpr(expr simplify, opStr, op)
+		    case BinaryFeatureExprTree(IfExpr(c,a,b), right, opStr, op) =>
+		      IfExpr(c,BinaryFeatureExprTree(a, right, opStr, op),BinaryFeatureExprTree(b, right, opStr, op)).simplify
+		    case BinaryFeatureExprTree(left, right, "==",_) if left.simplify() == right.simplify() => BaseFeature()
+		    case BinaryFeatureExprTree(IntegerLit(a),IntegerLit(b), _,op) => IntegerLit(op(a,b))
+		    case BinaryFeatureExprTree(left, right, opStr, op) => BinaryFeatureExprTree(left simplify, right simplify, opStr, op)
+		    case UnaryFeatureExprTree(expr, opStr, op) => UnaryFeatureExprTree(expr simplify, opStr, op)
 		    case Not(a)  => 
 			      a.simplify match {
 				      	case IntegerLit(v) => if (v==0) BaseFeature() else DeadFeature()
@@ -96,52 +160,53 @@ sealed abstract class FeatureExpr {
 		    case IntegerLit(_) => this 
 		    case CharacterLit(_) => this
 		    case DefinedExternal(_) => this
-    	}
-    	cache_simplifiedExpr = cache_simplifiedExpr.setSimplified
-    }
-    return cache_simplifiedExpr
+    	};
+//    result.setSimplified
+    	result
+//    	cache_simplifiedExpr = cache_simplifiedExpr.setSimplified
+////    	isDead()
+////    	isBase()
+//    }
+//    return cache_simplifiedExpr
   }
+ 
   def print():String
   def debug_print(level:Int):String
   def indent(level:Int):String = {var result=""; for (i <- 0 until level) result=result+"\t"; result; }
   override def toString():String = debug_print(0)
   var possibleValuesCache:Set[Long] = null
-//  def possibleValues():Set[Long] = {
-//    if (possibleValuesCache==null)
-//      possibleValuesCache = calcPossibleValues();
-//    possibleValuesCache
-//  }
-//  def calcPossibleValues():Set[Long]
-  var cached_isDead:Option[Boolean] = None
-  var cached_isBase:Option[Boolean] = None
   /**
    * checks whether the formula is a contradiction
    * @return
    */
   def isDead():Boolean = {
-	  if (cached_isBase == Some(true)) return false
-	  if (cached_isDead.isEmpty)
-		  cached_isDead=Some(this==DeadFeature() || new SatSolver().isContradiction(this))
-	  if (cached_isDead.get)
-	 	  cache_simplifiedExpr=DeadFeature();
-      cached_isDead.get
+	  var _isDead=this==DeadFeature();
+//	  var _isDead=this.simplify==DeadFeature();
+	  if (!_isDead) {
+		  _isDead=new SatSolver().isContradiction(this)
+//		  if (_isDead)
+//		 	  cache_simplifiedExpr=DeadFeature();
+	  }
+      _isDead
   }
   /**
    * checks whether the formula is a tautology
    * @return
    */
   def isBase():Boolean = {
-	  if (cached_isDead == Some(true)) return false
-	  if (cached_isBase.isEmpty)
-	 	  cached_isBase = Some(this==BaseFeature() || new SatSolver().isTautology(this))
-	  if (cached_isBase.get)
-	 	  cache_simplifiedExpr=BaseFeature();
-	  cached_isBase.get
+	  var _isBase = this==BaseFeature()
+//	  var _isBase = this.simplify==BaseFeature()
+	  if (!_isBase) {
+	 	  _isBase=new SatSolver().isTautology(this)
+//	 	  if (_isBase)
+//	 	 	  cache_simplifiedExpr=DeadFeature();
+	  }
+	  _isBase
   }
     
-  def accept(f:FeatureExpr=>Unit):Unit;
+  def accept(f:FeatureExprTree=>Unit):Unit;
   
-//  def toCNF():FeatureExpr =
+//  def toCNF():FeatureExprTree =
 //    this.simplify match {
 //      case IfExpr(c,a,b) => new Or(new And(c,a),new And(Not(c),b)).toCNF()
 //      case Not(And(children)) => Or(children.map(Not(_).toCNF())).toCNF()
@@ -168,20 +233,24 @@ sealed abstract class FeatureExpr {
 //      case e => e
 //    }  
   
-  def toCnfEquiSat():FeatureExpr =
+  def toCnfEquiSat():FeatureExprTree =
     this.simplify match {
       case IfExpr(c,a,b) => new Or(new And(c,a),new And(Not(c),b)).toCnfEquiSat()
-      case Not(And(children)) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
-      case Not(Or(children)) => And(children.map(Not(_).toCnfEquiSat())).simplify
-      case Not(e:IfExpr) => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
+      case Not(e) =>
+      	e.simplify() match {
+      		case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
+      		case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
+      		case e:IfExpr => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
+      		case e => e
+      	}
       case And(children) => And(children.map(_.toCnfEquiSat)).simplify
       case Or(children) => {
         val cnfchildren=children.map(_.toCnfEquiSat)
         if (cnfchildren.exists(_.isInstanceOf[And])) {
-	        var orClauses:Set[FeatureExpr] = Set()//list of Or expressions
-//	        val freshFeatureNames:Set[FeatureExpr]=for (child<-children) yield DefinedExternal(freshFeatureName())
+	        var orClauses:Set[FeatureExprTree] = Set()//list of Or expressions
+//	        val freshFeatureNames:Set[FeatureExprTree]=for (child<-children) yield DefinedExternal(freshFeatureName())
          
-	        var freshFeatureNames:Set[FeatureExpr]=Set()
+	        var freshFeatureNames:Set[FeatureExprTree]=Set()
         	for (val child<-cnfchildren) {
         	  val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
 	          child match {
@@ -200,12 +269,12 @@ sealed abstract class FeatureExpr {
       case e => e
     }
 }
-abstract class AbstractBinaryFeatureExpr(
-  left:FeatureExpr, 
-  right:FeatureExpr, 
+abstract class AbstractBinaryFeatureExprTree(
+  left:FeatureExprTree, 
+  right:FeatureExprTree, 
   opStr:String, 
   op:(Long,Long)=>Long
-) extends FeatureExpr {
+) extends FeatureExprTree {
 
   //def eval(context:FeatureProvider) = op(left.eval(context), right.eval(context))
   def print() = "("+left.print + " "+ opStr +" "+right.print+")"
@@ -221,45 +290,45 @@ abstract class AbstractBinaryFeatureExpr(
 //    ) result += op(a, b)
 //    result
 //  }
-  def accept(f:FeatureExpr=>Unit):Unit = {
+  def accept(f:FeatureExprTree=>Unit):Unit = {
     f(this)
     left.accept(f)
     right.accept(f)
   }
 }
-abstract class AbstractNaryBinaryFeatureExpr(
-  children:Set[FeatureExpr], 
+abstract class AbstractNaryBinaryFeatureExprTree(
+  children:Set[FeatureExprTree], 
   opStr:String, 
   op:(Boolean,Boolean)=>Boolean
-) extends FeatureExpr {
+) extends FeatureExprTree {
   def print() = children.map(_.print).mkString("("," "+ opStr +" ",")")
   def debug_print(level:Int):String = 
     			indent(level)+opStr+"\n"+
     			children.map(_.debug_print(level+1)).mkString("")
-  def accept(f:FeatureExpr=>Unit):Unit = {
+  def accept(f:FeatureExprTree=>Unit):Unit = {
     f(this)
     for (child<-children)child.accept(f)
   }
 }
 
-abstract class AbstractBinaryBoolFeatureExpr( 
-  left:FeatureExpr, 
-  right:FeatureExpr, 
+abstract class AbstractBinaryBoolFeatureExprTree( 
+  left:FeatureExprTree, 
+  right:FeatureExprTree, 
   opStr:String, 
   op:(Boolean,Boolean)=>Boolean
-) extends AbstractBinaryFeatureExpr(left,right,opStr, (a,b) => if (op(a!=0,b!=0)) 1 else 0)
-abstract class AbstractBinaryCompFeatureExpr( 
-  left:FeatureExpr, 
-  right:FeatureExpr, 
+) extends AbstractBinaryFeatureExprTree(left,right,opStr, (a,b) => if (op(a!=0,b!=0)) 1 else 0)
+abstract class AbstractBinaryCompFeatureExprTree( 
+  left:FeatureExprTree, 
+  right:FeatureExprTree, 
   opStr:String, 
   op:(Long,Long)=>Boolean
-) extends AbstractBinaryFeatureExpr(left,right,opStr, (a,b) => if (op(a,b)) 1 else 0)
+) extends AbstractBinaryFeatureExprTree(left,right,opStr, (a,b) => if (op(a,b)) 1 else 0)
 
-abstract class AbstractUnaryFeatureExpr(
-  expr:FeatureExpr, 
+abstract class AbstractUnaryFeatureExprTree(
+  expr:FeatureExprTree, 
   opStr:String, 
   op:(Long)=>Long
-) extends FeatureExpr {
+) extends FeatureExprTree {
   //def eval(context:FeatureProvider) = op(expr.eval(context))
   def print() = opStr +"("+expr.print+")"
   def debug_print(level:Int) = indent(level)+opStr +"\n"+expr.debug_print(level+1);
@@ -270,41 +339,41 @@ abstract class AbstractUnaryFeatureExpr(
 //    ) result += op(a)
 //    result
 //  }
-  def accept(f:FeatureExpr=>Unit):Unit = {
+  def accept(f:FeatureExprTree=>Unit):Unit = {
     f(this)
     expr.accept(f)
   }
 }
-abstract class AbstractUnaryBoolFeatureExpr(
-  expr:FeatureExpr, 
+abstract class AbstractUnaryBoolFeatureExprTree(
+  expr:FeatureExprTree, 
   opStr:String, 
   op:(Boolean)=>Boolean
-) extends AbstractUnaryFeatureExpr(expr,opStr, (ev) => if (op(ev!=0)) 1 else 0);
+) extends AbstractUnaryFeatureExprTree(expr,opStr, (ev) => if (op(ev!=0)) 1 else 0);
 
 
 /** external definion of a feature (cannot be decided to Base or Dead inside this file) */
-case class DefinedExternal(feature:String)extends FeatureExpr {
+case class DefinedExternal(feature:String)extends FeatureExprTree {
   def print():String = {
     assert(feature!="") 
     "defined("+feature+")";
   }
   def debug_print(level:Int):String = indent(level)+feature+"\n";
-  def accept(f:FeatureExpr=>Unit):Unit = f(this)
+  def accept(f:FeatureExprTree=>Unit):Unit = f(this)
 }
 
-case class CharacterLit(char:Int) extends FeatureExpr {
+case class CharacterLit(char:Int) extends FeatureExprTree {
   def print():String = "'"+char.toString+"'";
   def debug_print(level:Int):String = indent(level)+print()+"\n";
   //def eval(context:FeatureProvider):Long = char.toLong;
   def calcPossibleValues():Set[Long] = Set(char.toLong)
-  def accept(f:FeatureExpr=>Unit):Unit = f(this)
+  def accept(f:FeatureExprTree=>Unit):Unit = f(this)
 }
-case class IntegerLit(num:Long) extends FeatureExpr {
+case class IntegerLit(num:Long) extends FeatureExprTree {
   def print():String = num.toString;
   def debug_print(level:Int):String = indent(level)+print()+"\n";
   //def eval(context:FeatureProvider):Long = num;
   def calcPossibleValues():Set[Long] = Set(num)
-  def accept(f:FeatureExpr=>Unit):Unit = f(this)
+  def accept(f:FeatureExprTree=>Unit):Unit = f(this)
 }
 
 case class DeadFeature() extends IntegerLit(0)
@@ -312,7 +381,8 @@ case class DeadFeature() extends IntegerLit(0)
 case class BaseFeature() extends IntegerLit(1)
 
 
-case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: FeatureExpr) extends FeatureExpr {
+case class IfExpr(condition:FeatureExprTree, thenBranch:FeatureExprTree, elseBranch: FeatureExprTree) extends FeatureExprTree {
+	def this(cond:FeatureExpr,thenB:FeatureExpr,elseBr:FeatureExpr)= this(cond.expr,thenB.expr,elseBr.expr );
 //	def calcPossibleValues() = if (condition.isBase()) thenBranch.possibleValues()
 //                        else if (condition.isDead()) elseBranch.possibleValues()
 //                        else thenBranch.possibleValues() ++ elseBranch.possibleValues()
@@ -324,12 +394,12 @@ case class IfExpr(condition:FeatureExpr, thenBranch:FeatureExpr, elseBranch: Fea
     			thenBranch.debug_print(level+1)+
     			indent(level)+"__ELSE__"+"\n"+
     			elseBranch.debug_print(level+1);
-    def accept(f:FeatureExpr=>Unit):Unit = { f(this); condition.accept(f);thenBranch.accept(f);elseBranch.accept(f) }
+    def accept(f:FeatureExprTree=>Unit):Unit = { f(this); condition.accept(f);thenBranch.accept(f);elseBranch.accept(f) }
 }
  
-case class Not(expr:FeatureExpr)extends AbstractUnaryBoolFeatureExpr(expr, "!", !_);
-case class And(children:Set[FeatureExpr]) extends AbstractNaryBinaryFeatureExpr(children, "&&", _ && _) {
-  def this(left:FeatureExpr,right:FeatureExpr) = this(Set(left,right))
+case class Not(expr:FeatureExprTree)extends AbstractUnaryBoolFeatureExprTree(expr, "!", !_);
+case class And(children:Set[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
+  def this(left:FeatureExprTree,right:FeatureExprTree) = this(Set(left,right))
 //  def calcPossibleValues():Set[Long] = {
 //    var result:Set[Long]=Set()
 //    if (children.exists(_.calcPossibleValues().exists(_==0))) result+=0
@@ -337,18 +407,18 @@ case class And(children:Set[FeatureExpr]) extends AbstractNaryBinaryFeatureExpr(
 //    result
 //  }
 }
-case class Or(children:Set[FeatureExpr]) extends AbstractNaryBinaryFeatureExpr(children, "||", _ || _){
-  def this(left:FeatureExpr,right:FeatureExpr) = this(Set(left,right))
+case class Or(children:Set[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _){
+  def this(left:FeatureExprTree,right:FeatureExprTree) = this(Set(left,right))
 //  def calcPossibleValues():Set[Long] = {
 //    var result:Set[Long]=Set()
 //    if (children.exists(_.calcPossibleValues().exists(_==1))) result+=1
 //    if (children.forall(_.calcPossibleValues().exists(_==0))) result+=0
 //    result
 //  }
-  def addChild(child:FeatureExpr) = Or(children+child);
+  def addChild(child:FeatureExprTree) = Or(children+child);
 }
 
-case class UnaryFeatureExpr(expr:FeatureExpr, opStr:String, op:(Long)=>Long) extends AbstractUnaryFeatureExpr(expr, opStr, op)
-case class BinaryFeatureExpr(left:FeatureExpr, right:FeatureExpr, opStr:String, op:(Long, Long)=>Long) extends AbstractBinaryFeatureExpr(left, right, opStr, op)
+case class UnaryFeatureExprTree(expr:FeatureExprTree, opStr:String, op:(Long)=>Long) extends AbstractUnaryFeatureExprTree(expr, opStr, op)
+case class BinaryFeatureExprTree(left:FeatureExprTree, right:FeatureExprTree, opStr:String, op:(Long, Long)=>Long) extends AbstractBinaryFeatureExprTree(left, right, opStr, op)
 
 

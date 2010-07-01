@@ -28,10 +28,13 @@ public abstract class DebuggingPreprocessor {
 	}
 
 	BufferedWriter debugFile;
+	BufferedWriter debugSourceFile;
 	{
 		try {
 			debugFile = new BufferedWriter(new FileWriter(new File(
 					"tokenstream.txt")));
+			debugSourceFile = new BufferedWriter(new FileWriter(new File(
+					"debugsource.txt")));
 		} catch (IOException e) {
 		}
 	}
@@ -82,4 +85,35 @@ public abstract class DebuggingPreprocessor {
 				e.printStackTrace();
 			}
 	}
+
+	int debugSourceIdx = 0;
+
+	public void debugSourceBegin(Source source, State state) {
+		if (source instanceof FileLexerSource) {
+			debugSourceIdx++;
+			try {
+				for (int i = 1; i < debugSourceIdx; i++)
+					debugSourceFile.write("\t");
+				debugSourceFile.write("push " + source.toString()+" -- "+state.getLocalFeatureExpr() + "\n");
+				debugSourceFile.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void debugSourceEnd(Source source) {
+		if (source instanceof FileLexerSource) {
+			debugSourceIdx--;
+			try {
+				for (int i = 0; i < debugSourceIdx; i++)
+					debugSourceFile.write("\t");
+				debugSourceFile.write("pop " + source.toString() + "\n");
+				debugSourceFile.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 }

@@ -18,7 +18,8 @@ import org.anarres.cpp.StringLexerSource;
 import org.anarres.cpp.Token;
 import org.anarres.cpp.Warning;
 
-import de.fosd.typechef.featureexpr.BaseFeature;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.*;
 
 public class AbstractCheckTests {
 
@@ -101,6 +102,9 @@ public class AbstractCheckTests {
 			if (line.trim().equals("print")) {
 				System.out.println(output.toString());
 			}
+			if (line.trim().equals("macrooutput")) {
+				System.out.println(pp.debugMacros());
+			}
 		}
 	}
 
@@ -112,13 +116,15 @@ public class AbstractCheckTests {
 
 	private StringBuffer parse(Source source, boolean debug, String folder)
 			throws LexerException, IOException {
+		MacroContext$.MODULE$.setEXTERNAL_CONFIG_ONLY(false);
+		
 		pp = new Preprocessor();
 		pp.addFeature(Feature.DIGRAPHS);
 		pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addWarning(Warning.IMPORT);
 		pp.setListener(new PreprocessorListener(pp));
-		pp.addMacro("__JCPP__", new BaseFeature());
+		pp.addMacro("__JCPP__", new FeatureExpr().base());
 
 		// include path
 		if (folder!=null)
