@@ -79,11 +79,14 @@ object TestFeatureExpr  extends Application {
  assertSimplify(new Or(new Or(DefinedExternal("a"),new Or(DefinedExternal("b"),DefinedExternal("c"))),Not(new Or(DefinedExternal("b"),DefinedExternal("c")))),BaseFeature())
  assertSimplify(new Or(Set(DefinedExternal("a"),DefinedExternal("b"),DefinedExternal("c"),Not(new Or(DefinedExternal("b"),DefinedExternal("c"))))),BaseFeature())
  assertSimplify(new And(And(Set(DefinedExternal("a"),DefinedExternal("b"),DefinedExternal("c"))),Not(new And(DefinedExternal("b"),DefinedExternal("c")))),DeadFeature())
+ assertSimplify(new Or(new And(Not(DefinedExternal("a")),DefinedExternal("b")),DefinedExternal("a")),DefinedExternal("b"))
  
  assertIsCNF(And(Set(new Or(DefinedExternal("a1"),DefinedExternal("b")),
           new Or(new And(DefinedExternal("a2"),new Or(DefinedExternal("b"),DefinedExternal("c"))),
           new Or(DefinedExternal("a1"),DefinedExternal("c"))),
           new Or(DefinedExternal("a2"),DefinedExternal("c")))))
+          
+ assertEquals(Not(DefinedExternal("X")),Not(DefinedExternal("X")).toCnfEquiSat);         
  
  val v=new Or(DefinedExternal("a"),new And(DefinedExternal("b"),DefinedExternal("c"))).toCnfEquiSat;
  println(v)

@@ -32,6 +32,13 @@ object TestSatSolver extends Application {
  assertEquals(true, new SatSolver().isTautology(
 		  IntegerLit(2)))
 
+		  def x() {
+  assertEquals(true, new SatSolver().isContradiction(
+		  And(Set(DefinedExternal("B"),Not(DefinedExternal("H")),Not(new Or(DefinedExternal("H"),new And(Not(DefinedExternal("H")),DefinedExternal("B"))))))
+
+  ));}
+ x();
+		  
  //(A||B) && (!B|| !A)
 
 }

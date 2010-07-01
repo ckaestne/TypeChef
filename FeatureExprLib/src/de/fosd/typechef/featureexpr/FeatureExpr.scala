@@ -237,11 +237,11 @@ sealed abstract class FeatureExprTree {
     this.simplify match {
       case IfExpr(c,a,b) => new Or(new And(c,a),new And(Not(c),b)).toCnfEquiSat()
       case Not(e) =>
-      	e.simplify() match {
+      	e match {
       		case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
       		case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
       		case e:IfExpr => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
-      		case e => e
+      		case e => Not(e)
       	}
       case And(children) => And(children.map(_.toCnfEquiSat)).simplify
       case Or(children) => {
