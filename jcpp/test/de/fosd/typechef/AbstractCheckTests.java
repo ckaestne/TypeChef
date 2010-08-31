@@ -116,7 +116,7 @@ public class AbstractCheckTests {
 
 	private StringBuffer parse(Source source, boolean debug, String folder)
 			throws LexerException, IOException {
-		MacroContext$.MODULE$.setEXTERNAL_CONFIG_ONLY(false);
+		MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
 		
 		pp = new Preprocessor();
 		pp.addFeature(Feature.DIGRAPHS);

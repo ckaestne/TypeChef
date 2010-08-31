@@ -22,11 +22,13 @@ import gnu.getopt.LongOpt;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.util.EnumSet;
 
-import de.fosd.typechef.featureexpr.BaseFeature;
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.MacroContext$;
 
 /**
  * (Currently a simple test class).
@@ -58,6 +60,10 @@ public class Main {
 					"file",
 					"Process file as if \"#"
 							+ "include \"file\"\" appeared as the first line of the primary source file."),
+			new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
+					"Output file."),
+			new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
+					"Analysis is restricted to flags beginning with this prefix."),
 			new Option(
 					"incdir",
 					LongOpt.REQUIRED_ARGUMENT,
@@ -105,6 +111,7 @@ public class Main {
 		String arg;
 		int idx;
 
+		Writer output = new OutputStreamWriter(System.out);
 		Preprocessor pp = new Preprocessor();
 		pp.addFeature(Feature.DIGRAPHS);
 		pp.addFeature(Feature.TRIGRAPHS);
@@ -136,6 +143,9 @@ public class Main {
 			case 'I':
 				pp.getSystemIncludePath().add(g.getOptarg());
 				break;
+			case 'p':
+				MacroContext$.MODULE$.setPrefixFilter(g.getOptarg());
+				break;
 			case 0: // --iquote=
 				pp.getQuoteIncludePath().add(g.getOptarg());
 				break;
@@ -149,6 +159,9 @@ public class Main {
 				break;
 			case 'w':
 				pp.getWarnings().clear();
+				break;
+			case 'o':
+				output = new FileWriter(g.getOptarg());
 				break;
 			case 1: // --include=
 				// pp.addInput(new File(g.getOptarg()));
@@ -191,8 +204,6 @@ public class Main {
 		}
 
 		try {
-			FileWriter output = new FileWriter(
-					"w:/work/typechef/Staging/fork.c");
 
 			// TokenFilter tokenFilter = new TokenFilter();
 			for (;;) {
@@ -214,7 +225,7 @@ public class Main {
 			}
 			output.close();
 			System.out.println(pp.toString());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Preprocessor.logger.severe(e.toString());
 			e.printStackTrace(System.err);
 			Source s = pp.getSource();
@@ -222,8 +233,8 @@ public class Main {
 				System.err.println(" -> " + s);
 				s = s.getParent();
 			}
+			pp.debugWriteMacros();
 		}
-		pp.debugWriteMacros();
 
 	}
 

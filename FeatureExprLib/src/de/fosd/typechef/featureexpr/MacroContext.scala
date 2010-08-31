@@ -2,9 +2,11 @@ package de.fosd.typechef.featureexpr
 
 
 object MacroContext {
-	  var EXTERNAL_CONFIG_ONLY = true
-	  def setEXTERNAL_CONFIG_ONLY(v:Boolean) {
-	 	  EXTERNAL_CONFIG_ONLY =v
+	//flagfilter returns false if the flag is undefined and not considered by default 
+	  var flagFilter=(x:String)=>true;
+//	  var flagFilter = (x:String) => !x.startsWith("_");
+	  def setPrefixFilter(prefix:String) {
+	 	  flagFilter = (x:String) => !x.startsWith(prefix);
 	  }
 }
 /**
@@ -26,7 +28,8 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
       case Some(macro) => knownMacros.update(name,macro.addNewAlternative(new MacroExpansion(feature, other)))
 //      case Some(macro) => knownMacros.update(name,macro.andNot(feature).or(feature).addExpansion(new MacroExpansion(feature, other)))
       case None => {
-    	  val initialFeatureExpr = if (!MacroContext.EXTERNAL_CONFIG_ONLY || name.startsWith("CONFIG_")) 
+//    	  val initialFeatureExpr = if (!MacroContext.EXTERNAL_CONFIG_ONLY || name.startsWith("CONFIG_")) 
+    	  val initialFeatureExpr = if (MacroContext.flagFilter(name)) 
     	 	  feature.or(DefinedExternal(name))
     	  else 
     	 	  feature
@@ -51,7 +54,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
     knownMacros.get(feature) match {
       case Some(macro) => macro.getFeature()
       case None =>  
-      	if (!MacroContext.EXTERNAL_CONFIG_ONLY || feature.startsWith("CONFIG_"))
+      	if (MacroContext.flagFilter(feature))
       		new FeatureExpr(DefinedExternal(feature))
       	else
       		new FeatureExpr(DeadFeature())
