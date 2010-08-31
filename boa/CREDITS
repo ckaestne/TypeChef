@@ -1,0 +1,38 @@
+Liam Widdowson <lbw@telstra.com>
+ Lots of improvement for Solaris support
+
+Wes Hardaker <wjhardaker@ucdavis.edu>
+
+Michal Kara <lemming@netcentrum.cz>
+ mmap_cache buglet fix
+
+Matt Callaway <matt@securepipe.com>
+ CGI chdir issue
+
+Jari Korva <jpkorva@iki.fi>
+ IPv6 patch
+
+William Meadows <wmeadows@linux-support.net>
+ escape.c bug notification and (first) fix
+
+Thomas Neumann <tn@tmr-online.de>
+ *BSD compilation/core bugfixes
+
+Paul Saab <paul@mu.org>
+ Remove SO_REUSEADDR setting on each client socket
+
+David N. Welton <davidw@linuxcare.com>
+ Added "Listen" directive for server bind address
+
+Craig Silverstein <csilvers@google.com>
+ patches for config.h and config.c
+
+Russ Nelson <nelson@crynwr.com>
+ Original, Experimental IP-based Virtual Host code
+
+Landon Curt Noll http://www.isthe.com/chongo
+ Allow non-standard date format 31 September 2000 23:59:59 GMT
+ Skip whitespace before HTTP/major.minor
+
+Brieuc Jeunhomme <bbp@via.ecp.fr>
+ fix buglet in alias expansion
