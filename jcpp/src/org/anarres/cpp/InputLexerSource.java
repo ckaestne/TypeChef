@@ -18,14 +18,9 @@
 package org.anarres.cpp;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
-
-import java.util.List;
-import java.util.Iterator;
-
-import static org.anarres.cpp.Token.*;
 
 /**
  * A {@link Source} which lexes a file.

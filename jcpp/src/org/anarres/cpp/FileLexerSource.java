@@ -22,11 +22,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import java.util.List;
-import java.util.Iterator;
-
-import static org.anarres.cpp.Token.*;
-
 /**
  * A {@link Source} which lexes a file.
  *

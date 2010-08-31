@@ -77,18 +77,13 @@ import java.util.Stack;
 
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
-import de.fosd.typechef.featureexpr.And;
-import de.fosd.typechef.featureexpr.BaseFeature;
 import de.fosd.typechef.featureexpr.CharacterLit;
-import de.fosd.typechef.featureexpr.DeadFeature;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExpr$;
 import de.fosd.typechef.featureexpr.IfExpr;
 import de.fosd.typechef.featureexpr.IntegerLit;
 import de.fosd.typechef.featureexpr.MacroContext;
 import de.fosd.typechef.featureexpr.MacroExpansion;
-import de.fosd.typechef.featureexpr.Not;
-import de.fosd.typechef.featureexpr.Or;
 
 /**
  * modified C preprocessor with the following changes

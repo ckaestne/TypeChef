@@ -2,12 +2,8 @@ package de.fosd.typechef;
 
 import java.io.IOException;
 
-
 import org.anarres.cpp.LexerException;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import de.fosd.typechef.featureexpr.BaseFeature;
 
 /**
  * test the examples from the ISO specification

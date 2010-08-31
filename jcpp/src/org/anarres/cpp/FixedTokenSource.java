@@ -17,17 +17,9 @@
 
 package org.anarres.cpp;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PushbackReader;
-import java.io.Reader;
-import java.io.StringReader;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.Iterator;
 
 /* pp */class FixedTokenSource extends Source {
 	private static final Token EOF = new Token(Token.EOF, "<ts-eof>",null);

@@ -2,8 +2,6 @@ package org.anarres.cpp;
 
 import java.io.*;
 
-import junit.framework.Test;
-
 import static org.anarres.cpp.Token.*;
 
 public class PreprocessorTestCase extends BaseTestCase {

@@ -18,12 +18,9 @@
 package org.anarres.cpp;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
-
-import static org.anarres.cpp.Token.*;
+import java.util.List;
 
 /**
  * A macro argument.

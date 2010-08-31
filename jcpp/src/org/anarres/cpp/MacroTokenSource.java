@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import de.fosd.typechef.featureexpr.MacroExpansion;
-
 /* This source should always be active, since we don't expand macros
  * in any inactive context. */
 /* pp */class MacroTokenSource extends Source {
