@@ -73,4 +73,9 @@ public class JcppFileTest extends AbstractCheckTests {
 		//XXX this is not supported right now. let's see whether we will need it.
 		testFile("multiinclude.c");
 	}
+	
+	@Test
+	public void testIfElseParsing() throws LexerException, IOException {
+		testFile("ifcondition.c");
+	}
 }

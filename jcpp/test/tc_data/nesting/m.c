@@ -3,6 +3,10 @@
 //#undef __H3
 //#undef X
 
+#ifdef B
+#include <nesting/hh1.h>
+#endif
+
 #include <nesting/hh1.h>
 
 #ifdef X
