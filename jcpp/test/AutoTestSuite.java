@@ -21,7 +21,7 @@ public class AutoTestSuite extends TestSuite {
 		this.testPackage = System.getProperty("test.package");
 		String	tcase = System.getProperty("test.case");
 		if (tcase != null && tcase.length() > 0) {
-			this.testCases = new HashSet(Arrays.asList(
+			this.testCases = new HashSet<String>(Arrays.asList(
 				tcase.split("[,:]")
 			));
 		}
@@ -31,11 +31,11 @@ public class AutoTestSuite extends TestSuite {
 		this.testAll = System.getProperty("test.all") != null;
 		this.root = new File(System.getProperty("test.root"));
 
-		Set<Class> tests = new HashSet();
+		Set<Class<?>> tests = new HashSet<Class<?>>();
 
 		findClasses("", root,  tests);
 
-		Iterator<Class> i = tests.iterator();
+		Iterator<Class<?>> i = tests.iterator();
 
 		while(i.hasNext()) {
 			addTestSuite(i.next());
@@ -85,7 +85,7 @@ public class AutoTestSuite extends TestSuite {
 		return new AutoTestSuite();
 	}
 
-	private final void findClasses(String pkg, File root, Set<Class> result) {
+	private final void findClasses(String pkg, File root, Set<Class<?>> result) {
 		File[] children = root.listFiles();
 		for(int i = 0; i<children.length; i++) {
 			File child = children[i];
@@ -100,7 +100,7 @@ public class AutoTestSuite extends TestSuite {
 				// System.out.println("Checking: " + pkg + name);
 				if(name.endsWith(".class") && name.indexOf('$') == -1) {
 					try {
-						Class test = Class.forName(pkg + 
+						Class<?> test = Class.forName(pkg + 
 								name.substring(0,name.length() - 6));
 						int modifiers = test.getModifiers();
 						if(
