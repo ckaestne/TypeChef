@@ -215,6 +215,7 @@ public class Main {
 			output.close();
 			System.out.println(pp.toString());
 		} catch (Exception e) {
+			Preprocessor.logger.severe(e.toString());
 			e.printStackTrace(System.err);
 			Source s = pp.getSource();
 			while (s != null) {
@@ -222,7 +223,7 @@ public class Main {
 				s = s.getParent();
 			}
 		}
-		// pp.debugWriteMacros();
+		pp.debugWriteMacros();
 
 	}
 

@@ -20,6 +20,7 @@ package org.anarres.cpp;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -54,7 +55,8 @@ public class PreprocessorListener {
 		return warnings;
 	}
 
-	protected void print(String msg) {
+	protected void print(String msg, Level level) {
+		Preprocessor.logger.log(level, msg);
 		System.err.println(msg);
 	}
 
@@ -68,7 +70,7 @@ public class PreprocessorListener {
 			throws LexerException {
 		warnings++;
 		print(source.getName() + ":" + line + ":" + column + ": warning: "
-				+ msg);
+				+ msg,Level.WARNING);
 	}
 
 	/**
@@ -83,7 +85,7 @@ public class PreprocessorListener {
 			FeatureExpr featureExpr) throws LexerException {
 		errors++;
 		print(source.getName() + ":" + line + ":" + column + ": error: " + msg
-				+ "; condition: " + featureExpr);
+				+ "; condition: " + featureExpr,Level.SEVERE);
 		pp.debugWriteMacros();
 		throw new LexerException(msg);
 	}
