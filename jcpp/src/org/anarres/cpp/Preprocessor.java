@@ -1827,7 +1827,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				break;
 
 			case '?':
-				/* XXX Handle this? */
+				lhs=parse_qifExpr(lhs,rhs);
+				break;
 
 			default:
 				error(op, "Unexpected operator " + op.getText());
@@ -1883,6 +1884,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		consumeToken(',', true);
 		FeatureExpr elseBranch = parse_featureExpr(0);
 		consumeToken(')', true);
+		return new FeatureExpr(new IfExpr(condition, thenBranch, elseBranch));
+	}	
+	
+	/**
+	 * condition and thenBranch have already been parsed. also parse else branch
+	 * @param condition
+	 * @param rhs
+	 * @return
+	 * @throws IOException
+	 * @throws LexerException
+	 */
+	private FeatureExpr parse_qifExpr(FeatureExpr condition, FeatureExpr thenBranch) throws IOException, LexerException {
+		consumeToken(':', true);
+		FeatureExpr elseBranch = parse_featureExpr(0);
 		return new FeatureExpr(new IfExpr(condition, thenBranch, elseBranch));
 	}
 
