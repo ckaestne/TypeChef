@@ -587,7 +587,7 @@ public class LexerSource extends Source {
 				break;
 		}
 		unread(d);
-		return new Token(WHITESPACE, text.toString(),this);
+		return new Token(WHITESPACE, text.toString(), this);
 	}
 
 	/* No token processed by cond() contains a newline. */
@@ -630,7 +630,7 @@ public class LexerSource extends Source {
 						for (int i = 0; i < text.length; i++)
 							text[i] = '\n';
 						// Skip the bol = false below.
-						tok = new Token(NL, _l, _c, new String(text),this);
+						tok = new Token(NL, _l, _c, new String(text), this);
 					}
 					if (DEBUG)
 						System.out.println("lx: Returning NL: " + tok);
