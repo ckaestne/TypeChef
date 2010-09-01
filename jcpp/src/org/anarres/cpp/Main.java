@@ -167,7 +167,7 @@ public class Main {
 				// pp.addInput(new File(g.getOptarg()));
 				// Comply exactly with spec.
 				pp.addInput(new StringLexerSource("#" + "include \""
-						+ g.getOptarg() + "\"\n"));
+						+ g.getOptarg() + "\"\n", true));
 				break;
 			case 2: // --version
 				version(System.out);
