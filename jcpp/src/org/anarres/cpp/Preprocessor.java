@@ -1283,7 +1283,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	private void include(String parent, int line, String name, boolean quoted)
 			throws IOException, LexerException {
 		VirtualFile pdir = null;
+		//The parent path can be null when using --include. Should then use the current directory.
 		if (quoted) {
+			if (parent == null)
+				parent = ".";
 			VirtualFile pfile = filesystem.getFile(parent);
 			pdir = pfile.getParentFile();
 			VirtualFile ifile = pdir.getChildFile(name);
