@@ -17,9 +17,6 @@
 
 package org.anarres.cpp;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.logging.Level;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;

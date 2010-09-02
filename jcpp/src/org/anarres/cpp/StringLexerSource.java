@@ -18,13 +18,7 @@
 package org.anarres.cpp;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
-
-import java.util.List;
-import java.util.Iterator;
-
-import static org.anarres.cpp.Token.*;
 
 /**
  * A Source for lexing a String.

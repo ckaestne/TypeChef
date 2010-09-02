@@ -24,7 +24,6 @@ import java.io.IOException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import de.fosd.typechef.featureexpr.BaseFeature;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**

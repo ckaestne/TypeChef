@@ -17,9 +17,8 @@
 
 package org.anarres.cpp;
 
-import java.io.Reader;
-import java.io.PushbackReader;
 import java.io.IOException;
+import java.io.Reader;
 
 /* pp */ class JoinReader /* extends Reader */ {
 	private Reader	in;
