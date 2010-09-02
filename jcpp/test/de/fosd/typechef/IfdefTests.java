@@ -4,11 +4,9 @@ import java.io.IOException;
 
 import org.anarres.cpp.LexerException;
 import org.anarres.cpp.Main;
-import org.junit.*;
-
-import scala.actors.threadpool.Arrays;
-
-import de.fosd.typechef.featureexpr.*;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * isolated (often unmaintained) tests of the parser
