@@ -239,7 +239,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 				/* XXX Check white, if required. */
 				if (white)
 					warning(tok.getLine(), tok.getColumn(),
-							"Unexpected nonwhite token");
+							"Unexpected nonwhite token ("+tok.getText()+") while skipping line");
 				break;
 			}
 		}

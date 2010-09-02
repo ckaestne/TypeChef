@@ -1368,10 +1368,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 */
 				StringBuilder buf = new StringBuilder((String) tok.getValue());
 				HEADER: for (;;) {
-					tok = getNextNonwhiteToken();
+					tok = getNextToken();
 					switch (tok.getType()) {
 					case STRING:
 						buf.append((String) tok.getValue());
+						break;
+					case WHITESPACE://ignore whitespace and comments for now ChK
+					case CCOMMENT:
 						break;
 					case NL:
 					case EOF:

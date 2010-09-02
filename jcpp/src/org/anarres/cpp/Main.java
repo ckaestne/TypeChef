@@ -63,7 +63,7 @@ public class Main {
 			new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
 					"Output file."),
 			new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
-					"Analysis is restricted to flags beginning with this prefix."),
+					"Analysis excludes all flags beginning with this prefix."),
 			new Option(
 					"incdir",
 					LongOpt.REQUIRED_ARGUMENT,
@@ -164,10 +164,10 @@ public class Main {
 				output = new FileWriter(g.getOptarg());
 				break;
 			case 1: // --include=
-				// pp.addInput(new File(g.getOptarg()));
+				 pp.addInput(new File(g.getOptarg()));
 				// Comply exactly with spec.
-				pp.addInput(new StringLexerSource("#" + "include \""
-						+ g.getOptarg() + "\"\n"));
+//				pp.addInput(new StringLexerSource("#" + "include \""
+//						+ g.getOptarg() + "\"\n",true));
 				break;
 			case 2: // --version
 				version(System.out);
