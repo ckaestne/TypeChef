@@ -64,6 +64,8 @@ public class Main {
 					"Output file."),
 			new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
 					"Analysis excludes all flags beginning with this prefix."),
+			new Option("prefixonly", LongOpt.REQUIRED_ARGUMENT, 'x', "text",
+					"Analysis includes only flags beginning with this prefix."),
 			new Option(
 					"incdir",
 					LongOpt.REQUIRED_ARGUMENT,
@@ -146,6 +148,9 @@ public class Main {
 			case 'p':
 				MacroContext$.MODULE$.setPrefixFilter(g.getOptarg());
 				break;
+			case 'x':
+				MacroContext$.MODULE$.setPrefixOnlyFilter(g.getOptarg());
+				break; 
 			case 0: // --iquote=
 				pp.getQuoteIncludePath().add(g.getOptarg());
 				break;
@@ -164,10 +169,10 @@ public class Main {
 				output = new FileWriter(g.getOptarg());
 				break;
 			case 1: // --include=
-				 pp.addInput(new File(g.getOptarg()));
+				pp.addInput(new File(g.getOptarg()));
 				// Comply exactly with spec.
-//				pp.addInput(new StringLexerSource("#" + "include \""
-//						+ g.getOptarg() + "\"\n",true));
+				// pp.addInput(new StringLexerSource("#" + "include \""
+				// + g.getOptarg() + "\"\n",true));
 				break;
 			case 2: // --version
 				version(System.out);

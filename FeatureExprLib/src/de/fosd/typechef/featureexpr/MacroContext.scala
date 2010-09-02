@@ -8,6 +8,9 @@ object MacroContext {
 	  def setPrefixFilter(prefix:String) {
 	 	  flagFilter = (x:String) => !x.startsWith(prefix);
 	  }
+	  def setPrefixOnlyFilter(prefix:String) {
+	 	  flagFilter = (x:String) => x.startsWith(prefix);
+	  }
 }
 /**
  * represents the knowledge about macros at a specific point in time time
