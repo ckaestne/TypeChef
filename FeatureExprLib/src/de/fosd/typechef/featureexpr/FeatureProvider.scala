@@ -3,11 +3,12 @@ package de.fosd.typechef.featureexpr
 abstract class FeatureProvider {
   //def isFeatureDefined(feature:String):Boolean
   /**
-   returns true if feature is certainly included (no external variability)
+   * returns true if feature is certainly included (no external variability)
    */
   def isFeatureDead(feature:String):Boolean
+ 
   /**
-   returns true if feature is certainly excluded (no external variability)
+   * returns true if feature is certainly excluded (no external variability)
    */
   def isFeatureBase(feature:String):Boolean
   

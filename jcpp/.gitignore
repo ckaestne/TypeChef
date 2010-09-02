@@ -4,10 +4,4 @@
 *.lck
 bin
 *.class
-/tokenstream.txt
 /debugsource.txt
-/jcpp.log.1
-/jcpp.log.1.lck
-/jcpp.log.lck
-/macroDebug.txt
-/tokenstream.txt
