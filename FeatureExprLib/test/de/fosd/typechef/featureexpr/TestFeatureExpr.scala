@@ -63,6 +63,9 @@ class TestFeatureExpr extends TestCase {
   def testAdvancedSimplify() {
     //would be nice to add as optimization: (!A & B) v A => B
     assertSimplify(new Or(new And(Not(DefinedExternal("a")), DefinedExternal("b")), DefinedExternal("a")), DefinedExternal("b"))
+    assertSimplify(new Or(And(Set(Not(DefinedExternal("a")), DefinedExternal("b"), DefinedExternal("c"))), DefinedExternal("a")), 
+    		new And(DefinedExternal("b"), DefinedExternal("c")))
+    assertSimplify(new Or(new And(DefinedExternal("a"), DefinedExternal("b")), Not(DefinedExternal("a"))), DefinedExternal("b"))
   }
 
   def testCFN() {
