@@ -18,7 +18,6 @@ import org.anarres.cpp.StringLexerSource;
 import org.anarres.cpp.Token;
 import org.anarres.cpp.Warning;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.*;
 
 public class AbstractCheckTests {
@@ -50,9 +49,10 @@ public class AbstractCheckTests {
 		check(filename, folder, output);
 
 	}
-	
-	protected String parseCodeFragment(String code) throws LexerException, IOException{
-		return parse(new StringLexerSource(code,true),false,null).toString();
+
+	protected String parseCodeFragment(String code) throws LexerException,
+			IOException {
+		return parse(new StringLexerSource(code, true), false, null).toString();
 	}
 
 	private void check(String filename, String folder, StringBuffer output)
@@ -117,17 +117,24 @@ public class AbstractCheckTests {
 	private StringBuffer parse(Source source, boolean debug, String folder)
 			throws LexerException, IOException {
 		MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
-		
+
 		pp = new Preprocessor();
 		pp.addFeature(Feature.DIGRAPHS);
 		pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
-		pp.addWarning(Warning.IMPORT);
-		pp.setListener(new PreprocessorListener(pp));
+		pp.addWarnings(Warning.allWarnings());
+		pp.setListener(new PreprocessorListener(pp) {
+			@Override
+			public void handleWarning(Source source, int line, int column,
+					String msg) throws LexerException {
+				super.handleWarning(source, line, column, msg);
+				throw new LexerException(msg);
+			}
+		});
 		pp.addMacro("__JCPP__", new FeatureExpr().base());
 
 		// include path
-		if (folder!=null)
+		if (folder != null)
 			pp.getSystemIncludePath().add(folder);
 
 		pp.addInput(source);

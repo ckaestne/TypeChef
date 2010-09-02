@@ -25,6 +25,7 @@ object FeatureExpr {
   def createShiftRight(left:FeatureExpr, right:FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
 
   def createImplies(left:FeatureExpr, right:FeatureExpr) = left.not().or(right)
+  def createDefinedExternal(name:String) = new FeatureExpr(new DefinedExternal(name))
   
   private var freshFeatureNameCounter=0 
   def calcFreshFeatureName():String = {freshFeatureNameCounter=freshFeatureNameCounter+1; "__fresh"+freshFeatureNameCounter;}

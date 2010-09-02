@@ -81,6 +81,7 @@ import de.fosd.typechef.featureexpr.And;
 import de.fosd.typechef.featureexpr.BaseFeature;
 import de.fosd.typechef.featureexpr.CharacterLit;
 import de.fosd.typechef.featureexpr.DeadFeature;
+import de.fosd.typechef.featureexpr.DefinedExternal;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExpr$;
 import de.fosd.typechef.featureexpr.IfExpr;
@@ -574,8 +575,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 							|| fullPresenceCondition.isBase() || expr.isBase());
 			stack.push(new IfdefBlock(visible));
 			if (visible)
-				return new OutputHelper().if_token(tok.getLine(), expr
-						);
+				return new OutputHelper().if_token(tok.getLine(), expr);
 			else
 				return new OutputHelper().emptyLine(tok.getLine(), tok
 						.getColumn());
@@ -805,13 +805,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			if (macroExpansions.length == 1) {// TODO what happens if the macro
 				// is not always defined? check this!
 				// currentFeature => macroFeature
-				FeatureExpr commonCondition = 
-					state
-					.getFullPresenceCondition().not().or(macroExpansions[0]
-						.getFeature());
+				FeatureExpr commonCondition = state.getFullPresenceCondition()
+						.not().or(macroExpansions[0].getFeature());
 				if (!commonCondition.isBase())
 					macroConstraints.add(new MacroConstraint(macroName,
-							MacroConstraintKind.NOTEXPANDING, commonCondition.not()));
+							MacroConstraintKind.NOTEXPANDING, commonCondition
+									.not()));
 
 				sourceManager.push_source(new MacroTokenSource(macroName,
 						firstMacro, args), true);
@@ -1038,10 +1037,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		FeatureExpr commonCondition = getCommonCondition(macroExpansions);
 		boolean alternativesExaustive = isExaustive(commonCondition);
 		if (!alternativesExaustive)
-			macroConstraints
-					.add(new MacroConstraint(macroName,
-							MacroConstraintKind.NOTEXPANDING, 
-									commonCondition.not()));
+			macroConstraints.add(new MacroConstraint(macroName,
+					MacroConstraintKind.NOTEXPANDING, commonCondition.not()));
 
 		List<Source> resultList = new ArrayList<Source>();
 		for (int i = macroExpansions.length - 1; i >= 0; i--) {
@@ -1079,7 +1076,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		for (int i = macroExpansions.length - 1; i >= 1; i--)
 			commonCondition = commonCondition.or(macroExpansions[i]
 					.getFeature());
-		commonCondition =state.getLocalFeatureExpr().not().or(commonCondition);
+		commonCondition = state.getLocalFeatureExpr().not().or(commonCondition);
 		return commonCondition;
 	}
 
@@ -1696,7 +1693,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			lhs = FeatureExpr$.MODULE$.createNeg(parse_featureExpr(11));
 			break;
 		case INTEGER:
-			lhs = new FeatureExpr(new IntegerLit(((Number) tok.getValue()).longValue()));
+			lhs = new FeatureExpr(new IntegerLit(((Number) tok.getValue())
+					.longValue()));
 			break;
 		case CHARACTER:
 			lhs = new FeatureExpr(new CharacterLit((Character) tok.getValue()));
@@ -1712,7 +1710,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				lhs = parse_definedExpr();
 			} else {
 
-				if (warnings.contains(Warning.UNDEF))
+				if (isPotentialFlag(tok.getText())
+						&& warnings.contains(Warning.UNDEF))
 					warning(tok, "Undefined token '" + tok.getText()
 							+ "' encountered in conditional.");
 				lhs = new FeatureExpr().dead();
@@ -1818,16 +1817,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				// 1 : 0;
 				break;
 			case LAND:
-				lhs =lhs.and(rhs);// (lhs != 0) && (rhs
+				lhs = lhs.and(rhs);// (lhs != 0) && (rhs
 				// != 0) ? 1 : 0;
 				break;
 			case LOR:
-				lhs =lhs.or(rhs);// (lhs != 0) || (rhs
+				lhs = lhs.or(rhs);// (lhs != 0) || (rhs
 				// != 0) ? 1 : 0;
 				break;
 
 			case '?':
-				lhs=parse_qifExpr(lhs,rhs);
+				lhs = parse_qifExpr(lhs, rhs);
 				break;
 
 			default:
@@ -1844,6 +1843,27 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		// System.out.println("expr returning " + lhs);
 
 		return lhs;
+	}
+
+	/**
+	 * checks whether a flag is excluded by ifdefs, so that we do not show false
+	 * warnings for code fragments such as
+	 * 
+	 * #ifdef debug #if debug>2 #endif #endif
+	 * 
+	 * we assume that the flag is a feature and check whether this feature is
+	 * reachable in the current state
+	 */
+	private boolean isPotentialFlag(String flag) {
+		if (!isActive())
+			return false;
+
+		// is there a possibility that flag is undefined in the current state?
+		// i.e. (state AND NOT flag) satisfiable?
+		// i.e. NOT (state AND NOT flag) dead
+
+		return !state.getFullPresenceCondition().and(
+				FeatureExpr.createDefinedExternal(flag).not()).isDead();
 	}
 
 	private FeatureExpr parse_definedExpr() throws IOException, LexerException {
@@ -1885,17 +1905,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		FeatureExpr elseBranch = parse_featureExpr(0);
 		consumeToken(')', true);
 		return new FeatureExpr(new IfExpr(condition, thenBranch, elseBranch));
-	}	
-	
+	}
+
 	/**
 	 * condition and thenBranch have already been parsed. also parse else branch
+	 * 
 	 * @param condition
 	 * @param rhs
 	 * @return
 	 * @throws IOException
 	 * @throws LexerException
 	 */
-	private FeatureExpr parse_qifExpr(FeatureExpr condition, FeatureExpr thenBranch) throws IOException, LexerException {
+	private FeatureExpr parse_qifExpr(FeatureExpr condition,
+			FeatureExpr thenBranch) throws IOException, LexerException {
 		consumeToken(':', true);
 		FeatureExpr elseBranch = parse_featureExpr(0);
 		return new FeatureExpr(new IfExpr(condition, thenBranch, elseBranch));

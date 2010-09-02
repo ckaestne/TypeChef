@@ -42,25 +42,28 @@ public class NestedMacroTest extends AbstractCheckTests {
 	public void test6() throws LexerException, IOException {
 		checkStr("#define f(x) f(x+1)\n" + "f(2)", "f(2+1)");
 
-	}	@Test
-	public void test7() throws LexerException, IOException {
-		checkStr("#define z z[0]\n#define f(a) f(x * (a))\n" + "f(z)", "f(x * (z[0]))");
+	}
 
-	}@Test
-	public void test8() throws LexerException, IOException {
-		checkStr("#define z z[0]\n#define f(a) f(x * (a))\n" + "f(z)", "f(x * (z[0]))");
+	@Test
+	public void test7() throws LexerException, IOException {
+		checkStr("#define z z[0]\n#define f(a) f(x * (a))\n" + "f(z)",
+				"f(x * (z[0]))");
 
 	}
 
-	
-	
-	            
-	            
-	private void checkStr(String orig, String expected) throws LexerException,
-			IOException {
+	@Test
+	public void test8() throws LexerException, IOException {
+		checkStr("#define z z[0]\n#define f(a) f(x * (a))\n" + "f(z)",
+				"f(x * (z[0]))");
+
+	}
+
+	private void checkStr(String orig, String expected)
+			throws LexerException, IOException {
 		String result = parseCodeFragment(orig);
 
 		Assert.assertTrue("found " + result + ", but expected " + expected,
 				result.trim().endsWith(expected));
 	}
+
 }

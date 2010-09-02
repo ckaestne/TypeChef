@@ -17,16 +17,21 @@
 
 package org.anarres.cpp;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
  * Warning classes which may optionally be emitted by the Preprocessor.
  */
 public enum Warning {
 	TRIGRAPHS,
 	// TRADITIONAL,
-	IMPORT,
-	UNDEF,
-	UNUSED_MACROS,
-	ENDIF_LABELS,
-	ERROR,
+	IMPORT, UNDEF, UNUSED_MACROS, ENDIF_LABELS, ERROR;
 	// SYSTEM_HEADERS
+
+	public static Collection<Warning> allWarnings() {
+		return Arrays.asList(new Warning[] { TRIGRAPHS, IMPORT, UNDEF,
+				UNUSED_MACROS, ENDIF_LABELS });
+
+	}
 }
