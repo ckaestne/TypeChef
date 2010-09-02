@@ -1949,8 +1949,8 @@ details. */
 #line 17 "C:\\cygwin\\usr\\include\\machine\\_default_types.h" 2
 
 
-typedef signed char __int8_t ;
-typedef unsigned char __uint8_t ;
+
+
 
 
 
