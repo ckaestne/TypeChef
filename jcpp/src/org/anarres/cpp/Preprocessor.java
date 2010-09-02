@@ -2213,9 +2213,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					// break;
 
 				case PP_ELSE:
-					if (false)
-						/* Check for 'if' */;
-					else if (state.sawElse()) {
+					if (state.sawElse()) {
 						error(tok, "#" + "else after #" + "else");
 						return source_skipline(false);
 					} else {

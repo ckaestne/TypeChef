@@ -14,5 +14,10 @@
 			<type>2</type>
 			<location>C:/cygwin/usr/include</location>
 		</link>
+		<link>
+			<name>includegcc</name>
+			<type>2</type>
+			<location>C:/cygwin/lib/gcc/i686-pc-cygwin/3.4.4/include</location>
+		</link>
 	</linkedResources>
 </projectDescription>
