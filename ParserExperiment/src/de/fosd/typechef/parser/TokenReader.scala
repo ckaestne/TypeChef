@@ -15,5 +15,6 @@ class TokenReader (tokens:List[Token], offst:Int) extends Reader[Token] {
    */
   def atEnd: Boolean = tokens.size<=1
 	
+  override def toString: String = "TokenReader("+tokens+")"
 	
 }
