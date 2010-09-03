@@ -169,10 +169,10 @@ public class Main {
 				output = new FileWriter(g.getOptarg());
 				break;
 			case 1: // --include=
-				//pp.addInput(new File(g.getOptarg()));
+				pp.addInput(new File(g.getOptarg()));
 				// Comply exactly with spec.
-				pp.addInput(new StringLexerSource("#" + "include \""
-						+ g.getOptarg() + "\"\n", true));
+//				pp.addInput(new StringLexerSource("#" + "include \""
+//						+ g.getOptarg() + "\"\n", true));
 				break;
 			case 2: // --version
 				version(System.out);
