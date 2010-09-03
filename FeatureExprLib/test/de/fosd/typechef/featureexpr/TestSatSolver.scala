@@ -34,6 +34,8 @@ class TestSatSolver extends TestCase {
       BaseFeature()))
     assertEquals(true, new SatSolver().isTautology(
       IntegerLit(2)))
+
+    assertTrue(new SatSolver().isSatisfiable(Not(DefinedExternal("a"))));
   }
 
   def x() {

@@ -25,21 +25,29 @@ object FeatureExpr {
 
   def createImplies(left: FeatureExpr, right: FeatureExpr) = left.not().or(right)
   def createDefinedExternal(name: String) = new FeatureExpr(new DefinedExternal(name))
+  def createInteger(value: Int): FeatureExpr = new FeatureExpr(IntegerLit(value))
+  def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExpr(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
+  def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExpr(IfExpr(condition, thenBranch, elseBranch))
 
   private var freshFeatureNameCounter = 0
   def calcFreshFeatureName(): String = { freshFeatureNameCounter = freshFeatureNameCounter + 1; "__fresh" + freshFeatureNameCounter; }
 }
 
+/**
+ * mutual representation of a feature expression (can simplify itself)
+ */
 class FeatureExpr {
   var isSimplified = false;
   var expr: FeatureExprTree = null;
   def this(that: FeatureExprTree) { this(); expr = that; isSimplified = false; }
 
-  def simplify(): Unit = {
+  //changes state. returns this just for convenience
+  def simplify(): FeatureExpr = {
     if (!isSimplified) {
       expr = expr.simplify();
       isSimplified = true;
     }
+    this
   }
 
   override def toString(): String = this.debug_print()
@@ -71,117 +79,119 @@ class FeatureExpr {
 
 sealed abstract class FeatureExprTree {
   //optimization to not simplify the same expression over and over again
-  //  private var cache_simplifiedExpr:FeatureExprTree = null;
   private var isSimplified: Boolean = false
   private def setSimplified(): FeatureExprTree = { isSimplified = true; return this }
   def simplify(): FeatureExprTree = {
     if (isSimplified)
-      return this
-    //    if (cache_simplifiedExpr==null) {
-    //    	cache_simplifiedExpr = this match {
-    val result = this match {
-
-      case And(children) => {
-        val childrenSimplified = children.map(_.simplify()) - BaseFeature();
-        var childrenFlattened: Set[FeatureExprTree] = Set()
-        for (childs <- childrenSimplified)
-          childs match {
-            case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-            case e => childrenFlattened = childrenFlattened + e
-          }
-        for (childs <- childrenFlattened)
-          if (childrenFlattened.exists(_ == Not(childs)))
-            return DeadFeature();
-        if (childrenFlattened.exists(_ == DeadFeature())) return DeadFeature()
-        if (childrenFlattened.size == 1) return (childrenFlattened.elements).next()
-        if (childrenFlattened.size == 0) return BaseFeature()
-        //look for pattern AND(a,b,c,NOT(AND(b,c))) => false
-        if (childrenFlattened.exists(
-          _ match {
-            case Not(And(innerChildren)) => innerChildren.forall(childrenFlattened.contains(_))
-            case _ => false;
-          }
-          )) return DeadFeature();
-
-        return And(childrenFlattened)
-      }
-
-      case Or(children) => {
-        //indented simplification: case Or(And(a,Not(b)),c) if (b==c) => a
-        if (children.size == 2) {
-          optimizeOrAndNotPattern(children) match {
-            case Some(e) => return e.simplify
-            case _ => ;
-          }
+      this
+    else {
+      val result = this match {
+        case And(children) => {
+          val childrenSimplified = children.map(_.simplify()) - BaseFeature(); //TODO also remove all non-zero integer literals
+          var childrenFlattened: Set[FeatureExprTree] = Set()
+          for (childs <- childrenSimplified)
+            childs match {
+              case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
+              case e => childrenFlattened = childrenFlattened + e
+            }
+          for (childs <- childrenFlattened)
+            if (childrenFlattened.exists(_ == Not(childs)))
+              return DeadFeature();
+          if (childrenFlattened.exists(_ == DeadFeature()))
+            /*return*/
+            DeadFeature()
+          else if (childrenFlattened.size == 1)
+            /*return*/
+            (childrenFlattened.elements).next()
+          else if (childrenFlattened.size == 0)
+            /*return*/
+            BaseFeature()
+          //look for pattern AND(a,b,c,NOT(AND(b,c))) => false
+          else if (childrenFlattened.exists(
+            _ match {
+              case Not(And(innerChildren)) => innerChildren.forall(childrenFlattened.contains(_))
+              case _ => false;
+            }
+            )) /*return*/ DeadFeature();
+          else
+            /*return*/
+            And(childrenFlattened)
         }
 
-        //rest
-        val childrenSimplified = children.map(_.simplify()) - DeadFeature();
-        var childrenFlattened: Set[FeatureExprTree] = Set()
-        for (childs <- childrenSimplified)
-          childs match {
-            case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-            case e => childrenFlattened = childrenFlattened + e
-          }
-        for (childs <- childrenFlattened)
-          if (childrenFlattened.exists(_ == Not(childs)))
-            return BaseFeature();
-        if (childrenFlattened.exists(_ == BaseFeature())) return BaseFeature()
-        if (childrenFlattened.size == 1) return (childrenFlattened.elements).next()
-        if (childrenFlattened.size == 0) return DeadFeature()
+        case Or(c) => {
+          //indented simplification: case Or(And(a,Not(b)),c) if (b==c) => Or(a,b)
+          var children = c
+          if (children.size == 2)
+            children = optimizeOrAndNotPattern(children)
 
-        //look for pattern OR(a,b,c,NOT(OR(b,c))) => true
-        if (childrenFlattened.exists(
-          _ match {
-            case Not(Or(innerChildren)) => innerChildren.forall(childrenFlattened.contains(_))
-            case _ => false;
-          }
-          )) return BaseFeature();
-
-        return Or(childrenFlattened)
-      }
-
-      case BinaryFeatureExprTree(IfExpr(c, a, b), right, opStr, op) =>
-        IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op), BinaryFeatureExprTree(b, right, opStr, op)).simplify
-
-      case BinaryFeatureExprTree(left, right, "==", _) if left.simplify() == right.simplify() => BaseFeature()
-
-      case BinaryFeatureExprTree(IntegerLit(a), IntegerLit(b), _, op) => IntegerLit(op(a, b))
-
-      case BinaryFeatureExprTree(left, right, opStr, op) => BinaryFeatureExprTree(left simplify, right simplify, opStr, op)
-
-      case UnaryFeatureExprTree(expr, opStr, op) => UnaryFeatureExprTree(expr simplify, opStr, op)
-
-      case Not(a) =>
-        a.simplify match {
-          case IntegerLit(v) => if (v == 0) BaseFeature() else DeadFeature()
-          case Not(e) => e
-          case e => Not(e)
+          //rest
+          val childrenSimplified = children.map(_.simplify()) - DeadFeature() - IntegerLit(0);
+          var childrenFlattened: Set[FeatureExprTree] = Set()
+          for (childs <- childrenSimplified)
+            childs match {
+              case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
+              case e => childrenFlattened = childrenFlattened + e
+            }
+          for (childs <- childrenFlattened)
+            if (childrenFlattened.exists(_ == Not(childs)))
+              return BaseFeature();
+          if (childrenFlattened.exists(_ == BaseFeature()))
+            /*return*/
+            BaseFeature()
+          else if (childrenFlattened.size == 1)
+            /*return*/
+            (childrenFlattened.elements).next()
+          else if (childrenFlattened.size == 0)
+            /*return*/
+            DeadFeature()
+          //look for pattern OR(a,b,c,NOT(OR(b,c))) => true
+          else if (childrenFlattened.exists(
+            _ match {
+              case Not(Or(innerChildren)) => innerChildren.forall(childrenFlattened.contains(_))
+              case _ => false;
+            }
+            )) /*return*/ BaseFeature();
+          else
+            /*return*/
+            Or(childrenFlattened)
         }
 
-      case IfExpr(c, a, b) => {
-        val as = a simplify;
-        val bs = b simplify;
-        val cs = c simplify;
-        if (cs.isBase()) as
-        else if (cs.isDead()) bs
-        else if (as == bs) as
-        else IfExpr(c simplify, a simplify, b simplify)
+        case BinaryFeatureExprTree(IfExpr(c, a, b), right, opStr, op) =>
+          IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op), BinaryFeatureExprTree(b, right, opStr, op)).simplify
+
+        case BinaryFeatureExprTree(left, right, "==", _) if left.simplify() == right.simplify() => BaseFeature()
+
+        case BinaryFeatureExprTree(IntegerLit(a), IntegerLit(b), _, op) => IntegerLit(op(a, b))
+
+        case BinaryFeatureExprTree(left, right, opStr, op) => BinaryFeatureExprTree(left simplify, right simplify, opStr, op)
+
+        case UnaryFeatureExprTree(expr, opStr, op) => UnaryFeatureExprTree(expr simplify, opStr, op)
+
+        case Not(a) =>
+          a.simplify match {
+            case IntegerLit(v) => if (v == 0) BaseFeature() else DeadFeature()
+            case Not(e) => e
+            case e => Not(e)
+          }
+
+        case IfExpr(c, a, b) => {
+          val as = a simplify;
+          val bs = b simplify;
+          val cs = c simplify;
+          if (cs.isBase()) as
+          else if (cs.isDead()) bs
+          else if (as == bs) as
+          else IfExpr(c simplify, a simplify, b simplify)
+        }
+
+        case IntegerLit(_) => this
+
+        case CharacterLit(_) => this
+
+        case DefinedExternal(_) => this
       }
-
-      case IntegerLit(_) => this
-
-      case CharacterLit(_) => this
-
-      case DefinedExternal(_) => this
-    };
-    //    result.setSimplified
-    result
-    //    	cache_simplifiedExpr = cache_simplifiedExpr.setSimplified
-    ////    	isDead()
-    ////    	isBase()
-    //    }
-    //    return cache_simplifiedExpr
+      result.setSimplified
+    }
   }
 
   def print(): String
@@ -220,7 +230,7 @@ sealed abstract class FeatureExprTree {
 
   def accept(f: FeatureExprTree => Unit): Unit;
 
-  private def optimizeOrAndNotPattern(orChildren: Set[FeatureExprTree]): Option[FeatureExprTree] = {
+  private def optimizeOrAndNotPattern(orChildren: Set[FeatureExprTree]): Set[FeatureExprTree] = {
     val iterator = orChildren.iterator
     val childA = iterator.next
     val childB = iterator.next
@@ -228,7 +238,7 @@ sealed abstract class FeatureExprTree {
       case And(children) => {
         val other = Not(childB).simplify
         if (children.contains(other))
-          return Some(And(children - other).simplify)
+          return Set(And(children - other), childB)
       }
       case _ =>
     }
@@ -236,11 +246,11 @@ sealed abstract class FeatureExprTree {
       case And(children) => {
         val other = Not(childA).simplify
         if (children.contains(other))
-          return Some(And(children - other).simplify)
+          return Set(And(children - other), childA)
       }
       case _ =>
     }
-    None
+    orChildren
   }
 
   //  def toCNF():FeatureExprTree =
@@ -272,7 +282,11 @@ sealed abstract class FeatureExprTree {
 
   def toCnfEquiSat(): FeatureExprTree =
     this.simplify match {
-      case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).toCnfEquiSat()
+      case IfExpr(c, a, b) => {
+        var e: FeatureExprTree = new Or(new And(c, a), new And(Not(c), b));
+        e = e.simplify
+        e.toCnfEquiSat()
+      }
       case Not(e) =>
         e match {
           case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
