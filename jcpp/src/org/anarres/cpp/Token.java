@@ -40,7 +40,7 @@ public final class Token {
 		this.column = column;
 		this.text = text;
 		this.value = value;
-		this.source=source;
+		this.source = source;
 	}
 
 	public Token(int type, int line, int column, String text, Source source) {
@@ -52,11 +52,11 @@ public final class Token {
 	}
 
 	/* pp */ Token(int type, String text, Source source) {
-		this(type, text, null,source);
+		this(type, text, null, source);
 	}
 
 	/* pp */ Token(int type, Source source) {
-		this(type, type < _TOKENS ? texts[type] : "TOK" + type,source);
+		this(type, type < _TOKENS ? texts[type] : "TOK" + type, source);
 	}
 
 	/**
