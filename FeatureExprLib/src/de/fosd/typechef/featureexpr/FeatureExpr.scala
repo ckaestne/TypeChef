@@ -37,9 +37,10 @@ object FeatureExpr {
  * mutual representation of a feature expression (can simplify itself)
  */
 class FeatureExpr {
-  var isSimplified = false;
+  private var isSimplified = false;
   var expr: FeatureExprTree = null;
-  def this(that: FeatureExprTree) { this(); expr = that; isSimplified = false; }
+  private var orig: FeatureExprTree = null;//debugging only
+  def this(that: FeatureExprTree) { this(); expr = that; orig = that; isSimplified = false; }
 
   //changes state. returns this just for convenience
   def simplify(): FeatureExpr = {
@@ -49,7 +50,7 @@ class FeatureExpr {
     }
     this
   }
-
+  
   override def toString(): String = this.debug_print()
   def isDead(): Boolean = {
     simplify();
@@ -87,7 +88,7 @@ sealed abstract class FeatureExprTree {
     else {
       val result = this match {
         case And(children) => {
-          val childrenSimplified = children.map(_.simplify()) - BaseFeature(); //TODO also remove all non-zero integer literals
+          val childrenSimplified = children.map(_.simplify().intToBool()) - BaseFeature(); //TODO also remove all non-zero integer literals
           var childrenFlattened: Set[FeatureExprTree] = Set()
           for (childs <- childrenSimplified)
             childs match {
@@ -125,7 +126,7 @@ sealed abstract class FeatureExprTree {
             children = optimizeOrAndNotPattern(children)
 
           //rest
-          val childrenSimplified = children.map(_.simplify()) - DeadFeature() - IntegerLit(0);
+          val childrenSimplified = children.map(_.simplify().intToBool()) - DeadFeature() - IntegerLit(0);
           var childrenFlattened: Set[FeatureExprTree] = Set()
           for (childs <- childrenSimplified)
             childs match {
@@ -156,19 +157,23 @@ sealed abstract class FeatureExprTree {
             Or(childrenFlattened)
         }
 
-        case BinaryFeatureExprTree(IfExpr(c, a, b), right, opStr, op) =>
-          IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op), BinaryFeatureExprTree(b, right, opStr, op)).simplify
+        case BinaryFeatureExprTree(left, right, opStr, op) => 
+        	(left simplify, right simplify) match {
+        		case (IntegerLit(a), IntegerLit(b)) => IntegerLit(op(a, b))
+        		case (IfExpr(c, a, b), right) => IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op), BinaryFeatureExprTree(b, right, opStr, op)).simplify
+        		case (left, IfExpr(c, a, b)) => IfExpr(c, BinaryFeatureExprTree(left, a, opStr, op), BinaryFeatureExprTree(left, b, opStr, op)).simplify
+        		case (a,b) => BinaryFeatureExprTree(a, b, opStr, op)
+        	}
 
-        case BinaryFeatureExprTree(left, right, "==", _) if left.simplify() == right.simplify() => BaseFeature()
-
-        case BinaryFeatureExprTree(IntegerLit(a), IntegerLit(b), _, op) => IntegerLit(op(a, b))
-
-        case BinaryFeatureExprTree(left, right, opStr, op) => BinaryFeatureExprTree(left simplify, right simplify, opStr, op)
-
-        case UnaryFeatureExprTree(expr, opStr, op) => UnaryFeatureExprTree(expr simplify, opStr, op)
+        case UnaryFeatureExprTree(expr, opStr, op) => 
+        	expr simplify match {
+        		case IntegerLit(x) => IntegerLit(op(x));
+        		case IfExpr(c, a, b) => IfExpr(c, UnaryFeatureExprTree(a, opStr, op), UnaryFeatureExprTree(b, opStr, op)).simplify
+        		case x => UnaryFeatureExprTree(x, opStr, op) 
+        	}
 
         case Not(a) =>
-          a.simplify match {
+          a.simplify.intToBool() match {
             case IntegerLit(v) => if (v == 0) BaseFeature() else DeadFeature()
             case Not(e) => e
             case e => Not(e)
@@ -198,7 +203,8 @@ sealed abstract class FeatureExprTree {
   def debug_print(level: Int): String
   def indent(level: Int): String = { var result = ""; for (i <- 0 until level) result = result + "\t"; result; }
   override def toString(): String = debug_print(0)
-  var possibleValuesCache: Set[Long] = null
+  def intToBool() = this
+
   /**
    * checks whether the formula is a contradiction
    * @return
@@ -280,19 +286,18 @@ sealed abstract class FeatureExprTree {
   //      case e => e
   //    }  
 
-  def toCnfEquiSat(): FeatureExprTree =
+  def toCnfEquiSat(): FeatureExprTree = {
+//	  System.out.println(this.print)
     this.simplify match {
-      case IfExpr(c, a, b) => {
-        var e: FeatureExprTree = new Or(new And(c, a), new And(Not(c), b));
-        e = e.simplify
-        e.toCnfEquiSat()
-      }
+      case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).simplify.toCnfEquiSat()
       case Not(e) =>
         e match {
           case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
           case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
           case e: IfExpr => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
-          case e => Not(e)
+          case e => {
+        	  Not(e.toCnfEquiSat)
+          }
         }
       case And(children) => And(children.map(_.toCnfEquiSat)).simplify
       case Or(children) => {
@@ -319,6 +324,7 @@ sealed abstract class FeatureExprTree {
       }
       case e => e
     }
+  }
 }
 abstract class AbstractBinaryFeatureExprTree(
   left: FeatureExprTree,
@@ -418,6 +424,7 @@ case class IntegerLit(num: Long) extends FeatureExprTree {
   //def eval(context:FeatureProvider):Long = num;
   def calcPossibleValues(): Set[Long] = Set(num)
   def accept(f: FeatureExprTree => Unit): Unit = f(this)
+  override def intToBool() = if (num == 0) DeadFeature() else BaseFeature()
 }
 
 case class DeadFeature() extends IntegerLit(0)

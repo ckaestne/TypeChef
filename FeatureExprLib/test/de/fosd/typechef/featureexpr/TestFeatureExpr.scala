@@ -75,7 +75,49 @@ class TestFeatureExpr extends TestCase {
     //A&B | !A => B|!A
     assertSimplify(new Or(new And(DefinedExternal("a"), DefinedExternal("b")), Not(DefinedExternal("a"))),
       new Or(Not(DefinedExternal("a")), DefinedExternal("b")))
+  }
 
+  def testSimplifyIf() {
+    assertSimplify(FeatureExpr.createLessThanEquals(
+      new FeatureExpr(IntegerLit(1)),
+      FeatureExpr.createIf(
+        DefinedExternal("CONFIG_64BIT"),
+        IntegerLit(64),
+        IntegerLit(32))).expr,
+      IntegerLit(1))
+
+    assertSimplify(FeatureExpr.createPlus(
+      new FeatureExpr(IntegerLit(1)),
+      FeatureExpr.createPlus(
+        new FeatureExpr(IntegerLit(1)),
+        FeatureExpr.createPlus(
+          new FeatureExpr(IntegerLit(1)),
+          FeatureExpr.createIf(
+            DefinedExternal("a"),
+            IntegerLit(1),
+            IntegerLit(2))))).expr,
+      FeatureExpr.createIf(
+        DefinedExternal("a"),
+        IntegerLit(4),
+        IntegerLit(5)).expr)
+  }
+
+  def testSimplifyNumeric() {
+    //&&	<=		<<			1			__IF__				CONFIG_NODES_SHIFT			__THEN__				0			__ELSE__				0		__IF__			CONFIG_64BIT		__THEN__			64		__ELSE__			32	1	  
+    assertSimplify(FeatureExpr.createLessThanEquals(
+      FeatureExpr.createShiftLeft(
+        new FeatureExpr(IntegerLit(1)),
+        FeatureExpr.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))
+        ),
+      FeatureExpr.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))
+      ).and(IntegerLit(1)).expr, BaseFeature());
+
+    assertSimplify(
+      FeatureExpr.createIf(
+        new FeatureExpr(DefinedExternal("a")),
+        FeatureExpr.createLessThanEquals(new FeatureExpr(IntegerLit(1)), new FeatureExpr(IntegerLit(64))),
+        FeatureExpr.createLessThanEquals(new FeatureExpr(IntegerLit(1)), new FeatureExpr(IntegerLit(32)))
+        ).not.expr, DeadFeature());
   }
 
   def testCFN() {
