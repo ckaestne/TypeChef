@@ -7,11 +7,11 @@ class ExprParser extends Parsers {
     def parse(tokens: List[Token]) = expr(0)(new TokenReader(tokens, 0))
 
     def expr(feature: Int): Parser[AST] =
-        term(feature) ~ opt(t("+", feature) ~> expr(feature)) ^^ { case a ~ Some(b) => Plus(a, b, feature); case a ~ None => a }
+        term(feature) ~ opt(t("+", feature) ~> expr(feature)) ^^ { case a ~ Some(b) => Plus(a, b); case a ~ None => a }
     def term(feature: Int): Parser[AST] =
-        factor(feature) ~ opt(t("*", feature) ~> expr(feature)) ^^ { case a ~ Some(b) => Mul(a, b, feature); case a ~ None => a }
+        factor(feature) ~ opt(t("*", feature) ~> expr(feature)) ^^ { case a ~ Some(b) => Mul(a, b); case a ~ None => a }
     def factor(feature: Int): Parser[AST] =
-        digits(feature) ^^ { case a => Lit(a.t.toInt, feature) } | t("(", feature) ~> expr(feature) <~ t(")", feature)
+        digits(feature) ^^ { case a => Lit(a.t.toInt) } | t("(", feature) ~> expr(feature) <~ t(")", feature)
 
     def t(text: String, feature: Int) = new Parser[Token] {
         def apply(in: Input): ParseResult[Token] = {
