@@ -2,12 +2,22 @@ package de.fosd.typechef.parser
 
 import scala.util.parsing.input.Reader
 
+/**
+ * adopted parser combinator framework with support for multi-feature parsing
+ * 
+ * @author kaestner
+ */
 trait MultiFeatureParser {
     type Input = Reader[Token]
     type FeatureSelection = Context
 
     //parser 
     abstract class Parser[+T] extends ((Input, FeatureSelection) => ParseResult[T]) { p =>
+
+        /**
+         * sequencing is difficult when each element can have multiple results for different features
+         * tries to join split parsers as early as possible
+         */
         def ~[U](q: => Parser[U]): Parser[~[T, U]] = new Parser[T ~ U] {
             def apply(in: Input, feature: FeatureSelection): ParseResult[T ~ U] = {
                 //sequence
@@ -16,7 +26,7 @@ trait MultiFeatureParser {
                 for ((fs, firstResult) <- firstResults)
                     firstResult match {
                         case Success(x, in1) => {
-                        	val secondResults = joinAlternatives(q(in1, fs).get)
+                            val secondResults = joinAlternatives(q(in1, fs).get)
                             for ((fs2, secondResult) <- secondResults) {
                                 if (fs subsetOf fs2)
                                     secondResult match {
@@ -35,6 +45,11 @@ trait MultiFeatureParser {
                 new ParseResult(combinedResults)
             }
         }
+
+        /**
+         * alternatives in the presence of multi-parsing
+         * (no attempt to join yet)
+         */
         def |[U >: T](q: => Parser[U]): Parser[U] = new Parser[U] {
             def apply(in: Input, feature: FeatureSelection): ParseResult[U] = {
                 val firstResults = p(in, feature).get
@@ -47,6 +62,9 @@ trait MultiFeatureParser {
                 new ParseResult(combinedResults)
             }
         }
+        /**
+         * ^^ as in the original combinator parser framework
+         */
         def ^^[U](f: T => U): Parser[U] = map(f)
         def map[U](f: T => U): Parser[U] = new Parser[U] {
             def apply(in: Input, feature: FeatureSelection) = p(in, feature).map(f)
@@ -57,15 +75,22 @@ trait MultiFeatureParser {
         }
     }
 
+    /**
+     * opt (and helper functions) as in the original combinator parser framework
+     */
     def opt[T](p: => Parser[T]): Parser[Option[T]] =
         p ^^ (x => Some(x)) | success(None)
-
     def success[T](v: T) =
         Parser { (in: Input, fs: FeatureSelection) => ParseResult(Map(fs -> Success(v, in))) }
-
     def Parser[T](f: (Input, FeatureSelection) => ParseResult[T]): Parser[T] =
         new Parser[T] { def apply(in: Input, fs: FeatureSelection) = f(in, fs) }
 
+    /**
+     * @class ParseResult 
+     * contains the general parse result. in a split parsing phase, there are multiple
+     * results. later these are merged to a single FeatureParseResult if possible
+     * @author kaestner
+     */
     case class ParseResult[+T](results: Map[FeatureSelection, FeatureParseResult[T]]) {
         def get =
             results
@@ -76,6 +101,11 @@ trait MultiFeatureParser {
         def map[U](f: T => U): ParseResult[U] =
             ParseResult(results.map((e) => (e._1 -> e._2.map(f))))
     }
+
+    /**
+     * contains the recognized parser result (including recognized alternatives?)
+     * @author kaestner
+     */
     sealed abstract class FeatureParseResult[+T](nextInput: Input) {
         def map[U](f: T => U): FeatureParseResult[U]
         def next = nextInput
@@ -88,7 +118,7 @@ trait MultiFeatureParser {
     case class Success[+T](result: T, nextInput: Input) extends FeatureParseResult[T](nextInput) {
         def map[U](f: T => U): FeatureParseResult[U] = Success(f(result), next)
         def join(feature: Int, that: FeatureParseResult[Any]) = that match {
-            case Success(thatResult, thatNext) => this//Success(IF(feature, this.result, thatResult), nextInput)
+            case Success(thatResult, thatNext) => this //Success(IF(feature, this.result, thatResult), nextInput)
             case ns@NoSuccess(_, _) => ns
         }
 
@@ -112,26 +142,26 @@ trait MultiFeatureParser {
             result = Map()
             for (val featureContext: FeatureSelection <- input.keys) {
                 if (featureContext.feature > 0 && input.contains(featureContext.complement)) {
-                    result = result + (featureContext.parent -> joinResults(featureContext.feature,input(featureContext), input(featureContext.complement)))
+                    result = result + (featureContext.parent -> joinResults(featureContext.feature, input(featureContext), input(featureContext.complement)))
                     changed = true
-                } else if (featureContext.feature>=0 || !input.contains(featureContext.complement))
+                } else if (featureContext.feature >= 0 || !input.contains(featureContext.complement))
                     result = result + (featureContext -> input(featureContext))
             }
 
         }
         result
     }
-    def joinResults[T](feature:Int,firstResult:T,secondResult:T):T = {
-    	firstResult
+    def joinResults[T](feature: Int, firstResult: T, secondResult: T): T = {
+        firstResult
     }
 
     case class ~[+a, +b](_1: a, _2: b) {
         override def toString = "(" + _1 + "~" + _2 + ")"
     }
-    class Result
-    case class IF[Int, +a, +b](f: Int, _1: a, _2: b) extends Result {
-        override def toString = "IF(" + f + "," + _1 + "," + _2 + ")"
-    }
+    //    class Result
+    //    case class IF[Int, +a, +b](f: Int, _1: a, _2: b) extends Result {
+    //        override def toString = "IF(" + f + "," + _1 + "," + _2 + ")"
+    //    }
 }
 
 class MyMultiFeatureParser extends MultiFeatureParser {
