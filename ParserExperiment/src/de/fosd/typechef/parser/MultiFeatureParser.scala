@@ -12,10 +12,12 @@ trait MultiFeatureParser {
             def apply(in: Input, feature: FeatureSelection): ParseResult[T ~ U] = {
                 //sequence
                 var combinedResults: Map[FeatureSelection, FeatureParseResult[T ~ U]] = Map()
-                for ((fs, firstResult) <- joinAlternatives(p(in, feature).get))
+                val firstResults = joinAlternatives(p(in, feature).get)
+                for ((fs, firstResult) <- firstResults)
                     firstResult match {
                         case Success(x, in1) => {
-                            for ((fs2, secondResult) <- joinAlternatives(q(in1, fs).get)) {
+                        	val secondResults = joinAlternatives(q(in1, fs).get)
+                            for ((fs2, secondResult) <- secondResults) {
                                 if (fs subsetOf fs2)
                                     secondResult match {
                                         case Success(y, in2) =>
@@ -77,16 +79,16 @@ trait MultiFeatureParser {
     sealed abstract class FeatureParseResult[+T](nextInput: Input) {
         def map[U](f: T => U): FeatureParseResult[U]
         def next = nextInput
-        def join(feature: Int, that: FeatureParseResult[T]): FeatureParseResult[IF[Int, T, T]]
+        def join(feature: Int, that: FeatureParseResult[Any]): FeatureParseResult[T]
     }
     case class NoSuccess(msg: String, nextInput: Input) extends FeatureParseResult[Nothing](nextInput) {
         def map[U](f: Nothing => U) = this
-        def join(feature: Int, that: FeatureParseResult[Nothing]) = this
+        def join(feature: Int, that: FeatureParseResult[Any]) = this
     }
     case class Success[+T](result: T, nextInput: Input) extends FeatureParseResult[T](nextInput) {
         def map[U](f: T => U): FeatureParseResult[U] = Success(f(result), next)
-        def join(feature: Int, that: FeatureParseResult[T]) = that match {
-            case Success(thatResult, thatNext) => Success(IF(feature, this.result, thatResult), nextInput)
+        def join(feature: Int, that: FeatureParseResult[Any]) = that match {
+            case Success(thatResult, thatNext) => this//Success(IF(feature, this.result, thatResult), nextInput)
             case ns@NoSuccess(_, _) => ns
         }
 
@@ -112,14 +114,16 @@ trait MultiFeatureParser {
                 if (featureContext.feature > 0 && input.contains(featureContext.complement)) {
                     result = result + (featureContext.parent -> joinResults(featureContext.feature,input(featureContext), input(featureContext.complement)))
                     changed = true
-                } else
+                } else if (featureContext.feature>=0 || !input.contains(featureContext.complement))
                     result = result + (featureContext -> input(featureContext))
             }
 
         }
         result
     }
-    def joinResults[T](feature:Int,firstResult:T,secondResult:T):T
+    def joinResults[T](feature:Int,firstResult:T,secondResult:T):T = {
+    	firstResult
+    }
 
     case class ~[+a, +b](_1: a, _2: b) {
         override def toString = "(" + _1 + "~" + _2 + ")"

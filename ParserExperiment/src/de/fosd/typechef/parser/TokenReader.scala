@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser
 import scala.util.parsing.input._
 
-class TokenReader (tokens:List[Token], offst:Int) extends Reader[Token] {
+class TokenReader (val tokens:List[Token], offst:Int) extends Reader[Token] {
 
   override def offset: Int = offst
 
@@ -16,5 +16,12 @@ class TokenReader (tokens:List[Token], offst:Int) extends Reader[Token] {
   def atEnd: Boolean = tokens.size<=1
 	
   override def toString: String = "TokenReader("+tokens+")"
-	
+
+  override def hashCode = tokens.hashCode
+  
+  override def equals(that:Any) = that match {
+	  case other:TokenReader => this.tokens == other.tokens
+	  case _ => false
+  }
+  
 }
