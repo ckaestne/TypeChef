@@ -1,6 +1,6 @@
 package de.fosd.typechef.parser
 
-class Token (text:String, feature:Int) {
+class Token (val text:String, val feature:Int) {
 	def t() = text
 	def f = feature
 	
