@@ -1,6 +1,7 @@
 package de.fosd.typechef.parser
 
 import scala.util.parsing.input.Reader
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing
@@ -9,53 +10,14 @@ import scala.util.parsing.input.Reader
  */
 trait MultiFeatureParser {
     type Input = Reader[Token]
-    type FeatureSelection = Context
-    type ParserState = Context
+    type ParserState = FeatureExpr
 
     object ASTParser {
         def joinASTs[T <: AST](parser: MultiParser[T]): ASTParser = new ASTParser {
-            def apply(in: Input, feature: FeatureSelection): ParseResult[T] = {
-                joinAlternativesAST(parser(in, feature))
+            def apply(in: Input, feature: FeatureExpr): ParseResult[T] = {
+                parser(in, feature).join[AST]((f, x, y) => Alt(f, x, y))
             }
         }
-
-        //checks whether all alternatives consumed the same amount of tokens (precondition to merging)
-        def joinAlternativesAST(inResults: Map[FeatureSelection, ParseResult[AST]]): ParseResult[AST] = {
-            assert(inResults.size >= 1)
-            val commonInput = inResults.head._2.next
-            assert(!inResults.values.forall(_.isSuccess) || inResults.values.forall(_.next == commonInput))
-
-            var result: Map[FeatureSelection, ParseResult[AST]] = inResults
-            var changed = true;
-            while (changed) {
-                changed = false
-                var input = result
-                result = Map()
-                for (val featureContext: FeatureSelection <- input.keys) {
-                    if (featureContext.feature > 0 && input.contains(featureContext.complement)) {
-                        if (input(featureContext) == input(featureContext.complement))
-                            result = result + (featureContext.parent -> input(featureContext))
-                        else
-                            result = result + (featureContext.parent -> joinResults(featureContext.feature, input(featureContext), input(featureContext.complement)))
-                        changed = true
-                    } else if (featureContext.feature >= 0 || !input.contains(featureContext.complement))
-                        result = result + (featureContext -> input(featureContext))
-                }
-            }
-            assert(result.size == 1)
-            result.values.first
-        }
-
-        def joinResults(feature: Int, firstResult: ParseResult[AST], secondResult: ParseResult[AST]): ParseResult[AST] =
-            (firstResult, secondResult) match {
-                case (Success(r1, in), Success(r2, _)) => Success(Alt(feature, r1, r2), in)
-                case _ => {
-                    System.err.println("not merging " + firstResult + " and " + secondResult)
-                    firstResult
-                    //super.joinResults(feature, firstResult, secondResult)
-                }
-            }
-
     }
     abstract class ASTParser extends ((Input, ParserState) => ParseResult[AST]) { thisParser =>
         type T = AST
@@ -65,12 +27,12 @@ trait MultiFeatureParser {
         def |(alternativeParser: => ASTParser): ASTParser = ASTParser.joinASTs(thisParser.toMultiParser | alternativeParser.toMultiParser)
 
         def toMultiParser: MultiParser[T] = new MultiParser[T] {
-            def apply(in: Input, parserState: ParserState): Map[Context, ParseResult[T]] = Map(parserState -> thisParser(in, parserState))
+            def apply(in: Input, parserState: ParserState): MultiParseResult[T] = thisParser(in, parserState)
         }
     }
 
     //parser 
-    abstract class MultiParser[T] extends ((Input, ParserState) => Map[Context, ParseResult[T]]) { thisParser =>
+    abstract class MultiParser[T] extends ((Input, ParserState) => MultiParseResult[T]) { thisParser =>
 
         def ~~(thatParser: => ASTParser): MultiParser[~[T, AST]] = this ~ thatParser.toMultiParser
 
@@ -79,29 +41,8 @@ trait MultiFeatureParser {
          * tries to join split parsers as early as possible
          */
         def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
-            def apply(in: Input, parserState: ParserState): Map[Context, ParseResult[~[T, U]]] = {
-                //sequence
-                var combinedResults: Map[FeatureSelection, ParseResult[T ~ U]] = Map()
-                for ((fs, firstResult) <- thisParser(in, parserState))
-                    firstResult match {
-                        case Success(x, in1) => {
-                            for ((fs2, secondResult) <- thatParser(in1, fs)) {
-                                if (fs subsetOf fs2)
-                                    secondResult match {
-                                        case Success(y, in2) =>
-                                            combinedResults = combinedResults + (fs2 -> Success(new ~(x, y), in2))
-                                        case NoSuccess(msg, next) =>
-                                            combinedResults = combinedResults + (fs -> NoSuccess(msg, next))
-
-                                    }
-                                else
-                                    combinedResults = combinedResults + (fs -> NoSuccess("incompatible features " + fs + " and " + fs2, in1))
-                            }
-                        }
-                        case NoSuccess(msg, next) => combinedResults = combinedResults + (fs -> NoSuccess(msg, next))
-                    }
-                combinedResults
-            }
+            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
+                thisParser(in, parserState).seqAllSuccessful(Context.base /*?*/ , (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)))
         }
 
         /**
@@ -109,14 +50,8 @@ trait MultiFeatureParser {
          * (no attempt to join yet)
          */
         def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, feature: FeatureSelection): Map[Context, ParseResult[U]] = {
-                var combinedResults: Map[Context, ParseResult[U]] = Map()
-                for ((fs, firstResult) <- thisParser(in, feature))
-                    firstResult match {
-                        case suc@Success(_, _) => combinedResults = combinedResults + (fs -> suc)
-                        case NoSuccess(_, _) => combinedResults = combinedResults ++ alternativeParser(in, fs)
-                    }
-                combinedResults
+            def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] = {
+                thisParser(in, feature).replaceAllUnsuccessful(Context.base /*?*/ , (fs: FeatureExpr) => alternativeParser(in, fs))
             }
         }
         /**
@@ -124,8 +59,8 @@ trait MultiFeatureParser {
          */
         def ^^[U](f: T => U): MultiParser[U] = map(f)
         def map[U](f: T => U): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, feature: FeatureSelection): Map[Context, ParseResult[U]] =
-                thisParser(in, feature).map(((e) => (e._1 -> e._2.map(f))))
+            def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] =
+                thisParser(in, feature).map(f)
         }
 
         /**
@@ -142,37 +77,39 @@ trait MultiFeatureParser {
     def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
         p ^^ (x => Some(x)) | success(None)
     def success[T](v: T) =
-        MultiParser { (in: Input, fs: FeatureSelection) => Map(fs -> Success(v, in)) }
-    def MultiParser[T](f: (Input, FeatureSelection) => Map[Context, ParseResult[T]]): MultiParser[T] =
-        new MultiParser[T] { def apply(in: Input, fs: FeatureSelection) = f(in, fs) }
-
-    case class ~[+a, +b](_1: a, _2: b) {
-        override def toString = "(" + _1 + "~" + _2 + ")"
-    }
+        MultiParser { (in: Input, fs: FeatureExpr) => Success(v, in) }
+    def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T]): MultiParser[T] =
+        new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = f(in, fs) }
 
     def matchInput(p: Token => Boolean, err: Token => String) = new MultiParser[Token] {
-        def apply(in: Input, feature: FeatureSelection): Map[Context, ParseResult[Token]] = {
+        def apply(in: Input, context: FeatureExpr): MultiParseResult[Token] = {
             //only attempt to parse if feature is supported
-            val start = skipHidden(in, feature)
-            if (isSupported(start.first, feature)) {
+            val start = skipHidden(in, context)
+            
+            //should not find an unreachable token, it would have been skipped
+            assert(!context.implies(start.first.f).isDead)
+            
+            if (context.implies(start.first.f).isBase) {
+            	//token always parsed in this context
                 if (p(start.first))
-                    Map(feature -> Success(start.first, skipHidden(start.rest, feature)))
+                    Success(start.first, skipHidden(start.rest, context))
                 else
-                    Map(feature -> NoSuccess(err(start.first), start))
+                    NoSuccess(err(start.first), start)
             } else
-                splitParser(start, feature)
+            	//token sometimes parsed in this context -> plit parser
+                splitParser(start, context)
         }
-        def splitParser(in: Input, features: FeatureSelection): Map[Context, ParseResult[Token]] = {
-            val (contextA, contextB) = features.split(in.first.f)
-            this(in, contextA) ++ this(in, contextB)
+        def splitParser(in: Input, context: FeatureExpr): MultiParseResult[Token] = {
+            val feature = in.first.f
+            SplittedParseResult(in.first.f, this(in, context.and(feature)), this(in, context.and(feature.not)))
         }
     }
 
-    def isSupported(token: Token, feature: FeatureSelection) =
-        (token.f == 0) || (feature contains token.f) || (feature contains -token.f)
-    def skipHidden(in: Input, feature: FeatureSelection): Input = {
+    def isSupported(token: Token, context: FeatureExpr) =
+        context.implies(token.f).isBase
+    def skipHidden(in: Input, context: FeatureExpr): Input = {
         var result = in
-        while (result.first.f != 0 && (feature contains (-result.first.f)))
+        while (context.and(result.first.f).isDead)
             result = result.rest
         result
     }
@@ -181,4 +118,6 @@ trait MultiFeatureParser {
     def textToken(kind: String) = token(kind, (_.text == kind))
 
 }
-
+case class ~[+a, +b](_1: a, _2: b) {
+    override def toString = "(" + _1 + "~" + _2 + ")"
+}

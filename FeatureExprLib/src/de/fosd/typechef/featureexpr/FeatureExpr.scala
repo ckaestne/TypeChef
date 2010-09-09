@@ -29,6 +29,8 @@ object FeatureExpr {
   def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExpr(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
   def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExpr(IfExpr(condition, thenBranch, elseBranch))
 
+  val base = new FeatureExpr(BaseFeature())
+  
   private var freshFeatureNameCounter = 0
   def calcFreshFeatureName(): String = { freshFeatureNameCounter = freshFeatureNameCounter + 1; "__fresh" + freshFeatureNameCounter; }
 }
@@ -45,6 +47,7 @@ class FeatureExpr {
   //changes state. returns this just for convenience
   def simplify(): FeatureExpr = {
     if (!isSimplified) {
+	  println(expr)
       expr = expr.simplify();
       isSimplified = true;
     }
@@ -73,6 +76,7 @@ class FeatureExpr {
   def or(that: FeatureExpr): FeatureExpr = new FeatureExpr(new Or(expr, that.expr));
   def and(that: FeatureExprTree): FeatureExpr = new FeatureExpr(new And(expr, that));
   def and(that: FeatureExpr): FeatureExpr = new FeatureExpr(new And(expr, that.expr));
+  def implies(that: FeatureExpr): FeatureExpr = FeatureExpr.createImplies(this,that)
   def not(): FeatureExpr = new FeatureExpr(Not(expr));
   def base(): FeatureExpr = new FeatureExpr(BaseFeature())
   def dead(): FeatureExpr = new FeatureExpr(DeadFeature())
@@ -122,8 +126,8 @@ sealed abstract class FeatureExprTree {
         case Or(c) => {
           //indented simplification: case Or(And(a,Not(b)),c) if (b==c) => Or(a,b)
           var children = c
-          if (children.size == 2)
-            children = optimizeOrAndNotPattern(children)
+//          if (children.size == 2)
+//            children = optimizeOrAndNotPattern(children)
 
           //rest
           val childrenSimplified = children.map(_.simplify().intToBool()) - DeadFeature() - IntegerLit(0);
@@ -183,8 +187,10 @@ sealed abstract class FeatureExprTree {
           val as = a simplify;
           val bs = b simplify;
           val cs = c simplify;
-          if (cs.isBase()) as
-          else if (cs.isDead()) bs
+//          if (cs.isBase()) as
+//          else if (cs.isDead()) bs
+          if (cs==BaseFeature()) as
+          else if (cs==DeadFeature()) bs
           else if (as == bs) as
           else IfExpr(c simplify, a simplify, b simplify)
         }

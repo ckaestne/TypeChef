@@ -1,6 +1,8 @@
 package de.fosd.typechef.parser
 import scala.util.parsing.input._
 
+
+
 class TokenReader (val tokens:List[Token], offst:Int) extends Reader[Token] {
 
   override def offset: Int = offst
