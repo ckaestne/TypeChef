@@ -65,6 +65,11 @@ class MultiFeatureParserTest extends TestCase {
         assertParseResult(expected, new MultiExpressionParser().parse(input))
     }
 
+    def testMultiParseAlternativePlusMinusB() {
+        val input = List(t("1"), t("+", f1), t("-", f1.not), t("4", f2), t("5", f2.not))
+        val expected = Alt(f1, Plus(Lit(1),Alt(f2, Lit(4), Lit(5))), Minus(Lit(1),Alt(f2, Lit(4), Lit(5))))
+        assertParseResult(expected, new MultiExpressionParser().parse(input))
+    }
     def testMultiParseAlternativePlusMinus() {
         val input = List(t("1", f2), t("2", f2.not), t("+", f1), t("-", f1.not), t("5"))
         val expected = Alt(f1, Plus(Alt(f2, Lit(1), Lit(2)), Lit(5)), Minus(Alt(f2, Lit(1), Lit(2)), Lit(5)))
@@ -78,10 +83,10 @@ class MultiFeatureParserTest extends TestCase {
     def testMultiParseAlternativeOverBrakets() {
         //IFDEF (3+5 ELSE (3 ENDIF ) *(IFDEF 4 ELSE 1 ENDIF +2+1)
         val input = List(t("(", f1), t("3", f1), t("+", f1), t("5", f1),
-            t("(", f1.not), t("3", f1.not),
+            t("(", f1.not), t("2", f1.not),
             t(")"), t("*"), t("("),
-            t("4", f2), t("1", f2.not), t("+"), t("2"), t("+"), t("1"), t(")"))
-        val expected = Mul(Alt(f1, Plus(Lit(3), Lit(5)), Lit(3)), Plus(Alt(f2, Lit(4), Lit(1)), Plus(Lit(2), Lit(1))))
+            t("4", f2), t("1", f2.not), t("+"), t("1"), t("+"), t("1"), t(")"))
+        val expected = Mul(Alt(f1, Plus(Lit(3), Lit(5)), Lit(2)), Plus(Alt(f2, Lit(4), Lit(1)), Plus(Lit(1), Lit(1))))
         assertParseResult(expected, new MultiExpressionParser().parse(input))
     }
 

@@ -15,7 +15,7 @@ trait MultiFeatureParser {
     object ASTParser {
         def joinASTs[T <: AST](parser: MultiParser[T]): ASTParser = new ASTParser {
             def apply(in: Input, feature: FeatureExpr): ParseResult[T] = {
-                parser(in, feature).join[AST]((f, x, y) => Alt(f, x, y))
+                parser(in, feature).join[AST]((f, x, y) => if (x==y) x else Alt(f, x, y))
             }
         }
     }
@@ -42,7 +42,7 @@ trait MultiFeatureParser {
          */
         def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
             def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
-                thisParser(in, parserState).seqAllSuccessful(Context.base /*?*/ , (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)))
+                thisParser(in, parserState).seqAllSuccessful(parserState , (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)))
         }
 
         /**
@@ -50,8 +50,8 @@ trait MultiFeatureParser {
          * (no attempt to join yet)
          */
         def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] = {
-                thisParser(in, feature).replaceAllUnsuccessful(Context.base /*?*/ , (fs: FeatureExpr) => alternativeParser(in, fs))
+            def apply(in: Input, parserState: ParserState): MultiParseResult[U] = {
+                thisParser(in, parserState).replaceAllUnsuccessful(parserState , (fs: FeatureExpr) => alternativeParser(in, fs))
             }
         }
         /**

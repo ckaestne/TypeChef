@@ -47,14 +47,14 @@ class FeatureExpr {
   //changes state. returns this just for convenience
   def simplify(): FeatureExpr = {
     if (!isSimplified) {
-	  println(expr)
+//	  println(expr)
       expr = expr.simplify();
       isSimplified = true;
     }
     this
   }
   
-  override def toString(): String = this.debug_print()
+  override def toString(): String = this.print()
   def isDead(): Boolean = {
     simplify();
     var result = expr.isDead();
