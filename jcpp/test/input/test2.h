@@ -1,4 +1,4 @@
-#if A
+#ifdef A
 #define FUNC(x) (x)*(x)
 #else
 #define FUNC(x) (x)+(x)
