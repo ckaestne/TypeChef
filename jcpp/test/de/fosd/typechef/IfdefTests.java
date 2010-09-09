@@ -128,4 +128,10 @@ public class IfdefTests extends AbstractCheckTests {
 		}
 
 	}
+	
+	@Test
+	public void testAlternativeDefiition() throws Exception {
+		Main.main(new String[] { "test/input/test2.h"// ,"--debug"
+		});
+	}
 }
