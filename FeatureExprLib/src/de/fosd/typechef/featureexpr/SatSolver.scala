@@ -37,7 +37,7 @@ class SatSolver extends Solver {
 
     if (PROFILING)
       println("<toCNF " + countClauses(expr) + " with " + countFlags(expr) + " flags>")
-    val exprs = expr.toCnfEquiSat;
+    val exprs = expr.toCnfEquiSat.simplify;
     if (PROFILING)
       println("</toCNF " + countClauses(exprs) + " in " + (System.currentTimeMillis() - startTime) + " ms>")
 
@@ -77,7 +77,7 @@ class SatSolver extends Solver {
           case Not(IntegerLit(i)) => if (i != 0) Set(DeadFeature()) else Set(BaseFeature())
           case DefinedExternal(n) => Set(DefinedExternal(n))
           case Not(DefinedExternal(n)) => Set(Not(DefinedExternal(n)))
-          case e => throw new RuntimeException("expression is not in cnf " + e)
+          case e => throw new NoCnfException(e)
         }
         val clauseArray: Array[Int] = new Array(children.size)
         var i = 0
@@ -87,7 +87,7 @@ class SatSolver extends Solver {
             case IntegerLit(_) => clauseArray(i) = uniqueFlagIds(baseFeatureName)
             case DefinedExternal(name) => clauseArray(i) = uniqueFlagIds(name)
             case Not(DefinedExternal(name)) => clauseArray(i) = -uniqueFlagIds(name)
-            case e => throw new RuntimeException("expression is not in cnf " + e)
+            case e => throw new NoCnfException(e)
           }
           i = i + 1;
         }
@@ -99,7 +99,7 @@ class SatSolver extends Solver {
         val contradiction = addClauses(exprs)
         return !contradiction && solver.isSatisfiable();
       } catch {
-        case e: RuntimeException => e.printStackTrace; return true;
+        case e: NoCnfException => e.printStackTrace; return true;
       }
 
     } finally {

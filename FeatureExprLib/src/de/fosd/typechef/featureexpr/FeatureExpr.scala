@@ -126,8 +126,8 @@ sealed abstract class FeatureExprTree {
         case Or(c) => {
           //indented simplification: case Or(And(a,Not(b)),c) if (b==c) => Or(a,b)
           var children = c
-//          if (children.size == 2)
-//            children = optimizeOrAndNotPattern(children)
+          if (children.size == 2)
+            children = optimizeOrAndNotPattern(children)
 
           //rest
           val childrenSimplified = children.map(_.simplify().intToBool()) - DeadFeature() - IntegerLit(0);

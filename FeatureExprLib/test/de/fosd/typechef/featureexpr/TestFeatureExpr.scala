@@ -66,7 +66,7 @@ class TestFeatureExpr extends TestCase {
 
   }
   def testAdvancedSimplify() {
-    //would be nice to add as optimization: (!A & B) v A => A v B
+    //(!A & B) v A => A v B
     assertSimplify(new Or(new And(Not(DefinedExternal("a")), DefinedExternal("b")), DefinedExternal("a")),
       new Or(DefinedExternal("a"), DefinedExternal("b")))
     //(!A & B & C)| A => (B & C) | A
@@ -132,6 +132,9 @@ class TestFeatureExpr extends TestCase {
     println(v)
     val vs = v.simplify
     println(vs)
+    
+    //(!((defined(a) && defined(b))) || defined(b))
+    assertIsCNF(new Or(Not(new And(DefinedExternal("a"),DefinedExternal("b"))),DefinedExternal("b")).toCnfEquiSat)
   }
 
   def testCNFIf() {
