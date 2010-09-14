@@ -5,6 +5,12 @@ class MultiExpressionParser extends MultiFeatureParser {
 
     def parse(tokens: List[Token]): ParseResult[AST] = expr(new TokenReader(tokens, 0), Context.base)
 
+//    def exprList: ASTParser =
+//    	t("[")~expr~rep(t(",")~expr)~t("]") ^^! {
+//    		case ~(~(~(b1,e),List(l)),b2) => e
+//    	}
+    
+    
     def expr: ASTParser =
         term ~ opt((t("+") | t("-")) ~~ expr) ^^! {
             case ~(f, Some(~(op, e))) if (op.text == "+") => Plus(f, e)

@@ -6,9 +6,9 @@ import de.fosd.typechef.featureexpr._
 
 class MultiFeatureParserTest extends TestCase {
 
-	val f1=FeatureExpr.createDefinedExternal("a")
-	val f2=FeatureExpr.createDefinedExternal("b")
-	
+    val f1 = FeatureExpr.createDefinedExternal("a")
+    val f2 = FeatureExpr.createDefinedExternal("b")
+
     def t(text: String): Token = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): Token = new Token(text, feature)
 
@@ -67,7 +67,7 @@ class MultiFeatureParserTest extends TestCase {
 
     def testMultiParseAlternativePlusMinusB() {
         val input = List(t("1"), t("+", f1), t("-", f1.not), t("4", f2), t("5", f2.not))
-        val expected = Alt(f1, Plus(Lit(1),Alt(f2, Lit(4), Lit(5))), Minus(Lit(1),Alt(f2, Lit(4), Lit(5))))
+        val expected = Alt(f1, Plus(Lit(1), Alt(f2, Lit(4), Lit(5))), Minus(Lit(1), Alt(f2, Lit(4), Lit(5))))
         assertParseResult(expected, new MultiExpressionParser().parse(input))
     }
     def testMultiParseAlternativePlusMinus() {
@@ -98,6 +98,32 @@ class MultiFeatureParserTest extends TestCase {
             t("4", f2), t("1", f2.not), t("+"), t("2"), t("+"), t("1"), t(")"))
 
         val expected = Mul(Alt(f1, Plus(Lit(3), Lit(5)), Lit(3)), Plus(Alt(f2, Lit(4), Lit(1)), Plus(Lit(2), Lit(1))))
+        assertParseResult(expected, new MultiExpressionParser().parse(input))
+    }
+
+    def testExprList() {
+        val input = List(t("["), t("2"), t("+"), t("5"), t(","), t("2"), t("*"), t("5"), t(","), t("1"), t("]"))
+        val expected = ExprList(List(Plus(Lit(2), Lit(5)), Mul(Lit(2), Lit(5)), Lit(1)))
+        assertParseResult(expected, new MultiExpressionParser().parse(input))
+    }
+    def testExprListOptLast() {
+        val input = List(t("["), t("2"), t("+"), t("5"), t(","), t("2"), t("*"), t("5"), t(",", f1), t("1", f1), t("]"))
+        val expected = ExprList(List(Plus(Lit(2), Lit(5)), Mul(Lit(2), Lit(5)), OptAST(f1, Lit(1))))
+        assertParseResult(expected, new MultiExpressionParser().parse(input))
+    }
+    def testExprListOptMid() {
+        val input = List(t("["), t("2"), t("+"), t("5"), t(",", f1), t("2", f1), t("*", f1), t("5", f1), t(","), t("1"), t("]"))
+        val expected = ExprList(List(Plus(Lit(2), Lit(5)), OptAST(f1, Mul(Lit(2), Lit(5))), Lit(1)))
+        assertParseResult(expected, new MultiExpressionParser().parse(input))
+    }
+    def testExprListOptMid2() {
+        val input = List(t("["), t("2"), t("+"), t("5"), t(","), t("2", f1), t("*", f1), t("5", f1), t(",", f1), t("1"), t("]"))
+        val expected = ExprList(List(Plus(Lit(2), Lit(5)), OptAST(f1, Mul(Lit(2), Lit(5))), Lit(1)))
+        assertParseResult(expected, new MultiExpressionParser().parse(input))
+    }
+    def testExprListOptFirst() {
+        val input = List(t("["), t("2", f1), t("+", f1), t("5", f1), t(",", f1), t("2"), t("*"), t("5"), t(","), t("1"), t("]"))
+        val expected = ExprList(List(OptAST(f1, Plus(Lit(2), Lit(5))), Mul(Lit(2), Lit(5)), Lit(1)))
         assertParseResult(expected, new MultiExpressionParser().parse(input))
     }
 
