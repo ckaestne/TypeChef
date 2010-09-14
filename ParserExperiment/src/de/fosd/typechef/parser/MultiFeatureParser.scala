@@ -5,6 +5,9 @@ import scala.util.parsing.input.Reader
 import scala.collection.mutable.ListBuffer
 import de.fosd.typechef.featureexpr.FeatureExpr
 
+
+abstract class AST
+
 /**
  * adopted parser combinator framework with support for multi-feature parsing
  * 
@@ -78,6 +81,8 @@ trait MultiFeatureParser {
      */
     def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
         p ^^ (x => Some(x)) | success(None)
+//    def opt[T](p: => ASTParser): MultiParser[Option[T]] =
+//        p ^^ (x => Some(x)) | success(None)
 
 //    /** as in the original combinator parser framework
 //     */
