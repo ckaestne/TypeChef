@@ -146,4 +146,11 @@ class TestFeatureExpr extends TestCase {
       FeatureExpr.createInteger(2)).expr.toCnfEquiSat(), Not(DefinedExternal("a")))
   }
 
+  def testEquality() {
+	  assertEquals(FeatureExpr.createDefinedExternal("a"),FeatureExpr.createDefinedExternal("a"))
+	  assertEquals(FeatureExpr.createDefinedExternal("a"),FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a")))
+	  assertEquals(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not),FeatureExpr.base)
+	  assertEquals(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")),FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
+  }
+  
 }
