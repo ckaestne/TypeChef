@@ -1,9 +1,12 @@
 package de.fosd.typechef.parser
 import scala.util.parsing.input.Reader
+import de.fosd.typechef.featureexpr.FeatureExpr
+
+case class DigitList(list: List[Lit]) extends AST
 
 class DigitListParser extends MultiFeatureParser {
 
-    def parse(tokens: List[Token]): ParseResult[AST] = digitList(new TokenReader(tokens, 0), Context.base).forceJoin[AST](Alt.join)
+    def parse(tokens: List[Token]): ParseResult[AST] = digitList(new TokenReader(tokens, 0), FeatureExpr.base).forceJoin[AST](Alt.join)
 
     def digitList: MultiParser[AST] =
         (t("(") ~ digits ~ t(")")) ^^! { case (~(~(b1, e), b2)) => e }

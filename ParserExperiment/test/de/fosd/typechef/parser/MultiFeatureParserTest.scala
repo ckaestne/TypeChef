@@ -19,8 +19,8 @@ class MultiFeatureParserTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
             }
-            case NoSuccess(msg, context, unparsed) =>
-                fail(msg + " at " + unparsed + " with context " + context)
+            case NoSuccess(msg, context, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " with context " + context+ " "+inner)
         }
     }
 
@@ -152,8 +152,8 @@ class MultiFeatureParserTest extends TestCase {
         val in = new TokenReader(List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0)
         val in2 = new TokenReader(List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0)
         val p = new MultiExpressionParser()
-        println((p.digits ~ p.digits)(in, Context.base)) // 1~1,1~2,2~1,2~2
-        println((p.digits ~ p.digits)(in2, Context.base)) //1~2,2~1
+        println((p.digits ~ p.digits)(in, FeatureExpr.base)) // 1~1,1~2,2~1,2~2
+        println((p.digits ~ p.digits)(in2, FeatureExpr.base)) //1~2,2~1
 
     }
 

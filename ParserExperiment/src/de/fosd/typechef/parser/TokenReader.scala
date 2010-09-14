@@ -2,7 +2,7 @@ package de.fosd.typechef.parser
 import scala.util.parsing.input._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
-class TokenReader(val tokens: List[Token], offst: Int) extends Reader[Token] {
+class TokenReader(val tokens: List[Token], val offst: Int) extends Reader[Token] {
 
     override def offset: Int = offst
 

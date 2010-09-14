@@ -1,9 +1,10 @@
 package de.fosd.typechef.parser
 import scala.util.parsing.input.Reader
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 class MultiExpressionParser extends MultiFeatureParser {
 
-    def parse(tokens: List[Token]): ParseResult[AST] = expr(new TokenReader(tokens, 0), Context.base).forceJoin(Alt.join)
+    def parse(tokens: List[Token]): ParseResult[AST] = expr(new TokenReader(tokens, 0), FeatureExpr.base).forceJoin(Alt.join)
 
     def expr: MultiParser[AST] =
         term ~ opt((t("+") | t("-")) ~ expr) ^^! {

@@ -18,6 +18,8 @@ sealed abstract class MultiParseResult[+T] {
      **/
     def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U]
     def allFailed: Boolean
+    def toList:List[ParseResult[T]]
+    def toErrorList:List[NoSuccess]
 }
 /**
  * split into two parse results (all calls are propagated to the individual results)
@@ -40,9 +42,10 @@ case class SplittedParseResult[+T](feature: FeatureExpr, resultA: MultiParseResu
                 else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not))
                     Success(f(feature, rA, rB), inA.skipHidden(feature))
                 else
-                    NoSuccess("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA)
-            case (nos@NoSuccess(_, _, _), _) => nos
-            case (_, nos@NoSuccess(_, _, _)) => nos
+                    NoSuccess("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA,List())
+            case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => NoSuccess("joined error",fA.or(fB),inA,List(nA,nB))
+            case (nos@NoSuccess(_, _, _, _), _) => nos
+            case (_, nos@NoSuccess(_, _, _,_)) => nos
         }
     }
     def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
@@ -54,14 +57,16 @@ case class SplittedParseResult[+T](feature: FeatureExpr, resultA: MultiParseResu
                 else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not))
                     Success(f(feature, rA, rB), inA.skipHidden(feature))
                 else
-                    NoSuccess("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA)
+                    this//NoSuccess("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA,List())
             //both not sucessful
-            case (nos@NoSuccess(_, _, _), nos2@NoSuccess(_, _, _)) => nos
+            case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => NoSuccess("joined error",fA.or(fB),inA,List(nA,nB))
             //partially successful
             case (a, b) => SplittedParseResult(feature, a, b)
         }
     }
     def allFailed = resultA.allFailed && resultB.allFailed
+    def toList = resultA.toList ++ resultB.toList
+    def toErrorList = resultA.toErrorList ++ resultB.toErrorList
 }
 /**
  * stores a list of results of which individual entries can belong to a specific feature
@@ -80,13 +85,15 @@ sealed abstract class ParseResult[+T](nextInput: TokenReader) extends MultiParse
     def isSuccess: Boolean
     def forceJoin[U >: T](f: (FeatureExpr, U, U) => U): ParseResult[U] = this
     def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
+    def toList = List(this)
 }
-case class NoSuccess(msg: String, val context: FeatureExpr, nextInput: TokenReader) extends ParseResult[Nothing](nextInput) {
+case class NoSuccess(msg: String, val context: FeatureExpr, nextInput: TokenReader, val innerErrors:List[NoSuccess]) extends ParseResult[Nothing](nextInput) {
     def map[U](f: Nothing => U) = this
     def isSuccess: Boolean = false
     def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[Nothing]) => MultiParseResult[U]): MultiParseResult[U] = this
     def replaceAllUnsuccessful[U >: Nothing](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U] = f(context)
     def allFailed = true
+    def toErrorList = List(this)
 }
 case class Success[+T](val result: T, nextInput: TokenReader) extends ParseResult[T](nextInput) {
     def map[U](f: T => U): ParseResult[U] = Success(f(result), next)
@@ -96,5 +103,6 @@ case class Success[+T](val result: T, nextInput: TokenReader) extends ParseResul
         thatResult.seqAllSuccessful[~[T, U]](context, (fs: FeatureExpr, x: Success[U]) => Success(new ~(result, x.result), x.next))
     def replaceAllUnsuccessful[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U] = this
     def allFailed = false
+    def toErrorList = List()
 }
 

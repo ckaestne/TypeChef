@@ -21,36 +21,11 @@ trait MultiFeatureParser {
     type Input = TokenReader
     type ParserState = FeatureExpr
 
-    //    object ASTParser {
-    //        def joinASTs[T <: AST](parser: MultiParser[T]): ASTParser = new ASTParser {
-    //            def apply(in: Input, feature: FeatureExpr): ParseResult[T] = {
-    //                parser(in, feature).join[AST]((f, x, y) => if (x == y) x else Alt(f, x, y))
-    //            }
-    //        }
-    //    }
-    //    abstract class ASTParser extends ((Input, ParserState) => ParseResult[AST]) { thisParser =>
-    //        private var name: String = ""
-    //        def named(n: String): this.type = { name = n; this }
-    //        override def toString() = "ASTParser (" + name + ")"
-    //
-    //        type T = AST
-    //
-    //        def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = toMultiParser ~ thatParser
-    //
-    //        def |(alternativeParser: => ASTParser): ASTParser = ASTParser.joinASTs(thisParser.toMultiParser | alternativeParser.toMultiParser)
-    //
-    //        def toMultiParser: MultiParser[T] = new MultiParser[T] {
-    //            def apply(in: Input, parserState: ParserState): MultiParseResult[T] = thisParser(in, parserState)
-    //        }
-    //    }
-
     //parser 
     abstract class MultiParser[T] extends ((Input, ParserState) => MultiParseResult[T]) { thisParser =>
         private var name: String = ""
         def named(n: String): this.type = { name = n; this }
         override def toString() = "Parser (" + name + ")"
-
-        //        def ~~(thatParser: => ASTParser): MultiParser[~[T, AST]] = this ~ thatParser.toMultiParser
 
         /**
          * sequencing is difficult when each element can have multiple results for different features
@@ -67,11 +42,7 @@ trait MultiFeatureParser {
          */
         def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new MultiParser[U] {
             def apply(in: Input, parserState: ParserState): MultiParseResult[U] = {
-                val before = thisParser(in, parserState)
-                val after = before.replaceAllUnsuccessful(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
-                println("|" + before + " - " + after)
-                after
-                //thisParser(in, parserState).replaceAllUnsuccessful(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
+                thisParser(in, parserState).replaceAllUnsuccessful(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
             }
         }.named("|")
         /**
@@ -100,63 +71,72 @@ trait MultiFeatureParser {
     def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
         p ^^ (x => Some(x)) | success(None)
 
-    //    def opt[T](p: => ASTParser): MultiParser[Option[T]] =
-    //        p ^^ (x => Some(x)) | success(None)
+    /** 
+     * repeated application (0..n times)
+     *
+     * this deserves special attention, because standard expansion would result in constructs as follow
+     * a,b_1,c => Alt(1,List(a,b,c),List(a,c))
+     * However, we do not want to replicate the entire list in some cases (especially for high-level AST constructs
+     * such as functions and statements). Instead we want a single list with optional entries
+     * a,b_1,c => List(a,Opt(1,b),c)
+     *  
+     */
+    def rep(p: => MultiParser[AST]): MultiParser[List[Opt[AST]]] = new MultiParser[List[Opt[AST]]] {
+        def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[AST]]] = {
+            val elems = new ListBuffer[Opt[AST]]
 
-    //    /** as in the original combinator parser framework
-    //     */
-    //    def rep[T](p: => MultiParser[T]): MultiParser[List[T]] = rep1(p) | success(List())
-    //
-    //    //    /** as in the original combinator parser framework
-    //    //     */
-    //    //    def repsep[T](p: => MultiParser[T], q: => MultiParser[Any]): MultiParser[List[T]] =
-    //    //        rep1sep(p, q) | success(List())
-    //
-    //    /** as in the original combinator parser framework
-    //     */
-    //    def rep1[T](p: => MultiParser[T]): MultiParser[List[T]] = rep1(p, p)
-    //
-    //    /** 
-    //     * parsing list entries:
-    //     *
-    //     * parse an entry. if multiple results are returned, it is sufficient when one succeeds.
-    //     * 
-    //     * if multiple succeed, but do not finish at the same position, use the shortest result 
-    //     * (with the largest rest) and restart parsing 
-    //     */
-    //    def rep1[T](first: => MultiParser[T], p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
-    //        def apply(in: Input, parserState: ParserState): MultiParseResult[T] = {
-    //            val elems = new ListBuffer[MultiParseResult[T]]
-    //
-    //            def continue(in: Input): OptListParseResult[T] = {
-    //                val p0 = p // avoid repeatedly re-evaluating by-name parser
-    //                @tailrec
-    //                def applyp(in0: Input): OptListParseResult[T] = p0(in0, parserState) match {
-    //                    case Success(x, rest) => elems += x; applyp(rest)
-    //                    case _ => new OptListParseResult(elems.toList, in0)
-    //                }
-    //
-    //                applyp(in)
-    //            }
-    //
-    //            val parseResult = first(in, parserState)
-    //            if (parseResult.allFailed)
-    //                parseResult
-    //            else
-    //                {
-    //                    elems += parseResult;
-    //                    new OptListParseResult(elems.toList)
-    //                }
-    //
-    //            
-    //            
-    //            //parseFirst
-    //            //if all failed, return error
-    //            //if some failed, return error
-    //            
-    //                 
-    //        }
-    //    }
+            class ListHandlingException(msg: String) extends Exception(msg)
+            def findOpt(in0: Input, result: MultiParseResult[AST]): (Opt[AST], Input) = {
+                result match {
+                    case Success(e, in) => (Opt(parserState, e), in)
+                    case SplittedParseResult(f, Success(e, in), NoSuccess(_, _, _, _)) => (Opt(f, e), in)
+                    //first element must finish before second element starts
+                    case SplittedParseResult(f, Success(e, in), _) =>
+                        if (in.offst <= in0.skipHidden(parserState.and(f.not)).offst)
+                            (Opt(f, e), in)
+                        else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                    //others currently not supported
+                    case _ => throw new ListHandlingException("deeper nesting currently not supported, TODO")
+                }
+            }
+
+            def continue(in: Input): MultiParseResult[List[Opt[AST]]] = {
+                val p0 = p // avoid repeatedly re-evaluating by-name parser
+                @tailrec
+                def applyp(in0: Input): MultiParseResult[List[Opt[AST]]] = {
+                    val parseResult = p0(in0, parserState).join(Alt.join)
+                    //if all failed, return error
+                    if (parseResult.allFailed)
+                        Success(elems.toList, in0)
+                    //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
+                    else { //continue parsing
+                        val (e: Opt[AST], rest: Input) = findOpt(in0, parseResult)
+                        elems += e
+                        applyp(rest)
+                    }
+                }
+
+                applyp(in)
+            }
+
+            try {
+                continue(in)
+            } catch {
+                case e: ListHandlingException => e.printStackTrace; rep2(p)(in, parserState)
+            }
+        }
+    }
+
+    /**
+     * fallback repetition without considering optional elements. all Opt entries have status parserstate
+     * @param p
+     * @return
+     */
+    def rep2(p: => MultiParser[AST]): MultiParser[List[Opt[AST]]] =
+        opt(p ~ rep2(p)) ^^ {
+            case Some(~(x, list: List[Opt[AST]])) => List(Opt(FeatureExpr.base, x)) ++ list
+            case None => List()
+        }
 
     def success[T](v: T) =
         MultiParser { (in: Input, fs: FeatureExpr) => Success(v, in) }
@@ -176,7 +156,7 @@ trait MultiFeatureParser {
                 if (p(start.first))
                     Success(start.first, start.rest) //.skipHidden(context))//TODO rather when joining?
                 else
-                    NoSuccess(err(start.first), context, start)
+                    NoSuccess(err(start.first), context, start, List())
             } else
                 //token sometimes parsed in this context -> plit parser
                 splitParser(start, context)
@@ -190,10 +170,11 @@ trait MultiFeatureParser {
     def isSupported(token: Token, context: FeatureExpr) =
         context.implies(token.f).isBase
 
-    def token(kind: String, p: Token => Boolean) = matchInput(p, inEl => kind + " expected")
+    def token(kind: String, p: Token => Boolean) = matchInput(p, inEl => "\"" + kind + "\" expected")
     def textToken(kind: String) = token(kind, (_.text == kind))
 
 }
 case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"
 }
+case class Opt[T](val feature: FeatureExpr, val entry: T)
