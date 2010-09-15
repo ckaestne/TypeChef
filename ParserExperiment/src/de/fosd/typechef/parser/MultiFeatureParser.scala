@@ -23,7 +23,7 @@ class MultiFeatureParser {
     type ParserState = FeatureExpr
 
     //parser  
-    abstract class MultiParser[T] extends ((Input, ParserState) => MultiParseResult[T, Elem]) { thisParser =>
+    abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T, Elem]) { thisParser =>
         private var name: String = ""
         def named(n: String): this.type = { name = n; this }
         override def toString() = "Parser (" + name + ")"
@@ -46,6 +46,7 @@ class MultiFeatureParser {
                 thisParser(in, parserState).replaceAllUnsuccessful(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
             }
         }.named("|")
+
         /**
          * ^^ as in the original combinator parser framework
          */
@@ -64,16 +65,27 @@ class MultiFeatureParser {
                     thisParser.map(f)(in, feature).join[AST](Alt.join)
                 }
             }.named("^^!")
+
+        /**
+         * from original framework, sequence parsers, but drop first result
+         */
+        def ~>[U](thatParser: => MultiParser[U]): MultiParser[U] = {thisParser ~ thatParser ^^ {(x:T~U) => x match { case ~(a,b)=>b } }} .named("~>")
+
+        /**
+         * from original framework, sequence parsers, but drop last result
+         */
+        def <~[U](thatParser: => MultiParser[U]): MultiParser[T] = {thisParser ~ thatParser ^^ {(x:T~U) => x match { case ~(a,b)=>a } }} .named("<~") 
     }
 
     /**
      * opt (and helper functions) as in the original combinator parser framework
+     * (x)?
      */
     def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
         p ^^ (x => Some(x)) | success(None)
 
     /** 
-     * repeated application (0..n times)
+     * repeated application (0..n times), or (x)*
      *
      * this deserves special attention, because standard expansion would result in constructs as follow
      * a,b_1,c => Alt(1,List(a,b,c),List(a,c))
@@ -82,7 +94,7 @@ class MultiFeatureParser {
      * a,b_1,c => List(a,Opt(1,b),c)
      *  
      */
-    def rep(p: => MultiParser[AST]): MultiParser[List[Opt[AST]]] = new MultiParser[List[Opt[AST]]] {
+    def repOpt(p: => MultiParser[AST]): MultiParser[List[Opt[AST]]] = new MultiParser[List[Opt[AST]]] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[AST]], Elem] = {
             val elems = new ListBuffer[Opt[AST]]
 
@@ -123,20 +135,30 @@ class MultiFeatureParser {
             try {
                 continue(in)
             } catch {
-                case e: ListHandlingException => e.printStackTrace; rep2(p)(in, parserState)
+                //fallback: normal repetition, where each is wrapped in an Opt(base,_)
+                case e: ListHandlingException => e.printStackTrace; rep[AST](p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
             }
         }
     }
 
     /**
-     * fallback repetition without considering optional elements. all Opt entries have status parserstate
+     * normal repetition, 0..n times (x)*
      * @param p
      * @return
      */
-    def rep2(p: => MultiParser[AST]): MultiParser[List[Opt[AST]]] =
-        opt(p ~ rep2(p)) ^^ {
-            case Some(~(x, list: List[Opt[AST]])) => List(Opt(FeatureExpr.base, x)) ++ list
+    def rep[T](p: => MultiParser[T]): MultiParser[List[T]] =
+        opt(p ~ rep(p)) ^^ {
+            case Some(~(x, list: List[T])) => List(x) ++ list
             case None => List()
+        }
+    /**
+     * repeated parsing, at least once (result may not be the empty list)
+     * (x)+
+     */
+    def rep1[T](p: => MultiParser[T]): MultiParser[List[T]] =
+        p ~ opt(rep1(p)) ^^ {
+            case ~(x, Some(list: List[T])) => List(x) ++ list
+            case ~(x, None) => List(x)
         }
 
     def success[T](v: T) =

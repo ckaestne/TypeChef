@@ -13,7 +13,7 @@ class DigitList2Parser extends MultiFeatureParser {
         (t("(") ~ digits ~ t(")")) ^^! { case (~(~(b1, e), b2)) => e }
 
     def digits: MultiParser[AST] =
-        rep(digitList | digit) ^^! { //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
+        repOpt(digitList | digit) ^^! { //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
             DigitList2(_)
         } 
 
