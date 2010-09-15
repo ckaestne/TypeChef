@@ -20,7 +20,7 @@ class TokenReader[T<:AbstractToken](val tokens: List[T], val offst: Int) extends
 
     /** true iff there are no more elements in this reader 
      */
-    def atEnd: Boolean = tokens.size <= 1
+    def atEnd: Boolean = tokens.isEmpty
 
     override def toString: String = "TokenReader(" + tokens + ")"
 
@@ -33,7 +33,7 @@ class TokenReader[T<:AbstractToken](val tokens: List[T], val offst: Int) extends
 
     def skipHidden(context: FeatureExpr): TokenReader[T] = {
         var result = this
-        while (context.and(result.first.getFeature).isDead)
+        while (!result.atEnd && context.and(result.first.getFeature).isDead)
             result = result.rest
         result
     }
