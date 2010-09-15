@@ -128,8 +128,8 @@ class CParserTest extends TestCase {
         assertParseAnyResult(List(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
     }
     def testPostfixExpr {
-        assertParseAnyResult(PostfixExpr(Id("b"), List(PointerPostfixSuffix("->", Id("a")))), "b->a", p.postfixExpr)
-        assertParseAnyResult(PostfixExpr(Id("b"), List()), "b", p.postfixExpr)
+        assertParseResult(PostfixExpr(Id("b"), List(PointerPostfixSuffix("->", Id("a")))), "b->a", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
 
         assertParseResult(Alt(fa, PostfixExpr(Id("b"), List(PointerPostfixSuffix(".", Id("a")))), PostfixExpr(Id("b"), List(PointerPostfixSuffix("->", Id("a"))))),
             """|b
@@ -139,12 +139,36 @@ class CParserTest extends TestCase {
         					|->
         					|#endif
         					|a""", p.postfixExpr)
-        assertParseResult(Alt(fa, PostfixExpr(Id("b"), List(SimplePostfixSuffix("++"))), PostfixExpr(Id("b"), List())),
+        assertParseResult(Alt(fa, PostfixExpr(Id("b"), List(SimplePostfixSuffix("++"))), Id("b")),
             """|b
         					|#ifdef a
         					|++
         					|#endif""", p.postfixExpr)
 
+    }
+    def testUnaryExpr {
+        assertParseResult(Id("b"), "b", p.unaryExpr)
+        assertParseResult(UnaryExpr("++", Id("b")), "++b", p.unaryExpr)
+        assertParseResult(SizeOfExprT(Id("b")), "sizeof(b)", p.unaryExpr)
+        assertParseResult(SizeOfExprU(Id("b")), "sizeof b", p.unaryExpr)
+        assertParseResult(SizeOfExprU(UnaryExpr("++", Id("b"))), "sizeof ++b", p.unaryExpr)
+        assertParseResult(UCastExpr("+", CastExpr(Id("c"), Id("b"))), "+(c)b", List(p.unaryExpr))
+        assertParseResult(UCastExpr("&", CastExpr(Id("c"), Id("b"))), "&(c)b", List(p.unaryExpr))
+        assertParseResult(UCastExpr("!", CastExpr(Id("c"), Id("b"))), "!(c)b", List(p.unaryExpr))
+        assertParseError("(c)b", List(p.unaryExpr))
+    }
+
+    def testCastExpr {
+        assertParseResult(CastExpr(Id("c"), SizeOfExprT(Id("b"))), "(c)sizeof(b)", List(p.castExpr /*, p.unaryExpr*/ ))
+        assertParseResult(CastExpr(Id("c"), Id("b")), "(c)b", List(p.castExpr /*, p.unaryExpr*/ ))
+        assertParseResult(CastExpr(Id("a"), CastExpr(Id("b"), CastExpr(Id("c"), SizeOfExprT(Id("b"))))), "(a)(b)(c)sizeof(b)", List(p.castExpr /*, p.unaryExpr*/ ))
+    }
+
+    def testNAryExpr {
+        def a = Id("a")
+        def b = Id("b")
+        assertParseResult(NAryExpr(a, List(("*", b))), "a*b", p.multExpr)
+        assertParseResult(NAryExpr(a, List(("*", b), ("*", b))), "a*b*b", p.multExpr)
     }
 
 }

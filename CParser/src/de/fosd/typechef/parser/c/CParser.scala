@@ -586,113 +586,45 @@ class CParser extends MultiFeatureParser {
     //
     //
     //
-    //expr
-    //        :       assignExpr (options {
-    //                                /* MBZ:
-    //                                    COMMA is ambiguous between comma expressions and
-    //                                    argument lists.  argExprList should get priority,
-    //                                    and it does by being deeper in the expr rule tree
-    //                                    and using (COMMA assignExpr)*
-    //                                */
-    //                                warnWhenFollowAmbig = false;
-    //                            } :
-    //                            c:COMMA^ { #c.setType(NCommaExpr); } assignExpr         
-    //                            )*
-    //        ;
-    //
-    //
-    //assignExpr
-    //        :       conditionalExpr ( a:assignOperator! assignExpr { ## = #( #a, ## );} )?
-    //        ;
-    //
-    //assignOperator
-    //        :       ASSIGN
-    //        |       DIV_ASSIGN
-    //        |       PLUS_ASSIGN
-    //        |       MINUS_ASSIGN
-    //        |       STAR_ASSIGN
-    //        |       MOD_ASSIGN
-    //        |       RSHIFT_ASSIGN
-    //        |       LSHIFT_ASSIGN
-    //        |       BAND_ASSIGN
-    //        |       BOR_ASSIGN
-    //        |       BXOR_ASSIGN
-    //        ;
-    //
-    //
-    //conditionalExpr
-    //        :       logicalOrExpr
-    //                ( QUESTION^ expr COLON! conditionalExpr )?
-    //        ;
-    //
-    //
-    //constExpr
-    //        :       conditionalExpr
-    //        ;
-    //
-    //logicalOrExpr
-    //        :       logicalAndExpr ( LOR^ logicalAndExpr )*
-    //        ;
-    //
-    //
-    //logicalAndExpr
-    //        :       inclusiveOrExpr ( LAND^ inclusiveOrExpr )*
-    //        ;
-    //
-    //inclusiveOrExpr
-    //        :       exclusiveOrExpr ( BOR^ exclusiveOrExpr )*
-    //        ;
-    //
-    //
-    //exclusiveOrExpr
-    //        :       bitAndExpr ( BXOR^ bitAndExpr )*
-    //        ;
-    //
-    //
-    //bitAndExpr
-    //        :       equalityExpr ( BAND^ equalityExpr )*
-    //        ;
-    //
-    //
-    //
-    //equalityExpr
-    //        :       relationalExpr
-    //                ( ( EQUAL^ | NOT_EQUAL^ ) relationalExpr )*
-    //        ;
-    //
-    //
-    //relationalExpr
-    //        :       shiftExpr
-    //                ( ( LT^ | LTE^ | GT^ | GTE^ ) shiftExpr )*
-    //        ;
-    //
-    //
-    //
-    //shiftExpr
-    //        :       additiveExpr
-    //                ( ( LSHIFT^ | RSHIFT^ ) additiveExpr )*
-    //        ;
-    //
-    //
-    //additiveExpr
-    //        :       multExpr
-    //                ( ( PLUS^ | MINUS^ ) multExpr )*
-    //        ;
-    //
-    //
-    //multExpr
-    //        :       castExpr
-    //                ( ( STAR^ | DIV^ | MOD^ ) castExpr )*
-    //        ;
-    //
-    //
-    //castExpr
-    //        :       ( LPAREN typeName RPAREN )=>
-    //                LPAREN! typeName RPAREN! ( castExpr )
-    //                            { ## = #( #[NCast, "("], ## ); }
-    //
-    //        |       unaryExpr
-    //        ;
+    def expr:MultiParser[Expr] = assignExpr ~ rep(COMMA ~> assignExpr)  ^^ 
+                                { case e~l => if (l.isEmpty) e else ExprList(List(e) ++ l)}
+
+    def assignExpr:MultiParser[Expr]=
+                   conditionalExpr ~ opt(assignOperator~ assignExpr ) ^^
+             { case e ~ Some(o ~ e2) => AssignExpr(e, o.getText, e2); case e ~ None => e }
+    
+    def assignOperator = (ASSIGN
+        | DIV_ASSIGN
+        | PLUS_ASSIGN
+        | MINUS_ASSIGN
+        | STAR_ASSIGN
+        | MOD_ASSIGN
+        | RSHIFT_ASSIGN
+        | LSHIFT_ASSIGN
+        | BAND_ASSIGN
+        | BOR_ASSIGN
+        | BXOR_ASSIGN)
+
+    def conditionalExpr: MultiParser[Expr] = logicalOrExpr ~ opt(QUESTION ~ expr ~ COLON ~ conditionalExpr) ^^
+        { case e ~ Some(q ~ e2 ~ c ~ e3) => ConditionalExpr(e, e2, e3); case e ~ None => e }
+    def constExpr = conditionalExpr
+    def logicalOrExpr: MultiParser[Expr] = nAryExpr(logicalAndExpr, LOR)
+    def logicalAndExpr: MultiParser[Expr] = nAryExpr(inclusiveOrExpr, LAND)
+    def inclusiveOrExpr: MultiParser[Expr] = nAryExpr(exclusiveOrExpr, BOR)
+    def exclusiveOrExpr: MultiParser[Expr] = nAryExpr(bitAndExpr, BXOR)
+    def bitAndExpr: MultiParser[Expr] = nAryExpr(equalityExpr, BAND)
+    def equalityExpr: MultiParser[Expr] = nAryExpr(relationalExpr, EQUAL | NOT_EQUAL)
+    def relationalExpr: MultiParser[Expr] = nAryExpr(shiftExpr, LT | LTE | GT | GTE)
+    def shiftExpr: MultiParser[Expr] = nAryExpr(additiveExpr, LSHIFT | RSHIFT)
+    def additiveExpr: MultiParser[Expr] = nAryExpr(multExpr, PLUS | MINUS)
+    def multExpr: MultiParser[Expr] = nAryExpr(castExpr, STAR | DIV | MOD)
+
+    def nAryExpr(innerExpr: MultiParser[Expr], operations: MultiParser[TokenWrapper]) =
+        innerExpr ~ rep(operations ~ innerExpr ^^ { case t ~ e => (t.getText, e) }) ^^ { case e ~ l => if (l.isEmpty) e else NAryExpr(e, l) }
+
+    def castExpr: MultiParser[Expr] =
+        LPAREN ~ typeName ~ RPAREN ~ castExpr ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
+
     //
     //
     //typeName
@@ -739,54 +671,27 @@ class CParser extends MultiFeatureParser {
     //        ;
     //*/
     //
-    //unaryExpr
-    //        :       postfixExpr
-    //        |       INC^ unaryExpr
-    //        |       DEC^ unaryExpr
-    //        |       u:unaryOperator castExpr { ## = #( #[NUnaryExpr], ## ); }
-    //
-    //        |       "sizeof"^
-    //                ( ( LPAREN typeName )=> LPAREN typeName RPAREN
-    //                | unaryExpr
-    //                )
-    //        ;
-    //
-    //
-    //unaryOperator
-    //        :       BAND
-    //        |       STAR
-    //        |       PLUS
-    //        |       MINUS
-    //        |       BNOT
-    //        |       LNOT
-    //        ;
-    //
+    def unaryExpr: MultiParser[Expr] = (postfixExpr
+        | { INC ~ unaryExpr | DEC ~ unaryExpr } ^^ { case p ~ e => UnaryExpr(p.getText, e) }
+        | unaryOperator ~ castExpr ^^ { case u ~ c => UCastExpr(u.getText, c) }
+        | textToken("sizeof") ~> {
+            LPAREN ~> typeName <~ RPAREN ^^ { SizeOfExprT(_) } |
+                unaryExpr ^^ { SizeOfExprU(_) }
+        })
 
-        
-    //postfixExpr
-    //        :       primaryExpr
-    //                ( 
-    //                postfixSuffix                   {## = #( #[NPostfixExpr], ## );} 
-    //                )?
     //        ;
-        //postfixSuffix
-    //        :
-    //                ( PTR ID
-    //                | DOT ID
-    //                | functionCall
-    //                | LBRACKET expr RBRACKET
-    //                | INC
-    //                | DEC
-    //                )+
-    //        ;
-        def postfixExpr = primaryExpr ~ postfixSuffix ^^ { case p~s => PostfixExpr(p,s) } 
-        
+    //
+    //
+    def unaryOperator =
+        BAND | STAR | PLUS | MINUS | BNOT | LNOT
+
+    def postfixExpr = primaryExpr ~ postfixSuffix ^^ { case p ~ s => if (s.isEmpty) p else PostfixExpr(p, s) }
 
     def postfixSuffix: MultiParser[List[PostfixSuffix]] = rep[PostfixSuffix](
-        {PTR ~ ID | DOT ~ ID } ^^ { case ~(e,id:Id) => PointerPostfixSuffix(e.getText,id) }
+        { PTR ~ ID | DOT ~ ID } ^^ { case ~(e, id: Id) => PointerPostfixSuffix(e.getText, id) }
         // TODO   		 |/* functionCall |*/ 
         // TODO| LBRACKET ~ expr ~ RBRACKET ^^ {  
-        | {INC | DEC} ^^ { t => SimplePostfixSuffix(t.getText) }
+        | { INC | DEC } ^^ { t => SimplePostfixSuffix(t.getText) }
         )
     //
     //functionCall
@@ -797,10 +702,11 @@ class CParser extends MultiFeatureParser {
     //                        }
     //        ;
     //    
-    ////primaryExpr//        :       ID//        |       charConst//        |       intConst//        |       floatConst//        |       stringConst    	
+    //
     def primaryExpr: MultiParser[PrimaryExpr] =
         ID | numConst | stringConst
 
+    def typeName = ID //TODO separate this later
     def ID: MultiParser[Id] = token("id", _.isIdentifier) ^^ { t => Id(t.getText) }
     def stringConst: MultiParser[StringLit] = token("string literal", _.getType == Token.STRING) ^^ { t => StringLit(t.getText) }; def numConst: MultiParser[Constant] = token("number", _.isInteger) ^^ { t => Constant(t.getText) } |
         token("number", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) }
