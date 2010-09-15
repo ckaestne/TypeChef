@@ -9,10 +9,10 @@ class DigitListParserTest extends TestCase {
     val f1 = FeatureExpr.createDefinedExternal("a")
     val f2 = FeatureExpr.createDefinedExternal("b")
 
-    def t(text: String): Token = t(text, FeatureExpr.base)
-    def t(text: String, feature: FeatureExpr): Token = new Token(text, feature)
+    def t(text: String): MyToken = t(text, FeatureExpr.base)
+    def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
-    def assertParseResult(expected: AST, actual: ParseResult[AST]) {
+    def assertParseResult(expected: AST, actual: ParseResult[AST,MyToken]) {
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
@@ -60,7 +60,7 @@ class DigitListParserTest extends TestCase {
         val input = List(t("1"), t("3", f1))
         val expected = Alt(f1, DigitList(List(Lit(1), Lit(3))), DigitList(List(Lit(1))))
         // DigitList(List(Lit(1),Lit(2),Alt(f1,Lit(3),Nil))
-        val v=(new DigitListParser().digits ^^! { e => e })(new TokenReader(input, 0), FeatureExpr.base)
+        val v=(new DigitListParser().digits ^^! { e => e })(new TokenReader[MyToken](input, 0), FeatureExpr.base)
         println(v)
         assertParseResult(expected, v.forceJoin(Alt.join))
     }

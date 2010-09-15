@@ -3,8 +3,9 @@ import scala.util.parsing.input.Reader
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 class MultiExpressionParser extends MultiFeatureParser {
+    type Elem = MyToken
 
-    def parse(tokens: List[Token]): ParseResult[AST] = expr(new TokenReader(tokens, 0), FeatureExpr.base).forceJoin(Alt.join)
+    def parse(tokens: List[MyToken]): ParseResult[AST,MyToken] = expr(new TokenReader[MyToken](tokens, 0), FeatureExpr.base).forceJoin(Alt.join)
 
     def expr: MultiParser[AST] =
         term ~ opt((t("+") | t("-")) ~ expr) ^^! {
@@ -22,7 +23,7 @@ class MultiExpressionParser extends MultiFeatureParser {
     def fact: MultiParser[AST] =
         digits ^^! { t => Lit(t.text.toInt) } | (t("(") ~ expr ~ t(")")) ^^! { case (~(~(b1, e), b2)) => e }
 
-    def t(text: String) = textToken(text)
+    def t(text: String) = token(text,(x=>x.t==text))
 
     def digits = token("digit", ((x) => x.t == "1" | x.t == "2" | x.t == "3" | x.t == "4" | x.t == "5"))
 

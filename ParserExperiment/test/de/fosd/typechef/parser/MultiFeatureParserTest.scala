@@ -9,10 +9,10 @@ class MultiFeatureParserTest extends TestCase {
     val f1 = FeatureExpr.createDefinedExternal("a")
     val f2 = FeatureExpr.createDefinedExternal("b")
 
-    def t(text: String): Token = t(text, FeatureExpr.base)
-    def t(text: String, feature: FeatureExpr): Token = new Token(text, feature)
+    def t(text: String): MyToken = t(text, FeatureExpr.base)
+    def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
-    def assertParseResult(expected: AST, actual: ParseResult[AST]) {
+    def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken]) {
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
@@ -20,7 +20,7 @@ class MultiFeatureParserTest extends TestCase {
                 assertEquals("incorrect parse result", expected, ast)
             }
             case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context+ " "+inner)
+                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
 
@@ -149,8 +149,8 @@ class MultiFeatureParserTest extends TestCase {
      * test multi-parser sequenzation
      */
     def testMultiParserSeq() {
-        val in = new TokenReader(List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0)
-        val in2 = new TokenReader(List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0)
+        val in = new TokenReader[MyToken](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)),  0)
+        val in2 = new TokenReader[MyToken](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0)
         val p = new MultiExpressionParser()
         println((p.digits ~ p.digits)(in, FeatureExpr.base)) // 1~1,1~2,2~1,2~2
         println((p.digits ~ p.digits)(in2, FeatureExpr.base)) //1~2,2~1
