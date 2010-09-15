@@ -17,24 +17,30 @@
 
 package org.anarres.cpp;
 
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExpr$;
+
 /**
  * A Preprocessor token.
- *
+ * 
  * @see Preprocessor
  */
 public final class Token {
 
-	// public static final int	EOF        = -1;
+	// public static final int EOF = -1;
 
-	private int		type;
-	private int		line;
-	private int		column;
-	private Object	value;
-	private String	text;
-	private Source source;//for debugging purposes only
+	public static final FeatureExpr base = FeatureExpr$.MODULE$.base();
 
-	public Token(int type, int line, int column,
-					String text, Object value, Source source) {
+	private int type;
+	private int line;
+	private int column;
+	private Object value;
+	private String text;
+	private Source source;// for debugging purposes only
+	private FeatureExpr feature = base;
+
+	public Token(int type, int line, int column, String text, Object value,
+			Source source) {
 		this.type = type;
 		this.line = line;
 		this.column = column;
@@ -47,15 +53,15 @@ public final class Token {
 		this(type, line, column, text, null, source);
 	}
 
-	/* pp */ Token(int type, String text, Object value, Source source) {
+	/* pp */Token(int type, String text, Object value, Source source) {
 		this(type, -1, -1, text, value, source);
 	}
 
-	/* pp */ Token(int type, String text, Source source) {
+	/* pp */Token(int type, String text, Source source) {
 		this(type, text, null, source);
 	}
 
-	/* pp */ Token(int type, Source source) {
+	/* pp */Token(int type, Source source) {
 		this(type, type < _TOKENS ? texts[type] : "TOK" + type, source);
 	}
 
@@ -66,14 +72,14 @@ public final class Token {
 		return type;
 	}
 
-	/* pp */ void setLocation(int line, int column) {
+	/* pp */void setLocation(int line, int column) {
 		this.line = line;
 		this.column = column;
 	}
 
 	/**
 	 * Returns the line at which this token started.
-	 *
+	 * 
 	 * Lines are numbered from zero.
 	 */
 	public int getLine() {
@@ -82,7 +88,7 @@ public final class Token {
 
 	/**
 	 * Returns the column at which this token started.
-	 *
+	 * 
 	 * Columns are numbered from zero.
 	 */
 	public int getColumn() {
@@ -91,9 +97,9 @@ public final class Token {
 
 	/**
 	 * Returns the original or generated text of this token.
-	 *
+	 * 
 	 * This is distinct from the semantic value of the token.
-	 *
+	 * 
 	 * @see #getValue()
 	 */
 	public String getText() {
@@ -102,22 +108,29 @@ public final class Token {
 
 	/**
 	 * Returns the semantic value of this token.
-	 *
-	 * For strings, this is the parsed String.
-	 * For integers, this is an Integer object.
-	 * For other token types, as appropriate.
-	 *
+	 * 
+	 * For strings, this is the parsed String. For integers, this is an Integer
+	 * object. For other token types, as appropriate.
+	 * 
 	 * @see #getText()
 	 */
 	public Object getValue() {
 		return value;
 	}
 
+	public FeatureExpr getFeature() {
+		return feature;
+	}
+
+	public void setFeature(FeatureExpr expr) {
+		feature = expr;
+	}
+
 	/**
 	 * Returns a description of this token, for debugging purposes.
 	 */
 	public String toString() {
-		StringBuilder	buf = new StringBuilder();
+		StringBuilder buf = new StringBuilder();
 
 		buf.append('[').append(getTokenName(type));
 		if (line != -1) {
@@ -129,17 +142,19 @@ public final class Token {
 		if (text != null)
 			buf.append('"').append(text).append('"');
 		else if (type > 3 && type < 256)
-			buf.append( (char)type );
+			buf.append((char) type);
 		else
 			buf.append('<').append(type).append('>');
 		if (value != null)
 			buf.append('=').append(value);
+		if (!feature.isBase())
+			buf.append('@').append(feature);
 		return buf.toString();
 	}
 
 	/**
 	 * Returns the descriptive name of the given token type.
-	 *
+	 * 
 	 * This is mostly used for stringification and debugging.
 	 */
 	public static final String getTokenName(int type) {
@@ -239,58 +254,58 @@ public final class Token {
 	/** The token type INVALID. */
 	public static final int INVALID = 299;
 	/** The token type P_LINE. */
-	public static final int P_IF= 300;
+	public static final int P_IF = 300;
 	/** The token type P_LINE. */
 	public static final int P_ENDIF = 301;
 	/** The token type P_LINE. */
 	public static final int P_ELIF = 302;
 	/**
 	 * The number of possible semantic token types.
-	 *
+	 * 
 	 * Please note that not all token types below 255 are used.
 	 */
 	public static final int _TOKENS = 303;
 
 	/** The position-less space token. */
-	/* pp */ static final Token	 space = new Token(WHITESPACE, -1, -1, " ",null);
+	/* pp */static final Token space = new Token(WHITESPACE, -1, -1, " ", null);
 
 	private static final String[] names = new String[_TOKENS];
 	private static final String[] texts = new String[_TOKENS];
 	static {
 		for (int i = 0; i < 255; i++) {
-			texts[i] = String.valueOf(new char[] { (char)i });
+			texts[i] = String.valueOf(new char[] { (char) i });
 			names[i] = texts[i];
 		}
 
-		texts[AND_EQ]      = "&=";
-		texts[ARROW]       = "->";
-		texts[DEC]         = "--";
-		texts[DIV_EQ]      = "/=";
-		texts[ELLIPSIS]    = "...";
-		texts[EQ]          = "==";
-		texts[GE]          = ">=";
-		texts[HASH]        = "#";
-		texts[INC]         = "++";
-		texts[LAND]        = "&&";
-		texts[LAND_EQ]     = "&&=";
-		texts[LE]          = "<=";
-		texts[LOR]         = "||";
-		texts[LOR_EQ]      = "||=";
-		texts[LSH]         = "<<";
-		texts[LSH_EQ]      = "<<=";
-		texts[MOD_EQ]      = "%=";
-		texts[MULT_EQ]     = "*=";
-		texts[NE]          = "!=";
-		texts[NL]          = "\n";
-		texts[OR_EQ]       = "|=";
+		texts[AND_EQ] = "&=";
+		texts[ARROW] = "->";
+		texts[DEC] = "--";
+		texts[DIV_EQ] = "/=";
+		texts[ELLIPSIS] = "...";
+		texts[EQ] = "==";
+		texts[GE] = ">=";
+		texts[HASH] = "#";
+		texts[INC] = "++";
+		texts[LAND] = "&&";
+		texts[LAND_EQ] = "&&=";
+		texts[LE] = "<=";
+		texts[LOR] = "||";
+		texts[LOR_EQ] = "||=";
+		texts[LSH] = "<<";
+		texts[LSH_EQ] = "<<=";
+		texts[MOD_EQ] = "%=";
+		texts[MULT_EQ] = "*=";
+		texts[NE] = "!=";
+		texts[NL] = "\n";
+		texts[OR_EQ] = "|=";
 		/* We have to split the two hashes or Velocity eats them. */
-		texts[PASTE]       = "#" + "#";
-		texts[PLUS_EQ]     = "+=";
-		texts[RANGE]       = "..";
-		texts[RSH]         = ">>";
-		texts[RSH_EQ]      = ">>=";
-		texts[SUB_EQ]      = "-=";
-		texts[XOR_EQ]      = "^=";
+		texts[PASTE] = "#" + "#";
+		texts[PLUS_EQ] = "+=";
+		texts[RANGE] = "..";
+		texts[RSH] = ">>";
+		texts[RSH_EQ] = ">>=";
+		texts[SUB_EQ] = "-=";
+		texts[XOR_EQ] = "^=";
 
 		names[AND_EQ] = "AND_EQ";
 		names[ARROW] = "ARROW";
@@ -339,11 +354,13 @@ public final class Token {
 		names[P_ENDIF] = "P_ENDIF";
 		names[INVALID] = "INVALID";
 	}
-	private boolean mayExpand=true;
+	private boolean mayExpand = true;
+
 	public void setNoFurtherExpansion() {
-		mayExpand=false;
+		mayExpand = false;
 	}
-	public boolean mayExpand(){
+
+	public boolean mayExpand() {
 		return mayExpand;
 	}
 

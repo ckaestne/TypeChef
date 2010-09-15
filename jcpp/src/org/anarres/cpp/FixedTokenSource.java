@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /* pp */class FixedTokenSource extends Source {
-	private static final Token EOF = new Token(Token.EOF, "<ts-eof>",null);
+	private static final Token EOF = new Token(Token.EOF, "<ts-eof>", null);
 
 	private List<Token> tokens;
 	private int idx;
@@ -36,8 +36,6 @@ import java.util.List;
 		this.tokens = tokens;
 		this.idx = 0;
 	}
-
-
 
 	public Token token() throws IOException, LexerException {
 		if (idx >= tokens.size())
@@ -63,15 +61,16 @@ import java.util.List;
 /* pp */class FixedUnexpandingTokenSource extends FixedTokenSource {
 	private String macroName;
 
-	FixedUnexpandingTokenSource(List<Token> tokens,String macroName) {
+	FixedUnexpandingTokenSource(List<Token> tokens, String macroName) {
 		super(tokens);
-		this.macroName=macroName;
+		this.macroName = macroName;
 	}
+
 	@Override
 	boolean mayExpand(String macroName) {
 		if (macroName.equals(this.macroName))
-			return false;//already expanding this macro
-		
+			return false;// already expanding this macro
+
 		return super.mayExpand(macroName);
 	}
 }

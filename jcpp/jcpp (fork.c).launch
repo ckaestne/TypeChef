@@ -16,14 +16,8 @@
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_PROJECT" value="ProfileProject"/>
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILE_TO_FILE" value="false"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="tptp-dummy-profiling-set-jcpp (fork.c)"/>
-<listAttribute key="org.eclipse.jdt.launching.CLASSPATH">
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry containerPath=&quot;ch.epfl.lamp.sdt.launching.SCALA_CONTAINER&quot; javaProject=&quot;jcpp&quot; path=&quot;1&quot; type=&quot;4&quot;/&gt;&#13;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry containerPath=&quot;org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6&quot; javaProject=&quot;jcpp&quot; path=&quot;1&quot; type=&quot;4&quot;/&gt;&#13;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry id=&quot;org.eclipse.jdt.launching.classpathentry.defaultClasspath&quot;&gt;&#13;&#10;&lt;memento exportedEntriesOnly=&quot;false&quot; project=&quot;jcpp&quot;/&gt;&#13;&#10;&lt;/runtimeClasspathEntry&gt;&#13;&#10;"/>
-</listAttribute>
-<booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.anarres.cpp.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="F:\rosebank\Documents\uni\typechef\linux-2.6.33.3\kernel\fork.c&#13;&#10;-I f:/rosebank/Documents/uni/typechef/linux-2.6.33.3/arch/x86/include&#13;&#10;-I f:/rosebank/Documents/uni/typechef/linux-2.6.33.3/arch/x86/include/asm&#13;&#10;-I f:/rosebank/Documents/uni/typechef/linux-2.6.33.3/include&#13;&#10;-I f:/rosebank/Documents/uni/typechef/gcc&#13;&#10;-D __GNUC__=3&#13;&#10;-D PAGETABLE_LEVELS=4&#13;&#10;-U __INTEL_COMPILER&#13;&#10;-U CONFIG_PARAVIRT&#13;&#10;-D CONFIG_HZ=100&#13;&#10;-D __KERNEL__"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="${workspace_loc}/linux-2.6.33.3/kernel/fork.c&#13;&#10;-o ${workspace_loc}/linux-2.6.33.3/kernel/fork.pi&#13;&#10;-I ${workspace_loc}/linux-2.6.33.3/arch/x86/include&#13;&#10;-I ${workspace_loc}/linux-2.6.33.3/arch/x86/include/asm&#13;&#10;-I ${workspace_loc}/linux-2.6.33.3/include&#13;&#10;-I C:\cygwin\usr\include&#13;&#10;-I C:\cygwin\lib\gcc\i686-pc-cygwin\3.4.4\include&#13;&#10;-x CONFIG_&#13;&#10;--include W:\work\TypeChef\boa\src\cygwin.h&#13;&#10;-D __GNUC__=3&#13;&#10;-D PAGETABLE_LEVELS=4&#13;&#10;-U __INTEL_COMPILER&#13;&#10;-U CONFIG_PARAVIRT&#13;&#10;-D CONFIG_HZ=100&#13;&#10;-D __KERNEL__"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jcpp"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms132m -Xmx528m -ea -Xshare:off"/>
 </launchConfiguration>
