@@ -19,6 +19,11 @@ public class PartialPPLexer {
 
 	public boolean debug = false;
 
+	public List<Token> parse(String code, String folder) throws LexerException,
+			IOException {
+		return parse(new StringLexerSource(code, true), folder);
+	}
+
 	public List<Token> parse(Source source, String folder)
 			throws LexerException, IOException {
 		Preprocessor pp = new Preprocessor();
@@ -55,6 +60,8 @@ public class PartialPPLexer {
 					&& tok.getType() != Token.NL
 					&& tok.getType() != Token.INVALID
 					&& tok.getType() != Token.P_IF
+					&& tok.getType() != Token.CCOMMENT
+					&& tok.getType() != Token.CPPCOMMENT
 					&& tok.getType() != Token.P_ENDIF
 					&& tok.getType() != Token.P_ELIF)
 				result.add(tok);
