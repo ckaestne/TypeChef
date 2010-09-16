@@ -8,20 +8,20 @@ class MultiExpressionParser extends MultiFeatureParser {
     def parse(tokens: List[MyToken]): ParseResult[AST,MyToken] = expr(new TokenReader[MyToken](tokens, 0), FeatureExpr.base).forceJoin(Alt.join)
 
     def expr: MultiParser[AST] =
-        term ~ opt((t("+") | t("-")) ~ expr) ^^! {
+        term ~ opt((t("+") | t("-")) ~ expr) ^^!(Alt.join, {
             case ~(f, Some(~(op, e))) if (op.text == "+") => Plus(f, e)
             case ~(f, Some(~(op, e))) if (op.text == "-") => Minus(f, e)
             case ~(f, None) => f
-        }
+        })
 
     def term: MultiParser[AST] =
-        fact ~ opt(t("*") ~ expr) ^^! {
+        fact ~ opt(t("*") ~ expr) ^^!(Alt.join, {
             case ~(f, Some(~(m, e))) => Mul(f, e);
             case ~(f, None) => f
-        }
+        })
 
     def fact: MultiParser[AST] =
-        digits ^^! { t => Lit(t.text.toInt) } | (t("(") ~ expr ~ t(")")) ^^! { case (~(~(b1, e), b2)) => e }
+        digits ^^!(Alt.join, { t => Lit(t.text.toInt) }) | (t("(") ~ expr ~ t(")")) ^^!(Alt.join, { case (~(~(b1, e), b2)) => e })
 
     def t(text: String) = token(text,(x=>x.t==text))
 

@@ -516,83 +516,41 @@ class CParser extends MultiFeatureParser {
     //        ;
     //
     //
-    //compoundStatement[String scopeName]
-    //        :       LCURLY!
-    //                            {
-    //                                pushScope(scopeName);
-    //                            }
-    //                ( ( declarationPredictor)=> declarationList )?
-    //                ( statementList )?
-    //                            { popScope(); }
-    //                RCURLY!
-    //                            { ## = #( #[NCompoundStatement, scopeName], ##); }
-    //        ;
-    //
-    //    
-    //statementList
-    //        :       ( statement )+
-    //        ;
-    //statement
-    //        :       SEMI                    // Empty statements
-    //
-    //        |       compoundStatement[getAScopeName()]       // Group of statements
-    //
-    //        |       expr SEMI!               { ## = #( #[NStatementExpr], ## ); } // Expressions
-    //
-    //// Iteration statements:
-    //
-    //        |       "while"^ LPAREN! expr RPAREN! statement
-    //        |       "do"^ statement "while"! LPAREN! expr RPAREN! SEMI!
-    //        |!       "for"
-    //                LPAREN ( e1:expr )? SEMI ( e2:expr )? SEMI ( e3:expr )? RPAREN
-    //                s:statement
-    //                                    {
-    //                                        if ( #e1 == null) { #e1 = #[ NEmptyExpression ]; }
-    //                                        if ( #e2 == null) { #e2 = #[ NEmptyExpression ]; }
-    //                                        if ( #e3 == null) { #e3 = #[ NEmptyExpression ]; }
-    //                                        ## = #( #[LITERAL_for, "for"], #e1, #e2, #e3, #s );
-    //                                    }
-    //
-    //
-    //// Jump statements:
-    //
-    //        |       "goto"^ ID SEMI!
-    //        |       "continue" SEMI!
-    //        |       "break" SEMI!
-    //        |       "return"^ ( expr )? SEMI!
-    //
-    //
-    //// Labeled statements:
-    //        |       ID COLON! (options {warnWhenFollowAmbig=false;}:statement)? { ## = #( #[NLabel], ## ); }
-    //        |       "case"^ constExpr COLON! statement
-    //        |       "default"^ COLON! statement
-    //
-    //
-    //
-    //// Selection statements:
-    //
-    //        |       "if"^
-    //                 LPAREN! expr RPAREN! statement  
-    //                ( //standard if-else ambiguity
-    //                        options {
-    //                            warnWhenFollowAmbig = false;
-    //                        } :
-    //                "else" statement )?
-    //        |       "switch"^ LPAREN! expr RPAREN! statement
-    //        ;
-    //
-    //
-    //
-    //
-    //
-    //
-    def expr:MultiParser[Expr] = assignExpr ~ rep(COMMA ~> assignExpr)  ^^ 
-                                { case e~l => if (l.isEmpty) e else ExprList(List(e) ++ l)}
+    def compoundStatement: MultiParser[CompoundStatement] =
+        LCURLY ~>
+            //                    ( ( declarationPredictor)=> declarationList )?
+            statementList <~ RCURLY ^^ { CompoundStatement(_)}
 
-    def assignExpr:MultiParser[Expr]=
-                   conditionalExpr ~ opt(assignOperator~ assignExpr ) ^^
-             { case e ~ Some(o ~ e2) => AssignExpr(e, o.getText, e2); case e ~ None => e }
-    
+    def statementList: MultiParser[List[Opt[Statement]]] =
+        repOpt(statement,AltStatement.join)
+
+    def statement: MultiParser[Statement] = (SEMI ^^ { _ => EmptyStatement() } // Empty statements
+        | compoundStatement // Group of statements
+        | expr <~ SEMI ^^ { ExprStatement(_) } // Expressions
+        //// Iteration statements:
+        | textToken("while") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => WhileStatement(e, s) }
+        | textToken("do") ~ statement ~ textToken("while") ~ LPAREN ~ expr ~ RPAREN ~ SEMI ^^ { case _ ~ s ~ _ ~ _ ~ e ~ _ ~ _ => DoStatement(e, s) }
+        | textToken("for") ~ LPAREN ~ opt(expr) ~ SEMI ~ opt(expr) ~ SEMI ~ opt(expr) ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e1 ~ _ ~ e2 ~ _ ~ e3 ~ _ ~ s => ForStatement(e1, e2, e3, s) } //                                    {
+        //// Jump statements:
+        | textToken("goto") ~> ID <~ SEMI ^^ { GotoStatement(_) }
+        | textToken("continue") ~ SEMI ^^ { _ => ContinueStatement() }
+        | textToken("break") ~ SEMI ^^ { _ => BreakStatement() }
+        | textToken("return") ~> opt(expr) <~ SEMI ^^ { ReturnStatement(_) }
+        //// Labeled statements:
+        | ID <~ COLON ^^ { LabelStatement(_) }
+        | textToken("case") ~ constExpr ~ COLON ~ statement ^^ { case _ ~ e ~ _ ~ s => CaseStatement(e, s) }
+        | textToken("default") ~> COLON ~> statement ^^ { DefaultStatement(_) }
+        //// Selection statements:
+        | textToken("if") ~ LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ { case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es) }
+        | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) })
+
+    def expr: MultiParser[Expr] = assignExpr ~ rep(COMMA ~> assignExpr) ^^
+        { case e ~ l => if (l.isEmpty) e else ExprList(List(e) ++ l) }
+
+    def assignExpr: MultiParser[Expr] =
+        conditionalExpr ~ opt(assignOperator ~ assignExpr) ^^
+            { case e ~ Some(o ~ e2) => AssignExpr(e, o.getText, e2); case e ~ None => e }
+
     def assignOperator = (ASSIGN
         | DIV_ASSIGN
         | PLUS_ASSIGN
@@ -689,42 +647,25 @@ class CParser extends MultiFeatureParser {
 
     def postfixSuffix: MultiParser[List[PostfixSuffix]] = rep[PostfixSuffix](
         { PTR ~ ID | DOT ~ ID } ^^ { case ~(e, id: Id) => PointerPostfixSuffix(e.getText, id) }
-        // TODO   		 |/* functionCall |*/ 
-        // TODO| LBRACKET ~ expr ~ RBRACKET ^^ {  
+        | functionCall
+        | LBRACKET ~> expr <~ RBRACKET ^^ { ArrayAccess(_) }
         | { INC | DEC } ^^ { t => SimplePostfixSuffix(t.getText) }
         )
     //
-    //functionCall
-    //        :
-    //                LPAREN^ (a:argExprList)? RPAREN
-    //                        {
-    //                        ##.setType( NFunctionCallArgs );
-    //                        }
-    //        ;
-    //    
-    //
-    def primaryExpr: MultiParser[PrimaryExpr] =
-        ID | numConst | stringConst
+    def functionCall: MultiParser[FunctionCall] =
+        LPAREN ~> opt(argExprList) <~ RPAREN ^^ { case Some(l) => FunctionCall(l); case None => FunctionCall(ExprList(List())) }
+
+    def primaryExpr: MultiParser[Expr] =
+        ID | numConst | stringConst | LPAREN ~> expr <~ RPAREN
 
     def typeName = ID //TODO separate this later
     def ID: MultiParser[Id] = token("id", _.isIdentifier) ^^ { t => Id(t.getText) }
     def stringConst: MultiParser[StringLit] = token("string literal", _.getType == Token.STRING) ^^ { t => StringLit(t.getText) }; def numConst: MultiParser[Constant] = token("number", _.isInteger) ^^ { t => Constant(t.getText) } |
         token("number", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) }
 
-    //
-    //// JTC:
-    //// ID should catch the enumerator
-    //// leaving it in gives ambiguous err
-    ////      | enumerator
-    //        |       LPAREN! expr RPAREN!        { ## = #( #[NExpressionGroup, "("], ## ); }
-    //        ;
-    //
-    //argExprList
-    //        :       assignExpr ( COMMA! assignExpr )*
-    //        ;
-    //
-    //
-    //
+    def argExprList: MultiParser[ExprList] =
+        assignExpr ~ rep(COMMA ~> assignExpr) ^^ { case e ~ l => ExprList(List(e) ++ l) }
+
     //protected
     //charConst
     //        :       CharLiteral

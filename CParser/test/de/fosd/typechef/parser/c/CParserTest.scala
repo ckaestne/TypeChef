@@ -7,6 +7,7 @@ import de.fosd.typechef.parser._
 
 class CParserTest extends TestCase {
     val p = new CParser()
+    def a = Id("a"); def b = Id("b"); def c = Id("c"); def d = Id("d"); def x = Id("x");
 
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[AST, TokenWrapper]) {
         val actual = p.parse(code.stripMargin, mainProduction)
@@ -53,7 +54,8 @@ class CParserTest extends TestCase {
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
-                Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
+                if (unparsed.atEnd)
+                    Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
             case NoSuccess(msg, context, unparsed, inner) => ;
         }
@@ -130,6 +132,11 @@ class CParserTest extends TestCase {
     def testPostfixExpr {
         assertParseResult(PostfixExpr(Id("b"), List(PointerPostfixSuffix("->", Id("a")))), "b->a", List(p.postfixExpr, p.unaryExpr))
         assertParseResult(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List())))), "b()", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List(a, b, c))))), "b(a,b,c)", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List())), FunctionCall(ExprList(List(a))))), "b()(a)", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), List(ArrayAccess(a))), "b[a]", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List())), ArrayAccess(a))), "b()[a]", List(p.postfixExpr, p.unaryExpr))
 
         assertParseResult(Alt(fa, PostfixExpr(Id("b"), List(PointerPostfixSuffix(".", Id("a")))), PostfixExpr(Id("b"), List(PointerPostfixSuffix("->", Id("a"))))),
             """|b
@@ -165,10 +172,59 @@ class CParserTest extends TestCase {
     }
 
     def testNAryExpr {
-        def a = Id("a")
-        def b = Id("b")
         assertParseResult(NAryExpr(a, List(("*", b))), "a*b", p.multExpr)
         assertParseResult(NAryExpr(a, List(("*", b), ("*", b))), "a*b*b", p.multExpr)
     }
-
+    def testExprs {
+        assertParseResult(NAryExpr(NAryExpr(a, List(("*", b))), List(("+", c))), "a*b+c", p.expr)
+        assertParseResult(NAryExpr(c, List(("+", NAryExpr(a, List(("*", b)))))), "c+a*b", p.expr)
+        assertParseResult(NAryExpr(NAryExpr(a, List(("+", b))), List(("*", c))), "(a+b)*c", p.expr)
+        assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(("==", c)))), "a=b==c", p.expr)
+        assertParseResult(NAryExpr(a, List(("/", b))), "a/b", p.expr)
+        assertParseResult(ConditionalExpr(a, b, c), "a?b:c", p.expr)
+        assertParseResult(ExprList(List(a, b, NAryExpr(NAryExpr(c, List(("+", NAryExpr(c, List(("/", d)))))), List(("|", x))))), "a,b,c+c/d|x", p.expr)
+    }
+    def testAltExpr {
+        assertParseResult(Alt(fa, a, b),
+            """|#ifdef a
+        					|a
+        					|#else
+        					|b
+        					|#endif""", p.expr)
+        assertParseResult(Alt(fa, NAryExpr(a, List(("+", c))), NAryExpr(b, List(("+", c)))),
+            """|#ifdef a
+        					|a +
+        					|#else
+        					|b +
+        					|#endif
+        					|c""", p.expr)
+        assertParseResult(Alt(fa, AssignExpr(a, "=", ConditionalExpr(b, b, d)), AssignExpr(a, "=", ConditionalExpr(b, c, d))),
+            """|a=b?
+        					|#ifdef a
+        					|b 
+        					|#else
+        					|c 
+        					|#endif
+        					|:d""", p.expr)
+    }
+    def testStatements {
+        assertParseable("a;", p.statement)
+        assertParseable("a(x->i);", p.statement)
+        assertParseable("while (x) a;", p.statement)
+        assertParseable(";", p.statement)
+        assertParseable("if (a) b; ", p.statement)
+        assertParseable("if (a) {b;c;} ", p.statement)
+        assertParseable("if (a) b; else c;", p.statement)
+        assertParseable("if (a) if (b) if (c) d; ", p.statement)
+        assertParseable("{a;b;}", p.statement)
+        assertParseable("case a: x;", p.statement)
+        assertParseable("break;", p.statement)
+        assertParseable("a:", p.statement)
+        assertParseable("goto x;", p.statement)
+        assertParseResult(Alt(fa, IfStatement(a, ExprStatement(b), None), ExprStatement(b)),
+            """|#ifdef a
+        					|if (a)
+        					|#endif
+    			  			|b;""", p.statement)
+    }
 }

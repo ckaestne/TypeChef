@@ -1,6 +1,12 @@
 package de.fosd.typechef.parser
 import de.fosd.typechef.featureexpr.FeatureExpr
 
+abstract class AST
+case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
+object Alt {
+    def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
+}
+
 abstract class Expr extends AST
 case class Plus(left: AST, right: AST) extends Expr
 case class Minus(left: AST, right: AST) extends Expr

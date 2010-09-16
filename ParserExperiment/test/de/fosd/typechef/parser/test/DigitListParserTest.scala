@@ -60,7 +60,7 @@ class DigitListParserTest extends TestCase {
         val input = List(t("1"), t("3", f1))
         val expected = Alt(f1, DigitList(List(Lit(1), Lit(3))), DigitList(List(Lit(1))))
         // DigitList(List(Lit(1),Lit(2),Alt(f1,Lit(3),Nil))
-        val v=(new DigitListParser().digits ^^! { e => e })(new TokenReader[MyToken](input, 0), FeatureExpr.base)
+        val v=(new DigitListParser().digits ^^!(Alt.join, { e => e }))(new TokenReader[MyToken](input, 0), FeatureExpr.base)
         println(v)
         assertParseResult(expected, v.forceJoin(Alt.join))
     }

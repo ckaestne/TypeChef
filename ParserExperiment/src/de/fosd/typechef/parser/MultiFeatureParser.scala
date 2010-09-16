@@ -5,12 +5,6 @@ import scala.util.parsing.input.Reader
 import scala.collection.mutable.ListBuffer
 import de.fosd.typechef.featureexpr.FeatureExpr
 
-abstract class AST
-case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
-case class OptAST(feature: FeatureExpr, optBranch: AST) extends Expr
-object Alt {
-    def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
-}
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing
@@ -56,15 +50,24 @@ class MultiFeatureParser {
                 thisParser(in, feature).map(f)
         }
 
+//        /**
+//         * map and join ASTs (when possible)
+//         */
+//        def ^^!(f: T => AST): MultiParser[AST] =
+//            new MultiParser[AST] {
+//                def apply(in: Input, feature: FeatureExpr): MultiParseResult[AST, Elem] = {
+//                    thisParser.map(f)(in, feature).join[AST](Alt.join)
+//                }
+//            }.named("^^!")
         /**
          * map and join ASTs (when possible)
          */
-        def ^^!(f: T => AST): MultiParser[AST] =
-            new MultiParser[AST] {
-                def apply(in: Input, feature: FeatureExpr): MultiParseResult[AST, Elem] = {
-                    thisParser.map(f)(in, feature).join[AST](Alt.join)
+        def ^^![U](joinFunction:(FeatureExpr,U,U)=>U, f: T => U): MultiParser[U] =
+            new MultiParser[U] {
+                def apply(in: Input, feature: FeatureExpr): MultiParseResult[U, Elem] = {
+                    thisParser.map(f)(in, feature).join[U](joinFunction)
                 }
-            }.named("^^!")
+            }.named("^^!")            
 
         /**
          * from original framework, sequence parsers, but drop first result
@@ -94,12 +97,12 @@ class MultiFeatureParser {
      * a,b_1,c => List(a,Opt(1,b),c)
      *  
      */
-    def repOpt(p: => MultiParser[AST]): MultiParser[List[Opt[AST]]] = new MultiParser[List[Opt[AST]]] {
-        def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[AST]], Elem] = {
-            val elems = new ListBuffer[Opt[AST]]
+    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T)=>T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
+        def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem] = {
+            val elems = new ListBuffer[Opt[T]]
 
             class ListHandlingException(msg: String) extends Exception(msg)
-            def findOpt(in0: Input, result: MultiParseResult[AST, Elem]): (Opt[AST], Input) = {
+            def findOpt(in0: Input, result: MultiParseResult[T, Elem]): (Opt[T], Input) = {
                 result match {
                     case Success(e, in) => (Opt(parserState, e), in)
                     case SplittedParseResult(f, Success(e, in), NoSuccess(_, _, _, _)) => (Opt(f, e), in)
@@ -113,17 +116,17 @@ class MultiFeatureParser {
                 }
             }
 
-            def continue(in: Input): MultiParseResult[List[Opt[AST]], Elem] = {
+            def continue(in: Input): MultiParseResult[List[Opt[T]], Elem] = {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
                 @tailrec
-                def applyp(in0: Input): MultiParseResult[List[Opt[AST]], Elem] = {
-                    val parseResult = p0(in0, parserState).join(Alt.join)
+                def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem] = {
+                    val parseResult = p0(in0, parserState).join(joinFunction)
                     //if all failed, return error
                     if (parseResult.allFailed)
                         Success(elems.toList, in0)
                     //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
                     else { //continue parsing
-                        val (e: Opt[AST], rest: Input) = findOpt(in0, parseResult)
+                        val (e: Opt[T], rest: Input) = findOpt(in0, parseResult)
                         elems += e
                         applyp(rest)
                     }
@@ -136,7 +139,7 @@ class MultiFeatureParser {
                 continue(in)
             } catch {
                 //fallback: normal repetition, where each is wrapped in an Opt(base,_)
-                case e: ListHandlingException => e.printStackTrace; rep[AST](p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
+                case e: ListHandlingException => e.printStackTrace; rep[T](p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
             }
         }
     }
