@@ -24,7 +24,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
   def this() = { this(Map()) }
   def define(name: String, feature: FeatureExpr, other: Any): MacroContext = new MacroContext(
     knownMacros.get(name) match {
-      case Some(macro) => knownMacros.update(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
+      case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
       //      case Some(macro) => knownMacros.update(name,macro.andNot(feature).or(feature).addExpansion(new MacroExpansion(feature, other)))
       case None => {
         //    	  val initialFeatureExpr = if (!MacroContext.EXTERNAL_CONFIG_ONLY || name.startsWith("CONFIG_")) 
@@ -39,7 +39,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
 
   def undefine(name: String, feature: FeatureExpr): MacroContext = new MacroContext(
     knownMacros.get(name) match {
-      case Some(macro) => knownMacros.update(name, macro.andNot(feature))
+      case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
       case None => knownMacros + ((name, new Macro(name, feature.not().and(DefinedExternal(name)), List())))
     }
     )
