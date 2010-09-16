@@ -6,8 +6,8 @@ import scala.collection.mutable.ListBuffer
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 abstract class AST
-case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
-case class OptAST(feature: FeatureExpr, optBranch: AST) extends Expr
+case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends AST
+case class OptAST(feature: FeatureExpr, optBranch: AST) extends AST
 object Alt {
     def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
 }

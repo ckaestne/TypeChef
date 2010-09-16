@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.AST
 
 abstract class Expr extends AST
+case class ExprList(list: List[Expr]) extends Expr
 abstract class PrimaryExpr extends Expr
 case class Id(name:String) extends PrimaryExpr
 case class Constant(value:String) extends PrimaryExpr
