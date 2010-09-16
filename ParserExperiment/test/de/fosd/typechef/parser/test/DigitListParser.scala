@@ -16,8 +16,8 @@ class DigitListParser extends MultiFeatureParser {
 
     def digits: MultiParser[AST] =
         digit ~ opt(digits) ^^! {
-            case ~(x, Some(DigitList(list: List[Lit]))) => DigitList(List(x) ++ list)
-            case ~(x, Some(Alt(f, DigitList(listA: List[Lit]), DigitList(listB: List[Lit])))) => Alt(f, DigitList(List(x) ++ listA), DigitList(List(x) ++ listB))
+            case ~(x, Some(DigitList(list: List[_]))) => DigitList(List(x) ++ list)
+            case ~(x, Some(Alt(f, DigitList(listA: List[_]), DigitList(listB: List[_])))) => Alt(f, DigitList(List(x) ++ listA), DigitList(List(x) ++ listB))
             case ~(x, None) => DigitList(List(x))
         }
 

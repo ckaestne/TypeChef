@@ -123,7 +123,7 @@ class MultiFeatureParser {
                         Success(elems.toList, in0)
                     //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
                     else { //continue parsing
-                        val (e: Opt[AST], rest: Input) = findOpt(in0, parseResult)
+                        val (e: Opt[_], rest: Input) = findOpt(in0, parseResult)
                         elems += e
                         applyp(rest)
                     }
@@ -148,7 +148,7 @@ class MultiFeatureParser {
      */
     def rep[T](p: => MultiParser[T]): MultiParser[List[T]] =
         opt(p ~ rep(p)) ^^ {
-            case Some(~(x, list: List[T])) => List(x) ++ list
+            case Some(~(x, list: List[_])) => List(x) ++ list
             case None => List()
         }
     /**
@@ -157,7 +157,7 @@ class MultiFeatureParser {
      */
     def rep1[T](p: => MultiParser[T]): MultiParser[List[T]] =
         p ~ opt(rep1(p)) ^^ {
-            case ~(x, Some(list: List[T])) => List(x) ++ list
+            case ~(x, Some(list: List[_])) => List(x) ++ list
             case ~(x, None) => List(x)
         }
 
