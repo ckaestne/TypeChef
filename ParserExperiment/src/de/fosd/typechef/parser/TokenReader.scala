@@ -39,5 +39,4 @@ class TokenReader[T<:AbstractToken,U](val tokens: List[T], val offst: Int, val c
     }
     
     def setContext(newContext: U): TokenReader[T,U] = if (context==newContext) this else new TokenReader(tokens,offst,newContext) 
-
 }

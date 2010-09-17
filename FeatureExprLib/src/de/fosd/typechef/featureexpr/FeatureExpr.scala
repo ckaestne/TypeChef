@@ -108,7 +108,7 @@ sealed abstract class FeatureExprTree {
             DeadFeature()
           else if (childrenFlattened.size == 1)
             /*return*/
-            (childrenFlattened.elements).next()
+            (childrenFlattened.iterator).next()
           else if (childrenFlattened.size == 0)
             /*return*/
             BaseFeature()
@@ -146,7 +146,7 @@ sealed abstract class FeatureExprTree {
             BaseFeature()
           else if (childrenFlattened.size == 1)
             /*return*/
-            (childrenFlattened.elements).next()
+            (childrenFlattened.iterator).next()
           else if (childrenFlattened.size == 0)
             /*return*/
             DeadFeature()
@@ -314,7 +314,7 @@ sealed abstract class FeatureExprTree {
           //	        val freshFeatureNames:Set[FeatureExprTree]=for (child<-children) yield DefinedExternal(freshFeatureName())
 
           var freshFeatureNames: Set[FeatureExprTree] = Set()
-          for (val child <- cnfchildren) {
+          for (child <- cnfchildren) {
             val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
             child match {
               case And(innerChildren) => {

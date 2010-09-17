@@ -5,10 +5,6 @@ import de.fosd.typechef.parser._
 
 //Expressions
 trait AST
-case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
-object Alt {
-    def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
-}
 
 abstract class Expr extends AST
 abstract class PrimaryExpr extends Expr

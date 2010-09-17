@@ -1,5 +1,6 @@
-package de.fosd.typechef.parser
+package de.fosd.typechef.parser.test
 
+import de.fosd.typechef.parser._
 import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
@@ -12,7 +13,7 @@ class DigitList2ParserTest extends TestCase {
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
-    def assertParseResult(expected: AST, actual: ParseResult[AST,MyToken,Any]) {
+    def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken, Any]) {
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
@@ -91,8 +92,8 @@ class DigitList2ParserTest extends TestCase {
         assertParseResult(expected, new DigitList2Parser().parse(input))
     }
     def testParseInterleaved2() {
-        val input = List(t("("), t("(",f1), t("1"), t("2"), t(")",f1), t("3"), t(")"))
-        val expected = Alt(f1,DigitList2(List(o(DigitList2(List(Opt(f1,Lit(1)), Opt(f1,Lit(2))))), o(Lit(3)))),DigitList2(List(o(Lit(1)), o(Lit(2)), o(Lit(3)))))
+        val input = List(t("("), t("(", f1), t("1"), t("2"), t(")", f1), t("3"), t(")"))
+        val expected = Alt(f1, DigitList2(List(o(DigitList2(List(Opt(f1, Lit(1)), Opt(f1, Lit(2))))), o(Lit(3)))), DigitList2(List(o(Lit(1)), o(Lit(2)), o(Lit(3)))))
         assertParseResult(expected, new DigitList2Parser().parse(input))
     }
 

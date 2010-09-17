@@ -1,5 +1,6 @@
-package de.fosd.typechef.parser
+package de.fosd.typechef.parser.test
 
+import de.fosd.typechef.parser._
 import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._

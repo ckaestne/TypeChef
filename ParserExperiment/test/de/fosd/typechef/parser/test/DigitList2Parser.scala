@@ -1,4 +1,5 @@
-package de.fosd.typechef.parser
+package de.fosd.typechef.parser.test
+import de.fosd.typechef.parser._
 import scala.util.parsing.input.Reader
 import de.fosd.typechef.featureexpr.FeatureExpr
 
