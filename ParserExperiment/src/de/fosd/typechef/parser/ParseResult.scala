@@ -19,6 +19,7 @@ sealed abstract class MultiParseResult[+T, Token <: AbstractToken, Context] {
     def allFailed: Boolean
     def toList: List[ParseResult[T, Token, Context]]
     def toErrorList: List[NoSuccess[Token, Context]]
+    def changeContext(contextModification: (T, Context) => Context): MultiParseResult[T, Token, Context]
 }
 /**
  * split into two parse results (all calls are propagated to the individual results)
@@ -66,6 +67,8 @@ case class SplittedParseResult[+T, Token <: AbstractToken, Context](feature: Fea
     def allFailed = resultA.allFailed && resultB.allFailed
     def toList = resultA.toList ++ resultB.toList
     def toErrorList = resultA.toErrorList ++ resultB.toErrorList
+    def changeContext(contextModification: (T, Context) => Context) =
+    	SplittedParseResult(feature,resultA.changeContext(contextModification),resultB.changeContext(contextModification))
 }
 /**
  * stores a list of results of which individual entries can belong to a specific feature
@@ -93,6 +96,7 @@ case class NoSuccess[Token <: AbstractToken, Context](msg: String, val context: 
     def replaceAllUnsuccessful[U >: Nothing](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U, Token, Context]): MultiParseResult[U, Token, Context] = f(context)
     def allFailed = true
     def toErrorList = List(this)
+    def changeContext(contextModification: (Nothing, Context) => Context) = this
 }
 case class Success[+T, Token <: AbstractToken, Context](val result: T, nextInput: TokenReader[Token, Context]) extends ParseResult[T, Token, Context](nextInput) {
     def map[U](f: T => U): ParseResult[U, Token, Context] = Success(f(result), next)
@@ -103,5 +107,6 @@ case class Success[+T, Token <: AbstractToken, Context](val result: T, nextInput
     def replaceAllUnsuccessful[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U, Token, Context]): MultiParseResult[U, Token, Context] = this
     def allFailed = false
     def toErrorList = List()
+    def changeContext(contextModification: (T, Context) => Context): MultiParseResult[T, Token, Context] = Success(result, nextInput.setContext(contextModification(result, nextInput.context)))
 }
 

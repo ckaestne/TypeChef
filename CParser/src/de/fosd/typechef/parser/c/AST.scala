@@ -60,6 +60,7 @@ abstract class Specifier extends AST
 abstract class TypeSpecifier extends Specifier
 case class PrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
 case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier
+case class TypedefSpecifier extends Specifier
 case class OtherSpecifier(name: String) extends Specifier
 
 trait Declaration extends AST with ExternalDef
@@ -69,13 +70,19 @@ object AltDeclaration {
     def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
 }
 
-abstract class InitDeclarator extends AST
-case class InitDeclaratorI(d: Declarator, i: Option[Initializer]) extends InitDeclarator
-case class InitDeclaratorE(d: Declarator, e: Expr) extends InitDeclarator
+abstract class InitDeclarator(val declarator: Declarator) extends AST
+case class InitDeclaratorI(override val declarator: Declarator, i: Option[Initializer]) extends InitDeclarator(declarator)
+case class InitDeclaratorE(override val declarator: Declarator, e: Expr) extends InitDeclarator(declarator)
 
-abstract class Declarator(pointer: List[Pointer], extensions: List[DeclaratorExtension]) extends AST
-case class DeclaratorId(pointer: List[Pointer], id: Id, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions)
-case class DeclaratorDecl(pointer: List[Pointer], decl: Declarator, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions)
+abstract class Declarator(pointer: List[Pointer], extensions: List[DeclaratorExtension]) extends AST {
+    def getName: String
+}
+case class DeclaratorId(pointer: List[Pointer], id: Id, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions) {
+    def getName = id.name
+}
+case class DeclaratorDecl(pointer: List[Pointer], decl: Declarator, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions) {
+    def getName = decl.getName
+}
 abstract class DeclaratorExtension extends AST
 case class DeclIdentifierList(idList: List[Id]) extends DeclaratorExtension
 case class DeclParameterTypeList(parameterTypes: List[ParameterDeclaration]) extends DeclaratorExtension with DirectAbstractDeclarator

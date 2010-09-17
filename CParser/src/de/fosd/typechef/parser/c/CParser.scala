@@ -5,19 +5,17 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% * based on ANTLR grammar from John D. Mitchell (john@non.net), Jul 12, 1997 */
 
-
-
 class CParser extends MultiFeatureParser {
     type Elem = TokenWrapper
     type Context = CTypeContext
 
-    def parse(code: String): ParseResult[AST, TokenWrapper,CTypeContext] =
+    def parse(code: String): ParseResult[AST, TokenWrapper, CTypeContext] =
         parse(code, primaryExpr)
 
-    def parse(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper,CTypeContext]): ParseResult[AST, TokenWrapper,CTypeContext] =
+    def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]): ParseResult[AST, TokenWrapper, CTypeContext] =
         mainProduction(CLexer.lex(code), FeatureExpr.base).forceJoin[AST](Alt.join)
 
-    def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]): MultiParseResult[Any, TokenWrapper,CTypeContext] =
+    def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]): MultiParseResult[Any, TokenWrapper, CTypeContext] =
         mainProduction(CLexer.lex(code), FeatureExpr.base)
 
     def translationUnit = externalList
@@ -33,13 +31,22 @@ class CParser extends MultiFeatureParser {
             { case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e) }
 
     def declaration: MultiParser[Declaration] =
-        declSpecifiers ~ opt(initDeclList) ~ SEMI ^^! (AltDeclaration.join, { case d ~ i ~ _ => ADeclaration(d, i) })
+        (declSpecifiers ~ opt(initDeclList) ~ SEMI ^^ { case d ~ i ~ _ => ADeclaration(d, i) } changeContext ({ (result: ADeclaration, context: Context) =>
+            {
+                var c = context
+                if (result.declSpecs.contains(TypedefSpecifier()))
+                    if (result.init.isDefined)
+                        for (decl: InitDeclarator <- result.init.get)
+                            c = c.addType(decl.declarator.getName)
+                c
+            }
+        })) ^^! (AltDeclaration.join, x => x)
 
     def declSpecifiers: MultiParser[List[Specifier]] =
         rep1(storageClassSpecifier | typeQualifier | typeSpecifier)
 
     def storageClassSpecifier: MultiParser[Specifier] =
-        specifier("auto") | specifier("register") | specifier("typedef") | functionStorageClassSpecifier
+        specifier("auto") | specifier("register") | textToken("typedef") ^^ { x => TypedefSpecifier() } | functionStorageClassSpecifier
 
     def functionStorageClassSpecifier: MultiParser[Specifier] =
         specifier("extern") | specifier("static")
@@ -59,11 +66,10 @@ class CParser extends MultiFeatureParser {
         | textToken("signed")
         | textToken("unsigned")) ^^ { (t: Elem) => PrimitiveTypeSpecifier(t.getText) }
         | structOrUnionSpecifier
-        | enumSpecifier //        | /*{ specCount == 0 }?*/ typedefName ^^ { TypeDefTypeSpecifier(_) }/TODO
-)
+        | enumSpecifier
+        | typedefName ^^ { TypeDefTypeSpecifier(_) })
 
-    def typedefName = ID
-    //            :       { isTypedefName ( LT(1).getText() ) }?
+    def typedefName = tokenWithContext("type", (token, context) => isIdentifier(token) && context.knowsType(token.getText)) ^^ { t => Id(t.getText) }
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
         structOrUnion ~ structOrUnionSpecifierBody ^^ { case ~(k, (id, list)) => StructOrUnionSpecifier(k, id, list) }
@@ -271,7 +277,10 @@ class CParser extends MultiFeatureParser {
         ID | numConst | stringConst | LPAREN ~> expr <~ RPAREN
 
     def typeName = ID //TODO separate this later
-    def ID: MultiParser[Id] = token("id", _.isIdentifier) ^^ { t => Id(t.getText) }
+    def ID: MultiParser[Id] = token("id", isIdentifier(_)) ^^ { t => Id(t.getText) }
+
+    def isIdentifier(token: TokenWrapper) = token.isIdentifier
+
     def stringConst: MultiParser[StringLit] = token("string literal", _.getType == Token.STRING) ^^ { t => StringLit(t.getText) }; def numConst: MultiParser[Constant] = token("number", _.isInteger) ^^ { t => Constant(t.getText) } |
         token("number", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) }
 

@@ -311,6 +311,7 @@ class CParserTest extends TestCase {
     
     def testTypedefName {
     	assertParseable("int a;", p.translationUnit)
+    	assertParseError("foo a;", p.translationUnit)
     	assertParseable("typedef int foo; foo a;", p.translationUnit)
     }
     

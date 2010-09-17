@@ -50,15 +50,6 @@ class MultiFeatureParser {
                 thisParser(in, feature).map(f)
         }
 
-        //        /**
-        //         * map and join ASTs (when possible)
-        //         */
-        //        def ^^!(f: T => AST): MultiParser[AST] =
-        //            new MultiParser[AST] {
-        //                def apply(in: Input, feature: FeatureExpr): MultiParseResult[AST, Elem, Context] = {
-        //                    thisParser.map(f)(in, feature).join[AST](Alt.join)
-        //                }
-        //            }.named("^^!")
         /**
          * map and join ASTs (when possible)
          */
@@ -68,6 +59,12 @@ class MultiFeatureParser {
                     thisParser.map(f)(in, feature).join[U](joinFunction)
                 }
             }.named("^^!")
+            
+        def changeContext(contextModification: (T,Context)=>Context):MultiParser[T] =
+        	new MultiParser[T] {
+                def apply(in: Input, feature: FeatureExpr): MultiParseResult[T, Elem, Context] = 
+                    thisParser(in, feature).changeContext(contextModification)
+            }.named("__context")
 
         /**
          * from original framework, sequence parsers, but drop first result
@@ -201,7 +198,7 @@ class MultiFeatureParser {
     def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T, Elem, Context]): MultiParser[T] =
         new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = f(in, fs) }
 
-    def matchInput(p: Elem => Boolean, err: Elem => String) = new MultiParser[Elem] {
+    def matchInput(p: (Elem,Context) => Boolean, err: Elem => String) = new MultiParser[Elem] {
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, Context] = {
             //only attempt to parse if feature is supported
             val start = in.skipHidden(context)
@@ -214,7 +211,7 @@ class MultiFeatureParser {
 
                 if (context.implies(start.first.getFeature).isBase) {
                     //token always parsed in this context
-                    if (p(start.first))
+                    if (p(start.first,start.context))
                         Success(start.first, start.rest) //.skipHidden(context))//TODO rather when joining?
                     else
                         NoSuccess(err(start.first), context, start, List())
@@ -232,7 +229,8 @@ class MultiFeatureParser {
     def isSupported(token: Elem, context: FeatureExpr) =
         context.implies(token.getFeature).isBase
 
-    def token(kind: String, p: Elem => Boolean) = matchInput(p, inEl => "\"" + kind + "\" expected")
+    def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind,(e,c)=>p(e))
+    def tokenWithContext(kind: String, p: (Elem,Context) => Boolean) = matchInput(p, inEl => "\"" + kind + "\" expected")
 
 }
 case class ~[+a, +b](_1: a, _2: b) {
