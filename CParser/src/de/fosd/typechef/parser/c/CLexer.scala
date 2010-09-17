@@ -11,6 +11,13 @@ import scala.collection.mutable.ListBuffer
  */
 object CLexer {
 
+    def lexFile(fileName: String, directory: String): TokenReader[TokenWrapper, CTypeContext] = {
+        val tokens = new PartialPPLexer().parseFile(fileName, directory).iterator
+        val result = new ListBuffer[TokenWrapper]
+        while (tokens.hasNext)
+            result += new TokenWrapper(tokens.next)
+        new TokenReader(result.toList, 0, new CTypeContext())
+    }
     def lex(text: String): TokenReader[TokenWrapper, CTypeContext] = {
         val tokens = new PartialPPLexer().parse(text, null).iterator
         val result = new ListBuffer[TokenWrapper]

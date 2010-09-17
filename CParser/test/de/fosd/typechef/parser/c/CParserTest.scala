@@ -6,11 +6,9 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 
 class CParserTest extends TestCase {
-    val p = new CParser()
-    def a = Id("a"); def b = Id("b"); def c = Id("c"); def d = Id("d"); def x = Id("x");
-    def o[T](x: T) = Opt(FeatureExpr.base, x)
+   val p = new CParser()
 
-    def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper,CTypeContext]) {
+    def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]) {
         val actual = p.parse(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -22,11 +20,11 @@ class CParserTest extends TestCase {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseResult(expected: AST, code: String, productions: List[(TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper,CTypeContext]]) {
+    def assertParseResult(expected: AST, code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]]) {
         for (val production <- productions)
             assertParseResult(expected, code, production)
     }
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]) {
+    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -38,7 +36,7 @@ class CParserTest extends TestCase {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]) {
+    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -50,7 +48,7 @@ class CParserTest extends TestCase {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]) {
+    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -61,10 +59,16 @@ class CParserTest extends TestCase {
             case NoSuccess(msg, context, unparsed, inner) => ;
         }
     }
-    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]]) {
+    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]]) {
         for (val production <- productions)
             assertParseError(code, production)
     }
+    
+    def a = Id("a"); def b = Id("b"); def c = Id("c"); def d = Id("d"); def x = Id("x");
+    def intType = TypeName(List(PrimitiveTypeSpecifier("int")), None)
+    def o[T](x: T) = Opt(FeatureExpr.base, x)
+
+  
     def fa = FeatureExpr.createDefinedExternal("a")
 
     def testId() {
@@ -157,19 +161,20 @@ class CParserTest extends TestCase {
     def testUnaryExpr {
         assertParseResult(Id("b"), "b", p.unaryExpr)
         assertParseResult(UnaryExpr("++", Id("b")), "++b", p.unaryExpr)
-        assertParseResult(SizeOfExprT(Id("b")), "sizeof(b)", p.unaryExpr)
+        assertParseResult(SizeOfExprT(intType), "sizeof(int)", p.unaryExpr)
         assertParseResult(SizeOfExprU(Id("b")), "sizeof b", p.unaryExpr)
         assertParseResult(SizeOfExprU(UnaryExpr("++", Id("b"))), "sizeof ++b", p.unaryExpr)
-        assertParseResult(UCastExpr("+", CastExpr(Id("c"), Id("b"))), "+(c)b", List(p.unaryExpr))
-        assertParseResult(UCastExpr("&", CastExpr(Id("c"), Id("b"))), "&(c)b", List(p.unaryExpr))
-        assertParseResult(UCastExpr("!", CastExpr(Id("c"), Id("b"))), "!(c)b", List(p.unaryExpr))
+        assertParseResult(UCastExpr("+", CastExpr(intType, Id("b"))), "+(int)b", List(p.unaryExpr))
+        assertParseResult(UCastExpr("&", CastExpr(intType, Id("b"))), "&(int)b", List(p.unaryExpr))
+        assertParseResult(UCastExpr("!", CastExpr(intType, Id("b"))), "!(int)b", List(p.unaryExpr))
         assertParseError("(c)b", List(p.unaryExpr))
     }
 
     def testCastExpr {
-        assertParseResult(CastExpr(Id("c"), SizeOfExprT(Id("b"))), "(c)sizeof(b)", List(p.castExpr /*, p.unaryExpr*/ ))
-        assertParseResult(CastExpr(Id("c"), Id("b")), "(c)b", List(p.castExpr /*, p.unaryExpr*/ ))
-        assertParseResult(CastExpr(Id("a"), CastExpr(Id("b"), CastExpr(Id("c"), SizeOfExprT(Id("b"))))), "(a)(b)(c)sizeof(b)", List(p.castExpr /*, p.unaryExpr*/ ))
+        assertParseResult(CastExpr(intType, SizeOfExprT(intType)), "(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/ ))
+        assertParseResult(CastExpr(intType, Id("b")), "(int)b", List(p.castExpr /*, p.unaryExpr*/ ))
+        assertParseResult(CastExpr(intType, CastExpr(intType, CastExpr(intType, SizeOfExprT(intType)))), "(int)(int)(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/ ))
+        assertParseable("(int)sizeof(void)", p.castExpr)
     }
 
     def testNAryExpr {
@@ -307,12 +312,21 @@ class CParserTest extends TestCase {
     def testFunctionDef {
         assertParseable("void foo(){}", p.functionDef)
         assertParseable("void foo(int a) { a; }", p.functionDef)
+        assertParseable("""|void 
+        				|#ifdef X
+        				|foo
+        				|#else
+        				|bar
+        				|#endif
+        				|(){}
+        				|void x(){}""", p.translationUnit)
+
     }
-    
+
     def testTypedefName {
-    	assertParseable("int a;", p.translationUnit)
-    	assertParseError("foo a;", p.translationUnit)
-    	assertParseable("typedef int foo; foo a;", p.translationUnit)
+        assertParseable("int a;", p.translationUnit)
+        assertParseError("foo a;", p.translationUnit)
+        assertParseable("typedef int foo; foo a;", p.translationUnit)
     }
-    
+
 }

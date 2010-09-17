@@ -231,12 +231,6 @@ class CParser extends MultiFeatureParser {
     def castExpr: MultiParser[Expr] =
         LPAREN ~ typeName ~ RPAREN ~ castExpr ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
 
-    //
-    //
-    //typeName
-    //        :       specifierQualifierList (nonemptyAbstractDeclarator)?
-    //        ;
-    //
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         (pointerGroup ~
             rep((LPAREN ~> (nonemptyAbstractDeclarator | optList(parameterTypeList) ^^ { DeclParameterTypeList(_) }) <~ RPAREN)
@@ -276,7 +270,9 @@ class CParser extends MultiFeatureParser {
     def primaryExpr: MultiParser[Expr] =
         ID | numConst | stringConst | LPAREN ~> expr <~ RPAREN
 
-    def typeName = ID //TODO separate this later
+    def typeName:MultiParser[TypeName] =
+        specifierQualifierList ~ opt(nonemptyAbstractDeclarator) ^^ {case sl~d=>TypeName(sl,d)}
+        
     def ID: MultiParser[Id] = token("id", isIdentifier(_)) ^^ { t => Id(t.getText) }
 
     def isIdentifier(token: TokenWrapper) = token.isIdentifier

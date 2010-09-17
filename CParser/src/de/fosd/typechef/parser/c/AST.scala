@@ -24,9 +24,9 @@ case class ArrayAccess(expr: Expr) extends PostfixSuffix
 
 case class PostfixExpr(p: Expr, s: List[PostfixSuffix]) extends Expr
 case class UnaryExpr(kind: String, e: Expr) extends Expr
-case class SizeOfExprT(typeName: Id) extends Expr
+case class SizeOfExprT(typeName: TypeName) extends Expr
 case class SizeOfExprU(expr: Expr) extends Expr
-case class CastExpr(typeName: Id, expr: Expr) extends Expr
+case class CastExpr(typeName: TypeName, expr: Expr) extends Expr
 case class UCastExpr(kind: String, castExpr: Expr) extends Expr
 
 case class NAryExpr(e: Expr, others: List[(String, Expr)]) extends Expr
@@ -115,3 +115,5 @@ case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBra
 object AltExternalDef {
     def join = (f: FeatureExpr, x: ExternalDef, y: ExternalDef) => if (x == y) x else AltExternalDef(f, x, y)
 }
+
+case class TypeName(specifiers:List[Specifier],decl:Option[AbstractDeclarator]) extends AST
