@@ -189,7 +189,7 @@ class CParserTest extends TestCase {
         assertParseResult(NAryExpr(NAryExpr(a, List(("+", b))), List(("*", c))), "(a+b)*c", p.expr)
         assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(("==", c)))), "a=b==c", p.expr)
         assertParseResult(NAryExpr(a, List(("/", b))), "a/b", p.expr)
-        assertParseResult(ConditionalExpr(a, b, c), "a?b:c", p.expr)
+        assertParseResult(ConditionalExpr(a, Some(b), c), "a?b:c", p.expr)
         assertParseResult(ExprList(List(a, b, NAryExpr(NAryExpr(c, List(("+", NAryExpr(c, List(("/", d)))))), List(("|", x))))), "a,b,c+c/d|x", p.expr)
     }
     def testAltExpr {
@@ -206,7 +206,7 @@ class CParserTest extends TestCase {
         					|b +
         					|#endif
         					|c""", p.expr)
-        assertParseResult(Alt(fa, AssignExpr(a, "=", ConditionalExpr(b, b, d)), AssignExpr(a, "=", ConditionalExpr(b, c, d))),
+        assertParseResult(Alt(fa, AssignExpr(a, "=", ConditionalExpr(b, Some(b), d)), AssignExpr(a, "=", ConditionalExpr(b, Some(c), d))),
             """|a=b?
         					|#ifdef a
         					|b 
