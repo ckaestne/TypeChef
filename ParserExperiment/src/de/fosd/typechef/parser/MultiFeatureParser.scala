@@ -1,4 +1,5 @@
 package de.fosd.typechef.parser
+
 import scala.annotation.tailrec
 
 import scala.util.parsing.input.Reader
