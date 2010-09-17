@@ -15,4 +15,5 @@ class TokenWrapper(token:Token) extends AbstractToken  {
 	def getText:String = token.getText
 	def getType = token.getType
 	override def toString = "\"" +  token.getText + "\"" + (if (!getFeature.isBase) getFeature else "")
+	def getPositionStr = token.toString
 }

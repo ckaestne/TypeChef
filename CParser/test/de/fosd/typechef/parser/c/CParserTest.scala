@@ -6,10 +6,13 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 
 class CParserTest extends TestCase {
-   val p = new CParser()
-
+    val p = new CParser()
+    case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
+    object Alt {
+        def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
+    }
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]) {
-        val actual = p.parse(code.stripMargin, mainProduction)
+        val actual = p.parse(code.stripMargin, mainProduction).forceJoin(Alt.join)
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
@@ -63,12 +66,11 @@ class CParserTest extends TestCase {
         for (val production <- productions)
             assertParseError(code, production)
     }
-    
+
     def a = Id("a"); def b = Id("b"); def c = Id("c"); def d = Id("d"); def x = Id("x");
     def intType = TypeName(List(PrimitiveTypeSpecifier("int")), None)
     def o[T](x: T) = Opt(FeatureExpr.base, x)
 
-  
     def fa = FeatureExpr.createDefinedExternal("a")
 
     def testId() {
@@ -320,13 +322,16 @@ class CParserTest extends TestCase {
         				|#endif
         				|(){}
         				|void x(){}""", p.translationUnit)
-
+       assertParseable("main(){}", p.functionDef)
+       assertParseable("main(){int T=100, a=(T)+1;}", p.functionDef)
     }
 
     def testTypedefName {
         assertParseable("int a;", p.translationUnit)
         assertParseError("foo a;", p.translationUnit)
         assertParseable("typedef int foo; foo a;", p.translationUnit)
+        //scoping of typedef not considered yet:
+       //assertParseable("typedef int T;main(){int T=100, a=(T)+1;}", p.functionDef)
     }
 
 }

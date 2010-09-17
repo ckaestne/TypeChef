@@ -3,17 +3,16 @@ import org.anarres.cpp.Token
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
-/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% * based on ANTLR grammar from John D. Mitchell (john@non.net), Jul 12, 1997 */
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ * based on ANTLR grammar from John D. Mitchell (john@non.net), Jul 12, 1997
+ */
 
 class CParser extends MultiFeatureParser {
     type Elem = TokenWrapper
     type Context = CTypeContext
 
-    def parse(code: String): ParseResult[AST, TokenWrapper, CTypeContext] =
-        parse(code, primaryExpr)
-
-    def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]): ParseResult[AST, TokenWrapper, CTypeContext] =
-        mainProduction(CLexer.lex(code), FeatureExpr.base).forceJoin[AST](Alt.join)
+    def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]): MultiParseResult[AST, TokenWrapper, CTypeContext] =
+        mainProduction(CLexer.lex(code), FeatureExpr.base)
 
     def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]): MultiParseResult[Any, TokenWrapper, CTypeContext] =
         mainProduction(CLexer.lex(code), FeatureExpr.base)
@@ -41,7 +40,7 @@ class CParser extends MultiFeatureParser {
                 c
             }
         })) ^^! (AltDeclaration.join, x => x)
-
+  
     def declSpecifiers: MultiParser[List[Specifier]] =
         rep1(storageClassSpecifier | typeQualifier | typeSpecifier)
 
