@@ -1,5 +1,6 @@
 package org.anarres.cpp;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,11 @@ public class PartialPPLexer {
 	public List<Token> parse(String code, String folder) throws LexerException,
 			IOException {
 		return parse(new StringLexerSource(code, true), folder);
+	}
+
+	public List<Token> parseFile(String fileName, String path)
+			throws LexerException, IOException {
+		return parse(new FileLexerSource(new File(fileName), path), path);
 	}
 
 	public List<Token> parse(Source source, String folder)
