@@ -177,144 +177,65 @@ class CParser extends MultiFeatureParser {
     //        ;
     //
     //
-    //declaration
-    //                                        { AST ds1 = null; }
-    //        :       ds:declSpecifiers       { ds1 = astFactory.dupList(#ds); }
-    //                (                       
-    //                    initDeclList[ds1]
-    //                )?
-    //                SEMI!
-    //                                        { ## = #( #[NDeclaration], ##); }
-    //                
-    //        ;
+    def declaration: MultiParser[Declaration] =
+        declSpecifiers ~ opt(initDeclList) ~ SEMI ^^! (AltDeclaration.join, { case d ~ i ~ _ => ADeclaration(d, i) })
+
+    def declSpecifiers: MultiParser[List[Specifier]] =
+        rep1(storageClassSpecifier | typeQualifier | typeSpecifier)
+
     //
+    def storageClassSpecifier: MultiParser[Specifier] =
+        specifier("auto") | specifier("register") | specifier("typedef") | functionStorageClassSpecifier
+
+    def functionStorageClassSpecifier: MultiParser[Specifier] =
+        specifier("extern") | specifier("static")
+
+    def typeQualifier: MultiParser[Specifier] =
+        specifier("const") | specifier("volatile")
+
+    def specifier(name: String) = textToken(name) ^^ { t => OtherSpecifier(t.getText) }
+
+    def typeSpecifier: MultiParser[TypeSpecifier] = ((textToken("void")
+        | textToken("char")
+        | textToken("short")
+        | textToken("int")
+        | textToken("long")
+        | textToken("float")
+        | textToken("double")
+        | textToken("signed")
+        | textToken("unsigned")) ^^ { (t: Elem) => PrimitiveTypeSpecifier(t.getText) }
+        //            | structOrUnionSpecifier
+        //            | enumSpecifier
+        | /*{ specCount == 0 }?*/ typedefName ^^ { TypeDefTypeSpecifier(_) })
+
+    def typedefName = ID
+    //            :       { isTypedefName ( LT(1).getText() ) }?
+
+    //    def structOrUnionSpecifier =
+    //        structOrUnion ~
+    //            (Id ~> LCURLY ~ structDeclarationList <~ RCURLY
+    //                | LCURLY ~> structDeclarationList <~ RCURLY !
+    //                | ID)
+
+    def structOrUnion =
+        textToken("struct") | textToken("union")
+
+    //    def structDeclarationList =
+    //        rep1(structDeclaration)
+
+    //    def structDeclaration =
+    //        specifierQualifierList ~ structDeclaratorList <~ rep1(SEMI)
+
+    def specifierQualifierList =
+        rep(typeSpecifier | typeQualifier)
+
+    //    def structDeclaratorList =
+    //        rep1Sep(structDeclarator, COMMA)
     //
-    //declSpecifiers 
-    //                                { int specCount=0; }
-    //        :       (               options { // this loop properly aborts when
-    //                                          //  it finds a non-typedefName ID MBZ
-    //                                          warnWhenFollowAmbig = false;
-    //                                        } :
-    //                  s:storageClassSpecifier
-    //                | typeQualifier
-    //                | ( "struct" | "union" | "enum" | typeSpecifier[specCount] )=>
-    //                        specCount = typeSpecifier[specCount]
-    //                )+
-    //        ;
-    //
-    //storageClassSpecifier
-    //        :       "auto"                  
-    //        |       "register"              
-    //        |       "typedef"               
-    //        |       functionStorageClassSpecifier
-    //        ;
-    //
-    //
-    //functionStorageClassSpecifier
-    //        :       "extern"
-    //        |       "static"
-    //        ;
-    //
-    //
-    //typeQualifier
-    //        :       "const"
-    //        |       "volatile"
-    //        ;
-    //
-    //typeSpecifier [int specCount] returns [int retSpecCount]
-    //                                                        { retSpecCount = specCount + 1; }
-    //        :
-    //        (       "void"
-    //        |       "char"
-    //        |       "short"
-    //        |       "int"
-    //        |       "long"
-    //        |       "float"
-    //        |       "double"
-    //        |       "signed"
-    //        |       "unsigned"
-    //        |       structOrUnionSpecifier
-    //        |       enumSpecifier
-    //        |       { specCount == 0 }? typedefName
-    //        )
-    //        ;
-    //
-    //
-    //typedefName
-    //        :       { isTypedefName ( LT(1).getText() ) }?
-    //                i:ID                    { ## = #(#[NTypedefName], #i); }
-    //        ;
-    //
-    //structOrUnionSpecifier
-    //                                        { String scopeName; }
-    //        :       sou:structOrUnion!
-    //                ( ( ID LCURLY )=> i:ID l:LCURLY
-    //                                            {
-    //                                            scopeName = #sou.getText() + " " + #i.getText();
-    //                                            #l.setText(scopeName);
-    //                                            pushScope(scopeName);
-    //                                            }
-    //                        structDeclarationList
-    //                                            { popScope();}
-    //                        RCURLY!
-    //                |   l1:LCURLY
-    //                                            {
-    //                                            scopeName = getAScopeName();
-    //                                            #l1.setText(scopeName);
-    //                                            pushScope(scopeName);
-    //                                            }
-    //                    structDeclarationList
-    //                                            { popScope(); }
-    //                    RCURLY!
-    //                | ID
-    //                )
-    //                                            {
-    //                                            ## = #( #sou, ## );
-    //                                            }
-    //        ;
-    //
-    //
-    //structOrUnion
-    //        :       "struct"
-    //        |       "union"
-    //        ;
-    //
-    //
-    //structDeclarationList
-    //        :       ( structDeclaration )+
-    //        ;
-    //
-    //
-    //structDeclaration
-    //        :       specifierQualifierList structDeclaratorList ( SEMI! )+
-    //        ;
-    //
-    //
-    //specifierQualifierList
-    //                                { int specCount = 0; }
-    //        :       (               options {   // this loop properly aborts when
-    //                                            // it finds a non-typedefName ID MBZ
-    //                                            warnWhenFollowAmbig = false;
-    //                                        } :
-    //                ( "struct" | "union" | "enum" | typeSpecifier[specCount] )=>
-    //                        specCount = typeSpecifier[specCount]
-    //                | typeQualifier
-    //                )+
-    //        ;
-    //
-    //
-    //structDeclaratorList
-    //        :       structDeclarator ( COMMA! structDeclarator )*
-    //        ;
-    //
-    //
-    //structDeclarator
-    //        :
-    //        (       COLON constExpr
-    //        |       declarator[false] ( COLON constExpr )?
-    //        )
-    //                                    { ## = #( #[NStructDeclarator], ##); }
-    //        ;
+    //    //
+    //    def structDeclarator =
+    //        (COLON ~ constExpr | declarator(false) ~ opt(COLON ~ constExpr))
+
     //
     //
     //enumSpecifier
@@ -342,120 +263,50 @@ class CParser extends MultiFeatureParser {
     //        ;
     //
     //
-    //initDeclList[AST declarationSpecifiers]
-    //        :       initDecl[declarationSpecifiers] 
-    //                ( COMMA! initDecl[declarationSpecifiers] )*
-    //        ;
-    //
-    //
-    //initDecl[AST declarationSpecifiers]
-    //                                        { String declName = ""; }
-    //        :       declName = d:declarator[false]
-    //                                        {   AST ds1, d1;
-    //                                            ds1 = astFactory.dupList(declarationSpecifiers);
-    //                                            d1 = astFactory.dupList(#d);
-    //                                            symbolTable.add(declName, #(null, ds1, d1) );
-    //                                        }
-    //                ( ASSIGN initializer
-    //                | COLON expr
-    //                )?
-    //                                        { ## = #( #[NInitDecl], ## ); }
-    //
-    //        ;
-    //
-    //pointerGroup
-    //        :       ( STAR ( typeQualifierList )? )+    { ## = #( #[NPointerGroup], ##); }
-    //        ;
-    //
-    //typeQualifierList:
-    //  (typeQualifier)*;
-    //
-    //idList
-    //        :       ID ( COMMA! ID )*
-    //        ;
-    //
-    //
-    //initializer
-    //        :       ( assignExpr
-    //                |       LCURLY initializerList ( COMMA! )? RCURLY!
-    //                )
-    //                        { ## = #( #[NInitializer], ## ); }
-    //        ;
-    //
-    //
-    //initializerList
-    //        :       initializer ( COMMA! initializer )*
-    //        ;
-    //
-    //
-    //declarator[boolean isFunctionDefinition] returns [String declName]
-    //                                                { declName = ""; }
-    //        :
-    //                ( pointerGroup )?               
-    //
-    //                ( id:ID                         { declName = id.getText(); }
-    //                | LPAREN declName = declarator[false] RPAREN
-    //                )
-    //
-    //                ( !  LPAREN
-    //                                                { 
-    //                                                    if (isFunctionDefinition) {
-    //                                                        pushScope(declName);
-    //                                                    }
-    //                                                    else {
-    //                                                        pushScope("!"+declName); 
-    //                                                    }
-    //                                                }
-    //                    (                           
-    //                        (declSpecifiers)=> p:parameterTypeList
-    //                                                {
-    //                                                ## = #( null, ##, #( #[NParameterTypeList], #p ) );
-    //                                                }
-    //
-    //                        | (i:idList)?
-    //                                                {
-    //                                                ## = #( null, ##, #( #[NParameterTypeList], #i ) );
-    //                                                }
-    //                    )
-    //                                                {
-    //                                                popScope();
-    //                                                }    
-    //                  RPAREN                        
-    //                | LBRACKET ( constExpr )? RBRACKET
-    //                )*
-    //                                                { ## = #( #[NDeclarator], ## ); }
-    //        ;
+    def initDeclList: MultiParser[List[InitDeclarator]] =
+        rep1Sep(initDecl, COMMA);
+
+    def initDecl: MultiParser[InitDeclarator] =
+        declarator(false) ~ opt(ASSIGN ~> initializer | COLON ~> expr) ^^
+            { case d ~ Some(i: Initializer) => InitDeclaratorI(d, Some(i)); case d ~ Some(e: Expr) => InitDeclaratorE(d, e); case d ~ None => InitDeclaratorI(d, None); }
+
+    def pointerGroup: MultiParser[List[Pointer]] =
+        rep1(STAR ~> opt(typeQualifierList) ^^ { case Some(l) => Pointer(l); case None => Pointer(List()) })
+
+    def typeQualifierList: MultiParser[List[Specifier]] =
+        rep(typeQualifier)
+
+    def idList: MultiParser[List[Id]] =
+        rep1Sep(ID, COMMA)
+
+    def initializer: MultiParser[Initializer] =
+        (assignExpr ^^ { InitializerExpr(_) }
+            | LCURLY ~> rep1Sep(initializer, COMMA) ~ opt(COMMA) <~ RCURLY ^^ { case i ~ o => InitializerList(i) })
+
+    def declarator(isFunctionDefinition: Boolean): MultiParser[Declarator] =
+        (optList(pointerGroup) ~ (ID | LPAREN ~> declarator(false) <~ RPAREN) ~
+            rep(
+                LPAREN ~> (parameterTypeList ^^ { DeclParameterTypeList(_) }
+                    | optList(idList) ^^ { DeclIdentifierList(_) }) <~ RPAREN
+                | LBRACKET ~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) }
+                )) ^^ {
+            case pointers ~(id: Id) ~ ext => DeclaratorId(pointers, id, ext);
+            case pointers ~(decl: Declarator) ~ ext => DeclaratorDecl(pointers, decl, ext)
+        }
+
     // 
-    //parameterTypeList
-    //        :       parameterDeclaration
-    //                (   options {
-    //                            warnWhenFollowAmbig = false;
-    //                        } : 
-    //                  COMMA!
-    //                  parameterDeclaration
-    //                )*
-    //                ( COMMA!
-    //                  VARARGS
-    //                )?
-    //        ;
-    //
-    //
-    //parameterDeclaration
-    //                            { String declName; }
-    //        :       ds:declSpecifiers
-    //                ( ( declarator[false] )=> declName = d:declarator[false]
-    //                            {
-    //                            AST d2, ds2;
-    //                            d2 = astFactory.dupList(#d);
-    //                            ds2 = astFactory.dupList(#ds);
-    //                            symbolTable.add(declName, #(null, ds2, d2));
-    //                            }
-    //                | nonemptyAbstractDeclarator
-    //                )?
-    //                            {
-    //                            ## = #( #[NParameterDeclaration], ## );
-    //                            }
-    //        ;
+    def parameterTypeList: MultiParser[List[ParameterDeclaration]] =
+        rep1Sep(parameterDeclaration, COMMA) ~ opt(COMMA ~> VARARGS) ^^
+            { case l ~ Some(v) => l ++ List(VarArgs()); case l ~ None => l }
+
+    def parameterDeclaration: MultiParser[ParameterDeclaration] =
+        declSpecifiers ~ opt(declarator(false) | nonemptyAbstractDeclarator) ^^
+            {
+                case s ~ Some(d: Declarator) => ParameterDeclarationD(s, d)
+                case s ~ Some(d: AbstractDeclarator) => ParameterDeclarationAD(s, d)
+                case s ~ None => ParameterDeclaration(s)
+            }
+
     //
     ///* JTC:
     // * This handles both new and old style functions.
@@ -497,14 +348,9 @@ class CParser extends MultiFeatureParser {
     //                )+
     //        ;
     //
-    //declarationList
-    //        :       (               options {   // this loop properly aborts when
-    //                                            // it finds a non-typedefName ID MBZ
-    //                                            warnWhenFollowAmbig = false;
-    //                                        } :
-    //                ( declarationPredictor )=> declaration
-    //                )+
-    //        ;
+    def declarationList: MultiParser[List[Opt[Declaration]]] =
+        declaration ~ repOpt(declaration, AltDeclaration.join) ^^ { case d ~ l => List(Opt(FeatureExpr.base, d)) ++ l }
+
     //
     //declarationPredictor
     //        :       (options {      //only want to look at declaration if I don't see typedef
@@ -517,12 +363,10 @@ class CParser extends MultiFeatureParser {
     //
     //
     def compoundStatement: MultiParser[CompoundStatement] =
-        LCURLY ~>
-            //                    ( ( declarationPredictor)=> declarationList )?
-            statementList <~ RCURLY ^^ { CompoundStatement(_)}
+        LCURLY ~> declarationList ~ statementList <~ RCURLY ^^ { case decl ~ stmt => CompoundStatement(decl, stmt) }
 
     def statementList: MultiParser[List[Opt[Statement]]] =
-        repOpt(statement,AltStatement.join)
+        repOpt(statement, AltStatement.join)
 
     def statement: MultiParser[Statement] = (SEMI ^^ { _ => EmptyStatement() } // Empty statements
         | compoundStatement // Group of statements
@@ -542,7 +386,7 @@ class CParser extends MultiFeatureParser {
         | textToken("default") ~> COLON ~> statement ^^ { DefaultStatement(_) }
         //// Selection statements:
         | textToken("if") ~ LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ { case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es) }
-        | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) })
+        | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) }) ^^! (AltStatement.join, s => s)
 
     def expr: MultiParser[Expr] = assignExpr ~ rep(COMMA ~> assignExpr) ^^
         { case e ~ l => if (l.isEmpty) e else ExprList(List(e) ++ l) }
@@ -589,26 +433,17 @@ class CParser extends MultiFeatureParser {
     //        :       specifierQualifierList (nonemptyAbstractDeclarator)?
     //        ;
     //
-    //nonemptyAbstractDeclarator
-    //        :   (
-    //                pointerGroup
-    //                (   (LPAREN  
-    //                    (   nonemptyAbstractDeclarator
-    //                        | parameterTypeList
-    //                    )?
-    //                    RPAREN)
-    //                | (LBRACKET (expr)? RBRACKET)
-    //                )*
-    //
-    //            |   (   (LPAREN  
-    //                    (   nonemptyAbstractDeclarator
-    //                        | parameterTypeList
-    //                    )?
-    //                    RPAREN)
-    //                | (LBRACKET (expr)? RBRACKET)
-    //                )+
-    //            )
-    //                            {   ## = #( #[NNonemptyAbstractDeclarator], ## ); }
+    def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
+        (pointerGroup ~
+            rep((LPAREN ~> (nonemptyAbstractDeclarator | optList(parameterTypeList) ^^ { DeclParameterTypeList(_) }) <~ RPAREN)
+                | (LBRACKET ~> opt(expr) <~ RBRACKET ^^ { DeclArrayAccess(_) })
+                ) ^^ { case pointers ~ directDecls => AbstractDeclarator(pointers, directDecls) }
+
+            | rep1((LPAREN ~> (nonemptyAbstractDeclarator | optList(parameterTypeList) ^^ { DeclParameterTypeList(_) }) <~ RPAREN)
+                | (LBRACKET ~> opt(expr) <~ RBRACKET ^^ { DeclArrayAccess(_) })
+                ) ^^ { AbstractDeclarator(List(), _) })
+
+
     //                                
     //        ;
     //
@@ -664,7 +499,7 @@ class CParser extends MultiFeatureParser {
         token("number", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) }
 
     def argExprList: MultiParser[ExprList] =
-        assignExpr ~ rep(COMMA ~> assignExpr) ^^ { case e ~ l => ExprList(List(e) ++ l) }
+        rep1Sep(assignExpr, COMMA) ^^ { ExprList(_) }
 
     //protected
     //charConst
@@ -1172,6 +1007,6 @@ class CParser extends MultiFeatureParser {
     //                ( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' )*
     //        ;
 
-    def textToken(t: String) = token(t, _.getText == t); def textToken(t: Char) = token(t.toString, _.getText == t.toString);
+    def textToken(t: String): MultiParser[Elem] = token(t, _.getText == t); def textToken(t: Char) = token(t.toString, _.getText == t.toString);
 
 }
