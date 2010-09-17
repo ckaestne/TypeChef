@@ -158,7 +158,7 @@ class CParserTest extends TestCase {
         					|#ifdef a
         					|++
         					|#endif""", p.postfixExpr)
-
+        assertParseable("__builtin_offsetof(void,a.b)",p.primaryExpr)
     }
     def testUnaryExpr {
         assertParseResult(Id("b"), "b", p.unaryExpr)
@@ -332,6 +332,15 @@ class CParserTest extends TestCase {
         assertParseable("typedef int foo; foo a;", p.translationUnit)
         //scoping of typedef not considered yet:
        //assertParseable("typedef int T;main(){int T=100, a=(T)+1;}", p.functionDef)
+    }
+    
+    def testAttribute {
+    	
+           assertParseable("", p.attributeList)
+           assertParseable("__attribute__((a b))", p.attributeDecl)
+           assertParseable("__attribute__(())", p.attributeDecl)
+           assertParseable("__attribute__((a,b))", p.attributeDecl)
+           assertParseable("__attribute__((a,(b,b)))", p.attributeDecl)
     }
 
 }

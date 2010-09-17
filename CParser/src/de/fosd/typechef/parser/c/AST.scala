@@ -11,6 +11,7 @@ abstract class PrimaryExpr extends Expr
 case class Id(name: String) extends PrimaryExpr
 case class Constant(value: String) extends PrimaryExpr
 case class StringLit(name: String) extends PrimaryExpr
+case class BuildinOffsetof(typeName:TypeName,offsetofMemberDesignator:List[Id]) extends PrimaryExpr
 
 abstract class PostfixSuffix extends AST
 case class SimplePostfixSuffix(t: String) extends PostfixSuffix
@@ -26,7 +27,7 @@ case class CastExpr(typeName: TypeName, expr: Expr) extends Expr
 case class UCastExpr(kind: String, castExpr: Expr) extends Expr
 
 case class NAryExpr(e: Expr, others: List[(String, Expr)]) extends Expr
-case class ConditionalExpr(condition: Expr, thenExpr: Expr, elseExpr: Expr) extends Expr
+case class ConditionalExpr(condition: Expr, thenExpr: Option[Expr], elseExpr: Expr) extends Expr
 case class AssignExpr(target: Expr, operation: String, source: Expr) extends Expr
 case class ExprList(exprs: List[Expr]) extends Expr
 
@@ -43,8 +44,8 @@ case class ContinueStatement extends Statement
 case class BreakStatement extends Statement
 case class ReturnStatement(expr: Option[Expr]) extends Statement
 case class LabelStatement(id: Id) extends Statement
-case class CaseStatement(c: Expr, s: Statement) extends Statement
-case class DefaultStatement(s: Statement) extends Statement
+case class CaseStatement(c: Expr, s: Option[Statement]) extends Statement
+case class DefaultStatement(s: Option[Statement]) extends Statement
 case class IfStatement(condition: Expr, thenBranch: Statement, elseBranch: Option[Statement]) extends Statement
 case class SwitchStatement(expr: Expr, s: Statement) extends Statement
 case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement
@@ -58,6 +59,12 @@ case class PrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
 case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier
 case class TypedefSpecifier extends Specifier
 case class OtherSpecifier(name: String) extends Specifier
+case class AttributeSpecifier(attributeList:List[List[Attribute]]) extends Specifier
+case class AsmAttributeSpecifier(stringConst:StringLit) extends Specifier
+
+abstract class Attribute extends AST
+case class AtomicAttribute(n:String) extends Attribute
+case class CompoundAttribute(inner:List[List[Attribute]]) extends Attribute
 
 trait Declaration extends AST with ExternalDef
 case class ADeclaration(declSpecs: List[Specifier], init: Option[List[InitDeclarator]]) extends Declaration
@@ -106,10 +113,21 @@ case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr]) 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 
 case class FunctionDef(specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends AST with ExternalDef
-trait ExternalDef
+trait ExternalDef extends AST
+case class EmptyExternalDef extends ExternalDef
+case class TypelessDeclaration(declList: List[InitDeclarator]) extends ExternalDef
 case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef
 object AltExternalDef {
     def join = (f: FeatureExpr, x: ExternalDef, y: ExternalDef) => if (x == y) x else AltExternalDef(f, x, y)
 }
 
-case class TypeName(specifiers:List[Specifier],decl:Option[AbstractDeclarator]) extends AST
+case class TypeName(specifiers: List[Specifier], decl: Option[AbstractDeclarator]) extends AST
+
+//GnuC stuff here:
+case class LcurlyInitializer(inits:List[Initializer]) extends Expr
+case class AlignOfExprT(typeName: TypeName) extends Expr
+case class AlignOfExprU(expr: Expr) extends Expr
+case class GnuAsmExpr(isVolatile: Boolean, expr: Expr, stuff:Any) extends Expr
+case class RangeExpr(from:Expr,to:Expr) extends Expr
+
+

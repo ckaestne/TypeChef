@@ -5,6 +5,7 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  * based on ANTLR grammar from John D. Mitchell (john@non.net), Jul 12, 1997
+ * and Monty Zukowski (jamz@cdsnet.net) April 28, 1998
  */
 
 class CParser extends MultiFeatureParser {
@@ -17,16 +18,18 @@ class CParser extends MultiFeatureParser {
     def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]): MultiParseResult[Any, TokenWrapper, CTypeContext] =
         mainProduction(CLexer.lex(code), FeatureExpr.base)
 
+    //parser
+
     def translationUnit = externalList
 
     def externalList =
         repOpt(externalDef, AltExternalDef.join)
 
     def externalDef: MultiParser[ExternalDef] =
-        (declaration | functionDef | asm_expr) ^^! (AltExternalDef.join, x => x)
+        (declaration | functionDef | typelessDeclaration | asm_expr | SEMI ^^ { x => EmptyExternalDef() }) ^^! (AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
-        textToken("asm") ~ opt(textToken("volatile")) ~ LCURLY ~ expr ~ RCURLY ~ SEMI ^^
+        textToken("asm") ~ opt(textToken("volatile")) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^
             { case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e) }
 
     def declaration: MultiParser[Declaration] =
@@ -40,7 +43,11 @@ class CParser extends MultiFeatureParser {
                 c
             }
         })) ^^! (AltDeclaration.join, x => x)
-  
+
+    //gnu
+    def typelessDeclaration: MultiParser[TypelessDeclaration] =
+        initDeclList <~ SEMI ^^ { x => TypelessDeclaration(x) }
+
     def declSpecifiers: MultiParser[List[Specifier]] =
         rep1(storageClassSpecifier | typeQualifier | typeSpecifier)
 
@@ -51,7 +58,7 @@ class CParser extends MultiFeatureParser {
         specifier("extern") | specifier("static")
 
     def typeQualifier: MultiParser[Specifier] =
-        specifier("const") | specifier("volatile")
+        specifier("const") | specifier("volatile") | specifier("restrict")
 
     def specifier(name: String) = textToken(name) ^^ { t => OtherSpecifier(t.getText) }
 
@@ -120,7 +127,7 @@ class CParser extends MultiFeatureParser {
         rep1(STAR ~> opt(typeQualifierList) ^^ { case Some(l) => Pointer(l); case None => Pointer(List()) })
 
     def typeQualifierList: MultiParser[List[Specifier]] =
-        rep(typeQualifier)
+        rep(typeQualifier | attributeDecl)
 
     def idList: MultiParser[List[Id]] =
         rep1Sep(ID, COMMA)
@@ -185,8 +192,9 @@ class CParser extends MultiFeatureParser {
         | textToken("return") ~> opt(expr) <~ SEMI ^^ { ReturnStatement(_) }
         //// Labeled statements:
         | ID <~ COLON ^^ { LabelStatement(_) }
-        | textToken("case") ~ constExpr ~ COLON ~ statement ^^ { case _ ~ e ~ _ ~ s => CaseStatement(e, s) }
-        | textToken("default") ~> COLON ~> statement ^^ { DefaultStatement(_) }
+        // GNU allows range expressions in case statements
+        | textToken("case") ~ (rangeExpr|constExpr) ~ COLON ~ opt(statement) ^^ { case _ ~ e ~ _ ~ s => CaseStatement(e, s) }
+        | textToken("default") ~ COLON ~> opt(statement) ^^ { DefaultStatement(_) }
         //// Selection statements:
         | textToken("if") ~ LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ { case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es) }
         | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) }) ^^! (AltStatement.join, s => s) | fail("statement expected")
@@ -210,7 +218,7 @@ class CParser extends MultiFeatureParser {
         | BOR_ASSIGN
         | BXOR_ASSIGN)
 
-    def conditionalExpr: MultiParser[Expr] = logicalOrExpr ~ opt(QUESTION ~ expr ~ COLON ~ conditionalExpr) ^^
+    def conditionalExpr: MultiParser[Expr] = logicalOrExpr ~ opt(QUESTION ~ opt(expr) ~ COLON ~ conditionalExpr) ^^
         { case e ~ Some(q ~ e2 ~ c ~ e3) => ConditionalExpr(e, e2, e3); case e ~ None => e }
     def constExpr = conditionalExpr
     def logicalOrExpr: MultiParser[Expr] = nAryExpr(logicalAndExpr, LOR)
@@ -228,16 +236,16 @@ class CParser extends MultiFeatureParser {
         innerExpr ~ rep(operations ~ innerExpr ^^ { case t ~ e => (t.getText, e) }) ^^ { case e ~ l => if (l.isEmpty) e else NAryExpr(e, l) }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~ typeName ~ RPAREN ~ castExpr ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
+        LPAREN ~ typeName ~ RPAREN ~ (castExpr | lcurlyInitializer) ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
 
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         (pointerGroup ~
             rep((LPAREN ~> (nonemptyAbstractDeclarator | optList(parameterTypeList) ^^ { DeclParameterTypeList(_) }) <~ RPAREN)
-                | (LBRACKET ~> opt(expr) <~ RBRACKET ^^ { DeclArrayAccess(_) })
+                | (LBRACKET ~> opt(expr) <~ (opt( COMMA ) ~ RBRACKET) ^^ { DeclArrayAccess(_) })
                 ) ^^ { case pointers ~ directDecls => AbstractDeclarator(pointers, directDecls) }
 
             | rep1((LPAREN ~> (nonemptyAbstractDeclarator | optList(parameterTypeList) ^^ { DeclParameterTypeList(_) }) <~ RPAREN)
-                | (LBRACKET ~> opt(expr) <~ RBRACKET ^^ { DeclArrayAccess(_) })
+                | (LBRACKET ~> opt(expr) <~ (opt( COMMA ) ~ RBRACKET) ^^ { DeclArrayAccess(_) })
                 ) ^^ { AbstractDeclarator(List(), _) })
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
@@ -246,13 +254,20 @@ class CParser extends MultiFeatureParser {
         | textToken("sizeof") ~> {
             LPAREN ~> typeName <~ RPAREN ^^ { SizeOfExprT(_) } |
                 unaryExpr ^^ { SizeOfExprU(_) }
-        })
+        }
+        | textToken("__alignof") ~> {
+            LPAREN ~> typeName <~ RPAREN ^^ { AlignOfExprT(_) } |
+                unaryExpr ^^ { AlignOfExprU(_) }
+        }
+        | gnuAsmExpr)
 
     //        ;
     //
     //
-    def unaryOperator =
-        BAND | STAR | PLUS | MINUS | BNOT | LNOT
+    def unaryOperator = (BAND | STAR | PLUS | MINUS | BNOT | LNOT
+        | LAND //for label dereference (&&label)
+        | textToken("__real")
+        | textToken("__imag"))
 
     def postfixExpr = primaryExpr ~ postfixSuffix ^^ { case p ~ s => if (s.isEmpty) p else PostfixExpr(p, s) }
 
@@ -267,11 +282,12 @@ class CParser extends MultiFeatureParser {
         LPAREN ~> opt(argExprList) <~ RPAREN ^^ { case Some(l) => FunctionCall(l); case None => FunctionCall(ExprList(List())) }
 
     def primaryExpr: MultiParser[Expr] =
-        ID | numConst | stringConst | LPAREN ~> expr <~ RPAREN
+        textToken("__builtin_offsetof") ~ LPAREN ~ typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ { case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuildinOffsetof(tn, d) } |
+        ID | numConst | stringConst | LPAREN ~> expr <~ RPAREN | fail("primary expression expected")
 
-    def typeName:MultiParser[TypeName] =
-        specifierQualifierList ~ opt(nonemptyAbstractDeclarator) ^^ {case sl~d=>TypeName(sl,d)}
-        
+    def typeName: MultiParser[TypeName] =
+        specifierQualifierList ~ opt(nonemptyAbstractDeclarator) ^^ { case sl ~ d => TypeName(sl, d) }
+
     def ID: MultiParser[Id] = token("id", isIdentifier(_)) ^^ { t => Id(t.getText) }
 
     def isIdentifier(token: TokenWrapper) = token.isIdentifier
@@ -334,6 +350,60 @@ class CParser extends MultiFeatureParser {
     def BXOR = textToken('^')
     def BXOR_ASSIGN = textToken("^=")
 
-    def textToken(t: String): MultiParser[Elem] = token(t, _.getText == t); def textToken(t: Char) = token(t.toString, _.getText == t.toString);
+    //***  gnuc extensions ****************************************************
+
+    def attributeDecl: MultiParser[Specifier] =
+        (textToken("__attribute__") ~ LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => AttributeSpecifier(al) } //            | textToken("asm") ~ LPAREN ~ stringConst ~ RPAREN ^^ { case _ ~ _ ~ str ~ _ => AsmAttributeSpecifier(str) }
+)
+
+    def attributeList: MultiParser[List[List[Attribute]]] =
+        attribute ~ rep(COMMA ~> attribute) ~ opt(COMMA) ^^ { case (attr: List[Attribute]) ~(attrList: List[List[Attribute]]) ~ _ => List(attr) ++ attrList }
+
+    def attribute: MultiParser[List[Attribute]] =
+        rep(anyTokenExcept(List("(", ")", ",")) ^^ { t => AtomicAttribute(t.getText) }
+            | LPAREN ~> attributeList <~ RPAREN ^^ { t => CompoundAttribute(t) }
+            )
+
+    def offsetofMemberDesignator: MultiParser[List[Id]] =
+        rep1Sep(ID, DOT)
+
+    def gnuAsmExpr: MultiParser[GnuAsmExpr] =
+        textToken("asm") ~ opt(textToken("volatile")) ~
+            LPAREN ~ stringConst ~
+            opt(
+                COLON ~> opt(strOptExprPair ~ opt(COMMA ~> strOptExprPair))
+                ~ opt(
+                    COLON ~> opt(strOptExprPair ~ rep(COMMA ~> strOptExprPair)) ~
+                    opt(COLON ~> stringConst ~ rep(COMMA ~> stringConst))
+                    )
+                ) ~
+            RPAREN ^^ { case _ ~ v ~ _ ~ e ~ stuff ~ _ => GnuAsmExpr(v.isDefined, e, stuff) }
+
+    //GCC requires the PARENs
+    def strOptExprPair =
+        opt(LBRACKET ~> ID <~ RBRACKET) ~ stringConst ~ opt(LPAREN ~> expr <~ RPAREN)
+
+    // GCC allows empty initializer lists
+    def lcurlyInitializer: MultiParser[Expr] =
+        LCURLY ~ optList(initializerList <~ opt(COMMA)) ~ RCURLY ^^ { case _ ~ inits ~ _ => LcurlyInitializer(inits) }
+
+    def initializerList: MultiParser[List[Initializer]] =
+        rep1Sep(initializer, COMMA)
+
+       
+    def rangeExpr:MultiParser[Expr] = //used in initializers only  
+        constExpr ~ VARARGS ~ constExpr ^^ {case a~_~b=>RangeExpr(a,b)}
+                               
+        
+        
+    // *** helper functions
+    def textToken(t: String): MultiParser[Elem] =
+        token(t, _.getText == t)
+
+    def textToken(t: Char) =
+        token(t.toString, _.getText == t.toString)
+
+    def anyTokenExcept(exceptions: List[String]): MultiParser[Elem] =
+        token("any except " + exceptions, (t: Elem) => !exceptions.contains(t.getText))
 
 }
