@@ -4,7 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser._
 
 //Expressions
-abstract class AST
+trait AST
 case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
 object Alt {
     def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
@@ -62,7 +62,7 @@ case class PrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
 case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier
 case class OtherSpecifier(name: String) extends Specifier
 
-abstract class Declaration extends AST
+trait Declaration extends AST with ExternalDef
 case class ADeclaration(declSpecs: List[Specifier], init: Option[List[InitDeclarator]]) extends Declaration
 case class AltDeclaration(feature: FeatureExpr, thenBranch: Declaration, elseBranch: Declaration) extends Declaration
 object AltDeclaration {
@@ -77,20 +77,34 @@ abstract class Declarator(pointer: List[Pointer], extensions: List[DeclaratorExt
 case class DeclaratorId(pointer: List[Pointer], id: Id, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions)
 case class DeclaratorDecl(pointer: List[Pointer], decl: Declarator, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions)
 abstract class DeclaratorExtension extends AST
-case class DeclIdentifierList(idList:List[Id]) extends DeclaratorExtension
-case class DeclParameterTypeList(parameterTypes:List[ParameterDeclaration]) extends DeclaratorExtension with DirectAbstractDeclarator
-case class DeclArrayAccess(expr:Option[Expr]) extends DeclaratorExtension with DirectAbstractDeclarator
+case class DeclIdentifierList(idList: List[Id]) extends DeclaratorExtension
+case class DeclParameterTypeList(parameterTypes: List[ParameterDeclaration]) extends DeclaratorExtension with DirectAbstractDeclarator
+case class DeclArrayAccess(expr: Option[Expr]) extends DeclaratorExtension with DirectAbstractDeclarator
 
 trait DirectAbstractDeclarator
-case class AbstractDeclarator(pointer:List[Pointer],extensions:List[DirectAbstractDeclarator]) extends AST with DirectAbstractDeclarator
+case class AbstractDeclarator(pointer: List[Pointer], extensions: List[DirectAbstractDeclarator]) extends AST with DirectAbstractDeclarator
 
 abstract class Initializer extends AST
 case class InitializerList(items: List[Initializer]) extends Initializer
 case class InitializerExpr(expr: Expr) extends Initializer
 
 case class Pointer(specifier: List[Specifier])
-case class ParameterDeclaration(val specifiers:List[Specifier]) extends AST
-case class ParameterDeclarationD(override val specifiers:List[Specifier],decl:Declarator) extends ParameterDeclaration(specifiers)
-case class ParameterDeclarationAD(override val specifiers:List[Specifier],decl:AbstractDeclarator) extends ParameterDeclaration(specifiers)
-case class VarArgs extends ParameterDeclaration(List())
+case class ParameterDeclaration(val specifiers: List[Specifier]) extends AST
+case class ParameterDeclarationD(override val specifiers: List[Specifier], decl: Declarator) extends ParameterDeclaration(specifiers)
+case class ParameterDeclarationAD(override val specifiers: List[Specifier], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers)
+case class VarArgs extends ParameterDeclaration(List()) with Declaration
 
+case class EnumSpecifier(id: Option[Id], enumerators: List[Enumerator]) extends TypeSpecifier
+case class Enumerator(id: Id, assignment: Option[Expr]) extends AST
+case class StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[StructDeclaration]) extends TypeSpecifier
+case class StructDeclaration(qualifierList: List[Specifier], declaratorList: List[StructDeclarator]) extends AST
+case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr]) extends AST
+
+case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
+
+case class FunctionDef(specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends AST with ExternalDef
+trait ExternalDef
+case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef
+object AltExternalDef {
+    def join = (f: FeatureExpr, x: ExternalDef, y: ExternalDef) => if (x == y) x else AltExternalDef(f, x, y)
+}

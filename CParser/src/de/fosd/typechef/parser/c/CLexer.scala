@@ -11,12 +11,12 @@ import scala.collection.mutable.ListBuffer
  */
 object CLexer {
 
-    def lex(text: String): TokenReader[TokenWrapper] = {
+    def lex(text: String): TokenReader[TokenWrapper, CTypeContext] = {
         val tokens = new PartialPPLexer().parse(text, null).iterator
         val result = new ListBuffer[TokenWrapper]
         while (tokens.hasNext)
             result += new TokenWrapper(tokens.next)
-        new TokenReader(result.toList, 0)
+        new TokenReader(result.toList, 0, new CTypeContext())
     }
 
     val keywords = Set(

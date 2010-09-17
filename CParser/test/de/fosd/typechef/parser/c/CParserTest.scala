@@ -10,7 +10,7 @@ class CParserTest extends TestCase {
     def a = Id("a"); def b = Id("b"); def c = Id("c"); def d = Id("d"); def x = Id("x");
     def o[T](x: T) = Opt(FeatureExpr.base, x)
 
-    def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[AST, TokenWrapper]) {
+    def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper,CTypeContext]) {
         val actual = p.parse(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -22,11 +22,11 @@ class CParserTest extends TestCase {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseResult(expected: AST, code: String, productions: List[(TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[AST, TokenWrapper]]) {
+    def assertParseResult(expected: AST, code: String, productions: List[(TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper,CTypeContext]]) {
         for (val production <- productions)
             assertParseResult(expected, code, production)
     }
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[Any, TokenWrapper]) {
+    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -38,7 +38,7 @@ class CParserTest extends TestCase {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[Any, TokenWrapper]) {
+    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -50,7 +50,7 @@ class CParserTest extends TestCase {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[Any, TokenWrapper]) {
+    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
@@ -61,7 +61,7 @@ class CParserTest extends TestCase {
             case NoSuccess(msg, context, unparsed, inner) => ;
         }
     }
-    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[Any, TokenWrapper]]) {
+    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]]) {
         for (val production <- productions)
             assertParseError(code, production)
     }
@@ -208,9 +208,11 @@ class CParserTest extends TestCase {
         					|#endif
         					|:d""", p.expr)
     }
-    
-    def notestStatements {
+
+    def testStatements {
         assertParseable("a;", p.statement)
+        assertParseable("{}", p.compoundStatement)
+        assertParseable("{}", p.statement)
         assertParseable("a(x->i);", p.statement)
         assertParseable("while (x) a;", p.statement)
         assertParseable(";", p.statement)
@@ -235,7 +237,7 @@ class CParserTest extends TestCase {
         					|#else
     			  			|c;
         					|#endif""", p.statement)
-        assertParseAnyResult(AltStatement(fa, CompoundStatement(List(),List(o(IfStatement(a, ExprStatement(b), None)), o(ExprStatement(c)))), CompoundStatement(List(),List(o(IfStatement(a, ExprStatement(c), None))))),
+        assertParseAnyResult(AltStatement(fa, CompoundStatement(List(), List(o(IfStatement(a, ExprStatement(b), None)), o(ExprStatement(c)))), CompoundStatement(List(), List(o(IfStatement(a, ExprStatement(c), None))))),
             """|{
         		|if (a)
     			  			|#ifdef a
@@ -243,7 +245,7 @@ class CParserTest extends TestCase {
         					|#endif
     			  			|c;}""", p.statement)
 
-        assertParseAnyResult(CompoundStatement(List(),List(o(ExprStatement(a)), Opt(fa, ExprStatement(b)), o(ExprStatement(c)))),
+        assertParseAnyResult(CompoundStatement(List(), List(o(ExprStatement(a)), Opt(fa, ExprStatement(b)), o(ExprStatement(c)))),
             """|{
         		|a;
     			  			|#ifdef a
@@ -252,27 +254,64 @@ class CParserTest extends TestCase {
     			  			|c;}""", p.statement)
     }
     def testParameterDecl {
-    	assertParseable("void", p.parameterDeclaration)
-    	assertParseable("extern void", p.parameterDeclaration)
-    	assertParseable("extern void", p.parameterDeclaration)
-    	assertParseable("void *", p.parameterDeclaration)
-    	assertParseable("void *[]", p.parameterDeclaration)
-    	assertParseable("void *[a]", p.parameterDeclaration)
-    	assertParseable("void *(*[])", p.parameterDeclaration)
-    	assertParseable("void *()", p.parameterDeclaration)
-    	assertParseable("void *(void, int)", p.parameterDeclaration)
-    	assertParseable("void ****(void, int)", p.parameterDeclaration)
-    	assertParseable("void ****a", p.parameterDeclaration)
+        assertParseable("void", p.parameterDeclaration)
+        assertParseable("extern void", p.parameterDeclaration)
+        assertParseable("extern void", p.parameterDeclaration)
+        assertParseable("void *", p.parameterDeclaration)
+        assertParseable("void *[]", p.parameterDeclaration)
+        assertParseable("void *[a]", p.parameterDeclaration)
+        assertParseable("void *(*[])", p.parameterDeclaration)
+        assertParseable("void *()", p.parameterDeclaration)
+        assertParseable("void *(void, int)", p.parameterDeclaration)
+        assertParseable("void ****(void, int)", p.parameterDeclaration)
+        assertParseable("void ****a", p.parameterDeclaration)
     }
     def testDeclarator {
-    	assertParseResult(DeclaratorId(List(),a,List()), "a", p.declarator(false))
-    	assertParseResult(DeclaratorDecl(List(),DeclaratorId(List(),a,List(DeclArrayAccess(None))),List()), "(a[])", p.declarator(false))
-    	assertParseResult(DeclaratorId(List(Pointer(List())),a,List()), "*a", p.declarator(false))
-    	assertParseResult(DeclaratorId(List(Pointer(List()),Pointer(List())),a,List()), "**a", p.declarator(false))
-    	assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const")))),a,List()), "*const a", p.declarator(false))
-    	assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const"),OtherSpecifier("volatile")))),a,List()), "*const volatile a", p.declarator(false))
-    	assertParseResult(DeclaratorId(List(),a,List(DeclArrayAccess(None))), "a[]", p.declarator(false))
-//    	assertParseResult(DeclaratorId(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
-//    	assertParseResult(DeclaratorId(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
+        assertParseResult(DeclaratorId(List(), a, List()), "a", p.declarator(false))
+        assertParseResult(DeclaratorDecl(List(), DeclaratorId(List(), a, List(DeclArrayAccess(None))), List()), "(a[])", p.declarator(false))
+        assertParseResult(DeclaratorId(List(Pointer(List())), a, List()), "*a", p.declarator(false))
+        assertParseResult(DeclaratorId(List(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator(false))
+        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const")))), a, List()), "*const a", p.declarator(false))
+        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const"), OtherSpecifier("volatile")))), a, List()), "*const volatile a", p.declarator(false))
+        assertParseResult(DeclaratorId(List(), a, List(DeclArrayAccess(None))), "a[]", p.declarator(false))
+        //    	assertParseResult(DeclaratorId(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
+        //    	assertParseResult(DeclaratorId(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
     }
+    def testEnumerator {
+        assertParseable("enum e", p.enumSpecifier)
+        assertParseable("enum e { a }", p.enumSpecifier)
+        assertParseable("enum { a }", p.enumSpecifier)
+        assertParseable("enum e { a=1, b=3 }", p.enumSpecifier)
+        assertParseError("enum {  }", p.enumSpecifier)
+    }
+
+    def testStructOrUnion {
+        assertParseable("struct a", p.structOrUnionSpecifier)
+        assertParseable("union a", p.structOrUnionSpecifier)
+        assertParseable("x ", p.structDeclarator)
+        assertParseable("void ", p.specifierQualifierList)
+        assertParseError("void x", p.specifierQualifierList)
+        assertParseable(" void x; ", p.structDeclarationList)
+        assertParseable("struct { void x; }", p.structOrUnionSpecifier)
+        assertParseable("struct { void x,y; }", p.structOrUnionSpecifier)
+        assertParseable("struct a{ void x; int x:3+2,z:3;}", p.structOrUnionSpecifier)
+        assertParseError("struct {  }", p.structOrUnionSpecifier)
+        assertParseError("struct { void x }", p.structOrUnionSpecifier)
+    }
+
+    def testAsmExpr {
+        assertParseable("asm { 3+3};", p.asm_expr)
+        assertParseable("asm volatile { 3+3};", p.asm_expr)
+    }
+
+    def testFunctionDef {
+        assertParseable("void foo(){}", p.functionDef)
+        assertParseable("void foo(int a) { a; }", p.functionDef)
+    }
+    
+    def testTypedefName {
+    	assertParseable("int a;", p.translationUnit)
+    	assertParseable("typedef int foo; foo a;", p.translationUnit)
+    }
+    
 }

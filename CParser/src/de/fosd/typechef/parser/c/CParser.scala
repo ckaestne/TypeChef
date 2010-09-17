@@ -4,186 +4,40 @@ import org.anarres.cpp.Token
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% * based on ANTLR grammar from John D. Mitchell (john@non.net), Jul 12, 1997 */
+
+
+
 class CParser extends MultiFeatureParser {
     type Elem = TokenWrapper
+    type Context = CTypeContext
 
-    def parse(code: String): ParseResult[AST, TokenWrapper] =
+    def parse(code: String): ParseResult[AST, TokenWrapper,CTypeContext] =
         parse(code, primaryExpr)
 
-    def parse(code: String, mainProduction: (TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[AST, TokenWrapper]): ParseResult[AST, TokenWrapper] =
+    def parse(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper,CTypeContext]): ParseResult[AST, TokenWrapper,CTypeContext] =
         mainProduction(CLexer.lex(code), FeatureExpr.base).forceJoin[AST](Alt.join)
 
-    def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper], FeatureExpr) => MultiParseResult[Any, TokenWrapper]): MultiParseResult[Any, TokenWrapper] =
+    def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper,CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper,CTypeContext]): MultiParseResult[Any, TokenWrapper,CTypeContext] =
         mainProduction(CLexer.lex(code), FeatureExpr.base)
 
-    //{
-    //import java.io.*;
-    //
-    //import antlr.CommonAST;
-    //import antlr.DumpASTVisitor;
-    //}
-    //
-    //                     
-    //class StdCParser extends Parser;
-    //
-    //options
-    //        {
-    //        k = 2;
-    //        exportVocab = STDC;
-    //        buildAST = true;
-    //        ASTLabelType = "TNode";
-    //
-    //        // Copied following options from java grammar.
-    //        codeGenMakeSwitchThreshold = 2;
-    //        codeGenBitsetTestThreshold = 3;
-    //        }
-    //
-    //
-    //{
-    //    // Suppport C++-style single-line comments?
-    //    public static boolean CPPComments = true;
-    //
-    //    // access to symbol table
-    //    public CSymbolTable symbolTable = new CSymbolTable();
-    //
-    //    // source for names to unnamed scopes
-    //    protected int unnamedScopeCounter = 0;
-    //
-    //    public boolean isTypedefName(String name) {
-    //      boolean returnValue = false;
-    //      TNode node = symbolTable.lookupNameInCurrentScope(name);
-    //      for (; node != null; node = (TNode) node.getNextSibling() ) {
-    //        if(node.getType() == LITERAL_typedef) {
-    //            returnValue = true;
-    //            break;
-    //        }
-    //      }
-    //      return returnValue;
-    //    }
-    //
-    //
-    //    public String getAScopeName() {
-    //      return "" + (unnamedScopeCounter++);
-    //    }
-    //
-    //    public void pushScope(String scopeName) {
-    //      symbolTable.pushScope(scopeName);
-    //    }
-    //
-    //    public void popScope() {
-    //      symbolTable.popScope();
-    //    }
-    //
-    //        int traceDepth = 0;
-    //        public void reportError(RecognitionException ex) {
-    //          try {
-    //            System.err.println("ANTLR Parsing Error: "+ex + " token name:" + tokenNames[LA(1)]);
-    //            ex.printStackTrace(System.err);
-    //          }
-    //	  catch (TokenStreamException e) {
-    //            System.err.println("ANTLR Parsing Error: "+ex);
-    //            ex.printStackTrace(System.err);              
-    //          }
-    //        }
-    //        public void reportError(String s) {
-    //            System.err.println("ANTLR Parsing Error from String: " + s);
-    //        }
-    //        public void reportWarning(String s) {
-    //            System.err.println("ANTLR Parsing Warning from String: " + s);
-    //        }
-    //        public void match(int t) throws MismatchedTokenException {
-    //          boolean debugging = false;
-    //          
-    //          if ( debugging ) {
-    //           for (int x=0; x<traceDepth; x++) System.out.print(" ");
-    //           try {
-    //            System.out.println("Match("+tokenNames[t]+") with LA(1)="+
-    //                tokenNames[LA(1)] + ((inputState.guessing>0)?" [inputState.guessing "+ inputState.guessing + "]":""));
-    //           }
-    //           catch (TokenStreamException e) {
-    //            System.out.println("Match("+tokenNames[t]+") " + ((inputState.guessing>0)?" [inputState.guessing "+ inputState.guessing + "]":""));
-    //
-    //           }
-    //    
-    //          }
-    //          try {
-    //            if ( LA(1)!=t ) {
-    //                if ( debugging ){
-    //                    for (int x=0; x<traceDepth; x++) System.out.print(" ");
-    //                    System.out.println("token mismatch: "+tokenNames[LA(1)]
-    //                                + "!="+tokenNames[t]);
-    //                }
-    //	        throw new MismatchedTokenException(tokenNames, LT(1), t, false, getFilename());
-    //
-    //            } else {
-    //                // mark token as consumed -- fetch next token deferred until LA/LT
-    //                consume();
-    //            }
-    //          }
-    //          catch (TokenStreamException e) {
-    //          }
-    //    
-    //        }
-    //        public void traceIn(String rname) {
-    //          traceDepth += 1;
-    //          for (int x=0; x<traceDepth; x++) System.out.print(" ");
-    //          try {
-    //            System.out.println("> "+rname+"; LA(1)==("+ tokenNames[LT(1).getType()] 
-    //                + ") " + LT(1).getText() + " [inputState.guessing "+ inputState.guessing + "]");
-    //          }
-    //          catch (TokenStreamException e) {
-    //          }
-    //        }
-    //        public void traceOut(String rname) {
-    //          for (int x=0; x<traceDepth; x++) System.out.print(" ");
-    //          try {
-    //            System.out.println("< "+rname+"; LA(1)==("+ tokenNames[LT(1).getType()] 
-    //                + ") "+LT(1).getText() + " [inputState.guessing "+ inputState.guessing + "]");
-    //          }
-    //          catch (TokenStreamException e) {
-    //          }
-    //          traceDepth -= 1;
-    //        }
-    //    
-    //}
-    //
-    //
-    //
-    //translationUnit
-    //        :       externalList
-    //
-    //        |       /* Empty source files are *not* allowed.  */
-    //                {
-    //                System.err.println ( "Empty source file!" );
-    //                }
-    //        ;
-    //
-    //
-    //externalList
-    //        :       ( externalDef )+
-    //        ;
-    //
-    //
-    //externalDef
-    //        :       ( "typedef" | declaration )=> declaration
-    //        |       functionDef
-    //        |       asm_expr
-    //        ;
-    //
-    //
-    //asm_expr
-    //        :       "asm"^ 
-    //                ("volatile")? LCURLY! expr RCURLY! SEMI!
-    //        ;
-    //
-    //
+    def translationUnit = externalList
+
+    def externalList =
+        repOpt(externalDef, AltExternalDef.join)
+
+    def externalDef: MultiParser[ExternalDef] =
+        (declaration | functionDef | asm_expr) ^^! (AltExternalDef.join, x => x)
+
+    def asm_expr: MultiParser[AsmExpr] =
+        textToken("asm") ~ opt(textToken("volatile")) ~ LCURLY ~ expr ~ RCURLY ~ SEMI ^^
+            { case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e) }
+
     def declaration: MultiParser[Declaration] =
         declSpecifiers ~ opt(initDeclList) ~ SEMI ^^! (AltDeclaration.join, { case d ~ i ~ _ => ADeclaration(d, i) })
 
     def declSpecifiers: MultiParser[List[Specifier]] =
         rep1(storageClassSpecifier | typeQualifier | typeSpecifier)
 
-    //
     def storageClassSpecifier: MultiParser[Specifier] =
         specifier("auto") | specifier("register") | specifier("typedef") | functionStorageClassSpecifier
 
@@ -204,65 +58,52 @@ class CParser extends MultiFeatureParser {
         | textToken("double")
         | textToken("signed")
         | textToken("unsigned")) ^^ { (t: Elem) => PrimitiveTypeSpecifier(t.getText) }
-        //            | structOrUnionSpecifier
-        //            | enumSpecifier
-        | /*{ specCount == 0 }?*/ typedefName ^^ { TypeDefTypeSpecifier(_) })
+        | structOrUnionSpecifier
+        | enumSpecifier //        | /*{ specCount == 0 }?*/ typedefName ^^ { TypeDefTypeSpecifier(_) }/TODO
+)
 
     def typedefName = ID
     //            :       { isTypedefName ( LT(1).getText() ) }?
 
-    //    def structOrUnionSpecifier =
-    //        structOrUnion ~
-    //            (Id ~> LCURLY ~ structDeclarationList <~ RCURLY
-    //                | LCURLY ~> structDeclarationList <~ RCURLY !
-    //                | ID)
+    def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
+        structOrUnion ~ structOrUnionSpecifierBody ^^ { case ~(k, (id, list)) => StructOrUnionSpecifier(k, id, list) }
 
-    def structOrUnion =
-        textToken("struct") | textToken("union")
+    private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[StructDeclaration])] =
+        ID ~ LCURLY ~ structDeclarationList ~ RCURLY ^^ { case id ~ _ ~ list ~ _ => (Some(id), list) } |
+            LCURLY ~ structDeclarationList ~ RCURLY ^^ { case _ ~ list ~ _ => (None, list) } |
+            ID ^^ { case id => (Some(id), List()) }
 
-    //    def structDeclarationList =
-    //        rep1(structDeclaration)
+    def structOrUnion: MultiParser[String] =
+        (textToken("struct") | textToken("union")) ^^ { case t: TokenWrapper => t.getText }
 
-    //    def structDeclaration =
-    //        specifierQualifierList ~ structDeclaratorList <~ rep1(SEMI)
+    def structDeclarationList =
+        rep1(structDeclaration)
 
-    def specifierQualifierList =
+    def structDeclaration: MultiParser[StructDeclaration] =
+        specifierQualifierList ~ structDeclaratorList <~ rep1(SEMI) ^^ { case q ~ l => StructDeclaration(q, l) }
+
+    def specifierQualifierList: MultiParser[List[Specifier]] =
         rep(typeSpecifier | typeQualifier)
 
-    //    def structDeclaratorList =
-    //        rep1Sep(structDeclarator, COMMA)
-    //
-    //    //
-    //    def structDeclarator =
-    //        (COLON ~ constExpr | declarator(false) ~ opt(COLON ~ constExpr))
+    def structDeclaratorList: MultiParser[List[StructDeclarator]] =
+        rep1Sep(structDeclarator, COMMA)
 
-    //
-    //
-    //enumSpecifier
-    //        :       "enum"^
-    //                ( ( ID LCURLY )=> i:ID LCURLY enumList[i.getText()] RCURLY!
-    //                | LCURLY enumList["anonymous"] RCURLY!
-    //                | ID
-    //                )
-    //        ;
-    //
-    //
-    //enumList[String enumName]
-    //        :       enumerator[enumName] ( COMMA! enumerator[enumName] )*  
-    //        ;
-    //
-    //enumerator[String enumName]
-    //        :       i:ID                { symbolTable.add(  i.getText(),
-    //                                                        #(   null,
-    //                                                            #[LITERAL_enum, "enum"],
-    //                                                            #[ ID, enumName]
-    //                                                         )
-    //                                                     );
-    //                                    }
-    //                (ASSIGN constExpr)?
-    //        ;
-    //
-    //
+    def structDeclarator: MultiParser[StructDeclarator] =
+        (COLON ~> constExpr ^^ { case e => StructDeclarator(None, Some(e)) }
+            | declarator(false) ~ opt(COLON ~> constExpr) ^^ { case d ~ e => StructDeclarator(Some(d), e) })
+
+    def enumSpecifier: MultiParser[EnumSpecifier] =
+        textToken("enum") ~>
+            (ID ~ LCURLY ~ enumList ~ RCURLY ^^ { case id ~ _ ~ l ~ _ => EnumSpecifier(Some(id), l) }
+                | LCURLY ~ enumList ~ RCURLY ^^ { case _ ~ l ~ _ => EnumSpecifier(None, l) }
+                | ID ^^ { case i => EnumSpecifier(Some(i), List()) })
+
+    def enumList: MultiParser[List[Enumerator]] =
+        rep1Sep(enumerator, COMMA)
+
+    def enumerator: MultiParser[Enumerator] =
+        ID ~ opt(ASSIGN ~> constExpr) ^^ { case id ~ expr => Enumerator(id, expr) }
+
     def initDeclList: MultiParser[List[InitDeclarator]] =
         rep1Sep(initDecl, COMMA);
 
@@ -294,7 +135,6 @@ class CParser extends MultiFeatureParser {
             case pointers ~(decl: Declarator) ~ ext => DeclaratorDecl(pointers, decl, ext)
         }
 
-    // 
     def parameterTypeList: MultiParser[List[ParameterDeclaration]] =
         rep1Sep(parameterDeclaration, COMMA) ~ opt(COMMA ~> VARARGS) ^^
             { case l ~ Some(v) => l ++ List(VarArgs()); case l ~ None => l }
@@ -307,63 +147,21 @@ class CParser extends MultiFeatureParser {
                 case s ~ None => ParameterDeclaration(s)
             }
 
-    //
-    ///* JTC:
-    // * This handles both new and old style functions.
-    // * see declarator rule to see differences in parameters
-    // * and here (declaration SEMI)* is the param type decls for the
-    // * old style.  may want to do some checking to check for illegal
-    // * combinations (but I assume all parsed code will be legal?)
-    // */
-    //
-    //functionDef
-    //                            { String declName; }
-    //        :       ( (functionDeclSpecifiers)=> ds:functionDeclSpecifiers
-    //                |  //epsilon
-    //                )
-    //                declName = d:declarator[true]
-    //                            {
-    //                            AST d2, ds2;
-    //                            d2 = astFactory.dupList(#d);
-    //                            ds2 = astFactory.dupList(#ds);
-    //                            symbolTable.add(declName, #(null, ds2, d2));
-    //                            pushScope(declName);
-    //                            }
-    //                ( declaration )* (VARARGS)? ( SEMI! )*
-    //                            { popScope(); }
-    //                compoundStatement[declName]
-    //                            { ## = #( #[NFunctionDef], ## );}
-    //        ;
-    //
-    //functionDeclSpecifiers
-    //                                { int specCount = 0; }
-    //        :       (               options {   // this loop properly aborts when
-    //                                            // it finds a non-typedefName ID MBZ
-    //                                            warnWhenFollowAmbig = false;
-    //                                        } :
-    //                  functionStorageClassSpecifier
-    //                | typeQualifier
-    //                | ( "struct" | "union" | "enum" | typeSpecifier[specCount] )=>
-    //                        specCount = typeSpecifier[specCount]
-    //                )+
-    //        ;
-    //
+    def functionDef: MultiParser[FunctionDef] =
+        optList(functionDeclSpecifiers) ~
+            declarator(true) ~
+            rep(declaration) ~ opt2List(VARARGS ^^ { x => VarArgs() }) ~ rep(SEMI) ~
+            compoundStatement ^^
+            { case sp ~ declarator ~ param ~ vparam ~ _ ~ stmt => FunctionDef(sp, declarator, param ++ vparam, stmt) }
+
+    def functionDeclSpecifiers: MultiParser[List[Specifier]] =
+        rep1(functionStorageClassSpecifier | typeQualifier | typeSpecifier)
+
     def declarationList: MultiParser[List[Opt[Declaration]]] =
         declaration ~ repOpt(declaration, AltDeclaration.join) ^^ { case d ~ l => List(Opt(FeatureExpr.base, d)) ++ l }
 
-    //
-    //declarationPredictor
-    //        :       (options {      //only want to look at declaration if I don't see typedef
-    //                    warnWhenFollowAmbig = false;
-    //                }:
-    //                "typedef"
-    //                | declaration
-    //                )
-    //        ;
-    //
-    //
     def compoundStatement: MultiParser[CompoundStatement] =
-        LCURLY ~> declarationList ~ statementList <~ RCURLY ^^ { case decl ~ stmt => CompoundStatement(decl, stmt) }
+        LCURLY ~> optList(declarationList) ~ statementList <~ RCURLY ^^ { case decl ~ stmt => CompoundStatement(decl, stmt) }
 
     def statementList: MultiParser[List[Opt[Statement]]] =
         repOpt(statement, AltStatement.join)
@@ -386,7 +184,7 @@ class CParser extends MultiFeatureParser {
         | textToken("default") ~> COLON ~> statement ^^ { DefaultStatement(_) }
         //// Selection statements:
         | textToken("if") ~ LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ { case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es) }
-        | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) }) ^^! (AltStatement.join, s => s)
+        | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) }) ^^! (AltStatement.join, s => s) | fail("statement expected")
 
     def expr: MultiParser[Expr] = assignExpr ~ rep(COMMA ~> assignExpr) ^^
         { case e ~ l => if (l.isEmpty) e else ExprList(List(e) ++ l) }
@@ -443,27 +241,6 @@ class CParser extends MultiFeatureParser {
                 | (LBRACKET ~> opt(expr) <~ RBRACKET ^^ { DeclArrayAccess(_) })
                 ) ^^ { AbstractDeclarator(List(), _) })
 
-
-    //                                
-    //        ;
-    //
-    ///* JTC:
-    //
-    //LR rules:
-    //
-    //abstractDeclarator
-    //        :       nonemptyAbstractDeclarator
-    //        |       // null
-    //        ;
-    //
-    //nonemptyAbstractDeclarator
-    //        :       LPAREN  nonemptyAbstractDeclarator RPAREN
-    //        |       abstractDeclarator LPAREN RPAREN
-    //        |       abstractDeclarator (LBRACKET (expr)? RBRACKET)
-    //        |       STAR abstractDeclarator
-    //        ;
-    //*/
-    //
     def unaryExpr: MultiParser[Expr] = (postfixExpr
         | { INC ~ unaryExpr | DEC ~ unaryExpr } ^^ { case p ~ e => UnaryExpr(p.getText, e) }
         | unaryOperator ~ castExpr ^^ { case u ~ c => UCastExpr(u.getText, c) }
@@ -501,172 +278,6 @@ class CParser extends MultiFeatureParser {
     def argExprList: MultiParser[ExprList] =
         rep1Sep(assignExpr, COMMA) ^^ { ExprList(_) }
 
-    //protected
-    //charConst
-    //        :       CharLiteral
-    //        ;
-    //
-    //
-    //protected
-    //stringConst
-    //        :       (StringLiteral)+                { ## = #(#[NStringSeq], ##); }
-    //        ;
-    //
-    //
-    //protected
-    //intConst
-    //        :       IntOctalConst
-    //        |       LongOctalConst
-    //        |       UnsignedOctalConst
-    //        |       IntIntConst
-    //        |       LongIntConst
-    //        |       UnsignedIntConst
-    //        |       IntHexConst
-    //        |       LongHexConst
-    //        |       UnsignedHexConst
-    //        ;
-    //
-    //
-    //protected
-    //floatConst
-    //        :       FloatDoubleConst
-    //        |       DoubleDoubleConst
-    //        |       LongDoubleConst
-    //        ;
-    //
-    //
-    //
-    //
-    //    
-    //
-    //dummy
-    //        :       NTypedefName
-    //        |       NInitDecl
-    //        |       NDeclarator
-    //        |       NStructDeclarator
-    //        |       NDeclaration
-    //        |       NCast
-    //        |       NPointerGroup
-    //        |       NExpressionGroup
-    //        |       NFunctionCallArgs
-    //        |       NNonemptyAbstractDeclarator
-    //        |       NInitializer
-    //        |       NStatementExpr
-    //        |       NEmptyExpression
-    //        |       NParameterTypeList
-    //        |       NFunctionDef
-    //        |       NCompoundStatement
-    //        |       NParameterDeclaration
-    //        |       NCommaExpr
-    //        |       NUnaryExpr
-    //        |       NLabel
-    //        |       NPostfixExpr
-    //        |       NRangeExpr
-    //        |       NStringSeq
-    //        |       NInitializerElementLabel
-    //        |       NLcurlyInitializer
-    //        |       NAsmAttribute
-    //        |       NGnuAsmExpr
-    //        |       NTypeMissing
-    //        ;
-    //
-    //
-    //
-    //    
-    //
-    //
-    //{
-    //        //import CToken;
-    //        import java.io.*;
-    //        //import LineObject;
-    //        import antlr.*;
-    //}
-    //
-    //class StdCLexer extends Lexer;
-    //
-    //options
-    //        {
-    //        k = 3;
-    //        exportVocab = STDC;
-    //        testLiterals = false;
-    //        }
-    //
-    //{
-    //  LineObject lineObject = new LineObject();
-    //  String originalSource = "";
-    //  PreprocessorInfoChannel preprocessorInfoChannel = new PreprocessorInfoChannel();
-    //  int tokenNumber = 0;
-    //  boolean countingTokens = true;
-    //  int deferredLineCount = 0;
-    //
-    //  public void setCountingTokens(boolean ct) 
-    //  {
-    //    countingTokens = ct;
-    //    if ( countingTokens ) {
-    //      tokenNumber = 0;
-    //    }
-    //    else {
-    //      tokenNumber = 1;
-    //    }
-    //  }
-    //
-    //  public void setOriginalSource(String src) 
-    //  {
-    //    originalSource = src;
-    //    lineObject.setSource(src);
-    //  }
-    //  public void setSource(String src) 
-    //  {
-    //    lineObject.setSource(src);
-    //  }
-    //  
-    //  public PreprocessorInfoChannel getPreprocessorInfoChannel() 
-    //  {
-    //    return preprocessorInfoChannel;
-    //  }
-    //
-    //  public void setPreprocessingDirective(String pre)
-    //  {
-    //    preprocessorInfoChannel.addLineForTokenNumber( pre, new Integer(tokenNumber) );
-    //  }
-    //  
-    //  protected Token makeToken(int t)
-    //  {
-    //    if ( t != Token.SKIP && countingTokens) {
-    //        tokenNumber++;
-    //    }
-    //    CToken tok = (CToken) super.makeToken(t);
-    //    tok.setLine(lineObject.line);
-    //    tok.setSource(lineObject.source);
-    //    tok.setTokenNumber(tokenNumber);
-    //
-    //    lineObject.line += deferredLineCount;
-    //    deferredLineCount = 0;
-    //    return tok;
-    //  }
-    //
-    //    public void deferredNewline() { 
-    //        deferredLineCount++;
-    //    }
-    //
-    //    public void newline() { 
-    //        lineObject.newline();
-    //    }
-    //
-    //
-    //
-    //
-    //
-    //
-    //}
-    //
-    //protected
-    //Vocabulary
-    //        :       '\3'..'\377'
-    //        ;
-    //
-    //
-    ///* Operators: */
     //
     def ASSIGN = textToken('=')
     def COLON = textToken(':')
@@ -718,294 +329,6 @@ class CParser extends MultiFeatureParser {
     def BOR_ASSIGN = textToken("|=")
     def BXOR = textToken('^')
     def BXOR_ASSIGN = textToken("^=")
-    //
-    //
-    //Whitespace
-    //        :       ( ( '\003'..'\010' | '\t' | '\013' | '\f' | '\016'.. '\037' | '\177'..'\377' | ' ' )
-    //                | "\r\n"                { newline(); }
-    //                | ( '\n' | '\r' )       { newline(); }
-    //                )                       { _ttype = Token.SKIP;  }
-    //        ;
-    //
-    //
-    //Comment
-    //        :       "/*"
-    //                ( { LA(2) != '/' }? '*'
-    //                | "\r\n"                { deferredNewline(); }
-    //                | ( '\r' | '\n' )       { deferredNewline();    }
-    //                | ~( '*'| '\r' | '\n' )
-    //                )*
-    //                "*/"                    { _ttype = Token.SKIP;  
-    //                                        }
-    //        ;
-    //
-    //
-    //CPPComment
-    //        :
-    //                "//" ( ~('\n') )* 
-    //                        {
-    //                        _ttype = Token.SKIP;
-    //                        }
-    //        ;
-    //
-    //PREPROC_DIRECTIVE
-    //options {
-    //  paraphrase = "a line directive";
-    //}
-    //
-    //        :
-    //        '#'
-    //        ( ( "line" || (( ' ' | '\t' | '\014')+ '0'..'9')) => LineDirective      
-    //            | (~'\n')*                                  { setPreprocessingDirective(getText()); }
-    //        )
-    //                {  
-    //                    _ttype = Token.SKIP;
-    //                }
-    //        ;
-    //
-    //protected  Space:
-    //        ( ' ' | '\t' | '\014')
-    //        ;
-    //
-    //protected LineDirective
-    //{
-    //        boolean oldCountingTokens = countingTokens;
-    //        countingTokens = false;
-    //}
-    //:
-    //                {
-    //                        lineObject = new LineObject();
-    //                        deferredLineCount = 0;
-    //                }
-    //        ("line")?  //this would be for if the directive started "#line", but not there for GNU directives
-    //        (Space)+
-    //        n:Number { lineObject.setLine(Integer.parseInt(n.getText())); } 
-    //        (Space)+
-    //        (       fn:StringLiteral {  try { 
-    //                                          lineObject.setSource(fn.getText().substring(1,fn.getText().length()-1)); 
-    //                                    } 
-    //                                    catch (StringIndexOutOfBoundsException e) { /*not possible*/ } 
-    //                                 }
-    //                | fi:ID { lineObject.setSource(fi.getText()); }
-    //        )?
-    //        (Space)*
-    //        ("1"            { lineObject.setEnteringFile(true); } )?
-    //        (Space)*
-    //        ("2"            { lineObject.setReturningToFile(true); } )?
-    //        (Space)*
-    //        ("3"            { lineObject.setSystemHeader(true); } )?
-    //        (Space)*
-    //        ("4"            { lineObject.setTreatAsC(true); } )?
-    //        (~('\r' | '\n'))*
-    //        ("\r\n" | "\r" | "\n")
-    //                {
-    //                        preprocessorInfoChannel.addLineForTokenNumber(new LineObject(lineObject), new Integer(tokenNumber));
-    //                        countingTokens = oldCountingTokens;
-    //                }
-    //        ;
-    //
-    //
-    //
-    ///* Literals: */
-    //
-    ///*
-    // * Note that we do NOT handle tri-graphs nor multi-byte sequences.
-    // */
-    //
-    //
-    ///*
-    // * Note that we can't have empty character constants (even though we
-    // * can have empty strings :-).
-    // */
-    //CharLiteral
-    //        :       '\'' ( Escape | ~( '\'' ) ) '\''
-    //        ;
-    //
-    //
-    ///*
-    // * Can't have raw imbedded newlines in string constants.  Strict reading of
-    // * the standard gives odd dichotomy between newlines & carriage returns.
-    // * Go figure.
-    // */
-    //StringLiteral
-    //        :       '"'
-    //                ( Escape
-    //                | ( 
-    //                    '\r'        { deferredNewline(); }
-    //                  | '\n'        {
-    //                                deferredNewline();
-    //                                _ttype = BadStringLiteral;
-    //                                }
-    //                  | '\\' '\n'   {
-    //                                deferredNewline();
-    //                                }
-    //                  )
-    //                | ~( '"' | '\r' | '\n' | '\\' )
-    //                )*
-    //                '"'
-    //        ;
-    //
-    //
-    //protected BadStringLiteral
-    //        :       // Imaginary token.
-    //        ;
-    //
-    //
-    ///*
-    // * Handle the various escape sequences.
-    // *
-    // * Note carefully that these numeric escape *sequences* are *not* of the
-    // * same form as the C language numeric *constants*.
-    // *
-    // * There is no such thing as a binary numeric escape sequence.
-    // *
-    // * Octal escape sequences are either 1, 2, or 3 octal digits exactly.
-    // *
-    // * There is no such thing as a decimal escape sequence.
-    // *
-    // * Hexadecimal escape sequences are begun with a leading \x and continue
-    // * until a non-hexadecimal character is found.
-    // *
-    // * No real handling of tri-graph sequences, yet.
-    // */
-    //
-    //protected
-    //Escape  
-    //        :       '\\'
-    //                ( options{warnWhenFollowAmbig=false;}:
-    //                  'a'
-    //                | 'b'
-    //                | 'f'
-    //                | 'n'
-    //                | 'r'
-    //                | 't'
-    //                | 'v'
-    //                | '"'
-    //                | '\''
-    //                | '\\'
-    //                | '?'
-    //                | ('0'..'3') ( options{warnWhenFollowAmbig=false;}: Digit ( options{warnWhenFollowAmbig=false;}: Digit )? )?
-    //                | ('4'..'7') ( options{warnWhenFollowAmbig=false;}: Digit )?
-    //                | 'x' ( options{warnWhenFollowAmbig=false;}: Digit | 'a'..'f' | 'A'..'F' )+
-    //                )
-    //        ;
-    //
-    //
-    ///* Numeric Constants: */
-    //
-    //protected
-    //Digit
-    //        :       '0'..'9'
-    //        ;
-    //
-    //protected
-    //LongSuffix
-    //        :       'l'
-    //        |       'L'
-    //        ;
-    //
-    //protected
-    //UnsignedSuffix
-    //        :       'u'
-    //        |       'U'
-    //        ;
-    //
-    //protected
-    //FloatSuffix
-    //        :       'f'
-    //        |       'F'
-    //        ;
-    //
-    //protected
-    //Exponent
-    //        :       ( 'e' | 'E' ) ( '+' | '-' )? ( Digit )+
-    //        ;
-    //
-    //
-    //protected
-    //DoubleDoubleConst:;
-    //
-    //protected
-    //FloatDoubleConst:;
-    //
-    //protected
-    //LongDoubleConst:;
-    //
-    //protected
-    //IntOctalConst:;
-    //
-    //protected
-    //LongOctalConst:;
-    //
-    //protected
-    //UnsignedOctalConst:;
-    //
-    //protected
-    //IntIntConst:;
-    //
-    //protected
-    //LongIntConst:;
-    //
-    //protected
-    //UnsignedIntConst:;
-    //
-    //protected
-    //IntHexConst:;
-    //
-    //protected
-    //LongHexConst:;
-    //
-    //protected
-    //UnsignedHexConst:;
-    //
-    //
-    //
-    //
-    //Number
-    //        :       ( ( Digit )+ ( '.' | 'e' | 'E' ) )=> ( Digit )+
-    //                ( '.' ( Digit )* ( Exponent )?
-    //                | Exponent
-    //                )                       { _ttype = DoubleDoubleConst;   }
-    //                ( FloatSuffix           { _ttype = FloatDoubleConst;    }
-    //                | LongSuffix            { _ttype = LongDoubleConst;     }
-    //                )?
-    //
-    //        |       ( "..." )=> "..."       { _ttype = VARARGS;     }
-    //
-    //        |       '.'                     { _ttype = DOT; }
-    //                ( ( Digit )+ ( Exponent )?
-    //                                        { _ttype = DoubleDoubleConst;   }
-    //                  ( FloatSuffix         { _ttype = FloatDoubleConst;    }
-    //                  | LongSuffix          { _ttype = LongDoubleConst;     }
-    //                  )?
-    //                )?
-    //
-    //        |       '0' ( '0'..'7' )*       { _ttype = IntOctalConst;       }
-    //                ( LongSuffix            { _ttype = LongOctalConst;      }
-    //                | UnsignedSuffix        { _ttype = UnsignedOctalConst;  }
-    //                )?
-    //
-    //        |       '1'..'9' ( Digit )*     { _ttype = IntIntConst;         }
-    //                ( LongSuffix            { _ttype = LongIntConst;        }
-    //                | UnsignedSuffix        { _ttype = UnsignedIntConst;    }
-    //                )?
-    //
-    //        |       '0' ( 'x' | 'X' ) ( 'a'..'f' | 'A'..'F' | Digit )+
-    //                                        { _ttype = IntHexConst;         }
-    //                ( LongSuffix            { _ttype = LongHexConst;        }
-    //                | UnsignedSuffix        { _ttype = UnsignedHexConst;    }
-    //                )?
-    //        ;
-    //
-    //
-    //ID
-    //        options 
-    //                {
-    //                testLiterals = true; 
-    //                }
-    //        :       ( 'a'..'z' | 'A'..'Z' | '_' )
-    //                ( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' )*
-    //        ;
 
     def textToken(t: String): MultiParser[Elem] = token(t, _.getText == t); def textToken(t: Char) = token(t.toString, _.getText == t.toString);
 

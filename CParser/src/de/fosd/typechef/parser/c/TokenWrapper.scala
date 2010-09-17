@@ -12,7 +12,7 @@ class TokenWrapper(token:Token) extends AbstractToken  {
 	def getFeature = token.getFeature()
 	def isInteger = token.getType == Token.INTEGER
 	def isIdentifier = token.getType == Token.IDENTIFIER && !CLexer.keywords.contains(token.getText)
-	def getText = token.getText
+	def getText:String = token.getText
 	def getType = token.getType
 	override def toString = "\"" +  token.getText + "\"" + (if (!getFeature.isBase) getFeature else "")
 }
