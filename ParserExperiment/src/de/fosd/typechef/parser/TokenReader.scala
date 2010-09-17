@@ -8,13 +8,13 @@ import de.fosd.typechef.featureexpr.FeatureExpr
  * @author kaestner
  *
  */
-class TokenReader[T<:AbstractToken](val tokens: List[T], val offst: Int) extends Reader[T] {
+class TokenReader[T<:AbstractToken,U](val tokens: List[T], val offst: Int, val context:U=null) extends Reader[T] {
 
     override def offset: Int = offst
 
     override def first = tokens.head
 
-    override def rest: TokenReader[T] = new TokenReader(tokens.tail, offst + 1)
+    override def rest: TokenReader[T,U] = new TokenReader(tokens.tail, offst + 1,context)
 
     override def pos: Position = NoPosition
 
@@ -27,15 +27,17 @@ class TokenReader[T<:AbstractToken](val tokens: List[T], val offst: Int) extends
     override def hashCode = tokens.hashCode
 
     override def equals(that: Any) = that match {
-        case other: TokenReader[T] => this.tokens == other.tokens
+        case other: TokenReader[T,U] => this.tokens == other.tokens && this.context==other.context
         case _ => false
     }
 
-    def skipHidden(context: FeatureExpr): TokenReader[T] = {
+    def skipHidden(context: FeatureExpr): TokenReader[T,U] = {
         var result = this
         while (!result.atEnd && context.and(result.first.getFeature).isDead)
             result = result.rest
         result
     }
+    
+    def setContext(newContext: U): TokenReader[T,U] = new TokenReader(tokens,offst,newContext)
 
 }

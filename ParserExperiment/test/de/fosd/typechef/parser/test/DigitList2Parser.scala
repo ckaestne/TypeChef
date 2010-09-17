@@ -6,8 +6,9 @@ case class DigitList2(list: List[Opt[AST]]) extends AST
 
 class DigitList2Parser extends MultiFeatureParser {
 	type Elem = MyToken
+	type Context = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[AST,MyToken] = digitList(new TokenReader[MyToken](tokens, 0), FeatureExpr.base).forceJoin[AST](Alt.join)
+    def parse(tokens: List[MyToken]): ParseResult[AST,MyToken,Context] = digitList(new TokenReader[MyToken,Context](tokens, 0,null), FeatureExpr.base).forceJoin[AST](Alt.join)
 
     def digitList: MultiParser[AST] =
         (t("(") ~ digits ~ t(")")) ^^!(Alt.join, { case (~(~(b1, e), b2)) => e })

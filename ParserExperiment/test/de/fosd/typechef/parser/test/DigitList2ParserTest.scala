@@ -12,7 +12,7 @@ class DigitList2ParserTest extends TestCase {
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
-    def assertParseResult(expected: AST, actual: ParseResult[AST,MyToken]) {
+    def assertParseResult(expected: AST, actual: ParseResult[AST,MyToken,Any]) {
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
