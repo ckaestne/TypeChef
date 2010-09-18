@@ -27,7 +27,7 @@ class TokenReader[T<:AbstractToken,U](val tokens: List[T], val offst: Int, val c
     override def hashCode = tokens.hashCode
 
     override def equals(that: Any) = that match {
-        case other: TokenReader[T,U] => this.tokens == other.tokens && this.context==other.context
+        case other: TokenReader[_,_] => this.tokens == other.tokens && this.context==other.context
         case _ => false
     }
 
