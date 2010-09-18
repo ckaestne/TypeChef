@@ -2080,7 +2080,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				case IDENTIFIER:
 					break;
 				default:
-					error(tok, "Preprocessor directive not a word "
+					warning(tok, "Preprocessor directive not a word "
 							+ tok.getText());
 					return source_skipline(false);
 				}
