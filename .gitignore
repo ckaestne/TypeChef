@@ -2,3 +2,8 @@
 .settings
 bin
 *.class
+*~
+.metadata/
+.scala_dependencies
+jcpp.log
+macroDebug.txt
