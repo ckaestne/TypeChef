@@ -137,6 +137,7 @@ class MultiFeatureParserTest extends TestCase {
     	{
         val input = List(t("1"), t("+"), t("*"), t("5"))
         val result = new MultiExpressionParser().parse(input)
+        println(result)
         result match {
         	case NoSuccess(_,_,_,_) => fail("should succeed but with unparsed tokens")
         	case Success(_,rest) => assertFalse("expected unparsed tokens, but reached end",rest.atEnd)
@@ -146,8 +147,21 @@ class MultiFeatureParserTest extends TestCase {
     	{
         val input = List(t("1"), t("*"), t("+"), t("5"))
         val result = new MultiExpressionParser().parse(input)
+        println(result)
         result match {
         	case Success(_,_) => fail("expected error due to commit (!) after *")
+        	case _=>
+        }
+    	}
+    }
+    def testLookaheadWithNoBacktracking() {
+    	//after ( is found no backtracking should occur
+    	{
+        val input = List(t("1"), t("+"), t("("), t("5"))
+        val result = new MultiExpressionParser().parse(input)
+        println(result)
+        result match {
+        	case Success(_,_) => fail("expected error due to lookahead")
         	case _=>
         }
     	}

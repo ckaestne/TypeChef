@@ -38,7 +38,7 @@ class MultiFeatureParser {
         def ~![U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
             def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, Context] =
                 thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, Context]) => x.seq(fs, thatParser(x.next, fs)).commit)
-        }.named("!")
+        }.named("~!")
 
         /**
          * alternatives in the presence of multi-parsing
@@ -110,6 +110,7 @@ class MultiFeatureParser {
          * @return opt(this) 
          */
         def ? = opt(this)
+
     }
 
     /**
@@ -225,6 +226,17 @@ class MultiFeatureParser {
     def opt2List[T](p: => MultiParser[T]): MultiParser[List[T]] =
         opt(p) ^^ { _.toList }
 
+    /**
+     * parses using p, but only returns either success or no-success and(!) 
+     * does not proceed the input stream (for successful entries)
+     */
+    def lookahead[T](p: => MultiParser[T]): MultiParser[Any] = new MultiParser[Any] {
+        def apply(in: Input, parserState: ParserState): MultiParseResult[Any, Elem, Context] = {
+            p(in, parserState).seqAllSuccessful(parserState,
+                (fs: FeatureExpr, x: Success[T, Elem, Context]) => Success("lookahead", in))
+        }
+    }
+
     def fail[T](msg: String): MultiParser[T] =
         new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = Failure(msg, fs, in, List()) }
 
@@ -233,13 +245,13 @@ class MultiFeatureParser {
     def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T, Elem, Context]): MultiParser[T] =
         new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = f(in, fs) }
 
-    def matchInput(p: (Elem, Context) => Boolean, err: Elem => String) = new MultiParser[Elem] {
+    def matchInput(p: (Elem, Context) => Boolean, err: Option[Elem] => String) = new MultiParser[Elem] {
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, Context] = {
             //only attempt to parse if feature is supported
             val start = in.skipHidden(context)
 
             if (start.atEnd)
-                Failure("reached EOF", context, start, List())
+                Failure(err(None), context, start, List())
             else {
                 //should not find an unreachable token, it would have been skipped
                 assert(!context.implies(start.first.getFeature).isDead)
@@ -249,7 +261,7 @@ class MultiFeatureParser {
                     if (p(start.first, start.context))
                         Success(start.first, start.rest) //.skipHidden(context))//TODO rather when joining?
                     else
-                        Failure(err(start.first), context, start, List())
+                        Failure(err(Some(start.first)), context, start, List())
                 } else
                     //token sometimes parsed in this context -> plit parser
                     splitParser(start, context)
@@ -265,8 +277,9 @@ class MultiFeatureParser {
         context.implies(token.getFeature).isBase
 
     def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
-    def tokenWithContext(kind: String, p: (Elem, Context) => Boolean) = matchInput(p, inEl => "\"" + kind + "\" expected")
-
+    def tokenWithContext(kind: String, p: (Elem, Context) => Boolean) = matchInput(p, errorMsg(kind,_))
+    private def errorMsg(kind:String, inEl:Option[Elem]) =
+    	(if (!inEl.isDefined) "reached EOF, " else "found \""+inEl.get.getText+"\", ")+ "\"" + kind + "\" expected"
 }
 case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"

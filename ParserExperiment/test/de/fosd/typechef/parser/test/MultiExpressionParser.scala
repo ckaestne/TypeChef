@@ -24,7 +24,7 @@ class MultiExpressionParser extends MultiFeatureParser {
 
     def fact: MultiParser[AST] =
         (digits ^^! (Alt.join, { t => Lit(t.text.toInt) })
-            | (t("(") ~ expr ~ t(")")) ^^! (Alt.join, { case (~(~(b1, e), b2)) => e })
+            | (lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^ { case _ ~ (b1 ~ e ~ b2) => e } ^^! (Alt.join, x => x)
             | fail("digit or '(' expected"))
 
     def t(text: String) = token(text, (x => x.t == text))

@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 
 class MyToken(val text: String, val feature: FeatureExpr) extends AbstractToken {
     def t() = text
+    def getText = text
     def getFeature = feature
 
     override def toString = "\"" + text + "\"" + (if (!feature.isBase) feature else "")

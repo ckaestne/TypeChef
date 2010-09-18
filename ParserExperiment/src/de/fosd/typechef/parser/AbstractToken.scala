@@ -3,4 +3,5 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 
 trait AbstractToken {
     def getFeature: FeatureExpr
+    def getText: String
 }
