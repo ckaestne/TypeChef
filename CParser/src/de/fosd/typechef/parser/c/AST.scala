@@ -11,7 +11,6 @@ abstract class PrimaryExpr extends Expr
 case class Id(name: String) extends PrimaryExpr
 case class Constant(value: String) extends PrimaryExpr
 case class StringLit(name: String) extends PrimaryExpr
-case class BuildinOffsetof(typeName:TypeName,offsetofMemberDesignator:List[Id]) extends PrimaryExpr
 
 abstract class PostfixSuffix extends AST
 case class SimplePostfixSuffix(t: String) extends PostfixSuffix
@@ -61,8 +60,8 @@ case class TypedefSpecifier extends Specifier
 case class OtherSpecifier(name: String) extends Specifier
 
 abstract class Attribute extends AST
-case class AtomicAttribute(n:String) extends Attribute
-case class CompoundAttribute(inner:List[List[Attribute]]) extends Attribute
+case class AtomicAttribute(n: String) extends Attribute
+case class CompoundAttribute(inner: List[List[Attribute]]) extends Attribute
 
 trait Declaration extends AST with ExternalDef
 case class ADeclaration(declSpecs: List[Specifier], init: Option[List[InitDeclarator]]) extends Declaration
@@ -71,9 +70,9 @@ object AltDeclaration {
     def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
 }
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes:List[AttributeSpecifier]) extends AST
-case class InitDeclaratorI(override val declarator: Declarator, override val attributes:List[AttributeSpecifier], i: Option[Initializer]) extends InitDeclarator(declarator,attributes)
-case class InitDeclaratorE(override val declarator: Declarator, override val attributes:List[AttributeSpecifier], e: Expr) extends InitDeclarator(declarator,attributes)
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[AttributeSpecifier]) extends AST
+case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[AttributeSpecifier], i: Option[Initializer]) extends InitDeclarator(declarator, attributes)
+case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[AttributeSpecifier], e: Expr) extends InitDeclarator(declarator, attributes)
 
 abstract class Declarator(pointer: List[Pointer], extensions: List[DeclaratorExtension]) extends AST {
     def getName: String
@@ -92,7 +91,7 @@ case class DeclArrayAccess(expr: Option[Expr]) extends DeclaratorExtension with 
 trait DirectAbstractDeclarator
 case class AbstractDeclarator(pointer: List[Pointer], extensions: List[DirectAbstractDeclarator]) extends AST with DirectAbstractDeclarator
 
-case class Initializer(initializerElementLabel:Option[InitializerElementLabel],expr: Expr) extends AST
+case class Initializer(initializerElementLabel: Option[InitializerElementLabel], expr: Expr) extends AST
 
 case class Pointer(specifier: List[Specifier])
 case class ParameterDeclaration(val specifiers: List[Specifier]) extends AST
@@ -104,7 +103,7 @@ case class EnumSpecifier(id: Option[Id], enumerators: List[Enumerator]) extends 
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST
 case class StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[StructDeclaration]) extends TypeSpecifier
 case class StructDeclaration(qualifierList: List[Specifier], declaratorList: List[StructDeclarator]) extends AST
-case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr], attributes:List[AttributeSpecifier]) extends AST
+case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr], attributes: List[AttributeSpecifier]) extends AST
 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 
@@ -120,19 +119,21 @@ object AltExternalDef {
 case class TypeName(specifiers: List[Specifier], decl: Option[AbstractDeclarator]) extends AST
 
 //GnuC stuff here:
-case class AttributeSpecifier(attributeList:List[List[Attribute]]) extends Specifier
-case class AsmAttributeSpecifier(stringConst:StringLit) extends Specifier
-case class LcurlyInitializer(inits:List[Initializer]) extends Expr
+case class AttributeSpecifier(attributeList: List[List[Attribute]]) extends Specifier
+case class AsmAttributeSpecifier(stringConst: StringLit) extends Specifier
+case class LcurlyInitializer(inits: List[Initializer]) extends Expr
 case class AlignOfExprT(typeName: TypeName) extends Expr
 case class AlignOfExprU(expr: Expr) extends Expr
-case class GnuAsmExpr(isVolatile: Boolean, expr: Expr, stuff:Any) extends Expr
-case class RangeExpr(from:Expr,to:Expr) extends Expr
-case class NestedFunctionDef(isAuto:Boolean, specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends Declaration
+case class GnuAsmExpr(isVolatile: Boolean, expr: Expr, stuff: Any) extends Expr
+case class RangeExpr(from: Expr, to: Expr) extends Expr
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends Declaration
 case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier
 case class TypeOfSpecifierU(expr: Expr) extends TypeSpecifier
-case class LocalLabelDeclaration(ids:List[Id]) extends Declaration
+case class LocalLabelDeclaration(ids: List[Id]) extends Declaration
 abstract class InitializerElementLabel() extends AST
-case class InitializerElementLabelExpr(expr:Expr,isAssign:Boolean) extends InitializerElementLabel
-case class InitializerElementLabelColon(id:Id) extends InitializerElementLabel
-case class InitializerElementLabelDotAssign(id:Id) extends InitializerElementLabel
+case class InitializerElementLabelExpr(expr: Expr, isAssign: Boolean) extends InitializerElementLabel
+case class InitializerElementLabelColon(id: Id) extends InitializerElementLabel
+case class InitializerElementLabelDotAssign(id: Id) extends InitializerElementLabel
+case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Id]) extends PrimaryExpr
+case class CompoundStatementExpr(compoundStatement:CompoundStatement) extends PrimaryExpr
 

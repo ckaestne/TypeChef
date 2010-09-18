@@ -51,12 +51,12 @@ class CParserTest extends TestCase {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
+    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext], expectErrorMsg: Boolean = false) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
-                if (unparsed.atEnd)
+                if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
             case NoSuccess(msg, context, unparsed, inner) => ;
@@ -158,7 +158,11 @@ class CParserTest extends TestCase {
         					|#ifdef a
         					|++
         					|#endif""", p.postfixExpr)
-        assertParseable("__builtin_offsetof(void,a.b)",p.primaryExpr)
+        assertParseable("__builtin_offsetof(void,a.b)", p.primaryExpr)
+        assertParseable("c", p.castExpr)
+        assertParseable("__real__", p.unaryOperator)
+        assertParseable("__real__ c", p.unaryOperator ~ p.castExpr)
+        assertParseable("__real__ c", p.unaryExpr)
     }
     def testUnaryExpr {
         assertParseResult(Id("b"), "b", p.unaryExpr)
@@ -302,7 +306,7 @@ class CParserTest extends TestCase {
         assertParseable("struct { void x; }", p.structOrUnionSpecifier)
         assertParseable("struct { void x,y; }", p.structOrUnionSpecifier)
         assertParseable("struct a{ void x; int x:3+2,z:3;}", p.structOrUnionSpecifier)
-        assertParseError("struct {  }", p.structOrUnionSpecifier)
+        assertParseable("struct {  }", p.structOrUnionSpecifier)
         assertParseError("struct { void x }", p.structOrUnionSpecifier)
     }
 
@@ -322,8 +326,8 @@ class CParserTest extends TestCase {
         				|#endif
         				|(){}
         				|void x(){}""", p.translationUnit)
-       assertParseable("main(){}", p.functionDef)
-       assertParseable("main(){int T=100, a=(T)+1;}", p.functionDef)
+        assertParseable("main(){}", p.functionDef)
+        assertParseable("main(){int T=100, a=(T)+1;}", p.functionDef)
     }
 
     def testTypedefName {
@@ -331,16 +335,24 @@ class CParserTest extends TestCase {
         assertParseError("foo a;", p.translationUnit)
         assertParseable("typedef int foo; foo a;", p.translationUnit)
         //scoping of typedef not considered yet:
-       //assertParseable("typedef int T;main(){int T=100, a=(T)+1;}", p.functionDef)
+        //assertParseable("typedef int T;main(){int T=100, a=(T)+1;}", p.functionDef)
     }
-    
+
     def testAttribute {
-    	
-           assertParseable("", p.attributeList)
-           assertParseable("__attribute__((a b))", p.attributeDecl)
-           assertParseable("__attribute__(())", p.attributeDecl)
-           assertParseable("__attribute__((a,b))", p.attributeDecl)
-           assertParseable("__attribute__((a,(b,b)))", p.attributeDecl)
+        assertParseable("", p.attributeList)
+        assertParseable("__attribute__((a b))", p.attributeDecl)
+        assertParseable("__attribute__(())", p.attributeDecl)
+        assertParseable("__attribute__((a,b))", p.attributeDecl)
+        assertParseable("__attribute__((a,(b,b)))", p.attributeDecl)
+    }
+    def testMisc {
+        assertParseable("{__label__ hey, now;}", p.compoundStatement)
+        assertParseable("{abs = ({__label__ hey, now;});}", p.compoundStatement)
+    }
+    def testMethodLookAhead {
+        //should return parse error instead of empty parse result with unparsed tokens
+        assertParseError("void main () { int a; ", p.translationUnit, true)
+        assertParseError("int main () { abs = ", p.translationUnit, true)
     }
 
 }
