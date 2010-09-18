@@ -154,8 +154,15 @@ class MultiFeatureParser {
                 @tailrec
                 def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
                     val parseResult = p0(in0, parserState).join(joinFunction)
-                    //if all failed, return error
-                    if (parseResult.allFailed)
+                    //if there are errors (not failures) abort
+                    val errors=parseResult.toErrorList
+                    if (!errors.isEmpty)
+                    	if (errors.size==1)
+                    		errors.iterator.next
+                    	else
+                    		Error("error in loop (see inner errors)",parserState,in0,errors)
+                    //if all failed, return results so far
+                    else if (parseResult.allFailed)
                         Success(elems.toList, in0)
                     //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
                     else { //continue parsing

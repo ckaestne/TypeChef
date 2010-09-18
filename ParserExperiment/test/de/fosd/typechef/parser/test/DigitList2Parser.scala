@@ -9,10 +9,10 @@ class DigitList2Parser extends MultiFeatureParser {
 	type Elem = MyToken
 	type Context = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[AST,MyToken,Context] = digitList(new TokenReader[MyToken,Context](tokens, 0,null), FeatureExpr.base).forceJoin[AST](Alt.join)
+    def parse(tokens: List[MyToken]): ParseResult[AST,MyToken,Context] = digits(new TokenReader[MyToken,Context](tokens, 0,null), FeatureExpr.base).forceJoin[AST](Alt.join)
 
     def digitList: MultiParser[AST] =
-        (t("(") ~ digits ~ t(")")) ^^!(Alt.join, { case (~(~(b1, e), b2)) => e })
+        (t("(") ~! (digits ~ t(")"))) ^^!(Alt.join, { case b1~( e~b2) => e })
 	
 
     def digits: MultiParser[AST] =

@@ -18,7 +18,7 @@ sealed abstract class MultiParseResult[+T, Token <: AbstractToken, Context] {
     def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, Context]
     def allFailed: Boolean
     def toList: List[ParseResult[T, Token, Context]]
-    def toErrorList: List[NoSuccess[Token, Context]]
+    def toErrorList: List[Error[Token, Context]]
     def changeContext(contextModification: (T, Context) => Context): MultiParseResult[T, Token, Context]
     //replace all failures by errors (non-backtracking!)
     def commit: MultiParseResult[T, Token, Context]
@@ -98,7 +98,6 @@ abstract class NoSuccess[Token <: AbstractToken, Context](val msg: String, val c
     def isSuccess: Boolean = false
     def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[Nothing, Token, Context]) => MultiParseResult[U, Token, Context]): MultiParseResult[U, Token, Context] = this
     def allFailed = true
-    def toErrorList = List(this)
     def changeContext(contextModification: (Nothing, Context) => Context) = this
 }
 /** An extractor so NoSuccess(msg, next) can be used in matches.
@@ -116,6 +115,7 @@ object NoSuccess {
 case class Failure[Token <: AbstractToken, Context](override val msg: String, override val context: FeatureExpr, override val nextInput: TokenReader[Token, Context], override val innerErrors: List[NoSuccess[Token, Context]]) extends NoSuccess(msg, context, nextInput, innerErrors) {
     def replaceAllFailure[U >: Nothing](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U, Token, Context]) = f(context)
     def commit = Error(msg, context, nextInput, innerErrors)
+    def toErrorList = List()
 }
 /**
  * see original parser comb. framework. non-backtracking error
@@ -123,6 +123,7 @@ case class Failure[Token <: AbstractToken, Context](override val msg: String, ov
 case class Error[Token <: AbstractToken, Context](override val msg: String, override val context: FeatureExpr, override val nextInput: TokenReader[Token, Context], override val innerErrors: List[NoSuccess[Token, Context]]) extends NoSuccess(msg, context, nextInput, innerErrors) {
     def replaceAllFailure[U >: Nothing](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U, Token, Context]) = this
     def commit = this
+    def toErrorList = List(this)
 }
 
 case class Success[+T, Token <: AbstractToken, Context](val result: T, nextInput: TokenReader[Token, Context]) extends ParseResult[T, Token, Context](nextInput) {
