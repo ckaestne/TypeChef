@@ -19,8 +19,6 @@ case object Endif extends PreprocDirective {}
  * with an ambiguous parse tree).
  * 
  * @author Paolo G. Giarrusso
- *
- * XXX drop the inheritance relationship, it's a bad idea.
  */
 
 class MultiFeatureContParsers /*extends Parsers*/ {
@@ -144,10 +142,6 @@ class MultiFeatureContParsers /*extends Parsers*/ {
     override def toString = "["+next.pos+"] error: "+msg+"\n\n"+next.pos.longString
     def append[U >: Nothing](a: => CpsParseResult[U]): CpsParseResult[U] = this
   }
-  /*def acceptMatch[U](expected: String, f: PartialFunction[Elem, U]): CpsParser[U] = CpsParser[U] { in => 
-    if (f.isDefinedAt(in.first)) CpsSuccess(f(in.first), in.rest)
-    else CpsFailure(expected+" expected", in)
-  }*/
 
   def resetParser[U](next: CpsParser[U]) = new CpsParser[U] { def apply(in: Input) = reset { next(in) } }
   case class ParsingThread[+U](contPars: CpsParser[U], feature: FeatureExpr, captCont: CpsParseResult[U] => CpsParseResult[U])
