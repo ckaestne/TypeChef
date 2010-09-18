@@ -13,7 +13,7 @@ class MultiFeatureParserTest extends TestCase {
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
-    def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken,Any]) {
+    def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken, Any]) {
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
@@ -120,42 +120,37 @@ class MultiFeatureParserTest extends TestCase {
         }
     }
 
-    //    def testExprList() {
-    //        val input = List(t("["), t("2"), t("+"), t("5"), t(","), t("2"), t("*"), t("5"), t(","), t("1"), t("]"))
-    //        val expected = ExprList(List(Plus(Lit(2), Lit(5)), Mul(Lit(2), Lit(5)), Lit(1)))
-    //        assertParseResult(expected, new MultiExpressionParser().parse(input))
-    //    }
-    //    def testExprListOptLast() {
-    //        val input = List(t("["), t("2"), t("+"), t("5"), t(","), t("2"), t("*"), t("5"), t(",", f1), t("1", f1), t("]"))
-    //        val expected = ExprList(List(Plus(Lit(2), Lit(5)), Mul(Lit(2), Lit(5)), OptAST(f1, Lit(1))))
-    //        assertParseResult(expected, new MultiExpressionParser().parse(input))
-    //    }
-    //    def testExprListOptMid() {
-    //        val input = List(t("["), t("2"), t("+"), t("5"), t(",", f1), t("2", f1), t("*", f1), t("5", f1), t(","), t("1"), t("]"))
-    //        val expected = ExprList(List(Plus(Lit(2), Lit(5)), OptAST(f1, Mul(Lit(2), Lit(5))), Lit(1)))
-    //        assertParseResult(expected, new MultiExpressionParser().parse(input))
-    //    }
-    //    def testExprListOptMid2() {
-    //        val input = List(t("["), t("2"), t("+"), t("5"), t(","), t("2", f1), t("*", f1), t("5", f1), t(",", f1), t("1"), t("]"))
-    //        val expected = ExprList(List(Plus(Lit(2), Lit(5)), OptAST(f1, Mul(Lit(2), Lit(5))), Lit(1)))
-    //        assertParseResult(expected, new MultiExpressionParser().parse(input))
-    //    }
-    //    def testExprListOptFirst() {
-    //        val input = List(t("["), t("2", f1), t("+", f1), t("5", f1), t(",", f1), t("2"), t("*"), t("5"), t(","), t("1"), t("]"))
-    //        val expected = ExprList(List(OptAST(f1, Plus(Lit(2), Lit(5))), Mul(Lit(2), Lit(5)), Lit(1)))
-    //        assertParseResult(expected, new MultiExpressionParser().parse(input))
-    //    }
-
     /**
      * test multi-parser sequenzation
      */
     def testMultiParserSeq() {
-        val in = new TokenReader[MyToken,Any](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)),  0)
-        val in2 = new TokenReader[MyToken,Any](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0)
+        val in = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0)
+        val in2 = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0)
         val p = new MultiExpressionParser()
         println((p.digits ~ p.digits)(in, FeatureExpr.base)) // 1~1,1~2,2~1,2~2
         println((p.digits ~ p.digits)(in2, FeatureExpr.base)) //1~2,2~1
 
+    }
+
+    def testFailureVsError() {
+    	//commit result after * but not after +. hence expecting better errors in the * case
+    	{
+        val input = List(t("1"), t("+"), t("*"), t("5"))
+        val result = new MultiExpressionParser().parse(input)
+        result match {
+        	case NoSuccess(_,_,_,_) => fail("should succeed but with unparsed tokens")
+        	case Success(_,rest) => assertFalse("expected unparsed tokens, but reached end",rest.atEnd)
+        	case _=>
+        }
+    	}
+    	{
+        val input = List(t("1"), t("*"), t("+"), t("5"))
+        val result = new MultiExpressionParser().parse(input)
+        result match {
+        	case Success(_,_) => fail("expected error due to commit (!) after *")
+        	case _=>
+        }
+    	}
     }
 
 }
