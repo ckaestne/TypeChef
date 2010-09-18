@@ -274,13 +274,13 @@ class CParserTest extends TestCase {
         assertParseable("void ****a", p.parameterDeclaration)
     }
     def testDeclarator {
-        assertParseResult(DeclaratorId(List(), a, List()), "a", p.declarator(false))
-        assertParseResult(DeclaratorDecl(List(), DeclaratorId(List(), a, List(DeclArrayAccess(None))), List()), "(a[])", p.declarator(false))
-        assertParseResult(DeclaratorId(List(Pointer(List())), a, List()), "*a", p.declarator(false))
-        assertParseResult(DeclaratorId(List(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator(false))
-        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const")))), a, List()), "*const a", p.declarator(false))
-        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const"), OtherSpecifier("volatile")))), a, List()), "*const volatile a", p.declarator(false))
-        assertParseResult(DeclaratorId(List(), a, List(DeclArrayAccess(None))), "a[]", p.declarator(false))
+        assertParseResult(DeclaratorId(List(), a, List()), "a", p.declarator)
+        assertParseResult(DeclaratorDecl(List(), DeclaratorId(List(), a, List(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
+        assertParseResult(DeclaratorId(List(Pointer(List())), a, List()), "*a", p.declarator)
+        assertParseResult(DeclaratorId(List(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
+        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const")))), a, List()), "*const a", p.declarator)
+        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const"), OtherSpecifier("volatile")))), a, List()), "*const volatile a", p.declarator)
+        assertParseResult(DeclaratorId(List(), a, List(DeclArrayAccess(None))), "a[]", p.declarator)
         //    	assertParseResult(DeclaratorId(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
         //    	assertParseResult(DeclaratorId(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
     }
