@@ -20,7 +20,7 @@ class CParser extends MultiFeatureParser {
 
     //parser
     val keywords = Set("__real__", "__imag__", "__alignof", "__asm", "__asm__", "__attribute__",
-        "__complex__", "__const", "__const__", "__imag__", "__inline", "__inline__", "__real__",
+        "__complex__", "__const", "__const__", "__inline", "__inline__", 
         "__signed", "__signed__", "__typeof", "__typeof__", "__volatile", "__volatile__", "asm",
         "volatile", "typeof", "auto", "register", "typedef", "extern", "static", "inline",
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
@@ -37,7 +37,7 @@ class CParser extends MultiFeatureParser {
         (declaration | functionDef | typelessDeclaration | asm_expr | SEMI ^^ { x => EmptyExternalDef() }) ^^! (AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
-        textToken("asm") ~ opt(textToken("volatile")) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^
+        asm ~ opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^
             { case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e) }
 
     def declaration: MultiParser[Declaration] =
@@ -63,10 +63,10 @@ class CParser extends MultiFeatureParser {
         specifier("auto") | specifier("register") | textToken("typedef") ^^ { x => TypedefSpecifier() } | functionStorageClassSpecifier
 
     def functionStorageClassSpecifier: MultiParser[Specifier] =
-        specifier("extern") | specifier("static") | specifier("inline") | specifier("__inline") | specifier("__inline__")
+        specifier("extern") | specifier("static") | inline
 
     def typeQualifier: MultiParser[Specifier] =
-        specifier("const") | specifier("volatile") | specifier("restrict")
+        const | volatile | specifier("restrict")
 
     def specifier(name: String) = textToken(name) ^^ { t => OtherSpecifier(t.getText) }
 
@@ -77,7 +77,7 @@ class CParser extends MultiFeatureParser {
         | textToken("long")
         | textToken("float")
         | textToken("double")
-        | textToken("signed")
+        | signed
         | textToken("unsigned")
         | textToken("_Bool")
         | textToken("_Complex")
@@ -85,7 +85,7 @@ class CParser extends MultiFeatureParser {
         | structOrUnionSpecifier
         | enumSpecifier
         | typedefName ^^ { TypeDefTypeSpecifier(_) }
-        | textToken("typeof") ~ LPAREN ~> (typeName ^^ { TypeOfSpecifierT(_) } | expr ^^ { TypeOfSpecifierU(_) }) <~ RPAREN)
+        | typeof ~ LPAREN ~> (typeName ^^ { TypeOfSpecifierT(_) } | expr ^^ { TypeOfSpecifierU(_) }) <~ RPAREN)
 
     def typedefName = tokenWithContext("type", (token, context) => isIdentifier(token) && context.knowsType(token.getText)) ^^ { t => Id(t.getText) }
 
@@ -93,7 +93,7 @@ class CParser extends MultiFeatureParser {
         structOrUnion ~ structOrUnionSpecifierBody ^^ { case ~(k, (id, list)) => StructOrUnionSpecifier(k, id, list) }
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[StructDeclaration])] =
-        ID ~ LCURLY ~ opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY ^^ { case id ~ _ ~ _ ~ list ~ _ => (Some(id), list) } |
+        ID ~ LCURLY ~! (opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY) ^^ { case id ~ _ ~(_ ~ list ~ _) => (Some(id), list) } |
             LCURLY ~ opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY ^^ { case _ ~ _ ~ list ~ _ => (None, list) } |
             ID ^^ { case id => (Some(id), List()) }
 
@@ -110,7 +110,7 @@ class CParser extends MultiFeatureParser {
         rep1(typeSpecifier | typeQualifier | attributeDecl)
 
     def structDeclaratorList: MultiParser[List[StructDeclarator]] =
-        rep1Sep(structDeclarator, COMMA)
+        repSep(structDeclarator, COMMA)
 
     def structDeclarator: MultiParser[StructDeclarator] =
         (COLON ~> constExpr ~ rep(attributeDecl) ^^ { case e ~ attr => StructDeclarator(None, Some(e), attr) }
@@ -118,7 +118,7 @@ class CParser extends MultiFeatureParser {
 
     def enumSpecifier: MultiParser[EnumSpecifier] =
         textToken("enum") ~>
-            (ID ~ LCURLY ~ enumList ~ RCURLY ^^ { case id ~ _ ~ l ~ _ => EnumSpecifier(Some(id), l) }
+            (ID ~ LCURLY ~! (enumList ~ RCURLY) ^^ { case id ~ _ ~(l ~ _) => EnumSpecifier(Some(id), l) }
                 | LCURLY ~ enumList ~ RCURLY ^^ { case _ ~ l ~ _ => EnumSpecifier(None, l) }
                 | ID ^^ { case i => EnumSpecifier(Some(i), List()) })
 
@@ -159,7 +159,7 @@ class CParser extends MultiFeatureParser {
         }
 
     def parameterTypeList: MultiParser[List[ParameterDeclaration]] =
-        rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt(COMMA | SEMI ~> VARARGS) ^^
+        rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt((COMMA | SEMI) ~> VARARGS) ^^
             { case l ~ Some(v) => l ++ List(VarArgs()); case l ~ None => l }
 
     def parameterDeclaration: MultiParser[ParameterDeclaration] =
@@ -251,7 +251,7 @@ class CParser extends MultiFeatureParser {
         innerExpr ~ rep(operations ~ innerExpr ^^ { case t ~ e => (t.getText, e) }) ^^ { case e ~ l => if (l.isEmpty) e else NAryExpr(e, l) }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~ typeName ~ RPAREN ~ (castExpr | lcurlyInitializer) ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
+        LPAREN ~ typeName ~ RPAREN ~! (castExpr | lcurlyInitializer) ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
 
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         (pointerGroup ~
@@ -370,9 +370,10 @@ class CParser extends MultiFeatureParser {
 
     //***  gnuc extensions ****************************************************
 
-    def attributeDecl: MultiParser[AttributeSpecifier] =
+    def attributeDecl: MultiParser[Specifier] =
         ((textToken("__attribute__") | textToken("__extension__") /*own*/ ) ~
-            LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => AttributeSpecifier(al) })
+            LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => AttributeSpecifier(al) } |
+            asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
     def attributeList: MultiParser[List[List[Attribute]]] =
         attribute ~ rep(COMMA ~> attribute) ~ opt(COMMA) ^^ { case (attr: List[Attribute]) ~(attrList: List[List[Attribute]]) ~ _ => List(attr) ++ attrList }
@@ -386,8 +387,8 @@ class CParser extends MultiFeatureParser {
         rep1Sep(ID, DOT)
 
     def gnuAsmExpr: MultiParser[GnuAsmExpr] =
-        textToken("asm") ~ opt(textToken("volatile")) ~
-            LPAREN ~ stringConst ~
+        asm ~ opt(volatile) ~
+            LPAREN ~ rep1(stringConst) ~
             opt(
                 COLON ~> opt(strOptExprPair ~ opt(COMMA ~> strOptExprPair))
                 ~ opt(
@@ -409,7 +410,7 @@ class CParser extends MultiFeatureParser {
         rep1Sep(initializer, COMMA)
 
     def rangeExpr: MultiParser[Expr] = //used in initializers only  
-        constExpr ~ VARARGS ~ constExpr ^^ { case a ~ _ ~ b => RangeExpr(a, b) }
+        constExpr ~ VARARGS ~! constExpr ^^ { case a ~ _ ~ b => RangeExpr(a, b) }
 
     def nestedFunctionDef: MultiParser[NestedFunctionDef] =
         opt(textToken("auto")) ~ //only for nested functions
@@ -429,6 +430,18 @@ class CParser extends MultiFeatureParser {
             | ID <~ COLON ^^ { InitializerElementLabelColon(_) }
             | DOT ~> ID <~ ASSIGN ^^ { InitializerElementLabelDotAssign(_) })
 
+    def typeof = textToken("typeof") | textToken("__typeof") | textToken("__typeof__")
+
+    def volatile = specifier("volatile") | specifier("__volatile") | specifier("__volatile__")
+    
+    def asm = textToken("asm") | textToken("__asm") | textToken("__asm__")
+
+    def const = specifier("const") | specifier("__const")|specifier("__const__")
+    
+    def signed = textToken("signed") | textToken("__signed") | textToken("__signed__")
+ 
+    def inline = specifier("inline") | specifier("__inline") | specifier("__inline__")
+    
     // *** helper functions
     def textToken(t: String): MultiParser[Elem] =
         token(t, _.getText == t)

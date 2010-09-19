@@ -348,6 +348,14 @@ class CParserTest extends TestCase {
     def testMisc {
         assertParseable("{__label__ hey, now;}", p.compoundStatement)
         assertParseable("{abs = ({__label__ hey, now;});}", p.compoundStatement)
+        assertParseable("extern int my_printf (void *my_object, const char *my_format);",p.externalDef)
+        assertParseable("extern int my_printf (void *my_object, const char *my_format) __attribute__ ((format (printf, 2, 3)));",p.externalDef)
+        assertParseable("extern int my_printf (void *my_object, const char *my_format, ...) __attribute__ ((format (printf, 2, 3)));",p.externalDef)
+        assertParseable("asm volatile (\".set noreorder\");",p.statement)
+        assertParseable("""asm volatile (".set noreorder\n"
+              ".set noat\n"
+              ".set mips3");""",p.statement)
+              assertParseable("enum { DDD = -7 }",p.enumSpecifier)
     }
     def testMethodLookAhead {
         //should return parse error instead of empty parse result with unparsed tokens

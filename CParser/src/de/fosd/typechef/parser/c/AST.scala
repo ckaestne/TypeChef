@@ -70,9 +70,9 @@ object AltDeclaration {
     def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
 }
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[AttributeSpecifier]) extends AST
-case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[AttributeSpecifier], i: Option[Initializer]) extends InitDeclarator(declarator, attributes)
-case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[AttributeSpecifier], e: Expr) extends InitDeclarator(declarator, attributes)
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Specifier]) extends AST
+case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Specifier], i: Option[Initializer]) extends InitDeclarator(declarator, attributes)
+case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Specifier], e: Expr) extends InitDeclarator(declarator, attributes)
 
 abstract class Declarator(pointer: List[Pointer], extensions: List[DeclaratorExtension]) extends AST {
     def getName: String
@@ -103,7 +103,7 @@ case class EnumSpecifier(id: Option[Id], enumerators: List[Enumerator]) extends 
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST
 case class StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[StructDeclaration]) extends TypeSpecifier
 case class StructDeclaration(qualifierList: List[Specifier], declaratorList: List[StructDeclarator]) extends AST
-case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr], attributes: List[AttributeSpecifier]) extends AST
+case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr], attributes: List[Specifier]) extends AST
 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 
@@ -124,7 +124,7 @@ case class AsmAttributeSpecifier(stringConst: StringLit) extends Specifier
 case class LcurlyInitializer(inits: List[Initializer]) extends Expr
 case class AlignOfExprT(typeName: TypeName) extends Expr
 case class AlignOfExprU(expr: Expr) extends Expr
-case class GnuAsmExpr(isVolatile: Boolean, expr: Expr, stuff: Any) extends Expr
+case class GnuAsmExpr(isVolatile: Boolean, expr: List[StringLit]/*originally only one*/, stuff: Any) extends Expr
 case class RangeExpr(from: Expr, to: Expr) extends Expr
 case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends Declaration
 case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier
