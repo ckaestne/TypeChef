@@ -367,8 +367,11 @@ public class LexerSource extends Source {
 		}
 	}
 
-	private Token character() throws IOException, LexerException {
-		StringBuilder text = new StringBuilder("'");
+	private Token character(boolean isWide) throws IOException, LexerException {
+		StringBuilder text = new StringBuilder();
+		if (isWide)
+			text.append('L');
+		text.append('\'');
 		int d = read();
 		if (d == '\\') {
 			text.append('\\');
@@ -411,9 +414,11 @@ public class LexerSource extends Source {
 				.valueOf((char) d), this);
 	}
 
-	private Token string(char open, char close) throws IOException,
-			LexerException {
+	private Token string(boolean isWide, char open, char close)
+			throws IOException, LexerException {
 		StringBuilder text = new StringBuilder();
+		if (isWide)
+			text.append('L');
 		text.append(open);
 
 		StringBuilder buf = new StringBuilder();
@@ -436,10 +441,10 @@ public class LexerSource extends Source {
 			} else if (isLineSeparator(c)) {
 				text.append((char) c);
 				buf.append((char) c);
-				//chk: added support for multiline strings (for gnuc)
-//				// error("Unterminated string literal after " + buf);
-//				return new Token(INVALID, text.toString(),
-//						"Unterminated string literal after " + buf, this);
+				// chk: added support for multiline strings (for gnuc)
+				// // error("Unterminated string literal after " + buf);
+				// return new Token(INVALID, text.toString(),
+				// "Unterminated string literal after " + buf, this);
 			} else {
 				text.append((char) c);
 				buf.append((char) c);
@@ -483,8 +488,9 @@ public class LexerSource extends Source {
 				bits |= 4;
 				text.append((char) d);
 				d = read();
-			} else if (d == 'J' || d == 'j'||d == 'F' || d == 'f') {
-				//chk: dont care what these are doing, just add to the textresult
+			} else if (d == 'J' || d == 'j' || d == 'F' || d == 'f') {
+				// chk: dont care what these are doing, just add to the
+				// textresult
 				text.append((char) d);
 				d = read();
 			} else if (Character.isLetter(d)) {
@@ -542,7 +548,8 @@ public class LexerSource extends Source {
 	 * preprocessor itself
 	 */
 	/* XXX This needs a complete rewrite. */
-	private Token number_decimal(int c, boolean initialDot) throws IOException, LexerException {
+	private Token number_decimal(int c, boolean initialDot) throws IOException,
+			LexerException {
 		boolean postDot = initialDot;
 		StringBuilder text = new StringBuilder();
 		if (initialDot)
@@ -734,7 +741,7 @@ public class LexerSource extends Source {
 
 		case '<':
 			if (include) {
-				tok = string('<', '>');
+				tok = string(false, '<', '>');
 			} else {
 				d = read();
 				if (d == '=')
@@ -792,7 +799,7 @@ public class LexerSource extends Source {
 			if (d == '.')
 				tok = cond('.', ELLIPSIS, RANGE);
 			else if (Character.isDigit(d))
-				tok = number_decimal(d,true);
+				tok = number_decimal(d, true);
 			else
 				unread(d);
 			break;
@@ -809,11 +816,21 @@ public class LexerSource extends Source {
 			break;
 
 		case '\'':
-			tok = character();
+			tok = character(false);
+			break;
+
+		case 'L': // WIDE strings
+			d = read();
+			if (d == '"')
+				tok = string(true, '"', '"');
+			else if (d == '\'')
+				tok = character(true);
+			else
+				unread(d);
 			break;
 
 		case '"':
-			tok = string('"', '"');
+			tok = string(false, '"', '"');
 			break;
 
 		case -1:
@@ -826,7 +843,7 @@ public class LexerSource extends Source {
 			if (Character.isWhitespace(c)) {
 				tok = whitespace(c);
 			} else if (Character.isDigit(c)) {
-				tok = number_decimal(c,false);
+				tok = number_decimal(c, false);
 			} else if (Character.isJavaIdentifierStart(c)) {
 				tok = identifier(c);
 			} else {
