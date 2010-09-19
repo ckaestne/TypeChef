@@ -114,6 +114,15 @@ class CParserTest extends TestCase {
         parseConstant("1E-32")
         parseConstant("1.1")
         parseConstant(".1")
+        parseConstant("3.0f")
+        parseConstant("3.0fi")
+        parseConstant("3L")
+        parseConstant("3U")
+        parseConstant("3l")
+        parseConstant("3I")
+        parseConstant("3i")
+        parseConstant("3j")
+        parseConstant("3J")
         parseConstant(".1E2l")
         parseConstant("'a'")
         assertParseResult(Alt(fa, Constant("1"), Constant("2")), """|#ifdef a
@@ -345,19 +354,38 @@ class CParserTest extends TestCase {
         assertParseable("__attribute__((a,b))", p.attributeDecl)
         assertParseable("__attribute__((a,(b,b)))", p.attributeDecl)
     }
-    def testMisc {
+    def testMisc0 {
         assertParseable("{__label__ hey, now;}", p.compoundStatement)
         assertParseable("{abs = ({__label__ hey, now;});}", p.compoundStatement)
-        assertParseable("extern int my_printf (void *my_object, const char *my_format);",p.externalDef)
-        assertParseable("extern int my_printf (void *my_object, const char *my_format) __attribute__ ((format (printf, 2, 3)));",p.externalDef)
-        assertParseable("extern int my_printf (void *my_object, const char *my_format, ...) __attribute__ ((format (printf, 2, 3)));",p.externalDef)
-        assertParseable("asm volatile (\".set noreorder\");",p.statement)
+        assertParseable("extern int my_printf (void *my_object, const char *my_format);", p.externalDef)
+        assertParseable("extern int my_printf (void *my_object, const char *my_format) __attribute__ ((format (printf, 2, 3)));", p.externalDef)
+        assertParseable("extern int my_printf (void *my_object, const char *my_format, ...) __attribute__ ((format (printf, 2, 3)));", p.externalDef)
+        assertParseable("asm volatile (\".set noreorder\");", p.statement)
         assertParseable("""asm volatile (".set noreorder\n"
               ".set noat\n"
-              ".set mips3");""",p.statement)
-              assertParseable("enum { DDD = -7 }",p.enumSpecifier)
-        assertParseable("char                        hgfretty[99 ];",p.structDeclaration)      
+              ".set mips3");""", p.statement)
+        assertParseable("enum { DDD = -7 }", p.enumSpecifier)
+        assertParseable("char                        hgfretty[99 ];", p.structDeclaration)
+        assertParseable(" struct  pojeqsd {    char                        hgfretty[99 ];}", p.structOrUnionSpecifier)
     }
+    def testMisc1a = assertParseable("""typedef struct  pojeqsd {
+    			char                        hgfretty[99 ];
+    		} pojeqsd_t;""", p.translationUnit)
+    def testMisc1b = assertParseable("""typedef int hgfretty;
+				typedef struct  pojeqsd {
+				char                        hgfretty[99 ];
+    		} pojeqsd_t;""", p.translationUnit)
+
+    def testMisc2 = assertParseable("( checkme )->j76g", p.expr)
+    def testMisc3a = assertParseable("(int)q23w3", p.expr)
+    def testMisc3b = assertParseable("void *", p.typeName)
+    def testMisc3c = assertParseable("(++(int)q23w3->ll881ss[3])", p.expr)
+    def testMisc3d = assertParseable("(void *) (++(int)q23w3->ll881ss[3])", p.expr)
+    def testMisc4 = assertParseable("""if (x3 && x4) {
+        char gh554j[19];  
+        gh554j[0]='\n';
+    }""", p.statement)
+
     def testMethodLookAhead {
         //should return parse error instead of empty parse result with unparsed tokens
         assertParseError("void main () { int a; ", p.translationUnit, true)

@@ -155,12 +155,12 @@ class MultiFeatureParser {
                 def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
                     val parseResult = p0(in0, parserState).join(joinFunction)
                     //if there are errors (not failures) abort
-                    val errors=parseResult.toErrorList
+                    val errors = parseResult.toErrorList
                     if (!errors.isEmpty)
-                    	if (errors.size==1)
-                    		errors.iterator.next
-                    	else
-                    		Error("error in loop (see inner errors)",parserState,in0,errors)
+                        if (errors.size == 1)
+                            errors.iterator.next
+                        else
+                            Error("error in loop (see inner errors)", parserState, in0, errors)
                     //if all failed, return results so far
                     else if (parseResult.allFailed)
                         Success(elems.toList, in0)
@@ -203,6 +203,20 @@ class MultiFeatureParser {
             case ~(x, Some(list: List[_])) => List(x) ++ list
             case ~(x, None) => List(x)
         }
+
+    /**
+     * returns failure when list is empty
+     */
+    def nonEmpty[T](p: => MultiParser[List[T]]): MultiParser[List[T]] = new MultiParser[List[T]] {
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[T], Elem, Context] = {
+            p(in, feature).seqAllSuccessful(feature,
+                (fs: FeatureExpr, x: Success[List[T], Elem, Context]) =>
+                if (x.result.isEmpty)
+                    Failure("empty list", fs, x.nextInput, List())
+                else
+                    x)
+        }
+    }.named("nonEmpty")
 
     /**
      * repetitions 1..n with separator
@@ -284,9 +298,9 @@ class MultiFeatureParser {
         context.implies(token.getFeature).isBase
 
     def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
-    def tokenWithContext(kind: String, p: (Elem, Context) => Boolean) = matchInput(p, errorMsg(kind,_))
-    private def errorMsg(kind:String, inEl:Option[Elem]) =
-    	(if (!inEl.isDefined) "reached EOF, " else "found \""+inEl.get.getText+"\", ")+ "\"" + kind + "\" expected"
+    def tokenWithContext(kind: String, p: (Elem, Context) => Boolean) = matchInput(p, errorMsg(kind, _))
+    private def errorMsg(kind: String, inEl: Option[Elem]) =
+        (if (!inEl.isDefined) "reached EOF, " else "found \"" + inEl.get.getText + "\", ") + "but expected \"" + kind + "\""
 }
 case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"

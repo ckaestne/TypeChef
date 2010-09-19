@@ -57,7 +57,7 @@ class CParser extends MultiFeatureParser {
         initDeclList <~ SEMI ^^ { x => TypelessDeclaration(x) }
 
     def declSpecifiers: MultiParser[List[Specifier]] =
-        rep1(storageClassSpecifier | typeQualifier | typeSpecifier | attributeDecl) | fail("declSpecifier expected")
+    	specList(storageClassSpecifier | typeQualifier | attributeDecl) | fail("declSpecifier expected")
 
     def storageClassSpecifier: MultiParser[Specifier] =
         specifier("auto") | specifier("register") | textToken("typedef") ^^ { x => TypedefSpecifier() } | functionStorageClassSpecifier
@@ -84,10 +84,10 @@ class CParser extends MultiFeatureParser {
         | textToken("__complex__")) ^^ { (t: Elem) => PrimitiveTypeSpecifier(t.getText) }
         | structOrUnionSpecifier
         | enumSpecifier
-        | typedefName ^^ { TypeDefTypeSpecifier(_) }
+        //TypeDefName handled elsewhere!
         | typeof ~ LPAREN ~> (typeName ^^ { TypeOfSpecifierT(_) } | expr ^^ { TypeOfSpecifierU(_) }) <~ RPAREN)
 
-    def typedefName = tokenWithContext("type", (token, context) => isIdentifier(token) && context.knowsType(token.getText)) ^^ { t => Id(t.getText) }
+    def typedefName = tokenWithContext("type", (token, context) => isIdentifier(token) && context.knowsType(token.getText)) ^^ { t => TypeDefTypeSpecifier(Id(t.getText)) }
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
         structOrUnion ~ structOrUnionSpecifierBody ^^ { case ~(k, (id, list)) => StructOrUnionSpecifier(k, id, list) }
@@ -107,7 +107,7 @@ class CParser extends MultiFeatureParser {
         specifierQualifierList ~ structDeclaratorList <~ (opt(COMMA) ~ rep1(SEMI)) ^^ { case q ~ l => StructDeclaration(q, l) }
 
     def specifierQualifierList: MultiParser[List[Specifier]] =
-        rep1(typeSpecifier | typeQualifier | attributeDecl)
+        specList(typeQualifier | attributeDecl)
 
     def structDeclaratorList: MultiParser[List[StructDeclarator]] =
         repSep(structDeclarator, COMMA)
@@ -178,8 +178,9 @@ class CParser extends MultiFeatureParser {
             compoundStatement ^^
             { case sp ~ declarator ~ param ~ vparam ~ _ ~ _ ~ stmt => FunctionDef(sp, declarator, param ++ vparam, stmt) }
 
-    def functionDeclSpecifiers: MultiParser[List[Specifier]] =
-        rep1(functionStorageClassSpecifier | typeQualifier | typeSpecifier | attributeDecl)
+    def functionDeclSpecifiers: MultiParser[List[Specifier]] = 
+        specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
+    
 
     private def compoundDeclarations =
         declaration | nestedFunctionDef | localLabelDeclaration
@@ -311,8 +312,8 @@ class CParser extends MultiFeatureParser {
         !keywords.contains(token.getText)
 
     def stringConst: MultiParser[StringLit] =
-        (rep1(token("string literal", _.getType == Token.STRING)) 
-        	^^ { (list:List[TokenWrapper])=>StringLit(list.map(_.getText)) })
+        (rep1(token("string literal", _.getType == Token.STRING))
+            ^^ { (list: List[TokenWrapper]) => StringLit(list.map(_.getText)) })
 
     def numConst: MultiParser[Constant] =
         (token("number", _.isInteger) ^^ { t => Constant(t.getText) }
@@ -446,6 +447,12 @@ class CParser extends MultiFeatureParser {
     def signed = textToken("signed") | textToken("__signed") | textToken("__signed__")
 
     def inline = specifier("inline") | specifier("__inline") | specifier("__inline__")
+
+    def specList(otherSpecifiers: MultiParser[Specifier]): MultiParser[List[Specifier]] =
+        nonEmpty(rep(otherSpecifiers) ~ opt(typedefName) ~ rep(otherSpecifiers | typeSpecifier) ^^ {
+            case list1 ~ Some(typedefn) ~ list2 => list1 ++ List(typedefn) ++ list2
+            case list1 ~ None ~ list2 => list1 ++ list2
+        })
 
     // *** helper functions
     def textToken(t: String): MultiParser[Elem] =
