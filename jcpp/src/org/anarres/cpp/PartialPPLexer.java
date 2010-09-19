@@ -38,12 +38,12 @@ public class PartialPPLexer {
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addWarnings(Warning.allWarnings());
 		pp.setListener(new PreprocessorListener(pp) {
-			@Override
-			public void handleWarning(Source source, int line, int column,
-					String msg) throws LexerException {
-				super.handleWarning(source, line, column, msg);
-				throw new LexerException(msg);
-			}
+//			@Override
+//			public void handleWarning(Source source, int line, int column,
+//					String msg) throws LexerException {
+//				super.handleWarning(source, line, column, msg);
+//				throw new LexerException(msg);
+//			}
 		});
 		pp.addMacro("__JCPP__", new FeatureExpr().base());
 
@@ -61,10 +61,13 @@ public class PartialPPLexer {
 			if (tok.getType() == Token.EOF)
 				break;
 
+			if (tok.getType() == Token.INVALID)
+				System.err.println("Invalid token: "+tok);
+			//throw new LexerException(...)
+			
 			if (tok.getType() != Token.P_LINE
 					&& tok.getType() != Token.WHITESPACE
 					&& tok.getType() != Token.NL
-					&& tok.getType() != Token.INVALID
 					&& tok.getType() != Token.P_IF
 					&& tok.getType() != Token.CCOMMENT
 					&& tok.getType() != Token.CPPCOMMENT

@@ -2081,14 +2081,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					break;
 				default:
 					warning(tok, "Preprocessor directive not a word "
-							+ tok.getText());
+							+ tok.getText()+", skipping line");
 					return source_skipline(false);
 				}
 				// System.out.println(previousToken);
 				Integer _ppcmd = ppcmds.get(tok.getText());
 				if (_ppcmd == null) {
-					error(tok, "Unknown preprocessor directive "
-							+ tok.getText());
+					warning(tok, "Unknown preprocessor directive "
+							+ tok.getText()+", skipping line");
 					return source_skipline(false);
 				}
 				int ppcmd = _ppcmd.intValue();

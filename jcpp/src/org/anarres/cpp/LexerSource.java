@@ -434,10 +434,12 @@ public class LexerSource extends Source {
 				return new Token(INVALID, text.toString(),
 						"End of file in string literal after " + buf, this);
 			} else if (isLineSeparator(c)) {
-				unread(c);
-				// error("Unterminated string literal after " + buf);
-				return new Token(INVALID, text.toString(),
-						"Unterminated string literal after " + buf, this);
+				text.append((char) c);
+				buf.append((char) c);
+				//chk: added support for multiline strings (for gnuc)
+//				// error("Unterminated string literal after " + buf);
+//				return new Token(INVALID, text.toString(),
+//						"Unterminated string literal after " + buf, this);
 			} else {
 				text.append((char) c);
 				buf.append((char) c);
@@ -481,7 +483,10 @@ public class LexerSource extends Source {
 				bits |= 4;
 				text.append((char) d);
 				d = read();
-
+			} else if (d == 'J' || d == 'j'||d == 'F' || d == 'f') {
+				//chk: dont care what these are doing, just add to the textresult
+				text.append((char) d);
+				d = read();
 			} else if (Character.isLetter(d)) {
 				unread(d);
 				return new Token(INVALID, text.toString(), "Invalid suffix \""
