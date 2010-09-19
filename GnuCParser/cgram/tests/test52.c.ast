@@ -1,0 +1,205 @@
+
+(NFunctionDef line:2
+   (NDeclarator line:2
+      ID: "funfn" line:2 tokenNumber:2 source:
+      (NParameterTypeList: "(" line:2 tokenNumber:3 source:
+         (NParameterDeclaration line:2
+            LITERAL_int: "int" line:2 tokenNumber:5 source:
+            (NDeclarator line:2
+               ID: "a" line:2 tokenNumber:7 source:
+            )
+         )
+         COMMA: "," line:2 tokenNumber:8 source:
+         (NParameterDeclaration line:2
+            LITERAL_int: "int" line:2 tokenNumber:10 source:
+            (NDeclarator line:2
+               ID: "b" line:2 tokenNumber:12 source:
+            )
+         )
+         COMMA: "," line:2 tokenNumber:13 source:
+         (NParameterDeclaration line:2
+            LITERAL_int: "int" line:2 tokenNumber:15 source:
+            (NDeclarator line:2
+               ID: "c" line:2 tokenNumber:17 source:
+            )
+         )
+         COMMA: "," line:2 tokenNumber:18 source:
+         (NParameterDeclaration line:2
+            LITERAL_int: "int" line:2 tokenNumber:20 source:
+            (NDeclarator line:2
+               ID: "d" line:2 tokenNumber:22 source:
+            )
+         )
+         COMMA: "," line:2 tokenNumber:23 source:
+         (NParameterDeclaration line:2
+            LITERAL_char: "char" line:2 tokenNumber:25 source:
+            (NDeclarator line:2
+               (NPointerGroup line:2
+                  STAR: "*" line:2 tokenNumber:26 source:
+               )
+               ID: "e" line:2 tokenNumber:28 source:
+            )
+         )
+         RPAREN: ")" line:2 tokenNumber:29 source:
+      )
+   )
+   (NCompoundStatement: "{" line:3 scopeName:funfn tokenNumber:30 source:
+      (LITERAL_if: "if" line:4 tokenNumber:32 source:
+         ID: "a" line:4 tokenNumber:35 source:
+         (NCompoundStatement: "{" line:4 scopeName:0 tokenNumber:37 source:
+            (NStatementExpr line:5
+               (NPostfixExpr line:5
+                  ID: "print" line:5 tokenNumber:39 source:
+                  (NFunctionCallArgs: "(" line:5 tokenNumber:40 source:
+                     RPAREN: ")" line:5 tokenNumber:41 source:
+                  )
+               )
+            )
+            (LITERAL_return: "return" line:6 tokenNumber:44 source:
+               ID: "b" line:6 tokenNumber:46 source:
+            )
+            RCURLY: "}" line:7 tokenNumber:48 source:
+         )
+      )
+      (LITERAL_if: "if" line:8 tokenNumber:50 source:
+         ID: "b" line:8 tokenNumber:53 source:
+         (NCompoundStatement: "{" line:8 scopeName:1 tokenNumber:55 source:
+            (NFunctionDef line:9
+               LITERAL_int: "int" line:9 tokenNumber:57 source:
+               (NDeclarator line:9
+                  ID: "localfn" line:9 tokenNumber:59 source:
+                  (NParameterTypeList: "(" line:9 tokenNumber:60 source:
+                     RPAREN: ")" line:9 tokenNumber:61 source:
+                  )
+               )
+               (NCompoundStatement: "{" line:9 scopeName:localfn tokenNumber:62 source:
+                  (LITERAL_return: "return" line:10 tokenNumber:64 source:
+                     ID: "a" line:10 tokenNumber:66 source:
+                  )
+                  RCURLY: "}" line:11 tokenNumber:68 source:
+               )
+            )
+            (NStatementExpr line:12
+               (NPostfixExpr line:12
+                  ID: "exit" line:12 tokenNumber:70 source:
+                  (NFunctionCallArgs: "(" line:12 tokenNumber:71 source:
+                     ID: "c" line:12 tokenNumber:73 source:
+                     RPAREN: ")" line:12 tokenNumber:74 source:
+                  )
+               )
+            )
+            RCURLY: "}" line:14 tokenNumber:76 source:
+         )
+      )
+      (LITERAL_if: "if" line:15 tokenNumber:78 source:
+         ID: "d" line:15 tokenNumber:81 source:
+         (NCompoundStatement: "{" line:15 scopeName:2 tokenNumber:83 source:
+            (NStatementExpr line:16
+               (NPostfixExpr line:16
+                  ID: "__builtin_return" line:16 tokenNumber:85 source:
+                  (NFunctionCallArgs: "(" line:16 tokenNumber:86 source:
+                     ID: "null" line:16 tokenNumber:88 source:
+                     RPAREN: ")" line:16 tokenNumber:89 source:
+                  )
+               )
+            )
+            RCURLY: "}" line:17 tokenNumber:91 source:
+         )
+      )
+      (LITERAL_return: "return" line:18 tokenNumber:93 source:
+         ID: "c" line:18 tokenNumber:95 source:
+      )
+      RCURLY: "}" line:19 tokenNumber:97 source:
+   )
+)
+(NFunctionDef line:21
+   (NDeclarator line:21
+      ID: "fn" line:21 tokenNumber:99 source:
+      (NParameterTypeList: "(" line:21 tokenNumber:100 source:
+         RPAREN: ")" line:21 tokenNumber:101 source:
+      )
+   )
+   (NCompoundStatement: "{" line:21 scopeName:fn tokenNumber:102 source:
+      (NStatementExpr line:22
+         (NPostfixExpr line:22
+            ID: "print" line:22 tokenNumber:104 source:
+            (NFunctionCallArgs: "(" line:22 tokenNumber:105 source:
+               (NStringSeq line:22
+                  StringLiteral: ""whoa"" line:22 tokenNumber:106 source:
+               )
+               RPAREN: ")" line:22 tokenNumber:107 source:
+            )
+         )
+      )
+      RCURLY: "}" line:23 tokenNumber:109 source:
+   )
+)
+(NFunctionDef line:25
+   (NDeclarator line:25
+      ID: "fn2" line:25 tokenNumber:111 source:
+      (NParameterTypeList: "(" line:25 tokenNumber:112 source:
+         RPAREN: ")" line:25 tokenNumber:113 source:
+      )
+   )
+   (NCompoundStatement: "{" line:25 scopeName:fn2 tokenNumber:114 source:
+      (LITERAL_if: "if" line:26 tokenNumber:116 source:
+         Number: "1" line:26 tokenNumber:118 source:
+         (LITERAL_return: "return" line:27 tokenNumber:121 source:
+            Number: "2" line:27 tokenNumber:122 source:
+         )
+      )
+      RCURLY: "}" line:28 tokenNumber:124 source:
+   )
+)
+(NFunctionDef line:30
+   (NDeclarator line:30
+      ID: "main" line:30 tokenNumber:126 source:
+      (NParameterTypeList: "(" line:30 tokenNumber:127 source:
+         RPAREN: ")" line:30 tokenNumber:128 source:
+      )
+   )
+   (NCompoundStatement: "{" line:30 scopeName:main tokenNumber:129 source:
+      (NStatementExpr line:31
+         (NPostfixExpr line:31
+            ID: "malloc" line:31 tokenNumber:131 source:
+            (NFunctionCallArgs: "(" line:31 tokenNumber:132 source:
+               Number: "10" line:31 tokenNumber:133 source:
+               RPAREN: ")" line:31 tokenNumber:134 source:
+            )
+         )
+      )
+      (NStatementExpr line:32
+         (NPostfixExpr line:32
+            ID: "nonMalloc" line:32 tokenNumber:137 source:
+            (NFunctionCallArgs: "(" line:32 tokenNumber:138 source:
+               Number: "20" line:32 tokenNumber:139 source:
+               RPAREN: ")" line:32 tokenNumber:140 source:
+            )
+         )
+      )
+      (NStatementExpr line:33
+         (NPostfixExpr line:33
+            ID: "fn" line:33 tokenNumber:143 source:
+            (NFunctionCallArgs: "(" line:33 tokenNumber:144 source:
+               RPAREN: ")" line:33 tokenNumber:145 source:
+            )
+         )
+      )
+      (NStatementExpr line:34
+         (NPostfixExpr line:34
+            ID: "funfn" line:34 tokenNumber:148 source:
+            (NFunctionCallArgs: "(" line:34 tokenNumber:149 source:
+               Number: "1" line:34 tokenNumber:150 source:
+               Number: "2" line:34 tokenNumber:152 source:
+               Number: "3" line:34 tokenNumber:154 source:
+               Number: "4" line:34 tokenNumber:156 source:
+               (NStringSeq line:34
+                  StringLiteral: ""hey"" line:34 tokenNumber:158 source:
+               )
+               RPAREN: ")" line:34 tokenNumber:159 source:
+            )
+         )
+      )
+      RCURLY: "}" line:35 tokenNumber:161 source:
+   )
+)

@@ -1,0 +1,137 @@
+
+(NFunctionDef line:1
+   (NDeclarator line:1
+      ID: "now" line:1 tokenNumber:2 source:
+      (NParameterTypeList: "(" line:1 tokenNumber:3 source:
+         RPAREN: ")" line:1 tokenNumber:4 source:
+      )
+   )
+   (NCompoundStatement: "{" line:1 scopeName:now tokenNumber:5 source:
+      (NDeclaration line:2
+         (LITERAL_union: "union" line:2 tokenNumber:7 source:
+            ID: "foo" line:2 tokenNumber:9 source:
+            LCURLY: "union foo" line:2 tokenNumber:10 source:
+            LITERAL_int: "int" line:2 tokenNumber:12 source:
+            (NStructDeclarator line:2
+               (NDeclarator line:2
+                  ID: "i" line:2 tokenNumber:14 source:
+               )
+            )
+            LITERAL_double: "double" line:2 tokenNumber:17 source:
+            (NStructDeclarator line:2
+               (NDeclarator line:2
+                  ID: "d" line:2 tokenNumber:19 source:
+               )
+            )
+            RCURLY: "}" line:2 tokenNumber:21 source:
+         )
+         SEMI: ";" line:2 tokenNumber:22 source:
+      )
+      (NDeclaration line:3
+         LITERAL_int: "int" line:3 tokenNumber:24 source:
+         (NInitDecl line:3
+            (NDeclarator line:3
+               ID: "x" line:3 tokenNumber:26 source:
+            )
+         )
+         SEMI: ";" line:3 tokenNumber:27 source:
+      )
+      (NDeclaration line:4
+         LITERAL_double: "double" line:4 tokenNumber:29 source:
+         (NInitDecl line:4
+            (NDeclarator line:4
+               ID: "y" line:4 tokenNumber:31 source:
+            )
+         )
+         SEMI: ";" line:4 tokenNumber:32 source:
+      )
+      (NDeclaration line:5
+         LITERAL_void: "void" line:5 tokenNumber:34 source:
+         (NInitDecl line:5
+            (NDeclarator line:5
+               ID: "hack" line:5 tokenNumber:36 source:
+               (NParameterTypeList: "(" line:5 tokenNumber:37 source:
+                  (NParameterDeclaration line:5
+                     (LITERAL_union: "union" line:5 tokenNumber:39 source:
+                        ID: "foo" line:5 tokenNumber:41 source:
+                     )
+                  )
+                  RPAREN: ")" line:5 tokenNumber:42 source:
+               )
+            )
+         )
+         SEMI: ";" line:5 tokenNumber:43 source:
+      )
+      (NDeclaration line:6
+         (LITERAL_union: "union" line:6 tokenNumber:45 source:
+            ID: "foo" line:6 tokenNumber:47 source:
+         )
+         (NInitDecl line:6
+            (NDeclarator line:6
+               ID: "u" line:6 tokenNumber:49 source:
+            )
+         )
+         SEMI: ";" line:6 tokenNumber:50 source:
+      )
+      (NStatementExpr line:7
+         (ASSIGN: "=" line:7 tokenNumber:53 source:
+            ID: "u" line:7 tokenNumber:52 source:
+            (ASSIGN: "=" line:7 tokenNumber:68 source:
+               (EQUAL: "==" line:7 tokenNumber:62 source:
+                  (NCast: "(" line:7 tokenNumber:54 source:
+                     (LITERAL_union: "union" line:7 tokenNumber:56 source:
+                        ID: "foo" line:7 tokenNumber:58 source:
+                     )
+                     RPAREN: ")" line:7 tokenNumber:59 source:
+                     ID: "x" line:7 tokenNumber:61 source:
+                  )
+                  (NPostfixExpr line:7
+                     ID: "u" line:7 tokenNumber:64 source:
+                     DOT: "." line:7 tokenNumber:65 source:
+                     ID: "i" line:7 tokenNumber:67 source:
+                  )
+               )
+               ID: "x" line:7 tokenNumber:70 source:
+            )
+         )
+      )
+      (NStatementExpr line:8
+         (ASSIGN: "=" line:8 tokenNumber:74 source:
+            ID: "u" line:8 tokenNumber:73 source:
+            (ASSIGN: "=" line:8 tokenNumber:89 source:
+               (EQUAL: "==" line:8 tokenNumber:83 source:
+                  (NCast: "(" line:8 tokenNumber:75 source:
+                     (LITERAL_union: "union" line:8 tokenNumber:77 source:
+                        ID: "foo" line:8 tokenNumber:79 source:
+                     )
+                     RPAREN: ")" line:8 tokenNumber:80 source:
+                     ID: "y" line:8 tokenNumber:82 source:
+                  )
+                  (NPostfixExpr line:8
+                     ID: "u" line:8 tokenNumber:85 source:
+                     DOT: "." line:8 tokenNumber:86 source:
+                     ID: "d" line:8 tokenNumber:88 source:
+                  )
+               )
+               ID: "y" line:8 tokenNumber:91 source:
+            )
+         )
+      )
+      (NStatementExpr line:9
+         (NPostfixExpr line:9
+            ID: "hack" line:9 tokenNumber:94 source:
+            (NFunctionCallArgs: "(" line:9 tokenNumber:95 source:
+               (NCast: "(" line:9 tokenNumber:96 source:
+                  (LITERAL_union: "union" line:9 tokenNumber:98 source:
+                     ID: "foo" line:9 tokenNumber:100 source:
+                  )
+                  RPAREN: ")" line:9 tokenNumber:101 source:
+                  ID: "x" line:9 tokenNumber:103 source:
+               )
+               RPAREN: ")" line:9 tokenNumber:104 source:
+            )
+         )
+      )
+      RCURLY: "}" line:11 tokenNumber:106 source:
+   )
+)

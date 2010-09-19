@@ -1,0 +1,82 @@
+
+(NFunctionDef line:2
+   LITERAL_static: "static" line:2 tokenNumber:2 source:
+   LITERAL_inline: "inline" line:2 tokenNumber:4 source:
+   LITERAL_void: "void" line:2 tokenNumber:6 source:
+   (NDeclarator line:3
+      ID: "ttt" line:3 tokenNumber:8 source:
+      (NParameterTypeList: "(" line:3 tokenNumber:9 source:
+         (NParameterDeclaration line:3
+            LITERAL_int: "int" line:3 tokenNumber:11 source:
+            (NDeclarator line:3
+               (NPointerGroup line:3
+                  STAR: "*" line:3 tokenNumber:12 source:
+               )
+               ID: "wwp" line:3 tokenNumber:14 source:
+            )
+         )
+         RPAREN: ")" line:3 tokenNumber:15 source:
+      )
+   )
+   (NCompoundStatement: "{" line:4 scopeName:ttt tokenNumber:16 source:
+      (NDeclaration line:5
+         LITERAL_int: "int" line:5 tokenNumber:18 source:
+         (NInitDecl line:5
+            (NDeclarator line:5
+               ID: "xyz" line:5 tokenNumber:20 source:
+            )
+            ASSIGN: "=" line:5 tokenNumber:21 source:
+            (NInitializer line:5
+               Number: "6" line:5 tokenNumber:22 source:
+            )
+         )
+         SEMI: ";" line:5 tokenNumber:23 source:
+      )
+      (LITERAL_do: "do" line:6 tokenNumber:25 source:
+         (NCompoundStatement: "{" line:6 scopeName:0 tokenNumber:26 source:
+            (NStatementExpr line:7
+               (NGnuAsmExpr: "asm" line:7 tokenNumber:28 source:
+                  LPAREN: "(" line:7 tokenNumber:29 source:
+                  (NStringSeq line:19
+                     StringLiteral: "".set noreorder; 
+             lqq %7,5(%8); 
+             nop; 
+             ziv %2,%2,-4; 
+1:
+             ab %5,7(%1);
+             .set reorder"" line:19 tokenNumber:30 source:
+                  )
+                  COLON: ":" line:20 tokenNumber:31 source:
+                  (NStringSeq line:20
+                     StringLiteral: ""=r"" line:20 tokenNumber:32 source:
+                  )
+                  LPAREN: "(" line:20 tokenNumber:33 source:
+                  ID: "xyz" line:20 tokenNumber:35 source:
+                  RPAREN: ")" line:20 tokenNumber:36 source:
+                  COLON: ":" line:21 tokenNumber:37 source:
+                  (NStringSeq line:21
+                     StringLiteral: ""r"" line:21 tokenNumber:38 source:
+                  )
+                  LPAREN: "(" line:21 tokenNumber:39 source:
+                  ID: "wwp" line:21 tokenNumber:41 source:
+                  RPAREN: ")" line:21 tokenNumber:42 source:
+                  COMMA: "," line:21 tokenNumber:43 source:
+                  (NStringSeq line:21
+                     StringLiteral: ""0"" line:21 tokenNumber:44 source:
+                  )
+                  LPAREN: "(" line:21 tokenNumber:45 source:
+                  ID: "xyz" line:21 tokenNumber:47 source:
+                  RPAREN: ")" line:21 tokenNumber:48 source:
+                  RPAREN: ")" line:21 tokenNumber:49 source:
+               )
+            )
+            RCURLY: "}" line:22 tokenNumber:51 source:
+         )
+         (NUnaryExpr line:22
+            LNOT: "!" line:22 tokenNumber:55 source:
+            ID: "xyz" line:22 tokenNumber:57 source:
+         )
+      )
+      RCURLY: "}" line:23 tokenNumber:60 source:
+   )
+)

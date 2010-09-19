@@ -1,0 +1,110 @@
+
+(NDeclaration line:1
+   LITERAL_typedef: "typedef" line:1 tokenNumber:2 source:
+   (LITERAL_struct: "struct" line:1 tokenNumber:4 source:
+      ID: "x_" line:1 tokenNumber:6 source:
+   )
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "x" line:1 tokenNumber:8 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:9 source:
+)
+(NDeclaration line:2
+   (LITERAL_struct: "struct" line:2 tokenNumber:11 source:
+      ID: "x_" line:2 tokenNumber:13 source:
+      LCURLY: "struct x_" line:2 tokenNumber:14 source:
+      LITERAL_int: "int" line:3 tokenNumber:16 source:
+      (NStructDeclarator line:3
+         (NDeclarator line:3
+            ID: "y" line:3 tokenNumber:18 source:
+         )
+      )
+      LITERAL_int: "int" line:4 tokenNumber:21 source:
+      (NStructDeclarator line:4
+         (NDeclarator line:4
+            ID: "z" line:4 tokenNumber:23 source:
+         )
+      )
+      RCURLY: "}" line:5 tokenNumber:25 source:
+   )
+   SEMI: ";" line:5 tokenNumber:26 source:
+)
+(NDeclaration line:6
+   (NTypedefName line:6
+      ID: "x" line:6 tokenNumber:28 source:
+   )
+   (NInitDecl line:6
+      (NDeclarator line:6
+         ID: "b" line:6 tokenNumber:30 source:
+      )
+   )
+   SEMI: ";" line:6 tokenNumber:31 source:
+)
+(NDeclaration line:8
+   (LITERAL_struct: "struct" line:8 tokenNumber:33 source:
+      ID: "x_" line:8 tokenNumber:35 source:
+   )
+   (NInitDecl line:8
+      (NDeclarator line:8
+         ID: "a" line:8 tokenNumber:37 source:
+      )
+      ASSIGN: "=" line:8 tokenNumber:38 source:
+      (NInitializer line:8
+         (NLcurlyInitializer: "{" line:8 tokenNumber:39 source:
+            RCURLY: "}" line:8 tokenNumber:40 source:
+         )
+      )
+   )
+   SEMI: ";" line:8 tokenNumber:41 source:
+)
+(NDeclaration line:10
+   (NTypedefName line:10
+      ID: "x" line:10 tokenNumber:43 source:
+   )
+   (NInitDecl line:10
+      (NDeclarator line:10
+         ID: "c" line:10 tokenNumber:45 source:
+      )
+      ASSIGN: "=" line:10 tokenNumber:46 source:
+      (NInitializer line:10
+         (NLcurlyInitializer: "{" line:10 tokenNumber:47 source:
+            RCURLY: "}" line:10 tokenNumber:48 source:
+         )
+      )
+   )
+   SEMI: ";" line:10 tokenNumber:49 source:
+)
+(NDeclaration line:12
+   LITERAL_typedef: "typedef" line:12 tokenNumber:51 source:
+   (LITERAL_struct: "struct" line:12 tokenNumber:53 source:
+      ID: "xyz_" line:12 tokenNumber:55 source:
+      LCURLY: "struct xyz_" line:12 tokenNumber:56 source:
+      LITERAL_int: "int" line:13 tokenNumber:58 source:
+      (NStructDeclarator line:13
+         (NDeclarator line:13
+            ID: "a" line:13 tokenNumber:60 source:
+         )
+      )
+      LITERAL_int: "int" line:14 tokenNumber:63 source:
+      (NStructDeclarator line:14
+         (NDeclarator line:14
+            ID: "b" line:14 tokenNumber:65 source:
+         )
+      )
+      LITERAL_char: "char" line:15 tokenNumber:69 source:
+      (NStructDeclarator line:15
+         (NDeclarator line:15
+            ID: "c" line:15 tokenNumber:71 source:
+         )
+      )
+      RCURLY: "}" line:16 tokenNumber:73 source:
+   )
+   (NInitDecl line:16
+      (NDeclarator line:16
+         ID: "xyz" line:16 tokenNumber:75 source:
+      )
+   )
+   SEMI: ";" line:16 tokenNumber:76 source:
+)

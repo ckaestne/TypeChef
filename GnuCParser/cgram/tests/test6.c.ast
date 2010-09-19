@@ -1,0 +1,60 @@
+
+(NDeclaration line:1
+   LITERAL_typedef: "typedef" line:1 tokenNumber:2 source:
+   LITERAL_char: "char" line:1 tokenNumber:4 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "F" line:1 tokenNumber:6 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:7 source:
+)
+(NFunctionDef line:2
+   (NDeclarator line:2
+      ID: "main" line:2 tokenNumber:9 source:
+      (NParameterTypeList: "(" line:2 tokenNumber:10 source:
+         RPAREN: ")" line:2 tokenNumber:11 source:
+      )
+   )
+   (NCompoundStatement: "{" line:2 scopeName:main tokenNumber:12 source:
+      (NDeclaration line:3
+         LITERAL_long: "long" line:3 tokenNumber:14 source:
+         (NInitDecl line:3
+            (NDeclarator line:3
+               ID: "a" line:3 tokenNumber:16 source:
+            )
+            ASSIGN: "=" line:3 tokenNumber:17 source:
+            (NInitializer line:3
+               (LITERAL_sizeof: "sizeof" line:3 tokenNumber:19 source:
+                  LPAREN: "(" line:3 tokenNumber:20 source:
+                  (NTypedefName line:3
+                     ID: "F" line:3 tokenNumber:22 source:
+                  )
+                  RPAREN: ")" line:3 tokenNumber:23 source:
+               )
+            )
+         )
+         (NInitDecl line:3
+            (NDeclarator line:3
+               ID: "F" line:3 tokenNumber:26 source:
+            )
+         )
+         (NInitDecl line:3
+            (NDeclarator line:3
+               ID: "b" line:3 tokenNumber:29 source:
+            )
+            ASSIGN: "=" line:3 tokenNumber:30 source:
+            (NInitializer line:3
+               (LITERAL_sizeof: "sizeof" line:3 tokenNumber:32 source:
+                  (NExpressionGroup: "(" line:3 tokenNumber:33 source:
+                     ID: "F" line:3 tokenNumber:35 source:
+                     RPAREN: ")" line:3 tokenNumber:36 source:
+                  )
+               )
+            )
+         )
+         SEMI: ";" line:3 tokenNumber:37 source:
+      )
+      RCURLY: "}" line:6 tokenNumber:38 source:
+   )
+)

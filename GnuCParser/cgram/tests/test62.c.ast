@@ -1,0 +1,53 @@
+
+(NDeclaration line:1
+   (LITERAL_struct: "struct" line:1 tokenNumber:2 source:
+      ID: "s" line:1 tokenNumber:4 source:
+      LCURLY: "struct s" line:1 tokenNumber:5 source:
+      LITERAL_int: "int" line:2 tokenNumber:7 source:
+      (NStructDeclarator line:2
+         (NDeclarator line:2
+            ID: "c" line:2 tokenNumber:9 source:
+            LBRACKET: "[" line:2 tokenNumber:10 source:
+            Number: "3" line:2 tokenNumber:11 source:
+            RBRACKET: "]" line:2 tokenNumber:12 source:
+         )
+      )
+      RCURLY: "}" line:3 tokenNumber:14 source:
+   )
+   SEMI: ";" line:3 tokenNumber:15 source:
+)
+(NDeclaration line:5
+   (LITERAL_struct: "struct" line:5 tokenNumber:17 source:
+      ID: "s" line:5 tokenNumber:19 source:
+   )
+   (NInitDecl line:5
+      (NDeclarator line:5
+         ID: "s" line:5 tokenNumber:21 source:
+      )
+      ASSIGN: "=" line:5 tokenNumber:22 source:
+      (NInitializer line:5
+         (NLcurlyInitializer: "{" line:5 tokenNumber:23 source:
+            (NInitializer line:6
+               (NInitializerElementLabel line:6
+                  ID: "c" line:6 tokenNumber:25 source:
+                  COLON: ":" line:6 tokenNumber:26 source:
+               )
+               (NLcurlyInitializer: "{" line:6 tokenNumber:27 source:
+                  (NInitializer line:6
+                     Number: "1" line:6 tokenNumber:28 source:
+                  )
+                  (NInitializer line:6
+                     Number: "2" line:6 tokenNumber:30 source:
+                  )
+                  (NInitializer line:6
+                     Number: "3" line:6 tokenNumber:32 source:
+                  )
+                  RCURLY: "}" line:6 tokenNumber:33 source:
+               )
+            )
+            RCURLY: "}" line:7 tokenNumber:34 source:
+         )
+      )
+   )
+   SEMI: ";" line:7 tokenNumber:35 source:
+)

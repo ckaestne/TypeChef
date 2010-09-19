@@ -1,0 +1,39 @@
+
+(NDeclaration line:1
+   LITERAL_int: "int" line:1 tokenNumber:2 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "a" line:1 tokenNumber:4 source:
+      )
+   )
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "b" line:1 tokenNumber:7 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:8 source:
+)
+(NFunctionDef line:2
+   LITERAL_int: "int" line:2 tokenNumber:10 source:
+   (NDeclarator line:2
+      ID: "f" line:2 tokenNumber:12 source:
+      (NParameterTypeList: "(" line:2 tokenNumber:13 source:
+         RPAREN: ")" line:2 tokenNumber:14 source:
+      )
+   )
+   (NCompoundStatement: "{" line:2 scopeName:f tokenNumber:15 source:
+      (NStatementExpr line:3
+         (NCommaExpr: "," line:3 tokenNumber:20 source:
+            (ASSIGN: "=" line:3 tokenNumber:18 source:
+               ID: "a" line:3 tokenNumber:17 source:
+               Number: "1" line:3 tokenNumber:19 source:
+            )
+            (ASSIGN: "=" line:3 tokenNumber:23 source:
+               ID: "b" line:3 tokenNumber:22 source:
+               Number: "2" line:3 tokenNumber:24 source:
+            )
+         )
+      )
+      RCURLY: "}" line:4 tokenNumber:26 source:
+   )
+)

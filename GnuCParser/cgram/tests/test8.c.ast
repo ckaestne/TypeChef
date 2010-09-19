@@ -1,0 +1,50 @@
+
+(NDeclaration line:1
+   LITERAL_typedef: "typedef" line:1 tokenNumber:2 source:
+   LITERAL_int: "int" line:1 tokenNumber:4 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "T" line:1 tokenNumber:6 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:7 source:
+)
+(NFunctionDef line:2
+   (NDeclarator line:2
+      ID: "main" line:2 tokenNumber:9 source:
+      (NParameterTypeList: "(" line:2 tokenNumber:10 source:
+         RPAREN: ")" line:2 tokenNumber:11 source:
+      )
+   )
+   (NCompoundStatement: "{" line:2 scopeName:main tokenNumber:12 source:
+      (NDeclaration line:3
+         LITERAL_int: "int" line:3 tokenNumber:14 source:
+         (NInitDecl line:3
+            (NDeclarator line:3
+               ID: "T" line:3 tokenNumber:16 source:
+            )
+            ASSIGN: "=" line:3 tokenNumber:17 source:
+            (NInitializer line:3
+               Number: "100" line:3 tokenNumber:18 source:
+            )
+         )
+         (NInitDecl line:3
+            (NDeclarator line:3
+               ID: "a" line:3 tokenNumber:21 source:
+            )
+            ASSIGN: "=" line:3 tokenNumber:22 source:
+            (NInitializer line:3
+               (PLUS: "+" line:3 tokenNumber:27 source:
+                  (NExpressionGroup: "(" line:3 tokenNumber:23 source:
+                     ID: "T" line:3 tokenNumber:25 source:
+                     RPAREN: ")" line:3 tokenNumber:26 source:
+                  )
+                  Number: "1" line:3 tokenNumber:28 source:
+               )
+            )
+         )
+         SEMI: ";" line:3 tokenNumber:29 source:
+      )
+      RCURLY: "}" line:5 tokenNumber:30 source:
+   )
+)

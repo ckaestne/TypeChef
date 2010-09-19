@@ -1,0 +1,41 @@
+
+(NTypeMissing line:1
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "g" line:1 tokenNumber:2 source:
+         (NParameterTypeList: "(" line:1 tokenNumber:3 source:
+            RPAREN: ")" line:1 tokenNumber:4 source:
+         )
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:5 source:
+)
+(NFunctionDef line:2
+   (NDeclarator line:2
+      ID: "f" line:2 tokenNumber:7 source:
+      (NParameterTypeList: "(" line:2 tokenNumber:8 source:
+         RPAREN: ")" line:2 tokenNumber:9 source:
+      )
+   )
+   (NCompoundStatement: "{" line:3 scopeName:f tokenNumber:10 source:
+      (NDeclaration line:4
+         LITERAL_int: "int" line:4 tokenNumber:12 source:
+         (NInitDecl line:4
+            (NDeclarator line:4
+               ID: "seed" line:4 tokenNumber:14 source:
+            )
+         )
+         SEMI: ";" line:4 tokenNumber:15 source:
+      )
+      (NStatementExpr line:5
+         (NPostfixExpr line:5
+            ID: "g" line:5 tokenNumber:17 source:
+            (NFunctionCallArgs: "(" line:5 tokenNumber:18 source:
+               ID: "seed" line:5 tokenNumber:20 source:
+               RPAREN: ")" line:5 tokenNumber:21 source:
+            )
+         )
+      )
+      RCURLY: "}" line:6 tokenNumber:23 source:
+   )
+)
