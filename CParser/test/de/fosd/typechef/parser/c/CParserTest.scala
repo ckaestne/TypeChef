@@ -10,7 +10,7 @@ class CParserTest extends TestCase {
     case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
     object Alt {
         def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
-    }
+    } 
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]) {
         val actual = p.parse(code.stripMargin, mainProduction).forceJoin(Alt.join)
         System.out.println(actual)
@@ -125,6 +125,8 @@ class CParserTest extends TestCase {
         parseConstant("3J")
         parseConstant(".1E2l")
         parseConstant("'a'")
+        parseConstant("L'a'")
+        parseConstant("L\"a\"")
         assertParseResult(Alt(fa, Constant("1"), Constant("2")), """|#ifdef a
         					|1
         					|#else
@@ -377,10 +379,12 @@ class CParserTest extends TestCase {
     		} pojeqsd_t;""", p.translationUnit)
 
     def testMisc2 = assertParseable("( checkme )->j76g", p.expr)
+    def testMisc2b = assertParseable("if ((( checkme )->j76g) ) { }",p.statement)
     def testMisc3a = assertParseable("(int)q23w3", p.expr)
     def testMisc3b = assertParseable("void *", p.typeName)
-    def testMisc3c = assertParseable("(++(int)q23w3->ll881ss[3])", p.expr)
-    def testMisc3d = assertParseable("(void *) (++(int)q23w3->ll881ss[3])", p.expr)
+    def testMisc3c = assertParseable("++(int)q23w3", p.unaryExpr)
+    def testMisc3d = assertParseable("(++(int)q23w3->ll881ss[3])", p.primaryExpr)
+    def testMisc3e = assertParseable("(void *) (++(int)q23w3->ll881ss[3])", p.expr)
     def testMisc4 = assertParseable("""if (x3 && x4) {
         char gh554j[19];  
         gh554j[0]='\n';

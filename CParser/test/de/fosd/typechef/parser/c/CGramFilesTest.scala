@@ -22,7 +22,7 @@ class CGramFilesTest extends TestCase {
 
     }
 
-    //
+    // 
 
     def test1() { parseFile("testfiles/cgram/test.c") }
     def test2() { parseFile("testfiles/cgram/test2.c") }
@@ -31,7 +31,7 @@ class CGramFilesTest extends TestCase {
     def test5() { parseFile("testfiles/cgram/test5.c") }
     def test6() { parseFile("testfiles/cgram/test6.c") }
     def test7() { parseFile("testfiles/cgram/test7.c") }
-    def ignoretest8() { parseFile("testfiles/cgram/test8.c") }//scoped typedef
+    def ignoretest8() { parseFile("testfiles/cgram/test8.c") } //scoped typedef
     def test9() { parseFile("testfiles/cgram/test9.c") }
     def test10() { parseFile("testfiles/cgram/test10.c") }
     def test11() { parseFile("testfiles/cgram/test11.c") }
@@ -65,7 +65,7 @@ class CGramFilesTest extends TestCase {
     def test39() { parseFile("testfiles/cgram/test39.c") }
     def test40() { parseFile("testfiles/cgram/test40.c") }
     def test41() { parseFile("testfiles/cgram/test41.c") }
-    def test42() { parseFile("testfiles/cgram/test42.c") }
+    def ignoretest42() { parseFile("testfiles/cgram/test42.c") }//ignore variable and typedef with same name
     def test43() { parseFile("testfiles/cgram/test43.c") }
     def test44() { parseFile("testfiles/cgram/test44.c") }
     def test45() { parseFile("testfiles/cgram/test45.c") }

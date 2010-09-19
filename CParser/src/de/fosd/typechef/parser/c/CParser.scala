@@ -202,7 +202,7 @@ class CParser extends MultiFeatureParser {
         | textToken("do") ~ statement ~ textToken("while") ~ LPAREN ~ expr ~ RPAREN ~ SEMI ^^ { case _ ~ s ~ _ ~ _ ~ e ~ _ ~ _ => DoStatement(e, s) }
         | textToken("for") ~ LPAREN ~ opt(expr) ~ SEMI ~ opt(expr) ~ SEMI ~ opt(expr) ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e1 ~ _ ~ e2 ~ _ ~ e3 ~ _ ~ s => ForStatement(e1, e2, e3, s) } //                                    {
         //// Jump statements:
-        | textToken("goto") ~> ID <~ SEMI ^^ { GotoStatement(_) }
+        | textToken("goto") ~> expr <~ SEMI ^^ { GotoStatement(_) }
         | textToken("continue") ~ SEMI ^^ { _ => ContinueStatement() }
         | textToken("break") ~ SEMI ^^ { _ => BreakStatement() }
         | textToken("return") ~> opt(expr) <~ SEMI ^^ { ReturnStatement(_) }
@@ -265,7 +265,7 @@ class CParser extends MultiFeatureParser {
                 ) ^^ { AbstractDeclarator(List(), _) })
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
-        | { INC ~ unaryExpr | DEC ~ unaryExpr } ^^ { case p ~ e => UnaryExpr(p.getText, e) }
+        | { (INC|DEC) ~ castExpr } ^^ { case p ~ e => UnaryExpr(p.getText, e) }
         | unaryOperator ~ castExpr ^^ { case u ~ c => UCastExpr(u.getText, c) }
         | textToken("sizeof") ~> {
             LPAREN ~> typeName <~ RPAREN ^^ { SizeOfExprT(_) } |
@@ -275,7 +275,8 @@ class CParser extends MultiFeatureParser {
             LPAREN ~> typeName <~ RPAREN ^^ { AlignOfExprT(_) } |
                 unaryExpr ^^ { AlignOfExprU(_) }
         }
-        | gnuAsmExpr)
+        | gnuAsmExpr 
+        |fail("expected unaryExpr"))
 
     def unaryOperator = (BAND | STAR | PLUS | MINUS | BNOT | LNOT
         | LAND //for label dereference (&&label)

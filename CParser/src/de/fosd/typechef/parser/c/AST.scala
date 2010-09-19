@@ -38,7 +38,7 @@ case class ExprStatement(expr: Expr) extends Statement
 case class WhileStatement(expr: Expr, s: Statement) extends Statement
 case class DoStatement(expr: Expr, s: Statement) extends Statement
 case class ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Statement) extends Statement
-case class GotoStatement(target: Id) extends Statement
+case class GotoStatement(target: Expr) extends Statement
 case class ContinueStatement extends Statement
 case class BreakStatement extends Statement
 case class ReturnStatement(expr: Option[Expr]) extends Statement
