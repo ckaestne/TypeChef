@@ -20,13 +20,13 @@ class CParser extends MultiFeatureParser {
 
     //parser
     val keywords = Set("__real__", "__imag__", "__alignof", "__asm", "__asm__", "__attribute__",
-        "__complex__", "__const", "__const__", "__inline", "__inline__", 
+        "__complex__", "__const", "__const__", "__inline", "__inline__",
         "__signed", "__signed__", "__typeof", "__typeof__", "__volatile", "__volatile__", "asm",
         "volatile", "typeof", "auto", "register", "typedef", "extern", "static", "inline",
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
         "signed", "unsigned", "_Bool", "type", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
-        "sizeof", "__extension__")
+        "sizeof")
 
     def translationUnit = externalList
 
@@ -310,8 +310,13 @@ class CParser extends MultiFeatureParser {
     def isIdentifier(token: TokenWrapper) = token.isIdentifier &&
         !keywords.contains(token.getText)
 
-    def stringConst: MultiParser[StringLit] = token("string literal", _.getType == Token.STRING) ^^ { t => StringLit(t.getText) }; def numConst: MultiParser[Constant] = token("number", _.isInteger) ^^ { t => Constant(t.getText) } |
-        token("number", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) }
+    def stringConst: MultiParser[StringLit] =
+        (rep1(token("string literal", _.getType == Token.STRING)) 
+        	^^ { (list:List[TokenWrapper])=>StringLit(list.map(_.getText)) })
+
+    def numConst: MultiParser[Constant] =
+        (token("number", _.isInteger) ^^ { t => Constant(t.getText) }
+            | token("number", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) })
 
     def argExprList: MultiParser[ExprList] =
         rep1Sep(assignExpr, COMMA) ^^ { ExprList(_) }
@@ -371,7 +376,7 @@ class CParser extends MultiFeatureParser {
     //***  gnuc extensions ****************************************************
 
     def attributeDecl: MultiParser[Specifier] =
-        ((textToken("__attribute__") | textToken("__extension__") /*own*/ ) ~
+        (textToken("__attribute__") ~
             LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => AttributeSpecifier(al) } |
             asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
@@ -388,7 +393,7 @@ class CParser extends MultiFeatureParser {
 
     def gnuAsmExpr: MultiParser[GnuAsmExpr] =
         asm ~ opt(volatile) ~
-            LPAREN ~ rep1(stringConst) ~
+            LPAREN ~ stringConst ~
             opt(
                 COLON ~> opt(strOptExprPair ~ opt(COMMA ~> strOptExprPair))
                 ~ opt(
@@ -433,15 +438,15 @@ class CParser extends MultiFeatureParser {
     def typeof = textToken("typeof") | textToken("__typeof") | textToken("__typeof__")
 
     def volatile = specifier("volatile") | specifier("__volatile") | specifier("__volatile__")
-    
+
     def asm = textToken("asm") | textToken("__asm") | textToken("__asm__")
 
-    def const = specifier("const") | specifier("__const")|specifier("__const__")
-    
+    def const = specifier("const") | specifier("__const") | specifier("__const__")
+
     def signed = textToken("signed") | textToken("__signed") | textToken("__signed__")
- 
+
     def inline = specifier("inline") | specifier("__inline") | specifier("__inline__")
-    
+
     // *** helper functions
     def textToken(t: String): MultiParser[Elem] =
         token(t, _.getText == t)

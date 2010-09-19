@@ -23,7 +23,7 @@ class BoaFilesTest extends TestCase {
     }
 
     //
-
+    def testDummy{}
     def notest1() { parseFile("../boa/src/hash.pi") }
 
 }

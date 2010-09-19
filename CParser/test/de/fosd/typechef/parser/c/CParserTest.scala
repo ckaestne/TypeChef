@@ -84,8 +84,8 @@ class CParserTest extends TestCase {
     }
 
     def testStringLit() {
-        assertParseResult(StringLit("\"test\""), "\"test\"", List(p.primaryExpr, p.stringConst))
-        assertParseResult(Alt(fa, StringLit("\"test\""), StringLit("\"ba\\\"r\"")), """|#ifdef a
+        assertParseResult(StringLit(List("\"test\"")), "\"test\"", List(p.primaryExpr, p.stringConst))
+        assertParseResult(Alt(fa, StringLit(List("\"test\"")), StringLit(List("\"ba\\\"r\""))), """|#ifdef a
         					|"test"
         					|#else
         					|"ba\"r"
@@ -356,6 +356,7 @@ class CParserTest extends TestCase {
               ".set noat\n"
               ".set mips3");""",p.statement)
               assertParseable("enum { DDD = -7 }",p.enumSpecifier)
+        assertParseable("char                        hgfretty[99 ];",p.structDeclaration)      
     }
     def testMethodLookAhead {
         //should return parse error instead of empty parse result with unparsed tokens

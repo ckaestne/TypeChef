@@ -105,7 +105,6 @@ class CGramFilesTest extends TestCase {
     def test79() { parseFile("testfiles/cgram/test79.c") }
     def test80() { parseFile("testfiles/cgram/test80.c") }
     def test81() { parseFile("testfiles/cgram/test81.c") }
-    def test82() { parseFile("testfiles/cgram/test82.c") }
     def test83() { parseFile("testfiles/cgram/test83.c") }
     def test84() { parseFile("testfiles/cgram/test84.c") }
     def test85() { parseFile("testfiles/cgram/test85.c") }

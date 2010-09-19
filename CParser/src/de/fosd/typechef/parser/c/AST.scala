@@ -10,7 +10,7 @@ abstract class Expr extends AST
 abstract class PrimaryExpr extends Expr
 case class Id(name: String) extends PrimaryExpr
 case class Constant(value: String) extends PrimaryExpr
-case class StringLit(name: String) extends PrimaryExpr
+case class StringLit(name: List[String]) extends PrimaryExpr
 
 abstract class PostfixSuffix extends AST
 case class SimplePostfixSuffix(t: String) extends PostfixSuffix
@@ -124,7 +124,7 @@ case class AsmAttributeSpecifier(stringConst: StringLit) extends Specifier
 case class LcurlyInitializer(inits: List[Initializer]) extends Expr
 case class AlignOfExprT(typeName: TypeName) extends Expr
 case class AlignOfExprU(expr: Expr) extends Expr
-case class GnuAsmExpr(isVolatile: Boolean, expr: List[StringLit]/*originally only one*/, stuff: Any) extends Expr
+case class GnuAsmExpr(isVolatile: Boolean, expr: StringLit, stuff: Any) extends Expr
 case class RangeExpr(from: Expr, to: Expr) extends Expr
 case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends Declaration
 case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier
