@@ -95,6 +95,7 @@ class CParserTest extends TestCase {
 
     def testConstant() {
         def parseConstant(const: String) { assertParseResult(Constant(const), const, p.numConst) }
+        def parseString(const: String) { assertParseResult(StringLit(List(const)), const, p.stringConst) }
         parseConstant("1")
         parseConstant("0xF")
         parseConstant("0X1A")
@@ -126,7 +127,7 @@ class CParserTest extends TestCase {
         parseConstant(".1E2l")
         parseConstant("'a'")
         parseConstant("L'a'")
-        parseConstant("L\"a\"")
+        parseString("L\"a\"")
         assertParseResult(Alt(fa, Constant("1"), Constant("2")), """|#ifdef a
         					|1
         					|#else
@@ -356,6 +357,13 @@ class CParserTest extends TestCase {
         assertParseable("__attribute__((a,b))", p.attributeDecl)
         assertParseable("__attribute__((a,(b,b)))", p.attributeDecl)
     }
+    
+        def testMethodLookAhead {
+        //should return parse error instead of empty parse result with unparsed tokens
+        assertParseError("void main () { int a; ", p.translationUnit, true)
+        assertParseError("int main () { abs = ", p.translationUnit, true)
+    }
+
     def testMisc0 {
         assertParseable("{__label__ hey, now;}", p.compoundStatement)
         assertParseable("{abs = ({__label__ hey, now;});}", p.compoundStatement)
@@ -389,11 +397,15 @@ class CParserTest extends TestCase {
         char gh554j[19];  
         gh554j[0]='\n';
     }""", p.statement)
+    
+    def testMiscBoa1 = assertParseable("""struct __sFILE {
+  char *	_cookie;
+  int _EXFNPTR(_read, (struct int *, char *,
+					   char *, int));}""",p.structOrUnionSpecifier)
+    def testMiscBoa2 = assertParseable("""_EXFNPTR(_read, (struct int *, char *, char *, int));""",p.declarator)
+    def testMiscBoa3 = assertParseable("""_read, (struct int *, char *, char *, int)""",p.parameterTypeList)
+    def testMiscBoa4 = assertParseable("""(struct int *, char *, char *, int)""",p.parameterTypeList)
+    
 
-    def testMethodLookAhead {
-        //should return parse error instead of empty parse result with unparsed tokens
-        assertParseError("void main () { int a; ", p.translationUnit, true)
-        assertParseError("int main () { abs = ", p.translationUnit, true)
-    }
 
 }
