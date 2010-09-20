@@ -167,7 +167,7 @@ public class ParserTestBottomUp {
 		DataInputStream dis = null;
 		dis = new DataInputStream(new ByteArrayInputStream(code.getBytes()));
 		GnuCLexer lexer = new GnuCLexer(dis);
-		lexer.setTokenObjectClass("CToken");
+		lexer.setTokenObjectClass("cgram.CToken");
 		lexer.initialize();
 		// Parse the input expression.
 		GnuCParser parser = new GnuCParser(lexer) {
@@ -181,7 +181,7 @@ public class ParserTestBottomUp {
 		TNode node = new TNode();
 		node.setType(GnuCParser.LITERAL_typedef);
 		parser.setASTNodeType(TNode.class.getName());
-		TNode.setTokenVocabulary("GNUCTokenTypes");
+		TNode.setTokenVocabulary("cgram.GNUCTokenTypes");
 
 		return parser;
 	}

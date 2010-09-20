@@ -27,6 +27,7 @@ class CParser extends MultiFeatureParser {
         "signed", "unsigned", "_Bool", "type", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
         "sizeof")
+    val predefinedTypedefs = Set("__builtin_va_list")
 
     def translationUnit = externalList
 
@@ -57,7 +58,7 @@ class CParser extends MultiFeatureParser {
         initDeclList <~ SEMI ^^ { x => TypelessDeclaration(x) }
 
     def declSpecifiers: MultiParser[List[Specifier]] =
-    	specList(storageClassSpecifier | typeQualifier | attributeDecl) | fail("declSpecifier expected")
+        specList(storageClassSpecifier | typeQualifier | attributeDecl) | fail("declSpecifier expected")
 
     def storageClassSpecifier: MultiParser[Specifier] =
         specifier("auto") | specifier("register") | textToken("typedef") ^^ { x => TypedefSpecifier() } | functionStorageClassSpecifier
@@ -87,7 +88,9 @@ class CParser extends MultiFeatureParser {
         //TypeDefName handled elsewhere!
         | typeof ~ LPAREN ~> (typeName ^^ { TypeOfSpecifierT(_) } | expr ^^ { TypeOfSpecifierU(_) }) <~ RPAREN)
 
-    def typedefName = tokenWithContext("type", (token, context) => isIdentifier(token) && context.knowsType(token.getText)) ^^ { t => TypeDefTypeSpecifier(Id(t.getText)) }
+    def typedefName =
+        tokenWithContext("type",
+            (token, context) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || context.knowsType(token.getText))) ^^ { t => TypeDefTypeSpecifier(Id(t.getText)) }
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
         structOrUnion ~ structOrUnionSpecifierBody ^^ { case ~(k, (id, list)) => StructOrUnionSpecifier(k, id, list) }
@@ -178,9 +181,8 @@ class CParser extends MultiFeatureParser {
             compoundStatement ^^
             { case sp ~ declarator ~ param ~ vparam ~ _ ~ _ ~ stmt => FunctionDef(sp, declarator, param ++ vparam, stmt) }
 
-    def functionDeclSpecifiers: MultiParser[List[Specifier]] = 
+    def functionDeclSpecifiers: MultiParser[List[Specifier]] =
         specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
-    
 
     private def compoundDeclarations =
         declaration | nestedFunctionDef | localLabelDeclaration
@@ -265,7 +267,7 @@ class CParser extends MultiFeatureParser {
                 ) ^^ { AbstractDeclarator(List(), _) })
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
-        | { (INC|DEC) ~ castExpr } ^^ { case p ~ e => UnaryExpr(p.getText, e) }
+        | { (INC | DEC) ~ castExpr } ^^ { case p ~ e => UnaryExpr(p.getText, e) }
         | unaryOperator ~ castExpr ^^ { case u ~ c => UCastExpr(u.getText, c) }
         | textToken("sizeof") ~> {
             LPAREN ~> typeName <~ RPAREN ^^ { SizeOfExprT(_) } |
@@ -275,8 +277,8 @@ class CParser extends MultiFeatureParser {
             LPAREN ~> typeName <~ RPAREN ^^ { AlignOfExprT(_) } |
                 unaryExpr ^^ { AlignOfExprU(_) }
         }
-        | gnuAsmExpr 
-        |fail("expected unaryExpr"))
+        | gnuAsmExpr
+        | fail("expected unaryExpr"))
 
     def unaryOperator = (BAND | STAR | PLUS | MINUS | BNOT | LNOT
         | LAND //for label dereference (&&label)
