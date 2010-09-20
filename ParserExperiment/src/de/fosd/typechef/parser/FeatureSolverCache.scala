@@ -3,16 +3,9 @@ package de.fosd.typechef.parser
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 object FeatureSolverCache {
+	//simple LRU cache with two entries (and statistics) 
 	type CacheT = (FeatureExpr,FeatureExpr,Boolean)
 	var i1,i2,m1,m2:CacheT = (null,null,false)
-
-//    var i_lastA: FeatureExpr = null
-//    var i_lastB: FeatureExpr = null
-//    var i_lastResult: Boolean = false
-//    var m_lastA: FeatureExpr = null
-//    var m_lastB: FeatureExpr = null
-//    var m_lastResult: Boolean = false
-    
     var i_hits, i_query, m_hits, m_query=0;
 
     def implies(a: FeatureExpr, b: FeatureExpr): Boolean = {
