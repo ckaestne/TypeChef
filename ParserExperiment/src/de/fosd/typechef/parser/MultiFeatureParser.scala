@@ -274,10 +274,7 @@ class MultiFeatureParser {
             if (start.atEnd)
                 Failure(err(None), context, start, List())
             else {
-                //should not find an unreachable token, it would have been skipped
-                assert(!context.implies(start.first.getFeature).isDead)
-
-                if (context.implies(start.first.getFeature).isBase) {
+                if (FeatureSolverCache.implies(context,start.first.getFeature)) {
                     //token always parsed in this context
                     if (p(start.first, start.context))
                         Success(start.first, start.rest) //.skipHidden(context))//TODO rather when joining?
@@ -293,9 +290,6 @@ class MultiFeatureParser {
             SplittedParseResult(in.first.getFeature, this(in, context.and(feature)), this(in, context.and(feature.not)))
         }
     }.named("matchInput")
-
-    def isSupported(token: Elem, context: FeatureExpr) =
-        context.implies(token.getFeature).isBase
 
     def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
     def tokenWithContext(kind: String, p: (Elem, Context) => Boolean) = matchInput(p, errorMsg(kind, _))

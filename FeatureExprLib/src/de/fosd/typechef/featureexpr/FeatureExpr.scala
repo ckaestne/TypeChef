@@ -71,7 +71,7 @@ class FeatureExpr {
   def toCnfEquiSat(): FeatureExprTree = { simplify(); expr.toCnfEquiSat(); }
   def print(): String = { simplify(); expr.print(); }
   def debug_print(): String = { simplify(); expr.debug_print(0); }
-  override def equals(that:Any) = that match { case e:FeatureExpr => this.implies(e).and(e.implies(this)).isBase; case _ => false }
+  override def equals(that:Any) = that match { case e:FeatureExpr => (this eq e) || (this.expr eq e.expr) || this.implies(e).and(e.implies(this)).isBase; case _ => false }
 
   def or(that: FeatureExprTree): FeatureExpr = new FeatureExpr(new Or(expr, that));
   def or(that: FeatureExpr): FeatureExpr = new FeatureExpr(new Or(expr, that.expr));

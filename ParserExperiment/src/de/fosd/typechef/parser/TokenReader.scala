@@ -33,7 +33,7 @@ class TokenReader[T<:AbstractToken,U](val tokens: List[T], val offst: Int, val c
 
     def skipHidden(context: FeatureExpr): TokenReader[T,U] = {
         var result = this
-        while (!result.atEnd && context.and(result.first.getFeature).isDead)
+        while (!result.atEnd && FeatureSolverCache.mutuallyExclusive(context,result.first.getFeature))
             result = result.rest
         result
     }
