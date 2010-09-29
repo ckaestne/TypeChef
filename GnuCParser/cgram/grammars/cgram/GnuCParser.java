@@ -1,28 +1,22 @@
 // $ANTLR 2.7.7 (2006-11-01): "expandedGnuCParser.g" -> "GnuCParser.java"$
  package cgram; 
-import antlr.TokenBuffer;
-import antlr.TokenStreamException;
-import antlr.TokenStreamIOException;
-import antlr.ANTLRException;
-import antlr.LLkParser;
-import antlr.Token;
-import antlr.TokenStream;
-import antlr.RecognitionException;
-import antlr.NoViableAltException;
-import antlr.MismatchedTokenException;
-import antlr.SemanticException;
-import antlr.ParserSharedInputState;
-import antlr.collections.impl.BitSet;
-import antlr.collections.AST;
-import java.util.Hashtable;
+import java.util.HashSet;
+import java.util.Set;
+
 import antlr.ASTFactory;
 import antlr.ASTPair;
+import antlr.MismatchedTokenException;
+import antlr.NoViableAltException;
+import antlr.ParserSharedInputState;
+import antlr.RecognitionException;
+import antlr.SemanticException;
+import antlr.Token;
+import antlr.TokenBuffer;
+import antlr.TokenStream;
+import antlr.TokenStreamException;
+import antlr.collections.AST;
 import antlr.collections.impl.ASTArray;
-
-import java.io.*;
-
-import antlr.CommonAST;
-import antlr.DumpASTVisitor;
+import antlr.collections.impl.BitSet;
 
 public class GnuCParser extends antlr.LLkParser       implements GNUCTokenTypes
  {
@@ -35,6 +29,8 @@ public class GnuCParser extends antlr.LLkParser       implements GNUCTokenTypes
 
     // source for names to unnamed scopes
     protected int unnamedScopeCounter = 0;
+    
+    public final Set<String> knownTypedefNames = new HashSet<String>();
 
     public boolean isTypedefName(String name) {
     if (name.equals("__builtin_va_list")) return true;
