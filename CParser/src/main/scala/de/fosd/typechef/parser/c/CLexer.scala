@@ -1,4 +1,5 @@
 package de.fosd.typechef.parser.c
+import java.io.InputStream
 
 import de.fosd.typechef.parser._
 import org.anarres.cpp._
@@ -13,6 +14,16 @@ object CLexer {
 
     def lexFile(fileName: String, directory: String): TokenReader[TokenWrapper, CTypeContext] = {
         val tokens = new PartialPPLexer().parseFile(fileName, directory).iterator
+        val result = new ListBuffer[TokenWrapper]
+        while (tokens.hasNext){
+        	val t=tokens.next
+        	if (t.getText!="__extension__")
+        		result += new TokenWrapper(t)
+        }
+        new TokenReader(result.toList, 0, new CTypeContext())
+    }
+    def lexStream(stream: InputStream, directory: String): TokenReader[TokenWrapper, CTypeContext] = {
+        val tokens = new PartialPPLexer().parseStream(stream, directory).iterator
         val result = new ListBuffer[TokenWrapper]
         while (tokens.hasNext){
         	val t=tokens.next

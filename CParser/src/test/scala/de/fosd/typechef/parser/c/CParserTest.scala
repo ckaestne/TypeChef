@@ -24,7 +24,7 @@ class CParserTest extends TestCase {
         }
     }
     def assertParseResult(expected: AST, code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]]) {
-        for (val production <- productions)
+        for (production <- productions)
             assertParseResult(expected, code, production)
     }
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
@@ -63,7 +63,7 @@ class CParserTest extends TestCase {
         }
     }
     def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]]) {
-        for (val production <- productions)
+        for (production <- productions)
             assertParseError(code, production)
     }
 

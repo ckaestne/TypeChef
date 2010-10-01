@@ -57,7 +57,7 @@ class CParserTest2 extends TestCase {
 //        assertParseable("__builtin_choose_expr(a=1,a=2,a=3)", p.primaryExpr)
 //        assertParseable("__builtin_offsetof ( int , i.i )", p.primaryExpr)
 //        assertParseable("__builtin_offsetof(struct pt_regs,ss)", p.primaryExpr)
-        assertParseable("1?2:3", p.primaryExpr)
+        assertParseable("1?2:3", p.expr)
     }
 
     def testBuiltInOffsetOf {
