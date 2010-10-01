@@ -1,10 +1,6 @@
 package boa;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.anarres.cpp.Main;
-import org.anarres.cpp.Preprocessor;
 
 public class PreprocessBoa {
 	public static void main(String[] args) {

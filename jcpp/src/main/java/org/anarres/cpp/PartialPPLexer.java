@@ -2,6 +2,7 @@ package org.anarres.cpp;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,11 @@ public class PartialPPLexer {
 		return parse(new FileLexerSource(new File(fileName), path), path);
 	}
 
+	public List<Token> parseStream(InputStream stream, String path)
+			throws LexerException, IOException {
+		return parse(new FileLexerSource(stream, path), path);
+	}
+
 	public List<Token> parse(Source source, String folder)
 			throws LexerException, IOException {
 		Preprocessor pp = new Preprocessor();
@@ -38,12 +44,12 @@ public class PartialPPLexer {
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addWarnings(Warning.allWarnings());
 		pp.setListener(new PreprocessorListener(pp) {
-//			@Override
-//			public void handleWarning(Source source, int line, int column,
-//					String msg) throws LexerException {
-//				super.handleWarning(source, line, column, msg);
-//				throw new LexerException(msg);
-//			}
+			// @Override
+			// public void handleWarning(Source source, int line, int column,
+			// String msg) throws LexerException {
+			// super.handleWarning(source, line, column, msg);
+			// throw new LexerException(msg);
+			// }
 		});
 		pp.addMacro("__JCPP__", new FeatureExpr().base());
 
@@ -62,13 +68,12 @@ public class PartialPPLexer {
 				break;
 
 			if (tok.getType() == Token.INVALID)
-				System.err.println("Invalid token: "+tok);
-			//throw new LexerException(...)
-			
+				System.err.println("Invalid token: " + tok);
+			// throw new LexerException(...)
+
 			if (tok.getType() != Token.P_LINE
 					&& tok.getType() != Token.WHITESPACE
-					&& tok.getType() != Token.NL
-					&& tok.getType() != Token.P_IF
+					&& tok.getType() != Token.NL && tok.getType() != Token.P_IF
 					&& tok.getType() != Token.CCOMMENT
 					&& tok.getType() != Token.CPPCOMMENT
 					&& tok.getType() != Token.P_ENDIF

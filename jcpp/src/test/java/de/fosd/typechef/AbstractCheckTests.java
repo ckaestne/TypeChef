@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import junit.framework.Assert;
 
@@ -42,10 +44,13 @@ public class AbstractCheckTests {
 	 */
 	private void testFile(String filename, boolean debug)
 			throws LexerException, IOException {
-		String folder = "test/tc_data/";
+		String folder = "tc_data/";
 
-		StringBuffer output = parse(new FileLexerSource(new File(folder
-				+ filename)), debug, folder);
+		InputStream inputStream = getClass().getResourceAsStream(
+				"/" + folder + filename);
+
+		StringBuffer output = parse(new FileLexerSource(inputStream, folder
+				+ filename), debug, folder);
 		check(filename, folder, output);
 
 	}
@@ -57,8 +62,9 @@ public class AbstractCheckTests {
 
 	private void check(String filename, String folder, StringBuffer output)
 			throws FileNotFoundException, IOException {
-		BufferedReader checkFile = new BufferedReader(new FileReader(new File(
-				folder + filename + ".check")));
+		InputStream inputStream = getClass().getResourceAsStream(
+				"/" + folder + filename + ".check");
+		BufferedReader checkFile = new BufferedReader(new InputStreamReader(inputStream));
 		String line;
 		while ((line = checkFile.readLine()) != null) {
 			if (line.startsWith("!")) {

@@ -21,55 +21,59 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * A {@link Source} which lexes a file.
- *
+ * 
  * The input is buffered.
- *
+ * 
  * @see Source
  */
 public class FileLexerSource extends LexerSource {
-	// private File	file;
-	private String	path;
+	// private File file;
+	private String path;
 
 	/**
 	 * Creates a new Source for lexing the given File.
-	 *
+	 * 
 	 * Preprocessor directives are honoured within the file.
 	 */
-	public FileLexerSource(File file, String path)
-						throws IOException {
-		super(
-			new BufferedReader(
-				new FileReader(
-					file
-				)
-			),
-			true
-		);
+	public FileLexerSource(File file, String path) throws IOException {
+		super(new BufferedReader(new FileReader(file)), true);
 
 		// this.file = file;
 		this.path = path;
 	}
 
-	public FileLexerSource(File file)
-						throws IOException {
+	/**
+	 * Creates a new Source for lexing the given File.
+	 * 
+	 * Preprocessor directives are honoured within the file.
+	 */
+	public FileLexerSource(InputStream stream, String path) throws IOException {
+		super(new BufferedReader(new InputStreamReader(stream)), true);
+
+		// this.file = file;
+		this.path = path;
+	}
+
+	public FileLexerSource(File file) throws IOException {
 		this(file, file.getPath());
 	}
 
-	public FileLexerSource(String path)
-						throws IOException {
+	public FileLexerSource(String path) throws IOException {
 		this(new File(path));
 	}
 
 	@Override
-	/* pp */ String getPath() {
+	/* pp */String getPath() {
 		return path;
 	}
 
 	@Override
-	/* pp */ String getName() {
+	/* pp */String getName() {
 		return getPath();
 	}
 
