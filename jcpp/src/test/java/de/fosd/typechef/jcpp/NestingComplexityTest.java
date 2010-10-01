@@ -1,4 +1,4 @@
-package de.fosd.typechef;
+package de.fosd.typechef.jcpp;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package de.fosd.typechef.parser;
+package de.fosd.typechef.jcpp;
 
 import java.io.IOException;
 import java.util.List;

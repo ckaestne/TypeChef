@@ -1,9 +1,7 @@
-package de.fosd.typechef;
+package de.fosd.typechef.jcpp;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,7 +18,8 @@ import org.anarres.cpp.StringLexerSource;
 import org.anarres.cpp.Token;
 import org.anarres.cpp.Warning;
 
-import de.fosd.typechef.featureexpr.*;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.MacroContext$;
 
 public class AbstractCheckTests {
 
