@@ -226,11 +226,11 @@ public class Main {
 				// System.out.println(l);
 				// output.write(l + "\n");
 				// }
-				System.out.print(tok.getText());
+//				System.out.print(tok.getText());
 				output.write(tok.getText());
 			}
 			output.close();
-			System.out.println(pp.toString());
+//			System.out.println(pp.toString());
 		} catch (Throwable e) {
 			Preprocessor.logger.severe(e.toString());
 			e.printStackTrace(System.err);
