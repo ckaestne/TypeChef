@@ -153,7 +153,7 @@ class MultiFeatureParser {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
                 @tailrec
                 def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
-                	val r = p0(in0, parserState)
+                    val r = p0(in0, parserState)
                     val parseResult = r.join(joinFunction)
                     //if there are errors (not failures) abort
                     val errors = parseResult.toErrorList
@@ -212,10 +212,10 @@ class MultiFeatureParser {
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[T], Elem, Context] = {
             p(in, feature).seqAllSuccessful(feature,
                 (fs: FeatureExpr, x: Success[List[T], Elem, Context]) =>
-                if (x.result.isEmpty)
-                    Failure("empty list", fs, x.nextInput, List())
-                else
-                    x)
+                    if (x.result.isEmpty)
+                        Failure("empty list", fs, x.nextInput, List())
+                    else
+                        x)
         }
     }.named("nonEmpty")
 
@@ -275,10 +275,10 @@ class MultiFeatureParser {
             if (start.atEnd)
                 Failure(err(None), context, start, List())
             else {
-                if (FeatureSolverCache.implies(context,start.first.getFeature)) {
+                if (FeatureSolverCache.implies(context, start.first.getFeature)) {
                     //token always parsed in this context
                     if (p(start.first, start.context))
-                        Success(start.first, start.rest) //.skipHidden(context))//TODO rather when joining?
+                        Success(start.first, start.rest) 
                     else
                         Failure(err(Some(start.first)), context, start, List())
                 } else
@@ -288,7 +288,15 @@ class MultiFeatureParser {
         }
         def splitParser(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, Context] = {
             val feature = in.first.getFeature
-            SplittedParseResult(in.first.getFeature, this(in, context.and(feature)), this(in, context.and(feature.not)))
+            val r1 = this(in, context.and(feature))
+            val r2 = this(in, context.and(feature.not))
+            (r1,r2) match {
+            	case (f1@Failure(msg1,context1,next1,inner1),f2@Failure(msg2,context2,next2,inner2)) => 
+            		Failure(msg1,context1,next1, List(f1,f2)++inner1++inner2)
+            	case (f1@Error(msg1,context1,next1,inner1),f2@Error(msg2,context2,next2,inner2)) => 
+            		Error(msg1,context1,next1, List(f1,f2)++inner1++inner2)
+            	case (a,b) => SplittedParseResult(in.first.getFeature, r1, r2)
+            }
         }
     }.named("matchInput")
 
