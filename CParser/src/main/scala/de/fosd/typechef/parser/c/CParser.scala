@@ -151,14 +151,14 @@ class CParser extends MultiFeatureParser {
         opt(initializerElementLabel) ~ (assignExpr | lcurlyInitializer) ^^ { case iel ~ expr => Initializer(iel, expr) }
 
     def declarator: MultiParser[Declarator] =
-        (optList(pointerGroup) ~ (ID | LPAREN ~> declarator <~ RPAREN) ~
+        (optList(pointerGroup) ~ (ID | LPAREN ~> opt(attributeDecl) ~ declarator <~ RPAREN) ~
             rep(
                 LPAREN ~> (parameterTypeList ^^ { DeclParameterTypeList(_) }
                     | optList(idList) ^^ { DeclIdentifierList(_) }) <~ (opt(COMMA) ~ RPAREN)
                 | LBRACKET ~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) }
                 )) ^^ {
             case pointers ~(id: Id) ~ ext => DeclaratorId(pointers, id, ext);
-            case pointers ~(decl: Declarator) ~ ext => DeclaratorDecl(pointers, decl, ext)
+            case pointers ~((attr:Option[AttributeSpecifier])~(decl: Declarator)) ~ ext => DeclaratorDecl(pointers, attr, decl, ext)
         }
 
     def parameterTypeList: MultiParser[List[ParameterDeclaration]] =
@@ -379,9 +379,9 @@ class CParser extends MultiFeatureParser {
 
     //***  gnuc extensions ****************************************************
 
-    def attributeDecl: MultiParser[Specifier] =
+    def attributeDecl: MultiParser[AttributeSpecifier] =
         (textToken("__attribute__") ~
-            LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => AttributeSpecifier(al) } |
+            LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => GnuAttributeSpecifier(al) } |
             asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
     def attributeList: MultiParser[List[List[Attribute]]] =

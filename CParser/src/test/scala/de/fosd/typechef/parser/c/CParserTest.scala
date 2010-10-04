@@ -291,7 +291,7 @@ class CParserTest extends TestCase {
     }
     def testDeclarator {
         assertParseResult(DeclaratorId(List(), a, List()), "a", p.declarator)
-        assertParseResult(DeclaratorDecl(List(), DeclaratorId(List(), a, List(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
+        assertParseResult(DeclaratorDecl(List(), None, DeclaratorId(List(), a, List(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
         assertParseResult(DeclaratorId(List(Pointer(List())), a, List()), "*a", p.declarator)
         assertParseResult(DeclaratorId(List(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
         assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const")))), a, List()), "*const a", p.declarator)
@@ -398,5 +398,7 @@ class CParserTest extends TestCase {
         gh554j[0]='\n';
     }""", p.statement)
     
+    def testBoa1 = assertParseable("__attribute__((__cdecl__))", p.attributeDecl)
+    def testBoa2 = assertParseable("int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);",p.structDeclaration)
 
 }

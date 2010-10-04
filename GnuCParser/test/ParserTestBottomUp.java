@@ -165,9 +165,9 @@ public class ParserTestBottomUp {
 	@Test
 	public void testBoa() throws RecognitionException, TokenStreamException,
 			FileNotFoundException, ANTLRException {
-		newParser(
-				"struct __sFILE {  char *	_cookie;  int _EXFNPTR(_read, (struct int *, char *,					   char *, int));}")
-				.structOrUnionSpecifier();
+		GnuCParser p = newParser("struct __sFILE {  int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);}");
+		p.structOrUnionSpecifier();
+		TNode.printTree(System.out, p.getAST());
 	}
 
 	private GnuCParser newParser(String code) throws FileNotFoundException,

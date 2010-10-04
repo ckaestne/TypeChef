@@ -80,7 +80,7 @@ abstract class Declarator(pointer: List[Pointer], extensions: List[DeclaratorExt
 case class DeclaratorId(pointer: List[Pointer], id: Id, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions) {
     def getName = id.name
 }
-case class DeclaratorDecl(pointer: List[Pointer], decl: Declarator, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions) {
+case class DeclaratorDecl(pointer: List[Pointer], attrib:Option[AttributeSpecifier], decl: Declarator, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions) {
     def getName = decl.getName
 }
 abstract class DeclaratorExtension extends AST
@@ -120,8 +120,9 @@ object AltExternalDef {
 case class TypeName(specifiers: List[Specifier], decl: Option[AbstractDeclarator]) extends AST
 
 //GnuC stuff here:
-case class AttributeSpecifier(attributeList: List[List[Attribute]]) extends Specifier
-case class AsmAttributeSpecifier(stringConst: StringLit) extends Specifier
+class AttributeSpecifier extends Specifier
+case class GnuAttributeSpecifier(attributeList: List[List[Attribute]]) extends AttributeSpecifier
+case class AsmAttributeSpecifier(stringConst: StringLit) extends AttributeSpecifier
 case class LcurlyInitializer(inits: List[Initializer]) extends Expr
 case class AlignOfExprT(typeName: TypeName) extends Expr
 case class AlignOfExprU(expr: Expr) extends Expr

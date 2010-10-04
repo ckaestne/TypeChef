@@ -1,6 +1,7 @@
 package de.fosd.typechef.parser
 import scala.util.parsing.input._
 import de.fosd.typechef.featureexpr.FeatureExpr
+import scala.math.min
 
 /**
  * reader of elements that each have a feature expression (that can be accessed with the getFeature function)
@@ -8,13 +9,13 @@ import de.fosd.typechef.featureexpr.FeatureExpr
  * @author kaestner
  *
  */
-class TokenReader[T<:AbstractToken,U](val tokens: List[T], val offst: Int, val context:U=null) extends Reader[T] {
+class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, val context: U = null) extends Reader[T] {
 
     override def offset: Int = offst
 
     override def first = tokens.head
 
-    override def rest: TokenReader[T,U] = new TokenReader(tokens.tail, offst + 1,context)
+    override def rest: TokenReader[T, U] = new TokenReader(tokens.tail, offst + 1, context)
 
     override def pos: Position = NoPosition
 
@@ -22,21 +23,22 @@ class TokenReader[T<:AbstractToken,U](val tokens: List[T], val offst: Int, val c
      */
     def atEnd: Boolean = tokens.isEmpty
 
-    override def toString: String = "TokenReader(" + tokens + ")"
+    override def toString: String = tokens.slice(0, min(tokens.size, 50)).mkString("TokenReader(",", ",", ...)")
+    
 
     override def hashCode = tokens.hashCode
 
     override def equals(that: Any) = that match {
-        case other: TokenReader[_,_] => this.tokens == other.tokens && this.context==other.context
+        case other: TokenReader[_, _] => this.tokens == other.tokens && this.context == other.context
         case _ => false
     }
 
-    def skipHidden(context: FeatureExpr): TokenReader[T,U] = {
+    def skipHidden(context: FeatureExpr): TokenReader[T, U] = {
         var result = this
-        while (!result.atEnd && FeatureSolverCache.mutuallyExclusive(context,result.first.getFeature))
+        while (!result.atEnd && FeatureSolverCache.mutuallyExclusive(context, result.first.getFeature))
             result = result.rest
         result
     }
-    
-    def setContext(newContext: U): TokenReader[T,U] = if (context==newContext) this else new TokenReader(tokens,offst,newContext) 
+
+    def setContext(newContext: U): TokenReader[T, U] = if (context == newContext) this else new TokenReader(tokens, offst, newContext)
 }
