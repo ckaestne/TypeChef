@@ -153,7 +153,8 @@ class MultiFeatureParser {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
                 @tailrec
                 def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
-                    val parseResult = p0(in0, parserState).join(joinFunction)
+                	val r = p0(in0, parserState)
+                    val parseResult = r.join(joinFunction)
                     //if there are errors (not failures) abort
                     val errors = parseResult.toErrorList
                     if (!errors.isEmpty)

@@ -7,7 +7,7 @@ import java.io.FileWriter
 import junit.framework._
 import junit.framework.Assert._
 
-object BoaFilesTest extends Application {
+object BoaFilesTest {
 
     val fileList = List("alias", "boa", "buffer", "cgi",
         "cgi_header", "config", "escape", "get", "hash", "ip", "log",
@@ -39,8 +39,7 @@ object BoaFilesTest extends Application {
         val file = getFullPath(fileName + ".pi")
         val initialContext = new CTypeContext().addType("__uint32_t")
         val result = new CParser().translationUnit(
-            CLexer.lexFile(file, "testfiles/cgram/").setContext(initialContext), FeatureExpr.base
-            )
+            CLexer.lexFile(file, "testfiles/cgram/").setContext(initialContext), FeatureExpr.base)
         val resultStr: String = result.toString
         println(FeatureSolverCache.statistics)
         val writer = new FileWriter(file + ".ast")
@@ -49,18 +48,44 @@ object BoaFilesTest extends Application {
         println("done.")
 
         //        System.out.println(resultStr)
-
-        (result: @unchecked) match {
-            case Success(ast, unparsed) => {
-                assertTrue("parser did not reach end of token stream (" + unparsed.first.getPositionStr + "): " + unparsed, unparsed.atEnd)
-                //succeed
-            }
-            case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed.first.getPositionStr + " " + unparsed + " with context " + context + " " + inner)
-        }
+        printParseResult(result, FeatureExpr.base)
+        checkParseResult(result, FeatureExpr.base)
 
     }
 
-//        preprocessFile("hash")
-    parseFile("hash")
+    def printParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {
+        result match {
+            case Success(ast, unparsed) => {
+                if (unparsed.atEnd)
+                    println(feature.toString + "\tsucceeded\n")
+                else
+                    println(feature.toString + "\tstopped before end\n")
+            }
+            case NoSuccess(msg, context, unparsed, inner) =>
+                println(feature.toString + "\tfailed " + msg + "\n")
+            case SplittedParseResult(f, left, right) => {
+                printParseResult(left, feature.and(f))
+                printParseResult(right, feature.and(f.not))
+            }
+        }
+    }
+    def checkParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {
+        result match {
+            case Success(ast, unparsed) => {
+                if (!unparsed.atEnd)
+                    fail("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPositionStr + "): " + unparsed)
+                //succeed
+            }
+            case NoSuccess(msg, context, unparsed, inner) =>
+                fail(msg + " at " + unparsed.first.getPositionStr + " " + unparsed + " with feature " + feature + " and context " + context + " " + inner)
+            case SplittedParseResult(f, left, right) => {
+                checkParseResult(left, feature.and(f))
+                checkParseResult(right, feature.and(f.not))
+            }
+        }
+    }
+    def main(args: Array[String]) = {
+        preprocessFile("hash")
+        parseFile("hash")
+    }
 }

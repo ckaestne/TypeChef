@@ -85,5 +85,5 @@
 #define __declspec(x) __attribute__((x))
 
 
-
-
+#undef socklen_t
+#undef RC_INVOKED

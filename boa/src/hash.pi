@@ -6499,7 +6499,7 @@ Boston, MA 02111-1307, USA.  */
 
 
 
-#if !(defined(RC_INVOKED))
+
 
 
 
@@ -6590,7 +6590,7 @@ typedef __builtin_va_list __gnuc_va_list;
 
 
 
-#endif
+
 
 
 #line 35 "C:\\cygwin\\usr\\include\\stdio.h" 2
@@ -25236,10 +25236,10 @@ details. */
 
 /* Not unsigned for backward compatibility.  Keep #define for backward
    compatibility. */
-#if !(defined(socklen_t))
+
 typedef int socklen_t;
 
-#endif
+
 typedef uint16_t sa_family_t;
 
 struct sockaddr {

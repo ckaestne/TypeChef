@@ -27,6 +27,7 @@ class CParserTest extends TestCase {
         for (production <- productions)
             assertParseResult(expected, code, production)
     }
+    
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
@@ -400,5 +401,33 @@ class CParserTest extends TestCase {
     
     def testBoa1 = assertParseable("__attribute__((__cdecl__))", p.attributeDecl)
     def testBoa2 = assertParseable("int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);",p.structDeclaration)
+    def testBoa3 = assertParseable("""typedef int FILE;
+typedef __builtin_va_list __gnuc_va_list;
+int	__attribute__((__cdecl__)) vfprintf (FILE *, const char *, __gnuc_va_list)
+ __attribute__ ((__format__(__printf__, 2, 0)));""",p.translationUnit)
+ 	def testBoa4 = assertParseable("""struct alias {
+    char *fakename;             /* URI path to file */
+    char *realname;             /* Actual path to file */
+    int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
+    int fake_len;               /* strlen of fakename */
+    int real_len;               /* strlen of realname */
+    struct alias *next;
+};
+
+typedef struct alias alias;""",p.translationUnit)
+ 	def testBoa5 = assertParseable("""char *fakename;             /* URI path to file */
+    char *realname;             /* Actual path to file */
+    int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
+    int fake_len;               /* strlen of fakename */
+    int real_len;               /* strlen of realname */
+    struct alias *next;""",p.structDeclarationList)
+
+    def testOptListBoa1 = assertParseable("""
+typedef	char *	caddr_t;
+#if defined(GO32)
+typedef unsigned long vm_offset_t;
+#endif
+typedef unsigned long vm_size_t;
+""",p.translationUnit)
 
 }

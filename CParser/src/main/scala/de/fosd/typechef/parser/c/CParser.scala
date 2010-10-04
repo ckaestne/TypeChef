@@ -24,7 +24,7 @@ class CParser extends MultiFeatureParser {
         "__signed", "__signed__", "__typeof", "__typeof__", "__volatile", "__volatile__", "asm",
         "volatile", "typeof", "auto", "register", "typedef", "extern", "static", "inline",
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
-        "signed", "unsigned", "_Bool", "type", "struct", "union", "enum", "if", "while", "do",
+        "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
         "sizeof")
     val predefinedTypedefs = Set("__builtin_va_list")
