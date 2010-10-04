@@ -1,4 +1,4 @@
-#line 1 "W:\\work\\TypeChef\\boa\\src\\cygwin.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\cygwin.h" 1
 
 
 //defines created by gcc on cygwin
@@ -86,9 +86,9 @@
 
 
 
-
-
-#line 1 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 1
+//#undef socklen_t
+//#undef RC_INVOKED
+#line 1 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
@@ -1280,6 +1280,8 @@ typedef unsigned char __uint8_t ;
 
 
 
+typedef signed short __int16_t;
+typedef unsigned short __uint16_t;
 
 
 
@@ -1287,10 +1289,8 @@ typedef unsigned char __uint8_t ;
 
 
 
-
-
-
-
+typedef __int16_t __int_least16_t;
+typedef __uint16_t __uint_least16_t;
 
 
 
@@ -1327,8 +1327,6 @@ typedef __uint32_t __uint_least32_t;
 
 
 
-typedef __int32_t __int_least16_t;
-typedef __uint32_t __uint_least16_t;
 
 
 
@@ -1341,9 +1339,11 @@ typedef __uint32_t __uint_least16_t;
 
 
 
+typedef signed long long __int64_t;
+typedef unsigned long long __uint64_t;
 
 
-
+/* POSIX mandates LLONG_MAX in <limits.h> */
 
 
 
@@ -2878,7 +2878,7 @@ extern __attribute__((dllimport)) int sys_nerr;
 #line 6 "C:\\cygwin\\usr\\include\\errno.h" 2
 
 
-#line 25 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\stdio.h" 1
 /*
  * Copyright (c) 1990 The Regents of the University of California.
@@ -7248,7 +7248,7 @@ extern __inline__ __attribute__ ((__always_inline__)) int __sgetc_r(struct _reen
 
 
 
-#line 26 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\stdlib.h" 1
 /*
  * stdlib.h
@@ -10238,7 +10238,7 @@ void	__attribute__((__cdecl__)) __eprintf (const char *, const char *, unsigned 
 
 
 
-#line 27 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\string.h" 1
 /*
  * string.h
@@ -11697,7 +11697,7 @@ int     __attribute__((__cdecl__)) strtosigno (const char *__name);
 
 
 
-#line 28 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\netdb.h" 1
 /* Original linux netdb.h merged with winsock.h types */
 
@@ -22198,7 +22198,7 @@ int		ruserok (const char *, int, const char *, const char *);
 
 
 
-#line 29 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\unistd.h" 1
 
 
@@ -24034,7 +24034,7 @@ int	__attribute__((__cdecl__)) unlinkat (int, const char *, int);
 #line 4 "C:\\cygwin\\usr\\include\\unistd.h" 2
 
 
-#line 30 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\fcntl.h" 1
 /* fcntl.h
 
@@ -26010,7 +26010,7 @@ extern int posix_fallocate (int, off_t, off_t);
 
 
 
-#line 31 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\types.h" 1
 /* unified sys/types.h: 
    start with sef's sysvi386 version.
@@ -26454,7 +26454,7 @@ extern int posix_fallocate (int, off_t, off_t);
 
 
 
-#line 32 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\stat.h" 1
 
 
@@ -26628,7 +26628,7 @@ extern int posix_fallocate (int, off_t, off_t);
 
 
 
-#line 33 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\socket.h" 1
 /* sys/socket.h
 
@@ -26687,7 +26687,7 @@ details. */
 
 
 
-#line 34 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\netinet\\in.h" 1
 /* netinet/in.h
 
@@ -26715,7 +26715,7 @@ details. */
 
 
 
-#line 35 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\arpa\\inet.h" 1
 /* arpa/inet.h
 
@@ -26778,7 +26778,7 @@ const char *inet_ntop (int, const void *, char *, socklen_t);
 
 
 
-#line 36 "W:\\work\\TypeChef\\boa\\src\\sublog.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\sublog.c" 2
 
 int open_pipe_fd(char *command);
 int open_net_fd(char *spec);

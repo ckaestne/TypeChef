@@ -1,4 +1,4 @@
-#line 1 "W:\\work\\TypeChef\\boa\\src\\cygwin.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\cygwin.h" 1
 
 
 //defines created by gcc on cygwin
@@ -86,9 +86,9 @@
 
 
 
-
-
-#line 1 "W:\\work\\TypeChef\\boa\\src\\escape.c" 1
+//#undef socklen_t
+//#undef RC_INVOKED
+#line 1 "d:\\work\\TypeChef\\boa\\src\\escape.c" 1
 /*
  *  Boa, an http server
  *  escape.c
@@ -1974,18 +1974,19 @@ typedef unsigned char __uint8_t ;
 
 
 
+#if 1
+typedef signed short __int16_t;
+typedef unsigned short __uint16_t;
+
+#endif
 
 
 
 
 
 
-
-
-
-
-
-
+typedef __int16_t __int_least16_t;
+typedef __uint16_t __uint_least16_t;
 
 
 
@@ -2022,8 +2023,6 @@ typedef __uint32_t __uint_least32_t;
 
 
 
-typedef __int32_t __int_least16_t;
-typedef __uint32_t __uint_least16_t;
 
 
 
@@ -2035,10 +2034,13 @@ typedef __uint32_t __uint_least16_t;
 
 
 
+#if 1
+typedef signed long long __int64_t;
+typedef unsigned long long __uint64_t;
 
 
-
-
+/* POSIX mandates LLONG_MAX in <limits.h> */
+#endif
 
 
 
@@ -6241,7 +6243,7 @@ extern __inline__ __attribute__ ((__always_inline__)) int __sgetc_r(struct _reen
 
 
 
-#line 35 "W:\\work\\TypeChef\\boa\\src\\escape.c" 2
+#line 28 "d:\\work\\TypeChef\\boa\\src\\escape.c" 2
 #line 1 "C:\\cygwin\\usr\\include\\stdlib.h" 1
 /*
  * stdlib.h
@@ -9231,10 +9233,10 @@ void	__attribute__((__cdecl__)) __eprintf (const char *, const char *, unsigned 
 
 
 
-#line 36 "W:\\work\\TypeChef\\boa\\src\\escape.c" 2
+#line 28 "d:\\work\\TypeChef\\boa\\src\\escape.c" 2
 #endif
 #if !(defined(TEST))
-#line 1 "W:\\work\\TypeChef\\boa\\src\\boa.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\boa.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -10430,18 +10432,19 @@ typedef unsigned char __uint8_t ;
 
 
 
+#if 1
+typedef signed short __int16_t;
+typedef unsigned short __uint16_t;
+
+#endif
 
 
 
 
 
 
-
-
-
-
-
-
+typedef __int16_t __int_least16_t;
+typedef __uint16_t __uint_least16_t;
 
 
 
@@ -10478,8 +10481,6 @@ typedef __uint32_t __uint_least32_t;
 
 
 
-typedef __int32_t __int_least16_t;
-typedef __uint32_t __uint_least16_t;
 
 
 
@@ -10491,10 +10492,13 @@ typedef __uint32_t __uint_least16_t;
 
 
 
+#if 1
+typedef signed long long __int64_t;
+typedef unsigned long long __uint64_t;
 
 
-
-
+/* POSIX mandates LLONG_MAX in <limits.h> */
+#endif
 
 
 
@@ -12029,7 +12033,7 @@ extern __attribute__((dllimport)) int sys_nerr;
 #line 6 "C:\\cygwin\\usr\\include\\errno.h" 2
 
 
-#line 28 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\stdlib.h" 1
 /*
  * stdlib.h
@@ -15019,7 +15023,7 @@ void	__attribute__((__cdecl__)) __eprintf (const char *, const char *, unsigned 
 
 
 #endif
-#line 29 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\stdio.h" 1
 /*
  * Copyright (c) 1990 The Regents of the University of California.
@@ -19389,7 +19393,7 @@ extern __inline__ __attribute__ ((__always_inline__)) int __sgetc_r(struct _reen
 
 
 #endif
-#line 30 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\string.h" 1
 /*
  * string.h
@@ -20848,7 +20852,7 @@ int     __attribute__((__cdecl__)) strtosigno (const char *__name);
 
 
 
-#line 31 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\ctype.h" 1
 
 
@@ -21083,7 +21087,7 @@ extern	__attribute__((dllimport)) const char	_ctype_[];
 
 
 
-#line 32 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\time.h" 1
 /*
  * time.h
@@ -25125,7 +25129,7 @@ int __attribute__((__cdecl__)) nanosleep (const struct timespec *rqtp, struct ti
 
 
 
-#line 33 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\pwd.h" 1
 /*-
  * Copyright (c) 1989 The Regents of the University of California.
@@ -25773,7 +25777,7 @@ void		 endpwent (void);
 
 
 
-#line 34 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\grp.h" 1
 /*	$NetBSD: grp.h,v 1.7 1995/04/29 05:30:40 cgd Exp $	*/
 
@@ -27050,7 +27054,7 @@ int		 initgroups (const char *, gid_t);
 
 
 
-#line 35 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\unistd.h" 1
 
 
@@ -29013,7 +29017,7 @@ int	__attribute__((__cdecl__)) unlinkat (int, const char *, int);
 #line 4 "C:\\cygwin\\usr\\include\\unistd.h" 2
 
 
-#line 36 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\fcntl.h" 1
 /* fcntl.h
 
@@ -33045,7 +33049,7 @@ extern int posix_fallocate (int, off_t, off_t);
 
 
 
-#line 37 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\limits.h" 1
 /* limits.h
 
@@ -33887,7 +33891,7 @@ details. */
 
 
 
-#line 38 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\setjmp.h" 1
 /*
 	setjmp.h
@@ -34357,7 +34361,7 @@ int	__attribute__((__cdecl__)) setjmp (jmp_buf __jmpb);
 
 
 
-#line 39 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 #line 1 "C:\\cygwin\\usr\\include\\netdb.h" 1
 /* Original linux netdb.h merged with winsock.h types */
@@ -39824,7 +39828,7 @@ int		ruserok (const char *, int, const char *, const char *);
 
 
 
-#line 41 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\netinet\\in.h" 1
 /* netinet/in.h
 
@@ -39852,7 +39856,7 @@ details. */
 
 
 
-#line 42 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 #line 1 "C:\\cygwin\\usr\\include\\sys\\mman.h" 1
 /* sys/mman.h
@@ -40899,7 +40903,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 44 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\select.h" 1
 /* select.h
    Copyright 1998, 1999, 2000, 2001, 2009 Red Hat, Inc.
@@ -40940,7 +40944,7 @@ details. */
 
 
 
-#line 45 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\types.h" 1
 /* unified sys/types.h: 
    start with sef's sysvi386 version.
@@ -41511,7 +41515,7 @@ details. */
 
 
 #endif
-#line 46 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\socket.h" 1
 /* sys/socket.h
 
@@ -41570,7 +41574,7 @@ details. */
 
 
 
-#line 47 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\stat.h" 1
 
 
@@ -41744,9 +41748,9 @@ details. */
 
 
 
-#line 48 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\compat.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\compat.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -41774,7 +41778,7 @@ details. */
 
 
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\config.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\config.h" 1
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -41893,7 +41897,7 @@ details. */
 
 /* Define if you have the efence library (-lefence).  */
 /* #undef HAVE_LIBEFENCE */
-#line 28 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 
 #if (!(defined(TEST)) || defined(TIME_WITH_SYS_TIME))
 #line 1 "C:\\cygwin\\usr\\include\\sys\\time.h" 1
@@ -41976,16 +41980,20 @@ details. */
 
 
 
-#line 30 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 #endif
+
 #if (!(defined(TEST)) || defined(HAVE_SYS_FCNTL_H))
 #line 1 "C:\\cygwin\\usr\\include\\sys\\fcntl.h" 1
 
 
 
 
-#line 32 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 #endif
+
+
+
 
 
 
@@ -42050,10 +42058,12 @@ details. */
 
 
 
-#line 36 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 #if !(defined(SO_MAXCONN))
 
 #endif
+
+
 
 
 
@@ -42070,9 +42080,11 @@ details. */
 
 
 
+
 #if (!(defined(TEST)) || defined(MAP_FILE))
 
 #endif
+
 #if defined(INET6)
 
 
@@ -42083,6 +42095,7 @@ details. */
 
 
 #endif
+
 
 #line 1 "C:\\cygwin\\usr\\include\\dirent.h" 1
 
@@ -43257,7 +43270,8 @@ enum
 
 
 
-#line 52 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
+
 
 
 
@@ -43288,18 +43302,25 @@ enum
 
 
 
+
+
+
+
 #if defined(HAVE_TM_GMTOFF)
 
 #endif
 #if !(defined(HAVE_TM_GMTOFF))
 
 #endif
+
 #if defined(HAVE_TM_ZONE)
 
 #endif
 #if !(defined(HAVE_TM_ZONE))
 
 #endif
+
+
 
 
 
@@ -43391,11 +43412,12 @@ enum
 
 
 #endif
-#line 69 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 #endif
 
-#line 50 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
-#line 1 "W:\\work\\TypeChef\\boa\\src\\defines.h" 1
+
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 1 "d:\\work\\TypeChef\\boa\\src\\defines.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -43427,6 +43449,7 @@ enum
 #if !(defined(SERVER_ROOT))
 
 #endif
+
 /***** Change this via the CGIPath configuration value in boa.conf *****/
 
 
@@ -43463,9 +43486,11 @@ enum
 #if !(defined(ACCEPT_ON))
 
 #endif
+
 #if !(defined(SERVER_VERSION))
 
 #endif
+
 
 
 
@@ -43592,8 +43617,9 @@ enum
 
 
 
-#line 51 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
-#line 1 "W:\\work\\TypeChef\\boa\\src\\globals.h" 1
+
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 1 "d:\\work\\TypeChef\\boa\\src\\globals.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -43787,7 +43813,7 @@ extern sigjmp_buf env;
 extern int handle_sigbus;
 
 
-#line 52 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 /* alias */
 void add_alias(char *fakename, char *realname, int script);
@@ -43799,7 +43825,7 @@ void dump_alias(void);
 void read_config_files(void);
 
 /* escape */
-#line 1 "W:\\work\\TypeChef\\boa\\src\\escape.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\escape.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -43824,7 +43850,7 @@ void read_config_files(void);
 
 /* $Id: escape.h,v 1.18 2002/01/31 03:12:21 jnelson Exp $ */
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\config.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\config.h" 1
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -43943,7 +43969,7 @@ void read_config_files(void);
 
 /* Define if you have the efence library (-lefence).  */
 /* #undef HAVE_LIBEFENCE */
-#line 27 "W:\\work\\TypeChef\\boa\\src\\escape.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\escape.h" 2
 
 /* Highest character number that can possibly be passed through un-escaped */
 
@@ -43951,6 +43977,7 @@ void read_config_files(void);
 #if !(defined(NEEDS_ESCAPE_SHIFT))
 
 #endif
+
 
 
 
@@ -43965,7 +43992,7 @@ void read_config_files(void);
 
 extern unsigned long _needs_escape[(128+(1<<5)-1)/(1<<5)];
 void build_needs_escape(void);
-#line 64 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 /* get */
 
@@ -44119,9 +44146,10 @@ sockaddr_in
 void select_loop(int server_s);
 
 
-#line 37 "W:\\work\\TypeChef\\boa\\src\\escape.c" 2
+#line 28 "d:\\work\\TypeChef\\boa\\src\\escape.c" 2
 #endif
-#line 1 "W:\\work\\TypeChef\\boa\\src\\escape.h" 1
+
+#line 1 "d:\\work\\TypeChef\\boa\\src\\escape.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -44146,7 +44174,7 @@ void select_loop(int server_s);
 
 /* $Id: escape.h,v 1.18 2002/01/31 03:12:21 jnelson Exp $ */
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\config.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\config.h" 1
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -44265,7 +44293,7 @@ void select_loop(int server_s);
 
 /* Define if you have the efence library (-lefence).  */
 /* #undef HAVE_LIBEFENCE */
-#line 27 "W:\\work\\TypeChef\\boa\\src\\escape.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\escape.h" 2
 
 /* Highest character number that can possibly be passed through un-escaped */
 
@@ -44273,6 +44301,7 @@ void select_loop(int server_s);
 #if !((!(defined(TEST)) || defined(NEEDS_ESCAPE_SHIFT)))
 
 #endif
+
 
 
 
@@ -44287,7 +44316,7 @@ void select_loop(int server_s);
 
 extern unsigned long _needs_escape[(128+(1<<5)-1)/(1<<5)];
 void build_needs_escape(void);
-#line 39 "W:\\work\\TypeChef\\boa\\src\\escape.c" 2
+#line 28 "d:\\work\\TypeChef\\boa\\src\\escape.c" 2
 
 unsigned long _needs_escape[(128+(1<<5)-1)/(1<<5)];
 
@@ -44342,3 +44371,4 @@ int main(void)
     return(0);
 }
 #endif
+

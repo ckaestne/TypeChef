@@ -1,4 +1,4 @@
-#line 1 "W:\\work\\TypeChef\\boa\\src\\cygwin.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\cygwin.h" 1
 
 
 //defines created by gcc on cygwin
@@ -86,9 +86,9 @@
 
 
 
-
-
-#line 1 "W:\\work\\TypeChef\\boa\\src\\config.c" 1
+//#undef socklen_t
+//#undef RC_INVOKED
+#line 1 "d:\\work\\TypeChef\\boa\\src\\config.c" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
@@ -111,7 +111,7 @@
 
 /* $Id: config.c,v 1.31.2.3 2002/07/26 03:04:29 jnelson Exp $*/
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\boa.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\boa.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -1308,6 +1308,8 @@ typedef unsigned char __uint8_t ;
 
 
 
+typedef signed short __int16_t;
+typedef unsigned short __uint16_t;
 
 
 
@@ -1315,10 +1317,8 @@ typedef unsigned char __uint8_t ;
 
 
 
-
-
-
-
+typedef __int16_t __int_least16_t;
+typedef __uint16_t __uint_least16_t;
 
 
 
@@ -1355,8 +1355,6 @@ typedef __uint32_t __uint_least32_t;
 
 
 
-typedef __int32_t __int_least16_t;
-typedef __uint32_t __uint_least16_t;
 
 
 
@@ -1369,9 +1367,11 @@ typedef __uint32_t __uint_least16_t;
 
 
 
+typedef signed long long __int64_t;
+typedef unsigned long long __uint64_t;
 
 
-
+/* POSIX mandates LLONG_MAX in <limits.h> */
 
 
 
@@ -2906,7 +2906,7 @@ extern __attribute__((dllimport)) int sys_nerr;
 #line 6 "C:\\cygwin\\usr\\include\\errno.h" 2
 
 
-#line 28 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\stdlib.h" 1
 /*
  * stdlib.h
@@ -5896,7 +5896,7 @@ void	__attribute__((__cdecl__)) __eprintf (const char *, const char *, unsigned 
 
 
 
-#line 29 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\stdio.h" 1
 /*
  * Copyright (c) 1990 The Regents of the University of California.
@@ -10266,7 +10266,7 @@ extern __inline__ __attribute__ ((__always_inline__)) int __sgetc_r(struct _reen
 
 
 
-#line 30 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\string.h" 1
 /*
  * string.h
@@ -11725,7 +11725,7 @@ int     __attribute__((__cdecl__)) strtosigno (const char *__name);
 
 
 
-#line 31 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\ctype.h" 1
 
 
@@ -11960,7 +11960,7 @@ extern	__attribute__((dllimport)) const char	_ctype_[];
 
 
 
-#line 32 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\time.h" 1
 /*
  * time.h
@@ -15748,7 +15748,7 @@ int __attribute__((__cdecl__)) nanosleep (const struct timespec *rqtp, struct ti
 
 
 
-#line 33 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\pwd.h" 1
 /*-
  * Copyright (c) 1989 The Regents of the University of California.
@@ -16269,7 +16269,7 @@ void		 endpwent (void);
 
 
 
-#line 34 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\grp.h" 1
 /*	$NetBSD: grp.h,v 1.7 1995/04/29 05:30:40 cgd Exp $	*/
 
@@ -17292,7 +17292,7 @@ int		 initgroups (const char *, gid_t);
 
 
 
-#line 35 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\unistd.h" 1
 
 
@@ -19128,7 +19128,7 @@ int	__attribute__((__cdecl__)) unlinkat (int, const char *, int);
 #line 4 "C:\\cygwin\\usr\\include\\unistd.h" 2
 
 
-#line 36 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\fcntl.h" 1
 /* fcntl.h
 
@@ -22652,7 +22652,7 @@ extern int posix_fallocate (int, off_t, off_t);
 
 
 
-#line 37 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\limits.h" 1
 /* limits.h
 
@@ -23494,7 +23494,7 @@ details. */
 
 
 
-#line 38 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\setjmp.h" 1
 /*
 	setjmp.h
@@ -23964,7 +23964,7 @@ int	__attribute__((__cdecl__)) setjmp (jmp_buf __jmpb);
 
 
 
-#line 39 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 #line 1 "C:\\cygwin\\usr\\include\\netdb.h" 1
 /* Original linux netdb.h merged with winsock.h types */
@@ -29050,7 +29050,7 @@ int		ruserok (const char *, int, const char *, const char *);
 
 
 
-#line 41 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\netinet\\in.h" 1
 /* netinet/in.h
 
@@ -29078,7 +29078,7 @@ details. */
 
 
 
-#line 42 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 #line 1 "C:\\cygwin\\usr\\include\\sys\\mman.h" 1
 /* sys/mman.h
@@ -29998,7 +29998,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 44 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\select.h" 1
 /* select.h
    Copyright 1998, 1999, 2000, 2001, 2009 Red Hat, Inc.
@@ -30039,7 +30039,7 @@ details. */
 
 
 
-#line 45 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\types.h" 1
 /* unified sys/types.h: 
    start with sef's sysvi386 version.
@@ -30483,7 +30483,7 @@ details. */
 
 
 
-#line 46 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\socket.h" 1
 /* sys/socket.h
 
@@ -30542,7 +30542,7 @@ details. */
 
 
 
-#line 47 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 #line 1 "C:\\cygwin\\usr\\include\\sys\\stat.h" 1
 
 
@@ -30716,9 +30716,9 @@ details. */
 
 
 
-#line 48 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\compat.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\compat.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -30746,7 +30746,7 @@ details. */
 
 
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\config.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\config.h" 1
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -30865,7 +30865,7 @@ details. */
 
 /* Define if you have the efence library (-lefence).  */
 /* #undef HAVE_LIBEFENCE */
-#line 28 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 
 
 #line 1 "C:\\cygwin\\usr\\include\\sys\\time.h" 1
@@ -30948,7 +30948,8 @@ details. */
 
 
 
-#line 30 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
+
 
 
 #line 1 "C:\\cygwin\\usr\\include\\sys\\fcntl.h" 1
@@ -30956,7 +30957,10 @@ details. */
 
 
 
-#line 32 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
+
+
+
 
 
 
@@ -31022,14 +31026,18 @@ details. */
 
 
 
-#line 36 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 #if !(defined(SO_MAXCONN))
 
 #endif
 
 
 
+
+
 /* Wild guess time, probably better done with configure */
+
+
 
 
 
@@ -31054,6 +31062,7 @@ details. */
 
 
 #endif
+
 
 #line 1 "C:\\cygwin\\usr\\include\\dirent.h" 1
 
@@ -32101,7 +32110,8 @@ enum
 
 
 
-#line 52 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
+
 
 
 
@@ -32132,18 +32142,25 @@ enum
 
 
 
+
+
+
+
 #if defined(HAVE_TM_GMTOFF)
 
 #endif
 #if !(defined(HAVE_TM_GMTOFF))
 
 #endif
+
 #if defined(HAVE_TM_ZONE)
 
 #endif
 #if !(defined(HAVE_TM_ZONE))
 
 #endif
+
+
 
 
 
@@ -32235,11 +32252,12 @@ enum
 
 
 
-#line 69 "W:\\work\\TypeChef\\boa\\src\\compat.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\compat.h" 2
 
 
-#line 50 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
-#line 1 "W:\\work\\TypeChef\\boa\\src\\defines.h" 1
+
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 1 "d:\\work\\TypeChef\\boa\\src\\defines.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -32271,6 +32289,7 @@ enum
 #if !(defined(SERVER_ROOT))
 
 #endif
+
 /***** Change this via the CGIPath configuration value in boa.conf *****/
 
 
@@ -32307,9 +32326,11 @@ enum
 #if !(defined(ACCEPT_ON))
 
 #endif
+
 #if !(defined(SERVER_VERSION))
 
 #endif
+
 
 
 
@@ -32436,8 +32457,9 @@ enum
 
 
 
-#line 51 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
-#line 1 "W:\\work\\TypeChef\\boa\\src\\globals.h" 1
+
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 1 "d:\\work\\TypeChef\\boa\\src\\globals.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -32631,7 +32653,7 @@ extern sigjmp_buf env;
 extern int handle_sigbus;
 
 
-#line 52 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 /* alias */
 void add_alias(char *fakename, char *realname, int script);
@@ -32643,7 +32665,7 @@ void dump_alias(void);
 void read_config_files(void);
 
 /* escape */
-#line 1 "W:\\work\\TypeChef\\boa\\src\\escape.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\escape.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1995 Paul Phillips <paulp@go2net.com>
@@ -32668,7 +32690,7 @@ void read_config_files(void);
 
 /* $Id: escape.h,v 1.18 2002/01/31 03:12:21 jnelson Exp $ */
 
-#line 1 "W:\\work\\TypeChef\\boa\\src\\config.h" 1
+#line 1 "d:\\work\\TypeChef\\boa\\src\\config.h" 1
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -32787,7 +32809,7 @@ void read_config_files(void);
 
 /* Define if you have the efence library (-lefence).  */
 /* #undef HAVE_LIBEFENCE */
-#line 27 "W:\\work\\TypeChef\\boa\\src\\escape.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\escape.h" 2
 
 /* Highest character number that can possibly be passed through un-escaped */
 
@@ -32795,6 +32817,7 @@ void read_config_files(void);
 #if !(defined(NEEDS_ESCAPE_SHIFT))
 
 #endif
+
 
 
 
@@ -32809,7 +32832,7 @@ void read_config_files(void);
 
 extern unsigned long _needs_escape[(128+(1<<5)-1)/(1<<5)];
 void build_needs_escape(void);
-#line 64 "W:\\work\\TypeChef\\boa\\src\\boa.h" 2
+#line 22 "d:\\work\\TypeChef\\boa\\src\\boa.h" 2
 
 /* get */
 
@@ -32955,8 +32978,8 @@ sockaddr_in
 void select_loop(int server_s);
 
 
-#line 25 "W:\\work\\TypeChef\\boa\\src\\config.c" 2
-#line 1 "W:\\work\\TypeChef\\boa\\src\\y.tab.h" 1
+#line 20 "d:\\work\\TypeChef\\boa\\src\\config.c" 2
+#line 1 "d:\\work\\TypeChef\\boa\\src\\y.tab.h" 1
 /* A Bison parser, made by GNU Bison 2.4.2.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
@@ -33036,11 +33059,12 @@ typedef union YYSTYPE
 
 
 #endif
+
 extern YYSTYPE yylval;
 
 
-#line 26 "W:\\work\\TypeChef\\boa\\src\\config.c" 2
-#line 1 "W:\\work\\TypeChef\\boa\\src\\parse.h" 1
+#line 20 "d:\\work\\TypeChef\\boa\\src\\config.c" 2
+#line 1 "d:\\work\\TypeChef\\boa\\src\\parse.h" 1
 /*
  *  Boa, an http server
  *  Copyright (C) 1999 Larry Doolittle <ldoolitt@boa.org>
@@ -33074,7 +33098,7 @@ struct ccommand {
 };
 struct ccommand *lookup_keyword(char *c);
 void add_mime_type(char *extension, char *type);
-#line 27 "W:\\work\\TypeChef\\boa\\src\\config.c" 2
+#line 20 "d:\\work\\TypeChef\\boa\\src\\config.c" 2
 
 int yyparse(void);              /* Better match the output of lex */
 
@@ -33084,6 +33108,7 @@ int yyparse(void);              /* Better match the output of lex */
 #if !(defined(DEBUG))
 
 #endif
+
 int server_port;
 uid_t server_uid;
 gid_t server_gid;
@@ -33178,7 +33203,7 @@ static void c_set_user(char *v1, char *v2, void *t)
 
     
 #if defined(DEBUG)
-printf("User %s = ", v1);
+printf("User %s = ", v1); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33200,7 +33225,7 @@ printf("User %s = ", v1);
     }
     
 #if defined(DEBUG)
-printf("%d\n", server_uid);
+printf("%d\n", server_uid); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33216,7 +33241,7 @@ static void c_set_group(char *v1, char *v2, void *t)
     int i;
     
 #if defined(DEBUG)
-printf("Group %s = ", v1);
+printf("Group %s = ", v1); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33238,7 +33263,7 @@ printf("Group %s = ", v1);
     }
     
 #if defined(DEBUG)
-printf("%d\n", server_gid);
+printf("%d\n", server_gid); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33252,7 +33277,7 @@ static void c_set_string(char *v1, char *v2, void *t)
     char *s;
     
 #if defined(DEBUG)
-printf("Setting pointer %p to string %s ..", t, v1);
+printf("Setting pointer %p to string %s ..", t, v1); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33265,11 +33290,11 @@ printf("Setting pointer %p to string %s ..", t, v1);
             free(s);
         *(char **) t = strdup(v1);
         if (!*(char **) t) {
-            log_error_mesg("W:\\work\\TypeChef\\boa\\src\\config.c", 110, "Unable to strdup in c_set_string"), exit(1);
+            log_error_mesg("d:\\work\\TypeChef\\boa\\src\\config.c", 23, "Unable to strdup in c_set_string"), exit(1);
         }
         
 #if defined(DEBUG)
-printf("done.\n");
+printf("done.\n"); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33279,7 +33304,7 @@ printf("done.\n");
     } else {
         
 #if defined(DEBUG)
-printf("skipped.\n");
+printf("skipped.\n"); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33295,7 +33320,7 @@ static void c_set_int(char *v1, char *v2, void *t)
     int i;
     
 #if defined(DEBUG)
-printf("Setting pointer %p to integer string %s ..", t, v1);
+printf("Setting pointer %p to integer string %s ..", t, v1); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33308,7 +33333,7 @@ printf("Setting pointer %p to integer string %s ..", t, v1);
             *(int *) t = i;
             
 #if defined(DEBUG)
-printf(" Integer converted as %d, done\n", i);
+printf(" Integer converted as %d, done\n", i); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33323,7 +33348,7 @@ printf(" Integer converted as %d, done\n", i);
     } else {
         
 #if defined(DEBUG)
-printf("skipped.\n");
+printf("skipped.\n"); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33337,7 +33362,7 @@ static void c_set_unity(char *v1, char *v2, void *t)
 {
     
 #if defined(DEBUG)
-printf("Setting pointer %p to unity\n", t);
+printf("Setting pointer %p to unity\n", t); 
 
 #endif
 #if !(defined(DEBUG))
@@ -33363,7 +33388,7 @@ struct ccommand *lookup_keyword(char *c)
     struct ccommand *p;
     
 #if defined(DEBUG)
-printf("Checking string '%s' against keyword list\n", c);
+printf("Checking string '%s' against keyword list\n", c); 
 
 #endif
 #if !(defined(DEBUG))
