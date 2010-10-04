@@ -24,6 +24,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  * 
  * Note to users: I don't really like the name of this class. S.
  */
+@SuppressWarnings("all")
 public class LexerException extends Exception {
 	private FeatureExpr presenceCondition;
 

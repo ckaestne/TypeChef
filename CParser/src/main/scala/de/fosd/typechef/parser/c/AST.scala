@@ -33,14 +33,14 @@ case class ExprList(exprs: List[Expr]) extends Expr
 //Statements
 abstract class Statement extends AST
 case class CompoundStatement(decl: List[Opt[Declaration]], innerStatements: List[Opt[Statement]]) extends Statement
-case class EmptyStatement extends Statement
+case class EmptyStatement() extends Statement
 case class ExprStatement(expr: Expr) extends Statement
 case class WhileStatement(expr: Expr, s: Statement) extends Statement
 case class DoStatement(expr: Expr, s: Statement) extends Statement
 case class ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Statement) extends Statement
 case class GotoStatement(target: Expr) extends Statement
-case class ContinueStatement extends Statement
-case class BreakStatement extends Statement
+case class ContinueStatement() extends Statement
+case class BreakStatement() extends Statement
 case class ReturnStatement(expr: Option[Expr]) extends Statement
 case class LabelStatement(id: Id) extends Statement
 case class CaseStatement(c: Expr, s: Option[Statement]) extends Statement
@@ -56,7 +56,7 @@ abstract class Specifier extends AST
 abstract class TypeSpecifier extends Specifier
 case class PrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
 case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier
-case class TypedefSpecifier extends Specifier
+case class TypedefSpecifier() extends Specifier
 case class OtherSpecifier(name: String) extends Specifier
 
 abstract class Attribute extends AST
@@ -94,10 +94,11 @@ case class AbstractDeclarator(pointer: List[Pointer], extensions: List[DirectAbs
 case class Initializer(initializerElementLabel: Option[InitializerElementLabel], expr: Expr) extends AST
 
 case class Pointer(specifier: List[Specifier])
-case class ParameterDeclaration(val specifiers: List[Specifier]) extends AST
+class ParameterDeclaration(val specifiers: List[Specifier]) extends AST
+case class PlainParameterDeclaration(override val specifiers: List[Specifier]) extends ParameterDeclaration(specifiers)
 case class ParameterDeclarationD(override val specifiers: List[Specifier], decl: Declarator) extends ParameterDeclaration(specifiers)
 case class ParameterDeclarationAD(override val specifiers: List[Specifier], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers)
-case class VarArgs extends ParameterDeclaration(List()) with Declaration
+case class VarArgs() extends ParameterDeclaration(List()) with Declaration
 
 case class EnumSpecifier(id: Option[Id], enumerators: List[Enumerator]) extends TypeSpecifier
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST
@@ -109,7 +110,7 @@ case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 
 case class FunctionDef(specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends AST with ExternalDef
 trait ExternalDef extends AST
-case class EmptyExternalDef extends ExternalDef
+case class EmptyExternalDef() extends ExternalDef
 case class TypelessDeclaration(declList: List[InitDeclarator]) extends ExternalDef
 case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef
 object AltExternalDef {
@@ -135,5 +136,5 @@ case class InitializerElementLabelExpr(expr: Expr, isAssign: Boolean) extends In
 case class InitializerElementLabelColon(id: Id) extends InitializerElementLabel
 case class InitializerElementLabelDotAssign(id: Id) extends InitializerElementLabel
 case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Id]) extends PrimaryExpr
-case class CompoundStatementExpr(compoundStatement:CompoundStatement) extends PrimaryExpr
+case class CompoundStatementExpr(compoundStatement: CompoundStatement) extends PrimaryExpr
 

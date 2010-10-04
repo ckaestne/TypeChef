@@ -27,6 +27,7 @@ import java.util.List;
  *
  * This encapsulates a raw and preprocessed token stream.
  */
+@SuppressWarnings("serial")
 /* pp */ class Argument extends ArrayList<Token> {
 	public static final int	NO_ARGS = -1;
 

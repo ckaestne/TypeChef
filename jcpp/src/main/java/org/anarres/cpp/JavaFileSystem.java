@@ -32,6 +32,7 @@ public class JavaFileSystem implements VirtualFileSystem {
 		return new JavaFile(dir, name);
 	}
 
+	@SuppressWarnings("serial")
 	private class JavaFile extends File implements VirtualFile {
 		public JavaFile(String path) {
 			super(path);

@@ -170,7 +170,7 @@ class CParser extends MultiFeatureParser {
             {
                 case s ~ Some(d: Declarator) => ParameterDeclarationD(s, d)
                 case s ~ Some(d: AbstractDeclarator) => ParameterDeclarationAD(s, d)
-                case s ~ None => ParameterDeclaration(s)
+                case s ~ None => PlainParameterDeclaration(s)
             }
 
     def functionDef: MultiParser[FunctionDef] =

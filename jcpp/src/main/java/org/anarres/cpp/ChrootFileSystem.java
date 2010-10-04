@@ -39,6 +39,7 @@ public class ChrootFileSystem implements VirtualFileSystem {
 		return new ChrootFile(dir, name);
 	}
 
+	@SuppressWarnings("all")
 	private class ChrootFile extends File implements VirtualFile {
 		private File	rfile;
 

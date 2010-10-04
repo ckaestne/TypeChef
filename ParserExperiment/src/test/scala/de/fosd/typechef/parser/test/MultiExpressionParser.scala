@@ -14,6 +14,7 @@ class MultiExpressionParser extends MultiFeatureParser {
             case ~(f, Some(~(op, e))) if (op.text == "+") => Plus(f, e)
             case ~(f, Some(~(op, e))) if (op.text == "-") => Minus(f, e)
             case ~(f, None) => f
+            case _ => throw new Exception("unsupported match")
         })
 
     def term: MultiParser[AST] =

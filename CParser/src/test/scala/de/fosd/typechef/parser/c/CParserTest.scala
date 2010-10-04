@@ -30,7 +30,7 @@ class CParserTest extends TestCase {
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
-        actual match {
+        (actual: @unchecked)match {
             case Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
@@ -42,7 +42,7 @@ class CParserTest extends TestCase {
     def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
-        actual match {
+        (actual: @unchecked) match {
             case Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
@@ -54,7 +54,7 @@ class CParserTest extends TestCase {
     def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext], expectErrorMsg: Boolean = false) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
-        actual match {
+        (actual: @unchecked) match {
             case Success(ast, unparsed) => {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)

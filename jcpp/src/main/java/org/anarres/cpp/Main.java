@@ -105,6 +105,7 @@ public class Main {
 		(new Main()).run(args);
 	}
 
+	@SuppressWarnings("unused")
 	public void run(String[] args) throws Exception {
 		Option[] opts = OPTS;
 		String sopts = getShortOpts(opts);
@@ -277,58 +278,7 @@ public class Main {
 		return buf.toString();
 	}
 
-	/* This is incomplete but nearly there. */
-	/**
-	 * Wraps a string.
-	 * 
-	 * The output form is:
-	 * 
-	 * <pre>
-	 * prefix     in[0]
-	 * &lt;--indent-&gt; in[1]
-	 * &lt;--indent-&gt; in[2]
-	 * &lt;-----width----&gt;
-	 * </pre>
-	 */
-	/* XXX There's some of this in commons. */
-	private static String wrap(String in, String prefix, int indent, int width) {
-		StringBuilder buf = new StringBuilder(prefix);
-
-		while (buf.length() < indent)
-			buf.append(' ');
-
-		int start = 0;
-
-		while (start < in.length()) {
-			while (start < in.length()
-					&& Character.isWhitespace(in.charAt(start)))
-				start++;
-
-			int end = start + width - indent;
-
-			if (end > in.length()) {
-				buf.append(in.substring(start));
-				break;
-			}
-
-			int idx = end;
-			while (!Character.isWhitespace(in.charAt(idx)))
-				idx--;
-
-			if (idx == start) {
-				idx = end - 1;
-				buf.append(in.substring(start, idx));
-				buf.append('-');
-			} else {
-				buf.append(in.substring(start, idx));
-				start = idx;
-			}
-
-			start = idx;
-		}
-
-		return buf.toString();
-	}
+	
 
 	private static void usage(String command, Option[] options) {
 		StringBuilder text = new StringBuilder("Usage: ");

@@ -14,7 +14,7 @@ class CGramFilesTest extends TestCase {
             CLexer.lexStream(inputStream, "testfiles/cgram/"), FeatureExpr.base
             )
         System.out.println(result)
-        result match {
+        (result: @unchecked) match {
             case Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed

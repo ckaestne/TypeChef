@@ -110,7 +110,6 @@ import java.util.List;
 	 */
 	private void paste(Token ptok) throws IOException, LexerException {
 		StringBuilder buf = new StringBuilder();
-		Token err = null;
 		/*
 		 * We know here that arg is null or expired, since we cannot paste an
 		 * expanded arg.

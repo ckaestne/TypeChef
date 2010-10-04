@@ -97,6 +97,7 @@ import de.fosd.typechef.featureexpr.MacroExpansion;
 
 public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
+	@SuppressWarnings("serial")
 	private class ParseParamException extends Exception {
 
 		private Token tok;
@@ -783,20 +784,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return true;
 	}
 
-	private MacroExpansion[] filterApplicableMacros(
-			MacroExpansion[] macroExpansions) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private FeatureExpr getCombinedMacroCondition(
-			MacroExpansion[] macroExpansions) {
-		FeatureExpr commonCondition = state.getFullPresenceCondition().not();
-		for (int i = 0; i < macroExpansions.length; i++)
-			commonCondition = commonCondition.or(macroExpansions[i]
-					.getFeature());
-		return commonCondition;
-	}
+//	private MacroExpansion[] filterApplicableMacros(
+//			MacroExpansion[] macroExpansions) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	private FeatureExpr getCombinedMacroCondition(
+//			MacroExpansion[] macroExpansions) {
+//		FeatureExpr commonCondition = state.getFullPresenceCondition().not();
+//		for (int i = 0; i < macroExpansions.length; i++)
+//			commonCondition = commonCondition.or(macroExpansions[i]
+//					.getFeature());
+//		return commonCondition;
+//	}
 
 	private List<Argument> parse_macroParameters(String macroName,
 			boolean inlineCppExpression, List<Token> originalTokens,
@@ -1448,32 +1449,32 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return tok; /* The NL. */
 	}
 
-	/* For #error and #warning. */
-	private void parse_cppError(Token pptok, boolean is_error)
-			throws IOException, LexerException {
-		StringBuilder buf = new StringBuilder();
-		buf.append('#').append(pptok.getText()).append(' ');
-		/* Peculiar construction to ditch first whitespace. */
-		Token tok = source_token_nonwhite();
-		ERROR: for (;;) {
-			switch (tok.getType()) {
-			case NL:
-			case EOF:
-				break ERROR;
-			default:
-				buf.append(tok.getText());
-				break;
-			}
-			tok = retrieveTokenFromSource();
-		}
-		buf.append("\nPresence condition: "
-				+ state.getFullPresenceCondition().print());
-		if (is_error)
-			error(pptok, buf.toString());
-		else
-			warning(pptok, buf.toString());
-	} /* For #error and #warning. */
-
+//	/* For #error and #warning. */
+//	private void parse_cppError(Token pptok, boolean is_error)
+//			throws IOException, LexerException {
+//		StringBuilder buf = new StringBuilder();
+//		buf.append('#').append(pptok.getText()).append(' ');
+//		/* Peculiar construction to ditch first whitespace. */
+//		Token tok = source_token_nonwhite();
+//		ERROR: for (;;) {
+//			switch (tok.getType()) {
+//			case NL:
+//			case EOF:
+//				break ERROR;
+//			default:
+//				buf.append(tok.getText());
+//				break;
+//			}
+//			tok = retrieveTokenFromSource();
+//		}
+//		buf.append("\nPresence condition: "
+//				+ state.getFullPresenceCondition().print());
+//		if (is_error)
+//			error(pptok, buf.toString());
+//		else
+//			warning(pptok, buf.toString());
+//	} /* For #error and #warning. */
+//
 	private Token parseErrorToken(Token pptok, boolean is_error)
 			throws IOException, LexerException {
 		StringBuilder buf = new StringBuilder();
@@ -1853,8 +1854,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	}
 
 	private FeatureExpr parse_ifExpr() throws IOException, LexerException {
-		FeatureExpr lhs;
-
 		consumeToken('(', true);
 		FeatureExpr condition = parse_featureExpr(0);
 		consumeToken(',', true);
@@ -2071,7 +2070,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				// break;
 
 			case HASH:
-				Token previousToken = tok;
 				tok = source_token_nonwhite();
 				// (new Exception("here")).printStackTrace();
 				switch (tok.getType()) {
@@ -2093,7 +2091,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				}
 				int ppcmd = _ppcmd.intValue();
 
-				PP: switch (ppcmd) {
+				//PP:
+				switch (ppcmd) {
 
 				case PP_DEFINE:
 					if (!isActive())
@@ -2161,7 +2160,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						expr_token = null;
 						// state.setActive(expr(0) != 0);
 						state.putLocalFeature(parse_featureExpr(0));
-						Token t = tok = expr_token(true); /* unget */
+						tok = expr_token(true); /* unget */
 
 						if (tok.getType() != NL)
 							source_skipline(isParentActive());
@@ -2179,7 +2178,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						return source_skipline(false);
 					} else {
 						state.setSawElse();
-						Token t = source_skipline(warnings
+						source_skipline(warnings
 								.contains(Warning.ENDIF_LABELS));
 
 						return ifdefPrinter.startElIf(tok, isParentActive(),

@@ -14,7 +14,7 @@ class CParserTest2 extends TestCase {
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
-        actual match {
+        (actual: @unchecked)match {
             case Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed

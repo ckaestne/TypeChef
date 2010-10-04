@@ -23,6 +23,7 @@ import java.io.Reader;
 /* pp */ class JoinReader /* extends Reader */ {
 	private Reader	in;
 
+	@SuppressWarnings("all")
 	private PreprocessorListener	listener;
 	private LexerSource				source;
 	private boolean	trigraphs;

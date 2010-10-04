@@ -35,6 +35,7 @@ public class CppTask extends Task {
 		private String name;
 		private String value;
 
+		@SuppressWarnings("unused")
 		public void setName(String name) {
 			this.name = name;
 		}
@@ -43,6 +44,7 @@ public class CppTask extends Task {
 			return name;
 		}
 
+		@SuppressWarnings("unused")
 		public void setValue(String value) {
 			this.value = value;
 		}

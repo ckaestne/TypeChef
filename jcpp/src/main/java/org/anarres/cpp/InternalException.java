@@ -24,6 +24,7 @@ package org.anarres.cpp;
  * encountered. This should never happen. If it ever happens, please
  * report it as a bug.
  */
+@SuppressWarnings("serial")
 public class InternalException extends RuntimeException {
 	public InternalException(String msg) {
 		super(msg);

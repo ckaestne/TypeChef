@@ -1,10 +1,10 @@
 package de.fosd.typechef.parser.c
-import java.io.FileWriter
 
-import junit.framework._;
-import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
+import java.io.FileWriter
+import junit.framework._
+import junit.framework.Assert._
 
 object BoaFilesTest extends Application {
     def parseFile(fileName: String) {
@@ -21,7 +21,7 @@ object BoaFilesTest extends Application {
 
         //        System.out.println(resultStr)
 
-        result match {
+        (result: @unchecked) match {
             case Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream (" + unparsed.first.getPositionStr + "): " + unparsed, unparsed.atEnd)
                 //succeed

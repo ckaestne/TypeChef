@@ -48,6 +48,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, Context](feature: Fea
             case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => Failure("joined error", fA.or(fB), inA, List(nA, nB))
             case (nos@NoSuccess(_, _, _, _), _) => nos
             case (_, nos@NoSuccess(_, _, _, _)) => nos
+            case _ => throw new Exception("unsupported match")
         }
     }
     def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, Context] = {
