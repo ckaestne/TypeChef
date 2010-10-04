@@ -80,4 +80,8 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testBeispielJoerg() throws LexerException, IOException {
 		testFile("beispielJoerg.c");
 	}
+	@Test
+	public void testNumericIfAlternative() throws LexerException, IOException {
+		testFile("ifdefnumeric.c");
+	}
 }

@@ -784,20 +784,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return true;
 	}
 
-//	private MacroExpansion[] filterApplicableMacros(
-//			MacroExpansion[] macroExpansions) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	private FeatureExpr getCombinedMacroCondition(
-//			MacroExpansion[] macroExpansions) {
-//		FeatureExpr commonCondition = state.getFullPresenceCondition().not();
-//		for (int i = 0; i < macroExpansions.length; i++)
-//			commonCondition = commonCondition.or(macroExpansions[i]
-//					.getFeature());
-//		return commonCondition;
-//	}
+	// private MacroExpansion[] filterApplicableMacros(
+	// MacroExpansion[] macroExpansions) {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
+	//
+	// private FeatureExpr getCombinedMacroCondition(
+	// MacroExpansion[] macroExpansions) {
+	// FeatureExpr commonCondition = state.getFullPresenceCondition().not();
+	// for (int i = 0; i < macroExpansions.length; i++)
+	// commonCondition = commonCondition.or(macroExpansions[i]
+	// .getFeature());
+	// return commonCondition;
+	// }
 
 	private List<Argument> parse_macroParameters(String macroName,
 			boolean inlineCppExpression, List<Token> originalTokens,
@@ -1284,7 +1284,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	private void include(String parent, int line, String name, boolean quoted)
 			throws IOException, LexerException {
 		VirtualFile pdir = null;
-		//The parent path can be null when using --include. Should then use the current directory.
+		// The parent path can be null when using --include. Should then use the
+		// current directory.
 		if (quoted) {
 			if (parent == null)
 				parent = ".";
@@ -1335,7 +1336,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					case STRING:
 						buf.append((String) tok.getValue());
 						break;
-					case WHITESPACE://ignore whitespace and comments for now ChK
+					case WHITESPACE:// ignore whitespace and comments for now
+									// ChK
 					case CCOMMENT:
 						break;
 					case NL:
@@ -1449,32 +1451,32 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return tok; /* The NL. */
 	}
 
-//	/* For #error and #warning. */
-//	private void parse_cppError(Token pptok, boolean is_error)
-//			throws IOException, LexerException {
-//		StringBuilder buf = new StringBuilder();
-//		buf.append('#').append(pptok.getText()).append(' ');
-//		/* Peculiar construction to ditch first whitespace. */
-//		Token tok = source_token_nonwhite();
-//		ERROR: for (;;) {
-//			switch (tok.getType()) {
-//			case NL:
-//			case EOF:
-//				break ERROR;
-//			default:
-//				buf.append(tok.getText());
-//				break;
-//			}
-//			tok = retrieveTokenFromSource();
-//		}
-//		buf.append("\nPresence condition: "
-//				+ state.getFullPresenceCondition().print());
-//		if (is_error)
-//			error(pptok, buf.toString());
-//		else
-//			warning(pptok, buf.toString());
-//	} /* For #error and #warning. */
-//
+	// /* For #error and #warning. */
+	// private void parse_cppError(Token pptok, boolean is_error)
+	// throws IOException, LexerException {
+	// StringBuilder buf = new StringBuilder();
+	// buf.append('#').append(pptok.getText()).append(' ');
+	// /* Peculiar construction to ditch first whitespace. */
+	// Token tok = source_token_nonwhite();
+	// ERROR: for (;;) {
+	// switch (tok.getType()) {
+	// case NL:
+	// case EOF:
+	// break ERROR;
+	// default:
+	// buf.append(tok.getText());
+	// break;
+	// }
+	// tok = retrieveTokenFromSource();
+	// }
+	// buf.append("\nPresence condition: "
+	// + state.getFullPresenceCondition().print());
+	// if (is_error)
+	// error(pptok, buf.toString());
+	// else
+	// warning(pptok, buf.toString());
+	// } /* For #error and #warning. */
+	//
 	private Token parseErrorToken(Token pptok, boolean is_error)
 			throws IOException, LexerException {
 		StringBuilder buf = new StringBuilder();
@@ -2079,19 +2081,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					break;
 				default:
 					warning(tok, "Preprocessor directive not a word "
-							+ tok.getText()+", skipping line");
+							+ tok.getText() + ", skipping line");
 					return source_skipline(false);
 				}
 				// System.out.println(previousToken);
 				Integer _ppcmd = ppcmds.get(tok.getText());
 				if (_ppcmd == null) {
 					warning(tok, "Unknown preprocessor directive "
-							+ tok.getText()+", skipping line");
+							+ tok.getText() + ", skipping line");
 					return source_skipline(false);
 				}
 				int ppcmd = _ppcmd.intValue();
 
-				//PP:
+				// PP:
 				switch (ppcmd) {
 
 				case PP_DEFINE:
@@ -2158,8 +2160,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						return source_skipline(false);
 					} else {
 						expr_token = null;
-						// state.setActive(expr(0) != 0);
-						state.putLocalFeature(parse_featureExpr(0));
+						// parse with parents state to allow macro expansion
+						State oldState = state;
+						state = state.parent;
+						FeatureExpr localFeaturExpr = parse_featureExpr(0);
+						state = oldState;
+						state.putLocalFeature(localFeaturExpr);
 						tok = expr_token(true); /* unget */
 
 						if (tok.getType() != NL)
@@ -2178,8 +2184,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						return source_skipline(false);
 					} else {
 						state.setSawElse();
-						source_skipline(warnings
-								.contains(Warning.ENDIF_LABELS));
+						source_skipline(warnings.contains(Warning.ENDIF_LABELS));
 
 						return ifdefPrinter.startElIf(tok, isParentActive(),
 								state.getLocalFeatureExpr(), state

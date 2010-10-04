@@ -30,8 +30,8 @@ class State {
 	}
 
 	public String toString() {
-		return "parent=" + parent + ", active=" + localFeatures + ", sawelse="
-				+ sawElse;
+		return "currentpc=" + getFullPresenceCondition() + ", parent=" + parent
+				+ ", active=" + localFeatures + ", sawelse=" + sawElse;
 	}
 
 	/**
@@ -60,7 +60,7 @@ class State {
 			assert !localFeatures.isEmpty() : "else before #if?";
 
 		if (localFeatures.isEmpty())
-			return  new FeatureExpr().base();
+			return new FeatureExpr().base();
 		FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
 		if (sawElse)
 			result = result.not();
@@ -120,8 +120,9 @@ class State {
 	private boolean ifdefBegin = true;
 
 	public void setNoIfdefBegin() {
-		ifdefBegin=false;
+		ifdefBegin = false;
 	}
+
 	public boolean hasIfdefBegin() {
 		return ifdefBegin;
 	}
