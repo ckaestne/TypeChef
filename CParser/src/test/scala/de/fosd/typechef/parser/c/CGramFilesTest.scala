@@ -9,7 +9,7 @@ import org.junit.Test
 class CGramFilesTest extends TestCase {
     def parseFile(fileName: String) {
     	val inputStream = getClass.getResourceAsStream("/"+fileName)
-    	assertNotNull(inputStream)
+    	assertNotNull("file not found "+fileName,inputStream)
         val result = new CParser().translationUnit(
             CLexer.lexStream(inputStream, "testfiles/cgram/"), FeatureExpr.base
             )

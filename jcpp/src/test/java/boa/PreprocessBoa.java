@@ -12,11 +12,19 @@ public class PreprocessBoa {
 		for (String file : fileList)
 			try {
 				Main.main(new String[] {
-						"W:\\work\\TypeChef\\boa\\src\\" + file + ".c", "-o",
-						"W:\\work\\TypeChef\\boa\\src\\" + file + ".pi", "-p",
-						"_", "-I", "W:\\work\\TypeChef\\boa\\src", "-I",
-						"C:\\cygwin\\usr\\include", "-I",
-						"C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include",
+						"W:\\work\\TypeChef\\boa\\src\\" + file + ".c", //
+						"-o",
+						"W:\\work\\TypeChef\\boa\\src\\" + file + ".pi",//
+						"--include",
+						"W:\\work\\TypeChef\\boa\\src\\cygwin.h",//
+						"-p",
+						"_", //
+						"-I",
+						"W:\\work\\TypeChef\\boa\\src", //
+						"-I",
+						"C:\\cygwin\\usr\\include", //
+						"-I",
+						"C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include",//
 						"-U", "HAVE_LIBDMALLOC" });
 			} catch (Exception e) {
 				e.printStackTrace();
