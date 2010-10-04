@@ -398,14 +398,5 @@ class CParserTest extends TestCase {
         gh554j[0]='\n';
     }""", p.statement)
     
-    def testMiscBoa1 = assertParseable("""struct __sFILE {
-  char *	_cookie;
-  int _EXFNPTR(_read, (struct int *, char *,
-					   char *, int));}""",p.structOrUnionSpecifier)
-    def testMiscBoa2 = assertParseable("""_EXFNPTR(_read, (struct int *, char *, char *, int));""",p.declarator)
-    def testMiscBoa3 = assertParseable("""_read, (struct int *, char *, char *, int)""",p.parameterTypeList)
-    def testMiscBoa4 = assertParseable("""(struct int *, char *, char *, int)""",p.parameterTypeList)
-    def testMiscBoa4 = assertParseable("""(struct int *, char *, char *, int)""",p.parameterDeclaration)
-    
 
 }
