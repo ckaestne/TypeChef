@@ -77,7 +77,7 @@ object BoaFilesTest {
                 //succeed
             }
             case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed.first.getPositionStr + " " + unparsed + " with feature " + feature + " and context " + context + " " + inner)
+                fail(msg + " at " +  unparsed + " with feature " + feature + " and context " + context + " " + inner)
             case SplittedParseResult(f, left, right) => {
                 checkParseResult(left, feature.and(f))
                 checkParseResult(right, feature.and(f.not))
@@ -85,7 +85,9 @@ object BoaFilesTest {
         }
     }
     def main(args: Array[String]) = {
-        preprocessFile("hash")
-        parseFile("hash")
+        for (filename <- fileList) {
+            preprocessFile(filename)
+            parseFile(filename)
+        }
     }
 }
