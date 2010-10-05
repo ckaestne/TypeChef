@@ -6,7 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/CParser"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FeatureExprLib"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jcpp"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ParserExperiment"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ParserFramework"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/PartialPreprocessor"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
