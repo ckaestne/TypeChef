@@ -167,7 +167,7 @@ class MultiFeatureParser {
                         Success(elems.toList, in0)
                     //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
                     else { //continue parsing
-                        val (e: Opt[_], rest) = findOpt(in0, parseResult)
+                        val (e: Opt[T], rest) = findOpt(in0, parseResult)
                         elems += e
                         applyp(rest)
                     }
@@ -308,4 +308,4 @@ class MultiFeatureParser {
 case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"
 }
-case class Opt[T](val feature: FeatureExpr, val entry: T)
+case class Opt[+T](val feature: FeatureExpr, val entry: T)

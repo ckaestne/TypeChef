@@ -29,7 +29,7 @@ class CParser extends MultiFeatureParser {
         "sizeof")
     val predefinedTypedefs = Set("__builtin_va_list")
 
-    def translationUnit = externalList
+    def translationUnit = externalList ^^ {TranslationUnit(_)}
 
     def externalList =
         repOpt(externalDef, AltExternalDef.join)

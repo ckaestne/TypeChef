@@ -5,18 +5,20 @@ import de.fosd.typechef.parser._
 
 //Expressions
 trait AST {
-    def accept(visitor: ASTVisitor) {
-        visitor.visit(this)
-        for (a <- getInner)
-            a.accept(visitor)
-        visitor.postVisit(this)
+    def accept(visitor: ASTVisitor) { accept(visitor,FeatureExpr.base) }
+    def accept(visitor: ASTVisitor, feature:FeatureExpr) {
+        visitor.visit(this,feature)
+        for (a <- getInnerOpt)
+            a.entry.accept(visitor,feature.and(a.feature))
+        visitor.postVisit(this,feature)
     }
+    protected def getInnerOpt: List[Opt[AST]] = getInner.map(Opt(FeatureExpr.base,_))
     protected def getInner: List[AST] = List()
 }
 
 trait ASTVisitor {
-    def visit(node: AST)
-    def postVisit(node: AST)
+    def visit(node: AST, feature:FeatureExpr)
+    def postVisit(node: AST, feature:FeatureExpr)
 }
 
 abstract class Expr extends AST
@@ -72,7 +74,7 @@ case class ExprList(exprs: List[Expr]) extends Expr {
 //Statements
 abstract class Statement extends AST
 case class CompoundStatement(decl: List[Opt[Declaration]], innerStatements: List[Opt[Statement]]) extends Statement {
-    override def getInner = decl.map(_.entry) ++ innerStatements.map(_.entry)
+    override def getInnerOpt = decl ++ innerStatements
 }
 case class EmptyStatement() extends Statement
 case class ExprStatement(expr: Expr) extends Statement {
@@ -111,7 +113,7 @@ case class SwitchStatement(expr: Expr, s: Statement) extends Statement {
     override def getInner = List(expr, s)
 }
 case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement {
-    override def getInner = List(thenBranch, elseBranch)
+    override def getInnerOpt = List(Opt(feature,thenBranch), Opt(feature.not,elseBranch))
 }
 object AltStatement {
     def join = (f: FeatureExpr, x: Statement, y: Statement) => if (x == y) x else AltStatement(f, x, y)
@@ -137,7 +139,7 @@ case class ADeclaration(declSpecs: List[Specifier], init: Option[List[InitDeclar
     override def getInner = declSpecs ++ init.toList.flatten
 }
 case class AltDeclaration(feature: FeatureExpr, thenBranch: Declaration, elseBranch: Declaration) extends Declaration {
-    override def getInner = List(thenBranch, elseBranch)
+    override def getInnerOpt = List(Opt(feature,thenBranch), Opt(feature.not,elseBranch))
 }
 object AltDeclaration {
     def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
@@ -225,7 +227,7 @@ case class TypelessDeclaration(declList: List[InitDeclarator]) extends ExternalD
     override def getInner = declList
 }
 case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef {
-    override def getInner = List(thenBranch, elseBranch)
+    override def getInnerOpt = List(Opt(feature,thenBranch), Opt(feature.not,elseBranch))
 }
 object AltExternalDef {
     def join = (f: FeatureExpr, x: ExternalDef, y: ExternalDef) => if (x == y) x else AltExternalDef(f, x, y)
@@ -233,6 +235,10 @@ object AltExternalDef {
 
 case class TypeName(specifiers: List[Specifier], decl: Option[AbstractDeclarator]) extends AST {
     override def getInner = specifiers ++ decl.toList
+}
+
+case class TranslationUnit(defs:List[Opt[ExternalDef]]) extends AST {
+	override def getInnerOpt = defs
 }
 
 //GnuC stuff here:

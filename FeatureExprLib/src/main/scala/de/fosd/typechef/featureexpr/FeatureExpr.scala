@@ -61,6 +61,7 @@ class FeatureExpr {
     if (result) expr = DeadFeature();
     result
   }
+  def isTautology = isBase
   def isBase(): Boolean = {
     simplify();
     var result = expr.isBase();
@@ -216,6 +217,7 @@ sealed abstract class FeatureExprTree {
    * checks whether the formula is a contradiction
    * @return
    */
+  def isContradition = isDead
   def isDead(): Boolean = {
     var _isDead = this == DeadFeature();
     //	  var _isDead=this.simplify==DeadFeature();
