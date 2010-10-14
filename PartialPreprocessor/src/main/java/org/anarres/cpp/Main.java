@@ -119,6 +119,7 @@ public class Main {
 		pp.addFeature(Feature.DIGRAPHS);
 		pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
+		pp.addFeature(Feature.INCLUDENEXT);
 		pp.addWarning(Warning.IMPORT);
 		pp.addWarning(Warning.UNDEF);
 		pp.setListener(new PreprocessorListener(pp));
