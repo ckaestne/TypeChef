@@ -19,13 +19,25 @@ object BoaFilesTest {
 
     //val boaDir = "d:\\work\\TypeChef\\boa\\src"
     //val predefMacroDef = "d:\\work\\TypeChef\\boa\\src\\cygwin.h"
-    //val systemIncludes = "C:\\cygwin\\usr\\include"
-    //val gccIncludes = "C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include"
 
+    val isCygwin = false
+    
     val boaDir = "boa" + File.separator + "src"
     val predefMacroDef = "host" + File.separator + "platform.h"
-    val systemIncludes = File.separator + "usr" + File.separator + "include"
-    val gccIncludes = "/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include"
+    val systemIncludes =
+    	if (isCygwin)
+    		"C:\\cygwin\\usr\\include"
+    	else
+    		//"/Users/pgiarrusso/Documents/Admin/Gentoo/usr/include"
+    		File.separator + "usr" + File.separator + "include"
+    		
+    val gccIncludes =
+    	if (isCygwin)
+    		"C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include"
+    	else
+    		//"/Users/pgiarrusso/Documents/Admin/Gentoo/usr/lib/gcc/i686-apple-darwin10/4.2.1/include"
+    		"/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include"
+
 
     def getFullPath(fileName: String) = boaDir + File.separator + fileName
 
@@ -41,7 +53,7 @@ object BoaFilesTest {
             "-I",
             boaDir, //
             "-I",
-	    systemIncludes,
+            systemIncludes,
             "-I",
             gccIncludes, //
             "-U", "HAVE_LIBDMALLOC"))
