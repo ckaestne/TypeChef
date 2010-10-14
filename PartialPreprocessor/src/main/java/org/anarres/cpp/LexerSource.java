@@ -178,19 +178,22 @@ public class LexerSource extends Source {
 
 	private int read() throws IOException, LexerException {
 		assert ucount <= 2 : "Illegal ucount: " + ucount;
+		int c;
 		switch (ucount) {
 		case 2:
 			ucount = 1;
-			return u1;
+			c = u1;
+			break;
 		case 1:
 			ucount = 0;
-			return u0;
+			c = u0;
+			break;
+		default:
+			if (reader == null)
+				return -1;
+			c = reader.read();
 		}
 
-		if (reader == null)
-			return -1;
-
-		int c = reader.read();
 		switch (c) {
 		case '\r':
 			cr = true;
