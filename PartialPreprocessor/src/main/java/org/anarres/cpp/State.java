@@ -23,6 +23,7 @@ class State {
 	/* pp */void setSawElse() {
 		clearCache();
 		sawElse = true;
+		localFeatures.set(localFeatures.size() - 1, localFeatures.get(localFeatures.size() - 1).not());
 	}
 
 	/* pp */boolean sawElse() {
@@ -62,10 +63,11 @@ class State {
 		if (localFeatures.isEmpty())
 			return new FeatureExpr().base();
 		FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
-		if (sawElse)
-			result = result.not();
+		/*if (sawElse)
+			result = result.not();*/
 		for (int i = 0; i < localFeatures.size() - 1; i++)
-			result = result.and(localFeatures.get(i).not());
+			//result = result.and(localFeatures.get(i).not());
+			result = result.and(localFeatures.get(i));
 
 		return result;
 	}
