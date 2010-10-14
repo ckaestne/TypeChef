@@ -1,12 +1,12 @@
 package org.anarres.cpp;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 class State {
-	List<FeatureExpr> localFeatures = new LinkedList<FeatureExpr>();
+	List<FeatureExpr> localFeatures = new ArrayList<FeatureExpr>();
 	final State parent;
 
 	boolean sawElse;
