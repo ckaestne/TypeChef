@@ -1320,10 +1320,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return false;
 	}
 
-	private void include(String parent, int line, String name, boolean quoted)
-			throws IOException, LexerException {
-		include(parent, line, name, quoted);
-	}
 
 	/**
 	 * Handles an include directive.
@@ -1353,7 +1349,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			System.out.println(path);
 			System.out.println(parent);
 			int idx = path.indexOf(parent);
-			for (int i = 0; i < idx; i++)
+			for (int i = 0; i <= idx; i++)
 				path.remove(0);
 		}
 		if (include(path, name))
