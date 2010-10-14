@@ -1,3 +1,5 @@
+#define __STDC__ 1
+
 //defines created by gcc on cygwin
 //with $ echo |cpp -dM -std=gnu99 -
 
@@ -67,7 +69,7 @@
 #define __WINT_TYPE__ unsigned int
 #define __LDBL_MIN_EXP__ (-16381)
 #define __LDBL_MAX_10_EXP__ 4932
-#define __DBL_EPSILON__ 2.2204460492503131e-16
+#define __DBL_EPSILON__ 2.2204460492503131e-16		
 #define __tune_pentiumpro__ 1
 #define __fastcall __attribute__((__fastcall__))
 #define __CYGWIN32__ 1
@@ -83,5 +85,5 @@
 #define __declspec(x) __attribute__((x))
 
 
-
-
+//#undef socklen_t
+//#undef RC_INVOKED

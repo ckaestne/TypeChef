@@ -162,12 +162,20 @@ public class ParserTestBottomUp {
 				.declaration();
 	}
 
+	@Test
+	public void testBoa() throws RecognitionException, TokenStreamException,
+			FileNotFoundException, ANTLRException {
+		GnuCParser p = newParser("struct __sFILE {  int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);}");
+		p.structOrUnionSpecifier();
+		TNode.printTree(System.out, p.getAST());
+	}
+
 	private GnuCParser newParser(String code) throws FileNotFoundException,
 			ANTLRException {
 		DataInputStream dis = null;
 		dis = new DataInputStream(new ByteArrayInputStream(code.getBytes()));
 		GnuCLexer lexer = new GnuCLexer(dis);
-		lexer.setTokenObjectClass("CToken");
+		lexer.setTokenObjectClass("cgram.CToken");
 		lexer.initialize();
 		// Parse the input expression.
 		GnuCParser parser = new GnuCParser(lexer) {
@@ -181,7 +189,7 @@ public class ParserTestBottomUp {
 		TNode node = new TNode();
 		node.setType(GnuCParser.LITERAL_typedef);
 		parser.setASTNodeType(TNode.class.getName());
-		TNode.setTokenVocabulary("GNUCTokenTypes");
+		TNode.setTokenVocabulary("cgram.GNUCTokenTypes");
 
 		return parser;
 	}
@@ -190,7 +198,7 @@ public class ParserTestBottomUp {
 		DataInputStream dis = null;
 		dis = new DataInputStream(new ByteArrayInputStream(code.getBytes()));
 		GnuCLexer lexer = new GnuCLexer(dis);
-		lexer.setTokenObjectClass("CToken");
+		lexer.setTokenObjectClass("cgram.CToken");
 		lexer.initialize();
 		// Parse the input expression.
 		GnuCParser parser = new GnuCParser(lexer) {
@@ -204,7 +212,7 @@ public class ParserTestBottomUp {
 		TNode node = new TNode();
 		node.setType(GnuCParser.LITERAL_typedef);
 		parser.setASTNodeType(TNode.class.getName());
-		TNode.setTokenVocabulary("GNUCTokenTypes");
+		TNode.setTokenVocabulary("cgram.GNUCTokenTypes");
 
 		try {
 			Method method = parser.getClass().getMethod(production);

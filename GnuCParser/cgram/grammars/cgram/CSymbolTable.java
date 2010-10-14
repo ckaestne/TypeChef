@@ -27,6 +27,7 @@ public class CSymbolTable {
   public void pushScope(String s) {
       //System.out.println("push scope:" + s);
     scopeStack.addElement(s);
+    System.out.println(scopeStack);
   }
 
   /** pop the last scope off the scope stack.

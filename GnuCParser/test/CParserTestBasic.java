@@ -1,9 +1,14 @@
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Ignore;
 
 import cgram.GnuCLexer;
 import cgram.GnuCParser;
@@ -17,10 +22,13 @@ import antlr.TokenStreamException;
 public class CParserTestBasic {
 
 	@org.junit.Test
-	public void testDefinition() throws RecognitionException, TokenStreamException, FileNotFoundException, ANTLRException{
-		newParser("void __attribute__((section(\".spinlock.text\"))) _raw_spin_lock_nest_lock(int *lock, int *map) ;").declaration();
+	public void testDefinition() throws RecognitionException,
+			TokenStreamException, FileNotFoundException, ANTLRException {
+		newParser(
+				"void __attribute__((section(\".spinlock.text\"))) _raw_spin_lock_nest_lock(int *lock, int *map) ;")
+				.declaration();
 	}
-	
+
 	@org.junit.Test
 	public void test1() throws FileNotFoundException, ANTLRException {
 		parse("cgram/tests/test.c");
@@ -471,8 +479,9 @@ public class CParserTestBasic {
 		}
 
 	}
-	
+
 	@org.junit.Test
+	@Ignore
 	public void testForkI() throws FileNotFoundException, ANTLRException {
 		parse("C:/Users/ckaestne/Documents/uni/typechef/Staging/fork.i");
 	}
@@ -487,24 +496,30 @@ public class CParserTestBasic {
 			dis = new DataInputStream(new FileInputStream(programName));
 		}
 		GnuCLexer lexer = new GnuCLexer(dis);
-		lexer.setTokenObjectClass("CToken");
+		lexer.setTokenObjectClass("cgram.CToken");
 		lexer.initialize();
 		// Parse the input expression.
 		GnuCParser parser = new GnuCParser(lexer) {
 			@Override
-			public void reportError(RecognitionException ex) throws RecognitionException {
+			public void reportError(RecognitionException ex)
+					throws RecognitionException {
 				super.reportError(ex);
 				throw ex;
-//				e.add(ex);
+				// e.add(ex);
 			}
 		};
 		TNode node = new TNode();
 		node.setType(GnuCParser.LITERAL_typedef);
 		parser.setASTNodeType(TNode.class.getName());
-		TNode.setTokenVocabulary("GNUCTokenTypes");
+		TNode.setTokenVocabulary("cgram.GNUCTokenTypes");
 
 		// invoke parser
 		parser.translationUnit();
+		System.out.println(programName
+				+ " ************************************************");
+		PrintStream out = new PrintStream(new FileOutputStream(new File(
+				programName + ".ast")));
+		TNode.printTree(out, parser.getAST());
 
 		if (!e.isEmpty())
 			throw e.iterator().next();
@@ -515,14 +530,14 @@ public class CParserTestBasic {
 		DataInputStream dis = null;
 		dis = new DataInputStream(new ByteArrayInputStream(code.getBytes()));
 		GnuCLexer lexer = new GnuCLexer(dis);
-		lexer.setTokenObjectClass("CToken");
+		lexer.setTokenObjectClass("cgram.CToken");
 		lexer.initialize();
 		// Parse the input expression.
 		GnuCParser parser = new GnuCParser(lexer);
 		TNode node = new TNode();
 		node.setType(GnuCParser.LITERAL_typedef);
 		parser.setASTNodeType(TNode.class.getName());
-		TNode.setTokenVocabulary("GNUCTokenTypes");
+		TNode.setTokenVocabulary("cgram.GNUCTokenTypes");
 
 		return parser;
 	}

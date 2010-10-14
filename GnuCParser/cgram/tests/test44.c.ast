@@ -1,0 +1,30 @@
+
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:2 source:
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "a" line:2 tokenNumber:4 source:
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:5 source:
+)
+(NFunctionDef line:7
+   (NDeclarator line:7
+      ID: "main" line:7 tokenNumber:7 source:
+      (NParameterTypeList: "(" line:7 tokenNumber:8 source:
+         RPAREN: ")" line:7 tokenNumber:9 source:
+      )
+   )
+   (NCompoundStatement: "{" line:7 scopeName:main tokenNumber:10 source:
+      (NStatementExpr line:8
+         (NPostfixExpr line:8
+            ID: "exit" line:8 tokenNumber:12 source:
+            (NFunctionCallArgs: "(" line:8 tokenNumber:13 source:
+               Number: "0" line:8 tokenNumber:14 source:
+               RPAREN: ")" line:8 tokenNumber:15 source:
+            )
+         )
+      )
+      RCURLY: "}" line:10 tokenNumber:17 source:
+   )
+)

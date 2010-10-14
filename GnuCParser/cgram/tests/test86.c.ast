@@ -1,0 +1,202 @@
+
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:2 source:a.h
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "aa1" line:2 tokenNumber:4 source:a.h
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:5 source:a.h
+)
+(NDeclaration line:3
+   LITERAL_int: "int" line:3 tokenNumber:7 source:a.h
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "aa2" line:3 tokenNumber:9 source:a.h
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:10 source:a.h
+)
+(NDeclaration line:4
+   LITERAL_void: "void" line:4 tokenNumber:12 source:a.h
+   (NInitDecl line:4
+      (NDeclarator line:4
+         ID: "testaa" line:4 tokenNumber:14 source:a.h
+         (NParameterTypeList: "(" line:4 tokenNumber:15 source:a.h
+            (NParameterDeclaration line:4
+               LITERAL_void: "void" line:4 tokenNumber:17 source:a.h
+            )
+            RPAREN: ")" line:4 tokenNumber:18 source:a.h
+         )
+      )
+   )
+   SEMI: ";" line:4 tokenNumber:19 source:a.h
+)
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:21 source:b.h
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "bb1" line:2 tokenNumber:23 source:b.h
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:24 source:b.h
+)
+(NDeclaration line:3
+   LITERAL_int: "int" line:3 tokenNumber:26 source:b.h
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "bb2" line:3 tokenNumber:28 source:b.h
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:29 source:b.h
+)
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:31 source:b1.h
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "b12" line:2 tokenNumber:33 source:b1.h
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:34 source:b1.h
+)
+(NDeclaration line:3
+   LITERAL_int: "int" line:3 tokenNumber:36 source:b1.h
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "b22" line:3 tokenNumber:38 source:b1.h
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:39 source:b1.h
+)
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:41 source:b12.h
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "b33" line:2 tokenNumber:43 source:b12.h
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:44 source:b12.h
+)
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:46 source:b13.h
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "b44" line:2 tokenNumber:48 source:b13.h
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:49 source:b13.h
+)
+(NDeclaration line:1
+   LITERAL_int: "int" line:1 tokenNumber:51 source:b14.h
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "r45" line:1 tokenNumber:53 source:b14.h
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:54 source:b14.h
+)
+(NDeclaration line:2
+   LITERAL_void: "void" line:2 tokenNumber:56 source:b14.h
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "ttt" line:2 tokenNumber:58 source:b14.h
+         (NParameterTypeList: "(" line:2 tokenNumber:59 source:b14.h
+            (NParameterDeclaration line:2
+               LITERAL_void: "void" line:2 tokenNumber:61 source:b14.h
+            )
+            RPAREN: ")" line:2 tokenNumber:62 source:b14.h
+         )
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:63 source:b14.h
+)
+(NDeclaration line:3
+   LITERAL_int: "int" line:3 tokenNumber:65 source:b14.h
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "r56" line:3 tokenNumber:67 source:b14.h
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:68 source:b14.h
+)
+(NDeclaration line:6
+   LITERAL_int: "int" line:6 tokenNumber:70 source:b13.h
+   (NInitDecl line:6
+      (NDeclarator line:6
+         ID: "b55" line:6 tokenNumber:72 source:b13.h
+      )
+   )
+   SEMI: ";" line:6 tokenNumber:73 source:b13.h
+)
+(NDeclaration line:4
+   LITERAL_void: "void" line:4 tokenNumber:75 source:b12.h
+   (NInitDecl line:4
+      (NDeclarator line:4
+         ID: "test66" line:4 tokenNumber:77 source:b12.h
+         (NParameterTypeList: "(" line:4 tokenNumber:78 source:b12.h
+            (NParameterDeclaration line:4
+               LITERAL_void: "void" line:4 tokenNumber:80 source:b12.h
+            )
+            RPAREN: ")" line:4 tokenNumber:81 source:b12.h
+         )
+      )
+   )
+   SEMI: ";" line:4 tokenNumber:82 source:b12.h
+)
+(NDeclaration line:5
+   LITERAL_void: "void" line:5 tokenNumber:84 source:b1.h
+   (NInitDecl line:5
+      (NDeclarator line:5
+         ID: "testb12" line:5 tokenNumber:86 source:b1.h
+         (NParameterTypeList: "(" line:5 tokenNumber:87 source:b1.h
+            (NParameterDeclaration line:5
+               LITERAL_void: "void" line:5 tokenNumber:89 source:b1.h
+            )
+            RPAREN: ")" line:5 tokenNumber:90 source:b1.h
+         )
+      )
+   )
+   SEMI: ";" line:5 tokenNumber:91 source:b1.h
+)
+(NDeclaration line:5
+   LITERAL_int: "int" line:5 tokenNumber:93 source:b.h
+   (NInitDecl line:5
+      (NDeclarator line:5
+         ID: "bb3" line:5 tokenNumber:95 source:b.h
+      )
+   )
+   SEMI: ";" line:5 tokenNumber:96 source:b.h
+)
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:98 source:c.h
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "c11" line:2 tokenNumber:100 source:c.h
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:101 source:c.h
+)
+(NDeclaration line:3
+   LITERAL_int: "int" line:3 tokenNumber:103 source:c.h
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "c12" line:3 tokenNumber:105 source:c.h
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:106 source:c.h
+)
+(NDeclaration line:4
+   LITERAL_void: "void" line:4 tokenNumber:108 source:c.h
+   (NInitDecl line:4
+      (NDeclarator line:4
+         ID: "testc1" line:4 tokenNumber:110 source:c.h
+         (NParameterTypeList: "(" line:4 tokenNumber:111 source:c.h
+            (NParameterDeclaration line:4
+               LITERAL_void: "void" line:4 tokenNumber:113 source:c.h
+            )
+            RPAREN: ")" line:4 tokenNumber:114 source:c.h
+         )
+      )
+   )
+   SEMI: ";" line:4 tokenNumber:115 source:c.h
+)

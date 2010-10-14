@@ -1,0 +1,80 @@
+
+(NDeclaration line:1
+   (LITERAL_struct: "struct" line:1 tokenNumber:2 source:
+      ID: "s" line:1 tokenNumber:4 source:
+      LCURLY: "struct s" line:2 tokenNumber:5 source:
+      LITERAL_int: "int" line:3 tokenNumber:7 source:
+      (NStructDeclarator line:3
+         (NDeclarator line:3
+            ID: "a" line:3 tokenNumber:9 source:
+         )
+      )
+      LITERAL_int: "int" line:4 tokenNumber:12 source:
+      (NStructDeclarator line:4
+         (NDeclarator line:4
+            ID: "b" line:4 tokenNumber:14 source:
+         )
+      )
+      LITERAL_short: "short" line:5 tokenNumber:17 source:
+      (NStructDeclarator line:5
+         (NDeclarator line:5
+            ID: "c" line:5 tokenNumber:19 source:
+         )
+      )
+      LITERAL_int: "int" line:6 tokenNumber:22 source:
+      (NStructDeclarator line:6
+         (NDeclarator line:6
+            ID: "d" line:6 tokenNumber:24 source:
+            LBRACKET: "[" line:6 tokenNumber:25 source:
+            Number: "3" line:6 tokenNumber:26 source:
+            RBRACKET: "]" line:6 tokenNumber:27 source:
+         )
+      )
+      RCURLY: "}" line:7 tokenNumber:29 source:
+   )
+   SEMI: ";" line:7 tokenNumber:30 source:
+)
+(NDeclaration line:8
+   (LITERAL_struct: "struct" line:8 tokenNumber:32 source:
+      ID: "s" line:8 tokenNumber:34 source:
+   )
+   (NInitDecl line:8
+      (NDeclarator line:8
+         ID: "s" line:8 tokenNumber:36 source:
+      )
+      ASSIGN: "=" line:8 tokenNumber:37 source:
+      (NInitializer line:8
+         (NLcurlyInitializer: "{" line:8 tokenNumber:38 source:
+            (NInitializer line:8
+               (NInitializerElementLabel line:8
+                  DOT: "." line:8 tokenNumber:39 source:
+                  ID: "b" line:8 tokenNumber:41 source:
+                  ASSIGN: "=" line:8 tokenNumber:42 source:
+               )
+               Number: "3" line:8 tokenNumber:43 source:
+            )
+            (NInitializer line:8
+               (NInitializerElementLabel line:8
+                  DOT: "." line:8 tokenNumber:45 source:
+                  ID: "d" line:8 tokenNumber:47 source:
+                  ASSIGN: "=" line:8 tokenNumber:48 source:
+               )
+               (NLcurlyInitializer: "{" line:8 tokenNumber:49 source:
+                  (NInitializer line:8
+                     Number: "2" line:8 tokenNumber:50 source:
+                  )
+                  (NInitializer line:8
+                     Number: "0" line:8 tokenNumber:52 source:
+                  )
+                  (NInitializer line:8
+                     Number: "0" line:8 tokenNumber:54 source:
+                  )
+                  RCURLY: "}" line:8 tokenNumber:55 source:
+               )
+            )
+            RCURLY: "}" line:8 tokenNumber:56 source:
+         )
+      )
+   )
+   SEMI: ";" line:8 tokenNumber:57 source:
+)

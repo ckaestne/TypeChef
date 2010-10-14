@@ -1,0 +1,787 @@
+
+(NDeclaration line:1
+   LITERAL_void: "void" line:1 tokenNumber:2 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "fatal" line:1 tokenNumber:4 source:
+         (NParameterTypeList: "(" line:1 tokenNumber:5 source:
+            RPAREN: ")" line:1 tokenNumber:6 source:
+         )
+      )
+      (LITERAL___attribute__: "__attribute__" line:1 tokenNumber:8 source:
+         LPAREN: "(" line:1 tokenNumber:9 source:
+         LPAREN: "(" line:1 tokenNumber:10 source:
+         ID: "noreturn" line:1 tokenNumber:12 source:
+         RPAREN: ")" line:1 tokenNumber:13 source:
+         RPAREN: ")" line:1 tokenNumber:14 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:15 source:
+)
+(NDeclaration line:3
+   LITERAL_typedef: "typedef" line:3 tokenNumber:17 source:
+   LITERAL_void: "void" line:3 tokenNumber:19 source:
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "voidfn" line:3 tokenNumber:21 source:
+         (NParameterTypeList: "(" line:3 tokenNumber:22 source:
+            RPAREN: ")" line:3 tokenNumber:23 source:
+         )
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:24 source:
+)
+(NDeclaration line:5
+   LITERAL_volatile: "volatile" line:5 tokenNumber:26 source:
+   (NTypedefName line:5
+      ID: "voidfn" line:5 tokenNumber:28 source:
+   )
+   (NInitDecl line:5
+      (NDeclarator line:5
+         ID: "fatal" line:5 tokenNumber:30 source:
+      )
+   )
+   SEMI: ";" line:5 tokenNumber:31 source:
+)
+(NDeclaration line:7
+   LITERAL_int: "int" line:7 tokenNumber:33 source:
+   (NInitDecl line:7
+      (NDeclarator line:7
+         ID: "square" line:7 tokenNumber:35 source:
+         (NParameterTypeList: "(" line:7 tokenNumber:36 source:
+            (NParameterDeclaration line:7
+               LITERAL_int: "int" line:7 tokenNumber:38 source:
+            )
+            RPAREN: ")" line:7 tokenNumber:39 source:
+         )
+      )
+      (LITERAL___attribute__: "__attribute__" line:7 tokenNumber:41 source:
+         LPAREN: "(" line:7 tokenNumber:42 source:
+         LPAREN: "(" line:7 tokenNumber:43 source:
+         LITERAL_const: "const" line:7 tokenNumber:45 source:
+         RPAREN: ")" line:7 tokenNumber:46 source:
+         RPAREN: ")" line:7 tokenNumber:47 source:
+      )
+   )
+   SEMI: ";" line:7 tokenNumber:48 source:
+)
+(NDeclaration line:9
+   LITERAL_typedef: "typedef" line:9 tokenNumber:50 source:
+   LITERAL_int: "int" line:9 tokenNumber:52 source:
+   (NInitDecl line:9
+      (NDeclarator line:9
+         ID: "intfn" line:9 tokenNumber:54 source:
+         (NParameterTypeList: "(" line:9 tokenNumber:55 source:
+            RPAREN: ")" line:9 tokenNumber:56 source:
+         )
+      )
+   )
+   SEMI: ";" line:9 tokenNumber:57 source:
+)
+(NDeclaration line:11
+   LITERAL_extern: "extern" line:11 tokenNumber:59 source:
+   LITERAL_const: "const" line:11 tokenNumber:61 source:
+   (NTypedefName line:11
+      ID: "intfn" line:11 tokenNumber:63 source:
+   )
+   (NInitDecl line:11
+      (NDeclarator line:11
+         ID: "square" line:11 tokenNumber:65 source:
+      )
+   )
+   SEMI: ";" line:11 tokenNumber:66 source:
+)
+(NDeclaration line:13
+   LITERAL_extern: "extern" line:13 tokenNumber:68 source:
+   LITERAL_int: "int" line:13 tokenNumber:70 source:
+   (NInitDecl line:14
+      (NDeclarator line:14
+         ID: "my_printf" line:14 tokenNumber:72 source:
+         (NParameterTypeList: "(" line:14 tokenNumber:73 source:
+            (NParameterDeclaration line:14
+               LITERAL_void: "void" line:14 tokenNumber:75 source:
+               (NDeclarator line:14
+                  (NPointerGroup line:14
+                     STAR: "*" line:14 tokenNumber:76 source:
+                  )
+                  ID: "my_object" line:14 tokenNumber:78 source:
+               )
+            )
+            COMMA: "," line:14 tokenNumber:79 source:
+            (NParameterDeclaration line:14
+               LITERAL_const: "const" line:14 tokenNumber:81 source:
+               LITERAL_char: "char" line:14 tokenNumber:83 source:
+               (NDeclarator line:14
+                  (NPointerGroup line:14
+                     STAR: "*" line:14 tokenNumber:84 source:
+                  )
+                  ID: "my_format" line:14 tokenNumber:86 source:
+               )
+            )
+            COMMA: "," line:14 tokenNumber:87 source:
+            VARARGS: "..." line:14 tokenNumber:88 source:
+            RPAREN: ")" line:14 tokenNumber:89 source:
+         )
+      )
+      (LITERAL___attribute__: "__attribute__" line:15 tokenNumber:91 source:
+         LPAREN: "(" line:15 tokenNumber:92 source:
+         LPAREN: "(" line:15 tokenNumber:93 source:
+         ID: "format" line:15 tokenNumber:95 source:
+         LPAREN: "(" line:15 tokenNumber:96 source:
+         ID: "printf" line:15 tokenNumber:98 source:
+         COMMA: "," line:15 tokenNumber:99 source:
+         Number: "2" line:15 tokenNumber:100 source:
+         COMMA: "," line:15 tokenNumber:101 source:
+         Number: "3" line:15 tokenNumber:102 source:
+         RPAREN: ")" line:15 tokenNumber:103 source:
+         RPAREN: ")" line:15 tokenNumber:104 source:
+         RPAREN: ")" line:15 tokenNumber:105 source:
+      )
+   )
+   SEMI: ";" line:15 tokenNumber:106 source:
+)
+(NDeclaration line:17
+   LITERAL_extern: "extern" line:17 tokenNumber:108 source:
+   LITERAL_char: "char" line:17 tokenNumber:110 source:
+   (NInitDecl line:17
+      (NDeclarator line:17
+         (NPointerGroup line:17
+            STAR: "*" line:17 tokenNumber:111 source:
+         )
+         ID: "my_dgettext" line:18 tokenNumber:113 source:
+         (NParameterTypeList: "(" line:18 tokenNumber:114 source:
+            (NParameterDeclaration line:18
+               LITERAL_char: "char" line:18 tokenNumber:116 source:
+               (NDeclarator line:18
+                  (NPointerGroup line:18
+                     STAR: "*" line:18 tokenNumber:117 source:
+                  )
+                  ID: "my_domain" line:18 tokenNumber:119 source:
+               )
+            )
+            COMMA: "," line:18 tokenNumber:120 source:
+            (NParameterDeclaration line:18
+               LITERAL_const: "const" line:18 tokenNumber:122 source:
+               LITERAL_char: "char" line:18 tokenNumber:124 source:
+               (NDeclarator line:18
+                  (NPointerGroup line:18
+                     STAR: "*" line:18 tokenNumber:125 source:
+                  )
+                  ID: "my_format" line:18 tokenNumber:127 source:
+               )
+            )
+            RPAREN: ")" line:18 tokenNumber:128 source:
+         )
+      )
+      (LITERAL___attribute__: "__attribute__" line:19 tokenNumber:130 source:
+         LPAREN: "(" line:19 tokenNumber:131 source:
+         LPAREN: "(" line:19 tokenNumber:132 source:
+         ID: "format_arg" line:19 tokenNumber:134 source:
+         LPAREN: "(" line:19 tokenNumber:135 source:
+         Number: "2" line:19 tokenNumber:136 source:
+         RPAREN: ")" line:19 tokenNumber:137 source:
+         RPAREN: ")" line:19 tokenNumber:138 source:
+         RPAREN: ")" line:19 tokenNumber:139 source:
+      )
+   )
+   SEMI: ";" line:19 tokenNumber:140 source:
+)
+(NDeclaration line:21
+   LITERAL_extern: "extern" line:21 tokenNumber:142 source:
+   LITERAL_void: "void" line:21 tokenNumber:144 source:
+   (NInitDecl line:21
+      (NDeclarator line:21
+         ID: "foobar" line:21 tokenNumber:146 source:
+         (NParameterTypeList: "(" line:21 tokenNumber:147 source:
+            (NParameterDeclaration line:21
+               LITERAL_void: "void" line:21 tokenNumber:149 source:
+            )
+            RPAREN: ")" line:21 tokenNumber:150 source:
+         )
+      )
+      (LITERAL___attribute__: "__attribute__" line:21 tokenNumber:152 source:
+         LPAREN: "(" line:21 tokenNumber:153 source:
+         LPAREN: "(" line:21 tokenNumber:154 source:
+         ID: "section" line:21 tokenNumber:156 source:
+         LPAREN: "(" line:21 tokenNumber:157 source:
+         StringLiteral: ""bar"" line:21 tokenNumber:158 source:
+         RPAREN: ")" line:21 tokenNumber:159 source:
+         RPAREN: ")" line:21 tokenNumber:160 source:
+         RPAREN: ")" line:21 tokenNumber:161 source:
+      )
+   )
+   SEMI: ";" line:21 tokenNumber:162 source:
+)
+(NFunctionDef line:23
+   LITERAL_void: "void" line:23 tokenNumber:164 source:
+   (NDeclarator line:23
+      ID: "__f" line:23 tokenNumber:166 source:
+      (NParameterTypeList: "(" line:23 tokenNumber:167 source:
+         RPAREN: ")" line:23 tokenNumber:168 source:
+      )
+   )
+   (NCompoundStatement: "{" line:23 scopeName:__f tokenNumber:169 source:
+      SEMI: ";" line:23 tokenNumber:170 source:
+      RCURLY: "}" line:23 tokenNumber:171 source:
+   )
+)
+(NDeclaration line:24
+   LITERAL_void: "void" line:24 tokenNumber:173 source:
+   (NInitDecl line:24
+      (NDeclarator line:24
+         ID: "f" line:24 tokenNumber:175 source:
+         (NParameterTypeList: "(" line:24 tokenNumber:176 source:
+            RPAREN: ")" line:24 tokenNumber:177 source:
+         )
+      )
+      (LITERAL___attribute__: "__attribute__" line:24 tokenNumber:179 source:
+         LPAREN: "(" line:24 tokenNumber:180 source:
+         LPAREN: "(" line:24 tokenNumber:181 source:
+         ID: "weak" line:24 tokenNumber:183 source:
+         COMMA: "," line:24 tokenNumber:184 source:
+         ID: "alias" line:24 tokenNumber:186 source:
+         LPAREN: "(" line:24 tokenNumber:187 source:
+         StringLiteral: ""__f"" line:24 tokenNumber:188 source:
+         RPAREN: ")" line:24 tokenNumber:189 source:
+         RPAREN: ")" line:24 tokenNumber:190 source:
+         RPAREN: ")" line:24 tokenNumber:191 source:
+      )
+   )
+   SEMI: ";" line:24 tokenNumber:192 source:
+)
+(NDeclaration line:26
+   LITERAL_int: "int" line:26 tokenNumber:194 source:
+   (NInitDecl line:26
+      (NDeclarator line:26
+         ID: "x" line:26 tokenNumber:196 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:26 tokenNumber:198 source:
+         LPAREN: "(" line:26 tokenNumber:199 source:
+         LPAREN: "(" line:26 tokenNumber:200 source:
+         ID: "aligned" line:26 tokenNumber:202 source:
+         LPAREN: "(" line:26 tokenNumber:203 source:
+         Number: "16" line:26 tokenNumber:204 source:
+         RPAREN: ")" line:26 tokenNumber:205 source:
+         COMMA: "," line:26 tokenNumber:206 source:
+         ID: "packed" line:26 tokenNumber:208 source:
+         RPAREN: ")" line:26 tokenNumber:209 source:
+         RPAREN: ")" line:26 tokenNumber:210 source:
+      )
+      ASSIGN: "=" line:26 tokenNumber:211 source:
+      (NInitializer line:26
+         Number: "0" line:26 tokenNumber:212 source:
+      )
+   )
+   SEMI: ";" line:26 tokenNumber:213 source:
+)
+(NDeclaration line:28
+   (LITERAL_struct: "struct" line:28 tokenNumber:215 source:
+      ID: "foo" line:28 tokenNumber:217 source:
+      LCURLY: "struct foo" line:28 tokenNumber:218 source:
+      LITERAL_int: "int" line:28 tokenNumber:220 source:
+      (NStructDeclarator line:28
+         (NDeclarator line:28
+            ID: "x" line:28 tokenNumber:222 source:
+            LBRACKET: "[" line:28 tokenNumber:223 source:
+            Number: "2" line:28 tokenNumber:224 source:
+            RBRACKET: "]" line:28 tokenNumber:225 source:
+         )
+         (LITERAL___attribute__: "__attribute__" line:28 tokenNumber:227 source:
+            LPAREN: "(" line:28 tokenNumber:228 source:
+            LPAREN: "(" line:28 tokenNumber:229 source:
+            ID: "aligned" line:28 tokenNumber:231 source:
+            LPAREN: "(" line:28 tokenNumber:232 source:
+            Number: "8" line:28 tokenNumber:233 source:
+            RPAREN: ")" line:28 tokenNumber:234 source:
+            RPAREN: ")" line:28 tokenNumber:235 source:
+            RPAREN: ")" line:28 tokenNumber:236 source:
+         )
+      )
+      RCURLY: "}" line:28 tokenNumber:238 source:
+   )
+   SEMI: ";" line:28 tokenNumber:239 source:
+)
+(NDeclaration line:30
+   LITERAL_short: "short" line:30 tokenNumber:241 source:
+   (NInitDecl line:30
+      (NDeclarator line:30
+         ID: "array" line:30 tokenNumber:243 source:
+         LBRACKET: "[" line:30 tokenNumber:244 source:
+         Number: "3" line:30 tokenNumber:245 source:
+         RBRACKET: "]" line:30 tokenNumber:246 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:30 tokenNumber:248 source:
+         LPAREN: "(" line:30 tokenNumber:249 source:
+         LPAREN: "(" line:30 tokenNumber:250 source:
+         ID: "aligned" line:30 tokenNumber:252 source:
+         RPAREN: ")" line:30 tokenNumber:253 source:
+         RPAREN: ")" line:30 tokenNumber:254 source:
+      )
+   )
+   SEMI: ";" line:30 tokenNumber:255 source:
+)
+(NDeclaration line:32
+   (LITERAL_struct: "struct" line:32 tokenNumber:257 source:
+      ID: "foo1" line:32 tokenNumber:259 source:
+      LCURLY: "struct foo1" line:33 tokenNumber:260 source:
+      LITERAL_char: "char" line:34 tokenNumber:262 source:
+      (NStructDeclarator line:34
+         (NDeclarator line:34
+            ID: "a" line:34 tokenNumber:264 source:
+         )
+      )
+      LITERAL_int: "int" line:35 tokenNumber:267 source:
+      (NStructDeclarator line:35
+         (NDeclarator line:35
+            ID: "x" line:35 tokenNumber:269 source:
+            LBRACKET: "[" line:35 tokenNumber:270 source:
+            Number: "2" line:35 tokenNumber:271 source:
+            RBRACKET: "]" line:35 tokenNumber:272 source:
+         )
+         (LITERAL___attribute__: "__attribute__" line:35 tokenNumber:274 source:
+            LPAREN: "(" line:35 tokenNumber:275 source:
+            LPAREN: "(" line:35 tokenNumber:276 source:
+            ID: "packed" line:35 tokenNumber:278 source:
+            RPAREN: ")" line:35 tokenNumber:279 source:
+            RPAREN: ")" line:35 tokenNumber:280 source:
+         )
+      )
+      RCURLY: "}" line:36 tokenNumber:282 source:
+   )
+   SEMI: ";" line:36 tokenNumber:283 source:
+)
+(NDeclaration line:38
+   (LITERAL_struct: "struct" line:38 tokenNumber:285 source:
+      ID: "duart" line:38 tokenNumber:287 source:
+   )
+   (NInitDecl line:38
+      (NDeclarator line:38
+         ID: "a" line:38 tokenNumber:289 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:38 tokenNumber:291 source:
+         LPAREN: "(" line:38 tokenNumber:292 source:
+         LPAREN: "(" line:38 tokenNumber:293 source:
+         ID: "section" line:38 tokenNumber:295 source:
+         LPAREN: "(" line:38 tokenNumber:296 source:
+         StringLiteral: ""DUART_A"" line:38 tokenNumber:297 source:
+         RPAREN: ")" line:38 tokenNumber:298 source:
+         RPAREN: ")" line:38 tokenNumber:299 source:
+         RPAREN: ")" line:38 tokenNumber:300 source:
+      )
+      ASSIGN: "=" line:38 tokenNumber:301 source:
+      (NInitializer line:38
+         (NLcurlyInitializer: "{" line:38 tokenNumber:302 source:
+            (NInitializer line:38
+               Number: "0" line:38 tokenNumber:303 source:
+            )
+            RCURLY: "}" line:38 tokenNumber:304 source:
+         )
+      )
+   )
+   SEMI: ";" line:38 tokenNumber:305 source:
+)
+(NDeclaration line:39
+   (LITERAL_struct: "struct" line:39 tokenNumber:307 source:
+      ID: "duart" line:39 tokenNumber:309 source:
+   )
+   (NInitDecl line:39
+      (NDeclarator line:39
+         ID: "b" line:39 tokenNumber:311 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:39 tokenNumber:313 source:
+         LPAREN: "(" line:39 tokenNumber:314 source:
+         LPAREN: "(" line:39 tokenNumber:315 source:
+         ID: "section" line:39 tokenNumber:317 source:
+         LPAREN: "(" line:39 tokenNumber:318 source:
+         StringLiteral: ""DUART_B"" line:39 tokenNumber:319 source:
+         RPAREN: ")" line:39 tokenNumber:320 source:
+         RPAREN: ")" line:39 tokenNumber:321 source:
+         RPAREN: ")" line:39 tokenNumber:322 source:
+      )
+      ASSIGN: "=" line:39 tokenNumber:323 source:
+      (NInitializer line:39
+         (NLcurlyInitializer: "{" line:39 tokenNumber:324 source:
+            (NInitializer line:39
+               Number: "0" line:39 tokenNumber:325 source:
+            )
+            RCURLY: "}" line:39 tokenNumber:326 source:
+         )
+      )
+   )
+   SEMI: ";" line:39 tokenNumber:327 source:
+)
+(NDeclaration line:40
+   LITERAL_char: "char" line:40 tokenNumber:329 source:
+   (NInitDecl line:40
+      (NDeclarator line:40
+         ID: "stack" line:40 tokenNumber:331 source:
+         LBRACKET: "[" line:40 tokenNumber:332 source:
+         Number: "10000" line:40 tokenNumber:333 source:
+         RBRACKET: "]" line:40 tokenNumber:334 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:40 tokenNumber:336 source:
+         LPAREN: "(" line:40 tokenNumber:337 source:
+         LPAREN: "(" line:40 tokenNumber:338 source:
+         ID: "section" line:40 tokenNumber:340 source:
+         LPAREN: "(" line:40 tokenNumber:341 source:
+         StringLiteral: ""STACK"" line:40 tokenNumber:342 source:
+         RPAREN: ")" line:40 tokenNumber:343 source:
+         RPAREN: ")" line:40 tokenNumber:344 source:
+         RPAREN: ")" line:40 tokenNumber:345 source:
+      )
+      ASSIGN: "=" line:40 tokenNumber:346 source:
+      (NInitializer line:40
+         (NLcurlyInitializer: "{" line:40 tokenNumber:347 source:
+            (NInitializer line:40
+               Number: "0" line:40 tokenNumber:348 source:
+            )
+            RCURLY: "}" line:40 tokenNumber:349 source:
+         )
+      )
+   )
+   SEMI: ";" line:40 tokenNumber:350 source:
+)
+(NDeclaration line:41
+   LITERAL_int: "int" line:41 tokenNumber:352 source:
+   (NInitDecl line:41
+      (NDeclarator line:41
+         ID: "init_data" line:41 tokenNumber:354 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:41 tokenNumber:356 source:
+         LPAREN: "(" line:41 tokenNumber:357 source:
+         LPAREN: "(" line:41 tokenNumber:358 source:
+         ID: "section" line:41 tokenNumber:360 source:
+         LPAREN: "(" line:41 tokenNumber:361 source:
+         StringLiteral: ""INITDATA"" line:41 tokenNumber:362 source:
+         RPAREN: ")" line:41 tokenNumber:363 source:
+         RPAREN: ")" line:41 tokenNumber:364 source:
+         RPAREN: ")" line:41 tokenNumber:365 source:
+      )
+      ASSIGN: "=" line:41 tokenNumber:366 source:
+      (NInitializer line:41
+         Number: "0" line:41 tokenNumber:367 source:
+      )
+   )
+   SEMI: ";" line:41 tokenNumber:368 source:
+)
+(NDeclaration line:43
+   (LITERAL_struct: "struct" line:43 tokenNumber:370 source:
+      ID: "S" line:43 tokenNumber:372 source:
+      LCURLY: "struct S" line:43 tokenNumber:373 source:
+      LITERAL_short: "short" line:43 tokenNumber:375 source:
+      (NStructDeclarator line:43
+         (NDeclarator line:43
+            ID: "f" line:43 tokenNumber:377 source:
+            LBRACKET: "[" line:43 tokenNumber:378 source:
+            Number: "3" line:43 tokenNumber:379 source:
+            RBRACKET: "]" line:43 tokenNumber:380 source:
+         )
+      )
+      RCURLY: "}" line:43 tokenNumber:382 source:
+   )
+   (LITERAL___attribute__: "__attribute__" line:43 tokenNumber:384 source:
+      LPAREN: "(" line:43 tokenNumber:385 source:
+      LPAREN: "(" line:43 tokenNumber:386 source:
+      ID: "aligned" line:43 tokenNumber:388 source:
+      LPAREN: "(" line:43 tokenNumber:389 source:
+      Number: "8" line:43 tokenNumber:390 source:
+      RPAREN: ")" line:43 tokenNumber:391 source:
+      RPAREN: ")" line:43 tokenNumber:392 source:
+      RPAREN: ")" line:43 tokenNumber:393 source:
+   )
+   SEMI: ";" line:43 tokenNumber:394 source:
+)
+(NDeclaration line:44
+   LITERAL_typedef: "typedef" line:44 tokenNumber:396 source:
+   LITERAL_int: "int" line:44 tokenNumber:398 source:
+   (NInitDecl line:44
+      (NDeclarator line:44
+         ID: "more_aligned_int" line:44 tokenNumber:400 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:44 tokenNumber:402 source:
+         LPAREN: "(" line:44 tokenNumber:403 source:
+         LPAREN: "(" line:44 tokenNumber:404 source:
+         ID: "aligned" line:44 tokenNumber:406 source:
+         LPAREN: "(" line:44 tokenNumber:407 source:
+         Number: "8" line:44 tokenNumber:408 source:
+         RPAREN: ")" line:44 tokenNumber:409 source:
+         RPAREN: ")" line:44 tokenNumber:410 source:
+         RPAREN: ")" line:44 tokenNumber:411 source:
+      )
+   )
+   SEMI: ";" line:44 tokenNumber:412 source:
+)
+(NDeclaration line:46
+   (LITERAL_union: "union" line:46 tokenNumber:414 source:
+      ID: "wait" line:46 tokenNumber:416 source:
+      LCURLY: "union wait" line:46 tokenNumber:417 source:
+      LITERAL_int: "int" line:46 tokenNumber:419 source:
+      (NStructDeclarator line:46
+         (NDeclarator line:46
+            ID: "a" line:46 tokenNumber:421 source:
+         )
+      )
+      (NStructDeclarator line:46
+         (NDeclarator line:46
+            ID: "__ip" line:46 tokenNumber:424 source:
+         )
+      )
+      RCURLY: "}" line:46 tokenNumber:426 source:
+   )
+   SEMI: ";" line:46 tokenNumber:427 source:
+)
+(NDeclaration line:47
+   LITERAL_typedef: "typedef" line:47 tokenNumber:429 source:
+   LITERAL_int: "int" line:47 tokenNumber:431 source:
+   (NInitDecl line:47
+      (NDeclarator line:47
+         ID: "pid_t" line:47 tokenNumber:433 source:
+      )
+   )
+   SEMI: ";" line:47 tokenNumber:434 source:
+)
+(NDeclaration line:49
+   LITERAL_typedef: "typedef" line:49 tokenNumber:436 source:
+   (LITERAL_union: "union" line:49 tokenNumber:438 source:
+      LCURLY: "0" line:50 tokenNumber:439 source:
+      LITERAL_int: "int" line:51 tokenNumber:441 source:
+      (NStructDeclarator line:51
+         (NDeclarator line:51
+            (NPointerGroup line:51
+               STAR: "*" line:51 tokenNumber:442 source:
+            )
+            ID: "__ip" line:51 tokenNumber:444 source:
+         )
+      )
+      (LITERAL_union: "union" line:52 tokenNumber:447 source:
+         ID: "wait" line:52 tokenNumber:449 source:
+      )
+      (NStructDeclarator line:52
+         (NDeclarator line:52
+            (NPointerGroup line:52
+               STAR: "*" line:52 tokenNumber:450 source:
+            )
+            ID: "__up" line:52 tokenNumber:452 source:
+         )
+      )
+      RCURLY: "}" line:53 tokenNumber:454 source:
+   )
+   (NInitDecl line:53
+      (NDeclarator line:53
+         ID: "wait_status_ptr_t" line:53 tokenNumber:456 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:53 tokenNumber:458 source:
+         LPAREN: "(" line:53 tokenNumber:459 source:
+         LPAREN: "(" line:53 tokenNumber:460 source:
+         ID: "__transparent_union__" line:53 tokenNumber:462 source:
+         RPAREN: ")" line:53 tokenNumber:463 source:
+         RPAREN: ")" line:53 tokenNumber:464 source:
+      )
+   )
+   SEMI: ";" line:53 tokenNumber:465 source:
+)
+(NDeclaration line:55
+   (NTypedefName line:55
+      ID: "pid_t" line:55 tokenNumber:467 source:
+   )
+   (NInitDecl line:55
+      (NDeclarator line:55
+         ID: "wait" line:55 tokenNumber:469 source:
+         (NParameterTypeList: "(" line:55 tokenNumber:470 source:
+            (NParameterDeclaration line:55
+               (NTypedefName line:55
+                  ID: "wait_status_ptr_t" line:55 tokenNumber:472 source:
+               )
+            )
+            RPAREN: ")" line:55 tokenNumber:473 source:
+         )
+      )
+   )
+   SEMI: ";" line:55 tokenNumber:474 source:
+)
+(NFunctionDef line:57
+   LITERAL_int: "int" line:57 tokenNumber:476 source:
+   (NDeclarator line:57
+      ID: "w1" line:57 tokenNumber:478 source:
+      (NParameterTypeList: "(" line:57 tokenNumber:479 source:
+         RPAREN: ")" line:57 tokenNumber:480 source:
+      )
+   )
+   (NCompoundStatement: "{" line:57 scopeName:w1 tokenNumber:481 source:
+      (NDeclaration line:57
+         LITERAL_int: "int" line:57 tokenNumber:483 source:
+         (NInitDecl line:57
+            (NDeclarator line:57
+               ID: "w" line:57 tokenNumber:485 source:
+            )
+         )
+         SEMI: ";" line:57 tokenNumber:486 source:
+      )
+      (LITERAL_return: "return" line:57 tokenNumber:488 source:
+         (NPostfixExpr line:57
+            ID: "wait" line:57 tokenNumber:490 source:
+            (NFunctionCallArgs: "(" line:57 tokenNumber:491 source:
+               (NUnaryExpr line:57
+                  BAND: "&" line:57 tokenNumber:492 source:
+                  ID: "w" line:57 tokenNumber:494 source:
+               )
+               RPAREN: ")" line:57 tokenNumber:495 source:
+            )
+         )
+      )
+      RCURLY: "}" line:57 tokenNumber:497 source:
+   )
+)
+(NFunctionDef line:58
+   LITERAL_int: "int" line:58 tokenNumber:499 source:
+   (NDeclarator line:58
+      ID: "w2" line:58 tokenNumber:501 source:
+      (NParameterTypeList: "(" line:58 tokenNumber:502 source:
+         RPAREN: ")" line:58 tokenNumber:503 source:
+      )
+   )
+   (NCompoundStatement: "{" line:58 scopeName:w2 tokenNumber:504 source:
+      (NDeclaration line:58
+         (LITERAL_union: "union" line:58 tokenNumber:506 source:
+            ID: "wait" line:58 tokenNumber:508 source:
+         )
+         (NInitDecl line:58
+            (NDeclarator line:58
+               ID: "w" line:58 tokenNumber:510 source:
+            )
+         )
+         SEMI: ";" line:58 tokenNumber:511 source:
+      )
+      (LITERAL_return: "return" line:58 tokenNumber:513 source:
+         (NPostfixExpr line:58
+            ID: "wait" line:58 tokenNumber:515 source:
+            (NFunctionCallArgs: "(" line:58 tokenNumber:516 source:
+               (NUnaryExpr line:58
+                  BAND: "&" line:58 tokenNumber:517 source:
+                  ID: "w" line:58 tokenNumber:519 source:
+               )
+               RPAREN: ")" line:58 tokenNumber:520 source:
+            )
+         )
+      )
+      RCURLY: "}" line:58 tokenNumber:522 source:
+   )
+)
+(NFunctionDef line:61
+   (NTypedefName line:61
+      ID: "pid_t" line:61 tokenNumber:524 source:
+   )
+   (NDeclarator line:61
+      ID: "wait" line:61 tokenNumber:526 source:
+      (NParameterTypeList: "(" line:61 tokenNumber:527 source:
+         (NParameterDeclaration line:61
+            (NTypedefName line:61
+               ID: "wait_status_ptr_t" line:61 tokenNumber:529 source:
+            )
+            (NDeclarator line:61
+               ID: "p" line:61 tokenNumber:531 source:
+            )
+         )
+         RPAREN: ")" line:61 tokenNumber:532 source:
+      )
+   )
+   (NCompoundStatement: "{" line:62 scopeName:wait tokenNumber:533 source:
+      (LITERAL_return: "return" line:63 tokenNumber:535 source:
+         (NPostfixExpr line:63
+            ID: "waitpid" line:63 tokenNumber:537 source:
+            (NFunctionCallArgs: "(" line:63 tokenNumber:538 source:
+               (NUnaryExpr line:63
+                  MINUS: "-" line:63 tokenNumber:539 source:
+                  Number: "1" line:63 tokenNumber:540 source:
+               )
+               (NPostfixExpr line:63
+                  ID: "p" line:63 tokenNumber:543 source:
+                  DOT: "." line:63 tokenNumber:544 source:
+                  ID: "__ip" line:63 tokenNumber:546 source:
+               )
+               Number: "0" line:63 tokenNumber:548 source:
+               RPAREN: ")" line:63 tokenNumber:549 source:
+            )
+         )
+      )
+      RCURLY: "}" line:64 tokenNumber:551 source:
+   )
+)
+(NFunctionDef line:66
+   (NDeclarator line:66
+      ID: "main" line:66 tokenNumber:553 source:
+      (NParameterTypeList: "(" line:66 tokenNumber:554 source:
+         RPAREN: ")" line:66 tokenNumber:555 source:
+      )
+   )
+   (NCompoundStatement: "{" line:67 scopeName:main tokenNumber:556 source:
+      (NStatementExpr line:69
+         (NPostfixExpr line:69
+            ID: "init_sp" line:69 tokenNumber:558 source:
+            (NFunctionCallArgs: "(" line:69 tokenNumber:559 source:
+               (PLUS: "+" line:69 tokenNumber:562 source:
+                  ID: "stack" line:69 tokenNumber:561 source:
+                  (LITERAL_sizeof: "sizeof" line:69 tokenNumber:564 source:
+                     (NExpressionGroup: "(" line:69 tokenNumber:565 source:
+                        ID: "stack" line:69 tokenNumber:567 source:
+                        RPAREN: ")" line:69 tokenNumber:568 source:
+                     )
+                  )
+               )
+               RPAREN: ")" line:69 tokenNumber:569 source:
+            )
+         )
+      )
+      (NStatementExpr line:72
+         (NPostfixExpr line:72
+            ID: "memcpy" line:72 tokenNumber:572 source:
+            (NFunctionCallArgs: "(" line:72 tokenNumber:573 source:
+               (NUnaryExpr line:72
+                  BAND: "&" line:72 tokenNumber:574 source:
+                  ID: "init_data" line:72 tokenNumber:576 source:
+               )
+               (NUnaryExpr line:72
+                  BAND: "&" line:72 tokenNumber:578 source:
+                  ID: "data" line:72 tokenNumber:580 source:
+               )
+               (MINUS: "-" line:72 tokenNumber:585 source:
+                  (NUnaryExpr line:72
+                     BAND: "&" line:72 tokenNumber:582 source:
+                     ID: "edata" line:72 tokenNumber:584 source:
+                  )
+                  (NUnaryExpr line:72
+                     BAND: "&" line:72 tokenNumber:586 source:
+                     ID: "data" line:72 tokenNumber:588 source:
+                  )
+               )
+               RPAREN: ")" line:72 tokenNumber:589 source:
+            )
+         )
+      )
+      (NStatementExpr line:75
+         (NPostfixExpr line:75
+            ID: "init_duart" line:75 tokenNumber:592 source:
+            (NFunctionCallArgs: "(" line:75 tokenNumber:593 source:
+               (NUnaryExpr line:75
+                  BAND: "&" line:75 tokenNumber:594 source:
+                  ID: "a" line:75 tokenNumber:596 source:
+               )
+               RPAREN: ")" line:75 tokenNumber:597 source:
+            )
+         )
+      )
+      (NStatementExpr line:76
+         (NPostfixExpr line:76
+            ID: "init_duart" line:76 tokenNumber:600 source:
+            (NFunctionCallArgs: "(" line:76 tokenNumber:601 source:
+               (NUnaryExpr line:76
+                  BAND: "&" line:76 tokenNumber:602 source:
+                  ID: "b" line:76 tokenNumber:604 source:
+               )
+               RPAREN: ")" line:76 tokenNumber:605 source:
+            )
+         )
+      )
+      RCURLY: "}" line:77 tokenNumber:607 source:
+   )
+)

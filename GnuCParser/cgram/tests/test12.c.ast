@@ -1,0 +1,125 @@
+
+(NDeclaration line:1
+   LITERAL_int: "int" line:1 tokenNumber:2 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "foo" line:1 tokenNumber:4 source:
+         (NParameterTypeList: "(" line:1 tokenNumber:5 source:
+            RPAREN: ")" line:1 tokenNumber:6 source:
+         )
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:7 source:
+)
+(NDeclaration line:2
+   LITERAL_int: "int" line:2 tokenNumber:9 source:
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "abs" line:2 tokenNumber:11 source:
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:12 source:
+)
+(NFunctionDef line:3
+   LITERAL_int: "int" line:3 tokenNumber:14 source:
+   (NDeclarator line:3
+      ID: "main" line:3 tokenNumber:16 source:
+      (NParameterTypeList: "(" line:3 tokenNumber:17 source:
+         RPAREN: ")" line:3 tokenNumber:18 source:
+      )
+   )
+   (NCompoundStatement: "{" line:3 scopeName:main tokenNumber:19 source:
+      (NStatementExpr line:4
+         (ASSIGN: "=" line:4 tokenNumber:22 source:
+            ID: "abs" line:4 tokenNumber:21 source:
+            (LPAREN: "(" line:4 tokenNumber:23 source:
+               (NCompoundStatement: "{" line:4 scopeName:0 tokenNumber:24 source:
+                  (LITERAL___label__: "__label__" line:5 tokenNumber:26 source:
+                     ID: "hey" line:5 tokenNumber:28 source:
+                     ID: "now" line:5 tokenNumber:31 source:
+                  )
+                  (NDeclaration line:7
+                     LITERAL_int: "int" line:7 tokenNumber:34 source:
+                     (NInitDecl line:7
+                        (NDeclarator line:7
+                           ID: "y" line:7 tokenNumber:36 source:
+                        )
+                        ASSIGN: "=" line:7 tokenNumber:37 source:
+                        (NInitializer line:7
+                           (NPostfixExpr line:7
+                              ID: "foo" line:7 tokenNumber:39 source:
+                              (NFunctionCallArgs: "(" line:7 tokenNumber:40 source:
+                                 RPAREN: ")" line:7 tokenNumber:41 source:
+                              )
+                           )
+                        )
+                     )
+                     SEMI: ";" line:7 tokenNumber:42 source:
+                  )
+                  (NDeclaration line:8
+                     LITERAL_int: "int" line:8 tokenNumber:44 source:
+                     (NInitDecl line:8
+                        (NDeclarator line:8
+                           ID: "z" line:8 tokenNumber:46 source:
+                        )
+                     )
+                     SEMI: ";" line:8 tokenNumber:47 source:
+                  )
+                  (NDeclaration line:9
+                     LITERAL_void: "void" line:9 tokenNumber:49 source:
+                     (NInitDecl line:9
+                        (NDeclarator line:9
+                           (NPointerGroup line:9
+                              STAR: "*" line:9 tokenNumber:50 source:
+                           )
+                           ID: "it" line:9 tokenNumber:52 source:
+                        )
+                     )
+                     SEMI: ";" line:9 tokenNumber:53 source:
+                  )
+                  (NStatementExpr line:10
+                     (ASSIGN: "=" line:10 tokenNumber:56 source:
+                        ID: "it" line:10 tokenNumber:55 source:
+                        (NUnaryExpr line:10
+                           LAND: "&&" line:10 tokenNumber:57 source:
+                           ID: "hey" line:10 tokenNumber:59 source:
+                        )
+                     )
+                  )
+                  (NLabel line:12
+                     ID: "hey" line:12 tokenNumber:62 source:
+                     (LITERAL_if: "if" line:12 tokenNumber:65 source:
+                        (GT: ">" line:12 tokenNumber:69 source:
+                           ID: "y" line:12 tokenNumber:68 source:
+                           Number: "0" line:12 tokenNumber:70 source:
+                        )
+                        (NStatementExpr line:12
+                           (ASSIGN: "=" line:12 tokenNumber:74 source:
+                              ID: "z" line:12 tokenNumber:73 source:
+                              ID: "y" line:12 tokenNumber:76 source:
+                           )
+                        )
+                        LITERAL_else: "else" line:14 tokenNumber:79 source:
+                        (NStatementExpr line:14
+                           (ASSIGN: "=" line:14 tokenNumber:82 source:
+                              ID: "z" line:14 tokenNumber:81 source:
+                              (NUnaryExpr line:14
+                                 MINUS: "-" line:14 tokenNumber:83 source:
+                                 ID: "y" line:14 tokenNumber:85 source:
+                              )
+                           )
+                        )
+                     )
+                  )
+                  (NStatementExpr line:15
+                     ID: "z" line:15 tokenNumber:88 source:
+                  )
+                  RCURLY: "}" line:16 tokenNumber:90 source:
+               )
+               RPAREN: ")" line:16 tokenNumber:91 source:
+            )
+         )
+      )
+      RCURLY: "}" line:18 tokenNumber:93 source:
+   )
+)

@@ -1,0 +1,328 @@
+
+(NDeclaration line:1
+   LITERAL_typedef: "typedef" line:1 tokenNumber:2 source:
+   LITERAL_int: "int" line:1 tokenNumber:4 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "tt67t" line:1 tokenNumber:6 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:1 tokenNumber:8 source:
+         LPAREN: "(" line:1 tokenNumber:9 source:
+         LPAREN: "(" line:1 tokenNumber:10 source:
+         ID: "mode" line:1 tokenNumber:12 source:
+         LPAREN: "(" line:1 tokenNumber:13 source:
+         ID: "SI" line:1 tokenNumber:15 source:
+         RPAREN: ")" line:1 tokenNumber:16 source:
+         RPAREN: ")" line:1 tokenNumber:17 source:
+         RPAREN: ")" line:1 tokenNumber:18 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:19 source:
+)
+(NDeclaration line:2
+   LITERAL_typedef: "typedef" line:2 tokenNumber:21 source:
+   LITERAL_unsigned: "unsigned" line:2 tokenNumber:23 source:
+   LITERAL_int: "int" line:2 tokenNumber:25 source:
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "hg554x" line:2 tokenNumber:27 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:2 tokenNumber:29 source:
+         LPAREN: "(" line:2 tokenNumber:30 source:
+         LPAREN: "(" line:2 tokenNumber:31 source:
+         ID: "mode" line:2 tokenNumber:33 source:
+         LPAREN: "(" line:2 tokenNumber:34 source:
+         ID: "SI" line:2 tokenNumber:36 source:
+         RPAREN: ")" line:2 tokenNumber:37 source:
+         RPAREN: ")" line:2 tokenNumber:38 source:
+         RPAREN: ")" line:2 tokenNumber:39 source:
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:40 source:
+)
+(NDeclaration line:3
+   LITERAL_typedef: "typedef" line:3 tokenNumber:42 source:
+   LITERAL_int: "int" line:3 tokenNumber:44 source:
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "u887" line:3 tokenNumber:46 source:
+      )
+      (LITERAL___attribute__: "__attribute__" line:3 tokenNumber:48 source:
+         LPAREN: "(" line:3 tokenNumber:49 source:
+         LPAREN: "(" line:3 tokenNumber:50 source:
+         ID: "mode" line:3 tokenNumber:52 source:
+         LPAREN: "(" line:3 tokenNumber:53 source:
+         ID: "DI" line:3 tokenNumber:55 source:
+         RPAREN: ")" line:3 tokenNumber:56 source:
+         RPAREN: ")" line:3 tokenNumber:57 source:
+         RPAREN: ")" line:3 tokenNumber:58 source:
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:59 source:
+)
+(NDeclaration line:4
+   (LITERAL_struct: "struct" line:4 tokenNumber:61 source:
+      ID: "lo98k" line:4 tokenNumber:63 source:
+      LCURLY: "struct lo98k" line:4 tokenNumber:64 source:
+      (NTypedefName line:4
+         ID: "tt67t" line:4 tokenNumber:66 source:
+      )
+      (NStructDeclarator line:4
+         (NDeclarator line:4
+            ID: "d453s" line:4 tokenNumber:68 source:
+         )
+      )
+      (NStructDeclarator line:4
+         (NDeclarator line:4
+            ID: "s7655fd4" line:4 tokenNumber:71 source:
+         )
+      )
+      RCURLY: "}" line:4 tokenNumber:73 source:
+   )
+   SEMI: ";" line:4 tokenNumber:74 source:
+)
+(NDeclaration line:5
+   LITERAL_typedef: "typedef" line:5 tokenNumber:76 source:
+   (LITERAL_union: "union" line:5 tokenNumber:78 source:
+      LCURLY: "0" line:6 tokenNumber:79 source:
+      (LITERAL_struct: "struct" line:7 tokenNumber:81 source:
+         ID: "lo98k" line:7 tokenNumber:83 source:
+      )
+      (NStructDeclarator line:7
+         (NDeclarator line:7
+            ID: "s" line:7 tokenNumber:85 source:
+         )
+      )
+      (NTypedefName line:8
+         ID: "u887" line:8 tokenNumber:88 source:
+      )
+      (NStructDeclarator line:8
+         (NDeclarator line:8
+            ID: "s432" line:8 tokenNumber:90 source:
+         )
+      )
+      RCURLY: "}" line:9 tokenNumber:92 source:
+   )
+   (NInitDecl line:9
+      (NDeclarator line:9
+         ID: "c443ds4" line:9 tokenNumber:94 source:
+      )
+   )
+   SEMI: ";" line:9 tokenNumber:95 source:
+)
+(NFunctionDef line:10
+   (NTypedefName line:10
+      ID: "u887" line:10 tokenNumber:97 source:
+   )
+   (NDeclarator line:11
+      ID: "test" line:11 tokenNumber:99 source:
+      (NParameterTypeList: "(" line:11 tokenNumber:100 source:
+         (NParameterDeclaration line:11
+            (NTypedefName line:11
+               ID: "u887" line:11 tokenNumber:102 source:
+            )
+            (NDeclarator line:11
+               ID: "e9877" line:11 tokenNumber:104 source:
+            )
+         )
+         COMMA: "," line:11 tokenNumber:105 source:
+         (NParameterDeclaration line:11
+            (NTypedefName line:11
+               ID: "u887" line:11 tokenNumber:107 source:
+            )
+            (NDeclarator line:11
+               ID: "q3209" line:11 tokenNumber:109 source:
+            )
+         )
+         RPAREN: ")" line:11 tokenNumber:110 source:
+      )
+   )
+   (NCompoundStatement: "{" line:12 scopeName:test tokenNumber:111 source:
+      (NDeclaration line:13
+         (NTypedefName line:13
+            ID: "c443ds4" line:13 tokenNumber:113 source:
+         )
+         (NInitDecl line:13
+            (NDeclarator line:13
+               ID: "w" line:13 tokenNumber:115 source:
+            )
+         )
+         SEMI: ";" line:13 tokenNumber:116 source:
+      )
+      (NDeclaration line:14
+         (NTypedefName line:14
+            ID: "c443ds4" line:14 tokenNumber:118 source:
+         )
+         (NInitDecl line:14
+            (NDeclarator line:14
+               ID: "e45d45" line:14 tokenNumber:120 source:
+            )
+         )
+         (NInitDecl line:14
+            (NDeclarator line:14
+               ID: "o908oo98" line:14 tokenNumber:123 source:
+            )
+         )
+         SEMI: ";" line:14 tokenNumber:124 source:
+      )
+      (NStatementExpr line:15
+         (NCommaExpr: "," line:15 tokenNumber:133 source:
+            (ASSIGN: "=" line:15 tokenNumber:130 source:
+               (NPostfixExpr line:15
+                  ID: "e45d45" line:15 tokenNumber:126 source:
+                  DOT: "." line:15 tokenNumber:127 source:
+                  ID: "s432" line:15 tokenNumber:129 source:
+               )
+               ID: "e9877" line:15 tokenNumber:132 source:
+            )
+            (ASSIGN: "=" line:16 tokenNumber:139 source:
+               (NPostfixExpr line:16
+                  ID: "o908oo98" line:16 tokenNumber:135 source:
+                  DOT: "." line:16 tokenNumber:136 source:
+                  ID: "s432" line:16 tokenNumber:138 source:
+               )
+               ID: "q3209" line:16 tokenNumber:141 source:
+            )
+         )
+      )
+      (NStatementExpr line:17
+         (ASSIGN: "=" line:17 tokenNumber:148 source:
+            (NPostfixExpr line:17
+               ID: "w" line:17 tokenNumber:144 source:
+               DOT: "." line:17 tokenNumber:145 source:
+               ID: "s432" line:17 tokenNumber:147 source:
+            )
+            (LPAREN: "(" line:17 tokenNumber:149 source:
+               (NCompoundStatement: "{" line:17 scopeName:1 tokenNumber:150 source:
+                  (NDeclaration line:17
+                     (NTypedefName line:17
+                        ID: "c443ds4" line:17 tokenNumber:152 source:
+                     )
+                     (NInitDecl line:17
+                        (NDeclarator line:17
+                           ID: "y665re" line:17 tokenNumber:154 source:
+                        )
+                     )
+                     SEMI: ";" line:17 tokenNumber:155 source:
+                  )
+                  (NStatementExpr line:17
+                     (NGnuAsmExpr: "__asm__" line:17 tokenNumber:157 source:
+                        LPAREN: "(" line:17 tokenNumber:158 source:
+                        (NStringSeq line:19
+                           StringLiteral: ""trt %1,%9
+        gtri %6"" line:19 tokenNumber:159 source:
+                        )
+                        COLON: ":" line:19 tokenNumber:160 source:
+                        (NStringSeq line:19
+                           StringLiteral: ""=d"" line:19 tokenNumber:161 source:
+                        )
+                        LPAREN: "(" line:19 tokenNumber:162 source:
+                        (NCast: "(" line:19 tokenNumber:163 source:
+                           (NTypedefName line:19
+                              ID: "hg554x" line:19 tokenNumber:165 source:
+                           )
+                           RPAREN: ")" line:19 tokenNumber:166 source:
+                           (NExpressionGroup: "(" line:19 tokenNumber:167 source:
+                              (NPostfixExpr line:19
+                                 ID: "y665re" line:19 tokenNumber:169 source:
+                                 DOT: "." line:19 tokenNumber:170 source:
+                                 ID: "s" line:19 tokenNumber:172 source:
+                                 DOT: "." line:19 tokenNumber:173 source:
+                                 ID: "s7655fd4" line:19 tokenNumber:175 source:
+                              )
+                              RPAREN: ")" line:19 tokenNumber:176 source:
+                           )
+                        )
+                        RPAREN: ")" line:19 tokenNumber:177 source:
+                        COMMA: "," line:19 tokenNumber:178 source:
+                        (NStringSeq line:19
+                           StringLiteral: ""=d"" line:19 tokenNumber:179 source:
+                        )
+                        LPAREN: "(" line:19 tokenNumber:180 source:
+                        (NCast: "(" line:19 tokenNumber:181 source:
+                           (NTypedefName line:19
+                              ID: "hg554x" line:19 tokenNumber:183 source:
+                           )
+                           RPAREN: ")" line:19 tokenNumber:184 source:
+                           (NExpressionGroup: "(" line:19 tokenNumber:185 source:
+                              (NPostfixExpr line:19
+                                 ID: "y665re" line:19 tokenNumber:187 source:
+                                 DOT: "." line:19 tokenNumber:188 source:
+                                 ID: "s" line:19 tokenNumber:190 source:
+                                 DOT: "." line:19 tokenNumber:191 source:
+                                 ID: "d453s" line:19 tokenNumber:193 source:
+                              )
+                              RPAREN: ")" line:19 tokenNumber:194 source:
+                           )
+                        )
+                        RPAREN: ")" line:19 tokenNumber:195 source:
+                        COLON: ":" line:19 tokenNumber:196 source:
+                        (NStringSeq line:19
+                           StringLiteral: ""d"" line:19 tokenNumber:197 source:
+                        )
+                        LPAREN: "(" line:19 tokenNumber:198 source:
+                        (NCast: "(" line:19 tokenNumber:199 source:
+                           (NTypedefName line:19
+                              ID: "hg554x" line:19 tokenNumber:201 source:
+                           )
+                           RPAREN: ")" line:19 tokenNumber:202 source:
+                           (NExpressionGroup: "(" line:19 tokenNumber:203 source:
+                              (NPostfixExpr line:19
+                                 ID: "e45d45" line:19 tokenNumber:205 source:
+                                 DOT: "." line:19 tokenNumber:206 source:
+                                 ID: "s" line:19 tokenNumber:208 source:
+                                 DOT: "." line:19 tokenNumber:209 source:
+                                 ID: "s7655fd4" line:19 tokenNumber:211 source:
+                              )
+                              RPAREN: ")" line:19 tokenNumber:212 source:
+                           )
+                        )
+                        RPAREN: ")" line:19 tokenNumber:213 source:
+                        COMMA: "," line:19 tokenNumber:214 source:
+                        (NStringSeq line:19
+                           StringLiteral: ""d"" line:19 tokenNumber:215 source:
+                        )
+                        LPAREN: "(" line:19 tokenNumber:216 source:
+                        (NCast: "(" line:19 tokenNumber:217 source:
+                           (NTypedefName line:19
+                              ID: "hg554x" line:19 tokenNumber:219 source:
+                           )
+                           RPAREN: ")" line:19 tokenNumber:220 source:
+                           (NExpressionGroup: "(" line:19 tokenNumber:221 source:
+                              (NPostfixExpr line:19
+                                 ID: "o908oo98" line:19 tokenNumber:223 source:
+                                 DOT: "." line:19 tokenNumber:224 source:
+                                 ID: "s" line:19 tokenNumber:226 source:
+                                 DOT: "." line:19 tokenNumber:227 source:
+                                 ID: "s7655fd4" line:19 tokenNumber:229 source:
+                              )
+                              RPAREN: ")" line:19 tokenNumber:230 source:
+                           )
+                        )
+                        RPAREN: ")" line:19 tokenNumber:231 source:
+                        RPAREN: ")" line:19 tokenNumber:232 source:
+                     )
+                  )
+                  (NStatementExpr line:19
+                     (NPostfixExpr line:19
+                        ID: "y665re" line:19 tokenNumber:235 source:
+                        DOT: "." line:19 tokenNumber:236 source:
+                        ID: "s432" line:19 tokenNumber:238 source:
+                     )
+                  )
+                  RCURLY: "}" line:19 tokenNumber:240 source:
+               )
+               RPAREN: ")" line:19 tokenNumber:241 source:
+            )
+         )
+      )
+      (LITERAL_return: "return" line:20 tokenNumber:244 source:
+         (NPostfixExpr line:20
+            ID: "w" line:20 tokenNumber:246 source:
+            DOT: "." line:20 tokenNumber:247 source:
+            ID: "s432" line:20 tokenNumber:249 source:
+         )
+      )
+      RCURLY: "}" line:21 tokenNumber:251 source:
+   )
+)

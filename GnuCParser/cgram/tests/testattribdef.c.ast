@@ -1,0 +1,90 @@
+
+(NFunctionDef line:1
+   LITERAL_static: "static" line:1 tokenNumber:2 source:
+   LITERAL_inline: "inline" line:1 tokenNumber:4 source:
+   (LITERAL___attribute__: "__attribute__" line:1 tokenNumber:6 source:
+      LPAREN: "(" line:1 tokenNumber:7 source:
+      LPAREN: "(" line:1 tokenNumber:8 source:
+      ID: "always_inline" line:1 tokenNumber:10 source:
+      RPAREN: ")" line:1 tokenNumber:11 source:
+      RPAREN: ")" line:1 tokenNumber:12 source:
+   )
+   LITERAL_int: "int" line:1 tokenNumber:14 source:
+   (NDeclarator line:1
+      ID: "constant_test_bit" line:1 tokenNumber:16 source:
+      (NParameterTypeList: "(" line:1 tokenNumber:17 source:
+         (NParameterDeclaration line:1
+            LITERAL_unsigned: "unsigned" line:1 tokenNumber:19 source:
+            LITERAL_int: "int" line:1 tokenNumber:21 source:
+            (NDeclarator line:1
+               ID: "nr" line:1 tokenNumber:23 source:
+            )
+         )
+         COMMA: "," line:1 tokenNumber:24 source:
+         (NParameterDeclaration line:1
+            LITERAL_const: "const" line:1 tokenNumber:26 source:
+            LITERAL_volatile: "volatile" line:1 tokenNumber:28 source:
+            LITERAL_unsigned: "unsigned" line:1 tokenNumber:30 source:
+            LITERAL_long: "long" line:1 tokenNumber:32 source:
+            (NDeclarator line:1
+               (NPointerGroup line:1
+                  STAR: "*" line:1 tokenNumber:33 source:
+               )
+               ID: "addr" line:1 tokenNumber:35 source:
+            )
+         )
+         RPAREN: ")" line:1 tokenNumber:36 source:
+      )
+   )
+   (NCompoundStatement: "{" line:2 scopeName:constant_test_bit tokenNumber:37 source:
+      (LITERAL_return: "return" line:3 tokenNumber:39 source:
+         (NOT_EQUAL: "!=" line:4 tokenNumber:72 source:
+            (NExpressionGroup: "(" line:3 tokenNumber:40 source:
+               (BAND: "&" line:3 tokenNumber:51 source:
+                  (NExpressionGroup: "(" line:3 tokenNumber:41 source:
+                     (LSHIFT: "<<" line:3 tokenNumber:43 source:
+                        Number: "1UL" line:3 tokenNumber:42 source:
+                        (NExpressionGroup: "(" line:3 tokenNumber:44 source:
+                           (MOD: "%" line:3 tokenNumber:47 source:
+                              ID: "nr" line:3 tokenNumber:46 source:
+                              Number: "32" line:3 tokenNumber:48 source:
+                           )
+                           RPAREN: ")" line:3 tokenNumber:49 source:
+                        )
+                     )
+                     RPAREN: ")" line:3 tokenNumber:50 source:
+                  )
+                  (NExpressionGroup: "(" line:4 tokenNumber:52 source:
+                     (NPostfixExpr line:4
+                        (NExpressionGroup: "(" line:4 tokenNumber:53 source:
+                           (NCast: "(" line:4 tokenNumber:54 source:
+                              LITERAL_unsigned: "unsigned" line:4 tokenNumber:56 source:
+                              LITERAL_long: "long" line:4 tokenNumber:58 source:
+                              (NNonemptyAbstractDeclarator line:4
+                                 (NPointerGroup line:4
+                                    STAR: "*" line:4 tokenNumber:59 source:
+                                 )
+                              )
+                              RPAREN: ")" line:4 tokenNumber:60 source:
+                              ID: "addr" line:4 tokenNumber:62 source:
+                           )
+                           RPAREN: ")" line:4 tokenNumber:63 source:
+                        )
+                        LBRACKET: "[" line:4 tokenNumber:64 source:
+                        (DIV: "/" line:4 tokenNumber:67 source:
+                           ID: "nr" line:4 tokenNumber:66 source:
+                           Number: "32" line:4 tokenNumber:68 source:
+                        )
+                        RBRACKET: "]" line:4 tokenNumber:69 source:
+                     )
+                     RPAREN: ")" line:4 tokenNumber:70 source:
+                  )
+               )
+               RPAREN: ")" line:4 tokenNumber:71 source:
+            )
+            Number: "0" line:4 tokenNumber:73 source:
+         )
+      )
+      RCURLY: "}" line:5 tokenNumber:75 source:
+   )
+)

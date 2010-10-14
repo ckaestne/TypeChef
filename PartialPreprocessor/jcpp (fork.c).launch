@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/jcpp/src/org/anarres/cpp/Main.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<mapAttribute key="org.eclipse.debug.core.preferred_launchers">
+<mapEntry key="[run]" value="org.eclipse.jdt.launching.localJavaApplication"/>
+<mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>
+</mapAttribute>
+<stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DATA_COLLECTOR" value="org.eclipse.tptp.trace.jvmti.jvmtiMechanism:org.eclipse.tptp.analysisType.jvmti.execution"/>
+<stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_FILE" value=""/>
+<stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_MONITOR" value="DefaultMonitor"/>
+<stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_PROJECT" value="ProfileProject"/>
+<booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILE_TO_FILE" value="false"/>
+<stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="tptp-dummy-profiling-set-jcpp (fork.c)"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.anarres.cpp.Main"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="${workspace_loc}/linux-2.6.33.3/kernel/fork.c&#13;&#10;-o ${workspace_loc}/linux-2.6.33.3/kernel/fork.pi&#13;&#10;-I ${workspace_loc}/linux-2.6.33.3/arch/x86/include&#13;&#10;-I ${workspace_loc}/linux-2.6.33.3/arch/x86/include/asm&#13;&#10;-I ${workspace_loc}/linux-2.6.33.3/include&#13;&#10;-I C:\cygwin\usr\include&#13;&#10;-I C:\cygwin\lib\gcc\i686-pc-cygwin\3.4.4\include&#13;&#10;-x CONFIG_&#13;&#10;--include W:\work\TypeChef\boa\src\cygwin.h&#13;&#10;-D __GNUC__=3&#13;&#10;-D PAGETABLE_LEVELS=4&#13;&#10;-U __INTEL_COMPILER&#13;&#10;-U CONFIG_PARAVIRT&#13;&#10;-D CONFIG_HZ=100&#13;&#10;-D __KERNEL__"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jcpp"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms132m -Xmx528m -ea -Xshare:off"/>
+</launchConfiguration>

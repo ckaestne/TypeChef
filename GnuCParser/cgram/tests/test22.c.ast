@@ -1,0 +1,472 @@
+
+(NFunctionDef line:1
+   (NDeclarator line:1
+      ID: "aikoAllDay" line:1 tokenNumber:2 source:
+      (NParameterTypeList: "(" line:1 tokenNumber:3 source:
+         RPAREN: ")" line:1 tokenNumber:4 source:
+      )
+   )
+   (NCompoundStatement: "{" line:1 scopeName:aikoAllDay tokenNumber:5 source:
+      (NDeclaration line:2
+         LITERAL_int: "int" line:2 tokenNumber:7 source:
+         (NInitDecl line:2
+            (NDeclarator line:2
+               ID: "a" line:2 tokenNumber:9 source:
+               LBRACKET: "[" line:2 tokenNumber:10 source:
+               Number: "6" line:2 tokenNumber:11 source:
+               RBRACKET: "]" line:2 tokenNumber:12 source:
+            )
+            ASSIGN: "=" line:2 tokenNumber:13 source:
+            (NInitializer line:2
+               (NLcurlyInitializer: "{" line:2 tokenNumber:14 source:
+                  (NInitializer line:2
+                     (NInitializerElementLabel line:2
+                        LBRACKET: "[" line:2 tokenNumber:15 source:
+                        Number: "4" line:2 tokenNumber:16 source:
+                        RBRACKET: "]" line:2 tokenNumber:17 source:
+                     )
+                     Number: "29" line:2 tokenNumber:18 source:
+                  )
+                  (NInitializer line:2
+                     (NInitializerElementLabel line:2
+                        LBRACKET: "[" line:2 tokenNumber:20 source:
+                        Number: "2" line:2 tokenNumber:21 source:
+                        RBRACKET: "]" line:2 tokenNumber:22 source:
+                        ASSIGN: "=" line:2 tokenNumber:23 source:
+                     )
+                     Number: "15" line:2 tokenNumber:24 source:
+                  )
+                  RCURLY: "}" line:2 tokenNumber:25 source:
+               )
+            )
+         )
+         SEMI: ";" line:2 tokenNumber:26 source:
+      )
+      (NDeclaration line:3
+         LITERAL_int: "int" line:3 tokenNumber:28 source:
+         (NInitDecl line:3
+            (NDeclarator line:3
+               ID: "ab" line:3 tokenNumber:30 source:
+               LBRACKET: "[" line:3 tokenNumber:31 source:
+               Number: "6" line:3 tokenNumber:32 source:
+               RBRACKET: "]" line:3 tokenNumber:33 source:
+            )
+            ASSIGN: "=" line:3 tokenNumber:34 source:
+            (NInitializer line:3
+               (NLcurlyInitializer: "{" line:3 tokenNumber:35 source:
+                  (NInitializer line:3
+                     Number: "0" line:3 tokenNumber:36 source:
+                  )
+                  (NInitializer line:3
+                     Number: "0" line:3 tokenNumber:38 source:
+                  )
+                  (NInitializer line:3
+                     Number: "15" line:3 tokenNumber:40 source:
+                  )
+                  (NInitializer line:3
+                     Number: "0" line:3 tokenNumber:42 source:
+                  )
+                  (NInitializer line:3
+                     Number: "29" line:3 tokenNumber:44 source:
+                  )
+                  (NInitializer line:3
+                     Number: "0" line:3 tokenNumber:46 source:
+                  )
+                  RCURLY: "}" line:3 tokenNumber:47 source:
+               )
+            )
+         )
+         SEMI: ";" line:3 tokenNumber:48 source:
+      )
+      (NDeclaration line:4
+         LITERAL_int: "int" line:4 tokenNumber:50 source:
+         (NInitDecl line:4
+            (NDeclarator line:4
+               ID: "widths" line:4 tokenNumber:52 source:
+               LBRACKET: "[" line:4 tokenNumber:53 source:
+               RBRACKET: "]" line:4 tokenNumber:54 source:
+            )
+            ASSIGN: "=" line:4 tokenNumber:55 source:
+            (NInitializer line:4
+               (NLcurlyInitializer: "{" line:4 tokenNumber:56 source:
+                  (NInitializer line:4
+                     (NInitializerElementLabel line:4
+                        LBRACKET: "[" line:4 tokenNumber:57 source:
+                        (NRangeExpr line:4
+                           Number: "0" line:4 tokenNumber:58 source:
+                           VARARGS: "..." line:4 tokenNumber:59 source:
+                           Number: "9" line:4 tokenNumber:60 source:
+                        )
+                        RBRACKET: "]" line:4 tokenNumber:61 source:
+                        ASSIGN: "=" line:4 tokenNumber:62 source:
+                     )
+                     Number: "1" line:4 tokenNumber:63 source:
+                  )
+                  (NInitializer line:4
+                     (NInitializerElementLabel line:4
+                        LBRACKET: "[" line:4 tokenNumber:65 source:
+                        (NRangeExpr line:4
+                           Number: "10" line:4 tokenNumber:66 source:
+                           VARARGS: "..." line:4 tokenNumber:67 source:
+                           Number: "99" line:4 tokenNumber:68 source:
+                        )
+                        RBRACKET: "]" line:4 tokenNumber:69 source:
+                        ASSIGN: "=" line:4 tokenNumber:70 source:
+                     )
+                     Number: "2" line:4 tokenNumber:71 source:
+                  )
+                  (NInitializer line:4
+                     (NInitializerElementLabel line:4
+                        LBRACKET: "[" line:4 tokenNumber:73 source:
+                        Number: "100" line:4 tokenNumber:74 source:
+                        RBRACKET: "]" line:4 tokenNumber:75 source:
+                        ASSIGN: "=" line:4 tokenNumber:76 source:
+                     )
+                     Number: "3" line:4 tokenNumber:77 source:
+                  )
+                  RCURLY: "}" line:4 tokenNumber:78 source:
+               )
+            )
+         )
+         SEMI: ";" line:4 tokenNumber:79 source:
+      )
+      (NDeclaration line:6
+         LITERAL_int: "int" line:6 tokenNumber:81 source:
+         (NInitDecl line:6
+            (NDeclarator line:6
+               ID: "xvalue" line:6 tokenNumber:83 source:
+            )
+         )
+         (NInitDecl line:6
+            (NDeclarator line:6
+               ID: "yvalue" line:6 tokenNumber:86 source:
+            )
+         )
+         (NInitDecl line:6
+            (NDeclarator line:6
+               ID: "v1" line:6 tokenNumber:89 source:
+            )
+         )
+         (NInitDecl line:6
+            (NDeclarator line:6
+               ID: "v2" line:6 tokenNumber:92 source:
+            )
+         )
+         (NInitDecl line:6
+            (NDeclarator line:6
+               ID: "v4" line:6 tokenNumber:95 source:
+            )
+         )
+         SEMI: ";" line:6 tokenNumber:96 source:
+      )
+      (NDeclaration line:7
+         (LITERAL_struct: "struct" line:7 tokenNumber:98 source:
+            ID: "point" line:7 tokenNumber:100 source:
+            LCURLY: "struct point" line:7 tokenNumber:101 source:
+            LITERAL_int: "int" line:7 tokenNumber:103 source:
+            (NStructDeclarator line:7
+               (NDeclarator line:7
+                  ID: "x" line:7 tokenNumber:105 source:
+               )
+            )
+            (NStructDeclarator line:7
+               (NDeclarator line:7
+                  ID: "y" line:7 tokenNumber:108 source:
+               )
+            )
+            RCURLY: "}" line:7 tokenNumber:110 source:
+         )
+         SEMI: ";" line:7 tokenNumber:111 source:
+      )
+      (NDeclaration line:8
+         (LITERAL_struct: "struct" line:8 tokenNumber:113 source:
+            ID: "point" line:8 tokenNumber:115 source:
+         )
+         (NInitDecl line:8
+            (NDeclarator line:8
+               ID: "p" line:8 tokenNumber:117 source:
+            )
+            ASSIGN: "=" line:8 tokenNumber:118 source:
+            (NInitializer line:8
+               (NLcurlyInitializer: "{" line:8 tokenNumber:119 source:
+                  (NInitializer line:8
+                     ID: "xvalue" line:8 tokenNumber:121 source:
+                  )
+                  (NInitializer line:8
+                     ID: "yvalue" line:8 tokenNumber:124 source:
+                  )
+                  RCURLY: "}" line:8 tokenNumber:125 source:
+               )
+            )
+         )
+         SEMI: ";" line:8 tokenNumber:126 source:
+      )
+      (NDeclaration line:9
+         (LITERAL_struct: "struct" line:9 tokenNumber:128 source:
+            ID: "point" line:9 tokenNumber:130 source:
+         )
+         (NInitDecl line:9
+            (NDeclarator line:9
+               ID: "p" line:9 tokenNumber:132 source:
+            )
+            ASSIGN: "=" line:9 tokenNumber:133 source:
+            (NInitializer line:9
+               (NLcurlyInitializer: "{" line:9 tokenNumber:134 source:
+                  (NInitializer line:9
+                     (NInitializerElementLabel line:9
+                        ID: "y" line:9 tokenNumber:136 source:
+                        COLON: ":" line:9 tokenNumber:137 source:
+                     )
+                     ID: "yvalue" line:9 tokenNumber:139 source:
+                  )
+                  (NInitializer line:9
+                     (NInitializerElementLabel line:9
+                        ID: "x" line:9 tokenNumber:142 source:
+                        COLON: ":" line:9 tokenNumber:143 source:
+                     )
+                     ID: "xvalue" line:9 tokenNumber:145 source:
+                  )
+                  RCURLY: "}" line:9 tokenNumber:146 source:
+               )
+            )
+         )
+         SEMI: ";" line:9 tokenNumber:147 source:
+      )
+      (NDeclaration line:10
+         (LITERAL_struct: "struct" line:10 tokenNumber:149 source:
+            ID: "point" line:10 tokenNumber:151 source:
+         )
+         (NInitDecl line:10
+            (NDeclarator line:10
+               ID: "p" line:10 tokenNumber:153 source:
+            )
+            ASSIGN: "=" line:10 tokenNumber:154 source:
+            (NInitializer line:10
+               (NLcurlyInitializer: "{" line:10 tokenNumber:155 source:
+                  (NInitializer line:10
+                     (NInitializerElementLabel line:10
+                        DOT: "." line:10 tokenNumber:156 source:
+                        ID: "y" line:10 tokenNumber:158 source:
+                        ASSIGN: "=" line:10 tokenNumber:159 source:
+                     )
+                     ID: "yvalue" line:10 tokenNumber:161 source:
+                  )
+                  (NInitializer line:10
+                     (NInitializerElementLabel line:10
+                        DOT: "." line:10 tokenNumber:163 source:
+                        ID: "x" line:10 tokenNumber:165 source:
+                        ASSIGN: "=" line:10 tokenNumber:166 source:
+                     )
+                     ID: "xvalue" line:10 tokenNumber:168 source:
+                  )
+                  RCURLY: "}" line:10 tokenNumber:169 source:
+               )
+            )
+         )
+         SEMI: ";" line:10 tokenNumber:170 source:
+      )
+      (NDeclaration line:12
+         (LITERAL_union: "union" line:12 tokenNumber:172 source:
+            ID: "foo" line:12 tokenNumber:174 source:
+            LCURLY: "union foo" line:12 tokenNumber:175 source:
+            LITERAL_int: "int" line:12 tokenNumber:177 source:
+            (NStructDeclarator line:12
+               (NDeclarator line:12
+                  ID: "i" line:12 tokenNumber:179 source:
+               )
+            )
+            LITERAL_double: "double" line:12 tokenNumber:182 source:
+            (NStructDeclarator line:12
+               (NDeclarator line:12
+                  ID: "d" line:12 tokenNumber:184 source:
+               )
+            )
+            RCURLY: "}" line:12 tokenNumber:186 source:
+         )
+         SEMI: ";" line:12 tokenNumber:187 source:
+      )
+      (NDeclaration line:13
+         (LITERAL_union: "union" line:13 tokenNumber:189 source:
+            ID: "foo" line:13 tokenNumber:191 source:
+         )
+         (NInitDecl line:13
+            (NDeclarator line:13
+               ID: "f" line:13 tokenNumber:193 source:
+            )
+            ASSIGN: "=" line:13 tokenNumber:194 source:
+            (NInitializer line:13
+               (NLcurlyInitializer: "{" line:13 tokenNumber:195 source:
+                  (NInitializer line:13
+                     (NInitializerElementLabel line:13
+                        ID: "d" line:13 tokenNumber:197 source:
+                        COLON: ":" line:13 tokenNumber:198 source:
+                     )
+                     Number: "4" line:13 tokenNumber:199 source:
+                  )
+                  RCURLY: "}" line:13 tokenNumber:200 source:
+               )
+            )
+         )
+         SEMI: ";" line:13 tokenNumber:201 source:
+      )
+      (NDeclaration line:15
+         LITERAL_int: "int" line:15 tokenNumber:203 source:
+         (NInitDecl line:15
+            (NDeclarator line:15
+               ID: "a" line:15 tokenNumber:205 source:
+               LBRACKET: "[" line:15 tokenNumber:206 source:
+               Number: "6" line:15 tokenNumber:207 source:
+               RBRACKET: "]" line:15 tokenNumber:208 source:
+            )
+            ASSIGN: "=" line:15 tokenNumber:209 source:
+            (NInitializer line:15
+               (NLcurlyInitializer: "{" line:15 tokenNumber:210 source:
+                  (NInitializer line:15
+                     (NInitializerElementLabel line:15
+                        LBRACKET: "[" line:15 tokenNumber:211 source:
+                        Number: "1" line:15 tokenNumber:212 source:
+                        RBRACKET: "]" line:15 tokenNumber:213 source:
+                        ASSIGN: "=" line:15 tokenNumber:214 source:
+                     )
+                     ID: "v1" line:15 tokenNumber:216 source:
+                  )
+                  (NInitializer line:15
+                     ID: "v2" line:15 tokenNumber:219 source:
+                  )
+                  (NInitializer line:15
+                     (NInitializerElementLabel line:15
+                        LBRACKET: "[" line:15 tokenNumber:221 source:
+                        Number: "4" line:15 tokenNumber:222 source:
+                        RBRACKET: "]" line:15 tokenNumber:223 source:
+                        ASSIGN: "=" line:15 tokenNumber:224 source:
+                     )
+                     ID: "v4" line:15 tokenNumber:226 source:
+                  )
+                  RCURLY: "}" line:15 tokenNumber:227 source:
+               )
+            )
+         )
+         SEMI: ";" line:15 tokenNumber:228 source:
+      )
+      (NDeclaration line:16
+         LITERAL_int: "int" line:16 tokenNumber:230 source:
+         (NInitDecl line:16
+            (NDeclarator line:16
+               ID: "a" line:16 tokenNumber:232 source:
+               LBRACKET: "[" line:16 tokenNumber:233 source:
+               Number: "6" line:16 tokenNumber:234 source:
+               RBRACKET: "]" line:16 tokenNumber:235 source:
+            )
+            ASSIGN: "=" line:16 tokenNumber:236 source:
+            (NInitializer line:16
+               (NLcurlyInitializer: "{" line:16 tokenNumber:237 source:
+                  (NInitializer line:16
+                     Number: "0" line:16 tokenNumber:238 source:
+                  )
+                  (NInitializer line:16
+                     ID: "v1" line:16 tokenNumber:241 source:
+                  )
+                  (NInitializer line:16
+                     ID: "v2" line:16 tokenNumber:244 source:
+                  )
+                  (NInitializer line:16
+                     Number: "0" line:16 tokenNumber:246 source:
+                  )
+                  (NInitializer line:16
+                     ID: "v4" line:16 tokenNumber:249 source:
+                  )
+                  (NInitializer line:16
+                     Number: "0" line:16 tokenNumber:251 source:
+                  )
+                  RCURLY: "}" line:16 tokenNumber:252 source:
+               )
+            )
+         )
+         SEMI: ";" line:16 tokenNumber:253 source:
+      )
+      (NDeclaration line:18
+         LITERAL_int: "int" line:18 tokenNumber:255 source:
+         (NInitDecl line:18
+            (NDeclarator line:18
+               ID: "whitespace" line:18 tokenNumber:257 source:
+               LBRACKET: "[" line:18 tokenNumber:258 source:
+               Number: "256" line:18 tokenNumber:259 source:
+               RBRACKET: "]" line:18 tokenNumber:260 source:
+            )
+            ASSIGN: "=" line:19 tokenNumber:261 source:
+            (NInitializer line:19
+               (NLcurlyInitializer: "{" line:19 tokenNumber:262 source:
+                  (NInitializer line:19
+                     (NInitializerElementLabel line:19
+                        LBRACKET: "[" line:19 tokenNumber:263 source:
+                        CharLiteral: "' '" line:19 tokenNumber:264 source:
+                        RBRACKET: "]" line:19 tokenNumber:265 source:
+                        ASSIGN: "=" line:19 tokenNumber:266 source:
+                     )
+                     Number: "1" line:19 tokenNumber:267 source:
+                  )
+                  (NInitializer line:19
+                     (NInitializerElementLabel line:19
+                        LBRACKET: "[" line:19 tokenNumber:269 source:
+                        CharLiteral: "'\t'" line:19 tokenNumber:270 source:
+                        RBRACKET: "]" line:19 tokenNumber:271 source:
+                        ASSIGN: "=" line:19 tokenNumber:272 source:
+                     )
+                     Number: "1" line:19 tokenNumber:273 source:
+                  )
+                  (NInitializer line:19
+                     (NInitializerElementLabel line:19
+                        LBRACKET: "[" line:19 tokenNumber:275 source:
+                        CharLiteral: "'\h'" line:19 tokenNumber:276 source:
+                        RBRACKET: "]" line:19 tokenNumber:277 source:
+                        ASSIGN: "=" line:19 tokenNumber:278 source:
+                     )
+                     Number: "1" line:19 tokenNumber:279 source:
+                  )
+                  (NInitializer line:20
+                     (NInitializerElementLabel line:20
+                        LBRACKET: "[" line:20 tokenNumber:281 source:
+                        CharLiteral: "'\f'" line:20 tokenNumber:282 source:
+                        RBRACKET: "]" line:20 tokenNumber:283 source:
+                        ASSIGN: "=" line:20 tokenNumber:284 source:
+                     )
+                     Number: "1" line:20 tokenNumber:285 source:
+                  )
+                  (NInitializer line:20
+                     (NInitializerElementLabel line:20
+                        LBRACKET: "[" line:20 tokenNumber:287 source:
+                        CharLiteral: "'\n'" line:20 tokenNumber:288 source:
+                        RBRACKET: "]" line:20 tokenNumber:289 source:
+                        ASSIGN: "=" line:20 tokenNumber:290 source:
+                     )
+                     Number: "1" line:20 tokenNumber:291 source:
+                  )
+                  (NInitializer line:20
+                     (NInitializerElementLabel line:20
+                        LBRACKET: "[" line:20 tokenNumber:293 source:
+                        CharLiteral: "'\r'" line:20 tokenNumber:294 source:
+                        RBRACKET: "]" line:20 tokenNumber:295 source:
+                        ASSIGN: "=" line:20 tokenNumber:296 source:
+                     )
+                     Number: "1" line:20 tokenNumber:297 source:
+                  )
+                  RCURLY: "}" line:20 tokenNumber:298 source:
+               )
+            )
+         )
+         SEMI: ";" line:20 tokenNumber:299 source:
+      )
+      (NStatementExpr line:21
+         (NPostfixExpr line:21
+            ID: "fn" line:21 tokenNumber:301 source:
+            (NFunctionCallArgs: "(" line:21 tokenNumber:302 source:
+               Number: "1" line:21 tokenNumber:303 source:
+               Number: "2" line:21 tokenNumber:305 source:
+               Number: "3" line:21 tokenNumber:307 source:
+               RPAREN: ")" line:21 tokenNumber:308 source:
+            )
+         )
+      )
+      RCURLY: "}" line:22 tokenNumber:310 source:
+   )
+)

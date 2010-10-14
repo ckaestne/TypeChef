@@ -1,0 +1,155 @@
+
+(NDeclaration line:1
+   LITERAL_extern: "extern" line:1 tokenNumber:2 source:
+   LITERAL_void: "void" line:1 tokenNumber:4 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "rt" line:1 tokenNumber:6 source:
+         (NParameterTypeList: "(" line:1 tokenNumber:7 source:
+            (NParameterDeclaration line:1
+               LITERAL_long: "long" line:1 tokenNumber:9 source:
+            )
+            COMMA: "," line:1 tokenNumber:10 source:
+            (NParameterDeclaration line:1
+               LITERAL_long: "long" line:1 tokenNumber:12 source:
+            )
+            RPAREN: ")" line:1 tokenNumber:13 source:
+         )
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:14 source:
+)
+(NDeclaration line:2
+   LITERAL_extern: "extern" line:2 tokenNumber:16 source:
+   LITERAL_long: "long" line:2 tokenNumber:18 source:
+   (NInitDecl line:2
+      (NDeclarator line:2
+         ID: "rn" line:2 tokenNumber:20 source:
+         (NParameterTypeList: "(" line:2 tokenNumber:21 source:
+            (NParameterDeclaration line:2
+               LITERAL_void: "void" line:2 tokenNumber:23 source:
+            )
+            RPAREN: ")" line:2 tokenNumber:24 source:
+         )
+      )
+   )
+   SEMI: ";" line:2 tokenNumber:25 source:
+)
+(NDeclaration line:3
+   LITERAL_extern: "extern" line:3 tokenNumber:27 source:
+   LITERAL_void: "void" line:3 tokenNumber:29 source:
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "rl" line:3 tokenNumber:31 source:
+         (NParameterTypeList: "(" line:3 tokenNumber:32 source:
+            (NParameterDeclaration line:3
+               LITERAL_char: "char" line:3 tokenNumber:34 source:
+               (NNonemptyAbstractDeclarator line:3
+                  (NPointerGroup line:3
+                     STAR: "*" line:3 tokenNumber:35 source:
+                  )
+               )
+            )
+            COMMA: "," line:3 tokenNumber:36 source:
+            (NParameterDeclaration line:3
+               LITERAL_int: "int" line:3 tokenNumber:38 source:
+            )
+            COMMA: "," line:3 tokenNumber:39 source:
+            (NParameterDeclaration line:3
+               LITERAL_int: "int" line:3 tokenNumber:41 source:
+            )
+            RPAREN: ")" line:3 tokenNumber:42 source:
+         )
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:43 source:
+)
+(NDeclaration line:4
+   LITERAL_int: "int" line:4 tokenNumber:45 source:
+   (NInitDecl line:4
+      (NDeclarator line:4
+         ID: "rd" line:4 tokenNumber:47 source:
+         (NParameterTypeList: "(" line:4 tokenNumber:48 source:
+            (NParameterDeclaration line:4
+               LITERAL_void: "void" line:4 tokenNumber:50 source:
+               (NNonemptyAbstractDeclarator line:4
+                  (NPointerGroup line:4
+                     STAR: "*" line:4 tokenNumber:51 source:
+                     STAR: "*" line:4 tokenNumber:52 source:
+                  )
+               )
+            )
+            COMMA: "," line:4 tokenNumber:53 source:
+            (NParameterDeclaration line:4
+               LITERAL_int: "int" line:4 tokenNumber:55 source:
+            )
+            RPAREN: ")" line:4 tokenNumber:56 source:
+         )
+      )
+   )
+   SEMI: ";" line:4 tokenNumber:57 source:
+)
+(NFunctionDef line:5
+   (NDeclarator line:5
+      ID: "rf" line:5 tokenNumber:59 source:
+      (NParameterTypeList: "(" line:5 tokenNumber:60 source:
+         (NParameterDeclaration line:5
+            LITERAL_int: "int" line:5 tokenNumber:62 source:
+            (NDeclarator line:5
+               (NPointerGroup line:5
+                  STAR: "*" line:5 tokenNumber:63 source:
+               )
+               ID: "rnx" line:5 tokenNumber:65 source:
+            )
+         )
+         RPAREN: ")" line:5 tokenNumber:66 source:
+      )
+   )
+   (NCompoundStatement: "{" line:6 scopeName:rf tokenNumber:67 source:
+      (LITERAL_return: "return" line:7 tokenNumber:69 source:
+         (NExpressionGroup: "(" line:7 tokenNumber:70 source:
+            ID: "rnx" line:7 tokenNumber:72 source:
+            RPAREN: ")" line:7 tokenNumber:73 source:
+         )
+      )
+      RCURLY: "}" line:8 tokenNumber:75 source:
+   )
+)
+(NFunctionDef line:10
+   (NDeclarator line:10
+      ID: "rnn" line:10 tokenNumber:77 source:
+      (NParameterTypeList: "(" line:10 tokenNumber:78 source:
+         (NParameterDeclaration line:10
+            LITERAL_int: "int" line:10 tokenNumber:80 source:
+            (NDeclarator line:10
+               ID: "rny" line:10 tokenNumber:82 source:
+            )
+         )
+         RPAREN: ")" line:10 tokenNumber:83 source:
+      )
+   )
+   (NCompoundStatement: "{" line:11 scopeName:rnn tokenNumber:84 source:
+      (LITERAL_return: "return" line:12 tokenNumber:86 source:
+         (NExpressionGroup: "(" line:12 tokenNumber:87 source:
+            ID: "rny" line:12 tokenNumber:89 source:
+            RPAREN: ")" line:12 tokenNumber:90 source:
+         )
+      )
+      RCURLY: "}" line:13 tokenNumber:92 source:
+   )
+)
+SEMI: ";" line:14 tokenNumber:93 source:
+SEMI: ";" line:15 tokenNumber:94 source:
+(NDeclaration line:16
+   LITERAL_extern: "extern" line:16 tokenNumber:96 source:
+   LITERAL_const: "const" line:16 tokenNumber:98 source:
+   LITERAL_int: "int" line:16 tokenNumber:100 source:
+   (NInitDecl line:16
+      (NDeclarator line:16
+         ID: "XYZ" line:16 tokenNumber:102 source:
+      )
+   )
+   SEMI: ";" line:16 tokenNumber:103 source:
+   SEMI: ";" line:16 tokenNumber:104 source:
+   SEMI: ";" line:17 tokenNumber:105 source:
+)

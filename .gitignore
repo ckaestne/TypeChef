@@ -5,5 +5,9 @@ bin
 *~
 .metadata/
 .scala_dependencies
-jcpp.log
+jcpp.log*
 macroDebug.txt
+target/
+lib_managed/
+src_managed/
+project/boot/

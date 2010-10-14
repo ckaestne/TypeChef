@@ -1,0 +1,101 @@
+
+(NFunctionDef line:2
+   (NDeclarator line:2
+      ID: "concat_fopen" line:2 tokenNumber:2 source:
+      (NParameterTypeList: "(" line:2 tokenNumber:3 source:
+         (NParameterDeclaration line:2
+            LITERAL_char: "char" line:2 tokenNumber:5 source:
+            (NDeclarator line:2
+               (NPointerGroup line:2
+                  STAR: "*" line:2 tokenNumber:6 source:
+               )
+               ID: "s1" line:2 tokenNumber:8 source:
+            )
+         )
+         COMMA: "," line:2 tokenNumber:9 source:
+         (NParameterDeclaration line:2
+            LITERAL_char: "char" line:2 tokenNumber:11 source:
+            (NDeclarator line:2
+               (NPointerGroup line:2
+                  STAR: "*" line:2 tokenNumber:12 source:
+               )
+               ID: "s2" line:2 tokenNumber:14 source:
+            )
+         )
+         COMMA: "," line:2 tokenNumber:15 source:
+         (NParameterDeclaration line:2
+            LITERAL_char: "char" line:2 tokenNumber:17 source:
+            (NDeclarator line:2
+               (NPointerGroup line:2
+                  STAR: "*" line:2 tokenNumber:18 source:
+               )
+               ID: "mode" line:2 tokenNumber:20 source:
+            )
+         )
+         RPAREN: ")" line:2 tokenNumber:21 source:
+      )
+   )
+   (NCompoundStatement: "{" line:3 scopeName:concat_fopen tokenNumber:22 source:
+      (NDeclaration line:4
+         LITERAL_char: "char" line:4 tokenNumber:24 source:
+         (NInitDecl line:4
+            (NDeclarator line:4
+               ID: "str" line:4 tokenNumber:26 source:
+               LBRACKET: "[" line:4 tokenNumber:27 source:
+               (PLUS: "+" line:4 tokenNumber:41 source:
+                  (PLUS: "+" line:4 tokenNumber:34 source:
+                     (NPostfixExpr line:4
+                        ID: "strlen" line:4 tokenNumber:29 source:
+                        (NFunctionCallArgs: "(" line:4 tokenNumber:30 source:
+                           ID: "s1" line:4 tokenNumber:32 source:
+                           RPAREN: ")" line:4 tokenNumber:33 source:
+                        )
+                     )
+                     (NPostfixExpr line:4
+                        ID: "strlen" line:4 tokenNumber:36 source:
+                        (NFunctionCallArgs: "(" line:4 tokenNumber:37 source:
+                           ID: "s2" line:4 tokenNumber:39 source:
+                           RPAREN: ")" line:4 tokenNumber:40 source:
+                        )
+                     )
+                  )
+                  Number: "1" line:4 tokenNumber:42 source:
+               )
+               RBRACKET: "]" line:4 tokenNumber:43 source:
+            )
+         )
+         SEMI: ";" line:4 tokenNumber:44 source:
+      )
+      (NStatementExpr line:5
+         (NPostfixExpr line:5
+            ID: "strcpy" line:5 tokenNumber:46 source:
+            (NFunctionCallArgs: "(" line:5 tokenNumber:47 source:
+               ID: "str" line:5 tokenNumber:49 source:
+               ID: "s1" line:5 tokenNumber:52 source:
+               RPAREN: ")" line:5 tokenNumber:53 source:
+            )
+         )
+      )
+      (NStatementExpr line:6
+         (NPostfixExpr line:6
+            ID: "strcat" line:6 tokenNumber:56 source:
+            (NFunctionCallArgs: "(" line:6 tokenNumber:57 source:
+               ID: "str" line:6 tokenNumber:59 source:
+               ID: "s2" line:6 tokenNumber:62 source:
+               RPAREN: ")" line:6 tokenNumber:63 source:
+            )
+         )
+      )
+      (LITERAL_return: "return" line:7 tokenNumber:66 source:
+         (NPostfixExpr line:7
+            ID: "fopen" line:7 tokenNumber:68 source:
+            (NFunctionCallArgs: "(" line:7 tokenNumber:69 source:
+               ID: "str" line:7 tokenNumber:71 source:
+               ID: "mode" line:7 tokenNumber:74 source:
+               RPAREN: ")" line:7 tokenNumber:75 source:
+            )
+         )
+      )
+      RCURLY: "}" line:8 tokenNumber:77 source:
+   )
+)

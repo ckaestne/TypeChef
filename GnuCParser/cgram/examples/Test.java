@@ -72,7 +72,7 @@ public class Test
             // Garbage collection hint
             System.gc();
 
-            TNode.printTree(parser.getAST());
+            TNode.printTree(System.out,parser.getAST());
             
 //            GnuCEmitter e = new GnuCEmitter(lexer.getPreprocessorInfoChannel());
 //            

@@ -1,6 +1,7 @@
 package cgram;
 
 
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -313,57 +314,57 @@ public void initialize(AST tr) {
 
 
   /** print given tree to System.out */
-  public static void printTree(AST t) {
+  public static void printTree(PrintStream out, AST t) {
        if (t == null) return;
-       printASTNode(t,0);
-       System.out.print("\n");
+       printASTNode(out,t,0);
+       out.print("\n");
   }
 
 
   /** protected method that does the work of printing */
-  protected static void printASTNode(AST t, int indent) {
+  protected static void printASTNode(PrintStream out, AST t, int indent) {
      AST child1, next;
      child1 = t.getFirstChild();         
 
-    System.out.print("\n");
+    out.print("\n");
      for(int i = 0; i < indent; i++) 
-       System.out.print("   ");
+       out.print("   ");
 
      if(child1 != null) 
-        System.out.print("(");
+        out.print("(");
 
      String s = t.getText();
      if(s != null && s.length() > 0) {
-       System.out.print(getNameForType(t.getType()));
-       System.out.print(": \"" + s + "\"");
+       out.print(getNameForType(t.getType()));
+       out.print(": \"" + s + "\"");
      }  
      else
-       System.out.print(getNameForType(t.getType()));
+       out.print(getNameForType(t.getType()));
      if(((TNode)t).getLineNum() != 0) 
-       System.out.print(" line:" + ((TNode)t).getLineNum() );
+       out.print(" line:" + ((TNode)t).getLineNum() );
 
      Enumeration keys = ((TNode)t).getAttributesTable().keys();
      while (keys.hasMoreElements()) {
        String key = (String) keys.nextElement();
-       System.out.print(" " + key + ":" + ((TNode)t).getAttribute(key));
+       out.print(" " + key + ":" + ((TNode)t).getAttribute(key));
      }
      TNode def = ((TNode)t).getDefNode();
      if(def != null)
-       System.out.print("[" + getNameForType(def.getType()) + "]");
+       out.print("[" + getNameForType(def.getType()) + "]");
 
 
      if(child1 != null) {
-        printASTNode(child1,indent + 1);
+        printASTNode(out, child1,indent + 1);
 
-        System.out.print("\n");
+        out.print("\n");
         for(int i = 0; i < indent; i++) 
-           System.out.print("   ");
-        System.out.print(")");
+           out.print("   ");
+        out.print(")");
      }
 
      next = t.getNextSibling();
      if(next != null) {
-        printASTNode(next,indent);
+        printASTNode(out, next,indent);
      }
   }
 

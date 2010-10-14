@@ -1,0 +1,120 @@
+
+(NDeclaration line:2
+   (LITERAL_struct: "struct" line:2 tokenNumber:2 source:
+      ID: "foo" line:2 tokenNumber:4 source:
+      LCURLY: "struct foo" line:2 tokenNumber:5 source:
+      LITERAL_int: "int" line:2 tokenNumber:7 source:
+      (NStructDeclarator line:2
+         (NDeclarator line:2
+            ID: "a" line:2 tokenNumber:9 source:
+            LBRACKET: "[" line:2 tokenNumber:10 source:
+            Number: "5" line:2 tokenNumber:11 source:
+            RBRACKET: "]" line:2 tokenNumber:12 source:
+         )
+      )
+      RCURLY: "}" line:2 tokenNumber:14 source:
+   )
+   SEMI: ";" line:2 tokenNumber:15 source:
+)
+(NDeclaration line:3
+   (LITERAL_struct: "struct" line:3 tokenNumber:17 source:
+      ID: "foo" line:3 tokenNumber:19 source:
+   )
+   (NInitDecl line:3
+      (NDeclarator line:3
+         ID: "f" line:3 tokenNumber:21 source:
+         (NParameterTypeList: "(" line:3 tokenNumber:22 source:
+            RPAREN: ")" line:3 tokenNumber:23 source:
+         )
+      )
+   )
+   SEMI: ";" line:3 tokenNumber:24 source:
+)
+(NFunctionDef line:5
+   LITERAL_inline: "inline" line:5 tokenNumber:26 source:
+   LITERAL_int: "int" line:5 tokenNumber:28 source:
+   (NDeclarator line:5
+      ID: "bar" line:5 tokenNumber:30 source:
+      (NParameterTypeList: "(" line:5 tokenNumber:31 source:
+         (NParameterDeclaration line:5
+            LITERAL_int: "int" line:5 tokenNumber:33 source:
+            (NDeclarator line:5
+               ID: "index" line:5 tokenNumber:35 source:
+            )
+         )
+         RPAREN: ")" line:5 tokenNumber:36 source:
+      )
+   )
+   (NCompoundStatement: "{" line:5 scopeName:bar tokenNumber:37 source:
+      (NDeclaration line:6
+         LITERAL_int: "int" line:6 tokenNumber:39 source:
+         (NInitDecl line:6
+            (NDeclarator line:6
+               ID: "c" line:6 tokenNumber:41 source:
+            )
+         )
+         SEMI: ";" line:6 tokenNumber:42 source:
+      )
+      (NDeclaration line:7
+         (LITERAL_enum: "enum" line:7 tokenNumber:44 source:
+            ID: "blah" line:7 tokenNumber:46 source:
+         )
+         SEMI: ";" line:7 tokenNumber:47 source:
+      )
+      (NStatementExpr line:8
+         (ASSIGN: "=" line:8 tokenNumber:50 source:
+            ID: "c" line:8 tokenNumber:49 source:
+            (LITERAL___alignof: "__alignof" line:8 tokenNumber:52 source:
+               (NExpressionGroup: "(" line:8 tokenNumber:53 source:
+                  (NPostfixExpr line:8
+                     ID: "foo" line:8 tokenNumber:55 source:
+                     DOT: "." line:8 tokenNumber:56 source:
+                     ID: "a" line:8 tokenNumber:58 source:
+                  )
+                  RPAREN: ")" line:8 tokenNumber:59 source:
+               )
+            )
+         )
+      )
+      (NStatementExpr line:9
+         (ASSIGN: "=" line:9 tokenNumber:63 source:
+            ID: "c" line:9 tokenNumber:62 source:
+            (LITERAL___alignof: "__alignof" line:9 tokenNumber:65 source:
+               LPAREN: "(" line:9 tokenNumber:66 source:
+               LITERAL_unsigned: "unsigned" line:9 tokenNumber:68 source:
+               LITERAL_long: "long" line:9 tokenNumber:70 source:
+               LITERAL_int: "int" line:9 tokenNumber:72 source:
+               RPAREN: ")" line:9 tokenNumber:73 source:
+            )
+         )
+      )
+      (LITERAL_switch: "switch" line:10 tokenNumber:76 source:
+         ID: "index" line:10 tokenNumber:79 source:
+         (NCompoundStatement: "{" line:10 scopeName:0 tokenNumber:81 source:
+            (LITERAL_case: "case" line:11 tokenNumber:83 source:
+               (NRangeExpr line:11
+                  CharLiteral: "'a'" line:11 tokenNumber:84 source:
+                  VARARGS: "..." line:11 tokenNumber:85 source:
+                  CharLiteral: "'z'" line:11 tokenNumber:86 source:
+               )
+               LITERAL_break: "break" line:12 tokenNumber:89 source:
+            )
+            RCURLY: "}" line:13 tokenNumber:91 source:
+         )
+      )
+      (LITERAL_return: "return" line:14 tokenNumber:93 source:
+         (NPostfixExpr line:14
+            ID: "f" line:14 tokenNumber:95 source:
+            (NFunctionCallArgs: "(" line:14 tokenNumber:96 source:
+               RPAREN: ")" line:14 tokenNumber:97 source:
+            )
+            DOT: "." line:14 tokenNumber:98 source:
+            ID: "a" line:14 tokenNumber:100 source:
+            LBRACKET: "[" line:14 tokenNumber:101 source:
+            ID: "index" line:14 tokenNumber:103 source:
+            RBRACKET: "]" line:14 tokenNumber:104 source:
+         )
+      )
+      RCURLY: "}" line:16 tokenNumber:106 source:
+   )
+)

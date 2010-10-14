@@ -1,0 +1,168 @@
+
+(NDeclaration line:1
+   LITERAL_int: "int" line:1 tokenNumber:2 source:
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "test2" line:1 tokenNumber:4 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:5 source:
+)
+(NDeclaration line:10
+   LITERAL_int: "int" line:10 tokenNumber:7 source:input.c
+   (NInitDecl line:10
+      (NDeclarator line:10
+         ID: "i" line:10 tokenNumber:9 source:input.c
+      )
+   )
+   SEMI: ";" line:10 tokenNumber:10 source:input.c
+)
+(NDeclaration line:11
+   LITERAL_int: "int" line:11 tokenNumber:12 source:input.c
+   (NInitDecl line:11
+      (NDeclarator line:11
+         (NPointerGroup line:11
+            STAR: "*" line:11 tokenNumber:13 source:input.c
+         )
+         ID: "i" line:11 tokenNumber:15 source:input.c
+      )
+   )
+   SEMI: ";" line:11 tokenNumber:16 source:input.c
+)
+(NDeclaration line:20
+   LITERAL_typedef: "typedef" line:20 tokenNumber:18 source:input.c
+   LITERAL_long: "long" line:20 tokenNumber:20 source:input.c
+   (NInitDecl line:20
+      (NDeclarator line:20
+         ID: "mylong" line:20 tokenNumber:22 source:input.c
+      )
+   )
+   SEMI: ";" line:20 tokenNumber:23 source:input.c
+)
+(NDeclaration line:22
+   (LITERAL_enum: "enum" line:22 tokenNumber:25 source:input.c
+      ID: "myenum" line:22 tokenNumber:27 source:input.c
+      LCURLY: "{" line:22 tokenNumber:28 source:input.c
+      ID: "one" line:22 tokenNumber:30 source:input.c
+      ID: "two" line:22 tokenNumber:33 source:input.c
+      ID: "three" line:22 tokenNumber:36 source:input.c
+      RCURLY: "}" line:22 tokenNumber:37 source:input.c
+   )
+   SEMI: ";" line:22 tokenNumber:38 source:input.c
+)
+(NFunctionDef line:33
+   LITERAL_short: "short" line:33 tokenNumber:40 source:gnustyle.h
+   (NDeclarator line:33
+      ID: "foo" line:33 tokenNumber:42 source:gnustyle.h
+      (NParameterTypeList: "(" line:33 tokenNumber:43 source:gnustyle.h
+         ID: "a" line:33 tokenNumber:45 source:gnustyle.h
+         COMMA: "," line:33 tokenNumber:46 source:gnustyle.h
+         ID: "c" line:33 tokenNumber:48 source:gnustyle.h
+         RPAREN: ")" line:33 tokenNumber:49 source:gnustyle.h
+      )
+   )
+   (NDeclaration line:34
+      LITERAL_short: "short" line:34 tokenNumber:51 source:gnustyle.h
+      (NInitDecl line:34
+         (NDeclarator line:34
+            ID: "a" line:34 tokenNumber:53 source:gnustyle.h
+         )
+      )
+      SEMI: ";" line:34 tokenNumber:54 source:gnustyle.h
+   )
+   (NDeclaration line:35
+      LITERAL_char: "char" line:35 tokenNumber:56 source:gnustyle.h
+      (NInitDecl line:35
+         (NDeclarator line:35
+            ID: "c" line:35 tokenNumber:58 source:gnustyle.h
+         )
+      )
+      SEMI: ";" line:35 tokenNumber:59 source:gnustyle.h
+   )
+   (NCompoundStatement: "{" line:36 scopeName:foo tokenNumber:60 source:gnustyle.h
+      (LITERAL_return: "return" line:36 tokenNumber:62 source:gnustyle.h
+         Number: "3" line:36 tokenNumber:63 source:gnustyle.h
+      )
+      RCURLY: "}" line:37 tokenNumber:65 source:gnustyle.h
+   )
+)
+(NFunctionDef line:100
+   LITERAL_int: "int" line:100 tokenNumber:67 source:
+   (NDeclarator line:100
+      ID: "f" line:100 tokenNumber:69 source:
+      (NParameterTypeList: "(" line:100 tokenNumber:70 source:
+         (NParameterDeclaration line:100
+            LITERAL_char: "char" line:100 tokenNumber:72 source:
+            (NDeclarator line:100
+               ID: "c" line:100 tokenNumber:74 source:
+            )
+         )
+         COMMA: "," line:100 tokenNumber:75 source:
+         (NParameterDeclaration line:100
+            LITERAL_char: "char" line:100 tokenNumber:77 source:
+            (NDeclarator line:100
+               (NPointerGroup line:100
+                  STAR: "*" line:100 tokenNumber:78 source:
+               )
+               ID: "d" line:100 tokenNumber:80 source:
+            )
+         )
+         RPAREN: ")" line:100 tokenNumber:81 source:
+      )
+   )
+   (NCompoundStatement: "{" line:101 scopeName:f tokenNumber:82 source:
+      (NDeclaration line:103
+         (LITERAL_struct: "struct" line:103 tokenNumber:84 source:
+            ID: "s" line:103 tokenNumber:86 source:
+         )
+         SEMI: ";" line:103 tokenNumber:87 source:
+      )
+      (NDeclaration line:104
+         LITERAL_int: "int" line:104 tokenNumber:89 source:
+         (NInitDecl line:104
+            (NDeclarator line:104
+               ID: "z" line:104 tokenNumber:91 source:
+            )
+            ASSIGN: "=" line:104 tokenNumber:92 source:
+            (NInitializer line:104
+               Number: "100" line:104 tokenNumber:93 source:
+            )
+         )
+         SEMI: ";" line:104 tokenNumber:94 source:
+      )
+      (NDeclaration line:105
+         (LITERAL_struct: "struct" line:105 tokenNumber:96 source:
+            ID: "s" line:105 tokenNumber:98 source:
+            LCURLY: "struct s" line:105 tokenNumber:99 source:
+            LITERAL_short: "short" line:106 tokenNumber:101 source:
+            (NStructDeclarator line:106
+               (NDeclarator line:106
+                  ID: "c" line:106 tokenNumber:103 source:
+               )
+            )
+            (NStructDeclarator line:106
+               (NDeclarator line:106
+                  ID: "d" line:106 tokenNumber:106 source:
+               )
+            )
+            LITERAL_long: "long" line:107 tokenNumber:109 source:
+            (NStructDeclarator line:107
+               (NDeclarator line:107
+                  ID: "l" line:107 tokenNumber:111 source:
+               )
+            )
+            (NTypedefName line:108
+               ID: "mylong" line:108 tokenNumber:114 source:
+            )
+            (NStructDeclarator line:108
+               (NDeclarator line:108
+                  ID: "m" line:108 tokenNumber:116 source:
+               )
+            )
+            RCURLY: "}" line:109 tokenNumber:118 source:
+         )
+         SEMI: ";" line:109 tokenNumber:119 source:
+      )
+      RCURLY: "}" line:112 tokenNumber:120 source:
+   )
+)

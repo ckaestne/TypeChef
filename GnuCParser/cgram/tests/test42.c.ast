@@ -1,0 +1,121 @@
+
+(NDeclaration line:1
+   LITERAL_typedef: "typedef" line:1 tokenNumber:2 source:
+   (LITERAL_struct: "struct" line:1 tokenNumber:4 source:
+      ID: "checkme_" line:1 tokenNumber:6 source:
+   )
+   (NInitDecl line:1
+      (NDeclarator line:1
+         ID: "checkme" line:1 tokenNumber:8 source:
+      )
+   )
+   SEMI: ";" line:1 tokenNumber:9 source:
+)
+(NDeclaration line:3
+   LITERAL_typedef: "typedef" line:3 tokenNumber:11 source:
+   (LITERAL_struct: "struct" line:3 tokenNumber:13 source:
+      ID: "yt668u_" line:3 tokenNumber:15 source:
+      LCURLY: "struct yt668u_" line:3 tokenNumber:16 source:
+      LITERAL_int: "int" line:4 tokenNumber:18 source:
+      (NStructDeclarator line:4
+         (NDeclarator line:4
+            ID: "j76g" line:4 tokenNumber:20 source:
+         )
+      )
+      LITERAL_int: "int" line:5 tokenNumber:23 source:
+      (NStructDeclarator line:5
+         (NDeclarator line:5
+            ID: "lk4f2s" line:5 tokenNumber:25 source:
+         )
+      )
+      LITERAL_int: "int" line:6 tokenNumber:28 source:
+      (NStructDeclarator line:6
+         (NDeclarator line:6
+            ID: "hg62" line:6 tokenNumber:30 source:
+         )
+      )
+      RCURLY: "}" line:7 tokenNumber:32 source:
+   )
+   (NInitDecl line:7
+      (NDeclarator line:7
+         ID: "yt668u" line:7 tokenNumber:34 source:
+      )
+   )
+   SEMI: ";" line:7 tokenNumber:35 source:
+)
+(NFunctionDef line:9
+   LITERAL_void: "void" line:9 tokenNumber:37 source:
+   (NDeclarator line:10
+      ID: "a233" line:10 tokenNumber:39 source:
+      (NParameterTypeList: "(" line:10 tokenNumber:40 source:
+         (NParameterDeclaration line:10
+            (NTypedefName line:10
+               ID: "yt668u" line:10 tokenNumber:42 source:
+            )
+            (NDeclarator line:10
+               (NPointerGroup line:10
+                  STAR: "*" line:10 tokenNumber:43 source:
+               )
+               ID: "checkme" line:10 tokenNumber:45 source:
+            )
+         )
+         RPAREN: ")" line:10 tokenNumber:46 source:
+      )
+   )
+   (NCompoundStatement: "{" line:11 scopeName:a233 tokenNumber:47 source:
+      (LITERAL_if: "if" line:12 tokenNumber:49 source:
+         (NExpressionGroup: "(" line:12 tokenNumber:51 source:
+            (NPostfixExpr line:12
+               (NExpressionGroup: "(" line:12 tokenNumber:52 source:
+                  ID: "checkme" line:12 tokenNumber:54 source:
+                  RPAREN: ")" line:12 tokenNumber:55 source:
+               )
+               PTR: "->" line:12 tokenNumber:56 source:
+               ID: "j76g" line:12 tokenNumber:58 source:
+            )
+            RPAREN: ")" line:12 tokenNumber:59 source:
+         )
+         (NCompoundStatement: "{" line:12 scopeName:0 tokenNumber:61 source:
+            RCURLY: "}" line:13 tokenNumber:62 source:
+         )
+      )
+      (NCompoundStatement: "{" line:14 scopeName:1 tokenNumber:63 source:
+         (NCompoundStatement: "{" line:15 scopeName:2 tokenNumber:64 source:
+            (NStatementExpr line:15
+               (ASSIGN: "=" line:15 tokenNumber:74 source:
+                  (NExpressionGroup: "(" line:15 tokenNumber:65 source:
+                     (NPostfixExpr line:15
+                        (NExpressionGroup: "(" line:15 tokenNumber:66 source:
+                           ID: "checkme" line:15 tokenNumber:68 source:
+                           RPAREN: ")" line:15 tokenNumber:69 source:
+                        )
+                        PTR: "->" line:15 tokenNumber:70 source:
+                        ID: "lk4f2s" line:15 tokenNumber:72 source:
+                     )
+                     RPAREN: ")" line:15 tokenNumber:73 source:
+                  )
+                  Number: "0" line:15 tokenNumber:75 source:
+               )
+            )
+            RCURLY: "}" line:15 tokenNumber:77 source:
+         )
+         SEMI: ";" line:15 tokenNumber:78 source:
+         (NStatementExpr line:16
+            (ASSIGN: "=" line:16 tokenNumber:86 source:
+               (NPostfixExpr line:16
+                  (NExpressionGroup: "(" line:16 tokenNumber:79 source:
+                     ID: "checkme" line:16 tokenNumber:81 source:
+                     RPAREN: ")" line:16 tokenNumber:82 source:
+                  )
+                  PTR: "->" line:16 tokenNumber:83 source:
+                  ID: "hg62" line:16 tokenNumber:85 source:
+               )
+               Number: "0" line:16 tokenNumber:87 source:
+            )
+         )
+         RCURLY: "}" line:17 tokenNumber:89 source:
+      )
+      SEMI: ";" line:18 tokenNumber:90 source:
+      RCURLY: "}" line:19 tokenNumber:91 source:
+   )
+)
