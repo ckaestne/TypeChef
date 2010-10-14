@@ -3,6 +3,8 @@
 	<name>BoaCaseStudy</name>
 	<comment></comment>
 	<projects>
+		<project>CParser</project>
+		<project>CTypeChecker</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
