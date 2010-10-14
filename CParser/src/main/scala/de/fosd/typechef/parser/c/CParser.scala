@@ -29,7 +29,7 @@ class CParser extends MultiFeatureParser {
         "sizeof")
     val predefinedTypedefs = Set("__builtin_va_list")
 
-    def translationUnit = externalList ^^ {TranslationUnit(_)}
+    def translationUnit = externalList ^^ { TranslationUnit(_) }
 
     def externalList =
         repOpt(externalDef, AltExternalDef.join)
@@ -155,10 +155,9 @@ class CParser extends MultiFeatureParser {
             rep(
                 LPAREN ~> (parameterTypeList ^^ { DeclParameterTypeList(_) }
                     | optList(idList) ^^ { DeclIdentifierList(_) }) <~ (opt(COMMA) ~ RPAREN)
-                | LBRACKET ~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) }
-                )) ^^ {
+                | LBRACKET ~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) })) ^^ {
             case pointers ~(id: Id) ~ ext => DeclaratorId(pointers, id, ext);
-            case pointers ~((attr:Option[AttributeSpecifier])~(decl: Declarator)) ~ ext => DeclaratorDecl(pointers, attr, decl, ext)
+            case pointers ~((attr: Option[AttributeSpecifier]) ~(decl: Declarator)) ~ ext => DeclaratorDecl(pointers, attr, decl, ext)
         }
 
     def parameterTypeList: MultiParser[List[ParameterDeclaration]] =
@@ -215,7 +214,8 @@ class CParser extends MultiFeatureParser {
         | textToken("default") ~ COLON ~> opt(statement) ^^ { DefaultStatement(_) }
         //// Selection statements:
         | textToken("if") ~ LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ { case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es) }
-        | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) }) ^^! (AltStatement.join, s => s) | fail("statement expected")
+        | textToken("switch") ~ LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s) }
+        | fail("statement expected")) ^^! (AltStatement.join, s => s)
 
     def expr: MultiParser[Expr] = assignExpr ~ rep(COMMA ~> assignExpr) ^^
         { case e ~ l => if (l.isEmpty) e else ExprList(List(e) ++ l) }
@@ -259,12 +259,10 @@ class CParser extends MultiFeatureParser {
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         (pointerGroup ~
             rep((LPAREN ~> (nonemptyAbstractDeclarator | optList(parameterTypeList) ^^ { DeclParameterTypeList(_) }) <~ RPAREN)
-                | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ { DeclArrayAccess(_) })
-                ) ^^ { case pointers ~ directDecls => AbstractDeclarator(pointers, directDecls) }
+                | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ { DeclArrayAccess(_) })) ^^ { case pointers ~ directDecls => AbstractDeclarator(pointers, directDecls) }
 
             | rep1((LPAREN ~> (nonemptyAbstractDeclarator | optList(parameterTypeList) ^^ { DeclParameterTypeList(_) }) <~ RPAREN)
-                | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ { DeclArrayAccess(_) })
-                ) ^^ { AbstractDeclarator(List(), _) })
+                | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ { DeclArrayAccess(_) })) ^^ { AbstractDeclarator(List(), _) })
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
         | { (INC | DEC) ~ castExpr } ^^ { case p ~ e => UnaryExpr(p.getText, e) }
@@ -291,8 +289,7 @@ class CParser extends MultiFeatureParser {
         { PTR ~ ID | DOT ~ ID } ^^ { case ~(e, id: Id) => PointerPostfixSuffix(e.getText, id) }
         | functionCall
         | LBRACKET ~> expr <~ RBRACKET ^^ { ArrayAccess(_) }
-        | { INC | DEC } ^^ { t => SimplePostfixSuffix(t.getText) }
-        )
+        | { INC | DEC } ^^ { t => SimplePostfixSuffix(t.getText) })
     //
     def functionCall: MultiParser[FunctionCall] =
         LPAREN ~> opt(argExprList) <~ RPAREN ^^ { case Some(l) => FunctionCall(l); case None => FunctionCall(ExprList(List())) }
@@ -389,8 +386,7 @@ class CParser extends MultiFeatureParser {
 
     def attribute: MultiParser[List[Attribute]] =
         rep(anyTokenExcept(List("(", ")", ",")) ^^ { t => AtomicAttribute(t.getText) }
-            | LPAREN ~> attributeList <~ RPAREN ^^ { t => CompoundAttribute(t) }
-            )
+            | LPAREN ~> attributeList <~ RPAREN ^^ { t => CompoundAttribute(t) })
 
     def offsetofMemberDesignator: MultiParser[List[Id]] =
         rep1Sep(ID, DOT)
@@ -402,9 +398,7 @@ class CParser extends MultiFeatureParser {
                 COLON ~> opt(strOptExprPair ~ opt(COMMA ~> strOptExprPair))
                 ~ opt(
                     COLON ~> opt(strOptExprPair ~ rep(COMMA ~> strOptExprPair)) ~
-                    opt(COLON ~> stringConst ~ rep(COMMA ~> stringConst))
-                    )
-                ) ~
+                    opt(COLON ~> stringConst ~ rep(COMMA ~> stringConst)))) ~
             RPAREN ^^ { case _ ~ v ~ _ ~ e ~ stuff ~ _ => GnuAsmExpr(v.isDefined, e, stuff) }
 
     //GCC requires the PARENs

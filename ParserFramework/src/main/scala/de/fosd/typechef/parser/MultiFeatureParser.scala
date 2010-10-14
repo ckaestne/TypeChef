@@ -138,11 +138,20 @@ class MultiFeatureParser {
             def findOpt(in0: Input, result: MultiParseResult[T, Elem, Context]): (Opt[T], Input) = {
                 result match {
                     case Success(e, in) => (Opt(parserState, e), in)
-                    case SplittedParseResult(f, Success(e, in), NoSuccess(_, _, _, _)) => (Opt(f, e), in)
                     //first element must finish before second element starts
+                    case SplittedParseResult(f, Success(e1, in1), Success(e2,in2)) =>
+                        if (in1.offst <= in0.skipHidden(parserState.and(f.not)).offst)
+                            (Opt(f, e1), in1)
+                        else if (in2.offst <= in0.skipHidden(parserState.and(f)).offst)
+                            (Opt(f.not, e2), in2)
+                        else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
                     case SplittedParseResult(f, Success(e, in), _) =>
                         if (in.offst <= in0.skipHidden(parserState.and(f.not)).offst)
                             (Opt(f, e), in)
+                        else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                    case SplittedParseResult(f, _,Success(e, in)) =>
+                        if (in.offst <= in0.skipHidden(parserState.and(f)).offst)
+                            (Opt(f.not, e), in)
                         else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
                     //others currently not supported
                     case _ => throw new ListHandlingException("deeper nesting currently not supported, TODO")

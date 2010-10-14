@@ -5,7 +5,7 @@ import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.junit.Test
- 
+
 class DigitList2ParserTest extends TestCase {
 
     val f1 = FeatureExpr.createDefinedExternal("a")
@@ -13,15 +13,14 @@ class DigitList2ParserTest extends TestCase {
 
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
-    def outer(x:AST) = DigitList2(List(o(x)))
+    def outer(x: AST) = DigitList2(List(o(x)))
 
-    
     def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken, Any]) {
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
-                assertEquals("incorrect parse result",outer( expected), ast)
+                assertEquals("incorrect parse result", outer(expected), ast)
             }
             case NoSuccess(msg, context, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
@@ -29,6 +28,19 @@ class DigitList2ParserTest extends TestCase {
     }
 
     def o(ast: AST) = Opt(FeatureExpr.base, ast)
+
+    def testError1() {
+        val input = List(t("("), t("3", f1),t(")", f1.not), t(")"))
+        val actual = new DigitList2Parser().parse(input)
+        System.out.println(actual)
+        actual match {
+            case Success(ast, unparsed) => {
+                fail("should not parse " + input + " but result was " + actual)
+            }
+            case NoSuccess(msg, context, unparsed, inner) =>
+
+        }
+    }
 
     @Test
     def testParseSimpleList() {
@@ -49,7 +61,8 @@ class DigitList2ParserTest extends TestCase {
         }
     }
 
-@Test    def testParseOptSimpleList1() {
+    @Test
+    def testParseOptSimpleList1() {
 
         val input = List(t("("), t("1", f1), t("2", f1.not), t(")"))
         val expected = DigitList2(List(o(Alt(f1, Lit(1), Lit(2)))))
@@ -100,14 +113,14 @@ class DigitList2ParserTest extends TestCase {
         val expected = Alt(f1, DigitList2(List(o(DigitList2(List(Opt(f1, Lit(1)), Opt(f1, Lit(2))))), o(Lit(3)))), DigitList2(List(o(Lit(1)), o(Lit(2)), o(Lit(3)))))
         assertParseResult(expected, new DigitList2Parser().parse(input))
     }
-    
-    def testNoBacktrace{
-        val input = List(t("1"),t("("))
+
+    def testNoBacktrace {
+        val input = List(t("1"), t("("))
         val expected = Lit(1)
-        var actual =new DigitList2Parser().parse(input)
-        println(actual)        
+        var actual = new DigitList2Parser().parse(input)
+        println(actual)
         actual match {
-            case Success(ast, unparsed) => fail("expected error, found "+ast+" - "+unparsed)
+            case Success(ast, unparsed) => fail("expected error, found " + ast + " - " + unparsed)
             case NoSuccess(msg, context, unparsed, inner) =>
         }
     }
