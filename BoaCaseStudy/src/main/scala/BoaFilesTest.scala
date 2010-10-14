@@ -4,6 +4,7 @@ import org.anarres.cpp.Main
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.io.FileWriter
+import java.io.File
 import junit.framework._
 import junit.framework.Assert._
 
@@ -14,24 +15,35 @@ object BoaFilesTest {
         "mmap_cache", "pipe", "queue", "read", "request", "response",
         "select", "signals", "util", "sublog")
 
-    val boaDir = "d:\\work\\TypeChef\\boa\\src"
-    val cygwinFile = "d:\\work\\TypeChef\\boa\\src\\cygwin.h"
-    def getFullPath(fileName: String) = boaDir + "\\" + fileName
+    //val cygwinRoot = "C:/cygwin"
+
+    //val boaDir = "d:\\work\\TypeChef\\boa\\src"
+    //val predefMacroDef = "d:\\work\\TypeChef\\boa\\src\\cygwin.h"
+    //val systemIncludes = "C:\\cygwin\\usr\\include"
+    //val gccIncludes = "C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include"
+
+    val boaDir = "boa" + File.separator + "src"
+    val predefMacroDef = "host" + File.separator + "platform.h"
+    val systemIncludes = File.separator + "usr" + File.separator + "include"
+    val gccIncludes = "/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include"
+
+    def getFullPath(fileName: String) = boaDir + File.separator + fileName
+
     def preprocessFile(fileName: String) {
         Main.main(Array(
             getFullPath(fileName + ".c"), //
             "-o",
             getFullPath(fileName + ".pi"), //
             "--include",
-            cygwinFile, //
+            predefMacroDef, //
             "-p",
             "_", //
             "-I",
             boaDir, //
             "-I",
-            "C:\\cygwin\\usr\\include", //
+	    systemIncludes,
             "-I",
-            "C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include", //
+            gccIncludes, //
             "-U", "HAVE_LIBDMALLOC"))
     }
 
@@ -86,8 +98,10 @@ object BoaFilesTest {
     }
     def main(args: Array[String]) = {
         for (filename <- fileList) {
+	    println("==Processing: " +  filename)
             preprocessFile(filename)
             parseFile(filename)
+	    println("==End: " + filename)
         }
     }
 }
