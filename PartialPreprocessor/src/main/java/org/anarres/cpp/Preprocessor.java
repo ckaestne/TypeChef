@@ -17,7 +17,49 @@
 
 package org.anarres.cpp;
 
-import static org.anarres.cpp.Token.*;
+import static org.anarres.cpp.Token.AND_EQ;
+import static org.anarres.cpp.Token.ARROW;
+import static org.anarres.cpp.Token.CCOMMENT;
+import static org.anarres.cpp.Token.CHARACTER;
+import static org.anarres.cpp.Token.CPPCOMMENT;
+import static org.anarres.cpp.Token.DEC;
+import static org.anarres.cpp.Token.DIV_EQ;
+import static org.anarres.cpp.Token.ELLIPSIS;
+import static org.anarres.cpp.Token.EOF;
+import static org.anarres.cpp.Token.EQ;
+import static org.anarres.cpp.Token.GE;
+import static org.anarres.cpp.Token.HASH;
+import static org.anarres.cpp.Token.HEADER;
+import static org.anarres.cpp.Token.IDENTIFIER;
+import static org.anarres.cpp.Token.INC;
+import static org.anarres.cpp.Token.INTEGER;
+import static org.anarres.cpp.Token.INVALID;
+import static org.anarres.cpp.Token.LAND;
+import static org.anarres.cpp.Token.LE;
+import static org.anarres.cpp.Token.LOR;
+import static org.anarres.cpp.Token.LSH;
+import static org.anarres.cpp.Token.LSH_EQ;
+import static org.anarres.cpp.Token.MOD_EQ;
+import static org.anarres.cpp.Token.MULT_EQ;
+import static org.anarres.cpp.Token.M_ARG;
+import static org.anarres.cpp.Token.M_PASTE;
+import static org.anarres.cpp.Token.M_STRING;
+import static org.anarres.cpp.Token.NE;
+import static org.anarres.cpp.Token.NL;
+import static org.anarres.cpp.Token.OR_EQ;
+import static org.anarres.cpp.Token.PASTE;
+import static org.anarres.cpp.Token.PLUS_EQ;
+import static org.anarres.cpp.Token.P_ELIF;
+import static org.anarres.cpp.Token.P_ENDIF;
+import static org.anarres.cpp.Token.P_IF;
+import static org.anarres.cpp.Token.P_LINE;
+import static org.anarres.cpp.Token.RANGE;
+import static org.anarres.cpp.Token.RSH;
+import static org.anarres.cpp.Token.RSH_EQ;
+import static org.anarres.cpp.Token.STRING;
+import static org.anarres.cpp.Token.SUB_EQ;
+import static org.anarres.cpp.Token.WHITESPACE;
+import static org.anarres.cpp.Token.XOR_EQ;
 
 import java.io.Closeable;
 import java.io.File;
@@ -35,12 +77,12 @@ import java.util.Stack;
 
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.MacroContext;
 import de.fosd.typechef.featureexpr.CharacterLit;
+import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExpr$;
 import de.fosd.typechef.featureexpr.IfExpr;
 import de.fosd.typechef.featureexpr.IntegerLit;
+import de.fosd.typechef.featureexpr.MacroContext;
 import de.fosd.typechef.featureexpr.MacroExpansion;
 
 /**
@@ -1278,17 +1320,24 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return false;
 	}
 
-	/**
-	 * Handles an include directive.
-	 */
 	private void include(String parent, int line, String name, boolean quoted)
 			throws IOException, LexerException {
+		include(parent, line, name, quoted);
+	}
+
+	/**
+	 * Handles an include directive.
+	 * 
+	 * @param next
+	 */
+	private void include(String parent, int line, String name, boolean quoted,
+			boolean next) throws IOException, LexerException {
 		VirtualFile pdir = null;
 		// The parent path can be null when using --include. Should then use the
 		// current directory.
-		if (quoted) {
-			if (parent == null)
-				parent = ".";
+		if (parent == null)
+			parent = ".";
+		if (quoted && !next) {
 			VirtualFile pfile = filesystem.getFile(parent);
 			pdir = pfile.getParentFile();
 			VirtualFile ifile = pdir.getChildFile(name);
@@ -1298,7 +1347,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				return;
 		}
 
-		if (include(sysincludepath, name))
+		List<String> path = new ArrayList<String>(sysincludepath);
+		if (next) {
+			parent = new File(parent).getParent().toString();
+			System.out.println(path);
+			System.out.println(parent);
+			int idx = path.indexOf(parent);
+			for (int i = 0; i < idx; i++)
+				path.remove(0);
+		}
+		if (include(path, name))
 			return;
 
 		StringBuilder buf = new StringBuilder();
@@ -1337,7 +1395,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						buf.append((String) tok.getValue());
 						break;
 					case WHITESPACE:// ignore whitespace and comments for now
-									// ChK
+						// ChK
 					case CCOMMENT:
 						break;
 					case NL:
@@ -1368,7 +1426,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			/* Do the inclusion. */
 			include(sourceManager.getSource().getPath(), tok.getLine(), name,
-					quoted);
+					quoted, next);
 
 			/*
 			 * 'tok' is the 'nl' after the include. We use it after the #line
