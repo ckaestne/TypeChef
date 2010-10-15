@@ -1335,7 +1335,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		VirtualFile pfile = filesystem.getFile(parent);
 		VirtualFile pdir = pfile.getParentFile();
 		String parentDir = pdir.getPath();
-		System.out.println("Debug include - parent: " + parentDir);
 		
 		if (quoted && !next) {
 			VirtualFile ifile = pdir.getChildFile(name);
@@ -1347,11 +1346,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		List<String> path = getSystemIncludePath();
 		if (next) {
-			System.out.println("Debug include_next - path: " + path + "; parent: " + parentDir);
 			int idx = path.indexOf(parentDir);
 			if (idx != -1)
 				path = path.subList(idx + 1, path.size());
-			System.out.println("After include_next path manipulation, path is: " + path);
 		}
 		if (include(path, name))
 			return;
