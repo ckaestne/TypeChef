@@ -716,7 +716,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 * @param inlineCppExpression
 	 *            if false alternatives are replaced by #ifdef-#elif statements
 	 *            in different lines. if true, alternatives are replaced by
-	 *            expressions insided a line in the form
+	 *            expressions inside a line in the form
 	 *            "__if__(FeatureExpr,thenClause,elseClause)". such __if__
 	 *            statements can be nested
 	 * @return whether something was expanded or not
@@ -733,12 +733,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		// check compatible macros
 		MacroData firstMacro = ((MacroData) macroExpansions[0].getExpansion());
-		int argCount = firstMacro.getArgs();
+		int argCount = firstMacro.getArgCount();
 		boolean isVariadic = ((MacroData) macroExpansions[0].getExpansion())
 				.isVariadic();
 		for (int i = 1; i < macroExpansions.length; i++) {
 			MacroData macro = ((MacroData) macroExpansions[0].getExpansion());
-			if (macro.getArgs() != argCount || macro.isVariadic() != isVariadic)
+			if (macro.getArgCount() != argCount || macro.isVariadic() != isVariadic)
 				error(orig,
 						"Multiple alternative macros with different signatures not yet supported. "
 								+ macro.getText() + "/" + firstMacro.getText());
@@ -879,7 +879,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			 * We either have, or we should have args. This deals elegantly with
 			 * the case that we have one empty arg.
 			 */
-			if (tok.getType() != ')' || firstMacro.getArgs() > 0) {
+			if (tok.getType() != ')' || firstMacro.getArgCount() > 0) {
 				args = new ArrayList<Argument>();
 
 				Argument arg = new Argument();
@@ -896,7 +896,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						if (depth == 0) {
 							if (firstMacro.isVariadic() &&
 							/* We are building the last arg. */
-							args.size() == firstMacro.getArgs() - 1) {
+							args.size() == firstMacro.getArgCount() - 1) {
 								/* Just add the comma. */
 								arg.addToken(tok);
 							} else {
@@ -952,9 +952,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 * from arguments.
 				 */
 
-				if (args.size() != firstMacro.getArgs())
+				if (args.size() != firstMacro.getArgCount())
 					throw new ParseParamException(tok, "macro " + macroName
-							+ " has " + firstMacro.getArgs() + " parameters "
+							+ " has " + firstMacro.getArgCount() + " parameters "
 							+ "but given " + args.size() + " args");
 
 				/*
