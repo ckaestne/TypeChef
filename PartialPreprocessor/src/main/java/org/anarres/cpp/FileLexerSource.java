@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 
 /**
  * A {@link Source} which lexes a file.
@@ -35,16 +36,19 @@ public class FileLexerSource extends LexerSource {
 	// private File file;
 	private String path;
 
+	private FileLexerSource(Reader reader, String path) throws IOException {
+		super(new BufferedReader(reader), true);
+		this.path = path;
+	}
 	/**
-	 * Creates a new Source for lexing the given File.
+	 * Creates a new Source for lexing the given File
 	 * 
 	 * Preprocessor directives are honoured within the file.
+	 * @param file the file object
+	 * @param the path to use in error messages - it might be different when loading files from a ChRoot.
 	 */
 	public FileLexerSource(File file, String path) throws IOException {
-		super(new BufferedReader(new FileReader(file)), true);
-
-		// this.file = file;
-		this.path = path;
+		this(new FileReader(file), path);
 	}
 
 	/**
@@ -53,10 +57,7 @@ public class FileLexerSource extends LexerSource {
 	 * Preprocessor directives are honoured within the file.
 	 */
 	public FileLexerSource(InputStream stream, String path) throws IOException {
-		super(new BufferedReader(new InputStreamReader(stream)), true);
-
-		// this.file = file;
-		this.path = path;
+		this(new InputStreamReader(stream), path);
 	}
 
 	public FileLexerSource(File file) throws IOException {

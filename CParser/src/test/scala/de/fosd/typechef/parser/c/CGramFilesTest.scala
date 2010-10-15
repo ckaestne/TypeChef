@@ -7,11 +7,12 @@ import de.fosd.typechef.parser._
 import org.junit.Test
 
 class CGramFilesTest extends TestCase {
+    //XXX duplicate of TestErrorReportingTest.parseFile
     def parseFile(fileName: String) {
     	val inputStream = getClass.getResourceAsStream("/"+fileName)
     	assertNotNull("file not found "+fileName,inputStream)
         val result = new CParser().translationUnit(
-            CLexer.lexStream(inputStream, "testfiles/cgram/"), FeatureExpr.base
+            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/"), FeatureExpr.base
             )
         System.out.println(result)
         (result: @unchecked) match {

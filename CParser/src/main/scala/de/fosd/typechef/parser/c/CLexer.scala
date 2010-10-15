@@ -22,8 +22,8 @@ object CLexer {
         }
         new TokenReader(result.toList, 0, new CTypeContext())
     }
-    def lexStream(stream: InputStream, directory: String): TokenReader[TokenWrapper, CTypeContext] = {
-        val tokens = new PartialPPLexer().parseStream(stream, directory).iterator
+    def lexStream(stream: InputStream, filePath: String, directory: String): TokenReader[TokenWrapper, CTypeContext] = {
+        val tokens = new PartialPPLexer().parseStream(stream, filePath, directory).iterator
         val result = new ListBuffer[TokenWrapper]
         while (tokens.hasNext){
         	val t=tokens.next
