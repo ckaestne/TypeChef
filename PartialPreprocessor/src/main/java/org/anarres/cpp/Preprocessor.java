@@ -1343,18 +1343,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				return;
 		}
 
-		List<String> path = new ArrayList<String>(sysincludepath);
+		List<String> path = getSystemIncludePath();
 		if (next) {
 			parent = new File(parent).getParent().toString();
-			System.out.println(path);
-			System.out.println(parent);
+			System.out.println("Debug include_next - path: " + path + "; parent: " + parent);
 			int idx = path.indexOf(parent);
-			for (int i = 0; i <= idx; i++)
-				path.remove(0);
+			if (idx != -1)
+				path = path.subList(idx + 1, path.size());
+			System.out.println("After include_next path manipulation, path is: " + path);
 		}
 		if (include(path, name))
 			return;
 
+		//Report error
 		StringBuilder buf = new StringBuilder();
 		buf.append("File not found: ").append(name);
 		buf.append(" in");
@@ -1363,7 +1364,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			for (String dir : quoteincludepath)
 				buf.append(" ").append(dir);
 		}
-		for (String dir : sysincludepath)
+		for (String dir : getSystemIncludePath())
 			buf.append(" ").append(dir);
 		error(line, 0, buf.toString());
 	}
