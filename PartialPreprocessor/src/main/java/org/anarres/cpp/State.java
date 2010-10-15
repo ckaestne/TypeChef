@@ -23,7 +23,7 @@ class State {
 	/* pp */void setSawElse() {
 		clearCache();
 		sawElse = true;
-		localFeatures.set(localFeatures.size() - 1, localFeatures.get(localFeatures.size() - 1).not());
+		processElIf();
 	}
 
 	/* pp */boolean sawElse() {
@@ -127,5 +127,9 @@ class State {
 
 	public boolean hasIfdefBegin() {
 		return ifdefBegin;
+	}
+
+	public void processElIf() {
+		localFeatures.set(localFeatures.size() - 1, localFeatures.get(localFeatures.size() - 1).not());
 	}
 }

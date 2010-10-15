@@ -2218,6 +2218,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						state = state.parent;
 						FeatureExpr localFeaturExpr = parse_featureExpr(0);
 						state = oldState;
+						state.processElIf();
 						state.putLocalFeature(localFeaturExpr);
 						tok = expr_token(true); /* unget */
 
