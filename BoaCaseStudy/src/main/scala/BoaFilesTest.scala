@@ -15,21 +15,20 @@ object BoaFilesTest {
         "mmap_cache", "pipe", "queue", "read", "request", "response",
         "select", "signals", "util", "sublog")
 
-    //val cygwinRoot = "C:/cygwin"
+    val isCygwin = false
+    val systemRoot = if (isCygwin) "C:\\cygwin" else ""; //Could be non-null also on Unix for special reasons.
 
     //val boaDir = "d:\\work\\TypeChef\\boa\\src"
     //val predefMacroDef = "d:\\work\\TypeChef\\boa\\src\\cygwin.h"
-
-    val isCygwin = false
     
     val boaDir = "boa" + File.separator + "src"
     val predefMacroDef = "host" + File.separator + "platform.h"
     val systemIncludes =
     	if (isCygwin)
-    		"C:\\cygwin\\usr\\include"
+    		systemRoot + "\\usr\\include"
     	else
     		//"/Users/pgiarrusso/Documents/Admin/Gentoo/usr/include"
-    		File.separator + "usr" + File.separator + "include"
+    		systemRoot + File.separator + "usr" + File.separator + "include"
     		
     val gccIncludes =
     	if (isCygwin)
