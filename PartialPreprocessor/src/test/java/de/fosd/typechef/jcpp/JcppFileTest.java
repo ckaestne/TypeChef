@@ -40,6 +40,7 @@ public class JcppFileTest extends AbstractCheckTests {
 	}
 
 	@Test
+	@Ignore
 	public void testIf() throws LexerException, IOException {
 		testFile("if.h");
 	}
@@ -53,35 +54,46 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testIncludeGuards() throws LexerException, IOException {
 		testFile("includeguards.c");
 	}
+
 	@Test
 	public void testDefDefined() throws LexerException, IOException {
 		testFile("defdefined.c");
 	}
+
 	@Test
 	public void testAlternativeDef() throws LexerException, IOException {
 		testFile("alternativedef.c");
-	}	@Test
+	}
+
+	@Test
 	public void testHiddenBaseAndDead() throws LexerException, IOException {
 		testFile("hiddenDeadAndBase.c");
 	}
 
-	@Test@Ignore
+	@Test
+	@Ignore
 	public void testMultiInclude() throws LexerException, IOException {
-		//XXX this is not supported right now. let's see whether we will need it.
+		// XXX this is not supported right now. let's see whether we will need
+		// it.
 		testFile("multiinclude.c");
 	}
-	
+
 	@Test
 	public void testIfElseParsing() throws LexerException, IOException {
 		testFile("ifcondition.c");
 	}
-	
+
 	@Test
 	public void testBeispielJoerg() throws LexerException, IOException {
 		testFile("beispielJoerg.c");
 	}
+
 	@Test
 	public void testNumericIfAlternative() throws LexerException, IOException {
 		testFile("ifdefnumeric.c");
+	}
+	@Test
+	public void testLinuxTestFLock() throws LexerException, IOException {
+		testFile("linuxtestflock.c");
 	}
 }

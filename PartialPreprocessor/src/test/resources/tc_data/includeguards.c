@@ -3,7 +3,7 @@
 
 #include <header.h>
 
-#if X
+#ifdef X
 #include <header.h>
 #endif
 

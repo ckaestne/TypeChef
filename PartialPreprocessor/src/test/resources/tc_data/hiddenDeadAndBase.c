@@ -28,7 +28,7 @@ y
 
 #ifdef sometimes
 s
-#elif contradiction
+#elif defined contradiction
 t
 #else
 u

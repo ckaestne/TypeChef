@@ -47,9 +47,11 @@ public class AbstractCheckTests {
 
 		InputStream inputStream = getClass().getResourceAsStream(
 				"/" + folder + filename);
+		
+		
 
 		StringBuffer output = parse(new FileLexerSource(inputStream, folder
-				+ filename), debug, folder);
+				+ filename), debug, getClass().getResource("/" + folder).getFile());
 		check(filename, folder, output);
 
 	}
@@ -72,7 +74,7 @@ public class AbstractCheckTests {
 					System.err.println(output);
 					Assert
 							.fail(substring
-									+ " found but not expected in output");
+									+ " found but not expected in output\n"+output.toString());
 				}
 			}
 			if (line.startsWith("+")) {
@@ -91,7 +93,7 @@ public class AbstractCheckTests {
 				if (expected != found) {
 					failOutput(output);
 					Assert.fail(substring + " found " + found
-							+ " times, but expected " + expected + " times");
+							+ " times, but expected " + expected + " times\n"+content);
 				}
 			}
 			if (line.startsWith("*")) {
@@ -101,7 +103,7 @@ public class AbstractCheckTests {
 				int idx = content.indexOf(substring);
 				if (idx < 0) {
 					failOutput(output);
-					Assert.fail(substring + " not found but expected");
+					Assert.fail(substring + " not found but expected\n"+content);
 				}
 			}
 			if (line.trim().equals("print")) {
@@ -133,7 +135,7 @@ public class AbstractCheckTests {
 			public void handleWarning(Source source, int line, int column,
 					String msg) throws LexerException {
 				super.handleWarning(source, line, column, msg);
-				throw new LexerException(msg);
+				throw new LexerException(msg+" "+source+":"+line+":"+column);
 			}
 		});
 		pp.addMacro("__JCPP__", new FeatureExpr().base());
