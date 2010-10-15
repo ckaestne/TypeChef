@@ -1553,14 +1553,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	/**
 	 * hack to temporarily disable expansion inside defined() statements: (a)
-	 * every time a defined is found this counter is reset (b) every time a
+	 * every time a "defined" is found this counter is reset (b) every time a
 	 * token is found this counter is increased. (c) every time the counter is 1
 	 * and the token is "(" the counter is reset (d) if the counter is 1, the
 	 * argument is not expanded
 	 * 
-	 * this way, we prevent to expand the argument after defined
+	 * this way, we prevent to expand the argument after defined.
+	 * To avoid that the condition is triggered before a "defined" is found, set it to more than 0 initially.
 	 */
-	private int hack_definedCounter = 0;
+	private int hack_definedCounter = 2;
 
 	/*
 	 * This bypasses token() for #elif expressions. If we don't do this, then
