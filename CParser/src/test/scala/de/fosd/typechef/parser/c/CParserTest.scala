@@ -437,4 +437,16 @@ typedef unsigned long vm_size_t;
       }
 }""",p.translationUnit)
 
+	def testLinuxHeader = assertParseable("""
+#define __restrict
+/* Convert a string to a long long integer.  */
+__extension__ extern long long int atoll (__const char *__nptr)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+
+
+
+/* Convert a string to a floating-point number.  */
+extern double strtod (__const char *__restrict __nptr, char **__restrict __endptr)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;""",p.translationUnit)
+
 }

@@ -19,11 +19,11 @@ class TestErrorReporting extends TestCase {
         System.out.println(result)
         (result: @unchecked) match {
             case Success(ast, unparsed) => {
-                assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
+                fail("should not succeed")
                 //succeed
             }
             case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+                
         }
 
     }
