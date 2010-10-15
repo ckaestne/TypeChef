@@ -172,9 +172,9 @@ case object Endif extends PreprocDirective {}
 //  def CpsParser[T](f: Input => CpsParseResult[T]): CpsParser[T] =
 //	new CpsParser[T]{ def apply(in: Input) = f(in) }
 //  
-//  //class CpsParser[+T] extends (Input => (CpsParseResult[T] @cpsParam[CpsParseResult[T], CpsParser[T]])) {}
-//  
-//  abstract class CpsParser[+T] extends (Input => CpsParseResult[T]) {
+//  type CpsParserCont[U] = ControlContext[CpsParseResult[U],CpsParseResult[U],CpsParseResult[Any]]
+//  abstract class CpsParser[+T] extends (Input => CpsParseResult[T] @cpsParam[CpsParseResult[T], CpsParser[Any]]) {
+//  //abstract class CpsParser[+T] extends (Input => CpsParseResult[T]) {
 //	private var name: String = ""
 //    def named(n: String): this.type = {name=n; this}
 //    override def toString() = "CpsParser ("+ name +")"
@@ -216,7 +216,7 @@ case object Endif extends PreprocDirective {}
 //    		case Elif(feature) => val oldNext = alternativeParser(next, Some(feature)); resetParser(oldNext)
 //    		case Else => val oldNext = alternativeParser(next, None); resetParser(oldNext)
 //    		case Endif =>
-//    		alternativeParser(next, None) //resetParser(next)
+//    		val oldNext2 = alternativeParser(next, None) //resetParser(next)
 //    		//isComplete signals whether this is #if...#endif or #if...#else...#endif!
 //    		val topEntry @ ParsingThreads (isComplete, oldNext, topFeat, currStates) = parsingCtx.pop
 //    		val nextParser = if (isComplete) next else oldNext

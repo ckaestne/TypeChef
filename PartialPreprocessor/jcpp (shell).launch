@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/jcpp/src/org/anarres/cpp/Main.java"/>
+<listEntry value="/PartialPreprocessor/src/main/java/org/anarres/cpp/Main.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -23,6 +23,6 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.anarres.cpp.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jcpp"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="PartialPreprocessor"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms132m -Xmx528m -ea -Xshare:off"/>
 </launchConfiguration>

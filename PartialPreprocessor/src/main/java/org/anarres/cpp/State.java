@@ -1,12 +1,12 @@
 package org.anarres.cpp;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 class State {
-	List<FeatureExpr> localFeatures = new LinkedList<FeatureExpr>();
+	List<FeatureExpr> localFeatures = new ArrayList<FeatureExpr>();
 	final State parent;
 
 	boolean sawElse;
@@ -23,6 +23,7 @@ class State {
 	/* pp */void setSawElse() {
 		clearCache();
 		sawElse = true;
+		processElIf();
 	}
 
 	/* pp */boolean sawElse() {
@@ -62,10 +63,11 @@ class State {
 		if (localFeatures.isEmpty())
 			return new FeatureExpr().base();
 		FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
-		if (sawElse)
-			result = result.not();
+		/*if (sawElse)
+			result = result.not();*/
 		for (int i = 0; i < localFeatures.size() - 1; i++)
-			result = result.and(localFeatures.get(i).not());
+			//result = result.and(localFeatures.get(i).not());
+			result = result.and(localFeatures.get(i));
 
 		return result;
 	}
@@ -125,5 +127,9 @@ class State {
 
 	public boolean hasIfdefBegin() {
 		return ifdefBegin;
+	}
+
+	public void processElIf() {
+		localFeatures.set(localFeatures.size() - 1, localFeatures.get(localFeatures.size() - 1).not());
 	}
 }

@@ -1328,14 +1328,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 */
 	private void include(String parent, int line, String name, boolean quoted,
 			boolean next) throws IOException, LexerException {
-		VirtualFile pdir = null;
 		// The parent path can be null when using --include. Should then use the
-		// current directory.
+		// current directory. XXX: but later we take the parent of this! Why doesn't it break???
 		if (parent == null)
 			parent = ".";
+		VirtualFile pfile = filesystem.getFile(parent);
+		VirtualFile pdir = pfile.getParentFile();
+		String parentDir = pdir.getPath();
+		
 		if (quoted && !next) {
-			VirtualFile pfile = filesystem.getFile(parent);
-			pdir = pfile.getParentFile();
 			VirtualFile ifile = pdir.getChildFile(name);
 			if (include(ifile))
 				return;
@@ -1343,18 +1344,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				return;
 		}
 
-		List<String> path = new ArrayList<String>(sysincludepath);
+		List<String> path = getSystemIncludePath();
 		if (next) {
-			parent = new File(parent).getParent().toString();
-			System.out.println(path);
-			System.out.println(parent);
-			int idx = path.indexOf(parent);
-			for (int i = 0; i <= idx; i++)
-				path.remove(0);
+			int idx = path.indexOf(parentDir);
+			if (idx != -1)
+				path = path.subList(idx + 1, path.size());
 		}
 		if (include(path, name))
 			return;
 
+		//Report error
 		StringBuilder buf = new StringBuilder();
 		buf.append("File not found: ").append(name);
 		buf.append(" in");
@@ -1363,7 +1362,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			for (String dir : quoteincludepath)
 				buf.append(" ").append(dir);
 		}
-		for (String dir : sysincludepath)
+		for (String dir : getSystemIncludePath())
 			buf.append(" ").append(dir);
 		error(line, 0, buf.toString());
 	}
@@ -2219,6 +2218,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						state = state.parent;
 						FeatureExpr localFeaturExpr = parse_featureExpr(0);
 						state = oldState;
+						state.processElIf();
 						state.putLocalFeature(localFeaturExpr);
 						tok = expr_token(true); /* unget */
 

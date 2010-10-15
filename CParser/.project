@@ -3,7 +3,7 @@
 	<name>CParser</name>
 	<comment></comment>
 	<projects>
-		<project>ParserExperiment</project>
+		<project>ParserFramework</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

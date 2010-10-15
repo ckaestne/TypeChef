@@ -3,6 +3,7 @@
 	<name>CTypeChecker</name>
 	<comment></comment>
 	<projects>
+		<project>CParser</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

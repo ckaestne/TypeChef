@@ -20,7 +20,7 @@ class CParser extends MultiFeatureParser {
 
     //parser
     val keywords = Set("__real__", "__imag__", "__alignof", "__asm", "__asm__", "__attribute__",
-        "__complex__", "__const", "__const__", "__inline", "__inline__",
+        "__complex__", "__const", "__const__", "__inline", "__inline__", "__restrict", "__restrict__",
         "__signed", "__signed__", "__typeof", "__typeof__", "__volatile", "__volatile__", "asm",
         "volatile", "typeof", "auto", "register", "typedef", "extern", "static", "inline",
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
@@ -67,7 +67,7 @@ class CParser extends MultiFeatureParser {
         specifier("extern") | specifier("static") | inline
 
     def typeQualifier: MultiParser[Specifier] =
-        const | volatile | specifier("restrict")
+        const | volatile | restrict
 
     def specifier(name: String) = textToken(name) ^^ { t => OtherSpecifier(t.getText) }
 
@@ -440,6 +440,8 @@ class CParser extends MultiFeatureParser {
     def asm = textToken("asm") | textToken("__asm") | textToken("__asm__")
 
     def const = specifier("const") | specifier("__const") | specifier("__const__")
+    
+    def restrict = specifier("restrict") | specifier("__restrict") | specifier("__restrict__")
 
     def signed = textToken("signed") | textToken("__signed") | textToken("__signed__")
 
