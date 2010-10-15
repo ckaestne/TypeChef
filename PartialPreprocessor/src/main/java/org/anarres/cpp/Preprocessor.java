@@ -1328,14 +1328,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 */
 	private void include(String parent, int line, String name, boolean quoted,
 			boolean next) throws IOException, LexerException {
-		VirtualFile pdir = null;
 		// The parent path can be null when using --include. Should then use the
-		// current directory.
+		// current directory. XXX: but later we take the parent of this! Why doesn't it break???
 		if (parent == null)
 			parent = ".";
+		VirtualFile pfile = filesystem.getFile(parent);
+		VirtualFile pdir = pfile.getParentFile();
+		String parentDir = pdir.getPath();
+		System.out.println("Debug include - parent: " + parentDir);
+		
 		if (quoted && !next) {
-			VirtualFile pfile = filesystem.getFile(parent);
-			pdir = pfile.getParentFile();
 			VirtualFile ifile = pdir.getChildFile(name);
 			if (include(ifile))
 				return;
@@ -1345,9 +1347,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		List<String> path = getSystemIncludePath();
 		if (next) {
-			parent = new File(parent).getParent().toString();
-			System.out.println("Debug include_next - path: " + path + "; parent: " + parent);
-			int idx = path.indexOf(parent);
+			System.out.println("Debug include_next - path: " + path + "; parent: " + parentDir);
+			int idx = path.indexOf(parentDir);
 			if (idx != -1)
 				path = path.subList(idx + 1, path.size());
 			System.out.println("After include_next path manipulation, path is: " + path);
