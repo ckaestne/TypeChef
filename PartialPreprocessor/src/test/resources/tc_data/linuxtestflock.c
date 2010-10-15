@@ -1,8 +1,13 @@
 #ifdef TEST
+#undef __USE_FILE_OFFSET64 
 test
 #else
-nottest
-#ifndef __BLA
+#undef __USE_FILE_OFFSET64 
+undef
+
+
+
+#ifndef __USE_FILE_OFFSET64
 notbla
 #else
 
@@ -13,5 +18,6 @@ outputB
 #endif
 
 #endif
+
 
 #endif
