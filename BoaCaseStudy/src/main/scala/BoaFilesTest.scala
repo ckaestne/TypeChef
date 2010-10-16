@@ -96,7 +96,7 @@ object BoaFilesTest {
         result match {
             case Success(ast, unparsed) => {
                 if (!unparsed.atEnd)
-                    fail("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPositionStr + "): " + unparsed)
+                    fail("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed)
                 //succeed
             }
             case NoSuccess(msg, context, unparsed, inner) =>
