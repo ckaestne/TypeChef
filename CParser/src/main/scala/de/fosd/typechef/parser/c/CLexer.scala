@@ -1,5 +1,5 @@
 package de.fosd.typechef.parser.c
-import java.io.InputStream
+import java.io.InputStream
 
 import de.fosd.typechef.parser._
 import org.anarres.cpp._
@@ -12,37 +12,28 @@ import scala.collection.mutable.ListBuffer
  */
 object CLexer {
 
-    def lexFile(fileName: String, directory: String): TokenReader[TokenWrapper, CTypeContext] = {
-        val tokens = new PartialPPLexer().parseFile(fileName, directory).iterator
+    def lexFile(fileName: String, directory: String): TokenReader[TokenWrapper, CTypeContext] =
+        prepareTokens(new PartialPPLexer().parseFile(fileName, directory))
+
+    def lexStream(stream: InputStream, filePath: String, directory: String): TokenReader[TokenWrapper, CTypeContext] =
+        prepareTokens(new PartialPPLexer().parseStream(stream, filePath, directory))
+
+    def lex(text: String): TokenReader[TokenWrapper, CTypeContext] =
+        prepareTokens(new PartialPPLexer().parse(text, null))
+
+    def prepareTokens(tokenList: java.util.List[Token]): TokenReader[TokenWrapper, CTypeContext] = {
+        val tokens = tokenList.iterator
         val result = new ListBuffer[TokenWrapper]
-        while (tokens.hasNext){
-        	val t=tokens.next
-        	if (t.getText!="__extension__")
-        		result += new TokenWrapper(t)
+        var tokenNr: Int = 0
+        while (tokens.hasNext) {
+            val t = tokens.next
+            result += new TokenWrapper(t, tokenNr)
+            tokenNr = tokenNr + 1
         }
-        new TokenReader(result.toList, 0, new CTypeContext())
-    }
-    def lexStream(stream: InputStream, filePath: String, directory: String): TokenReader[TokenWrapper, CTypeContext] = {
-        val tokens = new PartialPPLexer().parseStream(stream, filePath, directory).iterator
-        val result = new ListBuffer[TokenWrapper]
-        while (tokens.hasNext){
-        	val t=tokens.next
-        	if (t.getText!="__extension__")
-        		result += new TokenWrapper(t)
-        }
-        new TokenReader(result.toList, 0, new CTypeContext())
-    }
-    def lex(text: String): TokenReader[TokenWrapper, CTypeContext] = {
-        val tokens = new PartialPPLexer().parse(text, null).iterator
-        val result = new ListBuffer[TokenWrapper]
-        while (tokens.hasNext){
-        	val t=tokens.next
-        	if (t.getText!="__extension__")
-        		result += new TokenWrapper(t)
-        }
-        new TokenReader(result.toList, 0, new CTypeContext())
+        new TokenReader(result.toList, 0, new CTypeContext(),TokenWrapper.EOF)
     }
 
+    /** used to recognize identifiers in the token implementation **/
     val keywords = Set(
         "auto",
         "break",
@@ -75,7 +66,6 @@ object CLexer {
         "unsigned",
         "void",
         "volatile",
-        "while"
-        )
+        "while")
 
 }

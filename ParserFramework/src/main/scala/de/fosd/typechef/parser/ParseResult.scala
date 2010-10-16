@@ -55,14 +55,19 @@ case class SplittedParseResult[+T, Token <: AbstractToken, Context](feature: Fea
         (resultA.join(f), resultB.join(f)) match {
             //both successful
             case (Success(rA, inA), Success(rB, inB)) =>
-                if (inA == inB || inA == inB.skipHidden(feature.not))
+                if (inA == inB || inA == inB.skipHidden(feature.not)) {
+                    println("join  at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
                     Success(f(feature, rA, rB), inA)
-                else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not))
+                } else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not)) {
+                    println("join  at \"" + inB.first.getText + "\" at " + inB.first.getPosition + " from " + feature)
                     Success(f(feature, rA, rB), inA.skipHidden(feature))
-                else
+                } else
                     this //NoSuccess("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA,List())
             //both not sucessful
-            case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => Failure("joined error", fA.or(fB), inA, List(nA, nB))
+            case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => {
+                println("joinf at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
+                Failure("joined error", fA.or(fB), inA, List(nA, nB))
+            }
             //partially successful
             case (a, b) => SplittedParseResult(feature, a, b)
         }
@@ -104,7 +109,7 @@ abstract class NoSuccess[Token <: AbstractToken, Context](val msg: String, val c
 /** An extractor so NoSuccess(msg, next) can be used in matches.
  */
 object NoSuccess {
-    def unapply[T<: AbstractToken, C](x: NoSuccess[T, C]) = x match {
+    def unapply[T <: AbstractToken, C](x: NoSuccess[T, C]) = x match {
         case Failure(msg, context, next, inner) => Some(msg, context, next, inner)
         case Error(msg, context, next, inner) => Some(msg, context, next, inner)
         case _ => None

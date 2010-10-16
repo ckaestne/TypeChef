@@ -82,7 +82,7 @@ public class PartialPPLexer {
 
 			if (tok.getType() != Token.P_LINE
 					&& tok.getType() != Token.WHITESPACE
-					&& tok.getText() != "__extension__"
+					&& !tok.getText().equals("__extension__")
 					&& tok.getType() != Token.NL && tok.getType() != Token.P_IF
 					&& tok.getType() != Token.CCOMMENT
 					&& tok.getType() != Token.CPPCOMMENT

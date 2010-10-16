@@ -130,6 +130,28 @@ class MultiFeatureParser {
      * a,b_1,c => List(a,Opt(1,b),c)
      *  
      */
+    //    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
+    //    	/**
+    //    	 * use the following heuristics which will work in the common case that
+    //    	 * the entire entry is annotated and is not interleaved with other annotations
+    //    	 * 
+    //    	 * fallback to repOpt_strategy2 otherwise
+    //    	 */
+    //    	
+    //        def apply(in0: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, Context] = {
+    //        	val feature=in0.first.getFeature
+    //        	if (feature != parserState)
+    //        	val parseResult=p(in0,parserState.and(feature))
+    //        	val joinedParseResult = parseResult.join(joinFunction)
+    //        	joinedParseResult match {
+    //        		case ParseResult(in) => {
+    //        			if (in.offset<=in0.skipHidden(parserState.and(f.not)).offst)
+    //        		}
+    //        	}
+    //        	
+    //        }    	
+    //    	
+    //    }
     def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, Context] = {
             val elems = new ListBuffer[Opt[T]]
@@ -139,20 +161,24 @@ class MultiFeatureParser {
                 result match {
                     case Success(e, in) => (Opt(parserState, e), in)
                     //first element must finish before second element starts
-                    case SplittedParseResult(f, Success(e1, in1), Success(e2,in2)) =>
-                        if (in1.offst <= in0.skipHidden(parserState.and(f.not)).offst)
+                    case SplittedParseResult(f, Success(e1, in1), Success(e2, in2)) =>
+                        if (in1.offst <= in0.skipHidden(parserState.and(f.not)).offst) {
+                            println("joinl at \"" + in1.first.getText + "\" at " + in1.first.getPosition + " from " + f)
                             (Opt(f, e1), in1)
-                        else if (in2.offst <= in0.skipHidden(parserState.and(f)).offst)
+                        } else if (in2.offst <= in0.skipHidden(parserState.and(f)).offst) {
+                            println("joinr at \"" + in2.first.getText + "\" at " + in2.first.getPosition + " from " + f)
                             (Opt(f.not, e2), in2)
-                        else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
                     case SplittedParseResult(f, Success(e, in), _) =>
-                        if (in.offst <= in0.skipHidden(parserState.and(f.not)).offst)
+                        if (in.offst <= in0.skipHidden(parserState.and(f.not)).offst) {
+                            println("joinl at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f, e), in)
-                        else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
-                    case SplittedParseResult(f, _,Success(e, in)) =>
-                        if (in.offst <= in0.skipHidden(parserState.and(f)).offst)
+                        } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                    case SplittedParseResult(f, _, Success(e, in)) =>
+                        if (in.offst <= in0.skipHidden(parserState.and(f)).offst) {
+                            println("joinr at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f.not, e), in)
-                        else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
                     //others currently not supported
                     case _ => throw new ListHandlingException("deeper nesting currently not supported, TODO")
                 }
@@ -162,6 +188,36 @@ class MultiFeatureParser {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
                 @tailrec
                 def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
+                    /**
+                     * strategy1: parse the next statement with the annotation of the next token.
+                     *  if it yields a unique result before the next token that would be parsed 
+                     *  with the alternative (split) parser, then this is the only result we need 
+                     *  to care about
+                     * 
+                     * will work in the common case that the entire entry is annotated and 
+                     *  is not interleaved with other annotations
+                     */
+                    val firstFeature = in0.first.getFeature
+                    if (!FeatureSolverCache.implies(parserState, firstFeature)) {
+                        val r = p0(in0, parserState.and(firstFeature))
+                        val parseResult = r.join(joinFunction)
+                        parseResult match {
+                            case Success(result, next) =>
+                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst) {
+                                    elems += Opt(parserState.and(firstFeature), result)
+                                    return applyp(next)
+                                }
+                            case e@Error(_, _, next, _) =>
+                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
+                                    return e
+                            case Failure(_, _, next, _) =>
+                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
+                                    return Success(elems.toList, in0)
+                            case _ =>
+                        }
+                    }
+
+                    /** strategy 2: parse normally and merge alternative results */
                     val r = p0(in0, parserState)
                     val parseResult = r.join(joinFunction)
                     //if there are errors (not failures) abort
@@ -172,12 +228,14 @@ class MultiFeatureParser {
                         else
                             Error("error in loop (see inner errors)", parserState, in0, errors)
                     //if all failed, return results so far
-                    else if (parseResult.allFailed)
+                    else if (parseResult.allFailed) {
+                        println("abort at \"" + in0.first.getText + "\" at " + in0.first.getPosition)
                         Success(elems.toList, in0)
-                    //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
-                    else { //continue parsing
+                    } else {
+                        //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
                         val (e: Opt[T], rest) = findOpt(in0, parseResult)
                         elems += e
+                        //continue parsing
                         applyp(rest)
                     }
                 }
@@ -287,7 +345,7 @@ class MultiFeatureParser {
                 if (FeatureSolverCache.implies(context, start.first.getFeature)) {
                     //token always parsed in this context
                     if (p(start.first, start.context))
-                        Success(start.first, start.rest) 
+                        Success(start.first, start.rest)
                     else
                         Failure(err(Some(start.first)), context, start, List())
                 } else
@@ -299,12 +357,15 @@ class MultiFeatureParser {
             val feature = in.first.getFeature
             val r1 = this(in, context.and(feature))
             val r2 = this(in, context.and(feature.not))
-            (r1,r2) match {
-            	case (f1@Failure(msg1,context1,next1,inner1),f2@Failure(msg2,context2,next2,inner2)) => 
-            		Failure(msg1,context1,next1, List(f1,f2)++inner1++inner2)
-            	case (f1@Error(msg1,context1,next1,inner1),f2@Error(msg2,context2,next2,inner2)) => 
-            		Error(msg1,context1,next1, List(f1,f2)++inner1++inner2)
-            	case (a,b) => SplittedParseResult(in.first.getFeature, r1, r2)
+            (r1, r2) match {
+                case (f1@Failure(msg1, context1, next1, inner1), f2@Failure(msg2, context2, next2, inner2)) =>
+                    Failure(msg1, context1, next1, List(f1, f2) ++ inner1 ++ inner2)
+                case (f1@Error(msg1, context1, next1, inner1), f2@Error(msg2, context2, next2, inner2)) =>
+                    Error(msg1, context1, next1, List(f1, f2) ++ inner1 ++ inner2)
+                case (a, b) => {
+                    println("split at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + context + " with " + feature)
+                    SplittedParseResult(in.first.getFeature, r1, r2)
+                }
             }
         }
     }.named("matchInput")

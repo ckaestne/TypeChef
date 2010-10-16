@@ -448,5 +448,21 @@ __extension__ extern long long int atoll (__const char *__nptr)
 /* Convert a string to a floating-point number.  */
 extern double strtod (__const char *__restrict __nptr, char **__restrict __endptr)
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;""",p.translationUnit)
+     
+     	def testDoubleMain= assertParseable("""
+int foo() {}
+#if defined(X)
+int main(void) {}
+#endif
+""",p.translationUnit)
+
+     	def testDoubleMain2= assertParseable("""
+int foo() {}
+#if defined(X)
+int main(void) {}
+#else
+int main(void) {}
+#endif
+""",p.translationUnit)
 
 }

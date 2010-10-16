@@ -36,7 +36,6 @@ public final class Token {
 	private int column;
 	private Object value;
 	private String text;
-	@SuppressWarnings("unused")
 	private Source source;// for debugging purposes only
 	private FeatureExpr feature = base;
 
@@ -365,4 +364,7 @@ public final class Token {
 		return mayExpand;
 	}
 
+	public Source getSource (){
+		return source;
+	}
 }
