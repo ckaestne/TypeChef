@@ -8,12 +8,17 @@ import org.anarres.cpp._
  * @author kaestner
  *
  */
-class TokenWrapper(token:Token) extends AbstractToken  {
+class TokenWrapper(token:Token, number:Int) extends AbstractToken  {
 	def getFeature = token.getFeature()
 	def isInteger = token.getType == Token.INTEGER
 	def isIdentifier = token.getType == Token.IDENTIFIER && !CLexer.keywords.contains(token.getText)
 	def getText:String = token.getText
 	def getType = token.getType
 	override def toString = "\"" +  token.getText + "\"" + (if (!getFeature.isBase) getFeature else "")
-	def getPositionStr = token.toString
+	def getPosition = new Position {
+		def getFile = token.getSource.toString
+		def getLine = token.getLine
+		def getColumn = token.getColumn
+		override def toString = number+" ("+getLine+")"
+	}
 }
