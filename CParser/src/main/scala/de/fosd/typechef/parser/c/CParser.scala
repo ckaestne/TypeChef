@@ -47,8 +47,10 @@ class CParser extends MultiFeatureParser {
                 var c = context
                 if (result.declSpecs.contains(TypedefSpecifier()))
                     if (result.init.isDefined)
-                        for (decl: InitDeclarator <- result.init.get)
+                        for (decl: InitDeclarator <- result.init.get) {
                             c = c.addType(decl.declarator.getName)
+                            println("add type " + decl.declarator.getName)//DEBUG only
+                        }
                 c
             }
         })) ^^! (AltDeclaration.join, x => x)
@@ -440,7 +442,7 @@ class CParser extends MultiFeatureParser {
     def asm = textToken("asm") | textToken("__asm") | textToken("__asm__")
 
     def const = specifier("const") | specifier("__const") | specifier("__const__")
-    
+
     def restrict = specifier("restrict") | specifier("__restrict") | specifier("__restrict__")
 
     def signed = textToken("signed") | textToken("__signed") | textToken("__signed__")
