@@ -1,5 +1,6 @@
 package de.fosd.typechef.parser
-import scala.util.parsing.input._
+import scala.util.parsing.input.Reader
+
 import de.fosd.typechef.featureexpr.FeatureExpr
 import scala.math.min
 
@@ -9,22 +10,21 @@ import scala.math.min
  * @author kaestner
  *
  */
-class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, val context: U = null) extends Reader[T] {
+class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, val context: U = null) {
 
-    override def offset: Int = offst
+    def offset: Int = offst
 
-    override def first = tokens.head
+    def first = tokens.head
 
-    override def rest: TokenReader[T, U] = new TokenReader(tokens.tail, offst + 1, context)
+    def rest: TokenReader[T, U] = new TokenReader(tokens.tail, offst + 1, context)
 
-    override def pos: Position = NoPosition
+    def pos: Position = first.getPosition
 
     /** true iff there are no more elements in this reader 
      */
     def atEnd: Boolean = tokens.isEmpty
 
-    override def toString: String = tokens.slice(0, min(tokens.size, 50)).mkString("TokenReader(",", ",", ...)")
-    
+    override def toString: String = tokens.slice(0, min(tokens.size, 50)).mkString("TokenReader(", ", ", ", ...)")
 
     override def hashCode = tokens.hashCode
 
