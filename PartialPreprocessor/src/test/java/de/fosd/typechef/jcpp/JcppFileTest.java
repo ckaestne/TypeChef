@@ -96,4 +96,8 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testLinuxTestFLock() throws LexerException, IOException {
 		testFile("linuxtestflock.c");
 	}
+	@Test
+	public void testElIfChain() throws LexerException, IOException {
+		testFile("elifchain.c");
+	}
 }
