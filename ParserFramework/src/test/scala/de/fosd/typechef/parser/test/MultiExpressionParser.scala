@@ -7,7 +7,7 @@ class MultiExpressionParser extends MultiFeatureParser {
     type Elem = MyToken
     type Context = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[AST, MyToken, Context] = expr(new TokenReader[MyToken, Context](tokens, 0, null), FeatureExpr.base).forceJoin(Alt.join)
+    def parse(tokens: List[MyToken]): ParseResult[AST, MyToken, Context] = expr(new TokenReader[MyToken, Context](tokens, 0, null,EofToken), FeatureExpr.base).forceJoin(Alt.join)
 
     def expr: MultiParser[AST] =
         term ~ opt((t("+") | t("-")) ~ expr) ^^! (Alt.join, {

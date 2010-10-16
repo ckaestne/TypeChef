@@ -30,7 +30,7 @@ object CLexer {
             result += new TokenWrapper(t, tokenNr)
             tokenNr = tokenNr + 1
         }
-        new TokenReader(result.toList, 0, new CTypeContext())
+        new TokenReader(result.toList, 0, new CTypeContext(),TokenWrapper.EOF)
     }
 
     /** used to recognize identifiers in the token implementation **/

@@ -30,6 +30,7 @@ object FeatureExpr {
   def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExpr(IfExpr(condition, thenBranch, elseBranch))
 
   val base = new FeatureExpr(BaseFeature())
+  val dead = new FeatureExpr(DeadFeature())
   
   private var freshFeatureNameCounter = 0
   def calcFreshFeatureName(): String = { freshFeatureNameCounter = freshFeatureNameCounter + 1; "__fresh" + freshFeatureNameCounter; }

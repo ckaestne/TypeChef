@@ -63,9 +63,8 @@ class DigitList2ParserTest extends TestCase {
 
     @Test
     def testParseOptSimpleList1() {
-
         val input = List(t("("), t("1", f1), t("2", f1.not), t(")"))
-        val expected = DigitList2(List(o(Alt(f1, Lit(1), Lit(2)))))
+        val expected = DigitList2(List(Opt(f1, Lit(1)),Opt(f1.not, Lit(2))))
         assertParseResult(expected, new DigitList2Parser().parse(input))
     }
     def testParseOptSimpleListFirst() {

@@ -130,6 +130,28 @@ class MultiFeatureParser {
      * a,b_1,c => List(a,Opt(1,b),c)
      *  
      */
+    //    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
+    //    	/**
+    //    	 * use the following heuristics which will work in the common case that
+    //    	 * the entire entry is annotated and is not interleaved with other annotations
+    //    	 * 
+    //    	 * fallback to repOpt_strategy2 otherwise
+    //    	 */
+    //    	
+    //        def apply(in0: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, Context] = {
+    //        	val feature=in0.first.getFeature
+    //        	if (feature != parserState)
+    //        	val parseResult=p(in0,parserState.and(feature))
+    //        	val joinedParseResult = parseResult.join(joinFunction)
+    //        	joinedParseResult match {
+    //        		case ParseResult(in) => {
+    //        			if (in.offset<=in0.skipHidden(parserState.and(f.not)).offst)
+    //        		}
+    //        	}
+    //        	
+    //        }    	
+    //    	
+    //    }
     def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, Context] = {
             val elems = new ListBuffer[Opt[T]]
@@ -166,6 +188,36 @@ class MultiFeatureParser {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
                 @tailrec
                 def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
+                    /**
+                     * strategy1: parse the next statement with the annotation of the next token.
+                     *  if it yields a unique result before the next token that would be parsed 
+                     *  with the alternative (split) parser, then this is the only result we need 
+                     *  to care about
+                     * 
+                     * will work in the common case that the entire entry is annotated and 
+                     *  is not interleaved with other annotations
+                     */
+                    val firstFeature = in0.first.getFeature
+                    if (!FeatureSolverCache.implies(parserState, firstFeature)) {
+                        val r = p0(in0, parserState.and(firstFeature))
+                        val parseResult = r.join(joinFunction)
+                        parseResult match {
+                            case Success(result, next) =>
+                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst) {
+                                    elems += Opt(parserState.and(firstFeature), result)
+                                    return applyp(next)
+                                }
+                            case e@Error(_, _, next, _) =>
+                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
+                                    return e
+                            case Failure(_, _, next, _) =>
+                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
+                                    return Success(elems.toList, in0)
+                            case _ =>
+                        }
+                    }
+
+                    /** strategy 2: parse normally and merge alternative results */
                     val r = p0(in0, parserState)
                     val parseResult = r.join(joinFunction)
                     //if there are errors (not failures) abort
@@ -177,13 +229,13 @@ class MultiFeatureParser {
                             Error("error in loop (see inner errors)", parserState, in0, errors)
                     //if all failed, return results so far
                     else if (parseResult.allFailed) {
-                        if (errors.size > 1)
-                            println("abort at \"" + in0.first.getText + "\" at " + in0.first.getPosition)
+                        println("abort at \"" + in0.first.getText + "\" at " + in0.first.getPosition)
                         Success(elems.toList, in0)
-                    } //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
-else { //continue parsing
+                    } else {
+                        //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
                         val (e: Opt[T], rest) = findOpt(in0, parseResult)
                         elems += e
+                        //continue parsing
                         applyp(rest)
                     }
                 }
@@ -311,8 +363,8 @@ else { //continue parsing
                 case (f1@Error(msg1, context1, next1, inner1), f2@Error(msg2, context2, next2, inner2)) =>
                     Error(msg1, context1, next1, List(f1, f2) ++ inner1 ++ inner2)
                 case (a, b) => {
-                	println("split at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + context + " with " + feature)
-                	SplittedParseResult(in.first.getFeature, r1, r2)
+                    println("split at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + context + " with " + feature)
+                    SplittedParseResult(in.first.getFeature, r1, r2)
                 }
             }
         }

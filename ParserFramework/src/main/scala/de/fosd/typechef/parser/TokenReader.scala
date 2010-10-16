@@ -10,14 +10,17 @@ import scala.math.min
  * @author kaestner
  *
  */
-class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, val context: U = null) {
+class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, val context: U = null, eofToken: T) {
 
     def offset: Int = offst
 
-    def first = tokens.head
+    def first: T = if (!tokens.isEmpty) tokens.head else eofToken
 
-    def rest: TokenReader[T, U] = new TokenReader(tokens.tail, offst + 1, context)
+    def rest: TokenReader[T, U] = new TokenReader(tokens.tail, offst + 1, context, eofToken)
 
+    /** position is for user output only. do not rely on this value. 
+     * use offset for comparing position in tokenstream 
+     */
     def pos: Position = first.getPosition
 
     /** true iff there are no more elements in this reader 
@@ -40,5 +43,5 @@ class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, va
         result
     }
 
-    def setContext(newContext: U): TokenReader[T, U] = if (context == newContext) this else new TokenReader(tokens, offst, newContext)
+    def setContext(newContext: U): TokenReader[T, U] = if (context == newContext) this else new TokenReader(tokens, offst, newContext, eofToken)
 }

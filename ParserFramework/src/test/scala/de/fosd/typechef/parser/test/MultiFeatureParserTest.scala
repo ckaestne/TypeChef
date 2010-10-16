@@ -126,8 +126,8 @@ class MultiFeatureParserTest extends TestCase {
      * test multi-parser sequenzation
      */
     def testMultiParserSeq() {
-        val in = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0)
-        val in2 = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0)
+        val in = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0,null,EofToken)
+        val in2 = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0,null,EofToken)
         val p = new MultiExpressionParser()
         println((p.digits ~ p.digits)(in, FeatureExpr.base)) // 1~1,1~2,2~1,2~2
         println((p.digits ~ p.digits)(in2, FeatureExpr.base)) //1~2,2~1
