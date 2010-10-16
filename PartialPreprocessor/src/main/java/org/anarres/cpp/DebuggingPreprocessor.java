@@ -94,7 +94,12 @@ public abstract class DebuggingPreprocessor {
 			try {
 				for (int i = 1; i < debugSourceIdx; i++)
 					debugSourceFile.write("\t");
-				debugSourceFile.write("push " + source.toString()+" -- "+state.getLocalFeatureExpr() + "\n");
+				debugSourceFile
+						.write("push "
+								+ source.toString()
+								+ " -- "
+								+ (state == null ? "null" : state
+										.getLocalFeatureExpr()) + "\n");
 				debugSourceFile.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
