@@ -57,15 +57,18 @@ object BoaFilesTest {
             gccIncludes, //
             "-U", "HAVE_LIBDMALLOC"))
     }
-
     def parseFile(fileName: String) {
-        val file = getFullPath(fileName + ".pi")
+        val filePath = getFullPath(fileName + ".pi")
         val initialContext = new CTypeContext().addType("__uint32_t")
+        return parserMain(filePath, initialContext)
+    }
+
+    def parserMain(filePath: String, initialContext: CTypeContext) {
         val result = new CParser().translationUnit(
-            CLexer.lexFile(file, "testfiles/cgram/").setContext(initialContext), FeatureExpr.base)
+            CLexer.lexFile(filePath).setContext(initialContext), FeatureExpr.base)
         val resultStr: String = result.toString
         println(FeatureSolverCache.statistics)
-        val writer = new FileWriter(file + ".ast")
+        val writer = new FileWriter(filePath + ".ast")
         writer.write(resultStr);
         writer.close
         println("done.")
