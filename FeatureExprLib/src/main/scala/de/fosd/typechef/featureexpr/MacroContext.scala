@@ -110,7 +110,7 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
   override def toString() = "#define " + name + " if " + feature.toString + " \n\texpansions \n" + featureExpansions.mkString("\n")
 }
 
-class MacroExpansion(feature: FeatureExpr, expansion: Any) {
+class MacroExpansion(feature: FeatureExpr, expansion: Any /* Actually, MacroData from PartialPreprocessor*/) {
   def getFeature(): FeatureExpr = feature
   def getExpansion(): Any = expansion
   def andNot(expr: FeatureExpr): MacroExpansion = new MacroExpansion(feature.and(expr.not), expansion)

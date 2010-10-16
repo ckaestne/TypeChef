@@ -84,7 +84,7 @@ public class MacroData {
 	/**
 	 * Returns the number of arguments to this macro.
 	 */
-	public int getArgs() {
+	public int getArgCount() {
 		if (args == null)
 			return 0;
 		return args.size();

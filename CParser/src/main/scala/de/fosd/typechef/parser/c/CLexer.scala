@@ -15,8 +15,8 @@ object CLexer {
     def lexFile(fileName: String, directory: String): TokenReader[TokenWrapper, CTypeContext] =
         prepareTokens(new PartialPPLexer().parseFile(fileName, directory))
 
-    def lexStream(stream: InputStream, directory: String): TokenReader[TokenWrapper, CTypeContext] =
-        prepareTokens(new PartialPPLexer().parseStream(stream, directory))
+    def lexStream(stream: InputStream, filePath: String, directory: String): TokenReader[TokenWrapper, CTypeContext] =
+        prepareTokens(new PartialPPLexer().parseStream(stream, filePath, directory))
 
     def lex(text: String): TokenReader[TokenWrapper, CTypeContext] =
         prepareTokens(new PartialPPLexer().parse(text, null))

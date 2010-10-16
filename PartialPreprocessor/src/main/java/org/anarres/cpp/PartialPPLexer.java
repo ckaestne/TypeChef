@@ -21,22 +21,31 @@ public class PartialPPLexer {
 
 	public boolean debug = false;
 
-	public List<Token> parse(String code, String folder) throws LexerException,
+	public List<Token> parse(String code, String folderPath) throws LexerException,
 			IOException {
-		return parse(new StringLexerSource(code, true), folder);
+		return parse(new StringLexerSource(code, true), folderPath);
 	}
 
-	public List<Token> parseFile(String fileName, String path)
+	public List<Token> parseFile(String fileName, String folderPath)
 			throws LexerException, IOException {
-		return parse(new FileLexerSource(new File(fileName), path), path);
+		return parse(new FileLexerSource(new File(fileName)), folderPath);
 	}
 
-	public List<Token> parseStream(InputStream stream, String path)
+	/**
+	 * 
+	 * @param stream stream containing the data to preprocess
+	 * @param filePath path of the file represented by the stream
+	 * @param folderPath path of the containing folder.
+	 * @return
+	 * @throws LexerException
+	 * @throws IOException
+	 */
+	public List<Token> parseStream(InputStream stream, String filePath, String folderPath)
 			throws LexerException, IOException {
-		return parse(new FileLexerSource(stream, path), path);
+		return parse(new FileLexerSource(stream, filePath), folderPath);
 	}
 
-	public List<Token> parse(Source source, String folder)
+	public List<Token> parse(Source source, String folderPath)
 			throws LexerException, IOException {
 		Preprocessor pp = new Preprocessor();
 		pp.addFeature(Feature.DIGRAPHS);
@@ -54,8 +63,8 @@ public class PartialPPLexer {
 		pp.addMacro("__JCPP__", new FeatureExpr().base());
 
 		// include path
-		if (folder != null)
-			pp.getSystemIncludePath().add(folder);
+		if (folderPath != null)
+			pp.getSystemIncludePath().add(folderPath);
 
 		pp.addInput(source);
 
