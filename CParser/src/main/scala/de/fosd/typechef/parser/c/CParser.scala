@@ -185,14 +185,14 @@ class CParser extends MultiFeatureParser {
     def functionDeclSpecifiers: MultiParser[List[Specifier]] =
         specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
 
-    private def compoundDeclarations =
-        declaration | nestedFunctionDef | localLabelDeclaration
+    private def compoundDeclaration =
+        declaration | nestedFunctionDef | localLabelDeclaration | fail("expected compoundDeclaration")
 
     private def compoundDeclarationList: MultiParser[List[Opt[Declaration]]] =
-        (compoundDeclarations) ~ repOpt(compoundDeclarations, AltDeclaration.join) ^^ { case d ~ l => List(Opt(FeatureExpr.base, d)) ++ l }
+        repOpt(compoundDeclaration, AltDeclaration.join) 
 
     def compoundStatement: MultiParser[CompoundStatement] =
-        LCURLY ~> optList(compoundDeclarationList) ~ statementList <~ RCURLY ^^ { case decl ~ stmt => CompoundStatement(decl, stmt) }
+        LCURLY ~> compoundDeclarationList ~ statementList <~ RCURLY ^^ { case decl ~ stmt => CompoundStatement(decl, stmt) }
 
     def statementList: MultiParser[List[Opt[Statement]]] =
         repOpt(statement, AltStatement.join)
