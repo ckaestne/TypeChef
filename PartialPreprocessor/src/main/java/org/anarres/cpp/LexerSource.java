@@ -271,6 +271,12 @@ public class LexerSource extends Source {
 		return new Token(INVALID, text.toString(), reason, this);
 	}
 
+	private Token unterminated(int d, StringBuilder text) throws IOException {
+		unread(d);
+		return new Token(INVALID, text.toString(),
+				"End of file in comment literal after " + text, this);
+	}
+
 	private Token ccomment() throws IOException, LexerException {
 		StringBuilder text = new StringBuilder("/*");
 		int d;
@@ -279,16 +285,19 @@ public class LexerSource extends Source {
 				d = read();
 				text.append((char) d);
 			} while (d != '*' && d != -1);
-			if (d == -1) {
-				unread(d);
-				return new Token(INVALID, text.toString(),
-						"End of file in comment literal after " + text, this);
-			}
+
+			if (d == -1)
+				return unterminated(d, text);
+
 			do {
 				d = read();
 				text.append((char) d);
 			} while (d == '*');
-		} while (d != '/');
+		} while (d != '/' && d != -1);
+
+		if (d == -1)
+			return unterminated(d, text);
+
 		return new Token(CCOMMENT, text.toString(), this);
 	}
 
