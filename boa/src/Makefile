@@ -22,7 +22,8 @@ srcdir = .
 VPATH = .:./../extras
 LDFLAGS =  -g
 LIBS =  
-CFLAGS = -g -O2 -pipe -Wall -I.
+# Paolo Giarrusso: this -I . is redundant and confusing.
+CFLAGS = -g -O2 -pipe -Wall # -I.
 
 # Change these if necessary
 

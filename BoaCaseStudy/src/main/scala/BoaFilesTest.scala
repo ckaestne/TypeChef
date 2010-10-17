@@ -61,9 +61,7 @@ object BoaFilesTest {
             "--include",
             predefMacroDef, //
             "-p",
-            "_",
-            "-I", boaDir /* XXX should _not_ be needed, since boa headers are
-            included with "boa.h" rather than <boa.h> */
+            "_"
         ) ++
           getIncludes ++
             Array("-U", "HAVE_LIBDMALLOC"))
