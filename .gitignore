@@ -13,3 +13,5 @@ src_managed/
 project/boot/
 debugsource.txt
 tokenstream.txt
+*.pi
+*.pi.ast
