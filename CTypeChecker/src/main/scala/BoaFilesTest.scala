@@ -4,76 +4,69 @@ import org.anarres.cpp.Main
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.io.FileWriter
+import java.io.File
 import junit.framework._
 import junit.framework.Assert._
 import de.fosd.typechef.typesystem._
 
-object BoaFilesTest {
-
-    var errorMessages: List[ErrorMsg] = List()
-    val fileList = List("alias", "boa", "buffer", "cgi",
-        "cgi_header", "config", "escape", "get", "hash", "ip", "log",
-        "mmap_cache", "pipe", "queue", "read", "request", "response",
-        "select", "signals", "util", "sublog")
-
-    val boaDir = "d:\\work\\TypeChef\\boa\\src"
-    val cygwinFile = "d:\\work\\TypeChef\\boa\\src\\cygwin.h"
-    def getFullPath(fileName: String) = boaDir + "\\" + fileName
-    def preprocessFile(fileName: String) {
-        Main.main(Array(
-            getFullPath(fileName + ".c"), //
-            "-o",
-            getFullPath(fileName + ".pi"), //
-            "--include",
-            cygwinFile, //
-            "-p",
-            "_", //
-            "-I",
-            boaDir, //
-            "-I",
-            "C:\\cygwin\\usr\\include", //
-            "-I",
-            "C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include", //
-            "-U", "HAVE_LIBDMALLOC"))
-    }
-
-    def parseFile(fileName: String) {
-        val file = getFullPath(fileName + ".pi")
-        val initialContext = new CTypeContext().addType("__uint32_t")
+object TypeCheckerMain {
+    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext) {
         val result = new CParser().translationUnit(
-            CLexer.lexFile(file, "testfiles/cgram/").setContext(initialContext), FeatureExpr.base)
+            CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
         val resultStr: String = result.toString
-        println(FeatureSolverCache.statistics)
-        val writer = new FileWriter(file + ".ast")
+        println("FeatureSolverCache.statistics: " + FeatureSolverCache.statistics)
+        val writer = new FileWriter(filePath + ".ast")
         writer.write(resultStr);
         writer.close
         println("done.")
 
+        printParseResult(result, FeatureExpr.base)
+        checkParseResult(result, FeatureExpr.base)
+    }
+
+    def printParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {
         result match {
             case Success(ast, unparsed) => {
-                if (unparsed.atEnd) {
-                    val ts = new TypeSystem()
-                    ts.checkAST(ast)
-                    errorMessages = ts.errorMessages ++ errorMessages
-                } else
-                    println("stopped before end\n")
+                if (unparsed.atEnd)
+                    println(feature.toString + "\tsucceeded\n")
+                else
+                    println(feature.toString + "\tstopped before end\n")
             }
             case NoSuccess(msg, context, unparsed, inner) =>
-                println("failed " + msg + "\n")
+                println(feature.toString + "\tfailed " + msg + "\n")
             case SplittedParseResult(f, left, right) => {
+                printParseResult(left, feature.and(f))
+                printParseResult(right, feature.and(f.not))
             }
         }
+    }
 
+    def checkParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {
+        result match {
+            case Success(ast, unparsed) => {
+                if (!unparsed.atEnd)
+                    fail("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed)
+                //succeed
+            }
+            case NoSuccess(msg, context, unparsed, inner) =>
+                fail(msg + " at " +  unparsed + " with feature " + feature + " and context " + context + " " + inner)
+            case SplittedParseResult(f, left, right) => {
+                checkParseResult(left, feature.and(f))
+                checkParseResult(right, feature.and(f.not))
+            }
+        }
     }
 
     def main(args: Array[String]) = {
-        for (filename <- fileList) {
-        	println("**************************************************************************")
-        	println("file: "+filename)
-        	println("**************************************************************************")
-            //            preprocessFile(filename)
-            parseFile(filename)
+        for (filename <- args) {
+            println("**************************************************************************")
+            println("** Processing file: "+filename)
+            println("**************************************************************************")
+            val parentPath = new File(filename).getParent()
+            parserMain(filename, parentPath, new CTypeContext())
+            println("**************************************************************************")
+	    println("** End of processing for: " + filename)
+            println("**************************************************************************")
         }
-        println("Errors: " + errorMessages)
     }
 }

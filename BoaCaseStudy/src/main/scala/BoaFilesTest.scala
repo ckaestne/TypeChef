@@ -1,6 +1,9 @@
 package de.fosd.typechef.parser.c
 import org.anarres.cpp.Main
 
+import gnu.getopt.Getopt
+import gnu.getopt.LongOpt
+
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.io.FileWriter
@@ -9,14 +12,15 @@ import junit.framework._
 import junit.framework.Assert._
 
 object BoaFilesTest {
-
-    val fileList = List("alias", "boa", "buffer", "cgi",
+    val fileList = List(
+        "alias", "boa", "buffer", "cgi",
         "cgi_header", "config", "escape", "get", "hash", "ip", "log",
         "mmap_cache", "pipe", "queue", "read", "request", "response",
-        "select", "signals", "util", "sublog")
+        "select", "signals", "sublog", "util"
+      )
 
     val isCygwin = false
-    val systemRoot = if (isCygwin) "C:\\cygwin" else ""; //Could be non-null also on Unix for special reasons.
+    var systemRoot = if (isCygwin) "C:\\cygwin" else ""; //Could be non-null also on Unix for special reasons.
 
     //val boaDir = "d:\\work\\TypeChef\\boa\\src"
     //val predefMacroDef = "d:\\work\\TypeChef\\boa\\src\\cygwin.h"
@@ -39,6 +43,20 @@ object BoaFilesTest {
 
 
     def getFullPath(fileName: String) = boaDir + File.separator + fileName
+    def getParentPath(fileName: String) = boaDir
+
+    var includeDirs =
+        if (true)
+            List(systemIncludes, gccIncludes)
+        else
+            List("/usr/local/include",
+            "/usr/lib/gcc/x86_64-linux-gnu/4.4.1/include",
+            "/usr/lib/gcc/x86_64-linux-gnu/4.4.1/include-fixed",
+            "/usr/include/x86_64-linux-gnu",
+            "/usr/include")
+
+    def getIncludes = includeDirs.flatMap((path: String) =>
+        List("-I", systemRoot + path))
 
     def preprocessFile(fileName: String) {
         Main.main(Array(
@@ -48,75 +66,48 @@ object BoaFilesTest {
             "--include",
             predefMacroDef, //
             "-p",
-            "_", //
+            "_",
             "-I",
-            boaDir, //
-            "-I",
-            systemIncludes,
-            "-I",
-            gccIncludes, //
-            "-U", "HAVE_LIBDMALLOC"))
+            boaDir) ++
+          getIncludes ++
+            Array("-U", "HAVE_LIBDMALLOC"))
     }
+
+    def main(args: Array[String]) = {
+        val g = new Getopt("testprog", args, ":r:I:");
+        var loopFlag = true
+        do {
+            val c = g.getopt()
+            if (c != -1) {
+                val arg = g.getOptarg()
+                c match {
+                    case 'r' => systemRoot = arg
+                    case 'I' => includeDirs = includeDirs :+ arg
+                    case ':' => println("Missing required argument!")
+                    case '?' => None
+                }
+            } else {
+                loopFlag = false
+            }
+        } while (loopFlag)
+
+        val remArgs = args.slice(g.getOptind(), args.size)
+        for (filename <- fileList) {
+            println("**************************************************************************")
+            println("** Processing file: "+filename)
+            println("**************************************************************************")
+            preprocessFile(filename)
+            parseFile(filename)
+            println("**************************************************************************")
+	    println("** End of processing for: " + filename)
+            println("**************************************************************************")
+        }
+    }
+
     def parseFile(fileName: String) {
         val filePath = getFullPath(fileName + ".pi")
         val parentPath = getParentPath(fileName + ".pi")
         val initialContext = new CTypeContext().addType("__uint32_t")
-        return parserMain(filePath, parentPath, initialContext)
-    }
-
-    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext) {
-        val result = new CParser().translationUnit(
-            CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
-        val resultStr: String = result.toString
-        println(FeatureSolverCache.statistics)
-        val writer = new FileWriter(filePath + ".ast")
-        writer.write(resultStr);
-        writer.close
-        println("done.")
-
-        //        System.out.println(resultStr)
-        printParseResult(result, FeatureExpr.base)
-        checkParseResult(result, FeatureExpr.base)
-
-    }
-
-    def printParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {
-        result match {
-            case Success(ast, unparsed) => {
-                if (unparsed.atEnd)
-                    println(feature.toString + "\tsucceeded\n")
-                else
-                    println(feature.toString + "\tstopped before end\n")
-            }
-            case NoSuccess(msg, context, unparsed, inner) =>
-                println(feature.toString + "\tfailed " + msg + "\n")
-            case SplittedParseResult(f, left, right) => {
-                printParseResult(left, feature.and(f))
-                printParseResult(right, feature.and(f.not))
-            }
-        }
-    }
-    def checkParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {
-        result match {
-            case Success(ast, unparsed) => {
-                if (!unparsed.atEnd)
-                    fail("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed)
-                //succeed
-            }
-            case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " +  unparsed + " with feature " + feature + " and context " + context + " " + inner)
-            case SplittedParseResult(f, left, right) => {
-                checkParseResult(left, feature.and(f))
-                checkParseResult(right, feature.and(f.not))
-            }
-        }
-    }
-    def main(args: Array[String]) = {
-        for (filename <- fileList) {
-	    println("==Processing: " +  filename)
-            preprocessFile(filename)
-            parseFile(filename)
-	    println("==End: " + filename)
-        }
+        return TypeCheckerMain.parserMain(filePath, parentPath, initialContext)
     }
 }
