@@ -12,21 +12,15 @@ import junit.framework._
 import junit.framework.Assert._
 
 object BoaFilesTest {
-    val fileList = List(
-        "alias", "boa", "buffer", "cgi",
-        "cgi_header", "config", "escape", "get", "hash", "ip", "log",
-        "mmap_cache", "pipe", "queue", "read", "request", "response",
-        "select", "signals", "sublog", "util"
-      )
-
+    ////////////////////////////////////////
+    // General setup of built-in headers, should become more general and move
+    // elsewhere.
+    ////////////////////////////////////////
     val isCygwin = false
-    var systemRoot = if (isCygwin) "C:\\cygwin" else ""; //Could be non-null also on Unix for special reasons.
+    var systemRoot = if (isCygwin) "C:\\cygwin" else ""; //Can be non-null also on Unix
 
-    //val boaDir = "d:\\work\\TypeChef\\boa\\src"
-    //val predefMacroDef = "d:\\work\\TypeChef\\boa\\src\\cygwin.h"
-    
-    val boaDir = "boa" + File.separator + "src"
     val predefMacroDef = "host" + File.separator + "platform.h"
+
     val systemIncludes =
     	if (isCygwin)
     		systemRoot + "\\usr\\include"
@@ -41,10 +35,6 @@ object BoaFilesTest {
     		//"/Users/pgiarrusso/Documents/Admin/Gentoo/usr/lib/gcc/i686-apple-darwin10/4.2.1/include"
     		"/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include"
 
-
-    def getFullPath(fileName: String) = boaDir + File.separator + fileName
-    def getParentPath(fileName: String) = boaDir
-
     var includeDirs =
         if (true)
             List(systemIncludes, gccIncludes)
@@ -58,6 +48,11 @@ object BoaFilesTest {
     def getIncludes = includeDirs.flatMap((path: String) =>
         List("-I", systemRoot + path))
 
+
+    ////////////////////////////////////////
+    // Preprocessor/parser invocation
+    ////////////////////////////////////////
+
     def preprocessFile(fileName: String) {
         Main.main(Array(
             getFullPath(fileName + ".c"), //
@@ -67,11 +62,30 @@ object BoaFilesTest {
             predefMacroDef, //
             "-p",
             "_",
-            "-I",
-            boaDir) ++
+            "-I", boaDir /* XXX should _not_ be needed, since boa headers are
+            included with "boa.h" rather than <boa.h> */
+        ) ++
           getIncludes ++
             Array("-U", "HAVE_LIBDMALLOC"))
     }
+
+    def parseFile(fileName: String) {
+        val filePath = getFullPath(fileName + ".pi")
+        val parentPath = getParentPath(fileName + ".pi")
+        //XXX: should this be still here?
+        val initialContext = new CTypeContext().addType("__uint32_t")
+        return TypeCheckerMain.parserMain(filePath, parentPath, initialContext)
+    }
+
+    ////////////////////////////////////////
+    // Boa test case.
+    ////////////////////////////////////////
+
+    //val boaDir = "d:\\work\\TypeChef\\boa\\src"
+    val boaDir = "boa" + File.separator + "src"
+
+    def getFullPath(fileName: String) = boaDir + File.separator + fileName
+    def getParentPath(fileName: String) = boaDir
 
     def main(args: Array[String]) = {
         val g = new Getopt("testprog", args, ":r:I:");
@@ -91,7 +105,15 @@ object BoaFilesTest {
             }
         } while (loopFlag)
 
-        val remArgs = args.slice(g.getOptind(), args.size)
+        val remArgs = args.slice(g.getOptind(), args.size) //XXX: not yet used!
+
+        val fileList = List(
+            "alias", "boa", "buffer", "cgi",
+            "cgi_header", "config", "escape", "get", "hash", "ip", "log",
+            "mmap_cache", "pipe", "queue", "read", "request", "response",
+            "select", "signals", "sublog", "util"
+          )
+
         for (filename <- fileList) {
             println("**************************************************************************")
             println("** Processing file: "+filename)
@@ -102,12 +124,5 @@ object BoaFilesTest {
 	    println("** End of processing for: " + filename)
             println("**************************************************************************")
         }
-    }
-
-    def parseFile(fileName: String) {
-        val filePath = getFullPath(fileName + ".pi")
-        val parentPath = getParentPath(fileName + ".pi")
-        val initialContext = new CTypeContext().addType("__uint32_t")
-        return TypeCheckerMain.parserMain(filePath, parentPath, initialContext)
     }
 }
