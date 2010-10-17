@@ -59,13 +59,14 @@ object BoaFilesTest {
     }
     def parseFile(fileName: String) {
         val filePath = getFullPath(fileName + ".pi")
+        val parentPath = getParentPath(fileName + ".pi")
         val initialContext = new CTypeContext().addType("__uint32_t")
-        return parserMain(filePath, initialContext)
+        return parserMain(filePath, parentPath, initialContext)
     }
 
-    def parserMain(filePath: String, initialContext: CTypeContext) {
+    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext) {
         val result = new CParser().translationUnit(
-            CLexer.lexFile(filePath).setContext(initialContext), FeatureExpr.base)
+            CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
         val resultStr: String = result.toString
         println(FeatureSolverCache.statistics)
         val writer = new FileWriter(filePath + ".ast")
