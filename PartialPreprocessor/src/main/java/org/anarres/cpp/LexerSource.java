@@ -278,7 +278,12 @@ public class LexerSource extends Source {
 			do {
 				d = read();
 				text.append((char) d);
-			} while (d != '*');
+			} while (d != '*' && d != -1);
+			if (d == -1) {
+				unread(d);
+				return new Token(INVALID, text.toString(),
+						"End of file in comment literal after " + text, this);
+			}
 			do {
 				d = read();
 				text.append((char) d);
