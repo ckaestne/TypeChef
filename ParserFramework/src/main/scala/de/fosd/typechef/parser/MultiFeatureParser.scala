@@ -130,28 +130,6 @@ class MultiFeatureParser {
      * a,b_1,c => List(a,Opt(1,b),c)
      *  
      */
-    //    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
-    //    	/**
-    //    	 * use the following heuristics which will work in the common case that
-    //    	 * the entire entry is annotated and is not interleaved with other annotations
-    //    	 * 
-    //    	 * fallback to repOpt_strategy2 otherwise
-    //    	 */
-    //    	
-    //        def apply(in0: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, Context] = {
-    //        	val feature=in0.first.getFeature
-    //        	if (feature != parserState)
-    //        	val parseResult=p(in0,parserState.and(feature))
-    //        	val joinedParseResult = parseResult.join(joinFunction)
-    //        	joinedParseResult match {
-    //        		case ParseResult(in) => {
-    //        			if (in.offset<=in0.skipHidden(parserState.and(f.not)).offst)
-    //        		}
-    //        	}
-    //        	
-    //        }    	
-    //    	
-    //    }
     def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, Context] = {
             val elems = new ListBuffer[Opt[T]]

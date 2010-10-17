@@ -10,7 +10,7 @@ class CParserTest extends TestCase {
     case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
     object Alt {
         def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
-    } 
+    }
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]) {
         val actual = p.parse(code.stripMargin, mainProduction).forceJoin(Alt.join)
         System.out.println(actual)
@@ -27,11 +27,11 @@ class CParserTest extends TestCase {
         for (production <- productions)
             assertParseResult(expected, code, production)
     }
-    
+
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
-        (actual: @unchecked)match {
+        (actual: @unchecked) match {
             case Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
@@ -358,8 +358,8 @@ class CParserTest extends TestCase {
         assertParseable("__attribute__((a,b))", p.attributeDecl)
         assertParseable("__attribute__((a,(b,b)))", p.attributeDecl)
     }
-    
-        def testMethodLookAhead {
+
+    def testMethodLookAhead {
         //should return parse error instead of empty parse result with unparsed tokens
         assertParseError("void main () { int a; ", p.translationUnit, true)
         assertParseError("int main () { abs = ", p.translationUnit, true)
@@ -388,7 +388,7 @@ class CParserTest extends TestCase {
     		} pojeqsd_t;""", p.translationUnit)
 
     def testMisc2 = assertParseable("( checkme )->j76g", p.expr)
-    def testMisc2b = assertParseable("if ((( checkme )->j76g) ) { }",p.statement)
+    def testMisc2b = assertParseable("if ((( checkme )->j76g) ) { }", p.statement)
     def testMisc3a = assertParseable("(int)q23w3", p.expr)
     def testMisc3b = assertParseable("void *", p.typeName)
     def testMisc3c = assertParseable("++(int)q23w3", p.unaryExpr)
@@ -398,14 +398,14 @@ class CParserTest extends TestCase {
         char gh554j[19];  
         gh554j[0]='\n';
     }""", p.statement)
-    
+
     def testBoa1 = assertParseable("__attribute__((__cdecl__))", p.attributeDecl)
-    def testBoa2 = assertParseable("int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);",p.structDeclaration)
+    def testBoa2 = assertParseable("int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);", p.structDeclaration)
     def testBoa3 = assertParseable("""typedef int FILE;
 typedef __builtin_va_list __gnuc_va_list;
 int	__attribute__((__cdecl__)) vfprintf (FILE *, const char *, __gnuc_va_list)
- __attribute__ ((__format__(__printf__, 2, 0)));""",p.translationUnit)
- 	def testBoa4 = assertParseable("""struct alias {
+ __attribute__ ((__format__(__printf__, 2, 0)));""", p.translationUnit)
+    def testBoa4 = assertParseable("""struct alias {
     char *fakename;             /* URI path to file */
     char *realname;             /* Actual path to file */
     int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
@@ -414,13 +414,13 @@ int	__attribute__((__cdecl__)) vfprintf (FILE *, const char *, __gnuc_va_list)
     struct alias *next;
 };
 
-typedef struct alias alias;""",p.translationUnit)
- 	def testBoa5 = assertParseable("""char *fakename;             /* URI path to file */
+typedef struct alias alias;""", p.translationUnit)
+    def testBoa5 = assertParseable("""char *fakename;             /* URI path to file */
     char *realname;             /* Actual path to file */
     int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
     int fake_len;               /* strlen of fakename */
     int real_len;               /* strlen of realname */
-    struct alias *next;""",p.structDeclarationList)
+    struct alias *next;""", p.structDeclarationList)
 
     def testOptListBoa1 = assertParseable("""
 typedef	char *	caddr_t;
@@ -428,16 +428,16 @@ typedef	char *	caddr_t;
 typedef unsigned long vm_offset_t;
 #endif
 typedef unsigned long vm_size_t;
-""",p.translationUnit)
+""", p.translationUnit)
 
     def testEnsureError = assertParseError("""main()
 {
   for(;;
 	{
       }
-}""",p.translationUnit)
+}""", p.translationUnit)
 
-	def testLinuxHeader = assertParseable("""
+    def testLinuxHeader = assertParseable("""
 #define __restrict
 /* Convert a string to a long long integer.  */
 __extension__ extern long long int atoll (__const char *__nptr)
@@ -447,22 +447,42 @@ __extension__ extern long long int atoll (__const char *__nptr)
 
 /* Convert a string to a floating-point number.  */
 extern double strtod (__const char *__restrict __nptr, char **__restrict __endptr)
-     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;""",p.translationUnit)
-     
-     	def testDoubleMain= assertParseable("""
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;""", p.translationUnit)
+
+    def testDoubleMain = assertParseable("""
 int foo() {}
 #if defined(X)
 int main(void) {}
 #endif
-""",p.translationUnit)
+""", p.translationUnit)
 
-     	def testDoubleMain2= assertParseable("""
+    def testDoubleMain2 = assertParseable("""
 int foo() {}
 #if defined(X)
 int main(void) {}
 #else
 int main(void) {}
 #endif
-""",p.translationUnit)
+""", p.translationUnit)
 
+    def testIfdefInStatement = assertParseable(""" 
+int foo() {
+  foo1();
+  while (current) {
+#ifdef X
+		foo2();
+#endif
+		if (whatever) {
+#ifdef X
+			foo3();
+#endif
+			return x;
+		}
+#ifdef X
+		else
+			foo4();
+#endif
+  }
+}    
+""", p.translationUnit)
 }

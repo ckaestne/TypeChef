@@ -92,14 +92,20 @@ public abstract class DebuggingPreprocessor {
 		if (source instanceof FileLexerSource) {
 			debugSourceIdx++;
 			try {
+				StringBuffer b = new StringBuffer();
 				for (int i = 1; i < debugSourceIdx; i++)
-					debugSourceFile.write("\t");
-				debugSourceFile
-						.write("push "
+					b.append("\t");
+				b
+						.append("push "
 								+ source.toString()
 								+ " -- "
 								+ (state == null ? "null" : state
-										.getLocalFeatureExpr()) + "\n");
+										.getLocalFeatureExpr()
+										+ " ("
+										+ state.getFullPresenceCondition()
+										+ ")") + "\n");
+				System.out.println(b.toString());
+				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -111,9 +117,12 @@ public abstract class DebuggingPreprocessor {
 		if (source instanceof FileLexerSource) {
 			debugSourceIdx--;
 			try {
+				StringBuffer b = new StringBuffer();
 				for (int i = 0; i < debugSourceIdx; i++)
-					debugSourceFile.write("\t");
-				debugSourceFile.write("pop " + source.toString() + "\n");
+					b.append("\t");
+				b.append("pop " + source.toString() + "\n");
+				System.out.println(b.toString());
+				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
