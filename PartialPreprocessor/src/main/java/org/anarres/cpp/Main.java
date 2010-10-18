@@ -145,7 +145,8 @@ public class Main {
 				pp.removeMacro(g.getOptarg(), new FeatureExpr().base());
 				break;
 			case 'I':
-				pp.getSystemIncludePath().add(g.getOptarg());
+				// Paths need to be canonicalized, because include_next processing needs to compare paths!
+				pp.getSystemIncludePath().add(new File(g.getOptarg()).getCanonicalPath());
 				break;
 			case 'p':
 				MacroContext$.MODULE$.setPrefixFilter(g.getOptarg());
