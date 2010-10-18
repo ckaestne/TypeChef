@@ -12,8 +12,8 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) {
 	}
 
 	lazy val cparser = project("CParser", "CParser", featureexpr, jcpp, parserexp)
+	lazy val boacasestudy = project("BoaCaseStudy", "BoaCaseStudy", cparser)
 	lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", cparser)
-	lazy val boacasestudy = project("BoaCaseStudy", "BoaCaseStudy", ctypechecker)
 	//val junit = "junit" % "junit" % "4.8"
 	val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
 }

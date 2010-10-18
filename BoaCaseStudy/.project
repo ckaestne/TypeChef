@@ -5,6 +5,7 @@
 	<projects>
 		<project>CParser</project>
 		<project>CTypeChecker</project>
+		<project>PartialPreprocessor</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

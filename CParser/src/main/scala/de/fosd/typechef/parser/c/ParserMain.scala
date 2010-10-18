@@ -7,9 +7,8 @@ import java.io.FileWriter
 import java.io.File
 import junit.framework._
 import junit.framework.Assert._
-import de.fosd.typechef.typesystem._
 
-object TypeCheckerMain {
+object ParserMain {
     def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext) {
         val result = new CParser().translationUnit(
             CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)

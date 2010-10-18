@@ -1,4 +1,5 @@
-package de.fosd.typechef.parser.c
+import java.io.FileInputStream
+import de.fosd.typechef.parser.c._
 import org.anarres.cpp.Main
 
 import gnu.getopt.Getopt
@@ -6,8 +7,11 @@ import gnu.getopt.LongOpt
 
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
+
 import java.io.FileWriter
 import java.io.File
+import java.util.Properties
+
 import junit.framework._
 import junit.framework.Assert._
 
@@ -16,37 +20,41 @@ object BoaFilesTest {
     // General setup of built-in headers, should become more general and move
     // elsewhere.
     ////////////////////////////////////////
-    val isCygwin = false
-    var systemRoot = if (isCygwin) "C:\\cygwin" else ""; //Can be non-null also on Unix
+	val predefSettings = new Properties()
+	val settings = new Properties(predefSettings)
 
-    val predefMacroDef = "host" + File.separator + "platform.h"
+    def systemRoot = settings.getProperty("systemRoot")
+    def systemIncludes = settings.getProperty("systemIncludes")
+    def predefMacroDef = settings.getProperty("predefMacros")
 
-    val systemIncludes =
-    	if (isCygwin)
-    		systemRoot + "\\usr\\include"
+    def setSystemRoot(value: String) = settings.setProperty("systemRoot", value)
+
+	var preIncludeDirs: Seq[String] = Nil
+	var postIncludeDirs: Seq[String] = Nil
+
+	def initSettings {
+		predefSettings.setProperty("systemRoot", File.separator)
+		predefSettings.setProperty("systemIncludes", "usr" + File.separator + "include")
+		predefSettings.setProperty("predefMacros", "host" + File.separator + "platform.h") //XXX not so nice a default
+		//XXX no default for GCC includes - hard to guess (one could invoke GCC with special options to get it, though, but it's better to do that to generate the settings file).
+	}
+
+	def loadPropList(key: String) = for (x <- settings.getProperty(key, "").split(",")) yield x.trim
+	
+    def loadSettings(configPath: String) = {
+    	settings.load(new FileInputStream(configPath))
+    	preIncludeDirs = loadPropList("preIncludes")
+    	println("preIncludes: " + preIncludeDirs)
+    	println("systemIncludes: " + systemIncludes)
+    	postIncludeDirs = loadPropList("postIncludes")
+    	println("postIncludes: " + postIncludeDirs)
+    }
+
+    def includeFlags = (preIncludeDirs ++ List(systemIncludes) ++ postIncludeDirs).flatMap((path: String) =>
+    	if (path != null && !("" equals path))
+    		List("-I", systemRoot + File.separator + path)
     	else
-    		//"/Users/pgiarrusso/Documents/Admin/Gentoo/usr/include"
-    		systemRoot + File.separator + "usr" + File.separator + "include"
-    		
-    val gccIncludes =
-    	if (isCygwin)
-    		"C:\\cygwin\\lib\\gcc\\i686-pc-cygwin\\3.4.4\\include"
-    	else
-    		//"/Users/pgiarrusso/Documents/Admin/Gentoo/usr/lib/gcc/i686-apple-darwin10/4.2.1/include"
-    		"/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include"
-
-    var includeDirs =
-        if (true)
-            List(systemIncludes, gccIncludes)
-        else
-            List("/usr/local/include",
-            "/usr/lib/gcc/x86_64-linux-gnu/4.4.1/include",
-            "/usr/lib/gcc/x86_64-linux-gnu/4.4.1/include-fixed",
-            "/usr/include/x86_64-linux-gnu",
-            "/usr/include")
-
-    def getIncludes = includeDirs.flatMap((path: String) =>
-        List("-I", systemRoot + path))
+    		List())
 
 
     ////////////////////////////////////////
@@ -63,7 +71,7 @@ object BoaFilesTest {
             "-p",
             "_"
         ) ++
-          getIncludes ++
+          includeFlags ++
             Array("-U", "HAVE_LIBDMALLOC"))
     }
 
@@ -72,7 +80,7 @@ object BoaFilesTest {
         val parentPath = getParentPath(fileName + ".pi")
         //XXX: should this be still here?
         val initialContext = new CTypeContext().addType("__uint32_t")
-        return TypeCheckerMain.parserMain(filePath, parentPath, initialContext)
+        return ParserMain.parserMain(filePath, parentPath, initialContext)
     }
 
     ////////////////////////////////////////
@@ -84,17 +92,19 @@ object BoaFilesTest {
 
     def getFullPath(fileName: String) = boaDir + File.separator + fileName
     def getParentPath(fileName: String) = boaDir
-
+    
     def main(args: Array[String]) = {
-        val g = new Getopt("testprog", args, ":r:I:");
+    	initSettings
+        val g = new Getopt("testprog", args, ":r:I:c:");
         var loopFlag = true
         do {
             val c = g.getopt()
             if (c != -1) {
                 val arg = g.getOptarg()
                 c match {
-                    case 'r' => systemRoot = arg
-                    case 'I' => includeDirs = includeDirs :+ arg
+                    case 'r' => setSystemRoot(arg)
+                    case 'I' => postIncludeDirs :+= arg
+                    case 'c' => loadSettings(arg)
                     case ':' => println("Missing required argument!")
                     case '?' => None
                 }
@@ -102,7 +112,7 @@ object BoaFilesTest {
                 loopFlag = false
             }
         } while (loopFlag)
-
+    	println(includeFlags)
         val remArgs = args.slice(g.getOptind(), args.size) //XXX: not yet used!
 
         val fileList = List(
