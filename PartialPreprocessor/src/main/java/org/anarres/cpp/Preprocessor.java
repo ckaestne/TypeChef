@@ -1347,6 +1347,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		List<String> path = getSystemIncludePath();
 		if (next) {
 			int idx = path.indexOf(parentDir);
+			System.out.println("Path: " + path + "; parentDir = " + parentDir + "; idx = " + idx);
 			if (idx != -1)
 				path = path.subList(idx + 1, path.size());
 		}
