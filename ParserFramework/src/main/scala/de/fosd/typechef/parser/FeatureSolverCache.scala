@@ -3,7 +3,7 @@ package de.fosd.typechef.parser
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 object FeatureSolverCache {
-    //simple LRU cache with two entries (and statistics) 
+    //simple LRU cache with two entries (and statistics)
     type CacheT = (FeatureExpr, FeatureExpr, Boolean)
     var i1, i2, m1, m2: CacheT = (null, null, false)
     var i_hits, i_query, m_hits, m_query=0;
