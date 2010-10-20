@@ -179,7 +179,7 @@ class MultiFeatureParser {
                      *  is not interleaved with other annotations
                      */
                     val firstFeature = in0.first.getFeature
-                    if (!FeatureSolverCache.implies(parserState, firstFeature)) {
+                    if (!FeatureSolverCache.implies(parserState, firstFeature) && !FeatureSolverCache.mutuallyExclusive(parserState, firstFeature)) {
                         val r = p0(in0, parserState.and(firstFeature))
                         val parseResult = r.join(joinFunction)
                         parseResult match {

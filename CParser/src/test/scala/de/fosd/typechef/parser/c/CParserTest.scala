@@ -485,4 +485,31 @@ int foo() {
   }
 }    
 """, p.translationUnit)
+
+    def testBoaIp1 =
+        assertParseable("""
+{
+#if !(defined(INET6))
+    memmove(dest, inet_ntoa(s->sin_addr), len);
+#endif
+    return dest;
+}""", p.compoundStatement)
+
+    def testBoaIp2 =
+        assertParseable("""
+char *ascii_sockaddr(struct 
+#if defined(INET6)
+sockaddr_storage
+#endif
+#if !(defined(INET6))
+sockaddr_in
+#endif
+ *s, char *dest, int len)
+{
+#if !(defined(INET6))
+    memmove(dest, inet_ntoa(s->sin_addr), len);
+#endif
+    return dest;
+}""", p.translationUnit)
+
 }
