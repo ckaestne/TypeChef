@@ -428,13 +428,26 @@ case class CharacterLit(char: Int) extends FeatureExprTree {
   def calcPossibleValues(): Set[Long] = Set(char.toLong)
   def accept(f: FeatureExprTree => Unit): Unit = f(this)
 }
-case class IntegerLit(num: Long) extends FeatureExprTree {
-  def print(): String = num.toString;
-  def debug_print(level: Int): String = indent(level) + print() + "\n";
+
+class IntegerLit(num: Long) extends FeatureExprTree {
+  def print(): String = num.toString
+  def debug_print(level: Int): String = indent(level) + print() + "\n"
   //def eval(context:FeatureProvider):Long = num;
   def calcPossibleValues(): Set[Long] = Set(num)
   def accept(f: FeatureExprTree => Unit): Unit = f(this)
   override def intToBool() = if (num == 0) DeadFeature() else BaseFeature()
+  def getNum = num
+}
+
+//Extractor for pattern matching, as suggested by warnings in place of using case classes.
+object IntegerLit {
+	def unapply(f: FeatureExprTree): Option[Long] = {
+		if (f.isInstanceOf[IntegerLit])
+			Some(f.asInstanceOf[IntegerLit].getNum)
+		else
+			None
+	}
+	def apply(l: Long) = new IntegerLit(l)
 }
 
 case class DeadFeature() extends IntegerLit(0)
