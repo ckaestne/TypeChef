@@ -214,7 +214,7 @@ class MultiFeatureParser {
                         Success(elems.toList, in0)
                     } else {
                         //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
-                        val (e: Opt[T], rest) = findOpt(in0, parseResult)
+                        val (e, rest) = findOpt(in0, parseResult)
                         elems += e
                         //continue parsing
                         applyp(rest)

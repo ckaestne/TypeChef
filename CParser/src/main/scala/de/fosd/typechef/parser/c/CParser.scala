@@ -98,7 +98,7 @@ class CParser extends MultiFeatureParser {
         structOrUnion ~ structOrUnionSpecifierBody ^^ { case ~(k, (id, list)) => StructOrUnionSpecifier(k, id, list) }
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[StructDeclaration])] =
-        ID ~ LCURLY ~! (opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY) ^^ { case id ~ _ ~(_ ~ list ~ _) => (Some(id), list) } |
+        ID ~ LCURLY ~! (opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY) ^^ { case id ~ _ ~ (_ ~ list ~ _) => (Some(id), list) } |
             LCURLY ~ opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY ^^ { case _ ~ _ ~ list ~ _ => (None, list) } |
             ID ^^ { case id => (Some(id), List()) }
 
@@ -123,7 +123,7 @@ class CParser extends MultiFeatureParser {
 
     def enumSpecifier: MultiParser[EnumSpecifier] =
         textToken("enum") ~>
-            (ID ~ LCURLY ~! (enumList ~ RCURLY) ^^ { case id ~ _ ~(l ~ _) => EnumSpecifier(Some(id), l) }
+            (ID ~ LCURLY ~! (enumList ~ RCURLY) ^^ { case id ~ _ ~ (l ~ _) => EnumSpecifier(Some(id), l) }
                 | LCURLY ~ enumList ~ RCURLY ^^ { case _ ~ l ~ _ => EnumSpecifier(None, l) }
                 | ID ^^ { case i => EnumSpecifier(Some(i), List()) })
 
@@ -158,8 +158,9 @@ class CParser extends MultiFeatureParser {
                 LPAREN ~> (parameterTypeList ^^ { DeclParameterTypeList(_) }
                     | optList(idList) ^^ { DeclIdentifierList(_) }) <~ (opt(COMMA) ~ RPAREN)
                 | LBRACKET ~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) })) ^^ {
-            case pointers ~(id: Id) ~ ext => DeclaratorId(pointers, id, ext);
-            case pointers ~((attr: Option[AttributeSpecifier]) ~(decl: Declarator)) ~ ext => DeclaratorDecl(pointers, attr, decl, ext)
+            case pointers ~ (id: Id) ~ ext => DeclaratorId(pointers, id, ext);
+            case pointers ~ ((attr: Option[_ /*AttributeSpecifier*/]) ~ (decl: Declarator)) ~ ext =>
+            	DeclaratorDecl(pointers, attr.asInstanceOf[Option[AttributeSpecifier]], decl, ext)
         }
 
     def parameterTypeList: MultiParser[List[ParameterDeclaration]] =
@@ -384,7 +385,10 @@ class CParser extends MultiFeatureParser {
             asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
     def attributeList: MultiParser[List[List[Attribute]]] =
-        attribute ~ rep(COMMA ~> attribute) ~ opt(COMMA) ^^ { case (attr: List[Attribute]) ~(attrList: List[List[Attribute]]) ~ _ => List(attr) ++ attrList }
+        attribute ~ rep(COMMA ~> attribute) ~ opt(COMMA) ^^ {
+        	case (attr: List[_ /*Attribute*/]) ~ (attrList: List[_ /*List[Attribute]*/]) ~ _ =>
+        	attr.asInstanceOf[List[Attribute]] :: attrList.asInstanceOf[List[List[Attribute]]]
+        }
 
     def attribute: MultiParser[List[Attribute]] =
         rep(anyTokenExcept(List("(", ")", ",")) ^^ { t => AtomicAttribute(t.getText) }
