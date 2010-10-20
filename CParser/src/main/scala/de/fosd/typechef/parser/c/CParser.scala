@@ -159,7 +159,8 @@ class CParser extends MultiFeatureParser {
                     | optList(idList) ^^ { DeclIdentifierList(_) }) <~ (opt(COMMA) ~ RPAREN)
                 | LBRACKET ~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) })) ^^ {
             case pointers ~(id: Id) ~ ext => DeclaratorId(pointers, id, ext);
-            case pointers ~((attr: Option[AttributeSpecifier]) ~(decl: Declarator)) ~ ext => DeclaratorDecl(pointers, attr, decl, ext)
+            case pointers ~((attr: Option[_ /*AttributeSpecifier*/]) ~(decl: Declarator)) ~ ext =>
+            	DeclaratorDecl(pointers, attr.asInstanceOf[Option[AttributeSpecifier]], decl, ext)
         }
 
     def parameterTypeList: MultiParser[List[ParameterDeclaration]] =
@@ -384,7 +385,10 @@ class CParser extends MultiFeatureParser {
             asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
     def attributeList: MultiParser[List[List[Attribute]]] =
-        attribute ~ rep(COMMA ~> attribute) ~ opt(COMMA) ^^ { case (attr: List[Attribute]) ~(attrList: List[List[Attribute]]) ~ _ => List(attr) ++ attrList }
+        attribute ~ rep(COMMA ~> attribute) ~ opt(COMMA) ^^ {
+        	case (attr: List[_ /*Attribute*/]) ~(attrList: List[_ /*List[Attribute]*/]) ~ _ =>
+        	attr.asInstanceOf[List[Attribute]] :: attrList.asInstanceOf[List[List[Attribute]]]
+        }
 
     def attribute: MultiParser[List[Attribute]] =
         rep(anyTokenExcept(List("(", ")", ",")) ^^ { t => AtomicAttribute(t.getText) }
