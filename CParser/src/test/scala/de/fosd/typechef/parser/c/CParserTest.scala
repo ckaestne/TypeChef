@@ -261,7 +261,7 @@ class CParserTest extends TestCase {
         					|#else
     			  			|c;
         					|#endif""", p.statement)
-        assertParseAnyResult(AltStatement(fa, CompoundStatement(List(), List(o(IfStatement(a, ExprStatement(b), None)), o(ExprStatement(c)))), CompoundStatement(List(), List(o(IfStatement(a, ExprStatement(c), None))))),
+        assertParseAnyResult(AltStatement(fa, CompoundStatement(List(o(IfStatement(a, ExprStatement(b), None)), o(ExprStatement(c)))), CompoundStatement(List(o(IfStatement(a, ExprStatement(c), None))))),
             """|{
         		|if (a)
     			  			|#ifdef a
@@ -269,7 +269,7 @@ class CParserTest extends TestCase {
         					|#endif
     			  			|c;}""", p.statement)
 
-        assertParseAnyResult(CompoundStatement(List(), List(o(ExprStatement(a)), Opt(fa, ExprStatement(b)), o(ExprStatement(c)))),
+        assertParseAnyResult(CompoundStatement(List(o(ExprStatement(a)), Opt(fa, ExprStatement(b)), o(ExprStatement(c)))),
             """|{
         		|a;
     			  			|#ifdef a

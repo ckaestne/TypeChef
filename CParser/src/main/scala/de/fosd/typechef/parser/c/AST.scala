@@ -73,8 +73,8 @@ case class ExprList(exprs: List[Expr]) extends Expr {
 
 //Statements
 abstract class Statement extends AST
-case class CompoundStatement(decl: List[Opt[Declaration]], innerStatements: List[Opt[Statement]]) extends Statement {
-    override def getInnerOpt = decl ++ innerStatements
+case class CompoundStatement(innerStatements: List[Opt[Statement]]) extends Statement {
+    override def getInnerOpt = innerStatements
 }
 case class EmptyStatement() extends Statement
 case class ExprStatement(expr: Expr) extends Statement {
@@ -112,12 +112,15 @@ case class IfStatement(condition: Expr, thenBranch: Statement, elseBranch: Optio
 case class SwitchStatement(expr: Expr, s: Statement) extends Statement {
     override def getInner = List(expr, s)
 }
+case class DeclarationStatement(decl:Declaration) extends Statement {
+	override def getInner = List(decl)
+}
 case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement {
     override def getInnerOpt = List(Opt(feature,thenBranch), Opt(feature.not,elseBranch))
 }
 object AltStatement {
     def join = (f: FeatureExpr, x: Statement, y: Statement) => if (x == y) x else AltStatement(f, x, y)
-}
+} 
 
 abstract class Specifier extends AST
 abstract class TypeSpecifier extends Specifier
