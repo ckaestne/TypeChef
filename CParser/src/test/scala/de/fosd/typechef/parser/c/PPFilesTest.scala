@@ -30,5 +30,7 @@ class PPFilesTest extends TestCase {
     def testEscapePi() { parseFile("boa/escape.pi") }
     @Test
     def testAliasPi() { parseFile("boa/alias.pi") }
+    @Test
+    def testIpPi() { parseFile("boa/ip.pi") }
 
 }

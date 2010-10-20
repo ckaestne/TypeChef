@@ -128,6 +128,9 @@ class MultiFeatureParser {
      * However, we do not want to replicate the entire list in some cases (especially for high-level AST constructs
      * such as functions and statements). Instead we want a single list with optional entries
      * a,b_1,c => List(a,Opt(1,b),c)
+     * 
+     * Note: it is not allowed to sequence two repOpt calls (such as repOpt(a)~repOpt(b)), because it would not be
+     * able to parse correctly interleaved entries of both lists. In this case use rep instead for the first sequence. XXX 
      *  
      */
     def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
