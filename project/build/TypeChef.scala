@@ -1,19 +1,20 @@
 import sbt._
 
 class TypeChef(info: ProjectInfo) extends ParentProject(info) {
-	lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib")
-	lazy val parserexp = project("ParserFramework", "Parser Core", featureexpr)
-	lazy val jcpp = project("PartialPreprocessor", "Partial Preprocessor",
-	  info => new CustomProject(info), featureexpr)
+	lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_))
+	lazy val parserexp = project("ParserFramework", "Parser Core", new DefaultSubProject(_), featureexpr)
+	lazy val jcpp = project("PartialPreprocessor", "Partial Preprocessor",	new JavaSubProject(_), featureexpr)
+	lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_), featureexpr, jcpp, parserexp)
+	lazy val boacasestudy = project("BoaCaseStudy", "BoaCaseStudy", new DefaultSubProject(_), cparser)
+	lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_), cparser)
 
-	class CustomProject(info: ProjectInfo) extends DefaultProject(info) {
+	class DefaultSubProject(info:ProjectInfo) extends DefaultProject(info) {
+                lazy val hi = task { println("Hello World"); None }
+                val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
+        }
+	class JavaSubProject(info: ProjectInfo) extends DefaultProject(info) {
 	  //-source 1.5 is required for standalone ecj - it defaults to 1.3!
 	  override def javaCompileOptions = super.javaCompileOptions ++ javaCompileOptions("-source", "1.5")
 	}
 
-	lazy val cparser = project("CParser", "CParser", featureexpr, jcpp, parserexp)
-	lazy val boacasestudy = project("BoaCaseStudy", "BoaCaseStudy", cparser)
-	lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", cparser)
-	//val junit = "junit" % "junit" % "4.8"
-	val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
 }
