@@ -9,6 +9,9 @@ object MacroContext {
     flagFilter = (x: String) => x.startsWith(prefix);
   }
 }
+
+
+import FeatureExpr.createDefinedExternal
 /**
  * represents the knowledge about macros at a specific point in time time
  * 
@@ -29,7 +32,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
       case None => {
         //    	  val initialFeatureExpr = if (!MacroContext.EXTERNAL_CONFIG_ONLY || name.startsWith("CONFIG_")) 
         val initialFeatureExpr = if (MacroContext.flagFilter(name))
-          feature.or(DefinedExternal(name))
+          feature.or(createDefinedExternal(name))
         else
           feature
         knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
@@ -40,7 +43,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
   def undefine(name: String, feature: FeatureExpr): MacroContext = new MacroContext(
     knownMacros.get(name) match {
       case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
-      case None => knownMacros + ((name, new Macro(name, feature.not().and(DefinedExternal(name)), List())))
+      case None => knownMacros + ((name, new Macro(name, feature.not().and(createDefinedExternal(name)), List())))
     }
     )
 
@@ -54,9 +57,9 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
       case Some(macro) => macro.getFeature()
       case None =>
         if (MacroContext.flagFilter(feature))
-          new FeatureExpr(DefinedExternal(feature))
+          createDefinedExternal(feature)
         else
-          new FeatureExpr(DeadFeature())
+          FeatureExpr.dead
     }
   }
 

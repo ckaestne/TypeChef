@@ -24,29 +24,26 @@ import static org.anarres.cpp.Token.EOF;
 import java.io.IOException;
 import java.io.Reader;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
-
 /**
  * A Reader wrapper around the Preprocessor.
- *
- * This is a utility class to provide a transparent {@link Reader}
- * which preprocesses the input text.
- *
+ * 
+ * This is a utility class to provide a transparent {@link Reader} which
+ * preprocesses the input text.
+ * 
  * @see Preprocessor
  * @see Reader
  */
 public class CppReader extends Reader {
 
-	private Preprocessor	cpp;
-	private String			token;
-	private int				idx;
+	private Preprocessor cpp;
+	private String token;
+	private int idx;
 
 	public CppReader(final Reader r) {
 		cpp = new Preprocessor(new LexerSource(r, true) {
 			@Override
 			public String getName() {
-				return "<CppReader Input@" +
-						System.identityHashCode(r) + ">";
+				return "<CppReader Input@" + System.identityHashCode(r) + ">";
 			}
 		});
 		token = "";
@@ -68,84 +65,77 @@ public class CppReader extends Reader {
 
 	/**
 	 * Defines the given name as a macro.
-	 *
+	 * 
 	 * This is a convnience method.
 	 */
-	public void addMacro(String name)
-						throws LexerException {
-		cpp.addMacro(name,new FeatureExpr().base());
-	}
- 
-	/**
-	 * Defines the given name as a macro.
-	 *
-	 * This is a convnience method.
-	 */
-	public void addMacro(String name, String value)
-						throws LexerException {
-		cpp.addMacro(name, new FeatureExpr().base(), value);
+	public void addMacro(String name) throws LexerException {
+		cpp.addMacro(name, FeatureExprLib.base());
 	}
 
-	private boolean refill()
-						throws IOException {
+	/**
+	 * Defines the given name as a macro.
+	 * 
+	 * This is a convnience method.
+	 */
+	public void addMacro(String name, String value) throws LexerException {
+		cpp.addMacro(name, FeatureExprLib.base(), value);
+	}
+
+	private boolean refill() throws IOException {
 		try {
 			assert cpp != null : "cpp is null : was it closed?";
 			if (token == null)
 				return false;
 			while (idx >= token.length()) {
-				Token	tok = cpp.getNextToken();
+				Token tok = cpp.getNextToken();
 				switch (tok.getType()) {
-					case EOF:
-						token = null;
-						return false;
-					case CCOMMENT:
-					case CPPCOMMENT:
-						if (!cpp.getFeature(Feature.KEEPCOMMENTS)) {
-							token = " ";
-							break;
-						}
-					default:
-						token = tok.getText();
+				case EOF:
+					token = null;
+					return false;
+				case CCOMMENT:
+				case CPPCOMMENT:
+					if (!cpp.getFeature(Feature.KEEPCOMMENTS)) {
+						token = " ";
 						break;
+					}
+				default:
+					token = tok.getText();
+					break;
 				}
 				idx = 0;
 			}
 			return true;
-		}
-		catch (LexerException e) {
-			/* Never happens.
-			if (e.getCause() instanceof IOException)
-				throw (IOException)e.getCause();
-			*/
-			IOException	ie = new IOException(String.valueOf(e));
+		} catch (LexerException e) {
+			/*
+			 * Never happens. if (e.getCause() instanceof IOException) throw
+			 * (IOException)e.getCause();
+			 */
+			IOException ie = new IOException(String.valueOf(e));
 			ie.initCause(e);
 			throw ie;
 		}
 	}
 
-	public int read()
-						throws IOException {
+	public int read() throws IOException {
 		if (!refill())
 			return -1;
 		return token.charAt(idx++);
 	}
 
 	/* XXX Very slow and inefficient. */
-	public int read(char cbuf[], int off, int len)
-						throws IOException {
+	public int read(char cbuf[], int off, int len) throws IOException {
 		if (token == null)
 			return -1;
 		for (int i = 0; i < len; i++) {
-			int	ch = read();
+			int ch = read();
 			if (ch == -1)
 				return i;
-			cbuf[off + i] = (char)ch;
+			cbuf[off + i] = (char) ch;
 		}
 		return len;
 	}
 
-	public void close()
-						throws IOException {
+	public void close() throws IOException {
 		if (cpp != null) {
 			cpp.close();
 			cpp = null;

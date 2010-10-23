@@ -17,12 +17,11 @@
 
 package org.anarres.cpp;
 
-import java.io.IOException;
+import static org.anarres.cpp.Token.EOF;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import static org.anarres.cpp.Token.*;
 
 /**
  * An Iterator for {@link Source Sources},

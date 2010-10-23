@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import junit.framework.Assert;
 
 import org.anarres.cpp.Feature;
+import org.anarres.cpp.FeatureExprLib;
 import org.anarres.cpp.FileLexerSource;
 import org.anarres.cpp.LexerException;
 import org.anarres.cpp.Preprocessor;
@@ -18,7 +19,6 @@ import org.anarres.cpp.StringLexerSource;
 import org.anarres.cpp.Token;
 import org.anarres.cpp.Warning;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.MacroContext$;
 
 public class AbstractCheckTests {
@@ -139,7 +139,7 @@ public class AbstractCheckTests {
 				throw new LexerException(msg+" "+source+":"+line+":"+column);
 			}
 		});
-		pp.addMacro("__JCPP__", new FeatureExpr().base());
+		pp.addMacro("__JCPP__", FeatureExprLib.base());
 
 		// include path
 		if (folder != null)

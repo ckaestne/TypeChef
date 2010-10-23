@@ -80,7 +80,7 @@ class TestFeatureExpr extends TestCase {
 
   def testSimplifyIf() {
     assertSimplify(FeatureExpr.createLessThanEquals(
-      new FeatureExpr(IntegerLit(1)),
+      new FeatureExprImpl(IntegerLit(1)),
       FeatureExpr.createIf(
         DefinedExternal("CONFIG_64BIT"),
         IntegerLit(64),
@@ -88,11 +88,11 @@ class TestFeatureExpr extends TestCase {
       IntegerLit(1))
 
     assertSimplify(FeatureExpr.createPlus(
-      new FeatureExpr(IntegerLit(1)),
+      new FeatureExprImpl(IntegerLit(1)),
       FeatureExpr.createPlus(
-        new FeatureExpr(IntegerLit(1)),
+        new FeatureExprImpl(IntegerLit(1)),
         FeatureExpr.createPlus(
-          new FeatureExpr(IntegerLit(1)),
+          new FeatureExprImpl(IntegerLit(1)),
           FeatureExpr.createIf(
             DefinedExternal("a"),
             IntegerLit(1),
@@ -107,7 +107,7 @@ class TestFeatureExpr extends TestCase {
     //&&	<=		<<			1			__IF__				CONFIG_NODES_SHIFT			__THEN__				0			__ELSE__				0		__IF__			CONFIG_64BIT		__THEN__			64		__ELSE__			32	1	  
     assertSimplify(FeatureExpr.createLessThanEquals(
       FeatureExpr.createShiftLeft(
-        new FeatureExpr(IntegerLit(1)),
+        new FeatureExprImpl(IntegerLit(1)),
         FeatureExpr.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))
         ),
       FeatureExpr.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))
@@ -115,9 +115,9 @@ class TestFeatureExpr extends TestCase {
 
     assertSimplify(
       FeatureExpr.createIf(
-        new FeatureExpr(DefinedExternal("a")),
-        FeatureExpr.createLessThanEquals(new FeatureExpr(IntegerLit(1)), new FeatureExpr(IntegerLit(64))),
-        FeatureExpr.createLessThanEquals(new FeatureExpr(IntegerLit(1)), new FeatureExpr(IntegerLit(32)))
+        new FeatureExprImpl(DefinedExternal("a")),
+        FeatureExpr.createLessThanEquals(new FeatureExprImpl(IntegerLit(1)), new FeatureExprImpl(IntegerLit(64))),
+        FeatureExpr.createLessThanEquals(new FeatureExprImpl(IntegerLit(1)), new FeatureExprImpl(IntegerLit(32)))
         ).not.expr, DeadFeature());
   }
 

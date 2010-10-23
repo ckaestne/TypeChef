@@ -61,7 +61,7 @@ class State {
 			assert !localFeatures.isEmpty() : "else before #if?";
 
 		if (localFeatures.isEmpty())
-			return new FeatureExpr().base();
+			return FeatureExprLib.base();
 		FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
 		/*if (sawElse)
 			result = result.not();*/
