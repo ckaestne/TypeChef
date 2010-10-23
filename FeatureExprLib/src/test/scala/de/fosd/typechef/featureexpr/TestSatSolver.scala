@@ -4,51 +4,34 @@ import junit.framework._
 import junit.framework.Assert._
 import org.junit.Test
 
+import FeatureExpr._
+
 class TestSatSolver extends TestCase {
+    def a = createDefinedExternal("a")
+    def b = createDefinedExternal("b")
+    def h = createDefinedExternal("h")
 
-@Test  def testSATSolver() {
-    assertEquals(true, new SatSolver().isSatisfiable(
-      new And(
-        new Or(DefinedExternal("a"), DefinedExternal("b")),
-        new Or(DefinedExternal("a"), DefinedExternal("b"))
-        )));
-    assertEquals(false, new SatSolver().isTautology(
-      new And(
-        new Or(DefinedExternal("a"), DefinedExternal("b")),
-        new Or(DefinedExternal("a"), DefinedExternal("b"))
-        )));
-    assertEquals(true, new SatSolver().isContradiction(
-      new And(DefinedExternal("a"), Not(DefinedExternal("a")))));
-    assertEquals(true, new SatSolver().isTautology(
-      new Or(DefinedExternal("a"), Not(DefinedExternal("a")))));
-    assertEquals(false, new SatSolver().isSatisfiable(
-      new And(DefinedExternal("a"), Not(DefinedExternal("a")))));
+    @Test
+    def testSATSolver() {
+        assertEquals(true, (a or b) and (a or b) isSatisfiable)
+        assertEquals(false, (a or b) and (a or b) isTautology)
 
-    assertEquals(true, new SatSolver().isSatisfiable(
-      IfExpr(DefinedExternal("a"), DefinedExternal("a"), Not(DefinedExternal("a")))));
-    assertEquals(true, new SatSolver().isContradiction(
-      IfExpr(DefinedExternal("a"), Not(DefinedExternal("a")), DefinedExternal("a"))));
+        assertEquals(true, a and (a.not) isContradiction)
+        assertEquals(true, a or (a.not) isTautology)
+        assertEquals(false, a and (a.not) isSatisfiable)
+        assertEquals(false, createIf(a, a, a.not) isSatisfiable)
+        assertEquals(false, createIf(a, a.not, a) isContradiction)
+        assertEquals(false, dead isContradiction)
+        assertEquals(false, base isTautology)
+        assertEquals(false, createInteger(2) isTautology)
+        assertEquals(false, a.not isSatisfiable)
+    }
 
-    assertEquals(true, new SatSolver().isContradiction(
-      DeadFeature()));
-    assertEquals(true, new SatSolver().isTautology(
-      BaseFeature()))
-    assertEquals(true, new SatSolver().isTautology(
-      IntegerLit(2)))
+    @Test
+    def testX() {
+        assertEquals(true, b and (h.not) and (h or ((h.not) and b)).not isContradiction)
+    }
 
-    assertTrue(new SatSolver().isSatisfiable(Not(DefinedExternal("a"))));
-  }
-
-  def x() {
-    assertEquals(true, new SatSolver().isContradiction(
-      And(Set(DefinedExternal("B"), Not(DefinedExternal("H")), Not(new Or(DefinedExternal("H"), new And(Not(DefinedExternal("H")), DefinedExternal("B"))))))
-      ));
-  }
-
- @Test def testX() {
-    x();
-  }
-
-  //(A||B) && (!B|| !A)
+    //(A||B) && (!B|| !A)
 
 }

@@ -9,18 +9,18 @@ class TestNumericConditions extends TestCase {
     @Test
     def testSimpleConditions() {
         //1==1
-        assertTrue(new SatSolver().isTautology(
-            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(1)).expr));
+        assertTrue(
+            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(1)).isTautology);
         //1==2
-        assertTrue(new SatSolver().isContradiction(
-            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).expr));
+        assertTrue(
+            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).isContradiction());
         //1+1==2
-        assertTrue(new SatSolver().isTautology(
+        assertTrue(
             FeatureExpr.createEquals(
                 FeatureExpr.createPlus(
                     FeatureExpr.createInteger(1),
                     FeatureExpr.createInteger(1)),
-                FeatureExpr.createInteger(2)).expr));
+                FeatureExpr.createInteger(2)).isTautology);
     }
     def testConditions() {
         //	  &&
@@ -86,32 +86,32 @@ class TestNumericConditions extends TestCase {
         assertTrue(new SatSolver().isSatisfiable(longExpr.expr));
 
         //!	__IF__		CONFIG_64BIT	__THEN__			1		<=			64	__ELSE__				1		<=		32
-        assertTrue(new SatSolver().isContradiction(
+        assertTrue(
             FeatureExpr.createIf(new FeatureExprImpl(DefinedExternal("CONFIG_64BIT")),
                 FeatureExpr.createLessThanEquals(
                     new FeatureExprImpl(IntegerLit(1)),
                     new FeatureExprImpl(IntegerLit(64))),
                 FeatureExpr.createLessThanEquals(
                     new FeatureExprImpl(IntegerLit(1)),
-                    new FeatureExprImpl(IntegerLit(32)))).not.expr))
+                    new FeatureExprImpl(IntegerLit(32)))).not.isContradiction)
 
         //if !( 1<=	__IF__		CONFIG_64BIT	__THEN__		64	__ELSE__		32)
-        assertTrue(new SatSolver().isContradiction(
+        assertTrue(
             FeatureExpr.createLessThanEquals(
                 new FeatureExprImpl(IntegerLit(1)),
                 FeatureExpr.createIf(
                     DefinedExternal("CONFIG_64BIT"),
                     IntegerLit(64),
-                    IntegerLit(32))).not.expr));
+                    IntegerLit(32))).not.isContradiction);
 
         //a?1:2==2
-        assertTrue(new SatSolver().isSatisfiable(
+        assertTrue(
             FeatureExpr.createEquals(
                 FeatureExpr.createIf(
                     DefinedExternal("a"),
                     IntegerLit(1),
                     IntegerLit(2)),
-                FeatureExpr.createInteger(2)).simplify.expr));
+                FeatureExpr.createInteger(2)).simplify.isSatisfiable);
 
     }
 

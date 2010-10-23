@@ -29,17 +29,15 @@ class SatSolver extends Solver {
 
   val PROFILING = true;
 
-  def isSatisfiable(expr: FeatureExprTree): Boolean = {
-    if (expr == DeadFeature()) return false;
-    if (expr == BaseFeature()) return true;
+  def isSatisfiable(exprCNF: FeatureExprTree): Boolean = {
+    if (exprCNF == DeadFeature()) return false;
+    if (exprCNF == BaseFeature()) return true;
 
     val startTime = System.currentTimeMillis();
 
     if (PROFILING)
-      println("<toCNF " + countClauses(expr) + " with " + countFlags(expr) + " flags>")
-    val exprs = expr.toCnfEquiSat.simplify;
-    if (PROFILING)
-      println("</toCNF " + countClauses(exprs) + " in " + (System.currentTimeMillis() - startTime) + " ms>")
+      println("<toCNF " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags>")
+    val exprs=exprCNF simplify;
 
     val startTimeSAT = System.currentTimeMillis();
     try {

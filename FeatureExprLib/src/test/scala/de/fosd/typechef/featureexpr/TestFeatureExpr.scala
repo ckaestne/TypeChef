@@ -3,6 +3,7 @@ package de.fosd.typechef.featureexpr
 import junit.framework._;
 import junit.framework.Assert._
 import org.junit.Test
+import FeatureExpr._
 
 class TestFeatureExpr extends TestCase {
 
@@ -12,7 +13,7 @@ class TestFeatureExpr extends TestCase {
   }
 
   def assertIsCNF(expr: FeatureExprTree) {
-    _assertIsCNF(expr.toCnfEquiSat);
+    _assertIsCNF(expr.toCNF);
   }
 
   def _assertIsCNF(cnf: FeatureExprTree) {
@@ -111,7 +112,7 @@ class TestFeatureExpr extends TestCase {
         FeatureExpr.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))
         ),
       FeatureExpr.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))
-      ).and(IntegerLit(1)).expr, BaseFeature());
+      ).and(createInteger(1)).expr, BaseFeature());
 
     assertSimplify(
       FeatureExpr.createIf(
@@ -127,15 +128,15 @@ class TestFeatureExpr extends TestCase {
         new Or(DefinedExternal("a1"), DefinedExternal("c"))),
       new Or(DefinedExternal("a2"), DefinedExternal("c")))))
 
-    assertEquals(Not(DefinedExternal("X")), Not(DefinedExternal("X")).toCnfEquiSat);
+    assertEquals(Not(DefinedExternal("X")), Not(DefinedExternal("X")).toCNF);
 
-    val v = new Or(DefinedExternal("a"), new And(DefinedExternal("b"), DefinedExternal("c"))).toCnfEquiSat;
+    val v = new Or(DefinedExternal("a"), new And(DefinedExternal("b"), DefinedExternal("c"))).toCNF;
     println(v)
     val vs = v.simplify
     println(vs)
     
     //(!((defined(a) && defined(b))) || defined(b))
-    assertIsCNF(new Or(Not(new And(DefinedExternal("a"),DefinedExternal("b"))),DefinedExternal("b")).toCnfEquiSat)
+    assertIsCNF(new Or(Not(new And(DefinedExternal("a"),DefinedExternal("b"))),DefinedExternal("b")).toCNF)
   }
 
   def testCNFIf() {
@@ -144,7 +145,7 @@ class TestFeatureExpr extends TestCase {
         DefinedExternal("a"),
         IntegerLit(1),
         IntegerLit(2)),
-      FeatureExpr.createInteger(2)).expr.toCnfEquiSat(), Not(DefinedExternal("a")))
+      FeatureExpr.createInteger(2)).expr.toCNF(), Not(DefinedExternal("a")))
   }
 
   def testEquality() {
