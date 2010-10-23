@@ -27,7 +27,7 @@ class SatSolver extends Solver {
     flags.size
   }
 
-  val PROFILING = false;
+  val PROFILING = true;
 
   def isSatisfiable(expr: FeatureExprTree): Boolean = {
     if (expr == DeadFeature()) return false;
