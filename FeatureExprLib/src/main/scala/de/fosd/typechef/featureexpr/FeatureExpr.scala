@@ -4,42 +4,62 @@ object FeatureExpr {
     def createDefined(feature: String, context: FeatureProvider): FeatureExpr =
         context.getMacroCondition(feature)
 
-    def createComplement(expr: FeatureExpr) = new FeatureExpr(UnaryFeatureExprTree(expr.expr, "~", ~_))
-    def createNeg(expr: FeatureExpr) = new FeatureExpr(UnaryFeatureExprTree(expr.expr, "-", -_))
-    def createBitAnd(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "&", _ & _))
-    def createBitOr(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "|", _ | _))
-    def createDivision(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "/", _ / _))
-    def createModulo(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "%", _ % _))
-    def createEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "==", (a, b) => if (a == b) 1 else 0))
-    def createNotEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "!=", (a, b) => if (a != b) 1 else 0))
-    def createLessThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "<", (a, b) => if (a < b) 1 else 0))
-    def createLessThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "<=", (a, b) => if (a <= b) 1 else 0))
-    def createGreaterThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">", (a, b) => if (a > b) 1 else 0))
-    def createGreaterThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">=", (a, b) => if (a >= b) 1 else 0))
-    def createMinus(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "-", _ - _))
-    def createMult(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "*", _ * _))
-    def createPlus(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "+", _ + _))
-    def createPwr(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "^", _ ^ _))
-    def createShiftLeft(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "<<", _ << _))
-    def createShiftRight(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
+    def createComplement(expr: FeatureExpr) = new FeatureExprImpl(UnaryFeatureExprTree(expr.expr, "~", ~_))
+    def createNeg(expr: FeatureExpr) = new FeatureExprImpl(UnaryFeatureExprTree(expr.expr, "-", -_))
+    def createBitAnd(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "&", _ & _))
+    def createBitOr(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "|", _ | _))
+    def createDivision(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "/", _ / _))
+    def createModulo(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "%", _ % _))
+    def createEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "==", (a, b) => if (a == b) 1 else 0))
+    def createNotEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "!=", (a, b) => if (a != b) 1 else 0))
+    def createLessThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "<", (a, b) => if (a < b) 1 else 0))
+    def createLessThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "<=", (a, b) => if (a <= b) 1 else 0))
+    def createGreaterThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">", (a, b) => if (a > b) 1 else 0))
+    def createGreaterThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">=", (a, b) => if (a >= b) 1 else 0))
+    def createMinus(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "-", _ - _))
+    def createMult(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "*", _ * _))
+    def createPlus(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "+", _ + _))
+    def createPwr(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "^", _ ^ _))
+    def createShiftLeft(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "<<", _ << _))
+    def createShiftRight(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
 
-    def createImplies(left: FeatureExpr, right: FeatureExpr) = left.not().or(right)
-    def createDefinedExternal(name: String) = new FeatureExpr(new DefinedExternal(name))
-    def createInteger(value: Int): FeatureExpr = new FeatureExpr(IntegerLit(value))
-    def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExpr(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
-    def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExpr(IfExpr(condition, thenBranch, elseBranch))
+    def createImplies(left: FeatureExpr, right: FeatureExpr) = left.not or right
+    def createDefinedExternal(name: String) = new FeatureExprImpl(new DefinedExternal(name))
+    def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
+    def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(CharacterLit(value))
+    def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
+    def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExprImpl(IfExpr(condition, thenBranch, elseBranch))
 
-    val base = new FeatureExpr(BaseFeature())
-    val dead = new FeatureExpr(DeadFeature())
+    val base = new FeatureExprImpl(BaseFeature())
+    val dead = new FeatureExprImpl(DeadFeature())
 
     private var freshFeatureNameCounter = 0
     def calcFreshFeatureName(): String = { freshFeatureNameCounter = freshFeatureNameCounter + 1; "__fresh" + freshFeatureNameCounter; }
 }
 
+
+trait FeatureExpr {
+	def expr: FeatureExprTree
+    def toString(): String 
+    def isContradition = isDead
+    def isTautology = isBase
+    def isDead(): Boolean 
+    def isBase(): Boolean 
+    def accept(f: FeatureExprTree => Unit): Unit
+    def print(): String 
+    def debug_print(): String 
+    def equals(that: Any): Boolean 
+
+    def or(that: FeatureExpr): FeatureExpr 
+    def and(that: FeatureExpr): FeatureExpr 
+    def implies(that: FeatureExpr): FeatureExpr 
+    def not(): FeatureExpr
+}
+
 /**
  * mutual representation of a feature expression (can simplify itself)
  */
-class FeatureExpr {
+protected class FeatureExprImpl extends FeatureExpr  {
     private var isSimplified = false;
     var expr: FeatureExprTree = null;
     private var orig: FeatureExprTree = null; //debugging only
@@ -62,7 +82,6 @@ class FeatureExpr {
         if (result) expr = DeadFeature();
         result
     }
-    def isTautology = isBase
     def isBase(): Boolean = {
         simplify();
         var result = expr.isBase();
@@ -75,14 +94,14 @@ class FeatureExpr {
     def debug_print(): String = { simplify(); expr.debug_print(0); }
     override def equals(that: Any) = that match { case e: FeatureExpr => (this eq e) || (this.expr eq e.expr) || this.implies(e).and(e.implies(this)).isBase; case _ => false }
 
-    def or(that: FeatureExprTree): FeatureExpr = new FeatureExpr(new Or(expr, that));
-    def or(that: FeatureExpr): FeatureExpr = new FeatureExpr(new Or(expr, that.expr));
-    def and(that: FeatureExprTree): FeatureExpr = new FeatureExpr(new And(expr, that));
-    def and(that: FeatureExpr): FeatureExpr = new FeatureExpr(new And(expr, that.expr));
+    def or(that: FeatureExprTree): FeatureExpr = new FeatureExprImpl(new Or(expr, that));
+    def or(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(new Or(expr, that.expr));
+    def and(that: FeatureExprTree): FeatureExpr = new FeatureExprImpl(new And(expr, that));
+    def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(new And(expr, that.expr));
     def implies(that: FeatureExpr): FeatureExpr = FeatureExpr.createImplies(this, that)
-    def not(): FeatureExpr = new FeatureExpr(Not(expr));
-    def base(): FeatureExpr = new FeatureExpr(BaseFeature())
-    def dead(): FeatureExpr = new FeatureExpr(DeadFeature())
+    def not(): FeatureExpr = new FeatureExprImpl(Not(expr));
+    def base(): FeatureExpr = new FeatureExprImpl(BaseFeature())
+    def dead(): FeatureExpr = new FeatureExprImpl(DeadFeature())
 }
 
 sealed abstract class FeatureExprTree {

@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
-
 /**
  * helper class that returns a list of tokens (each with presence condition),
  * but without any #ifdef tokens, whitespace or such
@@ -60,7 +58,7 @@ public class PartialPPLexer {
 			// throw new LexerException(msg);
 			// }
 		});
-		pp.addMacro("__JCPP__", new FeatureExpr().base());
+		pp.addMacro("__JCPP__", FeatureExprLib.base());
 
 		// include path
 		if (folderPath != null)

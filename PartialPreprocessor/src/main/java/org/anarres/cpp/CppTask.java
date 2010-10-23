@@ -24,8 +24,6 @@ import java.io.IOException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
-
 /**
  * An ant task for jcpp.
  */
@@ -54,9 +52,9 @@ public class CppTask extends Task {
 		}
 	}
 
-	private File			input;
-	private File			output;
-	private Preprocessor	cpp;
+	private File input;
+	private File output;
+	private Preprocessor cpp;
 
 	public CppTask() {
 		super();
@@ -73,9 +71,9 @@ public class CppTask extends Task {
 
 	public void addMacro(Macro macro) {
 		try {
-			cpp.addMacro(macro.getName(),new FeatureExpr().base(), macro.getValue());
-		}
-		catch (LexerException e) {
+			cpp.addMacro(macro.getName(), FeatureExprLib.base(), macro
+					.getValue());
+		} catch (LexerException e) {
 			throw new BuildException(e);
 		}
 	}
@@ -90,21 +88,18 @@ public class CppTask extends Task {
 			cpp.addInput(this.input);
 			writer = new FileWriter(this.output);
 			for (;;) {
-				Token	tok = cpp.getNextToken();
+				Token tok = cpp.getNextToken();
 				if (tok != null && tok.getType() == Token.EOF)
 					break;
 				writer.write(tok.getText());
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new BuildException(e);
-		}
-		finally {
+		} finally {
 			if (writer != null) {
 				try {
 					writer.close();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 				}
 			}
 		}

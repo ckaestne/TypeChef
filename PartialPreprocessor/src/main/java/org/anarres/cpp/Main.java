@@ -27,7 +27,6 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.util.EnumSet;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.MacroContext$;
 
 /**
@@ -123,7 +122,7 @@ public class Main {
 		pp.addWarning(Warning.IMPORT);
 		pp.addWarning(Warning.UNDEF);
 		pp.setListener(new PreprocessorListener(pp));
-		pp.addMacro("__JCPP__", new FeatureExpr().base());
+		pp.addMacro("__JCPP__", FeatureExprLib.base());
 		// pp.getSystemIncludePath().add("/usr/local/include");
 		// pp.getSystemIncludePath().add("/usr/include");
 		// pp.getFrameworksPath().add("/System/Library/Frameworks");
@@ -136,24 +135,26 @@ public class Main {
 				arg = g.getOptarg();
 				idx = arg.indexOf('=');
 				if (idx == -1)
-					pp.addMacro(arg, new FeatureExpr().base());
+					pp.addMacro(arg, FeatureExprLib.base());
 				else
-					pp.addMacro(arg.substring(0, idx),
-							new FeatureExpr().base(), arg.substring(idx + 1));
+					pp.addMacro(arg.substring(0, idx), FeatureExprLib.base(),
+							arg.substring(idx + 1));
 				break;
 			case 'U':
-				pp.removeMacro(g.getOptarg(), new FeatureExpr().base());
+				pp.removeMacro(g.getOptarg(), FeatureExprLib.base());
 				break;
 			case 'I':
-				// Paths need to be canonicalized, because include_next processing needs to compare paths!
-				pp.getSystemIncludePath().add(new File(g.getOptarg()).getCanonicalPath());
+				// Paths need to be canonicalized, because include_next
+				// processing needs to compare paths!
+				pp.getSystemIncludePath().add(
+						new File(g.getOptarg()).getCanonicalPath());
 				break;
 			case 'p':
 				MacroContext$.MODULE$.setPrefixFilter(g.getOptarg());
 				break;
 			case 'x':
 				MacroContext$.MODULE$.setPrefixOnlyFilter(g.getOptarg());
-				break; 
+				break;
 			case 0: // --iquote=
 				pp.getQuoteIncludePath().add(g.getOptarg());
 				break;
@@ -174,8 +175,8 @@ public class Main {
 			case 1: // --include=
 				pp.addInput(new File(g.getOptarg()));
 				// Comply exactly with spec.
-//				pp.addInput(new StringLexerSource("#" + "include \""
-//						+ g.getOptarg() + "\"\n", true));
+				// pp.addInput(new StringLexerSource("#" + "include \""
+				// + g.getOptarg() + "\"\n", true));
 				break;
 			case 2: // --version
 				version(System.out);
@@ -228,11 +229,11 @@ public class Main {
 				// System.out.println(l);
 				// output.write(l + "\n");
 				// }
-//				System.out.print(tok.getText());
+				// System.out.print(tok.getText());
 				output.write(tok.getText());
 			}
 			output.close();
-//			System.out.println(pp.toString());
+			// System.out.println(pp.toString());
 		} catch (Throwable e) {
 			Preprocessor.logger.severe(e.toString());
 			e.printStackTrace(System.err);
@@ -279,8 +280,6 @@ public class Main {
 		}
 		return buf.toString();
 	}
-
-	
 
 	private static void usage(String command, Option[] options) {
 		StringBuilder text = new StringBuilder("Usage: ");

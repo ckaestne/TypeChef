@@ -77,11 +77,7 @@ import java.util.Stack;
 
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
-import de.fosd.typechef.featureexpr.CharacterLit;
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExpr$;
-import de.fosd.typechef.featureexpr.IfExpr;
-import de.fosd.typechef.featureexpr.IntegerLit;
 import de.fosd.typechef.featureexpr.MacroContext;
 import de.fosd.typechef.featureexpr.MacroExpansion;
 
@@ -200,11 +196,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	public Preprocessor() {
 
-		macros = macros.define("__LINE__", new FeatureExpr().base(),
+		macros = macros.define("__LINE__", FeatureExprLib.base(),
 				new MacroData(INTERNAL)).define("__FILE__",
-				new FeatureExpr().base(), new MacroData(INTERNAL)).define(
-				"__COUNTER__", new FeatureExpr().base(),
-				new MacroData(INTERNAL));
+				FeatureExprLib.base(), new MacroData(INTERNAL)).define(
+				"__COUNTER__", FeatureExprLib.base(), new MacroData(INTERNAL));
 
 		state = new State();
 
@@ -738,7 +733,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				.isVariadic();
 		for (int i = 1; i < macroExpansions.length; i++) {
 			MacroData macro = ((MacroData) macroExpansions[0].getExpansion());
-			if (macro.getArgCount() != argCount || macro.isVariadic() != isVariadic)
+			if (macro.getArgCount() != argCount
+					|| macro.isVariadic() != isVariadic)
 				error(orig,
 						"Multiple alternative macros with different signatures not yet supported. "
 								+ macro.getText() + "/" + firstMacro.getText());
@@ -954,8 +950,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 				if (args.size() != firstMacro.getArgCount())
 					throw new ParseParamException(tok, "macro " + macroName
-							+ " has " + firstMacro.getArgCount() + " parameters "
-							+ "but given " + args.size() + " args");
+							+ " has " + firstMacro.getArgCount()
+							+ " parameters " + "but given " + args.size()
+							+ " args");
 
 				/*
 				 * for (Argument a : args) a.expand(this);
@@ -1320,7 +1317,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		return false;
 	}
 
-
 	/**
 	 * Handles an include directive.
 	 * 
@@ -1329,13 +1325,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	private void include(String parent, int line, String name, boolean quoted,
 			boolean next) throws IOException, LexerException {
 		// The parent path can be null when using --include. Should then use the
-		// current directory. XXX: but later we take the parent of this! Why doesn't it break???
+		// current directory. XXX: but later we take the parent of this! Why
+		// doesn't it break???
 		if (parent == null)
 			parent = ".";
 		VirtualFile pfile = filesystem.getFile(parent);
 		VirtualFile pdir = pfile.getParentFile();
 		String parentDir = pdir.getPath();
-		
+
 		if (quoted && !next) {
 			VirtualFile ifile = pdir.getChildFile(name);
 			if (include(ifile))
@@ -1347,14 +1344,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		List<String> path = getSystemIncludePath();
 		if (next) {
 			int idx = path.indexOf(parentDir);
-			System.out.println("Path: " + path + "; parentDir = " + parentDir + "; idx = " + idx);
+			System.out.println("Path: " + path + "; parentDir = " + parentDir
+					+ "; idx = " + idx);
 			if (idx != -1)
 				path = path.subList(idx + 1, path.size());
 		}
 		if (include(path, name))
 			return;
 
-		//Report error
+		// Report error
 		StringBuilder buf = new StringBuilder();
 		buf.append("File not found: ").append(name);
 		buf.append(" in");
@@ -1559,8 +1557,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 * and the token is "(" the counter is reset (d) if the counter is 1, the
 	 * argument is not expanded
 	 * 
-	 * this way, we prevent to expand the argument after defined.
-	 * To avoid that the condition is triggered before a "defined" is found, set it to more than 0 initially.
+	 * this way, we prevent to expand the argument after defined. To avoid that
+	 * the condition is triggered before a "defined" is found, set it to more
+	 * than 0 initially.
 	 */
 	private int hack_definedCounter = 2;
 
@@ -1695,31 +1694,31 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				expr_untoken(tok);
 				error(tok, "missing ) in expression after " + lhs + ", found "
 						+ tok + " instead");
-				return new FeatureExpr().dead();
+				return FeatureExprLib.dead();
 			}
 			break;
 
 		case '~':
-			lhs = FeatureExpr$.MODULE$.createComplement(parse_featureExpr(11));
+			lhs = FeatureExprLib.l().createComplement(parse_featureExpr(11));
 			break;
 		case '!':
 			lhs = parse_featureExpr(11).not();
 			break;
 		case '-':
-			lhs = FeatureExpr$.MODULE$.createNeg(parse_featureExpr(11));
+			lhs = FeatureExprLib.l().createNeg(parse_featureExpr(11));
 			break;
 		case INTEGER:
-			lhs = new FeatureExpr(new IntegerLit(((Number) tok.getValue())
-					.longValue()));
+			lhs = FeatureExprLib.l().createInteger(((Number) tok.getValue())
+					.longValue());
 			break;
 		case CHARACTER:
-			lhs = new FeatureExpr(new CharacterLit((Character) tok.getValue()));
+			lhs = FeatureExprLib.l().createCharacter((Character) tok.getValue());
 			break;
 		case IDENTIFIER:
 			if (tok.getText().equals("BASE"))
-				lhs = new FeatureExpr().base();
+				lhs = FeatureExprLib.base();
 			else if (tok.getText().equals("DEAD"))
-				lhs = new FeatureExpr().dead();
+				lhs = FeatureExprLib.dead();
 			else if (tok.getText().equals("__IF__")) {
 				lhs = parse_ifExpr();
 			} else if (tok.getText().equals("defined")) {
@@ -1730,14 +1729,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						&& warnings.contains(Warning.UNDEF))
 					warning(tok, "Undefined token '" + tok.getText()
 							+ "' encountered in conditional.");
-				lhs = new FeatureExpr().dead();
+				lhs = FeatureExprLib.dead();
 			}
 			break;
 
 		default:
 			expr_untoken(tok);
 			error(tok, "Bad token in expression: " + tok.getText());
-			return new FeatureExpr().dead();
+			return FeatureExprLib.dead();
 		}
 
 		EXPR: for (;;) {
@@ -1753,7 +1752,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			// System.out.println("rhs token is " + rhs);
 			switch (op.getType()) {
 			case '/':
-				lhs = FeatureExpr$.MODULE$.createDivision(lhs, rhs);
+				lhs = FeatureExprLib.l().createDivision(lhs, rhs);
 				// if (rhs == 0) {
 				// error(op, "Division by zero");
 				// lhs = 0;
@@ -1762,7 +1761,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				// }
 				break;
 			case '%':
-				lhs = FeatureExpr$.MODULE$.createModulo(lhs, rhs);
+				lhs = FeatureExprLib.l().createModulo(lhs, rhs);
 				// if (rhs == 0) {
 				// error(op, "Modulus by zero");
 				// lhs = 0;
@@ -1771,63 +1770,63 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				// }
 				break;
 			case '*':
-				lhs = FeatureExpr$.MODULE$.createMult(lhs, rhs);
+				lhs = FeatureExprLib.l().createMult(lhs, rhs);
 				break;
 			case '+':
-				lhs = FeatureExpr$.MODULE$.createPlus(lhs, rhs);
+				lhs = FeatureExprLib.l().createPlus(lhs, rhs);
 				break;
 			case '-':
-				lhs = FeatureExpr$.MODULE$.createMinus(lhs, rhs);
+				lhs = FeatureExprLib.l().createMinus(lhs, rhs);
 				break;
 			case '<':
-				lhs = FeatureExpr$.MODULE$.createLessThan(lhs, rhs);
+				lhs = FeatureExprLib.l().createLessThan(lhs, rhs);
 				// lhs < rhs ? 1 : 0;
 				break;
 			case '>':
-				lhs = FeatureExpr$.MODULE$.createGreaterThan(lhs, rhs);// lhs >
+				lhs = FeatureExprLib.l().createGreaterThan(lhs, rhs);// lhs >
 				// rhs ?
 				// 1 : 0;
 				break;
 			case '&':
-				lhs = FeatureExpr$.MODULE$.createBitAnd(lhs, rhs);// lhs & rhs;
+				lhs = FeatureExprLib.l().createBitAnd(lhs, rhs);// lhs & rhs;
 				break;
 			case '^':
-				lhs = FeatureExpr$.MODULE$.createPwr(lhs, rhs);// lhs ^ rhs;
+				lhs = FeatureExprLib.l().createPwr(lhs, rhs);// lhs ^ rhs;
 				break;
 			case '|':
-				lhs = FeatureExpr$.MODULE$.createBitOr(lhs, rhs);// lhs | rhs;
+				lhs = FeatureExprLib.l().createBitOr(lhs, rhs);// lhs | rhs;
 				break;
 
 			case LSH:
-				lhs = FeatureExpr$.MODULE$.createShiftLeft(lhs, rhs);// lhs <<
+				lhs = FeatureExprLib.l().createShiftLeft(lhs, rhs);// lhs <<
 				// rhs;
 				break;
 			case RSH:
-				lhs = FeatureExpr$.MODULE$.createShiftRight(lhs, rhs);// lhs >>
+				lhs = FeatureExprLib.l().createShiftRight(lhs, rhs);// lhs >>
 				// rhs;
 				break;
 			case LE:
-				lhs = FeatureExpr$.MODULE$.createLessThanEquals(lhs, rhs);// lhs
+				lhs = FeatureExprLib.l().createLessThanEquals(lhs, rhs);// lhs
 				// <=
 				// rhs ?
 				// 1 :
 				// 0;
 				break;
 			case GE:
-				lhs = FeatureExpr$.MODULE$.createGreaterThanEquals(lhs, rhs);// lhs
+				lhs = FeatureExprLib.l().createGreaterThanEquals(lhs, rhs);// lhs
 				// >=
 				// rhs ?
 				// 1 :
 				// 0;
 				break;
 			case EQ:
-				lhs = FeatureExpr$.MODULE$.createEquals(lhs, rhs);// lhs == rhs
+				lhs = FeatureExprLib.l().createEquals(lhs, rhs);// lhs == rhs
 				// ?
 				// 1 :
 				// 0;
 				break;
 			case NE:
-				lhs = FeatureExpr$.MODULE$.createNotEquals(lhs, rhs);// lhs !=
+				lhs = FeatureExprLib.l().createNotEquals(lhs, rhs);// lhs !=
 				// rhs
 				// ?
 				// 1 : 0;
@@ -1847,7 +1846,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			default:
 				error(op, "Unexpected operator " + op.getText());
-				return new FeatureExpr().dead();
+				return FeatureExprLib.dead();
 
 			}
 		}
@@ -1879,7 +1878,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		// i.e. NOT (state AND NOT flag) dead
 
 		return !state.getFullPresenceCondition().and(
-				FeatureExpr.createDefinedExternal(flag).not()).isDead();
+				FeatureExprLib.l().createDefinedExternal(flag).not()).isDead();
 	}
 
 	private FeatureExpr parse_definedExpr() throws IOException, LexerException {
@@ -1895,10 +1894,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		if (la.getType() != IDENTIFIER) {
 			error(la, "defined() needs identifier, not " + la.getText());
-			lhs = new FeatureExpr().dead();
+			lhs = FeatureExprLib.dead();
 		} else
 			// System.out.println("Found macro");
-			lhs = FeatureExpr$.MODULE$.createDefined(la.getText(), macros);
+			lhs = FeatureExprLib.l().createDefined(la.getText(), macros);
 
 		if (paren) {
 			la = source_token_nonwhite();
@@ -1918,7 +1917,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		consumeToken(',', true);
 		FeatureExpr elseBranch = parse_featureExpr(0);
 		consumeToken(')', true);
-		return new FeatureExpr(new IfExpr(condition, thenBranch, elseBranch));
+		return FeatureExprLib.l().createIf(condition, thenBranch, elseBranch);
 	}
 
 	/**
@@ -1934,7 +1933,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			FeatureExpr thenBranch) throws IOException, LexerException {
 		consumeToken(':', true);
 		FeatureExpr elseBranch = parse_featureExpr(0);
-		return new FeatureExpr(new IfExpr(condition, thenBranch, elseBranch));
+		return FeatureExprLib.l().createIf(condition, thenBranch, elseBranch);
 	}
 
 	private void consumeToken(int tokenType, boolean inlineCppExpression)
@@ -2327,7 +2326,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	}
 
 	private FeatureExpr parse_ifdefExpr(String feature) {
-		return FeatureExpr$.MODULE$.createDefined(feature, macros);
+		return FeatureExprLib.l().createDefined(feature, macros);
 	}
 
 	private Token getNextNonwhiteToken() throws IOException, LexerException {
