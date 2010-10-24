@@ -106,7 +106,11 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Option[NF], ad
 
     def accept(f: FeatureExprTree => Unit): Unit = { simplify(); expr.accept(f) }
 
-    def print(): String = { simplify(); expr.print(); }
+    def print(): String = cnfExpr match {
+        case Some(cnf) =>
+            cnf.printCNF
+        case None => simplify(); expr.print()
+    }
 
     def debug_print(): String = { simplify(); expr.debug_print(0); }
 
@@ -118,18 +122,30 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Option[NF], ad
 }
 
 /** normal form for both DNF and CNF **/
-class NF {
-    var clauses: Set[Clause] = Set()
-    def this(c: Set[Clause]) { this(); clauses = c.map(_.simplify).filter(!_.isEmpty) }
+class NF(val clauses: Set[Clause], val isFull: Boolean) {
+    /** isFull is meant to be the oppositve of empty
+     * with CNF empty means always true and full means always false
+     * with DNF empty means always false and full means always true   
+     * it is not valid to set clauses and isFull at the same time  */
+
+    def this(c: Set[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
+    def this(emptyOrFull_isFull: Boolean) = this(Set(), emptyOrFull_isFull)
+
     /** join (CNF and CNF / DNF or DNF)**/
-    def ++(that: NF) = new NF(this.clauses ++ that.clauses)
+    def ++(that: NF) = if (this.isFull || that.isFull) new NF(true) else new NF(this.clauses ++ that.clauses)
     /** explode (CNF or CNF / DNF and DNF)**/
-    def **(that: NF) = new NF(for (clauseA <- this.clauses; clauseB <- that.clauses) yield clauseA ++ clauseB)
+    def **(that: NF) =
+        if (this.isFull) that
+        else if (that.isFull) this
+        else new NF(for (clauseA <- this.clauses; clauseB <- that.clauses) yield clauseA ++ clauseB)
     /** negate all literals **/
-    def neg() = new NF(clauses.map(_.neg))
+    def neg() =
+        if (isEmpty || isFull) this
+        else new NF(clauses.map(_.neg))
     /** empty means true for CNF, false for DNF **/
-    def isEmpty = clauses.isEmpty
-    override def toString = clauses.mkString("*")
+    def isEmpty = !isFull && clauses.isEmpty
+    override def toString = if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
+    def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&&")
     override def hashCode = clauses.hashCode
     override def equals(that: Any) = that match { case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false }
 }
@@ -150,6 +166,8 @@ class Clause(var posLiterals: Set[DefinedExternal], var negLiterals: Set[Defined
     def size = posLiterals.size + negLiterals.size
     override def toString =
         (posLiterals.map(_.feature) ++ negLiterals.map("!" + _.feature)).mkString("(", "*", ")")
+    def printCNF =
+        (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "||", ")")
     override def hashCode = posLiterals.hashCode + negLiterals.hashCode
     override def equals(that: Any) = that match {
         case thatClause: Clause => (this.posLiterals equals thatClause.posLiterals) && (this.negLiterals equals thatClause.negLiterals)
@@ -165,21 +183,21 @@ object NFBuilder {
         case And(clauses) if isCNF => {
             new NF(for (clause <- clauses) yield clause match {
                 case Or(o) => toClause(o)
-                case e => toClause(Set(e))//literal?
+                case e => toClause(Set(e)) //literal?
             })
         }
         case Or(clauses) if !isCNF => {
             new NF(for (clause <- clauses) yield clause match {
                 case And(c) => toClause(c)
-                case e => toClause(Set(e))//literal?
+                case e => toClause(Set(e)) //literal?
             })
         }
         case Or(o) if isCNF => new NF(Set(toClause(o)))
         case And(o) if !isCNF => new NF(Set(toClause(o)))
         case f@DefinedExternal(_) => new NF(Set(new Clause(Set(f), Set())))
         case Not(f@DefinedExternal(_)) => new NF(Set(new Clause(Set(), Set(f))))
-        case BaseFeature() => if (isCNF) new NF(Set()) else new NF(Set(new Clause(Set(SatSolver.baseFeature), Set())))
-        case DeadFeature() => if (isCNF) new NF(Set(new Clause(Set(), Set(SatSolver.baseFeature)))) else new NF(Set())
+        case BaseFeature() => new NF(!isCNF)
+        case DeadFeature() => new NF(isCNF)
         case e => throw new NoNFException(e, expr, isCNF)
     }
     def toClause(literals: Set[FeatureExprTree]): Clause = {

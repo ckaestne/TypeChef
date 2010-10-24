@@ -12,12 +12,13 @@ import org.sat4j.tools.ModelIterator;
 import org.sat4j.tools.RemiUtils;
 import org.sat4j.tools.SolutionCounter;
 
-object SatSolver {
-    val baseFeatureName = "$$BASE$$"
-    val baseFeature = DefinedExternal(baseFeatureName)
-    val baseFeatureClause = new Clause(Set(DefinedExternal(baseFeatureName)),Set())
-}
+//object SatSolver {
+//    lazy val baseFeatureClause = new Clause(Set(baseFeature),Set())
+//    lazy val notBaseFeatureClause = new Clause(Set(),Set(baseFeature))
+//}
 class SatSolver extends Solver {
+//    val baseFeatureName = "$$BASE$$"
+//    lazy val baseFeature = DefinedExternal(baseFeatureName)
 
     private def countClauses(expr: NF) = expr.clauses.size
 
@@ -29,13 +30,12 @@ class SatSolver extends Solver {
         flags.size
     }
 
-    val PROFILING = true;
+    val PROFILING = false;
 
     def isSatisfiable(exprCNF: NF): Boolean = {
+    	println("SAT "+exprCNF.printCNF)
         if (exprCNF.isEmpty) return true
-        //        if (exprCNF.clauses = Set(baseFeature)) return false
-
-        println("SAT: " + exprCNF)
+        if (exprCNF.isFull) return false
 
         val startTime = System.currentTimeMillis();
 
@@ -50,7 +50,7 @@ class SatSolver extends Solver {
             solver.setTimeoutOnConflicts(100000)
 
             var uniqueFlagIds: Map[String, Int] = Map();
-            uniqueFlagIds = uniqueFlagIds + ((SatSolver.baseFeatureName, uniqueFlagIds.size + 1))
+//            uniqueFlagIds = uniqueFlagIds + ((SatSolver.baseFeatureName, uniqueFlagIds.size + 1))
             for (clause <- exprCNF.clauses)
                 for (literal <- (clause.posLiterals ++ clause.negLiterals))
                     if (!uniqueFlagIds.contains(literal.feature))
@@ -80,7 +80,7 @@ class SatSolver extends Solver {
                 solver.addClause(new VecInt(clauseArray));
             }
 
-            addClause(SatSolver.baseFeatureClause)
+//            addClause(SatSolver.baseFeatureClause)
             val contradiction = addClauses(exprCNF)
             return !contradiction && solver.isSatisfiable();
 
