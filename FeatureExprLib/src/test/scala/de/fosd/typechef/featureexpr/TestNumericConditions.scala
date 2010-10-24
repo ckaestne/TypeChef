@@ -83,7 +83,7 @@ class TestNumericConditions extends TestCase {
                             new FeatureExprImpl(IntegerLit(27)),
                             new FeatureExprImpl(IntegerLit(0)))))).and(FeatureExpr.createDefinedExternal("sparsemem"));
 
-        assertTrue(new SatSolver().isSatisfiable(longExpr.expr));
+        assertTrue(new SatSolver().isSatisfiable(longExpr.cnfExpr));
 
         //!	__IF__		CONFIG_64BIT	__THEN__			1		<=			64	__ELSE__				1		<=		32
         assertTrue(

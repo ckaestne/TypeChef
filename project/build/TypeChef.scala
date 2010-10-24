@@ -11,6 +11,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) {
 	class DefaultSubProject(info:ProjectInfo) extends DefaultProject(info) {
                 lazy val hi = task { println("Hello World"); None }
                 val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
+//		val scalatest = "org.scala-tools.testing" % "scalatest" % "0.9.5" % "test->default"
         }
 	class JavaSubProject(info: ProjectInfo) extends DefaultProject(info) {
 	  //-source 1.5 is required for standalone ecj - it defaults to 1.3!

@@ -39,8 +39,8 @@ object FeatureExpr {
 
 trait FeatureExpr {
     def expr: FeatureExprTree
-    def cnfExpr: FeatureExprTree
-    def dnfExpr: FeatureExprTree
+    def cnfExpr: NF
+    def dnfExpr: NF
     def toString(): String
     def isContradiction() = !isSatisfiable
     def isTautology() = !this.not.isSatisfiable
@@ -64,32 +64,29 @@ trait FeatureExpr {
  * always stored in three formats: as constructed, CNF and DNF.
  * CNF and DNF are updated immediately on changes
  */
-protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: FeatureExprTree, adnfExpr: FeatureExprTree) extends FeatureExpr {
-    def this(that: FeatureExprTree) = this(that, that.toCNF, that.toDNF)
+protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: NF, adnfExpr: NF) extends FeatureExpr {
+    def this(expr: FeatureExprTree) = this(expr, NFBuilder.toCNF(expr), NFBuilder.toDNF(expr))
 
     def expr: FeatureExprTree = aexpr
-    def cnfExpr: FeatureExprTree = acnfExpr
-    def dnfExpr: FeatureExprTree = adnfExpr
-
-    type CNFExpr = FeatureExprTree
-    type DNFExpr = FeatureExprTree
+    def cnfExpr: NF = acnfExpr
+    def dnfExpr: NF = adnfExpr
 
     def simplify(): FeatureExpr = this
 
     def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         And(this.expr, that.expr),
-        And(this.cnfExpr, that.cnfExpr).simplify,
-        andDNF(this.dnfExpr, that.dnfExpr).simplify)
+        this.cnfExpr ++ that.cnfExpr,
+        this.dnfExpr ** that.dnfExpr)
 
     def or(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         Or(this.expr, that.expr),
-        orCNF(this.cnfExpr, that.cnfExpr).simplify,
-        Or(this.dnfExpr, that.dnfExpr).simplify)
+        this.cnfExpr ** that.cnfExpr,
+        this.dnfExpr ++ that.dnfExpr)
 
     def not(): FeatureExpr = new FeatureExprImpl(
         Not(this.expr),
-        neg(this.dnfExpr),
-        neg(this.cnfExpr))
+        this.dnfExpr.neg,
+        this.cnfExpr.neg)
 
     def isSatisfiable(): Boolean =
         new SatSolver().isSatisfiable(this.cnfExpr)
@@ -107,72 +104,83 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: FeatureExprTre
         case _ => false
     }
 
-    /**helper functions**/
-    private def andDNF(a: DNFExpr, b: DNFExpr): DNFExpr = (a, b) match {
-        case (Or(childrenA), Or(childrenB)) =>
-            Or(for (childA <- childrenA; childB <- childrenB) yield And(childA, childB))
-        case _ => throw new Exception("Input not in DNF")
-    }
-    private def orCNF(a: CNFExpr, b: CNFExpr): CNFExpr = (a, b) match {
-        case (And(childrenA), And(childrenB)) =>
-            And(for (childA <- childrenA; childB <- childrenB) yield Or(childA, childB))
-        case _ => throw new Exception("Input not in CNF")
-    }
-    private def neg(a: FeatureExprTree) = a simplify match {
-        case Or(children) => Or(for (And(innerChildren) <- children) yield And(innerChildren.map(Not(_))))
-        case And(children) => And(for (Or(innerChildren) <- children) yield Or(innerChildren.map(Not(_))))
-        case _ => throw new Exception("Input not in CNF/DNF")
-    }
 }
 
-///**
-// * mutual representation of a feature expression (can simplify itself)
-// */
-//class OldFeatureExpr {
-//    private var isSimplified = false;
-//    var expr: FeatureExprTree = null;
-//    private var orig: FeatureExprTree = null; //debugging only
-//    def this(that: FeatureExprTree) { this(); expr = that; orig = that; isSimplified = false; }
-//
-//    //changes state. returns this just for convenience
-//    def simplify(): OldFeatureExpr = {
-//        if (!isSimplified) {
-//            //	  println(expr)
-//            expr = expr.simplify();
-//            isSimplified = true;
-//        }
-//        this
-//    }
-//
-//    override def toString(): String = this.print()
-//    def isDead(): Boolean = {
-//        simplify();
-//        var result = expr.isDead();
-//        if (result) expr = DeadFeature();
-//        result
-//    }
-//    def isTautology = isBase
-//    def isBase(): Boolean = {
-//        simplify();
-//        var result = expr.isBase();
-//        if (result) expr = BaseFeature();
-//        result
-//    }
-//    def accept(f: FeatureExprTree => Unit): Unit = { simplify(); expr.accept(f) }
-//    def toCnfEquiSat(): FeatureExprTree = { simplify(); expr.toCnfEquiSat(); }
-//    def print(): String = { simplify(); expr.print(); }
-//    def debug_print(): String = { simplify(); expr.debug_print(0); }
-//    override def equals(that: Any) = that match { case e: OldFeatureExpr => (this eq e) || (this.expr eq e.expr) || this.implies(e).and(e.implies(this)).isBase; case _ => false }
-//
-//    def or(that: FeatureExprTree): OldFeatureExpr = new OldFeatureExpr(new Or(expr, that));
-//    def or(that: OldFeatureExpr): OldFeatureExpr = new OldFeatureExpr(new Or(expr, that.expr));
-//    def and(that: FeatureExprTree): OldFeatureExpr = new OldFeatureExpr(new And(expr, that));
-//    def and(that: OldFeatureExpr): OldFeatureExpr = new OldFeatureExpr(new And(expr, that.expr));
-//    def implies(that: OldFeatureExpr): OldFeatureExpr = OldFeatureExpr.createImplies(this, that)
-//    def not(): OldFeatureExpr = new OldFeatureExpr(Not(expr));
-//    def base(): OldFeatureExpr = new OldFeatureExpr(BaseFeature())
-//    def dead(): OldFeatureExpr = new OldFeatureExpr(DeadFeature())
-//}
+/** normal form for both DNF and CNF **/
+class NF {
+    var clauses: Set[Clause] = Set()
+    def this(c: Set[Clause]) { this(); clauses = c.map(_.simplify).filter(!_.isEmpty) }
+    /** join (CNF and CNF / DNF or DNF)**/
+    def ++(that: NF) = new NF(this.clauses ++ that.clauses)
+    /** explode (CNF or CNF / DNF and DNF)**/
+    def **(that: NF) = new NF(for (clauseA <- this.clauses; clauseB <- that.clauses) yield clauseA ++ clauseB)
+    /** negate all literals **/
+    def neg() = new NF(clauses.map(_.neg))
+    /** empty means true for CNF, false for DNF **/
+    def isEmpty = clauses.isEmpty
+    override def toString = clauses.mkString("*")
+    override def hashCode = clauses.hashCode
+    override def equals(that: Any) = that match { case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false }
+}
+/** clause in a normal form **/
+class Clause(var posLiterals: Set[DefinedExternal], var negLiterals: Set[DefinedExternal]) {
+    def simplify = {
+        //A || !A = true 
+        if (!(posLiterals intersect negLiterals).isEmpty) {
+            posLiterals = Set()
+            negLiterals = Set()
+        }
+        this
+    }
+    def isEmpty = posLiterals.isEmpty && negLiterals.isEmpty
+    /** join two clauses **/
+    def ++(that: Clause) = new Clause(this.posLiterals ++ that.posLiterals, this.negLiterals ++ that.negLiterals).simplify
+    def neg() = new Clause(this.negLiterals, this.posLiterals)
+    def size = posLiterals.size + negLiterals.size
+    override def toString =
+        (posLiterals.map(_.feature) ++ negLiterals.map("!" + _.feature)).mkString("(", "*", ")")
+    override def hashCode = posLiterals.hashCode + negLiterals.hashCode
+    override def equals(that: Any) = that match {
+        case thatClause: Clause => (this.posLiterals equals thatClause.posLiterals) && (this.negLiterals equals thatClause.negLiterals)
+        case _ => false
+    }
+}
+object NFBuilder {
+    def toCNF(expr: FeatureExprTree) = toNF(expr.toCNF, true)
+    def toDNF(expr: FeatureExprTree) = toNF(expr.toDNF, false)
+    def toNF(expr: FeatureExprTree, isCNF: Boolean) = expr match {
+        case And(clauses) if isCNF => {
+            new NF(for (clause <- clauses) yield clause match {
+                case Or(o) => toClause(o)
+                case e => throw new NoNFException(e, true)
+            })
+        }
+        case Or(clauses) if !isCNF => {
+            new NF(for (clause <- clauses) yield clause match {
+                case And(c) => toClause(c)
+                case e => throw new NoNFException(e, false)
+            })
+        }
+        case Or(o) if isCNF => new NF(Set(toClause(o)))
+        case And(o) if !isCNF => new NF(Set(toClause(o)))
+        case f@DefinedExternal(_) => new NF(Set(new Clause(Set(f), Set())))
+        case Not(f@DefinedExternal(_)) => new NF(Set(new Clause(Set(), Set(f))))
+        case BaseFeature() => if (isCNF) new NF(Set()) else new NF(Set(new Clause(Set(SatSolver.baseFeature), Set())))
+        case DeadFeature() => if (isCNF) new NF(Set(new Clause(Set(), Set(SatSolver.baseFeature)))) else new NF(Set())
+        case e => throw new NoNFException(e, isCNF)
+    }
+    def toClause(literals: Set[FeatureExprTree]): Clause = {
+        var posLiterals: Set[DefinedExternal] = Set()
+        var negLiterals: Set[DefinedExternal] = Set()
+        for (literal <- literals)
+            literal match {
+                case f@DefinedExternal(_) => posLiterals = posLiterals + f
+                case Not(f@DefinedExternal(_)) => negLiterals = negLiterals + f
+                case e => throw new NoLiteralException(e)
+            }
+        new Clause(posLiterals, negLiterals)
+    }
+}
 
 sealed abstract class FeatureExprTree {
     //optimization to not simplify the same expression over and over again
@@ -279,7 +287,7 @@ sealed abstract class FeatureExprTree {
     def print(): String
     def debug_print(level: Int): String
     def indent(level: Int): String = { var result = ""; for (i <- 0 until level) result = result + "\t"; result; }
-    override def toString(): String = debug_print(0)
+    override def toString(): String = print()
     def intToBool() = this
 
     def accept(f: FeatureExprTree => Unit): Unit;
@@ -335,46 +343,6 @@ sealed abstract class FeatureExprTree {
         }
         case e => e
     }
-
-    //    def toCnfEquiSat(): FeatureExprTree = {
-    //        //	  System.out.println(this.print)
-    //        this.simplify match {
-    //            case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).simplify.toCnfEquiSat()
-    //            case Not(e) =>
-    //                e match {
-    //                    case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
-    //                    case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
-    //                    case e: IfExpr => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
-    //                    case e => {
-    //                        Not(e.toCnfEquiSat)
-    //                    }
-    //                }
-    //            case And(children) => And(children.map(_.toCnfEquiSat)).simplify
-    //            case Or(children) => {
-    //                val cnfchildren = children.map(_.toCnfEquiSat)
-    //                if (cnfchildren.exists(_.isInstanceOf[And])) {
-    //                    var orClauses: Set[FeatureExprTree] = Set() //list of Or expressions
-    //                    //	        val freshFeatureNames:Set[FeatureExprTree]=for (child<-children) yield DefinedExternal(freshFeatureName())
-    //
-    //                    var freshFeatureNames: Set[FeatureExprTree] = Set()
-    //                    for (child <- cnfchildren) {
-    //                        val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
-    //                        child match {
-    //                            case And(innerChildren) => {
-    //                                for (innerChild <- innerChildren)
-    //                                    orClauses += new Or(freshFeatureName, innerChild);
-    //                            }
-    //                            case e => orClauses += new Or(freshFeatureName, e);
-    //                        }
-    //                        freshFeatureNames += Not(freshFeatureName).simplify
-    //                    }
-    //                    orClauses += Or(freshFeatureNames)
-    //                    And(orClauses).simplify
-    //                } else Or(cnfchildren)
-    //            }
-    //            case e => e
-    //        }
-    //    }
 }
 abstract class AbstractBinaryFeatureExprTree(
     left: FeatureExprTree,
