@@ -17,6 +17,7 @@ class MultiFeatureParser {
     type Input = TokenReader[Elem, Context]
     type ParserState = FeatureExpr
 
+
     //parser  
     abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T, Elem, Context]) { thisParser =>
         private var name: String = ""
@@ -144,20 +145,20 @@ class MultiFeatureParser {
                     //first element must finish before second element starts
                     case SplittedParseResult(f, Success(e1, in1), Success(e2, in2)) =>
                         if (in1.offst <= in0.skipHidden(parserState.and(f.not)).offst) {
-                            println("joinl at \"" + in1.first.getText + "\" at " + in1.first.getPosition + " from " + f)
+                            DebugSplitting("joinl at \"" + in1.first.getText + "\" at " + in1.first.getPosition + " from " + f)
                             (Opt(f, e1), in1)
                         } else if (in2.offst <= in0.skipHidden(parserState.and(f)).offst) {
-                            println("joinr at \"" + in2.first.getText + "\" at " + in2.first.getPosition + " from " + f)
+                            DebugSplitting("joinr at \"" + in2.first.getText + "\" at " + in2.first.getPosition + " from " + f)
                             (Opt(f.not, e2), in2)
                         } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
                     case SplittedParseResult(f, Success(e, in), _) =>
                         if (in.offst <= in0.skipHidden(parserState.and(f.not)).offst) {
-                            println("joinl at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
+                            DebugSplitting("joinl at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f, e), in)
                         } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
                     case SplittedParseResult(f, _, Success(e, in)) =>
                         if (in.offst <= in0.skipHidden(parserState.and(f)).offst) {
-                            println("joinr at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
+                            DebugSplitting("joinr at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f.not, e), in)
                         } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
                     //others currently not supported
@@ -210,7 +211,7 @@ class MultiFeatureParser {
                             Error("error in loop (see inner errors)", parserState, in0, errors)
                     //if all failed, return results so far
                     else if (parseResult.allFailed) {
-                        println("abort at \"" + in0.first.getText + "\" at " + in0.first.getPosition)
+                        DebugSplitting("abort at \"" + in0.first.getText + "\" at " + in0.first.getPosition)
                         Success(elems.toList, in0)
                     } else {
                         //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
@@ -344,7 +345,7 @@ class MultiFeatureParser {
                 case (f1@Error(msg1, context1, next1, inner1), f2@Error(msg2, context2, next2, inner2)) =>
                     Error(msg1, context1, next1, List(f1, f2) ++ inner1 ++ inner2)
                 case (a, b) => {
-                    println("split at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + context + " with " + feature)
+                    DebugSplitting("split at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + context + " with " + feature)
                     SplittedParseResult(in.first.getFeature, r1, r2)
                 }
             }
@@ -355,6 +356,7 @@ class MultiFeatureParser {
     def tokenWithContext(kind: String, p: (Elem, Context) => Boolean) = matchInput(p, errorMsg(kind, _))
     private def errorMsg(kind: String, inEl: Option[Elem]) =
         (if (!inEl.isDefined) "reached EOF, " else "found \"" + inEl.get.getText + "\", ") + "but expected \"" + kind + "\""
+
 }
 case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"

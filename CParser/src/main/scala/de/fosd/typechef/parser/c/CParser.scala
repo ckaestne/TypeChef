@@ -49,7 +49,7 @@ class CParser extends MultiFeatureParser {
                     if (result.init.isDefined)
                         for (decl: InitDeclarator <- result.init.get) {
                             c = c.addType(decl.declarator.getName)
-                            println("add type " + decl.declarator.getName)//DEBUG only
+//                            println("add type " + decl.declarator.getName)//DEBUG only
                         }
                 c
             }

@@ -104,7 +104,7 @@ public abstract class DebuggingPreprocessor {
 										+ " ("
 										+ state.getFullPresenceCondition()
 										+ ")") + "\n");
-				System.out.println(b.toString());
+//				System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
@@ -121,7 +121,7 @@ public abstract class DebuggingPreprocessor {
 				for (int i = 0; i < debugSourceIdx; i++)
 					b.append("\t");
 				b.append("pop " + source.toString() + "\n");
-				System.out.println(b.toString());
+//				System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
