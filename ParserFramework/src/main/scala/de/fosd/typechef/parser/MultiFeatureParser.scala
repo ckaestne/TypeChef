@@ -17,7 +17,6 @@ class MultiFeatureParser {
     type Input = TokenReader[Elem, Context]
     type ParserState = FeatureExpr
 
-
     //parser  
     abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T, Elem, Context]) { thisParser =>
         private var name: String = ""
@@ -168,58 +167,67 @@ class MultiFeatureParser {
 
             def continue(in: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
-                @tailrec
-                def applyp(in0: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
-                    /**
-                     * strategy1: parse the next statement with the annotation of the next token.
-                     *  if it yields a unique result before the next token that would be parsed 
-                     *  with the alternative (split) parser, then this is the only result we need 
-                     *  to care about
-                     * 
-                     * will work in the common case that the entire entry is annotated and 
-                     *  is not interleaved with other annotations
-                     */
-                    val firstFeature = in0.first.getFeature
-                    if (!FeatureSolverCache.implies(parserState, firstFeature) && !FeatureSolverCache.mutuallyExclusive(parserState, firstFeature)) {
-                        val r = p0(in0, parserState.and(firstFeature))
-                        val parseResult = r.join(joinFunction)
-                        parseResult match {
-                            case Success(result, next) =>
-                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst) {
-                                    elems += Opt(parserState.and(firstFeature), result)
-                                    return applyp(next)
-                                }
-                            case e@Error(_, _, next, _) =>
-                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
-                                    return e
-                            case Failure(_, _, next, _) =>
-                                if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
-                                    return Success(elems.toList, in0)
-                            case _ =>
+
+                def applyp(_in: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
+                    var in0 = _in;
+                    while (true) {
+                        var skip = false
+                        /**
+                         * strategy1: parse the next statement with the annotation of the next token.
+                         *  if it yields a unique result before the next token that would be parsed 
+                         *  with the alternative (split) parser, then this is the only result we need 
+                         *  to care about
+                         * 
+                         * will work in the common case that the entire entry is annotated and 
+                         *  is not interleaved with other annotations
+                         */
+                        val firstFeature = in0.first.getFeature
+                        if (!FeatureSolverCache.implies(parserState, firstFeature) && !FeatureSolverCache.mutuallyExclusive(parserState, firstFeature)) {
+                            val r = p0(in0, parserState.and(firstFeature))
+                            val parseResult = r.join(joinFunction)
+                            parseResult match {
+                                case Success(result, next) =>
+                                    if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst) {
+                                        elems += Opt(parserState.and(firstFeature), result)
+                                        in0 = next
+                                        skip = true;
+                                    }
+                                case e@Error(_, _, next, _) =>
+                                    if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
+                                        return e
+                                case Failure(_, _, next, _) =>
+                                    if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst)
+                                        return Success(elems.toList, in0)
+                                case _ =>
+                            }
+                        }
+
+                        /** strategy 2: parse normally and merge alternative results */
+                        if (!skip) {
+                            val r = p0(in0, parserState)
+                            val parseResult = r.join(joinFunction)
+                            //if there are errors (not failures) abort
+                            val errors = parseResult.toErrorList
+                            if (!errors.isEmpty)
+                                if (errors.size == 1)
+                                    return errors.iterator.next
+                                else
+                                    return Error("error in loop (see inner errors)", parserState, in0, errors)
+                            //if all failed, return results so far
+                            else if (parseResult.allFailed) {
+                                DebugSplitting("abort at \"" + in0.first.getText + "\" at " + in0.first.getPosition)
+                                return Success(elems.toList, in0)
+                            } else {
+                                //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
+                                val (e, rest) = findOpt(in0, parseResult)
+                                elems += e
+                                //continue parsing
+                                in0 = rest
+                            }
                         }
                     }
-
-                    /** strategy 2: parse normally and merge alternative results */
-                    val r = p0(in0, parserState)
-                    val parseResult = r.join(joinFunction)
-                    //if there are errors (not failures) abort
-                    val errors = parseResult.toErrorList
-                    if (!errors.isEmpty)
-                        if (errors.size == 1)
-                            errors.iterator.next
-                        else
-                            Error("error in loop (see inner errors)", parserState, in0, errors)
-                    //if all failed, return results so far
-                    else if (parseResult.allFailed) {
-                        DebugSplitting("abort at \"" + in0.first.getText + "\" at " + in0.first.getPosition)
-                        Success(elems.toList, in0)
-                    } else {
-                        //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
-                        val (e, rest) = findOpt(in0, parseResult)
-                        elems += e
-                        //continue parsing
-                        applyp(rest)
-                    }
+                    //never happens:
+                    throw new Exception("never happens")
                 }
 
                 applyp(in)
