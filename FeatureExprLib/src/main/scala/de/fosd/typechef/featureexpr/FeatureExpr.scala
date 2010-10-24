@@ -1,5 +1,7 @@
 package de.fosd.typechef.featureexpr
 
+import lazyLib._
+
 object FeatureExpr {
     def createDefined(feature: String, context: FeatureProvider): FeatureExpr =
         context.getMacroCondition(feature)
@@ -39,8 +41,8 @@ object FeatureExpr {
 
 trait FeatureExpr {
     def expr: FeatureExprTree
-    def cnfExpr: Option[NF]
-    def dnfExpr: Option[NF]
+    def cnfExpr: Susp[Option[NF]]
+    def dnfExpr: Susp[Option[NF]]
     def toString(): String
     def isContradiction() = !isSatisfiable
     def isTautology() = !this.not.isSatisfiable
@@ -64,8 +66,8 @@ trait FeatureExpr {
  * always stored in three formats: as constructed, CNF and DNF.
  * CNF and DNF are updated immediately on changes
  */
-protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Option[NF], adnfExpr: Option[NF]) extends FeatureExpr {
-    def this(expr: FeatureExprTree) = this(expr, NFBuilder.toCNF_(expr), NFBuilder.toDNF_(expr))
+protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF]], adnfExpr: Susp[Option[NF]]) extends FeatureExpr {
+    def this(expr: FeatureExprTree) = this(expr, delay(NFBuilder.toCNF_(expr)), delay(NFBuilder.toDNF_(expr)))
 
     def expr: FeatureExprTree = aexpr
     def cnfExpr = acnfExpr
@@ -88,25 +90,25 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Option[NF], ad
         neg(this.dnfExpr),
         neg(this.cnfExpr))
 
-    def isSatisfiable(): Boolean = this.cnfExpr match {
+    def isSatisfiable(): Boolean = this.cnfExpr() match {
         case Some(cnfExpr) => new SatSolver().isSatisfiable(cnfExpr)
         case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr))
     }
 
-    def u(a: Option[NF], b: Option[NF], op: (NF, NF) => NF): Option[NF] = (a, b) match {
+    def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay ((a(), b()) match {
         case (Some(na), Some(nb)) => Some(op(na, nb))
         case _ => None
-    }
-    def neg(a: Option[NF]): Option[NF] = a match {
+    })
+    def neg(a: Susp[Option[NF]]): Susp[Option[NF]] = delay(a() match {
         case Some(na) => Some(na.neg)
         case None => None
-    }
+    })
 
     override def toString(): String = this.print()
 
     def accept(f: FeatureExprTree => Unit): Unit = { simplify(); expr.accept(f) }
 
-    def print(): String = cnfExpr match {
+    def print(): String = cnfExpr() match {
         case Some(cnf) =>
             cnf.printCNF
         case None => simplify(); expr.print()
@@ -540,3 +542,38 @@ object Or {
 case class UnaryFeatureExprTree(expr: FeatureExprTree, opStr: String, op: (Long) => Long) extends AbstractUnaryFeatureExprTree(expr, opStr, op)
 case class BinaryFeatureExprTree(left: FeatureExprTree, right: FeatureExprTree, opStr: String, op: (Long, Long) => Long) extends AbstractBinaryFeatureExprTree(left, right, opStr, op)
 
+object lazyLib {
+
+    /** Delay the evaluation of an expression until it is needed. */
+    def delay[A](value: => A): Susp[A] = new SuspImpl[A](value)
+
+    /** Get the value of a delayed expression. */
+    implicit def force[A](s: Susp[A]): A = s()
+
+    /** 
+     * Data type of suspended computations. (The name froms from ML.) 
+     */
+    abstract class Susp[+A] extends Function0[A]
+
+    /** 
+     * Implementation of suspended computations, separated from the 
+     * abstract class so that the type parameter can be invariant. 
+     */
+    class SuspImpl[A](lazyValue: => A) extends Susp[A] {
+        private var maybeValue: Option[A] = None
+
+        override def apply() = maybeValue match {
+            case None =>
+                val value = lazyValue
+                maybeValue = Some(value)
+                value
+            case Some(value) =>
+                value
+        }
+
+        override def toString() = maybeValue match {
+            case None => "Susp(?)"
+            case Some(value) => "Susp(" + value + ")"
+        }
+    }
+}
