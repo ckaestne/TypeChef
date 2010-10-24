@@ -39,8 +39,8 @@ object FeatureExpr {
 
 trait FeatureExpr {
     def expr: FeatureExprTree
-    def cnfExpr: NF
-    def dnfExpr: NF
+    def cnfExpr: Option[NF]
+    def dnfExpr: Option[NF]
     def toString(): String
     def isContradiction() = !isSatisfiable
     def isTautology() = !this.not.isSatisfiable
@@ -64,32 +64,43 @@ trait FeatureExpr {
  * always stored in three formats: as constructed, CNF and DNF.
  * CNF and DNF are updated immediately on changes
  */
-protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: NF, adnfExpr: NF) extends FeatureExpr {
-    def this(expr: FeatureExprTree) = this(expr, NFBuilder.toCNF(expr), NFBuilder.toDNF(expr))
+protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Option[NF], adnfExpr: Option[NF]) extends FeatureExpr {
+    def this(expr: FeatureExprTree) = this(expr, NFBuilder.toCNF_(expr), NFBuilder.toDNF_(expr))
 
     def expr: FeatureExprTree = aexpr
-    def cnfExpr: NF = acnfExpr
-    def dnfExpr: NF = adnfExpr
+    def cnfExpr = acnfExpr
+    def dnfExpr = adnfExpr
 
     def simplify(): FeatureExpr = this
 
     def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         And(this.expr, that.expr),
-        this.cnfExpr ++ that.cnfExpr,
-        this.dnfExpr ** that.dnfExpr)
+        u(this.cnfExpr, that.cnfExpr, _ ++ _),
+        u(this.dnfExpr, that.dnfExpr, _ ** _))
 
     def or(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         Or(this.expr, that.expr),
-        this.cnfExpr ** that.cnfExpr,
-        this.dnfExpr ++ that.dnfExpr)
+        u(this.cnfExpr, that.cnfExpr, _ ** _),
+        u(this.dnfExpr, that.dnfExpr, _ ++ _))
 
     def not(): FeatureExpr = new FeatureExprImpl(
         Not(this.expr),
-        this.dnfExpr.neg,
-        this.cnfExpr.neg)
+        neg(this.dnfExpr),
+        neg(this.cnfExpr))
 
-    def isSatisfiable(): Boolean =
-        new SatSolver().isSatisfiable(this.cnfExpr)
+    def isSatisfiable(): Boolean = this.cnfExpr match {
+        case Some(cnfExpr) => new SatSolver().isSatisfiable(cnfExpr)
+        case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr))
+    }
+
+    def u(a: Option[NF], b: Option[NF], op: (NF, NF) => NF): Option[NF] = (a, b) match {
+        case (Some(na), Some(nb)) => Some(op(na, nb))
+        case _ => None
+    }
+    def neg(a: Option[NF]): Option[NF] = a match {
+        case Some(na) => Some(na.neg)
+        case None => None
+    }
 
     override def toString(): String = this.print()
 
@@ -146,19 +157,21 @@ class Clause(var posLiterals: Set[DefinedExternal], var negLiterals: Set[Defined
     }
 }
 object NFBuilder {
-    def toCNF(expr: FeatureExprTree) = toNF(expr.toCNF, true)
-    def toDNF(expr: FeatureExprTree) = toNF(expr.toDNF, false)
+    def toCNF_(expr: FeatureExprTree): Option[NF] = try { Some(toCNF(expr)) } catch { case e: NFException => None }
+    def toDNF_(expr: FeatureExprTree): Option[NF] = try { Some(toDNF(expr)) } catch { case e: NFException => None }
+    def toCNF(expr: FeatureExprTree): NF = toNF(expr.toCNF, true)
+    def toDNF(expr: FeatureExprTree): NF = toNF(expr.toDNF, false)
     def toNF(expr: FeatureExprTree, isCNF: Boolean) = expr match {
         case And(clauses) if isCNF => {
             new NF(for (clause <- clauses) yield clause match {
                 case Or(o) => toClause(o)
-                case e => throw new NoNFException(e, true)
+                case e => toClause(Set(e))//literal?
             })
         }
         case Or(clauses) if !isCNF => {
             new NF(for (clause <- clauses) yield clause match {
                 case And(c) => toClause(c)
-                case e => throw new NoNFException(e, false)
+                case e => toClause(Set(e))//literal?
             })
         }
         case Or(o) if isCNF => new NF(Set(toClause(o)))
@@ -167,7 +180,7 @@ object NFBuilder {
         case Not(f@DefinedExternal(_)) => new NF(Set(new Clause(Set(), Set(f))))
         case BaseFeature() => if (isCNF) new NF(Set()) else new NF(Set(new Clause(Set(SatSolver.baseFeature), Set())))
         case DeadFeature() => if (isCNF) new NF(Set(new Clause(Set(), Set(SatSolver.baseFeature)))) else new NF(Set())
-        case e => throw new NoNFException(e, isCNF)
+        case e => throw new NoNFException(e, expr, isCNF)
     }
     def toClause(literals: Set[FeatureExprTree]): Clause = {
         var posLiterals: Set[DefinedExternal] = Set()

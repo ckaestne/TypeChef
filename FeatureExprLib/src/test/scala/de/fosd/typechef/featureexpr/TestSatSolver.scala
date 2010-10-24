@@ -19,12 +19,12 @@ class TestSatSolver extends TestCase {
         assertEquals(true, a and (a.not) isContradiction)
         assertEquals(true, a or (a.not) isTautology)
         assertEquals(false, a and (a.not) isSatisfiable)
-        assertEquals(false, createIf(a, a, a.not) isSatisfiable)
-        assertEquals(false, createIf(a, a.not, a) isContradiction)
-        assertEquals(false, dead isContradiction)
-        assertEquals(false, base isTautology)
-        assertEquals(false, createInteger(2) isTautology)
-        assertEquals(false, a.not isSatisfiable)
+        assertEquals(true, createIf(a, a, a.not) isSatisfiable)
+        assertEquals(true, createIf(a, a.not, a) isContradiction)
+        assertEquals(true, dead isContradiction)
+        assertEquals(true, base isTautology)
+        assertEquals(true, createInteger(2) isTautology)
+        assertEquals(true, a.not isSatisfiable)
     }
 
     @Test
