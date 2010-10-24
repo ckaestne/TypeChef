@@ -1,4 +1,5 @@
 import sbt._
+import reaktor.scct.ScctProject
 
 class TypeChef(info: ProjectInfo) extends ParentProject(info) {
 	lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_))
@@ -8,7 +9,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) {
 	lazy val boacasestudy = project("BoaCaseStudy", "BoaCaseStudy", new DefaultSubProject(_), cparser)
 	lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_), cparser)
 
-	class DefaultSubProject(info:ProjectInfo) extends DefaultProject(info) {
+	class DefaultSubProject(info:ProjectInfo) extends DefaultProject(info) with ScctProject {
                 lazy val hi = task { println("Hello World"); None }
                 val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
 //		val scalatest = "org.scala-tools.testing" % "scalatest" % "0.9.5" % "test->default"
