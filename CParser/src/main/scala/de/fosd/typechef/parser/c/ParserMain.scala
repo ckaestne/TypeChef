@@ -9,7 +9,7 @@ import junit.framework._
 import junit.framework.Assert._
 
 object ParserMain {
-    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext) {
+    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext):AST = {
         val result = new CParser().translationUnit(
             CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
         val resultStr: String = result.toString
@@ -21,6 +21,10 @@ object ParserMain {
 
         printParseResult(result, FeatureExpr.base)
         checkParseResult(result, FeatureExpr.base)
+        result match {
+            case Success(ast, _) => ast
+            case _=>null
+        }
     }
 
     def printParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {

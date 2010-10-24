@@ -6,7 +6,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) {
 	lazy val parserexp = project("ParserFramework", "Parser Core", new DefaultSubProject(_), featureexpr)
 	lazy val jcpp = project("PartialPreprocessor", "Partial Preprocessor",	new JavaSubProject(_), featureexpr)
 	lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_), featureexpr, jcpp, parserexp)
-	lazy val boacasestudy = project("BoaCaseStudy", "BoaCaseStudy", new DefaultSubProject(_), cparser)
+	lazy val boacasestudy = project("BoaCaseStudy", "BoaCaseStudy", new DefaultSubProject(_), cparser, ctypechecker)
 	lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_), cparser)
 
 	class DefaultSubProject(info:ProjectInfo) extends DefaultProject(info) with ScctProject {

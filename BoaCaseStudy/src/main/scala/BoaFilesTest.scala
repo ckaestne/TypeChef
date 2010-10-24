@@ -7,6 +7,7 @@ import gnu.getopt.LongOpt
 
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
+import de.fosd.typechef.typesystem._
 
 import java.io.FileWriter
 import java.io.File
@@ -75,12 +76,12 @@ object BoaFilesTest {
             Array("-U", "HAVE_LIBDMALLOC"))
     }
 
-    def parseFile(fileName: String) {
+    def parseFile(fileName: String):AST={
         val filePath = getFullPath(fileName + ".pi")
         val parentPath = getParentPath(fileName + ".pi")
         //XXX: should this be still here?
         val initialContext = new CTypeContext().addType("__uint32_t")
-        return ParserMain.parserMain(filePath, parentPath, initialContext)
+        ParserMain.parserMain(filePath, parentPath, initialContext)
     }
 
     ////////////////////////////////////////
@@ -127,7 +128,8 @@ object BoaFilesTest {
             println("** Processing file: "+filename)
             println("**************************************************************************")
             preprocessFile(filename)
-            parseFile(filename)
+            val ast=parseFile(filename)
+            new TypeSystem().checkAST(ast)
             println("**************************************************************************")
 	    println("** End of processing for: " + filename)
             println("**************************************************************************")

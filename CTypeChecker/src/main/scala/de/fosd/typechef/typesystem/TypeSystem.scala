@@ -17,9 +17,12 @@ class TypeSystem {
     var currentScope = 1
     var errorMessages: List[ErrorMsg] = List()
 
+    val DEBUG_PRINT = false
+
     def checkAST(ast: AST) {
         ast.accept(new TSVisitor())
-        println(table)
+        if (DEBUG_PRINT) println(table)
+        println("Type Errors: " + errorMessages.mkString("\n"))
     }
 
     class TSVisitor extends ASTVisitor {
@@ -57,18 +60,18 @@ class TypeSystem {
 
     def checkFunctionCall(source: AST, name: String, feature: FeatureExpr) {
         val targets: List[Entry] = table.find(name)
-        print("function " + name + " found " + targets.size + " targets: ")
+        if (DEBUG_PRINT) print("function " + name + " found " + targets.size + " targets: ")
         if (!targets.isEmpty) {
             //condition: feature implies (target1 or target2 ...)
             val condition = feature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
-            if (condition.isTautology)
-                println(" always reachable " + condition)
-            else {
-                println(" not always reachable " + feature + " => " + targets.map(_.feature).mkString(" || "))
+            if (condition.isTautology) {
+                if (DEBUG_PRINT) println(" always reachable " + condition)
+            } else {
+                if (DEBUG_PRINT) println(" not always reachable " + feature + " => " + targets.map(_.feature).mkString(" || "))
                 errorMessages = new ErrorMsg("declaration of function " + name + " not always reachable (" + targets.size + " potential targets): " + feature + " => " + targets.map(_.feature).mkString(" || "), source, targets) :: errorMessages
             }
         } else {
-            println("dead")
+            if (DEBUG_PRINT) println("dead")
             errorMessages = new ErrorMsg("declaration of function " + name + " not found", source, List()) :: errorMessages
         }
     }
