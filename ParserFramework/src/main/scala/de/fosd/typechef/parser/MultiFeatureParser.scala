@@ -149,17 +149,17 @@ class MultiFeatureParser {
                         } else if (in2.offst <= in0.skipHidden(parserState.and(f)).offst) {
                             DebugSplitting("joinr at \"" + in2.first.getText + "\" at " + in2.first.getPosition + " from " + f)
                             (Opt(f.not, e2), in2)
-                        } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported at "+in1.pos+" / "+in2.pos+", TODO")
                     case SplittedParseResult(f, Success(e, in), _) =>
                         if (in.offst <= in0.skipHidden(parserState.and(f.not)).offst) {
                             DebugSplitting("joinl at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f, e), in)
-                        } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported at "+in+", TODO")
                     case SplittedParseResult(f, _, Success(e, in)) =>
                         if (in.offst <= in0.skipHidden(parserState.and(f)).offst) {
                             DebugSplitting("joinr at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f.not, e), in)
-                        } else throw new ListHandlingException("interleaved features in list currently not supported, TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported at "+in+", TODO")
                     //others currently not supported
                     case _ => throw new ListHandlingException("deeper nesting currently not supported, TODO")
                 }
