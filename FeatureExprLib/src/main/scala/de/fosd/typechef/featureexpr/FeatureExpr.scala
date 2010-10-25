@@ -28,7 +28,7 @@ object FeatureExpr {
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left.not or right
     def createDefinedExternal(name: String) = new FeatureExprImpl(new DefinedExternal(name))
     def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
-    def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(CharacterLit(value))
+    def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
     def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExprImpl(IfExpr(condition, thenBranch, elseBranch))
 
@@ -95,7 +95,7 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
         case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr))
     }
 
-    def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay ((a(), b()) match {
+    def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay((a(), b()) match {
         case (Some(na), Some(nb)) => Some(op(na, nb))
         case _ => None
     })
@@ -309,8 +309,6 @@ sealed abstract class FeatureExprTree {
 
                 case IntegerLit(_) => this
 
-                case CharacterLit(_) => this
-
                 case DefinedExternal(_) => this
             }
             result.setSimplified
@@ -383,20 +381,11 @@ abstract class AbstractBinaryFeatureExprTree(
     opStr: String,
     op: (Long, Long) => Long) extends FeatureExprTree {
 
-    //def eval(context:FeatureProvider) = op(left.eval(context), right.eval(context))
     def print() = "(" + left.print + " " + opStr + " " + right.print + ")"
     def debug_print(level: Int): String =
         indent(level) + opStr + "\n" +
             left.debug_print(level + 1) +
             right.debug_print(level + 1);
-    //  def calcPossibleValues():Set[Long] = {
-    //    var result=Set[Long]()
-    //    for (
-    //    	a<-left.possibleValues();
-    //        b<-right.possibleValues()
-    //    ) result += op(a, b)
-    //    result
-    //  }
     def accept(f: FeatureExprTree => Unit): Unit = {
         f(this)
         left.accept(f)
@@ -432,16 +421,8 @@ abstract class AbstractUnaryFeatureExprTree(
     expr: FeatureExprTree,
     opStr: String,
     op: (Long) => Long) extends FeatureExprTree {
-    //def eval(context:FeatureProvider) = op(expr.eval(context))
     def print() = opStr + "(" + expr.print + ")"
     def debug_print(level: Int) = indent(level) + opStr + "\n" + expr.debug_print(level + 1);
-    //  def calcPossibleValues():Set[Long] = {
-    //    var result=Set[Long]()
-    //    for (
-    //    	a<-expr.possibleValues()
-    //    ) result += op(a)
-    //    result
-    //  }
     def accept(f: FeatureExprTree => Unit): Unit = {
         f(this)
         expr.accept(f)
@@ -462,19 +443,9 @@ case class DefinedExternal(feature: String) extends FeatureExprTree {
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
 }
 
-case class CharacterLit(char: Int) extends FeatureExprTree {
-    def print(): String = "'" + char.toString + "'";
-    def debug_print(level: Int): String = indent(level) + print() + "\n";
-    //def eval(context:FeatureProvider):Long = char.toLong;
-    def calcPossibleValues(): Set[Long] = Set(char.toLong)
-    def accept(f: FeatureExprTree => Unit): Unit = f(this)
-}
-
 case class IntegerLit(num: Long) extends FeatureExprTree {
     def print(): String = num.toString
     def debug_print(level: Int): String = indent(level) + print() + "\n"
-    //def eval(context:FeatureProvider):Long = num;
-    def calcPossibleValues(): Set[Long] = Set(num)
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
     override def intToBool() = if (num == 0) DeadFeature() else BaseFeature()
     def getNum = num
@@ -497,9 +468,6 @@ object BaseFeature {
 
 case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) extends FeatureExprTree {
     def this(cond: FeatureExpr, thenB: FeatureExpr, elseBr: FeatureExpr) = this(cond.expr, thenB.expr, elseBr.expr);
-    //	def calcPossibleValues() = if (condition.isBase()) thenBranch.possibleValues()
-    //                        else if (condition.isDead()) elseBranch.possibleValues()
-    //                        else thenBranch.possibleValues() ++ elseBranch.possibleValues()
     def print(): String = "__IF__(" + condition.print + "," + thenBranch.print + "," + elseBranch.print + ")";
     def debug_print(level: Int): String =
         indent(level) + "__IF__" + "\n" +
@@ -514,12 +482,6 @@ case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseB
 case class Not(expr: FeatureExprTree) extends AbstractUnaryBoolFeatureExprTree(expr, "!", !_);
 case class And(children: Set[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
     def this(left: FeatureExprTree, right: FeatureExprTree) = this(Set(left, right))
-    //  def calcPossibleValues():Set[Long] = {
-    //    var result:Set[Long]=Set()
-    //    if (children.exists(_.calcPossibleValues().exists(_==0))) result+=0
-    //    if (children.forall(_.calcPossibleValues().exists(_==1))) result+=1
-    //    result
-    //  }
     def addChild(child: FeatureExprTree) = And(children + child);
 }
 object And {
@@ -527,12 +489,6 @@ object And {
 }
 case class Or(children: Set[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
     def this(left: FeatureExprTree, right: FeatureExprTree) = this(Set(left, right))
-    //  def calcPossibleValues():Set[Long] = {
-    //    var result:Set[Long]=Set()
-    //    if (children.exists(_.calcPossibleValues().exists(_==1))) result+=1
-    //    if (children.forall(_.calcPossibleValues().exists(_==0))) result+=0
-    //    result
-    //  }
     def addChild(child: FeatureExprTree) = Or(children + child);
 }
 object Or {

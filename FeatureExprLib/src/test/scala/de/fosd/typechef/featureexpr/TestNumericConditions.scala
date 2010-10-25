@@ -3,6 +3,7 @@ package de.fosd.typechef.featureexpr
 import junit.framework._;
 import junit.framework.Assert._
 import org.junit.Test
+import FeatureExpr._
 
 class TestNumericConditions extends TestCase {
 
@@ -113,6 +114,10 @@ class TestNumericConditions extends TestCase {
                     IntegerLit(2)),
                 FeatureExpr.createInteger(2)).simplify.isSatisfiable);
 
+    }
+    def testMixIntChar = {
+    	assertTrue(createEquals(createInteger(1),createCharacter('1')).isContradiction)
+    	assertTrue(createEquals(createInteger(49),createCharacter('1')).isTautology)
     }
 
 }
