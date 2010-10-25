@@ -1,13 +1,18 @@
 package de.fosd.typechef.featureexpr
 
 object MacroContext {
-  var flagFilter = (x: String) => true;
+  private var flagFilters = List((x: String) => true)
   def setPrefixFilter(prefix: String) {
-    flagFilter = (x: String) => !x.startsWith(prefix);
+    flagFilters =  ((x: String) => !x.startsWith(prefix)) :: flagFilters
+  }
+  def setPostfixFilter(postfix: String) {
+    flagFilters = ((x: String) => !x.endsWith(postfix)) :: flagFilters
   }
   def setPrefixOnlyFilter(prefix: String) {
-    flagFilter = (x: String) => x.startsWith(prefix);
+    flagFilters = ((x: String) => x.startsWith(prefix)) :: flagFilters
   }
+  def flagFilter(x:String) = flagFilters.forall(_(x))
+	  
 }
 
 

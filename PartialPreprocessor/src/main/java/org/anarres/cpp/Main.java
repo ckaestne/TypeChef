@@ -61,8 +61,10 @@ public class Main {
 							+ "include \"file\"\" appeared as the first line of the primary source file."),
 			new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
 					"Output file."),
-			new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
+					new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
 					"Analysis excludes all flags beginning with this prefix."),
+					new Option("postfixfilter", LongOpt.REQUIRED_ARGUMENT, 'P', "text",
+					"Analysis excludes all flags ending with this postfix."),
 			new Option("prefixonly", LongOpt.REQUIRED_ARGUMENT, 'x', "text",
 					"Analysis includes only flags beginning with this prefix."),
 			new Option(
@@ -151,6 +153,9 @@ public class Main {
 				break;
 			case 'p':
 				MacroContext$.MODULE$.setPrefixFilter(g.getOptarg());
+				break;
+			case 'P':
+				MacroContext$.MODULE$.setPostfixFilter(g.getOptarg());
 				break;
 			case 'x':
 				MacroContext$.MODULE$.setPrefixOnlyFilter(g.getOptarg());
