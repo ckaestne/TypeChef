@@ -81,7 +81,7 @@ class TestCaseHarness(testCase: TestProject) {
                     new TypeSystem().checkAST(ast)
                 }
                 println("**************************************************************************")
-                println("** End of processing for: " + inpName)
+                println("** End of processing for: " + shortName)
                 println("**************************************************************************")
         })
     }
