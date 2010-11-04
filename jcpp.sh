@@ -5,6 +5,7 @@ basePath=.
 #Flags which should not be passed to the standard preprocessor.
 # partialPreprocFlags="-p _"
 partialPreprocFlags="-c darwin.properties"
+gccOpts="-x c -std=gnu99"
 #mainClass="org.anarres.cpp.Main"
 mainClass="PreprocessorFrontend" 
 
@@ -13,10 +14,10 @@ mainClass="PreprocessorFrontend"
 # select the ones we care about.
 inp=$1
 shift
-#outBase="$(basename $inp .c)"
-outBase=$1
+outBase="$(dirname $inp)/$(basename $inp .c)"
+#outBase=$1
+#shift
 #outPartialPreproc=$1
-shift
 
 # Setup derived output paths
 outDbg="$outBase.dbg"
@@ -51,8 +52,8 @@ gcc -E -x c "$outPartialPreproc" "$@" > "$outPartialPreprocThenPreproc"
 echo "Output size stats - partial preprocessor then preprocessor:"
 wc "$outPartialPreprocThenPreproc"
 
-# -w ignores white space.
-if ! diff -uw <(grep -v '^#' "$outPartialPreprocThenPreproc") <(grep -v "^#" "$outPreproc") > "$outDiff"; then
+# -w ignores white space, -B blank line, -u helps readability.
+if ! diff -uBw <(grep -v '^#' "$outPartialPreprocThenPreproc") <(grep -v '^#' "$outPreproc") > "$outDiff"; then
   echo "*** WARNING! - $outDiff not empty, inconsistency detected ***"
   echo "*** The output of the preprocessor is different if it is run on the original input or on the partially preprocessed file"
 else
