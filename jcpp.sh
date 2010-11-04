@@ -4,6 +4,7 @@ macro_stats_path=macroDebug.txt
 basePath=.
 #Flags which should not be passed to the standard preprocessor.
 # partialPreprocFlags="-p _"
+# Has to match the host system!!
 partialPreprocFlags="-c darwin.properties"
 gccOpts="-x c -std=gnu99"
 #mainClass="org.anarres.cpp.Main"
@@ -25,19 +26,22 @@ outPartialPreproc="$outBase.pi"
 outPreproc="$outBase.i"
 outPartialPreprocThenPreproc="$outBase.pi.i"
 # Interesting outputs
-stdErrWithTimings="$outBase.err"
+outErr="$outBase.err"
+outTime="$outBase.time"
 outStats="$outBase.stats"
 outDiff="$outBase.diffs"
 
 #time scala -cp BoaCaseStudy/target/scala_2.8.0/classes:FeatureExprLib/lib/org.sat4j.core.jar:FeatureExprLib/target/scala_2.8.0/classes:\
 #  PartialPreprocessor/target/scala_2.8.0/classes:PartialPreprocessor/lib/gnu.getopt.jar \
 #  <(echo -e '#define b ciao\nb')
-time scala -cp $basePath/BoaCaseStudy/target/scala_2.8.0/classes:\
+bash -c "time scala -cp $basePath/BoaCaseStudy/target/scala_2.8.0/classes:\
 $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/FeatureExprLib/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar \
-  $mainClass $partialPreprocFlags "$inp" "$@" -o "$outPartialPreproc" #> $outDbg # 2> "$stdErrWithTimings"
+  $mainClass $partialPreprocFlags '$inp' ""$@"" -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
+  2> "$outTime"
+
 
 echo "Output size stats - partial preprocessor:"
 wc "$outPartialPreproc"
