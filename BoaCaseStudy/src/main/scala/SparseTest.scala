@@ -16,7 +16,7 @@ class SparseTest extends AbstractTestProject {
             "obfuscate", "compile", "graph", "sparse", "test-linearize", "example",
             "test-unssa", "test-dissect", "ctags", "test-inspect", "c2xml"
 
-    ) //.take(3).drop(0)
+    )
     override def extraPreprocessorOpt = super.extraPreprocessorOpt ++ Array("-P", "_H")
 }
 
