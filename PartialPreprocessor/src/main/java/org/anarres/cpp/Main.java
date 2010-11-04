@@ -122,7 +122,8 @@ public class Main {
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addFeature(Feature.INCLUDENEXT);
 		pp.addWarning(Warning.IMPORT);
-		pp.addWarning(Warning.UNDEF);
+		//XXX too annoying during debugging, there are too many false positives
+		//pp.addWarning(Warning.UNDEF);
 		pp.setListener(new PreprocessorListener(pp));
 		pp.addMacro("__JCPP__", FeatureExprLib.base());
 		// pp.getSystemIncludePath().add("/usr/local/include");
