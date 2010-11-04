@@ -35,10 +35,10 @@ object PreprocessorFrontend {
 
     def loadSettings(configPath: String) = {
             settings.load(new FileInputStream(configPath))
-            preIncludeDirs = loadPropList("preIncludes")
+            preIncludeDirs = loadPropList("preIncludes") ++ preIncludeDirs
             println("preIncludes: " + preIncludeDirs)
             println("systemIncludes: " + systemIncludes)
-            postIncludeDirs = loadPropList("postIncludes")
+            postIncludeDirs = postIncludeDirs ++ loadPropList("postIncludes")
             println("postIncludes: " + postIncludeDirs)
     }
 
@@ -52,24 +52,23 @@ object PreprocessorFrontend {
     ////////////////////////////////////////
     // Preprocessor/parser invocation
     ////////////////////////////////////////
-
-    def preprocessFile(inFileName: String, outFileName: String) {
+    def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String]) {
         Main.main(Array(
                 inFileName,
                 "-o",
                 outFileName,
                 "--include",
-                predefMacroDef, //
-                "-p",
-                "_"
+                predefMacroDef
             ) ++
-            includeFlags ++
-            Array("-U", "HAVE_LIBDMALLOC"))
+            extraOpt ++
+            includeFlags)
     }
     
-    def main(args: Array[String]) = {
+    def main(args: Array[String]): Unit = {
         initSettings
-        val g = new Getopt("testprog", args, ":r:I:c:o:");
+        var extraOpt = List("-p", "_")
+        val optionsToForward = "pPUD"
+        val g = new Getopt("testprog", args, ":r:I:c:o:" + optionsToForward.flatMap(x => Seq(x, ':')))
         var loopFlag = true
         var outputFileName: Option[String] = None
         do {
@@ -81,8 +80,14 @@ object PreprocessorFrontend {
                     case 'I' => postIncludeDirs :+= arg
                     case 'c' => loadSettings(arg)
                     case 'o' => outputFileName = Some(arg)
+                    
                     case ':' => println("Missing required argument!")
                     case '?' => None
+                }
+
+                //Pass-through some other options 
+                if (optionsToForward contains c) {
+                    extraOpt ++= List("-" + c, arg)
                 }
             } else {
                 loopFlag = false
@@ -96,7 +101,7 @@ object PreprocessorFrontend {
                 case None => outputFileName = Some(filename.replace(".c", "") + ".pi")
                 case Some(_) => None
             }
-            preprocessFile(filename, outputFileName.get)
+            preprocessFile(filename, outputFileName.get, extraOpt)
         }
     }
 }
