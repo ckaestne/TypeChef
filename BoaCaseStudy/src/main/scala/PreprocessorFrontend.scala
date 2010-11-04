@@ -81,13 +81,12 @@ object PreprocessorFrontend {
                     case 'c' => loadSettings(arg)
                     case 'o' => outputFileName = Some(arg)
                     
-                    case ':' => println("Missing required argument!")
-                    case '?' => None
-                }
-
-                //Pass-through some other options 
-                if (optionsToForward contains c) {
-                    extraOpt ++= List("-" + c, arg)
+                    case ':' => println("Missing required argument!"); exit(1)
+                    case '?' => println("Unexpected option!"); exit(1)
+                    //Pass-through some other options
+                    case _ => if (optionsToForward contains c) {
+                        extraOpt ++= List("-" + c.asInstanceOf[Char], arg)
+                    }
                 }
             } else {
                 loopFlag = false
