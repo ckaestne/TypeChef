@@ -1,14 +1,15 @@
 #!/bin/bash -e
+if [ -z "$jcppConfLoaded" ]; then
+  source jcpp.conf
+fi
 # What you should configure
 macro_stats_path=macroDebug.txt
+
+# For Java compiled stuff!
 basePath=.
-#Flags which should not be passed to the standard preprocessor.
-# partialPreprocFlags="-p _"
-# Has to match the host system!!
-partialPreprocFlags="-c darwin.properties"
-gccOpts="-x c -std=gnu99"
+
 #mainClass="org.anarres.cpp.Main"
-mainClass="PreprocessorFrontend" 
+mainClass="PreprocessorFrontend"
 
 # Brute argument parsing
 # The right thing to do would be to be a gcc replacement, parse its flags and
@@ -39,25 +40,30 @@ $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/FeatureExprLib/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar \
-  $mainClass $partialPreprocFlags '$inp' ""$@"" -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
+  $mainClass $partialPreprocFlags $@ '$inp' -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
   2> "$outTime"
 
 
 echo "Output size stats - partial preprocessor:"
-wc "$outPartialPreproc"
+grep -v '^$' "$outPartialPreproc"|wc
 #Commented out - where is macroDebug?
 #mv $macro_stats_path "$outStats"
 
-gcc -E -x c "$inp" "$@" > "$outPreproc"
+gcc $gccOpts -E "$inp" "$@" > "$outPreproc"
 echo "Output size stats - preprocessor:"
-wc "$outPreproc"
+grep -v '^$' "$outPreproc"|wc
 
-gcc -E -x c "$outPartialPreproc" "$@" > "$outPartialPreprocThenPreproc"
+gcc $gccOpts -E "$outPartialPreproc" "$@" > "$outPartialPreprocThenPreproc"
 echo "Output size stats - partial preprocessor then preprocessor:"
-wc "$outPartialPreprocThenPreproc"
+grep -v '^$' "$outPartialPreprocThenPreproc"|wc
 
+# Remove dashed and empty lines before diffing.
+excludeLines='^(#|$)'
+spacesToNewLine='s/[ 	]\+/\n/g'
 # -w ignores white space, -B blank line, -u helps readability.
-if ! diff -uBw <(grep -v '^#' "$outPartialPreprocThenPreproc") <(grep -v '^#' "$outPreproc") > "$outDiff"; then
+if ! diff -uBw <(egrep -v "$excludeLines" "$outPartialPreprocThenPreproc"| \
+  $sed -e "$spacesToNewLine") <(egrep -v "$excludeLines" "$outPreproc"| \
+  $sed -e "$spacesToNewLine") > "$outDiff"; then
   echo "*** WARNING! - $outDiff not empty, inconsistency detected ***"
   echo "*** The output of the preprocessor is different if it is run on the original input or on the partially preprocessed file"
 else
