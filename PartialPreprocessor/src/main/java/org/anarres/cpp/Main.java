@@ -248,6 +248,7 @@ public class Main {
 				System.err.println(" -> " + s);
 				s = s.getParent();
 			}
+		} finally {
 			pp.debugWriteMacros();
 		}
 
