@@ -122,6 +122,7 @@ public class Main {
 		pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addFeature(Feature.INCLUDENEXT);
+		pp.addFeature(Feature.GNUCEXTENSIONS);
 		pp.addWarning(Warning.IMPORT);
 		//XXX too annoying during debugging, there are too many false positives
 		//pp.addWarning(Warning.UNDEF);

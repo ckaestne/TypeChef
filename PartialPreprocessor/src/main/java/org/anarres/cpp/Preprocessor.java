@@ -803,8 +803,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 							MacroConstraintKind.NOTEXPANDING, commonCondition
 									.not()));
 
-				sourceManager.push_source(new MacroTokenSource(macroName,
-						firstMacro, args), true);
+				sourceManager.push_source(createMacroTokenSource(macroName, args, firstMacro), true);
 				// expand all alternative macros
 			} else {
 				if (inlineCppExpression)
@@ -954,7 +953,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 */
 
 				if (args.size() != firstMacro.getArgCount()) {
-				        if (firstMacro.isVariadic() && args.size() == firstMacro.getArgCount() - 1) {
+				        if (firstMacro.isVariadic() && args.size() == firstMacro.getArgCount() - 1 && getFeature(Feature.GNUCEXTENSIONS)) {
+				        	//This is a GCC extension:
+				        	//http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
 				                args.add(Argument.omittedVariadicArgument());
 				        } else {
 				                throw new ParseParamException(tok, "macro " + macroName
@@ -1002,7 +1003,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			else
 				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ new OutputHelper().elif_tokenStr(feature)));
-			resultList.add(new MacroTokenSource(macroName, macroData, args));
+			resultList.add(createMacroTokenSource(macroName, args, macroData));
 			if (i == 0 && !alternativesExaustive) {
 				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 						+ new OutputHelper().else_tokenStr()));
@@ -1013,6 +1014,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
 				+ new OutputHelper().endif_tokenStr()));
 		sourceManager.push_sources(resultList, true);
+	}
+
+	private MacroTokenSource createMacroTokenSource(String macroName, List<Argument> args,
+			MacroData macroData) {
+		return new MacroTokenSource(macroName, macroData, args, getFeature(Feature.GNUCEXTENSIONS));
 	}
 
 	/**
@@ -1050,7 +1056,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			if (i > 0 || !alternativesExaustive)
 				resultList.add(new UnnumberedUnexpandingStringLexerSource(
 						"__IF__(" + feature.print() + ","));
-			resultList.add(new MacroTokenSource(macroName, macroData, args));
+			resultList.add(createMacroTokenSource(macroName, args, macroData));
 			if (i > 0 || !alternativesExaustive)
 				resultList.add(new UnnumberedUnexpandingStringLexerSource(","));
 		}

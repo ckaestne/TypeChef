@@ -15,6 +15,7 @@ public class PreprocessorTestCase extends BaseTestCase {
 		p = new Preprocessor();
 		p.addInput(new LexerSource(new InputStreamReader(new PipedInputStream(
 				po)), true));
+		p.addFeature(Feature.GNUCEXTENSIONS);
 	}
 
 	private static class I {
@@ -124,6 +125,8 @@ public class PreprocessorTestCase extends BaseTestCase {
                 testInput("#define varC99_2(firstParam, ...) a firstParam, __VA_ARGS__ b\n", NL);
                 testInput("varC99_2(e, f, g)\n", NL, I("a"), WHITESPACE, I("e"), ',',
                                 WHITESPACE, I("f"), ',', WHITESPACE, I("g"), WHITESPACE, I("b"));
+                testInput("#define eprintf(format, ...) fprintf stderr, format, ##__VA_ARGS__\n", NL);
+                testInput("eprintf (a)\n", NL, I("fprintf"), WHITESPACE, I("stderr"), ',', WHITESPACE, I("a"));
 	}
 	
 	@Override

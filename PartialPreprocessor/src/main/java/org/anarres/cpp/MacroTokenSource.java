@@ -37,13 +37,15 @@ import java.util.List;
 	private List<Argument> args; /* { unexpanded, expanded } */
 	private Iterator<Token> arg; /* "current expansion" */
 	private final String macroName;
+	private boolean gnuCExtensions;
 
-	/* pp */MacroTokenSource(String macroName, MacroData m, List<Argument> args) {
+	/* pp */MacroTokenSource(String macroName, MacroData m, List<Argument> args, boolean gnuCExtensions) {
 		this.macroName = macroName;
 		this.macro = m;
 		this.tokenIter = m.getTokens().iterator();
 		this.args = args;
 		this.arg = null;
+		this.gnuCExtensions = gnuCExtensions;
 	}
 
 	@Override
@@ -83,7 +85,18 @@ import java.util.List;
 		}
 	}
 
-	private void concat(StringBuilder buf, Argument arg) {
+	private void concat(StringBuilder buf, Argument arg, boolean queuedComma) {
+		if (queuedComma) {
+			if (!arg.isOmittedArg() || !gnuCExtensions) {
+				//Output the comma that we didn't output previously.
+				buf.append(",");
+			} else {
+				//Swallow the semicolon, as prescribed by:
+				// http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+				assert arg.isEmpty();
+				return;
+			}
+		}
 		Iterator<Token> it = arg.iterator();
 		while (it.hasNext()) {
 			Token tok = it.next();
@@ -93,7 +106,7 @@ import java.util.List;
 
 	private Token stringify(Token pos, Argument arg) {
 		StringBuilder buf = new StringBuilder();
-		concat(buf, arg);
+		concat(buf, arg, false);
 		// System.out.println("Concat: " + arg + " -> " + buf);
 		StringBuilder str = new StringBuilder("\"");
 		escape(str, buf);
@@ -110,6 +123,7 @@ import java.util.List;
 	 */
 	private void paste(Token ptok) throws IOException, LexerException {
 		StringBuilder buf = new StringBuilder();
+		boolean queuedComma = false;
 		/*
 		 * We know here that arg is null or expired, since we cannot paste an
 		 * expanded arg.
@@ -125,6 +139,10 @@ import java.util.List;
 				break;
 			}
 			Token tok = tokenIter.next();
+			if (queuedComma && tok.getType() != M_ARG) {
+				buf.append(",");
+				queuedComma = false;
+			}
 			// System.out.println("Paste " + tok);
 			switch (tok.getType()) {
 			case M_PASTE:
@@ -137,11 +155,15 @@ import java.util.List;
 				break;
 			case M_ARG:
 				int idx = ((Integer) tok.getValue()).intValue();
-				concat(buf, args.get(idx));
+				concat(buf, args.get(idx), queuedComma);
 				break;
 			/* XXX Test this. */
 			case CCOMMENT:
 			case CPPCOMMENT:
+				break;
+			case ',':
+				assert ",".equals(tok.getText());
+				queuedComma = true;
 				break;
 			default:
 				buf.append(tok.getText());

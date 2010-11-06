@@ -30,6 +30,7 @@ import java.util.List;
 @SuppressWarnings("serial")
 /* pp */ class Argument extends ArrayList<Token> {
 	public static final int	NO_ARGS = -1;
+	private boolean omittedArg;
 
 	private List<Token>	expansion;
 
@@ -43,9 +44,14 @@ import java.util.List;
 
 	public static Argument omittedVariadicArgument() {
 	        Argument a = new Argument();
-	        //a.addToken(new Token(Token.M_STRING, "", null));
+	        a.omittedArg = true;
 	        return a;
 	}
+
+	public boolean isOmittedArg() {
+		return omittedArg;
+        }
+
 	/* pp */ void expand(Preprocessor p, boolean inlineCppExpression)
 						throws IOException,
 								LexerException {
