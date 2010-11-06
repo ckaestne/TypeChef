@@ -41,6 +41,11 @@ import java.util.List;
 		add(tok);
 	}
 
+	public static Argument omittedVariadicArgument() {
+	        Argument a = new Argument();
+	        //a.addToken(new Token(Token.M_STRING, "", null));
+	        return a;
+	}
 	/* pp */ void expand(Preprocessor p, boolean inlineCppExpression)
 						throws IOException,
 								LexerException {
