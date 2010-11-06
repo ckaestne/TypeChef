@@ -951,11 +951,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 * from arguments.
 				 */
 
-				if (args.size() != firstMacro.getArgCount())
-					throw new ParseParamException(tok, "macro " + macroName
-							+ " has " + firstMacro.getArgCount()
-							+ " parameters " + "but given " + args.size()
-							+ " args");
+				if (args.size() != firstMacro.getArgCount()) {
+				        if (firstMacro.isVariadic() && args.size() == firstMacro.getArgCount() - 1) {
+				                args.add(Argument.omittedVariadicArgument());
+				        } else {
+				                throw new ParseParamException(tok, "macro " + macroName
+				                                + " has " + firstMacro.getArgCount()
+				                                + " parameters " + "but given " + args.size()
+				                                + " args");
+				        }
+				}
 
 				/*
 				 * for (Argument a : args) a.expand(this);
