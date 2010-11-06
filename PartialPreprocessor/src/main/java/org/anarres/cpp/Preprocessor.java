@@ -926,7 +926,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						/* Avoid duplicating spaces. */
 						space = true;
 						break;
-
+					case HASH:
+					        //PG: TODO - I've seen #if in a macro argument,
+					        //and this code sometimes _expands_ the if (which can be defined as a macro in the Linux kernel)!!!
+					        //throw new LexerException("Unimplemented handling of # in macro args, important TODO!");
 					default:
 						/*
 						 * Do not put space on the beginning of an argument
@@ -1537,6 +1540,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			switch (tok.getType()) {
 			case NL:
 			case EOF:
+				buf.append('\n');
 				break ERROR;
 			default:
 				buf.append(tok.getText());
