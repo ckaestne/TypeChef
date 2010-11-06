@@ -36,8 +36,8 @@ $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/FeatureExprLib/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar \
-  $mainClass $partialPreprocFlags \
-  $(for arg in "$@"; do echo -n "\"$arg\" "; done) \
+  $mainClass \
+  $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
   2> "$outTime" || true
 
