@@ -98,16 +98,36 @@ public class PreprocessorTestCase extends BaseTestCase {
 		testInput("#define one one\n", NL);
 		testInput("one /* one */\n", NL, I("one"), WHITESPACE, CCOMMENT);
 
-		/* Variadic macros. */
-		testInput("#define var(x...) a x b\n", NL);
-		testInput("var(e, f, g)\n", NL, I("a"), WHITESPACE, I("e"), ',',
-				WHITESPACE, I("f"), ',', WHITESPACE, I("g"), WHITESPACE, I("b"));
-
 		testInput("#define _Widen(x) L ## x\n", NL);
 		testInput("#define Widen(x) _Widen(x)\n", NL);
 		testInput("#define LStr(x) _Widen(#x)\n", NL);
 //		testInput("LStr(x);\n", NL, I("L"), "x");
-
+	/*}
+	
+	public void testVariadicMacrosGnuC() throws Exception {*/
+                testInput("#define var(x...) a x b\n", NL);
+                testInput("var(e, f, g)\n", NL, I("a"), WHITESPACE, I("e"), ',',
+                                WHITESPACE, I("f"), ',', WHITESPACE, I("g"), WHITESPACE, I("b"));
+                testInput("var()\n", NL, I("a"), WHITESPACE, WHITESPACE, I("b"));
+                testInput("#define var2(p1, args...) p1 a args b\n", NL);
+                testInput("var2(firstParam, e, f, g)\n", NL, I("firstParam"), WHITESPACE, I("a"), WHITESPACE, I("e"), ',',
+                                WHITESPACE, I("f"), ',', WHITESPACE, I("g"), WHITESPACE, I("b"));
+                testInput("var2(p1)\n", NL, I("p1"), WHITESPACE, I("a"), WHITESPACE, WHITESPACE, I("b"));
+	/*}
+	
+	public void testVariadicMacrosC99() throws Exception {*/
+                testInput("#define varC99(x, ...) a __VA_ARGS__ b\n", NL);
+                testInput("varC99(e, f, g)\n", NL, I("a"), 
+                                WHITESPACE, I("f"), ',', WHITESPACE, I("g"), WHITESPACE, I("b"));
+                testInput("varC99()\n", NL, I("a"), WHITESPACE, WHITESPACE, I("b"));
+                
+                testInput("#define varC99_2(firstParam, ...) a firstParam, __VA_ARGS__ b\n", NL);
+                testInput("varC99_2(e, f, g)\n", NL, I("a"), WHITESPACE, I("e"), ',',
+                                WHITESPACE, I("f"), ',', WHITESPACE, I("g"), WHITESPACE, I("b"));
+	}
+	
+	@Override
+	public void tearDown() throws Exception {
 		writer.close();
 
 		Token t;
