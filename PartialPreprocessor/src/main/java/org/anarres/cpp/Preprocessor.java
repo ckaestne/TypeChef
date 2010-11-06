@@ -1211,6 +1211,17 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			source_untoken(tok);
 		}
 
+		tok = parse_macroBody(m, args);
+
+		logger.info("#define " + name + " " + m);
+		addMacro(name, state.getFullPresenceCondition(), m);
+
+		return tok; /* NL or EOF. */
+	}
+
+	private Token parse_macroBody(MacroData m, List<String> args) throws IOException,
+			LexerException {
+		Token tok;
 		/* Get an expansion for the macro, using indexOf. */
 		boolean space = false;
 		boolean paste = false;
@@ -1283,11 +1294,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			}
 			tok = retrieveTokenFromSource();
 		}
-
-		logger.info("#define " + name + " " + m);
-		addMacro(name, state.getFullPresenceCondition(), m);
-
-		return tok; /* NL or EOF. */
+		return tok;
 	}
 
 	private Token parse_undef() throws IOException, LexerException {
