@@ -28,8 +28,8 @@ for i in $srcPath/*.c; do
 done
 
 for i in $fileList; do
-  ./jcpp.sh $i $flags
+  . ./jcpp.sh $i $flags
 done
 for i in $fileList; do
-  ./postProcess.sh $i $flags
+  . ./postProcess.sh $i $flags
 done
