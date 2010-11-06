@@ -1,6 +1,6 @@
 //print
 ! #if 0
-+2 #if defined(A)
-+2 #if !(defined(A))
++2 #if (defined(A))
++2 #if (!(defined(A)))
 +1 long macro four parts
 ! M
