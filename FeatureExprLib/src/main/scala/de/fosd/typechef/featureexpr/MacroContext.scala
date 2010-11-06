@@ -1,7 +1,7 @@
 package de.fosd.typechef.featureexpr
 
 object MacroContext {
-  private var flagFilters = List((x: String) => true)
+  private var flagFilters = List((x: String) => true)//return true means flag can be specified by user, false means it is undefined initially
   def setPrefixFilter(prefix: String) {
     flagFilters =  ((x: String) => !x.startsWith(prefix)) :: flagFilters
   }

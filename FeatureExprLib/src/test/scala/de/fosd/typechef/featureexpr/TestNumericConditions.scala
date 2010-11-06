@@ -116,8 +116,8 @@ class TestNumericConditions extends TestCase {
 
     }
     def testMixIntChar = {
-    	assertTrue(createEquals(createInteger(1),createCharacter('1')).isContradiction)
-    	assertTrue(createEquals(createInteger(49),createCharacter('1')).isTautology)
+        assertTrue(createEquals(createInteger(1), createCharacter('1')).isContradiction)
+        assertTrue(createEquals(createInteger(49), createCharacter('1')).isTautology)
     }
 
 }
