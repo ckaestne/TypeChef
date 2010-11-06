@@ -39,6 +39,6 @@ $basePath/PartialPreprocessor/lib/gnu.getopt.jar \
   $mainClass $partialPreprocFlags \
   $(for arg in "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
-  2> "$outTime"
+  2> "$outTime" || true
 
 mv $macro_stats_path "$outStats" || true
