@@ -1,5 +1,5 @@
-#!/bin/bash -vxe
 #!/bin/bash -e
+#!/bin/bash -vxe
 if [ -z "$jcppConfLoaded" ]; then
   source jcpp.conf
 fi
@@ -8,14 +8,22 @@ shift
 
 . setupOutPaths.sh.inc
 
+echo "=="
+echo "==Preprocess source"
+echo "=="
+gcc $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+
+echo "=="
+echo "==Preprocess output of partial preprocessor"
+echo "=="
+gcc $gccOpts -E "$outPartialPreproc" "$@" > "$outPartialPreprocThenPreproc" || true
+
 echo "Output size stats - partial preprocessor:"
 grep -v '^$' "$outPartialPreproc"|wc
 
-gcc $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 echo "Output size stats - preprocessor:"
 grep -v '^$' "$outPreproc"|wc
 
-gcc $gccOpts -E "$outPartialPreproc" "$@" > "$outPartialPreprocThenPreproc" || true
 echo "Output size stats - partial preprocessor then preprocessor:"
 grep -v '^$' "$outPartialPreprocThenPreproc"|wc
 
