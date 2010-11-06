@@ -23,6 +23,7 @@ object PreprocessorFrontend {
 
     var preIncludeDirs: Seq[String] = Nil
     var postIncludeDirs: Seq[String] = Nil
+    var cmdLinePostIncludes: Seq[String] = Nil
 
     def initSettings {
         predefSettings.setProperty("systemRoot", File.separator)
@@ -42,11 +43,14 @@ object PreprocessorFrontend {
             println("postIncludes: " + postIncludeDirs)
     }
 
-    def includeFlags = (preIncludeDirs ++ List(systemIncludes) ++ postIncludeDirs).flatMap((path: String) =>
-        if (path != null && !("" equals path))
-            List("-I", systemRoot + File.separator + path)
-        else
-            List())
+    def includeFlags =
+        ((preIncludeDirs ++ List(systemIncludes) ++ postIncludeDirs).flatMap(
+            (path: String) =>
+                if (path != null && !("" equals path))
+                    List(systemRoot + File.separator + path)
+                else
+                    List()
+            ) ++ cmdLinePostIncludes).flatMap((path: String) => List("-I", path))
 
 
     ////////////////////////////////////////
@@ -67,8 +71,10 @@ object PreprocessorFrontend {
     def main(args: Array[String]): Unit = {
         initSettings
         var extraOpt = List("-p", "_")
-        val optionsToForward = "pPUD"
-        val g = new Getopt("testprog", args, ":r:I:c:o:" + optionsToForward.flatMap(x => Seq(x, ':')))
+        val optionsToForward = "pPUDx"
+        val INCLUDE_OPT = 0
+        val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT))
+        val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
         var outputFileName: Option[String] = None
         do {
@@ -77,12 +83,16 @@ object PreprocessorFrontend {
                 val arg = g.getOptarg()
                 c match {
                     case 'r' => setSystemRoot(arg)
-                    case 'I' => postIncludeDirs :+= arg
+                    case 'I' => cmdLinePostIncludes :+= arg
                     case 'c' => loadSettings(arg)
                     case 'o' => outputFileName = Some(arg)
                     
                     case ':' => println("Missing required argument!"); exit(1)
                     case '?' => println("Unexpected option!"); exit(1)
+
+                    //Pass-through --include.
+                    case INCLUDE_OPT => extraOpt ++= List("--include", arg)
+
                     //Pass-through some other options
                     case _ => if (optionsToForward contains c) {
                         extraOpt ++= List("-" + c.asInstanceOf[Char], arg)

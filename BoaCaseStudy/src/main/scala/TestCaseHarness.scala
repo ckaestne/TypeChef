@@ -58,7 +58,7 @@ class TestCaseHarness(testCase: TestProject) {
                 val arg = g.getOptarg()
                 c match {
                     case 'r' => PreprocessorFrontend.setSystemRoot(arg)
-                    case 'I' => PreprocessorFrontend.postIncludeDirs :+= arg
+                    case 'I' => PreprocessorFrontend.cmdLinePostIncludes :+= arg
                     case 'c' => PreprocessorFrontend.loadSettings(arg)
                     case ':' => println("Missing required argument!")
                     case '?' => None
@@ -70,8 +70,7 @@ class TestCaseHarness(testCase: TestProject) {
         println(PreprocessorFrontend.includeFlags)
         val remArgs = args.slice(g.getOptind(), args.size) //XXX: not yet used!
 
-        testCase.fileList map (_ match {
-            case (shortName, inpName, outName, folderPath) =>
+        for ((shortName, inpName, outName, folderPath) <- testCase.fileList) {
                 println("**************************************************************************")
                 println("** Processing file: " + shortName)
                 println("**************************************************************************")
@@ -83,6 +82,6 @@ class TestCaseHarness(testCase: TestProject) {
                 println("**************************************************************************")
                 println("** End of processing for: " + shortName)
                 println("**************************************************************************")
-        })
+        }
     }
 }
