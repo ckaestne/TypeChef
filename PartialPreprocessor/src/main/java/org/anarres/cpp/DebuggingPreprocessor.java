@@ -13,7 +13,7 @@ import de.fosd.typechef.featureexpr.MacroContext;
 
 public abstract class DebuggingPreprocessor {
 	public static Logger logger = Logger.getLogger("de.ovgu.jcpp");
-	public static boolean DEBUG_TOKENSTREAM = false;
+	public static boolean DEBUG_TOKENSTREAM = true;
 	static {
 		try {
 			Handler fh;
