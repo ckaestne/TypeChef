@@ -34,7 +34,7 @@ partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT"
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
 
-gccOpts="$gccOpts -nostdinc -isystem /usr/lib/gcc/x86_64-redhat-linux/4.4.4/include -include $srcPath/include/generated/autoconf.h $commonMacros"
+gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h $commonMacros"
 
 flags() {
   base="$1"
