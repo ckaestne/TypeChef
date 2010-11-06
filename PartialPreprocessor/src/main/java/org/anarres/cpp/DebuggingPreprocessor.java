@@ -13,7 +13,7 @@ import de.fosd.typechef.featureexpr.MacroContext;
 
 public abstract class DebuggingPreprocessor {
 	public static Logger logger = Logger.getLogger("de.ovgu.jcpp");
-	public static boolean DEBUG_TOKENSTREAM = true;
+	public static boolean DEBUG_TOKENSTREAM = false;
 	static {
 		try {
 			Handler fh;
@@ -72,14 +72,15 @@ public abstract class DebuggingPreprocessor {
 	}
 
 	public void debug_receivedToken(Source source, Token tok) {
-		if (DEBUG_TOKENSTREAM)
+		if (DEBUG_TOKENSTREAM && tok != null)
 			try {
 				Source tmpSrc = source.getParent();
 				while (tmpSrc != null) {
 					debugFile.write("\t");
 					tmpSrc = tmpSrc.getParent();
 				}
-				debugFile.write(tok.getText() + "\n");
+				if (tok.getText() != null)
+					debugFile.write(tok.getText() + "\n");
 				debugFile.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -104,7 +105,7 @@ public abstract class DebuggingPreprocessor {
 										+ " ("
 										+ state.getFullPresenceCondition()
 										+ ")") + "\n");
-//				System.out.println(b.toString());
+				// System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
@@ -121,7 +122,7 @@ public abstract class DebuggingPreprocessor {
 				for (int i = 0; i < debugSourceIdx; i++)
 					b.append("\t");
 				b.append("pop " + source.toString() + "\n");
-//				System.out.println(b.toString());
+				// System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
