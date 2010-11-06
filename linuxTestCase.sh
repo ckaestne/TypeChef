@@ -21,7 +21,7 @@ list="init/calibrate drivers/video/console/dummycon init/main arch/x86/kernel/ir
 
 # This ought not to go into $flags, it'd need to be quoted, in different ways
 # according to the callee.
-commonMacros="'-DKBUILD_STR(s)=#s'"
+commonMacros="-DKBUILD_STR(s)=#s"
 
 # Note: this clears $partialPreprocFlags
 partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=include) -x CONFIG_ -U __INTEL_COMPILER \
