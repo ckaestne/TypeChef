@@ -1141,14 +1141,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		tok = retrieveTokenFromSource();
 		if (tok.getType() == '(') {
 			tok = source_token_nonwhite();
+			boolean seenParamName = false;
 			if (tok.getType() != ')') {
 				args = new ArrayList<String>();
 				ARGS: for (;;) {
 					switch (tok.getType()) {
 					case IDENTIFIER:
 						args.add(tok.getText());
+						seenParamName = true;
 						break;
 					case ELLIPSIS:
+					        if (!seenParamName) {
+					                //C99 macro!
+					                args.add("__VA_ARGS__"); //PG: hack, I don't expect it to really work.
+					        }
 						tok = source_token_nonwhite();
 						if (tok.getType() != ')')
 							error(tok, "ellipsis must be on last argument");
@@ -1166,11 +1172,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					tok = source_token_nonwhite();
 					switch (tok.getType()) {
 					case ',':
+					        seenParamName = false;
 						break;
 					case ELLIPSIS:
+					        assert seenParamName; //PG: verify if this is true
 						tok = source_token_nonwhite();
 						if (tok.getType() != ')')
 							error(tok, "ellipsis must be on last argument");
+						if (m.isVariadic()) {
+						        error(tok, "ellipsis must not be repeated");
+						}
 						m.setVariadic(true);
 						break ARGS;
 					case ')':
