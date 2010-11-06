@@ -238,7 +238,6 @@ public class Main {
 				// System.out.print(tok.getText());
 				output.write(tok.getText());
 			}
-			output.close();
 			// System.out.println(pp.toString());
 		} catch (Throwable e) {
 			Preprocessor.logger.severe(e.toString());
@@ -250,6 +249,7 @@ public class Main {
 			}
 		} finally {
 			pp.debugWriteMacros();
+                        output.close();
 		}
 
 	}
