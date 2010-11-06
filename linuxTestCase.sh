@@ -11,7 +11,7 @@ srcPath=$PWD/linux-2.6.33.3
 ##################################################################
 # List of files to preprocess
 ##################################################################
-list=kernel/fork
+list="init/calibrate drivers/video/console/dummycon init/main arch/x86/kernel/irq kernel/fork"
 
 ##################################################################
 # Preprocessing flags
