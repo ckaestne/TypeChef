@@ -4,6 +4,7 @@ if [ -z "$jcppConfLoaded" ]; then
   source jcpp.conf
 fi
 inp=$1
+shift
 
 . setupOutPaths.sh.inc
 
