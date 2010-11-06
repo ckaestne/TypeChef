@@ -15,5 +15,6 @@ project/plugins/project/
 debugsource.txt
 tokenstream.txt
 *.pi
+*.i
 *.pi.ast
 *.o
