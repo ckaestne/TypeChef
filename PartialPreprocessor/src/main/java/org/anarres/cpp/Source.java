@@ -224,8 +224,8 @@ public abstract class Source implements Iterable<Token>, Closeable {
 				 * skipline context.
 				 */
 				/* XXX Are we sure about this? */
-//				warning(tok.getLine(), tok.getColumn(),
-//						"No newline before end of file");
+				// warning(tok.getLine(), tok.getColumn(),
+				// "No newline before end of file");
 				return new Token(NL, tok.getLine(), tok.getColumn(), "\n", this);
 				// return tok;
 			case NL:
@@ -239,7 +239,8 @@ public abstract class Source implements Iterable<Token>, Closeable {
 				/* XXX Check white, if required. */
 				if (white)
 					warning(tok.getLine(), tok.getColumn(),
-							"Unexpected nonwhite token ("+tok.getText()+") while skipping line");
+							"Unexpected nonwhite token (" + tok.getText()
+									+ ") while skipping line");
 				break;
 			}
 		}
@@ -273,5 +274,16 @@ public abstract class Source implements Iterable<Token>, Closeable {
 	}
 
 	abstract String debug_getContent();
+
+	/**
+	 * it is possible to define a source in which all defined(X) expressions are
+	 * already normalized so that they only refer to external definitions.
+	 * 
+	 * in this case, this function may return true to avoid looking up the macro
+	 * in the macro table.
+	 */
+	public boolean isNormalizedExternalFeatureExpr() {
+		return false;
+	}
 
 }

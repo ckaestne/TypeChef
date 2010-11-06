@@ -927,9 +927,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						space = true;
 						break;
 					case HASH:
-					        //PG: TODO - I've seen #if in a macro argument,
-					        //and this code sometimes _expands_ the if (which can be defined as a macro in the Linux kernel)!!!
-					        //throw new LexerException("Unimplemented handling of # in macro args, important TODO!");
+						// PG: TODO - I've seen #if in a macro argument,
+						// and this code sometimes _expands_ the if (which can
+						// be defined as a macro in the Linux kernel)!!!
+						// throw new
+						// LexerException("Unimplemented handling of # in macro args, important TODO!");
 					default:
 						/*
 						 * Do not put space on the beginning of an argument
@@ -1710,11 +1712,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			lhs = FeatureExprLib.l().createNeg(parse_featureExpr(11));
 			break;
 		case INTEGER:
-			lhs = FeatureExprLib.l().createInteger(((Number) tok.getValue())
-					.longValue());
+			lhs = FeatureExprLib.l().createInteger(
+					((Number) tok.getValue()).longValue());
 			break;
 		case CHARACTER:
-			lhs = FeatureExprLib.l().createCharacter((Character) tok.getValue());
+			lhs = FeatureExprLib.l()
+					.createCharacter((Character) tok.getValue());
 			break;
 		case IDENTIFIER:
 			if (tok.getText().equals("BASE"))
@@ -1898,8 +1901,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			error(la, "defined() needs identifier, not " + la.getText());
 			lhs = FeatureExprLib.dead();
 		} else
-			// System.out.println("Found macro");
+		// System.out.println("Found macro");
+		if (!la.getSource().isNormalizedExternalFeatureExpr())
 			lhs = FeatureExprLib.l().createDefined(la.getText(), macros);
+		else
+			/*
+			 * when expression was created by expanding a macro, do not look up
+			 * macro definition, it is already based on external features only
+			 */
+			lhs = FeatureExprLib.l().createDefinedExternal(la.getText());
 
 		if (paren) {
 			la = source_token_nonwhite();
