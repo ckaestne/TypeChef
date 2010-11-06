@@ -29,8 +29,9 @@ partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=includ
 # I don't know what to do with these flags. They should not be here!
 # partialPreprocFlags="$partialPreprocFlags " "-D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
 
-# XXX: There is a bug in handling CONFIG_PARAVIRT-related headers. Workaround it.
-partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT"
+# XXX: Workaround bugs triggered by these macros.
+partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
+
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
 
@@ -51,6 +52,7 @@ for i in $list; do
   . ./jcpp.sh $srcPath/$i.c $(flags "$base")
 done
 for i in $list; do
+  base=$(basename $i)
   . ./postProcess.sh $srcPath/$i.c $(flags "$base")
 done
 
