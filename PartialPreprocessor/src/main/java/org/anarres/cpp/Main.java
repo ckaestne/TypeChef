@@ -20,6 +20,7 @@ package org.anarres.cpp;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
@@ -176,7 +177,7 @@ public class Main {
 				pp.getWarnings().clear();
 				break;
 			case 'o':
-				output = new FileWriter(g.getOptarg());
+				output = new BufferedWriter(new FileWriter(g.getOptarg()));
 				break;
 			case 1: // --include=
 				pp.addInput(new File(g.getOptarg()));
