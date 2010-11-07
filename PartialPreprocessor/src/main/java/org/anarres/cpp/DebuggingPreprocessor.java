@@ -51,7 +51,7 @@ public abstract class DebuggingPreprocessor {
 					"macroDebug.txt"));
 			writer.write(debugMacros());
 			writer.close();
-			debugNextTokens();
+//			debugNextTokens();
 			logger.info("macro dump written");
 		} catch (IOException e) {
 			e.printStackTrace();
