@@ -1,5 +1,5 @@
 +1 #if (defined(A)||defined(XA))
 +1 #if (defined(B)||defined(XB))&&(defined(XB)||!(defined(A)))
-+1 #if ((defined(C) && !(defined(A)) && !(defined(B))) || defined(XC))
-+1 #if ((!(defined(C)) && !(defined(A)) && !(defined(B))) || defined(XD))
-+1 #if (defined(A) || defined(GLOBAL) || (defined(B) && !(defined(A))) || (defined(C) && !(defined(A)) && !(defined(B))))
++1 #if (defined(C)||defined(XC))&&(defined(XC)||!(defined(A)))&&(defined(XC)||!(defined(B)))
++1 #if (defined(XD)||!(defined(C)))&&(defined(XD)||!(defined(A)))&&(defined(XD)||!(defined(B)))
++1 #if (defined(A)||defined(GLOBAL)||defined(B)||defined(C))
