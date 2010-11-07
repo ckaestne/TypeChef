@@ -104,4 +104,9 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testSelfDef() throws LexerException, IOException {
 		testFile("selfdef.c");
 	}
+	
+	@Test
+	public void testNonTautologicExpansions() throws LexerException, IOException {
+		testFile("macro_possible.c");
+	}
 }

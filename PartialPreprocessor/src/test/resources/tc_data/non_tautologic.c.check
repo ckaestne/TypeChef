@@ -1,0 +1,2 @@
++1 char* g_get_user_name(void);
++1 char* g_get_user_name_utf8(void);
