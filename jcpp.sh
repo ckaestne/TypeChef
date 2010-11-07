@@ -41,4 +41,5 @@ $basePath/PartialPreprocessor/lib/gnu.getopt.jar \
   '$inp' -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
   2> "$outTime" || true
 
+cat "$outErr"  1>&2
 mv $macro_stats_path "$outStats" || true
