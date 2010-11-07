@@ -47,11 +47,14 @@ public class AbstractCheckTests {
 
 		InputStream inputStream = getClass().getResourceAsStream(
 				"/" + folder + filename);
-		
-		
 
-		StringBuffer output = parse(new FileLexerSource(inputStream, folder
-				+ filename), debug, getClass().getResource("/" + folder).getFile());
+		StringBuffer output;
+		try {
+			output = parse(new FileLexerSource(inputStream, folder + filename),
+					debug, getClass().getResource("/" + folder).getFile());
+		} catch (LexerException e) {
+			output = new StringBuffer("ERROR: ").append(e.toString());
+		}
 		check(filename, folder, output);
 
 	}
@@ -65,16 +68,17 @@ public class AbstractCheckTests {
 			throws FileNotFoundException, IOException {
 		InputStream inputStream = getClass().getResourceAsStream(
 				"/" + folder + filename + ".check");
-		BufferedReader checkFile = new BufferedReader(new InputStreamReader(inputStream));
+		BufferedReader checkFile = new BufferedReader(new InputStreamReader(
+				inputStream));
 		String line;
 		while ((line = checkFile.readLine()) != null) {
 			if (line.startsWith("!")) {
 				String substring = line.substring(2);
 				if (output.toString().contains(substring)) {
 					System.err.println(output);
-					Assert
-							.fail(substring
-									+ " found but not expected in output\n"+output.toString());
+					Assert.fail(substring
+							+ " found but not expected in output\n"
+							+ output.toString());
 				}
 			}
 			if (line.startsWith("+")) {
@@ -93,7 +97,8 @@ public class AbstractCheckTests {
 				if (expected != found) {
 					failOutput(output);
 					Assert.fail(substring + " found " + found
-							+ " times, but expected " + expected + " times\n"+content);
+							+ " times, but expected " + expected + " times\n"
+							+ content);
 				}
 			}
 			if (line.startsWith("*")) {
@@ -103,8 +108,14 @@ public class AbstractCheckTests {
 				int idx = content.indexOf(substring);
 				if (idx < 0) {
 					failOutput(output);
-					Assert.fail(substring + " not found but expected\n"+content);
+					Assert.fail(substring + " not found but expected\n"
+							+ content);
 				}
+			}
+			if (line.trim().equals("error")) {
+				Assert.assertTrue(
+						"Expected error, but preprocessing succeeded", output
+								.toString().startsWith("ERROR: "));
 			}
 			if (line.trim().equals("print")) {
 				System.out.println(output.toString());
@@ -123,7 +134,7 @@ public class AbstractCheckTests {
 
 	private StringBuffer parse(Source source, boolean debug, String folder)
 			throws LexerException, IOException {
-		//XXX Why here? And isn't the whole thing duplicated from elsewhere?
+		// XXX Why here? And isn't the whole thing duplicated from elsewhere?
 		MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
 
 		pp = new Preprocessor();
@@ -136,7 +147,8 @@ public class AbstractCheckTests {
 			public void handleWarning(Source source, int line, int column,
 					String msg) throws LexerException {
 				super.handleWarning(source, line, column, msg);
-				throw new LexerException(msg+" "+source+":"+line+":"+column);
+				throw new LexerException(msg + " " + source + ":" + line + ":"
+						+ column);
 			}
 		});
 		pp.addMacro("__JCPP__", FeatureExprLib.base());

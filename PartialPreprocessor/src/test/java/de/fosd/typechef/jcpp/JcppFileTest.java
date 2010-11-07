@@ -92,21 +92,35 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testNumericIfAlternative() throws LexerException, IOException {
 		testFile("ifdefnumeric.c");
 	}
+
 	@Test
 	public void testLinuxTestFLock() throws LexerException, IOException {
 		testFile("linuxtestflock.c");
 	}
+
 	@Test
 	public void testElIfChain() throws LexerException, IOException {
 		testFile("elifchain.c");
 	}
+
 	@Test
 	public void testSelfDef() throws LexerException, IOException {
 		testFile("selfdef.c");
 	}
-	
+
 	@Test
-	public void testNonTautologicExpansions() throws LexerException, IOException {
+	public void testNonTautologicExpansions() throws LexerException,
+			IOException {
 		testFile("non_tautologic.c");
+	}
+
+	@Test
+	public void testVariadic() throws LexerException, IOException {
+		testFile("variadic.c");
+	}
+
+	@Test
+	public void testIncompMacroExp() throws LexerException, IOException {
+		testFile("incompatibleMacroExp.c");
 	}
 }
