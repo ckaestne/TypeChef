@@ -7,3 +7,4 @@ cd vim$maj$min
 # Compilation options used for Vim. FEAT_TINY makes sure most features are left
 # variable.
 ./configure --enable-pythoninterp --with-features=tiny
+make -C vim73/src auto/osdef.h
