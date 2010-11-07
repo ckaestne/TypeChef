@@ -729,15 +729,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		// check compatible macros
 		MacroData firstMacro = ((MacroData) macroExpansions[0].getExpansion());
 		int argCount = firstMacro.getArgCount();
-		boolean isVariadic = ((MacroData) macroExpansions[0].getExpansion())
+		boolean isVariadic = firstMacro
 				.isVariadic();
 		for (int i = 1; i < macroExpansions.length; i++) {
-			MacroData macro = ((MacroData) macroExpansions[0].getExpansion());
+			MacroData macro = ((MacroData) macroExpansions[i].getExpansion());
 			if (macro.getArgCount() != argCount
 					|| macro.isVariadic() != isVariadic)
 				error(orig,
-						"Multiple alternative macros with different signatures not yet supported. "
-								+ macro.getText() + "/" + firstMacro.getText());
+						"Multiple alternative macros with different signatures not (yet) supported. "
+								+ macro.getText() + " vs. " + firstMacro.getText());
 		}
 
 		// parse parameters
