@@ -1,6 +1,6 @@
 package de.fosd.typechef.featureexpr
 
-import lazyLib._
+import LazyLib._
 
 object FeatureExpr {
     def createDefined(feature: String, context: FeatureProvider): FeatureExpr =
@@ -137,97 +137,6 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
 
 }
 
-/** normal form for both DNF and CNF **/
-class NF(val clauses: Set[Clause], val isFull: Boolean) {
-    /** isFull is meant to be the oppositve of empty
-     * with CNF empty means always true and full means always false
-     * with DNF empty means always false and full means always true   
-     * it is not valid to set clauses and isFull at the same time  */
-
-    def this(c: Set[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
-    def this(emptyOrFull_isFull: Boolean) = this(Set(), emptyOrFull_isFull)
-
-    /** join (CNF and CNF / DNF or DNF)**/
-    def ++(that: NF) = if (this.isFull || that.isFull) new NF(true) else new NF(this.clauses ++ that.clauses)
-    /** explode (CNF or CNF / DNF and DNF)**/
-    def **(that: NF) =
-        if (this.isFull) that
-        else if (that.isFull) this
-        else new NF(for (clauseA <- this.clauses; clauseB <- that.clauses) yield clauseA ++ clauseB)
-    /** negate all literals **/
-    def neg() =
-        if (isEmpty || isFull) this
-        else new NF(clauses.map(_.neg))
-    /** empty means true for CNF, false for DNF **/
-    def isEmpty = !isFull && clauses.isEmpty
-    override def toString = if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
-    def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&&")
-    override def hashCode = clauses.hashCode
-    override def equals(that: Any) = that match { case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false }
-}
-/** clause in a normal form **/
-class Clause(var posLiterals: Set[DefinedExternal], var negLiterals: Set[DefinedExternal]) {
-    def simplify = {
-        //A || !A = true 
-        if (!(posLiterals intersect negLiterals).isEmpty) {
-            posLiterals = Set()
-            negLiterals = Set()
-        }
-        this
-    }
-    def isEmpty = posLiterals.isEmpty && negLiterals.isEmpty
-    /** join two clauses **/
-    def ++(that: Clause) = new Clause(this.posLiterals ++ that.posLiterals, this.negLiterals ++ that.negLiterals).simplify
-    def neg() = new Clause(this.negLiterals, this.posLiterals)
-    def size = posLiterals.size + negLiterals.size
-    override def toString =
-        (posLiterals.map(_.feature) ++ negLiterals.map("!" + _.feature)).mkString("(", "*", ")")
-    def printCNF =
-        (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "||", ")")
-    override def hashCode = posLiterals.hashCode + negLiterals.hashCode
-    override def equals(that: Any) = that match {
-        case thatClause: Clause => (this.posLiterals equals thatClause.posLiterals) && (this.negLiterals equals thatClause.negLiterals)
-        case _ => false
-    }
-}
-object NFBuilder {
-    def toCNF_(expr: FeatureExprTree): Option[NF] = try { Some(toCNF(expr)) } catch { case e: NFException => None }
-    def toDNF_(expr: FeatureExprTree): Option[NF] = try { Some(toDNF(expr)) } catch { case e: NFException => None }
-    def toCNF(expr: FeatureExprTree): NF = toNF(expr.toCNF, true)
-    def toDNF(expr: FeatureExprTree): NF = toNF(expr.toDNF, false)
-    def toNF(expr: FeatureExprTree, isCNF: Boolean) = expr match {
-        case And(clauses) if isCNF => {
-            new NF(for (clause <- clauses) yield clause match {
-                case Or(o) => toClause(o)
-                case e => toClause(Set(e)) //literal?
-            })
-        }
-        case Or(clauses) if !isCNF => {
-            new NF(for (clause <- clauses) yield clause match {
-                case And(c) => toClause(c)
-                case e => toClause(Set(e)) //literal?
-            })
-        }
-        case Or(o) if isCNF => new NF(Set(toClause(o)))
-        case And(o) if !isCNF => new NF(Set(toClause(o)))
-        case f@DefinedExternal(_) => new NF(Set(new Clause(Set(f), Set())))
-        case Not(f@DefinedExternal(_)) => new NF(Set(new Clause(Set(), Set(f))))
-        case BaseFeature() => new NF(!isCNF)
-        case DeadFeature() => new NF(isCNF)
-        case e => throw new NoNFException(e, expr, isCNF)
-    }
-    def toClause(literals: Set[FeatureExprTree]): Clause = {
-        var posLiterals: Set[DefinedExternal] = Set()
-        var negLiterals: Set[DefinedExternal] = Set()
-        for (literal <- literals)
-            literal match {
-                case f@DefinedExternal(_) => posLiterals = posLiterals + f
-                case Not(f@DefinedExternal(_)) => negLiterals = negLiterals + f
-                case e => throw new NoLiteralException(e)
-            }
-        new Clause(posLiterals, negLiterals)
-    }
-}
 
 sealed abstract class FeatureExprTree {
     //optimization to not simplify the same expression over and over again
@@ -524,38 +433,3 @@ object Or {
 case class UnaryFeatureExprTree(expr: FeatureExprTree, opStr: String, op: (Long) => Long) extends AbstractUnaryFeatureExprTree(expr, opStr, op)
 case class BinaryFeatureExprTree(left: FeatureExprTree, right: FeatureExprTree, opStr: String, op: (Long, Long) => Long) extends AbstractBinaryFeatureExprTree(left, right, opStr, op)
 
-object lazyLib {
-
-    /** Delay the evaluation of an expression until it is needed. */
-    def delay[A](value: => A): Susp[A] = new SuspImpl[A](value)
-
-    /** Get the value of a delayed expression. */
-    implicit def force[A](s: Susp[A]): A = s()
-
-    /** 
-     * Data type of suspended computations. (The name froms from ML.) 
-     */
-    abstract class Susp[+A] extends Function0[A]
-
-    /** 
-     * Implementation of suspended computations, separated from the 
-     * abstract class so that the type parameter can be invariant. 
-     */
-    class SuspImpl[A](lazyValue: => A) extends Susp[A] {
-        private var maybeValue: Option[A] = None
-
-        override def apply() = maybeValue match {
-            case None =>
-                val value = lazyValue
-                maybeValue = Some(value)
-                value
-            case Some(value) =>
-                value
-        }
-
-        override def toString() = maybeValue match {
-            case None => "Susp(?)"
-            case Some(value) => "Susp(" + value + ")"
-        }
-    }
-}
