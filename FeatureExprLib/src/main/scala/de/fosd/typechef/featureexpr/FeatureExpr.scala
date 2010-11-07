@@ -92,18 +92,18 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
         neg(this.cnfExpr))
 
     def isSatisfiable(): Boolean =
-            try {
-                    this.cnfExpr() match {
-                    case Some(cnfExpr) => new SatSolver().isSatisfiable(cnfExpr)
-                    case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr))
-                    }
-            } catch {
-                    case t: Throwable => {
-                            System.err.println("Exception on isSatisfiable for: " + expr.print())
-                            t.printStackTrace
-                            throw t
-                    }
+        try {
+            this.cnfExpr() match {
+                case Some(cnfExpr) => new SatSolver().isSatisfiable(cnfExpr)
+                case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr))
             }
+        } catch {
+            case t: Throwable => {
+                System.err.println("Exception on isSatisfiable for: " + expr.print())
+                t.printStackTrace
+                throw t
+            }
+        }
 
     def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay((a(), b()) match {
         case (Some(na), Some(nb)) => Some(op(na, nb))
@@ -125,9 +125,10 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
     }
 
     def debug_print(): String = {
-      //XXX: Simplify does not modify the expression, it produces a new one!!!
-      simplify();
-      expr.debug_print(0); }
+        //XXX: Simplify does not modify the expression, it produces a new one!!!
+        simplify();
+        expr.debug_print(0);
+    }
 
     override def equals(that: Any) = that match {
         case e: FeatureExpr => (this eq e) || (this.expr eq e.expr) || this.implies(e).and(e.implies(this)).isBase;
@@ -290,14 +291,15 @@ sealed abstract class FeatureExprTree {
 
                 case BinaryFeatureExprTree(left, right, opStr, op) =>
                     (left simplify, right simplify) match {
-                        case (IntegerLit(a), IntegerLit(b)) => try {
+                        case (IntegerLit(a), IntegerLit(b)) =>
+                            try {
                                 IntegerLit(op(a, b))
-                        } catch {
-                                case t: Throwable => 
-                                System.err.println("Exception with left = " + left.print + ", right = " + right.print)
-                                t.printStackTrace()
-                                throw t
-                        }
+                            } catch {
+                                case t: Throwable =>
+                                    System.err.println("Exception with left = " + left.print + ", right = " + right.print)
+                                    t.printStackTrace()
+                                    throw t
+                            }
                         case (IfExpr(c, a, b), right) => IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op), BinaryFeatureExprTree(b, right, opStr, op)).simplify
                         case (left, IfExpr(c, a, b)) => IfExpr(c, BinaryFeatureExprTree(left, a, opStr, op), BinaryFeatureExprTree(left, b, opStr, op)).simplify
                         case (a, b) => BinaryFeatureExprTree(a, b, opStr, op)
@@ -321,10 +323,14 @@ sealed abstract class FeatureExprTree {
                     val as = a simplify;
                     val bs = b simplify;
                     val cs = c simplify;
-                    if (cs == BaseFeature()) as
-                    else if (cs == DeadFeature()) bs
-                    else if (as == bs) as
-                    else IfExpr(cs, as, bs)
+                    (cs, as, bs) match {
+                        case (BaseFeature(), a, _) => a
+                        case (DeadFeature(), _, b) => b
+                        case (c, BaseFeature(), DeadFeature()) => c
+                        case (c, DeadFeature(), BaseFeature()) => Not(c) simplify
+                        case (c, a, b) if (a == b) => a
+                        case (c, a, b) => IfExpr(c, a, b)
+                    }
                 }
 
                 case IntegerLit(_) => this
