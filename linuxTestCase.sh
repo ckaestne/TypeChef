@@ -1,5 +1,5 @@
-#!/bin/bash -vxe
 #!/bin/bash -e
+#!/bin/bash -vxe
 
 ##################################################################
 # Location of the Linux kernel.

@@ -1,5 +1,5 @@
-#!/bin/bash -vxe
 #!/bin/bash -e
+#!/bin/bash -vxe
 
 # Hack to add an option just for the partial preprocessor.
 . jcpp.conf
