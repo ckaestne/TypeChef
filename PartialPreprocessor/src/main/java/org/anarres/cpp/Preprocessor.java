@@ -1180,10 +1180,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						seenParamName = true;
 						break;
 					case ELLIPSIS:
+						assert !seenParamName; // PG: let's check this.
 						if (!seenParamName) {
-							// C99 macro!
-							args.add("__VA_ARGS__"); // PG: hack, I don't expect
-														// it to really work.
+							// This trick correctly implements the semantics of
+							// C99 variadic macros as described by the standard
+							// (6.3.10.1).
+							args.add("__VA_ARGS__");
 						}
 						tok = source_token_nonwhite();
 						if (tok.getType() != ')')
