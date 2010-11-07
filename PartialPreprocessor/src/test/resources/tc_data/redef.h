@@ -1,3 +1,4 @@
+---------------------
 
 #define X 100
 
@@ -5,6 +6,7 @@
 
 print(X)
 
+---------------------
 
 #define Y x10
 #define Y x20
@@ -19,3 +21,22 @@ print2(Y)
 #endif
 
 print3(Y)
+
+
+---------------------
+
+#define Z bb
+#ifdef FOO
+#define Z aa
+#endif
+#ifdef BAR
+#define Z aa
+#endif
+
+printz(Z)
+
+#ifndef BAR
+#define Z aa
+#endif
+
+printz2(Z)
