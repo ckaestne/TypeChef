@@ -128,4 +128,12 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testRedef() throws LexerException, IOException {
 		testFile("redef.h");
 	}
+	
+	//jiffies contains complex calculations; from the linux kernel headers
+	@Test
+	public void testJiffies() throws LexerException, IOException {
+		testFile("jiffiesTest.h");
+	}
+	
+	
 }

@@ -49,13 +49,17 @@ public class AbstractCheckTests {
 				"/" + folder + filename);
 
 		StringBuffer output;
+		LexerException ex = null;
 		try {
 			output = parse(new FileLexerSource(inputStream, folder + filename),
 					debug, getClass().getResource("/" + folder).getFile());
 		} catch (LexerException e) {
+			ex = e;
 			output = new StringBuffer("ERROR: ").append(e.toString());
 		}
-		check(filename, folder, output);
+		if (!check(filename, folder, output))
+			if (ex != null)
+				throw ex;
 
 	}
 
@@ -64,8 +68,9 @@ public class AbstractCheckTests {
 		return parse(new StringLexerSource(code, true), false, null).toString();
 	}
 
-	private void check(String filename, String folder, StringBuffer output)
+	private boolean check(String filename, String folder, StringBuffer output)
 			throws FileNotFoundException, IOException {
+		boolean containsErrorCheck = false;
 		InputStream inputStream = getClass().getResourceAsStream(
 				"/" + folder + filename + ".check");
 		BufferedReader checkFile = new BufferedReader(new InputStreamReader(
@@ -113,6 +118,7 @@ public class AbstractCheckTests {
 				}
 			}
 			if (line.trim().equals("error")) {
+				containsErrorCheck = true;
 				Assert.assertTrue(
 						"Expected error, but preprocessing succeeded", output
 								.toString().startsWith("ERROR: "));
@@ -124,6 +130,7 @@ public class AbstractCheckTests {
 				System.out.println(pp.debugMacros());
 			}
 		}
+		return containsErrorCheck;
 	}
 
 	private void failOutput(StringBuffer output) {
