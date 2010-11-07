@@ -67,7 +67,7 @@ trait FeatureExpr {
  * CNF and DNF are updated immediately on changes
  */
 protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF]], adnfExpr: Susp[Option[NF]]) extends FeatureExpr {
-    def this(expr: FeatureExprTree) = this(expr, delay(NFBuilder.toCNF_(expr)), delay(NFBuilder.toDNF_(expr)))
+    def this(expr: FeatureExprTree) = this(expr, delay(NFBuilder.toCNF_(expr.toCNF)), delay(NFBuilder.toDNF_(expr.toDNF)))
 
     def expr: FeatureExprTree = aexpr
     def cnfExpr = acnfExpr
@@ -95,7 +95,7 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
         try {
             this.cnfExpr() match {
                 case Some(cnfExpr) => new SatSolver().isSatisfiable(cnfExpr)
-                case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr))
+                case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr.toCNF))
             }
         } catch {
             case t: Throwable => {
@@ -137,7 +137,6 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
 
 }
 
-
 sealed abstract class FeatureExprTree {
     //optimization to not simplify the same expression over and over again
     private var isSimplified: Boolean = false
@@ -146,7 +145,7 @@ sealed abstract class FeatureExprTree {
         if (isSimplified)
             this
         else {
-            val result = this match {
+            val result = this bubbleUpIf match {
                 case And(children) => {
                     val childrenSimplified = children.map(_.simplify().intToBool()) - BaseFeature(); //TODO also remove all non-zero integer literals
                     var childrenFlattened: Set[FeatureExprTree] = Set()
@@ -198,9 +197,12 @@ sealed abstract class FeatureExprTree {
                         Or(childrenFlattened)
                 }
 
+                /**
+                 * first try push down binary operators over if without simplifying. simplify afterward
+                 */
                 case BinaryFeatureExprTree(left, right, opStr, op) =>
-                    (left simplify, right simplify) match {
-                        case (IntegerLit(a), IntegerLit(b)) =>
+                    (left simplify, opStr, right simplify) match {
+                        case (IntegerLit(a), _, IntegerLit(b)) =>
                             try {
                                 IntegerLit(op(a, b))
                             } catch {
@@ -209,15 +211,15 @@ sealed abstract class FeatureExprTree {
                                     t.printStackTrace()
                                     throw t
                             }
-                        case (IfExpr(c, a, b), right) => IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op), BinaryFeatureExprTree(b, right, opStr, op)).simplify
-                        case (left, IfExpr(c, a, b)) => IfExpr(c, BinaryFeatureExprTree(left, a, opStr, op), BinaryFeatureExprTree(left, b, opStr, op)).simplify
-                        case (a, b) => BinaryFeatureExprTree(a, b, opStr, op)
+                        case (a, opStr, b) => BinaryFeatureExprTree(a, b, opStr, op)
                     }
 
+                /**
+                 * as binary expr, first propagate down inside if branches before further simplifications
+                 */
                 case UnaryFeatureExprTree(expr, opStr, op) =>
                     expr simplify match {
                         case IntegerLit(x) => IntegerLit(op(x));
-                        case IfExpr(c, a, b) => IfExpr(c, UnaryFeatureExprTree(a, opStr, op), UnaryFeatureExprTree(b, opStr, op)).simplify
                         case x => UnaryFeatureExprTree(x, opStr, op)
                     }
 
@@ -228,6 +230,9 @@ sealed abstract class FeatureExprTree {
                         case e => Not(e)
                     }
 
+                /**
+                 * binary expressions are pushed inside ifexpr before simplifcation here
+                 */
                 case IfExpr(c, a, b) => {
                     val as = a simplify;
                     val bs = b simplify;
@@ -235,10 +240,9 @@ sealed abstract class FeatureExprTree {
                     (cs, as, bs) match {
                         case (BaseFeature(), a, _) => a
                         case (DeadFeature(), _, b) => b
-                        case (c, BaseFeature(), DeadFeature()) => c
-                        case (c, DeadFeature(), BaseFeature()) => Not(c) simplify
                         case (c, a, b) if (a == b) => a
-                        case (c, a, b) => IfExpr(c, a, b)
+                        //case (c, a, b) => IfExpr(c, a, b)
+                        case (c, a, b) => Or(And(c, a), And(Not(c), b)) simplify
                     }
                 }
 
@@ -249,6 +253,38 @@ sealed abstract class FeatureExprTree {
             result.setSimplified
         }
     }
+
+    /**
+     * step prior to simplification. Unary and Binary expressions are pushed down
+     * over IfExpr in the tree. IfExpr should not be children of Binary or Unary operators
+     * on Integers 
+     */
+    private def bubbleUpIf: FeatureExprTree =
+        this match {
+            case And(children) => And(children.map(_.bubbleUpIf))
+            case Or(children) => Or(children.map(_.bubbleUpIf))
+
+            case BinaryFeatureExprTree(left, right, opStr, op) =>
+                (left bubbleUpIf, right bubbleUpIf) match {
+                    case (IfExpr(c, a, b), right) => IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op) bubbleUpIf, BinaryFeatureExprTree(b, right, opStr, op) bubbleUpIf)
+                    case (left, IfExpr(c, a, b)) => IfExpr(c, BinaryFeatureExprTree(left, a, opStr, op) bubbleUpIf, BinaryFeatureExprTree(left, b, opStr, op) bubbleUpIf)
+                    case (a, b) => BinaryFeatureExprTree(a, b, opStr, op)
+                }
+
+            case UnaryFeatureExprTree(expr, opStr, op) =>
+                expr bubbleUpIf match {
+                    case IfExpr(c, a, b) => IfExpr(c, UnaryFeatureExprTree(a, opStr, op) bubbleUpIf, UnaryFeatureExprTree(b, opStr, op) bubbleUpIf)
+                    case e => UnaryFeatureExprTree(e, opStr, op)
+                }
+
+            case Not(a) => Not(a bubbleUpIf)
+
+            case IfExpr(c, a, b) => IfExpr(c bubbleUpIf, a bubbleUpIf, b bubbleUpIf)
+
+            case IntegerLit(_) => this
+
+            case DefinedExternal(_) => this
+        }
 
     def print(): String
     def debug_print(level: Int): String

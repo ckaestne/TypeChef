@@ -65,14 +65,16 @@ class Clause(var posLiterals: Set[DefinedExternal], var negLiterals: Set[Defined
 /**
  * NFBuilder builds normal form classes from expressions that are already in normal form
  * 
- * NFBuilder will not turn arbitrary expressions into normal forms! Use FeatureExprTree.toCNF instead
+ * NFBuilder will not turn arbitrary expressions into normal forms! Use 
+ * FeatureExprTree.toCNF before. Throws an exception when applied to
+ * a non-NF formula 
  */
 object NFBuilder {
-    def toCNF_(expr: FeatureExprTree): Option[NF] = try { Some(toCNF(expr)) } catch { case e: NFException => None }
-    def toDNF_(expr: FeatureExprTree): Option[NF] = try { Some(toDNF(expr)) } catch { case e: NFException => None }
-    def toCNF(expr: FeatureExprTree): NF = toNF(expr.toCNF, true)
-    def toDNF(expr: FeatureExprTree): NF = toNF(expr.toDNF, false)
-    private def toNF(expr: FeatureExprTree, isCNF: Boolean) = expr match {
+    def toCNF_(exprInCNF: FeatureExprTree): Option[NF] = try { Some(toCNF(exprInCNF)) } catch { case e: NFException => None }
+    def toDNF_(exprInDNF: FeatureExprTree): Option[NF] = try { Some(toDNF(exprInDNF)) } catch { case e: NFException => None }
+    def toCNF(exprInCNF: FeatureExprTree): NF = toNF(exprInCNF, true)
+    def toDNF(exprInDNF: FeatureExprTree): NF = toNF(exprInDNF, false)
+    private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) = exprInNF match {
         case And(clauses) if isCNF => {
             new NF(for (clause <- clauses) yield clause match {
                 case Or(o) => toClause(o)
@@ -91,7 +93,7 @@ object NFBuilder {
         case Not(f@DefinedExternal(_)) => new NF(Set(new Clause(Set(), Set(f))))
         case BaseFeature() => new NF(!isCNF)
         case DeadFeature() => new NF(isCNF)
-        case e => throw new NoNFException(e, expr, isCNF)
+        case e => throw new NoNFException(e, exprInNF, isCNF)
     }
     private def toClause(literals: Set[FeatureExprTree]): Clause = {
         var posLiterals: Set[DefinedExternal] = Set()
