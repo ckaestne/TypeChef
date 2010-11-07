@@ -793,25 +793,31 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 							.getColumn(), String.valueOf(value), Integer
 							.valueOf(value), null) }), true);
 		} else {
-			if (macroExpansions.length == 1) {// TODO what happens if the macro
+			// check that every variant is covered, there is no case when this macro
+			// is not replaced
+			// currentstate => (alt1 || alt2|| alt3)
+			FeatureExpr commonCondition = getCommonCondition(macroExpansions);
+			if (macroExpansions.length == 1 && isExaustive(commonCondition)) {// TODO what happens if the macro
 				// is not always defined? check this!
 				// currentFeature => macroFeature
-				FeatureExpr commonCondition = state.getFullPresenceCondition()
-						.not().or(macroExpansions[0].getFeature());
-				if (!commonCondition.isBase())
+				//
+				/*FeatureExpr commonCondition = state.getFullPresenceCondition()
+						.not().or(macroExpansions[0].getFeature());*/
+				// PG: XXX: dead code! But should this be moved elsewhere?
+				/*if (!isExaustive(commonCondition))
 					macroConstraints.add(new MacroConstraint(macroName,
 							MacroConstraintKind.NOTEXPANDING, commonCondition
-									.not()));
+									.not()));*/
 
 				sourceManager.push_source(createMacroTokenSource(macroName, args, firstMacro), true);
 				// expand all alternative macros
 			} else {
 				if (inlineCppExpression)
 					macro_expandAlternativesInline(macroName, macroExpansions,
-							args, originalTokens);
+							args, originalTokens, commonCondition);
 				else
 					macro_expandAlternatives(macroName, macroExpansions, args,
-							originalTokens);
+							originalTokens, commonCondition);
 			}
 		}
 
@@ -988,8 +994,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	private void macro_expandAlternatives(String macroName,
 			MacroExpansion[] macroExpansions, List<Argument> args,
-			List<Token> originalTokens) throws IOException {
-		FeatureExpr commonCondition = getCommonCondition(macroExpansions);
+			List<Token> originalTokens, FeatureExpr commonCondition) throws IOException {
 		boolean alternativesExaustive = isExaustive(commonCondition);
 
 		List<Source> resultList = new ArrayList<Source>();
@@ -1036,13 +1041,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 */
 	private void macro_expandAlternativesInline(final String macroName,
 			MacroExpansion[] macroExpansions, List<Argument> args,
-			List<Token> originalTokens) throws IOException {
+			List<Token> originalTokens, FeatureExpr commonCondition) throws IOException {
 		assert macroExpansions.length > 1;
 
-		// check that every variant is covered, there is no case when this macro
-		// is not replaced
-		// currentstate => (alt1 || alt2|| alt3)
-		FeatureExpr commonCondition = getCommonCondition(macroExpansions);
 		boolean alternativesExaustive = isExaustive(commonCondition);
 		if (!alternativesExaustive)
 			macroConstraints.add(new MacroConstraint(macroName,
@@ -1084,7 +1085,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		for (int i = macroExpansions.length - 1; i >= 1; i--)
 			commonCondition = commonCondition.or(macroExpansions[i]
 					.getFeature());
-		commonCondition = state.getLocalFeatureExpr().not().or(commonCondition);
+		//XXX: this should be getFullPresenceCondition()!
+		commonCondition = state.getFullPresenceCondition().not().or(commonCondition);
 		return commonCondition;
 	}
 
