@@ -1,8 +1,8 @@
-#!/bin/bash -vxe
+#!/bin/bash -e
 # Hack to add an option just for the partial preprocessor.
 . jcpp.conf
 
-partialPreprocFlags='-x FEAT_'
+partialPreprocFlags='-x FEAT_ -P _H'
 # Compilation options used for Vim. FEAT_TINY makes sure most features are left
 # variable.
 flags="-I. -Iproto -DHAVE_CONFIG_H $(pkg-config --cflags gtk+-2.0) -D_FORTIFY_SOURCE=1"
@@ -13,10 +13,10 @@ list='buffer blowfish charset diff digraph edit eval ex_cmds ex_cmds2 ex_docmd e
 srcPath=vim73/src
 
 for i in $list; do
-  ./jcpp.sh $srcPath/$i.c $flags
+  . ./jcpp.sh $srcPath/$i.c $flags
 done
 for i in $list; do
-  ./postProcess.sh $srcPath/$i.c $flags
+  . ./postProcess.sh $srcPath/$i.c $flags
 done
 # I commented out these other ones:
 # -DFEAT_GUI_GTK  # Should be a variable feature!
