@@ -18,3 +18,8 @@ tokenstream.txt
 *.i
 *.pi.ast
 *.o
+*.err
+*.stats
+*.time
+*.dbg
+*.diffs
