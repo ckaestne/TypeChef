@@ -107,6 +107,6 @@ public class JcppFileTest extends AbstractCheckTests {
 	
 	@Test
 	public void testNonTautologicExpansions() throws LexerException, IOException {
-		testFile("macro_possible.c");
+		testFile("non_tautologic.c");
 	}
 }
