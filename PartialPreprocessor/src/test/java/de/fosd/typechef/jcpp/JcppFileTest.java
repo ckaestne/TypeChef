@@ -123,4 +123,9 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testIncompMacroExp() throws LexerException, IOException {
 		testFile("incompatibleMacroExp.c");
 	}
+
+	@Test
+	public void testRedef() throws LexerException, IOException {
+		testFile("redef.h");
+	}
 }
