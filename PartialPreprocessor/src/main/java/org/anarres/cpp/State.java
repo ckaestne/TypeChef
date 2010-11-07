@@ -105,8 +105,12 @@ class State {
 	 * @return
 	 */
 	public boolean isActive() {
-		if (cache_isActive == null)
-			cache_isActive = new Boolean(!getFullPresenceCondition().isDead());
+		// check with cache and parent before using SAT solver
+		if (cache_isActive != null)
+			return cache_isActive.booleanValue();
+		if (parent!=null && !parent.isActive())
+			return false;
+		cache_isActive = new Boolean(!getFullPresenceCondition().isDead());
 		return cache_isActive.booleanValue();
 	}
 
