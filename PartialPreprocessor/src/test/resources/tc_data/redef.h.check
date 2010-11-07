@@ -1,3 +1,8 @@
 ! 100
 +1 200
+! x10
++2 x20
++1 x30
++1 Y
 print
+macrooutput
