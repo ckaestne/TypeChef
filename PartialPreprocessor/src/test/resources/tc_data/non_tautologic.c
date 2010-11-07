@@ -11,12 +11,14 @@ char* g_get_user_name(void);
 void* g_get_user_name(void);
 #endif
 
-#ifdef G_OS_WIN32
+#if defined(G_OS_WIN32) && defined(FOO)
 char* g_get_user_name(void);
 #endif
 
+#ifdef FOO
 #ifdef G_OS_WIN32
 #ifdef BAR
 char* g_get_user_name(void);
+#endif
 #endif
 #endif
