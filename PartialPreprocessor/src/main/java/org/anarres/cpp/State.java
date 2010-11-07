@@ -22,6 +22,7 @@ class State {
 
 	/* pp */void setSawElse() {
 		clearCache();
+		assert !localFeatures.isEmpty() : "else before #if?";
 		sawElse = true;
 		processElIf();
 	}
@@ -63,10 +64,11 @@ class State {
 		if (localFeatures.isEmpty())
 			return FeatureExprLib.base();
 		FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
-		/*if (sawElse)
-			result = result.not();*/
+		/*
+		 * if (sawElse) result = result.not();
+		 */
 		for (int i = 0; i < localFeatures.size() - 1; i++)
-			//result = result.and(localFeatures.get(i).not());
+			// result = result.and(localFeatures.get(i).not());
 			result = result.and(localFeatures.get(i));
 
 		return result;
@@ -130,6 +132,7 @@ class State {
 	}
 
 	public void processElIf() {
-		localFeatures.set(localFeatures.size() - 1, localFeatures.get(localFeatures.size() - 1).not());
+		localFeatures.set(localFeatures.size() - 1, localFeatures.get(
+				localFeatures.size() - 1).not());
 	}
 }
