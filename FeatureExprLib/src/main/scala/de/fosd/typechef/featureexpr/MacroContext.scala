@@ -23,12 +23,12 @@ import FeatureExpr.createDefinedExternal
  * 
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
-class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
+class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]) extends FeatureProvider {
     /**
      * when true, only CONFIG_ flags can be defined externally (simplifies the handling signficiantly)
      */
 
-    def this() = { this(Map()) }
+    def this() = { this(Map(),Map()) }
     def define(name: String, feature: FeatureExpr, other: Any): MacroContext = {
         assert(feature.isResolved)
         new MacroContext(
@@ -41,7 +41,7 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
                         feature
                     knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
                 }
-            })
+            }, cnfCache - name)
     }
 
     def undefine(name: String, feature: FeatureExpr): MacroContext = {
@@ -50,14 +50,9 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
                 case None => knownMacros + ((name, new Macro(name, feature.not().and(createDefinedExternal(name)), List())))
-            })
+            }, cnfCache - name)
     }
 
-    /**
-     *  //ChK: this is domain knowledge for linux
-     *  we assume that everything not starting with CONFIG_ is initially undefined!
-     *  everything with CONFIG_ is unknown (defined when externally defined)
-     */
     def getMacroCondition(feature: String): FeatureExpr = {
         knownMacros.get(feature) match {
             case Some(macro) => macro.getFeature()
@@ -69,6 +64,27 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
         }
     }
 
+    /**
+     * this returns a condition for the SAT solver in CNF in the following
+     * form
+     * 
+     * DefinedMacro <=> getMacroCondition
+     * 
+     * the result is cached
+     */
+    def getMacroSATCondition(feature: String): NF = {
+    	if (cnfCache.contains(feature))
+    		return cnfCache(feature)
+    	
+    	val c=getMacroCondition(feature)
+    	val d=FeatureExpr.createDefinedMacro(feature)
+    	val condition=(c implies d) and (d implies c)
+    	val cnf=condition.toCNF
+    	cnfCache = cnfCache + ((feature, cnf))
+    	cnf
+    }
+    
+    
     def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isDead(this)
 
     def isFeatureBase(feature: String): Boolean = getMacroCondition(feature).isBase(this)

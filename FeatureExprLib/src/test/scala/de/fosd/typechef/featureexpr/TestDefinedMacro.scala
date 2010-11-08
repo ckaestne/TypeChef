@@ -19,7 +19,7 @@ class TestDefinedMacro extends TestCase {
 
     @Test
     def testMacroTable() {
-        var macroTable = new MacroContext(Map())
+        var macroTable = new MacroContext()
 
         macroTable = macroTable.define("X", b, "1")
         assertEquals(b or x, macroTable.getMacroCondition("X"))
@@ -44,7 +44,7 @@ class TestDefinedMacro extends TestCase {
     }
 
     def getMacroTable = {
-        var macroTable = new MacroContext(Map())
+        var macroTable = new MacroContext()
 
         //X if a | b
         //  -> 1 if b &!c
@@ -61,6 +61,11 @@ class TestDefinedMacro extends TestCase {
         macroTable
     }
 
+    @Test
+    def testNFMacro() {
+    	assertEquals(Set(new DefinedMacro("X")),createDefinedMacro("X").toCNF.findMacros)
+    }
+    
     @Test
     def testSatisfiability() {
         val macroTable=(getMacroTable)

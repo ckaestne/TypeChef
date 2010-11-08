@@ -35,6 +35,14 @@ class NF(val clauses: Set[Clause], val isFull: Boolean) {
     def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&&")
     override def hashCode = clauses.hashCode
     override def equals(that: Any) = that match { case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false }
+    /** returns a set with all referenced macros (DefinedMacro)**/
+    def findMacros(): Set[DefinedMacro] = {
+        var result: Set[DefinedMacro] = Set()
+        clauses.foreach(clause => {
+            result = result ++ clause.findMacros
+        })
+        result
+    }
 }
 /** clause in a normal form **/
 class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr]) {
@@ -52,13 +60,23 @@ class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr
     def neg() = new Clause(this.negLiterals, this.posLiterals)
     def size = posLiterals.size + negLiterals.size
     override def toString =
-        (posLiterals.map(_.feature) ++ negLiterals.map("!" + _.feature)).mkString("(", "*", ")")
+        (posLiterals.map(_.satName) ++ negLiterals.map("!" + _.satName)).mkString("(", "*", ")")
     def printCNF =
         (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "||", ")")
     override def hashCode = posLiterals.hashCode + negLiterals.hashCode
     override def equals(that: Any) = that match {
         case thatClause: Clause => (this.posLiterals equals thatClause.posLiterals) && (this.negLiterals equals thatClause.negLiterals)
         case _ => false
+    }
+    /** returns a set with all referenced macros (DefinedMacro)**/
+    def findMacros(): Set[DefinedMacro] = {
+        var result: Set[DefinedMacro] = Set()
+        ((posLiterals.toList) ++ (negLiterals.toList)).foreach(
+            _ match {
+                case x@DefinedMacro(_) => result = result + x
+                case DefinedExternal(_) =>
+            })
+        result
     }
 }
 

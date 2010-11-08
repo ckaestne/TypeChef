@@ -17,8 +17,8 @@ import org.sat4j.tools.SolutionCounter;
 //    lazy val notBaseFeatureClause = new Clause(Set(),Set(baseFeature))
 //}
 class SatSolver extends Solver {
-//    val baseFeatureName = "$$BASE$$"
-//    lazy val baseFeature = DefinedExternal(baseFeatureName)
+    //    val baseFeatureName = "$$BASE$$"
+    //    lazy val baseFeature = DefinedExternal(baseFeatureName)
 
     private def countClauses(expr: NF) = expr.clauses.size
 
@@ -26,14 +26,13 @@ class SatSolver extends Solver {
         var flags = Set[String]()
         for (clause <- expr.clauses)
             for (literal <- (clause.posLiterals ++ clause.negLiterals))
-                flags = flags + literal.feature
+                flags = flags + literal.satName
         flags.size
     }
 
     val PROFILING = false;
 
-    def isSatisfiable(macroTable:FeatureProvider, exprCNF: NF): Boolean = {
-//    	println("SAT "+exprCNF.printCNF)
+    def isSatisfiable(macroTable: FeatureProvider, exprCNF: NF): Boolean = {
         if (exprCNF.isEmpty) return true
         if (exprCNF.isFull) return false
 
@@ -49,18 +48,26 @@ class SatSolver extends Solver {
             //        solver.setTimeoutMs(1000);
             solver.setTimeoutOnConflicts(100000)
 
+            var cnfs: List[NF] = List(exprCNF)
+
+            //search for referenced macros (MacroDefined) and determine their conditions
+            println(exprCNF.findMacros)
+            for (macro <- exprCNF.findMacros)
+                cnfs = macroTable.getMacroSATCondition(macro.name) :: cnfs
+            println("SAT " + cnfs)
+
             var uniqueFlagIds: Map[String, Int] = Map();
-//            uniqueFlagIds = uniqueFlagIds + ((SatSolver.baseFeatureName, uniqueFlagIds.size + 1))
-            for (clause <- exprCNF.clauses)
+            for (cnf <- cnfs; clause <- cnf.clauses)
                 for (literal <- (clause.posLiterals ++ clause.negLiterals))
-                    if (!uniqueFlagIds.contains(literal.feature))
-                        uniqueFlagIds = uniqueFlagIds + ((literal.feature, uniqueFlagIds.size + 1))
+                    if (!uniqueFlagIds.contains(literal.satName))
+                        uniqueFlagIds = uniqueFlagIds + ((literal.satName, uniqueFlagIds.size + 1))
 
             solver.newVar(uniqueFlagIds.size)
 
-            def addClauses(expr: NF): Boolean = {
+            def addClauses(cnfs: List[NF]): Boolean = {
                 try {
-                    for (clause <- expr.clauses) addClause(clause);
+                    for (cnf <- cnfs; clause <- cnf.clauses; if !clause.isEmpty)
+                        addClause(clause);
                 } catch {
                     case e: ContradictionException => return true;
                 }
@@ -70,18 +77,17 @@ class SatSolver extends Solver {
                 val clauseArray: Array[Int] = new Array(clause.size)
                 var i = 0
                 for (literal <- clause.posLiterals) {
-                    clauseArray(i) = uniqueFlagIds(literal.feature)
+                    clauseArray(i) = uniqueFlagIds(literal.satName)
                     i = i + 1;
                 }
                 for (literal <- clause.negLiterals) {
-                    clauseArray(i) = -uniqueFlagIds(literal.feature)
+                    clauseArray(i) = -uniqueFlagIds(literal.satName)
                     i = i + 1;
                 }
                 solver.addClause(new VecInt(clauseArray));
             }
 
-//            addClause(SatSolver.baseFeatureClause)
-            val contradiction = addClauses(exprCNF)
+            var contradiction = addClauses(cnfs)
             return !contradiction && solver.isSatisfiable();
 
         } finally {
@@ -107,5 +113,13 @@ class SatSolver extends Solver {
     //			throw new RuntimeException("expression is not in cnf", e);
     //		}
     //	}
+
+//    def getMacroCNF(macroName: String, macroTable: FeatureProvider): List[NF] = {
+//        val defMacro = FeatureExpr.createDefinedMacro(macroName)
+//        val condition = 
+//        val defImpliesCondition = defMacro.not.or(condition).toCNF
+//        val conditionImpliesDef = condition.not.or(defMacro).toCNF
+//        defImpliesCondition :: conditionImpliesDef :: List()
+//    }
 
 }

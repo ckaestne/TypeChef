@@ -45,6 +45,7 @@ trait FeatureExpr {
     def cnfExpr: Susp[Option[NF]]
     def dnfExpr: Susp[Option[NF]]
     def toString(): String
+    def toCNF: NF
     def isContradiction(macroTable: FeatureProvider) = !isSatisfiable(macroTable)
     def isTautology(macroTable: FeatureProvider) = !this.not.isSatisfiable(macroTable)
     def isSatisfiable(macroTable: FeatureProvider): Boolean
@@ -94,11 +95,11 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
         neg(this.dnfExpr),
         neg(this.cnfExpr))
 
-    def isSatisfiable(macroTable: FeatureProvider): Boolean =
+    def toCNF: NF =
         try {
             this.cnfExpr() match {
-                case Some(cnfExpr) => new SatSolver().isSatisfiable(macroTable, cnfExpr)
-                case None => new SatSolver().isSatisfiable(macroTable, NFBuilder.toCNF(expr.toCNF))
+                case Some(cnfExpr) => cnfExpr
+                case None => NFBuilder.toCNF(expr.toCNF)
             }
         } catch {
             case t: Throwable => {
@@ -107,6 +108,9 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
                 throw t
             }
         }
+
+    def isSatisfiable(macroTable: FeatureProvider): Boolean =
+        new SatSolver().isSatisfiable(macroTable, toCNF)
 
     def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay((a(), b()) match {
         case (Some(na), Some(nb)) => Some(op(na, nb))
@@ -134,7 +138,7 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
     }
 
     override def equals(that: Any) = that match {
-        case e: FeatureExpr => (this eq e) || (this.expr eq e.expr)  || this.implies(e).and(e.implies(this)).isBase(null);
+        case e: FeatureExpr => (this eq e) || (this.expr eq e.expr) || this.implies(e).and(e.implies(this)).isBase(null);
         case _ => false
     }
 
@@ -148,7 +152,7 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
      * replace DefinedMacro by DefinedExternal from MacroTable
      */
     def resolveToExternal(macroTable: FeatureProvider): FeatureExpr =
-    	new FeatureExprImpl(aexpr. resolveToExternal(macroTable))
+        new FeatureExprImpl(aexpr.resolveToExternal(macroTable))
 
 }
 
@@ -452,6 +456,7 @@ abstract class AbstractUnaryBoolFeatureExprTree(
 abstract class DefinedExpr(val feature: String) extends FeatureExprTree {
     def debug_print(level: Int): String = indent(level) + feature + "\n";
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
+    def satName = feature //used for sat solver only to distinguish extern and macro
 }
 object DefinedExpr {
     def unapply(f: DefinedExpr): Option[DefinedExpr] = f match {
@@ -478,6 +483,7 @@ case class DefinedMacro(name: String) extends DefinedExpr(name) {
         assert(name != "")
         "defined(" + name + ")";
     }
+    override def satName = "$" + name
 }
 
 case class IntegerLit(num: Long) extends FeatureExprTree {
