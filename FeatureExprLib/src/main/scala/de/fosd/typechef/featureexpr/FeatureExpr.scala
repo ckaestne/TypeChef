@@ -3,8 +3,8 @@ package de.fosd.typechef.featureexpr
 import LazyLib._
 
 object FeatureExpr {
-    def createDefined(feature: String, context: FeatureProvider): FeatureExpr =
-        context.getMacroCondition(feature)
+    def resolveDefined(feature: DefinedMacro, macroTable: FeatureProvider): FeatureExpr =
+        macroTable.getMacroCondition(feature.name)
 
     def createComplement(expr: FeatureExpr) = new FeatureExprImpl(UnaryFeatureExprTree(expr.expr, "~", ~_))
     def createNeg(expr: FeatureExpr) = new FeatureExprImpl(UnaryFeatureExprTree(expr.expr, "-", -_))
@@ -27,6 +27,7 @@ object FeatureExpr {
 
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left.not or right
     def createDefinedExternal(name: String) = new FeatureExprImpl(new DefinedExternal(name))
+    def createDefinedMacro(name: String) = new FeatureExprImpl(new DefinedMacro(name))
     def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
@@ -44,15 +45,17 @@ trait FeatureExpr {
     def cnfExpr: Susp[Option[NF]]
     def dnfExpr: Susp[Option[NF]]
     def toString(): String
-    def isContradiction() = !isSatisfiable
-    def isTautology() = !this.not.isSatisfiable
-    def isSatisfiable(): Boolean
-    def isDead() = isContradiction
-    def isBase() = isTautology
+    def isContradiction(macroTable: FeatureProvider) = !isSatisfiable(macroTable)
+    def isTautology(macroTable: FeatureProvider) = !this.not.isSatisfiable(macroTable)
+    def isSatisfiable(macroTable: FeatureProvider): Boolean
+    def isDead(macroTable: FeatureProvider) = isContradiction(macroTable)
+    def isBase(macroTable: FeatureProvider) = isTautology(macroTable)
     def accept(f: FeatureExprTree => Unit): Unit
     def print(): String
     def debug_print(): String
     def equals(that: Any): Boolean
+    def resolveToExternal(macroTable: FeatureProvider): FeatureExpr
+    def isResolved(): Boolean
 
     def or(that: FeatureExpr): FeatureExpr
     def and(that: FeatureExpr): FeatureExpr
@@ -91,11 +94,11 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
         neg(this.dnfExpr),
         neg(this.cnfExpr))
 
-    def isSatisfiable(): Boolean =
+    def isSatisfiable(macroTable: FeatureProvider): Boolean =
         try {
             this.cnfExpr() match {
-                case Some(cnfExpr) => new SatSolver().isSatisfiable(cnfExpr)
-                case None => new SatSolver().isSatisfiable(NFBuilder.toCNF(expr.toCNF))
+                case Some(cnfExpr) => new SatSolver().isSatisfiable(macroTable, cnfExpr)
+                case None => new SatSolver().isSatisfiable(macroTable, NFBuilder.toCNF(expr.toCNF))
             }
         } catch {
             case t: Throwable => {
@@ -131,9 +134,21 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
     }
 
     override def equals(that: Any) = that match {
-        case e: FeatureExpr => (this eq e) || (this.expr eq e.expr) || this.implies(e).and(e.implies(this)).isBase;
+        case e: FeatureExpr => (this eq e) || (this.expr eq e.expr)  || this.implies(e).and(e.implies(this)).isBase(null);
         case _ => false
     }
+
+    /**
+     * checks whether there is some unresolved macro (DefinedMacro) somewhere 
+     * in the expression tree
+     */
+    def isResolved() = aexpr.isResolved
+
+    /**
+     * replace DefinedMacro by DefinedExternal from MacroTable
+     */
+    def resolveToExternal(macroTable: FeatureProvider): FeatureExpr =
+    	new FeatureExprImpl(aexpr. resolveToExternal(macroTable))
 
 }
 
@@ -248,7 +263,7 @@ sealed abstract class FeatureExprTree {
 
                 case IntegerLit(_) => this
 
-                case DefinedExternal(_) => this
+                case DefinedExpr(_) => this
             }
             result.setSimplified
         }
@@ -283,8 +298,38 @@ sealed abstract class FeatureExprTree {
 
             case IntegerLit(_) => this
 
-            case DefinedExternal(_) => this
+            case DefinedExpr(_) => this
         }
+
+    private var isResolvedCache: Option[Boolean] = None
+    def isResolved(): Boolean = {
+        if (isResolvedCache.isDefined)
+            return isResolvedCache.get
+        var foundDefinedMacro = false;
+        this.accept(
+            _ match {
+                case DefinedMacro(_) => foundDefinedMacro = true
+                case _ =>
+            })
+        isResolvedCache = Some(!foundDefinedMacro)
+        !foundDefinedMacro
+    }
+    def resolveToExternal(macroTable: FeatureProvider): FeatureExprTree = {
+        if (isResolvedCache.isDefined && isResolvedCache.get) return this;
+        val result = this match {
+            case And(children) => And(children.map(_.resolveToExternal(macroTable)))
+            case Or(children) => Or(children.map(_.resolveToExternal(macroTable)))
+            case BinaryFeatureExprTree(left, right, opStr, op) => BinaryFeatureExprTree(left resolveToExternal (macroTable), right resolveToExternal (macroTable), opStr, op)
+            case UnaryFeatureExprTree(expr, opStr, op) => UnaryFeatureExprTree(expr resolveToExternal (macroTable), opStr, op)
+            case Not(a) => Not(a.resolveToExternal(macroTable))
+            case IfExpr(c, a, b) => IfExpr(c.resolveToExternal(macroTable), a.resolveToExternal(macroTable), b resolveToExternal (macroTable))
+            case IntegerLit(_) => this
+            case DefinedExternal(_) => this
+            case DefinedMacro(name) => macroTable.getMacroCondition(name).expr //TODO stupid to throw away CNF and DNF
+        }
+        isResolvedCache = Some(true)
+        result
+    }
 
     def print(): String
     def debug_print(level: Int): String
@@ -404,14 +449,35 @@ abstract class AbstractUnaryBoolFeatureExprTree(
     opStr: String,
     op: (Boolean) => Boolean) extends AbstractUnaryFeatureExprTree(expr, opStr, (ev) => if (op(ev != 0)) 1 else 0);
 
-/** external definion of a feature (cannot be decided to Base or Dead inside this file) */
-case class DefinedExternal(feature: String) extends FeatureExprTree {
-    def print(): String = {
-        assert(feature != "")
-        "defined(" + feature + ")";
-    }
+abstract class DefinedExpr(val feature: String) extends FeatureExprTree {
     def debug_print(level: Int): String = indent(level) + feature + "\n";
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
+}
+object DefinedExpr {
+    def unapply(f: DefinedExpr): Option[DefinedExpr] = f match {
+        case x@DefinedExternal(_) => Some(x)
+        case x@DefinedMacro(_) => Some(x)
+        case _ => None
+    }
+}
+
+/** external definion of a feature (cannot be decided to Base or Dead inside this file) */
+case class DefinedExternal(name: String) extends DefinedExpr(name) {
+    def print(): String = {
+        assert(name != "")
+        "definedEx(" + name + ")";
+    }
+}
+
+/**
+ * definition based on a macro, still to be resolved using the macro table
+ * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
+ */
+case class DefinedMacro(name: String) extends DefinedExpr(name) {
+    def print(): String = {
+        assert(name != "")
+        "defined(" + name + ")";
+    }
 }
 
 case class IntegerLit(num: Long) extends FeatureExprTree {

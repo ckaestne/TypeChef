@@ -32,7 +32,7 @@ class SatSolver extends Solver {
 
     val PROFILING = false;
 
-    def isSatisfiable(exprCNF: NF): Boolean = {
+    def isSatisfiable(macroTable:FeatureProvider, exprCNF: NF): Boolean = {
 //    	println("SAT "+exprCNF.printCNF)
         if (exprCNF.isEmpty) return true
         if (exprCNF.isFull) return false

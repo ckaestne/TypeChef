@@ -29,23 +29,29 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
      */
 
     def this() = { this(Map()) }
-    def define(name: String, feature: FeatureExpr, other: Any): MacroContext = new MacroContext(
-        knownMacros.get(name) match {
-            case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
-            case None => {
-                val initialFeatureExpr = if (MacroContext.flagFilter(name))
-                    feature.or(createDefinedExternal(name))
-                else
-                    feature
-                knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
-            }
-        })
+    def define(name: String, feature: FeatureExpr, other: Any): MacroContext = {
+        assert(feature.isResolved)
+        new MacroContext(
+            knownMacros.get(name) match {
+                case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
+                case None => {
+                    val initialFeatureExpr = if (MacroContext.flagFilter(name))
+                        feature.or(createDefinedExternal(name))
+                    else
+                        feature
+                    knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
+                }
+            })
+    }
 
-    def undefine(name: String, feature: FeatureExpr): MacroContext = new MacroContext(
-        knownMacros.get(name) match {
-            case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
-            case None => knownMacros + ((name, new Macro(name, feature.not().and(createDefinedExternal(name)), List())))
-        })
+    def undefine(name: String, feature: FeatureExpr): MacroContext = {
+        assert(feature.isResolved)
+        new MacroContext(
+            knownMacros.get(name) match {
+                case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
+                case None => knownMacros + ((name, new Macro(name, feature.not().and(createDefinedExternal(name)), List())))
+            })
+    }
 
     /**
      *  //ChK: this is domain knowledge for linux
@@ -63,17 +69,17 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
         }
     }
 
-    def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isDead()
+    def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isDead(this)
 
-    def isFeatureBase(feature: String): Boolean = getMacroCondition(feature).isBase()
+    def isFeatureBase(feature: String): Boolean = getMacroCondition(feature).isBase(this)
 
     def getMacroExpansions(identifier: String): Array[MacroExpansion] =
         knownMacros.get(identifier) match {
-            case Some(macro) => macro.getOther().toArray.filter(!_.getFeature().isDead())
+            case Some(macro) => macro.getOther().toArray.filter(!_.getFeature().isDead(this))
             case None => Array()
         }
     def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr): Array[MacroExpansion] =
-        getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
+        getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead(this));
 
     override def toString() = { knownMacros.values.mkString("\n\n\n") }
 }
@@ -87,8 +93,8 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
     def getName() = name;
     def getFeature() = feature;
     def getOther() = featureExpansions;
-    def isBase(): Boolean = feature.isBase();
-    def isDead(): Boolean = feature.isDead();
+    def isBase(macroTable: MacroContext): Boolean = feature.isBase(macroTable);
+    def isDead(macroTable: MacroContext): Boolean = feature.isDead(macroTable);
     def addNewAlternative(exp: MacroExpansion): Macro =
         //note addExpansion changes presence conditions of existing expansions
         new Macro(name, feature.or(exp.getFeature()), addExpansion(exp))
@@ -104,11 +110,11 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
                 found = true
                 other.extend(exp)
             } else
-                other.andNot(exp.getFeature())).filter(!_.getFeature.isContradiction)
+                other.andNot(exp.getFeature())) //.filter(!_.getFeature.isContradiction(this))
         if (found) modifiedExpansions else exp :: modifiedExpansions
     }
     def andNot(expr: FeatureExpr): Macro =
-        new Macro(name, feature.and(expr.not), featureExpansions.map(_.andNot(expr)).filter(!_.getFeature.isContradiction));
+        new Macro(name, feature.and(expr.not), featureExpansions.map(_.andNot(expr))) //.filter(!_.getFeature.isContradiction(this)));
     //  override def equals(that:Any) = that match { case m:Macro => m.getName() == name; case _ => false; }
     override def toString() = "#define " + name + " if " + feature.toString + " \n\texpansions \n" + featureExpansions.mkString("\n")
 }

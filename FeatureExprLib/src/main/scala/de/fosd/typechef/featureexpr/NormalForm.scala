@@ -37,7 +37,7 @@ class NF(val clauses: Set[Clause], val isFull: Boolean) {
     override def equals(that: Any) = that match { case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false }
 }
 /** clause in a normal form **/
-class Clause(var posLiterals: Set[DefinedExternal], var negLiterals: Set[DefinedExternal]) {
+class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr]) {
     def simplify = {
         //A || !A = true 
         if (!(posLiterals intersect negLiterals).isEmpty) {
@@ -89,19 +89,19 @@ object NFBuilder {
         }
         case Or(o) if isCNF => new NF(Set(toClause(o)))
         case And(o) if !isCNF => new NF(Set(toClause(o)))
-        case f@DefinedExternal(_) => new NF(Set(new Clause(Set(f), Set())))
-        case Not(f@DefinedExternal(_)) => new NF(Set(new Clause(Set(), Set(f))))
+        case f@DefinedExpr(_) => new NF(Set(new Clause(Set(f), Set())))
+        case Not(f@DefinedExpr(_)) => new NF(Set(new Clause(Set(), Set(f))))
         case BaseFeature() => new NF(!isCNF)
         case DeadFeature() => new NF(isCNF)
         case e => throw new NoNFException(e, exprInNF, isCNF)
     }
     private def toClause(literals: Set[FeatureExprTree]): Clause = {
-        var posLiterals: Set[DefinedExternal] = Set()
-        var negLiterals: Set[DefinedExternal] = Set()
+        var posLiterals: Set[DefinedExpr] = Set()
+        var negLiterals: Set[DefinedExpr] = Set()
         for (literal <- literals)
             literal match {
-                case f@DefinedExternal(_) => posLiterals = posLiterals + f
-                case Not(f@DefinedExternal(_)) => negLiterals = negLiterals + f
+                case f@DefinedExpr(_) => posLiterals = posLiterals + f
+                case Not(f@DefinedExpr(_)) => negLiterals = negLiterals + f
                 case e => throw new NoLiteralException(e)
             }
         new Clause(posLiterals, negLiterals)
