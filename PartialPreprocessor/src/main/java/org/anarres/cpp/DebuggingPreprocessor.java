@@ -61,16 +61,16 @@ public abstract class DebuggingPreprocessor {
 
 	protected abstract Token parse_main() throws IOException, LexerException;
 
-	private void debugNextTokens() {
-		for (int i = 0; i < 20; i++)
-			try {
-				parse_main();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (LexerException e) {
-				e.printStackTrace();
-			}
-	}
+//	private void debugNextTokens() {
+//		for (int i = 0; i < 20; i++)
+//			try {
+//				parse_main();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (LexerException e) {
+//				e.printStackTrace();
+//			}
+//	}
 
 	public void debug_receivedToken(Source source, Token tok) {
 		if (DEBUG_TOKENSTREAM && tok != null)

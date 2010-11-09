@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.MacroContext;
 
 class State {
 	List<FeatureExpr> localFeatures = new ArrayList<FeatureExpr>();
@@ -104,13 +105,13 @@ class State {
 	 * 
 	 * @return
 	 */
-	public boolean isActive() {
+	public boolean isActive(MacroContext macros) {
 		// check with cache and parent before using SAT solver
 		if (cache_isActive != null)
 			return cache_isActive.booleanValue();
-		if (parent!=null && !parent.isActive())
+		if (parent!=null && !parent.isActive(macros))
 			return false;
-		cache_isActive = new Boolean(!getFullPresenceCondition().isDead());
+		cache_isActive = new Boolean(!getFullPresenceCondition().isDead(macros));
 		return cache_isActive.booleanValue();
 	}
 
