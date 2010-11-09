@@ -77,13 +77,26 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
 
     override def toString() = { knownMacros.values.mkString("\n\n\n") + printStatistics }
     def printStatistics = 
-    	"\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions):\n"+
+    	"\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions,number of distinct configuration flags):\n"+
     	knownMacros.size +";"+
     	knownMacros.values.filter(_.numberOfExpansions>1).size+";"+
     	knownMacros.values.filter(_.numberOfExpansions>2).size+";"+
     	knownMacros.values.filter(_.numberOfExpansions>3).size+";"+
     	knownMacros.values.filter(_.numberOfExpansions>4).size+";"+
-    	knownMacros.values.filter(!_.getFeature.isTautology).size+"\n";
+    	knownMacros.values.filter(!_.getFeature.isTautology).size+";"+
+    	getNumberOfDistinctFlagsStatistic+"\n";
+    private def getNumberOfDistinctFlagsStatistic = {
+    	var flags:Set[String]=Set()
+    	for (macro<-knownMacros.values)
+    		macro.getFeature.accept(node=>{
+    			node match {
+    				case DefinedExternal(name) => flags=flags+name
+    				case _=>
+    			}
+    		})
+    		println(flags)
+    	flags.size
+    }
 }
 
 /**
