@@ -15,7 +15,7 @@ class TokenWrapper(token: Token, number: Int) extends AbstractToken {
     def isIdentifier = token.getType == Token.IDENTIFIER && !CLexer.keywords.contains(token.getText)
     def getText: String = token.getText
     def getType = token.getType
-    override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isBase) getFeature else "")
+    override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isBase(null)) getFeature else "")
     def getPosition = new Position {
         def getFile = token.getSource.toString
         def getLine = token.getLine

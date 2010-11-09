@@ -30,7 +30,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
 
     def this() = { this(Map(),Map()) }
     def define(name: String, feature: FeatureExpr, other: Any): MacroContext = {
-        assert(feature.isResolved)
+        val resolvedFeature = feature.resolveToExternal(this)
         new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
@@ -45,7 +45,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
     }
 
     def undefine(name: String, feature: FeatureExpr): MacroContext = {
-        assert(feature.isResolved)
+        val resolvedFeature = feature.resolveToExternal(this)
         new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.andNot(feature))

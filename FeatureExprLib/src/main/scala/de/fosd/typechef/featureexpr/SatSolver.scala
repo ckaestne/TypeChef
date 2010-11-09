@@ -51,8 +51,10 @@ class SatSolver extends Solver {
             var cnfs: List[NF] = List(exprCNF)
 
             //search for referenced macros (MacroDefined) and determine their conditions
-            println(exprCNF.findMacros)
-            for (macro <- exprCNF.findMacros)
+            val referencedMacros=exprCNF.findMacros
+            println(referencedMacros)
+            assert(macroTable!=null || referencedMacros.isEmpty)//"feature expression with referenced macros, but without according macro table!"
+            for (macro <- referencedMacros)
                 cnfs = macroTable.getMacroSATCondition(macro.name) :: cnfs
             println("SAT " + cnfs)
 
