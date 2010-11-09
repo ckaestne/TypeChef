@@ -56,6 +56,11 @@ public class JcppFileTest extends AbstractCheckTests {
 	}
 
 	@Test
+	public void testIncludeGuards2() throws LexerException, IOException {
+		testFile("includeguards2.h");
+	}
+
+	@Test
 	public void testDefDefined() throws LexerException, IOException {
 		testFile("defdefined.c");
 	}

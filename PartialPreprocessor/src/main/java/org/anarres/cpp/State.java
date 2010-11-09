@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureProvider;
 import de.fosd.typechef.featureexpr.MacroContext;
 
 class State {
@@ -42,9 +43,12 @@ class State {
 	 * called again, this is interpreted as an elif expression.
 	 * 
 	 * @param feature
+	 * @param macroTable
 	 */
-	public void putLocalFeature(FeatureExpr feature) {
+	public void putLocalFeature(FeatureExpr feature, FeatureProvider macroTable) {
 		clearCache();
+		feature = feature.resolveToExternal(macroTable);//TODO must be resolved in order do avoid dynamic scope. TODO implement closures
+		assert feature.isResolved();
 		localFeatures.add(feature);
 	}
 

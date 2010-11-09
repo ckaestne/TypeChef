@@ -2281,7 +2281,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 									+ tmpcounter);
 					FeatureExpr localFeatureExpr = parse_featureExpr(0);
 					state.putLocalFeature(isParentActive() ? localFeatureExpr
-							: FeatureExprLib.dead());
+							: FeatureExprLib.dead(), macros);
 					tok = expr_token(true); /* unget */
 
 					if (tok.getType() != NL)
@@ -2305,9 +2305,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						FeatureExpr localFeaturExpr = parse_featureExpr(0);
 						state = oldState;
 						state.processElIf();
-						state
-								.putLocalFeature(isParentActive() ? localFeaturExpr
-										: FeatureExprLib.dead());
+						state.putLocalFeature(
+								isParentActive() ? localFeaturExpr
+										: FeatureExprLib.dead(), macros);
 						tok = expr_token(true); /* unget */
 
 						if (tok.getType() != NL)
@@ -2344,9 +2344,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					} else {
 						FeatureExpr localFeatureExpr2 = parse_ifdefExpr(tok
 								.getText());
-						state
-								.putLocalFeature(isParentActive() ? localFeatureExpr2
-										: FeatureExprLib.dead());
+						state.putLocalFeature(
+								isParentActive() ? localFeatureExpr2
+										: FeatureExprLib.dead(), macros);
 						// return
 
 						if (tok.getType() != NL)
@@ -2367,9 +2367,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					} else {
 						FeatureExpr localFeatureExpr3 = parse_ifndefExpr(tok
 								.getText());
-						state
-								.putLocalFeature(isParentActive() ? localFeatureExpr3
-										: FeatureExprLib.dead());
+						state.putLocalFeature(
+								isParentActive() ? localFeatureExpr3
+										: FeatureExprLib.dead(), macros);
 						if (tok.getType() != NL)
 							source_skipline(isParentActive());
 
