@@ -83,20 +83,19 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
     	knownMacros.values.filter(_.numberOfExpansions>2).size+";"+
     	knownMacros.values.filter(_.numberOfExpansions>3).size+";"+
     	knownMacros.values.filter(_.numberOfExpansions>4).size+";"+
-    	knownMacros.values.filter(!_.getFeature.isTautology).size+";"+
-    	getNumberOfDistinctFlagsStatistic+"\n";
-    private def getNumberOfDistinctFlagsStatistic = {
-    	var flags:Set[String]=Set()
-    	for (macro<-knownMacros.values)
-    		macro.getFeature.accept(node=>{
-    			node match {
-    				case DefinedExternal(name) => flags=flags+name
-    				case _=>
-    			}
-    		})
-    		println(flags)
-    	flags.size
-    }
+    	knownMacros.values.filter(!_.getFeature.isTautology).size+"\n"
+//    	+getNumberOfDistinctFlagsStatistic+"\n";
+//    private def getNumberOfDistinctFlagsStatistic = {
+//    	var flags:Set[String]=Set()
+//    	for (macro<-knownMacros.values)
+//    		macro.getFeature.accept(node=>{
+//    			node match {
+//    				case DefinedExternal(name) => flags=flags+name
+//    				case _=>
+//    			}
+//    		})
+//    	flags.size
+//    }
 }
 
 /**
