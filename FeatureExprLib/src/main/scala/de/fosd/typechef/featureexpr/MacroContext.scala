@@ -75,7 +75,15 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
     def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr): Array[MacroExpansion] =
         getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
 
-    override def toString() = { knownMacros.values.mkString("\n\n\n") }
+    override def toString() = { knownMacros.values.mkString("\n\n\n") + printStatistics }
+    def printStatistics = 
+    	"\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions):\n"+
+    	knownMacros.size +";"+
+    	knownMacros.values.filter(_.numberOfExpansions>1).size+";"+
+    	knownMacros.values.filter(_.numberOfExpansions>2).size+";"+
+    	knownMacros.values.filter(_.numberOfExpansions>3).size+";"+
+    	knownMacros.values.filter(_.numberOfExpansions>4).size+";"+
+    	knownMacros.values.filter(!_.getFeature.isTautology).size+"\n";
 }
 
 /**
@@ -111,6 +119,7 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
         new Macro(name, feature.and(expr.not), featureExpansions.map(_.andNot(expr)).filter(!_.getFeature.isContradiction));
     //  override def equals(that:Any) = that match { case m:Macro => m.getName() == name; case _ => false; }
     override def toString() = "#define " + name + " if " + feature.toString + " \n\texpansions \n" + featureExpansions.mkString("\n")
+    def numberOfExpansions = featureExpansions.size
 }
 
 class MacroExpansion(feature: FeatureExpr, expansion: Any /* Actually, MacroData from PartialPreprocessor*/ ) {

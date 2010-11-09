@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -26,6 +28,10 @@ public abstract class DebuggingPreprocessor {
 			e.printStackTrace();
 		}
 	}
+
+	int max_nesting = 0;
+	int header_count = 0;
+	Set<String> distinctHeaders = new HashSet<String>();
 
 	BufferedWriter debugFile;
 	BufferedWriter debugSourceFile;
@@ -51,8 +57,21 @@ public abstract class DebuggingPreprocessor {
 					"macroDebug.txt"));
 			writer.write(debugMacros());
 			writer.close();
-			//Confusing - it advances some debug files but not others.
-			//debugNextTokens();
+			// Confusing - it advances some debug files but not others.
+			// debugNextTokens();
+
+			// also add statistics to debugSourceFile
+			if (debugSourceFile != null) {
+				debugSourceFile
+						.append("\n\n\nStatistics (max_nesting,header_count,distinct files):\n"
+								+ max_nesting
+								+ ";"
+								+ header_count
+								+ ";"
+								+ distinctHeaders.size() + "\n");
+				debugSourceFile.flush();
+			}
+
 			logger.info("macro dump written");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -95,6 +114,9 @@ public abstract class DebuggingPreprocessor {
 			debugSourceIdx++;
 			try {
 				StringBuffer b = new StringBuffer();
+				max_nesting = Math.max(max_nesting, debugSourceIdx);
+				distinctHeaders.add(source.toString());
+				header_count++;
 				for (int i = 1; i < debugSourceIdx; i++)
 					b.append("\t");
 				b
