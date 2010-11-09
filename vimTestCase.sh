@@ -14,6 +14,10 @@ flags="-I. -I$PWD/$srcPath/proto -DHAVE_CONFIG_H $(pkg-config --cflags gtk+-2.0)
 
 fileList='buffer blowfish charset diff digraph edit eval ex_cmds ex_cmds2 ex_docmd ex_eval ex_getln fileio fold getchar hardcopy hashtab if_cscope if_xcmdsrv main mark memfile memline menu message misc1 misc2 move mbyte normal ops option os_unix popupmnu quickfix regexp screen search sha256 spell syntax tag term ui undo window gui gui_gtk gui_gtk_x11 pty gui_gtk_f gui_beval netbeans version xxd'
 
+export outCSV=vim73.csv
+## Reset output
+#echo -n > "$outCSV"
+
 for i in $fileList; do
   . ./jcpp.sh $srcPath/$i.c $flags
 done

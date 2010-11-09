@@ -1,10 +1,11 @@
-#!/bin/bash -e
 #!/bin/bash -vxe
+#!/bin/bash -e
 if [ -z "$jcppConfLoaded" ]; then
   source jcpp.conf
 fi
 # What you should configure
 macro_stats_path=macroDebug.txt
+debugsource_path=debugsource.txt
 
 # For Java compiled stuff!
 basePath=.
@@ -32,6 +33,8 @@ javaOpts='-Xmx3G -Xms128m'
 # Beware: the embedded for loop requotes the passed argument. That's dark magic,
 # don't ever try to touch it. It simplifies your life as a user of this program
 # though!
+echo "Preprocessing $inp"
+
 bash -c "time java $javaOpts -cp $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:$basePath/BoaCaseStudy/target/scala_2.8.0/classes:\
 $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/FeatureExprLib/target/scala_2.8.0/classes:\
@@ -43,4 +46,5 @@ $basePath/PartialPreprocessor/lib/gnu.getopt.jar \
   2> "$outTime" || true
 
 cat "$outErr"  1>&2
-mv $macro_stats_path "$outStats" || true
+mv $macro_stats_path "$outMacroDebug" # || true
+mv $debugsource_path "$outDebugSource" # || true
