@@ -44,6 +44,10 @@ flags() {
   echo "-I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base)"
 }
 
+export outCSV=linux.csv
+## Reset output
+#echo -n > "$outCSV"
+
 ##################################################################
 # Actually invoke the preprocessor and analyze result.
 ##################################################################

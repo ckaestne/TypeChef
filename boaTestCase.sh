@@ -4,6 +4,10 @@ list="alias boa buffer cgi cgi_header config escape get hash ip log mmap_cache p
 flags="-U HAVE_LIBDMALLOC"
 srcPath=boa/src
 
+export outCSV=boa.csv
+## Reset output
+#echo -n > "$outCSV"
+
 for i in $list; do
   ./jcpp.sh $srcPath/$i.c $flags
 done

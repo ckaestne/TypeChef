@@ -24,6 +24,10 @@ for i in $srcPath/*.c; do
   esac
 done
 
+export outCSV=sparse.csv
+## Reset output
+#echo -n > "$outCSV"
+
 for i in $fileList; do
   . ./jcpp.sh $i $flags
 done
