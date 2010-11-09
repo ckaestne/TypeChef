@@ -97,10 +97,11 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
 
     def toCNF: NF =
         try {
-            this.cnfExpr() match {
-                case Some(cnfExpr) => cnfExpr
-                case None => NFBuilder.toCNF(expr.toCNF)
-            }
+        	NFBuilder.toCNF(expr.toCNF)
+//            this.cnfExpr() match {
+//                case Some(cnfExpr) => cnfExpr
+//                case None => NFBuilder.toCNF(expr.toCNF)
+//            }
         } catch {
             case t: Throwable => {
                 System.err.println("Exception on isSatisfiable for: " + expr.print())
@@ -331,7 +332,6 @@ sealed abstract class FeatureExprTree {
             case DefinedExternal(_) => this
             case DefinedMacro(name) => macroTable.getMacroCondition(name).expr //TODO stupid to throw away CNF and DNF
         }
-        isResolvedCache = Some(true)
         result
     }
 

@@ -560,9 +560,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		public Token startIf(Token tok, boolean parentActive, FeatureExpr expr,
 				FeatureExpr fullPresenceCondition) {
 			// skip output of ifdef 0 and ifdef 1
-			boolean visible = parentActive
-					&& !(fullPresenceCondition.isDead(macros)
-							|| fullPresenceCondition.isBase(macros) || expr.isBase(macros));
+			boolean visible = parentActive;
+			if (visible && fullPresenceCondition.isDead(macros))
+				visible = false;
+			if (visible && fullPresenceCondition.isBase(macros))
+				visible = false;
+			if (visible && expr.isBase(macros))
+				visible = false;
+
 			stack.push(new IfdefBlock(visible));
 			if (visible)
 				return new OutputHelper().if_token(tok.getLine(), expr);
@@ -594,7 +599,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		}
 	}
 
-	static class OutputHelper {
+	class OutputHelper {
 		/*
 		 * XXX Make this include the NL, and make all cpp directives eat their
 		 * own NL.
@@ -610,13 +615,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		String if_tokenStr(FeatureExpr featureExpr) {
 			StringBuilder buf = new StringBuilder();
-			buf.append("#if ").append(featureExpr.print()).append("\n");
+			buf.append("#if ").append(
+					featureExpr.resolveToExternal(macros).print()).append("\n");
 			return buf.toString();
 		}
 
 		String elif_tokenStr(FeatureExpr featureExpr) {
 			StringBuilder buf = new StringBuilder();
-			buf.append("#elif ").append(featureExpr.print()).append("\n");
+			buf.append("#elif ").append(
+					featureExpr.resolveToExternal(macros).print()).append("\n");
 			return buf.toString();
 		}
 
@@ -638,7 +645,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			if (printEnd)
 				buf.append("#endif\n");
 			if (printIf)
-				buf.append("#if ").append(featureExpr.print());
+				buf.append("#if ").append(
+						featureExpr.resolveToExternal(macros).print());
 			buf.append("\n");
 			return new Token(P_ELIF, line, 0, buf.toString(), null);
 		}
@@ -799,11 +807,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			// currentstate => (alt1 || alt2|| alt3)
 			FeatureExpr commonCondition = getCommonCondition(macroExpansions);
 			if (macroExpansions.length == 1 && isExaustive(commonCondition)) {// TODO
-																				// what
-																				// happens
-																				// if
-																				// the
-																				// macro
+				// what
+				// happens
+				// if
+				// the
+				// macro
 				// is not always defined? check this!
 				// currentFeature => macroFeature
 				//
@@ -1938,10 +1946,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		// i.e. NOT (state AND NOT flag) dead
 
 		return !state.getFullPresenceCondition().and(
-				FeatureExprLib.l().createDefinedExternal(flag).not()).isDead(macros);
+				FeatureExprLib.l().createDefinedExternal(flag).not()).isDead(
+				macros);
 	}
 
-	private FeatureExpr parse_definedExpr(boolean referToExternalDefinitionsOnly) throws IOException, LexerException {
+	private FeatureExpr parse_definedExpr(boolean referToExternalDefinitionsOnly)
+			throws IOException, LexerException {
 		FeatureExpr lhs;
 		Token la = source_token_nonwhite();
 		boolean paren = false;
@@ -1961,8 +1971,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			lhs = FeatureExprLib.l().createDefinedMacro(la.getText());
 		else
 			/*
-			 * when expression was created by expanding a macro (or by reading definedEx instead of defined), do not look up
-			 * macro definition, it is already based on external features only
+			 * when expression was created by expanding a macro (or by reading
+			 * definedEx instead of defined), do not look up macro definition,
+			 * it is already based on external features only
 			 */
 			lhs = FeatureExprLib.l().createDefinedExternal(la.getText());
 
@@ -2010,6 +2021,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			error(la, "expected " + Token.getTokenName(tokenType)
 					+ " but found " + Token.getTokenName(la.getType()));
 	}
+
+	private int tmpcounter = 0;// debug only
 
 	private Token toWhitespace(Token tok) {
 		String text = tok.getText();
@@ -2262,8 +2275,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				case PP_IF:
 					push_state();
 					expr_token = null;
+					tmpcounter++;
+					System.out
+							.println("**********************************counter "
+									+ tmpcounter);
 					FeatureExpr localFeatureExpr = parse_featureExpr(0);
-					state.putLocalFeature(localFeatureExpr);
+					state.putLocalFeature(isParentActive() ? localFeatureExpr
+							: FeatureExprLib.dead());
 					tok = expr_token(true); /* unget */
 
 					if (tok.getType() != NL)
@@ -2287,7 +2305,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						FeatureExpr localFeaturExpr = parse_featureExpr(0);
 						state = oldState;
 						state.processElIf();
-						state.putLocalFeature(localFeaturExpr);
+						state
+								.putLocalFeature(isParentActive() ? localFeaturExpr
+										: FeatureExprLib.dead());
 						tok = expr_token(true); /* unget */
 
 						if (tok.getType() != NL)
@@ -2324,7 +2344,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					} else {
 						FeatureExpr localFeatureExpr2 = parse_ifdefExpr(tok
 								.getText());
-						state.putLocalFeature(localFeatureExpr2);
+						state
+								.putLocalFeature(isParentActive() ? localFeatureExpr2
+										: FeatureExprLib.dead());
 						// return
 
 						if (tok.getType() != NL)
@@ -2343,7 +2365,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						error(tok, "Expected identifier, not " + tok.getText());
 						return source_skipline(false);
 					} else {
-						state.putLocalFeature(parse_ifndefExpr(tok.getText()));
+						FeatureExpr localFeatureExpr3 = parse_ifndefExpr(tok
+								.getText());
+						state
+								.putLocalFeature(isParentActive() ? localFeatureExpr3
+										: FeatureExprLib.dead());
 						if (tok.getType() != NL)
 							source_skipline(isParentActive());
 

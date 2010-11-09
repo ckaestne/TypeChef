@@ -36,10 +36,10 @@ class TestDefinedMacro extends TestCase {
         macroTable = macroTable.define("X", b, "1")
         assertEquals(b, macroTable.getMacroCondition("X"))
 
-        expectFail(macroTable.define("Y", createDefinedMacro("X"), "1"))
+//        expectFail(macroTable.define("Y", createDefinedMacro("X"), "1"))
 
-        macroTable = macroTable.define("Y", createDefinedMacro("X").resolveToExternal(macroTable), "1")
-        assertEquals(b or y, macroTable.getMacroCondition("Y"))
+        assertEquals(b or y,  macroTable.define("Y", createDefinedMacro("X").resolveToExternal(macroTable), "1").getMacroCondition("Y"))
+        assertEquals(b or y,  macroTable.define("Y", createDefinedMacro("X"), "1").getMacroCondition("Y"))
 
     }
 
@@ -60,6 +60,21 @@ class TestDefinedMacro extends TestCase {
         macroTable = macroTable.undefine("Z", base)
         macroTable
     }
+    
+    
+    @Test
+    def testDebugCNF() {
+    	val x=(a.not and b) 
+    	val y=(a.not and b.not and c)
+    	y.toCNF
+    	val dd=y.not
+    	d.toCNF
+    	val z=x and (y.not)
+    	println(z)
+    	assertFalse(z.isBase(null))
+    	assertFalse(z.isContradiction(null))
+    }
+    
 
     @Test
     def testNFMacro() {
@@ -76,6 +91,57 @@ class TestDefinedMacro extends TestCase {
         assertTrue(createDefinedMacro("Z").isContradiction(macroTable))
         
     }
+    
+        @Test
+    def testSatisfiability2() {
+        var macroTable=new MacroContext()
+        macroTable = macroTable.undefine("X", base)
+        macroTable = macroTable.define("X", a, "1")
+        macroTable = macroTable.define("X", a.not and b, "2")
+        macroTable = macroTable.define("X", a.not and b.not and c, "3")
+//        macroTable = macroTable.undefine("Y", base)
+//        macroTable = macroTable.define("Y", a, "1")
+        macroTable = macroTable.define("GLOBAL", createDefinedMacro("X"), "")
+//        macroTable = macroTable.define("GLOBAL", createDefinedMacro("Y"), "")
+        
+        val u=macroTable.getMacroCondition("GLOBAL")
+        val x=u.resolveToExternal(macroTable);
+        val y=new FeatureExprImpl(x.expr.toCNF)
+        
+
+        assertFalse(u.isTautology(macroTable))
+        assertFalse(x.isTautology(macroTable))
+        assertFalse(y.isTautology(macroTable))
+        
+        assertFalse(createDefinedMacro("GLOBAL").isTautology(macroTable))
+        assertFalse(createDefinedMacro("GLOBAL").isTautology(macroTable))
+        
+        
+    }
+        
+        
+       @Test
+    def testSatisfiability3() {
+        var macroTable=new MacroContext()
+        macroTable = macroTable.undefine("X", base)
+        
+        assertFalse(createDefinedMacro("X").isTautology(macroTable))
+        assertTrue(createDefinedMacro("X").isContradiction(macroTable))
+
+        assertTrue(createDefinedMacro("X").not.isTautology(macroTable))
+        assertFalse(createDefinedMacro("X").not.isContradiction(macroTable))
+        
+        assertTrue(createDefinedMacro("Y").isSatisfiable(macroTable))
+        assertFalse(createDefinedMacro("Y").isContradiction(macroTable))
+        assertFalse(createDefinedMacro("Y").isTautology(macroTable))
+
+        assertFalse((createDefinedMacro("Y") and createDefinedMacro("X")).isSatisfiable(macroTable))
+
+        macroTable = macroTable.define("X", base, "")
+        assertTrue((createDefinedMacro("Y") and createDefinedMacro("X")).isSatisfiable(macroTable))
+        assertFalse((createDefinedMacro("Y") and createDefinedMacro("X")).isTautology(macroTable))
+    }        
+        
 
     def expectFail(f: => Unit) =
         try {

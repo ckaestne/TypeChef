@@ -29,9 +29,9 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
      */
 
     def this() = { this(Map(),Map()) }
-    def define(name: String, feature: FeatureExpr, other: Any): MacroContext = {
-        val resolvedFeature = feature.resolveToExternal(this)
-        new MacroContext(
+    def define(name: String, infeature: FeatureExpr, other: Any): MacroContext = {
+        val feature = infeature.resolveToExternal(this)
+        val newMC=new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
                 case None => {
@@ -42,10 +42,12 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
                     knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
                 }
             }, cnfCache - name)
+        println(newMC.getMacro(name))
+        newMC
     }
 
-    def undefine(name: String, feature: FeatureExpr): MacroContext = {
-        val resolvedFeature = feature.resolveToExternal(this)
+    def undefine(name: String, infeature: FeatureExpr): MacroContext = {
+        val feature = infeature.resolveToExternal(this)
         new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
@@ -77,8 +79,10 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
     		return cnfCache(feature)
     	
     	val c=getMacroCondition(feature)
-    	val d=FeatureExpr.createDefinedMacro(feature)
-    	val condition=(c implies d) and (d implies c)
+    	val d=FeatureExpr.createDefinedMacro(feature) 
+    	val a1=(c implies d) 
+    	val a2=(d implies c)
+    	val condition=a1 and a2  
     	val cnf=condition.toCNF
     	cnfCache = cnfCache + ((feature, cnf))
     	cnf
@@ -98,6 +102,8 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
         getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead(this));
 
     override def toString() = { knownMacros.values.mkString("\n\n\n") }
+    
+    private def getMacro(name:String) = knownMacros(name)
 }
 
 /**
@@ -130,7 +136,7 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
         if (found) modifiedExpansions else exp :: modifiedExpansions
     }
     def andNot(expr: FeatureExpr): Macro =
-        new Macro(name, feature.and(expr.not), featureExpansions.map(_.andNot(expr))) //.filter(!_.getFeature.isContradiction(this)));
+        new Macro(name, feature and (expr.not), featureExpansions.map(_.andNot(expr))) //.filter(!_.getFeature.isContradiction(this)));
     //  override def equals(that:Any) = that match { case m:Macro => m.getName() == name; case _ => false; }
     override def toString() = "#define " + name + " if " + feature.toString + " \n\texpansions \n" + featureExpansions.mkString("\n")
 }
@@ -138,7 +144,7 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
 class MacroExpansion(feature: FeatureExpr, expansion: Any /* Actually, MacroData from PartialPreprocessor*/ ) {
     def getFeature(): FeatureExpr = feature
     def getExpansion(): Any = expansion
-    def andNot(expr: FeatureExpr): MacroExpansion = new MacroExpansion(feature.and(expr.not), expansion)
+    def andNot(expr: FeatureExpr): MacroExpansion = new MacroExpansion(feature and (expr.not), expansion)
     override def toString() = "\t\t" + expansion.toString() + " if " + feature.toString
     //if the other has the same expansion, merge features as OR
     def extend(other: MacroExpansion): MacroExpansion =

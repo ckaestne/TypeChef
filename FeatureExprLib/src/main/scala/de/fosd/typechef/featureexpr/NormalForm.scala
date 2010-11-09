@@ -19,7 +19,8 @@ class NF(val clauses: Set[Clause], val isFull: Boolean) {
     def this(emptyOrFull_isFull: Boolean) = this(Set(), emptyOrFull_isFull)
 
     /** join (CNF and CNF / DNF or DNF)**/
-    def ++(that: NF) = if (this.isFull || that.isFull) new NF(true) else new NF(this.clauses ++ that.clauses)
+    def ++(that: NF) = 
+    	if (this.isFull || that.isFull) new NF(true) else new NF(this.clauses ++ that.clauses)
     /** explode (CNF or CNF / DNF and DNF)**/
     def **(that: NF) =
         if (this.isFull) that
