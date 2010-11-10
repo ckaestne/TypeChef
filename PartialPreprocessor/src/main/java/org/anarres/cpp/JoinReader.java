@@ -39,7 +39,15 @@ import java.io.Reader;
 		this.trigraphs = trigraphs;
 		this.newlines = 0;
 		this.flushnl = false;
-		this.unget = new int[2];
+		/* The size used to be 2 to allow lookahead of trigraphs, but 3
+		 * is needed to
+		 * parse "\??." (without quotes), where ??. is _not_ a trigraph.
+		 * The reason is that lookahead is caused by both read()
+		 * (processing \-escapes) and _read() (processing trigraphs), so
+		 * I had to increase this to 3, after verifying no other
+		 * lookahedad is performed.
+		 */
+		this.unget = new int[3];
 		this.uptr = 0;
 	}
 
