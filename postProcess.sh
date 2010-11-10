@@ -43,7 +43,7 @@ gcc $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 echo "=="
 echo "==Preprocess output of partial preprocessor"
 echo "=="
-gcc $gccOpts -E "$outPartialPreproc" "$@" > "$outPartialPreprocThenPreproc" 2>&1 | grep -v 'warning: extra tokens at end of #line directive' || true
+gcc $gccOpts -E "$outPartialPreproc" "$@" 2>&1 > "$outPartialPreprocThenPreproc" | grep -v 'warning: extra tokens at end of #line directive' || true
 
 #echo "Output size stats - partial preprocessor:"
 countWordLines "$outPartialPreproc"
