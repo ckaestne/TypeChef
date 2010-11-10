@@ -25,7 +25,7 @@ shift
 
 . setupOutPaths.sh.inc
 
-javaOpts='-Xmx3G -Xms128m'
+javaOpts='-Xmx512m -Xms128m'
 #time scala -cp BoaCaseStudy/target/scala_2.8.0/classes:FeatureExprLib/lib/org.sat4j.core.jar:FeatureExprLib/target/scala_2.8.0/classes:\
 #  PartialPreprocessor/target/scala_2.8.0/classes:PartialPreprocessor/lib/gnu.getopt.jar \
 #  <(echo -e '#define b ciao\nb')
@@ -35,7 +35,7 @@ javaOpts='-Xmx3G -Xms128m'
 # though!
 echo "Preprocessing $inp"
 
-bash -c "time java $javaOpts -cp $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:$basePath/BoaCaseStudy/target/scala_2.8.0/classes:\
+bash -c "time java -ea $javaOpts -cp $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:$basePath/BoaCaseStudy/target/scala_2.8.0/classes:\
 $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/FeatureExprLib/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/target/scala_2.8.0/classes:\
