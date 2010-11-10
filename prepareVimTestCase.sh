@@ -8,3 +8,5 @@ cd vim$maj$min
 # variable.
 ./configure --enable-pythoninterp --with-features=tiny
 make -C src auto/osdef.h
+mv src/feature.h src/feature.h-away
+> src/feature.h
