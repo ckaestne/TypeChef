@@ -118,12 +118,15 @@ public class Main {
 
 		Writer output = new OutputStreamWriter(System.out);
 		Preprocessor pp = new Preprocessor();
-		pp.addFeature(Feature.DIGRAPHS);
-		pp.addFeature(Feature.TRIGRAPHS);
+		// No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
+		// written with ASCII available!
+		//pp.addFeature(Feature.DIGRAPHS);
+		//pp.addFeature(Feature.TRIGRAPHS);
 		pp.addFeature(Feature.LINEMARKERS);
 		pp.addFeature(Feature.INCLUDENEXT);
 		pp.addFeature(Feature.GNUCEXTENSIONS);
 		pp.addWarning(Warning.IMPORT);
+		pp.addWarning(Warning.TRIGRAPHS);
 		//XXX too annoying during debugging, there are too many false positives
 		//pp.addWarning(Warning.UNDEF);
 		pp.setListener(new PreprocessorListener(pp));
