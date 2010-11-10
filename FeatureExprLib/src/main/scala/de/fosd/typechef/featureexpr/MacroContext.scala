@@ -1,4 +1,5 @@
 package de.fosd.typechef.featureexpr
+import java.io.PrintWriter
 
 object MacroContext {
     private var flagFilters = List((x: String) => true) //return true means flag can be specified by user, false means it is undefined initially
@@ -76,6 +77,12 @@ class MacroContext(knownMacros: Map[String, Macro]) extends FeatureProvider {
         getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
 
     override def toString() = { knownMacros.values.mkString("\n\n\n") + printStatistics }
+    def debugPrint(writer: PrintWriter) {
+      knownMacros.values.foreach(x => {
+          writer print x; writer print "\n\n\n"
+        })
+      writer print printStatistics
+    }
     def printStatistics = 
     	"\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions,number of distinct configuration flags):\n"+
     	knownMacros.size +";"+
