@@ -52,7 +52,6 @@ class SatSolver extends Solver {
 
             //find used macros, combine them by common expansion
             val cnfs: List[NF] = prepareFormula(exprCNF)
-            println(cnfs)
 
             var uniqueFlagIds: Map[String, Int] = Map();
             for (cnf <- cnfs; clause <- cnf.clauses)
