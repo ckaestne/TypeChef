@@ -2022,7 +2022,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					+ " but found " + Token.getTokenName(la.getType()));
 	}
 
-	private int tmpcounter = 0;// debug only
 
 	private Token toWhitespace(Token tok) {
 		String text = tok.getText();
@@ -2275,10 +2274,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				case PP_IF:
 					push_state();
 					expr_token = null;
-					tmpcounter++;
-					System.out
-							.println("**********************************counter "
-									+ tmpcounter);
 					FeatureExpr localFeatureExpr = parse_featureExpr(0);
 					state.putLocalFeature(isParentActive() ? localFeatureExpr
 							: FeatureExprLib.dead(), macros);

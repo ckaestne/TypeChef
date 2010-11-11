@@ -43,7 +43,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
                     knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
                 }
             }, cnfCache - name)
-        println(newMC.getMacro(name))
+        println("#define "+name)
         newMC
     }
 
