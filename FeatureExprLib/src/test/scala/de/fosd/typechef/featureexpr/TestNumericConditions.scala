@@ -11,17 +11,17 @@ class TestNumericConditions extends TestCase {
     def testSimpleConditions() {
         //1==1
         assertTrue(
-            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(1)).isTautology(null));
+            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(1)).isTautology());
         //1==2
         assertTrue(
-            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).isContradiction(null));
+            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).isContradiction());
         //1+1==2
         assertTrue(
             FeatureExpr.createEquals(
                 FeatureExpr.createPlus(
                     FeatureExpr.createInteger(1),
                     FeatureExpr.createInteger(1)),
-                FeatureExpr.createInteger(2)).isTautology(null));
+                FeatureExpr.createInteger(2)).isTautology());
     }
     def testConditions() {
         //	  &&
@@ -84,7 +84,7 @@ class TestNumericConditions extends TestCase {
                             new FeatureExprImpl(IntegerLit(27)),
                             new FeatureExprImpl(IntegerLit(0)))))).and(FeatureExpr.createDefinedExternal("sparsemem"));
 
-        assertTrue(longExpr.isSatisfiable(null));
+        assertTrue(longExpr.isSatisfiable());
 
         //!	__IF__		CONFIG_64BIT	__THEN__			1		<=			64	__ELSE__				1		<=		32
         assertTrue(
@@ -94,7 +94,7 @@ class TestNumericConditions extends TestCase {
                     new FeatureExprImpl(IntegerLit(64))),
                 FeatureExpr.createLessThanEquals(
                     new FeatureExprImpl(IntegerLit(1)),
-                    new FeatureExprImpl(IntegerLit(32)))).not.isContradiction(null))
+                    new FeatureExprImpl(IntegerLit(32)))).not.isContradiction())
 
         //if !( 1<=	__IF__		CONFIG_64BIT	__THEN__		64	__ELSE__		32)
         assertTrue(
@@ -103,7 +103,7 @@ class TestNumericConditions extends TestCase {
                 FeatureExpr.createIf(
                     DefinedExternal("CONFIG_64BIT"),
                     IntegerLit(64),
-                    IntegerLit(32))).not.isContradiction(null));
+                    IntegerLit(32))).not.isContradiction());
 
         //a?1:2==2
         assertTrue(
@@ -112,12 +112,12 @@ class TestNumericConditions extends TestCase {
                     DefinedExternal("a"),
                     IntegerLit(1),
                     IntegerLit(2)),
-                FeatureExpr.createInteger(2)).simplify.isSatisfiable(null));
+                FeatureExpr.createInteger(2)).simplify.isSatisfiable());
 
     }
     def testMixIntChar = {
-        assertTrue(createEquals(createInteger(1), createCharacter('1')).isContradiction(null))
-        assertTrue(createEquals(createInteger(49), createCharacter('1')).isTautology(null))
+        assertTrue(createEquals(createInteger(1), createCharacter('1')).isContradiction())
+        assertTrue(createEquals(createInteger(49), createCharacter('1')).isTautology())
     }
 
 }

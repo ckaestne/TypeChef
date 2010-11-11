@@ -124,11 +124,13 @@ class SatSolver extends Solver {
         def prepareLiteral(literal: DefinedExpr): DefinedExpr = {
             literal match {
                 case DefinedMacro(name, _, expansion) => {
-                    var expansionData = macroExpansions(expansion)
-                    if (expansionData == null) {
+                    var expansionData = if (macroExpansions.contains(expansion))
+                        macroExpansions(expansion)
+                    else {
                         val freshName = "$$" + nextMacroId
-                        expansionData = (expansion().replaceMacroName(freshName), freshName)
-                        macroExpansions = macroExpansions + (expansion -> expansionData)
+                        val data = (expansion().replaceMacroName(freshName), freshName)
+                        macroExpansions = macroExpansions + (expansion -> data)
+                        data
                     }
                     DefinedExternal(expansionData._2)
                 }
