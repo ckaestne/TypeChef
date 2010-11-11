@@ -137,6 +137,35 @@ class TestDefinedMacro extends TestCase {
         assertFalse((createDefinedMacro("Y", macroTable) and createDefinedMacro("X", macroTable)).isTautology())
     }
 
+    @Test
+    def testOverTime() {
+        var macroTable = new MacroContext()
+        macroTable = macroTable.undefine("X", base)
+
+        val firstX =createDefinedMacro("X", macroTable)//false
+        assertTrue(firstX.isContradiction)
+        
+        macroTable = macroTable.define("X", a,"")
+        val secondX =createDefinedMacro("X", macroTable)//A
+        assertTrue(firstX.isContradiction)
+        assertTrue(secondX.isSatisfiable)
+
+        macroTable = macroTable.define("X", a.not,"")
+        val thirdX =createDefinedMacro("X", macroTable)//true
+        assertTrue(firstX.isContradiction)
+        assertTrue(secondX.isSatisfiable)
+        assertTrue(thirdX.isTautology)
+        
+        macroTable = macroTable.undefine("X", base)
+        macroTable = macroTable.define("X", a.not,"")//!A
+        val fourthX =createDefinedMacro("X", macroTable)
+        assertTrue(firstX.isContradiction)
+        assertTrue(secondX.isSatisfiable)
+        assertTrue(thirdX.isTautology)
+        assertTrue(fourthX.isSatisfiable)
+        assertTrue((fourthX or secondX).isTautology)
+    }
+
     def expectFail(f: => Unit) =
         try {
             f

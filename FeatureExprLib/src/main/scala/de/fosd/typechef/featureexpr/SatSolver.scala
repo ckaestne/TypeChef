@@ -52,15 +52,7 @@ class SatSolver extends Solver {
 
             //find used macros, combine them by common expansion
             val cnfs: List[NF] = prepareFormula(exprCNF)
-            //            
-            //            val referencedMacros=exprCNF.findMacros
-            //            val uniqueMacroExpansions:Map[Susp[NF],Int]=Map()++referencedMacros.map(_.presenceConditionCNF -> nextMacroId)
-            //            
-            //            println(referencedMacros)
-            //            var cnfs: List[NF] = List(exprCNF)
-            //            for ((macroExpansion,idx) <- uniqueMacroExpansions.iterator)
-            //                cnfs = macroExpansion().replaceMacroName("$$"+idx) :: cnfs
-            //            println("SAT " + cnfs)
+            println(cnfs)
 
             var uniqueFlagIds: Map[String, Int] = Map();
             for (cnf <- cnfs; clause <- cnf.clauses)
@@ -127,7 +119,7 @@ class SatSolver extends Solver {
                     var expansionData = if (macroExpansions.contains(expansion))
                         macroExpansions(expansion)
                     else {
-                        val freshName = "$$" + nextMacroId
+                        val freshName = name+"$$" + nextMacroId
                         val data = (expansion().replaceMacroName(freshName), freshName)
                         macroExpansions = macroExpansions + (expansion -> data)
                         data
