@@ -32,7 +32,7 @@ object FeatureExpr {
     def createDefinedMacro(name: String, macroTable: FeatureProvider) = new FeatureExprImpl(new DefinedMacro(
         name,
         macroTable.getMacroCondition(name),
-        LazyLib.delay(macroTable.getMacroConditionCNF(name))))
+        macroTable.getMacroConditionCNF(name)))
     def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
@@ -52,6 +52,7 @@ trait FeatureExpr {
     def toString(): String
     def toCNF: NF
     def toEquiCNF: NF
+    def simplify(): FeatureExpr
     def isContradiction() = !isSatisfiable()
     def isTautology() = !this.not.isSatisfiable()
     def isSatisfiable(): Boolean
@@ -80,7 +81,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
 
     def expr: FeatureExprTree = aexpr
 
-    def simplify() { this.aexpr = aexpr.simplify; aexpr; }
+    def simplify(): FeatureExpr= { this.aexpr = aexpr.simplify; this }
 
     def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         And(this.expr, that.expr))
@@ -141,7 +142,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
      */
     def resolveToExternal(): FeatureExpr = {
         simplify
-        new FeatureExprImpl(aexpr.resolveToExternal())
+        new FeatureExprImpl(aexpr.resolveToExternal().simplify)
     }
 
 }
@@ -163,10 +164,10 @@ sealed abstract class FeatureExprTree {
                             case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
                             case e => childrenFlattened = e::childrenFlattened
                         }
-                    for (childs <- childrenFlattened)
-                        if (childrenFlattened.exists(_ == Not(childs)))
-                            return DeadFeature();
-                    if (childrenFlattened.exists(_ == DeadFeature()))
+//                    for (childs <- childrenFlattened)
+//                        if (childrenFlattened.exists(_ == Not(childs)))
+//                            return DeadFeature();
+                    if (childrenFlattened.exists(DeadFeature.unapply(_)))
                         /*return*/
                         DeadFeature()
                     else if (childrenFlattened.size == 1)
@@ -189,10 +190,10 @@ sealed abstract class FeatureExprTree {
                             case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
                             case e => childrenFlattened = e::childrenFlattened 
                         }
-                    for (childs <- childrenFlattened)
-                        if (childrenFlattened.exists(_ == Not(childs)))
-                            return BaseFeature();
-                    if (childrenFlattened.exists(_ == BaseFeature()))
+//                    for (childs <- childrenFlattened)
+//                        if (childrenFlattened.exists(_ == Not(childs)))
+//                            return BaseFeature();
+                    if (childrenFlattened.exists(BaseFeature.unapply(_)))
                         /*return*/
                         BaseFeature()
                     else if (childrenFlattened.size == 1)
@@ -323,7 +324,7 @@ sealed abstract class FeatureExprTree {
             case IfExpr(c, a, b) => IfExpr(c.resolveToExternal, a.resolveToExternal, b resolveToExternal)
             case IntegerLit(_) => this
             case DefinedExternal(_) => this
-            case DefinedMacro(name, expansion, cnf) => expansion.expr //TODO stupid to throw away CNF and DNF
+            case DefinedMacro(name, expansion, cnf) => {expansion.simplify; expansion.expr} //TODO stupid to throw away CNF and DNF
         }
 
     def print(): String
