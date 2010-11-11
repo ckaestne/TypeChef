@@ -1,4 +1,6 @@
 package de.fosd.typechef.featureexpr
+import de.fosd.typechef.featureexpr.LazyLib.Susp
+
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -12,13 +14,7 @@ import org.sat4j.tools.ModelIterator;
 import org.sat4j.tools.RemiUtils;
 import org.sat4j.tools.SolutionCounter;
 
-//object SatSolver {
-//    lazy val baseFeatureClause = new Clause(Set(baseFeature),Set())
-//    lazy val notBaseFeatureClause = new Clause(Set(),Set(baseFeature))
-//}
 class SatSolver extends Solver {
-    //    val baseFeatureName = "$$BASE$$"
-    //    lazy val baseFeature = DefinedExternal(baseFeatureName)
 
     private def countClauses(expr: NF) = expr.clauses.size
 
@@ -32,7 +28,13 @@ class SatSolver extends Solver {
 
     val PROFILING = false;
 
-    def isSatisfiable(macroTable: FeatureProvider, exprCNF: NF): Boolean = {
+    var macroId = 0
+    def nextMacroId = {
+        macroId = macroId + 1
+        macroId
+    }
+
+    def isSatisfiable(exprCNF: NF): Boolean = {
         if (exprCNF.isEmpty) return true
         if (exprCNF.isFull) return false
 
@@ -48,15 +50,17 @@ class SatSolver extends Solver {
             //        solver.setTimeoutMs(1000);
             solver.setTimeoutOnConflicts(100000)
 
-            var cnfs: List[NF] = List(exprCNF)
-
-            //search for referenced macros (MacroDefined) and determine their conditions
-            val referencedMacros=exprCNF.findMacros
-            println(referencedMacros)
-            assert(macroTable!=null || referencedMacros.isEmpty)//"feature expression with referenced macros, but without according macro table!"
-            for (macro <- referencedMacros)
-                cnfs = macroTable.getMacroSATCondition(macro.name) :: cnfs
-            println("SAT " + cnfs)
+            //find used macros, combine them by common expansion
+            val cnfs: List[NF] = prepareFormula(exprCNF)
+            //            
+            //            val referencedMacros=exprCNF.findMacros
+            //            val uniqueMacroExpansions:Map[Susp[NF],Int]=Map()++referencedMacros.map(_.presenceConditionCNF -> nextMacroId)
+            //            
+            //            println(referencedMacros)
+            //            var cnfs: List[NF] = List(exprCNF)
+            //            for ((macroExpansion,idx) <- uniqueMacroExpansions.iterator)
+            //                cnfs = macroExpansion().replaceMacroName("$$"+idx) :: cnfs
+            //            println("SAT " + cnfs)
 
             var uniqueFlagIds: Map[String, Int] = Map();
             for (cnf <- cnfs; clause <- cnf.clauses)
@@ -98,6 +102,47 @@ class SatSolver extends Solver {
         }
     }
 
+    /**
+     * DefinedExternal translates directly into a flag for the SAT solver
+     * 
+     * DefinedMacro is more complicated, because it is equivalent to a whole formula.
+     * to avoid transforming a large formula into CNF, we use the following strategy
+     * 
+     * DefinedMacro("X",expr) expands to the following
+     * DefinedExternal(freshName) -- and a new formula DefinedExternal(freshName) <=> expr
+     * Both are independent clauses fed to the SAT solver
+     * 
+     * Actually, DefinedMacro already contains an expression name <=> expr as CNF, where we
+     * just need to replace the Macro name by a fresh name. 
+     * 
+     * We first collect all expansions and detect identical ones             * 
+     */
+    def prepareFormula(expr: NF): List[NF] = {
+
+        var macroExpansions: Map[Susp[NF], (NF, String)] = Map()
+
+        def prepareLiteral(literal: DefinedExpr): DefinedExpr = {
+            literal match {
+                case DefinedMacro(name, _, expansion) => {
+                    var expansionData = macroExpansions(expansion)
+                    if (expansionData == null) {
+                        val freshName = "$$" + nextMacroId
+                        expansionData = (expansion().replaceMacroName(freshName), freshName)
+                        macroExpansions = macroExpansions + (expansion -> expansionData)
+                    }
+                    DefinedExternal(expansionData._2)
+                }
+                case e => e
+            }
+        }
+        def prepareClause(clause: Clause): Clause = {
+            new Clause(clause.posLiterals.map(prepareLiteral(_)), clause.negLiterals.map(prepareLiteral(_)))
+        }
+
+        val targetExpr = new NF(expr.clauses.map(prepareClause(_)), expr.isFull)
+        List(targetExpr) ++ macroExpansions.values.map(_._1)
+    }
+
     //	protected void addClause(Node node) throws ContradictionException {
     //		try {
     //			if (node instanceof Or) {
@@ -116,12 +161,12 @@ class SatSolver extends Solver {
     //		}
     //	}
 
-//    def getMacroCNF(macroName: String, macroTable: FeatureProvider): List[NF] = {
-//        val defMacro = FeatureExpr.createDefinedMacro(macroName)
-//        val condition = 
-//        val defImpliesCondition = defMacro.not.or(condition).toCNF
-//        val conditionImpliesDef = condition.not.or(defMacro).toCNF
-//        defImpliesCondition :: conditionImpliesDef :: List()
-//    }
+    //    def getMacroCNF(macroName: String, macroTable: FeatureProvider): List[NF] = {
+    //        val defMacro = FeatureExpr.createDefinedMacro(macroName)
+    //        val condition = 
+    //        val defImpliesCondition = defMacro.not.or(condition).toCNF
+    //        val conditionImpliesDef = condition.not.or(defMacro).toCNF
+    //        defImpliesCondition :: conditionImpliesDef :: List()
+    //    }
 
 }

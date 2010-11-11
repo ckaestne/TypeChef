@@ -26,8 +26,13 @@ object FeatureExpr {
     def createShiftRight(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
 
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left.not or right
+    def createEquiv(left: FeatureExpr, right: FeatureExpr) = createImplies(left, right) and createImplies(right, left)
     def createDefinedExternal(name: String) = new FeatureExprImpl(new DefinedExternal(name))
-    def createDefinedMacro(name: String) = new FeatureExprImpl(new DefinedMacro(name))
+    //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
+    def createDefinedMacro(name: String, macroTable: FeatureProvider) = new FeatureExprImpl(new DefinedMacro(
+        name,
+        macroTable.getMacroCondition(name),
+        LazyLib.delay(macroTable.getMacroConditionCNF(name))))
     def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
@@ -42,20 +47,20 @@ object FeatureExpr {
 
 trait FeatureExpr {
     def expr: FeatureExprTree
-    def cnfExpr: Susp[Option[NF]]
-    def dnfExpr: Susp[Option[NF]]
+    //    def cnfExpr: Susp[Option[NF]]
+    //    def dnfExpr: Susp[Option[NF]]
     def toString(): String
     def toCNF: NF
-    def isContradiction(macroTable: FeatureProvider) = !isSatisfiable(macroTable)
-    def isTautology(macroTable: FeatureProvider) = !this.not.isSatisfiable(macroTable)
-    def isSatisfiable(macroTable: FeatureProvider): Boolean
-    def isDead(macroTable: FeatureProvider) = isContradiction(macroTable)
-    def isBase(macroTable: FeatureProvider) = isTautology(macroTable)
+    def isContradiction() = !isSatisfiable()
+    def isTautology() = !this.not.isSatisfiable()
+    def isSatisfiable(): Boolean
+    def isDead() = isContradiction()
+    def isBase() = isTautology()
     def accept(f: FeatureExprTree => Unit): Unit
     def print(): String
     def debug_print(): String
     def equals(that: Any): Boolean
-    def resolveToExternal(macroTable: FeatureProvider): FeatureExpr
+    def resolveToExternal(): FeatureExpr
     def isResolved(): Boolean
 
     def or(that: FeatureExpr): FeatureExpr
@@ -70,38 +75,38 @@ trait FeatureExpr {
  * always stored in three formats: as constructed, CNF and DNF.
  * CNF and DNF are updated immediately on changes
  */
-protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF]], adnfExpr: Susp[Option[NF]]) extends FeatureExpr {
-    def this(expr: FeatureExprTree) = this(expr, delay(NFBuilder.toCNF_(expr.toCNF)), delay(NFBuilder.toDNF_(expr.toDNF)))
+protected class FeatureExprImpl(aexpr: FeatureExprTree /*, acnfExpr: Susp[Option[NF]], adnfExpr: Susp[Option[NF]]*/ ) extends FeatureExpr {
+    //    def this(expr: FeatureExprTree) = this(expr/*, delay(NFBuilder.toCNF_(expr.toCNF)), delay(NFBuilder.toDNF_(expr.toDNF))*/)
 
     def expr: FeatureExprTree = aexpr
-    def cnfExpr = acnfExpr
-    def dnfExpr = adnfExpr
+    //    def cnfExpr = acnfExpr
+    //    def dnfExpr = adnfExpr
 
     //XXX doesn't look very useful, it is not overriden by anybody!
     def simplify(): FeatureExpr = this
 
     def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
-        And(this.expr, that.expr),
+        And(this.expr, that.expr) /*,
         u(this.cnfExpr, that.cnfExpr, _ ++ _),
-        u(this.dnfExpr, that.dnfExpr, _ ** _))
+        u(this.dnfExpr, that.dnfExpr, _ ** _)*/ )
 
     def or(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
-        Or(this.expr, that.expr),
+        Or(this.expr, that.expr) /*,
         u(this.cnfExpr, that.cnfExpr, _ ** _),
-        u(this.dnfExpr, that.dnfExpr, _ ++ _))
+        u(this.dnfExpr, that.dnfExpr, _ ++ _)*/ )
 
     def not(): FeatureExpr = new FeatureExprImpl(
-        Not(this.expr),
+        Not(this.expr) /*,
         neg(this.dnfExpr),
-        neg(this.cnfExpr))
+        neg(this.cnfExpr)*/ )
 
     def toCNF: NF =
         try {
-        	NFBuilder.toCNF(expr.toCNF)
-//            this.cnfExpr() match {
-//                case Some(cnfExpr) => cnfExpr
-//                case None => NFBuilder.toCNF(expr.toCNF)
-//            }
+            NFBuilder.toCNF(expr.toCNF)
+            //            this.cnfExpr() match {
+            //                case Some(cnfExpr) => cnfExpr
+            //                case None => NFBuilder.toCNF(expr.toCNF)
+            //            }
         } catch {
             case t: Throwable => {
                 System.err.println("Exception on isSatisfiable for: " + expr.print())
@@ -110,8 +115,8 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
             }
         }
 
-    def isSatisfiable(macroTable: FeatureProvider): Boolean =
-        new SatSolver().isSatisfiable(macroTable, toCNF)
+    def isSatisfiable(): Boolean =
+        new SatSolver().isSatisfiable(toCNF)
 
     def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay((a(), b()) match {
         case (Some(na), Some(nb)) => Some(op(na, nb))
@@ -126,11 +131,7 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
 
     def accept(f: FeatureExprTree => Unit): Unit = { simplify(); expr.accept(f) }
 
-    def print(): String = cnfExpr() match {
-        case Some(cnf) =>
-            cnf.printCNF
-        case None => simplify(); expr.print()
-    }
+    def print(): String = aexpr.print()
 
     def debug_print(): String = {
         //XXX: Simplify does not modify the expression, it produces a new one!!!
@@ -139,7 +140,7 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
     }
 
     override def equals(that: Any) = that match {
-        case e: FeatureExpr => (this eq e) || (this.expr eq e.expr) || this.implies(e).and(e.implies(this)).isBase(null);
+        case e: FeatureExpr => (this eq e) || (this.expr eq e.expr) || FeatureExpr.createEquiv(this, e).isTautology();
         case _ => false
     }
 
@@ -152,8 +153,8 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree, acnfExpr: Susp[Option[NF
     /**
      * replace DefinedMacro by DefinedExternal from MacroTable
      */
-    def resolveToExternal(macroTable: FeatureProvider): FeatureExpr =
-        new FeatureExprImpl(aexpr.resolveToExternal(macroTable))
+    def resolveToExternal(): FeatureExpr =
+        new FeatureExprImpl(aexpr.resolveToExternal())
 
 }
 
@@ -306,34 +307,29 @@ sealed abstract class FeatureExprTree {
             case DefinedExpr(_) => this
         }
 
-    private var isResolvedCache: Option[Boolean] = None
+    //TODO caching
     def isResolved(): Boolean = {
-        if (isResolvedCache.isDefined)
-            return isResolvedCache.get
         var foundDefinedMacro = false;
         this.accept(
             _ match {
-                case DefinedMacro(_) => foundDefinedMacro = true
+                case x: DefinedMacro => foundDefinedMacro = true
                 case _ =>
             })
-        isResolvedCache = Some(!foundDefinedMacro)
         !foundDefinedMacro
     }
-    def resolveToExternal(macroTable: FeatureProvider): FeatureExprTree = {
-        if (isResolvedCache.isDefined && isResolvedCache.get) return this;
-        val result = this match {
-            case And(children) => And(children.map(_.resolveToExternal(macroTable)))
-            case Or(children) => Or(children.map(_.resolveToExternal(macroTable)))
-            case BinaryFeatureExprTree(left, right, opStr, op) => BinaryFeatureExprTree(left resolveToExternal (macroTable), right resolveToExternal (macroTable), opStr, op)
-            case UnaryFeatureExprTree(expr, opStr, op) => UnaryFeatureExprTree(expr resolveToExternal (macroTable), opStr, op)
-            case Not(a) => Not(a.resolveToExternal(macroTable))
-            case IfExpr(c, a, b) => IfExpr(c.resolveToExternal(macroTable), a.resolveToExternal(macroTable), b resolveToExternal (macroTable))
+    def resolveToExternal(): FeatureExprTree =
+        //TODO caching
+        this match {
+            case And(children) => And(children.map(_.resolveToExternal()))
+            case Or(children) => Or(children.map(_.resolveToExternal()))
+            case BinaryFeatureExprTree(left, right, opStr, op) => BinaryFeatureExprTree(left resolveToExternal, right resolveToExternal, opStr, op)
+            case UnaryFeatureExprTree(expr, opStr, op) => UnaryFeatureExprTree(expr resolveToExternal, opStr, op)
+            case Not(a) => Not(a.resolveToExternal)
+            case IfExpr(c, a, b) => IfExpr(c.resolveToExternal, a.resolveToExternal, b resolveToExternal)
             case IntegerLit(_) => this
             case DefinedExternal(_) => this
-            case DefinedMacro(name) => macroTable.getMacroCondition(name).expr //TODO stupid to throw away CNF and DNF
+            case DefinedMacro(name, expansion, cnf) => expansion.expr //TODO stupid to throw away CNF and DNF
         }
-        result
-    }
 
     def print(): String
     def debug_print(level: Int): String
@@ -460,8 +456,8 @@ abstract class DefinedExpr(val feature: String) extends FeatureExprTree {
 }
 object DefinedExpr {
     def unapply(f: DefinedExpr): Option[DefinedExpr] = f match {
-        case x@DefinedExternal(_) => Some(x)
-        case x@DefinedMacro(_) => Some(x)
+        case x: DefinedExternal => Some(x)
+        case x: DefinedMacro => Some(x)
         case _ => None
     }
 }
@@ -478,12 +474,21 @@ case class DefinedExternal(name: String) extends DefinedExpr(name) {
  * definition based on a macro, still to be resolved using the macro table
  * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
  */
-case class DefinedMacro(name: String) extends DefinedExpr(name) {
+case class DefinedMacro(name: String, presenceCondition: FeatureExpr, presenceConditionCNF: Susp[NF]) extends DefinedExpr(name) {
     def print(): String = {
         assert(name != "")
         "defined(" + name + ")";
     }
     override def satName = "$" + name
+    /**
+     * definedMacros are equal if they have the same Name and the same expansion! (otherwise they refer to 
+     * the macro at different points in time and should not be considered equal)
+     * actually, we do not need to check for the same name, otherwise they would not have the same expansion
+     */
+    override def equals(that: Any) = that match {
+        case e@DefinedMacro(name, _, expr) => (this eq e) || ((this.name == name) && (this.presenceConditionCNF eq expr))
+        case _ => false
+    }
 }
 
 case class IntegerLit(num: Long) extends FeatureExprTree {

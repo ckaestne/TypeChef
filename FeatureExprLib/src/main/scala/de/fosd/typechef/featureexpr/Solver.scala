@@ -1,5 +1,5 @@
 package de.fosd.typechef.featureexpr
 
 trait Solver {
-  def isSatisfiable(macroTable: FeatureProvider, exprCNF: NF): Boolean
+  def isSatisfiable(exprCNF: NF): Boolean
 }

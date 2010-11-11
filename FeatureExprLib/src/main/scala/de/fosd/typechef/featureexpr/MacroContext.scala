@@ -1,4 +1,5 @@
 package de.fosd.typechef.featureexpr
+import de.fosd.typechef.featureexpr.LazyLib.Susp
 
 object MacroContext {
     private var flagFilters = List((x: String) => true) //return true means flag can be specified by user, false means it is undefined initially
@@ -23,15 +24,15 @@ import FeatureExpr.createDefinedExternal
  * 
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
-class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]) extends FeatureProvider {
+class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Susp[NF]]) extends FeatureProvider {
     /**
      * when true, only CONFIG_ flags can be defined externally (simplifies the handling signficiantly)
      */
 
-    def this() = { this(Map(),Map()) }
+    def this() = { this(Map(), Map()) }
     def define(name: String, infeature: FeatureExpr, other: Any): MacroContext = {
-        val feature = infeature.resolveToExternal(this)
-        val newMC=new MacroContext(
+        val feature = infeature.resolveToExternal()
+        val newMC = new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
                 case None => {
@@ -47,7 +48,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
     }
 
     def undefine(name: String, infeature: FeatureExpr): MacroContext = {
-        val feature = infeature.resolveToExternal(this)
+        val feature = infeature.resolveToExternal()
         new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
@@ -70,40 +71,37 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache:Map[String, NF]
      * this returns a condition for the SAT solver in CNF in the following
      * form
      * 
-     * DefinedMacro <=> getMacroCondition
+     * DefinedExternal("$$") <=> getMacroCondition
      * 
-     * the result is cached
+     * the result is cached. $$ is later replaced by a name for the SAT solver
      */
-    def getMacroSATCondition(feature: String): NF = {
-    	if (cnfCache.contains(feature))
-    		return cnfCache(feature)
-    	
-    	val c=getMacroCondition(feature)
-    	val d=FeatureExpr.createDefinedMacro(feature) 
-    	val a1=(c implies d) 
-    	val a2=(d implies c)
-    	val condition=a1 and a2  
-    	val cnf=condition.toCNF
-    	cnfCache = cnfCache + ((feature, cnf))
-    	cnf
-    }
-    
-    
-    def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isDead(this)
+    def getMacroConditionCNF(feature: String): Susp[NF] = {
+        if (cnfCache.contains(feature))
+            return cnfCache(feature)
 
-    def isFeatureBase(feature: String): Boolean = getMacroCondition(feature).isBase(this)
+        val c = getMacroCondition(feature)
+        val d = FeatureExpr.createDefinedExternal(NFBuilder.HOLE)
+        val condition = FeatureExpr.createEquiv(c, d)
+        val cnf = LazyLib.delay(condition.toCNF)
+        cnfCache = cnfCache + ((feature, cnf))
+        cnf
+    }
+
+    def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isDead()
+
+    def isFeatureBase(feature: String): Boolean = getMacroCondition(feature).isBase()
 
     def getMacroExpansions(identifier: String): Array[MacroExpansion] =
         knownMacros.get(identifier) match {
-            case Some(macro) => macro.getOther().toArray.filter(!_.getFeature().isDead(this))
+            case Some(macro) => macro.getOther().toArray.filter(!_.getFeature().isDead())
             case None => Array()
         }
     def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr): Array[MacroExpansion] =
-        getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead(this));
+        getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
 
     override def toString() = { knownMacros.values.mkString("\n\n\n") }
-    
-    private def getMacro(name:String) = knownMacros(name)
+
+    private def getMacro(name: String) = knownMacros(name)
 }
 
 /**
@@ -115,8 +113,8 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
     def getName() = name;
     def getFeature() = feature;
     def getOther() = featureExpansions;
-    def isBase(macroTable: MacroContext): Boolean = feature.isBase(macroTable);
-    def isDead(macroTable: MacroContext): Boolean = feature.isDead(macroTable);
+    def isBase(macroTable: MacroContext): Boolean = feature.isBase();
+    def isDead(macroTable: MacroContext): Boolean = feature.isDead();
     def addNewAlternative(exp: MacroExpansion): Macro =
         //note addExpansion changes presence conditions of existing expansions
         new Macro(name, feature.or(exp.getFeature()), addExpansion(exp))
@@ -132,11 +130,11 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
                 found = true
                 other.extend(exp)
             } else
-                other.andNot(exp.getFeature())) //.filter(!_.getFeature.isContradiction(this))
+                other.andNot(exp.getFeature())).filter(!_.getFeature.isContradiction())
         if (found) modifiedExpansions else exp :: modifiedExpansions
     }
     def andNot(expr: FeatureExpr): Macro =
-        new Macro(name, feature and (expr.not), featureExpansions.map(_.andNot(expr))) //.filter(!_.getFeature.isContradiction(this)));
+        new Macro(name, feature and (expr.not), featureExpansions.map(_.andNot(expr)).filter(!_.getFeature.isContradiction()));
     //  override def equals(that:Any) = that match { case m:Macro => m.getName() == name; case _ => false; }
     override def toString() = "#define " + name + " if " + feature.toString + " \n\texpansions \n" + featureExpansions.mkString("\n")
 }
