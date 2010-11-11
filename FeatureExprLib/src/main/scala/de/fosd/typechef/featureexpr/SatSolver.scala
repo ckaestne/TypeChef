@@ -41,7 +41,7 @@ class SatSolver extends Solver {
         val startTime = System.currentTimeMillis();
 
         if (PROFILING)
-            println("<toCNF " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags>")
+            println("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags>")
 
         val startTimeSAT = System.currentTimeMillis();
         try {

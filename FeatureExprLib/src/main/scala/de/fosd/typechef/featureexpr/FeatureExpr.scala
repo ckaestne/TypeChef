@@ -51,6 +51,7 @@ trait FeatureExpr {
     //    def dnfExpr: Susp[Option[NF]]
     def toString(): String
     def toCNF: NF
+    def toEquiCNF: NF
     def isContradiction() = !isSatisfiable()
     def isTautology() = !this.not.isSatisfiable()
     def isSatisfiable(): Boolean
@@ -102,10 +103,16 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree /*, acnfExpr: Susp[Op
     def toCNF: NF =
         try {
             NFBuilder.toCNF(expr.toCNF)
-            //            this.cnfExpr() match {
-            //                case Some(cnfExpr) => cnfExpr
-            //                case None => NFBuilder.toCNF(expr.toCNF)
-            //            }
+        } catch {
+            case t: Throwable => {
+                System.err.println("Exception on isSatisfiable for: " + expr.print())
+                t.printStackTrace
+                throw t
+            }
+        }
+    def toEquiCNF: NF =
+        try {
+            NFBuilder.toCNF(expr.toCnfEquiSat)
         } catch {
             case t: Throwable => {
                 System.err.println("Exception on isSatisfiable for: " + expr.print())
@@ -115,7 +122,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree /*, acnfExpr: Susp[Op
         }
 
     def isSatisfiable(): Boolean =
-        new SatSolver().isSatisfiable(toCNF)
+        new SatSolver().isSatisfiable(toEquiCNF)
 
     def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay((a(), b()) match {
         case (Some(na), Some(nb)) => Some(op(na, nb))
@@ -364,31 +371,70 @@ sealed abstract class FeatureExprTree {
             }
             case e => e
         }
-    def toDNF(): FeatureExprTree = this.simplify match {
-        case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).toDNF()
-        case Not(And(children)) => Or(children.map(Not(_).toDNF())).toDNF()
-        case Not(Or(children)) => And(children.map(Not(_).toDNF())).toDNF()
-        case Or(children) => Or(children.map(_.toDNF)).simplify
-        case And(children) => {
-            val dnfchildren = children.map(_.toDNF)
-            if (dnfchildren.exists(_.isInstanceOf[Or])) {
-                var andClauses: Set[And] = Set(And(Set())) //list of Or expressions
-                for (child <- dnfchildren) {
-                    child match {
-                        case Or(innerChildren) => {
-                            var newClauses: Set[And] = Set()
-                            for (innerChild <- innerChildren)
-                                newClauses = newClauses ++ andClauses.map(_.addChild(innerChild));
-                            andClauses = newClauses;
-                        }
-                        case _ => andClauses = andClauses.map(_.addChild(child));
+    def toCnfEquiSat(): FeatureExprTree = {
+        //	  System.out.println(this.print)
+        this.simplify match {
+            case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).simplify.toCnfEquiSat()
+            case Not(e) =>
+                e match {
+                    case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
+                    case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
+                    case e: IfExpr => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
+                    case e => {
+                        Not(e.toCnfEquiSat)
                     }
                 }
-                And(andClauses.map(a => a)).simplify
-            } else Or(dnfchildren)
+            case And(children) => And(children.map(_.toCnfEquiSat)).simplify
+            case Or(children) => {
+                val cnfchildren = children.map(_.toCnfEquiSat)
+                if (cnfchildren.exists(_.isInstanceOf[And])) {
+                    var orClauses: Set[FeatureExprTree] = Set() //list of Or expressions
+                    //	        val freshFeatureNames:Set[FeatureExprTree]=for (child<-children) yield DefinedExternal(freshFeatureName())
+
+                    var freshFeatureNames: Set[FeatureExprTree] = Set()
+                    for (child <- cnfchildren) {
+                        val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
+                        child match {
+                            case And(innerChildren) => {
+                                for (innerChild <- innerChildren)
+                                    orClauses += new Or(freshFeatureName, innerChild);
+                            }
+                            case e => orClauses += new Or(freshFeatureName, e);
+                        }
+                        freshFeatureNames += Not(freshFeatureName).simplify
+                    }
+                    orClauses += Or(freshFeatureNames)
+                    And(orClauses).simplify
+                } else Or(cnfchildren)
+            }
+            case e => e
         }
-        case e => e
     }
+//    def toDNF(): FeatureExprTree = this.simplify match {
+//        case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).toDNF()
+//        case Not(And(children)) => Or(children.map(Not(_).toDNF())).toDNF()
+//        case Not(Or(children)) => And(children.map(Not(_).toDNF())).toDNF()
+//        case Or(children) => Or(children.map(_.toDNF)).simplify
+//        case And(children) => {
+//            val dnfchildren = children.map(_.toDNF)
+//            if (dnfchildren.exists(_.isInstanceOf[Or])) {
+//                var andClauses: Set[And] = Set(And(Set())) //list of Or expressions
+//                for (child <- dnfchildren) {
+//                    child match {
+//                        case Or(innerChildren) => {
+//                            var newClauses: Set[And] = Set()
+//                            for (innerChild <- innerChildren)
+//                                newClauses = newClauses ++ andClauses.map(_.addChild(innerChild));
+//                            andClauses = newClauses;
+//                        }
+//                        case _ => andClauses = andClauses.map(_.addChild(child));
+//                    }
+//                }
+//                And(andClauses.map(a => a)).simplify
+//            } else Or(dnfchildren)
+//        }
+//        case e => e
+//    }
 }
 abstract class AbstractBinaryFeatureExprTree(
     left: FeatureExprTree,

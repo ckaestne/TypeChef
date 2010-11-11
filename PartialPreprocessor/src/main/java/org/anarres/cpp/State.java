@@ -47,8 +47,6 @@ class State {
 	 */
 	public void putLocalFeature(FeatureExpr feature, FeatureProvider macroTable) {
 		clearCache();
-
-		assert feature.isResolved();
 		localFeatures.add(feature);
 	}
 

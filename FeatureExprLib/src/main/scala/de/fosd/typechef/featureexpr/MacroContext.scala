@@ -82,7 +82,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
         val c = getMacroCondition(feature)
         val d = FeatureExpr.createDefinedExternal(NFBuilder.HOLE)
         val condition = FeatureExpr.createEquiv(c, d)
-        val cnf = LazyLib.delay(condition.toCNF)
+        val cnf = LazyLib.delay(condition.toEquiCNF)
         cnfCache = cnfCache + ((feature, cnf))
         cnf
     }
