@@ -26,7 +26,7 @@ class SatSolver extends Solver {
         flags.size
     }
 
-    val PROFILING = false;
+    val PROFILING = true;
 
     var macroId = 0
     def nextMacroId = {
@@ -41,7 +41,7 @@ class SatSolver extends Solver {
         val startTime = System.currentTimeMillis();
 
         if (PROFILING)
-            println("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags>")
+            print("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags ")
 
         val startTimeSAT = System.currentTimeMillis();
         try {
@@ -53,11 +53,15 @@ class SatSolver extends Solver {
             //find used macros, combine them by common expansion
             val cnfs: List[NF] = prepareFormula(exprCNF)
 
+            if (PROFILING)
+                print(";")
             var uniqueFlagIds: Map[String, Int] = Map();
             for (cnf <- cnfs; clause <- cnf.clauses)
                 for (literal <- (clause.posLiterals ++ clause.negLiterals))
                     if (!uniqueFlagIds.contains(literal.satName))
                         uniqueFlagIds = uniqueFlagIds + ((literal.satName, uniqueFlagIds.size + 1))
+            if (PROFILING)
+                print(";" + uniqueFlagIds.size)
 
             solver.newVar(uniqueFlagIds.size)
 
@@ -85,11 +89,13 @@ class SatSolver extends Solver {
             }
 
             var contradiction = addClauses(cnfs)
+            if (PROFILING)
+                print(";")
             return !contradiction && solver.isSatisfiable();
 
         } finally {
             if (PROFILING)
-                println("<SAT in " + (System.currentTimeMillis() - startTimeSAT) + " ms>")
+                println(" in " + (System.currentTimeMillis() - startTimeSAT) + " ms>")
         }
     }
 
@@ -118,9 +124,13 @@ class SatSolver extends Solver {
                     var expansionData = if (macroExpansions.contains(expansion))
                         macroExpansions(expansion)
                     else {
-                        val freshName = name+"$$" + nextMacroId
+                        if (PROFILING)
+                            print(name)
+                        val freshName = name + "$$" + nextMacroId
                         val data = (expansion().replaceMacroName(freshName), freshName)
                         macroExpansions = macroExpansions + (expansion -> data)
+                        if (PROFILING)
+                            print(".")
                         data
                     }
                     DefinedExternal(expansionData._2)

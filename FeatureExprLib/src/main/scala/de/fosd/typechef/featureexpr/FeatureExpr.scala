@@ -81,7 +81,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
 
     def expr: FeatureExprTree = aexpr
 
-    def simplify(): FeatureExpr= { this.aexpr = aexpr.simplify; this }
+    def simplify(): FeatureExpr = { this.aexpr = aexpr.simplify; this }
 
     def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         And(this.expr, that.expr))
@@ -158,15 +158,15 @@ sealed abstract class FeatureExprTree {
             val result = this bubbleUpIf match {
                 case And(children) => {
                     val childrenSimplified = children.map(_.simplify().intToBool()).filter(!BaseFeature.unapply(_)); //TODO also remove all non-zero integer literals
-                    var childrenFlattened: List[FeatureExprTree] = List()//computing sets is to expensive
+                    var childrenFlattened: List[FeatureExprTree] = List() //computing sets is to expensive
                     for (childs <- childrenSimplified)
                         childs match {
                             case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = e::childrenFlattened
+                            case e => childrenFlattened = e :: childrenFlattened
                         }
-//                    for (childs <- childrenFlattened)
-//                        if (childrenFlattened.exists(_ == Not(childs)))
-//                            return DeadFeature();
+                    //                    for (childs <- childrenFlattened)
+                    //                        if (childrenFlattened.exists(_ == Not(childs)))
+                    //                            return DeadFeature();
                     if (childrenFlattened.exists(DeadFeature.unapply(_)))
                         /*return*/
                         DeadFeature()
@@ -188,11 +188,11 @@ sealed abstract class FeatureExprTree {
                     for (childs <- childrenSimplified)
                         childs match {
                             case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = e::childrenFlattened 
+                            case e => childrenFlattened = e :: childrenFlattened
                         }
-//                    for (childs <- childrenFlattened)
-//                        if (childrenFlattened.exists(_ == Not(childs)))
-//                            return BaseFeature();
+                    //                    for (childs <- childrenFlattened)
+                    //                        if (childrenFlattened.exists(_ == Not(childs)))
+                    //                            return BaseFeature();
                     if (childrenFlattened.exists(BaseFeature.unapply(_)))
                         /*return*/
                         BaseFeature()
@@ -272,11 +272,11 @@ sealed abstract class FeatureExprTree {
     private var isBubbleUpIf: Boolean = false
     private def setBubbleUpIf(): FeatureExprTree = { isBubbleUpIf = true; return this }
     private def bubbleUpIf: FeatureExprTree =
-        if (isBubbleUpIf) 
-        	this
+        if (isBubbleUpIf)
+            this
         else {
             val result = this match {
-                case And(children) => And(children.map(_.bubbleUpIf)) 
+                case And(children) => And(children.map(_.bubbleUpIf))
                 case Or(children) => Or(children.map(_.bubbleUpIf))
 
                 case BinaryFeatureExprTree(left, right, opStr, op) =>
@@ -324,7 +324,7 @@ sealed abstract class FeatureExprTree {
             case IfExpr(c, a, b) => IfExpr(c.resolveToExternal, a.resolveToExternal, b resolveToExternal)
             case IntegerLit(_) => this
             case DefinedExternal(_) => this
-            case DefinedMacro(name, expansion, cnf) => {expansion.simplify; expansion.expr} //TODO stupid to throw away CNF and DNF
+            case DefinedMacro(name, expansion, cnf) => { expansion.simplify; expansion.expr } //TODO stupid to throw away CNF and DNF
         }
 
     def print(): String
@@ -369,31 +369,27 @@ sealed abstract class FeatureExprTree {
                 e match {
                     case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
                     case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
-                    case e: IfExpr => Not(e.toCnfEquiSat()).simplify.toCnfEquiSat()
-                    case e => {
-                        Not(e.toCnfEquiSat)
-                    }
+                    case e:IfExpr => Not(e.toCnfEquiSat).toCnfEquiSat
+                    case e=>Not(e.toCnfEquiSat)
                 }
             case And(children) => And(children.map(_.toCnfEquiSat)).simplify
             case Or(children) => {
                 val cnfchildren = children.map(_.toCnfEquiSat)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
                     var orClauses: List[FeatureExprTree] = List() //list of Or expressions
-                    //	        val freshFeatureNames:Set[FeatureExprTree]=for (child<-children) yield DefinedExternal(freshFeatureName())
-
                     var freshFeatureNames: List[FeatureExprTree] = List()
                     for (child <- cnfchildren) {
                         val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
                         child match {
                             case And(innerChildren) => {
                                 for (innerChild <- innerChildren)
-                                    orClauses = new Or(freshFeatureName, innerChild)::orClauses
+                                    orClauses = new Or(freshFeatureName, innerChild) :: orClauses
                             }
-                            case e => orClauses=new Or(freshFeatureName, e)::orClauses
+                            case e => orClauses = new Or(freshFeatureName, e) :: orClauses
                         }
                         freshFeatureNames = Not(freshFeatureName).simplify :: freshFeatureNames
                     }
-                    orClauses = Or(freshFeatureNames)::orClauses
+                    orClauses = Or(freshFeatureNames) :: orClauses
                     And(orClauses).simplify
                 } else Or(cnfchildren)
             }
