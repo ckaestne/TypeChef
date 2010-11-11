@@ -47,7 +47,7 @@ class State {
 	 */
 	public void putLocalFeature(FeatureExpr feature, FeatureProvider macroTable) {
 		clearCache();
-		feature = feature.resolveToExternal();//TODO must be resolved in order do avoid dynamic scope. TODO implement closures
+
 		assert feature.isResolved();
 		localFeatures.add(feature);
 	}

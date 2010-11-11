@@ -12,6 +12,6 @@ class MyToken(val text: String, val feature: FeatureExpr) extends AbstractToken 
         def getColumn = 1
     }
 
-    override def toString = "\"" + text + "\"" + (if (!feature.isBase(null)) feature else "")
+    override def toString = "\"" + text + "\"" + (if (!feature.isBase()) feature else "")
 }
 object EofToken extends MyToken("EOF", FeatureExpr.base)
