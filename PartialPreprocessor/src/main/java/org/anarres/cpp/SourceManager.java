@@ -139,7 +139,7 @@ public class SourceManager {
 				Source t = inputs.remove(0);
 				push_source(t, true);
 				if (pp.getFeature(Feature.LINEMARKERS))
-					return new Preprocessor.OutputHelper().line_token(t.getLine(), t.getName(), " 1");
+					return pp.new OutputHelper().line_token(t.getLine(), t.getName(), " 1");
 				continue;
 			}
 			Token tok = s.token();
@@ -155,7 +155,7 @@ public class SourceManager {
 					 * token', which isNumbered() approximates. This is not
 					 * perfect, but works.
 					 */
-					return new Preprocessor.OutputHelper().line_token(t.getLine() + 1, t.getName(), " 2");
+					return pp.new OutputHelper().line_token(t.getLine() + 1, t.getName(), " 2");
 				}
 				continue;
 			}

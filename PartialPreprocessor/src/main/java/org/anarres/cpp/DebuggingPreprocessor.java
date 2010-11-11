@@ -80,16 +80,16 @@ public abstract class DebuggingPreprocessor {
 
 	protected abstract Token parse_main() throws IOException, LexerException;
 
-	private void debugNextTokens() {
-		for (int i = 0; i < 20; i++)
-			try {
-				parse_main();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (LexerException e) {
-				e.printStackTrace();
-			}
-	}
+//	private void debugNextTokens() {
+//		for (int i = 0; i < 20; i++)
+//			try {
+//				parse_main();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (LexerException e) {
+//				e.printStackTrace();
+//			}
+//	}
 
 	public void debug_receivedToken(Source source, Token tok) {
 		if (DEBUG_TOKENSTREAM && tok != null)
@@ -128,7 +128,7 @@ public abstract class DebuggingPreprocessor {
 										+ " ("
 										+ state.getFullPresenceCondition()
 										+ ")") + "\n");
-				// System.out.println(b.toString());
+				 System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
@@ -145,7 +145,7 @@ public abstract class DebuggingPreprocessor {
 				for (int i = 0; i < debugSourceIdx; i++)
 					b.append("\t");
 				b.append("pop " + source.toString() + "\n");
-				// System.out.println(b.toString());
+				 System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {

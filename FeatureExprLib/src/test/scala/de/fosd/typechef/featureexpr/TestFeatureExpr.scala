@@ -1,4 +1,5 @@
 package de.fosd.typechef.featureexpr
+import org.junit.Ignore
 
 import junit.framework._;
 import junit.framework.Assert._
@@ -163,6 +164,7 @@ class TestFeatureExpr extends TestCase {
           
     }
 
+    @Ignore
     def testEquality() {
         assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a"))
         assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a")))

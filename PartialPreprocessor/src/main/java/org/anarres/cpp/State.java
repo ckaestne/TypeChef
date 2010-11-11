@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureProvider;
+import de.fosd.typechef.featureexpr.MacroContext;
 
 class State {
 	List<FeatureExpr> localFeatures = new ArrayList<FeatureExpr>();
@@ -41,8 +43,9 @@ class State {
 	 * called again, this is interpreted as an elif expression.
 	 * 
 	 * @param feature
+	 * @param macroTable
 	 */
-	public void putLocalFeature(FeatureExpr feature) {
+	public void putLocalFeature(FeatureExpr feature, FeatureProvider macroTable) {
 		clearCache();
 		localFeatures.add(feature);
 	}
@@ -76,6 +79,7 @@ class State {
 
 	private FeatureExpr cache_fullPresenceCondition = null;
 	private Boolean cache_isActive = null;
+	private MacroContext cache_macroTable = null;
 
 	/**
 	 * returns the full feature condition that leads to the inclusion of the
@@ -104,13 +108,15 @@ class State {
 	 * 
 	 * @return
 	 */
-	public boolean isActive() {
+	public boolean isActive(MacroContext macros) {
 		// check with cache and parent before using SAT solver
-		if (cache_isActive != null)
+		if (cache_isActive != null && macros == cache_macroTable)
 			return cache_isActive.booleanValue();
-		if (parent!=null && !parent.isActive())
+		if (parent != null && !parent.isActive(macros))
 			return false;
-		cache_isActive = new Boolean(!getFullPresenceCondition().isDead());
+		FeatureExpr condition = getFullPresenceCondition();
+		cache_isActive = new Boolean(condition.isSatisfiable());
+		cache_macroTable = macros;
 		return cache_isActive.booleanValue();
 	}
 
