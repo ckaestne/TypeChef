@@ -75,15 +75,14 @@ trait FeatureExpr {
  * always stored in three formats: as constructed, CNF and DNF.
  * CNF and DNF are updated immediately on changes
  */
-protected class FeatureExprImpl(aexpr: FeatureExprTree /*, acnfExpr: Susp[Option[NF]], adnfExpr: Susp[Option[NF]]*/ ) extends FeatureExpr {
+protected class FeatureExprImpl(var aexpr: FeatureExprTree /*, acnfExpr: Susp[Option[NF]], adnfExpr: Susp[Option[NF]]*/ ) extends FeatureExpr {
     //    def this(expr: FeatureExprTree) = this(expr/*, delay(NFBuilder.toCNF_(expr.toCNF)), delay(NFBuilder.toDNF_(expr.toDNF))*/)
 
     def expr: FeatureExprTree = aexpr
     //    def cnfExpr = acnfExpr
     //    def dnfExpr = adnfExpr
 
-    //XXX doesn't look very useful, it is not overriden by anybody!
-    def simplify(): FeatureExpr = this
+    def simplify() { this.aexpr = aexpr.simplify; aexpr; }
 
     def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         And(this.expr, that.expr) /*,
@@ -127,7 +126,7 @@ protected class FeatureExprImpl(aexpr: FeatureExprTree /*, acnfExpr: Susp[Option
         case None => None
     })
 
-    override def toString(): String = this.print()
+    override def toString(): String = { simplify; this.print() }
 
     def accept(f: FeatureExprTree => Unit): Unit = { simplify(); expr.accept(f) }
 

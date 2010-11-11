@@ -47,7 +47,7 @@ class State {
 	 */
 	public void putLocalFeature(FeatureExpr feature, FeatureProvider macroTable) {
 		clearCache();
-		feature = feature.resolveToExternal(macroTable);//TODO must be resolved in order do avoid dynamic scope. TODO implement closures
+		feature = feature.resolveToExternal();//TODO must be resolved in order do avoid dynamic scope. TODO implement closures
 		assert feature.isResolved();
 		localFeatures.add(feature);
 	}
@@ -117,7 +117,7 @@ class State {
 		if (parent != null && !parent.isActive(macros))
 			return false;
 		FeatureExpr condition = getFullPresenceCondition();
-		cache_isActive = new Boolean(condition.isSatisfiable(macros));
+		cache_isActive = new Boolean(condition.isSatisfiable());
 		cache_macroTable = macros;
 		return cache_isActive.booleanValue();
 	}

@@ -3,10 +3,10 @@
 +2 char* g_get_user_name_utf8(void)
 +1 void* g_get_user_name(void)
 
-+2 #if (defined(FOO))
-+4 #if (defined(G_OS_WIN32))
-+1 #if (defined(BAR))
-+2 #if (defined(G_OS_WIN32))&&(defined(FOO))
-+1 #if (!(defined(G_OS_WIN32))||!(defined(FOO)))
-+1 #if (!(defined(G_OS_WIN32)))
++2 #if defined(FOO)
++2 #if defined(G_OS_WIN32)
++1 #if defined(BAR)
++2 #if (defined(G_OS_WIN32) && defined(FOO))
++1 #if !((defined(G_OS_WIN32) && defined(FOO)))
++1 #if !(defined(G_OS_WIN32))
 +9 #endif

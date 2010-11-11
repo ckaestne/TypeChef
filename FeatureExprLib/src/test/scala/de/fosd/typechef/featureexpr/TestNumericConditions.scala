@@ -112,7 +112,7 @@ class TestNumericConditions extends TestCase {
                     DefinedExternal("a"),
                     IntegerLit(1),
                     IntegerLit(2)),
-                FeatureExpr.createInteger(2)).simplify.isSatisfiable());
+                FeatureExpr.createInteger(2)).isSatisfiable());
 
     }
     def testMixIntChar = {
