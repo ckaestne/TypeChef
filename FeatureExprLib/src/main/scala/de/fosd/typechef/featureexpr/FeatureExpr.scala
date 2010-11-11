@@ -76,32 +76,24 @@ trait FeatureExpr {
  * always stored in three formats: as constructed, CNF and DNF.
  * CNF and DNF are updated immediately on changes
  */
-protected class FeatureExprImpl(var aexpr: FeatureExprTree /*, acnfExpr: Susp[Option[NF]], adnfExpr: Susp[Option[NF]]*/ ) extends FeatureExpr {
-    //    def this(expr: FeatureExprTree) = this(expr/*, delay(NFBuilder.toCNF_(expr.toCNF)), delay(NFBuilder.toDNF_(expr.toDNF))*/)
+protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr {
 
     def expr: FeatureExprTree = aexpr
-    //    def cnfExpr = acnfExpr
-    //    def dnfExpr = adnfExpr
 
     def simplify() { this.aexpr = aexpr.simplify; aexpr; }
 
     def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
-        And(this.expr, that.expr) /*,
-        u(this.cnfExpr, that.cnfExpr, _ ++ _),
-        u(this.dnfExpr, that.dnfExpr, _ ** _)*/ )
+        And(this.expr, that.expr))
 
     def or(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
-        Or(this.expr, that.expr) /*,
-        u(this.cnfExpr, that.cnfExpr, _ ** _),
-        u(this.dnfExpr, that.dnfExpr, _ ++ _)*/ )
+        Or(this.expr, that.expr))
 
     def not(): FeatureExpr = new FeatureExprImpl(
-        Not(this.expr) /*,
-        neg(this.dnfExpr),
-        neg(this.cnfExpr)*/ )
+        Not(this.expr))
 
     def toCNF: NF =
         try {
+            simplify
             NFBuilder.toCNF(expr.toCNF)
         } catch {
             case t: Throwable => {
@@ -112,6 +104,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree /*, acnfExpr: Susp[Op
         }
     def toEquiCNF: NF =
         try {
+            simplify
             NFBuilder.toCNF(expr.toCnfEquiSat)
         } catch {
             case t: Throwable => {
@@ -124,26 +117,13 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree /*, acnfExpr: Susp[Op
     def isSatisfiable(): Boolean =
         new SatSolver().isSatisfiable(toEquiCNF)
 
-    def u(a: Susp[Option[NF]], b: Susp[Option[NF]], op: (NF, NF) => NF): Susp[Option[NF]] = delay((a(), b()) match {
-        case (Some(na), Some(nb)) => Some(op(na, nb))
-        case _ => None
-    })
-    def neg(a: Susp[Option[NF]]): Susp[Option[NF]] = delay(a() match {
-        case Some(na) => Some(na.neg)
-        case None => None
-    })
-
     override def toString(): String = { simplify; this.print() }
 
     def accept(f: FeatureExprTree => Unit): Unit = { simplify(); expr.accept(f) }
 
-    def print(): String = aexpr.print()
+    def print(): String = { simplify; aexpr.print() }
 
-    def debug_print(): String = {
-        //XXX: Simplify does not modify the expression, it produces a new one!!!
-        simplify();
-        expr.debug_print(0);
-    }
+    def debug_print(): String = { simplify; expr.debug_print(0); }
 
     override def equals(that: Any) = that match {
         case e: FeatureExpr => (this eq e) || (this.expr eq e.expr) || FeatureExpr.createEquiv(this, e).isTautology();
@@ -159,8 +139,10 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree /*, acnfExpr: Susp[Op
     /**
      * replace DefinedMacro by DefinedExternal from MacroTable
      */
-    def resolveToExternal(): FeatureExpr =
+    def resolveToExternal(): FeatureExpr = {
+    	simplify
         new FeatureExprImpl(aexpr.resolveToExternal())
+    }
 
 }
 
@@ -410,31 +392,31 @@ sealed abstract class FeatureExprTree {
             case e => e
         }
     }
-//    def toDNF(): FeatureExprTree = this.simplify match {
-//        case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).toDNF()
-//        case Not(And(children)) => Or(children.map(Not(_).toDNF())).toDNF()
-//        case Not(Or(children)) => And(children.map(Not(_).toDNF())).toDNF()
-//        case Or(children) => Or(children.map(_.toDNF)).simplify
-//        case And(children) => {
-//            val dnfchildren = children.map(_.toDNF)
-//            if (dnfchildren.exists(_.isInstanceOf[Or])) {
-//                var andClauses: Set[And] = Set(And(Set())) //list of Or expressions
-//                for (child <- dnfchildren) {
-//                    child match {
-//                        case Or(innerChildren) => {
-//                            var newClauses: Set[And] = Set()
-//                            for (innerChild <- innerChildren)
-//                                newClauses = newClauses ++ andClauses.map(_.addChild(innerChild));
-//                            andClauses = newClauses;
-//                        }
-//                        case _ => andClauses = andClauses.map(_.addChild(child));
-//                    }
-//                }
-//                And(andClauses.map(a => a)).simplify
-//            } else Or(dnfchildren)
-//        }
-//        case e => e
-//    }
+    //    def toDNF(): FeatureExprTree = this.simplify match {
+    //        case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).toDNF()
+    //        case Not(And(children)) => Or(children.map(Not(_).toDNF())).toDNF()
+    //        case Not(Or(children)) => And(children.map(Not(_).toDNF())).toDNF()
+    //        case Or(children) => Or(children.map(_.toDNF)).simplify
+    //        case And(children) => {
+    //            val dnfchildren = children.map(_.toDNF)
+    //            if (dnfchildren.exists(_.isInstanceOf[Or])) {
+    //                var andClauses: Set[And] = Set(And(Set())) //list of Or expressions
+    //                for (child <- dnfchildren) {
+    //                    child match {
+    //                        case Or(innerChildren) => {
+    //                            var newClauses: Set[And] = Set()
+    //                            for (innerChild <- innerChildren)
+    //                                newClauses = newClauses ++ andClauses.map(_.addChild(innerChild));
+    //                            andClauses = newClauses;
+    //                        }
+    //                        case _ => andClauses = andClauses.map(_.addChild(child));
+    //                    }
+    //                }
+    //                And(andClauses.map(a => a)).simplify
+    //            } else Or(dnfchildren)
+    //        }
+    //        case e => e
+    //    }
 }
 abstract class AbstractBinaryFeatureExprTree(
     left: FeatureExprTree,
@@ -494,7 +476,9 @@ abstract class AbstractUnaryBoolFeatureExprTree(
     opStr: String,
     op: (Boolean) => Boolean) extends AbstractUnaryFeatureExprTree(expr, opStr, (ev) => if (op(ev != 0)) 1 else 0);
 
-abstract class DefinedExpr(val feature: String) extends FeatureExprTree {
+abstract class DefinedExpr extends FeatureExprTree {
+    var feature: String = "";
+    def this(name: String) { this(); feature = name; assert(name != "1" && name != "0" && name != "") }
     def debug_print(level: Int): String = indent(level) + feature + "\n";
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
     def satName = feature //used for sat solver only to distinguish extern and macro
@@ -531,9 +515,10 @@ case class DefinedMacro(name: String, presenceCondition: FeatureExpr, presenceCo
      * actually, we do not need to check for the same name, otherwise they would not have the same expansion
      */
     override def equals(that: Any) = that match {
-        case e@DefinedMacro(name, _, expr) => (this eq e) || ((this.name == name) && (this.presenceConditionCNF eq expr))
+        case e@DefinedMacro(aname, _, apresenceConditionCNF) => (this eq e) || ((this.name == aname) && (this.presenceConditionCNF eq apresenceConditionCNF))
         case _ => false
     }
+    override def hashCode = presenceConditionCNF.hashCode
 }
 
 case class IntegerLit(num: Long) extends FeatureExprTree {
