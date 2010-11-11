@@ -93,7 +93,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
 
     def getMacroExpansions(identifier: String): Array[MacroExpansion] =
         knownMacros.get(identifier) match {
-            case Some(macro) => macro.getOther().toArray.filter(!_.getFeature().isDead())
+            case Some(macro) => macro.getOther().toArray
             case None => Array()
         }
     def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr): Array[MacroExpansion] =
@@ -109,10 +109,14 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
  * feature: condition under which any of the macro definitions is visible
  * featureExpansions: a list of macro definions and the condition under which they are visible (should be mutually exclusive by construction)
  */
-private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[MacroExpansion]) {
+private class Macro(name: String, feature: FeatureExpr, var featureExpansions: List[MacroExpansion]) {
     def getName() = name;
     def getFeature() = feature;
-    def getOther() = featureExpansions;
+    def getOther() = {
+    	//lazy filtering
+    	featureExpansions=featureExpansions.filter(!_.getFeature().isContradiction())
+    	featureExpansions;
+    }
     def isBase(macroTable: MacroContext): Boolean = feature.isBase();
     def isDead(macroTable: MacroContext): Boolean = feature.isDead();
     def addNewAlternative(exp: MacroExpansion): Macro =
