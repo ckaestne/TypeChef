@@ -140,7 +140,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
      * replace DefinedMacro by DefinedExternal from MacroTable
      */
     def resolveToExternal(): FeatureExpr = {
-    	simplify
+        simplify
         new FeatureExprImpl(aexpr.resolveToExternal())
     }
 
@@ -156,12 +156,12 @@ sealed abstract class FeatureExprTree {
         else {
             val result = this bubbleUpIf match {
                 case And(children) => {
-                    val childrenSimplified = children.map(_.simplify().intToBool()) - BaseFeature(); //TODO also remove all non-zero integer literals
-                    var childrenFlattened: Set[FeatureExprTree] = Set()
+                    val childrenSimplified = children.map(_.simplify().intToBool()).filter(!BaseFeature.unapply(_)); //TODO also remove all non-zero integer literals
+                    var childrenFlattened: List[FeatureExprTree] = List()//computing sets is to expensive
                     for (childs <- childrenSimplified)
                         childs match {
                             case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = childrenFlattened + e
+                            case e => childrenFlattened = e::childrenFlattened
                         }
                     for (childs <- childrenFlattened)
                         if (childrenFlattened.exists(_ == Not(childs)))
@@ -182,12 +182,12 @@ sealed abstract class FeatureExprTree {
 
                 case Or(c) => {
                     var children = c
-                    val childrenSimplified = children.map(_.simplify().intToBool()) - DeadFeature() - IntegerLit(0);
-                    var childrenFlattened: Set[FeatureExprTree] = Set()
+                    val childrenSimplified = children.map(_.simplify().intToBool()).filter(!DeadFeature.unapply(_));
+                    var childrenFlattened: List[FeatureExprTree] = List()
                     for (childs <- childrenSimplified)
                         childs match {
                             case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = childrenFlattened + e
+                            case e => childrenFlattened = e::childrenFlattened 
                         }
                     for (childs <- childrenFlattened)
                         if (childrenFlattened.exists(_ == Not(childs)))
@@ -268,31 +268,38 @@ sealed abstract class FeatureExprTree {
      * over IfExpr in the tree. IfExpr should not be children of Binary or Unary operators
      * on Integers 
      */
+    private var isBubbleUpIf: Boolean = false
+    private def setBubbleUpIf(): FeatureExprTree = { isBubbleUpIf = true; return this }
     private def bubbleUpIf: FeatureExprTree =
-        this match {
-            case And(children) => And(children.map(_.bubbleUpIf))
-            case Or(children) => Or(children.map(_.bubbleUpIf))
+        if (isBubbleUpIf) 
+        	this
+        else {
+            val result = this match {
+                case And(children) => And(children.map(_.bubbleUpIf)) 
+                case Or(children) => Or(children.map(_.bubbleUpIf))
 
-            case BinaryFeatureExprTree(left, right, opStr, op) =>
-                (left bubbleUpIf, right bubbleUpIf) match {
-                    case (IfExpr(c, a, b), right) => IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op) bubbleUpIf, BinaryFeatureExprTree(b, right, opStr, op) bubbleUpIf)
-                    case (left, IfExpr(c, a, b)) => IfExpr(c, BinaryFeatureExprTree(left, a, opStr, op) bubbleUpIf, BinaryFeatureExprTree(left, b, opStr, op) bubbleUpIf)
-                    case (a, b) => BinaryFeatureExprTree(a, b, opStr, op)
-                }
+                case BinaryFeatureExprTree(left, right, opStr, op) =>
+                    (left bubbleUpIf, right bubbleUpIf) match {
+                        case (IfExpr(c, a, b), right) => IfExpr(c, BinaryFeatureExprTree(a, right, opStr, op) bubbleUpIf, BinaryFeatureExprTree(b, right, opStr, op) bubbleUpIf)
+                        case (left, IfExpr(c, a, b)) => IfExpr(c, BinaryFeatureExprTree(left, a, opStr, op) bubbleUpIf, BinaryFeatureExprTree(left, b, opStr, op) bubbleUpIf)
+                        case (a, b) => BinaryFeatureExprTree(a, b, opStr, op)
+                    }
 
-            case UnaryFeatureExprTree(expr, opStr, op) =>
-                expr bubbleUpIf match {
-                    case IfExpr(c, a, b) => IfExpr(c, UnaryFeatureExprTree(a, opStr, op) bubbleUpIf, UnaryFeatureExprTree(b, opStr, op) bubbleUpIf)
-                    case e => UnaryFeatureExprTree(e, opStr, op)
-                }
+                case UnaryFeatureExprTree(expr, opStr, op) =>
+                    expr bubbleUpIf match {
+                        case IfExpr(c, a, b) => IfExpr(c, UnaryFeatureExprTree(a, opStr, op) bubbleUpIf, UnaryFeatureExprTree(b, opStr, op) bubbleUpIf)
+                        case e => UnaryFeatureExprTree(e, opStr, op)
+                    }
 
-            case Not(a) => Not(a bubbleUpIf)
+                case Not(a) => Not(a bubbleUpIf)
 
-            case IfExpr(c, a, b) => IfExpr(c bubbleUpIf, a bubbleUpIf, b bubbleUpIf)
+                case IfExpr(c, a, b) => IfExpr(c bubbleUpIf, a bubbleUpIf, b bubbleUpIf)
 
-            case IntegerLit(_) => this
+                case IntegerLit(_) => this
 
-            case DefinedExpr(_) => this
+                case DefinedExpr(_) => this
+            }
+            result.setBubbleUpIf
         }
 
     //TODO caching
@@ -336,11 +343,11 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCNF)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: Set[Or] = Set(Or(Set())) //list of Or expressions
+                    var orClauses: List[Or] = List(Or(List())) //list of Or expressions
                     for (child <- cnfchildren) {
                         child match {
                             case And(innerChildren) => {
-                                var newClauses: Set[Or] = Set()
+                                var newClauses: List[Or] = List()
                                 for (innerChild <- innerChildren)
                                     newClauses = newClauses ++ orClauses.map(_.addChild(innerChild));
                                 orClauses = newClauses;
@@ -370,22 +377,22 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCnfEquiSat)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: Set[FeatureExprTree] = Set() //list of Or expressions
+                    var orClauses: List[FeatureExprTree] = List() //list of Or expressions
                     //	        val freshFeatureNames:Set[FeatureExprTree]=for (child<-children) yield DefinedExternal(freshFeatureName())
 
-                    var freshFeatureNames: Set[FeatureExprTree] = Set()
+                    var freshFeatureNames: List[FeatureExprTree] = List()
                     for (child <- cnfchildren) {
                         val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
                         child match {
                             case And(innerChildren) => {
                                 for (innerChild <- innerChildren)
-                                    orClauses += new Or(freshFeatureName, innerChild);
+                                    orClauses = new Or(freshFeatureName, innerChild)::orClauses
                             }
-                            case e => orClauses += new Or(freshFeatureName, e);
+                            case e => orClauses=new Or(freshFeatureName, e)::orClauses
                         }
-                        freshFeatureNames += Not(freshFeatureName).simplify
+                        freshFeatureNames = Not(freshFeatureName).simplify :: freshFeatureNames
                     }
-                    orClauses += Or(freshFeatureNames)
+                    orClauses = Or(freshFeatureNames)::orClauses
                     And(orClauses).simplify
                 } else Or(cnfchildren)
             }
@@ -436,7 +443,7 @@ abstract class AbstractBinaryFeatureExprTree(
     }
 }
 abstract class AbstractNaryBinaryFeatureExprTree(
-    children: Set[FeatureExprTree],
+    children: List[FeatureExprTree],
     opStr: String,
     op: (Boolean, Boolean) => Boolean) extends FeatureExprTree {
     def print() = children.map(_.print).mkString("(", " " + opStr + " ", ")")
@@ -558,16 +565,16 @@ case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseB
 }
 
 case class Not(expr: FeatureExprTree) extends AbstractUnaryBoolFeatureExprTree(expr, "!", !_);
-case class And(children: Set[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
-    def this(left: FeatureExprTree, right: FeatureExprTree) = this(Set(left, right))
-    def addChild(child: FeatureExprTree) = And(children + child);
+case class And(children: List[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
+    def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
+    def addChild(child: FeatureExprTree) = And(child :: children);
 }
 object And {
     def apply(a: FeatureExprTree, b: FeatureExprTree) = new And(a, b)
 }
-case class Or(children: Set[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
-    def this(left: FeatureExprTree, right: FeatureExprTree) = this(Set(left, right))
-    def addChild(child: FeatureExprTree) = Or(children + child);
+case class Or(children: List[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
+    def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
+    def addChild(child: FeatureExprTree) = Or(child :: children);
 }
 object Or {
     def apply(a: FeatureExprTree, b: FeatureExprTree) = new Or(a, b)

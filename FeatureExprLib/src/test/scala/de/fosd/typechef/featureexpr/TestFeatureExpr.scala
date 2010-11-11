@@ -47,28 +47,28 @@ class TestFeatureExpr extends TestCase {
     }
 
     def testSimplify() {
-        assertSimplify(And(Set(DefinedExternal("a"))), DefinedExternal("a"))
-        assertSimplify(And(Set(DefinedExternal("a"), DefinedExternal("a"))), DefinedExternal("a"))
-        assertSimplify(And(Set(DefinedExternal("a"), DefinedExternal("b"))), And(Set(DefinedExternal("a"), DefinedExternal("b")))) //except the order
-        assertSimplify(And(Set(BaseFeature(), DefinedExternal("a"))), DefinedExternal("a"))
-        assertSimplify(And(Set(DeadFeature(), DefinedExternal("a"), DefinedExternal("b"))), DeadFeature())
-        assertSimplify(And(Set(Not(DefinedExternal("a")), DefinedExternal("a"), DefinedExternal("b"))), DeadFeature())
+        assertSimplify(And(List(DefinedExternal("a"))), DefinedExternal("a"))
+//        assertSimplify(And(List(DefinedExternal("a"), DefinedExternal("a"))), DefinedExternal("a"))//deactivated this simplification, due to high costs
+//        assertSimplify(And(List(DefinedExternal("a"), DefinedExternal("b"))), And(List(DefinedExternal("a"), DefinedExternal("b")))) //except the order
+        assertSimplify(And(List(BaseFeature(), DefinedExternal("a"))), DefinedExternal("a"))
+        assertSimplify(And(List(DeadFeature(), DefinedExternal("a"), DefinedExternal("b"))), DeadFeature())
+        assertSimplify(And(List(Not(DefinedExternal("a")), DefinedExternal("a"), DefinedExternal("b"))), DeadFeature())
 
-        assertSimplify(Or(Set(DefinedExternal("a"))), DefinedExternal("a"))
-        assertSimplify(Or(Set(DefinedExternal("a"), DefinedExternal("a"))), DefinedExternal("a"))
-        assertSimplify(Or(Set(DefinedExternal("a"), DefinedExternal("b"))), Or(Set(DefinedExternal("a"), DefinedExternal("b")))) //except the order
-        assertSimplify(Or(Set(BaseFeature(), DefinedExternal("a"))), BaseFeature())
-        assertSimplify(Or(Set(DeadFeature(), DefinedExternal("a"))), DefinedExternal("a"))
-        assertSimplify(Or(Set(Not(DefinedExternal("a")), DefinedExternal("a"), DefinedExternal("b"))), BaseFeature())
+        assertSimplify(Or(List(DefinedExternal("a"))), DefinedExternal("a"))
+//        assertSimplify(Or(List(DefinedExternal("a"), DefinedExternal("a"))), DefinedExternal("a"))
+//        assertSimplify(Or(List(DefinedExternal("a"), DefinedExternal("b"))), Or(List(DefinedExternal("a"), DefinedExternal("b")))) //except the order
+        assertSimplify(Or(List(BaseFeature(), DefinedExternal("a"))), BaseFeature())
+        assertSimplify(Or(List(DeadFeature(), DefinedExternal("a"))), DefinedExternal("a"))
+        assertSimplify(Or(List(Not(DefinedExternal("a")), DefinedExternal("a"), DefinedExternal("b"))), BaseFeature())
 
-        assertSimplify(new And(DefinedExternal("a"), new And(DefinedExternal("b"), DefinedExternal("c"))), And(Set(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"))))
-        assertSimplify(new Or(DefinedExternal("a"), new Or(DefinedExternal("b"), DefinedExternal("c"))), Or(Set(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"))))
+//        assertSimplify(new And(DefinedExternal("a"), new And(DefinedExternal("b"), DefinedExternal("c"))), And(List(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"))))
+//        assertSimplify(new Or(DefinedExternal("a"), new Or(DefinedExternal("b"), DefinedExternal("c"))), Or(List(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"))))
 
         assertSimplify(new Or(new Or(DefinedExternal("a"), DefinedExternal("b")), Not(DefinedExternal("b"))), BaseFeature())
         //TODO currently not insisting on too much optimization
         //    assertSimplify(new Or(new Or(DefinedExternal("a"), new Or(DefinedExternal("b"), DefinedExternal("c"))), Not(new Or(DefinedExternal("b"), DefinedExternal("c")))), BaseFeature())
-        //    assertSimplify(new Or(Set(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"), Not(new Or(DefinedExternal("b"), DefinedExternal("c"))))), BaseFeature())
-        //    assertSimplify(new And(And(Set(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"))), Not(new And(DefinedExternal("b"), DefinedExternal("c")))), DeadFeature())
+        //    assertSimplify(new Or(List(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"), Not(new Or(DefinedExternal("b"), DefinedExternal("c"))))), BaseFeature())
+        //    assertSimplify(new And(And(List(DefinedExternal("a"), DefinedExternal("b"), DefinedExternal("c"))), Not(new And(DefinedExternal("b"), DefinedExternal("c")))), DeadFeature())
 
         assertSimplify(new Or(DeadFeature(), new And(Not(DefinedExternal("a")), BaseFeature())), Not(DefinedExternal("a")))
         assertSimplify(new Or(new And(DefinedExternal("a"), DeadFeature()), Not(DefinedExternal("a"))), Not(DefinedExternal("a")))
@@ -80,7 +80,7 @@ class TestFeatureExpr extends TestCase {
     //    assertSimplify(new Or(new And(Not(DefinedExternal("a")), DefinedExternal("b")), DefinedExternal("a")),
     //      new Or(DefinedExternal("a"), DefinedExternal("b")))
     //    //(!A & B & C)| A => (B & C) | A
-    //    assertSimplify(new Or(And(Set(Not(DefinedExternal("a")), DefinedExternal("b"), DefinedExternal("c"))), DefinedExternal("a")),
+    //    assertSimplify(new Or(And(List(Not(DefinedExternal("a")), DefinedExternal("b"), DefinedExternal("c"))), DefinedExternal("a")),
     //      new Or(DefinedExternal("a"), new And(DefinedExternal("b"), DefinedExternal("c"))))
     //    //A&B | !A => B|!A
     //    assertSimplify(new Or(new And(DefinedExternal("a"), DefinedExternal("b")), Not(DefinedExternal("a"))),
@@ -130,7 +130,7 @@ class TestFeatureExpr extends TestCase {
     }
 
     def testCFN() {
-        assertIsCNF(And(Set(new Or(DefinedExternal("a1"), DefinedExternal("b")),
+        assertIsCNF(And(List(new Or(DefinedExternal("a1"), DefinedExternal("b")),
             new Or(new And(DefinedExternal("a2"), new Or(DefinedExternal("b"), DefinedExternal("c"))),
                 new Or(DefinedExternal("a1"), DefinedExternal("c"))),
             new Or(DefinedExternal("a2"), DefinedExternal("c")))))

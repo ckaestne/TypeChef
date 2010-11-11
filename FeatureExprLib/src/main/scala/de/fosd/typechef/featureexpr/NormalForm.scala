@@ -105,16 +105,16 @@ object NFBuilder {
     def toDNF(exprInDNF: FeatureExprTree): NF = toNF(exprInDNF, false)
     private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) = exprInNF match {
         case And(clauses) if isCNF => {
-            new NF(for (clause <- clauses) yield clause match {
+            new NF((for (clause <- clauses) yield clause match {
                 case Or(o) => toClause(o)
-                case e => toClause(Set(e)) //literal?
-            })
+                case e => toClause(List(e)) //literal?
+            }).toSet)
         }
         case Or(clauses) if !isCNF => {
-            new NF(for (clause <- clauses) yield clause match {
+            new NF((for (clause <- clauses) yield clause match {
                 case And(c) => toClause(c)
-                case e => toClause(Set(e)) //literal?
-            })
+                case e => toClause(List(e)) //literal?
+            }).toSet)
         }
         case Or(o) if isCNF => new NF(Set(toClause(o)))
         case And(o) if !isCNF => new NF(Set(toClause(o)))
@@ -124,7 +124,7 @@ object NFBuilder {
         case DeadFeature() => new NF(isCNF)
         case e => throw new NoNFException(e, exprInNF, isCNF)
     }
-    private def toClause(literals: Set[FeatureExprTree]): Clause = {
+    private def toClause(literals: List[FeatureExprTree]): Clause = {
         var posLiterals: Set[DefinedExpr] = Set()
         var negLiterals: Set[DefinedExpr] = Set()
         for (literal <- literals)
