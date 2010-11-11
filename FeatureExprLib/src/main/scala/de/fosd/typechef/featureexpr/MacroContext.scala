@@ -130,11 +130,11 @@ private class Macro(name: String, feature: FeatureExpr, featureExpansions: List[
                 found = true
                 other.extend(exp)
             } else
-                other.andNot(exp.getFeature())).filter(!_.getFeature.isContradiction())
+                other.andNot(exp.getFeature()))
         if (found) modifiedExpansions else exp :: modifiedExpansions
     }
     def andNot(expr: FeatureExpr): Macro =
-        new Macro(name, feature and (expr.not), featureExpansions.map(_.andNot(expr)).filter(!_.getFeature.isContradiction()));
+        new Macro(name, feature and (expr.not), featureExpansions.map(_.andNot(expr)));
     //  override def equals(that:Any) = that match { case m:Macro => m.getName() == name; case _ => false; }
     override def toString() = "#define " + name + " if " + feature.toString + " \n\texpansions \n" + featureExpansions.mkString("\n")
 }
