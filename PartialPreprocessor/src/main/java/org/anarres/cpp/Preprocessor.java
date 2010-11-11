@@ -533,11 +533,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 * @return
 	 */
 	private boolean isActive() {
-		return state.isActive(macros);
+		return state.isActive();
 	}
 
 	private boolean isParentActive() {
-		return state.parent == null || state.parent.isActive(macros);
+		return state.parent == null || state.parent.isActive();
 	}
 
 	/* Source tokens */
@@ -2021,7 +2021,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			error(la, "expected " + Token.getTokenName(tokenType)
 					+ " but found " + Token.getTokenName(la.getType()));
 	}
-
 
 	private Token toWhitespace(Token tok) {
 		String text = tok.getText();

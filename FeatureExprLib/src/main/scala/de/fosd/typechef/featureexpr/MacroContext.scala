@@ -43,7 +43,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
                     knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
                 }
             }, cnfCache - name)
-        println("#define "+name)
+//        println("#define "+name)
         newMC
     }
 
@@ -83,7 +83,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
         val d = FeatureExpr.createDefinedExternal(NFBuilder.HOLE)
         val condition = FeatureExpr.createEquiv(c, d)
         val cnf = LazyLib.delay(condition.toEquiCNF)
-        cnfCache = cnfCache + ((feature, cnf))
+        cnfCache = cnfCache + (feature -> cnf)
         cnf
     }
 

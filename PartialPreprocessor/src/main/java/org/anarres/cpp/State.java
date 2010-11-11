@@ -79,7 +79,6 @@ class State {
 
 	private FeatureExpr cache_fullPresenceCondition = null;
 	private Boolean cache_isActive = null;
-	private MacroContext cache_macroTable = null;
 
 	/**
 	 * returns the full feature condition that leads to the inclusion of the
@@ -108,16 +107,21 @@ class State {
 	 * 
 	 * @return
 	 */
-	public boolean isActive(MacroContext macros) {
+	public boolean isActive() {
 		// check with cache and parent before using SAT solver
-		if (cache_isActive != null && macros == cache_macroTable)
+		if (cache_isActive != null)
 			return cache_isActive.booleanValue();
-		if (parent != null && !parent.isActive(macros))
+		if (parent != null && parent.isCachedInactive())
 			return false;
 		FeatureExpr condition = getFullPresenceCondition();
 		cache_isActive = new Boolean(condition.isSatisfiable());
-		cache_macroTable = macros;
 		return cache_isActive.booleanValue();
+	}
+
+	private boolean isCachedInactive() {
+		if (cache_isActive != null)
+			return !cache_isActive.booleanValue();
+		return false;
 	}
 
 	private void clearCache() {
