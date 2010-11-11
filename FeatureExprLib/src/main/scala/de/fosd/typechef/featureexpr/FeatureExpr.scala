@@ -92,31 +92,51 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
     def not(): FeatureExpr = new FeatureExprImpl(
         Not(this.expr))
 
+    var cnfCache: NF = null;
     def toCNF: NF =
-        try {
-            simplify
-            NFBuilder.toCNF(expr.toCNF)
-        } catch {
-            case t: Throwable => {
-                System.err.println("Exception on isSatisfiable for: " + expr.print())
-                t.printStackTrace
-                throw t
+        if (cnfCache != null)
+            cnfCache
+        else
+            try {
+                simplify
+                cnfCache = NFBuilder.toCNF(expr.toCNF)
+                cnfCache
+            } catch {
+                case t: Throwable => {
+                    System.err.println("Exception on isSatisfiable for: " + expr.print())
+                    t.printStackTrace
+                    throw t
+                }
             }
-        }
+    var equiCnfCache: NF = null;
     def toEquiCNF: NF =
-        try {
-            simplify
-            NFBuilder.toCNF(expr.toCnfEquiSat)
-        } catch {
-            case t: Throwable => {
-                System.err.println("Exception on isSatisfiable for: " + expr.print())
-                t.printStackTrace
-                throw t
+        if (equiCnfCache != null)
+            equiCnfCache
+        else
+            try {
+                simplify
+                equiCnfCache = NFBuilder.toCNF(expr.toCnfEquiSat)
+                equiCnfCache
+            } catch {
+                case t: Throwable => {
+                    System.err.println("Exception on isSatisfiable for: " + expr.print())
+                    t.printStackTrace
+                    throw t
+                }
             }
-        }
 
-    def isSatisfiable(): Boolean =
-        new SatSolver().isSatisfiable(toEquiCNF)
+    var cacheIsSatisfiable: Option[Boolean] = None
+    var cacheIsTautology: Option[Boolean] = None
+    def isSatisfiable(): Boolean = {
+        if (!cacheIsSatisfiable.isDefined)
+            cacheIsSatisfiable = Some(new SatSolver().isSatisfiable(toEquiCNF))
+        cacheIsSatisfiable.get
+    }
+    override def isTautology() = {
+        if (!cacheIsTautology.isDefined)
+            cacheIsTautology = Some(super.isTautology)
+        cacheIsTautology.get
+    }
 
     override def toString(): String = { simplify; this.print() }
 
@@ -369,8 +389,8 @@ sealed abstract class FeatureExprTree {
                 e match {
                     case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
                     case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
-                    case e:IfExpr => Not(e.toCnfEquiSat).toCnfEquiSat
-                    case e=>Not(e.toCnfEquiSat)
+                    case e: IfExpr => Not(e.toCnfEquiSat).toCnfEquiSat
+                    case e => Not(e.toCnfEquiSat)
                 }
             case And(children) => And(children.map(_.toCnfEquiSat)).simplify
             case Or(children) => {
