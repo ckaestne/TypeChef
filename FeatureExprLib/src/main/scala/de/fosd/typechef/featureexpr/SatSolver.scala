@@ -127,7 +127,10 @@ class SatSolver extends Solver {
                         if (PROFILING)
                             print(name)
                         val freshName = name + "$$" + nextMacroId
-                        val data = (expansion().replaceMacroName(freshName), freshName)
+                        val e=expansion()
+                        if (PROFILING)
+                            print(":")
+                        val data = (e.replaceMacroName(freshName), freshName)
                         macroExpansions = macroExpansions + (expansion -> data)
                         if (PROFILING)
                             print(".")

@@ -841,8 +841,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			}
 		}
 
-		logger.info("expanding " + macroName + " by "
-				+ sourceManager.debug_sourceDelta(debug_origSource));
+		logger.info("expanding " + macroName //+ " by "
+				//+ sourceManager.debug_sourceDelta(debug_origSource)
+				);
 
 		return true;
 	}

@@ -89,8 +89,14 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
     def or(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
         Or(this.expr, that.expr))
 
-    def not(): FeatureExpr = new FeatureExprImpl(
-        Not(this.expr))
+    var notCache: FeatureExpr = null
+    def not(): FeatureExpr =
+        if (notCache != null)
+            notCache
+        else {
+            notCache = new FeatureExprImpl(Not(this.expr))
+            notCache
+        }
 
     var cnfCache: NF = null;
     def toCNF: NF =
@@ -119,23 +125,17 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
                 equiCnfCache
             } catch {
                 case t: Throwable => {
-                    System.err.println("Exception on isSatisfiable for: " + expr.print())
+                    System.err.println("Exception on isSatisfiable")
                     t.printStackTrace
                     throw t
                 }
             }
 
     var cacheIsSatisfiable: Option[Boolean] = None
-    var cacheIsTautology: Option[Boolean] = None
     def isSatisfiable(): Boolean = {
         if (!cacheIsSatisfiable.isDefined)
             cacheIsSatisfiable = Some(new SatSolver().isSatisfiable(toEquiCNF))
         cacheIsSatisfiable.get
-    }
-    override def isTautology() = {
-        if (!cacheIsTautology.isDefined)
-            cacheIsTautology = Some(super.isTautology)
-        cacheIsTautology.get
     }
 
     override def toString(): String = { simplify; this.print() }
@@ -157,14 +157,19 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
      */
     def isResolved() = aexpr.isResolved
 
+    var cache_external:FeatureExpr=null;
     /**
      * replace DefinedMacro by DefinedExternal from MacroTable
      */
     def resolveToExternal(): FeatureExpr = {
-        simplify
-        new FeatureExprImpl(aexpr.resolveToExternal().simplify)
+    	if (cache_external==null){
+    		simplify
+    		cache_external=new FeatureExprImpl(aexpr.resolveToExternal().simplify)
+    	}
+    	cache_external
     }
 
+    	
 }
 
 sealed abstract class FeatureExprTree {
@@ -334,7 +339,7 @@ sealed abstract class FeatureExprTree {
         !foundDefinedMacro
     }
     def resolveToExternal(): FeatureExprTree =
-        //TODO caching
+//        TODO caching and do not replace same formula over and over again
         this match {
             case And(children) => And(children.map(_.resolveToExternal()))
             case Or(children) => Or(children.map(_.resolveToExternal()))

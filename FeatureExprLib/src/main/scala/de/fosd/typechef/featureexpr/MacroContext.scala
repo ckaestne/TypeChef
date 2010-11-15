@@ -43,7 +43,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
                     knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
                 }
             }, cnfCache - name)
-//        println("#define "+name)
+                println("#define "+name)
         newMC
     }
 
@@ -100,26 +100,26 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
         getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
 
     override def toString() = { knownMacros.values.mkString("\n\n\n") + printStatistics }
-    def printStatistics = 
-    	"\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions,number of distinct configuration flags):\n"+
-    	knownMacros.size +";"+
-    	knownMacros.values.filter(_.numberOfExpansions>1).size+";"+
-    	knownMacros.values.filter(_.numberOfExpansions>2).size+";"+
-    	knownMacros.values.filter(_.numberOfExpansions>3).size+";"+
-    	knownMacros.values.filter(_.numberOfExpansions>4).size+";"+
-    	knownMacros.values.filter(!_.getFeature.isTautology).size+"\n"
-//    	+getNumberOfDistinctFlagsStatistic+"\n";
-//    private def getNumberOfDistinctFlagsStatistic = {
-//    	var flags:Set[String]=Set()
-//    	for (macro<-knownMacros.values)
-//    		macro.getFeature.accept(node=>{
-//    			node match {
-//    				case DefinedExternal(name) => flags=flags+name
-//    				case _=>
-//    			}
-//    		})
-//    	flags.size
-//    }
+    def printStatistics =
+        "\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions,number of distinct configuration flags):\n" +
+            knownMacros.size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 1).size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 2).size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 3).size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 4).size + ";" +
+            knownMacros.values.filter(!_.getFeature.isTautology).size + "\n"
+    //    	+getNumberOfDistinctFlagsStatistic+"\n";
+    //    private def getNumberOfDistinctFlagsStatistic = {
+    //    	var flags:Set[String]=Set()
+    //    	for (macro<-knownMacros.values)
+    //    		macro.getFeature.accept(node=>{
+    //    			node match {
+    //    				case DefinedExternal(name) => flags=flags+name
+    //    				case _=>
+    //    			}
+    //    		})
+    //    	flags.size
+    //    }
 
     private def getMacro(name: String) = knownMacros(name)
 }
@@ -133,9 +133,9 @@ private class Macro(name: String, feature: FeatureExpr, var featureExpansions: L
     def getName() = name;
     def getFeature() = feature;
     def getOther() = {
-    	//lazy filtering
-    	featureExpansions=featureExpansions.filter(!_.getFeature().isContradiction())
-    	featureExpansions;
+        //lazy filtering
+        featureExpansions = featureExpansions.filter(!_.getFeature().isContradiction())
+        featureExpansions;
     }
     def isBase(macroTable: MacroContext): Boolean = feature.isBase();
     def isDead(macroTable: MacroContext): Boolean = feature.isDead();
@@ -171,8 +171,6 @@ class MacroExpansion(feature: FeatureExpr, expansion: Any /* Actually, MacroData
     override def toString() = "\t\t" + expansion.toString() + " if " + feature.toString
     //if the other has the same expansion, merge features as OR
     def extend(other: MacroExpansion): MacroExpansion =
-        if (expansion == other.getExpansion())
-            new MacroExpansion(feature.or(other.getFeature()), expansion)
-        else this
+        new MacroExpansion(feature.or(other.getFeature()), expansion)
 }
 
