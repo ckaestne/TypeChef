@@ -24,14 +24,14 @@ import FeatureExpr.createDefinedExternal
  * 
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
-class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Susp[NF]]) extends FeatureProvider {
+class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (String, Susp[NF])]) extends FeatureProvider {
     /**
      * when true, only CONFIG_ flags can be defined externally (simplifies the handling signficiantly)
      */
 
     def this() = { this(Map(), Map()) }
     def define(name: String, infeature: FeatureExpr, other: Any): MacroContext = {
-        val feature = infeature.resolveToExternal()
+        val feature = infeature //.resolveToExternal()
         val newMC = new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
@@ -43,12 +43,12 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
                     knownMacros + ((name, new Macro(name, initialFeatureExpr, List(new MacroExpansion(feature, other)))))
                 }
             }, cnfCache - name)
-                println("#define "+name)
+        println("#define " + name)
         newMC
     }
 
     def undefine(name: String, infeature: FeatureExpr): MacroContext = {
-        val feature = infeature.resolveToExternal()
+        val feature = infeature //.resolveToExternal()
         new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
@@ -71,20 +71,22 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, Su
      * this returns a condition for the SAT solver in CNF in the following
      * form
      * 
-     * DefinedExternal("$$") <=> getMacroCondition
+     * (newMacroName, DefinedExternal(newMacroName) <=> getMacroCondition)
      * 
      * the result is cached. $$ is later replaced by a name for the SAT solver
      */
-    def getMacroConditionCNF(feature: String): Susp[NF] = {
-        if (cnfCache.contains(feature))
-            return cnfCache(feature)
+    def getMacroConditionCNF(name: String): (String, Susp[NF]) = {
+        if (cnfCache.contains(name))
+            return cnfCache(name)
 
-        val c = getMacroCondition(feature)
-        val d = FeatureExpr.createDefinedExternal(NFBuilder.HOLE)
+        val newMacroName = name + "$$" + MacroIdGenerator.nextMacroId
+        val c = getMacroCondition(name)
+        val d = FeatureExpr.createDefinedExternal(newMacroName)
         val condition = FeatureExpr.createEquiv(c, d)
         val cnf = LazyLib.delay(condition.toEquiCNF)
-        cnfCache = cnfCache + (feature -> cnf)
-        cnf
+        val result = (newMacroName, cnf)
+        cnfCache = cnfCache + (name -> result)
+        result
     }
 
     def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isDead()
@@ -174,3 +176,10 @@ class MacroExpansion(feature: FeatureExpr, expansion: Any /* Actually, MacroData
         new MacroExpansion(feature.or(other.getFeature()), expansion)
 }
 
+object MacroIdGenerator {
+    var macroId = 0
+    def nextMacroId = {
+        macroId = macroId + 1
+        macroId
+    }
+}

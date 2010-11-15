@@ -44,8 +44,6 @@ class NF(val clauses: Set[Clause], val isFull: Boolean) {
         })
         result
     }
-    /**helper function for the SAT solver. replaces all macros named "$$" by the given name */
-    def replaceMacroName(targetName: String): NF = new NF(clauses.map(_.replaceMacroName(targetName)), isFull)
 }
 /** clause in a normal form **/
 class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr]) {
@@ -81,13 +79,6 @@ class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr
             })
         result
     }
-    /**helper function for the SAT solver. replaces all macros named "$$" by the given name */
-    def replaceMacroName(targetName: String): Clause = new Clause(posLiterals.map(replaceMacro(_, targetName)), negLiterals.map(replaceMacro(_, targetName)))
-    private def replaceMacro(literal: DefinedExpr, targetName: String): DefinedExpr =
-        literal match {
-            case DefinedExternal(name) if (name == NFBuilder.HOLE) => DefinedExternal(targetName)
-            case e => e
-        }
 }
 
 /**
@@ -98,7 +89,6 @@ class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr
  * a non-NF formula 
  */
 object NFBuilder {
-    val HOLE = "$$"
     def toCNF_(exprInCNF: FeatureExprTree): Option[NF] = try { Some(toCNF(exprInCNF)) } catch { case e: NFException => None }
     def toDNF_(exprInDNF: FeatureExprTree): Option[NF] = try { Some(toDNF(exprInDNF)) } catch { case e: NFException => None }
     def toCNF(exprInCNF: FeatureExprTree): NF = toNF(exprInCNF, true)

@@ -28,12 +28,6 @@ class SatSolver extends Solver {
 
     val PROFILING = true;
 
-    var macroId = 0
-    def nextMacroId = {
-        macroId = macroId + 1
-        macroId
-    }
-
     def isSatisfiable(exprCNF: NF): Boolean = {
         if (exprCNF.isEmpty) return true
         if (exprCNF.isFull) return false
@@ -116,27 +110,23 @@ class SatSolver extends Solver {
      */
     def prepareFormula(expr: NF): List[NF] = {
 
-        var macroExpansions: Map[Susp[NF], (NF, String)] = Map()
+        var macroExpansions: Map[String, NF] = Map()
 
         def prepareLiteral(literal: DefinedExpr): DefinedExpr = {
             literal match {
-                case DefinedMacro(name, _, expansion) => {
-                    var expansionData = if (macroExpansions.contains(expansion))
-                        macroExpansions(expansion)
-                    else {
+                case DefinedMacro(name, _, expansionName, expansion) => {
+                    if (!macroExpansions.contains(expansionName)) {
                         if (PROFILING)
                             print(name)
-                        val freshName = name + "$$" + nextMacroId
-                        val e=expansion()
+                        val e = expansion()
                         if (PROFILING)
                             print(":")
-                        val data = (e.replaceMacroName(freshName), freshName)
-                        macroExpansions = macroExpansions + (expansion -> data)
+                        //recursively expand formula
+                        macroExpansions = macroExpansions + (expansionName -> prepareFormula(expansion()))
                         if (PROFILING)
                             print(".")
-                        data
                     }
-                    DefinedExternal(expansionData._2)
+                    DefinedExternal(expansionName)
                 }
                 case e => e
             }
@@ -144,35 +134,12 @@ class SatSolver extends Solver {
         def prepareClause(clause: Clause): Clause = {
             new Clause(clause.posLiterals.map(prepareLiteral(_)), clause.negLiterals.map(prepareLiteral(_)))
         }
+        def prepareFormula(formula: NF): NF = {
+            new NF(formula.clauses.map(prepareClause(_)), formula.isFull)
+        }
 
-        val targetExpr = new NF(expr.clauses.map(prepareClause(_)), expr.isFull)
-        List(targetExpr) ++ macroExpansions.values.map(_._1)
+        val targetExpr = prepareFormula(expr)
+        List(targetExpr) ++ macroExpansions.values
     }
-
-    //	protected void addClause(Node node) throws ContradictionException {
-    //		try {
-    //			if (node instanceof Or) {
-    //				int[] clause = new int[node.children.length];
-    //				int i = 0;
-    //				for (Node child : node.getChildren())
-    //					clause[i++] = getIntOfLiteral(child);
-    //				solver.addClause(new VecInt(clause));
-    //			}
-    //			else {
-    //				int literal = getIntOfLiteral(node);
-    //				solver.addClause(new VecInt(new int[] {literal}));
-    //			}
-    //		} catch (ClassCastException e) {
-    //			throw new RuntimeException("expression is not in cnf", e);
-    //		}
-    //	}
-
-    //    def getMacroCNF(macroName: String, macroTable: FeatureProvider): List[NF] = {
-    //        val defMacro = FeatureExpr.createDefinedMacro(macroName)
-    //        val condition = 
-    //        val defImpliesCondition = defMacro.not.or(condition).toCNF
-    //        val conditionImpliesDef = condition.not.or(defMacro).toCNF
-    //        defImpliesCondition :: conditionImpliesDef :: List()
-    //    }
 
 }

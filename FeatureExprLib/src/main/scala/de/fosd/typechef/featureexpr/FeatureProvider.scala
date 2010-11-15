@@ -1,5 +1,5 @@
 package de.fosd.typechef.featureexpr
-import de.fosd.typechef.featureexpr.LazyLib.Susp
+import de.fosd.typechef.featureexpr.LazyLib.Susp
 
 abstract class FeatureProvider {
     //def isFeatureDefined(feature:String):Boolean
@@ -17,5 +17,5 @@ abstract class FeatureProvider {
      * returns the feature expression that is necessary to include this macro (may only reference to external definitons)
      */
     def getMacroCondition(feature: String): FeatureExpr
-    def getMacroConditionCNF(feature: String): Susp[NF]
+    def getMacroConditionCNF(feature: String): (String, Susp[NF])
 }

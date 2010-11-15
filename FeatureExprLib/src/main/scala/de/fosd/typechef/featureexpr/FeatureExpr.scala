@@ -29,10 +29,14 @@ object FeatureExpr {
     def createEquiv(left: FeatureExpr, right: FeatureExpr) = createImplies(left, right) and createImplies(right, left)
     def createDefinedExternal(name: String) = new FeatureExprImpl(new DefinedExternal(name))
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
-    def createDefinedMacro(name: String, macroTable: FeatureProvider) = new FeatureExprImpl(new DefinedMacro(
-        name,
-        macroTable.getMacroCondition(name),
-        macroTable.getMacroConditionCNF(name)))
+    def createDefinedMacro(name: String, macroTable: FeatureProvider) = {
+        var macroConditionCNF = macroTable.getMacroConditionCNF(name)
+        new FeatureExprImpl(new DefinedMacro(
+            name,
+            macroTable.getMacroCondition(name),
+            macroConditionCNF._1,
+            macroConditionCNF._2))
+    }
     def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
@@ -157,19 +161,18 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
      */
     def isResolved() = aexpr.isResolved
 
-    var cache_external:FeatureExpr=null;
+    var cache_external: FeatureExpr = null;
     /**
      * replace DefinedMacro by DefinedExternal from MacroTable
      */
     def resolveToExternal(): FeatureExpr = {
-    	if (cache_external==null){
-    		simplify
-    		cache_external=new FeatureExprImpl(aexpr.resolveToExternal().simplify)
-    	}
-    	cache_external
+        if (cache_external == null) {
+            simplify
+            cache_external = new FeatureExprImpl(aexpr.resolveToExternal().simplify)
+        }
+        cache_external
     }
 
-    	
 }
 
 sealed abstract class FeatureExprTree {
@@ -339,7 +342,7 @@ sealed abstract class FeatureExprTree {
         !foundDefinedMacro
     }
     def resolveToExternal(): FeatureExprTree =
-//        TODO caching and do not replace same formula over and over again
+        //        TODO caching and do not replace same formula over and over again
         this match {
             case And(children) => And(children.map(_.resolveToExternal()))
             case Or(children) => Or(children.map(_.resolveToExternal()))
@@ -349,7 +352,7 @@ sealed abstract class FeatureExprTree {
             case IfExpr(c, a, b) => IfExpr(c.resolveToExternal, a.resolveToExternal, b resolveToExternal)
             case IntegerLit(_) => this
             case DefinedExternal(_) => this
-            case DefinedMacro(name, expansion, cnf) => { expansion.simplify; expansion.expr } //TODO stupid to throw away CNF and DNF
+            case DefinedMacro(name, expansion, _, _) => { expansion.simplify; expansion.resolveToExternal.expr } //TODO stupid to throw away CNF and DNF
         }
 
     def print(): String
@@ -532,19 +535,19 @@ case class DefinedExternal(name: String) extends DefinedExpr(name) {
  * definition based on a macro, still to be resolved using the macro table
  * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
  */
-case class DefinedMacro(name: String, presenceCondition: FeatureExpr, presenceConditionCNF: Susp[NF]) extends DefinedExpr(name) {
+case class DefinedMacro(name: String, presenceCondition: FeatureExpr, expandedName: String, presenceConditionCNF: Susp[NF]) extends DefinedExpr(name) {
     def print(): String = {
         assert(name != "")
         "defined(" + name + ")";
     }
-    override def satName = "$" + name
+    override def satName = expandedName
     /**
      * definedMacros are equal if they have the same Name and the same expansion! (otherwise they refer to 
      * the macro at different points in time and should not be considered equal)
-     * actually, we do not need to check for the same name, otherwise they would not have the same expansion
+     * actually, we only check the expansion name which is unique for each DefinedMacro anyway
      */
     override def equals(that: Any) = that match {
-        case e@DefinedMacro(aname, _, apresenceConditionCNF) => (this eq e) || ((this.name == aname) && (this.presenceConditionCNF eq apresenceConditionCNF))
+        case e@DefinedMacro(_, _, expandedName, _) => (this eq e) || ((this.expandedName eq expandedName))
         case _ => false
     }
     override def hashCode = presenceConditionCNF.hashCode
