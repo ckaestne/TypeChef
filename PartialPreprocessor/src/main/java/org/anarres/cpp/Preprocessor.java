@@ -733,8 +733,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		List<Argument> args;
 		assert macroExpansions.length > 0;
 
-		Source debug_origSource = sourceManager.getSource();
-
 		// check compatible macros
 		MacroData firstMacro = ((MacroData) macroExpansions[0].getExpansion());
 		int argCount = firstMacro.getArgCount();

@@ -5,7 +5,6 @@ import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureProvider;
-import de.fosd.typechef.featureexpr.MacroContext;
 
 class State {
 	List<FeatureExpr> localFeatures = new ArrayList<FeatureExpr>();
