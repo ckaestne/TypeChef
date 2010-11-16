@@ -55,7 +55,7 @@ class SatSolver extends Solver {
                     if (!uniqueFlagIds.contains(literal.satName))
                         uniqueFlagIds = uniqueFlagIds + ((literal.satName, uniqueFlagIds.size + 1))
             if (PROFILING)
-                print(";" + uniqueFlagIds.size)
+                print(";" + cnfs.size+"-"+uniqueFlagIds.size)
 
             solver.newVar(uniqueFlagIds.size)
 
@@ -122,7 +122,7 @@ class SatSolver extends Solver {
                         if (PROFILING)
                             print(":")
                         //recursively expand formula
-                        macroExpansions = macroExpansions + (expansionName -> prepareFormula(expansion()))
+                        macroExpansions = macroExpansions + (expansionName -> prepareFormulaInner(expansion()))
                         if (PROFILING)
                             print(".")
                     }
@@ -134,11 +134,11 @@ class SatSolver extends Solver {
         def prepareClause(clause: Clause): Clause = {
         	clause.substitute(prepareLiteral(_))
         }
-        def prepareFormula(formula: NF): NF = {
+        def prepareFormulaInner(formula: NF): NF = {
             new NF(formula.clauses.map(prepareClause(_)), formula.isFull)
         }
 
-        val targetExpr = prepareFormula(expr)
+        val targetExpr = prepareFormulaInner(expr)
         List(targetExpr) ++ macroExpansions.values
     }
 

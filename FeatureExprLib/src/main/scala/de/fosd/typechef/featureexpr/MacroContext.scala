@@ -139,8 +139,6 @@ private class Macro(name: String, feature: FeatureExpr, var featureExpansions: L
         featureExpansions = featureExpansions.filter(!_.getFeature().isContradiction())
         featureExpansions;
     }
-    def isBase(macroTable: MacroContext): Boolean = feature.isBase();
-    def isDead(macroTable: MacroContext): Boolean = feature.isDead();
     def addNewAlternative(exp: MacroExpansion): Macro =
         //note addExpansion changes presence conditions of existing expansions
         new Macro(name, feature.or(exp.getFeature()), addExpansion(exp))
