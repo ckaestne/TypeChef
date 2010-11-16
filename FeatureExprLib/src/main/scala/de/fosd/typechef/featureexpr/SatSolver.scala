@@ -117,7 +117,7 @@ class SatSolver extends Solver {
                 case DefinedMacro(name, _, expansionName, expansion) => {
                     if (!macroExpansions.contains(expansionName)) {
                         if (PROFILING)
-                            print(name)
+                            print(expansionName)
                         val e = expansion()
                         if (PROFILING)
                             print(":")
