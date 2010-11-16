@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureProvider;
 
 class State {
 	List<FeatureExpr> localFeatures = new ArrayList<FeatureExpr>();
@@ -41,8 +42,9 @@ class State {
 	 * called again, this is interpreted as an elif expression.
 	 * 
 	 * @param feature
+	 * @param macroTable
 	 */
-	public void putLocalFeature(FeatureExpr feature) {
+	public void putLocalFeature(FeatureExpr feature, FeatureProvider macroTable) {
 		clearCache();
 		localFeatures.add(feature);
 	}
@@ -108,10 +110,17 @@ class State {
 		// check with cache and parent before using SAT solver
 		if (cache_isActive != null)
 			return cache_isActive.booleanValue();
-		if (parent!=null && !parent.isActive())
+		if (parent != null && parent.isCachedInactive())
 			return false;
-		cache_isActive = new Boolean(!getFullPresenceCondition().isDead());
+		FeatureExpr condition = getFullPresenceCondition();
+		cache_isActive = new Boolean(condition.isSatisfiable());
 		return cache_isActive.booleanValue();
+	}
+
+	private boolean isCachedInactive() {
+		if (cache_isActive != null)
+			return !cache_isActive.booleanValue();
+		return false;
 	}
 
 	private void clearCache() {

@@ -15,7 +15,7 @@ object FeatureSolverCache {
         if ((a eq i2._1) && (b eq i2._2))
             { swapi; return i1._3}
         i_hits+=1
-        val result = a.implies(b).isBase
+        val result = a.implies(b).isBase()
         //println(a+" => "+b+"="+result)
         storei((a,b,result))
         return result
@@ -28,7 +28,7 @@ object FeatureSolverCache {
         if ((a eq m2._1) && (b eq m2._2))
             { swapm; return m1._3}
         m_hits+=1
-        val result = a.and(b).isDead
+        val result = a.and(b).isDead()
         //println(a+" x "+b+"="+result)
         storem((a,b,result))
         return result

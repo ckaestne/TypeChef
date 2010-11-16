@@ -64,7 +64,7 @@ class TypeSystem {
         if (!targets.isEmpty) {
             //condition: feature implies (target1 or target2 ...)
             val condition = feature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
-            if (condition.isTautology) {
+            if (condition.isTautology()) {
                 if (DEBUG_PRINT) println(" always reachable " + condition)
             } else {
                 if (DEBUG_PRINT) println(" not always reachable " + feature + " => " + targets.map(_.feature).mkString(" || "))

@@ -1,6 +1,6 @@
 +3 defined(sometimes)
 ! tautology
-! contradiction
-+1 taut
+! contr!
++1 taut!
 +3 #if
 +3 #endif

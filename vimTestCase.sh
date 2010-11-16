@@ -6,7 +6,7 @@ srcPath=vim73/src
 # Hack to add an option just for the partial preprocessor.
 . jcpp.conf
 
-partialPreprocFlags="$partialPreprocFlags -x FEAT_ -P _H -U FEAT_GUI_MOTIF -U FEAT_SUN_WORKSHOP -U FEAT_GUI_MAC -U RISCOS -U FEAT_GUI_PHOTON -U FEAT_GUI_MSWIN -U FEAT_GUI_NEXTAW -U FEAT_MZSCHEME"
+partialPreprocFlags="$partialPreprocFlags -x FEAT_ -P _H -U FEAT_GUI_MOTIF -U FEAT_SUN_WORKSHOP -U FEAT_GUI_MAC -U RISCOS -U FEAT_GUI_PHOTON -U FEAT_GUI_MSWIN -U FEAT_GUI_NEXTAW -U FEAT_MZSCHEME -U FEAT_GUI_GNOME -U FEAT_MOUSE_GPM -U FEAT_SYSMOUSE"
 # Compilation options used for Vim. FEAT_TINY makes sure most features are left
 # variable.
 flags="-I. -I$PWD/$srcPath/proto -DHAVE_CONFIG_H $(pkg-config --cflags gtk+-2.0) -D_FORTIFY_SOURCE=1"

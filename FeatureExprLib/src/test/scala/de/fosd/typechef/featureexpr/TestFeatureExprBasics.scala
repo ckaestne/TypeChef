@@ -16,22 +16,22 @@ class TestFeatureExprBasics extends TestCase {
 
     def check(x: FeatureExpr, f: Int = 1) {
         println(x.expr)
-        println("CNF: " + x.cnfExpr)
-        println("DNF: " + x.dnfExpr)
+//        println("CNF: " + x.cnfExpr)
+//        println("DNF: " + x.dnfExpr)
         if (f == s) {
-            assertTrue("expected satisfiable " + x, x.isSatisfiable)
-            assertFalse("not expected tautology " + x, x.isTautology)
-            assertFalse("not expected contradiction " + x, x.isContradiction)
+            assertTrue("expected satisfiable " + x, x.isSatisfiable())
+            assertFalse("not expected tautology " + x, x.isTautology())
+            assertFalse("not expected contradiction " + x, x.isContradiction())
         }
         if (f == t) {
-            assertTrue("expected satisfiable " + x, x.isSatisfiable)
-            assertTrue("expected tautology " + x, x.isTautology)
-            assertFalse("not expected contradiction " + x, x.isContradiction)
+            assertTrue("expected satisfiable " + x, x.isSatisfiable())
+            assertTrue("expected tautology " + x, x.isTautology())
+            assertFalse("not expected contradiction " + x, x.isContradiction())
         }
         if (f == c) {
-            assertFalse("not expected satisfiable " + x, x.isSatisfiable)
-            assertFalse("not expected tautology " + x, x.isTautology)
-            assertTrue("expected contradiction " + x, x.isContradiction)
+            assertFalse("not expected satisfiable " + x, x.isSatisfiable())
+            assertFalse("not expected tautology " + x, x.isTautology())
+            assertTrue("expected contradiction " + x, x.isContradiction())
         }
     }
 

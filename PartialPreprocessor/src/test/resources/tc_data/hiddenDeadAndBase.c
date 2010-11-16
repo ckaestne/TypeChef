@@ -10,12 +10,12 @@ never someti
 
 #define tautology
 #ifdef tautology
-taut
+taut!
 #endif
 
 #undef contradiction
 #ifdef contradiction
-contr
+contr!
 #endif
 
 #ifdef tautology

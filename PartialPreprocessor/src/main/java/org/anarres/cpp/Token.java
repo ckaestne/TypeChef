@@ -147,8 +147,7 @@ public final class Token {
 			buf.append('<').append(type).append('>');
 		if (value != null)
 			buf.append('=').append(value);
-		if (!feature.isBase())
-			buf.append('@').append(feature);
+		buf.append('@').append(feature);
 		return buf.toString();
 	}
 
