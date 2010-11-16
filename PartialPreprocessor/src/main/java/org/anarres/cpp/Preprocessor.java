@@ -563,8 +563,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			boolean visible = parentActive;
 			if (visible && fullPresenceCondition.isDead())
 				visible = false;
-			if (visible && fullPresenceCondition.isBase())
-				visible = false;
+//			if (visible && fullPresenceCondition.isBase())
+//				visible = false;
 			if (visible && expr.isBase())
 				visible = false;
 
@@ -589,9 +589,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		public Token startElIf(Token tok, boolean parentActive,
 				FeatureExpr localFeatureExpr, FeatureExpr fullPresenceCondition) {
 			boolean wasVisible = stack.pop().visible;
-			boolean isVisible = parentActive
-					&& !(fullPresenceCondition.isDead() || fullPresenceCondition
-							.isBase());
+			boolean isVisible = parentActive;
+			if (isVisible && fullPresenceCondition.isDead())
+				isVisible = false;
+//			if (isVisible && fullPresenceCondition.isBase())
+//				isVisible = false;
 			stack.push(new IfdefBlock(isVisible));
 
 			return new OutputHelper().elif_token(tok.getLine(),
@@ -639,7 +641,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		Token if_token(int line, FeatureExpr featureExpr) {
 			return new Token(P_IF, line, 0, if_tokenStr(featureExpr), null);
 		}
-
+//TODO don't seriealize and read in again (at least not internally)
 		Token elif_token(int line, FeatureExpr featureExpr, boolean printEnd,
 				boolean printIf) {
 			StringBuilder buf = new StringBuilder();
