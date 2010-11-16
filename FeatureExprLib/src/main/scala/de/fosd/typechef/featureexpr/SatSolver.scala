@@ -114,15 +114,18 @@ class SatSolver extends Solver {
 
         def prepareLiteral(literal: DefinedExpr): DefinedExpr = {
             literal match {
-                case DefinedMacro(name, _, expansionName, expansion) => {
+                case DefinedMacro(name, _, expansionName, expansionNF) => {
                     if (!macroExpansions.contains(expansionName)) {
                         if (PROFILING)
                             print(expansionName)
-                        val e = expansion()
+                        val e:NF = expansionNF.apply()
                         if (PROFILING)
                             print(":")
-                        //recursively expand formula
-                        macroExpansions = macroExpansions + (expansionName -> prepareFormulaInner(expansion()))
+                        //recursively expand formula (dummy is necessary to avoid accidental recursion)
+                        macroExpansions = macroExpansions + (expansionName -> new NF(true)/*dummy*/)
+                        val preparedExpansion=prepareFormulaInner(e)
+                        macroExpansions = macroExpansions + (expansionName -> preparedExpansion)
+                        
                         if (PROFILING)
                             print(".")
                     }
