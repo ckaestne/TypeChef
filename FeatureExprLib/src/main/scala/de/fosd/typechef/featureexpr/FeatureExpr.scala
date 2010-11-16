@@ -29,13 +29,18 @@ object FeatureExpr {
     def createEquiv(left: FeatureExpr, right: FeatureExpr) = createImplies(left, right) and createImplies(right, left)
     def createDefinedExternal(name: String) = new FeatureExprImpl(new DefinedExternal(name))
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
-    def createDefinedMacro(name: String, macroTable: FeatureProvider) = {
-        var macroConditionCNF = macroTable.getMacroConditionCNF(name)
-        new FeatureExprImpl(new DefinedMacro(
-            name,
-            macroTable.getMacroCondition(name),
-            macroConditionCNF._1,
-            macroConditionCNF._2))
+    def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = {
+        val macroCondition = macroTable.getMacroCondition(name)
+        if (macroCondition.isSmall) {
+            macroCondition
+        } else {
+            var macroConditionCNF = macroTable.getMacroConditionCNF(name)
+            new FeatureExprImpl(new DefinedMacro(
+                name,
+                macroTable.getMacroCondition(name),
+                macroConditionCNF._1,
+                macroConditionCNF._2))
+        }
     }
     def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
     def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
@@ -73,6 +78,8 @@ trait FeatureExpr {
     def and(that: FeatureExpr): FeatureExpr
     def implies(that: FeatureExpr): FeatureExpr = this.not or that
     def not(): FeatureExpr
+
+    def isSmall(): Boolean
 }
 
 /**
@@ -173,6 +180,15 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
         cache_external
     }
 
+    /**
+     * used only internally do determine whether to expand an DefinedMacro() or not during creation
+     */
+    def isSmall(): Boolean = {
+        simplify
+        var nodeCounter = 0;
+        expr.accept(a => { nodeCounter = nodeCounter + 1 })
+        return nodeCounter <= 6
+    }
 }
 
 sealed abstract class FeatureExprTree {
