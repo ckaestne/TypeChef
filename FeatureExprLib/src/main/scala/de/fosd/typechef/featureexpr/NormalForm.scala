@@ -9,27 +9,27 @@ package de.fosd.typechef.featureexpr
  */
 
 /** normal form for both DNF and CNF **/
-class NF(val clauses: Set[Clause], val isFull: Boolean) {
+class NF(val clauses: List[Clause], val isFull: Boolean) {
     /** isFull is meant to be the oppositve of empty
      * with CNF empty means always true and full means always false
      * with DNF empty means always false and full means always true   
      * it is not valid to set clauses and isFull at the same time  */
 
-    def this(c: Set[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
-    def this(emptyOrFull_isFull: Boolean) = this(Set(), emptyOrFull_isFull)
+    def this(c: List[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
+    def this(emptyOrFull_isFull: Boolean) = this(List(), emptyOrFull_isFull)
 
-    /** join (CNF and CNF / DNF or DNF)**/
-    def ++(that: NF) =
-        if (this.isFull || that.isFull) new NF(true) else new NF(this.clauses ++ that.clauses)
-    /** explode (CNF or CNF / DNF and DNF)**/
-    def **(that: NF) =
-        if (this.isFull) that
-        else if (that.isFull) this
-        else new NF(for (clauseA <- this.clauses; clauseB <- that.clauses) yield clauseA ++ clauseB)
-    /** negate all literals **/
-    def neg() =
-        if (isEmpty || isFull) this
-        else new NF(clauses.map(_.neg))
+    //    /** join (CNF and CNF / DNF or DNF)**/
+    //    def ++(that: NF) =
+    //        if (this.isFull || that.isFull) new NF(true) else new NF(this.clauses ++ that.clauses)
+    //    /** explode (CNF or CNF / DNF and DNF)**/
+    //    def **(that: NF) =
+    //        if (this.isFull) that
+    //        else if (that.isFull) this
+    //        else new NF(for (clauseA <- this.clauses; clauseB <- that.clauses) yield clauseA ++ clauseB)
+    //    /** negate all literals **/
+    //    def neg() =
+    //        if (isEmpty || isFull) this
+    //        else new NF(clauses.map(_.neg))
     /** empty means true for CNF, false for DNF **/
     def isEmpty = !isFull && clauses.isEmpty
     override def toString = if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
@@ -46,12 +46,18 @@ class NF(val clauses: Set[Clause], val isFull: Boolean) {
     }
 }
 /** clause in a normal form **/
-class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr]) {
+class Clause(var posLiterals: List[DefinedExpr], var negLiterals: List[DefinedExpr]) {
+    var cacheIsSimplified = false
     def simplify = {
-        //A || !A = true 
-        if (!(posLiterals intersect negLiterals).isEmpty) {
-            posLiterals = Set()
-            negLiterals = Set()
+        if (!cacheIsSimplified) {
+            //A || !A = true 
+            posLiterals = posLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
+            negLiterals = negLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
+            if (!(posLiterals intersect negLiterals).isEmpty) {
+                posLiterals = List()
+                negLiterals = List()
+            }
+            cacheIsSimplified = true
         }
         this
     }
@@ -64,9 +70,9 @@ class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr
         (posLiterals.map(_.satName) ++ negLiterals.map("!" + _.satName)).mkString("(", "*", ")")
     def printCNF =
         (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "||", ")")
-    override def hashCode = posLiterals.hashCode + negLiterals.hashCode
+    override def hashCode = { simplify; posLiterals.hashCode + negLiterals.hashCode }
     override def equals(that: Any) = that match {
-        case thatClause: Clause => (this.posLiterals equals thatClause.posLiterals) && (this.negLiterals equals thatClause.negLiterals)
+        case thatClause: Clause => (this.simplify.posLiterals equals thatClause.simplify.posLiterals) && (this.simplify.negLiterals equals thatClause.simplify.negLiterals)
         case _ => false
     }
     /** returns a set with all referenced macros (DefinedMacro)**/
@@ -78,6 +84,20 @@ class Clause(var posLiterals: Set[DefinedExpr], var negLiterals: Set[DefinedExpr
                 case DefinedExternal(_) =>
             })
         result
+    }
+    def substitute(f: DefinedExpr => DefinedExpr) = {
+    	var changed = false
+    	def checkChange(oldVal: DefinedExpr):DefinedExpr = {
+    		val newVal = f(oldVal)
+    		if (!(newVal eq oldVal)) changed=true
+    		newVal
+    	}
+    	val newPosLit=this.posLiterals.map(checkChange(_))
+    	val newNegLit=this.negLiterals.map(checkChange(_))
+    	if (changed)
+    		new Clause(newPosLit, newNegLit)
+    	else 
+    		this
     }
 }
 
@@ -98,31 +118,31 @@ object NFBuilder {
             new NF((for (clause <- clauses) yield clause match {
                 case Or(o) => toClause(o)
                 case e => toClause(List(e)) //literal?
-            }).toSet)
+            }))
         }
         case Or(clauses) if !isCNF => {
             new NF((for (clause <- clauses) yield clause match {
                 case And(c) => toClause(c)
                 case e => toClause(List(e)) //literal?
-            }).toSet)
+            }))
         }
-        case Or(o) if isCNF => new NF(Set(toClause(o)))
-        case And(o) if !isCNF => new NF(Set(toClause(o)))
-        case f@DefinedExpr(_) => new NF(Set(new Clause(Set(f), Set())))
-        case Not(f@DefinedExpr(_)) => new NF(Set(new Clause(Set(), Set(f))))
+        case Or(o) if isCNF => new NF(List(toClause(o)))
+        case And(o) if !isCNF => new NF(List(toClause(o)))
+        case f@DefinedExpr(_) => new NF(List(new Clause(List(f), List())))
+        case Not(f@DefinedExpr(_)) => new NF(List(new Clause(List(), List(f))))
         case BaseFeature() => new NF(!isCNF)
         case DeadFeature() => new NF(isCNF)
         case e => throw new NoNFException(e, exprInNF, isCNF)
     }
     private def toClause(literals: List[FeatureExprTree]): Clause = {
-        var posLiterals: Set[DefinedExpr] = Set()
-        var negLiterals: Set[DefinedExpr] = Set()
+        var posLiterals: List[DefinedExpr] = List()
+        var negLiterals: List[DefinedExpr] = List()
         for (literal <- literals)
             literal match {
-                case f@DefinedExpr(_) => posLiterals = posLiterals + f
-                case Not(f@DefinedExpr(_)) => negLiterals = negLiterals + f
+                case f@DefinedExpr(_) => posLiterals = f :: posLiterals
+                case Not(f@DefinedExpr(_)) => negLiterals = f :: negLiterals
                 case e => throw new NoLiteralException(e)
             }
-        new Clause(posLiterals, negLiterals)
+        new Clause(posLiterals, negLiterals).simplify
     }
 }

@@ -132,7 +132,7 @@ class SatSolver extends Solver {
             }
         }
         def prepareClause(clause: Clause): Clause = {
-            new Clause(clause.posLiterals.map(prepareLiteral(_)), clause.negLiterals.map(prepareLiteral(_)))
+        	clause.substitute(prepareLiteral(_))
         }
         def prepareFormula(formula: NF): NF = {
             new NF(formula.clauses.map(prepareClause(_)), formula.isFull)
