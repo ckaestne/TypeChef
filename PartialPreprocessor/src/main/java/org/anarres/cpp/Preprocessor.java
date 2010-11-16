@@ -563,8 +563,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			boolean visible = parentActive;
 			if (visible && fullPresenceCondition.isDead())
 				visible = false;
-//			if (visible && fullPresenceCondition.isBase())
-//				visible = false;
+			// if (visible && fullPresenceCondition.isBase())
+			// visible = false;
 			if (visible && expr.isBase())
 				visible = false;
 
@@ -592,8 +592,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			boolean isVisible = parentActive;
 			if (isVisible && fullPresenceCondition.isDead())
 				isVisible = false;
-//			if (isVisible && fullPresenceCondition.isBase())
-//				isVisible = false;
+			// if (isVisible && fullPresenceCondition.isBase())
+			// isVisible = false;
 			stack.push(new IfdefBlock(isVisible));
 
 			return new OutputHelper().elif_token(tok.getLine(),
@@ -641,7 +641,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		Token if_token(int line, FeatureExpr featureExpr) {
 			return new Token(P_IF, line, 0, if_tokenStr(featureExpr), null);
 		}
-//TODO don't seriealize and read in again (at least not internally)
+
+		// TODO don't seriealize and read in again (at least not internally)
 		Token elif_token(int line, FeatureExpr featureExpr, boolean printEnd,
 				boolean printIf) {
 			StringBuilder buf = new StringBuilder();
@@ -841,8 +842,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			}
 		}
 
-		logger.info("expanding " + macroName //+ " by "
-				//+ sourceManager.debug_sourceDelta(debug_origSource)
+		logger.info("expanding " + macroName // + " by "
+		// + sourceManager.debug_sourceDelta(debug_origSource)
 				);
 
 		return true;
@@ -999,7 +1000,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 */
 
 				for (int i = 0; i < args.size(); i++) {
-					args.get(i).expand(this, inlineCppExpression);
+					args.get(i).expand(this, inlineCppExpression, macroName);
 				}
 
 				// System.out.println("Macro " + m + " args " + args);
@@ -1123,15 +1124,18 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 * Expands an argument.
 	 * 
 	 * @param inlineCppExpression
+	 * @param macroName
 	 */
 	/* I'd rather this were done lazily, but doing so breaks spec. */
 	/* pp */List<Token> macro_expandArgument(List<Token> arg,
-			boolean inlineCppExpression) throws IOException, LexerException {
+			boolean inlineCppExpression, String macroName) throws IOException,
+			LexerException {
 		// return arg;//ChK lazytest
 		List<Token> expansion = new ArrayList<Token>();
 		boolean space = false;
 
-		sourceManager.push_source(new FixedTokenSource(arg), false);
+		sourceManager.push_source(new FixedUnexpandingTokenSource(arg,
+				macroName), false);
 
 		EXPANSION: for (;;) {
 			Token tok = expanded_token(inlineCppExpression, true);
