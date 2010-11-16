@@ -128,7 +128,7 @@ public class AbstractCheckTests {
 				System.out.println(output.toString());
 			}
 			if (line.trim().equals("macrooutput")) {
-				System.out.println(pp.debugMacros());
+				pp.debugWriteMacros();
 			}
 		}
 		return containsErrorCheck;
@@ -137,7 +137,7 @@ public class AbstractCheckTests {
 	private void failOutput(StringBuffer output) {
 		System.err.println(output);
 		if (pp != null)
-			System.err.println(pp.debugMacros());
+			pp.debugWriteMacros();
 	}
 
 	private StringBuffer parse(Source source, boolean debug, String folder)
