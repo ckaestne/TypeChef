@@ -115,7 +115,7 @@ object NFBuilder {
     def toDNF(exprInDNF: FeatureExprTree): NF = toNF(exprInDNF, false)
     private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) =
         try {
-            exprInNF match {
+            exprInNF simplify match {
         case And(clauses) if isCNF => {
             new NF((for (clause <- clauses) yield clause match {
                 case Or(o) => toClause(o)
