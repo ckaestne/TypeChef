@@ -32,7 +32,8 @@ list="$list kernel/kprobes kernel/exit kernel/timer"
 commonMacros="-DKBUILD_STR(s)=#s"
 
 # Note: this clears $partialPreprocFlags
-partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=include) -x CONFIG_ -U __INTEL_COMPILER \
+#partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=include) -x CONFIG_ -U __INTEL_COMPILER \
+partialPreprocFlags="-c linux-redhat.properties -x CONFIG_ -U __INTEL_COMPILER \
   -U __ASSEMBLY__ --include $srcPath/include/generated/autoconf.h $commonMacros"
 # I don't know what to do with these flags. They should not be here!
 # partialPreprocFlags="$partialPreprocFlags " "-D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
