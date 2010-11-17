@@ -1,3 +1,5 @@
 boa
 boa_indexer
 *.exe
+*.macroDbg
+*.dbgSrc

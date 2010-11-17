@@ -76,14 +76,15 @@ public class AbstractCheckTests {
 		BufferedReader checkFile = new BufferedReader(new InputStreamReader(
 				inputStream));
 		String line;
+		String cleanedOutput=output.toString().replace("definedEx(", "defined(");
 		while ((line = checkFile.readLine()) != null) {
 			if (line.startsWith("!")) {
 				String substring = line.substring(2);
-				if (output.toString().contains(substring)) {
+				if (cleanedOutput.toString().contains(substring)) {
 					System.err.println(output);
 					Assert.fail(substring
 							+ " found but not expected in output\n"
-							+ output.toString());
+							+ cleanedOutput.toString());
 				}
 			}
 			if (line.startsWith("+")) {
@@ -91,7 +92,7 @@ public class AbstractCheckTests {
 				int found = 0;
 				String substring = line.substring(3);
 
-				String content = output.toString();
+				String content = cleanedOutput.toString();
 				int idx = content.indexOf(substring);
 				while (idx >= 0) {
 					found++;
@@ -109,7 +110,7 @@ public class AbstractCheckTests {
 			if (line.startsWith("*")) {
 				String substring = line.substring(2);
 
-				String content = output.toString();
+				String content = cleanedOutput.toString();
 				int idx = content.indexOf(substring);
 				if (idx < 0) {
 					failOutput(output);
@@ -127,7 +128,7 @@ public class AbstractCheckTests {
 				System.out.println(output.toString());
 			}
 			if (line.trim().equals("macrooutput")) {
-				System.out.println(pp.debugMacros());
+				pp.debugWriteMacros();
 			}
 		}
 		return containsErrorCheck;
@@ -136,7 +137,7 @@ public class AbstractCheckTests {
 	private void failOutput(StringBuffer output) {
 		System.err.println(output);
 		if (pp != null)
-			System.err.println(pp.debugMacros());
+			pp.debugWriteMacros();
 	}
 
 	private StringBuffer parse(Source source, boolean debug, String folder)

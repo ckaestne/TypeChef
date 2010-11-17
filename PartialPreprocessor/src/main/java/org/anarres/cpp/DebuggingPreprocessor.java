@@ -1,5 +1,6 @@
 package org.anarres.cpp;
 
+import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -47,15 +48,11 @@ public abstract class DebuggingPreprocessor {
 
 	protected abstract MacroContext getMacros();
 
-	public String debugMacros() {
-		return getMacros().toString();
-	}
-
 	public void debugWriteMacros() {
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(
-					"macroDebug.txt"));
-			writer.write(debugMacros());
+			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
+					"macroDebug.txt")));
+			getMacros().debugPrint(writer);
 			writer.close();
 			// Confusing - it advances some debug files but not others.
 			// debugNextTokens();
@@ -80,16 +77,16 @@ public abstract class DebuggingPreprocessor {
 
 	protected abstract Token parse_main() throws IOException, LexerException;
 
-	private void debugNextTokens() {
-		for (int i = 0; i < 20; i++)
-			try {
-				parse_main();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (LexerException e) {
-				e.printStackTrace();
-			}
-	}
+//	private void debugNextTokens() {
+//		for (int i = 0; i < 20; i++)
+//			try {
+//				parse_main();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (LexerException e) {
+//				e.printStackTrace();
+//			}
+//	}
 
 	public void debug_receivedToken(Source source, Token tok) {
 		if (DEBUG_TOKENSTREAM && tok != null)
@@ -128,7 +125,7 @@ public abstract class DebuggingPreprocessor {
 										+ " ("
 										+ state.getFullPresenceCondition()
 										+ ")") + "\n");
-				// System.out.println(b.toString());
+				 System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
@@ -145,7 +142,7 @@ public abstract class DebuggingPreprocessor {
 				for (int i = 0; i < debugSourceIdx; i++)
 					b.append("\t");
 				b.append("pop " + source.toString() + "\n");
-				// System.out.println(b.toString());
+				 System.out.println(b.toString());
 				debugSourceFile.write(b.toString());
 				debugSourceFile.flush();
 			} catch (IOException e) {
