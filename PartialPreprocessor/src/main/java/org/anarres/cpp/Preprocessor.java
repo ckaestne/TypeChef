@@ -1789,9 +1789,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				lhs = FeatureExprLib.dead();
 			else if (tok.getText().equals("__IF__")) {
 				lhs = parse_ifExpr();
-			} else if (tok.getText().equals("definedMacro")) {
-				lhs = parse_definedExpr(false);
 			} else if (tok.getText().equals("defined")) {
+				lhs = parse_definedExpr(false);
+			} else if (tok.getText().equals("definedEx")) {
 				lhs = parse_definedExpr(true);
 			} else {
 

@@ -543,7 +543,7 @@ object DefinedExpr {
 case class DefinedExternal(name: String) extends DefinedExpr(name) {
     def print(): String = {
         assert(name != "")
-        "defined(" + name + ")";
+        "definedEx(" + name + ")";
     }
 }
 
@@ -554,7 +554,7 @@ case class DefinedExternal(name: String) extends DefinedExpr(name) {
 case class DefinedMacro(name: String, presenceCondition: FeatureExpr, expandedName: String, presenceConditionCNF: Susp[NF]) extends DefinedExpr(name) {
     def print(): String = {
         assert(name != "")
-        "definedMacro(" + name + ")";
+        "defined(" + name + ")";
     }
     override def satName = expandedName
     /**
