@@ -113,7 +113,9 @@ object NFBuilder {
     def toDNF_(exprInDNF: FeatureExprTree): Option[NF] = try { Some(toDNF(exprInDNF)) } catch { case e: NFException => None }
     def toCNF(exprInCNF: FeatureExprTree): NF = toNF(exprInCNF, true)
     def toDNF(exprInDNF: FeatureExprTree): NF = toNF(exprInDNF, false)
-    private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) = exprInNF match {
+    private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) =
+        try {
+            exprInNF simplify match {
         case And(clauses) if isCNF => {
             new NF((for (clause <- clauses) yield clause match {
                 case Or(o) => toClause(o)
@@ -134,6 +136,13 @@ object NFBuilder {
         case DeadFeature() => new NF(isCNF)
         case e => throw new NoNFException(e, exprInNF, isCNF)
     }
+        } catch {
+        	case t: Throwable => 
+        	System.err.println("Exception on NormalForm.toNF for: " + exprInNF.print())
+        	t.printStackTrace
+        	throw t
+
+        }
     private def toClause(literals: List[FeatureExprTree]): Clause = {
         var posLiterals: List[DefinedExpr] = List()
         var negLiterals: List[DefinedExpr] = List()

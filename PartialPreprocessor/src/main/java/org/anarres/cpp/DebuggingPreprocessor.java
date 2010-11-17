@@ -1,5 +1,6 @@
 package org.anarres.cpp;
 
+import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -47,15 +48,11 @@ public abstract class DebuggingPreprocessor {
 
 	protected abstract MacroContext getMacros();
 
-	public String debugMacros() {
-		return getMacros().toString();
-	}
-
 	public void debugWriteMacros() {
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(
-					"macroDebug.txt"));
-			writer.write(debugMacros());
+			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
+					"macroDebug.txt")));
+			getMacros().debugPrint(writer);
 			writer.close();
 			// Confusing - it advances some debug files but not others.
 			// debugNextTokens();

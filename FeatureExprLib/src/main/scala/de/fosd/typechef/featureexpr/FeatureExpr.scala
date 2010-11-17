@@ -120,7 +120,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
                 cnfCache
             } catch {
                 case t: Throwable => {
-                    System.err.println("Exception on isSatisfiable for: " + expr.print())
+                    System.err.println("Exception on toCNF for: " + expr.print())
                     t.printStackTrace
                     throw t
                 }
@@ -136,7 +136,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
                 equiCnfCache
             } catch {
                 case t: Throwable => {
-                    System.err.println("Exception on isSatisfiable")
+                    System.err.println("Exception on toEquiCNF for: " + expr.print())
                     t.printStackTrace
                     throw t
                 }
@@ -543,7 +543,7 @@ object DefinedExpr {
 case class DefinedExternal(name: String) extends DefinedExpr(name) {
     def print(): String = {
         assert(name != "")
-        "definedEx(" + name + ")";
+        "defined(" + name + ")";
     }
 }
 
@@ -554,7 +554,7 @@ case class DefinedExternal(name: String) extends DefinedExpr(name) {
 case class DefinedMacro(name: String, presenceCondition: FeatureExpr, expandedName: String, presenceConditionCNF: Susp[NF]) extends DefinedExpr(name) {
     def print(): String = {
         assert(name != "")
-        "defined(" + name + ")";
+        "definedMacro(" + name + ")";
     }
     override def satName = expandedName
     /**

@@ -1,4 +1,5 @@
 package de.fosd.typechef.featureexpr
+import java.io.PrintWriter
 import de.fosd.typechef.featureexpr.LazyLib.Susp
 
 object MacroContext {
@@ -102,6 +103,12 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
         getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
 
     override def toString() = { knownMacros.values.mkString("\n\n\n") + printStatistics }
+    def debugPrint(writer: PrintWriter) {
+      knownMacros.values.foreach(x => {
+          writer print x; writer print "\n\n\n"
+        })
+      writer print printStatistics
+    }
     def printStatistics =
         "\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions,number of distinct configuration flags):\n" +
             knownMacros.size + ";" +
