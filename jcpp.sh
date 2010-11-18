@@ -1,5 +1,5 @@
-#!/bin/bash -vxe
 #!/bin/bash -e
+#!/bin/bash -vxe
 if [ -z "$jcppConfLoaded" ]; then
   source jcpp.conf
 fi

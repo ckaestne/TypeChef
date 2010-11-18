@@ -1,5 +1,5 @@
-#!/bin/bash -vxe
 #!/bin/bash -e
+#!/bin/bash -vxe
 
 ######
 # Output format: one ';'-separated line with:
