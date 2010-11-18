@@ -14,7 +14,8 @@ srcPath=$PWD/linux-2.6.33.3
 # Excluded:
 # arch/x86/kernel/process_64 arch/x86/kernel/signal arch/x86/kernel/traps arch/x86/kernel/time init/main kernel/fork
 # Processed:
-list='init/calibrate drivers/video/console/dummycon'
+list="init/main kernel/fork arch/x86/kernel/process_64 arch/x86/kernel/signal arch/x86/kernel/traps arch/x86/kernel/time"
+list="$list init/calibrate drivers/video/console/dummycon"
 list="$list arch/x86/kernel/irq arch/x86/kernel/irq_64 arch/x86/kernel/dumpstack_64 arch/x86/kernel/ioport arch/x86/kernel/ldt arch/x86/kernel/dumpstack arch/x86/kernel/setup"
 
 # x86 architecture - we don't want to use all of this for the evaluation, but to have a more varied setup.
