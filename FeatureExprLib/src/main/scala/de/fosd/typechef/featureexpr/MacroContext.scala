@@ -16,22 +16,22 @@ object MacroContext {
     // Returns whether the macro x represents a feature.
     // It checks if any flag filters classify this as non-feature - equivalently, if all
     // flag filters classify this as feature
+
+    // If a macro does not represent a feature, it is not considered variable,
+    // and if it is not defined it is assumed to be always undefined, and it
+    // becomes thus easier to handle.
     def flagFilter(x: String) = flagFilters.forall(_(x))
 }
 
 import FeatureExpr.createDefinedExternal
 /**
- * represents the knowledge about macros at a specific point in time time
+ * represents the knowledge about macros at a specific point in time
  * 
  * knownMacros contains all macros but no duplicates
  * 
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
 class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (String, Susp[NF])]) extends FeatureProvider {
-    /**
-     * when true, only CONFIG_ flags can be defined externally (simplifies the handling signficiantly)
-     */
-
     def this() = { this(Map(), Map()) }
     def define(name: String, infeature: FeatureExpr, other: Any): MacroContext = {
         val feature = infeature //.resolveToExternal()
