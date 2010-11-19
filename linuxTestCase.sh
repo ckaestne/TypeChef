@@ -34,30 +34,26 @@ list="$list arch/x86/kernel/x86_init arch/x86/kernel/i8259 arch/x86/kernel/irqin
 # Hack to change and remove options just for the partial preprocessor.
 . jcpp.conf
 
-# This ought not to go into $flags, it'd need to be quoted, in different ways
-# according to the callee.
-commonMacros="-DKBUILD_STR(s)=#s"
-
 # Note: this clears $partialPreprocFlags
 #partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=include) -x CONFIG_ -U __INTEL_COMPILER \
 partialPreprocFlags="-c linux-redhat.properties -x CONFIG_ -U __INTEL_COMPILER \
-  -U __ASSEMBLY__ --include $srcPath/include/generated/autoconf.h $commonMacros"
+  -U __ASSEMBLY__ --include $srcPath/include/generated/autoconf.h"
 # I don't know what to do with these flags. They should not be here!
 # partialPreprocFlags="$partialPreprocFlags " "-D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
 
-# XXX: Workaround bugs triggered by these macros.
+# XXX: These options workaround bugs triggered by these macros.
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
 
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
 
-gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h $commonMacros"
+gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
 
 flags() {
   base="$1"
   # XXX: again, I need to specify $PWD, for the same bug as above.
   # "-I linux-2.6.33.3/include -I linux-2.6.33.3/arch/x86/include"
-  echo "-I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base)"
+  echo "-I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base) -DKBUILD_STR(s)=#s"
 }
 
 export outCSV=linux.csv
