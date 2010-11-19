@@ -601,7 +601,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		}
 	}
 
-	class OutputHelper {
+	static class OutputHelper {
 		private OutputHelper() {}
 
 		/*
