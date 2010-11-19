@@ -6,7 +6,7 @@ srcPath=sparse
 # Hack to add an option just for the partial preprocessor.
 . jcpp.conf
 
-partialPreprocFlags="$partialPreprocFlags -P _H"
+partialPreprocFlags="$partialPreprocFlags -P _H -p _"
 #partialPreprocFlags="$partialPreprocFlags -c gtk.properties -P _H"
 
 flags="$(pkg-config --cflags gtk+-2.0) $(pkg-config --cflags libxml-2.0)"

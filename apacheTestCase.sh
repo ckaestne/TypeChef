@@ -18,7 +18,7 @@ srcPath=$PWD/http-2.2.17
 # Hack to add an option just for the partial preprocessor.
 . jcpp.conf
 
-partialPreprocFlags="$partialPreprocFlags -P _H "
+partialPreprocFlags="$partialPreprocFlags -P _H -p _"
 
 flags="-DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE"
 
