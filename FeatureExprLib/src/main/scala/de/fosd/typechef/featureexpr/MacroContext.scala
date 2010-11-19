@@ -13,8 +13,10 @@ object MacroContext {
     def setPrefixOnlyFilter(prefix: String) {
         flagFilters = ((x: String) => x.startsWith(prefix)) :: flagFilters
     }
+    // Returns whether the macro x represents a feature.
+    // It checks if any flag filters classify this as non-feature - equivalently, if all
+    // flag filters classify this as feature
     def flagFilter(x: String) = flagFilters.forall(_(x))
-
 }
 
 import FeatureExpr.createDefinedExternal
