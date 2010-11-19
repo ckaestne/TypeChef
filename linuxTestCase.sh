@@ -13,14 +13,15 @@ srcPath=$PWD/linux-2.6.33.3
 ##################################################################
 # Excluded:
 # arch/x86/kernel/process_64 contains a real error in this configuration, in which it cannot be compiled.
-# arch/x86/kernel/traps - strange preprocessor bug
+# arch/x86/kernel/traps - strange preprocessor bug, not always reproducible, I'm really confused.
+# kernel/timer - unsupported include FOO(bar) construct
 # Excluded:
 # Processed:
 list="init/calibrate init/main arch/x86/kernel/signal arch/x86/kernel/time"
 list="$list kernel/fork drivers/video/console/dummycon"
 list="$list arch/x86/kernel/irq arch/x86/kernel/irq_64 arch/x86/kernel/dumpstack_64 arch/x86/kernel/ioport arch/x86/kernel/ldt arch/x86/kernel/dumpstack arch/x86/kernel/setup"
 list="$list lib/proportions lib/prio_tree lib/find_next_bit mm/filemap mm/oom_kill"
-list="$list kernel/kprobes kernel/exit kernel/timer"
+list="$list kernel/kprobes kernel/exit"
 #Problematic
 list="$list arch/x86/kernel/traps"
 
