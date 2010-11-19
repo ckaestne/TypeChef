@@ -26,6 +26,7 @@ shift
 . setupOutPaths.sh.inc
 
 javaOpts='-Xmx512m -Xms128m'
+javaOpts='-Xmx2G -Xms128m'
 #time scala -cp BoaCaseStudy/target/scala_2.8.0/classes:FeatureExprLib/lib/org.sat4j.core.jar:FeatureExprLib/target/scala_2.8.0/classes:\
 #  PartialPreprocessor/target/scala_2.8.0/classes:PartialPreprocessor/lib/gnu.getopt.jar \
 #  <(echo -e '#define b ciao\nb')
