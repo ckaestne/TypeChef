@@ -13,20 +13,21 @@ srcPath=$PWD/linux-2.6.33.3
 ##################################################################
 # Excluded:
 # arch/x86/kernel/process_64 contains a real error in this configuration, in which it cannot be compiled.
-# arch/x86/kernel/traps - strange preprocessor bug, not always reproducible, I'm really confused.
 # kernel/timer - unsupported include FOO(bar) construct
-# Excluded:
+# arch/x86/kernel/traps - strange preprocessor bug, not always reproducible, I'm really confused; takes half an hour anyway.
+# arch/x86/kernel/time - takes half an hour.
 # Processed:
-list="init/calibrate init/main arch/x86/kernel/signal arch/x86/kernel/time"
+list="init/calibrate init/main arch/x86/kernel/signal"
 list="$list kernel/fork drivers/video/console/dummycon"
 list="$list arch/x86/kernel/irq arch/x86/kernel/irq_64 arch/x86/kernel/dumpstack_64 arch/x86/kernel/ioport arch/x86/kernel/ldt arch/x86/kernel/dumpstack arch/x86/kernel/setup"
 list="$list lib/proportions lib/prio_tree lib/find_next_bit mm/filemap mm/oom_kill"
 list="$list kernel/kprobes kernel/exit"
 #Problematic
-list="$list arch/x86/kernel/traps"
+list="$list arch/x86/kernel/traps arch/x86/kernel/time"
 
 # x86 architecture - we don't want to use all of this for the evaluation, but to have a more varied setup.
 #list="$list arch/x86/kernel/process_64 arch/x86/kernel/signal arch/x86/kernel/traps arch/x86/kernel/irq arch/x86/kernel/irq_64 arch/x86/kernel/dumpstack_64 arch/x86/kernel/time arch/x86/kernel/ioport arch/x86/kernel/ldt arch/x86/kernel/dumpstack arch/x86/kernel/setup arch/x86/kernel/x86_init arch/x86/kernel/i8259 arch/x86/kernel/irqinit arch/x86/kernel/sys_x86_64 arch/x86/kernel/x8664_ksyms_64 arch/x86/kernel/syscall_64 arch/x86/kernel/vsyscall_64 arch/x86/kernel/bootflag arch/x86/kernel/e820 arch/x86/kernel/quirks arch/x86/kernel/i8237 arch/x86/kernel/topology arch/x86/kernel/kdebugfs arch/x86/kernel/alternative arch/x86/kernel/i8253 arch/x86/kernel/hw_breakpoint arch/x86/kernel/tsc arch/x86/kernel/io_delay arch/x86/kernel/rtc arch/x86/kernel/process arch/x86/kernel/i387 arch/x86/kernel/xsave arch/x86/kernel/ptrace arch/x86/kernel/step arch/x86/kernel/reboot arch/x86/kernel/mpparse arch/x86/kernel/early_printk arch/x86/kernel/hpet arch/x86/kernel/pcspeaker arch/x86/kernel/vsmp_64 arch/x86/kernel/head64 arch/x86/kernel/head arch/x86/kernel/init_task"
+list="$list arch/x86/kernel/x86_init arch/x86/kernel/i8259 arch/x86/kernel/irqinit arch/x86/kernel/sys_x86_64 arch/x86/kernel/x8664_ksyms_64 arch/x86/kernel/syscall_64 arch/x86/kernel/vsyscall_64 arch/x86/kernel/bootflag arch/x86/kernel/e820 arch/x86/kernel/quirks arch/x86/kernel/i8237 arch/x86/kernel/topology arch/x86/kernel/kdebugfs arch/x86/kernel/alternative arch/x86/kernel/i8253 arch/x86/kernel/hw_breakpoint arch/x86/kernel/tsc arch/x86/kernel/io_delay arch/x86/kernel/rtc arch/x86/kernel/process arch/x86/kernel/i387 arch/x86/kernel/xsave arch/x86/kernel/ptrace arch/x86/kernel/step arch/x86/kernel/reboot arch/x86/kernel/mpparse arch/x86/kernel/early_printk arch/x86/kernel/hpet arch/x86/kernel/pcspeaker arch/x86/kernel/vsmp_64 arch/x86/kernel/head64 arch/x86/kernel/head arch/x86/kernel/init_task"
 ##################################################################
 # Preprocessing flags
 ##################################################################
