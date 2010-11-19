@@ -38,7 +38,7 @@ countWordLines() {
 echo "=="
 echo "==Preprocess source"
 echo "=="
-gcc $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+gcc -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 
 echo "=="
 echo "==Preprocess output of partial preprocessor"

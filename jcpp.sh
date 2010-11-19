@@ -34,7 +34,7 @@ javaOpts='-Xmx2G -Xms128m'
 # Beware: the embedded for loop requotes the passed argument. That's dark magic,
 # don't ever try to touch it. It simplifies your life as a user of this program
 # though!
-echo "Preprocessing $inp"
+echo "Partially preprocessing $inp"
 
 bash -c "time java -ea $javaOpts -cp $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:$basePath/BoaCaseStudy/target/scala_2.8.0/classes:\
 $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
