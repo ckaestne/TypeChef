@@ -31,7 +31,7 @@ list="$list arch/x86/kernel/x86_init arch/x86/kernel/i8259 arch/x86/kernel/irqin
 ##################################################################
 # Preprocessing flags
 ##################################################################
-# Hack to add an option just for the partial preprocessor.
+# Hack to change and remove options just for the partial preprocessor.
 . jcpp.conf
 
 # This ought not to go into $flags, it'd need to be quoted, in different ways
