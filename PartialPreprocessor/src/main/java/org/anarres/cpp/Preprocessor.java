@@ -570,9 +570,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			stack.push(new IfdefBlock(visible));
 			if (visible)
-				return new OutputHelper().if_token(tok.getLine(), expr);
+				return OutputHelper.if_token(tok.getLine(), expr);
 			else
-				return new OutputHelper().emptyLine(tok.getLine(), tok
+				return OutputHelper.emptyLine(tok.getLine(), tok
 						.getColumn());
 
 		}
@@ -580,9 +580,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		public Token endIf(Token tok) {
 
 			if (stack.pop().visible)
-				return new OutputHelper().endif_token(tok.getLine());
+				return OutputHelper.endif_token(tok.getLine());
 			else
-				return new OutputHelper().emptyLine(tok.getLine(), tok
+				return OutputHelper.emptyLine(tok.getLine(), tok
 						.getColumn());
 		}
 
@@ -596,17 +596,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 //				isVisible = false;
 			stack.push(new IfdefBlock(isVisible));
 
-			return new OutputHelper().elif_token(tok.getLine(),
+			return OutputHelper.elif_token(tok.getLine(),
 					localFeatureExpr, wasVisible, isVisible);
 		}
 	}
 
 	class OutputHelper {
+		private OutputHelper() {}
+
 		/*
 		 * XXX Make this include the NL, and make all cpp directives eat their
 		 * own NL.
 		 */
-		Token line_token(int line, String name, String extra) {
+		static Token line_token(int line, String name, String extra) {
 			StringBuilder buf = new StringBuilder();
 			buf.append("#line ").append(line).append(" \"");
 			/* XXX This call to escape(name) is correct but ugly. */
@@ -615,14 +617,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			return new Token(P_LINE, line, 0, buf.toString(), null);
 		}
 
-		String if_tokenStr(FeatureExpr featureExpr) {
+		static String if_tokenStr(FeatureExpr featureExpr) {
 			StringBuilder buf = new StringBuilder();
 			buf.append("#if ").append(featureExpr.resolveToExternal().print())
 					.append("\n");
 			return buf.toString();
 		}
 
-		String elif_tokenStr(FeatureExpr featureExpr) {
+		static String elif_tokenStr(FeatureExpr featureExpr) {
 			StringBuilder buf = new StringBuilder();
 			buf.append("#elif ")
 					.append(featureExpr.resolveToExternal().print()).append(
@@ -630,19 +632,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			return buf.toString();
 		}
 
-		String endif_tokenStr() {
+		static String endif_tokenStr() {
 			return "#endif\n";
 		}
 
-		String else_tokenStr() {
+		static String else_tokenStr() {
 			return "#else\n";
 		}
 
-		Token if_token(int line, FeatureExpr featureExpr) {
+		static Token if_token(int line, FeatureExpr featureExpr) {
 			return new Token(P_IF, line, 0, if_tokenStr(featureExpr), null);
 		}
 //TODO don't seriealize and read in again (at least not internally)
-		Token elif_token(int line, FeatureExpr featureExpr, boolean printEnd,
+		static Token elif_token(int line, FeatureExpr featureExpr, boolean printEnd,
 				boolean printIf) {
 			StringBuilder buf = new StringBuilder();
 			if (printEnd)
@@ -654,11 +656,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			return new Token(P_ELIF, line, 0, buf.toString(), null);
 		}
 
-		Token endif_token(int line) {
+		static Token endif_token(int line) {
 			return new Token(P_ENDIF, line, 0, endif_tokenStr(), null);
 		}
 
-		public Token emptyLine(int line, int column) {
+		public static Token emptyLine(int line, int column) {
 			return new Token(NL, line, column, "\n", null);
 		}
 
@@ -708,7 +710,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 * token', which isNumbered() approximates. This is not perfect,
 				 * but works.
 				 */
-				return new OutputHelper().line_token(t.getLine() + 1, t
+				return OutputHelper.line_token(t.getLine() + 1, t
 						.getName(), " 2");
 			}
 		}
@@ -1028,20 +1030,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			if (i == macroExpansions.length - 1)
 				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-						+ new OutputHelper().if_tokenStr(feature)));
+						+ OutputHelper.if_tokenStr(feature)));
 			else
 				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-						+ new OutputHelper().elif_tokenStr(feature)));
+						+ OutputHelper.elif_tokenStr(feature)));
 			resultList.add(createMacroTokenSource(macroName, args, macroData));
 			if (i == 0 && !alternativesExaustive) {
 				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-						+ new OutputHelper().else_tokenStr()));
+						+ OutputHelper.else_tokenStr()));
 				resultList.add(new FixedUnexpandingTokenSource(originalTokens,
 						macroName));
 			}
 		}
 		resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-				+ new OutputHelper().endif_tokenStr()));
+				+ OutputHelper.endif_tokenStr()));
 		sourceManager.push_sources(resultList, true);
 	}
 
@@ -1493,7 +1495,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			 * directive.
 			 */
 			if (getFeature(Feature.LINEMARKERS))
-				return new OutputHelper().line_token(1, sourceManager
+				return OutputHelper.line_token(1, sourceManager
 						.getSource().getName(), " 1");
 			return tok;
 		} finally {
