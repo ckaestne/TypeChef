@@ -526,7 +526,7 @@ abstract class AbstractUnaryBoolFeatureExprTree(
 
 abstract class DefinedExpr extends FeatureExprTree {
     var feature: String = "";
-    def this(name: String) { this(); feature = name; assert(name != "1" && name != "0" && name != "") }
+    def this(name: String) { this(); feature = name.intern; assert(name != "1" && name != "0" && name != "") }
     def debug_print(level: Int): String = indent(level) + feature + "\n";
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
     def satName = feature //used for sat solver only to distinguish extern and macro
