@@ -135,7 +135,7 @@ public class SourceManager {
 			Source s = getSource();
 			if (s == null) {
 				if (inputs.isEmpty())
-					return new Token(EOF, null);
+					return new SimpleToken(EOF, null);
 				Source t = inputs.remove(0);
 				push_source(t, true);
 				if (pp.getFeature(Feature.LINEMARKERS))

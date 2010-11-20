@@ -13,7 +13,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  * @author kaestner
  * 
  */
-public class FeatureExprToken extends Token {
+public class FeatureExprToken extends SimpleToken {
 	private FeatureExpr expr;
 
 	FeatureExprToken(FeatureExpr expr, Source source) {

@@ -613,7 +613,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			/* XXX This call to escape(name) is correct but ugly. */
 			MacroTokenSource.escape(buf, name);
 			buf.append("\"").append(extra).append("\n");
-			return new Token(P_LINE, line, 0, buf.toString(), null);
+			return new SimpleToken(P_LINE, line, 0, buf.toString(), null);
 		}
 
 		static String if_tokenStr(FeatureExpr featureExpr) {
@@ -640,7 +640,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		}
 
 		static Token if_token(int line, FeatureExpr featureExpr) {
-			return new Token(P_IF, line, 0, if_tokenStr(featureExpr), null);
+			return new SimpleToken(P_IF, line, 0, if_tokenStr(featureExpr), null);
 		}
 
 		// TODO don't seriealize and read in again (at least not internally)
@@ -653,15 +653,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				buf.append("#if ").append(
 						featureExpr.resolveToExternal().print());
 			buf.append("\n");
-			return new Token(P_ELIF, line, 0, buf.toString(), null);
+			return new SimpleToken(P_ELIF, line, 0, buf.toString(), null);
 		}
 
 		static Token endif_token(int line) {
-			return new Token(P_ENDIF, line, 0, endif_tokenStr(), null);
+			return new SimpleToken(P_ENDIF, line, 0, endif_tokenStr(), null);
 		}
 
 		public static Token emptyLine(int line, int column) {
-			return new Token(NL, line, column, "\n", null);
+			return new SimpleToken(NL, line, column, "\n", null);
 		}
 
 	}
@@ -766,7 +766,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		// replace macro
 		if (macroName.equals("__LINE__")) {
 			sourceManager.push_source(new FixedTokenSource(
-					new Token[] { new Token(INTEGER, orig.getLine(), orig
+					new SimpleToken[] { new SimpleToken(INTEGER, orig.getLine(), orig
 							.getColumn(), String.valueOf(orig.getLine()),
 							Integer.valueOf(orig.getLine()), null) }), true);
 		} else if (macroName.equals("__FILE__")) {
@@ -791,7 +791,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			buf.append("\"");
 			String text = buf.toString();
 			sourceManager.push_source(new FixedTokenSource(
-					new Token[] { new Token(STRING, orig.getLine(), orig
+					new SimpleToken[] { new SimpleToken(STRING, orig.getLine(), orig
 							.getColumn(), text, text, null) }), true);
 		} else if (macroName.equals("__COUNTER__")) {
 			/*
@@ -800,7 +800,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			 */
 			int value = this.counter++;
 			sourceManager.push_source(new FixedTokenSource(
-					new Token[] { new Token(INTEGER, orig.getLine(), orig
+					new SimpleToken[] { new SimpleToken(INTEGER, orig.getLine(), orig
 							.getColumn(), String.valueOf(value), Integer
 							.valueOf(value), null) }), true);
 		} else {
@@ -1296,7 +1296,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			case PASTE:
 				space = false;
 				paste = true;
-				m.addPaste(new Token(M_PASTE, tok.getLine(), tok.getColumn(),
+				m.addPaste(new SimpleToken(M_PASTE, tok.getLine(), tok.getColumn(),
 						"#" + "#", null));
 				break;
 
@@ -1308,7 +1308,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				Token la = source_token_nonwhite();
 				if (la.getType() == IDENTIFIER
 						&& ((idx = args.indexOf(la.getText())) != -1)) {
-					m.addToken(new Token(M_STRING, la.getLine(),
+					m.addToken(new SimpleToken(M_STRING, la.getLine(),
 							la.getColumn(), "#" + la.getText(), Integer
 									.valueOf(idx), null));
 				} else {
@@ -1327,7 +1327,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				if (idx == -1)
 					m.addToken(tok);
 				else
-					m.addToken(new Token(M_ARG, tok.getLine(), tok.getColumn(),
+					m.addToken(new SimpleToken(M_ARG, tok.getLine(), tok.getColumn(),
 							tok.getText(), Integer.valueOf(idx), null));
 				break;
 
@@ -1618,7 +1618,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			}
 			tok = retrieveTokenFromSource();
 		}
-		return new Token(P_LINE, pptok.getLine(), pptok.getColumn(), buf
+		return new SimpleToken(P_LINE, pptok.getLine(), pptok.getColumn(), buf
 				.toString(), null);
 	}
 
@@ -2061,7 +2061,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		char[] cbuf = new char[nls];
 		Arrays.fill(cbuf, '\n');
-		return new Token(WHITESPACE, tok.getLine(), tok.getColumn(),
+		return new SimpleToken(WHITESPACE, tok.getLine(), tok.getColumn(),
 				new String(cbuf), null);
 	}
 

@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /* pp */class FixedTokenSource extends Source {
-	private static final Token EOF = new Token(Token.EOF, "<ts-eof>", null);
+	private static final Token EOF = new SimpleToken(Token.EOF, "<ts-eof>", null);
 
 	private List<Token> tokens;
 	private int idx;
