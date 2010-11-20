@@ -17,6 +17,8 @@
 
 package org.anarres.cpp;
 
+import java.io.PrintWriter;
+
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExpr$;
 
@@ -25,7 +27,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr$;
  * 
  * @see Preprocessor
  */
-public final class Token {
+public class Token {
 
 	// public static final int EOF = -1;
 
@@ -35,7 +37,7 @@ public final class Token {
 	private int line;
 	private int column;
 	private Object value;
-	private String text;
+	protected String text;
 	private Source source;// for debugging purposes only
 	private FeatureExpr feature = base;
 
@@ -258,6 +260,8 @@ public final class Token {
 	public static final int P_ENDIF = 301;
 	/** The token type P_LINE. */
 	public static final int P_ELIF = 302;
+	/** The token type P_LINE. */
+	public static final int P_FEATUREEXPR = 303;
 	/**
 	 * The number of possible semantic token types.
 	 * 
@@ -351,6 +355,7 @@ public final class Token {
 		names[P_IF] = "P_IF";
 		names[P_ELIF] = "P_ELIF";
 		names[P_ENDIF] = "P_ENDIF";
+		names[P_FEATUREEXPR] = "P_FEATUREEXPR";
 		names[INVALID] = "INVALID";
 	}
 	private boolean mayExpand = true;
@@ -365,5 +370,9 @@ public final class Token {
 
 	public Source getSource (){
 		return source;
+	}
+	
+	public void lazyPrint(PrintWriter writer) {
+		writer.append(getText());
 	}
 }
