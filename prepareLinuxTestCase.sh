@@ -5,5 +5,5 @@ wget http://www.kernel.org/pub/linux/kernel/v2.6/$version.tar.bz2
 tar xjf $version.tar.bz2
 cd $version
 
-make allnoconfig
-make prepare
+make allnoconfig ARCH=x86
+make prepare ARCH=x86
