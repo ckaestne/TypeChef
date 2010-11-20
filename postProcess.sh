@@ -1,5 +1,5 @@
-#!/bin/bash -vxe
 #!/bin/bash -e
+#!/bin/bash -vxe
 
 ######
 # Output format: one ';'-separated line with:
@@ -38,12 +38,12 @@ countWordLines() {
 echo "=="
 echo "==Preprocess source"
 echo "=="
-gcc $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+gcc -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 
 echo "=="
 echo "==Preprocess output of partial preprocessor"
 echo "=="
-gcc $gccOpts -E "$outPartialPreproc" "$@" 2>&1 > "$outPartialPreprocThenPreproc" | grep -v 'warning: extra tokens at end of #line directive' || true
+$sed -e  's/\<definedEx\>/defined/g' "$outPartialPreproc" | gcc $gccOpts -E - "$@" 2>&1 > "$outPartialPreprocThenPreproc" | grep -v 'warning: extra tokens at end of #line directive' || true
 
 #echo "Output size stats - partial preprocessor:"
 countWordLines "$outPartialPreproc"

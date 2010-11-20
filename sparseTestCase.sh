@@ -3,11 +3,7 @@
 
 srcPath=sparse
 
-# Hack to add an option just for the partial preprocessor.
-. jcpp.conf
-
-partialPreprocFlags="$partialPreprocFlags -P _H"
-#partialPreprocFlags="$partialPreprocFlags -c gtk.properties -P _H"
+export partialPreprocFlags="-P _H -p _"
 
 flags="$(pkg-config --cflags gtk+-2.0) $(pkg-config --cflags libxml-2.0)"
 
@@ -25,12 +21,10 @@ for i in $srcPath/*.c; do
 done
 
 export outCSV=sparse.csv
-## Reset output
-#echo -n > "$outCSV"
 
 for i in $fileList; do
-  . ./jcpp.sh $i $flags
+  ./jcpp.sh $i $flags
 done
 for i in $fileList; do
-  . ./postProcess.sh $i $flags
+  ./postProcess.sh $i $flags
 done

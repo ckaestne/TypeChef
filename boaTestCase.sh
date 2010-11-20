@@ -2,6 +2,7 @@
 #!/bin/bash -vxe
 list="alias boa buffer cgi cgi_header config escape get hash ip log mmap_cache pipe queue read request response select signals sublog util"
 flags="-U HAVE_LIBDMALLOC"
+export partialPreprocFlags="-p _"
 srcPath=boa/src
 
 export outCSV=boa.csv

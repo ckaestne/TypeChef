@@ -6,19 +6,16 @@ preprocess() {
   #flags="$1"
   #fileList="$2"
   for i in $fileList; do
-    . ./jcpp.sh $dir/$i.c $flags $folderFlags
+    ./jcpp.sh $dir/$i.c $flags $folderFlags
   done
   for i in $fileList; do
-    . ./postProcess.sh $dir/$i.c $flags $folderFlags
+    ./postProcess.sh $dir/$i.c $flags $folderFlags
   done
 }
 
 srcPath=$PWD/http-2.2.17
 
-# Hack to add an option just for the partial preprocessor.
-. jcpp.conf
-
-partialPreprocFlags="$partialPreprocFlags -P _H "
+export partialPreprocFlags="-P _H -p _"
 
 flags="-DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE"
 

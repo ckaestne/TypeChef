@@ -33,8 +33,8 @@ class State {
 	}
 
 	public String toString() {
-		return "currentpc=" + getFullPresenceCondition() + ", parent=" + parent
-				+ ", active=" + localFeatures + ", sawelse=" + sawElse;
+		return "State(localFeatureExpr = " + getLocalFeatureExpr() + ", currentpc=" + getFullPresenceCondition() + ", parent=" + parent
+				+ ", active=" + localFeatures + ", sawelse=" + sawElse + ")";
 	}
 
 	/**
