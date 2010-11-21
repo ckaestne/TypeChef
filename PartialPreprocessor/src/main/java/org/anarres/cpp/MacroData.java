@@ -118,12 +118,15 @@ public class MacroData {
 	 * token when the macro is expanded. It is an error for a macro to end with
 	 * a paste token.
 	 */
-	public void addPaste(Token tok) {
+	public void addPaste(Token tok) throws LexerException {
 		/*
 		 * Given: tok0 * We generate: M_PASTE, tok0, tok1 This extends as per a
 		 * stack language: tok0 * M_PASTE, tok0, M_PASTE, tok1, tok2
 		 */
-		this.tokens.add(tokens.size() - 1, tok);
+		if (tokens.size() > 0)
+			this.tokens.add(tokens.size() - 1, tok);
+		else
+			throw new LexerException("Paste (##) token at beginning of macro");
 	}
 
 	/* pp */List<Token> getTokens() {

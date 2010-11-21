@@ -71,6 +71,9 @@ public class PreprocessorTestCase extends BaseTestCase {
 		testInput("STRINGIFY(A)\n", NL, "a");
 
 		/* Concatenation */
+		//XXX: should not crash, but should cause an error! How to test that?
+		testInput("#define BUGGY_CONCAT(y) ## y\n", NL);
+
 		testInput("#define _CONCAT(x, y) x ## y\n", NL);
 		testInput("_CONCAT(A, B)\n", NL, I("AB"));
 		testInput("#define A_CONCAT done_a_concat\n", NL);

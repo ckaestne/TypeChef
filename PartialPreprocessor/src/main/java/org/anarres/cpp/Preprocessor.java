@@ -1360,8 +1360,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			case PASTE:
 				space = false;
 				paste = true;
-				m.addPaste(new SimpleToken(M_PASTE, tok.getLine(), tok
-						.getColumn(), "#" + "#", null));
+				try {
+					m.addPaste(new SimpleToken(M_PASTE, tok.getLine(), tok
+							.getColumn(), "#" + "#", null));
+				} catch (LexerException le) {
+					error(tok, le.getMessage());
+				}
 				break;
 
 			/* Stringify. */
