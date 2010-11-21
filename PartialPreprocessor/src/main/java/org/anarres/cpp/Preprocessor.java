@@ -1709,7 +1709,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		for (;;) {
 			Token tok = retrieveTokenFromSource();
 			// System.out.println("Source token is " + tok);
-			if (tok.getText().equals("defined")
+			if ("defined".equals(tok.getText())
 					|| (hack_definedCounter == 0 && tok.getText().equals("(")))
 				hack_definedCounter = 0;
 			else
@@ -1808,7 +1808,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		}
 	}
 
-	private FeatureExpr parse_featureExpr(int priority) throws IOException,
+	/** accessible for test suite as well */
+	public FeatureExpr parse_featureExpr(int priority) throws IOException,
 			LexerException {
 		/*
 		 * System.out.flush(); (new Exception("expr(" + priority +

@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -19,6 +21,7 @@ import org.anarres.cpp.StringLexerSource;
 import org.anarres.cpp.Token;
 import org.anarres.cpp.Warning;
 
+import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.MacroContext$;
 
 public class AbstractCheckTests {
@@ -48,16 +51,17 @@ public class AbstractCheckTests {
 		InputStream inputStream = getClass().getResourceAsStream(
 				"/" + folder + filename);
 
-		StringBuffer output;
+		List<Token> output = null;
+		String error = null;
 		LexerException ex = null;
 		try {
 			output = parse(new FileLexerSource(inputStream, folder + filename),
 					debug, getClass().getResource("/" + folder).getFile());
 		} catch (LexerException e) {
 			ex = e;
-			output = new StringBuffer("ERROR: ").append(e.toString());
+			error = "ERROR: " + e.toString();
 		}
-		if (!check(filename, folder, output))
+		if (!check(filename, folder, output, error))
 			if (ex != null)
 				throw ex;
 
@@ -65,10 +69,11 @@ public class AbstractCheckTests {
 
 	protected String parseCodeFragment(String code) throws LexerException,
 			IOException {
-		return parse(new StringLexerSource(code, true), false, null).toString();
+		return serialize(parse(new StringLexerSource(code, true), false, null));
 	}
 
-	private boolean check(String filename, String folder, StringBuffer output)
+	private boolean check(String filename, String folder,
+			List<Token> tokenStream, String errorMsg)
 			throws FileNotFoundException, IOException {
 		boolean containsErrorCheck = false;
 		InputStream inputStream = getClass().getResourceAsStream(
@@ -76,12 +81,13 @@ public class AbstractCheckTests {
 		BufferedReader checkFile = new BufferedReader(new InputStreamReader(
 				inputStream));
 		String line;
-		String cleanedOutput=output.toString().replace("definedEx(", "defined(");
+		String cleanedOutput = serialize(tokenStream).replace("definedEx(",
+				"defined(");
 		while ((line = checkFile.readLine()) != null) {
 			if (line.startsWith("!")) {
 				String substring = line.substring(2);
 				if (cleanedOutput.toString().contains(substring)) {
-					System.err.println(output);
+					System.err.println(cleanedOutput);
 					Assert.fail(substring
 							+ " found but not expected in output\n"
 							+ cleanedOutput.toString());
@@ -101,7 +107,7 @@ public class AbstractCheckTests {
 				}
 
 				if (expected != found) {
-					failOutput(output);
+					failOutput(cleanedOutput);
 					Assert.fail(substring + " found " + found
 							+ " times, but expected " + expected + " times\n"
 							+ content);
@@ -113,19 +119,44 @@ public class AbstractCheckTests {
 				String content = cleanedOutput.toString();
 				int idx = content.indexOf(substring);
 				if (idx < 0) {
-					failOutput(output);
+					failOutput(cleanedOutput);
 					Assert.fail(substring + " not found but expected\n"
 							+ content);
 				}
 			}
+			if (line.startsWith("T")) {
+				// checks presence condition for token
+				// Syntax: T <tokenText> with <presenceCondition>
+				String expectedName = line.substring(2);
+				String expectedFeature = expectedName.substring(expectedName
+						.indexOf(" with ") + 6);
+				expectedName = expectedName.substring(0, expectedName
+						.indexOf(" with "));
+				FeatureExpr expectedExpr = parseFeatureExpr(expectedFeature);
+				boolean foundToken = false;
+
+				for (Token t : tokenStream) {
+					if (t.getText().equals(expectedName)) {
+						foundToken = true;
+						// expect equivalent presence conditions
+						Assert.assertTrue("found token " + expectedName
+								+ " with " + t.getFeature()
+								+ " instead of expected " + expectedExpr,
+								FeatureExprLib.l().createEquiv(t.getFeature(),
+										expectedExpr).isTautology());
+					}
+				}
+				Assert.assertTrue("token " + expectedName + " not found.",
+						foundToken);
+			}
 			if (line.trim().equals("error")) {
 				containsErrorCheck = true;
 				Assert.assertTrue(
-						"Expected error, but preprocessing succeeded", output
-								.toString().startsWith("ERROR: "));
+						"Expected error, but preprocessing succeeded",
+						errorMsg != null);
 			}
 			if (line.trim().equals("print")) {
-				System.out.println(output.toString());
+				System.out.println(cleanedOutput.toString());
 			}
 			if (line.trim().equals("macrooutput")) {
 				pp.debugWriteMacros();
@@ -134,13 +165,25 @@ public class AbstractCheckTests {
 		return containsErrorCheck;
 	}
 
-	private void failOutput(StringBuffer output) {
+	private FeatureExpr parseFeatureExpr(String expectedFeature) {
+		try {
+			return new Preprocessor(new StringLexerSource(expectedFeature
+					+ "\n")).parse_featureExpr(0);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (LexerException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private void failOutput(String output) {
 		System.err.println(output);
 		if (pp != null)
 			pp.debugWriteMacros();
 	}
 
-	private StringBuffer parse(Source source, boolean debug, String folder)
+	private List<Token> parse(Source source, boolean debug, String folder)
 			throws LexerException, IOException {
 		// XXX Why here? And isn't the whole thing duplicated from elsewhere?
 		MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
@@ -167,7 +210,7 @@ public class AbstractCheckTests {
 
 		pp.addInput(source);
 
-		StringBuffer output = new StringBuffer();
+		List<Token> output = new ArrayList<Token>();
 		for (;;) {
 			Token tok = pp.getNextToken();
 			if (tok == null)
@@ -175,11 +218,19 @@ public class AbstractCheckTests {
 			if (tok.getType() == Token.EOF)
 				break;
 
-			output.append(tok.getText());
+			output.add(tok);
 			if (debug)
 				System.out.print(tok.getText());
 		}
 		return output;
+	}
+
+	private String serialize(List<Token> tokenstream) {
+		StringBuffer output = new StringBuffer();
+		if (tokenstream != null)
+			for (Token t : tokenstream)
+				output.append(t.getText());
+		return output.toString();
 	}
 
 }
