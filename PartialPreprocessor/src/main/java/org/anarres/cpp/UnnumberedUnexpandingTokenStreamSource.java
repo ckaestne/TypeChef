@@ -1,11 +1,12 @@
 package org.anarres.cpp;
 
 import java.io.IOException;
+import java.util.List;
 
-public class UnnumberedUnexpandingStringLexerSource extends StringLexerSource {
-	public UnnumberedUnexpandingStringLexerSource(String string)
+public class UnnumberedUnexpandingTokenStreamSource extends FixedTokenSource {
+	public UnnumberedUnexpandingTokenStreamSource(List<Token> tokens)
 			throws IOException {
-		super(string, true);
+		super(tokens);
 	}
 
 	@Override

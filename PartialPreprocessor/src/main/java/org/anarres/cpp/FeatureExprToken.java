@@ -32,10 +32,14 @@ public class FeatureExprToken extends SimpleToken {
 		}
 		return text;
 	}
-	
-//	@Override
-//	public void lazyPrint(PrintWriter writer) {
-//		expr.print(writer);
-//	}
+
+	public FeatureExpr getExpr() {
+		return expr;
+	}
+
+	// @Override
+	// public void lazyPrint(PrintWriter writer) {
+	// expr.print(writer);
+	// }
 
 }

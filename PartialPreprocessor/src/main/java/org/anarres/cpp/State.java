@@ -145,6 +145,7 @@ class State {
 	}
 
 	public void processElIf() {
+		assert !localFeatures.isEmpty();
 		localFeatures.set(localFeatures.size() - 1, localFeatures.get(
 				localFeatures.size() - 1).not());
 	}
