@@ -563,8 +563,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			boolean visible = parentActive;
 			if (visible && fullPresenceCondition.isDead())
 				visible = false;
-//			if (visible && fullPresenceCondition.isBase())
-//				visible = false;
+			// if (visible && fullPresenceCondition.isBase())
+			// visible = false;
 			if (visible && expr.isBase())
 				visible = false;
 
@@ -572,8 +572,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			if (visible)
 				return OutputHelper.if_token(tok.getLine(), expr);
 			else
-				return OutputHelper.emptyLine(tok.getLine(), tok
-						.getColumn());
+				return OutputHelper.emptyLine(tok.getLine(), tok.getColumn());
 
 		}
 
@@ -582,8 +581,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			if (stack.pop().visible)
 				return OutputHelper.endif_token(tok.getLine());
 			else
-				return OutputHelper.emptyLine(tok.getLine(), tok
-						.getColumn());
+				return OutputHelper.emptyLine(tok.getLine(), tok.getColumn());
 		}
 
 		public Token startElIf(Token tok, boolean parentActive,
@@ -592,17 +590,18 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			boolean isVisible = parentActive;
 			if (isVisible && fullPresenceCondition.isDead())
 				isVisible = false;
-//			if (isVisible && fullPresenceCondition.isBase())
-//				isVisible = false;
+			// if (isVisible && fullPresenceCondition.isBase())
+			// isVisible = false;
 			stack.push(new IfdefBlock(isVisible));
 
-			return OutputHelper.elif_token(tok.getLine(),
-					localFeatureExpr, wasVisible, isVisible);
+			return OutputHelper.elif_token(tok.getLine(), localFeatureExpr,
+					wasVisible, isVisible);
 		}
 	}
 
 	static class OutputHelper {
-		private OutputHelper() {}
+		private OutputHelper() {
+		}
 
 		/*
 		 * XXX Make this include the NL, and make all cpp directives eat their
@@ -614,54 +613,102 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			/* XXX This call to escape(name) is correct but ugly. */
 			MacroTokenSource.escape(buf, name);
 			buf.append("\"").append(extra).append("\n");
-			return new Token(P_LINE, line, 0, buf.toString(), null);
+			return new SimpleToken(P_LINE, line, 0, buf.toString(), null);
 		}
 
-		static String if_tokenStr(FeatureExpr featureExpr) {
-			StringBuilder buf = new StringBuilder();
-			buf.append("#if ").append(featureExpr.resolveToExternal().print())
-					.append("\n");
-			return buf.toString();
+		static List<Token> elif_tokenStr(FeatureExpr featureExpr) {
+			return ifelif_tokenStr(featureExpr, true);
 		}
 
-		static String elif_tokenStr(FeatureExpr featureExpr) {
-			StringBuilder buf = new StringBuilder();
-			buf.append("#elif ")
-					.append(featureExpr.resolveToExternal().print()).append(
-							"\n");
-			return buf.toString();
+		static List<Token> if_tokenStr(FeatureExpr featureExpr) {
+			return ifelif_tokenStr(featureExpr, false);
 		}
 
-		static String endif_tokenStr() {
-			return "#endif\n";
+		private static List<Token> ifelif_tokenStr(FeatureExpr featureExpr,
+				boolean isElif) {
+			// #elif featureexpr
+			List<Token> result = new ArrayList<Token>(5);
+			result.add(new SimpleToken(Token.HASH, "#", null));
+			if (isElif)
+				result.add(new SimpleToken(Token.IDENTIFIER, "elif", null));
+			else
+				result.add(new SimpleToken(Token.IDENTIFIER, "if", null));
+			result.add(new SimpleToken(Token.WHITESPACE, " ", null));
+			result.add(new FeatureExprToken(featureExpr, null));
+			result.add(new SimpleToken(Token.NL, "\n", null));
+			return result;
 		}
 
-		static String else_tokenStr() {
-			return "#else\n";
+		static List<Token> inlineIf_tokenStr(FeatureExpr featureExpr) {
+			// "__IF__(" + feature.print() + ","
+			List<Token> result = new ArrayList<Token>(5);
+			result.add(new SimpleToken(Token.IDENTIFIER, "__IF__", null));
+			result.add(new SimpleToken('(', null));
+			result.add(new FeatureExprToken(featureExpr, null));
+			result.add(comma());
+			return result;
+
 		}
 
-		static Token if_token(int line, FeatureExpr featureExpr) {
-			return new Token(P_IF, line, 0, if_tokenStr(featureExpr), null);
+		static Token comma() {
+			return new SimpleToken(',', null);
 		}
-//TODO don't seriealize and read in again (at least not internally)
-		static Token elif_token(int line, FeatureExpr featureExpr, boolean printEnd,
-				boolean printIf) {
-			StringBuilder buf = new StringBuilder();
-			if (printEnd)
-				buf.append("#endif\n");
+
+		static Token closing_bracket() {
+			return new SimpleToken(')', null);
+		}
+
+		static Token zero() {
+			return new SimpleToken('0', null);
+		}
+
+		static List<Token> else_tokenStr() {
+			List<Token> result = new ArrayList<Token>(5);
+			result.add(new SimpleToken(Token.HASH, "#", null));
+			result.add(new SimpleToken(Token.IDENTIFIER, "else", null));
+			result.add(new SimpleToken(Token.NL, "\n", null));
+			return result;
+		}
+
+		static List<Token> endif_tokenStr() {
+			// return "#endif\n";
+			List<Token> result = new ArrayList<Token>(5);
+			result.add(new SimpleToken(Token.HASH, "#", null));
+			result.add(new SimpleToken(Token.IDENTIFIER, "endif", null));
+			result.add(new SimpleToken(Token.NL, "\n", null));
+			return result;
+		}
+
+		static TokenSequenceToken if_token(int line, FeatureExpr featureExpr) {
+			return new TokenSequenceToken(P_IF, line, 0,
+					if_tokenStr(featureExpr), null);
+		}
+
+		static TokenSequenceToken elif_token(int line, FeatureExpr featureExpr,
+				boolean printEnd, boolean printIf) {
+
+			List<Token> result = new ArrayList<Token>(5);
+			if (printEnd) {
+				result.add(new SimpleToken(Token.HASH, "#", null));
+				result.add(new SimpleToken(Token.IDENTIFIER, "endif", null));
+				result.add(new SimpleToken(Token.NL, "\n", null));
+			}
+
 			if (printIf)
-				buf.append("#if ").append(
-						featureExpr.resolveToExternal().print());
-			buf.append("\n");
-			return new Token(P_ELIF, line, 0, buf.toString(), null);
+				result.addAll(if_tokenStr(featureExpr));
+
+			if (result.isEmpty())
+				result.add(new SimpleToken(Token.WHITESPACE, " ", null));
+
+			return new TokenSequenceToken(P_ELIF, line, 0, result, null);
 		}
 
-		static Token endif_token(int line) {
-			return new Token(P_ENDIF, line, 0, endif_tokenStr(), null);
+		static SimpleToken endif_token(int line) {
+			return new SimpleToken(P_ENDIF, line, 0, "#endif\n", null);
 		}
 
-		public static Token emptyLine(int line, int column) {
-			return new Token(NL, line, column, "\n", null);
+		public static SimpleToken emptyLine(int line, int column) {
+			return new SimpleToken(NL, line, column, "\n", null);
 		}
 
 	}
@@ -710,8 +757,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 * token', which isNumbered() approximates. This is not perfect,
 				 * but works.
 				 */
-				return OutputHelper.line_token(t.getLine() + 1, t
-						.getName(), " 2");
+				return OutputHelper.line_token(t.getLine() + 1, t.getName(),
+						" 2");
 			}
 		}
 		return tok;
@@ -766,9 +813,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		// replace macro
 		if (macroName.equals("__LINE__")) {
 			sourceManager.push_source(new FixedTokenSource(
-					new Token[] { new Token(INTEGER, orig.getLine(), orig
-							.getColumn(), String.valueOf(orig.getLine()),
-							Integer.valueOf(orig.getLine()), null) }), true);
+					new SimpleToken[] { new SimpleToken(INTEGER,
+							orig.getLine(), orig.getColumn(), String
+									.valueOf(orig.getLine()), Integer
+									.valueOf(orig.getLine()), null) }), true);
 		} else if (macroName.equals("__FILE__")) {
 			StringBuilder buf = new StringBuilder("\"");
 			String name = getSource().getName();
@@ -791,8 +839,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			buf.append("\"");
 			String text = buf.toString();
 			sourceManager.push_source(new FixedTokenSource(
-					new Token[] { new Token(STRING, orig.getLine(), orig
-							.getColumn(), text, text, null) }), true);
+					new SimpleToken[] { new SimpleToken(STRING, orig.getLine(),
+							orig.getColumn(), text, text, null) }), true);
 		} else if (macroName.equals("__COUNTER__")) {
 			/*
 			 * This could equivalently have been done by adding a special Macro
@@ -800,9 +848,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			 */
 			int value = this.counter++;
 			sourceManager.push_source(new FixedTokenSource(
-					new Token[] { new Token(INTEGER, orig.getLine(), orig
-							.getColumn(), String.valueOf(value), Integer
-							.valueOf(value), null) }), true);
+					new SimpleToken[] { new SimpleToken(INTEGER,
+							orig.getLine(), orig.getColumn(), String
+									.valueOf(value), Integer.valueOf(value),
+							null) }), true);
 		} else {
 			// check that every variant is covered, there is no case when this
 			// macro
@@ -843,8 +892,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			}
 		}
 
-		logger.info("expanding " + macroName //+ " by "
-				//+ sourceManager.debug_sourceDelta(debug_origSource)
+		logger.info("expanding " + macroName // + " by "
+		// + sourceManager.debug_sourceDelta(debug_origSource)
 				);
 
 		return true;
@@ -1001,7 +1050,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				 */
 
 				for (int i = 0; i < args.size(); i++) {
-					args.get(i).expand(this, inlineCppExpression);
+					args.get(i).expand(this, inlineCppExpression, macroName);
 				}
 
 				// System.out.println("Macro " + m + " args " + args);
@@ -1029,22 +1078,29 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			MacroData macroData = (MacroData) macroExpansions[i].getExpansion();
 
 			if (i == macroExpansions.length - 1)
-				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-						+ OutputHelper.if_tokenStr(feature)));
+				resultList.add(new UnnumberedUnexpandingTokenStreamSource(
+						prependNL(OutputHelper.if_tokenStr(feature))));
 			else
-				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-						+ OutputHelper.elif_tokenStr(feature)));
+				resultList.add(new UnnumberedUnexpandingTokenStreamSource(
+						prependNL(OutputHelper.elif_tokenStr(feature))));
 			resultList.add(createMacroTokenSource(macroName, args, macroData));
 			if (i == 0 && !alternativesExaustive) {
-				resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-						+ OutputHelper.else_tokenStr()));
+				resultList.add(new UnnumberedUnexpandingTokenStreamSource(
+						prependNL(OutputHelper.else_tokenStr())));
 				resultList.add(new FixedUnexpandingTokenSource(originalTokens,
 						macroName));
 			}
 		}
-		resultList.add(new UnnumberedUnexpandingStringLexerSource("\n"
-				+ OutputHelper.endif_tokenStr()));
+		resultList.add(new UnnumberedUnexpandingTokenStreamSource(
+				prependNL(OutputHelper.endif_tokenStr())));
 		sourceManager.push_sources(resultList, true);
+	}
+
+	private List<Token> prependNL(List<Token> tokenList) {
+		ArrayList<Token> result = new ArrayList<Token>(tokenList.size() + 1);
+		result.add(new SimpleToken(Token.NL, "\n", null));
+		result.addAll(tokenList);
+		return result;
 	}
 
 	private MacroTokenSource createMacroTokenSource(String macroName,
@@ -1069,11 +1125,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 * @param macroExpansions
 	 * @param args
 	 * @throws IOException
+	 * @throws LexerException
 	 */
 	private void macro_expandAlternativesInline(final String macroName,
 			MacroExpansion[] macroExpansions, List<Argument> args,
 			List<Token> originalTokens, FeatureExpr commonCondition)
-			throws IOException {
+			throws IOException, LexerException {
 		boolean alternativesExaustive = isExaustive(commonCondition);
 		if (!alternativesExaustive)
 			macroConstraints.add(new MacroConstraint(macroName,
@@ -1085,23 +1142,28 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			MacroData macroData = (MacroData) macroExpansions[i].getExpansion();
 
 			if (i > 0 || !alternativesExaustive)
-				resultList.add(new UnnumberedUnexpandingStringLexerSource(
-						"__IF__(" + feature.print() + ","));
+				resultList.add(new UnnumberedUnexpandingTokenStreamSource(
+						OutputHelper.inlineIf_tokenStr(feature)));// "__IF__(feature,"
 			resultList.add(createMacroTokenSource(macroName, args, macroData));
 			if (i > 0 || !alternativesExaustive)
-				resultList.add(new UnnumberedUnexpandingStringLexerSource(","));
+				resultList.add(new UnnumberedUnexpandingTokenStreamSource(
+						Collections.singletonList(OutputHelper.comma())));
 		}
 
-		if (!alternativesExaustive)
-			resultList.add(new UnnumberedUnexpandingStringLexerSource(
-					"0 /*#ERROR not expanded macro " + macroName + " when "
-							+ commonCondition.not() + "*/"));
-		String closingBrackets = "";
+		if (!alternativesExaustive) {
+			warning(originalTokens.iterator().next(),
+					"inline expansion of macro " + macroName
+							+ " is not exaustive. assuming 0 for "
+							+ commonCondition.not());
+			resultList.add(new UnnumberedUnexpandingTokenStreamSource(
+					Collections.singletonList(OutputHelper.zero())));
+		}
+		List<Token> closingBrackets = new ArrayList<Token>();
 		for (int i = macroExpansions.length - 2; i >= 0; i--)
-			closingBrackets += ")";
+			closingBrackets.add(OutputHelper.closing_bracket());
 		if (!alternativesExaustive)
-			closingBrackets += ")";
-		resultList.add(new UnnumberedUnexpandingStringLexerSource(
+			closingBrackets.add(OutputHelper.closing_bracket());
+		resultList.add(new UnnumberedUnexpandingTokenStreamSource(
 				closingBrackets));
 		sourceManager.push_sources(resultList, true);
 	}
@@ -1125,10 +1187,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	 * Expands an argument.
 	 * 
 	 * @param inlineCppExpression
+	 * @param macroName
 	 */
 	/* I'd rather this were done lazily, but doing so breaks spec. */
 	/* pp */List<Token> macro_expandArgument(List<Token> arg,
-			boolean inlineCppExpression) throws IOException, LexerException {
+			boolean inlineCppExpression, String macroName) throws IOException,
+			LexerException {
 		// return arg;//ChK lazytest
 		List<Token> expansion = new ArrayList<Token>();
 		boolean space = false;
@@ -1293,8 +1357,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			case PASTE:
 				space = false;
 				paste = true;
-				m.addPaste(new Token(M_PASTE, tok.getLine(), tok.getColumn(),
-						"#" + "#", null));
+				m.addPaste(new SimpleToken(M_PASTE, tok.getLine(), tok
+						.getColumn(), "#" + "#", null));
 				break;
 
 			/* Stringify. */
@@ -1305,9 +1369,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				Token la = source_token_nonwhite();
 				if (la.getType() == IDENTIFIER
 						&& ((idx = args.indexOf(la.getText())) != -1)) {
-					m.addToken(new Token(M_STRING, la.getLine(),
-							la.getColumn(), "#" + la.getText(), Integer
-									.valueOf(idx), null));
+					m.addToken(new SimpleToken(M_STRING, la.getLine(), la
+							.getColumn(), "#" + la.getText(), Integer
+							.valueOf(idx), null));
 				} else {
 					m.addToken(tok);
 					/* Allow for special processing. */
@@ -1324,8 +1388,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				if (idx == -1)
 					m.addToken(tok);
 				else
-					m.addToken(new Token(M_ARG, tok.getLine(), tok.getColumn(),
-							tok.getText(), Integer.valueOf(idx), null));
+					m.addToken(new SimpleToken(M_ARG, tok.getLine(), tok
+							.getColumn(), tok.getText(), Integer.valueOf(idx),
+							null));
 				break;
 
 			default:
@@ -1495,8 +1560,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			 * directive.
 			 */
 			if (getFeature(Feature.LINEMARKERS))
-				return OutputHelper.line_token(1, sourceManager
-						.getSource().getName(), " 1");
+				return OutputHelper.line_token(1, sourceManager.getSource()
+						.getName(), " 1");
 			return tok;
 		} finally {
 			lexer.setInclude(false);
@@ -1615,7 +1680,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			}
 			tok = retrieveTokenFromSource();
 		}
-		return new Token(P_LINE, pptok.getLine(), pptok.getColumn(), buf
+		return new SimpleToken(P_LINE, pptok.getLine(), pptok.getColumn(), buf
 				.toString(), null);
 	}
 
@@ -1644,7 +1709,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		for (;;) {
 			Token tok = retrieveTokenFromSource();
 			// System.out.println("Source token is " + tok);
-			if (tok.getText().equals("defined")
+			if ("defined".equals(tok.getText())
 					|| (hack_definedCounter == 0 && tok.getText().equals("(")))
 				hack_definedCounter = 0;
 			else
@@ -1743,7 +1808,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		}
 	}
 
-	private FeatureExpr parse_featureExpr(int priority) throws IOException,
+	/** accessible for test suite as well */
+	public FeatureExpr parse_featureExpr(int priority) throws IOException,
 			LexerException {
 		/*
 		 * System.out.flush(); (new Exception("expr(" + priority +
@@ -1756,6 +1822,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		// System.out.println("Expr lhs token is " + tok);
 
 		switch (tok.getType()) {
+		case Token.P_FEATUREEXPR:
+			// only found internally: generated FeatureExprToken
+			assert tok instanceof FeatureExprToken;
+			lhs = ((FeatureExprToken) tok).getExpr();
+			break;
 		case '(':
 			lhs = parse_featureExpr(0);
 			tok = expr_token(true);
@@ -2058,7 +2129,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 		char[] cbuf = new char[nls];
 		Arrays.fill(cbuf, '\n');
-		return new Token(WHITESPACE, tok.getLine(), tok.getColumn(),
+		return new SimpleToken(WHITESPACE, tok.getLine(), tok.getColumn(),
 				new String(cbuf), null);
 	}
 

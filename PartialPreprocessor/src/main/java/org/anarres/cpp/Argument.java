@@ -52,12 +52,12 @@ import java.util.List;
 		return omittedArg;
         }
 
-	/* pp */ void expand(Preprocessor p, boolean inlineCppExpression)
+	/* pp */ void expand(Preprocessor p, boolean inlineCppExpression, String macroName)
 						throws IOException,
 								LexerException {
 		/* Cache expansion. */
 		if (expansion == null) {
-			this.expansion = p.macro_expandArgument(this,inlineCppExpression);
+			this.expansion = p.macro_expandArgument(this,inlineCppExpression, macroName);
 			// System.out.println("Expanded arg " + this);
 		}
 	}

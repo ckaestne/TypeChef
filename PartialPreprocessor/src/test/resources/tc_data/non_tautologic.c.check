@@ -1,12 +1,14 @@
-5 g_get_user_name
-+3 g_get_user_name_utf8
-+2 char* g_get_user_name_utf8(void)
-+1 void* g_get_user_name(void)
 
-+2 #if defined(FOO)
-+2 #if defined(G_OS_WIN32)
-+1 #if defined(BAR)
-+2 #if (defined(G_OS_WIN32) && defined(FOO))
-+1 #if !((defined(G_OS_WIN32) && defined(FOO)))
-+1 #if !(defined(G_OS_WIN32))
-+9 #endif
+print
+
+T XX1 with defined(FOO) && !defined(G_OS_WIN32)
+T YY1 with defined(FOO) && defined(G_OS_WIN32)
+
+T XX2 with !defined(G_OS_WIN32)
+! YY2
+
+! XX3
+T YY3 with defined(G_OS_WIN32) && defined(FOO)
+
+T YY4 with defined(FOO) && defined(G_OS_WIN32) && defined(BAR)
+! XX4

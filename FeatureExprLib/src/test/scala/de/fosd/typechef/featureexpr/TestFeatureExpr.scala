@@ -143,6 +143,17 @@ class TestFeatureExpr extends TestCase {
 
         //(!((defined(a) && defined(b))) || defined(b))
         assertIsCNF(new Or(Not(new And(DefinedExternal("a"), DefinedExternal("b"))), DefinedExternal("b")).toCNF)
+
+        val a = DefinedExternal("a")
+        val b = DefinedExternal("b")
+        val c = DefinedExternal("c")
+        val expr2 = new FeatureExprImpl(Or(Not(And(a, b)), c))
+        expr2.toCNF
+        expr2.toEquiCNF
+        val expr = new FeatureExprImpl(Or(Not(And(a, a)), a))
+        expr.toCNF
+        expr.toEquiCNF
+
     }
 
     def testCNFIf() {

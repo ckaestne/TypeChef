@@ -24,7 +24,7 @@ class TokenWrapper(token: Token, number: Int) extends AbstractToken {
     }
 }
 object TokenWrapper {
-    val EOF = new TokenWrapper(new Token(Token.EOF, -1, -1, "<EOF>", null, null), -1) {
+    val EOF = new TokenWrapper(new SimpleToken(Token.EOF, -1, -1, "<EOF>", null, null), -1) {
         override def getFeature = FeatureExpr.dead
     }
 }

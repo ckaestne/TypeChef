@@ -112,7 +112,7 @@ import java.util.List;
 		escape(str, buf);
 		str.append("\"");
 		// System.out.println("Escape: " + buf + " -> " + str);
-		return new Token(STRING, pos.getLine(), pos.getColumn(),
+		return new SimpleToken(STRING, pos.getLine(), pos.getColumn(),
 				str.toString(), buf.toString(), this);
 	}
 
@@ -205,7 +205,7 @@ import java.util.List;
 			}
 
 			if (!tokenIter.hasNext())
-				return new Token(EOF, -1, -1, "", this); /* End of macro. */
+				return new SimpleToken(EOF, -1, -1, "", this); /* End of macro. */
 			Token tok = tokenIter.next();
 			int idx;
 			switch (tok.getType()) {

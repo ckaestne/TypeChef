@@ -17,83 +17,37 @@
 
 package org.anarres.cpp;
 
+import java.io.PrintWriter;
+
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExpr$;
 
 /**
  * A Preprocessor token.
  * 
  * @see Preprocessor
  */
-public final class Token {
-
-	// public static final int EOF = -1;
-
-	public static final FeatureExpr base = FeatureExpr$.MODULE$.base();
-
-	private int type;
-	private int line;
-	private int column;
-	private Object value;
-	private String text;
-	private Source source;// for debugging purposes only
-	private FeatureExpr feature = base;
-
-	public Token(int type, int line, int column, String text, Object value,
-			Source source) {
-		this.type = type;
-		this.line = line;
-		this.column = column;
-		this.text = text;
-		this.value = value;
-		this.source = source;
-	}
-
-	public Token(int type, int line, int column, String text, Source source) {
-		this(type, line, column, text, null, source);
-	}
-
-	/* pp */Token(int type, String text, Object value, Source source) {
-		this(type, -1, -1, text, value, source);
-	}
-
-	/* pp */Token(int type, String text, Source source) {
-		this(type, text, null, source);
-	}
-
-	/* pp */Token(int type, Source source) {
-		this(type, type < _TOKENS ? texts[type] : "TOK" + type, source);
-	}
+public abstract class Token {
 
 	/**
 	 * Returns the semantic type of this token.
 	 */
-	public int getType() {
-		return type;
-	}
+	public abstract int getType();
 
-	/* pp */void setLocation(int line, int column) {
-		this.line = line;
-		this.column = column;
-	}
+	abstract void setLocation(int line, int column);
 
 	/**
 	 * Returns the line at which this token started.
 	 * 
 	 * Lines are numbered from zero.
 	 */
-	public int getLine() {
-		return line;
-	}
+	public abstract int getLine();
 
 	/**
 	 * Returns the column at which this token started.
 	 * 
 	 * Columns are numbered from zero.
 	 */
-	public int getColumn() {
-		return column;
-	}
+	public abstract int getColumn();
 
 	/**
 	 * Returns the original or generated text of this token.
@@ -102,9 +56,7 @@ public final class Token {
 	 * 
 	 * @see #getValue()
 	 */
-	public String getText() {
-		return text;
-	}
+	public abstract String getText();
 
 	/**
 	 * Returns the semantic value of this token.
@@ -114,42 +66,16 @@ public final class Token {
 	 * 
 	 * @see #getText()
 	 */
-	public Object getValue() {
-		return value;
-	}
+	public abstract Object getValue();
 
-	public FeatureExpr getFeature() {
-		return feature;
-	}
+	public abstract FeatureExpr getFeature();
 
-	public void setFeature(FeatureExpr expr) {
-		feature = expr;
-	}
+	public abstract void setFeature(FeatureExpr expr);
 
 	/**
 	 * Returns a description of this token, for debugging purposes.
 	 */
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
-
-		buf.append('[').append(getTokenName(type));
-		if (line != -1) {
-			buf.append('@').append(line);
-			if (column != -1)
-				buf.append(',').append(column);
-		}
-		buf.append("]:");
-		if (text != null)
-			buf.append('"').append(text).append('"');
-		else if (type > 3 && type < 256)
-			buf.append((char) type);
-		else
-			buf.append('<').append(type).append('>');
-		if (value != null)
-			buf.append('=').append(value);
-		buf.append('@').append(feature);
-		return buf.toString();
-	}
+	public abstract String toString();
 
 	/**
 	 * Returns the descriptive name of the given token type.
@@ -258,18 +184,20 @@ public final class Token {
 	public static final int P_ENDIF = 301;
 	/** The token type P_LINE. */
 	public static final int P_ELIF = 302;
+	/** The token type P_LINE. */
+	public static final int P_FEATUREEXPR = 303;
 	/**
 	 * The number of possible semantic token types.
 	 * 
 	 * Please note that not all token types below 255 are used.
 	 */
-	public static final int _TOKENS = 303;
+	public static final int _TOKENS = 304;
 
 	/** The position-less space token. */
-	/* pp */static final Token space = new Token(WHITESPACE, -1, -1, " ", null);
+	/* pp */static final Token space = new SimpleToken(WHITESPACE, -1, -1, " ", null);
 
 	private static final String[] names = new String[_TOKENS];
-	private static final String[] texts = new String[_TOKENS];
+	protected static final String[] texts = new String[_TOKENS];
 	static {
 		for (int i = 0; i < 255; i++) {
 			texts[i] = String.valueOf(new char[] { (char) i });
@@ -351,19 +279,17 @@ public final class Token {
 		names[P_IF] = "P_IF";
 		names[P_ELIF] = "P_ELIF";
 		names[P_ENDIF] = "P_ENDIF";
+		names[P_FEATUREEXPR] = "P_FEATUREEXPR";
 		names[INVALID] = "INVALID";
 	}
-	private boolean mayExpand = true;
 
-	public void setNoFurtherExpansion() {
-		mayExpand = false;
-	}
+	public abstract void setNoFurtherExpansion();
 
-	public boolean mayExpand() {
-		return mayExpand;
-	}
+	public abstract boolean mayExpand();
 
-	public Source getSource (){
-		return source;
+	public abstract Source getSource();
+
+	public void lazyPrint(PrintWriter writer) {
+		writer.append(getText());
 	}
 }

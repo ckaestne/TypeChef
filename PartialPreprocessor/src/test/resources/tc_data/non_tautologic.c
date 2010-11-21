@@ -1,24 +1,27 @@
 #ifdef FOO
 #ifdef G_OS_WIN32
-#define g_get_user_name g_get_user_name_utf8
+#define XX1 YY1
+#define XX2 YY2
+#define XX3 YY3
+#define XX4 YY4
 #endif
 
-char* g_get_user_name(void);
+XX1
 #endif
 
 
 #ifndef G_OS_WIN32
-void* g_get_user_name(void);
+XX2
 #endif
 
 #if defined(G_OS_WIN32) && defined(FOO)
-char* g_get_user_name(void);
+XX3
 #endif
 
 #ifdef FOO
 #ifdef G_OS_WIN32
 #ifdef BAR
-char* g_get_user_name(void);
+XX4
 #endif
 #endif
 #endif

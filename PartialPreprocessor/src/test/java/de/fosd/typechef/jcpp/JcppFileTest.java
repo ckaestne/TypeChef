@@ -140,5 +140,13 @@ public class JcppFileTest extends AbstractCheckTests {
 		testFile("jiffiesTest.h");
 	}
 	
+	@Test
+	public void testIncludeMacros() throws LexerException, IOException {
+		testFile("includemacro.c");
+	}
+	@Test
+	public void testRecursiveMacro() throws LexerException, IOException {
+		testFile("recursivemacro.h");
+	}
 	
 }
