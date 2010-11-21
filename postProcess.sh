@@ -73,11 +73,30 @@ awk '{printf "%f;", $2 * 60 + $3}'|$sed -e 's/;$//') >> "$outCSV"
 echo >> "$outCSV"
 
 # Remove dashed and empty lines before diffing.
-spacesToNewLine='s/[ 	]\+/\n/g'
+normalizeSpacing() {
+  #$sed -e 's/[ 	]\+/\n/g' "$1"
+  #spaceAway='s/[ 	]\+//g'
+  #
+  newLineIntroduce='s/[;{}]/&\n/g'
+  perl -pe 'chomp; s/$/ /; s/^ //; s/[ 	]+/ /g' |
+  # The while is needed - matches of the pattern do not overlap, and this causes problems
+  # with % % %, where % stands for any non-alphabetic character.
+
+  # The idiom '1 while s/a/b/g' is described in man perlop, "Regexp Quote-Like
+  # Operators", at the end of the section on s/PATTERN/REPLACEMENT/ ..., for
+  # perl 5.10.0.
+  perl -pe '1 while s/([^A-Za-z_]) ([^A-Za-z_])/$1$2/g'|
+  $sed -e "$newLineIntroduce"|$sed -e 's/^ //'
+}
+
+# Just for debugging!
+#removeEmptyDashedLines "$outPartialPreprocThenPreproc"| normalizeSpacing > "$outPartialPreprocThenPreproc"1
+#removeEmptyDashedLines "$outPreproc"| normalizeSpacing > "$outPreproc"1
+
 # -w ignores white space, -B blank line, -u helps readability.
 res=0; diff -uBw <(removeEmptyDashedLines "$outPartialPreprocThenPreproc"| \
-  $sed -e "$spacesToNewLine") <(removeEmptyDashedLines "$outPreproc"| \
-  $sed -e "$spacesToNewLine") > "$outDiff" || res=$?
+  normalizeSpacing) <(removeEmptyDashedLines "$outPreproc"| \
+  normalizeSpacing) > "$outDiff" || res=$?
 
 #echo $res
 #if [ $res -ne 0 ]; then
