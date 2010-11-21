@@ -24,6 +24,7 @@ import static org.anarres.cpp.Token.M_ARG;
 import static org.anarres.cpp.Token.M_PASTE;
 import static org.anarres.cpp.Token.M_STRING;
 import static org.anarres.cpp.Token.STRING;
+import static org.anarres.cpp.Token.NL;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -97,10 +98,12 @@ import java.util.List;
 				return;
 			}
 		}
-		Iterator<Token> it = arg.iterator();
-		while (it.hasNext()) {
-			Token tok = it.next();
-			buf.append(tok.getText());
+		int i = 0;
+		for (Token tok: arg) {
+			if (i != 0 || tok.getType() != NL && !tok.isWhite()) {
+				buf.append(tok.getText());
+				i++;
+			}
 		}
 	}
 

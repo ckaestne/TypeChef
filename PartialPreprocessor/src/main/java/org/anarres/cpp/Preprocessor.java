@@ -996,7 +996,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					case WHITESPACE:
 					case CCOMMENT:
 					case CPPCOMMENT:
-					case NL:
 						/* Avoid duplicating spaces. */
 						space = true;
 						break;
