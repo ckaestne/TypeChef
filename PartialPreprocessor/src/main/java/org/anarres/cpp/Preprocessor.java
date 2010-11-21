@@ -1197,8 +1197,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		List<Token> expansion = new ArrayList<Token>();
 		boolean space = false;
 
-		sourceManager.push_source(new FixedUnexpandingTokenSource(arg,
-				macroName), false);
+		sourceManager.push_source(new FixedTokenSource(arg), false);
 
 		EXPANSION: for (;;) {
 			Token tok = expanded_token(inlineCppExpression, true);
