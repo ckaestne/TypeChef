@@ -98,6 +98,10 @@ res=0; diff -uBw <(removeEmptyDashedLines "$outPartialPreprocThenPreproc"| \
   normalizeSpacing) <(removeEmptyDashedLines "$outPreproc"| \
   normalizeSpacing) > "$outDiff" || res=$?
 
+if [ $res -ne 0 ]; then
+  echo "Output mismatch"
+  echo
+fi
 #echo $res
 #if [ $res -ne 0 ]; then
 #  echo "*** WARNING! - $outDiff not empty, inconsistency detected ***"
