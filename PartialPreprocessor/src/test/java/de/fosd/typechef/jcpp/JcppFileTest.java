@@ -148,5 +148,8 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testRecursiveMacro() throws LexerException, IOException {
 		testFile("recursivemacro.h");
 	}
-	
+	@Test
+	public void testStringifyNl() throws LexerException, IOException {
+		testFile("stringifyNl.c");
+	}
 }

@@ -946,6 +946,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 			// tok = expanded_token_nonwhite();
 			tok = source_token_nonwhite();
+			//Note: tok might be a NL, and we would like to strip
+			//that away. It makes a difference if the argument is stringified!
 			originalTokens.add(tok);
 
 			/*
@@ -1000,6 +1002,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					case WHITESPACE:
 					case CCOMMENT:
 					case CPPCOMMENT:
+					case NL:
 						/* Avoid duplicating spaces. */
 						space = true;
 						break;
