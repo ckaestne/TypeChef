@@ -24,6 +24,18 @@ echo -n "$outBase;" >> "$outCSV"
 echo -n "$(tail -1 "$outMacroDebug");" >> "$outCSV"
 echo -n "$(tail -1 "$outDebugSource");" >> "$outCSV"
 
+removeEmptyLines() {
+  # Perl is 200x faster than grep
+  #grep -v '^$'
+  perl -ne '! /^$/ && print' "$1"
+}
+
+removeEmptyDashedLines() {
+  # Perl is 200x faster than grep
+  #egrep -v '^(#|$)' "$1"
+  perl -ne '! /^(#|$)/ && print' "$1"
+}
+
 filterWC() {
   #Output: lines, then bytes
   #wc -cl|$sed -r -e 's/^\s+//; s/\s+/, /g; s/$/, /'
@@ -32,7 +44,7 @@ filterWC() {
 
 countWordLines() {
   preprocOut="$1"
-  echo -n $(grep -v '^$' "$preprocOut"|filterWC) >> "$outCSV"
+  echo -n $(removeEmptyLines "$preprocOut"|filterWC) >> "$outCSV"
 }
 
 echo "=="
@@ -61,11 +73,10 @@ awk '{printf "%f;", $2 * 60 + $3}'|$sed -e 's/;$//') >> "$outCSV"
 echo >> "$outCSV"
 
 # Remove dashed and empty lines before diffing.
-excludeLines='^(#|$)'
 spacesToNewLine='s/[ 	]\+/\n/g'
 # -w ignores white space, -B blank line, -u helps readability.
-res=0; diff -uBw <(egrep -v "$excludeLines" "$outPartialPreprocThenPreproc"| \
-  $sed -e "$spacesToNewLine") <(egrep -v "$excludeLines" "$outPreproc"| \
+res=0; diff -uBw <(removeEmptyDashedLines "$outPartialPreprocThenPreproc"| \
+  $sed -e "$spacesToNewLine") <(removeEmptyDashedLines "$outPreproc"| \
   $sed -e "$spacesToNewLine") > "$outDiff" || res=$?
 
 #echo $res
