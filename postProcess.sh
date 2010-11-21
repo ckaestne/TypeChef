@@ -77,7 +77,7 @@ normalizeSpacing() {
   #$sed -e 's/[ 	]\+/\n/g' "$1"
   #spaceAway='s/[ 	]\+//g'
   #
-  newLineIntroduce='s/[;{}]/&\n/g'
+  newLineIntroduce='s/[;{},]/&\n/g'
   perl -pe 'chomp; s/$/ /; s/^ //; s/[ 	]+/ /g' |
   # The while is needed - matches of the pattern do not overlap, and this causes problems
   # with % % %, where % stands for any non-alphabetic character.
@@ -85,7 +85,7 @@ normalizeSpacing() {
   # The idiom '1 while s/a/b/g' is described in man perlop, "Regexp Quote-Like
   # Operators", at the end of the section on s/PATTERN/REPLACEMENT/ ..., for
   # perl 5.10.0.
-  perl -pe '1 while s/([^A-Za-z_]) ([^A-Za-z_])/$1$2/g'|
+  perl -pe '1 while s/([^A-Za-z_]) ([^A-Za-z_])/$1$2/g; s/""/"\n"/g'|
   $sed -e "$newLineIntroduce"|$sed -e 's/^ //'
 }
 
