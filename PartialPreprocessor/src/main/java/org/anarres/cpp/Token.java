@@ -17,6 +17,10 @@
 
 package org.anarres.cpp;
 
+import static org.anarres.cpp.Token.CCOMMENT;
+import static org.anarres.cpp.Token.CPPCOMMENT;
+import static org.anarres.cpp.Token.WHITESPACE;
+
 import java.io.PrintWriter;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -292,4 +296,10 @@ public abstract class Token {
 	public void lazyPrint(PrintWriter writer) {
 		writer.append(getText());
 	}
+
+	public boolean isWhite() {
+        	int type = getType();
+        	return (type == WHITESPACE) || (type == CCOMMENT)
+        			|| (type == CPPCOMMENT);
+        }
 }

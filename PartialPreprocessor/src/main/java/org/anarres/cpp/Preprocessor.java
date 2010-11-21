@@ -719,17 +719,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		this.source_token = tok;
 	}
 
-	private boolean isWhite(Token tok) {
-		int type = tok.getType();
-		return (type == WHITESPACE) || (type == CCOMMENT)
-				|| (type == CPPCOMMENT);
-	}
-
 	private Token source_token_nonwhite() throws IOException, LexerException {
 		Token tok;
 		do {
 			tok = retrieveTokenFromSource();
-		} while (isWhite(tok));
+		} while (tok.isWhite());
 		return tok;
 	}
 
@@ -1743,7 +1737,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		do {
 			tok = expanded_token(inlineCppExpression, false);
 			// System.out.println("expanded token is " + tok);
-		} while (isWhite(tok));
+		} while (tok.isWhite());
 		return tok;
 	}
 
@@ -2501,7 +2495,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		Token tok;
 		do {
 			tok = parse_main();
-		} while (isWhite(tok));
+		} while (tok.isWhite());
 		return tok;
 	}
 
