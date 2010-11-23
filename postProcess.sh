@@ -24,6 +24,18 @@ echo -n "$outBase;" >> "$outCSV"
 echo -n "$(tail -1 "$outMacroDebug");" >> "$outCSV"
 echo -n "$(tail -1 "$outDebugSource");" >> "$outCSV"
 
+removeEmptyLines() {
+  # Perl is 200x faster than grep
+  #grep -v '^$'
+  perl -ne '! /^$/ && print' "$1"
+}
+
+removeEmptyDashedLines() {
+  # Perl is 200x faster than grep
+  #egrep -v '^(#|$)' "$1"
+  perl -ne '! /^(#|$)/ && print' "$1"
+}
+
 filterWC() {
   #Output: lines, then bytes
   #wc -cl|$sed -r -e 's/^\s+//; s/\s+/, /g; s/$/, /'
@@ -32,7 +44,7 @@ filterWC() {
 
 countWordLines() {
   preprocOut="$1"
-  echo -n $(grep -v '^$' "$preprocOut"|filterWC) >> "$outCSV"
+  echo -n $(removeEmptyLines "$preprocOut"|filterWC) >> "$outCSV"
 }
 
 echo "=="
@@ -61,13 +73,35 @@ awk '{printf "%f;", $2 * 60 + $3}'|$sed -e 's/;$//') >> "$outCSV"
 echo >> "$outCSV"
 
 # Remove dashed and empty lines before diffing.
-excludeLines='^(#|$)'
-spacesToNewLine='s/[ 	]\+/\n/g'
-# -w ignores white space, -B blank line, -u helps readability.
-res=0; diff -uBw <(egrep -v "$excludeLines" "$outPartialPreprocThenPreproc"| \
-  $sed -e "$spacesToNewLine") <(egrep -v "$excludeLines" "$outPreproc"| \
-  $sed -e "$spacesToNewLine") > "$outDiff" || res=$?
+normalizeSpacing() {
+  #$sed -e 's/[ 	]\+/\n/g' "$1"
+  #spaceAway='s/[ 	]\+//g'
+  #
+  newLineIntroduce='s/[;{},]/&\n/g'
+  perl -pe 'chomp; s/$/ /; s/^ //; s/[ 	]+/ /g' |
+  # The while is needed - matches of the pattern do not overlap, and this causes problems
+  # with % % %, where % stands for any non-alphabetic character.
 
+  # The idiom '1 while s/a/b/g' is described in man perlop, "Regexp Quote-Like
+  # Operators", at the end of the section on s/PATTERN/REPLACEMENT/ ..., for
+  # perl 5.10.0.
+  perl -pe '1 while s/([^A-Za-z_]) ([^A-Za-z_])/$1$2/g; s/""/"\n"/g'|
+  $sed -e "$newLineIntroduce"|$sed -e 's/^ //'
+}
+
+# Just for debugging!
+#removeEmptyDashedLines "$outPartialPreprocThenPreproc"| normalizeSpacing > "$outPartialPreprocThenPreproc"1
+#removeEmptyDashedLines "$outPreproc"| normalizeSpacing > "$outPreproc"1
+
+# -w ignores white space, -B blank line, -u helps readability.
+res=0; diff -uBw <(removeEmptyDashedLines "$outPartialPreprocThenPreproc"| \
+  normalizeSpacing) <(removeEmptyDashedLines "$outPreproc"| \
+  normalizeSpacing) > "$outDiff" || res=$?
+
+if [ $res -ne 0 ]; then
+  echo "Output mismatch"
+  echo
+fi
 #echo $res
 #if [ $res -ne 0 ]; then
 #  echo "*** WARNING! - $outDiff not empty, inconsistency detected ***"

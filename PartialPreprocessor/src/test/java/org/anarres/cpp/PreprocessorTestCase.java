@@ -127,6 +127,11 @@ public class PreprocessorTestCase extends BaseTestCase {
                                 WHITESPACE, I("f"), ',', WHITESPACE, I("g"), WHITESPACE, I("b"));
                 testInput("#define eprintf(format, ...) fprintf stderr, format, ##__VA_ARGS__\n", NL);
                 testInput("eprintf (a)\n", NL, I("fprintf"), WHITESPACE, I("stderr"), ',', WHITESPACE, I("a"));
+                
+		//XXX: should not crash, but should cause an error! How to test an expected error?
+		testInput("#define BUGGY_CONCAT(y) ## y\n", NL);
+                //Flush the remaining NL
+		testInput("", NL);
 	}
 	
 	@Override
