@@ -659,7 +659,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		}
 
 		static Token zero() {
-			return new SimpleToken(Token.INTEGER,"0",new Long(0), null);
+			return new SimpleToken(Token.INTEGER, "0", Long.valueOf(0), null);
 		}
 
 		static List<Token> else_tokenStr() {
