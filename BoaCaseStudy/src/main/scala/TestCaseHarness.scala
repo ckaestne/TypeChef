@@ -1,12 +1,12 @@
 import java.io.FileInputStream
-//import de.fosd.typechef.parser.c._
 
 import gnu.getopt.Getopt
 import gnu.getopt.LongOpt
 
 import de.fosd.typechef.featureexpr._
-//import de.fosd.typechef.parser._
-//import de.fosd.typechef.typesystem._
+import de.fosd.typechef.parser._
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem._
 
 import java.io.FileWriter
 import java.io.File
@@ -15,7 +15,7 @@ import junit.framework._
 import junit.framework.Assert._
 
 trait TestProject {
-//    def initialParsingContext: CTypeContext 
+    def initialParsingContext: CTypeContext 
     def fileList: Array[(String, String, String, String)]
     def extraPreprocessorOpt: Array[String]
 }
@@ -29,10 +29,10 @@ abstract class AbstractTestProject extends TestProject {
     
     protected def nameList: Array[String]
 
-//    override def initialParsingContext: CTypeContext = 
-//        new CTypeContext().
-//        //XXX: should this be still here?
-//        addType("__uint32_t")
+    override def initialParsingContext: CTypeContext = 
+        new CTypeContext().
+        //XXX: should this be still here?
+        addType("__uint32_t")
 }
 
 class DirTest(_projDir: String) extends AbstractTestProject {
@@ -44,9 +44,9 @@ class TestCaseHarness(testCase: TestProject) {
     def preprocessFile(inpName: String, outName: String) =
         PreprocessorFrontend.preprocessFile(inpName, outName, testCase.extraPreprocessorOpt)
 
-//    def parseFile(filePath: String, parentPath: String) : AST = {
-//        ParserMain.parserMain(filePath, parentPath, testCase.initialParsingContext)
-//    }
+    def parseFile(filePath: String, parentPath: String) : AST = {
+        ParserMain.parserMain(filePath, parentPath, testCase.initialParsingContext)
+    }
  
     def run(args: Array[String]): Unit = {
         PreprocessorFrontend.initSettings
@@ -75,10 +75,8 @@ class TestCaseHarness(testCase: TestProject) {
                 println("** Processing file: " + shortName)
                 println("**************************************************************************")
                 preprocessFile(inpName, outName)
-//                if (false) { //XXX for the VAMOS workshop, disable parsing.
-//                    val ast = parseFile(outName, folderPath)
-//                    new TypeSystem().checkAST(ast)
-//                }
+                val ast = parseFile(outName, folderPath)
+                new TypeSystem().checkAST(ast)
                 println("**************************************************************************")
                 println("** End of processing for: " + shortName)
                 println("**************************************************************************")

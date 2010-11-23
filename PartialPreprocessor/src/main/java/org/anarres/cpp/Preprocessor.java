@@ -659,7 +659,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		}
 
 		static Token zero() {
-			return new SimpleToken(Token.INTEGER,"0",new Long(0), null);
+			return new SimpleToken(Token.INTEGER, "0", Long.valueOf(0), null);
 		}
 
 		static List<Token> else_tokenStr() {
@@ -1165,6 +1165,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	}
 
 	private boolean isExaustive(FeatureExpr commonCondition) {
+		//commonCondition is already an implication (see
+		//getCommonCondition), therefore this is correct: it checks
+		//whether the alternative expansions are correct in the context
+		//of the current presence condition.
 		return commonCondition.isBase();
 	}
 
@@ -1173,9 +1177,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		for (int i = macroExpansions.length - 1; i >= 1; i--)
 			commonCondition = commonCondition.or(macroExpansions[i]
 					.getFeature());
-		// XXX: this should be getFullPresenceCondition()!
-		commonCondition = state.getFullPresenceCondition().not().or(
-				commonCondition);
+		commonCondition = state.getFullPresenceCondition().implies(commonCondition);
 		return commonCondition;
 	}
 

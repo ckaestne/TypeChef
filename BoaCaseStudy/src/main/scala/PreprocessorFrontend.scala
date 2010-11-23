@@ -7,6 +7,11 @@ import java.io.FileInputStream
 import gnu.getopt.Getopt
 import gnu.getopt.LongOpt
 
+import de.fosd.typechef.featureexpr._
+import de.fosd.typechef.parser._
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem._
+
 object PreprocessorFrontend {
     ////////////////////////////////////////
     // General setup of built-in headers, should become more general and move
@@ -67,7 +72,11 @@ object PreprocessorFrontend {
             extraOpt ++
             includeFlags)
     }
-    
+
+    def parseFile(filePath: String, parentPath: String) : AST = {
+        ParserMain.parserMain(filePath, parentPath, new CTypeContext())
+    }
+
     def main(args: Array[String]): Unit = {
         initSettings
         var extraOpt = List("-p", "_")
@@ -76,7 +85,7 @@ object PreprocessorFrontend {
         val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT))
         val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
-        var outputFileName: Option[String] = None
+        var outputFileNameOpt: Option[String] = None
         do {
             val c = g.getopt()
             if (c != -1) {
@@ -85,7 +94,7 @@ object PreprocessorFrontend {
                     case 'r' => setSystemRoot(arg)
                     case 'I' => cmdLinePostIncludes :+= arg
                     case 'c' => loadSettings(arg)
-                    case 'o' => outputFileName = Some(arg)
+                    case 'o' => outputFileNameOpt = Some(arg)
                     
                     case ':' => println("Missing required argument!"); exit(1)
                     case '?' => println("Unexpected option!"); exit(1)
@@ -106,11 +115,16 @@ object PreprocessorFrontend {
         val remArgs = args.slice(g.getOptind(), args.size)
         
         for (filename <- remArgs) {
-            outputFileName match {
-                case None => outputFileName = Some(filename.replace(".c", "") + ".pi")
+            outputFileNameOpt match {
+                case None => outputFileNameOpt = Some(filename.replace(".c", "") + ".pi")
                 case Some(_) => None
             }
-            preprocessFile(filename, outputFileName.get, extraOpt)
+            val outputFileName = outputFileNameOpt.get
+            val folderPath = new File(outputFileName).getParent
+
+            preprocessFile(filename, outputFileName, extraOpt)
+            val ast = parseFile(outputFileName, folderPath)
+            new TypeSystem().checkAST(ast)
         }
     }
 }
