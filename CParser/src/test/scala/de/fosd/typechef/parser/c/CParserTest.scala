@@ -375,6 +375,18 @@ class CParserTest extends TestCase {
         assertParseable("""asm volatile (".set noreorder\n"
               ".set noat\n"
               ".set mips3");""", p.statement)
+        assertParseable("""
+        asm volatile("rep ; movsl\n\t"
+		     "movl %4,%%ecx\n\t"
+		     "andl $3,%%ecx\n\t"
+		     "jz 1f\n\t"
+		     "rep ; movsb\n\t"
+		     "1:"
+		     : "=&c" (d0), "=&D" (d1), "=&S" (d2)
+		     : "0" (n / 4), "g" (n), "1" ((long)to), "2" ((long)from)
+		     : "memory");"""
+        		, p.statement)
+        
         assertParseable("enum { DDD = -7 }", p.enumSpecifier)
         assertParseable("char                        hgfretty[99 ];", p.structDeclaration)
         assertParseable(" struct  pojeqsd {    char                        hgfretty[99 ];}", p.structOrUnionSpecifier)
