@@ -36,11 +36,17 @@ javaOpts='-Xmx2G -Xms128m'
 # though!
 echo "Partially preprocessing $inp"
 
-bash -c "time java -ea $javaOpts -cp $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:$basePath/BoaCaseStudy/target/scala_2.8.0/classes:\
+bash -c "time java -ea $javaOpts -cp \
+$basePath/project/boot/scala-2.8.0/lib/scala-library.jar:\
 $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
+$basePath/PartialPreprocessor/lib/gnu.getopt.jar:\
+$basePath/PartialPreprocessor/lib/junit.jar:\
 $basePath/FeatureExprLib/target/scala_2.8.0/classes:\
 $basePath/PartialPreprocessor/target/scala_2.8.0/classes:\
-$basePath/PartialPreprocessor/lib/gnu.getopt.jar \
+$basePath/ParserFramework/target/scala_2.8.0/classes:\
+$basePath/CParser/target/scala_2.8.0/classes:\
+$basePath/CTypeChecker/target/scala_2.8.0/classes:\
+$basePath/BoaCaseStudy/target/scala_2.8.0/classes \
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
