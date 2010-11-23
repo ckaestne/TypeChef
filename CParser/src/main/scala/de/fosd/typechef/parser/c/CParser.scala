@@ -398,7 +398,7 @@ class CParser extends MultiFeatureParser {
         asm ~ opt(volatile) ~
             LPAREN ~ stringConst ~
             opt(
-                COLON ~> opt(strOptExprPair ~ opt(COMMA ~> strOptExprPair))
+                COLON ~> opt(strOptExprPair ~ rep(COMMA ~> strOptExprPair))
                 ~ opt(
                     COLON ~> opt(strOptExprPair ~ rep(COMMA ~> strOptExprPair)) ~
                     opt(COLON ~> stringConst ~ rep(COMMA ~> stringConst)))) ~
