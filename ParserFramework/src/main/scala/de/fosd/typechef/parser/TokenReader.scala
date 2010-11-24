@@ -27,7 +27,25 @@ class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, va
      */
     def atEnd: Boolean = tokens.isEmpty
 
-    override def toString: String = tokens.slice(0, min(tokens.size, 50)).mkString("TokenReader(", ", ", ", ...)")
+    override def toString: String = {
+	    val out = new StringBuilder
+	    out ++= "TokenReader("
+	    var currFeat: FeatureExpr = FeatureExpr.base
+
+	    for (tok <- tokens.slice(0, min(tokens.size, 50))) {
+		    var newFeat: FeatureExpr = tok.getFeature
+		    if (newFeat != currFeat) {
+			    out ++= "[ PC -> "
+			    out ++= newFeat.toString
+		   	    out ++= "] "
+		   	    currFeat = newFeat
+		    }
+		    out ++= tok.getText
+		    out ++= " "
+	    }
+	    out ++= ", ...)"
+	    out.toString
+    }
 
     override def hashCode = tokens.hashCode
 
