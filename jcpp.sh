@@ -31,10 +31,15 @@ javaOpts='-Xmx2G -Xms128m'
 #  PartialPreprocessor/target/scala_2.8.0/classes:PartialPreprocessor/lib/gnu.getopt.jar \
 #  <(echo -e '#define b ciao\nb')
 
+echo "=="
+echo "==Preprocess source"
+echo "=="
+gcc -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+
 # Beware: the embedded for loop requotes the passed argument. That's dark magic,
 # don't ever try to touch it. It simplifies your life as a user of this program
 # though!
-echo "Partially preprocessing $inp"
+echo "==Partially preprocessing and typechecking $inp"
 
 bash -c "time java -Xss8M -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044 -ea $javaOpts -cp \
 $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:\

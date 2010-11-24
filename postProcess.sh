@@ -48,11 +48,6 @@ countWordLines() {
 }
 
 echo "=="
-echo "==Preprocess source"
-echo "=="
-gcc -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
-
-echo "=="
 echo "==Preprocess output of partial preprocessor"
 echo "=="
 $sed -e  's/\<definedEx\>/defined/g' "$outPartialPreproc" | gcc $gccOpts -E - "$@" 2>&1 > "$outPartialPreprocThenPreproc" | grep -v 'warning: extra tokens at end of #line directive' || true
