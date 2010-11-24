@@ -14,12 +14,28 @@ import de.fosd.typechef.featureexpr._
  */
 class TypeSystem {
     var table = new LookupTable()
+
+    val globalScope = 1
     var currentScope = 1
+
     var errorMessages: List[ErrorMsg] = List()
 
     val DEBUG_PRINT = false
 
+    val gccBuiltins = List(
+      "constant_p",
+      "expect",
+      "memcpy",
+      "memset")
+
+    def declareBuiltins() {
+        for (name <- gccBuiltins) {
+            table = table.add(new LFunctionDef("__builtin_" + name, "", globalScope, FeatureExpr.base))
+        }
+    }
+
     def checkAST(ast: AST) {
+        declareBuiltins()
         ast.accept(new TSVisitor())
         if (DEBUG_PRINT) println(table)
         println("Type Errors: " + errorMessages.mkString("\n"))
