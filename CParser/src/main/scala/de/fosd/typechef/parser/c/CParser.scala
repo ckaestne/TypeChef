@@ -19,7 +19,7 @@ class CParser extends MultiFeatureParser {
         mainProduction(CLexer.lex(code), FeatureExpr.base)
 
     //parser
-    val keywords = Set("__real__", "__imag__", "__alignof", "__asm", "__asm__", "__attribute__",
+    val keywords = Set("__real__", "__imag__", "__alignof", "__asm", "__asm__", "__attribute__", "__attribute",
         "__complex__", "__const", "__const__", "__inline", "__inline__", "__restrict", "__restrict__",
         "__signed", "__signed__", "__typeof", "__typeof__", "__volatile", "__volatile__", "asm",
         "volatile", "typeof", "auto", "register", "typedef", "extern", "static", "inline",
@@ -98,8 +98,9 @@ class CParser extends MultiFeatureParser {
         structOrUnion ~ structOrUnionSpecifierBody ^^ { case ~(k, (id, list)) => StructOrUnionSpecifier(k, id, list) }
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[StructDeclaration])] =
-        ID ~ LCURLY ~! (opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY) ^^ { case id ~ _ ~ (_ ~ list ~ _) => (Some(id), list) } |
-            LCURLY ~ opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY ^^ { case _ ~ _ ~ list ~ _ => (None, list) } |
+        // XXX: PG: SEMI after LCURLY???? 
+        ID ~ LCURLY ~! (opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY) ~ rep(attributeDecl) ^^ { case id ~ _ ~ (_ ~ list ~ _) ~ _ => (Some(id), list) } |
+            LCURLY ~ opt(SEMI) ~ optList(structDeclarationList) ~ RCURLY ~ rep(attributeDecl) ^^ { case _ ~ _ ~ list ~ _ ~ _ => (None, list) } |
             ID ^^ { case id => (Some(id), List()) }
 
     def structOrUnion: MultiParser[String] =
@@ -153,6 +154,7 @@ class CParser extends MultiFeatureParser {
         opt(initializerElementLabel) ~ (assignExpr | lcurlyInitializer) ^^ { case iel ~ expr => Initializer(iel, expr) }
 
     def declarator: MultiParser[Declarator] =
+        //XXX: why opt(attributeDecl) rather than rep?
         (optList(pointerGroup) ~ (ID | LPAREN ~> opt(attributeDecl) ~ declarator <~ RPAREN) ~
             rep(
                 LPAREN ~> (parameterTypeList ^^ { DeclParameterTypeList(_) }
@@ -377,7 +379,7 @@ class CParser extends MultiFeatureParser {
     //***  gnuc extensions ****************************************************
 
     def attributeDecl: MultiParser[AttributeSpecifier] =
-        (textToken("__attribute__") ~
+        (attributeKw ~
             LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => GnuAttributeSpecifier(al) } |
             asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
@@ -435,6 +437,9 @@ class CParser extends MultiFeatureParser {
         (LBRACKET ~ (rangeExpr | constExpr) ~ RBRACKET ~ opt(ASSIGN) ^^ { case _ ~ e ~ _ ~ a => InitializerElementLabelExpr(e, a.isDefined) }
             | ID <~ COLON ^^ { InitializerElementLabelColon(_) }
             | DOT ~> ID <~ ASSIGN ^^ { InitializerElementLabelDotAssign(_) })
+
+    def attributeKw = textToken("__attribute__") |
+                    textToken("__attribute")  //XXX: PG: not specified anywhere by GCC docs, but used in Linux.
 
     def typeof = textToken("typeof") | textToken("__typeof") | textToken("__typeof__")
 
