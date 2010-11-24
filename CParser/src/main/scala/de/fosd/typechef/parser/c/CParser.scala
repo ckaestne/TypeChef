@@ -19,7 +19,7 @@ class CParser extends MultiFeatureParser {
         mainProduction(CLexer.lex(code), FeatureExpr.base)
 
     //parser
-    val keywords = Set("__real__", "__imag__", "__alignof", "__asm", "__asm__", "__attribute__", "__attribute",
+    val keywords = Set("__real__", "__imag__", "__alignof__", "__alignof", "__asm", "__asm__", "__attribute__", "__attribute",
         "__complex__", "__const", "__const__", "__inline", "__inline__", "__restrict", "__restrict__",
         "__signed", "__signed__", "__typeof", "__typeof__", "__volatile", "__volatile__", "asm",
         "volatile", "typeof", "auto", "register", "typedef", "extern", "static", "inline",
@@ -273,7 +273,7 @@ class CParser extends MultiFeatureParser {
             LPAREN ~> typeName <~ RPAREN ^^ { SizeOfExprT(_) } |
                 unaryExpr ^^ { SizeOfExprU(_) }
         }
-        | textToken("__alignof") ~> {
+        | alignof ~> {
             LPAREN ~> typeName <~ RPAREN ^^ { AlignOfExprT(_) } |
                 unaryExpr ^^ { AlignOfExprU(_) }
         }
@@ -459,6 +459,8 @@ class CParser extends MultiFeatureParser {
     def signed = textToken("signed") | textToken("__signed") | textToken("__signed__")
 
     def inline = specifier("inline") | specifier("__inline") | specifier("__inline__")
+
+    def alignof = textToken("__alignof__") | textToken("__alignof") 
 
     def specList(otherSpecifiers: MultiParser[Specifier]): MultiParser[List[Specifier]] =
         nonEmpty(rep(otherSpecifiers) ~ opt(typedefName) ~ rep(otherSpecifiers | typeSpecifier) ^^ {
