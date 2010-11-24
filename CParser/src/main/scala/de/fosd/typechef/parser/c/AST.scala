@@ -292,6 +292,9 @@ case class InitializerElementLabelDotAssign(id: Id) extends InitializerElementLa
 case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Id]) extends PrimaryExpr {
     override def getInner = List(typeName) ++ offsetofMemberDesignator
 }
+case class BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) extends PrimaryExpr {
+    override def getInner = List(typeName1, typeName2)
+}
 case class CompoundStatementExpr(compoundStatement: CompoundStatement) extends PrimaryExpr {
     override def getInner = List(compoundStatement)
 }
