@@ -95,7 +95,7 @@ class CParser extends MultiFeatureParser {
             (token, context) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || context.knowsType(token.getText))) ^^ { t => TypeDefTypeSpecifier(Id(t.getText)) }
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
-        structOrUnion ~ structOrUnionSpecifierBody ^^ { case k ~ (id, list)) => StructOrUnionSpecifier(k, id, list) }
+        structOrUnion ~ structOrUnionSpecifierBody ^^ { case k ~ ((id, list)) => StructOrUnionSpecifier(k, id, list) }
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[StructDeclaration])] =
         // XXX: PG: SEMI after LCURLY???? 
