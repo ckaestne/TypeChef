@@ -17,10 +17,6 @@
 
 package org.anarres.cpp;
 
-import static org.anarres.cpp.Token.CCOMMENT;
-import static org.anarres.cpp.Token.CPPCOMMENT;
-import static org.anarres.cpp.Token.WHITESPACE;
-
 import java.io.PrintWriter;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
