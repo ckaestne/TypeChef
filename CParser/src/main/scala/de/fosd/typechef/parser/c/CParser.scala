@@ -462,6 +462,7 @@ class CParser extends MultiFeatureParser {
 
     def alignof = textToken("__alignof__") | textToken("__alignof") 
 
+    //XXX: PG - probably the rep's here should be optimized to repOpt
     def specList(otherSpecifiers: MultiParser[Specifier]): MultiParser[List[Specifier]] =
         nonEmpty(rep(otherSpecifiers) ~ opt(typedefName) ~ rep(otherSpecifiers | typeSpecifier) ^^ {
             case list1 ~ Some(typedefn) ~ list2 => list1 ++ List(typedefn) ++ list2
