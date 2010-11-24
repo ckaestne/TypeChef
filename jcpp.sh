@@ -36,7 +36,7 @@ javaOpts='-Xmx2G -Xms128m'
 # though!
 echo "Partially preprocessing $inp"
 
-bash -c "time java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044 -ea $javaOpts -cp \
+bash -c "time java -Xss8M -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044 -ea $javaOpts -cp \
 $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:\
 $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar:\
