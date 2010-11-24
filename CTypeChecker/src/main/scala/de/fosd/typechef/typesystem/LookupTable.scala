@@ -1,5 +1,5 @@
 package de.fosd.typechef.typesystem
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
  * stores name|type|scope|featureexpr
