@@ -85,7 +85,7 @@ object PreprocessorFrontend {
         val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT))
         val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
-        var outputFileNameOpt: Option[String] = None
+        var preprocOutputPathOpt: Option[String] = None
         do {
             val c = g.getopt()
             if (c != -1) {
@@ -94,7 +94,7 @@ object PreprocessorFrontend {
                     case 'r' => setSystemRoot(arg)
                     case 'I' => cmdLinePostIncludes :+= arg
                     case 'c' => loadSettings(arg)
-                    case 'o' => outputFileNameOpt = Some(arg)
+                    case 'o' => preprocOutputPathOpt = Some(arg)
                     
                     case ':' => println("Missing required argument!"); exit(1)
                     case '?' => println("Unexpected option!"); exit(1)
@@ -115,15 +115,24 @@ object PreprocessorFrontend {
         val remArgs = args.slice(g.getOptind(), args.size)
         
         for (filename <- remArgs) {
-            outputFileNameOpt match {
-                case None => outputFileNameOpt = Some(filename.replace(".c", "") + ".pi")
+            preprocOutputPathOpt match {
+                case None => preprocOutputPathOpt = Some(filename.replace(".c", ".pi"))
                 case Some(_) => None
             }
-            val outputFileName = outputFileNameOpt.get
-            val folderPath = new File(outputFileName).getParent
-
-            preprocessFile(filename, outputFileName, extraOpt)
-            val ast = parseFile(outputFileName, folderPath)
+            val preprocOutputPath = preprocOutputPathOpt.get
+            val folderPath = new File(preprocOutputPath).getParent
+ 
+            //XXX: hack to test only parsing.
+            val usePreprocessed = false
+            if (usePreprocessed)
+              preprocessFile(filename, preprocOutputPath, extraOpt)
+            val parserInput =
+              if (usePreprocessed)
+                preprocOutputPath
+              else
+                filename.replace(".c", ".i")
+            val ast = parseFile(parserInput, folderPath)
+            // val ast = parseFile(preprocOutputPath, folderPath)
             new TypeSystem().checkAST(ast)
         }
     }
