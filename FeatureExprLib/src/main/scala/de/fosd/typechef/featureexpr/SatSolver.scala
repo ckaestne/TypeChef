@@ -31,6 +31,9 @@ class SatSolver extends Solver {
     def isSatisfiable(exprCNF: NF): Boolean = {
         if (exprCNF.isEmpty) return true
         if (exprCNF.isFull) return false
+        //as long as we do not consider feature models, expressions with a single variable 
+        //are always satisfiable
+        if (exprCNF.isAtomic) return true
 
         val startTime = System.currentTimeMillis();
 
@@ -55,7 +58,7 @@ class SatSolver extends Solver {
                     if (!uniqueFlagIds.contains(literal.satName))
                         uniqueFlagIds = uniqueFlagIds + ((literal.satName, uniqueFlagIds.size + 1))
             if (PROFILING)
-                print(";" + cnfs.size+"-"+uniqueFlagIds.size)
+                print(";" + cnfs.size + "-" + uniqueFlagIds.size)
 
             solver.newVar(uniqueFlagIds.size)
 
@@ -118,14 +121,14 @@ class SatSolver extends Solver {
                     if (!macroExpansions.contains(expansionName)) {
                         if (PROFILING)
                             print(expansionName)
-                        val e:NF = expansionNF.apply()
+                        val e: NF = expansionNF.apply()
                         if (PROFILING)
                             print(":")
                         //recursively expand formula (dummy is necessary to avoid accidental recursion)
-                        macroExpansions = macroExpansions + (expansionName -> new NF(true)/*dummy*/)
-                        val preparedExpansion=prepareFormulaInner(e)
+                        macroExpansions = macroExpansions + (expansionName -> new NF(true) /*dummy*/ )
+                        val preparedExpansion = prepareFormulaInner(e)
                         macroExpansions = macroExpansions + (expansionName -> preparedExpansion)
-                        
+
                         if (PROFILING)
                             print(".")
                     }
@@ -135,7 +138,7 @@ class SatSolver extends Solver {
             }
         }
         def prepareClause(clause: Clause): Clause = {
-        	clause.substitute(prepareLiteral(_))
+            clause.substitute(prepareLiteral(_))
         }
         def prepareFormulaInner(formula: NF): NF = {
             new NF(formula.clauses.map(prepareClause(_)), formula.isFull)

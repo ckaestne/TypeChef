@@ -32,6 +32,7 @@ class NF(val clauses: List[Clause], val isFull: Boolean) {
     //        else new NF(clauses.map(_.neg))
     /** empty means true for CNF, false for DNF **/
     def isEmpty = !isFull && clauses.isEmpty
+    def isAtomic = clauses.size == 1 && (clauses(0).size=1)
     override def toString = if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
     def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&&")
     override def hashCode = clauses.hashCode
