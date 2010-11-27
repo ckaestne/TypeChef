@@ -551,6 +551,7 @@ abstract class DefinedExpr extends FeatureExprTree {
     def debug_print(level: Int): String = indent(level) + feature + "\n";
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
     def satName = feature //used for sat solver only to distinguish extern and macro
+    def isExternal: Boolean
 }
 object DefinedExpr {
     def unapply(f: DefinedExpr): Option[DefinedExpr] = f match {
@@ -567,6 +568,7 @@ case class DefinedExternal(name: String) extends DefinedExpr(name) {
         "definedEx(" + name + ")";
     }
     def countSize() = 1
+    def isExternal = true
 }
 
 /**
@@ -590,6 +592,7 @@ case class DefinedMacro(name: String, presenceCondition: FeatureExpr, expandedNa
     }
     override def hashCode = presenceConditionCNF.hashCode
     def countSize() = 1
+    def isExternal = false
 }
 
 case class IntegerLit(num: Long) extends FeatureExprTree {

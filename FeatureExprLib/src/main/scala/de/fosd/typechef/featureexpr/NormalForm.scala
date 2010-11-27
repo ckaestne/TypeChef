@@ -32,7 +32,7 @@ class NF(val clauses: List[Clause], val isFull: Boolean) {
     //        else new NF(clauses.map(_.neg))
     /** empty means true for CNF, false for DNF **/
     def isEmpty = !isFull && clauses.isEmpty
-    def isAtomic = clauses.size == 1 && (clauses.head.size==1)
+    def isAtomic = clauses.size == 1 && clauses.head.isAtomic
     override def toString = if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
     def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&&")
     override def hashCode = clauses.hashCode
@@ -87,18 +87,24 @@ class Clause(var posLiterals: List[DefinedExpr], var negLiterals: List[DefinedEx
         result
     }
     def substitute(f: DefinedExpr => DefinedExpr) = {
-    	var changed = false
-    	def checkChange(oldVal: DefinedExpr):DefinedExpr = {
-    		val newVal = f(oldVal)
-    		if (!(newVal eq oldVal)) changed=true
-    		newVal
-    	}
-    	val newPosLit=this.posLiterals.map(checkChange(_))
-    	val newNegLit=this.negLiterals.map(checkChange(_))
-    	if (changed)
-    		new Clause(newPosLit, newNegLit)
-    	else 
-    		this
+        var changed = false
+        def checkChange(oldVal: DefinedExpr): DefinedExpr = {
+            val newVal = f(oldVal)
+            if (!(newVal eq oldVal)) changed = true
+            newVal
+        }
+        val newPosLit = this.posLiterals.map(checkChange(_))
+        val newNegLit = this.negLiterals.map(checkChange(_))
+        if (changed)
+            new Clause(newPosLit, newNegLit)
+        else
+            this
+    }
+    def isAtomic: Boolean = {
+        if (size != 1) false
+        else if (posLiterals.size == 1) posLiterals.head.isExternal
+        else
+            negLiterals.head.isExternal
     }
 }
 
@@ -117,31 +123,31 @@ object NFBuilder {
     private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) =
         try {
             exprInNF simplify match {
-        case And(clauses) if isCNF => {
-            new NF((for (clause <- clauses) yield clause match {
-                case Or(o) => toClause(o)
-                case e => toClause(List(e)) //literal?
-            }))
-        }
-        case Or(clauses) if !isCNF => {
-            new NF((for (clause <- clauses) yield clause match {
-                case And(c) => toClause(c)
-                case e => toClause(List(e)) //literal?
-            }))
-        }
-        case Or(o) if isCNF => new NF(List(toClause(o)))
-        case And(o) if !isCNF => new NF(List(toClause(o)))
-        case f@DefinedExpr(_) => new NF(List(new Clause(List(f), List())))
-        case Not(f@DefinedExpr(_)) => new NF(List(new Clause(List(), List(f))))
-        case BaseFeature() => new NF(!isCNF)
-        case DeadFeature() => new NF(isCNF)
-        case e => throw new NoNFException(e, exprInNF, isCNF)
-    }
+                case And(clauses) if isCNF => {
+                    new NF((for (clause <- clauses) yield clause match {
+                        case Or(o) => toClause(o)
+                        case e => toClause(List(e)) //literal?
+                    }))
+                }
+                case Or(clauses) if !isCNF => {
+                    new NF((for (clause <- clauses) yield clause match {
+                        case And(c) => toClause(c)
+                        case e => toClause(List(e)) //literal?
+                    }))
+                }
+                case Or(o) if isCNF => new NF(List(toClause(o)))
+                case And(o) if !isCNF => new NF(List(toClause(o)))
+                case f@DefinedExpr(_) => new NF(List(new Clause(List(f), List())))
+                case Not(f@DefinedExpr(_)) => new NF(List(new Clause(List(), List(f))))
+                case BaseFeature() => new NF(!isCNF)
+                case DeadFeature() => new NF(isCNF)
+                case e => throw new NoNFException(e, exprInNF, isCNF)
+            }
         } catch {
-        	case t: Throwable => 
-        	System.err.println("Exception on NormalForm.toNF for: " + exprInNF.print())
-        	t.printStackTrace
-        	throw t
+            case t: Throwable =>
+                System.err.println("Exception on NormalForm.toNF for: " + exprInNF.print())
+                t.printStackTrace
+                throw t
 
         }
     private def toClause(literals: List[FeatureExprTree]): Clause = {
