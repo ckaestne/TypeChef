@@ -185,9 +185,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
      */
     def isSmall(): Boolean = {
         simplify
-        var nodeCounter = 0;
-        expr.accept(a => { nodeCounter = nodeCounter + 1 })
-        return nodeCounter <= 6
+        expr.isSmall
     }
 }
 
@@ -208,9 +206,13 @@ sealed abstract class FeatureExprTree {
                             case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
                             case e => childrenFlattened = e :: childrenFlattened
                         }
-                    //                    for (childs <- childrenFlattened)
-                    //                        if (childrenFlattened.exists(_ == Not(childs)))
-                    //                            return DeadFeature();
+                    //only apply these operations on small expressions, because they are rather expensive
+                    if (isSmall) {
+                        childrenFlattened = childrenFlattened.distinct
+                        for (childs <- childrenFlattened)
+                            if (childrenFlattened.exists(_ == Not(childs)))
+                                return DeadFeature();
+                    }
                     if (childrenFlattened.exists(DeadFeature.unapply(_)))
                         /*return*/
                         DeadFeature()
@@ -234,9 +236,12 @@ sealed abstract class FeatureExprTree {
                             case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
                             case e => childrenFlattened = e :: childrenFlattened
                         }
-                    //                    for (childs <- childrenFlattened)
-                    //                        if (childrenFlattened.exists(_ == Not(childs)))
-                    //                            return BaseFeature();
+                    if (isSmall) {
+                        childrenFlattened = childrenFlattened.distinct
+                        for (childs <- childrenFlattened)
+                            if (childrenFlattened.exists(_ == Not(childs)))
+                                return BaseFeature();
+                    }
                     if (childrenFlattened.exists(BaseFeature.unapply(_)))
                         /*return*/
                         BaseFeature()
@@ -465,6 +470,19 @@ sealed abstract class FeatureExprTree {
     //        }
     //        case e => e
     //    }
+
+    /** size and small are heuristics used apply aggressive optimizations only to
+     *  small formulas (in the hope that they won't grow large eventually)
+     */
+    def isSmall(): Boolean = getSize() <= 10
+
+    var cachedSize: Option[Int] = None
+    final def getSize(): Int = {
+        if (!cachedSize.isDefined)
+            cachedSize = Some(countSize)
+        cachedSize.get
+    }
+    protected def countSize: Int
 }
 abstract class AbstractBinaryFeatureExprTree(
     left: FeatureExprTree,
@@ -482,6 +500,7 @@ abstract class AbstractBinaryFeatureExprTree(
         left.accept(f)
         right.accept(f)
     }
+    def countSize() = 1 + left.getSize() + right.getSize()
 }
 abstract class AbstractNaryBinaryFeatureExprTree(
     children: List[FeatureExprTree],
@@ -495,6 +514,7 @@ abstract class AbstractNaryBinaryFeatureExprTree(
         f(this)
         for (child <- children) child.accept(f)
     }
+    def countSize() = children.foldRight(1)((a, b) => a.getSize() + b)
 }
 
 abstract class AbstractBinaryBoolFeatureExprTree(
@@ -518,6 +538,7 @@ abstract class AbstractUnaryFeatureExprTree(
         f(this)
         expr.accept(f)
     }
+    def countSize() = 1 + expr.getSize()
 }
 abstract class AbstractUnaryBoolFeatureExprTree(
     expr: FeatureExprTree,
@@ -545,6 +566,7 @@ case class DefinedExternal(name: String) extends DefinedExpr(name) {
         assert(name != "")
         "definedEx(" + name + ")";
     }
+    def countSize() = 1
 }
 
 /**
@@ -567,6 +589,7 @@ case class DefinedMacro(name: String, presenceCondition: FeatureExpr, expandedNa
         case _ => false
     }
     override def hashCode = presenceConditionCNF.hashCode
+    def countSize() = 1
 }
 
 case class IntegerLit(num: Long) extends FeatureExprTree {
@@ -575,6 +598,7 @@ case class IntegerLit(num: Long) extends FeatureExprTree {
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
     override def intToBool() = if (num == 0) DeadFeature() else BaseFeature()
     def getNum = num
+    def countSize() = 1
 }
 
 object DeadFeature {
@@ -603,6 +627,7 @@ case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseB
             indent(level) + "__ELSE__" + "\n" +
             elseBranch.debug_print(level + 1);
     def accept(f: FeatureExprTree => Unit): Unit = { f(this); condition.accept(f); thenBranch.accept(f); elseBranch.accept(f) }
+    def countSize() = condition.getSize() + thenBranch.getSize() + elseBranch.getSize() + 1
 }
 
 case class Not(expr: FeatureExprTree) extends AbstractUnaryBoolFeatureExprTree(expr, "!", !_);
