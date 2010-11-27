@@ -131,9 +131,10 @@ class MultiFeatureParser {
      * 
      * Note: it is not allowed to sequence two repOpt calls (such as repOpt(a)~repOpt(b)), because it would not be
      * able to parse correctly interleaved entries of both lists. In this case use rep instead for the first sequence. XXX 
-     *  
+     *
+     *  @param productionName provides a readable name for debugging purposes
      */
-    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
+    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName:String): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
             val elems = new ListBuffer[Opt[T]]
 
@@ -240,7 +241,7 @@ class MultiFeatureParser {
                 case e: ListHandlingException => e.printStackTrace; rep[T](p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
             }
         }
-    }
+    }.named("repOpt-"+productionName)
 
     /**
      * normal repetition, 0..n times (x)*
@@ -336,7 +337,7 @@ class MultiFeatureParser {
                     returnFirstToken(in, context)
                 else if (FeatureSolverCache.mutuallyExclusive(context, tokenPresenceCondition))
                     //never parsed in this context
-                    apply(in.rest, context)
+                    apply(in.rest.skipHidden(context), context)
                 else
                     //token sometimes parsed in this context -> plit parser
                     splitParser(in, context)

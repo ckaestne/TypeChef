@@ -32,7 +32,7 @@ class CParser extends MultiFeatureParser {
     def translationUnit = externalList ^^ { TranslationUnit(_) }
 
     def externalList =
-        repOpt(externalDef, AltExternalDef.join)
+        repOpt(externalDef, AltExternalDef.join, "externalDef")
 
     def externalDef: MultiParser[ExternalDef] =
         (declaration | functionDef | typelessDeclaration | asm_expr | SEMI ^^ { x => EmptyExternalDef() }) ^^! (AltExternalDef.join, x => x)
@@ -195,7 +195,7 @@ class CParser extends MultiFeatureParser {
         LCURLY ~> statementList <~ RCURLY ^^ { case list => CompoundStatement(list) }
 
     def statementList: MultiParser[List[Opt[Statement]]] =
-        repOpt(statement | compoundDeclaration, AltStatement.join)
+        repOpt(statement | compoundDeclaration, AltStatement.join, "statement")
 
     def statement: MultiParser[Statement] = (SEMI ^^ { _ => EmptyStatement() } // Empty statements
         | compoundStatement // Group of statements

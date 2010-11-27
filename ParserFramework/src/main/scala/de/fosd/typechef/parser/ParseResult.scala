@@ -48,10 +48,11 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
     def forceJoin[U >: T](f: (FeatureExpr, U, U) => U): ParseResult[U, Token, TypeContext] = {
         (resultA.join(f), resultB.join(f)) match {
             case (Success(rA, inA), Success(rB, inB)) =>
-                if (inA == inB || inA == inB.skipHidden(feature.not))
+                if (inA == inB /* || inA == inB.skipHidden(feature.not) **should no longer be necessary due to greedy next*/ )
                     Success(f(feature, rA, rB), inA)
-                else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not))
-                    Success(f(feature, rA, rB), inA.skipHidden(feature))
+                //                **should no longer be necessary due to greedy next* 
+                //else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not))
+                //                    Success(f(feature, rA, rB), inA.skipHidden(feature))
                 else
                     Failure("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA, List())
             case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => Failure("joined error", fA.or(fB), inA, List(nA, nB))
@@ -64,14 +65,14 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
         (resultA.join(f), resultB.join(f)) match {
             //both successful
             case (Success(rA, inA), Success(rB, inB)) =>
-                if (inA == inB || inA == inB.skipHidden(feature.not)) {
+                if (inA == inB/* || inA == inB.skipHidden(feature.not)*/) {
                     DebugSplitting("join  at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
                     Success(f(feature, rA, rB), inA)
-                } else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not)) {
-                    DebugSplitting("join  at \"" + inB.first.getText + "\" at " + inB.first.getPosition + " from " + feature)
-                    Success(f(feature, rA, rB), inA.skipHidden(feature))
+//                } else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not)) {
+//                    DebugSplitting("join  at \"" + inB.first.getText + "\" at " + inB.first.getPosition + " from " + feature)
+//                    Success(f(feature, rA, rB), inA.skipHidden(feature))
                 } else
-                    this //NoSuccess("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA,List())
+                    this
             //both not sucessful
             case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => {
                 DebugSplitting("joinf at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
