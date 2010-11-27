@@ -354,7 +354,7 @@ class MultiFeatureParser {
                     Error(msg1, context1, next1, List(f1, f2) ++ inner1 ++ inner2)
                 case (a, b) => {
                     DebugSplitting("split at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + context + " with " + feature)
-                    SplittedParseResult(in.first.getFeature, r1, r2)
+                    SplittedParseResult(feature, r1, r2)
                 }
             }
         }
