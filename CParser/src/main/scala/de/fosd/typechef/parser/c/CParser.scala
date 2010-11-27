@@ -10,7 +10,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 
 class CParser extends MultiFeatureParser {
     type Elem = TokenWrapper
-    type Context = CTypeContext
+    type TypeContext = CTypeContext
 
     def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]): MultiParseResult[AST, TokenWrapper, CTypeContext] =
         mainProduction(CLexer.lex(code), FeatureExpr.base)
@@ -42,7 +42,7 @@ class CParser extends MultiFeatureParser {
             { case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e) }
 
     def declaration: MultiParser[Declaration] =
-        (declSpecifiers ~ opt(initDeclList) ~ rep1(SEMI) ^^ { case d ~ i ~ _ => ADeclaration(d, i) } changeContext ({ (result: ADeclaration, context: Context) =>
+        (declSpecifiers ~ opt(initDeclList) ~ rep1(SEMI) ^^ { case d ~ i ~ _ => ADeclaration(d, i) } changeContext ({ (result: ADeclaration, context: TypeContext) =>
             {
                 var c = context
                 if (result.declSpecs.contains(TypedefSpecifier()))

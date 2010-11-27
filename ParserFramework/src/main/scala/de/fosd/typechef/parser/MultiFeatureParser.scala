@@ -13,12 +13,12 @@ import de.fosd.typechef.featureexpr.FeatureExpr
  */
 class MultiFeatureParser {
     type Elem <: AbstractToken
-    type Context
-    type Input = TokenReader[Elem, Context]
+    type TypeContext
+    type Input = TokenReader[Elem, TypeContext]
     type ParserState = FeatureExpr
 
     //parser  
-    abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T, Elem, Context]) { thisParser =>
+    abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T, Elem, TypeContext]) { thisParser =>
         private var name: String = ""
         def named(n: String): this.type = { name = n; this }
         override def toString() = "Parser (" + name + ")"
@@ -28,16 +28,16 @@ class MultiFeatureParser {
          * tries to join split parsers as early as possible
          */
         def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, Context] =
-                thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, Context]) => x.seq(fs, thatParser(x.next, fs)))
+            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, TypeContext] =
+                thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => x.seq(fs, thatParser(x.next, fs)))
         }.named("~")
 
         /**
          * non-backtracking sequencing (replace failures by errors)
          */
         def ~![U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, Context] =
-                thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, Context]) => x.seq(fs, thatParser(x.next, fs)).commit)
+            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, TypeContext] =
+                thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => x.seq(fs, thatParser(x.next, fs)).commit)
         }.named("~!")
 
         /**
@@ -45,7 +45,7 @@ class MultiFeatureParser {
          * (no attempt to join yet)
          */
         def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[U, Elem, Context] = {
+            def apply(in: Input, parserState: ParserState): MultiParseResult[U, Elem, TypeContext] = {
                 thisParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
             }
         }.named("|")
@@ -55,7 +55,7 @@ class MultiFeatureParser {
          */
         def ^^[U](f: T => U): MultiParser[U] = map(f).named("^^")
         def map[U](f: T => U): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, feature: FeatureExpr): MultiParseResult[U, Elem, Context] =
+            def apply(in: Input, feature: FeatureExpr): MultiParseResult[U, Elem, TypeContext] =
                 thisParser(in, feature).map(f)
         }
 
@@ -64,14 +64,14 @@ class MultiFeatureParser {
          */
         def ^^![U](joinFunction: (FeatureExpr, U, U) => U, f: T => U): MultiParser[U] =
             new MultiParser[U] {
-                def apply(in: Input, feature: FeatureExpr): MultiParseResult[U, Elem, Context] = {
+                def apply(in: Input, feature: FeatureExpr): MultiParseResult[U, Elem, TypeContext] = {
                     thisParser.map(f)(in, feature).join[U](joinFunction)
                 }
             }.named("^^!")
 
-        def changeContext(contextModification: (T, Context) => Context): MultiParser[T] =
+        def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParser[T] =
             new MultiParser[T] {
-                def apply(in: Input, feature: FeatureExpr): MultiParseResult[T, Elem, Context] =
+                def apply(in: Input, feature: FeatureExpr): MultiParseResult[T, Elem, TypeContext] =
                     thisParser(in, feature).changeContext(contextModification)
             }.named("__context")
 
@@ -134,11 +134,11 @@ class MultiFeatureParser {
      *  
      */
     def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
-        def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, Context] = {
+        def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
             val elems = new ListBuffer[Opt[T]]
 
             class ListHandlingException(msg: String) extends Exception(msg)
-            def findOpt(in0: Input, result: MultiParseResult[T, Elem, Context]): (Opt[T], Input) = {
+            def findOpt(in0: Input, result: MultiParseResult[T, Elem, TypeContext]): (Opt[T], Input) = {
                 result match {
                     case Success(e, in) => (Opt(parserState, e), in)
                     //first element must finish before second element starts
@@ -149,26 +149,26 @@ class MultiFeatureParser {
                         } else if (in2.offst <= in0.skipHidden(parserState.and(f)).offst) {
                             DebugSplitting("joinr at \"" + in2.first.getText + "\" at " + in2.first.getPosition + " from " + f)
                             (Opt(f.not, e2), in2)
-                        } else throw new ListHandlingException("interleaved features in list currently not supported at "+in1.pos+" / "+in2.pos+", TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported at " + in1.pos + " / " + in2.pos + ", TODO")
                     case SplittedParseResult(f, Success(e, in), _) =>
                         if (in.offst <= in0.skipHidden(parserState.and(f.not)).offst) {
                             DebugSplitting("joinl at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f, e), in)
-                        } else throw new ListHandlingException("interleaved features in list currently not supported at "+in+", TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported at " + in + ", TODO")
                     case SplittedParseResult(f, _, Success(e, in)) =>
                         if (in.offst <= in0.skipHidden(parserState.and(f)).offst) {
                             DebugSplitting("joinr at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + f)
                             (Opt(f.not, e), in)
-                        } else throw new ListHandlingException("interleaved features in list currently not supported at "+in+", TODO")
+                        } else throw new ListHandlingException("interleaved features in list currently not supported at " + in + ", TODO")
                     //others currently not supported
                     case _ => throw new ListHandlingException("deeper nesting currently not supported, TODO")
                 }
             }
 
-            def continue(in: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
+            def continue(in: Input): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
 
-                def applyp(_in: Input): MultiParseResult[List[Opt[T]], Elem, Context] = {
+                def applyp(_in: Input): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
                     var in0 = _in;
                     while (true) {
                         var skip = false
@@ -266,9 +266,9 @@ class MultiFeatureParser {
      * returns failure when list is empty
      */
     def nonEmpty[T](p: => MultiParser[List[T]]): MultiParser[List[T]] = new MultiParser[List[T]] {
-        def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[T], Elem, Context] = {
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[T], Elem, TypeContext] = {
             p(in, feature).seqAllSuccessful(feature,
-                (fs: FeatureExpr, x: Success[List[T], Elem, Context]) =>
+                (fs: FeatureExpr, x: Success[List[T], Elem, TypeContext]) =>
                     if (x.result.isEmpty)
                         Failure("empty list", fs, x.nextInput, List())
                     else
@@ -310,9 +310,9 @@ class MultiFeatureParser {
      * does not proceed the input stream (for successful entries)
      */
     def lookahead[T](p: => MultiParser[T]): MultiParser[Any] = new MultiParser[Any] {
-        def apply(in: Input, parserState: ParserState): MultiParseResult[Any, Elem, Context] = {
+        def apply(in: Input, parserState: ParserState): MultiParseResult[Any, Elem, TypeContext] = {
             p(in, parserState).seqAllSuccessful(parserState,
-                (fs: FeatureExpr, x: Success[T, Elem, Context]) => Success("lookahead", in))
+                (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => Success("lookahead", in))
         }
     }
 
@@ -321,32 +321,31 @@ class MultiFeatureParser {
 
     def success[T](v: T) =
         MultiParser { (in: Input, fs: FeatureExpr) => Success(v, in) }
-    def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T, Elem, Context]): MultiParser[T] =
+    def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T, Elem, TypeContext]): MultiParser[T] =
         new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = f(in, fs) }
 
-    def matchInput(p: (Elem, Context) => Boolean, err: Option[Elem] => String) = new MultiParser[Elem] {
-        def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, Context] = {
-            //only attempt to parse if feature is supported
-            val start = in.skipHidden(context)
-
-            if (start.atEnd)
-                Failure(err(None), context, start, List())
+    def matchInput(p: (Elem, TypeContext) => Boolean, err: Option[Elem] => String) = new MultiParser[Elem] {
+        @tailrec
+        def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, TypeContext] = {
+            if (in.atEnd)
+                Failure(err(None), context, in, List())
             else {
-                if (FeatureSolverCache.implies(context, start.first.getFeature)) {
-                    //token always parsed in this context
-                    if (p(start.first, start.context))
-                        Success(start.first, start.rest)
-                    else
-                        Failure(err(Some(start.first)), context, start, List())
-                } else
+                val tokenPresenceCondition = in.first.getFeature
+                if (FeatureSolverCache.implies(context, tokenPresenceCondition))
+                    //always parsed in this context
+                    returnFirstToken(in, context)
+                else if (FeatureSolverCache.mutuallyExclusive(context, tokenPresenceCondition))
+                    //never parsed in this context
+                    apply(in.rest, context)
+                else
                     //token sometimes parsed in this context -> plit parser
-                    splitParser(start, context)
+                    splitParser(in, context)
             }
         }
-        def splitParser(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, Context] = {
+        private def splitParser(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, TypeContext] = {
             val feature = in.first.getFeature
-            val r1 = this(in, context.and(feature))
-            val r2 = this(in, context.and(feature.not))
+            val r1 = apply(in, context.and(feature))
+            val r2 = apply(in, context.and(feature.not))
             (r1, r2) match {
                 case (f1@Failure(msg1, context1, next1, inner1), f2@Failure(msg2, context2, next2, inner2)) =>
                     Failure(msg1, context1, next1, List(f1, f2) ++ inner1 ++ inner2)
@@ -358,10 +357,16 @@ class MultiFeatureParser {
                 }
             }
         }
+        private def returnFirstToken(in: Input, context: FeatureExpr) =
+            if (p(in.first, in.context))
+                Success(in.first, in.rest.skipHidden(context))
+            else
+                Failure(err(Some(in.first)), context, in, List())
+
     }.named("matchInput")
 
     def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
-    def tokenWithContext(kind: String, p: (Elem, Context) => Boolean) = matchInput(p, errorMsg(kind, _))
+    def tokenWithContext(kind: String, p: (Elem, TypeContext) => Boolean) = matchInput(p, errorMsg(kind, _))
     private def errorMsg(kind: String, inEl: Option[Elem]) =
         (if (!inEl.isDefined) "reached EOF, " else "found \"" + inEl.get.getText + "\", ") + "but expected \"" + kind + "\""
 
