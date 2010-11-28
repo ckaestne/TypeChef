@@ -61,6 +61,78 @@ class RepOptTest extends TestCase {
         for (production <- productions)
             assertParseError(code, production)
     }
+    
+    
+     def testRepOptMultiFeatureOverlap5_linux() {
+        var (ast, next) = parseExtList(""" 
+#ifdef A
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#else
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#endif
+;
+typedef unsigned long a;
+#else
+#ifdef C
+typedef long x;
+typedef long x;
+#else
+typedef long y;
+typedef long y;
+#endif
+#endif
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 10)
+    }
+    
+    
+     def testRepOptMultiFeatureOverlap4() {
+        var (ast, next) = parseExtList(""" 
+#ifdef A
+#ifdef B
+typedef char a
+#else
+#ifdef C
+typedef int a
+#else
+typedef long a
+#endif
+#endif
+;
+typedef unsigned long a;
+#else
+#ifdef C
+typedef long x;
+typedef long x;
+#else
+typedef long y;
+typedef long y;
+#endif
+#endif
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 8)
+    }
+           
 
        def testRepOptMultiFeatureOverlap3() {
         var (ast, next) = parseExtList(""" 

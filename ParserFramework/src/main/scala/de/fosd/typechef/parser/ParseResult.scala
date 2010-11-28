@@ -52,7 +52,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
     def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext] = {
         (resultA.join(parserContext and feature, f), resultB.join(parserContext and (feature.not), f)) match {
             //both successful
-            case (Success(rA, inA), Success(rB, inB)) => {
+            case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
                 val nextA = inA.skipHidden(parserContext and feature)
                 val nextB = inB.skipHidden(parserContext and (feature.not))
 
@@ -61,7 +61,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
                     Success(f(feature, rA, rB),
                         if (inA.offst < inB.offst) inB else inA) //do not skip ahead, important for repOpt
                 } else
-                    this
+                    SplittedParseResult(feature, sA, sB)
             }
             /**
              * foldtree (heuristic for earlier joins, when treelike joins not possible)
@@ -69,7 +69,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
              * which creates a parse tree SPLIT(A&B, <>, SPLIT(A&!B, <>, x))
              * of which the former two can be merged. (occurs in expanded Linux headers...)
              */
-            case (Success(rA, inA), SplittedParseResult(innerFeature, Success(rB, inB), otherParseResult@_)) => {
+            case (sA@Success(rA, inA), sB@SplittedParseResult(innerFeature, Success(rB, inB), otherParseResult@_)) => {
                 val nextA = inA.skipHidden(parserContext and feature)
                 val nextB = inB.skipHidden(parserContext and (feature.not) and innerFeature)
 
@@ -77,11 +77,11 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
                     DebugSplitting("joinT at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
                     SplittedParseResult(
                         parserContext and (feature or innerFeature),
-                        Success(f(feature, rA, rB),
+                        Success(f(feature or innerFeature, rA, rB),
                             if (inA.offst < inB.offst) inB else inA),
                         otherParseResult)
                 } else
-                    this
+                    SplittedParseResult(feature, sA, sB)
             }
             //both not sucessful
             case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => {
