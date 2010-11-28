@@ -178,7 +178,8 @@ class MultiFeatureParser {
                             case _ => throw new ListHandlingException("... should not occur ...")
                         }
                     }
-                    case s: ParseResult[T, Elem, TypeContext] => (context, s)
+                    case s@Success(_,_) => (context, s)
+                    case s@NoSuccess(_,_,_,_) => (context, s)
                 }
 
             def continue(in: Input): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {

@@ -1,4 +1,5 @@
 package de.fosd.typechef.featureexpr
+import scala.collection.mutable.WeakHashMap
 
 import LazyLib._
 
@@ -85,8 +86,7 @@ trait FeatureExpr {
 /**
  * feature expressions
  * 
- * always stored in three formats: as constructed, CNF and DNF.
- * CNF and DNF are updated immediately on changes
+ * may be simplified. caches results on most operations
  */
 protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr {
 

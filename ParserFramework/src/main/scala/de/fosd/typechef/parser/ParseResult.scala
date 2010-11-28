@@ -21,8 +21,8 @@ sealed abstract class MultiParseResult[+T, Token <: AbstractToken, TypeContext] 
     def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext]
     def forceJoin[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): ParseResult[U, Token, TypeContext] =
         join(parserContext, f) match {
-            case s@Success(_,_) => s
-            case s@NoSuccess(_,_,_,_) => s
+            case s@Success(_, _) => s
+            case s@NoSuccess(_, _, _, _) => s
             case _ => throw new Exception("Unsuccessful join")
         }
 
@@ -54,14 +54,32 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
             //both successful
             case (Success(rA, inA), Success(rB, inB)) => {
                 val nextA = inA.skipHidden(parserContext and feature)
-                val nextB = inA.skipHidden(parserContext and (feature.not))
+                val nextB = inB.skipHidden(parserContext and (feature.not))
 
                 if (nextA == nextB) {
                     DebugSplitting("join  at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
-                    Success(f(feature, rA, rB), nextA)
-                    //                } else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not)) {
-                    //                    DebugSplitting("join  at \"" + inB.first.getText + "\" at " + inB.first.getPosition + " from " + feature)
-                    //                    Success(f(feature, rA, rB), inA.skipHidden(feature))
+                    Success(f(feature, rA, rB),
+                        if (inA.offst < inB.offst) inB else inA) //do not skip ahead, important for repOpt
+                } else
+                    this
+            }
+            /**
+             * foldtree (heuristic for earlier joins, when treelike joins not possible)
+             * used for input such as <_{A&B} <_{A&!B} >_{A} x_{!A}
+             * which creates a parse tree SPLIT(A&B, <>, SPLIT(A&!B, <>, x))
+             * of which the former two can be merged. (occurs in expanded Linux headers...)
+             */
+            case (Success(rA, inA), SplittedParseResult(innerFeature, Success(rB, inB), otherParseResult@_)) => {
+                val nextA = inA.skipHidden(parserContext and feature)
+                val nextB = inB.skipHidden(parserContext and (feature.not) and innerFeature)
+
+                if (nextA == nextB) {
+                    DebugSplitting("joinT at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
+                    SplittedParseResult(
+                        parserContext and (feature or innerFeature),
+                        Success(f(feature, rA, rB),
+                            if (inA.offst < inB.offst) inB else inA),
+                        otherParseResult)
                 } else
                     this
             }

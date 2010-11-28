@@ -12,7 +12,7 @@ class CParserTest extends TestCase {
         def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
     }
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]) {
-        val actual = p.parse(code.stripMargin, mainProduction).forceJoin(Alt.join)
+        val actual = p.parse(code.stripMargin, mainProduction).forceJoin(FeatureExpr.base, Alt.join)
         System.out.println(actual)
         actual match {
             case Success(ast, unparsed) => {
