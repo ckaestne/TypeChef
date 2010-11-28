@@ -14,7 +14,7 @@ object FeatureSolverCache {
         impliesCache.getOrElseUpdate(new FeatureExprPair(a, b),
             {
                 i_hits += 1;
-                println(a + " => " + b)
+//                println(a + " => " + b)
                 a.implies(b).isTautology()
             })
     }
@@ -24,7 +24,7 @@ object FeatureSolverCache {
         mutuallyExclusiveCache.getOrElseUpdate(new FeatureExprPair(a, b),
             {
                 m_hits += 1;
-                println(a + " x " + b);
+//                println(a + " x " + b);
                 a.and(b).isContradiction()
             })
     }

@@ -63,6 +63,99 @@ class RepOptTest extends TestCase {
     }
     
     
+    
+        def testRepOptMultiFeatureOverlap7_linux() {
+        var (ast, next) = parseExtList(""" 
+#ifdef A
+#ifdef SMP
+
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_x86_bios_cpu_apicid; extern __attribute__((section(".data.percpu" "")))  __typeof__(u16) per_cpu__x86_bios_cpu_apicid
+#else
+extern __attribute__((section(".data.percpu" "")))  __typeof__(u16) per_cpu__x86_bios_cpu_apicid
+#endif
+; extern __typeof__(u16) *x86_bios_cpu_apicid_early_ptr; extern __typeof__(u16) x86_bios_cpu_apicid_early_map[]
+#else
+
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_x86_bios_cpu_apicid; extern __attribute__((section(".data" "")))  __typeof__(u16) per_cpu__x86_bios_cpu_apicid
+#else
+extern __attribute__((section(".data" "")))  __typeof__(u16) per_cpu__x86_bios_cpu_apicid
+#endif
+
+#endif
+;    
+typedef long y;
+typedef long y;
+#endif
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 15)
+    }
+        
+
+    
+    
+        def testRepOptMultiFeatureOverlap6_linux() {
+        var (ast, next) = parseExtList(""" 
+#ifdef A
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#else
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#endif
+;
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#else
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#endif
+;
+typedef unsigned long a;
+#else
+#ifdef C
+typedef long x;
+typedef long x;
+#else
+typedef long y;
+typedef long y;
+#endif
+#endif
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 15)
+    }
+    
      def testRepOptMultiFeatureOverlap5_linux() {
         var (ast, next) = parseExtList(""" 
 #ifdef A

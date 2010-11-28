@@ -212,7 +212,7 @@ class MultiFeatureParser {
                                 case Success(result, next) =>
                                     if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst) {
                                         elems += Opt(parserState.and(firstFeature), result)
-                                        println(productionName + " " + next.first.getPosition)
+//                                        println(productionName + " " + next.first.getPosition)
                                         in0 = next
                                         skip = true;
                                     }
@@ -244,7 +244,7 @@ class MultiFeatureParser {
                                 //when there are multiple results, create Opt-entry for shortest one(s), if there is no overlapping
                                 val (e, rest) = findOpt(in0, parseResult)
                                 //                                if (productionName=="externalDef")
-                                println(productionName + " " + rest.first.getPosition)
+                                //println(productionName + " " + rest.first.getPosition)
                                 elems += e
                                 //continue parsing
                                 in0 = rest
