@@ -1,43 +1,46 @@
 package de.fosd.typechef.parser
+import scala.collection.mutable.WeakHashMap
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 object FeatureSolverCache {
-    //simple LRU cache with two entries (and statistics)
-    type CacheT = (FeatureExpr, FeatureExpr, Boolean)
-    var i1, i2, m1, m2: CacheT = (null, null, false)
-    var i_hits, i_query, m_hits, m_query=0;
+    var i_hits, i_query, m_hits, m_query = 0;
+
+    private val impliesCache: WeakHashMap[FeatureExprPair, Boolean] = new WeakHashMap()
+    private val mutuallyExclusiveCache: WeakHashMap[FeatureExprPair, Boolean] = new WeakHashMap()
 
     def implies(a: FeatureExpr, b: FeatureExpr): Boolean = {
-        i_query+=1
-        if ((a eq i1._1) && (b eq i1._2))
-            return i1._3
-        if ((a eq i2._1) && (b eq i2._2))
-            { swapi; return i1._3}
-        i_hits+=1
-        val result = a.implies(b).isBase()
-        println(a+" => "+b+"="+result)
-        storei((a,b,result))
-        return result
+        i_query += 1
+        impliesCache.getOrElseUpdate(new FeatureExprPair(a, b),
+            {
+                i_hits += 1;
+                println(a + " => " + b)
+                a.implies(b).isTautology()
+            })
     }
 
     def mutuallyExclusive(a: FeatureExpr, b: FeatureExpr): Boolean = {
-        m_query+=1
-        if ((a eq m1._1) && (b eq m1._2))
-            return m1._3
-        if ((a eq m2._1) && (b eq m2._2))
-            { swapm; return m1._3}
-        m_hits+=1
-        val result = a.and(b).isDead()
-        println(a+" x "+b+"="+result)
-        storem((a,b,result))
-        return result
+        m_query += 1
+        mutuallyExclusiveCache.getOrElseUpdate(new FeatureExprPair(a, b),
+            {
+                m_hits += 1;
+                println(a + " x " + b);
+                a.and(b).isContradiction()
+            })
     }
-    
-    def swapi { val t=i1; i1=i2; i2=t;}
-    def storei(c:CacheT) { i2=i1; i1=c;}
-    def swapm { val t=m1; m1=m2; m2=t;}
-    def storem(c:CacheT) { m2=m1; m1=c;}
-    
-    def statistics = "implies "+i_hits+"/"+i_query+" ("+(1.0-i_hits/i_query)+"); mex "+m_hits+"/"+m_query+" ("+(1.0-m_hits/m_query)+")";
+
+    def statistics = "implies " + i_hits + "/" + i_query + " (" + (1.0 - i_hits / i_query) + "); mex " + m_hits + "/" + m_query + " (" + (1.0 - m_hits / m_query) + ")";
+}
+
+/**
+ * this pair class has the sole purpose of comparing feature expressions
+ * by identity (eq instead of equals) in maps
+ */
+private class FeatureExprPair(val a: FeatureExpr, val b: FeatureExpr) {
+    override def hashCode = a.hashCode + b.hashCode
+    override def equals(that: Any) = that match {
+        case e: FeatureExprPair => (e.a eq this.a) && (e.b eq this.b)
+        case _ => false
+    }
+
 }

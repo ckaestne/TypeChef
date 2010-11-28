@@ -94,11 +94,14 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
 
     def simplify(): FeatureExpr = { this.aexpr = aexpr.simplify; this }
 
-    def and(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
-        And(this.expr, that.expr))
+    val andCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
+    def and(that: FeatureExpr): FeatureExpr = 
+        andCache.getOrElseUpdate(that, new FeatureExprImpl(And(this.expr, that.expr)))
+    
 
-    def or(that: FeatureExpr): FeatureExpr = new FeatureExprImpl(
-        Or(this.expr, that.expr))
+    val orCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
+    def or(that: FeatureExpr): FeatureExpr =
+        orCache.getOrElseUpdate(that, new FeatureExprImpl(Or(this.expr, that.expr)))
 
     var notCache: FeatureExpr = null
     def not(): FeatureExpr =

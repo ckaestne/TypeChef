@@ -69,7 +69,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
              * which creates a parse tree SPLIT(A&B, <>, SPLIT(A&!B, <>, x))
              * of which the former two can be merged. (occurs in expanded Linux headers...)
              */
-            case (Success(rA, inA), SplittedParseResult(innerFeature, Success(rB, inB), otherParseResult@_)) => {
+            case (Success(rA, inA), SplittedParseResult(innerFeature, Success(rB, inB), otherParseResult@Success(_,_))) => {
                 val nextA = inA.skipHidden(parserContext and feature)
                 val nextB = inB.skipHidden(parserContext and (feature.not) and innerFeature)
 
