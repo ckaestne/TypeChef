@@ -15,18 +15,22 @@ sealed abstract class MultiParseResult[+T, Token <: AbstractToken, TypeContext] 
     def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U, Token, TypeContext]): MultiParseResult[U, Token, TypeContext]
     def map[U](f: T => U): MultiParseResult[U, Token, TypeContext]
     /** 
-     * joins multiple cases, ensures only one result remains. 
-     * if any result is unsuccessful, everything is unsuccessful. 
-     * this should only be used at the last step when presenting a single result to the user 
-     **/
-    def forceJoin[U >: T](f: (FeatureExpr, U, U) => U): ParseResult[U, Token, TypeContext]
-    /** 
      * joins as far as possible. joins all successful ones but maintains partially successful results.
      * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
      **/
-    def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext]
+    def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext]
+    def forceJoin[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): ParseResult[U, Token, TypeContext] =
+        join(parserContext, f) match {
+            case s@Success(_,_) => s
+            case s@NoSuccess(_,_,_,_) => s
+            case _ => throw new Exception("Unsuccessful join")
+        }
+
     def allFailed: Boolean
-    def toList: List[ParseResult[T, Token, TypeContext]]
+    /**
+     * toList recursively flattens the tree structure and creates resulting feature expressions
+     */
+    def toList(baseFeatureExpr: FeatureExpr): List[(FeatureExpr, ParseResult[T, Token, TypeContext])]
     def toErrorList: List[Error[Token, TypeContext]]
     def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParseResult[T, Token, TypeContext]
     //replace all failures by errors (non-backtracking!)
@@ -45,34 +49,22 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
     }
     def map[U](f: T => U): MultiParseResult[U, Token, TypeContext] =
         SplittedParseResult(feature, resultA.map(f), resultB.map(f))
-    def forceJoin[U >: T](f: (FeatureExpr, U, U) => U): ParseResult[U, Token, TypeContext] = {
-        (resultA.join(f), resultB.join(f)) match {
-            case (Success(rA, inA), Success(rB, inB)) =>
-                if (inA == inB /* || inA == inB.skipHidden(feature.not) **should no longer be necessary due to greedy next*/ )
-                    Success(f(feature, rA, rB), inA)
-                //                **should no longer be necessary due to greedy next* 
-                //else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not))
-                //                    Success(f(feature, rA, rB), inA.skipHidden(feature))
-                else
-                    Failure("Incompatible ends for joining two results: " + rA + " (" + inA + ") - " + rB + " (" + inB + ")", feature, inA, List())
-            case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => Failure("joined error", fA.or(fB), inA, List(nA, nB))
-            case (nos@NoSuccess(_, _, _, _), _) => nos
-            case (_, nos@NoSuccess(_, _, _, _)) => nos
-            case _ => throw new Exception("unsupported match")
-        }
-    }
-    def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext] = {
-        (resultA.join(f), resultB.join(f)) match {
+    def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext] = {
+        (resultA.join(parserContext and feature, f), resultB.join(parserContext and (feature.not), f)) match {
             //both successful
-            case (Success(rA, inA), Success(rB, inB)) =>
-                if (inA == inB/* || inA == inB.skipHidden(feature.not)*/) {
+            case (Success(rA, inA), Success(rB, inB)) => {
+                val nextA = inA.skipHidden(parserContext and feature)
+                val nextB = inA.skipHidden(parserContext and (feature.not))
+
+                if (nextA == nextB) {
                     DebugSplitting("join  at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
-                    Success(f(feature, rA, rB), inA)
-//                } else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not)) {
-//                    DebugSplitting("join  at \"" + inB.first.getText + "\" at " + inB.first.getPosition + " from " + feature)
-//                    Success(f(feature, rA, rB), inA.skipHidden(feature))
+                    Success(f(feature, rA, rB), nextA)
+                    //                } else if (inA.skipHidden(feature) == inB || inA.skipHidden(feature) == inB.skipHidden(feature.not)) {
+                    //                    DebugSplitting("join  at \"" + inB.first.getText + "\" at " + inB.first.getPosition + " from " + feature)
+                    //                    Success(f(feature, rA, rB), inA.skipHidden(feature))
                 } else
                     this
+            }
             //both not sucessful
             case (nA@NoSuccess(mA, fA, inA, iA), nB@NoSuccess(mB, fB, inB, iB)) => {
                 DebugSplitting("joinf at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
@@ -83,7 +75,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
         }
     }
     def allFailed = resultA.allFailed && resultB.allFailed
-    def toList = resultA.toList ++ resultB.toList
+    def toList(context: FeatureExpr) = resultA.toList(context and feature) ++ resultB.toList(context and (feature.not))
     def toErrorList = resultA.toErrorList ++ resultB.toErrorList
     def changeContext(contextModification: (T, TypeContext) => TypeContext) =
         SplittedParseResult(feature, resultA.changeContext(contextModification), resultB.changeContext(contextModification))
@@ -105,9 +97,8 @@ sealed abstract class ParseResult[+T, Token <: AbstractToken, TypeContext](nextI
     def map[U](f: T => U): ParseResult[U, Token, TypeContext]
     def next = nextInput
     def isSuccess: Boolean
-    def forceJoin[U >: T](f: (FeatureExpr, U, U) => U): ParseResult[U, Token, TypeContext] = this
-    def join[U >: T](f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext] = this
-    def toList = List(this)
+    def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U, Token, TypeContext] = this
+    def toList(context: FeatureExpr) = List((context, this))
 }
 abstract class NoSuccess[Token <: AbstractToken, TypeContext](val msg: String, val context: FeatureExpr, val nextInput: TokenReader[Token, TypeContext], val innerErrors: List[NoSuccess[Token, TypeContext]]) extends ParseResult[Nothing, Token, TypeContext](nextInput) {
     def map[U](f: Nothing => U) = this

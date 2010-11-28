@@ -7,7 +7,7 @@ class MultiExpressionParser extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[AST, MyToken, TypeContext] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null,EofToken), FeatureExpr.base).forceJoin(Alt.join)
+    def parse(tokens: List[MyToken]): ParseResult[AST, MyToken, TypeContext] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).forceJoin(FeatureExpr.base, Alt.join)
 
     def expr: MultiParser[AST] =
         term ~ opt((t("+") | t("-")) ~ expr) ^^! (Alt.join, {
@@ -25,7 +25,7 @@ class MultiExpressionParser extends MultiFeatureParser {
 
     def fact: MultiParser[AST] =
         (digits ^^! (Alt.join, { t => Lit(t.text.toInt) })
-            | (lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^ { case _ ~ (b1 ~ e ~ b2) => e } ^^! (Alt.join, x => x)
+            | (lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^ { case _ ~(b1 ~ e ~ b2) => e } ^^! (Alt.join, x => x)
             | fail("digit or '(' expected"))
 
     def t(text: String) = token(text, (x => x.t == text))

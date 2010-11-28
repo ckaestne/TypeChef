@@ -31,7 +31,7 @@ class CParser extends MultiFeatureParser {
 
     def translationUnit = externalList ^^ { TranslationUnit(_) }
 
-    def externalList =
+    def externalList: MultiParser[List[Opt[ExternalDef]]] =
         repOpt(externalDef, AltExternalDef.join, "externalDef")
 
     def externalDef: MultiParser[ExternalDef] =
