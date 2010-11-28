@@ -26,7 +26,7 @@ class SatSolver extends Solver {
         flags.size
     }
 
-    val PROFILING = true;
+    val PROFILING = false;
 
     def isSatisfiable(exprCNF: NF): Boolean = {
         if (exprCNF.isEmpty) return true

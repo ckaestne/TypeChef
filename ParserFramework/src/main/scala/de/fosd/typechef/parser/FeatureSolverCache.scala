@@ -29,7 +29,7 @@ object FeatureSolverCache {
             })
     }
 
-    def statistics = "implies " + i_hits + "/" + i_query + " (" + (1.0 - i_hits / i_query) + "); mex " + m_hits + "/" + m_query + " (" + (1.0 - m_hits / m_query) + ")";
+    def statistics = "implies " + i_hits + "/" + i_query + " (" + (1.0 - (1.0*i_hits) / i_query) + "); mex " + m_hits + "/" + m_query + " (" + (1.0 - (1.0*m_hits) / m_query) + ")";
 }
 
 /**
