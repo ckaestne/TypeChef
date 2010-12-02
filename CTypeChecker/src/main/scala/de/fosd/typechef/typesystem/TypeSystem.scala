@@ -85,7 +85,9 @@ class TypeSystem {
                 if (DEBUG_PRINT) println(" always reachable " + condition)
             } else {
                 if (DEBUG_PRINT) println(" not always reachable " + feature + " => " + targets.map(_.feature).mkString(" || "))
-                errorMessages = new ErrorMsg("declaration of function " + name + " not always reachable (" + targets.size + " potential targets): " + feature + " => " + targets.map(_.feature).mkString(" || "), source, targets) :: errorMessages
+                errorMessages = new ErrorMsg("declaration of function " + name + " not always reachable" +
+                                " (" + targets.size + " potential targets): callsite feature" + feature + " does not imply " +
+                                targets.map(_.feature).mkString(" || "), source, targets) :: errorMessages
             }
         } else {
             if (DEBUG_PRINT) println("dead")
