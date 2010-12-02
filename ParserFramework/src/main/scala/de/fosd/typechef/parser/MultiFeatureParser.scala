@@ -149,7 +149,7 @@ class MultiFeatureParser {
 
             def findOpt(in0: Input, result: MultiParseResult[T, Elem, TypeContext]): (Opt[T], Input) = {
                 val (feature, singleResult) = selectFirstMostResult(in0, parserState, result)
-                assert(singleResult.isInstanceOf[Success[T, Elem, TypeContext]])
+                assert(singleResult.isInstanceOf[Success[_, _, _]])
                 (Opt(feature, singleResult.asInstanceOf[Success[T, Elem, TypeContext]].result), singleResult.next)
             }
             /**
