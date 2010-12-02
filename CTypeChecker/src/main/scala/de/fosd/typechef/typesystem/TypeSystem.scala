@@ -26,7 +26,8 @@ class TypeSystem {
       "constant_p",
       "expect",
       "memcpy",
-      "memset")
+      "memset",
+      "return_address")
 
     def declareBuiltins() {
         for (name <- gccBuiltins) {
