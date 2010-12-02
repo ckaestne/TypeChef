@@ -54,7 +54,7 @@ $basePath/CTypeChecker/target/scala_2.8.0/classes:\
 $basePath/BoaCaseStudy/target/scala_2.8.0/classes \
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
-  '$inp' -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
+  '$inp' -o '$outPartialPreproc' 2> '$outErr'|tee '$outDbg'" \
   2> "$outTime" || true
 
 cat "$outErr"  1>&2
