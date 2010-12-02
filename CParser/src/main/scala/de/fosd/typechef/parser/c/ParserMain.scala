@@ -16,8 +16,12 @@ object MyUtil {
 	implicit def runnable(f: () => Unit): Runnable =
 		new Runnable() { def run() = f() }
 }
+
 object ParserMain {
-    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext):AST = {
+    def parserMain(filePath: String, parentPath: String): AST =
+            parserMain(filePath, parentPath, new CTypeContext())
+
+    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext): AST = {
         val logStats = MyUtil.runnable(() => {
                 if (TokenWrapper.profiling) {
                         val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))

@@ -73,18 +73,15 @@ object PreprocessorFrontend {
             includeFlags)
     }
 
-    def parseFile(filePath: String, parentPath: String) : AST = {
-        ParserMain.parserMain(filePath, parentPath, new CTypeContext())
-    }
-
     def main(args: Array[String]): Unit = {
         initSettings
         var extraOpt = List("-p", "_")
         val optionsToForward = "pPUDx"
         val INCLUDE_OPT = 0
         val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT))
-        val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
+        val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:t" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
+        var typecheck = false
         var preprocOutputPathOpt: Option[String] = None
         do {
             val c = g.getopt()
@@ -95,6 +92,7 @@ object PreprocessorFrontend {
                     case 'I' => cmdLinePostIncludes :+= arg
                     case 'c' => loadSettings(arg)
                     case 'o' => preprocOutputPathOpt = Some(arg)
+                    case 't' => typecheck = true
                     
                     case ':' => println("Missing required argument!"); exit(1)
                     case '?' => println("Unexpected option!"); exit(1)
@@ -124,8 +122,10 @@ object PreprocessorFrontend {
             val folderPath = new File(preprocOutputPath).getParent
  
             preprocessFile(filename, preprocOutputPath, extraOpt)
-            val ast = parseFile(parserInput, folderPath)
-            new TypeSystem().checkAST(ast)
+            if (typecheck) {
+                    val ast = ParserMain.parserMain(parserInput, folderPath)
+                    new TypeSystem().checkAST(ast)
+            }
         }
     }
 }
