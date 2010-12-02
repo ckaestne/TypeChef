@@ -607,19 +607,22 @@ case class IntegerLit(num: Long) extends FeatureExprTree {
     def countSize() = 1
 }
 
+class DeadFeature extends IntegerLit(0) {}
 object DeadFeature {
     def unapply(f: FeatureExprTree): Boolean = f match {
         case IntegerLit(0) => true
         case _ => false
     }
-    def apply() = new IntegerLit(0)
+    def apply() = new DeadFeature()
 }
+
+class BaseFeature extends IntegerLit(1) {}
 object BaseFeature {
     def unapply(f: FeatureExprTree): Boolean = f match {
         case IntegerLit(1) => true
         case _ => false
     }
-    def apply() = new IntegerLit(1)
+    def apply() = new BaseFeature()
 }
 
 case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) extends FeatureExprTree {
