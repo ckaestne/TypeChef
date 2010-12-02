@@ -366,15 +366,23 @@ class MultiFeatureParser {
                 else if (FeatureSolverCache.mutuallyExclusive(context, tokenPresenceCondition))
                     //never parsed in this context
                     apply(in.rest.skipHidden(context), context)
-                else
+                else {
                     //token sometimes parsed in this context -> plit parser
+                    in.first.countSplit
                     splitParser(in, context)
+                }
             }
         }
         private def splitParser(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, TypeContext] = {
             val feature = in.first.getFeature
-            val r1 = apply(in, context.and(feature))
-            val r2 = apply(in, context.and(feature.not))
+            val ctxAndFeat = context.and(feature)
+            assert(FeatureSolverCache.implies(ctxAndFeat, feature))
+            val r1 = apply(in, ctxAndFeat)
+
+            val ctxAndNotFeat = context.and(feature.not)
+            assert(FeatureSolverCache.mutuallyExclusive(ctxAndNotFeat, feature))
+            val r2 = apply(in, ctxAndNotFeat)
+
             (r1, r2) match {
                 case (f1@Failure(msg1, context1, next1, inner1), f2@Failure(msg2, context2, next2, inner2)) =>
                     Failure(msg1, context1, next1, List(f1, f2) ++ inner1 ++ inner2)
@@ -386,11 +394,15 @@ class MultiFeatureParser {
                 }
             }
         }
-        private def returnFirstToken(in: Input, context: FeatureExpr) =
-            if (p(in.first, in.context))
+        private def returnFirstToken(in: Input, context: FeatureExpr) = {
+            if (p(in.first, in.context)) {
+                in.first.countSuccess
                 Success(in.first, in.rest)
-            else
+            } else {
+                in.first.countFailure
                 Failure(err(Some(in.first)), context, in, List())
+            }
+        }
 
     }.named("matchInput")
 

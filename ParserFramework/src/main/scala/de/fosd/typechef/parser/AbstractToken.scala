@@ -5,6 +5,11 @@ trait AbstractToken {
     def getFeature: FeatureExpr
     def getText: String
     def getPosition: Position
+
+    // profiling
+    def countSuccess = {} 
+    def countFailure = {} 
+    def countSplit = {} 
 }
 
 trait Position {

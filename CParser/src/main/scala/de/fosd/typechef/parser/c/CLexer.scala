@@ -27,7 +27,7 @@ object CLexer {
         var tokenNr: Int = 0
         while (tokens.hasNext) {
             val t = tokens.next
-            result += new TokenWrapper(t, tokenNr)
+            result += TokenWrapper(t, tokenNr)
             tokenNr = tokenNr + 1
         }
         new TokenReader(result.toList, 0, new CTypeContext(),TokenWrapper.EOF)
