@@ -23,7 +23,7 @@ class TokenWrapper(token: Token, number: Int) extends AbstractToken {
         def getFile = token.getSource.toString
         def getLine = token.getLine
         def getColumn = token.getColumn
-        override def toString = number + " (" + getLine + ")"
+        override def toString = "token no. " + number + " (line: " + getLine + ")"
     }
 }
 
