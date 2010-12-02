@@ -10,11 +10,11 @@ class TestFeatureExprBasics extends TestCase {
     def a = createDefinedExternal("a")
     def b = createDefinedExternal("b")
     def h = createDefinedExternal("h")
-    def s = 1
-    def t = 2
-    def c = 3
+    def s = 1 //SATISFIABLE
+    def t = 2 //TAUTOLOGY
+    def c = 3 //CONTRADICTION
 
-    def check(x: FeatureExpr, f: Int = 1) {
+    def check(x: FeatureExpr, f: Int = s) {
         println(x.expr)
 //        println("CNF: " + x.cnfExpr)
 //        println("DNF: " + x.dnfExpr)
@@ -67,6 +67,8 @@ class TestFeatureExprBasics extends TestCase {
         check(FeatureExpr.base or a, t)
         check(a and FeatureExpr.base, s)
         check(a or FeatureExpr.base , t)
+        check(FeatureExpr.base implies FeatureExpr.base, t)
+        check(FeatureExpr.base and (FeatureExpr.base not), c)
     }
 
     def testToCnf {
