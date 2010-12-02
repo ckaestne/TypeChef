@@ -120,19 +120,11 @@ object PreprocessorFrontend {
                 case Some(_) => None
             }
             val preprocOutputPath = preprocOutputPathOpt.get
+            val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
  
-            //XXX: hack to test only parsing.
-            val usePreprocessed = false
-            if (usePreprocessed)
-              preprocessFile(filename, preprocOutputPath, extraOpt)
-            val parserInput =
-              if (usePreprocessed)
-                preprocOutputPath
-              else
-                filename.replace(".c", ".i")
+            preprocessFile(filename, preprocOutputPath, extraOpt)
             val ast = parseFile(parserInput, folderPath)
-            // val ast = parseFile(preprocOutputPath, folderPath)
             new TypeSystem().checkAST(ast)
         }
     }
