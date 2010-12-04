@@ -178,8 +178,8 @@ class MultiFeatureParser {
                             case _ => throw new ListHandlingException("... should not occur ...")
                         }
                     }
-                    case s@Success(_,_) => (context, s)
-                    case s@NoSuccess(_,_,_,_) => (context, s)
+                    case s@Success(_, _) => (context, s)
+                    case s@NoSuccess(_, _, _, _) => (context, s)
                 }
 
             def continue(in: Input): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
@@ -212,7 +212,7 @@ class MultiFeatureParser {
                                 case Success(result, next) =>
                                     if (next.offset <= in0.skipHidden(parserState.and(firstFeature.not)).offst) {
                                         elems += Opt(parserState.and(firstFeature), result)
-//                                        println(productionName + " " + next.first.getPosition)
+                                        //                                        println(productionName + " " + next.first.getPosition)
                                         in0 = next
                                         skip = true;
                                     }
@@ -271,11 +271,6 @@ class MultiFeatureParser {
         }
     }.named("repOpt-" + productionName)
 
-    /**
-     * normal repetition, 0..n times (x)*
-     * @param p
-     * @return
-     */
     /*def rep[T](p: => MultiParser[T]): MultiParser[List[T]] =
         opt(p ~ rep(p)) ^^ {
             case Some(~(x, list: List[_])) => List(x) ++ list
@@ -308,7 +303,11 @@ class MultiFeatureParser {
         opt(p) ~ opt(p)*
      */
 
-
+    /**
+     * normal repetition, 0..n times (x)*
+     * @param p
+     * @return
+     */
     def rep[T](p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[T], Elem, TypeContext] = {
             var anySuccess = false
@@ -322,17 +321,29 @@ class MultiFeatureParser {
             while (anySuccess) {
                 anySuccess = false
                 res = res.seqAllSuccessful(parserState,
-                        (fs: FeatureExpr, x: Success[List[_], Elem, TypeContext]) => x.seq(fs, opt(p)(x.next, fs))).map({
-                            case list ~ Some(x) =>
-                                anySuccess = true; x +: list.asInstanceOf[List[T]] //Note: elements are here reversed!
-                            case list ~ None =>
-                                list.asInstanceOf[List[T]]
-                        })
-                        //res = newRes.replaceAllFailure(parserState, (fs: FeatureExpr) => success(Nil /* XXX: AARGH! This loses the parsed list! */)(in, fs))
+                    (fs, x) => x.seq[Option[T]](fs, opt(p)(x.next, fs))).map({
+                    case list ~ Some(x) =>
+                        anySuccess = true;
+                        list :+ x
+                    case list ~ None =>
+                        list
+                })
             }
-            res.map(_.reverse)
+            res
         }
     }
+
+    /**
+     * straightforward implementation but computationally expensive in a stack-based language, 
+     * therefore use iterative implementation rep instead
+     * @param p
+     * @return
+     */
+    def repRecursive[T](p: => MultiParser[T]): MultiParser[List[T]] =
+        opt(p ~ rep(p)) ^^ {
+            case Some(~(x, list: List[_])) => List(x) ++ list
+            case None => List()
+        }
 
     /*
     def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
