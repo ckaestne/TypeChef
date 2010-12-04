@@ -151,12 +151,12 @@ object NFBuilder {
 
         }
     private def toClause(literals: Seq[FeatureExprTree]): Clause = {
-        var posLiterals: List[DefinedExpr] = List()
-        var negLiterals: List[DefinedExpr] = List()
+        var posLiterals: Seq[DefinedExpr] = List()
+        var negLiterals: Seq[DefinedExpr] = List()
         for (literal <- literals)
             literal match {
-                case f@DefinedExpr(_) => posLiterals = f :: posLiterals
-                case Not(f@DefinedExpr(_)) => negLiterals = f :: negLiterals
+                case f@DefinedExpr(_) => posLiterals = f +: posLiterals
+                case Not(f@DefinedExpr(_)) => negLiterals = f +: negLiterals
                 case e => throw new NoLiteralException(e)
             }
         new Clause(posLiterals, negLiterals).simplify
