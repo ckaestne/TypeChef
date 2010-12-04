@@ -5,7 +5,7 @@ if [ -z "$jcppConfLoaded" ]; then
 fi
 
 # What you should configure
-javaOpts='$javaOpts -Xmx2G -Xms128m -Xss8M'
+javaOpts='$javaOpts -Xmx2G -Xms128m'
 
 macro_stats_path=macroDebug.txt
 debugsource_path=debugsource.txt
