@@ -29,7 +29,7 @@ abstract class DigitList2Parser extends MultiFeatureParser {
     def t(text: String) = token(text, (x => x.t == text))
 
     def digit: MultiParser[AST] =
-        token("digit", ((x) => x.t == "1" | x.t == "2" | x.t == "3" | x.t == "4" | x.t == "5")) ~ rep(t("!")) ^^
+        token("digit", ((x) => x.t == "1" | x.t == "2" | x.t == "3" | x.t == "4" | x.t == "5")) ~ repPlain(t("!")) ^^
             { case t ~ _ => Lit(t.text.toInt) }
 
 }

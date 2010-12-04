@@ -94,7 +94,7 @@ class MultiFeatureParser {
          *
          * @return rep(this) 
          */
-        def * = rep(this)
+        def * = repOpt(this)
 
         /** Returns a parser that repeatedly parses what this parser parses, interleaved with the `sep' parser.
          * The `sep' parser specifies how the results parsed by this parser should be combined.
@@ -126,6 +126,7 @@ class MultiFeatureParser {
     def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
         p ^^ (x => Some(x)) | success(None)
 
+    /*   */
     /** 
      * repeated application (0..n times), or (x)*
      *
@@ -139,7 +140,7 @@ class MultiFeatureParser {
      * able to parse correctly interleaved entries of both lists. In this case use rep instead for the first sequence. XXX 
      *
      *  @param productionName provides a readable name for debugging purposes
-     */
+     */ /*
     def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
             val elems = new ListBuffer[Opt[T]]
@@ -151,11 +152,12 @@ class MultiFeatureParser {
                 assert(singleResult.isInstanceOf[Success[_, _, _]])
                 (Opt(feature, singleResult.asInstanceOf[Success[T, Elem, TypeContext]].result), singleResult.next)
             }
-            /**
-             * @param in0: token stream position before attempting to parse this sequence
-             * 
-             * returns a single parse result with the corresponding feature 
-             */
+            */
+    /**
+     * @param in0: token stream position before attempting to parse this sequence
+     * 
+     * returns a single parse result with the corresponding feature 
+     */ /*
             def selectFirstMostResult(in0: Input, context: FeatureExpr, result: MultiParseResult[T, Elem, TypeContext]): (FeatureExpr, ParseResult[T, Elem, TypeContext]) =
                 result match {
                     case SplittedParseResult(f, a, b) => {
@@ -184,22 +186,24 @@ class MultiFeatureParser {
             def continue(in: Input): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
                 val p0 = p // avoid repeatedly re-evaluating by-name parser
 
-                /**
-                 * main repopt loop
-                 */
+                */
+    /**
+     * main repopt loop
+     */ /*
                 def applyp(_in: Input): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
                     var in0 = _in;
                     while (true) {
                         var skip = false
-                        /**
-                         * strategy1: parse the next statement with the annotation of the next token.
-                         *  if it yields a unique result before the next token that would be parsed 
-                         *  with the alternative (split) parser, then this is the only result we need 
-                         *  to care about
-                         * 
-                         * will work in the common case that the entire entry is annotated and 
-                         *  is not interleaved with other annotations
-                         */
+                        */
+    /**
+     * strategy1: parse the next statement with the annotation of the next token.
+     *  if it yields a unique result before the next token that would be parsed 
+     *  with the alternative (split) parser, then this is the only result we need 
+     *  to care about
+     * 
+     * will work in the common case that the entire entry is annotated and 
+     *  is not interleaved with other annotations
+     */ /*
 
                         if (productionName == "externalDef")
                             println("next externalDef @ " + in0.first.getPosition)
@@ -225,7 +229,8 @@ class MultiFeatureParser {
                             }
                         }
 
-                        /** strategy 2: parse normally and merge alternative results */
+                        */
+    /** strategy 2: parse normally and merge alternative results */ /*
                         if (!skip) {
                             val parseResult = (p0.!(joinFunction))(in0, parserState)
                             //if there are errors (not failures) abort
@@ -260,15 +265,16 @@ class MultiFeatureParser {
             try {
                 continue(in)
             } catch {
-                /** fallback (try to avoid for long lists!): 
-                 * normal repetition, where each is wrapped in an Opt(base,_) */
+                */
+    /** fallback (try to avoid for long lists!): 
+     * normal repetition, where each is wrapped in an Opt(base,_) */ /*
                 case e: ListHandlingException => {
                     e.printStackTrace
                     rep(p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
                 }
             }
         }
-    }.named("repOpt-" + productionName)
+    }.named("repOpt-" + productionName)*/
 
     /*def rep[T](p: => MultiParser[T]): MultiParser[List[T]] =
         opt(p ~ rep(p)) ^^ {
@@ -312,12 +318,12 @@ class MultiFeatureParser {
      * @param p
      * @return
      */
-    def rep[T](p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
+    def repPlain[T](p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
 
         private case class Sealable[T](val isSealed: Boolean, val list: List[T])
-        def seal(list: List[T]) = Sealable(true, list)
-        def unsealed(list: List[T]) = Sealable(false, list)
-        def anyUnsealed(parseResult: MultiParseResult[Sealable[T], Elem, TypeContext]) =
+        private def seal(list: List[T]) = Sealable(true, list)
+        private def unsealed(list: List[T]) = Sealable(false, list)
+        private def anyUnsealed(parseResult: MultiParseResult[Sealable[T], Elem, TypeContext]) =
             parseResult.exists(!_.isSealed)
 
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[T], Elem, TypeContext] = {
@@ -354,86 +360,103 @@ class MultiFeatureParser {
      * @return
      */
     def repRecursive[T](p: => MultiParser[T]): MultiParser[List[T]] =
-        opt(p ~ rep(p)) ^^ {
+        opt(p ~ repRecursive(p)) ^^ {
             case Some(~(x, list: List[_])) => List(x) ++ list
             case None => List()
         }
 
-    def repOpt2[T](p: => MultiParser[T]): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
-
-        def join(ctx: FeatureExpr, res: MultiParseResult[T, Elem, TypeContext]) =
-            res.join(ctx, (f, a: T, b: T) => a)
+    /**
+     * second attempt to implement repOpt
+     * 
+     * it uses the following mechanism: it parses a single subexpression (p) at a time
+     * if there are multiple results, it only resumes the result which has consumed fewest tokens 
+     * so far. after each step it tries to join parser branches.
+     * the intuition is that after splitting, we parse branches in a regular fashion to
+     * increase the chances for joins.
+     * 
+     * drawback: currently the first expression after an optional expression is parsed twice:
+     * 1_A, 2 3 will be parsed as [Opt(A, 1), Opt(!A, 2), Opt(A, 2), 3]
+     * 
+     * 
+     * @param p
+     * @return
+     */
+    def repOpt[T](p: => MultiParser[T], productionName: String = ""): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
+        //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
+        private case class Sealable(val isSealed: Boolean)
+        //join anything, data does not matter, only position in tokenstream
+        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable, Elem, TypeContext]) =
+            res.join(ctx, (f, a: Sealable, b: Sealable) => a)
+        private def anyUnsealed(parseResult: MultiParseResult[Sealable, Elem, TypeContext]) =
+            parseResult.exists(!_.isSealed)
 
         def apply(in: Input, ctx: ParserState): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
             var resultList: List[Opt[T]] = List()
+            def found(f: FeatureExpr, x: T) { resultList = Opt(f, x) :: resultList }
 
             //parse token
-            var res: MultiParseResult[T, Elem, TypeContext] = p(in, ctx)
-
             // convert alternative results into optList
             //but keep next entries
-            res = res.mapf(ctx, (f, t) => {
-                resultList = Opt(f, t) :: resultList
-                t
+            var res: MultiParseResult[Sealable, Elem, TypeContext] = opt(p)(in, ctx).mapf(ctx, (f, t) => {
+                t match {
+                    case Some(x) => found(f, x); Sealable(false)
+                    case None => Sealable(true)
+                }
             })
+            res = join(ctx, res)
 
             //while not all result failed
-            while (!res.allFailed) {
+            while (anyUnsealed(res)) {
                 //parse token (in shortest not-failed result)
                 //convert to optList
                 var nextTokenOffset: Int =
                     res.toList(ctx).foldLeft(Integer.MAX_VALUE)((_, _) match {
-                        case (x, (f, Success(t, next))) => min(x, next.offset)
+                        case (x, (f, Success(t, next))) => if (t.isSealed) x else min(x, next.offset)
                         case (x, _) => x
                     })
 
                 res = res.seqAllSuccessful(ctx,
                     (fs, x) =>
-                        if (x.next.offset != nextTokenOffset)
-                            x // do not do anything on sealed lists
+                        //only extend the firstmost unsealed result
+                        if (x.result.isSealed || x.next.offset != nextTokenOffset)
+                            x
                         else {
                             // extend unsealed lists with the next result (if there is no next result, seal the list)                        	
-                            x.seq(fs, p(x.next, fs)).mapf(fs, (f, t) => {
-                                resultList = Opt(f, t._2) :: resultList
-                                t._2
+                            x.seq(fs, opt(p)(x.next, fs)).mapf(fs, (f, t) => t match {
+                                case _ ~ Some(t) => {
+                                    found(f, t);
+                                    if (productionName == "externalDef")
+                                        println("next externalDef @ " + x.next.first.getPosition) //+"   "+t+"/"+f)
+                                    Sealable(false)
+                                }
+                                case _ ~ None => Sealable(true)
                             })
                         })
+                //aggressive joins
                 res = join(ctx, res)
             }
             //return all sealed lists
             res match {
-                case NoSuccess(_, _, next, _) =>
+                case Success(_, next) =>
                     Success(
                         resultList.reverse, next)
                 case _ => throw new Exception("should not occur, repOpt should at least join at the end of the list")
             }
 
         }
-    }
+    }.named("repOpt")
 
-    /*
-    def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, TypeContext] =
-                    thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => x.seq(fs, thatParser(x.next, fs)))
-    }.named("~")
-
-
-    def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
-        p ^^ (x => Some(x)) | success(None)
-    def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[U, Elem, TypeContext] = {
-                            thisParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
-            }
-    }.named("|")*/
+    //old signature
+    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[Opt[T]]] =
+        repOpt(p, productionName)
 
     /**
      * repeated parsing, at least once (result may not be the empty list)
      * (x)+
      */
-    def rep1[T](p: => MultiParser[T]): MultiParser[List[T]] =
-        p ~ opt(rep1(p)) ^^ {
-            case ~(x, Some(list: List[_])) => List(x) ++ list
-            case ~(x, None) => List(x)
+    def rep1[T](p: => MultiParser[T]): MultiParser[List[Opt[T]]] =
+        p ~ repOpt(p) ^^ {
+            case x ~ list => Opt(FeatureExpr.base, x) :: list
         }
 
     /**
@@ -456,22 +479,16 @@ class MultiFeatureParser {
      * for the pattern
      * p ~ (separator ~ p)*
      */
-    def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[T]] =
-        p ~ rep(separator ~> p) ^^ { case r ~ l => List(r) ++ l }
+    def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
+        p ~ repOpt(separator ~> p) ^^ { case r ~ l => Opt(FeatureExpr.base,r) :: l }
     /**
      * repetitions 0..n with separator
      * 
      * for the pattern
      * [p ~ (separator ~ p)*]
      */
-    def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[T]] =
+    def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
         opt(rep1Sep(p, separator)) ^^ { case Some(l) => l; case None => List() }
-
-    /**
-     * replace optional list by (possibly empty) list
-     */
-    def optList[T](p: => MultiParser[List[T]]): MultiParser[List[T]] =
-        opt(p) ^^ { case Some(l) => l; case None => List() }
 
     /**
      * represent optional element either bei singleton list or by empty list
@@ -506,13 +523,13 @@ class MultiFeatureParser {
             else {
                 val tokenPresenceCondition = in.first.getFeature
                 if (FeatureSolverCache.implies(context, tokenPresenceCondition))
-                    //always parsed in this context
+                    //always parsed in this context (and greedily skip subsequent ignored tokens)
                     returnFirstToken(in, context)
                 else if (FeatureSolverCache.mutuallyExclusive(context, tokenPresenceCondition))
                     //never parsed in this context
                     apply(in.rest.skipHidden(context), context)
                 else {
-                    //token sometimes parsed in this context -> plit parser
+                    //token sometimes parsed in this context -> split parser
                     in.first.countSplit
                     splitParser(in, context)
                 }
@@ -542,7 +559,7 @@ class MultiFeatureParser {
         private def returnFirstToken(in: Input, context: FeatureExpr) = {
             if (p(in.first, in.context)) {
                 in.first.countSuccess
-                Success(in.first, in.rest)
+                Success(in.first, in.rest.skipHidden(context))
             } else {
                 in.first.countFailure
                 Failure(err(Some(in.first)), context, in, List())

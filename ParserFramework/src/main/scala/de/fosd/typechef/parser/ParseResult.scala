@@ -60,7 +60,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
                 val nextA = inA.skipHidden(parserContext and feature)
                 val nextB = inB.skipHidden(parserContext and (feature.not))
 
-                if (inA == inB || nextA == nextB) {
+                if (inA.offset == inB.offset || nextA.offset == nextB.offset) {
                     DebugSplitting("join  at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
                     Success(f(feature, rA, rB),
                         if (inA.offst < inB.offst) inB else inA) //do not skip ahead, important for repOpt

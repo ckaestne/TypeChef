@@ -10,7 +10,7 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
     def newParser = new DigitList2Parser() {
         type OptResult[T] = Opt[T]
         def myRepOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[OptResult[T]]] =
-            repOpt(p, joinFunction, productionName)
+            repOpt(p, "")
         def digits: MultiParser[AST] =
             myRepOpt(digitList | digit, Alt.join, "digitList") ^^! (Alt.join, { //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
                 DigitList2(_)
