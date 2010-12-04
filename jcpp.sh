@@ -34,7 +34,7 @@ javaOpts='-Xmx2G -Xms128m'
 echo "=="
 echo "==Preprocess source"
 echo "=="
-gcc -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+gcc -Wp,-P -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 
 # Beware: the embedded for loop requotes the passed argument. That's dark magic,
 # don't ever try to touch it. It simplifies your life as a user of this program
