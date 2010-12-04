@@ -6,29 +6,17 @@ import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.junit.Test
 
-class DigitList2ParserTest extends TestCase {
-    def newParser = new DigitList2Parser()
-
-    val f1 = FeatureExpr.createDefinedExternal("a")
-    val f2 = FeatureExpr.createDefinedExternal("b")
-
-    def t(text: String): MyToken = t(text, FeatureExpr.base)
-    def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
-    def outer(x: AST) = DigitList2(List(o(x)))
-
-    def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken, Any]) {
-        System.out.println(actual)
-        actual match {
-            case Success(ast, unparsed) => {
-                assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
-                assertEquals("incorrect parse result", outer(expected), ast)
-            }
-            case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
-        }
+class DigitList2ParserTest extends TestCase with DigitListUtilities {
+    def newParser = new DigitList2Parser() {
+        type OptResult[T] = Opt[T]
+        def myRepOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[OptResult[T]]] =
+            repOpt(p, joinFunction, productionName)
+        def digits: MultiParser[AST] =
+            myRepOpt(digitList | digit, Alt.join, "digitList") ^^! (Alt.join, { //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
+                DigitList2(_)
+            })
     }
 
-    def o(ast: AST) = Opt(FeatureExpr.base, ast)
 
     def testError1() {
         val input = List(t("("), t("3", f1),t(")", f1.not), t(")"))

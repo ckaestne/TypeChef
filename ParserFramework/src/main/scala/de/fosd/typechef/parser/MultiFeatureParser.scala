@@ -265,7 +265,7 @@ class MultiFeatureParser {
                  * normal repetition, where each is wrapped in an Opt(base,_) */
                 case e: ListHandlingException => {
                     e.printStackTrace
-                    rep[T](p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
+                    rep(p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
                 }
             }
         }
@@ -276,11 +276,79 @@ class MultiFeatureParser {
      * @param p
      * @return
      */
-    def rep[T](p: => MultiParser[T]): MultiParser[List[T]] =
+    /*def rep[T](p: => MultiParser[T]): MultiParser[List[T]] =
         opt(p ~ rep(p)) ^^ {
             case Some(~(x, list: List[_])) => List(x) ++ list
             case None => List()
+        }*/
+
+    /*
+        rep(p) = opt(p ~ rep(p)) ^^ {
+            case Some(~(x, list: List[_])) => List(x) ++ list
+            case None => List()
+        } ==
+        fix $ \rep -> ((p ~ rep(p)) ^^ (x => Some(x)) | success(None)) ^^ {
+            case Some(~(x, list: List[_])) => List(x) ++ list
+            case None => List()
+        } ==
+        fix $ \rep -> ((p ~ rep(p)) ^^ (x => Some(x)) | success(None)) ^^ {
+            case Some(~(x, list: List[_])) => List(x) ++ list
+            case None => List()
+        } ==
+        fix $ \rep -> (new MultiParser[U] {
+                def mainParser = (new MultiParser[~[T, U]] {
+                        def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, TypeContext] =
+                                p(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => x.seq(fs, rep(p)(x.next, fs)))
+                }) ^^ (x => Some(x))
+                def apply(in: Input, parserState: ParserState): MultiParseResult[U, Elem, TypeContext] = {
+                        mainParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => success(None)(in, fs))
+                }
+        })
+        Alternatively:
+        opt(p) ~ opt(p)*
+     */
+
+
+    def rep[T](p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
+        def apply(in: Input, parserState: ParserState): MultiParseResult[List[T], Elem, TypeContext] = {
+            var anySuccess = false
+            val p_ = opt(p) ^^ {
+                case Some(x) =>
+                    anySuccess = true; List(x)
+                case None =>
+                    Nil
+            }
+            var res = p_(in, parserState)
+            while (anySuccess) {
+                anySuccess = false
+                res = res.seqAllSuccessful(parserState,
+                        (fs: FeatureExpr, x: Success[List[_], Elem, TypeContext]) => x.seq(fs, opt(p)(x.next, fs))).map({
+                            case list ~ Some(x) =>
+                                anySuccess = true; x +: list.asInstanceOf[List[T]] //Note: elements are here reversed!
+                            case list ~ None =>
+                                list.asInstanceOf[List[T]]
+                        })
+                        //res = newRes.replaceAllFailure(parserState, (fs: FeatureExpr) => success(Nil /* XXX: AARGH! This loses the parsed list! */)(in, fs))
+            }
+            res.map(_.reverse)
         }
+    }
+
+    /*
+    def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
+            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, TypeContext] =
+                    thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => x.seq(fs, thatParser(x.next, fs)))
+    }.named("~")
+
+
+    def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
+        p ^^ (x => Some(x)) | success(None)
+    def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new MultiParser[U] {
+            def apply(in: Input, parserState: ParserState): MultiParseResult[U, Elem, TypeContext] = {
+                            thisParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
+            }
+    }.named("|")*/
+
     /**
      * repeated parsing, at least once (result may not be the empty list)
      * (x)+
