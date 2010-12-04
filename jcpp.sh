@@ -3,7 +3,10 @@
 if [ -z "$jcppConfLoaded" ]; then
   source jcpp.conf
 fi
+
 # What you should configure
+javaOpts='$javaOpts -Xmx2G -Xms128m'
+
 macro_stats_path=macroDebug.txt
 debugsource_path=debugsource.txt
 
@@ -25,8 +28,6 @@ shift
 
 . setupOutPaths.sh.inc
 
-javaOpts='-Xmx512m -Xms128m'
-javaOpts='-Xmx2G -Xms128m'
 #time scala -cp BoaCaseStudy/target/scala_2.8.0/classes:FeatureExprLib/lib/org.sat4j.core.jar:FeatureExprLib/target/scala_2.8.0/classes:\
 #  PartialPreprocessor/target/scala_2.8.0/classes:PartialPreprocessor/lib/gnu.getopt.jar \
 #  <(echo -e '#define b ciao\nb')
@@ -41,7 +42,7 @@ gcc -Wp,-P -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 # though!
 echo "==Partially preprocessing and typechecking $inp"
 
-bash -c "time java -Xss8M -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044 -ea $javaOpts -cp \
+bash -c "time java -ea $javaOpts -cp \
 $basePath/project/boot/scala-2.8.0/lib/scala-library.jar:\
 $basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar:\
@@ -54,9 +55,9 @@ $basePath/CTypeChecker/target/scala_2.8.0/classes:\
 $basePath/BoaCaseStudy/target/scala_2.8.0/classes \
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
-  '$inp' -o '$outPartialPreproc' > '$outDbg' 2> '$outErr'" \
+  '$inp' -o '$outPartialPreproc' 2> '$outErr' >'$outDbg'" \
   2> "$outTime" || true
 
-cat "$outErr"  1>&2
+cat "$outErr" 1>&2
 mv $macro_stats_path "$outMacroDebug" # || true
 mv $debugsource_path "$outDebugSource" # || true

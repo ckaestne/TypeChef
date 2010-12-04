@@ -8,8 +8,30 @@ import java.io.File
 import junit.framework._
 import junit.framework.Assert._
 
+import java.io.PrintStream
+import java.io.FileOutputStream
+import java.io.BufferedOutputStream
+
+object MyUtil {
+	implicit def runnable(f: () => Unit): Runnable =
+		new Runnable() { def run() = f() }
+}
+
 object ParserMain {
-    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext):AST = {
+    def parserMain(filePath: String, parentPath: String): AST =
+            parserMain(filePath, parentPath, new CTypeContext())
+
+    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext): AST = {
+        val logStats = MyUtil.runnable(() => {
+                if (TokenWrapper.profiling) {
+                        val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
+                        LineInformation.printStatistics(statistics)
+                        statistics.close()
+                }
+        })
+
+        Runtime.getRuntime().addShutdownHook(new Thread(logStats))
+
         val result = new CParser().translationUnit(
             CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
         val resultStr: String = result.toString
@@ -21,6 +43,7 @@ object ParserMain {
 
         printParseResult(result, FeatureExpr.base)
         checkParseResult(result, FeatureExpr.base)
+
         result match {
             case Success(ast, _) => ast
             case _=>null
@@ -48,11 +71,11 @@ object ParserMain {
         result match {
             case Success(ast, unparsed) => {
                 if (!unparsed.atEnd)
-                    fail("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed)
+                    new Exception("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed).printStackTrace
                 //succeed
             }
             case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " +  unparsed + " with feature " + feature + " and context " + context + " " + inner)
+                new Exception(msg + " at " +  unparsed + " with feature " + feature + " and context " + context + " " + inner).printStackTrace
             case SplittedParseResult(f, left, right) => {
                 checkParseResult(left, feature.and(f))
                 checkParseResult(right, feature.and(f.not))

@@ -104,13 +104,11 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
         orCache.getOrElseUpdate(that, new FeatureExprImpl(Or(this.expr, that.expr)))
 
     var notCache: FeatureExpr = null
-    def not(): FeatureExpr =
-        if (notCache != null)
-            notCache
-        else {
+    def not(): FeatureExpr = {
+        if (notCache == null)
             notCache = new FeatureExprImpl(Not(this.expr))
-            notCache
-        }
+        notCache
+    }
 
     var cnfCache: NF = null;
     def toCNF: NF =
@@ -203,11 +201,11 @@ sealed abstract class FeatureExprTree {
             val result = this bubbleUpIf match {
                 case And(children) => {
                     val childrenSimplified = children.map(_.simplify().intToBool()).filter(!BaseFeature.unapply(_)); //TODO also remove all non-zero integer literals
-                    var childrenFlattened: List[FeatureExprTree] = List() //computing sets is to expensive
+                    var childrenFlattened: Seq[FeatureExprTree] = SmallList() //computing sets is too expensive
                     for (childs <- childrenSimplified)
                         childs match {
                             case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = e :: childrenFlattened
+                            case e => childrenFlattened = e +: childrenFlattened 
                         }
                     //only apply these operations on small expressions, because they are rather expensive
                     if (isSmall) {
@@ -233,11 +231,11 @@ sealed abstract class FeatureExprTree {
                 case Or(c) => {
                     var children = c
                     val childrenSimplified = children.map(_.simplify().intToBool()).filter(!DeadFeature.unapply(_));
-                    var childrenFlattened: List[FeatureExprTree] = List()
+                    var childrenFlattened: Seq[FeatureExprTree] = SmallList()
                     for (childs <- childrenSimplified)
                         childs match {
                             case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = e :: childrenFlattened
+                            case e => childrenFlattened = e +: childrenFlattened
                         }
                     if (isSmall) {
                         childrenFlattened = childrenFlattened.distinct
@@ -396,11 +394,11 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCNF)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: List[Or] = List(Or(List())) //list of Or expressions
+                    var orClauses: Seq[Or] = SmallList(Or(SmallList())) //list of Or expressions
                     for (child <- cnfchildren) {
                         child match {
                             case And(innerChildren) => {
-                                var newClauses: List[Or] = List()
+                                var newClauses: Seq[Or] = SmallList()
                                 for (innerChild <- innerChildren)
                                     newClauses = newClauses ++ orClauses.map(_.addChild(innerChild));
                                 orClauses = newClauses;
@@ -428,20 +426,20 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCnfEquiSat)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: List[FeatureExprTree] = List() //list of Or expressions
-                    var freshFeatureNames: List[FeatureExprTree] = List()
+                    var orClauses: Seq[FeatureExprTree] = SmallList() //list of Or expressions
+                    var freshFeatureNames: Seq[FeatureExprTree] = SmallList()
                     for (child <- cnfchildren) {
                         val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
                         child match {
                             case And(innerChildren) => {
                                 for (innerChild <- innerChildren)
-                                    orClauses = new Or(freshFeatureName, innerChild) :: orClauses
+                                    orClauses = new Or(freshFeatureName, innerChild) +: orClauses
                             }
-                            case e => orClauses = new Or(freshFeatureName, e) :: orClauses
+                            case e => orClauses = new Or(freshFeatureName, e) +: orClauses
                         }
-                        freshFeatureNames = Not(freshFeatureName).simplify :: freshFeatureNames
+                        freshFeatureNames = Not(freshFeatureName).simplify +: freshFeatureNames
                     }
-                    orClauses = Or(freshFeatureNames) :: orClauses
+                    orClauses = Or(freshFeatureNames) +: orClauses
                     And(orClauses).simplify
                 } else Or(cnfchildren)
             }
@@ -506,7 +504,7 @@ abstract class AbstractBinaryFeatureExprTree(
     def countSize() = 1 + left.getSize() + right.getSize()
 }
 abstract class AbstractNaryBinaryFeatureExprTree(
-    children: List[FeatureExprTree],
+    children: Seq[FeatureExprTree],
     opStr: String,
     op: (Boolean, Boolean) => Boolean) extends FeatureExprTree {
     def print() = children.map(_.print).mkString("(", " " + opStr + " ", ")")
@@ -550,7 +548,7 @@ abstract class AbstractUnaryBoolFeatureExprTree(
 
 abstract class DefinedExpr extends FeatureExprTree {
     var feature: String = "";
-    def this(name: String) { this(); feature = name.intern; assert(name != "1" && name != "0" && name != "") }
+    def this(name: String) { this(); feature = name; assert(name != "1" && name != "0" && name != "") }
     def debug_print(level: Int): String = indent(level) + feature + "\n";
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
     def satName = feature //used for sat solver only to distinguish extern and macro
@@ -607,19 +605,22 @@ case class IntegerLit(num: Long) extends FeatureExprTree {
     def countSize() = 1
 }
 
+class DeadFeature extends IntegerLit(0) {}
 object DeadFeature {
     def unapply(f: FeatureExprTree): Boolean = f match {
         case IntegerLit(0) => true
         case _ => false
     }
-    def apply() = new IntegerLit(0)
+    def apply() = new DeadFeature()
 }
+
+class BaseFeature extends IntegerLit(1) {}
 object BaseFeature {
     def unapply(f: FeatureExprTree): Boolean = f match {
         case IntegerLit(1) => true
         case _ => false
     }
-    def apply() = new IntegerLit(1)
+    def apply() = new BaseFeature()
 }
 
 case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) extends FeatureExprTree {
@@ -637,16 +638,16 @@ case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseB
 }
 
 case class Not(expr: FeatureExprTree) extends AbstractUnaryBoolFeatureExprTree(expr, "!", !_);
-case class And(children: List[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
-    def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
-    def addChild(child: FeatureExprTree) = And(child :: children);
+case class And(children: Seq[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
+    def this(left: FeatureExprTree, right: FeatureExprTree) = this(SmallList(left, right))
+    def addChild(child: FeatureExprTree) = And(child +: children);
 }
 object And {
     def apply(a: FeatureExprTree, b: FeatureExprTree) = new And(a, b)
 }
-case class Or(children: List[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
-    def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
-    def addChild(child: FeatureExprTree) = Or(child :: children);
+case class Or(children: Seq[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
+    def this(left: FeatureExprTree, right: FeatureExprTree) = this(SmallList(left, right))
+    def addChild(child: FeatureExprTree) = Or(child +: children);
 }
 object Or {
     def apply(a: FeatureExprTree, b: FeatureExprTree) = new Or(a, b)

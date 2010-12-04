@@ -152,4 +152,8 @@ public class JcppFileTest extends AbstractCheckTests {
 	public void testStringifyNl() throws LexerException, IOException {
 		testFile("stringifyNl.c");
 	}
-}
+
+	@Test
+	public void testUseCondDef() throws LexerException, IOException {
+		testFile("useconddef.c");
+	}}

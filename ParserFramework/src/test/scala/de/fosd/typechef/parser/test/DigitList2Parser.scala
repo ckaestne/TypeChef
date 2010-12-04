@@ -5,19 +5,18 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 
 case class DigitList2(list: List[Opt[AST]]) extends AST
 
-class DigitList2Parser extends MultiFeatureParser {
+abstract class DigitList2Parser extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
+    type OptResult[T]
+    def myRepOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[OptResult[T]]]
 
     def parse(tokens: List[MyToken]): ParseResult[AST, MyToken, TypeContext] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null,EofToken), FeatureExpr.base).forceJoin[AST](FeatureExpr.base,Alt.join)
 
     def digitList: MultiParser[AST] =
         (t("(") ~! (digits ~ t(")"))) ^^! (Alt.join, { case b1 ~(e ~ b2) => e })
 
-    def digits: MultiParser[AST] =
-        repOpt(digitList | digit, Alt.join, "digitList") ^^! (Alt.join, { //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
-            DigitList2(_)
-        })
+    def digits: MultiParser[AST]
 
     def t(text: String) = token(text, (x => x.t == text))
 

@@ -18,15 +18,21 @@ class TypeSystem {
     val globalScope = 1
     var currentScope = 1
 
-    var errorMessages: List[ErrorMsg] = List()
+    /*
+     * This dictionary groups error messages by function, consolidating duplicate warnings together.
+     */
+    var errorMessages: Map[String, ErrorMsgs] = Map() 
 
     val DEBUG_PRINT = false
+    def dbgPrint(o: Any) = if (DEBUG_PRINT) print(o)
+    def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
 
     val gccBuiltins = List(
       "constant_p",
       "expect",
       "memcpy",
-      "memset")
+      "memset",
+      "return_address")
 
     def declareBuiltins() {
         for (name <- gccBuiltins) {
@@ -37,8 +43,8 @@ class TypeSystem {
     def checkAST(ast: AST) {
         declareBuiltins()
         ast.accept(new TSVisitor())
-        if (DEBUG_PRINT) println(table)
-        println("Type Errors: " + errorMessages.mkString("\n"))
+        dbgPrintln(table)
+        println("Type Errors: " + errorMessages.values.mkString("\n"))
     }
 
     class TSVisitor extends ASTVisitor {
@@ -74,22 +80,33 @@ class TypeSystem {
 
     }
 
-    def checkFunctionCall(source: AST, name: String, feature: FeatureExpr) {
-        val targets: List[Entry] = table.find(name)
-        if (DEBUG_PRINT) print("function " + name + " found " + targets.size + " targets: ")
+    def checkFunctionCallTargets(source: AST, name: String, callerFeature: FeatureExpr, targets: List[Entry]) = {
         if (!targets.isEmpty) {
             //condition: feature implies (target1 or target2 ...)
-            val condition = feature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
+            val condition = callerFeature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
             if (condition.isTautology()) {
-                if (DEBUG_PRINT) println(" always reachable " + condition)
+                dbgPrintln(" always reachable " + condition)
+                None
             } else {
-                if (DEBUG_PRINT) println(" not always reachable " + feature + " => " + targets.map(_.feature).mkString(" || "))
-                errorMessages = new ErrorMsg("declaration of function " + name + " not always reachable (" + targets.size + " potential targets): " + feature + " => " + targets.map(_.feature).mkString(" || "), source, targets) :: errorMessages
+                dbgPrintln(" not always reachable " + callerFeature + " => " + targets.map(_.feature).mkString(" || "))
+                Some(errorMessages.get(name) match {
+                        case None => ErrorMsgs(name, List((callerFeature, source)), targets)
+                        case Some(err : ErrorMsgs) => err.withNewCaller(source, callerFeature)  
+                })
             }
         } else {
-            if (DEBUG_PRINT) println("dead")
-            errorMessages = new ErrorMsg("declaration of function " + name + " not found", source, List()) :: errorMessages
+            dbgPrintln("dead")
+            Some(ErrorMsgs.errNoDecl(name, source, callerFeature))
         }
     }
 
+    def checkFunctionCall(source: AST, name: String, callerFeature: FeatureExpr) {
+        val targets: List[Entry] = table.find(name)
+        dbgPrint("function " + name + " found " + targets.size + " targets: ")
+        checkFunctionCallTargets(source, name, callerFeature, targets) match {
+                case Some(newEntry) =>
+                        errorMessages = errorMessages.updated(name, newEntry)
+                case _ => ()
+        }
+    }
 }

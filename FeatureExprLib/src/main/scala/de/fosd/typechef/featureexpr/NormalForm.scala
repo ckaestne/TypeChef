@@ -1,5 +1,6 @@
 package de.fosd.typechef.featureexpr
 
+import scala.collection.mutable.ArrayBuffer
 /**
  * classes used to represent CNF and DNF expressions
  * 
@@ -8,15 +9,23 @@ package de.fosd.typechef.featureexpr
  * in normal form)
  */
 
+object SmallList {
+    def apply[T](e: T*): Seq[T] = {
+        val v = new ArrayBuffer[T](e.length)
+        v ++= e
+        v
+    }
+}
+
 /** normal form for both DNF and CNF **/
-class NF(val clauses: List[Clause], val isFull: Boolean) {
-    /** isFull is meant to be the oppositve of empty
+class NF(val clauses: Seq[Clause], val isFull: Boolean) {
+    /** isFull is meant to be the opposite of empty
      * with CNF empty means always true and full means always false
      * with DNF empty means always false and full means always true   
      * it is not valid to set clauses and isFull at the same time  */
 
-    def this(c: List[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
-    def this(emptyOrFull_isFull: Boolean) = this(List(), emptyOrFull_isFull)
+    def this(c: Seq[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
+    def this(emptyOrFull_isFull: Boolean) = this(SmallList(), emptyOrFull_isFull)
 
     //    /** join (CNF and CNF / DNF or DNF)**/
     //    def ++(that: NF) =
@@ -47,7 +56,7 @@ class NF(val clauses: List[Clause], val isFull: Boolean) {
     }
 }
 /** clause in a normal form **/
-class Clause(var posLiterals: List[DefinedExpr], var negLiterals: List[DefinedExpr]) {
+class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr]) {
     var cacheIsSimplified = false
     def simplify = {
         if (!cacheIsSimplified) {
@@ -55,8 +64,8 @@ class Clause(var posLiterals: List[DefinedExpr], var negLiterals: List[DefinedEx
             posLiterals = posLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
             negLiterals = negLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
             if (!(posLiterals intersect negLiterals).isEmpty) {
-                posLiterals = List()
-                negLiterals = List()
+                posLiterals = SmallList()
+                negLiterals = SmallList()
             }
             cacheIsSimplified = true
         }
@@ -126,19 +135,19 @@ object NFBuilder {
                 case And(clauses) if isCNF => {
                     new NF((for (clause <- clauses) yield clause match {
                         case Or(o) => toClause(o)
-                        case e => toClause(List(e)) //literal?
+                        case e => toClause(SmallList(e)) //literal?
                     }))
                 }
                 case Or(clauses) if !isCNF => {
                     new NF((for (clause <- clauses) yield clause match {
                         case And(c) => toClause(c)
-                        case e => toClause(List(e)) //literal?
+                        case e => toClause(SmallList(e)) //literal?
                     }))
                 }
-                case Or(o) if isCNF => new NF(List(toClause(o)))
-                case And(o) if !isCNF => new NF(List(toClause(o)))
-                case f@DefinedExpr(_) => new NF(List(new Clause(List(f), List())))
-                case Not(f@DefinedExpr(_)) => new NF(List(new Clause(List(), List(f))))
+                case Or(o) if isCNF => new NF(SmallList(toClause(o)))
+                case And(o) if !isCNF => new NF(SmallList(toClause(o)))
+                case f@DefinedExpr(_) => new NF(SmallList(new Clause(SmallList(f), SmallList())))
+                case Not(f@DefinedExpr(_)) => new NF(SmallList(new Clause(SmallList(), SmallList(f))))
                 case BaseFeature() => new NF(!isCNF)
                 case DeadFeature() => new NF(isCNF)
                 case e => throw new NoNFException(e, exprInNF, isCNF)
@@ -150,13 +159,13 @@ object NFBuilder {
                 throw t
 
         }
-    private def toClause(literals: List[FeatureExprTree]): Clause = {
-        var posLiterals: List[DefinedExpr] = List()
-        var negLiterals: List[DefinedExpr] = List()
+    private def toClause(literals: Seq[FeatureExprTree]): Clause = {
+        var posLiterals: Seq[DefinedExpr] = SmallList()
+        var negLiterals: Seq[DefinedExpr] = SmallList()
         for (literal <- literals)
             literal match {
-                case f@DefinedExpr(_) => posLiterals = f :: posLiterals
-                case Not(f@DefinedExpr(_)) => negLiterals = f :: negLiterals
+                case f@DefinedExpr(_) => posLiterals = f +: posLiterals
+                case Not(f@DefinedExpr(_)) => negLiterals = f +: negLiterals
                 case e => throw new NoLiteralException(e)
             }
         new Clause(posLiterals, negLiterals).simplify

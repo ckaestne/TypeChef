@@ -17,11 +17,13 @@ outPartialPreprocThenPreproc="$outBase.pi.i"
 # Interesting outputs
 outErr="$outBase.err"
 outTime="$outBase.time"
-#outStats="$outBase.stats"
 outDiff="$outBase.diffs"
 outMacroDebug="$outBase.macroDbg"
 outDebugSource="$outBase.dbgSrc"
-#Now it's per-testcase, not per file!
-#outCSV="$outBase.csv"
+
+#For parsing + preprocessing
+outDbgT="$outBase.dbgT"
+outErrT="$outBase.errT"
+outTimeT="$outBase.timeT"
 
 # vim: set ft=sh:

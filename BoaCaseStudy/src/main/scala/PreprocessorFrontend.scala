@@ -73,18 +73,15 @@ object PreprocessorFrontend {
             includeFlags)
     }
 
-    def parseFile(filePath: String, parentPath: String) : AST = {
-        ParserMain.parserMain(filePath, parentPath, new CTypeContext())
-    }
-
     def main(args: Array[String]): Unit = {
         initSettings
         var extraOpt = List("-p", "_")
         val optionsToForward = "pPUDx"
         val INCLUDE_OPT = 0
         val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT))
-        val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
+        val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:t" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
+        var typecheck = false
         var preprocOutputPathOpt: Option[String] = None
         do {
             val c = g.getopt()
@@ -95,6 +92,7 @@ object PreprocessorFrontend {
                     case 'I' => cmdLinePostIncludes :+= arg
                     case 'c' => loadSettings(arg)
                     case 'o' => preprocOutputPathOpt = Some(arg)
+                    case 't' => typecheck = true
                     
                     case ':' => println("Missing required argument!"); exit(1)
                     case '?' => println("Unexpected option!"); exit(1)
@@ -120,20 +118,14 @@ object PreprocessorFrontend {
                 case Some(_) => None
             }
             val preprocOutputPath = preprocOutputPathOpt.get
+            val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
  
-            //XXX: hack to test only parsing.
-            val usePreprocessed = false
-            if (usePreprocessed)
-              preprocessFile(filename, preprocOutputPath, extraOpt)
-            val parserInput =
-              if (usePreprocessed)
-                preprocOutputPath
-              else
-                filename.replace(".c", ".i")
-            val ast = parseFile(parserInput, folderPath)
-            // val ast = parseFile(preprocOutputPath, folderPath)
-            new TypeSystem().checkAST(ast)
+            preprocessFile(filename, preprocOutputPath, extraOpt)
+            if (typecheck) {
+                    val ast = ParserMain.parserMain(parserInput, folderPath)
+                    new TypeSystem().checkAST(ast)
+            }
         }
     }
 }
