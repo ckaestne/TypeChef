@@ -104,13 +104,11 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
         orCache.getOrElseUpdate(that, new FeatureExprImpl(Or(this.expr, that.expr)))
 
     var notCache: FeatureExpr = null
-    def not(): FeatureExpr =
-        if (notCache != null)
-            notCache
-        else {
+    def not(): FeatureExpr = {
+        if (notCache == null)
             notCache = new FeatureExprImpl(Not(this.expr))
-            notCache
-        }
+        notCache
+    }
 
     var cnfCache: NF = null;
     def toCNF: NF =
@@ -203,11 +201,11 @@ sealed abstract class FeatureExprTree {
             val result = this bubbleUpIf match {
                 case And(children) => {
                     val childrenSimplified = children.map(_.simplify().intToBool()).filter(!BaseFeature.unapply(_)); //TODO also remove all non-zero integer literals
-                    var childrenFlattened: List[FeatureExprTree] = List() //computing sets is to expensive
+                    var childrenFlattened: Seq[FeatureExprTree] = List() //computing sets is too expensive
                     for (childs <- childrenSimplified)
                         childs match {
                             case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = e :: childrenFlattened
+                            case e => childrenFlattened = e +: childrenFlattened 
                         }
                     //only apply these operations on small expressions, because they are rather expensive
                     if (isSmall) {
@@ -506,7 +504,7 @@ abstract class AbstractBinaryFeatureExprTree(
     def countSize() = 1 + left.getSize() + right.getSize()
 }
 abstract class AbstractNaryBinaryFeatureExprTree(
-    children: List[FeatureExprTree],
+    children: Seq[FeatureExprTree],
     opStr: String,
     op: (Boolean, Boolean) => Boolean) extends FeatureExprTree {
     def print() = children.map(_.print).mkString("(", " " + opStr + " ", ")")
@@ -640,16 +638,16 @@ case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseB
 }
 
 case class Not(expr: FeatureExprTree) extends AbstractUnaryBoolFeatureExprTree(expr, "!", !_);
-case class And(children: List[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
+case class And(children: Seq[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
     def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
-    def addChild(child: FeatureExprTree) = And(child :: children);
+    def addChild(child: FeatureExprTree) = And(child +: children);
 }
 object And {
     def apply(a: FeatureExprTree, b: FeatureExprTree) = new And(a, b)
 }
-case class Or(children: List[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
+case class Or(children: Seq[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
     def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
-    def addChild(child: FeatureExprTree) = Or(child :: children);
+    def addChild(child: FeatureExprTree) = Or(child +: children);
 }
 object Or {
     def apply(a: FeatureExprTree, b: FeatureExprTree) = new Or(a, b)

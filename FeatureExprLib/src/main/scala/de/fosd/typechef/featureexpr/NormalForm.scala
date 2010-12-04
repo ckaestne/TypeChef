@@ -9,13 +9,13 @@ package de.fosd.typechef.featureexpr
  */
 
 /** normal form for both DNF and CNF **/
-class NF(val clauses: List[Clause], val isFull: Boolean) {
-    /** isFull is meant to be the oppositve of empty
+class NF(val clauses: Seq[Clause], val isFull: Boolean) {
+    /** isFull is meant to be the opposite of empty
      * with CNF empty means always true and full means always false
      * with DNF empty means always false and full means always true   
      * it is not valid to set clauses and isFull at the same time  */
 
-    def this(c: List[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
+    def this(c: Seq[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
     def this(emptyOrFull_isFull: Boolean) = this(List(), emptyOrFull_isFull)
 
     //    /** join (CNF and CNF / DNF or DNF)**/
@@ -47,7 +47,7 @@ class NF(val clauses: List[Clause], val isFull: Boolean) {
     }
 }
 /** clause in a normal form **/
-class Clause(var posLiterals: List[DefinedExpr], var negLiterals: List[DefinedExpr]) {
+class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr]) {
     var cacheIsSimplified = false
     def simplify = {
         if (!cacheIsSimplified) {
@@ -150,7 +150,7 @@ object NFBuilder {
                 throw t
 
         }
-    private def toClause(literals: List[FeatureExprTree]): Clause = {
+    private def toClause(literals: Seq[FeatureExprTree]): Clause = {
         var posLiterals: List[DefinedExpr] = List()
         var negLiterals: List[DefinedExpr] = List()
         for (literal <- literals)
