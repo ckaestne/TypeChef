@@ -1,10 +1,9 @@
 package de.fosd.typechef.parser
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 import scala.annotation.tailrec
-
-import scala.util.parsing.input.Reader
 import scala.collection.mutable.ListBuffer
-import de.fosd.typechef.featureexpr.FeatureExpr
+import scala.math._
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing
@@ -359,6 +358,58 @@ class MultiFeatureParser {
             case Some(~(x, list: List[_])) => List(x) ++ list
             case None => List()
         }
+
+    def repOpt2[T](p: => MultiParser[T]): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
+
+        def join(ctx: FeatureExpr, res: MultiParseResult[T, Elem, TypeContext]) =
+            res.join(ctx, (f, a: T, b: T) => a)
+
+        def apply(in: Input, ctx: ParserState): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
+            var resultList: List[Opt[T]] = List()
+
+            //parse token
+            var res: MultiParseResult[T, Elem, TypeContext] = p(in, ctx)
+
+            // convert alternative results into optList
+            //but keep next entries
+            res = res.mapf(ctx, (f, t) => {
+                resultList = Opt(f, t) :: resultList
+                t
+            })
+
+            //while not all result failed
+            while (!res.allFailed) {
+                //parse token (in shortest not-failed result)
+                //convert to optList
+                var nextTokenOffset: Int =
+                    res.toList(ctx).foldLeft(Integer.MAX_VALUE)((_, _) match {
+                        case (x, (f, Success(t, next))) => min(x, next.offset)
+                        case (x, _) => x
+                    })
+
+                res = res.seqAllSuccessful(ctx,
+                    (fs, x) =>
+                        if (x.next.offset != nextTokenOffset)
+                            x // do not do anything on sealed lists
+                        else {
+                            // extend unsealed lists with the next result (if there is no next result, seal the list)                        	
+                            x.seq(fs, p(x.next, fs)).mapf(fs, (f, t) => {
+                                resultList = Opt(f, t._2) :: resultList
+                                t._2
+                            })
+                        })
+                res = join(ctx, res)
+            }
+            //return all sealed lists
+            res match {
+                case NoSuccess(_, _, next, _) =>
+                    Success(
+                        resultList.reverse, next)
+                case _ => throw new Exception("should not occur, repOpt should at least join at the end of the list")
+            }
+
+        }
+    }
 
     /*
     def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
