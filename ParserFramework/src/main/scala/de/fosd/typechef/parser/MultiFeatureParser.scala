@@ -447,7 +447,8 @@ class MultiFeatureParser {
     def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T, Elem, TypeContext]): MultiParser[T] =
         new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = f(in, fs) }
 
-    def matchInput(p: (Elem, TypeContext) => Boolean, err: Option[Elem] => String) = new MultiParser[Elem] {
+    def matchInput(p: (Elem, TypeContext) => Boolean, kind: String) = new MultiParser[Elem] {
+        private def err(e: Option[Elem]) = errorMsg(kind, e)
         @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem, Elem, TypeContext] = {
             if (in.atEnd)
@@ -501,7 +502,7 @@ class MultiFeatureParser {
     }.named("matchInput")
 
     def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
-    def tokenWithContext(kind: String, p: (Elem, TypeContext) => Boolean) = matchInput(p, errorMsg(kind, _))
+    def tokenWithContext(kind: String, p: (Elem, TypeContext) => Boolean) = matchInput(p, kind)
     private def errorMsg(kind: String, inEl: Option[Elem]) =
         (if (!inEl.isDefined) "reached EOF, " else "found \"" + inEl.get.getText + "\", ") + "but expected \"" + kind + "\""
 
