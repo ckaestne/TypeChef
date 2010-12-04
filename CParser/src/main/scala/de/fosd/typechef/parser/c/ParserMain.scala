@@ -71,11 +71,11 @@ object ParserMain {
         result match {
             case Success(ast, unparsed) => {
                 if (!unparsed.atEnd)
-                    fail("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed)
+                    new Exception("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed).printStackTrace
                 //succeed
             }
             case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " +  unparsed + " with feature " + feature + " and context " + context + " " + inner)
+                new Exception(msg + " at " +  unparsed + " with feature " + feature + " and context " + context + " " + inner).printStackTrace
             case SplittedParseResult(f, left, right) => {
                 checkParseResult(left, feature.and(f))
                 checkParseResult(right, feature.and(f.not))
