@@ -231,11 +231,11 @@ sealed abstract class FeatureExprTree {
                 case Or(c) => {
                     var children = c
                     val childrenSimplified = children.map(_.simplify().intToBool()).filter(!DeadFeature.unapply(_));
-                    var childrenFlattened: List[FeatureExprTree] = List()
+                    var childrenFlattened: Seq[FeatureExprTree] = List()
                     for (childs <- childrenSimplified)
                         childs match {
                             case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
-                            case e => childrenFlattened = e :: childrenFlattened
+                            case e => childrenFlattened = e +: childrenFlattened
                         }
                     if (isSmall) {
                         childrenFlattened = childrenFlattened.distinct
@@ -394,11 +394,11 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCNF)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: List[Or] = List(Or(List())) //list of Or expressions
+                    var orClauses: Seq[Or] = List(Or(List())) //list of Or expressions
                     for (child <- cnfchildren) {
                         child match {
                             case And(innerChildren) => {
-                                var newClauses: List[Or] = List()
+                                var newClauses: Seq[Or] = List()
                                 for (innerChild <- innerChildren)
                                     newClauses = newClauses ++ orClauses.map(_.addChild(innerChild));
                                 orClauses = newClauses;
@@ -426,20 +426,20 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCnfEquiSat)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: List[FeatureExprTree] = List() //list of Or expressions
-                    var freshFeatureNames: List[FeatureExprTree] = List()
+                    var orClauses: Seq[FeatureExprTree] = List() //list of Or expressions
+                    var freshFeatureNames: Seq[FeatureExprTree] = List()
                     for (child <- cnfchildren) {
                         val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
                         child match {
                             case And(innerChildren) => {
                                 for (innerChild <- innerChildren)
-                                    orClauses = new Or(freshFeatureName, innerChild) :: orClauses
+                                    orClauses = new Or(freshFeatureName, innerChild) +: orClauses
                             }
-                            case e => orClauses = new Or(freshFeatureName, e) :: orClauses
+                            case e => orClauses = new Or(freshFeatureName, e) +: orClauses
                         }
-                        freshFeatureNames = Not(freshFeatureName).simplify :: freshFeatureNames
+                        freshFeatureNames = Not(freshFeatureName).simplify +: freshFeatureNames
                     }
-                    orClauses = Or(freshFeatureNames) :: orClauses
+                    orClauses = Or(freshFeatureNames) +: orClauses
                     And(orClauses).simplify
                 } else Or(cnfchildren)
             }
