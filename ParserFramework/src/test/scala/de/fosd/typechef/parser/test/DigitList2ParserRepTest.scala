@@ -115,7 +115,12 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
     }
     def testParseInterleaved2() {
         val input = List(t("("), t("(", f1), t("1"), t("2"), t(")", f1), t("3"), t(")"))
-        val expected = Alt(f1, DigitList2(List(o(DigitList2(List(Opt(f1, Lit(1)), Opt(f1, Lit(2))))), o(Lit(3)))), DigitList2(List(o(Lit(1)), o(Lit(2)), o(Lit(3)))))
+        val expected = Alt(f1,
+                wrapList(List(
+                        wrapList(List(Lit(1), Lit(2))),
+                        Lit(3))),
+                wrapList(List(Lit(1), Lit(2), Lit(3))))
+                //DigitList2(List(o(Lit(1)), o(Lit(2)), o(Lit(3))))
         assertParseResult(expected, newParser.parse(input))
     }
 
