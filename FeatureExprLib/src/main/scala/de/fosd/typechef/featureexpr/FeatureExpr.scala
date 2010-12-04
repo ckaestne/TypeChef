@@ -201,7 +201,7 @@ sealed abstract class FeatureExprTree {
             val result = this bubbleUpIf match {
                 case And(children) => {
                     val childrenSimplified = children.map(_.simplify().intToBool()).filter(!BaseFeature.unapply(_)); //TODO also remove all non-zero integer literals
-                    var childrenFlattened: Seq[FeatureExprTree] = List() //computing sets is too expensive
+                    var childrenFlattened: Seq[FeatureExprTree] = SmallList() //computing sets is too expensive
                     for (childs <- childrenSimplified)
                         childs match {
                             case And(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
@@ -231,7 +231,7 @@ sealed abstract class FeatureExprTree {
                 case Or(c) => {
                     var children = c
                     val childrenSimplified = children.map(_.simplify().intToBool()).filter(!DeadFeature.unapply(_));
-                    var childrenFlattened: Seq[FeatureExprTree] = List()
+                    var childrenFlattened: Seq[FeatureExprTree] = SmallList()
                     for (childs <- childrenSimplified)
                         childs match {
                             case Or(innerChildren) => childrenFlattened = childrenFlattened ++ innerChildren
@@ -394,11 +394,11 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCNF)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: Seq[Or] = List(Or(List())) //list of Or expressions
+                    var orClauses: Seq[Or] = SmallList(Or(SmallList())) //list of Or expressions
                     for (child <- cnfchildren) {
                         child match {
                             case And(innerChildren) => {
-                                var newClauses: Seq[Or] = List()
+                                var newClauses: Seq[Or] = SmallList()
                                 for (innerChild <- innerChildren)
                                     newClauses = newClauses ++ orClauses.map(_.addChild(innerChild));
                                 orClauses = newClauses;
@@ -426,8 +426,8 @@ sealed abstract class FeatureExprTree {
             case Or(children) => {
                 val cnfchildren = children.map(_.toCnfEquiSat)
                 if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: Seq[FeatureExprTree] = List() //list of Or expressions
-                    var freshFeatureNames: Seq[FeatureExprTree] = List()
+                    var orClauses: Seq[FeatureExprTree] = SmallList() //list of Or expressions
+                    var freshFeatureNames: Seq[FeatureExprTree] = SmallList()
                     for (child <- cnfchildren) {
                         val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
                         child match {
@@ -639,14 +639,14 @@ case class IfExpr(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseB
 
 case class Not(expr: FeatureExprTree) extends AbstractUnaryBoolFeatureExprTree(expr, "!", !_);
 case class And(children: Seq[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "&&", _ && _) {
-    def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
+    def this(left: FeatureExprTree, right: FeatureExprTree) = this(SmallList(left, right))
     def addChild(child: FeatureExprTree) = And(child +: children);
 }
 object And {
     def apply(a: FeatureExprTree, b: FeatureExprTree) = new And(a, b)
 }
 case class Or(children: Seq[FeatureExprTree]) extends AbstractNaryBinaryFeatureExprTree(children, "||", _ || _) {
-    def this(left: FeatureExprTree, right: FeatureExprTree) = this(List(left, right))
+    def this(left: FeatureExprTree, right: FeatureExprTree) = this(SmallList(left, right))
     def addChild(child: FeatureExprTree) = Or(child +: children);
 }
 object Or {
