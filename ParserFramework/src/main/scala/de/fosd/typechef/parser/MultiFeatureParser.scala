@@ -305,31 +305,46 @@ class MultiFeatureParser {
 
     /**
      * normal repetition, 0..n times (x)*
+     * 
+     * may return alternative lists. a list is sealed if parser p cannot
+     * parse an additional entry. parsing continues on unsealed lists
+     * until all lists are sealed 
+     * 
      * @param p
      * @return
      */
     def rep[T](p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
+
+        private case class Sealable[T](val isSealed: Boolean, val list: List[T])
+        def seal(list: List[T]) = Sealable(true, list)
+        def unsealed(list: List[T]) = Sealable(false, list)
+        def anyUnsealed(parseResult: MultiParseResult[Sealable[T], Elem, TypeContext]) =
+            parseResult.exists(!_.isSealed)
+
         def apply(in: Input, parserState: ParserState): MultiParseResult[List[T], Elem, TypeContext] = {
-            var anySuccess = false
             val p_ = opt(p) ^^ {
                 case Some(x) =>
-                    anySuccess = true; List(x)
+                    unsealed(List(x))
                 case None =>
-                    Nil
+                    seal(Nil)
             }
-            var res = p_(in, parserState)
-            while (anySuccess) {
-                anySuccess = false
+            var res: MultiParseResult[Sealable[T], Elem, TypeContext] = p_(in, parserState)
+            while (anyUnsealed(res)) {
                 res = res.seqAllSuccessful(parserState,
-                    (fs, x) => x.seq[Option[T]](fs, opt(p)(x.next, fs))).map({
-                    case list ~ Some(x) =>
-                        anySuccess = true;
-                        list :+ x
-                    case list ~ None =>
-                        list
-                })
+                    (fs, x) =>
+                        if (x.result.isSealed)
+                            x // do not do anything on sealed lists
+                        else
+                            // extend unsealed lists with the next result (if there is no next result, seal the list)                        	
+                            x.seq(fs, opt(p)(x.next, fs)).map({
+                                case slist ~ Some(x) =>
+                                    unsealed(slist.list :+ x)
+                                case slist ~ None =>
+                                    seal(slist.list)
+                            }))
             }
-            res
+            //return all sealed lists
+            res.map(_.list)
         }
     }
 

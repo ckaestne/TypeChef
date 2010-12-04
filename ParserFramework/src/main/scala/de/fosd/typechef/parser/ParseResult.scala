@@ -27,6 +27,7 @@ sealed abstract class MultiParseResult[+T, Token <: AbstractToken, TypeContext] 
         }
 
     def allFailed: Boolean
+    def exists(predicate: T=>Boolean): Boolean
     /**
      * toList recursively flattens the tree structure and creates resulting feature expressions
      */
@@ -93,6 +94,7 @@ case class SplittedParseResult[+T, Token <: AbstractToken, TypeContext](feature:
         }
     }
     def allFailed = resultA.allFailed && resultB.allFailed
+    def exists(p: T=>Boolean) = resultA.exists(p) || resultB.exists(p)
     def toList(context: FeatureExpr) = resultA.toList(context and feature) ++ resultB.toList(context and (feature.not))
     def toErrorList = resultA.toErrorList ++ resultB.toErrorList
     def changeContext(contextModification: (T, TypeContext) => TypeContext) =
@@ -123,6 +125,7 @@ abstract class NoSuccess[Token <: AbstractToken, TypeContext](val msg: String, v
     def isSuccess: Boolean = false
     def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[Nothing, Token, TypeContext]) => MultiParseResult[U, Token, TypeContext]): MultiParseResult[U, Token, TypeContext] = this
     def allFailed = true
+    def exists(predicate: Nothing=>Boolean) = false
     def changeContext(contextModification: (Nothing, TypeContext) => TypeContext) = this
 }
 /** An extractor so NoSuccess(msg, next) can be used in matches.
@@ -159,6 +162,7 @@ case class Success[+T, Token <: AbstractToken, TypeContext](val result: T, nextI
         thatResult.seqAllSuccessful[~[T, U]](context, (fs: FeatureExpr, x: Success[U, Token, TypeContext]) => Success(new ~(result, x.result), x.next))
     def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U, Token, TypeContext]): MultiParseResult[U, Token, TypeContext] = this
     def allFailed = false
+    def exists(predicate: T=>Boolean) = predicate(result)
     def toErrorList = List()
     def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParseResult[T, Token, TypeContext] = Success(result, nextInput.setContext(contextModification(result, nextInput.context)))
     def commit: MultiParseResult[T, Token, TypeContext] = this
