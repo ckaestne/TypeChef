@@ -16,6 +16,7 @@ srcPath=$PWD/linux-2.6.33.3
 # kernel/timer - unsupported include FOO(bar) construct
 # arch/x86/kernel/traps - strange preprocessor bug, not always reproducible, I'm really confused; takes half an hour anyway.
 # arch/x86/kernel/time - takes half an hour.
+listToParse="init/calibrate arch/x86/kernel/signal arch/x86/kernel/irq arch/x86/kernel/irq_64 arch/x86/kernel/dumpstack_64 arch/x86/kernel/ioport arch/x86/kernel/ldt arch/x86/kernel/dumpstack arch/x86/kernel/setup"
 # Processed:
 list="init/calibrate init/main arch/x86/kernel/signal"
 list="$list kernel/fork drivers/video/console/dummycon"
@@ -43,6 +44,8 @@ partialPreprocFlags="-c linux-redhat.properties -x CONFIG_ -U __INTEL_COMPILER \
 
 # XXX: These options workaround bugs triggered by these macros.
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
+# Encode missing dependencies caught by the typechecker! :-D
+partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG_64BIT"
 
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
@@ -67,6 +70,12 @@ for i in $list; do
   base=$(basename $i)
   . ./jcpp.sh $srcPath/$i.c $(flags "$base")
   . ./postProcess.sh $srcPath/$i.c $(flags "$base")
+  for j in $listToParse; do
+    if [ "$i" = "$j" ]; then
+      ./parseTypecheck.sh $srcPath/$i.pi
+      break
+    fi
+  done
 done
 
 # The original invocation of the compiler:
