@@ -63,8 +63,47 @@ class RepOptTest extends TestCase {
     }
     
     
+        @Test
+    def testRepOptCommonEnd() {
+        var (ast, next) = parseExtList(""" 
+#ifdef X
+typedef char a
+#else
+typedef int a
+#endif
+;
+typedef int b;
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 3)
+        assert(next.context.knowsType("a"))
+        assert(next.context.knowsType("b"))
+    }
     
-        def testRepOptMultiFeatureOverlap7_linux() {
+     def testRepOptMultiFeatureOverlap2() {
+        var (ast, next) = parseExtList(""" 
+#ifdef X
+#ifdef Y
+typedef char a
+#else
+typedef int a
+#endif
+;
+#else
+typedef long a;
+typedef int b;
+#end
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 4)
+        assert(next.context.knowsType("a"))
+    }
+
+    def testRepOptMultiFeatureOverlap7_linux() {
         var (ast, next) = parseExtList(""" 
 #ifdef A
 #ifdef SMP
@@ -92,111 +131,107 @@ typedef long y;
         ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
-        assert(ast.size == 15)
-    }
-        
-
-    
-    
-        def testRepOptMultiFeatureOverlap6_linux() {
-        var (ast, next) = parseExtList(""" 
-#ifdef A
-#ifdef CPU
-extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
-extern __attribute__((section(
-#ifdef SMP
-".data.percpu"
-#else
-".data"
-#endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
-#else
-extern __attribute__((section(
-#ifdef SMP
-".data.percpu"
-#else
-".data"
-#endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
-#endif
-;
-#ifdef CPU
-extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
-extern __attribute__((section(
-#ifdef SMP
-".data.percpu"
-#else
-".data"
-#endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
-#else
-extern __attribute__((section(
-#ifdef SMP
-".data.percpu"
-#else
-".data"
-#endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
-#endif
-;
-typedef unsigned long a;
-#else
-#ifdef C
-typedef long x;
-typedef long x;
-#else
-typedef long y;
-typedef long y;
-#endif
-#endif
-""")
-        ast = flatten(ast)
-        println(ast.mkString("\n"))
-        println(next)
-        assert(ast.size == 15)
-    }
-    
-     def testRepOptMultiFeatureOverlap5_linux() {
-        var (ast, next) = parseExtList(""" 
-#ifdef A
-#ifdef CPU
-extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
-extern __attribute__((section(
-#ifdef SMP
-".data.percpu"
-#else
-".data"
-#endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
-#else
-extern __attribute__((section(
-#ifdef SMP
-".data.percpu"
-#else
-".data"
-#endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
-#endif
-;
-typedef unsigned long a;
-#else
-#ifdef C
-typedef long x;
-typedef long x;
-#else
-typedef long y;
-typedef long y;
-#endif
-#endif
-""")
-        ast = flatten(ast)
-        println(ast.mkString("\n"))
-        println(next)
         assert(ast.size == 10)
     }
-    
-    
-     def testRepOptMultiFeatureOverlap4() {
+
+    def testRepOptMultiFeatureOverlap6_linux() {
+        var (ast, next) = parseExtList(""" 
+#ifdef A
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#else
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#endif
+;
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#else
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#endif
+;
+typedef unsigned long a;
+#else
+#ifdef C
+typedef long x;
+typedef long x;
+#else
+typedef long y;
+typedef long y;
+#endif
+#endif
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 11)
+    }
+
+    def testRepOptMultiFeatureOverlap5_linux() {
+        var (ast, next) = parseExtList(""" 
+#ifdef A
+#ifdef CPU
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#else
+extern __attribute__((section(
+#ifdef SMP
+".data.percpu"
+#else
+".data"
+#endif
+ "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+#endif
+;
+typedef unsigned long a;
+#else
+#ifdef C
+typedef long x;
+typedef long x;
+#else
+typedef long y;
+typedef long y;
+#endif
+#endif
+""")
+        ast = flatten(ast)
+        println(ast.mkString("\n"))
+        println(next)
+        assert(ast.size == 8)
+    }
+
+    def testRepOptMultiFeatureOverlap4() {
         var (ast, next) = parseExtList(""" 
 #ifdef A
 #ifdef B
@@ -225,9 +260,8 @@ typedef long y;
         println(next)
         assert(ast.size == 8)
     }
-           
 
-       def testRepOptMultiFeatureOverlap3() {
+    def testRepOptMultiFeatureOverlap3() {
         var (ast, next) = parseExtList(""" 
 #ifdef X
 #ifdef Y
@@ -250,29 +284,10 @@ typedef long a;
         assert(ast.size == 3)
         assert(next.context.knowsType("a"))
     }
-       
-       def testRepOptMultiFeatureOverlap2() {
-        var (ast, next) = parseExtList(""" 
-#ifdef X
-#ifdef Y
-typedef char a
-#else
-typedef int a
-#endif
-;
-#else
-typedef long a;
-typedef int b;
-#end
-""")
-        ast = flatten(ast)
-        println(ast.mkString("\n"))
-        println(next)
-        assert(ast.size == 4)
-        assert(next.context.knowsType("a"))
-    }
-       
-       def testRepOptMultiFeatureOverlap() {
+
+   
+
+    def testRepOptMultiFeatureOverlap() {
         var (ast, next) = parseExtList(""" 
 #ifdef X
 #ifdef Y
@@ -291,8 +306,7 @@ typedef long a;
         assert(ast.size == 3)
         assert(next.context.knowsType("a"))
     }
-       
-       
+
     def testRepOptMultiFeature() {
         var (ast, next) = parseExtList(""" 
 #ifdef X
@@ -311,8 +325,6 @@ typedef long a;
         assert(ast.size == 3)
         assert(next.context.knowsType("a"))
     }
-    
-   
 
     /**
      * for now, we add a type to the type context, even if it 
@@ -330,7 +342,8 @@ typedef int b;
 """)
         println(ast)
         println(next)
-        assert(ast.asInstanceOf[List[Opt[ExternalDef]]].size == 3)
+        val size = ast.asInstanceOf[List[Opt[ExternalDef]]].size
+        assert(size == 2 || size == 3)
         assert(next.context.knowsType("a"))
         assert(next.context.knowsType("b"))
     }
@@ -355,24 +368,7 @@ typedef int b;
         assert(next.context.knowsType("c"))
     }
 
-    @Test
-    def testRepOptCommonEnd() {
-        var (ast, next) = parseExtList(""" 
-#ifdef X
-typedef char a
-#else
-typedef int a
-#endif
-;
-typedef int b;
-""")
-        ast = flatten(ast)
-        println(ast.mkString("\n"))
-        println(next)
-        assert(ast.size == 3)
-        assert(next.context.knowsType("a"))
-        assert(next.context.knowsType("b"))
-    }
+
 
     /*    @Test
     def testRepOptCommonEnd2() {
@@ -407,9 +403,9 @@ typedef int b;
         }
         result
     }
-    
+
     @Test
     def testPrintStatistics() {
-    	println(FeatureSolverCache.statistics)
+        println(FeatureSolverCache.statistics)
     }
 }

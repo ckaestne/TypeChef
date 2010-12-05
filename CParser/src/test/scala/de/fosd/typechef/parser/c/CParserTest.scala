@@ -69,8 +69,11 @@ class CParserTest extends TestCase {
     }
 
     def a = Id("a"); def b = Id("b"); def c = Id("c"); def d = Id("d"); def x = Id("x");
-    def intType = TypeName(List(PrimitiveTypeSpecifier("int")), None)
+    def intType = TypeName(lo(PrimitiveTypeSpecifier("int")), None)
     def o[T](x: T) = Opt(FeatureExpr.base, x)
+    def lo[T](x: T) = List(o(x))
+    def lo[T](x: T, y:T) = List(o(x),o(y))
+    def lo[T](x: T, y:T, z:T) = List(o(x),o(y),o(z))
 
     def fa = FeatureExpr.createDefinedExternal("a")
 
@@ -85,8 +88,8 @@ class CParserTest extends TestCase {
     }
 
     def testStringLit() {
-        assertParseResult(StringLit(List("\"test\"")), "\"test\"", List(p.primaryExpr, p.stringConst))
-        assertParseResult(Alt(fa, StringLit(List("\"test\"")), StringLit(List("\"ba\\\"r\""))), """|#ifdef a
+        assertParseResult(StringLit(lo("\"test\"")), "\"test\"", List(p.primaryExpr, p.stringConst))
+        assertParseResult(Alt(fa, StringLit(lo("\"test\"")), StringLit(lo("\"ba\\\"r\""))), """|#ifdef a
         					|"test"
         					|#else
         					|"ba\"r"
@@ -96,7 +99,7 @@ class CParserTest extends TestCase {
 
     def testConstant() {
         def parseConstant(const: String) { assertParseResult(Constant(const), const, p.numConst) }
-        def parseString(const: String) { assertParseResult(StringLit(List(const)), const, p.stringConst) }
+        def parseString(const: String) { assertParseResult(StringLit(lo(const)), const, p.stringConst) }
         parseConstant("1")
         parseConstant("0xF")
         parseConstant("0X1A")
@@ -142,23 +145,25 @@ class CParserTest extends TestCase {
         assertParseError(".", p.VARARGS)
     }
     def testPostfixSuffix {
-        assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a"))), "->a", p.postfixSuffix)
-        assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a"))), "->    a", p.postfixSuffix)
-        assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a")), PointerPostfixSuffix("->", Id("a"))), "->a->a", p.postfixSuffix)
-        assertParseAnyResult(List(PointerPostfixSuffix(".", Id("a"))), ".a", p.postfixSuffix)
-        assertParseAnyResult(List(SimplePostfixSuffix("++")), "++", p.postfixSuffix)
-        assertParseAnyResult(List(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
+        assertParseAnyResult(lo(PointerPostfixSuffix("->", Id("a"))), "->a", p.postfixSuffix)
+        assertParseAnyResult(lo(PointerPostfixSuffix("->", Id("a"))), "->    a", p.postfixSuffix)
+        assertParseAnyResult(lo(PointerPostfixSuffix("->", Id("a")), PointerPostfixSuffix("->", Id("a"))), "->a->a", p.postfixSuffix)
+        assertParseAnyResult(lo(PointerPostfixSuffix(".", Id("a"))), ".a", p.postfixSuffix)
+        assertParseAnyResult(lo(SimplePostfixSuffix("++")), "++", p.postfixSuffix)
+        assertParseAnyResult(lo(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
     }
     def testPostfixExpr {
-        assertParseResult(PostfixExpr(Id("b"), List(PointerPostfixSuffix("->", Id("a")))), "b->a", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), lo(PointerPostfixSuffix("->", Id("a")))), "b->a", List(p.postfixExpr, p.unaryExpr))
         assertParseResult(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List())))), "b()", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List(a, b, c))))), "b(a,b,c)", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List())), FunctionCall(ExprList(List(a))))), "b()(a)", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), List(ArrayAccess(a))), "b[a]", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), List(FunctionCall(ExprList(List())), ArrayAccess(a))), "b()[a]", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())))), "b()", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(lo(a, b, c))))), "b(a,b,c)", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())), FunctionCall(ExprList(lo(a))))), "b()(a)", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), lo(ArrayAccess(a))), "b[a]", List(p.postfixExpr, p.unaryExpr))
+        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())), ArrayAccess(a))), "b()[a]", List(p.postfixExpr, p.unaryExpr))
 
-        assertParseResult(Alt(fa, PostfixExpr(Id("b"), List(PointerPostfixSuffix(".", Id("a")))), PostfixExpr(Id("b"), List(PointerPostfixSuffix("->", Id("a"))))),
+        assertParseAnyResult(
+        		PostfixExpr(Id("b"),
+        		List(Opt(fa, PointerPostfixSuffix(".", Id("a"))), Opt(fa.not,PointerPostfixSuffix("->", Id("a"))))),
             """|b
         					|#ifdef a
         					|.
@@ -166,7 +171,7 @@ class CParserTest extends TestCase {
         					|->
         					|#endif
         					|a""", p.postfixExpr)
-        assertParseResult(Alt(fa, PostfixExpr(Id("b"), List(SimplePostfixSuffix("++"))), Id("b")),
+        assertParseResult(PostfixExpr(Id("b"), List(Opt(fa,SimplePostfixSuffix("++")))),
             """|b
         					|#ifdef a
         					|++
@@ -197,17 +202,17 @@ class CParserTest extends TestCase {
     }
 
     def testNAryExpr {
-        assertParseResult(NAryExpr(a, List(("*", b))), "a*b", p.multExpr)
-        assertParseResult(NAryExpr(a, List(("*", b), ("*", b))), "a*b*b", p.multExpr)
+        assertParseResult(NAryExpr(a, List(o("*", b))), "a*b", p.multExpr)
+        assertParseResult(NAryExpr(a, List(o("*", b), o("*", b))), "a*b*b", p.multExpr)
     }
     def testExprs {
-        assertParseResult(NAryExpr(NAryExpr(a, List(("*", b))), List(("+", c))), "a*b+c", p.expr)
-        assertParseResult(NAryExpr(c, List(("+", NAryExpr(a, List(("*", b)))))), "c+a*b", p.expr)
-        assertParseResult(NAryExpr(NAryExpr(a, List(("+", b))), List(("*", c))), "(a+b)*c", p.expr)
-        assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(("==", c)))), "a=b==c", p.expr)
-        assertParseResult(NAryExpr(a, List(("/", b))), "a/b", p.expr)
+        assertParseResult(NAryExpr(NAryExpr(a, List(o("*", b))), List(o("+", c))), "a*b+c", p.expr)
+        assertParseResult(NAryExpr(c, List(o("+", NAryExpr(a, List(o("*", b)))))), "c+a*b", p.expr)
+        assertParseResult(NAryExpr(NAryExpr(a, List(o("+", b))), List(o("*", c))), "(a+b)*c", p.expr)
+        assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(o("==", c)))), "a=b==c", p.expr)
+        assertParseResult(NAryExpr(a, List(o("/", b))), "a/b", p.expr)
         assertParseResult(ConditionalExpr(a, Some(b), c), "a?b:c", p.expr)
-        assertParseResult(ExprList(List(a, b, NAryExpr(NAryExpr(c, List(("+", NAryExpr(c, List(("/", d)))))), List(("|", x))))), "a,b,c+c/d|x", p.expr)
+        assertParseResult(ExprList(List(o(a), o(b), o(NAryExpr(NAryExpr(c, List(o("+", NAryExpr(c, List(o("/", d)))))), List(o("|", x)))))), "a,b,c+c/d|x", p.expr)
     }
     def testAltExpr {
         assertParseResult(Alt(fa, a, b),
@@ -216,7 +221,7 @@ class CParserTest extends TestCase {
         					|#else
         					|b
         					|#endif""", p.expr)
-        assertParseResult(Alt(fa, NAryExpr(a, List(("+", c))), NAryExpr(b, List(("+", c)))),
+        assertParseResult(Alt(fa, NAryExpr(a, List(Opt(fa,("+", c)))), NAryExpr(b, List(Opt(fa.not,(("+", c)))))),
             """|#ifdef a
         					|a +
         					|#else
@@ -261,7 +266,10 @@ class CParserTest extends TestCase {
         					|#else
     			  			|c;
         					|#endif""", p.statement)
-        assertParseAnyResult(AltStatement(fa, CompoundStatement(List(o(IfStatement(a, ExprStatement(b), None)), o(ExprStatement(c)))), CompoundStatement(List(o(IfStatement(a, ExprStatement(c), None))))),
+        assertParseAnyResult(CompoundStatement(List(
+        		Opt(fa,IfStatement(a, ExprStatement(b), None)), 
+        		Opt(fa, ExprStatement(c)), 
+        		Opt(fa.not, IfStatement(a, ExprStatement(c), None)))),
             """|{
         		|if (a)
     			  			|#ifdef a
@@ -292,12 +300,12 @@ class CParserTest extends TestCase {
     }
     def testDeclarator {
         assertParseResult(DeclaratorId(List(), a, List()), "a", p.declarator)
-        assertParseResult(DeclaratorDecl(List(), None, DeclaratorId(List(), a, List(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
-        assertParseResult(DeclaratorId(List(Pointer(List())), a, List()), "*a", p.declarator)
-        assertParseResult(DeclaratorId(List(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
-        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const")))), a, List()), "*const a", p.declarator)
-        assertParseResult(DeclaratorId(List(Pointer(List(OtherSpecifier("const"), OtherSpecifier("volatile")))), a, List()), "*const volatile a", p.declarator)
-        assertParseResult(DeclaratorId(List(), a, List(DeclArrayAccess(None))), "a[]", p.declarator)
+        assertParseResult(DeclaratorDecl(List(), None, DeclaratorId(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
+        assertParseResult(DeclaratorId(lo(Pointer(List())), a, List()), "*a", p.declarator)
+        assertParseResult(DeclaratorId(lo(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
+        assertParseResult(DeclaratorId(lo(Pointer(lo(OtherSpecifier("const")))), a, List()), "*const a", p.declarator)
+        assertParseResult(DeclaratorId(lo(Pointer(lo(OtherSpecifier("const"), OtherSpecifier("volatile")))), a, List()), "*const volatile a", p.declarator)
+        assertParseResult(DeclaratorId(List(), a, lo(DeclArrayAccess(None))), "a[]", p.declarator)
         //    	assertParseResult(DeclaratorId(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
         //    	assertParseResult(DeclaratorId(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
     }
@@ -315,7 +323,7 @@ class CParserTest extends TestCase {
         assertParseable("x ", p.structDeclarator)
         assertParseable("void ", p.specifierQualifierList)
         assertParseError("void x", p.specifierQualifierList)
-        assertParseable(" void x; ", p.structDeclarationList)
+        assertParseable(" void x; ", p.structDeclarationList0)
         assertParseable("struct { void x; }", p.structOrUnionSpecifier)
         assertParseable("struct { void x,y; }", p.structOrUnionSpecifier)
         assertParseable("struct a{ void x; int x:3+2,z:3;}", p.structOrUnionSpecifier)
@@ -384,9 +392,8 @@ class CParserTest extends TestCase {
 		     "1:"
 		     : "=&c" (d0), "=&D" (d1), "=&S" (d2)
 		     : "0" (n / 4), "g" (n), "1" ((long)to), "2" ((long)from)
-		     : "memory");"""
-        		, p.statement)
-        
+		     : "memory");""", p.statement)
+
         assertParseable("enum { DDD = -7 }", p.enumSpecifier)
         assertParseable("char                        hgfretty[99 ];", p.structDeclaration)
         assertParseable(" struct  pojeqsd {    char                        hgfretty[99 ];}", p.structOrUnionSpecifier)
@@ -432,7 +439,7 @@ typedef struct alias alias;""", p.translationUnit)
     int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
     int fake_len;               /* strlen of fakename */
     int real_len;               /* strlen of realname */
-    struct alias *next;""", p.structDeclarationList)
+    struct alias *next;""", p.structDeclarationList0)
 
     def testOptListBoa1 = assertParseable("""
 typedef	char *	caddr_t;

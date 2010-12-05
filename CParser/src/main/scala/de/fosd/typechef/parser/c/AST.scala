@@ -5,27 +5,27 @@ import de.fosd.typechef.parser._
 
 //Expressions
 trait AST {
-    def accept(visitor: ASTVisitor) { accept(visitor,FeatureExpr.base) }
-    def accept(visitor: ASTVisitor, feature:FeatureExpr) {
-        visitor.visit(this,feature)
+    def accept(visitor: ASTVisitor) { accept(visitor, FeatureExpr.base) }
+    def accept(visitor: ASTVisitor, feature: FeatureExpr) {
+        visitor.visit(this, feature)
         for (a <- getInnerOpt)
-            a.entry.accept(visitor,feature.and(a.feature))
-        visitor.postVisit(this,feature)
+            a.entry.accept(visitor, feature.and(a.feature))
+        visitor.postVisit(this, feature)
     }
-    protected def getInnerOpt: List[Opt[AST]] = getInner.map(Opt(FeatureExpr.base,_))
+    protected def getInnerOpt: List[Opt[AST]] = getInner.map(Opt(FeatureExpr.base, _))
     protected def getInner: List[AST] = List()
 }
 
 trait ASTVisitor {
-    def visit(node: AST, feature:FeatureExpr)
-    def postVisit(node: AST, feature:FeatureExpr)
+    def visit(node: AST, feature: FeatureExpr)
+    def postVisit(node: AST, feature: FeatureExpr)
 }
 
 abstract class Expr extends AST
 abstract class PrimaryExpr extends Expr
 case class Id(name: String) extends PrimaryExpr
 case class Constant(value: String) extends PrimaryExpr
-case class StringLit(name: List[String]) extends PrimaryExpr
+case class StringLit(name: List[Opt[String]]) extends PrimaryExpr
 
 abstract class PostfixSuffix extends AST
 case class SimplePostfixSuffix(t: String) extends PostfixSuffix
@@ -39,8 +39,9 @@ case class ArrayAccess(expr: Expr) extends PostfixSuffix {
     override def getInner = List(expr)
 }
 
-case class PostfixExpr(p: Expr, s: List[PostfixSuffix]) extends Expr {
-    override def getInner = List(p) ++ s
+case class PostfixExpr(p: Expr, s: List[Opt[PostfixSuffix]]) extends Expr {
+    override def getInnerOpt = super.getInnerOpt ++ s
+    override def getInner = List(p)
 }
 case class UnaryExpr(kind: String, e: Expr) extends Expr {
     override def getInner = List(e)
@@ -58,8 +59,9 @@ case class UCastExpr(kind: String, castExpr: Expr) extends Expr {
     override def getInner = List(castExpr)
 }
 
-case class NAryExpr(e: Expr, others: List[(String, Expr)]) extends Expr {
-    override def getInner = List(e) ++ others.map(_._2)
+case class NAryExpr(e: Expr, others: List[Opt[(String, Expr)]]) extends Expr {
+    override def getInnerOpt = super.getInnerOpt ++ others.map(o => Opt(o.feature, o.entry._2))
+    override def getInner = List(e)
 }
 case class ConditionalExpr(condition: Expr, thenExpr: Option[Expr], elseExpr: Expr) extends Expr {
     override def getInner = List(condition) ++ thenExpr.toList ++ List(elseExpr)
@@ -67,8 +69,8 @@ case class ConditionalExpr(condition: Expr, thenExpr: Option[Expr], elseExpr: Ex
 case class AssignExpr(target: Expr, operation: String, source: Expr) extends Expr {
     override def getInner = List(target, source)
 }
-case class ExprList(exprs: List[Expr]) extends Expr {
-    override def getInner = exprs
+case class ExprList(exprs: List[Opt[Expr]]) extends Expr {
+    override def getInnerOpt = exprs
 }
 
 //Statements
@@ -112,15 +114,15 @@ case class IfStatement(condition: Expr, thenBranch: Statement, elseBranch: Optio
 case class SwitchStatement(expr: Expr, s: Statement) extends Statement {
     override def getInner = List(expr, s)
 }
-case class DeclarationStatement(decl:Declaration) extends Statement {
-	override def getInner = List(decl)
+case class DeclarationStatement(decl: Declaration) extends Statement {
+    override def getInner = List(decl)
 }
 case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement {
-    override def getInnerOpt = List(Opt(feature,thenBranch), Opt(feature.not,elseBranch))
+    override def getInnerOpt = List(Opt(feature, thenBranch), Opt(feature.not, elseBranch))
 }
 object AltStatement {
     def join = (f: FeatureExpr, x: Statement, y: Statement) => if (x == y) x else AltStatement(f, x, y)
-} 
+}
 
 abstract class Specifier extends AST
 abstract class TypeSpecifier extends Specifier
@@ -138,110 +140,120 @@ case class CompoundAttribute(inner: List[List[Attribute]]) extends Attribute {
 }
 
 trait Declaration extends AST with ExternalDef
-case class ADeclaration(declSpecs: List[Specifier], init: Option[List[InitDeclarator]]) extends Declaration {
-    override def getInner = declSpecs ++ init.toList.flatten
+case class ADeclaration(declSpecs: List[Opt[Specifier]], init: Option[List[Opt[InitDeclarator]]]) extends Declaration {
+    override def getInnerOpt = declSpecs ++ init.toList.flatten
 }
 case class AltDeclaration(feature: FeatureExpr, thenBranch: Declaration, elseBranch: Declaration) extends Declaration {
-    override def getInnerOpt = List(Opt(feature,thenBranch), Opt(feature.not,elseBranch))
+    override def getInnerOpt = List(Opt(feature, thenBranch), Opt(feature.not, elseBranch))
 }
 object AltDeclaration {
     def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
 }
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Specifier]) extends AST
-case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Specifier], i: Option[Initializer]) extends InitDeclarator(declarator, attributes) {
-    override def getInner = List(declarator) ++ attributes ++ i.toList
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[Specifier]]) extends AST
+case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Opt[Specifier]], i: Option[Initializer]) extends InitDeclarator(declarator, attributes) {
+    override def getInnerOpt = super.getInnerOpt ++ attributes
+    override def getInner = List(declarator) ++ i.toList
 }
-case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Specifier], e: Expr) extends InitDeclarator(declarator, attributes) {
-    override def getInner = List(declarator) ++ attributes ++ List(e)
+case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Opt[Specifier]], e: Expr) extends InitDeclarator(declarator, attributes) {
+    override def getInnerOpt = super.getInnerOpt ++ attributes
+    override def getInner = List(declarator) ++ List(e)
 }
 
-abstract class Declarator(pointer: List[Pointer], extensions: List[DeclaratorExtension]) extends AST {
+abstract class Declarator(pointer: List[Opt[Pointer]], extensions: List[Opt[DeclaratorExtension]]) extends AST {
     def getName: String
 }
-case class DeclaratorId(pointer: List[Pointer], id: Id, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions) {
+case class DeclaratorId(pointer: List[Opt[Pointer]], id: Id, extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointer, extensions) {
     def getName = id.name
-    override def getInner = pointer ++ List(id) ++ extensions
+    override def getInnerOpt = super.getInnerOpt ++ extensions ++ pointer
+    override def getInner = List(id)
 }
-case class DeclaratorDecl(pointer: List[Pointer], attrib: Option[AttributeSpecifier], decl: Declarator, extensions: List[DeclaratorExtension]) extends Declarator(pointer, extensions) {
+case class DeclaratorDecl(pointer: List[Opt[Pointer]], attrib: Option[AttributeSpecifier], decl: Declarator, extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointer, extensions) {
     def getName = decl.getName
 }
 abstract class DeclaratorExtension extends AST
-case class DeclIdentifierList(idList: List[Id]) extends DeclaratorExtension {
-    override def getInner = idList
+case class DeclIdentifierList(idList: List[Opt[Id]]) extends DeclaratorExtension {
+    override def getInnerOpt = idList
 }
-case class DeclParameterTypeList(parameterTypes: List[ParameterDeclaration]) extends DeclaratorExtension with DirectAbstractDeclarator {
-    override def getInner = parameterTypes
+case class DeclParameterTypeList(parameterTypes: List[Opt[ParameterDeclaration]]) extends DeclaratorExtension with DirectAbstractDeclarator {
+    override def getInnerOpt = parameterTypes
 }
 case class DeclArrayAccess(expr: Option[Expr]) extends DeclaratorExtension with DirectAbstractDeclarator {
     override def getInner = expr.toList
 }
 
 trait DirectAbstractDeclarator extends AST
-case class AbstractDeclarator(pointer: List[Pointer], extensions: List[DirectAbstractDeclarator]) extends AST with DirectAbstractDeclarator {
-    override def getInner = pointer ++ extensions
+case class AbstractDeclarator(pointer: List[Opt[Pointer]], extensions: List[Opt[DirectAbstractDeclarator]]) extends AST with DirectAbstractDeclarator {
+    override def getInnerOpt = pointer ++ extensions
 }
 
 case class Initializer(initializerElementLabel: Option[InitializerElementLabel], expr: Expr) extends AST {
     override def getInner = initializerElementLabel.toList ++ List(expr)
 }
 
-case class Pointer(specifier: List[Specifier]) extends AST {
-    override def getInner = specifier
+case class Pointer(specifier: List[Opt[Specifier]]) extends AST {
+    override def getInnerOpt = specifier
 }
-class ParameterDeclaration(val specifiers: List[Specifier]) extends AST
-case class PlainParameterDeclaration(override val specifiers: List[Specifier]) extends ParameterDeclaration(specifiers) {
-    override def getInner = specifiers
+class ParameterDeclaration(val specifiers: List[Opt[Specifier]]) extends AST
+case class PlainParameterDeclaration(override val specifiers: List[Opt[Specifier]]) extends ParameterDeclaration(specifiers) {
+    override def getInnerOpt = specifiers
 }
-case class ParameterDeclarationD(override val specifiers: List[Specifier], decl: Declarator) extends ParameterDeclaration(specifiers) {
-    override def getInner = specifiers ++ List(decl)
+case class ParameterDeclarationD(override val specifiers: List[Opt[Specifier]], decl: Declarator) extends ParameterDeclaration(specifiers) {
+    override def getInnerOpt = super.getInnerOpt ++ specifiers
+    override def getInner = List(decl)
 }
-case class ParameterDeclarationAD(override val specifiers: List[Specifier], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers) {
-    override def getInner = specifiers ++ List(decl)
+case class ParameterDeclarationAD(override val specifiers: List[Opt[Specifier]], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers) {
+    override def getInnerOpt = super.getInnerOpt ++ specifiers
+    override def getInner = List(decl)
 }
 case class VarArgs() extends ParameterDeclaration(List()) with Declaration
 
-case class EnumSpecifier(id: Option[Id], enumerators: List[Enumerator]) extends TypeSpecifier {
-    override def getInner = id.toList ++ enumerators
+case class EnumSpecifier(id: Option[Id], enumerators: List[Opt[Enumerator]]) extends TypeSpecifier {
+    override def getInnerOpt = super.getInnerOpt ++ enumerators
+    override def getInner = id.toList
 }
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST {
     override def getInner = List(id) ++ assignment.toList
 }
-case class StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[StructDeclaration]) extends TypeSpecifier {
-    override def getInner = id.toList ++ enumerators
+case class StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) extends TypeSpecifier {
+    override def getInnerOpt = super.getInnerOpt ++ enumerators
+    override def getInner = id.toList
 }
-case class StructDeclaration(qualifierList: List[Specifier], declaratorList: List[StructDeclarator]) extends AST {
-    override def getInner = qualifierList ++ declaratorList
+case class StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDeclarator]]) extends AST {
+    override def getInnerOpt = qualifierList ++ declaratorList
 }
-case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr], attributes: List[Specifier]) extends AST {
-    override def getInner = declarator.toList ++ expr.toList ++ attributes
+case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr], attributes: List[Opt[Specifier]]) extends AST {
+    override def getInnerOpt = super.getInnerOpt ++ attributes
+    override def getInner = declarator.toList ++ expr.toList
 }
 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef {
     override def getInner = List(expr)
 }
 
-case class FunctionDef(specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends AST with ExternalDef {
-    override def getInner = specifiers ++ List(declarator) ++ parameters ++ List(stmt)
+case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) extends AST with ExternalDef {
+    override def getInnerOpt = super.getInnerOpt ++ specifiers ++ parameters
+    override def getInner = List(declarator) ++ List(stmt)
 }
 trait ExternalDef extends AST
 case class EmptyExternalDef() extends ExternalDef
-case class TypelessDeclaration(declList: List[InitDeclarator]) extends ExternalDef {
-    override def getInner = declList
+case class TypelessDeclaration(declList: List[Opt[InitDeclarator]]) extends ExternalDef {
+    override def getInnerOpt = declList
 }
 case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef {
-    override def getInnerOpt = List(Opt(feature,thenBranch), Opt(feature.not,elseBranch))
+    override def getInnerOpt = List(Opt(feature, thenBranch), Opt(feature.not, elseBranch))
 }
 object AltExternalDef {
     def join = (f: FeatureExpr, x: ExternalDef, y: ExternalDef) => if (x == y) x else AltExternalDef(f, x, y)
 }
 
-case class TypeName(specifiers: List[Specifier], decl: Option[AbstractDeclarator]) extends AST {
-    override def getInner = specifiers ++ decl.toList
+case class TypeName(specifiers: List[Opt[Specifier]], decl: Option[AbstractDeclarator]) extends AST {
+    override def getInnerOpt = super.getInnerOpt ++ specifiers
+    override def getInner = decl.toList
 }
 
-case class TranslationUnit(defs:List[Opt[ExternalDef]]) extends AST {
-	override def getInnerOpt = defs
+case class TranslationUnit(defs: List[Opt[ExternalDef]]) extends AST {
+    override def getInnerOpt = defs
 }
 
 //GnuC stuff here:
@@ -252,8 +264,8 @@ case class GnuAttributeSpecifier(attributeList: List[List[Attribute]]) extends A
 case class AsmAttributeSpecifier(stringConst: StringLit) extends AttributeSpecifier {
     override def getInner = List(stringConst)
 }
-case class LcurlyInitializer(inits: List[Initializer]) extends Expr {
-    override def getInner = inits
+case class LcurlyInitializer(inits: List[Opt[Initializer]]) extends Expr {
+    override def getInnerOpt = inits
 }
 case class AlignOfExprT(typeName: TypeName) extends Expr {
     override def getInner = List(typeName)
@@ -267,8 +279,9 @@ case class GnuAsmExpr(isVolatile: Boolean, expr: StringLit, stuff: Any) extends 
 case class RangeExpr(from: Expr, to: Expr) extends Expr {
     override def getInner = List(from, to)
 }
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Specifier], declarator: Declarator, parameters: List[Declaration], stmt: Statement) extends Declaration {
-    override def getInner = specifiers ++ List(declarator) ++ parameters ++ List(stmt)
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) extends Declaration {
+    override def getInnerOpt = super.getInnerOpt ++ specifiers ++ parameters
+    override def getInner = List(declarator) ++ List(stmt)
 }
 case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier {
     override def getInner = List(typeName)
@@ -276,8 +289,8 @@ case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier {
 case class TypeOfSpecifierU(expr: Expr) extends TypeSpecifier {
     override def getInner = List(expr)
 }
-case class LocalLabelDeclaration(ids: List[Id]) extends Declaration {
-    override def getInner = ids
+case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends Declaration {
+    override def getInnerOpt = ids
 }
 abstract class InitializerElementLabel() extends AST
 case class InitializerElementLabelExpr(expr: Expr, isAssign: Boolean) extends InitializerElementLabel {
@@ -289,8 +302,9 @@ case class InitializerElementLabelColon(id: Id) extends InitializerElementLabel 
 case class InitializerElementLabelDotAssign(id: Id) extends InitializerElementLabel {
     override def getInner = List(id)
 }
-case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Id]) extends PrimaryExpr {
-    override def getInner = List(typeName) ++ offsetofMemberDesignator
+case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[Id]]) extends PrimaryExpr {
+    override def getInner = List(typeName)
+    override def getInnerOpt = super.getInnerOpt ++ offsetofMemberDesignator
 }
 case class BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) extends PrimaryExpr {
     override def getInner = List(typeName1, typeName2)
