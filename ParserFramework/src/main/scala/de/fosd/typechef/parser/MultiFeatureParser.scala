@@ -276,37 +276,17 @@ class MultiFeatureParser {
         }
     }.named("repOpt-" + productionName)*/
 
-    /*def rep[T](p: => MultiParser[T]): MultiParser[List[T]] =
-        opt(p ~ rep(p)) ^^ {
-            case Some(~(x, list: List[_])) => List(x) ++ list
-            case None => List()
-        }*/
-
-    /*
-        rep(p) = opt(p ~ rep(p)) ^^ {
-            case Some(~(x, list: List[_])) => List(x) ++ list
-            case None => List()
-        } ==
-        fix $ \rep -> ((p ~ rep(p)) ^^ (x => Some(x)) | success(None)) ^^ {
-            case Some(~(x, list: List[_])) => List(x) ++ list
-            case None => List()
-        } ==
-        fix $ \rep -> ((p ~ rep(p)) ^^ (x => Some(x)) | success(None)) ^^ {
-            case Some(~(x, list: List[_])) => List(x) ++ list
-            case None => List()
-        } ==
-        fix $ \rep -> (new MultiParser[U] {
-                def mainParser = (new MultiParser[~[T, U]] {
-                        def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U], Elem, TypeContext] =
-                                p(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => x.seq(fs, rep(p)(x.next, fs)))
-                }) ^^ (x => Some(x))
-                def apply(in: Input, parserState: ParserState): MultiParseResult[U, Elem, TypeContext] = {
-                        mainParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => success(None)(in, fs))
-                }
-        })
-        Alternatively:
-        opt(p) ~ opt(p)*
+    /**
+     * straightforward implementation but computationally expensive without tail-call optimization, 
+     * therefore use iterative implementation repPlain instead
+     * @param p
+     * @return
      */
+    def repRecursive[T](p: => MultiParser[T]): MultiParser[List[T]] =
+        opt(p ~ repRecursive(p)) ^^ {
+            case Some(~(x, list: List[_])) => List(x) ++ list
+            case None => List()
+        }
 
     /**
      * normal repetition, 0..n times (x)*
@@ -319,7 +299,6 @@ class MultiFeatureParser {
      * @return
      */
     def repPlain[T](p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
-
         private case class Sealable[T](val isSealed: Boolean, val list: List[T])
         private def seal(list: List[T]) = Sealable(true, list)
         private def unsealed(list: List[T]) = Sealable(false, list)
@@ -343,27 +322,17 @@ class MultiFeatureParser {
                             // extend unsealed lists with the next result (if there is no next result, seal the list)                        	
                             x.seq(fs, opt(p)(x.next, fs)).map({
                                 case slist ~ Some(x) =>
-                                    unsealed(slist.list :+ x)
+                                    /* Appending to the tail would take linear time, and building a list that way
+                                     * would take quadratic time; therefore, add x to the head and remember to reverse the list at the end. */
+                                    unsealed(x +: slist.list)
                                 case slist ~ None =>
                                     seal(slist.list)
                             }))
             }
             //return all sealed lists
-            res.map(_.list)
+            res.map(_.list.reverse)
         }
     }
-
-    /**
-     * straightforward implementation but computationally expensive in a stack-based language, 
-     * therefore use iterative implementation rep instead
-     * @param p
-     * @return
-     */
-    def repRecursive[T](p: => MultiParser[T]): MultiParser[List[T]] =
-        opt(p ~ repRecursive(p)) ^^ {
-            case Some(~(x, list: List[_])) => List(x) ++ list
-            case None => List()
-        }
 
     /**
      * second attempt to implement repOpt
