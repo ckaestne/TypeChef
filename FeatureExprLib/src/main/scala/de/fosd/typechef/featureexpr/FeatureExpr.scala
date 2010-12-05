@@ -96,11 +96,13 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
 
     val andCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
     def and(that: FeatureExpr): FeatureExpr = 
+    	if (that eq this) this else
         andCache.getOrElseUpdate(that, new FeatureExprImpl(And(this.expr, that.expr)))
     
 
     val orCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
     def or(that: FeatureExpr): FeatureExpr =
+    	if (that eq this) this else
         orCache.getOrElseUpdate(that, new FeatureExprImpl(Or(this.expr, that.expr)))
 
     var notCache: FeatureExpr = null

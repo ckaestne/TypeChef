@@ -62,7 +62,7 @@ class TypeSystem {
                 //function declaration and other declarations
                 case ADeclaration(specifiers, decls) =>
                     for (decl <- decls.toList.flatten)
-                        decl match {
+                        decl.entry  match {
                             case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table.add(new LDeclaration(name, "", currentScope, feature))
                             case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table.add(new LDeclaration(name, "", currentScope, feature))
                             case _ =>
@@ -70,7 +70,7 @@ class TypeSystem {
 
                 /**** references ****/
                 //function call
-                case PostfixExpr(Id(name), List(FunctionCall(parameters))) => checkFunctionCall(ast, name, feature)
+                case PostfixExpr(Id(name), _) => checkFunctionCall(ast, name, feature)
                 case _ =>
             }
         }

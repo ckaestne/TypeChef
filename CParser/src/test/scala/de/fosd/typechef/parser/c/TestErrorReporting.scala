@@ -23,7 +23,7 @@ class TestErrorReporting extends TestCase {
                 //succeed
             }
             case NoSuccess(msg, context, unparsed, inner) =>
-                
+            case SplittedParseResult(_, _, NoSuccess(_,_,_,_)) => 
         }
 
     }
