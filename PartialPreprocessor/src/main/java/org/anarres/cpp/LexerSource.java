@@ -634,6 +634,8 @@ public class LexerSource extends Source {
 		int d = read();
 		if (c == d)
 			return new SimpleToken(yes, this);
+		if (d == '#')
+			System.out.println("cond: expected " + c + ", found: " + d);
 		unread(d);
 		return new SimpleToken(no, this);
 	}
