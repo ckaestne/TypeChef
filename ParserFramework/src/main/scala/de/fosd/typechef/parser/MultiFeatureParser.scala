@@ -580,3 +580,12 @@ case class ~[+a, +b](_1: a, _2: b) {
 }
 case class Opt[+T](val feature: FeatureExpr, val entry: T)
 
+object Opt {
+    def optFlatten[T](l: List[Opt[List[Opt[T]]]]) =
+        l.flatMap({
+            case Opt(feat, list) =>
+                list.map({
+                    case Opt(feat2, el) => Opt(feat and feat2, el)
+                })
+        })
+}

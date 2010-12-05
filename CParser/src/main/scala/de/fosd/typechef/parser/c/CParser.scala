@@ -393,10 +393,10 @@ class CParser extends MultiFeatureParser {
             LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => GnuAttributeSpecifier(al) } |
             asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
-    def attributeList: MultiParser[List[List[Opt[Attribute]]]] =
+    def attributeList: MultiParser[List[Opt[List[Opt[Attribute]]]]] =
         attribute ~ repOpt(COMMA ~> attribute) ~ opt(COMMA) ^^ {
-            case (attr: List[_ /* Opt[Attribute] */]) ~(attrList: List[_ /*List[Opt[Attribute]]*/ ]) ~ _ =>
-                attr.asInstanceOf[List[Opt[Attribute]]] :: attrList.asInstanceOf[List[List[Opt[Attribute]]]]
+            case (attr: List[_ /* Opt[Attribute] */]) ~ (attrList: List[_ /*Opt[List[Opt[Attribute]]]*/ ]) ~ _ =>
+                Opt(base, attr.asInstanceOf[List[Opt[Attribute]]]) :: attrList.asInstanceOf[List[Opt[List[Opt[Attribute]]]]]
 
             //The following code gives no error, although it cannot possibly typecheck:
             //case (attr: List[Opt[Attribute]]) ~(attrList: List[_ /*List[Attribute]*/ ]) ~ _ =>
