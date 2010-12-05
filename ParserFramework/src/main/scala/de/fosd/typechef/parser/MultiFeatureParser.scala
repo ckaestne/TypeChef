@@ -383,24 +383,56 @@ class MultiFeatureParser {
      */
     def repOpt[T](p: => MultiParser[T], productionName: String = ""): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
-        private case class Sealable(val isSealed: Boolean)
+        private case class Sealable(val isSealed: Boolean, resultList: List[Opt[T]])
         //join anything, data does not matter, only position in tokenstream
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable, Elem, TypeContext]) =
-            res.join(ctx, (f, a: Sealable, b: Sealable) => a)
+            res.join(ctx, (f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinLists(a.resultList, b.resultList)))
+        /** joins two optList with two special features:
+         * 
+         * common elements at the end of the list (eq) are joined (they originated from replication in ~)
+         * 
+         * if the first element of both lists is the same (==) they are joined as well. this originates 
+         * from parsing elements after optional elements twice (e.g., 2 in "1_A 2")  
+         * 
+         * this is a heuristic to reduce the size of the produced AST. it does not affect correctness
+         */
+        private def joinLists(inA: List[Opt[T]], inB: List[Opt[T]]): List[Opt[T]] = {
+            var a = inA; var b = inB
+            var lastEntry: Opt[T] = null;
+            if (!a.isEmpty && !b.isEmpty && a.head.entry == b.head.entry) { //== needed because the ASTs were constructed independently
+                lastEntry = Opt(a.head.feature or b.head.feature, a.head.entry)
+                a = a.tail; b = b.tail;
+            }
+            var ar = a.reverse
+            var br = b.reverse
+            var result: List[Opt[T]] = Nil
+            while (!ar.isEmpty && !br.isEmpty && (ar.head.entry == /*eq*/ br.head.entry)) { //XXX should use eq instead of ==, because it really points to the same structure
+                result = Opt(ar.head.feature or br.head.feature, ar.head.entry) :: result
+                ar = ar.tail; br = br.tail
+            }
+            while (!ar.isEmpty) {
+                result = ar.head :: result
+                ar = ar.tail
+            }
+            while (!br.isEmpty) {
+                result = br.head :: result
+                br = br.tail
+            }
+            if (lastEntry != null)
+                result = lastEntry :: result
+            result
+        }
         private def anyUnsealed(parseResult: MultiParseResult[Sealable, Elem, TypeContext]) =
             parseResult.exists(!_.isSealed)
 
         def apply(in: Input, ctx: ParserState): MultiParseResult[List[Opt[T]], Elem, TypeContext] = {
-            var resultList: List[Opt[T]] = List()
-            def found(f: FeatureExpr, x: T) { resultList = Opt(f, x) :: resultList }
-
             //parse token
             // convert alternative results into optList
             //but keep next entries
             var res: MultiParseResult[Sealable, Elem, TypeContext] = opt(p)(in, ctx).mapf(ctx, (f, t) => {
                 t match {
-                    case Some(x) => found(f, x); Sealable(false)
-                    case None => Sealable(true)
+                    case Some(x) => Sealable(false, List(Opt(f, x)))
+                    case None => Sealable(true, List())
                 }
             })
             res = join(ctx, res)
@@ -423,26 +455,19 @@ class MultiFeatureParser {
                         else {
                             // extend unsealed lists with the next result (if there is no next result, seal the list)                        	
                             x.seq(fs, opt(p)(x.next, fs)).mapf(fs, (f, t) => t match {
-                                case _ ~ Some(t) => {
-                                    found(f, t);
+                                case Sealable(_, resultList) ~ Some(t) => {
                                     if (productionName == "externalDef")
                                         println("next externalDef @ " + x.next.first.getPosition) //+"   "+t+"/"+f)
-                                    Sealable(false)
+                                    Sealable(false, Opt(f, t) :: resultList)
                                 }
-                                case _ ~ None => Sealable(true)
+                                case Sealable(_, resultList) ~ None => Sealable(true, resultList)
                             })
                         })
                 //aggressive joins
                 res = join(ctx, res)
             }
             //return all sealed lists
-            res match {
-                case Success(_, next) =>
-                    Success(
-                        resultList.reverse, next)
-                case _ => throw new Exception("should not occur, repOpt should at least join at the end of the list")
-            }
-
+            res.map(_.resultList.reverse)
         }
     }.named("repOpt")
 
@@ -480,7 +505,7 @@ class MultiFeatureParser {
      * p ~ (separator ~ p)*
      */
     def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
-        p ~ repOpt(separator ~> p) ^^ { case r ~ l => Opt(FeatureExpr.base,r) :: l }
+        p ~ repOpt(separator ~> p) ^^ { case r ~ l => Opt(FeatureExpr.base, r) :: l }
     /**
      * repetitions 0..n with separator
      * 
@@ -489,6 +514,12 @@ class MultiFeatureParser {
      */
     def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
         opt(rep1Sep(p, separator)) ^^ { case Some(l) => l; case None => List() }
+
+    /**
+     * replace optional list by (possibly empty) list
+     */
+    def optList[T](p: => MultiParser[List[T]]): MultiParser[List[T]] =
+        opt(p) ^^ { case Some(l) => l; case None => List() }
 
     /**
      * represent optional element either bei singleton list or by empty list
@@ -578,3 +609,4 @@ case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"
 }
 case class Opt[+T](val feature: FeatureExpr, val entry: T)
+
