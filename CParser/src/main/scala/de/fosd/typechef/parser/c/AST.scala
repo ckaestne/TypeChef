@@ -135,8 +135,8 @@ case class OtherSpecifier(name: String) extends Specifier
 
 abstract class Attribute extends AST
 case class AtomicAttribute(n: String) extends Attribute
-case class CompoundAttribute(inner: List[List[Attribute]]) extends Attribute {
-    override def getInner = inner.flatten
+case class CompoundAttribute(inner: List[List[Opt[Attribute]]]) extends Attribute {
+    override def getInnerOpt = inner.flatten
 }
 
 trait Declaration extends AST with ExternalDef
@@ -258,8 +258,8 @@ case class TranslationUnit(defs: List[Opt[ExternalDef]]) extends AST {
 
 //GnuC stuff here:
 class AttributeSpecifier extends Specifier
-case class GnuAttributeSpecifier(attributeList: List[List[Attribute]]) extends AttributeSpecifier {
-    override def getInner = attributeList.flatten
+case class GnuAttributeSpecifier(attributeList: List[List[Opt[Attribute]]]) extends AttributeSpecifier {
+    override def getInnerOpt = attributeList.flatten
 }
 case class AsmAttributeSpecifier(stringConst: StringLit) extends AttributeSpecifier {
     override def getInner = List(stringConst)
