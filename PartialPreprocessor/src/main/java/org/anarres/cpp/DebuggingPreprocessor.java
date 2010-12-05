@@ -38,8 +38,9 @@ public abstract class DebuggingPreprocessor {
 	BufferedWriter debugSourceFile;
 	{
 		try {
-			debugFile = new BufferedWriter(new FileWriter(new File(
-					"tokenstream.txt")));
+			if (DEBUG_TOKENSTREAM)
+				debugFile = new BufferedWriter(new FileWriter(new File(
+				"tokenstream.txt")));
 			debugSourceFile = new BufferedWriter(new FileWriter(new File(
 					"debugsource.txt")));
 		} catch (IOException e) {

@@ -8,16 +8,8 @@ case class DigitList2(list: List[Opt[AST]]) extends AST
 abstract class DigitList2Parser extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
-    type OptResult[T]// = Opt[T]
-    //var myRepOpt: [T] (=> MultiParser[T], (FeatureExpr, T, T) => T, String) => MultiParser[List[Opt[T]]] = repOpt
+    type OptResult[T]
     def myRepOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[OptResult[T]]]
-    //= repOpt(p, joinFunction, productionName)
-    /*var myRepOpt = repOpt _
-    //def setRepOpt(myRepOpt: [T] (=> MultiParser[T], (FeatureExpr, T, T) => T, String) => MultiParser[List[Opt[T]]]) {
-    def setRepOpt(myRepOpt: (=> MultiParser[_ >: Nothing], (FeatureExpr, Nothing, Nothing) => Nothing, String) 
-         => DigitList2Parser.this.MultiParser[List[de.fosd.typechef.parser.Opt[Nothing]]]) {
-        this.myRepOpt = myRepOpt
-    }*/
 
     def parse(tokens: List[MyToken]): ParseResult[AST, MyToken, TypeContext] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null,EofToken), FeatureExpr.base).forceJoin[AST](FeatureExpr.base,Alt.join)
 

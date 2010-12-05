@@ -1506,21 +1506,26 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 		LexerSource lexer = (LexerSource) sourceManager.getSource();
 		try {
 			lexer.setInclude(true);
+			processing_include = true;
 			Token tok = getNextNonwhiteToken();
 
 			String name;
 			boolean quoted;
+			StringBuilder buf = new StringBuilder();
 
 			if (tok.getType() == STRING) {
 				/*
 				 * XXX Use the original text, not the value. Backslashes must
 				 * not be treated as escapes here.
+				 * PG: the above is no more needed, because the lexer does
+				 * not handle backslashes as escapes when processing includes. 
 				 */
-				StringBuilder buf = new StringBuilder((String) tok.getValue());
+				buf.append((String) tok.getValue());
 				HEADER: for (;;) {
 					tok = getNextToken();
 					switch (tok.getType()) {
 					case STRING:
+						//XXX: PG: That's forbidden by the standard (see 6.10.2 and 5.1.1.2)
 						buf.append((String) tok.getValue());
 						break;
 					case WHITESPACE:// ignore whitespace and comments for now
@@ -1535,12 +1540,36 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						return source_skipline(false);
 					}
 				}
-				name = buf.toString();
 				quoted = true;
 			} else if (tok.getType() == HEADER) {
-				name = (String) tok.getValue();
+				buf.append((String) tok.getValue());
 				quoted = false;
 				tok = source_skipline(true);
+			} else if (tok.getType() == '<') {
+				quoted = false;
+				HEADER: for (;;) {
+					tok = getNextToken();
+					switch (tok.getType()) {
+					case '>':
+						break HEADER;
+					// XXX: PG: don't ignore WHITESPACE or CCOMMENT for now, I don't think they can be there;
+					// recheck!
+					case WHITESPACE:
+					case CCOMMENT:
+						warning(tok, "Unexpected token \"" + tok.getText() + "\" on #" + "include line");
+						return source_skipline(false);
+
+					case '.':
+					case '/':
+						buf.append((char) tok.getType());
+						break;
+					case INTEGER:
+					case IDENTIFIER:
+					default:
+						buf.append(tok.getText());
+						break;
+					}
+				}
 			} else {
 				error(tok, "Expected string or header, not " + tok.getText());
 				switch (tok.getType()) {
@@ -1553,6 +1582,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				}
 			}
 
+			name = buf.toString();
 			/* Do the inclusion. */
 			include(sourceManager.getSource().getPath(), tok.getLine(), name,
 					quoted, next);
@@ -1566,6 +1596,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						.getName(), " 1");
 			return tok;
 		} finally {
+			processing_include = false;
 			lexer.setInclude(false);
 		}
 	}
@@ -1743,6 +1774,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 	}
 
 	private Token expr_token = null;
+
+	private boolean processing_include;
 
 	private Token expr_token(boolean inlineCppExpression) throws IOException,
 			LexerException {
@@ -2261,7 +2294,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				if (!sourceManager.getSource().mayExpand(tok.getText())
 						|| !tok.mayExpand())
 					return tok;
-				if (macro_expandToken(tok.getText(), m, tok, false))
+				if (macro_expandToken(tok.getText(), m, tok, processing_include))
 					break;
 				return tok;
 
@@ -2321,8 +2354,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 				case PP_INCLUDE:
 					if (!isActive())
 						return source_skipline(false);
-					else
-						return parse_include(false);
+					else {
+						Token ret_tok = parse_include(false);
+						assert !processing_include;
+						return ret_tok;
+					}
 					// break;
 				case PP_INCLUDE_NEXT:
 					if (!isActive())
@@ -2331,7 +2367,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 						error(tok, "Directive include_next not enabled");
 						return source_skipline(false);
 					}
-					return parse_include(true);
+					Token ret_tok = parse_include(true);
+					assert !processing_include;
+					return ret_tok;
 					// break;
 
 					/**

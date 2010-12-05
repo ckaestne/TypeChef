@@ -9,11 +9,15 @@ import org.junit.Test
 trait DigitListUtilities {
     val f1 = FeatureExpr.createDefinedExternal("a")
     val f2 = FeatureExpr.createDefinedExternal("b")
+    val l1 = Lit(1)
+    val l2 = Lit(2)
+    val l3 = Lit(3)
 
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
     def outer(x: AST) = DigitList2(List(o(x)))
-    val wrapList = (x: List[AST]) => DigitList2(x.map(Opt(FeatureExpr.base, _)))
+    def wrapList(x: AST*) = DigitList2(List() ++ x.map(Opt(FeatureExpr.base, _)))
+    def wrapList(x: List[AST]) : DigitList2 = wrapList(x :_*)
 
     def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken, Any]) {
         System.out.println(actual)

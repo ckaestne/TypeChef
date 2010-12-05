@@ -5,7 +5,7 @@ if [ -z "$jcppConfLoaded" ]; then
 fi
 
 # What you should configure
-javaOpts='$javaOpts -Xmx2G -Xms128m -Xss8M'
+javaOpts='$javaOpts -Xmx2G -Xms128m'
 
 macro_stats_path=macroDebug.txt
 debugsource_path=debugsource.txt
@@ -35,7 +35,7 @@ shift
 echo "=="
 echo "==Preprocess source"
 echo "=="
-gcc -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+gcc -Wp,-P -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 
 # Beware: the embedded for loop requotes the passed argument. That's dark magic,
 # don't ever try to touch it. It simplifies your life as a user of this program
