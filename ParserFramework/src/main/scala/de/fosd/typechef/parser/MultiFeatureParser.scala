@@ -438,7 +438,7 @@ class MultiFeatureParser {
             //return all sealed lists
             res.map(_.resultList.reverse)
         }
-    }.named("repOpt")
+    }.named("repOpt-" + productionName)
 
     //old signature
     def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[Opt[T]]] =
