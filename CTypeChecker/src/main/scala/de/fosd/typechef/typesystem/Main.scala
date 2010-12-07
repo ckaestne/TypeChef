@@ -7,7 +7,7 @@ object Main {
     def main(args: Array[String]): Unit = {
         for (path <- args) {
             val folder = new File(path).getParent
- 
+
             val ast = ParserMain.parserMain(path, folder)
             new TypeSystem().checkAST(ast)
         }

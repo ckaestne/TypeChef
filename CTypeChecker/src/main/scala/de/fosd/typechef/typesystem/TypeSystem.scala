@@ -22,18 +22,18 @@ class TypeSystem {
     /*
      * This dictionary groups error messages by function, consolidating duplicate warnings together.
      */
-    var errorMessages: Map[String, ErrorMsgs] = Map() 
+    var errorMessages: Map[String, ErrorMsgs] = Map()
 
     val DEBUG_PRINT = false
     def dbgPrint(o: Any) = if (DEBUG_PRINT) print(o)
     def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
 
     val gccBuiltins = List(
-      "constant_p",
-      "expect",
-      "memcpy",
-      "memset",
-      "return_address")
+        "constant_p",
+        "expect",
+        "memcpy",
+        "memset",
+        "return_address")
 
     def declareBuiltins() {
         for (name <- gccBuiltins) {
@@ -63,7 +63,7 @@ class TypeSystem {
                 //function declaration and other declarations
                 case ADeclaration(specifiers, decls) =>
                     for (decl <- decls.toList.flatten)
-                        decl.entry  match {
+                        decl.entry match {
                             case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table.add(new LDeclaration(name, "", currentScope, feature))
                             case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table.add(new LDeclaration(name, "", currentScope, feature))
                             case _ =>
@@ -71,7 +71,7 @@ class TypeSystem {
 
                 /**** references ****/
                 //function call (XXX: PG: not-so-good detection, but will work for typical code).
-                case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */)
+                case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */ )
                 //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional. 
                 case _ =>
             }
@@ -92,8 +92,8 @@ class TypeSystem {
             } else {
                 dbgPrintln(" not always reachable " + callerFeature + " => " + targets.map(_.feature).mkString(" || "))
                 Some(errorMessages.get(name) match {
-                        case None => ErrorMsgs(name, List((callerFeature, source)), targets)
-                        case Some(err : ErrorMsgs) => err.withNewCaller(source, callerFeature)  
+                    case None => ErrorMsgs(name, List((callerFeature, source)), targets)
+                    case Some(err: ErrorMsgs) => err.withNewCaller(source, callerFeature)
                 })
             }
         } else {
@@ -106,9 +106,9 @@ class TypeSystem {
         val targets: List[Entry] = table.find(name)
         dbgPrint("function " + name + " found " + targets.size + " targets: ")
         checkFunctionCallTargets(source, name, callerFeature, targets) match {
-                case Some(newEntry) =>
-                        errorMessages = errorMessages.updated(name, newEntry)
-                case _ => ()
+            case Some(newEntry) =>
+                errorMessages = errorMessages.updated(name, newEntry)
+            case _ => ()
         }
     }
 }
