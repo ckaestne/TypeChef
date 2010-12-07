@@ -453,15 +453,22 @@ class MultiFeatureParser {
                         if (x.result.isSealed || x.next.offset != nextTokenOffset)
                             x
                         else {
-                            // extend unsealed lists with the next result (if there is no next result, seal the list)                        	
-                            x.seq(fs, opt(p)(x.next, fs)).mapf(fs, (f, t) => t match {
-                                case Sealable(_, resultList) ~ Some(t) => {
-                                    if (productionName == "externalDef")
-                                        println("next externalDef @ " + x.next.first.getPosition) //+"   "+t+"/"+f)
-                                    Sealable(false, Opt(f, t) :: resultList)
-                                }
-                                case Sealable(_, resultList) ~ None => Sealable(true, resultList)
-                            })
+                            //try performance heuristic A first
+                            applyStrategyA(x.nextInput, fs) match {
+                                case Some((result, next)) =>
+                                    Success(Sealable(false, result :: x.result.resultList), next)
+                                case None =>
+                                    //default case, use normal mechanism 
+                                    // extend unsealed lists with the next result (if there is no next result, seal the list)                        	
+                                    x.seq(fs, opt(p)(x.next, fs)).mapf(fs, (f, t) => t match {
+                                        case Sealable(_, resultList) ~ Some(t) => {
+                                            if (productionName == "externalDef")
+                                                println("next externalDef @ " + x.next.first.getPosition) //+"   "+t+"/"+f)
+                                            Sealable(false, Opt(f, t) :: resultList)
+                                        }
+                                        case Sealable(_, resultList) ~ None => Sealable(true, resultList)
+                                    })
+                            }
                         })
                 //aggressive joins
                 res = join(ctx, res)
@@ -469,6 +476,31 @@ class MultiFeatureParser {
             //return all sealed lists
             res.map(_.resultList.reverse)
         }
+
+        /**
+         * performance heuristic 1: parse the next statement with the annotation of the next token.
+         *  if it yields a unique result before the next token that would be parsed 
+         *  with the alternative (split) parser, then this is the only result we need 
+         *  to care about
+         * 
+         * will work in the common case that the entire entry is annotated and 
+         *  is not interleaved with other annotations
+         */
+        def applyStrategyA(in0: Input, ctx: ParserState): Option[(Opt[T], TokenReader[Elem, TypeContext])] = {
+            val firstFeature = in0.first.getFeature
+            if (!FeatureSolverCache.implies(ctx, firstFeature) && !FeatureSolverCache.mutuallyExclusive(ctx, firstFeature)) {
+                val parseResult = p(in0, ctx.and(firstFeature))
+                parseResult match {
+                    case Success(result, next) =>
+                        if (next.offset <= in0.skipHidden(ctx.and(firstFeature.not)).offst)
+                            Some(Opt(ctx.and(firstFeature), result): Opt[T], next)
+                        else None
+                    case _ => None
+                }
+            } else
+                None
+        }
+
     }.named("repOpt")
 
     //old signature
