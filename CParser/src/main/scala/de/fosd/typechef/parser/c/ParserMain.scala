@@ -34,16 +34,19 @@ object ParserMain {
 
         val result = new CParser().translationUnit(
             CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
-        val resultStr: String = result.toString
-        println("FeatureSolverCache.statistics: " + FeatureSolverCache.statistics)
-        val writer = new FileWriter(filePath + ".ast")
-        writer.write(resultStr);
-        writer.close
-        println("done.")
+            
 
         printParseResult(result, FeatureExpr.base)
         checkParseResult(result, FeatureExpr.base)
 
+//        val resultStr: String = result.toString
+//        println("FeatureSolverCache.statistics: " + FeatureSolverCache.statistics)
+//        val writer = new FileWriter(filePath + ".ast")
+//        writer.write(resultStr);
+//        writer.close
+//        println("done.")
+        
+        
         result match {
             case Success(ast, _) => ast
             case _=>null

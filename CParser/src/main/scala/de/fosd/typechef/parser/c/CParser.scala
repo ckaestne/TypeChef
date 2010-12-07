@@ -28,7 +28,7 @@ class CParser extends MultiFeatureParser {
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
         "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
-        "sizeof")
+        "sizeof", "_Pragma")
     val predefinedTypedefs = Set("__builtin_va_list")
 
     def translationUnit = externalList ^^ { TranslationUnit(_) }
@@ -37,7 +37,7 @@ class CParser extends MultiFeatureParser {
         repOpt(externalDef, AltExternalDef.join, "externalDef")
 
     def externalDef: MultiParser[ExternalDef] =
-        (declaration | functionDef | typelessDeclaration | asm_expr | SEMI ^^ { x => EmptyExternalDef() }) ^^! (AltExternalDef.join, x => x)
+        (declaration | functionDef | typelessDeclaration | asm_expr | pragma | SEMI ^^ { x => EmptyExternalDef() }) ^^! (AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
         asm ~ opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^
@@ -385,6 +385,8 @@ class CParser extends MultiFeatureParser {
     def BOR_ASSIGN = textToken("|=")
     def BXOR = textToken('^')
     def BXOR_ASSIGN = textToken("^=")
+    
+    def pragma = textToken("_Pragma") ~! LPAREN ~> stringConst <~ RPAREN ^^ { Pragma(_) }
 
     //***  gnuc extensions ****************************************************
 

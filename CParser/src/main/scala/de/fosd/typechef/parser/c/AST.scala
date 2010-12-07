@@ -312,4 +312,7 @@ case class BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) exte
 case class CompoundStatementExpr(compoundStatement: CompoundStatement) extends PrimaryExpr {
     override def getInner = List(compoundStatement)
 }
+case class Pragma(command: StringLit) extends ExternalDef {
+    override def getInner = List(command)
+}
 
