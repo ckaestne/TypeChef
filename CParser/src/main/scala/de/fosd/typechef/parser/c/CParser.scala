@@ -176,7 +176,7 @@ class CParser extends MultiFeatureParser {
             { case l ~ Some(v) => l ++ List(o(VarArgs())); case l ~ None => l }
 
     def parameterDeclaration: MultiParser[ParameterDeclaration] =
-        declSpecifiers ~ opt(declarator | nonemptyAbstractDeclarator) ^^
+        declSpecifiers ~ opt(declarator | nonemptyAbstractDeclarator) <~ opt(attributeDecl) ^^
             {
                 case s ~ Some(d: Declarator) => ParameterDeclarationD(s, d)
                 case s ~ Some(d: AbstractDeclarator) => ParameterDeclarationAD(s, d)

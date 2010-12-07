@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import junit.framework._;
 import junit.framework.Assert._
+import org.junit.Test
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 
@@ -531,258 +532,28 @@ sockaddr_in
     return dest;
 }""", p.translationUnit)
 
-	def busyBox1 = assertParseable("""int grep_main(int argc __attribute__ ((__unused__)), char **argv){}""", p.translationUnit)
+@Test
+	def testBusyBox1 = assertParseable("""int grep_main(int argc __attribute__ ((__unused__)), char **argv){}""", p.functionDef)
 	
-	
-	def busyBox2 = assertParseable("""
-int grep_main(int argc __attribute__ ((__unused__)), char **argv)
+	@Test
+	def testBusyBox2 = assertParseable("""
+static int  func_name(const char *fileName __attribute__ ((__unused__)), const struct stat *statbuf __attribute__ ((__unused__)), int* ap __attribute__ ((__unused__)))
 {
-	FILE *file;
-	int matched;
-	llist_t *fopt = ((void *)0);
-
-	/* do normal option parsing */
-#if definedEx(CONFIG_FEATURE_GREP_CONTEXT)
-	int Copt, opts;
-
-	/* -H unsets -h; -C unsets -A,-B; -e,-f are lists;
-	 * -m,-A,-B,-C have numeric param */
-	opt_complementary = "H-h:C-AB:e::f::m+:A+:B+:C+";
-	opts = getopt32(argv,
-		"lnqvscFiHhe:f:Lorm:w" "A:B:C:" 
-#if definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS)
-"E"
-#endif
-#if !(definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS))
-
-#endif
- 
-#if definedEx(CONFIG_EXTRA_COMPAT)
-"z"
-#endif
-#if !(definedEx(CONFIG_EXTRA_COMPAT))
-
-#endif
- "aI",
-		&((*(struct globals*)&bb_common_bufsiz1).pattern_head ), &fopt, &((*(struct globals*)&bb_common_bufsiz1).max_matches ),
-		&((*(struct globals*)&bb_common_bufsiz1).lines_after ), &((*(struct globals*)&bb_common_bufsiz1).lines_before ), &Copt);
-
-	if (opts & OPT_C) {
-		/* -C unsets prev -A and -B, but following -A or -B
-		   may override it */
-		if (!(opts & OPT_A)) /* not overridden */
-			((*(struct globals*)&bb_common_bufsiz1).lines_after ) = Copt;
-		if (!(opts & OPT_B)) /* not overridden */
-			((*(struct globals*)&bb_common_bufsiz1).lines_before ) = Copt;
+	const char *tmp = bb_basename(fileName);
+	if (tmp != fileName && *tmp == '\0') {
+		/* "foo/bar/". Oh no... go back to 'b' */
+		tmp--;
+		while (tmp != fileName && *--tmp != '/')
+			continue;
+		if (*tmp == '/')
+			tmp++;
 	}
-	/* sanity checks */
-	if (opts & (OPT_c|OPT_q|OPT_l|OPT_L)) {
-		option_mask32 &= ~OPT_n;
-		((*(struct globals*)&bb_common_bufsiz1).lines_before ) = 0;
-		((*(struct globals*)&bb_common_bufsiz1).lines_after ) = 0;
-	} else if (((*(struct globals*)&bb_common_bufsiz1).lines_before ) > 0) {
-		if (((*(struct globals*)&bb_common_bufsiz1).lines_before ) > 2147483647 / sizeof(long long))
-			((*(struct globals*)&bb_common_bufsiz1).lines_before ) = 2147483647 / sizeof(long long);
-		/* overflow in (lines_before * sizeof(x)) is prevented (above) */
-		((*(struct globals*)&bb_common_bufsiz1).before_buf ) = xzalloc(((*(struct globals*)&bb_common_bufsiz1).lines_before ) * sizeof(((*(struct globals*)&bb_common_bufsiz1).before_buf )[0]));
-		
-#if definedEx(CONFIG_EXTRA_COMPAT)
-((*(struct globals*)&bb_common_bufsiz1).before_buf_size ) = xzalloc(((*(struct globals*)&bb_common_bufsiz1).lines_before ) * sizeof(((*(struct globals*)&bb_common_bufsiz1).before_buf_size )[0]));
-#endif
-#if !(definedEx(CONFIG_EXTRA_COMPAT))
-
-#endif
-
-	}
-#endif
-#if !(definedEx(CONFIG_FEATURE_GREP_CONTEXT))
-	/* with auto sanity checks */
-	/* -H unsets -h; -c,-q or -l unset -n; -e,-f are lists; -m N */
-	opt_complementary = "H-h:c-n:q-n:l-n:e::f::m+";
-	getopt32(argv, "lnqvscFiHhe:f:Lorm:w"  
-#if definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS)
-"E"
-#endif
-#if !(definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS))
-
-#endif
- 
-#if definedEx(CONFIG_EXTRA_COMPAT)
-"z"
-#endif
-#if !(definedEx(CONFIG_EXTRA_COMPAT))
-
-#endif
- "aI",
-		&((*(struct globals*)&bb_common_bufsiz1).pattern_head ), &fopt, &((*(struct globals*)&bb_common_bufsiz1).max_matches ));
-#endif
-	((*(struct globals*)&bb_common_bufsiz1).invert_search ) = ((option_mask32 & OPT_v) != 0); /* 0 | 1 */
-
-	if (((*(struct globals*)&bb_common_bufsiz1).pattern_head ) != ((void *)0)) {
-		/* convert char **argv to grep_list_data_t */
-		llist_t *cur;
-
-		for (cur = ((*(struct globals*)&bb_common_bufsiz1).pattern_head ); cur; cur = cur->link)
-			cur->data = 
-#if definedEx(CONFIG_FEATURE_CLEAN_UP)
-add_grep_list_data(cur->data, 0)
-#endif
-#if !(definedEx(CONFIG_FEATURE_CLEAN_UP))
-add_grep_list_data(cur->data)
-#endif
-;
-	}
-	if (option_mask32 & OPT_f)
-		load_regexes_from_file(fopt);
-
-	if (
-#if definedEx(CONFIG_FEATURE_GREP_FGREP_ALIAS)
-1
-#endif
-#if !(definedEx(CONFIG_FEATURE_GREP_FGREP_ALIAS))
-0
-#endif
- && applet_name[0] == 'f')
-		option_mask32 |= OPT_F;
-
-#if !(definedEx(CONFIG_EXTRA_COMPAT))
-	if (!(option_mask32 & (OPT_o | OPT_w)))
-		((*(struct globals*)&bb_common_bufsiz1).reflags ) = (((1 << 1) << 1) << 1);
-#endif
-	if (
-#if definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS)
-1
-#endif
-#if !(definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS))
-0
-#endif
-
-	 && (applet_name[0] == 'e' || (option_mask32 & OPT_E))
-	) {
-		
-#if !(definedEx(CONFIG_EXTRA_COMPAT))
-((*(struct globals*)&bb_common_bufsiz1).reflags )
-#endif
-#if definedEx(CONFIG_EXTRA_COMPAT)
-re_syntax_options
-#endif
- |= 
-#if !(definedEx(CONFIG_EXTRA_COMPAT))
-1
-#endif
-#if definedEx(CONFIG_EXTRA_COMPAT)
-(RE_SYNTAX_EGREP | RE_INTERVALS | RE_NO_BK_BRACES)
-#endif
-;
-	}
-#if definedEx(CONFIG_EXTRA_COMPAT)
-	else {
-		re_syntax_options = RE_SYNTAX_GREP;
-	}
-#endif
-	if (option_mask32 & OPT_i) {
-#if !(definedEx(CONFIG_EXTRA_COMPAT))
-		((*(struct globals*)&bb_common_bufsiz1).reflags ) |= (1 << 1);
-#endif
-#if definedEx(CONFIG_EXTRA_COMPAT)
-		int i;
-		((*(struct globals*)&bb_common_bufsiz1).case_fold ) = xmalloc(256);
-		for (i = 0; i < 256; i++)
-			((*(struct globals*)&bb_common_bufsiz1).case_fold )[i] = (unsigned char)i;
-		for (i = 'a'; i <= 'z'; i++)
-			((*(struct globals*)&bb_common_bufsiz1).case_fold )[i] = (unsigned char)(i - ('a' - 'A'));
-#endif
-	}
-
-	argv += optind;
-
-	/* if we didn't get a pattern from -e and no command file was specified,
-	 * first parameter should be the pattern. no pattern, no worky */
-	if (((*(struct globals*)&bb_common_bufsiz1).pattern_head ) == ((void *)0)) {
-		char *pattern;
-		if (*argv == ((void *)0))
-			bb_show_usage();
-		pattern = 
-#if definedEx(CONFIG_FEATURE_CLEAN_UP)
-add_grep_list_data(*argv++, 0)
-#endif
-#if !(definedEx(CONFIG_FEATURE_CLEAN_UP))
-add_grep_list_data(*argv++)
-#endif
-;
-		llist_add_to(&((*(struct globals*)&bb_common_bufsiz1).pattern_head ), pattern);
-	}
-
-	/* argv[0..(argc-1)] should be names of file to grep through. If
-	 * there is more than one file to grep, we will print the filenames. */
-	if (argv[0] && argv[1])
-		((*(struct globals*)&bb_common_bufsiz1).print_filename ) = 1;
-	/* -H / -h of course override */
-	if (option_mask32 & OPT_H)
-		((*(struct globals*)&bb_common_bufsiz1).print_filename ) = 1;
-	if (option_mask32 & OPT_h)
-		((*(struct globals*)&bb_common_bufsiz1).print_filename ) = 0;
-
-	/* If no files were specified, or '-' was specified, take input from
-	 * stdin. Otherwise, we grep through all the files specified. */
-	matched = 0;
-	do {
-		((*(struct globals*)&bb_common_bufsiz1).cur_file ) = *argv;
-		file = stdin;
-		if (!((*(struct globals*)&bb_common_bufsiz1).cur_file ) || ((((*(struct globals*)&bb_common_bufsiz1).cur_file ))[0] == '-' && !(((*(struct globals*)&bb_common_bufsiz1).cur_file ))[1])) {
-			((*(struct globals*)&bb_common_bufsiz1).cur_file ) = "(standard input)";
-		} else {
-			if (option_mask32 & OPT_r) {
-				struct stat st;
-				if (stat(((*(struct globals*)&bb_common_bufsiz1).cur_file ), &st) == 0 && ((((st.st_mode)) & 0170000) == (0040000))) {
-					if (!(option_mask32 & OPT_h))
-						((*(struct globals*)&bb_common_bufsiz1).print_filename ) = 1;
-					matched += grep_dir(((*(struct globals*)&bb_common_bufsiz1).cur_file ));
-					goto grep_done;
-				}
-			}
-			/* else: fopen(dir) will succeed, but reading won't */
-			file = fopen_for_read(((*(struct globals*)&bb_common_bufsiz1).cur_file ));
-			if (file == ((void *)0)) {
-				if (!(option_mask32 & OPT_s))
-					bb_simple_perror_msg(((*(struct globals*)&bb_common_bufsiz1).cur_file ));
-				((*(struct globals*)&bb_common_bufsiz1).open_errors ) = 1;
-				continue;
-			}
-		}
-		matched += grep_file(file);
-		fclose_if_not_stdin(file);
- grep_done: ;
-	} while (*argv && *++argv);
-
-	/* destroy all the elments in the pattern list */
-	if (
-#if definedEx(CONFIG_FEATURE_CLEAN_UP)
-1
-#endif
-#if !(definedEx(CONFIG_FEATURE_CLEAN_UP))
-0
-#endif
-) {
-		while (((*(struct globals*)&bb_common_bufsiz1).pattern_head )) {
-			llist_t *pattern_head_ptr = ((*(struct globals*)&bb_common_bufsiz1).pattern_head );
-			grep_list_data_t *gl = (grep_list_data_t *)pattern_head_ptr->data;
-
-			((*(struct globals*)&bb_common_bufsiz1).pattern_head ) = ((*(struct globals*)&bb_common_bufsiz1).pattern_head )->link;
-			if (gl->flg_mem_alocated_compiled & 1)
-				free(gl->pattern);
-			if (gl->flg_mem_alocated_compiled & 2)
-				regfree(&gl->compiled_regex);
-			free(gl);
-			free(pattern_head_ptr);
-		}
-	}
-	/* 0 = success, 1 = failed, 2 = error */
-	if (((*(struct globals*)&bb_common_bufsiz1).open_errors ))
-		return 2;
-	return !matched; /* invert return value: 0 = success, 1 = failed */
-}
-""", p.translationUnit)
+	/* Was using FNM_PERIOD flag too,
+	 * but somewhere between 4.1.20 and 4.4.0 GNU find stopped using it.
+	 * find -name '*foo' should match .foo too:
+	 */
+	return fnmatch(ap->pattern, tmp, (ap->iname ? (1 << 4) : 0)) == 0;
+}""", p.functionDef)
 	
 
 }
