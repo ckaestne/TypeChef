@@ -12,7 +12,10 @@ trait AST {
             a.entry.accept(visitor, feature.and(a.feature))
         visitor.postVisit(this, feature)
     }
-    protected def getInnerOpt: List[Opt[AST]] = getInner.map(Opt(FeatureExpr.base, _))
+    protected def getInnerOpt: List[Opt[AST]] = {
+    	val v=getInner
+    	v.map(Opt(FeatureExpr.base, _))
+    }
     protected def getInner: List[AST] = List()
 }
 
@@ -135,8 +138,11 @@ case class OtherSpecifier(name: String) extends Specifier
 
 abstract class Attribute extends AST
 case class AtomicAttribute(n: String) extends Attribute
-case class CompoundAttribute(inner: List[List[Attribute]]) extends Attribute {
-    override def getInner = inner.flatten
+case class AttributeSequence(attributes: List[Opt[Attribute]]) extends AST {
+	override def getInnerOpt = attributes
+}
+case class CompoundAttribute(inner: List[Opt[AttributeSequence]]) extends Attribute {
+    override def getInnerOpt = inner
 }
 
 trait Declaration extends AST with ExternalDef
@@ -258,8 +264,8 @@ case class TranslationUnit(defs: List[Opt[ExternalDef]]) extends AST {
 
 //GnuC stuff here:
 class AttributeSpecifier extends Specifier
-case class GnuAttributeSpecifier(attributeList: List[List[Attribute]]) extends AttributeSpecifier {
-    override def getInner = attributeList.flatten
+case class GnuAttributeSpecifier(attributeList: List[Opt[AttributeSequence]]) extends AttributeSpecifier {
+    override def getInnerOpt = attributeList
 }
 case class AsmAttributeSpecifier(stringConst: StringLit) extends AttributeSpecifier {
     override def getInner = List(stringConst)

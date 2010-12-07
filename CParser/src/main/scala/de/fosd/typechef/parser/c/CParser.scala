@@ -395,15 +395,15 @@ class CParser extends MultiFeatureParser {
             LPAREN ~ LPAREN ~ attributeList ~ RPAREN ~ RPAREN ^^ { case _ ~ _ ~ _ ~ al ~ _ ~ _ => GnuAttributeSpecifier(al) } |
             asm ~ LPAREN ~> stringConst <~ RPAREN ^^ { AsmAttributeSpecifier(_) })
 
-    def attributeList: MultiParser[List[List[Attribute]]] =
+    def attributeList: MultiParser[List[Opt[AttributeSequence]]] =
         attribute ~ repOpt(COMMA ~> attribute) ~ opt(COMMA) ^^ {
-            case (attr: List[_ /*Attribute*/ ]) ~(attrList: List[_ /*List[Attribute]*/ ]) ~ _ =>
-                attr.asInstanceOf[List[Attribute]] :: attrList.asInstanceOf[List[List[Attribute]]]
+            case attr ~attrList ~ _ =>
+                o(attr) :: attrList
         }
 
-    def attribute: MultiParser[List[Opt[Attribute]]] =
-        repOpt(anyTokenExcept(List("(", ")", ",")) ^^ { t => AtomicAttribute(t.getText) }
-            | LPAREN ~> attributeList <~ RPAREN ^^ { t => CompoundAttribute(t) })
+    def attribute: MultiParser[AttributeSequence] =
+        (repOpt(anyTokenExcept(List("(", ")", ",")) ^^ { t => AtomicAttribute(t.getText) }
+            | LPAREN ~> attributeList <~ RPAREN ^^ { t => CompoundAttribute(t) })) ^^ {AttributeSequence(_)}
 
     def offsetofMemberDesignator: MultiParser[List[Opt[Id]]] =
         rep1Sep(ID, DOT)
