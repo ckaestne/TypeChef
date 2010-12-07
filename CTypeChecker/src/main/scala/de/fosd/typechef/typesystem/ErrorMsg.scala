@@ -27,6 +27,9 @@ case class ErrorMsgs(name: String, callers: List[(FeatureExpr, AST)], targets: L
     }
     override def toString = toError.toString
 }
+case class RedefErrorMsg(name: String, newDef: Entry, existingDef: Entry) {
+    override def toString = "function " + name + " redefined with feature " + newDef.feature + "; previous: " + existingDef
+}
 
 object ErrorMsgs {
     def errNoDecl(name: String, caller: AST, callerFeature: FeatureExpr) =
