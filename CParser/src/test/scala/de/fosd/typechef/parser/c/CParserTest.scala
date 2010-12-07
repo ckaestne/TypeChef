@@ -73,8 +73,8 @@ class CParserTest extends TestCase {
     def intType = TypeName(lo(PrimitiveTypeSpecifier("int")), None)
     def o[T](x: T) = Opt(FeatureExpr.base, x)
     def lo[T](x: T) = List(o(x))
-    def lo[T](x: T, y:T) = List(o(x),o(y))
-    def lo[T](x: T, y:T, z:T) = List(o(x),o(y),o(z))
+    def lo[T](x: T, y: T) = List(o(x), o(y))
+    def lo[T](x: T, y: T, z: T) = List(o(x), o(y), o(z))
 
     def fa = FeatureExpr.createDefinedExternal("a")
 
@@ -163,8 +163,8 @@ class CParserTest extends TestCase {
         assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())), ArrayAccess(a))), "b()[a]", List(p.postfixExpr, p.unaryExpr))
 
         assertParseAnyResult(
-        		PostfixExpr(Id("b"),
-        		List(Opt(fa, PointerPostfixSuffix(".", Id("a"))), Opt(fa.not,PointerPostfixSuffix("->", Id("a"))))),
+            PostfixExpr(Id("b"),
+                List(Opt(fa, PointerPostfixSuffix(".", Id("a"))), Opt(fa.not, PointerPostfixSuffix("->", Id("a"))))),
             """|b
         					|#ifdef a
         					|.
@@ -172,7 +172,7 @@ class CParserTest extends TestCase {
         					|->
         					|#endif
         					|a""", p.postfixExpr)
-        assertParseResult(PostfixExpr(Id("b"), List(Opt(fa,SimplePostfixSuffix("++")))),
+        assertParseResult(PostfixExpr(Id("b"), List(Opt(fa, SimplePostfixSuffix("++")))),
             """|b
         					|#ifdef a
         					|++
@@ -222,7 +222,7 @@ class CParserTest extends TestCase {
         					|#else
         					|b
         					|#endif""", p.expr)
-        assertParseResult(Alt(fa, NAryExpr(a, List(Opt(fa,("+", c)))), NAryExpr(b, List(Opt(fa.not,(("+", c)))))),
+        assertParseResult(Alt(fa, NAryExpr(a, List(Opt(fa, ("+", c)))), NAryExpr(b, List(Opt(fa.not, (("+", c)))))),
             """|#ifdef a
         					|a +
         					|#else
@@ -268,9 +268,9 @@ class CParserTest extends TestCase {
     			  			|c;
         					|#endif""", p.statement)
         assertParseAnyResult(CompoundStatement(List(
-        		Opt(fa,IfStatement(a, ExprStatement(b), None)), 
-        		Opt(fa, ExprStatement(c)), 
-        		Opt(fa.not, IfStatement(a, ExprStatement(c), None)))),
+            Opt(fa, IfStatement(a, ExprStatement(b), None)),
+            Opt(fa, ExprStatement(c)),
+            Opt(fa.not, IfStatement(a, ExprStatement(c), None)))),
             """|{
         		|if (a)
     			  			|#ifdef a
@@ -532,11 +532,11 @@ sockaddr_in
     return dest;
 }""", p.translationUnit)
 
-@Test
-	def testBusyBox1 = assertParseable("""int grep_main(int argc __attribute__ ((__unused__)), char **argv){}""", p.functionDef)
-	
-	@Test
-	def testBusyBox2 = assertParseable("""
+    @Test
+    def testBusyBox1 = assertParseable("""int grep_main(int argc __attribute__ ((__unused__)), char **argv){}""", p.functionDef)
+
+    @Test
+    def testBusyBox2 = assertParseable("""
 static int  func_name(const char *fileName __attribute__ ((__unused__)), const struct stat *statbuf __attribute__ ((__unused__)), int* ap __attribute__ ((__unused__)))
 {
 	const char *tmp = bb_basename(fileName);
@@ -554,6 +554,9 @@ static int  func_name(const char *fileName __attribute__ ((__unused__)), const s
 	 */
 	return fnmatch(ap->pattern, tmp, (ap->iname ? (1 << 4) : 0)) == 0;
 }""", p.functionDef)
-	
+
+    @Test
+    def testDecl =
+        assertParseable("extern int my_printf (void *my_object, const char *my_format);", p.externalDef)
 
 }
