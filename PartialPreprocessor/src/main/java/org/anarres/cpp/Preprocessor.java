@@ -1583,6 +1583,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 			}
 
 			name = buf.toString();
+			processing_include = false;
 			/* Do the inclusion. */
 			include(sourceManager.getSource().getPath(), tok.getLine(), name,
 					quoted, next);
@@ -2308,10 +2309,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 					error(tok, String.valueOf(tok.getValue()));
 				return tok;
 
-			default:
-				throw new InternalException("Bad token " + tok);
-				// break;
-
 			case HASH:
 				tok = source_token_nonwhite();
 				// (new Exception("here")).printStackTrace();
@@ -2517,7 +2514,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 							"Internal error: Unknown directive " + tok);
 					// return source_skipline(false);
 				}
-
+			default:
+				throw new InternalException("Bad token, type: " + tok.getType() + ", token: " + tok);
+				// break;
 			}
 		}
 	}

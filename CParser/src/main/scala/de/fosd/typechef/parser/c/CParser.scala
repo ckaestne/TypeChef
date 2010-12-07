@@ -47,7 +47,7 @@ class CParser extends MultiFeatureParser {
         (declSpecifiers ~ opt(initDeclList) ~ rep1(SEMI) ^^ { case d ~ i ~ _ => ADeclaration(d, i) } changeContext ({ (result: ADeclaration, context: TypeContext) =>
             {
                 var c = context
-                if (result.declSpecs.exists(o=>o.entry == TypedefSpecifier()))
+                if (result.declSpecs.exists(o => o.entry == TypedefSpecifier()))
                     if (result.init.isDefined)
                         for (decl: Opt[InitDeclarator] <- result.init.get) {
                             c = c.addType(decl.entry.declarator.getName)
@@ -325,7 +325,7 @@ class CParser extends MultiFeatureParser {
 
     def stringConst: MultiParser[StringLit] =
         (rep1(token("string literal", _.getType == Token.STRING))
-            ^^ { (list: List[Opt[TokenWrapper]]) => StringLit(list.map(o=>Opt(o.feature,o.entry.getText))) })
+            ^^ { (list: List[Opt[TokenWrapper]]) => StringLit(list.map(o => Opt(o.feature, o.entry.getText))) })
 
     def numConst: MultiParser[Constant] =
         (token("number", _.isInteger) ^^ { t => Constant(t.getText) }
@@ -385,7 +385,7 @@ class CParser extends MultiFeatureParser {
     def BOR_ASSIGN = textToken("|=")
     def BXOR = textToken('^')
     def BXOR_ASSIGN = textToken("^=")
-    
+
     def pragma = textToken("_Pragma") ~! LPAREN ~> stringConst <~ RPAREN ^^ { Pragma(_) }
 
     //***  gnuc extensions ****************************************************
@@ -397,13 +397,13 @@ class CParser extends MultiFeatureParser {
 
     def attributeList: MultiParser[List[Opt[AttributeSequence]]] =
         attribute ~ repOpt(COMMA ~> attribute) ~ opt(COMMA) ^^ {
-            case attr ~attrList ~ _ =>
+            case attr ~ attrList ~ _ =>
                 o(attr) :: attrList
         }
 
     def attribute: MultiParser[AttributeSequence] =
         (repOpt(anyTokenExcept(List("(", ")", ",")) ^^ { t => AtomicAttribute(t.getText) }
-            | LPAREN ~> attributeList <~ RPAREN ^^ { t => CompoundAttribute(t) })) ^^ {AttributeSequence(_)}
+            | LPAREN ~> attributeList <~ RPAREN ^^ { t => CompoundAttribute(t) })) ^^ { AttributeSequence(_) }
 
     def offsetofMemberDesignator: MultiParser[List[Opt[Id]]] =
         rep1Sep(ID, DOT)

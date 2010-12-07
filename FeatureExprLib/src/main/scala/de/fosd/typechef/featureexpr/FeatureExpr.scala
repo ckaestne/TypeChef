@@ -549,8 +549,12 @@ abstract class AbstractUnaryBoolFeatureExprTree(
     op: (Boolean) => Boolean) extends AbstractUnaryFeatureExprTree(expr, opStr, (ev) => if (op(ev != 0)) 1 else 0);
 
 abstract class DefinedExpr extends FeatureExprTree {
-    var feature: String = "";
-    def this(name: String) { this(); feature = name; assert(name != "1" && name != "0" && name != "") }
+    /*
+     * This method is overriden by children case classes to return the name.
+     * It would be nice to have an actual field here, but that doesn't play nicely with case classes;
+     * avoiding case classes and open-coding everything would take too much code.
+     */
+    def feature: String
     def debug_print(level: Int): String = indent(level) + feature + "\n";
     def accept(f: FeatureExprTree => Unit): Unit = f(this)
     def satName = feature //used for sat solver only to distinguish extern and macro
@@ -562,12 +566,14 @@ object DefinedExpr {
         case x: DefinedMacro => Some(x)
         case _ => None
     }
+    def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "")
 }
 
-/** external definion of a feature (cannot be decided to Base or Dead inside this file) */
-case class DefinedExternal(name: String) extends DefinedExpr(name) {
+/** external definition of a feature (cannot be decided to Base or Dead inside this file) */
+case class DefinedExternal(name: String) extends DefinedExpr {
+    def feature = name
     def print(): String = {
-        assert(name != "")
+        DefinedExpr.checkFeatureName(name)
         "definedEx(" + name + ")";
     }
     def countSize() = 1
@@ -578,9 +584,10 @@ case class DefinedExternal(name: String) extends DefinedExpr(name) {
  * definition based on a macro, still to be resolved using the macro table
  * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
  */
-case class DefinedMacro(name: String, presenceCondition: FeatureExpr, expandedName: String, presenceConditionCNF: Susp[NF]) extends DefinedExpr(name) {
+case class DefinedMacro(name: String, presenceCondition: FeatureExpr, expandedName: String, presenceConditionCNF: Susp[NF]) extends DefinedExpr {
+    def feature = name
     def print(): String = {
-        assert(name != "")
+        DefinedExpr.checkFeatureName(name)
         "defined(" + name + ")";
     }
     override def satName = expandedName

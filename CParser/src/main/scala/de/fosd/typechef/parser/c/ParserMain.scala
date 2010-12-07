@@ -47,6 +47,8 @@ object ParserMain {
 //        println("done.")
         
         
+        //XXX: that's too simple, we need to typecheck also split results.
+        // Moreover it makes the typechecker crash currently (easily workaroundable though).
         result match {
             case Success(ast, _) => ast
             case _=>null

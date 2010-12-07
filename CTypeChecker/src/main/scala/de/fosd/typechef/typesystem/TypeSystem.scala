@@ -1,6 +1,7 @@
 package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c.ASTVisitor
 
+import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 
@@ -69,8 +70,9 @@ class TypeSystem {
                         }
 
                 /**** references ****/
-                //function call
-                case PostfixExpr(Id(name), _) => checkFunctionCall(ast, name, feature)
+                //function call (XXX: PG: not-so-good detection, but will work for typical code).
+                case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */)
+                //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional. 
                 case _ =>
             }
         }
