@@ -37,10 +37,11 @@ class CParser extends MultiFeatureParser {
         repOpt(externalDef, AltExternalDef.join, "externalDef")
 
     def externalDef: MultiParser[ExternalDef] =
-        (declaration | functionDef | typelessDeclaration | asm_expr | pragma | SEMI ^^ { x => EmptyExternalDef() }) ^^! (AltExternalDef.join, x => x)
+        (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} | declaration |
+                functionDef | typelessDeclaration | asm_expr | pragma | SEMI ^^ { x => EmptyExternalDef() }) ^^! (AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
-        asm ~ opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^
+        asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^
             { case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e) }
 
     def declaration: MultiParser[Declaration] =
