@@ -526,7 +526,7 @@ class MultiFeatureParser {
         opt(p) ^^ { case Some(l) => l; case None => List() }
 
     /**
-     * represent optional element either bei singleton list or by empty list
+     * represent optional element either by singleton list or by empty list
      */
     def opt2List[T](p: => MultiParser[T]): MultiParser[List[T]] =
         opt(p) ^^ { _.toList }
