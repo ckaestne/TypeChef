@@ -509,7 +509,13 @@ class MultiFeatureParser {
      * p ~ (separator ~ p)*
      */
     def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
-        p ~ repOpt(separator ~> p) ^^ { case r ~ l => Opt(FeatureExpr.base, r) :: l }
+        repOpt(p <~ separator) ~ p ^^ {
+            /* PG: List.:+ takes linear time, but here it is ok because it is done just once,
+             * at the end of a linear-time operation, so the complexity is not changed.
+             * This is different from the cases I complained about, where it was used in
+             * a loop to construct a list, and lead to a quadratic time complexity */  
+            case l ~ r => l :+ Opt(FeatureExpr.base, r)
+        }
     /**
      * repetitions 0..n with separator
      * 
