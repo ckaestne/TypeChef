@@ -509,7 +509,7 @@ class MultiFeatureParser {
      * p ~ (separator ~ p)*
      */
     def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
-        repOpt(p <~ separator) ~ p ^^ {
+        repOpt(p <~ separator ~ lookahead(p)) ~ p ^^ {
             /* PG: List.:+ takes linear time, but here it is ok because it is done just once,
              * at the end of a linear-time operation, so the complexity is not changed.
              * This is different from the cases I complained about, where it was used in
