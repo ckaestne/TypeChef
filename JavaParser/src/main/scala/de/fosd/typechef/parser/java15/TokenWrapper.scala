@@ -11,18 +11,22 @@ object TokenWrapper {
         new TokenWrapper(
             javaToken.image,
             afeatureExpr,
-            new JPosition(file, javaToken.beginLine, javaToken.beginColumn))
+            new JPosition(file, javaToken.beginLine, javaToken.beginColumn),
+            javaToken.kind)
     }
 }
 
 class TokenWrapper(
     image: String,
     featureExpr: FeatureExpr,
-    position: Position) extends AbstractToken {
+    position: Position,
+    kind:Int) extends AbstractToken {
 
     def getFeature(): FeatureExpr = featureExpr
 
     def getText(): String = image
+    
+    def getKind():Int = kind
 
     def getPosition(): Position = { null }
 

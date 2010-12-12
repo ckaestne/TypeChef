@@ -85,6 +85,10 @@ class MultiFeatureParser {
          * from original framework, sequence parsers, but drop first result
          */
         def ~>[U](thatParser: => MultiParser[U]): MultiParser[U] = { thisParser ~ thatParser ^^ { (x: T ~ U) => x match { case ~(a, b) => b } } }.named("~>")
+        /**
+         * combines ~> and ~! (non backtracking and dropping first result)
+         */
+        def ~!>[U](thatParser: => MultiParser[U]): MultiParser[U] = this ~! thatParser ^^ { case a ~ b => b }
 
         /**
          * from original framework, sequence parsers, but drop last result
@@ -513,7 +517,7 @@ class MultiFeatureParser {
             /* PG: List.:+ takes linear time, but here it is ok because it is done just once,
              * at the end of a linear-time operation, so the complexity is not changed.
              * This is different from the cases I complained about, where it was used in
-             * a loop to construct a list, and lead to a quadratic time complexity */  
+             * a loop to construct a list, and lead to a quadratic time complexity */
             case l ~ r => l :+ Opt(FeatureExpr.base, r)
         }
     /**
@@ -547,7 +551,20 @@ class MultiFeatureParser {
                 (fs: FeatureExpr, x: Success[T, Elem, TypeContext]) => Success("lookahead", in))
         }
     }
-
+//  def phrase[T](p: MultiParser[T]) = new MultiParser[T] {
+////    lastNoSuccess = null
+//    def apply(in: Input, ctx:ParserState) = p(in,ctx) match {
+//      case s @ Success(out, in1) =>
+//        if (in1.atEnd) 
+//          s
+//          else
+////        else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
+//          Failure("end of input expected", ctx,in1)
+////        else 
+////          lastNoSuccess
+//      case e => e//lastNoSuccess
+//    }
+//  }
     def fail[T](msg: String): MultiParser[T] =
         new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = Failure(msg, fs, in, List()) }
 

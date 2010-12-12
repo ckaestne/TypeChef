@@ -2,6 +2,7 @@
 package de.fosd.typechef.parser.java15.lexer;
 
 
+@SuppressWarnings("unused")
 public class Java15ParserTokenManager implements Java15ParserConstants {
 	public java.io.PrintStream debugStream = System.out;
 
