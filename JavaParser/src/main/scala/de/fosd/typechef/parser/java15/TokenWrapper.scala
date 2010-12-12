@@ -28,8 +28,9 @@ class TokenWrapper(
     
     def getKind():Int = kind
 
-    def getPosition(): Position = { null }
+    def getPosition(): Position = position
 
+    override def toString = "\"" +image + "\"" + (if (!getFeature.isBase()) getFeature else "")
 }
 
 class JPosition(file: String, line: Int, col: Int) extends Position {

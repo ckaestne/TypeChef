@@ -27,7 +27,7 @@ class JavaParser extends MultiFeatureParser {
     implicit def keyword(s: String): MultiParser[Elem] = token(s, _.getText == s)
 
     def CompilationUnit =
-        opt(PackageDeclaration) ~! repOpt(ImportDeclaration) ~ (TypeDeclaration)*
+        opt(PackageDeclaration) ~! repOpt(ImportDeclaration) ~! (TypeDeclaration)*
 
     def PackageDeclaration =
         "package" ~> Name <~ ";"
@@ -69,7 +69,8 @@ class JavaParser extends MultiFeatureParser {
             |
             Modifiers ~ EnumDeclaration
             |
-            Modifiers ~ AnnotationTypeDeclaration) ! Choice.join
+            Modifiers ~ AnnotationTypeDeclaration
+            | fail("expected TypeDeclaration")) ! Choice.join
 
     def ClassOrInterfaceDeclaration: MultiParser[Any] =
         ClassOrInterface ~ IDENTIFIER ~ opt(TypeParameters) ~ opt(ExtendsList) ~
@@ -361,7 +362,9 @@ class JavaParser extends MultiFeatureParser {
             |
             Arguments)
 
-    def IDENTIFIER = token("<IDENTIFIER>", _.getKind == Java15ParserConstants.IDENTIFIER)
+    def IDENTIFIER = token("<IDENTIFIER>", 
+    		_.getKind == Java15ParserConstants.IDENTIFIER
+    		)
 
     def Literal: MultiParser[Any] =
         (token("<INTEGER_LITERAL>", _.getKind == Java15ParserConstants.INTEGER_LITERAL)
@@ -438,7 +441,7 @@ class JavaParser extends MultiFeatureParser {
             |
             SynchronizedStatement
             |
-            TryStatement);
+            TryStatement| fail("expected Statement")) ! Choice.join
 
     def AssertStatement: MultiParser[Any] =
         "assert" ~! Expression ~ opt(":" ~! Expression) ~ ";";
