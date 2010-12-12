@@ -34,7 +34,7 @@ class TypeSystem {
         "expect",
         "memcpy",
         "memset",
-        "return_address")
+        "return_address", "va_start", "va_end")
 
     def declareBuiltins() {
         for (name <- gccBuiltins) {
