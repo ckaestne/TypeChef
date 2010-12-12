@@ -1,5 +1,5 @@
-/**
-    Copyright 2010 Christian Kästner
+ï»¿/**
+    Copyright 2010 Christian Kaestner
 
     This file is part of CIDE.
 
