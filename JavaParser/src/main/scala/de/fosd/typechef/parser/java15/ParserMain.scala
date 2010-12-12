@@ -4,8 +4,6 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.io.FileWriter
 import java.io.File
-import junit.framework._
-import junit.framework.Assert._
 
 import java.io.PrintStream
 import java.io.FileOutputStream

@@ -1,16 +1,15 @@
-//package de.fosd.typechef.parser.c
-//
-//import de.fosd.typechef.parser._
-//import de.fosd.typechef.featureexpr.FeatureExpr
-//import de.fosd.typechef.featureexpr.FeatureExpr.base
+package de.fosd.typechef.parser.c
+
+import de.fosd.typechef.parser._
+import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureExpr.base
 //
 ///*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // * based on ANTLR grammar from John D. Mitchell (john@non.net), Jul 12, 1997
 // * and Monty Zukowski (jamz@cdsnet.net) April 28, 1998
 // */
 //
-//class NoTypeContext
-//class CParser extends MultiFeatureParser {
+class JavaParser extends MultiFeatureParser {
 //    type Elem = Token
 //    type TypeContext = NoTypeContext
 //
@@ -488,4 +487,4 @@
 //        token("any except " + exceptions, (t: Elem) => !exceptions.contains(t.getText))
 //
 //    private def o[T](x: T) = Opt(base, x)
-//}
+}

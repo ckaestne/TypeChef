@@ -1,4 +1,4 @@
-﻿/**
+/**
     Copyright 2010 Christian Kaestner
 
     This file is part of CIDE.
