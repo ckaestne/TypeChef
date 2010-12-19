@@ -11,15 +11,15 @@ import de.fosd.typechef.parser._
 class CParserTest2 extends TestCase {
     val p = new CParser()
    
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
+    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked)match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case p.NoSuccess(msg, context, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }

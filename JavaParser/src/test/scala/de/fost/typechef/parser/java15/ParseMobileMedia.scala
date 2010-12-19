@@ -28,12 +28,13 @@ object ParseMobileMedia {
             println(file.getAbsolutePath)
             val tokens = JavaLexer.lexFile(file.getAbsolutePath)
 
-            var ast = new JavaParser().CompilationUnit(tokens, FeatureExpr.base)
+            val p=new JavaParser()
+            var ast = p.CompilationUnit(tokens, FeatureExpr.base)
 
             ast match {
-                case Success(ast, unparsed) => { if (!unparsed.atEnd) println("parser did not reach end of token stream: " + unparsed) }
-                case NoSuccess(msg, context, unparsed, inner) => println(msg + " at " + unparsed + " with context " + context + " " + inner)
-                case SplittedParseResult(f,a,b)=>println("split")
+                case p.Success(ast, unparsed) => { if (!unparsed.atEnd) println("parser did not reach end of token stream: " + unparsed) }
+                case p.NoSuccess(msg, context, unparsed, inner) => println(msg + " at " + unparsed + " with context " + context + " " + inner)
+                case p.SplittedParseResult(f,a,b)=>println("split")
             }
         }
     }

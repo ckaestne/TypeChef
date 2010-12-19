@@ -10,15 +10,16 @@ class PPFilesTest extends TestCase {
     def parseFile(fileName: String) {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
         assertNotNull("file not found " + fileName, inputStream)
-        val result = new CParser().translationUnit(
+        val p = new CParser()
+        val result = p.translationUnit(
             CLexer.lexStream(inputStream, fileName, "testfiles/boa/"), FeatureExpr.base)
         System.out.println(result)
         (result: @unchecked) match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case p.NoSuccess(msg, context, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
 

@@ -9,55 +9,55 @@ import org.junit.Test
 class RepOptTest extends TestCase {
     val p = new CParser()
 
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
+    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case p.NoSuccess(msg, context, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
     def parseExtList(code: String): (List[Opt[ExternalDef]], TokenReader[TokenWrapper, CTypeContext]) = {
         val actual = p.parseAny(code.stripMargin, p.externalList)
         (actual: @unchecked) match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 (ast.asInstanceOf[List[Opt[ExternalDef]]], unparsed);
                 //succeed
             }
-            case NoSuccess(msg, context, unparsed, inner) => {
+            case p.NoSuccess(msg, context, unparsed, inner) => {
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
                 (null, unparsed)
             }
         }
     }
-    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]) {
+    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
             }
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case p.NoSuccess(msg, context, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " with context " + context + " " + inner)
         }
     }
-    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext], expectErrorMsg: Boolean = false) {
+    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case NoSuccess(msg, context, unparsed, inner) => ;
+            case p.NoSuccess(msg, context, unparsed, inner) => ;
         }
     }
-    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]]) {
+    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
         for (production <- productions)
             assertParseError(code, production)
     }

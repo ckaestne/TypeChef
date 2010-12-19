@@ -14,10 +14,10 @@ class CParser extends MultiFeatureParser {
     type Elem = TokenWrapper
     type TypeContext = CTypeContext
 
-    def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST, TokenWrapper, CTypeContext]): MultiParseResult[AST, TokenWrapper, CTypeContext] =
+    def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST]): MultiParseResult[AST] =
         mainProduction(CLexer.lex(code), FeatureExpr.base)
 
-    def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any, TokenWrapper, CTypeContext]): MultiParseResult[Any, TokenWrapper, CTypeContext] =
+    def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
         mainProduction(CLexer.lex(code), FeatureExpr.base)
 
     //parser

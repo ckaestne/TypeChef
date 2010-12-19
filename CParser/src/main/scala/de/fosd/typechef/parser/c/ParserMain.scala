@@ -21,6 +21,7 @@ object ParserMain {
     def parserMain(filePath: String, parentPath: String): AST =
         parserMain(filePath, parentPath, new CTypeContext())
 
+        val p=new CParser()
     def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext): AST = {
         val logStats = MyUtil.runnable(() => {
             if (TokenWrapper.profiling) {
@@ -32,7 +33,7 @@ object ParserMain {
 
         Runtime.getRuntime().addShutdownHook(new Thread(logStats))
 
-        val result = new CParser().translationUnit(
+        val result = p.translationUnit(
             CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
 
         println(printParseResult(result, FeatureExpr.base))
@@ -48,38 +49,38 @@ object ParserMain {
         //XXX: that's too simple, we need to typecheck also split results.
         // Moreover it makes the typechecker crash currently (easily workaroundable though).
         result match {
-            case Success(ast, _) => ast
+            case p.Success(ast, _) => ast
             case _ => null
         }
     }
 
-    def printParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr): String = {
+    def printParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr): String = {
         result match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 if (unparsed.atEnd)
                     (feature.toString + "\tsucceeded\n")
                 else
                     (feature.toString + "\tstopped before end (at " + unparsed.first.getPosition + ")\n")
             }
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case p.NoSuccess(msg, context, unparsed, inner) =>
                 (feature.toString + "\tfailed " + msg + "\n")
-            case SplittedParseResult(f, left, right) => {
+            case p.SplittedParseResult(f, left, right) => {
                 printParseResult(left, feature.and(f)) + "\n" +
                     printParseResult(right, feature.and(f.not))
             }
         }
     }
 
-    def checkParseResult(result: MultiParseResult[Any, TokenWrapper, CTypeContext], feature: FeatureExpr) {
+    def checkParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr) {
         result match {
-            case Success(ast, unparsed) => {
+            case p.Success(ast, unparsed) => {
                 if (!unparsed.atEnd)
                     new Exception("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed).printStackTrace
                 //succeed
             }
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case p.NoSuccess(msg, context, unparsed, inner) =>
                 new Exception(msg + " at " + unparsed + " with feature " + feature + " and context " + context + " " + inner).printStackTrace
-            case SplittedParseResult(f, left, right) => {
+            case p.SplittedParseResult(f, left, right) => {
                 checkParseResult(left, feature.and(f))
                 checkParseResult(right, feature.and(f.not))
             }
