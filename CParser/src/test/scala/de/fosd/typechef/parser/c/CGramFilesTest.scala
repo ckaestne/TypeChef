@@ -7,14 +7,13 @@ import de.fosd.typechef.parser._
 import org.junit.Test
 
 class CGramFilesTest extends TestCase {
+    val p = new CParser()
     //XXX duplicate of TestErrorReportingTest.parseFile
     def parseFile(fileName: String) {
-    	val inputStream = getClass.getResourceAsStream("/"+fileName)
-    	assertNotNull("file not found "+fileName,inputStream)
-    	val p=new CParser()
+        val inputStream = getClass.getResourceAsStream("/" + fileName)
+        assertNotNull("file not found " + fileName, inputStream)
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/"), FeatureExpr.base
-            )
+            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/"), FeatureExpr.base)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -71,7 +70,7 @@ class CGramFilesTest extends TestCase {
     def test39() { parseFile("cgram/test39.c") }
     def test40() { parseFile("cgram/test40.c") }
     def test41() { parseFile("cgram/test41.c") }
-    def ignoretest42() { parseFile("cgram/test42.c") }//ignore variable and typedef with same name
+    def ignoretest42() { parseFile("cgram/test42.c") } //ignore variable and typedef with same name
     def test43() { parseFile("cgram/test43.c") }
     def test44() { parseFile("cgram/test44.c") }
     def test45() { parseFile("cgram/test45.c") }
@@ -116,5 +115,7 @@ class CGramFilesTest extends TestCase {
     def test85() { parseFile("cgram/test85.c") }
     def test86() { parseFile("cgram/test86.c") }
     def test87() { parseFile("cgram/test87.c") }
+
+    def testSum() { parseFile("cgram/test30.c") ;println(p.debugTokenCounter) }
 
 }

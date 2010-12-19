@@ -16,9 +16,57 @@ class MultiFeatureParser {
     type Input = TokenReader[Elem, TypeContext]
     type ParserState = FeatureExpr
 
+    class SeqParser[T, U](thisParser: => MultiParser[T], thatParser: => MultiParser[U]) extends MultiParser[~[T, U]] {
+        name = "~"
+        def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
+            thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)))
+        def a = thisParser
+        def b = thatParser
+    }
+    class SeqCommitParser[T, U](thisParser: => MultiParser[T], thatParser: => MultiParser[U]) extends SeqParser[T, U](thisParser, thatParser) {
+        name = "~!"
+        override def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
+            thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)).commit)
+    }
+    class AltParser[T, U >: T](thisParser: => MultiParser[T], alternativeParser: => MultiParser[U]) extends MultiParser[U] {
+        name = "|"
+        def a = thisParser
+        def b = alternativeParser
+        def apply(in: Input, parserState: ParserState): MultiParseResult[U] =
+            thisParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
+    }
+    class MapParser[T, U](thisParser: => MultiParser[T], f: T => U) extends MultiParser[U] {
+        name = "^^"
+        def a = thisParser
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] =
+            thisParser(in, feature).map(f)
+    }
+    abstract class RepParser[T](thisParser: => MultiParser[T]) extends MultiParser[List[Opt[T]]] {
+        def a = thisParser
+        name = "*"
+    }
+    class JoinParser[T, U >: T](thisParser: => MultiParser[T], joinFunction: (FeatureExpr, U, U) => U) extends MultiParser[U] {
+        name = "!"
+        def a = thisParser
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] =
+            thisParser(in, feature).join[U](feature, joinFunction)
+    }
+    abstract class AtomicParser[T](val kind: String) extends MultiParser[T] {
+        name = kind
+    }
+    abstract class OtherParser[T](thisParser: => MultiParser[T]) extends MultiParser[T] {
+        def a = thisParser
+    }
+    class OptParser[+T](thisParser: => MultiParser[T]) extends MultiParser[Option[T]] {
+        name = "opt"
+        def a = thisParser
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[Option[T]] =
+            (thisParser ^^ (x => Some(x)) | success(None))(in, feature)
+    }
+
     //parser  
     abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T]) { thisParser =>
-        private var name: String = ""
+        protected var name: String = ""
         def named(n: String): this.type = { name = n; this }
         override def toString() = "Parser (" + name + ")"
 
@@ -26,37 +74,28 @@ class MultiFeatureParser {
          * sequencing is difficult when each element can have multiple results for different features
          * tries to join split parsers as early as possible
          */
-        def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
-                thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)))
-        }.named("~")
+        def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqCommitParser(this, thatParser)
 
         /**
          * non-backtracking sequencing (replace failures by errors)
          */
-        def ~![U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new MultiParser[~[T, U]] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
-                thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)).commit)
-        }.named("~!")
+        def ~![U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqCommitParser(this, thatParser)
 
+        /** allows backtracking */
+        def ~~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqParser(this, thatParser)
+        
+        
         /**
          * alternatives in the presence of multi-parsing
          * (no attempt to join yet)
          */
-        def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, parserState: ParserState): MultiParseResult[U] = {
-                thisParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
-            }
-        }.named("|")
+        def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new AltParser(this, alternativeParser)
 
         /**
          * ^^ as in the original combinator parser framework
          */
-        def ^^[U](f: T => U): MultiParser[U] = map(f).named("^^")
-        def map[U](f: T => U): MultiParser[U] = new MultiParser[U] {
-            def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] =
-                thisParser(in, feature).map(f)
-        }
+        def ^^[U](f: T => U): MultiParser[U] = map(f)
+        def map[U](f: T => U): MultiParser[U] = new MapParser(this, f)
 
         /**
          * map and join ASTs (when possible)
@@ -68,12 +107,7 @@ class MultiFeatureParser {
          * join parse results when possible
          */
         def ![U >: T](joinFunction: (FeatureExpr, U, U) => U): MultiParser[U] = join(joinFunction).named("!")
-        def join[U >: T](joinFunction: (FeatureExpr, U, U) => U): MultiParser[U] =
-            new MultiParser[U] {
-                def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] = {
-                    thisParser(in, feature).join[U](feature, joinFunction)
-                }
-            }
+        def join[U >: T](joinFunction: (FeatureExpr, U, U) => U): MultiParser[U] = new JoinParser(this, joinFunction)
 
         def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParser[T] =
             new MultiParser[T] {
@@ -89,11 +123,13 @@ class MultiFeatureParser {
          * combines ~> and ~! (non backtracking and dropping first result)
          */
         def ~!>[U](thatParser: => MultiParser[U]): MultiParser[U] = this ~! thatParser ^^ { case a ~ b => b }
+        def ~~>[U](thatParser: => MultiParser[U]): MultiParser[U] = this ~~ thatParser ^^ { case a ~ b => b }
 
         /**
          * from original framework, sequence parsers, but drop last result
          */
         def <~[U](thatParser: => MultiParser[U]): MultiParser[T] = { thisParser ~ thatParser ^^ { (x: T ~ U) => x match { case ~(a, b) => a } } }.named("<~")
+        def <~~[U](thatParser: => MultiParser[U]): MultiParser[T] = { thisParser ~~ thatParser ^^ { (x: T ~ U) => x match { case ~(a, b) => a } } }.named("<~")
         /** Returns a parser that repeatedly parses what this parser parses
          *
          * @return rep(this) 
@@ -127,8 +163,7 @@ class MultiFeatureParser {
      * opt (and helper functions) as in the original combinator parser framework
      * (x)?
      */
-    def opt[T](p: => MultiParser[T]): MultiParser[Option[T]] =
-        p ^^ (x => Some(x)) | success(None)
+    def opt[T](p: => MultiParser[T]) = new OptParser[T](p)
 
     /*   */
     /** 
@@ -354,7 +389,7 @@ class MultiFeatureParser {
      * @param p
      * @return
      */
-    def repOpt[T](p: => MultiParser[T], productionName: String = ""): MultiParser[List[Opt[T]]] = new MultiParser[List[Opt[T]]] {
+    def repOpt[T](p: => MultiParser[T], productionName: String = ""): MultiParser[List[Opt[T]]] = new RepParser[T](p) {
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
         private case class Sealable(val isSealed: Boolean, resultList: List[Opt[T]])
         //join anything, data does not matter, only position in tokenstream
@@ -495,7 +530,7 @@ class MultiFeatureParser {
     /**
      * returns failure when list is empty
      */
-    def nonEmpty[T](p: => MultiParser[List[T]]): MultiParser[List[T]] = new MultiParser[List[T]] {
+    def nonEmpty[T](p: => MultiParser[List[T]]): MultiParser[List[T]] = new OtherParser[List[T]](p) {
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[T]] = {
             p(in, feature).seqAllSuccessful(feature,
                 (fs: FeatureExpr, x: Success[List[T]]) =>
@@ -514,7 +549,7 @@ class MultiFeatureParser {
      */
     def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
         p ~ repOpt(separator ~> p) ^^ { case r ~ l => Opt(FeatureExpr.base, r) :: l }
-    
+
     /**
      * repetitions 0..n with separator
      * 
@@ -555,7 +590,7 @@ class MultiFeatureParser {
     def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T]): MultiParser[T] =
         new MultiParser[T] { def apply(in: Input, fs: FeatureExpr) = f(in, fs) }
 
-    def matchInput(p: (Elem, TypeContext) => Boolean, kind: String) = new MultiParser[Elem] {
+    def matchInput(p: (Elem, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
         private def err(e: Option[Elem]) = errorMsg(kind, e)
         @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
@@ -607,7 +642,7 @@ class MultiFeatureParser {
             }
         }
 
-    }.named("matchInput")
+    }.named("matchInput " + kind)
 
     def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
     def tokenWithContext(kind: String, p: (Elem, TypeContext) => Boolean) = matchInput(p, kind)
