@@ -338,7 +338,12 @@ class CParserTest extends TestCase {
     }
 
     def testFunctionDef {
+    	
+        assertParseable("int a", p.parameterTypeList)
+        assertParseError("int a)", p.parameterTypeList)
+//        assertParseable("(int a)", p.declaratorParamaterList)
         assertParseable("void foo(){}", p.functionDef)
+        assertParseable("void foo(){a;}", p.functionDef)
         assertParseable("void foo(int a) { a; }", p.functionDef)
         assertParseable("""|void 
         				|#ifdef X
