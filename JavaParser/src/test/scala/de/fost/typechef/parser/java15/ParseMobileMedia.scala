@@ -29,7 +29,7 @@ object ParseMobileMedia {
             val tokens = JavaLexer.lexFile(file.getAbsolutePath)
 
             val p=new JavaParser()
-            var ast = p.CompilationUnit(tokens, FeatureExpr.base)
+            var ast = p.phrase(p.CompilationUnit)(tokens, FeatureExpr.base)
 
             ast match {
                 case p.Success(ast, unparsed) => { if (!unparsed.atEnd) println("parser did not reach end of token stream: " + unparsed) }
