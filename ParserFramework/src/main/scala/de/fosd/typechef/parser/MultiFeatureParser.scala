@@ -819,6 +819,32 @@ class MultiFeatureParser {
      */
     var lastNoSuccess: NoSuccess = null
 
+  /** <p>
+   *    A parser generator delimiting whole phrases (i.e. programs).
+   *  </p>
+   *  <p>
+   *    <code>phrase(p)</code> succeeds if <code>p</code> succeeds and
+   *    no input is left over after <code>p</code>.
+   *  </p>
+   *
+   *  @param p the parser that must consume all input for the resulting parser
+   *           to succeed.
+   *  @return  a parser that has the same result as `p', but that only succeeds
+   *           if <code>p</code> consumed all the input.
+   */
+  def phrase[T](p: MultiParser[T]) = new MultiParser[T] {
+    lastNoSuccess = null
+    def apply(in: Input, fs: FeatureExpr) = p(in, fs) match {
+      case s @ Success(out, in1) =>
+        if (in1.atEnd) 
+          s
+        else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
+          Failure("end of input expected", fs, in1,List())
+        else 
+          lastNoSuccess
+      case _ => lastNoSuccess
+    }
+  }
 }
 case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"
