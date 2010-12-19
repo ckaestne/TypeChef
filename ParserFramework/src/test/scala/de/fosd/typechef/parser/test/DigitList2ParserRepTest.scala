@@ -7,8 +7,8 @@ import de.fosd.typechef.featureexpr._
 import org.junit.Test
 
 class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
-    def newParser = {
-        val res = new DigitList2Parser() {
+    val newParser = 
+        new DigitList2Parser() {
                 override type OptResult[T] = T
                 override def myRepOpt[T](p: => MultiParser[T],
                         joinFunction: (FeatureExpr, T, T) => T,
@@ -20,18 +20,16 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
                             ((x: List[this.OptResult[AST]]) =>
                                 (DigitList2(x.map((y: AST) => Opt(FeatureExpr.base, y))))))
         }
-        res
-    }
 
     def testError1() {
         val input = List(t("("), t("3", f1),t(")", f1.not), t(")"))
         val actual = newParser.parse(input)
         System.out.println(actual)
         actual match {
-            case Success(ast, unparsed) => {
+            case newParser.Success(ast, unparsed) => {
                 fail("should not parse " + input + " but result was " + actual)
             }
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case newParser.NoSuccess(msg, context, unparsed, inner) =>
 
         }
     }
@@ -151,8 +149,20 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
         var actual = newParser.parse(input)
         println(actual)
         actual match {
-            case Success(ast, unparsed) => fail("expected error, found " + ast + " - " + unparsed)
-            case NoSuccess(msg, context, unparsed, inner) =>
+            case newParser.Success(ast, unparsed) => fail("expected error, found " + ast + " - " + unparsed)
+            case newParser.NoSuccess(msg, context, unparsed, inner) =>
         }
     }
+    
+    def assertParseResult(expected: AST, actual: newParser.ParseResult[AST]) {
+        System.out.println(actual)
+        actual match {
+            case newParser.Success(ast, unparsed) => {
+                assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
+                assertEquals("incorrect parse result", outer(expected), ast)
+            }
+            case newParser.NoSuccess(msg, context, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+        }
+    }      
 }

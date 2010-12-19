@@ -19,17 +19,7 @@ trait DigitListUtilities {
     def wrapList(x: AST*) = DigitList2(List() ++ x.map(Opt(FeatureExpr.base, _)))
     def wrapList(x: List[AST]) : DigitList2 = wrapList(x :_*)
 
-    def assertParseResult(expected: AST, actual: ParseResult[AST, MyToken, Any]) {
-        System.out.println(actual)
-        actual match {
-            case Success(ast, unparsed) => {
-                assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
-                assertEquals("incorrect parse result", outer(expected), ast)
-            }
-            case NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
-        }
-    }
+
 
     def o(ast: AST) = Opt(FeatureExpr.base, ast)
 }
