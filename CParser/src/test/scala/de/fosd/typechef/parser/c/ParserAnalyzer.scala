@@ -10,7 +10,7 @@ object ParserAnalyzer {
 
     def main(args: Array[String]) {
 
-        val root = p.declarator
+        val root = p.statementList
 
         //analyze(root, 0)
 

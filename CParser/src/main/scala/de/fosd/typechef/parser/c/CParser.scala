@@ -102,7 +102,7 @@ class CParser extends MultiFeatureParser {
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[Opt[StructDeclaration]])] =
         // XXX: PG: SEMI after LCURLY???? 
-        (ID ~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ { case id ~ _ ~(_ ~ list ~ _) ~ _ => (Some(id), list) }) |
+        (ID ~~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ { case id ~ _ ~(_ ~ list ~ _) ~ _ => (Some(id), list) }) |
             (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ { case _ ~ _ ~ list ~ _ ~ _ => (None, list) }) |
             (ID ^^ { case id => (Some(id), List()) })
 
@@ -127,7 +127,7 @@ class CParser extends MultiFeatureParser {
 
     def enumSpecifier: MultiParser[EnumSpecifier] =
         textToken("enum") ~>
-            ((ID ~ LCURLY ~! (enumList ~ RCURLY) ^^ { case id ~ _ ~(l ~ _) => EnumSpecifier(Some(id), l) })
+            ((ID ~~ LCURLY ~! (enumList ~ RCURLY) ^^ { case id ~ _ ~(l ~ _) => EnumSpecifier(Some(id), l) })
                 | (LCURLY ~ enumList ~ RCURLY ^^ { case _ ~ l ~ _ => EnumSpecifier(None, l) })
                 | (ID ^^ { case i => EnumSpecifier(Some(i), List()) }))
 
@@ -162,11 +162,11 @@ class CParser extends MultiFeatureParser {
 
     def declarator: MultiParser[Declarator] =
         //XXX: why opt(attributeDecl) rather than rep?
-        (pointerGroup0 ~ (ID | (LPAREN ~> opt(attributeDecl) ~ declarator <~ RPAREN)) ~
+        (pointerGroup0 ~~ (ID | (LPAREN ~~> opt(attributeDecl) ~~ declarator <~ RPAREN)) ~
             repOpt(
-                (LPAREN ~> ((parameterTypeList ^^ { DeclParameterTypeList(_) })
-                    | (idList0 ^^ { DeclIdentifierList(_) })) <~ (opt(COMMA) ~ RPAREN))
-                | (LBRACKET ~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) }))) ^^ {
+                (LPAREN ~~> ((parameterTypeList ^^ { DeclParameterTypeList(_) })
+                    | (idList0 ^^ { DeclIdentifierList(_) })) <~~ (opt(COMMA) ~~ RPAREN))
+                | (LBRACKET ~~> opt(constExpr) <~ RBRACKET ^^ { DeclArrayAccess(_) }))) ^^ {
             case pointers ~(id: Id) ~ ext => DeclaratorId(pointers, id, ext);
             case pointers ~((attr: Option[_ /*AttributeSpecifier*/ ]) ~(decl: Declarator)) ~ ext =>
                 DeclaratorDecl(pointers, attr.asInstanceOf[Option[AttributeSpecifier]], decl, ext)
@@ -205,7 +205,7 @@ class CParser extends MultiFeatureParser {
         repOpt(statement | compoundDeclaration, AltStatement.join, "statement")
 
     def statement: MultiParser[Statement] = (SEMI ^^ { _ => EmptyStatement() } // Empty statements
-        | ( compoundStatement) // Group of statements
+        | (compoundStatement) // Group of statements
         //// Iteration statements:
         | (textToken("while") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ { case _ ~ _ ~ e ~ _ ~ s => WhileStatement(e, s) })
         | (textToken("do") ~! statement ~ textToken("while") ~ LPAREN ~ expr ~ RPAREN ~ SEMI ^^ { case _ ~ s ~ _ ~ _ ~ e ~ _ ~ _ => DoStatement(e, s) })
@@ -263,8 +263,8 @@ class CParser extends MultiFeatureParser {
         innerExpr ~! repOpt(operations ~ innerExpr ^^ { case t ~ e => (t.getText, e) }) ^^ { case e ~ l => if (l.isEmpty) e else NAryExpr(e, l) }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~ typeName ~ RPAREN ~! (castExpr | lcurlyInitializer) ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
-     
+        LPAREN ~~ typeName ~~ RPAREN ~! (castExpr | lcurlyInitializer) ^^ { case b1 ~ t ~ b2 ~ e => CastExpr(t, e) } | unaryExpr
+
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         nonemptyAbstractDeclaratorA | nonemptyAbstractDeclaratorB
 
@@ -322,8 +322,7 @@ class CParser extends MultiFeatureParser {
         | ID
         | numConst
         | stringConst
-        | (LPAREN ~~> compoundStatement <~ RPAREN ^^ { CompoundStatementExpr(_) })
-        | (LPAREN ~> expr <~ RPAREN)
+        | (LPAREN ~> ((compoundStatement ^^ { CompoundStatementExpr(_) }) | expr) <~ RPAREN)
         | fail("primary expression expected"))
 
     def typeName: MultiParser[TypeName] =
@@ -340,7 +339,7 @@ class CParser extends MultiFeatureParser {
 
     def numConst: MultiParser[Constant] =
         ((token("number", _.isInteger) ^^ { t => Constant(t.getText) })
-            | (token("number", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) }))
+            | (token("charConst", _.getType == Token.CHARACTER) ^^ { t => Constant(t.getText) }))
 
     def argExprList: MultiParser[ExprList] =
         rep1Sep(assignExpr, COMMA) ^^ { ExprList(_) }
@@ -440,13 +439,13 @@ class CParser extends MultiFeatureParser {
         rep1Sep(initializer, COMMA)
 
     def rangeExpr: MultiParser[Expr] = //used in initializers only  
-        constExpr ~ VARARGS ~! constExpr ^^ { case a ~ _ ~ b => RangeExpr(a, b) }
+        constExpr ~~ VARARGS ~! constExpr ^^ { case a ~ _ ~ b => RangeExpr(a, b) }
 
     def nestedFunctionDef: MultiParser[NestedFunctionDef] =
-        opt(textToken("auto")) ~ //only for nested functions
-            optList(functionDeclSpecifiers) ~
-            declarator ~
-            repOpt(declaration) ~
+        opt(textToken("auto")) ~~ //only for nested functions
+            optList(functionDeclSpecifiers) ~~
+            declarator ~~
+            repOpt(declaration) ~~
             compoundStatement ^^
             { case auto ~ sp ~ declarator ~ param ~ stmt => NestedFunctionDef(auto.isDefined, sp, declarator, param, stmt) }
 
@@ -481,7 +480,7 @@ class CParser extends MultiFeatureParser {
 
     //XXX: PG - probably the rep's here should be optimized to repOpt
     def specList(otherSpecifiers: MultiParser[Specifier]): MultiParser[List[Opt[Specifier]]] =
-        nonEmpty(repOpt(otherSpecifiers) ~ opt(typedefName) ~ repOpt(otherSpecifiers | typeSpecifier) ^^ {
+        nonEmpty(repOpt(otherSpecifiers) ~~ opt(typedefName) ~~ repOpt(otherSpecifiers | typeSpecifier) ^^ {
             case list1 ~ Some(typedefn) ~ list2 => list1 ++ List(Opt(base, typedefn)) ++ list2
             case list1 ~ None ~ list2 => list1 ++ list2
         })
