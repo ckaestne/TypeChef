@@ -36,12 +36,7 @@ class MultiFeatureParser {
         def a = thisParser
         def b = alternativeParser
         def apply(in: Input, parserState: ParserState): MultiParseResult[U] = {
-            val debugTokenBefore = debugTokenCounter;
-            val oldBacktracking = debugBacktrackingCounter
-            val firstResult = thisParser(in, parserState)
-            if (firstResult.allFailed)
-                debugBacktrackingCounter = oldBacktracking + (debugTokenCounter - debugTokenBefore)
-            firstResult.replaceAllFailure(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
+            thisParser(in, parserState).replaceAllFailure(parserState, (fs: FeatureExpr) => alternativeParser(in, fs))
         }
     }
 
@@ -665,23 +660,24 @@ try {
         @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
-            parseResult.mapr({
-                case Success(resultPair, inNext) =>
+            parseResult.mapfr(context,{
+                case (feature,Success(resultPair, inNext)) =>
                     if (p(resultPair._2, in.context)) {
-                        resultPair._2.countSuccess
+                        //consumed one token
+                        resultPair._2.countSuccess (feature)
                         Success(resultPair._2, inNext)
                     }
                     else {
                         resultPair._2.countFailure
                         Failure(err(Some(resultPair._2)), resultPair._1, List())
                     }
-                case f: Failure => f
-                case e: Error => e
+                case (_,f: Failure) => f
+                case (_,e: Error) => e
             }).joinNoSuccess
         }
     }.named("matchInput " + kind)
 
-    val next: MultiParser[(Input, Elem)] = new MultiParser[(Input, Elem)] {
+    private val next: MultiParser[(Input, Elem)] = new MultiParser[(Input, Elem)] {
 
         var cache_in: Input = null
         var cache_ctx: FeatureExpr = null
@@ -689,7 +685,6 @@ try {
 
         def apply(in: Input, context: FeatureExpr): MultiParseResult[(Input, Elem)] = {
             if (!((in eq cache_in) && (context eq cache_ctx))) {
-                debugTokenCounter = debugTokenCounter + 1
                 cache_in = in
                 cache_ctx = context
                 cache_value = getNext(in, context)
@@ -754,7 +749,7 @@ try {
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U]
         def map[U](f: T => U): MultiParseResult[U]
         def mapf[U](feature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U]
-        def mapr[U](f: ParseResult[T] => ParseResult[U]): MultiParseResult[U]
+        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr,ParseResult[T]) => ParseResult[U]): MultiParseResult[U]
         /**
          * joins as far as possible. joins all successful ones but maintains partially successful results.
          * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
@@ -797,8 +792,8 @@ try {
             SplittedParseResult(feature, resultA.map(f), resultB.map(f))
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapf(inFeature and feature, f), resultB.mapf(inFeature and (feature.not), f))
-        def mapr[U](f: ParseResult[T] => ParseResult[U]): MultiParseResult[U] =
-            SplittedParseResult(feature, resultA.mapr(f), resultB.mapr(f))
+        def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr,ParseResult[T]) => ParseResult[U]): MultiParseResult[U] =
+            SplittedParseResult(feature, resultA.mapfr(inFeature and feature, f), resultB.mapfr(inFeature and (feature.not), f))
         def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
             (resultA.join(parserContext and feature, f), resultB.join(parserContext and (feature.not), f)) match {
             //both successful
@@ -876,7 +871,7 @@ try {
 
     abstract class ParseResult[+T](nextInput: TokenReader[Elem, TypeContext]) extends MultiParseResult[T] {
         def map[U](f: T => U): ParseResult[U]
-        def mapr[U](f: ParseResult[T] => ParseResult[U]): ParseResult[U] = f(this)
+        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): ParseResult[U] = f(feature, this)
         def next = nextInput
         def isSuccess: Boolean
         def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
@@ -989,12 +984,6 @@ try {
             }
         }
     }
-
-
-    var debugTokenCounter: Int = 0
-    var debugBacktrackingCounter: Int = 0
-
-
 }
 
 case class ~[+a, +b](_1: a, _2: b) {

@@ -10,7 +10,7 @@ import scala.math.min
  * @author kaestner
  *
  */
-class TokenReader[T <: AbstractToken, U](val tokens: List[T], val offst: Int, val context: U = null, eofToken: T) {
+class TokenReader[+T <: AbstractToken, U](val tokens: List[T], val offst: Int, val context: U = null, eofToken: T) {
 
     def offset: Int = offst
 

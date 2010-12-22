@@ -12,7 +12,7 @@ import java.io.PrintStream
  * @author kaestner
  *
  */
-class TokenWrapper(token: Token, number: Int) extends AbstractToken {
+class TokenWrapper(token: Token, number: Int) extends /*AbstractToken*/ProfilingToken {
     def getFeature = token.getFeature()
     def isInteger = token.getType == Token.INTEGER
     def isIdentifier = token.getType == Token.IDENTIFIER && !CLexer.keywords.contains(token.getText)
@@ -46,10 +46,10 @@ class LineInformation(val lineNumber : Int) {
 }
 
 object LineInformation {
-    private val lineBuffer 
+    private val lineBuffer
       = new ListBuffer[LineInformation]()
 
-    def addLine(line : LineInformation) 
+    def addLine(line : LineInformation)
       = lineBuffer += line
 
     def getLines : List[LineInformation]
@@ -74,14 +74,14 @@ object LineInformation {
     }
 }
 
-/** 
+/**
  * A variant of TokenWrapper which keeps track of profiling
  * information.
  *
  * @author Tillmann Rendel
  */
 class ProfilingTokenWrapper(line : LineInformation, token: Token, number: Int) extends TokenWrapper(token, number) {
-    /** 
+    /**
      * Increase the token access counter in the associated
      * line information object before actually doing something.
      */
@@ -89,7 +89,7 @@ class ProfilingTokenWrapper(line : LineInformation, token: Token, number: Int) e
       line.accessCount += 1
       code
     }
-    
+
     // Wrap all methods in the public interface.
     //
     // This works well because these methods are all simple
@@ -99,14 +99,14 @@ class ProfilingTokenWrapper(line : LineInformation, token: Token, number: Int) e
     override def isInteger    = access {super.isInteger}
     override def isIdentifier = access {super.isIdentifier}
     override def getText      = access {super.getText}
-    override def getType      = access {super.getType} 
+    override def getType      = access {super.getType}
     override def toString     = access {super.toString}
     override def getPosition  = access {super.getPosition}
-    
+
     // profiling
-    override def countSplit {line.splitCount += 1}
-    override def countSuccess {line.successCount += 1}
-    override def countFailure {line.failureCount += 1}
+    override def countSplit {super.countSplit;line.splitCount += 1}
+    override def countSuccess(feature:FeatureExpr) {super.countSuccess(feature);line.successCount += 1}
+    override def countFailure {super.countFailure;line.failureCount += 1}
 }
 
 object TokenWrapper {
@@ -120,7 +120,7 @@ object TokenWrapper {
     var currentLine : LineInformation = new LineInformation(-1)
     var lastTime : Long = 0;
 
-    /** 
+    /**
      * Factory method for the creation of TokenWrappers.
      */
     def apply(token : Token, number : Int) = {
@@ -137,7 +137,7 @@ object TokenWrapper {
         currentLine.tokenCount += 1
 
         // create profiling token wrapper
-        new ProfilingTokenWrapper(currentLine, token, number); 
+        new ProfilingTokenWrapper(currentLine, token, number);
       } else {
         // create non-profiling token wrapper
         new TokenWrapper(token, number)
