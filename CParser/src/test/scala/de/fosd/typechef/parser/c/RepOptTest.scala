@@ -17,8 +17,8 @@ class RepOptTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
     def parseExtList(code: String): (List[Opt[ExternalDef]], TokenReader[TokenWrapper, CTypeContext]) = {
@@ -28,8 +28,8 @@ class RepOptTest extends TestCase {
                 (ast.asInstanceOf[List[Opt[ExternalDef]]], unparsed);
                 //succeed
             }
-            case p.NoSuccess(msg, context, unparsed, inner) => {
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) => {
+                fail(msg + " at " + unparsed + " " + inner)
                 (null, unparsed)
             }
         }
@@ -42,8 +42,8 @@ class RepOptTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
     def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
@@ -54,7 +54,7 @@ class RepOptTest extends TestCase {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case p.NoSuccess(msg, context, unparsed, inner) => ;
+            case p.NoSuccess(msg, unparsed, inner) => ;
         }
     }
     def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {

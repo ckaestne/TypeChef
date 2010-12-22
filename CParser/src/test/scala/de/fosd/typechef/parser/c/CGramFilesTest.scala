@@ -20,8 +20,8 @@ class CGramFilesTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
 
     }
@@ -116,6 +116,5 @@ class CGramFilesTest extends TestCase {
     def test86() { parseFile("cgram/test86.c") }
     def test87() { parseFile("cgram/test87.c") }
 
-    def testSum() { parseFile("cgram/test30.c") ;println(p.debugTokenCounter) }
 
 }

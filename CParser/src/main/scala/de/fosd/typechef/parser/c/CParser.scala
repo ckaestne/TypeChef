@@ -188,8 +188,9 @@ class CParser extends MultiFeatureParser {
         optList(functionDeclSpecifiers) ~~
             declarator ~~
             repOpt(declaration) ~~ opt2List(VARARGS ^^ { x => VarArgs() }) ~~ repOpt(SEMI) ~~
+            lookahead(LCURLY) ~! //prevents backtracking inside function bodies
             compoundStatement ^^
-            { case sp ~ declarator ~ param ~ vparam ~ _ ~ stmt => FunctionDef(sp, declarator, param ++ vparam.map(o(_)), stmt) }
+            { case sp ~ declarator ~ param ~ vparam ~ _~_ ~ stmt => FunctionDef(sp, declarator, param ++ vparam.map(o(_)), stmt) }
 
     def functionDeclSpecifiers: MultiParser[List[Opt[Specifier]]] =
         specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
@@ -497,9 +498,4 @@ class CParser extends MultiFeatureParser {
 
     private def o[T](x: T) = Opt(base, x)
 
-    var debugTokenCounter = 0
-    override def matchInput(p: (Elem, TypeContext) => Boolean, kind: String) = {
-        debugTokenCounter = debugTokenCounter + 1
-        super.matchInput(p, kind)
-    }
 }

@@ -33,7 +33,7 @@ object ParseMobileMedia {
 
             ast match {
                 case p.Success(ast, unparsed) => { if (!unparsed.atEnd) println("parser did not reach end of token stream: " + unparsed) }
-                case p.NoSuccess(msg, context, unparsed, inner) => println(msg + " at " + unparsed + " with context " + context + " " + inner)
+                case p.NoSuccess(msg, unparsed, inner) => println(msg + " at " + unparsed + " " + inner)
                 case p.SplittedParseResult(f,a,b)=>println("split")
             }
         }

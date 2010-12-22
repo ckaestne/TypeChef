@@ -22,8 +22,8 @@ class TestErrorReporting extends TestCase {
                 fail("should not succeed")
                 //succeed
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-            case p.SplittedParseResult(_, _, p.NoSuccess(_, _, _, _)) =>
+            case p.NoSuccess(msg, unparsed, inner) =>
+            case p.SplittedParseResult(_, _, p.NoSuccess(_, _, _)) =>
         }
 
     }

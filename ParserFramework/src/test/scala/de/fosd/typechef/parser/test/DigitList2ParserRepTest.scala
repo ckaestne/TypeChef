@@ -29,7 +29,7 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
             case newParser.Success(ast, unparsed) => {
                 fail("should not parse " + input + " but result was " + actual)
             }
-            case newParser.NoSuccess(msg, context, unparsed, inner) =>
+            case newParser.NoSuccess(msg,  unparsed, inner) =>
 
         }
     }
@@ -150,7 +150,7 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
         println(actual)
         actual match {
             case newParser.Success(ast, unparsed) => fail("expected error, found " + ast + " - " + unparsed)
-            case newParser.NoSuccess(msg, context, unparsed, inner) =>
+            case newParser.NoSuccess(msg,  unparsed, inner) =>
         }
     }
     
@@ -161,8 +161,8 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", outer(expected), ast)
             }
-            case newParser.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case newParser.NoSuccess(msg,  unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }      
 }

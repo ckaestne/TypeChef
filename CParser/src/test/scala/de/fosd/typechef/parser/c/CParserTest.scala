@@ -20,8 +20,8 @@ class CParserTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
     def assertParseResult(expected: AST, code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]]) {
@@ -37,8 +37,8 @@ class CParserTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
     def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
@@ -49,8 +49,8 @@ class CParserTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
     def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
@@ -61,7 +61,7 @@ class CParserTest extends TestCase {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case p.NoSuccess(msg, context, unparsed, inner) => ;
+            case p.NoSuccess(msg, unparsed, inner) => ;
         }
     }
     def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {

@@ -62,7 +62,7 @@ object ParserMain {
                 else
                     (feature.toString + "\tstopped before end (at " + unparsed.first.getPosition + ")\n")
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
+            case p.NoSuccess(msg, unparsed, inner) =>
                 (feature.toString + "\tfailed " + msg + "\n")
             case p.SplittedParseResult(f, left, right) => {
                 printParseResult(left, feature.and(f)) + "\n" +
@@ -78,8 +78,8 @@ object ParserMain {
                     new Exception("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed).printStackTrace
                 //succeed
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                new Exception(msg + " at " + unparsed + " with feature " + feature + " and context " + context + " " + inner).printStackTrace
+            case p.NoSuccess(msg, unparsed, inner) =>
+                new Exception(msg + " at " + unparsed + " with feature " + feature +" " + inner).printStackTrace
             case p.SplittedParseResult(f, left, right) => {
                 checkParseResult(left, feature.and(f))
                 checkParseResult(right, feature.and(f.not))

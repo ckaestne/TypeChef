@@ -20,8 +20,8 @@ class PPFilesTest extends TestCase {
         assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
         //succeed
       }
-      case p.NoSuccess(msg, context, unparsed, inner) =>
-        fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+      case p.NoSuccess(msg, unparsed, inner) =>
+        fail(msg + " at " + unparsed + " " + inner)
     }
 
   }

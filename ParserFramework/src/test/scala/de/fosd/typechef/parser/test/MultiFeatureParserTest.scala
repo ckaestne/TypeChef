@@ -21,13 +21,13 @@ class MultiFeatureParserTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
             }
-            case parser.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case parser.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
 
-    val parser=new MultiExpressionParser()
-    
+    val parser = new MultiExpressionParser()
+
     @Test
     def testParseLit() {
         val input = List(t("1"))
@@ -128,8 +128,8 @@ class MultiFeatureParserTest extends TestCase {
      * test multi-parser sequenzation
      */
     def testMultiParserSeq() {
-        val in = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0,null,EofToken)
-        val in2 = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0,null,EofToken)
+        val in = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0, null, EofToken)
+        val in2 = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0, null, EofToken)
         val p = parser
         println((p.digits ~ p.digits)(in, FeatureExpr.base)) // 1~1,1~2,2~1,2~2
         println((p.digits ~ p.digits)(in2, FeatureExpr.base)) //1~2,2~1
@@ -137,38 +137,38 @@ class MultiFeatureParserTest extends TestCase {
     }
 
     def testFailureVsError() {
-    	//commit result after * but not after +. hence expecting better errors in the * case
-    	{
-        val input = List(t("1"), t("+"), t("*"), t("5"))
-        val result = parser.parse(input)
-        println(result)
-        result match {
-        	case parser.NoSuccess(_,_,_,_) => fail("should succeed but with unparsed tokens")
-        	case parser.Success(_,rest) => assertFalse("expected unparsed tokens, but reached end",rest.atEnd)
-        	case _=>
+        //commit result after * but not after +. hence expecting better errors in the * case
+        {
+            val input = List(t("1"), t("+"), t("*"), t("5"))
+            val result = parser.parse(input)
+            println(result)
+            result match {
+                case parser.NoSuccess(_, _, _) => fail("should succeed but with unparsed tokens")
+                case parser.Success(_, rest) => assertFalse("expected unparsed tokens, but reached end", rest.atEnd)
+                case _ =>
+            }
         }
-    	}
-    	{
-        val input = List(t("1"), t("*"), t("+"), t("5"))
-        val result = parser.parse(input)
-        println(result)
-        result match {
-        	case parser.Success(_,_) => fail("expected error due to commit (!) after *")
-        	case _=>
+        {
+            val input = List(t("1"), t("*"), t("+"), t("5"))
+            val result = parser.parse(input)
+            println(result)
+            result match {
+                case parser.Success(_, _) => fail("expected error due to commit (!) after *")
+                case _ =>
+            }
         }
-    	}
     }
     def testLookaheadWithNoBacktracking() {
-    	//after ( is found no backtracking should occur
-    	{
-        val input = List(t("1"), t("+"), t("("), t("5"))
-        val result = parser.parse(input)
-        println(result)
-        result match {
-        	case parser.Success(_,_) => fail("expected error due to lookahead")
-        	case _=>
+        //after ( is found no backtracking should occur
+        {
+            val input = List(t("1"), t("+"), t("("), t("5"))
+            val result = parser.parse(input)
+            println(result)
+            result match {
+                case parser.Success(_, _) => fail("expected error due to lookahead")
+                case _ =>
+            }
         }
-    	}
     }
 
 }

@@ -4,7 +4,7 @@ import de.fosd.typechef.parser.MultiFeatureParser
 import de.fosd.typechef.parser._
 //import de.fosd.typechef.parser.MultiFeatureParser._
 
-object ParserAnalyzer {
+object GrammarAnalyzer {
 
     val p = new CParser()
 

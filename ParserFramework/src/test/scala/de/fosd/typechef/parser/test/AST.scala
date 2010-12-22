@@ -14,4 +14,5 @@ case class Minus(left: AST, right: AST) extends Expr
 case class Mul(left: AST, right: AST) extends Expr
 case class Lit(value: Int) extends Expr
 case class ExprList(list: List[Expr]) extends AST
+case class Char(value: Char) extends Expr
 

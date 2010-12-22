@@ -21,8 +21,8 @@ class DigitListParserTest extends TestCase {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
             }
-            case parser.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context+ " "+inner)
+            case parser.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " "+inner)
         }
     }
 

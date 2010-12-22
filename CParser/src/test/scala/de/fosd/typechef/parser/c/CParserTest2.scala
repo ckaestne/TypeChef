@@ -10,17 +10,17 @@ import de.fosd.typechef.parser._
  */
 class CParserTest2 extends TestCase {
     val p = new CParser()
-   
+
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
-        (actual: @unchecked)match {
+        (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
-            case p.NoSuccess(msg, context, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " with context " + context + " " + inner)
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed  + " " + inner)
         }
     }
 
@@ -38,7 +38,7 @@ class CParserTest2 extends TestCase {
         assertParseable("_Bool", p.typeSpecifier)
         assertParseable("_Complex", p.typeSpecifier)
         assertParseable("int", p.typeSpecifier)
-        assertParseable("unsigned long", p.typeSpecifier*)
+        assertParseable("unsigned long", p.typeSpecifier *)
         assertParseable("__typeof__(int)", p.typeSpecifier)
         assertParseable("__typeof__(unsigned long)", p.typeSpecifier)
 
@@ -52,11 +52,11 @@ class CParserTest2 extends TestCase {
         assertParseable("a", p.primaryExpr)
         assertParseable("__func__", p.primaryExpr)
         assertParseable("a = 1", p.expr)
-//        assertParseable("__builtin_va_arg(a = 1, int)", p.primaryExpr)
-//        assertParseable("__builtin_types_compatible_p ( int , int )", p.primaryExpr)
-//        assertParseable("__builtin_choose_expr(a=1,a=2,a=3)", p.primaryExpr)
-//        assertParseable("__builtin_offsetof ( int , i.i )", p.primaryExpr)
-//        assertParseable("__builtin_offsetof(struct pt_regs,ss)", p.primaryExpr)
+        //        assertParseable("__builtin_va_arg(a = 1, int)", p.primaryExpr)
+        //        assertParseable("__builtin_types_compatible_p ( int , int )", p.primaryExpr)
+        //        assertParseable("__builtin_choose_expr(a=1,a=2,a=3)", p.primaryExpr)
+        //        assertParseable("__builtin_offsetof ( int , i.i )", p.primaryExpr)
+        //        assertParseable("__builtin_offsetof(struct pt_regs,ss)", p.primaryExpr)
         assertParseable("1?2:3", p.expr)
     }
 
@@ -64,7 +64,7 @@ class CParserTest2 extends TestCase {
         assertParseable("i", p.offsetofMemberDesignator)
         assertParseable("i.i", p.offsetofMemberDesignator)
         // parse("i[1]", "offsetofMemberDesignator");
-        // 
+        //
 
         assertParseable("__builtin_offsetof(struct pt_regs,ss)", p.primaryExpr)
         // newParser("(offset > (__builtin_offsetof(struct pt_regs,ss)))").expr();
@@ -80,10 +80,10 @@ class CParserTest2 extends TestCase {
         assertParseable("asm volatile(\"\": : :\"memory\");", p.statement)
         assertParseable("__asm__ __volatile__(\"\": : :\"memory\");", p.statement)
 
-//        assertParseable("asm volatile(\"\" \"771:\\n\\t\" \"call *%c[paravirt_opptr];\" \"\\n\" \"772:\\n\" \".pushsection .parainstructions,\\\"a\\\"\\n\" \" \" \".balign 4\" \" \" \"\\n\" \" \" \".long\" \" \" \" 771b\\n\" \"  .byte \" \"%c[paravirt_typenum]\" \"\\n\" \"  .byte 772b-771b\\n\" \"  .short \" \"%c[paravirt_clobber]\" \"\\n\" \".popsection\\n\" \"\" : \"=a\" (__eax), \"=d\" (__edx), \"=c\" (__ecx) : [paravirt_typenum] \"i\" ((__builtin_offsetof(struct paravirt_patch_template,pv_cpu_ops.load_sp0) / sizeof(void *))), [paravirt_opptr] \"i\" (&(pv_cpu_ops.load_sp0)), [paravirt_clobber] \"i\" (((1 << 4) - 1)), \"a\" ((unsigned long)(tss)), \"d\" ((unsigned long)(thread)) : \"memory\", \"cc\" );",p.gnuAsmExpr)
-//        assertParseable(
-//            "({ unsigned long __eax = __eax, __edx = __edx, __ecx = __ecx; ((void)pv_cpu_ops.load_sp0); asm volatile(\"\" \"771:\\n\\t\" \"call *%c[paravirt_opptr];\" \"\\n\" \"772:\\n\" \".pushsection .parainstructions,\\\"a\\\"\\n\" \" \" \".balign 4\" \" \" \"\\n\" \" \" \".long\" \" \" \" 771b\\n\" \"  .byte \" \"%c[paravirt_typenum]\" \"\\n\" \"  .byte 772b-771b\\n\" \"  .short \" \"%c[paravirt_clobber]\" \"\\n\" \".popsection\\n\" \"\" : \"=a\" (__eax), \"=d\" (__edx), \"=c\" (__ecx) : [paravirt_typenum] \"i\" ((__builtin_offsetof(struct paravirt_patch_template,pv_cpu_ops.load_sp0) / sizeof(void *))), [paravirt_opptr] \"i\" (&(pv_cpu_ops.load_sp0)), [paravirt_clobber] \"i\" (((1 << 4) - 1)), \"a\" ((unsigned long)(tss)), \"d\" ((unsigned long)(thread)) : \"memory\", \"cc\" ); });"
-//            , p.statement);
+        //        assertParseable("asm volatile(\"\" \"771:\\n\\t\" \"call *%c[paravirt_opptr];\" \"\\n\" \"772:\\n\" \".pushsection .parainstructions,\\\"a\\\"\\n\" \" \" \".balign 4\" \" \" \"\\n\" \" \" \".long\" \" \" \" 771b\\n\" \"  .byte \" \"%c[paravirt_typenum]\" \"\\n\" \"  .byte 772b-771b\\n\" \"  .short \" \"%c[paravirt_clobber]\" \"\\n\" \".popsection\\n\" \"\" : \"=a\" (__eax), \"=d\" (__edx), \"=c\" (__ecx) : [paravirt_typenum] \"i\" ((__builtin_offsetof(struct paravirt_patch_template,pv_cpu_ops.load_sp0) / sizeof(void *))), [paravirt_opptr] \"i\" (&(pv_cpu_ops.load_sp0)), [paravirt_clobber] \"i\" (((1 << 4) - 1)), \"a\" ((unsigned long)(tss)), \"d\" ((unsigned long)(thread)) : \"memory\", \"cc\" );",p.gnuAsmExpr)
+        //        assertParseable(
+        //            "({ unsigned long __eax = __eax, __edx = __edx, __ecx = __ecx; ((void)pv_cpu_ops.load_sp0); asm volatile(\"\" \"771:\\n\\t\" \"call *%c[paravirt_opptr];\" \"\\n\" \"772:\\n\" \".pushsection .parainstructions,\\\"a\\\"\\n\" \" \" \".balign 4\" \" \" \"\\n\" \" \" \".long\" \" \" \" 771b\\n\" \"  .byte \" \"%c[paravirt_typenum]\" \"\\n\" \"  .byte 772b-771b\\n\" \"  .short \" \"%c[paravirt_clobber]\" \"\\n\" \".popsection\\n\" \"\" : \"=a\" (__eax), \"=d\" (__edx), \"=c\" (__ecx) : [paravirt_typenum] \"i\" ((__builtin_offsetof(struct paravirt_patch_template,pv_cpu_ops.load_sp0) / sizeof(void *))), [paravirt_opptr] \"i\" (&(pv_cpu_ops.load_sp0)), [paravirt_clobber] \"i\" (((1 << 4) - 1)), \"a\" ((unsigned long)(tss)), \"d\" ((unsigned long)(thread)) : \"memory\", \"cc\" ); });"
+        //            , p.statement);
 
     }
 
@@ -100,8 +100,8 @@ class CParserTest2 extends TestCase {
     }
 
     def testTypeName {
-//        assertParseable("const *p", p.typeName)
-//        assertParseable("const __attribute__((aaa)) *p", p.typeName)
+        //        assertParseable("const *p", p.typeName)
+        //        assertParseable("const __attribute__((aaa)) *p", p.typeName)
         assertParseable("__builtin_va_list", p.typedefName)
     }
 
@@ -140,6 +140,10 @@ class CParserTest2 extends TestCase {
         assertParseable("inline", p.declSpecifiers)
         assertParseable("inline inline static typedef", p.declSpecifiers)
         assertParseable("void int inline", p.declSpecifiers)
+    }
+
+    def testParameter() {
+        assertParseable("const int * __preg", p.parameterDeclaration)
     }
 
     def testDefinition {
