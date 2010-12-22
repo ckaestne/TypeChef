@@ -1,0 +1,67 @@
+<module type="JAVA_MODULE" version="4">
+      <component name="FacetManager">
+        <facet type="scala" name="Scala">
+          <configuration>
+            <option value="Project" name="compilerLibraryLevel"></option>
+            <option value="buildScala" name="compilerLibraryName"></option>
+          </configuration>
+        </facet>
+        
+      </component>
+      <component inherit-compiler-output="false" name="NewModuleRootManager">
+        <output url="file://$MODULE_DIR$/target\scala_2.8.0\classes"></output><output-test url="file://$MODULE_DIR$/target\scala_2.8.0\test-classes"></output-test>
+        <exclude-output></exclude-output>
+        <content url="file://$MODULE_DIR$">
+          <sourceFolder isTestSource="false" url="file://$MODULE_DIR$/src\main\scala"></sourceFolder>
+          
+          
+          
+          <excludeFolder url="file://$MODULE_DIR$/target"></excludeFolder>
+        </content>
+        
+        <orderEntry type="inheritedJdk"></orderEntry>
+        <orderEntry type="sourceFolder" forTests="false"></orderEntry>
+        <orderEntry level="project" type="library" name="buildScala"></orderEntry>
+        <orderEntry type="module" module-name="FeatureExprLib"></orderEntry><orderEntry type="module" module-name="Partial Preprocessor"></orderEntry><orderEntry type="module" module-name="Parser Core"></orderEntry><orderEntry type="module" module-name="CParser"></orderEntry><orderEntry type="module" module-name="CTypeChecker"></orderEntry>
+        <orderEntry type="module-library" exported=" " scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib_managed\scala_2.8.0\test\test-interface-0.5.jar!/"></root>
+        </CLASSES>
+        <JAVADOC>
+          
+          
+        </JAVADOC>
+        <SOURCES>
+          
+        </SOURCES>
+      </library>
+    </orderEntry><orderEntry type="module-library" exported=" " scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib_managed\scala_2.8.0\test\junit-4.8.1.jar!/"></root>
+        </CLASSES>
+        <JAVADOC>
+          
+          
+        </JAVADOC>
+        <SOURCES>
+          
+        </SOURCES>
+      </library>
+    </orderEntry><orderEntry type="module-library" exported=" " scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib_managed\scala_2.8.0\test\junit-interface-0.5.jar!/"></root>
+        </CLASSES>
+        <JAVADOC>
+          
+          
+        </JAVADOC>
+        <SOURCES>
+          
+        </SOURCES>
+      </library>
+    </orderEntry>
+      </component>
+    </module>

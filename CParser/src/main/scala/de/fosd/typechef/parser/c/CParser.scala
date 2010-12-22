@@ -200,7 +200,7 @@ class CParser extends MultiFeatureParser {
             fail("expected compoundDeclaration")
 
     def compoundStatement: MultiParser[CompoundStatement] =
-        LCURLY ~> statementList <~ RCURLY ^^ { case list => CompoundStatement(list) }
+        LCURLY ~> statementList <~ RCURLY ^^ { CompoundStatement(_) }
 
     def statementList: MultiParser[List[Opt[Statement]]] =
         repOpt(statement | compoundDeclaration, AltStatement.join, "statement")
