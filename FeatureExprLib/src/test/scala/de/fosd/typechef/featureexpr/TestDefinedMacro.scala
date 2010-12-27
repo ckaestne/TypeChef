@@ -17,29 +17,31 @@ class TestDefinedMacro extends TestCase {
     def x = createDefinedExternal("X")
     def y = createDefinedExternal("Y")
 
+    def assertEquiv(a:FeatureExpr, b:FeatureExpr) = assertTrue(a equivalentTo b)
+
     @Test
     def testMacroTable() {
         var macroTable = new MacroContext()
 
         macroTable = macroTable.define("X", b, "1")
-        assertEquals(b or x, macroTable.getMacroCondition("X"))
+        assertEquiv(b or x, macroTable.getMacroCondition("X"))
 
         macroTable = macroTable.define("X", c, "2")
-        assertEquals(b or c or x, macroTable.getMacroCondition("X"))
+        assertEquiv(b or c or x, macroTable.getMacroCondition("X"))
 
         macroTable = macroTable.undefine("X", d)
-        assertEquals(b or c or x and (d.not), macroTable.getMacroCondition("X"))
+        assertEquiv(b or c or x and (d.not), macroTable.getMacroCondition("X"))
 
         macroTable = macroTable.undefine("X", base)
-        assertEquals(dead, macroTable.getMacroCondition("X"))
+        assertEquiv(dead, macroTable.getMacroCondition("X"))
 
         macroTable = macroTable.define("X", b, "1")
-        assertEquals(b, macroTable.getMacroCondition("X"))
+        assertEquiv(b, macroTable.getMacroCondition("X"))
 
         //        expectFail(macroTable.define("Y", createDefinedMacro("X"), "1"))
 
-        assertEquals(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable).resolveToExternal(), "1").getMacroCondition("Y"))
-        assertEquals(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable), "1").getMacroCondition("Y"))
+        assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable).resolveToExternal(), "1").getMacroCondition("Y"))
+        assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable), "1").getMacroCondition("Y"))
 
     }
 

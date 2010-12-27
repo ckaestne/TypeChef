@@ -178,8 +178,10 @@ class TestFeatureExpr extends TestCase {
     def testEquality() {
         assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a"))
         assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a")))
-        assertEquals(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not), FeatureExpr.base)
-        assertEquals(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")), FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
+        assertTrue(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equivalentTo FeatureExpr.base)
+        assertFalse(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equals FeatureExpr.base)
+        assertTrue(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equivalentTo  FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
+        assertFalse(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equals (FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a"))))
     }
 
 }

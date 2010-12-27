@@ -26,28 +26,37 @@ object FeatureExpr {
     def createPwr(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "^", _ ^ _))
     def createShiftLeft(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "<<", _ << _))
     def createShiftRight(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
+    def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
+    def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
 
-    def createImplies(left: FeatureExpr, right: FeatureExpr) = left.not or right
-    def createEquiv(left: FeatureExpr, right: FeatureExpr) = createImplies(left, right) and createImplies(right, left)
-    def createDefinedExternal(name: String) = new FeatureExprImpl(new DefinedExternal(name))
+
+    //caching to reduce number of objects and enable test for pointer equality
+    private var definedExternalCache: WeakHashMap[String, FeatureExpr] = WeakHashMap()
+    def createDefinedExternal(name: String) = definedExternalCache.getOrElseUpdate(name,
+        new FeatureExprImpl(new DefinedExternal(name)))
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
+    //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
+    private var definedMacroCache: WeakHashMap[DefinedMacro, FeatureExpr] = WeakHashMap()
     def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = {
         val macroCondition = macroTable.getMacroCondition(name)
         if (macroCondition.isSmall) {
             macroCondition
         } else {
-            var macroConditionCNF = macroTable.getMacroConditionCNF(name)
-            new FeatureExprImpl(new DefinedMacro(
+            val macroConditionCNF = macroTable.getMacroConditionCNF(name)
+            val definedMacro = new DefinedMacro(
                 name,
                 macroTable.getMacroCondition(name),
                 macroConditionCNF._1,
-                macroConditionCNF._2))
+                macroConditionCNF._2)
+            definedMacroCache.getOrElseUpdate(definedMacro, new FeatureExprImpl(definedMacro))
         }
     }
-    def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
-    def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
+
+    //helper
     def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
     def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExprImpl(IfExpr(condition, thenBranch, elseBranch))
+    def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
+    def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
 
     val base = new FeatureExprImpl(BaseFeature())
     val dead = new FeatureExprImpl(DeadFeature())
@@ -82,8 +91,9 @@ trait FeatureExpr {
 
     def or(that: FeatureExpr): FeatureExpr
     def and(that: FeatureExpr): FeatureExpr
-    def implies(that: FeatureExpr): FeatureExpr = this.not or that
     def not(): FeatureExpr
+    def implies(that: FeatureExpr): FeatureExpr = this.not or that
+    def equiv(that: FeatureExpr): FeatureExpr = (this implies that) and (that implies this)
 
     def isSmall(): Boolean
 }
@@ -119,7 +129,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
     def not(): FeatureExpr = {
         if (notCache == null) {
             notCache = new FeatureExprImpl(Not(this.expr))
-            notCache.notCache=this//applying not again will lead back to this object
+            notCache.notCache = this //applying not again will lead back to this object
         }
         notCache
     }
@@ -557,8 +567,8 @@ sealed abstract class FeatureExprTree {
 
 abstract class AbstractBinaryFeatureExprTree(
                                                     private val left: FeatureExprTree,
-                                                   private val right: FeatureExprTree,
-                                                   private val opStr: String,
+                                                    private val right: FeatureExprTree,
+                                                    private val opStr: String,
                                                     op: (Long, Long) => Long) extends FeatureExprTree {
 
     def print() = "(" + left.print + " " + opStr + " " + right.print + ")"
