@@ -531,10 +531,20 @@ try {
                         })
                 //aggressive joins
                 res = join(ctx, res)
+                if (productionName == "externalDef")
+                    println("after join\n" + debug_printResult(res, 0))
             }
             //return all sealed lists
             res.map(_.resultList.reverse)
         }
+
+        private def debug_printResult(res: MultiParseResult[Sealable], indent: Int):String =
+            (" " * indent * 2) + "- " + (res match {
+                case SplittedParseResult(f, a, b) =>
+                    "V " + f + "\n" + debug_printResult(a, indent + 1) + debug_printResult(b, indent + 1)
+                case Success(t, in) => "S " + t.isSealed + " " + in.pos + "\n"
+                case NoSuccess(msg, in, _) => "F " + in.pos + " - " + msg + "\n"
+            })
 
         /**
          * performance heuristic 1: parse the next statement with the annotation of the next token.
@@ -660,19 +670,19 @@ try {
         @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
-            parseResult.mapfr(context,{
-                case (feature,Success(resultPair, inNext)) =>
+            parseResult.mapfr(context, {
+                case (feature, Success(resultPair, inNext)) =>
                     if (p(resultPair._2, in.context)) {
                         //consumed one token
-                        resultPair._2.countSuccess (feature)
+                        resultPair._2.countSuccess(feature)
                         Success(resultPair._2, inNext)
                     }
                     else {
                         resultPair._2.countFailure
                         Failure(err(Some(resultPair._2)), resultPair._1, List())
                     }
-                case (_,f: Failure) => f
-                case (_,e: Error) => e
+                case (_, f: Failure) => f
+                case (_, e: Error) => e
             }).joinNoSuccess
         }
     }.named("matchInput " + kind)
@@ -749,7 +759,7 @@ try {
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U]
         def map[U](f: T => U): MultiParseResult[U]
         def mapf[U](feature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U]
-        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr,ParseResult[T]) => ParseResult[U]): MultiParseResult[U]
+        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): MultiParseResult[U]
         /**
          * joins as far as possible. joins all successful ones but maintains partially successful results.
          * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
@@ -792,7 +802,7 @@ try {
             SplittedParseResult(feature, resultA.map(f), resultB.map(f))
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapf(inFeature and feature, f), resultB.mapf(inFeature and (feature.not), f))
-        def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr,ParseResult[T]) => ParseResult[U]): MultiParseResult[U] =
+        def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapfr(inFeature and feature, f), resultB.mapfr(inFeature and (feature.not), f))
         def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
             (resultA.join(parserContext and feature, f), resultB.join(parserContext and (feature.not), f)) match {
