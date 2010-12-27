@@ -105,10 +105,14 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
             joined.toList(base).forall(p => {
                 p._2 match {
                     case jt.Success(_, _) => {
-                        val v = knownSuccessOffsets contains (p._2.next.offset); knownSuccessOffsets += p._2.next.offset; !v
+                        val v = knownSuccessOffsets contains (p._2.next.offset);
+                        knownSuccessOffsets += p._2.next.offset;
+                        !v
                     }
                     case _ => {
-                        val v = knownFailureOffsets contains (p._2.next.offset); knownFailureOffsets += p._2.next.offset; !v
+                        val v = knownFailureOffsets contains (p._2.next.offset);
+                        knownFailureOffsets += p._2.next.offset;
+                        !v
                     }
                 }
 
