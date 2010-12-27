@@ -3,7 +3,6 @@ package de.fosd.typechef.parser
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 import scala.math._
 
 /**
@@ -436,7 +435,7 @@ try {
     def repOpt[T](p: => MultiParser[T], productionName: String = ""): MultiParser[List[Opt[T]]] = new RepParser[T](p) {
 
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
-        private case class Sealable(val isSealed: Boolean, resultList: List[Opt[T]])
+        private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]])
 
         //join anything, data does not matter, only position in tokenstream
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
@@ -538,7 +537,7 @@ try {
             res.map(_.resultList.reverse)
         }
 
-        private def debug_printResult(res: MultiParseResult[Sealable], indent: Int):String =
+        private def debug_printResult(res: MultiParseResult[Sealable], indent: Int): String =
             (" " * indent * 2) + "- " + (res match {
                 case SplittedParseResult(f, a, b) =>
                     "V " + f + "\n" + debug_printResult(a, indent + 1) + debug_printResult(b, indent + 1)
@@ -765,6 +764,8 @@ try {
          * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
          **/
         def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U]
+        def joinTree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U]
+        def joinCrosstree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U]
         def forceJoin[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): ParseResult[U] =
             join(parserContext, f) match {
                 case s@Success(_, _) => s
@@ -804,50 +805,103 @@ try {
             SplittedParseResult(feature, resultA.mapf(inFeature and feature, f), resultB.mapf(inFeature and (feature.not), f))
         def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapfr(inFeature and feature, f), resultB.mapfr(inFeature and (feature.not), f))
-        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
-            (resultA.join(parserContext and feature, f), resultB.join(parserContext and (feature.not), f)) match {
+
+        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinCrosstree(parserContext, f)
+
+        /**
+         * joinCrosstree is an aggressive join algorithm that joins any joinable elements in the tree
+         *
+         * the algorithm works at follows: it starts bottom up, so that at any point during joining
+         * there are no join opportunaties left within only the left or right branch of a split. joining
+         * is only performed between pairs of elements, one from the left branch and and one from the right branch
+         *
+         * for each element in the left branch, we search whether there is a joinable element in the right
+         * branch. if there is, we create a new parent SplittedParseResult with the joined result, and subsequently
+         * prune both original entries from the tree (each removing the direct parent SplittedParseResult node)
+         */
+        def joinCrosstree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
+            def performJoin(featureA: FeatureExpr, a: ParseResult[U], b: ParseResult[U]): Option[ParseResult[U]] = (a, b) match {
+                case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
+                    if (isSamePosition(parserContext, inA, inB)) {
+                        Some(Success(f(featureA, rA, rB), firstOf(inA, inB)))
+                    } else
+                        None
+                }
+                //both not sucessful
+                case (nA@NoSuccess(mA, inA, iA), nB@NoSuccess(mB, inB, iB)) => {
+                    Some(Failure("joined error", inA, List(nA, nB)))
+                }
+                //partially successful
+                case (a, b) => None
+            }
+
+
+
+            val left = resultA.joinCrosstree(parserContext and feature, f)
+            val right = resultB.joinCrosstree(parserContext and (feature.not), f)
+            var result = SplittedParseResult(feature, left, right)
+
+            //implementation note: features local from here. does not make a difference for local rewrites, but keeps rewritten formulas shorter
+            val leftResults = left.toList(feature)
+            val rightResults = right.toList(feature.not)
+
+            //compare every entry from the left with every entry from the right to find join candidates
+            var toPruneList: List[ParseResult[U]] = List()
+            for (lr <- leftResults; rr <- rightResults) {
+                val joined = performJoin(lr._1, lr._2, rr._2)
+                if (joined.isDefined) {
+                    result = SplittedParseResult(lr._1 or (rr._1), joined.get, result)
+                    toPruneList = lr._2 :: rr._2 :: toPruneList
+                }
+            }
+            prune(result, toPruneList)
+        }
+
+        private def isSamePosition(parserContext: FeatureExpr, inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]): Boolean = {
+            val nextA = inA.skipHidden(parserContext and feature)
+            val nextB = inB.skipHidden(parserContext and (feature.not))
+            inA.offset == inB.offset || nextA.offset == nextB.offset
+        }
+        private def firstOf(inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]) =
+            if (inA.offst < inB.offst) inB else inA
+        //removes entries from the tree
+        private def prune[U >: T](tree: MultiParseResult[U], pruneList: List[ParseResult[U]]): MultiParseResult[U] =
+            if (pruneList.isEmpty) tree
+            else tree match {
+                case SplittedParseResult(f, a, b) => {
+                    val pa = prune(a, pruneList)
+                    val pb = prune(b, pruneList)
+                    if (pruneList contains pa) pb
+                    else if (pruneList contains pb) pa
+                    else SplittedParseResult(f, pa, pb)
+                }
+                case p => p
+            }
+
+        /**
+         *  joinTree is a non-aggressive join algorithm that only joins siblings in the tree, but does
+         * not perform cross-tree joins. the advantage is that the algorithm is simple and quick,
+         * the disadvantage is that it misses opportunaties for joins
+         */
+        def joinTree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
+            //do not skip ahead, important for repOpt
+            (resultA.joinTree(parserContext and feature, f), resultB.joinTree(parserContext and (feature.not), f)) match {
             //both successful
                 case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
-                    val nextA = inA.skipHidden(parserContext and feature)
-                    val nextB = inB.skipHidden(parserContext and (feature.not))
-
-                    if (inA.offset == inB.offset || nextA.offset == nextB.offset) {
-                        DebugSplitting("join  at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
-                        Success(f(feature, rA, rB),
-                            if (inA.offst < inB.offst) inB else inA) //do not skip ahead, important for repOpt
-                    } else
-                        SplittedParseResult(feature, sA, sB)
-                }
-
-                /**
-                 * foldtree (heuristic for earlier joins, when treelike joins not possible)
-                 * used for input such as <_{A&B} <_{A&!B} >_{A} x_{!A}
-                 * which creates a parse tree SPLIT(A&B, <>, SPLIT(A&!B, <>, x))
-                 * of which the former two can be merged. (occurs in expanded Linux headers...)
-                 */
-                case (sA@Success(rA, inA), sB@SplittedParseResult(innerFeature, Success(rB, inB), otherParseResult@_)) => {
-                    val nextA = inA.skipHidden(parserContext and feature)
-                    val nextB = inB.skipHidden(parserContext and (feature.not) and innerFeature)
-
-                    if (inA == inB || nextA == nextB) {
-                        DebugSplitting("joinT at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
-                        SplittedParseResult(
-                            parserContext and (feature or innerFeature),
-                            Success(f(feature or innerFeature, rA, rB),
-                                if (inA.offst < inB.offst) inB else inA),
-                            otherParseResult)
+                    if (isSamePosition(parserContext, inA, inB)) {
+                        Success(f(feature, rA, rB), firstOf(inA, inB))
                     } else
                         SplittedParseResult(feature, sA, sB)
                 }
                 //both not sucessful
                 case (nA@NoSuccess(mA, inA, iA), nB@NoSuccess(mB, inB, iB)) => {
-                    DebugSplitting("joinf at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
                     Failure("joined error", inA, List(nA, nB))
                 }
                 //partially successful
                 case (a, b) => SplittedParseResult(feature, a, b)
             }
         }
+
         def joinNoSuccess(): MultiParseResult[T] =
             (resultA.joinNoSuccess, resultB.joinNoSuccess) match {
                 case (f1@Failure(msg1, next1, inner1), f2@Failure(msg2, next2, inner2)) =>
@@ -885,6 +939,8 @@ try {
         def next = nextInput
         def isSuccess: Boolean
         def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
+        def joinTree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
+        def joinCrosstree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
         def joinNoSuccess() = this
         def toList(context: FeatureExpr) = List((context, this))
     }

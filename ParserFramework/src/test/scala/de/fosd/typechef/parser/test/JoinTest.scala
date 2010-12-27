@@ -1,6 +1,5 @@
 package de.fosd.typechef.parser.test
 
-import junit.framework.TestCase
 import org.junit._
 import org.junit.Assert._
 import de.fosd.typechef.parser._
@@ -40,7 +39,7 @@ class JoinTest extends MultiFeatureParser {
                 case Success(r, in) => found |= find(feature, r, f, l)
                 case _ =>
             }
-        assertTrue("expected "+l+" with "+f+" in "+result,found)
+        assertTrue("expected " + l + " with " + f + " in " + result, found)
     }
     //checks recursively that there is an according entry with the required presence condition as direct child of a Success
     private def assertContains(result: MultiParseResult[A], f: FeatureExpr, entry: ParseResult[A]) {
@@ -48,7 +47,7 @@ class JoinTest extends MultiFeatureParser {
         for ((feature, r) <- result.toList(base))
             if ((r == entry) && (feature equivalentTo f))
                 found = true
-        assertTrue("expected "+entry+" with "+f+" in "+result,found)
+        assertTrue("expected " + entry + " with " + f + " in " + result, found)
     }
 
     @Test def testJoinBinary {
@@ -86,7 +85,7 @@ class JoinTest extends MultiFeatureParser {
         assertContainsL(joined, fa and (fb.not), L(3))
         assertContainsL(joined, fa.not, L(2))
         assertTrue(joined.isInstanceOf[SplittedParseResult[_]])
-        assertContains(joined, base, Success(V(fa, L(1), L(2)), in1))
+        assertContains(joined, (fa and fb) or (fa.not), Success(V(fa and fb, L(1), L(2)), in1))
     }
 
 }
