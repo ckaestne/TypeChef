@@ -1,4 +1,5 @@
 package de.fosd.typechef.parser.c
+
 import org.anarres.cpp.Main
 
 import de.fosd.typechef.featureexpr._
@@ -14,14 +15,16 @@ import java.io.BufferedOutputStream
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
-        new Runnable() { def run() = f() }
+        new Runnable() {
+            def run() = f()
+        }
 }
 
 object ParserMain {
     def parserMain(filePath: String, parentPath: String): AST =
         parserMain(filePath, parentPath, new CTypeContext())
 
-        val p=new CParser()
+    val p = new CParser()
     def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext): AST = {
         val logStats = MyUtil.runnable(() => {
             if (TokenWrapper.profiling) {
@@ -33,11 +36,25 @@ object ParserMain {
 
         Runtime.getRuntime().addShutdownHook(new Thread(logStats))
 
-        val result = p.translationUnit(
-            CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
+        val lexerStartTime = System.currentTimeMillis
+        val in = CLexer.lexFile(filePath, parentPath).setContext(initialContext)
+
+        val parserStartTime = System.currentTimeMillis
+        val result = p.phrase(p.translationUnit)(in, FeatureExpr.base)
+        val endTime = System.currentTimeMillis
 
         println(printParseResult(result, FeatureExpr.base))
-//        checkParseResult(result, FeatureExpr.base)
+
+        println("Parsing statistics: \n" +
+                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
+                "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
+                "  Tokens: " + in.tokens.size + "\n" +
+                "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
+                "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
+                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n"+
+                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n")
+
+        //        checkParseResult(result, FeatureExpr.base)
 
         //        val resultStr: String = result.toString
         //        println("FeatureSolverCache.statistics: " + FeatureSolverCache.statistics)
@@ -66,7 +83,7 @@ object ParserMain {
                 (feature.toString + "\tfailed " + msg + "\n")
             case p.SplittedParseResult(f, left, right) => {
                 printParseResult(left, feature.and(f)) + "\n" +
-                    printParseResult(right, feature.and(f.not))
+                        printParseResult(right, feature.and(f.not))
             }
         }
     }
@@ -79,7 +96,7 @@ object ParserMain {
                 //succeed
             }
             case p.NoSuccess(msg, unparsed, inner) =>
-                new Exception(msg + " at " + unparsed + " with feature " + feature +" " + inner).printStackTrace
+                new Exception(msg + " at " + unparsed + " with feature " + feature + " " + inner).printStackTrace
             case p.SplittedParseResult(f, left, right) => {
                 checkParseResult(left, feature.and(f))
                 checkParseResult(right, feature.and(f.not))

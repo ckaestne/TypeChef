@@ -51,4 +51,13 @@ object ProfilingTokenHelper {
     def totalConsumed[T<:ProfilingToken,U](in: TokenReader[T,U]) = in.tokens.foldLeft(0)((sum, token) => sum + token.profile_consumed)
     def totalBacktracked[T<:ProfilingToken,U](in: TokenReader[T,U]) = in.tokens.foldLeft(0)((sum, token) => sum + token.profile_consumed_backtracking)
     def totalRepeated[T<:ProfilingToken,U](in: TokenReader[T,U]) = in.tokens.foldLeft(0)((sum, token) => sum + token.profile_consumed_replicated())
+    /**
+     * counts how many tokens have 0 repeatition, 1 repetition etc.
+     */
+    def repeatedDistribution[T<:ProfilingToken,U](in: TokenReader[T,U]) = {
+        var map:Map[Int/*#Repeatition*/, Int/*TokenCount*/]=Map()
+        for (t<-in.tokens)
+            map=map.updated(t.profile_consumed_replicated,map.getOrElse(t.profile_consumed_replicated,0)+1)
+        map
+    }
 }
