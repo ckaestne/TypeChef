@@ -490,40 +490,43 @@ sealed abstract class FeatureExprTree {
             }
             case e => e
         }
+    private var cacheEquiCnf: FeatureExprTree = null
     def toCnfEquiSat(): FeatureExprTree = {
         //	  System.out.println(this.print)
-        this.simplify match {
-            case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).simplify.toCnfEquiSat()
-            case Not(e) =>
-                e match {
-                    case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
-                    case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
-                    case e: IfExpr => Not(e.toCnfEquiSat).toCnfEquiSat
-                    case e => Not(e.toCnfEquiSat)
-                }
-            case And(children) => And(children.map(_.toCnfEquiSat)).simplify
-            case Or(children) => {
-                val cnfchildren = children.map(_.toCnfEquiSat)
-                if (cnfchildren.exists(_.isInstanceOf[And])) {
-                    var orClauses: Seq[FeatureExprTree] = SmallList() //list of Or expressions
-                    var freshFeatureNames: Seq[FeatureExprTree] = SmallList()
-                    for (child <- cnfchildren) {
-                        val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
-                        child match {
-                            case And(innerChildren) => {
-                                for (innerChild <- innerChildren)
-                                    orClauses = new Or(freshFeatureName, innerChild) +: orClauses
-                            }
-                            case e => orClauses = new Or(freshFeatureName, e) +: orClauses
-                        }
-                        freshFeatureNames = Not(freshFeatureName).simplify +: freshFeatureNames
+        if (cacheEquiCnf == null)
+            cacheEquiCnf = this.simplify match {
+                case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).simplify.toCnfEquiSat()
+                case Not(e) =>
+                    e match {
+                        case And(children) => Or(children.map(Not(_).toCnfEquiSat())).toCnfEquiSat()
+                        case Or(children) => And(children.map(Not(_).toCnfEquiSat())).simplify
+                        case e: IfExpr => Not(e.toCnfEquiSat).toCnfEquiSat
+                        case e => Not(e.toCnfEquiSat)
                     }
-                    orClauses = Or(freshFeatureNames) +: orClauses
-                    And(orClauses).simplify
-                } else Or(cnfchildren)
+                case And(children) => And(children.map(_.toCnfEquiSat)).simplify
+                case Or(children) => {
+                    val cnfchildren = children.map(_.toCnfEquiSat)
+                    if (cnfchildren.exists(_.isInstanceOf[And])) {
+                        var orClauses: Seq[FeatureExprTree] = SmallList() //list of Or expressions
+                        var freshFeatureNames: Seq[FeatureExprTree] = SmallList()
+                        for (child <- cnfchildren) {
+                            val freshFeatureName = Not(DefinedExternal(FeatureExpr.calcFreshFeatureName()))
+                            child match {
+                                case And(innerChildren) => {
+                                    for (innerChild <- innerChildren)
+                                        orClauses = new Or(freshFeatureName, innerChild) +: orClauses
+                                }
+                                case e => orClauses = new Or(freshFeatureName, e) +: orClauses
+                            }
+                            freshFeatureNames = Not(freshFeatureName).simplify +: freshFeatureNames
+                        }
+                        orClauses = Or(freshFeatureNames) +: orClauses
+                        And(orClauses).simplify
+                    } else Or(cnfchildren)
+                }
+                case e => e
             }
-            case e => e
-        }
+        cacheEquiCnf
     }
     //    def toDNF(): FeatureExprTree = this.simplify match {
     //        case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).toDNF()
