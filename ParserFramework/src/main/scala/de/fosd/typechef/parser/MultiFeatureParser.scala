@@ -751,9 +751,7 @@ try {
      *
      * It is currently used for C to pass an object that contains all defined Types
      */
-    sealed
-
-    abstract class MultiParseResult[+T] {
+    sealed abstract class MultiParseResult[+T] {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U]
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U]
         def map[U](f: T => U): MultiParseResult[U]
@@ -790,9 +788,7 @@ try {
      * split into two parse results (all calls are propagated to the individual results)
      * @author kaestner
      */
-    case
-
-    class SplittedParseResult[+T](feature: FeatureExpr, resultA: MultiParseResult[T], resultB: MultiParseResult[T]) extends MultiParseResult[T] {
+    case class SplittedParseResult[+T](feature: FeatureExpr, resultA: MultiParseResult[T], resultB: MultiParseResult[T]) extends MultiParseResult[T] {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U] = {
             SplittedParseResult(feature, resultA.seqAllSuccessful(context.and(feature), f), resultB.seqAllSuccessful(context.and(feature.not), f))
         }
@@ -931,9 +927,7 @@ try {
      * contains the recognized parser result (including recognized alternatives?)
      * @author kaestner
      */
-    sealed
-
-    abstract class ParseResult[+T](nextInput: TokenReader[Elem, TypeContext]) extends MultiParseResult[T] {
+    sealed abstract class ParseResult[+T](nextInput: TokenReader[Elem, TypeContext]) extends MultiParseResult[T] {
         def map[U](f: T => U): ParseResult[U]
         def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): ParseResult[U] = f(feature, this)
         def next = nextInput
@@ -945,9 +939,7 @@ try {
         def toList(context: FeatureExpr) = List((context, this))
     }
 
-    abstract
-
-    class NoSuccess(val msg: String, val nextInput: TokenReader[Elem, TypeContext], val innerErrors: List[NoSuccess]) extends ParseResult[Nothing](nextInput) {
+    abstract class NoSuccess(val msg: String, val nextInput: TokenReader[Elem, TypeContext], val innerErrors: List[NoSuccess]) extends ParseResult[Nothing](nextInput) {
         if (!(lastNoSuccess != null && nextInput != null && nextInput.pos < lastNoSuccess.next.pos))
             lastNoSuccess = this
 
@@ -973,9 +965,7 @@ try {
     /**
      * see original parser comb. framework. noncritical error, caught in alternatives
      */
-    case
-
-    class Failure(override val msg: String, override val nextInput: TokenReader[Elem, TypeContext], override val innerErrors: List[NoSuccess]) extends NoSuccess(msg, nextInput, innerErrors) {
+    case class Failure(override val msg: String, override val nextInput: TokenReader[Elem, TypeContext], override val innerErrors: List[NoSuccess]) extends NoSuccess(msg, nextInput, innerErrors) {
         def replaceAllFailure[U >: Nothing](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]) = f(context)
         def commit = Error(msg, nextInput, innerErrors)
         def toErrorList = List()
@@ -984,17 +974,13 @@ try {
     /**
      * see original parser comb. framework. non-backtracking error
      */
-    case
-
-    class Error(override val msg: String, override val nextInput: TokenReader[Elem, TypeContext], override val innerErrors: List[NoSuccess]) extends NoSuccess(msg, nextInput, innerErrors) {
+    case class Error(override val msg: String, override val nextInput: TokenReader[Elem, TypeContext], override val innerErrors: List[NoSuccess]) extends NoSuccess(msg, nextInput, innerErrors) {
         def replaceAllFailure[U >: Nothing](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]) = this
         def commit = this
         def toErrorList = List(this)
     }
 
-    case
-
-    class Success[+T](val result: T, nextInput: TokenReader[Elem, TypeContext]) extends ParseResult[T](nextInput) {
+    case class Success[+T](val result: T, nextInput: TokenReader[Elem, TypeContext]) extends ParseResult[T](nextInput) {
         def map[U](f: T => U): ParseResult[U] = Success(f(result), next)
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U] = Success(f(inFeature, result), next)
         def isSuccess: Boolean = true
