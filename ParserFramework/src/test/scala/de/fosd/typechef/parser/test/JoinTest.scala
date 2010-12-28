@@ -61,11 +61,25 @@ class JoinTest extends MultiFeatureParser {
         assertContains(joined, base, Success(V(fa, L(1), L(2)), in1))
     }
 
+    @Test def testJoinInnerBinary {
+        val s1 = Success[A](L(1), in1)
+        val s2 = Success[A](L(2), in1)
+        val s3 = Success[A](L(2), in2)
+        val s = SplittedParseResult(fb, SplittedParseResult[A](fa, s1, s2), s3)
+        val joined = s.join(base, joinV)
+
+        println(joined)
+        assertContainsL(joined, fb and fa, L(1))
+        assertContainsL(joined, fb and (fa.not), L(2))
+        assertContains(joined, fb, Success(V(fa, L(1), L(2)), in1))
+    }
+
     @Test def testNoJoinBinary {
         val s1 = Success[A](L(1), in1)
         val s2 = Success[A](L(2), in2)
         val s = SplittedParseResult[A](fa, s1, s2)
         val joined = s.join(base, joinV)
+
 
         assertContainsL(joined, fa, L(1))
         assertContainsL(joined, fa.not, L(2))
