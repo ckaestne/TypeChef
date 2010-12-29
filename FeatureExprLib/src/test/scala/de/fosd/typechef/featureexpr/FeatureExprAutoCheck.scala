@@ -64,6 +64,12 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
 
     property("SAT(toCNF) == SAT(toEquiCNF)") = Prop.forAll((a: FeatureExpr) => new SatSolver().isSatisfiable(a.toCNF) == new SatSolver().isSatisfiable(a.toEquiCNF))
 
+    property("normalize") = Prop.forAll((a: FeatureExpr, b:FeatureExpr) =>
+        ((a and b).isSatisfiable == (a.normalize and (b.normalize)).isSatisfiable) &&
+                ((a or b).isSatisfiable == (a.normalize or (b.normalize)).isSatisfiable) &&
+                ((a not).isSatisfiable == (a.normalize.not).isSatisfiable)
+    )
+
     property("taut(a=>b) == contr(a and !b)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => a.implies(b).isTautology() == a.and(b.not).isContradiction)
 
 

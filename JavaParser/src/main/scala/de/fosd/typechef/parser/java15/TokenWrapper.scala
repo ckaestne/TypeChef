@@ -1,10 +1,8 @@
 package de.fosd.typechef.parser.java15
-import de.fosd.typechef.parser.Position
-
 import de.fosd.typechef.parser.java15.lexer.Token
 
-import de.fosd.typechef.parser.AbstractToken
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.parser.{ProfilingToken, Position, AbstractToken}
 
 object TokenWrapper {
     def create(javaToken: Token, afeatureExpr: FeatureExpr, file: String) = {
@@ -20,7 +18,7 @@ class TokenWrapper(
     image: String,
     featureExpr: FeatureExpr,
     position: Position,
-    kind:Int) extends AbstractToken {
+    kind:Int) extends ProfilingToken {
 
     def getFeature(): FeatureExpr = featureExpr
 

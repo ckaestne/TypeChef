@@ -76,6 +76,7 @@ trait FeatureExpr {
     def toCNF: NF
     def toEquiCNF: NF
     def simplify(): FeatureExpr
+    def normalize(): FeatureExpr
     def isContradiction() = !isSatisfiable()
     def isTautology() = !this.not.isSatisfiable()
     def isSatisfiable(): Boolean
@@ -109,6 +110,18 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
 
     def simplify(): FeatureExpr = {
         this.aexpr = aexpr.simplify;
+        this
+    }
+
+    /**
+     * transform the underlying expression into CNF (not equiCNF)
+     * this can be used as a form of simplification, but can be
+     * quite expensive for large formula
+     *
+     * call only if you know what you are doing
+     */
+    def normalize(): FeatureExpr = {
+        aexpr=NFBuilder.CNFtoFeatureExpr(this.toCNF)
         this
     }
 
@@ -152,7 +165,9 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
             }
     private var equiCnfCache: NF = null;
     def toEquiCNF: NF =
-        if (equiCnfCache != null)
+        if (cnfCache!=null)
+            cnfCache
+        else if (equiCnfCache != null)
             equiCnfCache
         else
             try {

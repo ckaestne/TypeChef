@@ -1,31 +1,25 @@
 package de.fosd.typechef.featureexpr
 
 import scala.collection.mutable.ArrayBuffer
+
 /**
  * classes used to represent CNF and DNF expressions
- * 
+ *
  * (note, this does not include the process of translation from arbitrary
  * expressions to CNF, it is just for representing expressions that are already
  * in normal form)
  */
 
-object SmallList {
-    def apply[T](e: T*): Seq[T] = {
-        val v = new ArrayBuffer[T](e.length)
-        v ++= e
-        v
-    }
-}
 
-/** normal form for both DNF and CNF **/
+/**normal form for both DNF and CNF **/
 class NF(val clauses: Seq[Clause], val isFull: Boolean) {
-    /** isFull is meant to be the opposite of empty
+    /**isFull is meant to be the opposite of empty
      * with CNF empty means always true and full means always false
      * with DNF empty means always false and full means always true   
      * it is not valid to set clauses and isFull at the same time  */
 
-    def this(c: Seq[Clause]) = this(c.map(_.simplify).filter(!_.isEmpty), false)
-    def this(emptyOrFull_isFull: Boolean) = this(SmallList(), emptyOrFull_isFull)
+    def this(c: Seq[Clause]) = this (c.map(_.simplify).filter(!_.isEmpty), false)
+    def this(emptyOrFull_isFull: Boolean) = this (SmallList(), emptyOrFull_isFull)
 
     //    /** join (CNF and CNF / DNF or DNF)**/
     //    def ++(that: NF) =
@@ -39,14 +33,16 @@ class NF(val clauses: Seq[Clause], val isFull: Boolean) {
     //    def neg() =
     //        if (isEmpty || isFull) this
     //        else new NF(clauses.map(_.neg))
-    /** empty means true for CNF, false for DNF **/
+    /**empty means true for CNF, false for DNF **/
     def isEmpty = !isFull && clauses.isEmpty
     def isAtomic = clauses.size == 1 && clauses.head.isAtomic
     override def toString = if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
     def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&&")
     override def hashCode = clauses.hashCode
-    override def equals(that: Any) = that match { case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false }
-    /** returns a set with all referenced macros (DefinedMacro)**/
+    override def equals(that: Any) = that match {
+        case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false
+    }
+    /**returns a set with all referenced macros (DefinedMacro)**/
     def findMacros(): Set[DefinedMacro] = {
         var result: Set[DefinedMacro] = Set()
         clauses.foreach(clause => {
@@ -54,8 +50,12 @@ class NF(val clauses: Seq[Clause], val isFull: Boolean) {
         })
         result
     }
+    /**expensive operation, do not call on large NFs
+     * feeding the formula unmodified into a SAT solver is usually faster*/
+    def simplify: NF = new NF(clauses.distinct)
 }
-/** clause in a normal form **/
+
+/**clause in a normal form **/
 class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr]) {
     var cacheIsSimplified = false
     def simplify = {
@@ -72,7 +72,7 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
         this
     }
     def isEmpty = posLiterals.isEmpty && negLiterals.isEmpty
-    /** join two clauses **/
+    /**join two clauses **/
     def ++(that: Clause) = new Clause(this.posLiterals ++ that.posLiterals, this.negLiterals ++ that.negLiterals).simplify
     def neg() = new Clause(this.negLiterals, this.posLiterals)
     def size = posLiterals.size + negLiterals.size
@@ -80,12 +80,15 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
         (posLiterals.map(_.satName) ++ negLiterals.map("!" + _.satName)).mkString("(", "*", ")")
     def printCNF =
         (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "||", ")")
-    override def hashCode = { simplify; posLiterals.hashCode + negLiterals.hashCode }
+    override def hashCode = {
+        simplify;
+        posLiterals.hashCode + negLiterals.hashCode
+    }
     override def equals(that: Any) = that match {
         case thatClause: Clause => (this.simplify.posLiterals equals thatClause.simplify.posLiterals) && (this.simplify.negLiterals equals thatClause.simplify.negLiterals)
         case _ => false
     }
-    /** returns a set with all referenced macros (DefinedMacro)**/
+    /**returns a set with all referenced macros (DefinedMacro)**/
     def findMacros(): Set[DefinedMacro] = {
         var result: Set[DefinedMacro] = Set()
         ((posLiterals.toList) ++ (negLiterals.toList)).foreach(
@@ -119,14 +122,22 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
 
 /**
  * NFBuilder builds normal form classes from expressions that are already in normal form
- * 
+ *
  * NFBuilder will not turn arbitrary expressions into normal forms! Use 
  * FeatureExprTree.toCNF before. Throws an exception when applied to
  * a non-NF formula 
  */
 object NFBuilder {
-    def toCNF_(exprInCNF: FeatureExprTree): Option[NF] = try { Some(toCNF(exprInCNF)) } catch { case e: NFException => None }
-    def toDNF_(exprInDNF: FeatureExprTree): Option[NF] = try { Some(toDNF(exprInDNF)) } catch { case e: NFException => None }
+    def toCNF_(exprInCNF: FeatureExprTree): Option[NF] = try {
+        Some(toCNF(exprInCNF))
+    } catch {
+        case e: NFException => None
+    }
+    def toDNF_(exprInDNF: FeatureExprTree): Option[NF] = try {
+        Some(toDNF(exprInDNF))
+    } catch {
+        case e: NFException => None
+    }
     def toCNF(exprInCNF: FeatureExprTree): NF = toNF(exprInCNF, true)
     def toDNF(exprInDNF: FeatureExprTree): NF = toNF(exprInDNF, false)
     private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) =
@@ -169,5 +180,20 @@ object NFBuilder {
                 case e => throw new NoLiteralException(e)
             }
         new Clause(posLiterals, negLiterals).simplify
+    }
+
+    def CNFtoFeatureExpr(cnf: NF): FeatureExprTree =
+        if (cnf.isEmpty) BaseFeature()
+        else if (cnf.isFull) DeadFeature()
+        else new And(
+            for (clause <- cnf.clauses) yield new Or(clause.posLiterals ++ clause.negLiterals.map(Not(_)))
+        )
+}
+
+object SmallList {
+    def apply[T](e: T*): Seq[T] = {
+        val v = new ArrayBuffer[T](e.length)
+        v ++= e
+        v
     }
 }
