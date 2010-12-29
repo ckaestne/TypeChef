@@ -1,20 +1,21 @@
 package de.fosd.typechef.parser
 
-import de.fosd.typechef.featureexpr.FeatureExpr
-
 import scala.annotation.tailrec
 import scala.math._
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing
  *
  * @author kaestner
  */
-class MultiFeatureParser {
+class MultiFeatureParser(featureModel: FeatureModel = null) {
     type Elem <: AbstractToken
     type TypeContext
     type Input = TokenReader[Elem, TypeContext]
     type ParserState = FeatureExpr
+
+    val featureSolverCache = new FeatureSolverCache(featureModel)
 
     class SeqParser[T, U](thisParser: => MultiParser[T], thatParser: => MultiParser[U]) extends MultiParser[~[T, U]] {
         name = "~"
@@ -559,11 +560,11 @@ try {
          */
         def applyStrategyA(in0: Input, ctx: ParserState): Option[(Opt[T], TokenReader[Elem, TypeContext])] = {
             val firstFeature = in0.first.getFeature
-            if (!FeatureSolverCache.implies(ctx, firstFeature) && !FeatureSolverCache.mutuallyExclusive(ctx, firstFeature)) {
+            if (!featureSolverCache.implies(ctx, firstFeature) && !featureSolverCache.mutuallyExclusive(ctx, firstFeature)) {
                 val parseResult = p(in0, ctx.and(firstFeature))
                 parseResult match {
                     case Success(result, next) =>
-                        if (next.offset <= in0.skipHidden(ctx.and(firstFeature.not)).offst)
+                        if (next.offset <= in0.skipHidden(ctx.and(firstFeature.not), featureSolverCache).offst)
                             Some(Opt(ctx.and(firstFeature), result): Opt[T], next)
                         else None
                     case _ => None
@@ -707,12 +708,12 @@ try {
                 Failure(errorMsg("EOF", None), in, List())
             else {
                 val tokenPresenceCondition = in.first.getFeature
-                if (FeatureSolverCache.implies(context, tokenPresenceCondition))
+                if (featureSolverCache.implies(context, tokenPresenceCondition))
                 //always parsed in this context (and greedily skip subsequent ignored tokens)
-                    Success((in, in.first), in.rest.skipHidden(context))
-                else if (FeatureSolverCache.mutuallyExclusive(context, tokenPresenceCondition))
+                    Success((in, in.first), in.rest.skipHidden(context, featureSolverCache))
+                else if (featureSolverCache.mutuallyExclusive(context, tokenPresenceCondition))
                 //never parsed in this context
-                    getNext(in.rest.skipHidden(context), context)
+                    getNext(in.rest.skipHidden(context, featureSolverCache), context)
                 else {
                     //token sometimes parsed in this context -> split parser
                     in.first.countSplit
@@ -723,11 +724,11 @@ try {
         private def splitParser(in: Input, context: FeatureExpr): MultiParseResult[(Input, Elem)] = {
             val feature = in.first.getFeature
             val ctxAndFeat = context.and(feature)
-            assert(FeatureSolverCache.implies(ctxAndFeat, feature))
+            assert(featureSolverCache.implies(ctxAndFeat, feature))
             val r1 = getNext(in, ctxAndFeat)
 
             val ctxAndNotFeat = context.and(feature.not)
-            assert(FeatureSolverCache.mutuallyExclusive(ctxAndNotFeat, feature))
+            assert(featureSolverCache.mutuallyExclusive(ctxAndNotFeat, feature))
             val r2 = getNext(in, ctxAndNotFeat)
 
             DebugSplitting("split at \"" + in.first.getText + "\" at " + in.first.getPosition + " from " + context + " with " + feature)
@@ -854,8 +855,8 @@ try {
         }
 
         private def isSamePosition(parserContext: FeatureExpr, inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]): Boolean = {
-            val nextA = inA.skipHidden(parserContext and feature)
-            val nextB = inB.skipHidden(parserContext and (feature.not))
+            val nextA = inA.skipHidden(parserContext and feature, featureSolverCache)
+            val nextB = inB.skipHidden(parserContext and (feature.not), featureSolverCache)
             inA.offset == inB.offset || nextA.offset == nextB.offset
         }
         private def firstOf(inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]) =

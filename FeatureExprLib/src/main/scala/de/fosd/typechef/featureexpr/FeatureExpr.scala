@@ -77,15 +77,16 @@ trait FeatureExpr {
     def toEquiCNF: NF
     def simplify(): FeatureExpr
     def normalize(): FeatureExpr
-    def isContradiction() = !isSatisfiable(null)
-    def isTautology() = !this.not.isSatisfiable(null)
+    def isContradiction(): Boolean = isContradiction(null)
+    def isTautology(): Boolean = isTautology(null)
     def isSatisfiable(): Boolean = isSatisfiable(null)
     /**
      * FM -> X is tautology if FM.implies(X).isTautology or
      * !FM.and.(x.not).isSatisfiable
      *
      **/
-    def isTautology(fm: FeatureModel) = !this.not.isSatisfiable(fm)
+    def isTautology(fm: FeatureModel): Boolean = !this.not.isSatisfiable(fm)
+    def isContradiction(fm: FeatureModel): Boolean = !isSatisfiable(fm)
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
      * but is faster because FM is cached
