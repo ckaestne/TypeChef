@@ -77,9 +77,20 @@ trait FeatureExpr {
     def toEquiCNF: NF
     def simplify(): FeatureExpr
     def normalize(): FeatureExpr
-    def isContradiction() = !isSatisfiable()
-    def isTautology() = !this.not.isSatisfiable()
-    def isSatisfiable(): Boolean
+    def isContradiction() = !isSatisfiable(null)
+    def isTautology() = !this.not.isSatisfiable(null)
+    def isSatisfiable(): Boolean = isSatisfiable(null)
+    /**
+     * FM -> X is tautology if FM.implies(X).isTautology or
+     * !FM.and.(x.not).isSatisfiable
+     *
+     **/
+    def isTautology(fm: FeatureModel) = !this.not.isSatisfiable(fm)
+    /**
+     * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
+     * but is faster because FM is cached
+     */
+    def isSatisfiable(fm: FeatureModel): Boolean
     def isDead() = isContradiction()
     def isBase() = isTautology()
     def accept(f: FeatureExprTree => Unit): Unit
@@ -94,6 +105,8 @@ trait FeatureExpr {
     def and(that: FeatureExpr): FeatureExpr
     def not(): FeatureExpr
     def implies(that: FeatureExpr): FeatureExpr = this.not or that
+    def mex(that: FeatureExpr): FeatureExpr = (this and that).not
+    //mutual exclusion
     def equiv(that: FeatureExpr): FeatureExpr = (this implies that) and (that implies this)
 
     def isSmall(): Boolean
@@ -121,7 +134,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
      * call only if you know what you are doing
      */
     def normalize(): FeatureExpr = {
-        aexpr=NFBuilder.CNFtoFeatureExpr(this.toCNF)
+        aexpr = NFBuilder.CNFtoFeatureExpr(this.toCNF)
         this
     }
 
@@ -165,7 +178,7 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
             }
     private var equiCnfCache: NF = null;
     def toEquiCNF: NF =
-        if (cnfCache!=null)
+        if (cnfCache != null)
             cnfCache
         else if (equiCnfCache != null)
             equiCnfCache
@@ -182,12 +195,9 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
                 }
             }
 
-    private var cacheIsSatisfiable: Option[Boolean] = None
-    def isSatisfiable(): Boolean = {
-        if (!cacheIsSatisfiable.isDefined)
-            cacheIsSatisfiable = Some(new SatSolver().isSatisfiable(toEquiCNF))
-        cacheIsSatisfiable.get
-    }
+    private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
+    def isSatisfiable(fm: FeatureModel): Boolean =
+        cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(toEquiCNF, fm))
 
     override def toString(): String = {
         simplify;

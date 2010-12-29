@@ -1,20 +1,11 @@
 package de.fosd.typechef.featureexpr
-import de.fosd.typechef.featureexpr.LazyLib.Susp
 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IProblem;
-import org.sat4j.specs.ISolver;
-import org.sat4j.specs.IVecInt;
-import org.sat4j.specs.IteratorInt;
-import org.sat4j.specs.TimeoutException;
-import org.sat4j.tools.ConstrGroup;
-import org.sat4j.tools.ModelIterator;
-import org.sat4j.tools.RemiUtils;
-import org.sat4j.tools.SolutionCounter;
 
-class SatSolver extends Solver {
+
+class SatSolver {
 
     private def countClauses(expr: NF) = expr.clauses.size
 
@@ -28,12 +19,18 @@ class SatSolver extends Solver {
 
     val PROFILING = false;
 
-    def isSatisfiable(exprCNF: NF): Boolean = {
+    /**
+     * determines whether
+     * (exprCNF AND featureModel) is satisfiable
+     *
+     * featureModel is optional
+     */
+    def isSatisfiable(exprCNF: NF, featureModel: FeatureModel = null): Boolean = {
         if (exprCNF.isEmpty) return true
         if (exprCNF.isFull) return false
         //as long as we do not consider feature models, expressions with a single variable 
         //are always satisfiable
-        if (exprCNF.isAtomic) return true
+        if (featureModel == null && exprCNF.isAtomic) return true
 
         val startTime = System.currentTimeMillis();
 
@@ -52,7 +49,9 @@ class SatSolver extends Solver {
 
             if (PROFILING)
                 print(";")
-            var uniqueFlagIds: Map[String, Int] = Map();
+            var uniqueFlagIds: Map[String, Int] =
+                if (featureModel != null) featureModel.variables
+                else Map();
             for (cnf <- cnfs; clause <- cnf.clauses)
                 for (literal <- (clause.posLiterals ++ clause.negLiterals))
                     if (!uniqueFlagIds.contains(literal.satName))
@@ -85,6 +84,8 @@ class SatSolver extends Solver {
                 solver.addClause(new VecInt(clauseArray));
             }
 
+            if (featureModel != null)
+                solver.addAllClauses(featureModel.clauses)
             var contradiction = addClauses(cnfs)
             if (PROFILING)
                 print(";")
@@ -98,17 +99,17 @@ class SatSolver extends Solver {
 
     /**
      * DefinedExternal translates directly into a flag for the SAT solver
-     * 
+     *
      * DefinedMacro is more complicated, because it is equivalent to a whole formula.
      * to avoid transforming a large formula into CNF, we use the following strategy
-     * 
+     *
      * DefinedMacro("X",expr) expands to the following
      * DefinedExternal(freshName) -- and a new formula DefinedExternal(freshName) <=> expr
      * Both are independent clauses fed to the SAT solver
-     * 
+     *
      * Actually, DefinedMacro already contains an expression name <=> expr as CNF, where we
      * just need to replace the Macro name by a fresh name. 
-     * 
+     *
      * We first collect all expansions and detect identical ones             * 
      */
     def prepareFormula(expr: NF): List[NF] = {
@@ -125,7 +126,7 @@ class SatSolver extends Solver {
                         if (PROFILING)
                             print(":")
                         //recursively expand formula (dummy is necessary to avoid accidental recursion)
-                        macroExpansions = macroExpansions + (expansionName -> new NF(true) /*dummy*/ )
+                        macroExpansions = macroExpansions + (expansionName -> new NF(true) /*dummy*/)
                         val preparedExpansion = prepareFormulaInner(e)
                         macroExpansions = macroExpansions + (expansionName -> preparedExpansion)
 

@@ -1,4 +1,5 @@
 package de.fosd.typechef.featureexpr
+
 import org.junit.Ignore
 
 import junit.framework._;
@@ -180,8 +181,29 @@ class TestFeatureExpr extends TestCase {
         assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a")))
         assertTrue(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equivalentTo FeatureExpr.base)
         assertFalse(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equals FeatureExpr.base)
-        assertTrue(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equivalentTo  FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
+        assertTrue(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equivalentTo FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
         assertFalse(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equals (FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a"))))
+    }
+
+    @Test
+    def testFeatureModel = {
+
+        val a = FeatureExpr.createDefinedExternal("a")
+        val b = FeatureExpr.createDefinedExternal("b")
+        val c = FeatureExpr.createDefinedExternal("c")
+        val d = FeatureExpr.createDefinedExternal("d")
+        val e = FeatureExpr.createDefinedExternal("e")
+
+        val fm = FeatureModel.create((a implies b) and (a mex c) and d)
+        val fma = FeatureModel.create(a)
+
+        assertTrue(a.isTautology(fma))
+
+
+        assertFalse((a implies b).isTautology())
+        assertTrue((a implies b).isTautology(fm))
+        assertTrue(d.isTautology(fm))
+        assertFalse(e.isTautology(fm))
     }
 
 }
