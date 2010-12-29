@@ -32,7 +32,7 @@ object FeatureExpr {
 
     //caching to reduce number of objects and enable test for pointer equality
     private var definedExternalCache: WeakHashMap[String, FeatureExpr] = WeakHashMap()
-    def createDefinedExternal(name: String) = definedExternalCache.getOrElseUpdate(name,
+    def createDefinedExternal(name: String): FeatureExpr = definedExternalCache.getOrElseUpdate(name,
         new FeatureExprImpl(new DefinedExternal(name)))
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
@@ -58,8 +58,8 @@ object FeatureExpr {
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
     def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
 
-    val base = new FeatureExprImpl(BaseFeature())
-    val dead = new FeatureExprImpl(DeadFeature())
+    val base: FeatureExpr = new FeatureExprImpl(BaseFeature())
+    val dead: FeatureExpr = new FeatureExprImpl(DeadFeature())
 
     private var freshFeatureNameCounter = 0
     def calcFreshFeatureName(): String = {
