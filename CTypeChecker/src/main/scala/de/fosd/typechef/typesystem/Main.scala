@@ -8,7 +8,7 @@ object Main {
         for (path <- args) {
             val folder = new File(path).getParent
 
-            val ast = ParserMain.parserMain(path, folder)
+            val ast = new ParserMain(null).parserMain(path, folder)
             new TypeSystem().checkAST(ast)
         }
     }

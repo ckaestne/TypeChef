@@ -437,20 +437,18 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     }
 
     def postfixSuffix: MultiParser[List[Opt[PostfixSuffix]]] = repOpt[PostfixSuffix](
-        ({
-            PTR ~ ID | DOT ~ ID
-        } ^^ {
-            case ~(e, id: Id) => PointerPostfixSuffix(e.getText, id)
-        })
+        (
+                ((PTR ~ ID) | (DOT ~ ID)) ^^ {
+                    case e ~ id => PointerPostfixSuffix(e.getText, id)
+                })
                 | functionCall
                 | (LBRACKET ~> expr <~ RBRACKET ^^ {
             ArrayAccess(_)
         })
-                | ({
-            INC | DEC
-        } ^^ {
-            t => SimplePostfixSuffix(t.getText)
-        }))
+                | ((INC | DEC) ^^ {
+            c => SimplePostfixSuffix(c.getText)
+        })
+    )
     //
     def functionCall: MultiParser[FunctionCall] =
         LPAREN ~> opt(argExprList) <~ RPAREN ^^ {

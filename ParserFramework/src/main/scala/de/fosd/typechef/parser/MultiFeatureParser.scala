@@ -803,7 +803,7 @@ try {
         def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapfr(inFeature and feature, f), resultB.mapfr(inFeature and (feature.not), f))
 
-        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinCrosstree(parserContext, f)
+        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinTree(parserContext, f)
 
         /**
          * joinCrosstree is an aggressive join algorithm that joins any joinable elements in the tree
@@ -1043,4 +1043,9 @@ case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"
 }
 
-case class Opt[+T](val feature: FeatureExpr, val entry: T)
+case class Opt[+T](val feature: FeatureExpr, val entry: T) {
+    override def equals(x: Any) = x match {
+        case Opt(f, e) => (f equivalentTo feature) && (entry == e)
+        case _ => false
+    }
+}

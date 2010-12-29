@@ -17,7 +17,20 @@ object MyUtil {
 object ParserMain {
 
     def main(args: Array[String]) = {
-        val parserMain = new ParserMain(new CParser(null))
+
+        import FeatureExpr._
+
+        val disabledFeatures = List()
+        // "CONFIG_X86_64", "CONFIG_X86_USE_3DNOW", "CONFIG_SMP",
+        //            "CONFIG_DEBUG_FORCE_WEAK_PER_CPU", "CONFIG_SPARSEMEM", "CONFIG_X86_LOCAL_APIC",
+        //            "CONFIG_NEED_MULTIPLE_NODES")
+
+        val linuxFeatureModel = FeatureModel.create(
+            disabledFeatures.map(createDefinedExternal(_).not).foldLeft(base)(_ and _)
+        )
+
+
+        val parserMain = new ParserMain(new CParser(linuxFeatureModel))
 
         for (filename <- args) {
             println("**************************************************************************")
