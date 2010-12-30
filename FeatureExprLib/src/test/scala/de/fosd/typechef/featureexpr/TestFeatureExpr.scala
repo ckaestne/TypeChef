@@ -90,7 +90,7 @@ class TestFeatureExpr extends TestCase {
 
     def testSimplifyIf() {
         assertSimplify(FeatureExpr.createLessThanEquals(
-            new FeatureExprImpl(IntegerLit(1)),
+            (FeatureExpr.createInteger(1)),
             FeatureExpr.createIf(
                 DefinedExternal("CONFIG_64BIT"),
                 IntegerLit(64),
@@ -99,11 +99,11 @@ class TestFeatureExpr extends TestCase {
 
         // (1 + (1 + (1 + __IF__(defined(a),1,2))))) = __IF__(defined(a),4,5), results overall in BaseFeature because both are true
         assertTrue(FeatureExpr.createPlus(
-            new FeatureExprImpl(IntegerLit(1)),
+            (FeatureExpr.createInteger(1)),
             FeatureExpr.createPlus(
-                new FeatureExprImpl(IntegerLit(1)),
+                (FeatureExpr.createInteger(1)),
                 FeatureExpr.createPlus(
-                    new FeatureExprImpl(IntegerLit(1)),
+                    (FeatureExpr.createInteger(1)),
                     FeatureExpr.createIf(
                         DefinedExternal("a"),
                         IntegerLit(1),
@@ -118,15 +118,15 @@ class TestFeatureExpr extends TestCase {
         //&&	<=		<<			1			__IF__				CONFIG_NODES_SHIFT			__THEN__				0			__ELSE__				0		__IF__			CONFIG_64BIT		__THEN__			64		__ELSE__			32	1	  
         assertSimplify(FeatureExpr.createLessThanEquals(
             FeatureExpr.createShiftLeft(
-                new FeatureExprImpl(IntegerLit(1)),
+                (FeatureExpr.createInteger(1)),
                 FeatureExpr.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))),
             FeatureExpr.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))).and(createInteger(1)).expr, BaseFeature());
 
         assertSimplify(
             FeatureExpr.createIf(
-                new FeatureExprImpl(DefinedExternal("a")),
-                FeatureExpr.createLessThanEquals(new FeatureExprImpl(IntegerLit(1)), new FeatureExprImpl(IntegerLit(64))),
-                FeatureExpr.createLessThanEquals(new FeatureExprImpl(IntegerLit(1)), new FeatureExprImpl(IntegerLit(32)))).not.expr, DeadFeature());
+                (FeatureExpr.createDefinedExternal("a")),
+                FeatureExpr.createLessThanEquals((FeatureExpr.createInteger(1)), (FeatureExpr.createInteger(64))),
+                FeatureExpr.createLessThanEquals((FeatureExpr.createInteger(1)), (FeatureExpr.createInteger(32)))).not.expr, DeadFeature());
     }
 
     def testCFN() {
@@ -148,10 +148,10 @@ class TestFeatureExpr extends TestCase {
         val a = DefinedExternal("a")
         val b = DefinedExternal("b")
         val c = DefinedExternal("c")
-        val expr2 = new FeatureExprImpl(Or(Not(And(a, b)), c))
+        val expr2 = new FeatureExpr(Or(Not(And(a, b)), c))
         expr2.toCNF
         expr2.toEquiCNF
-        val expr = new FeatureExprImpl(Or(Not(And(a, a)), a))
+        val expr = new FeatureExpr(Or(Not(And(a, a)), a))
         expr.toCNF
         expr.toEquiCNF
 

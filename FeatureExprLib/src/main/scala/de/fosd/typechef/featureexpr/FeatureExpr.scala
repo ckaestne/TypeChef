@@ -9,32 +9,32 @@ object FeatureExpr {
     def resolveDefined(feature: DefinedMacro, macroTable: FeatureProvider): FeatureExpr =
         macroTable.getMacroCondition(feature.name)
 
-    def createComplement(expr: FeatureExpr) = new FeatureExprImpl(UnaryFeatureExprTree(expr.expr, "~", ~_))
-    def createNeg(expr: FeatureExpr) = new FeatureExprImpl(UnaryFeatureExprTree(expr.expr, "-", -_))
-    def createBitAnd(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "&", _ & _))
-    def createBitOr(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "|", _ | _))
-    def createDivision(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "/", _ / _))
-    def createModulo(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "%", _ % _))
-    def createEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "==", (a, b) => if (a == b) 1 else 0))
-    def createNotEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "!=", (a, b) => if (a != b) 1 else 0))
-    def createLessThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "<", (a, b) => if (a < b) 1 else 0))
-    def createLessThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "<=", (a, b) => if (a <= b) 1 else 0))
-    def createGreaterThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">", (a, b) => if (a > b) 1 else 0))
-    def createGreaterThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">=", (a, b) => if (a >= b) 1 else 0))
-    def createMinus(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "-", _ - _))
-    def createMult(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "*", _ * _))
-    def createPlus(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "+", _ + _))
-    def createPwr(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "^", _ ^ _))
-    def createShiftLeft(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, "<<", _ << _))
-    def createShiftRight(left: FeatureExpr, right: FeatureExpr) = new FeatureExprImpl(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
-    def createInteger(value: Long): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
-    def createCharacter(value: Char): FeatureExpr = new FeatureExprImpl(IntegerLit(value))
+    def createComplement(expr: FeatureExpr) = new FeatureExpr(UnaryFeatureExprTree(expr.expr, "~", ~_))
+    def createNeg(expr: FeatureExpr) = new FeatureExpr(UnaryFeatureExprTree(expr.expr, "-", -_))
+    def createBitAnd(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "&", _ & _))
+    def createBitOr(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "|", _ | _))
+    def createDivision(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "/", _ / _))
+    def createModulo(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "%", _ % _))
+    def createEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "==", (a, b) => if (a == b) 1 else 0))
+    def createNotEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "!=", (a, b) => if (a != b) 1 else 0))
+    def createLessThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "<", (a, b) => if (a < b) 1 else 0))
+    def createLessThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "<=", (a, b) => if (a <= b) 1 else 0))
+    def createGreaterThan(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">", (a, b) => if (a > b) 1 else 0))
+    def createGreaterThanEquals(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">=", (a, b) => if (a >= b) 1 else 0))
+    def createMinus(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "-", _ - _))
+    def createMult(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "*", _ * _))
+    def createPlus(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "+", _ + _))
+    def createPwr(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "^", _ ^ _))
+    def createShiftLeft(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, "<<", _ << _))
+    def createShiftRight(left: FeatureExpr, right: FeatureExpr) = new FeatureExpr(BinaryFeatureExprTree(left.expr, right.expr, ">>", _ >> _))
+    def createInteger(value: Long): FeatureExpr = new FeatureExpr(IntegerLit(value))
+    def createCharacter(value: Char): FeatureExpr = new FeatureExpr(IntegerLit(value))
 
 
     //caching to reduce number of objects and enable test for pointer equality
     private var definedExternalCache: WeakHashMap[String, FeatureExpr] = WeakHashMap()
     def createDefinedExternal(name: String): FeatureExpr = definedExternalCache.getOrElseUpdate(name,
-        new FeatureExprImpl(new DefinedExternal(name)))
+        new FeatureExpr(new DefinedExternal(name)))
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
     private var definedMacroCache: WeakHashMap[DefinedMacro, FeatureExpr] = WeakHashMap()
@@ -49,18 +49,18 @@ object FeatureExpr {
                 macroTable.getMacroCondition(name),
                 macroConditionCNF._1,
                 macroConditionCNF._2)
-            definedMacroCache.getOrElseUpdate(definedMacro, new FeatureExprImpl(definedMacro))
+            definedMacroCache.getOrElseUpdate(definedMacro, new FeatureExpr(definedMacro))
         }
     }
 
     //helper
-    def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExprImpl(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
-    def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExprImpl(IfExpr(condition, thenBranch, elseBranch))
+    def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr) = new FeatureExpr(IfExpr(condition.expr, thenBranch.expr, elseBranch.expr))
+    def createIf(condition: FeatureExprTree, thenBranch: FeatureExprTree, elseBranch: FeatureExprTree) = new FeatureExpr(IfExpr(condition, thenBranch, elseBranch))
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
     def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
 
-    val base: FeatureExpr = new FeatureExprImpl(BaseFeature())
-    val dead: FeatureExpr = new FeatureExprImpl(DeadFeature())
+    val base: FeatureExpr = new FeatureExpr(BaseFeature())
+    val dead: FeatureExpr = new FeatureExpr(DeadFeature())
 
     private var freshFeatureNameCounter = 0
     def calcFreshFeatureName(): String = {
@@ -69,50 +69,6 @@ object FeatureExpr {
     }
 }
 
-trait FeatureExpr {
-    def expr: FeatureExprTree
-    //    def cnfExpr: Susp[Option[NF]]
-    //    def dnfExpr: Susp[Option[NF]]
-    def toString(): String
-    def toCNF: NF
-    def toEquiCNF: NF
-    def simplify(): FeatureExpr
-    def normalize(): FeatureExpr
-    def isContradiction(): Boolean = isContradiction(null)
-    def isTautology(): Boolean = isTautology(null)
-    def isSatisfiable(): Boolean = isSatisfiable(null)
-    /**
-     * FM -> X is tautology if FM.implies(X).isTautology or
-     * !FM.and.(x.not).isSatisfiable
-     *
-     **/
-    def isTautology(fm: FeatureModel): Boolean = !this.not.isSatisfiable(fm)
-    def isContradiction(fm: FeatureModel): Boolean = !isSatisfiable(fm)
-    /**
-     * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
-     * but is faster because FM is cached
-     */
-    def isSatisfiable(fm: FeatureModel): Boolean
-    def isDead() = isContradiction()
-    def isBase() = isTautology()
-    def accept(f: FeatureExprTree => Unit): Unit
-    def print(): String
-    def debug_print(): String
-    def equals(that: Any): Boolean
-    def equivalentTo(that: FeatureExpr): Boolean
-    def resolveToExternal(): FeatureExpr
-    def isResolved(): Boolean
-
-    def or(that: FeatureExpr): FeatureExpr
-    def and(that: FeatureExpr): FeatureExpr
-    def not(): FeatureExpr
-    def implies(that: FeatureExpr): FeatureExpr = this.not or that
-    def mex(that: FeatureExpr): FeatureExpr = (this and that).not
-    //mutual exclusion
-    def equiv(that: FeatureExpr): FeatureExpr = (this implies that) and (that implies this)
-
-    def isSmall(): Boolean
-}
 
 /**
  * feature expressions
@@ -123,7 +79,15 @@ trait FeatureExpr {
  * an additional but expensive operation). propositions such as and or and not
  * cache results, so that the operation yields identical results on identical parameters
  */
-private[featureexpr] class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr {
+class FeatureExpr private[featureexpr](var aexpr: FeatureExprTree) {
+    /**caches */
+    private[FeatureExpr] val andCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
+    private[FeatureExpr] val orCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
+    private[FeatureExpr] var notCache: FeatureExpr = null
+    private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
+    private var cnfCache: NF = null;
+    private var equiCnfCache: NF = null;
+
 
     def expr: FeatureExprTree = aexpr
 
@@ -144,29 +108,35 @@ private[featureexpr] class FeatureExprImpl(var aexpr: FeatureExprTree) extends F
         this
     }
 
-    private val andCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
     def and(that: FeatureExpr): FeatureExpr =
         if (that eq this) this
         else
-            andCache.getOrElseUpdate(that, new FeatureExprImpl(And(this.expr, that.expr)))
+            andCache.getOrElseUpdate(that,
+                that.andCache.getOrElseUpdate(this,
+                    new FeatureExpr(And(this.expr, that.expr))))
 
 
-    private val orCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
     def or(that: FeatureExpr): FeatureExpr =
         if (that eq this) this
         else
-            orCache.getOrElseUpdate(that, new FeatureExprImpl(Or(this.expr, that.expr)))
+            orCache.getOrElseUpdate(that,
+                that.orCache.getOrElseUpdate(this,
+                    new FeatureExpr(Or(this.expr, that.expr))))
 
-    var notCache: FeatureExprImpl = null
     def not(): FeatureExpr = {
         if (notCache == null) {
-            notCache = new FeatureExprImpl(Not(this.expr))
+            notCache = new FeatureExpr(Not(this.expr))
             notCache.notCache = this //applying not again will lead back to this object
         }
         notCache
     }
+    def implies(that: FeatureExpr): FeatureExpr = this.not or that
+    //mutual exclusion
+    def mex(that: FeatureExpr): FeatureExpr = (this and that).not
 
-    private var cnfCache: NF = null;
+    def equiv(that: FeatureExpr): FeatureExpr = (this implies that) and (that implies this)
+
+
     def toCNF: NF =
         if (cnfCache != null)
             cnfCache
@@ -182,7 +152,6 @@ private[featureexpr] class FeatureExprImpl(var aexpr: FeatureExprTree) extends F
                     throw t
                 }
             }
-    private var equiCnfCache: NF = null;
     def toEquiCNF: NF =
         if (cnfCache != null)
             cnfCache
@@ -201,7 +170,22 @@ private[featureexpr] class FeatureExprImpl(var aexpr: FeatureExprTree) extends F
                 }
             }
 
-    private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
+    def isContradiction(): Boolean = isContradiction(null)
+    def isTautology(): Boolean = isTautology(null)
+    def isDead(): Boolean = isContradiction(null)
+    def isBase(): Boolean = isTautology(null)
+    def isSatisfiable(): Boolean = isSatisfiable(null)
+    /**
+     * FM -> X is tautology if FM.implies(X).isTautology or
+     * !FM.and.(x.not).isSatisfiable
+     *
+     **/
+    def isTautology(fm: FeatureModel): Boolean = !this.not.isSatisfiable(fm)
+    def isContradiction(fm: FeatureModel): Boolean = !isSatisfiable(fm)
+    /**
+     * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
+     * but is faster because FM is cached
+     */
     def isSatisfiable(fm: FeatureModel): Boolean =
         cacheIsSatisfiable.getOrElseUpdate(fm, {
             val isSat = new SatSolver().isSatisfiable(toEquiCNF, fm)
@@ -286,7 +270,7 @@ private[featureexpr] class FeatureExprImpl(var aexpr: FeatureExprTree) extends F
     def resolveToExternal(): FeatureExpr = {
         if (cache_external == null) {
             simplify
-            cache_external = new FeatureExprImpl(aexpr.resolveToExternal().simplify)
+            cache_external = new FeatureExpr(aexpr.resolveToExternal().simplify)
         }
         cache_external
     }

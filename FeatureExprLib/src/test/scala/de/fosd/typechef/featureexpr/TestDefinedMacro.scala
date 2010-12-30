@@ -106,7 +106,7 @@ class TestDefinedMacro extends TestCase {
 
         val u = macroTable.getMacroCondition("GLOBAL")
         val x = u.resolveToExternal();
-        val y = new FeatureExprImpl(x.expr.toCNF)
+        val y = new FeatureExpr(x.expr.toCNF)
 
         assertFalse(u.isTautology())
         assertFalse(x.isTautology())

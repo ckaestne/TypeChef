@@ -71,35 +71,35 @@ class TestNumericConditions extends TestCase {
                 FeatureExpr.createPlus(
                     FeatureExpr.createMinus(
                         FeatureExpr.createIf(Not(DefinedExternal("forcemaxzone")), IntegerLit(11), IntegerLit(0)),
-                        new FeatureExprImpl(IntegerLit(1))),
-                    new FeatureExprImpl(IntegerLit(12))),
+                        (FeatureExpr.createInteger(1))),
+                    (FeatureExpr.createInteger(12))),
                 FeatureExpr.createIf(
                     FeatureExpr.createDefinedExternal("3stuff"),
-                    new FeatureExprImpl(IntegerLit(29)),
+                    (FeatureExpr.createInteger(29)),
                     FeatureExpr.createIf(
                         FeatureExpr.createDefinedExternal("3!morestuff"),
-                        new FeatureExprImpl(IntegerLit(26)),
+                        (FeatureExpr.createInteger(26)),
                         FeatureExpr.createIf(
                             FeatureExpr.createDefinedExternal("2!stuff"),
-                            new FeatureExprImpl(IntegerLit(27)),
-                            new FeatureExprImpl(IntegerLit(0)))))).and(FeatureExpr.createDefinedExternal("sparsemem"));
+                            (FeatureExpr.createInteger(27)),
+                            (FeatureExpr.createInteger(0)))))).and(FeatureExpr.createDefinedExternal("sparsemem"));
 
         assertTrue(longExpr.isSatisfiable());
 
         //!	__IF__		CONFIG_64BIT	__THEN__			1		<=			64	__ELSE__				1		<=		32
         assertTrue(
-            FeatureExpr.createIf(new FeatureExprImpl(DefinedExternal("CONFIG_64BIT")),
+            FeatureExpr.createIf(FeatureExpr.createDefinedExternal("CONFIG_64BIT"),
                 FeatureExpr.createLessThanEquals(
-                    new FeatureExprImpl(IntegerLit(1)),
-                    new FeatureExprImpl(IntegerLit(64))),
+                    (FeatureExpr.createInteger(1)),
+                    (FeatureExpr.createInteger(64))),
                 FeatureExpr.createLessThanEquals(
-                    new FeatureExprImpl(IntegerLit(1)),
-                    new FeatureExprImpl(IntegerLit(32)))).not.isContradiction())
+                    (FeatureExpr.createInteger(1)),
+                    (FeatureExpr.createInteger(32)))).not.isContradiction())
 
         //if !( 1<=	__IF__		CONFIG_64BIT	__THEN__		64	__ELSE__		32)
         assertTrue(
             FeatureExpr.createLessThanEquals(
-                new FeatureExprImpl(IntegerLit(1)),
+                (FeatureExpr.createInteger(1)),
                 FeatureExpr.createIf(
                     DefinedExternal("CONFIG_64BIT"),
                     IntegerLit(64),
