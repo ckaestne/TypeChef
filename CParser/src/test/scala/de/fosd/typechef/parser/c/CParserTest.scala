@@ -584,7 +584,58 @@ static int  func_name(const char *fileName __attribute__ ((__unused__)), const s
         assertParseable("extern int my_printf (void *my_object, const char *my_format);", p.externalDef)
 
     @Test def testLinux1 = assertParseable("extern char * \n#if (definedEx(CONFIG_ENABLE_MUST_CHECK) && definedEx(CONFIG_ENABLE_MUST_CHECK))\n__attribute__((warn_unused_result))\n#endif\n#if (!(definedEx(CONFIG_ENABLE_MUST_CHECK)) && !((definedEx(CONFIG_ENABLE_MUST_CHECK) && definedEx(CONFIG_ENABLE_MUST_CHECK))))\n\n#endif\n skip_spaces(const char *);", p.phrase(p.externalDef))
-    @Test def testLinux1a = assertParseable("extern char * __attribute__((warn_unused_result)) skip_spaces(const char *);", p.phrase(p.externalDef))
-    @Test def testLinux1b = assertParseable("extern char * skip_spaces(const char *);", p.phrase(p.externalDef))
+
+    @Test def testLinux2 = assertParseable(
+"""static
+#if !(definedEx(CONFIG_OPTIMIZE_INLINING))
+inline __attribute__((always_inline))
+#endif
+#if definedEx(CONFIG_OPTIMIZE_INLINING)
+inline
+#endif
+ int
+#if (definedEx(CONFIG_X86_64) && definedEx(CONFIG_X86_64))
+((unsigned long pfn) < max_pfn)
+#endif
+#if (!(definedEx(CONFIG_X86_64)) && !((definedEx(CONFIG_X86_64) && definedEx(CONFIG_X86_64))))
+((unsigned long pfn) < max_mapnr)
+#endif
+
+{
+	if (((pfn) >> (
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+29
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+26
+#endif
+ - 12)) >= (1UL << (
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+36
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+32
+#endif
+ -
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+29
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+26
+#endif
+)))
+		return 0;
+	return valid_section(__nr_to_section(((pfn) >> (
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+29
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+26
+#endif
+ - 12))));
+}""", p.externalDef)
+
+
+
 
 }

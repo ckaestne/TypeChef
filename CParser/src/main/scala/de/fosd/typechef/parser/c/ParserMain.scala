@@ -25,9 +25,9 @@ object ParserMain {
         //            "CONFIG_DEBUG_FORCE_WEAK_PER_CPU", "CONFIG_SPARSEMEM", "CONFIG_X86_LOCAL_APIC",
         //            "CONFIG_NEED_MULTIPLE_NODES")
 
-        val linuxFeatureModel = FeatureModel.create(
+        val linuxFeatureModel = null/*FeatureModel.create(
             disabledFeatures.map(createDefinedExternal(_).not).foldLeft(base)(_ and _)
-        )
+        )*/
 
 
         val parserMain = new ParserMain(new CParser(linuxFeatureModel))
