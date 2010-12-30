@@ -1,4 +1,5 @@
-package de.fosd.typechef.parser.test
+package de.fosd.typechef.parser.test.parsers
+
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
@@ -14,4 +15,5 @@ class MyToken(val text: String, val feature: FeatureExpr) extends ProfilingToken
 
     override def toString = "\"" + text + "\"" + (if (!feature.isBase()) feature else "")
 }
+
 object EofToken extends MyToken("EOF", FeatureExpr.base)

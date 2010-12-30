@@ -5,6 +5,7 @@ import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.junit.Test;
+import de.fosd.typechef.parser.test.parsers._
 
 class DigitListParserTest extends TestCase {
 
@@ -22,12 +23,12 @@ class DigitListParserTest extends TestCase {
                 assertEquals("incorrect parse result", expected, ast)
             }
             case parser.NoSuccess(msg, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " "+inner)
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
 
     val parser = new DigitListParser()
-    
+
     @Test
     def testParseSimpleList() {
         {
@@ -65,7 +66,9 @@ class DigitListParserTest extends TestCase {
         val input = List(t("1"), t("3", f1))
         val expected = Alt(f1, DigitList(List(Lit(1), Lit(3))), DigitList(List(Lit(1))))
         // DigitList(List(Lit(1),Lit(2),Alt(f1,Lit(3),Nil))
-        val v=(parser.digits ^^!(Alt.join, { e => e }))(new TokenReader[MyToken,Any](input, 0,null,EofToken), FeatureExpr.base)
+        val v = (parser.digits ^^! (Alt.join, {
+            e => e
+        }))(new TokenReader[MyToken, Any](input, 0, null, EofToken), FeatureExpr.base)
         println(v)
         assertParseResult(expected, v.forceJoin(FeatureExpr.base, Alt.join))
     }

@@ -5,6 +5,7 @@ import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.junit.Test
+import de.fosd.typechef.parser.test.parsers._
 
 class DigitList2ParserTest extends TestCase with DigitListUtilities {
     val newParser = new DigitList2Parser() {
@@ -12,14 +13,15 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
         def myRepOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[OptResult[T]]] =
             repOpt(p, "")
         def digits: MultiParser[AST] =
-            myRepOpt(digitList | digit, Alt.join, "digitList") ^^! (Alt.join, { //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
+            myRepOpt(digitList | digit, Alt.join, "digitList") ^^! (Alt.join, {
+                //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
                 DigitList2(_)
             })
     }
 
 
     def testError1() {
-        val input = List(t("("), t("3", f1),t(")", f1.not), t(")"))
+        val input = List(t("("), t("3", f1), t(")", f1.not), t(")"))
         val actual = newParser.parse(input)
         System.out.println(actual)
         actual match {
@@ -53,7 +55,7 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
     @Test
     def testParseOptSimpleList1() {
         val input = List(t("("), t("1", f1), t("2", f1.not), t(")"))
-        val expected = DigitList2(List(Opt(f1, Lit(1)),Opt(f1.not, Lit(2))))
+        val expected = DigitList2(List(Opt(f1, Lit(1)), Opt(f1.not, Lit(2))))
         assertParseResult(expected, newParser.parse(input))
     }
     def testParseOptSimpleListFirst() {
@@ -121,7 +123,7 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
                 assertEquals("incorrect parse result", outer(expected), ast)
             }
             case newParser.NoSuccess(msg, unparsed, inner) =>
-                fail(msg + " at " + unparsed  + " " + inner)
+                fail(msg + " at " + unparsed + " " + inner)
         }
-    }    
+    }
 }

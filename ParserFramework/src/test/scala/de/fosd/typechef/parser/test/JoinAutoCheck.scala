@@ -6,6 +6,7 @@ import Gen._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.featureexpr.FeatureExpr._
+import de.fosd.typechef.parser.test.parsers._
 
 object JoinAutoCheck extends Properties("MultiParseResult") {
 
