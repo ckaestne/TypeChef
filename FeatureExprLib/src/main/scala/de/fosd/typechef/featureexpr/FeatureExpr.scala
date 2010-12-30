@@ -3,6 +3,7 @@ package de.fosd.typechef.featureexpr
 import scala.collection.mutable.WeakHashMap
 
 import LazyLib._
+import ref.WeakReference
 
 object FeatureExpr {
     def resolveDefined(feature: DefinedMacro, macroTable: FeatureProvider): FeatureExpr =
@@ -116,8 +117,12 @@ trait FeatureExpr {
  * feature expressions
  *
  * may be simplified. caches results on most operations
+ *
+ * feature expressions are compared on object identity (comparing them for equivalence is
+ * an additional but expensive operation). propositions such as and or and not
+ * cache results, so that the operation yields identical results on identical parameters
  */
-protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr {
+private[featureexpr] class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr {
 
     def expr: FeatureExprTree = aexpr
 
@@ -197,7 +202,20 @@ protected class FeatureExprImpl(var aexpr: FeatureExprTree) extends FeatureExpr 
 
     private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
     def isSatisfiable(fm: FeatureModel): Boolean =
-        cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(toEquiCNF, fm))
+        cacheIsSatisfiable.getOrElseUpdate(fm, {
+            val isSat = new SatSolver().isSatisfiable(toEquiCNF, fm)
+            //an unsatisfiable expression can be simplified to DEAD
+            if (!isSat) {
+                aexpr = DeadFeature()
+                cache_external = this
+                equiCnfCache = null
+                cnfCache = null
+                andCache.clear
+                orCache.clear
+                notCache = FeatureExpr.base
+            }
+            isSat
+        })
 
     override def toString(): String = {
         simplify;
@@ -515,11 +533,14 @@ sealed abstract class FeatureExprTree {
             }
             case e => e
         }
-    private var cacheEquiCnf: FeatureExprTree = null
+    private var cacheEquiCnf: WeakReference[FeatureExprTree] = null
     def toCnfEquiSat(): FeatureExprTree = {
         //	  System.out.println(this.print)
-        if (cacheEquiCnf == null)
-            cacheEquiCnf = this.simplify match {
+        val cache = if (cacheEquiCnf == null) None else cacheEquiCnf.get
+        if (cache.isDefined) return cache.get
+
+        val result =
+            this.simplify match {
                 case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).simplify.toCnfEquiSat()
                 case Not(e) =>
                     e match {
@@ -551,7 +572,8 @@ sealed abstract class FeatureExprTree {
                 }
                 case e => e
             }
-        cacheEquiCnf
+        cacheEquiCnf = new WeakReference(result)
+        result
     }
     //    def toDNF(): FeatureExprTree = this.simplify match {
     //        case IfExpr(c, a, b) => new Or(new And(c, a), new And(Not(c), b)).toDNF()
