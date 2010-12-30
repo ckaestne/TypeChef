@@ -77,7 +77,7 @@ typedef int b;
         ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
-        assert(ast.size == 3)
+        assertTrue("actual AST size: " + ast.size, ast.size == 3)
         assert(next.context.knowsType("a"))
         assert(next.context.knowsType("b"))
     }

@@ -10,14 +10,17 @@ class TestFeatureExprBasics extends TestCase {
     def a = createDefinedExternal("a")
     def b = createDefinedExternal("b")
     def h = createDefinedExternal("h")
-    def s = 1 //SATISFIABLE
-    def t = 2 //TAUTOLOGY
-    def c = 3 //CONTRADICTION
+    def s = 1
+    //SATISFIABLE
+    def t = 2
+    //TAUTOLOGY
+    def c = 3
+    //CONTRADICTION
 
     def check(x: FeatureExpr, f: Int = s) {
         println(x.expr)
-//        println("CNF: " + x.cnfExpr)
-//        println("DNF: " + x.dnfExpr)
+        //        println("CNF: " + x.cnfExpr)
+        //        println("DNF: " + x.dnfExpr)
         if (f == s) {
             assertTrue("expected satisfiable " + x, x.isSatisfiable())
             assertFalse("not expected tautology " + x, x.isTautology())
@@ -35,6 +38,7 @@ class TestFeatureExprBasics extends TestCase {
         }
     }
 
+    @Test
     def testSimpleCases() = {
         check(a or b)
         check((a or b).not)
@@ -62,15 +66,16 @@ class TestFeatureExprBasics extends TestCase {
         check(FeatureExpr.dead and a, c)
         check(FeatureExpr.dead or a, s)
         check(a and FeatureExpr.dead, c)
-        check(a or FeatureExpr.dead , s)
+        check(a or FeatureExpr.dead, s)
         check(FeatureExpr.base and a, s)
         check(FeatureExpr.base or a, t)
         check(a and FeatureExpr.base, s)
-        check(a or FeatureExpr.base , t)
+        check(a or FeatureExpr.base, t)
         check(FeatureExpr.base implies FeatureExpr.base, t)
         check(FeatureExpr.base and (FeatureExpr.base not), c)
     }
 
+    @Test
     def testToCnf {
         println(FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).expr.toCNF)
     }

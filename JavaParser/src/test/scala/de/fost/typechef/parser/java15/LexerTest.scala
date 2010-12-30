@@ -1,5 +1,4 @@
 package de.fost.typechef.parser.java15
-import de.fosd.typechef.parser.java15.PreprocessorException
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 
@@ -49,7 +48,7 @@ class Test {}
 //#endif
 """)
         assertEquals(4, result.tokens.size)
-        assertTrue(result.tokens.forall(_.getFeature().equals(FeatureExpr.createDefinedExternal("X"))))
+        assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExpr.createDefinedExternal("X"))))
     }
     @Test
     def testJavaLexerIfdef2() {
@@ -59,7 +58,7 @@ class Test {}
 //#endif
 """)
         assertEquals(4, result.tokens.size)
-        assertTrue(result.tokens.forall(_.getFeature().equals(FeatureExpr.createDefinedExternal("X"))))
+        assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExpr.createDefinedExternal("X"))))
     }
 
     @Test
@@ -89,7 +88,7 @@ x""")
             fail("succeeded without exception unexpectedly")
 
         } catch {
-            case e: PreprocessorException => println(e)//ok
+            case e: PreprocessorException => println(e) //ok
             case e => throw e
         }
     }
