@@ -1,8 +1,8 @@
 package de.fosd.typechef.parser
 
-import scala.annotation.tailrec
 import scala.math._
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
+import annotation.tailrec
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing
@@ -422,6 +422,54 @@ try {
         }
     }
 
+
+    /**joins two optList with two special features:
+     *
+     * common elements at the end of the list (eq) are joined (they originated from replication in ~)
+     *
+     * if the first element of both lists is the same (==) they are joined as well. this originates
+     * from parsing elements after optional elements twice (e.g., 2 in "1_A 2")
+     *
+     * this is a heuristic to reduce the size of the produced AST. it does not affect correctness
+     *
+     * feature may be used and is conjuncted to all elements on list inA and (inA.each.and(feature))
+     * and negated to inB (inB.each.and(feature.note))
+     *
+     * XXX check whether there can be problems due to comparing two AST nodes. if a list produces
+     * several equal AST nodes, can joinLists swallow some of them?
+     */
+    private def joinLists[T](inA: List[Opt[T]], inB: List[Opt[T]], feature: FeatureExpr = null): List[Opt[T]] = {
+        var a = inA;
+        var b = inB
+        var lastEntry: Opt[T] = null;
+        if (!a.isEmpty && !b.isEmpty && a.head.entry == b.head.entry) {
+            //== needed because the ASTs were constructed independently
+            lastEntry = Opt(a.head.feature or b.head.feature, a.head.entry)
+            a = a.tail;
+            b = b.tail;
+        }
+        var ar = a.reverse
+        var br = b.reverse
+        var result: List[Opt[T]] = Nil
+        while (!ar.isEmpty && !br.isEmpty && (ar.head.entry == /*eq*/ br.head.entry)) {
+            //XXX should use eq instead of ==, because it really points to the same structure
+            result = Opt(ar.head.feature or br.head.feature, ar.head.entry) :: result
+            ar = ar.tail;
+            br = br.tail
+        }
+        while (!ar.isEmpty) {
+            result = ar.head.and(feature) :: result
+            ar = ar.tail
+        }
+        while (!br.isEmpty) {
+            result = br.head.andNot(feature) :: result
+            br = br.tail
+        }
+        if (lastEntry != null)
+            result = lastEntry :: result
+        result
+    }
+
     /**
      * second attempt to implement repOpt
      *
@@ -446,46 +494,7 @@ try {
         //join anything, data does not matter, only position in tokenstream
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
             res.join(ctx, (f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinLists(a.resultList, b.resultList)))
-        /**joins two optList with two special features:
-         *
-         * common elements at the end of the list (eq) are joined (they originated from replication in ~)
-         *
-         * if the first element of both lists is the same (==) they are joined as well. this originates 
-         * from parsing elements after optional elements twice (e.g., 2 in "1_A 2")  
-         *
-         * this is a heuristic to reduce the size of the produced AST. it does not affect correctness
-         */
-        private def joinLists(inA: List[Opt[T]], inB: List[Opt[T]]): List[Opt[T]] = {
-            var a = inA;
-            var b = inB
-            var lastEntry: Opt[T] = null;
-            if (!a.isEmpty && !b.isEmpty && a.head.entry == b.head.entry) {
-                //== needed because the ASTs were constructed independently
-                lastEntry = Opt(a.head.feature or b.head.feature, a.head.entry)
-                a = a.tail;
-                b = b.tail;
-            }
-            var ar = a.reverse
-            var br = b.reverse
-            var result: List[Opt[T]] = Nil
-            while (!ar.isEmpty && !br.isEmpty && (ar.head.entry == /*eq*/ br.head.entry)) {
-                //XXX should use eq instead of ==, because it really points to the same structure
-                result = Opt(ar.head.feature or br.head.feature, ar.head.entry) :: result
-                ar = ar.tail;
-                br = br.tail
-            }
-            while (!ar.isEmpty) {
-                result = ar.head :: result
-                ar = ar.tail
-            }
-            while (!br.isEmpty) {
-                result = br.head :: result
-                br = br.tail
-            }
-            if (lastEntry != null)
-                result = lastEntry :: result
-            result
-        }
+
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
             parseResult.exists(!_.isSealed)
 
@@ -627,14 +636,135 @@ try {
     def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
         opt(rep1Sep(p, separator)) ^^ {
             case Some(l) => l; case None => List()
+        } join ((f, a, b) => joinLists(a, b, f))
+
+
+    def repSepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] = new RepParser[T](p) {
+
+        //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
+        private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]], freeSeparator: FeatureExpr = FeatureExpr.dead)
+
+        //join anything, data does not matter, only position in tokenstream
+        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
+            res.join(ctx, (f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinLists(a.resultList, b.resultList), (a.freeSeparator) or (b.freeSeparator)))
+
+        private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
+            parseResult.exists(!_.isSealed)
+
+        def apply(in: Input, ctx: ParserState): MultiParseResult[List[Opt[T]]] = {
+            //parse token
+            // convert alternative results into optList
+            //but keep next entries
+            var res: MultiParseResult[Sealable] = opt(p)(in, ctx).mapf(ctx, (f, t) => {
+                t match {
+                    case Some(x) => Sealable(false, List(Opt(f, x)), FeatureExpr.dead)
+                    case None => Sealable(true, List(), FeatureExpr.dead)
+                }
+            })
+            res = join(ctx, res)
+
+            //while not all result failed
+            while (anyUnsealed(res)) {
+                //parse token (in shortest not-failed result)
+                //convert to optList
+                var nextTokenOffset: Int =
+                    res.toList(ctx).foldLeft(Integer.MAX_VALUE)((_, _) match {
+                        case (x, (f, Success(t, next))) => if (t.isSealed) x else min(x, next.offset)
+                        case (x, _) => x
+                    })
+
+                //try to parse separator first
+                var anySeparators = false
+                res = res.seqAllSuccessful(ctx,
+                    (fs, x) =>
+                    //only extend the firstmost unsealed result
+                        if (x.result.isSealed || x.next.offset != nextTokenOffset)
+                            x
+                        else {
+                            //no split parsing for separators, just look at the next token
+                            val nextToken = x.next.skipHidden(fs, featureSolverCache)
+                            val parsingCtx = fs and (nextToken.first.getFeature)
+                            val nextSep = separator(nextToken, parsingCtx)
+                            if (nextSep.isInstanceOf[Success[Elem]])
+                                Success(Sealable(x.result.isSealed, x.result.resultList, x.result.freeSeparator or parsingCtx), nextToken.rest)
+                            else
+                                x
+                            //TODO: error on two subsequent separators!
+                        }
+                )
+
+                if (!anySeparators)
+                    res = res.seqAllSuccessful(ctx,
+                        (fs, x) =>
+                        //only extend the firstmost unsealed result
+                            if (x.result.isSealed || x.next.offset != nextTokenOffset)
+                                x
+                            else {
+                                //try performance heuristic A first
+                                applyStrategyA(x.nextInput, fs) match {
+                                    case Some((result, next)) =>
+                                        Success(Sealable(false, result :: x.result.resultList, x.result.freeSeparator andNot (result.feature)), next)
+                                    case None =>
+                                    //default case, use normal mechanism
+                                    // extend unsealed lists with the next result (if there is no next result, seal the list)
+                                        x.seq(fs, opt(p)(x.next, fs)).mapfr(fs, (f, r) => r match {
+                                            case Success(Sealable(_, resultList, openSep) ~ Some(t), in) => {
+                                                //requires separator first
+                                                // XXX (might be more efficient to check before actually parsing, but unclear whether this works for split parse results)
+                                                if (featureSolverCache.implies(f, openSep))
+                                                    Success(Sealable(false, Opt(f, t) :: resultList, openSep and (fs.not)), in)
+                                                else
+                                                    Success(Sealable(true, resultList), x.nextInput)
+                                            }
+                                            case Success(Sealable(_, resultList, openSep) ~ None, in) => Success(Sealable(true, resultList, openSep), in)
+                                            case e: NoSuccess => e
+                                        })
+                                }
+                            })
+                //aggressive joins
+                res = join(ctx, res)
+            }
+            //return all sealed lists
+            res.map(_.resultList.reverse)
         }
+
+        /**
+         * performance heuristic 1: parse the next statement with the annotation of the next token.
+         *  if it yields a unique result before the next token that would be parsed
+         *  with the alternative (split) parser, then this is the only result we need
+         *  to care about
+         *
+         * will work in the common case that the entire entry is annotated and
+         *  is not interleaved with other annotations
+         *
+         *  XXX this probably conflicts with the greedy approach of skipping tokens already in next
+         *  therefore this strategy might apply in significantly less cases than it could
+         */
+        def applyStrategyA(in0: Input, ctx: ParserState): Option[(Opt[T], TokenReader[Elem, TypeContext])] = {
+            val firstFeature = in0.first.getFeature
+            if (!featureSolverCache.implies(ctx, firstFeature) && !featureSolverCache.mutuallyExclusive(ctx, firstFeature)) {
+                val parseResult = p(in0, ctx.and(firstFeature))
+                parseResult match {
+                    case Success(result, next) =>
+                        if (next.offset <= in0.skipHidden(ctx.and(firstFeature.not), featureSolverCache).offst)
+                            Some(Opt(ctx.and(firstFeature), result): Opt[T], next)
+                        else None
+                    case _ => None
+                }
+            } else
+                None
+        }
+
+    }.named("repOpt-" + productionName)
+
 
     /**
      * replace optional list by (possibly empty) list
      */
     def optList[T](p: => MultiParser[List[T]]): MultiParser[List[T]] =
         opt(p) ^^ {
-            case Some(l) => l; case None => List()
+            case Some(l) => l;
+            case None => List()
         }
 
     /**
@@ -646,7 +776,7 @@ try {
         }
 
     /**
-     * parses using p, but only returns either success or no-success and(!) 
+     * parses using p, but only returns either success or no-success and(!)
      * does not proceed the input stream (for successful entries)
      */
     def lookahead[T](p: => MultiParser[T]): MultiParser[Any] = new MultiParser[Any] {
@@ -1071,4 +1201,7 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) {
         case Opt(f, e) => (f equivalentTo feature) && (entry == e)
         case _ => false
     }
+    //helper function
+    def and(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f), entry)
+    def andNot(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f.not), entry)
 }

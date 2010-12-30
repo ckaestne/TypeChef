@@ -136,6 +136,8 @@ class FeatureExpr private[featureexpr](var aexpr: FeatureExprTree) {
 
     def equiv(that: FeatureExpr): FeatureExpr = (this implies that) and (that implies this)
 
+    def andNot(that: FeatureExpr): FeatureExpr = this and (that.not)
+
 
     def toCNF: NF =
         if (cnfCache != null)

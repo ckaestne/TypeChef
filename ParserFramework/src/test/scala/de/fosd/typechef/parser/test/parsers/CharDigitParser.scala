@@ -25,8 +25,20 @@ class CharDigitParser extends MultiFeatureParser {
 
     def t(text: String) = token(text, (x => x.t == text))
 
-    def digit: MultiParser[AST] =
-        token("digit", ((x) => x.t == "1" | x.t == "2" | x.t == "3" | x.t == "4" | x.t == "5")) ^^ {
+    def comma = t(",")
+
+    def digit: MultiParser[Lit] =
+        token("digit", ((x) => x.t == "0" | x.t == "1" | x.t == "2" | x.t == "3" | x.t == "4" | x.t == "5" | x.t == "6" | x.t == "7" | x.t == "8" | x.t == "9")) ^^ {
+            (x: Elem) => Lit(x.text.toInt)
+        }
+    def number: MultiParser[Lit] =
+        token("number", ((s) =>
+            try {
+                s.text.toInt
+                true
+            } catch {
+                case _: java.lang.NumberFormatException => false
+            })) ^^ {
             (x: Elem) => Lit(x.text.toInt)
         }
     def char: MultiParser[AST] =
