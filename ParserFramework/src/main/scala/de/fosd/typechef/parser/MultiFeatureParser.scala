@@ -19,8 +19,13 @@ class MultiFeatureParser(featureModel: FeatureModel = null) {
 
     class SeqParser[T, U](thisParser: => MultiParser[T], thatParser: => MultiParser[U]) extends MultiParser[~[T, U]] {
         name = "~"
-        def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
-            thisParser(in, parserState).seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T]) => x.seq(fs, thatParser(x.next, fs)))
+        def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] = {
+            val firstResult = thisParser(in, parserState)
+            firstResult.seqAllSuccessful(parserState, (fs: FeatureExpr, x: Success[T]) => {
+                val secondResult = thatParser(x.next, fs)
+                x.seq(fs, secondResult)
+            })
+        }
         def a = thisParser
         def b = thatParser
     }
@@ -868,8 +873,8 @@ try {
                 case SplittedParseResult(f, a, b) => {
                     val pa = prune(a, pruneList)
                     val pb = prune(b, pruneList)
-                    if (pruneList contains pa) pb
-                    else if (pruneList contains pb) pa
+                    if (pruneList exists (_ eq pa)) pb
+                    else if (pruneList exists (_ eq pb)) pa
                     else SplittedParseResult(f, pa, pb)
                 }
                 case p => p

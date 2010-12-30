@@ -30,7 +30,7 @@ class CharDigitParser extends MultiFeatureParser {
             (x: Elem) => Lit(x.text.toInt)
         }
     def char: MultiParser[AST] =
-        token("digit", ((x) => x.t == "a" | x.t == "b" | x.t == "c" | x.t == "d" | x.t == "e")) ^^ {
+        token("char", ((x) => x.t == "a" | x.t == "b" | x.t == "c" | x.t == "d" | x.t == "e")) ^^ {
             (x: Elem) => Char(x.text)
         }
 
