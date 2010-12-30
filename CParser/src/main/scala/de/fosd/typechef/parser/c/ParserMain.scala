@@ -17,20 +17,26 @@ object MyUtil {
 object ParserMain {
 
     def main(args: Array[String]) = {
+        val parserMain = new ParserMain(new CParser(null))
 
-        import FeatureExpr._
+        for (filename <- args) {
+            println("**************************************************************************")
+            println("** Processing file: " + filename)
+            println("**************************************************************************")
+            val parentPath = new File(filename).getParent()
+            parserMain.parserMain(filename, parentPath, new CTypeContext())
+            println("**************************************************************************")
+            println("** End of processing for: " + filename)
+            println("**************************************************************************")
+        }
+    }
+}
+object LinuxParserMain {
 
-        val disabledFeatures = List()
-        // "CONFIG_X86_64", "CONFIG_X86_USE_3DNOW", "CONFIG_SMP",
-        //            "CONFIG_DEBUG_FORCE_WEAK_PER_CPU", "CONFIG_SPARSEMEM", "CONFIG_X86_LOCAL_APIC",
-        //            "CONFIG_NEED_MULTIPLE_NODES")
+    def main(args: Array[String]) = {
+        val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
 
-        val linuxFeatureModel = null/*FeatureModel.create(
-            disabledFeatures.map(createDefinedExternal(_).not).foldLeft(base)(_ and _)
-        )*/
-
-
-        val parserMain = new ParserMain(new CParser(linuxFeatureModel))
+        val parserMain = new ParserMain(new CParser(featuremodel))
 
         for (filename <- args) {
             println("**************************************************************************")

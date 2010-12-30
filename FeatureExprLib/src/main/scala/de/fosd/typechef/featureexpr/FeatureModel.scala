@@ -15,13 +15,8 @@ import org.sat4j.specs.IVecInt
  * format (TODO)
  *
  */
-class FeatureModel(
-                          val variables: Map[String, Int],
-                          val clauses: org.sat4j.specs.IVec[org.sat4j.specs.IVecInt]
-                          ) {
+class FeatureModel(val variables: Map[String, Int], val clauses: org.sat4j.specs.IVec[org.sat4j.specs.IVecInt])
 
-
-}
 
 object FeatureModel {
     def create(expr: FeatureExpr) = {
@@ -31,6 +26,32 @@ object FeatureModel {
         val clauses = addClauses(nf, variables)
         new FeatureModel(variables, clauses)
     }
+
+    def createFromCNFFile(file: String) = {
+        var variables: Map[String, Int] = Map()
+        var varIdx = 0
+        val clauses = new Vec[IVecInt]()
+
+        for (line <- scala.io.Source.fromFile(file).getLines) {
+            if ((line startsWith "@ ")||(line startsWith "$ ")) {
+                varIdx += 1
+                variables = variables("CONFIG_"+line.substring(2)) = varIdx
+            }else {
+                val vec = new VecInt()
+                for (literal <- line.split(" "))
+                    vec.push(lookupLiteral(literal, variables))
+                clauses.push(vec)
+            }
+
+        }
+        new FeatureModel(variables, clauses)
+    }
+
+    private def lookupLiteral(literal: String, variables: Map[String, Int]) =
+        if (literal.startsWith("-"))
+            -variables.getOrElse("CONFIG_"+(literal.substring(1)), throw new Exception("variable not declared"))
+        else
+            variables.getOrElse("CONFIG_"+literal, throw new Exception("variable not declared"))
 
 
     private def getVariables(expr: NF): Map[String, Int] = {
