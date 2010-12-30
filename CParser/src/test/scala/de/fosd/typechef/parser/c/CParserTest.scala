@@ -594,13 +594,7 @@ inline __attribute__((always_inline))
 inline
 #endif
  int
-#if (definedEx(CONFIG_X86_64) && definedEx(CONFIG_X86_64))
-((unsigned long pfn) < max_pfn)
-#endif
-#if (!(definedEx(CONFIG_X86_64)) && !((definedEx(CONFIG_X86_64) && definedEx(CONFIG_X86_64))))
-((unsigned long pfn) < max_mapnr)
-#endif
-
+pfn_valid(unsigned long pfn)
 {
 	if (((pfn) >> (
 #if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
