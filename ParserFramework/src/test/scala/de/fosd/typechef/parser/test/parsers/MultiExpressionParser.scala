@@ -1,6 +1,6 @@
-package de.fosd.typechef.parser.test
+package de.fosd.typechef.parser.test.parsers
+
 import de.fosd.typechef.parser._
-import scala.util.parsing.input.Reader
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 class MultiExpressionParser extends MultiFeatureParser {
@@ -18,15 +18,19 @@ class MultiExpressionParser extends MultiFeatureParser {
         })
 
     def term: MultiParser[AST] =
-        fact ~ ((t("*") ~! expr)?) ^^! (Alt.join, {
+        fact ~ ((t("*") ~! expr) ?) ^^! (Alt.join, {
             case ~(f, Some(~(m, e))) => Mul(f, e);
             case ~(f, None) => f
         })
 
     def fact: MultiParser[AST] =
-        (digits ^^! (Alt.join, { t => Lit(t.text.toInt) })
-            | (lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^ { case _ ~(b1 ~ e ~ b2) => e } ^^! (Alt.join, x => x)
-            | fail("digit or '(' expected"))
+        (digits ^^! (Alt.join, {
+            t => Lit(t.text.toInt)
+        })
+                | (lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^ {
+            case _ ~ (b1 ~ e ~ b2) => e
+        } ^^! (Alt.join, x => x)
+                | fail("digit or '(' expected"))
 
     def t(text: String) = token(text, (x => x.t == text))
 

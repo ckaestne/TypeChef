@@ -1,15 +1,18 @@
 package de.fosd.typechef.parser.test
+
 import junit.framework.TestCase
 import org.junit._
+import de.fosd.typechef.parser.test.parsers._
 
 class RepOptTest extends TestCase with DigitListUtilities {
+
     import de.fosd.typechef.parser._
-    import scala.util.parsing.input.Reader
     import de.fosd.typechef.featureexpr.FeatureExpr
 
     case class DList(list: List[Opt[AST]]) extends AST {
         override def toString(): String = list.map(o => o.entry + " - " + o.feature).mkString("[", "\n", "]")
     }
+
     case class AList(list: List[AST]) extends AST
 
     class DigitList2Parser extends MultiFeatureParser {
@@ -19,17 +22,23 @@ class RepOptTest extends TestCase with DigitListUtilities {
         def parse(tokens: List[MyToken]): ParseResult[AST] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).forceJoin[AST](FeatureExpr.base, Alt.join)
 
         def digitList: MultiParser[AST] =
-            (t("(") ~! (digits ~ t(")"))) ^^! (Alt.join, { case b1 ~(e ~ b2) => e })
+            (t("(") ~! (digits ~ t(")"))) ^^! (Alt.join, {
+                case b1 ~ (e ~ b2) => e
+            })
 
-        def digits: MultiParser[AST] = repOpt(digitList | digit, "") ^^ { DList(_) }
+        def digits: MultiParser[AST] = repOpt(digitList | digit, "") ^^ {
+            DList(_)
+        }
 
         def t(text: String) = token(text, (x => x.t == text))
 
         def digit: MultiParser[AST] =
-            token("digit", ((x) => x.t == "1" | x.t == "2" | x.t == "3" | x.t == "4" | x.t == "5")) ^^
-                {  t=>Lit(t.text.toInt) }
+            token("digit", ((x) => x.t == "1" | x.t == "2" | x.t == "3" | x.t == "4" | x.t == "5")) ^^ {
+                t => Lit(t.text.toInt)
+            }
 
     }
+
     val parser = new DigitList2Parser()
 
     @Test

@@ -1,21 +1,11 @@
-import java.io.FileInputStream
-
 import gnu.getopt.Getopt
-import gnu.getopt.LongOpt
-
-import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.parser._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 
-import java.io.FileWriter
 import java.io.File
 
-import junit.framework._
-import junit.framework.Assert._
-
 trait TestProject {
-    def initialParsingContext: CTypeContext 
+    def initialParsingContext: CTypeContext
     def fileList: Array[(String, String, String, String)]
     def extraPreprocessorOpt: Array[String]
 }
@@ -26,13 +16,13 @@ abstract class AbstractTestProject extends TestProject {
     protected def getFullPath(fileName: String) = projDir + File.separator + fileName
     override def fileList = for (name <- nameList) yield (name, getFullPath(name + ".c"), getFullPath(name + ".pi"), projDir)
     override def extraPreprocessorOpt = Array("-p", "_")
-    
+
     protected def nameList: Array[String]
 
-    override def initialParsingContext: CTypeContext = 
+    override def initialParsingContext: CTypeContext =
         new CTypeContext().
-        //XXX: should this be still here?
-        addType("__uint32_t")
+                //XXX: should this be still here?
+                addType("__uint32_t")
 }
 
 class DirTest(_projDir: String) extends AbstractTestProject {
@@ -44,10 +34,10 @@ class TestCaseHarness(testCase: TestProject) {
     def preprocessFile(inpName: String, outName: String) =
         PreprocessorFrontend.preprocessFile(inpName, outName, testCase.extraPreprocessorOpt)
 
-    def parseFile(filePath: String, parentPath: String) : AST = {
-        ParserMain.parserMain(filePath, parentPath, testCase.initialParsingContext)
+    def parseFile(filePath: String, parentPath: String): AST = {
+        new ParserMain(null).parserMain(filePath, parentPath, testCase.initialParsingContext)
     }
- 
+
     def run(args: Array[String]): Unit = {
         PreprocessorFrontend.initSettings
         val g = new Getopt("testprog", args, ":r:I:c:");
@@ -71,15 +61,15 @@ class TestCaseHarness(testCase: TestProject) {
         val remArgs = args.slice(g.getOptind(), args.size) //XXX: not yet used!
 
         for ((shortName, inpName, outName, folderPath) <- testCase.fileList) {
-                println("**************************************************************************")
-                println("** Processing file: " + shortName)
-                println("**************************************************************************")
-                preprocessFile(inpName, outName)
-                val ast = parseFile(outName, folderPath)
-                new TypeSystem().checkAST(ast)
-                println("**************************************************************************")
-                println("** End of processing for: " + shortName)
-                println("**************************************************************************")
+            println("**************************************************************************")
+            println("** Processing file: " + shortName)
+            println("**************************************************************************")
+            preprocessFile(inpName, outName)
+            val ast = parseFile(outName, folderPath)
+            new TypeSystem().checkAST(ast)
+            println("**************************************************************************")
+            println("** End of processing for: " + shortName)
+            println("**************************************************************************")
         }
     }
 }

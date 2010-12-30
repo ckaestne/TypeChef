@@ -8,10 +8,18 @@ import de.fosd.typechef.parser._
 
 class CParserTest extends TestCase {
     val p = new CParser()
-    case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr
+
+    case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr {
+        override def equals(x: Any) = x match {
+            case Alt(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
+            case _ => false
+        }
+    }
+
     object Alt {
         def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
     }
+
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]) {
         val actual = p.parse(code.stripMargin, mainProduction).forceJoin(FeatureExpr.base, Alt.join)
         System.out.println(actual)
@@ -61,7 +69,7 @@ class CParserTest extends TestCase {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case p.NoSuccess(msg, unparsed, inner) => ;
+            case p.NoSuccess(msg, unparsed, inner) =>;
         }
     }
     def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
@@ -69,7 +77,11 @@ class CParserTest extends TestCase {
             assertParseError(code, production)
     }
 
-    def a = Id("a"); def b = Id("b"); def c = Id("c"); def d = Id("d"); def x = Id("x");
+    def a = Id("a");
+    def b = Id("b");
+    def c = Id("c");
+    def d = Id("d");
+    def x = Id("x");
     def intType = TypeName(lo(PrimitiveTypeSpecifier("int")), None)
     def o[T](x: T) = Opt(FeatureExpr.base, x)
     def lo[T](x: T) = List(o(x))
@@ -99,8 +111,12 @@ class CParserTest extends TestCase {
     }
 
     def testConstant() {
-        def parseConstant(const: String) { assertParseResult(Constant(const), const, p.numConst) }
-        def parseString(const: String) { assertParseResult(StringLit(lo(const)), const, p.stringConst) }
+        def parseConstant(const: String) {
+            assertParseResult(Constant(const), const, p.numConst)
+        }
+        def parseString(const: String) {
+            assertParseResult(StringLit(lo(const)), const, p.stringConst)
+        }
         parseConstant("1")
         parseConstant("0xF")
         parseConstant("0X1A")
@@ -154,6 +170,12 @@ class CParserTest extends TestCase {
         assertParseAnyResult(lo(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
     }
     def testPostfixExpr {
+        assertParseResult(PostfixExpr(Id("b"), List(Opt(fa, SimplePostfixSuffix("++")))),
+            """|b
+        					|#ifdef a
+        					|++
+        					|#endif""", p.postfixExpr)
+
         assertParseResult(PostfixExpr(Id("b"), lo(PointerPostfixSuffix("->", Id("a")))), "b->a", List(p.postfixExpr, p.unaryExpr))
         assertParseResult(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
         assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())))), "b()", List(p.postfixExpr, p.unaryExpr))
@@ -172,11 +194,8 @@ class CParserTest extends TestCase {
         					|->
         					|#endif
         					|a""", p.postfixExpr)
-        assertParseResult(PostfixExpr(Id("b"), List(Opt(fa, SimplePostfixSuffix("++")))),
-            """|b
-        					|#ifdef a
-        					|++
-        					|#endif""", p.postfixExpr)
+        assertParseable("++", p.postfixSuffix)
+        assertParseable("b++", p.postfixExpr)
         assertParseable("__builtin_offsetof(void,a.b)", p.primaryExpr)
         assertParseable("c", p.castExpr)
         assertParseable("__real__", p.unaryOperator)
@@ -196,9 +215,9 @@ class CParserTest extends TestCase {
     }
 
     def testCastExpr {
-        assertParseResult(CastExpr(intType, SizeOfExprT(intType)), "(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/ ))
-        assertParseResult(CastExpr(intType, Id("b")), "(int)b", List(p.castExpr /*, p.unaryExpr*/ ))
-        assertParseResult(CastExpr(intType, CastExpr(intType, CastExpr(intType, SizeOfExprT(intType)))), "(int)(int)(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/ ))
+        assertParseResult(CastExpr(intType, SizeOfExprT(intType)), "(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/))
+        assertParseResult(CastExpr(intType, Id("b")), "(int)b", List(p.castExpr /*, p.unaryExpr*/))
+        assertParseResult(CastExpr(intType, CastExpr(intType, CastExpr(intType, SizeOfExprT(intType)))), "(int)(int)(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/))
         assertParseable("(int)sizeof(void)", p.castExpr)
     }
 
@@ -338,10 +357,10 @@ class CParserTest extends TestCase {
     }
 
     def testFunctionDef {
-    	
+
         assertParseable("int a", p.parameterTypeList)
         assertParseError("int a)", p.parameterTypeList)
-//        assertParseable("(int a)", p.declaratorParamaterList)
+        //        assertParseable("(int a)", p.declaratorParamaterList)
         assertParseable("void foo(){}", p.functionDef)
         assertParseable("void foo(){a;}", p.functionDef)
         assertParseable("void foo(int a) { a; }", p.functionDef)
@@ -563,5 +582,60 @@ static int  func_name(const char *fileName __attribute__ ((__unused__)), const s
     @Test
     def testDecl =
         assertParseable("extern int my_printf (void *my_object, const char *my_format);", p.externalDef)
+
+    @Test def testLinux1 = assertParseable("extern char * \n#if (definedEx(CONFIG_ENABLE_MUST_CHECK) && definedEx(CONFIG_ENABLE_MUST_CHECK))\n__attribute__((warn_unused_result))\n#endif\n#if (!(definedEx(CONFIG_ENABLE_MUST_CHECK)) && !((definedEx(CONFIG_ENABLE_MUST_CHECK) && definedEx(CONFIG_ENABLE_MUST_CHECK))))\n\n#endif\n skip_spaces(const char *);", p.phrase(p.externalDef))
+
+    @Test def testLinux2 = assertParseable(
+"""static
+#if !(definedEx(CONFIG_OPTIMIZE_INLINING))
+inline __attribute__((always_inline))
+#endif
+#if definedEx(CONFIG_OPTIMIZE_INLINING)
+inline
+#endif
+ int
+#if (definedEx(CONFIG_X86_64) && definedEx(CONFIG_X86_64))
+((unsigned long pfn) < max_pfn)
+#endif
+#if (!(definedEx(CONFIG_X86_64)) && !((definedEx(CONFIG_X86_64) && definedEx(CONFIG_X86_64))))
+((unsigned long pfn) < max_mapnr)
+#endif
+
+{
+	if (((pfn) >> (
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+29
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+26
+#endif
+ - 12)) >= (1UL << (
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+36
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+32
+#endif
+ -
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+29
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+26
+#endif
+)))
+		return 0;
+	return valid_section(__nr_to_section(((pfn) >> (
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
+29
+#endif
+#if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
+26
+#endif
+ - 12))));
+}""", p.externalDef)
+
+
+
 
 }

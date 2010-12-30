@@ -54,16 +54,16 @@ class RepOptTest extends TestCase {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case p.NoSuccess(msg, unparsed, inner) => ;
+            case p.NoSuccess(msg, unparsed, inner) =>;
         }
     }
     def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
         for (production <- productions)
             assertParseError(code, production)
     }
-    
-    
-        @Test
+
+
+    @Test
     def testRepOptCommonEnd() {
         var (ast, next) = parseExtList(""" 
 #ifdef X
@@ -77,12 +77,12 @@ typedef int b;
         ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
-        assert(ast.size == 3)
+        assertTrue("actual AST size: " + ast.size, ast.size == 3)
         assert(next.context.knowsType("a"))
         assert(next.context.knowsType("b"))
     }
-    
-     def testRepOptMultiFeatureOverlap2() {
+
+    def testRepOptMultiFeatureOverlap2() {
         var (ast, next) = parseExtList(""" 
 #ifdef X
 #ifdef Y
@@ -285,7 +285,6 @@ typedef long a;
         assert(next.context.knowsType("a"))
     }
 
-   
 
     def testRepOptMultiFeatureOverlap() {
         var (ast, next) = parseExtList(""" 
@@ -369,7 +368,6 @@ typedef int b;
     }
 
 
-
     /*    @Test
     def testRepOptCommonEnd2() {
         var (ast, next) = parseExtList(""" 
@@ -406,6 +404,6 @@ typedef int b;
 
     @Test
     def testPrintStatistics() {
-        println(FeatureSolverCache.statistics)
+        println(p.featureSolverCache.statistics)
     }
 }

@@ -1,10 +1,9 @@
 package de.fosd.typechef.parser
 
 import scala.collection.mutable.WeakHashMap
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 
-import de.fosd.typechef.featureexpr.FeatureExpr
-
-object FeatureSolverCache {
+class FeatureSolverCache(featureModel: FeatureModel) {
     var i_hits, i_query, m_hits, m_query = 0;
 
     private val impliesCache: WeakHashMap[(FeatureExpr, FeatureExpr), Boolean] = new WeakHashMap()
@@ -27,7 +26,7 @@ object FeatureSolverCache {
              * negation of a, which is repeatedly used and
              * probably already available in CNF
              */
-            a.and(b.not).isContradiction
+            a.and(b.not).isContradiction(featureModel)
         })
     }
 
@@ -39,7 +38,7 @@ object FeatureSolverCache {
         mutuallyExclusiveCache.getOrElseUpdate((a, b), {
             m_hits += 1;
             if (LOGGING) println(a + " x " + b);
-            a.and(b).isContradiction()
+            a.and(b).isContradiction(featureModel)
         })
     }
 

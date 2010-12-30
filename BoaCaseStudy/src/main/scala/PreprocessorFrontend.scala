@@ -7,8 +7,6 @@ import java.io.FileInputStream
 import gnu.getopt.Getopt
 import gnu.getopt.LongOpt
 
-import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.parser._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 
@@ -40,12 +38,12 @@ object PreprocessorFrontend {
     def loadPropList(key: String) = for (x <- settings.getProperty(key, "").split(",")) yield x.trim
 
     def loadSettings(configPath: String) = {
-            settings.load(new FileInputStream(configPath))
-            preIncludeDirs = loadPropList("preIncludes") ++ preIncludeDirs
-            println("preIncludes: " + preIncludeDirs)
-            println("systemIncludes: " + systemIncludes)
-            postIncludeDirs = postIncludeDirs ++ loadPropList("postIncludes")
-            println("postIncludes: " + postIncludeDirs)
+        settings.load(new FileInputStream(configPath))
+        preIncludeDirs = loadPropList("preIncludes") ++ preIncludeDirs
+        println("preIncludes: " + preIncludeDirs)
+        println("systemIncludes: " + systemIncludes)
+        postIncludeDirs = postIncludeDirs ++ loadPropList("postIncludes")
+        println("postIncludes: " + postIncludeDirs)
     }
 
     def includeFlags =
@@ -55,7 +53,7 @@ object PreprocessorFrontend {
                     List(systemRoot + File.separator + path)
                 else
                     List()
-            ) ++ cmdLinePostIncludes).flatMap((path: String) => List("-I", path))
+        ) ++ cmdLinePostIncludes).flatMap((path: String) => List("-I", path))
 
 
     ////////////////////////////////////////
@@ -63,14 +61,14 @@ object PreprocessorFrontend {
     ////////////////////////////////////////
     def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String]) {
         Main.main(Array(
-                inFileName,
-                "-o",
-                outFileName,
-                "--include",
-                predefMacroDef
-            ) ++
-            extraOpt ++
-            includeFlags)
+            inFileName,
+            "-o",
+            outFileName,
+            "--include",
+            predefMacroDef
+        ) ++
+                extraOpt ++
+                includeFlags)
     }
 
     def main(args: Array[String]): Unit = {
@@ -93,9 +91,10 @@ object PreprocessorFrontend {
                     case 'c' => loadSettings(arg)
                     case 'o' => preprocOutputPathOpt = Some(arg)
                     case 't' => typecheck = true
-                    
+
                     case ':' => println("Missing required argument!"); exit(1)
-                    case '?' => println("Unexpected option!"); exit(1)
+                    case '?' => println("Unexpected option!");
+                    exit(1)
 
                     //Pass-through --include.
                     case INCLUDE_OPT => extraOpt ++= List("--include", arg)
@@ -111,7 +110,7 @@ object PreprocessorFrontend {
         } while (loopFlag)
         println(includeFlags)
         val remArgs = args.slice(g.getOptind(), args.size)
-        
+
         for (filename <- remArgs) {
             preprocOutputPathOpt match {
                 case None => preprocOutputPathOpt = Some(filename.replace(".c", ".pi"))
@@ -120,11 +119,11 @@ object PreprocessorFrontend {
             val preprocOutputPath = preprocOutputPathOpt.get
             val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
- 
+
             preprocessFile(filename, preprocOutputPath, extraOpt)
             if (typecheck) {
-                    val ast = ParserMain.parserMain(parserInput, folderPath)
-                    new TypeSystem().checkAST(ast)
+                val ast = new ParserMain(null).parserMain(parserInput, folderPath)
+                new TypeSystem().checkAST(ast)
             }
         }
     }

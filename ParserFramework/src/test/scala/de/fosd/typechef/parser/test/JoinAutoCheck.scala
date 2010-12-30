@@ -6,6 +6,7 @@ import Gen._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.featureexpr.FeatureExpr._
+import de.fosd.typechef.parser.test.parsers._
 
 object JoinAutoCheck extends Properties("MultiParseResult") {
 
@@ -124,9 +125,9 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
         (x: jt.MultiParseResult[A]) =>
             val mBefore: Map[L, FeatureExpr] = collectL(x)
 
-            //            println(x)
+//                        println(x)
             val joined = x.join(base, joinV)
-            //            println(".")
+//                        println(".")
 
             mBefore.forall((p: (L, FeatureExpr)) => assertContainsL(joined, p._2, p._1))
     })

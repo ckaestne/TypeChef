@@ -1,10 +1,9 @@
 package de.fosd.typechef.parser.test
 
 import de.fosd.typechef.parser._
-import junit.framework._;
-import junit.framework.Assert._
+
 import de.fosd.typechef.featureexpr._
-import org.junit.Test
+import de.fosd.typechef.parser.test.parsers._
 
 trait DigitListUtilities {
     val f1 = FeatureExpr.createDefinedExternal("a")
@@ -17,8 +16,7 @@ trait DigitListUtilities {
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
     def outer(x: AST) = DigitList2(List(o(x)))
     def wrapList(x: AST*) = DigitList2(List() ++ x.map(Opt(FeatureExpr.base, _)))
-    def wrapList(x: List[AST]) : DigitList2 = wrapList(x :_*)
-
+    def wrapList(x: List[AST]): DigitList2 = wrapList(x: _*)
 
 
     def o(ast: AST) = Opt(FeatureExpr.base, ast)

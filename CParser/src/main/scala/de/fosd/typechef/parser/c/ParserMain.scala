@@ -1,14 +1,8 @@
 package de.fosd.typechef.parser.c
 
-import org.anarres.cpp.Main
-
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
-import java.io.FileWriter
 import java.io.File
-import junit.framework._
-import junit.framework.Assert._
-
 import java.io.PrintStream
 import java.io.FileOutputStream
 import java.io.BufferedOutputStream
@@ -21,10 +15,43 @@ object MyUtil {
 }
 
 object ParserMain {
+
+    def main(args: Array[String]) = {
+
+        import FeatureExpr._
+
+        val disabledFeatures = List()
+        // "CONFIG_X86_64", "CONFIG_X86_USE_3DNOW", "CONFIG_SMP",
+        //            "CONFIG_DEBUG_FORCE_WEAK_PER_CPU", "CONFIG_SPARSEMEM", "CONFIG_X86_LOCAL_APIC",
+        //            "CONFIG_NEED_MULTIPLE_NODES")
+
+        val linuxFeatureModel = null/*FeatureModel.create(
+            disabledFeatures.map(createDefinedExternal(_).not).foldLeft(base)(_ and _)
+        )*/
+
+
+        val parserMain = new ParserMain(new CParser(linuxFeatureModel))
+
+        for (filename <- args) {
+            println("**************************************************************************")
+            println("** Processing file: " + filename)
+            println("**************************************************************************")
+            val parentPath = new File(filename).getParent()
+            parserMain.parserMain(filename, parentPath, new CTypeContext())
+            println("**************************************************************************")
+            println("** End of processing for: " + filename)
+            println("**************************************************************************")
+        }
+    }
+}
+
+
+class ParserMain(p: CParser) {
+
     def parserMain(filePath: String, parentPath: String): AST =
         parserMain(filePath, parentPath, new CTypeContext())
 
-    val p = new CParser()
+
     def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext): AST = {
         val logStats = MyUtil.runnable(() => {
             if (TokenWrapper.profiling) {
@@ -51,7 +78,7 @@ object ParserMain {
                 "  Tokens: " + in.tokens.size + "\n" +
                 "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
                 "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
-                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n"+
+                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
                 "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n")
 
         //        checkParseResult(result, FeatureExpr.base)
@@ -104,16 +131,5 @@ object ParserMain {
         }
     }
 
-    def main(args: Array[String]) = {
-        for (filename <- args) {
-            println("**************************************************************************")
-            println("** Processing file: " + filename)
-            println("**************************************************************************")
-            val parentPath = new File(filename).getParent()
-            parserMain(filename, parentPath, new CTypeContext())
-            println("**************************************************************************")
-            println("** End of processing for: " + filename)
-            println("**************************************************************************")
-        }
-    }
+
 }
