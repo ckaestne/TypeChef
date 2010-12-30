@@ -802,7 +802,7 @@ try {
         def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapfr(inFeature and feature, f), resultB.mapfr(inFeature and (feature.not), f))
 
-        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinCrosstree(parserContext, f)
+        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinTree(parserContext, f)
 
         /**
          * joinCrosstree is an aggressive join algorithm that joins any joinable elements in the tree
@@ -886,6 +886,24 @@ try {
                 case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
                     if (isSamePosition(parserContext, inA, inB)) {
                         Success(f(feature, rA, rB), firstOf(inA, inB))
+                    } else
+                        SplittedParseResult(feature, sA, sB)
+                }
+
+                /**
+                 * foldtree (heuristic for earlier joins, when treelike joins not possible)
+                 * used for input such as <_{A&B} <_{A&!B} >_{A} x_{!A}
+                 * which creates a parse tree SPLIT(A&B, <>, SPLIT(A&!B, <>, x))
+                 * of which the former two can be merged. (occurs in expanded Linux headers...)
+                 */
+                case (sA@Success(rA, inA), sB@SplittedParseResult(innerFeature, Success(rB, inB), otherParseResult@_)) => {
+                    if (isSamePosition(parserContext, inA, inB)) {
+                        DebugSplitting("joinT at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
+                        SplittedParseResult(
+                            parserContext and (feature or innerFeature),
+                            Success(f(feature or innerFeature, rA, rB),
+                                if (inA.offst < inB.offst) inB else inA),
+                            otherParseResult)
                     } else
                         SplittedParseResult(feature, sA, sB)
                 }
