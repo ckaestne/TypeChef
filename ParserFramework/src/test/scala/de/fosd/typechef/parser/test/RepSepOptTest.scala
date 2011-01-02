@@ -34,6 +34,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
     val p = new CharDigitParser()
 
     def digitList = p.repSepOpt(p.number, p.comma)
+    def digitListCommaChar = (p.repSepOptIntern(true, p.number, p.comma) sep_~ (p.opt(p.char))) ^^ (_._1)
 
 
     @Test def testPlainEmpty = expectDigitList(List(), List())
@@ -47,9 +48,19 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
     @Test def testAltComma1 = expectDigitList(List(t("1"), t(",", f1), t(",", f1.not), t("2")), List(ol(1), ol(2)))
     @Test def testAltComma2 = expectDigitList(List(t("1"), t(",", f1), t(",", f1.not), t("2", f1), t("3", f1.not)), List(ol(1), ol(2, f1), ol(3, f1.not)))
 
+    @Test def testIncompleteList1 = expectDigitList(List(t("1"), t(","), t("2"), t(",")), List(ol(1), ol(2)))
+    @Test def testIncompleteList2 = expectDigitList(List(t("1"), t(","), t("2", f1), t(","), t("3")), List(ol(1), ol(2, f1)), 2)
+
 
     @Test def testEasylist = easyList(100)
     @Test def testHardlist = hardList(100)
+
+    @Test def testCommaChar1 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t(","), t("a")), List(ol(1), ol(2)))
+    @Test def testCommaChar2 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t("a")), List(ol(1), ol(2)), 1)
+    @Test def testCommaChar3 = expectDigitListCommaChar(List(t("1"), t(",", f1), t("2", f1), t(","), t("a")), List(ol(1), ol(2, f1)))
+    @Test def testCommaChar4 = expectDigitListCommaChar(List(t("1"), t(","), t("2", f1), t(",", f1), t("a")), List(ol(1), ol(2, f1)))
+    //    @Test def testCommaChar5 = expectDigitListCommaChar(List(t("1"), t(",", f1), t("2", f1), t(",", f2), t("a", f2)), List(ol(1), ol(2, f1)))
+
 
     //TODO: are lists that end with a comma handled correctly?
 
@@ -84,14 +95,28 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
 
     private def ol(v: Int) = Opt(base, Lit(v))
     private def ol(v: Int, f: FeatureExpr) = Opt(f, Lit(v))
-    private def expectDigitList(providedList: List[MyToken], expectedEntries: List[Opt[Lit]]) {
+    private def expectDigitList(providedList: List[MyToken], expectedEntries: List[Opt[Lit]], expectUnparsedTokens: Int = 0) {
         val in = p.tr(providedList)
         val r = digitList(in, FeatureExpr.base)
         println("parse result: " + r)
 
         r match {
             case p.Success(r, rest) =>
-                assertTrue("not at end " + rest, rest.atEnd)
+                assertEquals("not at end " + rest, rest.tokens.size, expectUnparsedTokens)
+                assertEquals(
+                    expectedEntries, r
+                )
+            case _ => fail("unsuccessful result " + r)
+        }
+    }
+    private def expectDigitListCommaChar(providedList: List[MyToken], expectedEntries: List[Opt[Lit]], expectUnparsedTokens: Int = 0) {
+        val in = p.tr(providedList)
+        val r = digitListCommaChar(in, FeatureExpr.base)
+        println("parse result: " + r)
+
+        r match {
+            case p.Success(r, rest) =>
+                assertEquals("not at end " + rest, rest.tokens.size, expectUnparsedTokens)
                 assertEquals(
                     expectedEntries, r
                 )

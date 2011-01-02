@@ -638,11 +638,39 @@ try {
             case Some(l) => l; case None => List()
         } join ((f, a, b) => joinLists(a, b, f))
 
+    /**see repSepOptIntern, consumes tailing separator(!) **/
+    def repSepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] =
+        repSepOptIntern(true, p, separator, productionName) ^^ (_._1)
 
-    def repSepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] = new RepParser[T](p) {
+    /**see repSepOptIntern, consumes tailing separator(!) **/
+    def rep1SepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] =
+        repSepOptIntern(false, p, separator, productionName) ^^ (_._1)
+
+
+    /**
+     * this is a performance optimization of repSep that avoids the exponential complexity
+     * of repSep in case of missaligned (undisciplined) annotations, which are quite common
+     * in certain lists of some language
+     *
+     * this parser has a number of serious restrictions, check if they apply:
+     * - may only use a single token as a separator
+     * - separators are not part of the output of this parser
+     * - and most importantly: consumes all tailing separators
+     *
+     * It returns a list of parsed elements and a feature expression that describes
+     * in which variants a tailing separator was found and consumed. In case
+     * the separator can match different kinds of tokens, it is not stored what
+     * kind of tailing token was consumed under which condition. If this is a problem
+     * do not use repSepOpt!
+     *
+     */
+    def repSepOptIntern[T](firstOptional: Boolean, p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = "") = new MultiParser[(List[Opt[T]], FeatureExpr)] {
+        thisParser =>
+
+        import FeatureExpr.dead
 
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
-        private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]], freeSeparator: FeatureExpr = FeatureExpr.dead)
+        private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]], freeSeparator: FeatureExpr)
 
         //join anything, data does not matter, only position in tokenstream
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
@@ -651,16 +679,19 @@ try {
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
             parseResult.exists(!_.isSealed)
 
-        def apply(in: Input, ctx: ParserState): MultiParseResult[List[Opt[T]]] = {
+        def apply(in: Input, ctx: ParserState): MultiParseResult[(List[Opt[T]], FeatureExpr)] = {
             //parse token
             // convert alternative results into optList
             //but keep next entries
-            var res: MultiParseResult[Sealable] = opt(p)(in, ctx).mapf(ctx, (f, t) => {
-                t match {
-                    case Some(x) => Sealable(false, List(Opt(f, x)), FeatureExpr.dead)
-                    case None => Sealable(true, List(), FeatureExpr.dead)
-                }
-            })
+            var res: MultiParseResult[Sealable] =
+                if (firstOptional)
+                    opt(p)(in, ctx).mapf(ctx, (f, t) => {
+                        t match {
+                            case Some(x) => Sealable(false, List(Opt(f, x)), dead)
+                            case None => Sealable(true, List(), dead)
+                        }
+                    })
+                else (p ^^ (r => Sealable(false, List(Opt(ctx, r)), dead)))(in, ctx)
             res = join(ctx, res)
 
             //while not all result failed
@@ -685,11 +716,15 @@ try {
                             val nextToken = x.next.skipHidden(fs, featureSolverCache)
                             val parsingCtx = fs and (nextToken.first.getFeature)
                             val nextSep = separator(nextToken, parsingCtx)
-                            if (nextSep.isInstanceOf[Success[Elem]])
-                                Success(Sealable(x.result.isSealed, x.result.resultList, x.result.freeSeparator or parsingCtx), nextToken.rest)
-                            else
+                            if (nextSep.isInstanceOf[Success[Elem]]) {
+                                val freeSepBefore = x.result.freeSeparator
+                                //consume token only if not two subsequent separators, otherwise seal list
+                                if (featureSolverCache.mutuallyExclusive(freeSepBefore, parsingCtx))
+                                    Success(Sealable(x.result.isSealed, x.result.resultList, freeSepBefore or parsingCtx), nextToken.rest)
+                                else
+                                    Success(Sealable(true, x.result.resultList, freeSepBefore), nextToken)
+                            } else
                                 x
-                            //TODO: error on two subsequent separators!
                         }
                 )
 
@@ -714,7 +749,7 @@ try {
                                                 if (featureSolverCache.implies(f, openSep))
                                                     Success(Sealable(false, Opt(f, t) :: resultList, openSep and (fs.not)), in)
                                                 else
-                                                    Success(Sealable(true, resultList), x.nextInput)
+                                                    Success(Sealable(true, resultList, openSep), x.nextInput)
                                             }
                                             case Success(Sealable(_, resultList, openSep) ~ None, in) => Success(Sealable(true, resultList, openSep), in)
                                             case e: NoSuccess => e
@@ -725,7 +760,7 @@ try {
                 res = join(ctx, res)
             }
             //return all sealed lists
-            res.map(_.resultList.reverse)
+            res.map(sealable => (sealable.resultList.reverse, sealable.freeSeparator))
         }
 
         /**
@@ -753,6 +788,32 @@ try {
                 }
             } else
                 None
+        }
+
+        /**turns a parse result with a conditional tailing separators into two parse results, indicating whther
+         * there is a trailing separator */
+        def hasTrailingSeparator(result: MultiParseResult[(List[Opt[T]], FeatureExpr)]): MultiParseResult[(List[Opt[T]], Boolean)] = {
+            result.mapfr(FeatureExpr.base,
+                //(FeatureExpr, ParseResult[T]) => ParseResult[U]
+                (f, result) => result match {
+                    case Success((r, f), in) =>
+                        if (f.isBase) Success((r, true), in)
+                        else if (f.isDead) Success((r, false), in)
+                        else SplittedParseResult(f, Success((r, true), in), Success((r, false), in))
+                    case e: Failure => e
+                }
+            )
+        }
+
+        def sep_~[U](thatParser: => MultiParser[Option[U]]): MultiParser[~[List[Opt[T]], Option[U]]] = new MultiParser[~[List[Opt[T]], Option[U]]] {
+            override def apply(in: Input, parserState: ParserState): MultiParseResult[~[List[Opt[T]], Option[U]]] = {
+                val firstResult = hasTrailingSeparator(thisParser(in, parserState))
+                firstResult.seqAllSuccessful(parserState, (fs, x) => {
+                    val secondResult = if (x.result._2) thatParser(x.next, fs)
+                    else Success(None, x.nextInput)
+                    x.seq(fs, secondResult).map({case a ~ b => new ~(a._1, b)})
+                })
+            }
         }
 
     }.named("repOpt-" + productionName)
@@ -892,7 +953,7 @@ try {
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U]
         def map[U](f: T => U): MultiParseResult[U]
         def mapf[U](feature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U]
-        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): MultiParseResult[U]
+        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U]
         /**
          * joins as far as possible. joins all successful ones but maintains partially successful results.
          * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
@@ -935,7 +996,7 @@ try {
             SplittedParseResult(feature, resultA.map(f), resultB.map(f))
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapf(inFeature and feature, f), resultB.mapf(inFeature and (feature.not), f))
-        def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): MultiParseResult[U] =
+        def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapfr(inFeature and feature, f), resultB.mapfr(inFeature and (feature.not), f))
 
         def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinTree(parserContext, f)
@@ -1083,7 +1144,7 @@ try {
      */
     sealed abstract class ParseResult[+T](nextInput: TokenReader[Elem, TypeContext]) extends MultiParseResult[T] {
         def map[U](f: T => U): ParseResult[U]
-        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => ParseResult[U]): ParseResult[U] = f(feature, this)
+        def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U] = f(feature, this)
         def next = nextInput
         def isSuccess: Boolean
         def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
