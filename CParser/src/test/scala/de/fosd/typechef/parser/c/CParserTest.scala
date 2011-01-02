@@ -274,12 +274,12 @@ class CParserTest extends TestCase {
         assertParseable("break;", p.statement)
         assertParseable("a:", p.statement)
         assertParseable("goto x;", p.statement)
-        assertParseResult(AltStatement(fa, IfStatement(a, ExprStatement(b), None), ExprStatement(b)),
+        assertParseResult(AltStatement(fa, IfStatement(a, ExprStatement(b), List(), None), ExprStatement(b)),
             """|#ifdef a
         					|if (a)
         					|#endif
     			  			|b;""", p.statement)
-        assertParseResult(IfStatement(a, AltStatement(fa, ExprStatement(b), ExprStatement(c)), None),
+        assertParseResult(IfStatement(a, AltStatement(fa, ExprStatement(b), ExprStatement(c)), List(), None),
             """|if (a)
     			  			|#ifdef a
         					|b;
@@ -287,9 +287,9 @@ class CParserTest extends TestCase {
     			  			|c;
         					|#endif""", p.statement)
         assertParseAnyResult(CompoundStatement(List(
-            Opt(fa, IfStatement(a, ExprStatement(b), None)),
+            Opt(fa, IfStatement(a, ExprStatement(b), List(), None)),
             Opt(fa, ExprStatement(c)),
-            Opt(fa.not, IfStatement(a, ExprStatement(c), None)))),
+            Opt(fa.not, IfStatement(a, ExprStatement(c), List(), None)))),
             """|{
         		|if (a)
     			  			|#ifdef a
@@ -632,8 +632,102 @@ static int  func_name(const char *fileName __attribute__ ((__unused__)), const s
 
     @Test def testLists {
         assertParseable("short foo(a, c)\n  short a;\n  char c;\n{   return 3;\n}", p.phrase(p.functionDef))
+        assertParseable("extern void bb_info_msg(const char *s, ...) __attribute__ ((format (printf, 1, 2))) ;", p.phrase(p.externalDef))
+        assertParseable("extern void set_matchpathcon_printf(void (*f) (const char *fmt, ...));", p.phrase(p.externalDef))
+        assertParseable("extern void set_matchpathcon_invalidcon(int (*f) (const char *path,\n     unsigned lineno,\n   char *context));", p.phrase(p.externalDef))
+        assertParseable("union selinux_callback {\n	/* log the printf-style format and arguments,\n	   with the type code indicating the type of message */\n	int \n\n__attribute__ ((format(printf, 2, 3)))\n\n	(*func_log) (int type, const char *fmt, ...);\n	/* store a string representation of auditdata (corresponding\n	   to the given security class) into msgbuf. */\n	int (*func_audit) (void *auditdata, int cls,\n			   char *msgbuf, int msgbufsize);\n	/* validate the supplied context, modifying if necessary */\n	int (*func_validate) (int *ctx);\n	/* netlink callback for setenforce message */\n	int (*func_setenforce) (int enforcing);\n	/* netlink callback for policyload message */\n	int (*func_policyload) (int seqno);\n};", p.phrase(p.externalDef))
 
+        assertParseable("enum {\n	                        PARM_a         ,\n	                        PARM_o         \n	\n#if definedEx(CONFIG_FEATURE_FIND_NOT)\n,PARM_char_not\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_NOT))\n\n#endif\n\n#if definedEx(CONFIG_DESKTOP)\n	                        ,PARM_and       ,\n	                        PARM_or        \n	\n#if definedEx(CONFIG_FEATURE_FIND_NOT)\n,PARM_not\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_NOT))\n\n#endif\n\n#endif\n	  ,                      PARM_print     \n	\n#if definedEx(CONFIG_FEATURE_FIND_PRINT0)\n,PARM_print0\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_PRINT0))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_DEPTH)\n,PARM_depth\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_DEPTH))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_PRUNE)\n,PARM_prune\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_PRUNE))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_DELETE)\n,PARM_delete\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_DELETE))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_EXEC)\n,PARM_exec\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_EXEC))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_PAREN)\n,PARM_char_brace\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_PAREN))\n\n#endif\n\n	/* All options starting from here require argument */\n	                        ,PARM_name      ,\n	                        PARM_iname     \n	\n#if definedEx(CONFIG_FEATURE_FIND_PATH)\n,PARM_path\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_PATH))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_REGEX)\n,PARM_regex\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_REGEX))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_TYPE)\n,PARM_type\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_TYPE))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_PERM)\n,PARM_perm\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_PERM))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_MTIME)\n,PARM_mtime\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_MTIME))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_MMIN)\n,PARM_mmin\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_MMIN))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_NEWER)\n,PARM_newer\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_NEWER))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_INUM)\n,PARM_inum\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_INUM))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_USER)\n,PARM_user\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_USER))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_GROUP)\n,PARM_group\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_GROUP))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_SIZE)\n,PARM_size\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_SIZE))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_CONTEXT)\n,PARM_context\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_CONTEXT))\n\n#endif\n\n	\n#if definedEx(CONFIG_FEATURE_FIND_LINKS)\n,PARM_links\n#endif\n#if !(definedEx(CONFIG_FEATURE_FIND_LINKS))\n\n#endif\n\n	}", p.phrase(p.enumSpecifier))
     }
+
+    @Test def testIfElIfChain =
+        assertParseable(
+            """
+            if (a) {
+                a;
+            }
+            #ifdef A
+            else if (b) {
+                b;
+            }
+            #endif
+            #ifdef B
+            else if (c) {
+                c;
+            }
+            #endif
+            #ifdef C
+             else if (d) {
+                d;
+            }
+            #endif
+            #ifdef D
+             else if (e) {
+                e;
+            }
+            #endif
+            #ifdef E
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef F
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef G
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef H
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef I
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef J
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef K
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef L
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef M
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef N
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef O
+             else if (f) {
+                f;
+            }
+            #endif
+            #ifdef P
+             else if (f) {
+                f;
+            }
+            #endif
+            else xx;
+            """, p.phrase(p.statement))
 
 
 }

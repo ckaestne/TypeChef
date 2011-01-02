@@ -790,33 +790,33 @@ try {
                 None
         }
 
-        /**turns a parse result with a conditional tailing separators into two parse results, indicating whther
-         * there is a trailing separator */
-        def hasTrailingSeparator(result: MultiParseResult[(List[Opt[T]], FeatureExpr)]): MultiParseResult[(List[Opt[T]], Boolean)] = {
-            result.mapfr(FeatureExpr.base,
-                //(FeatureExpr, ParseResult[T]) => ParseResult[U]
-                (f, result) => result match {
-                    case Success((r, f), in) =>
-                        if (f.isBase) Success((r, true), in)
-                        else if (f.isDead) Success((r, false), in)
-                        else SplittedParseResult(f, Success((r, true), in), Success((r, false), in))
-                    case e: Failure => e
-                }
-            )
-        }
+        //        /**turns a parse result with a conditional tailing separators into two parse results, indicating whther
+        //         * there is a trailing separator */
+        //        def hasTrailingSeparator(result: MultiParseResult[(List[Opt[T]], FeatureExpr)]): MultiParseResult[(List[Opt[T]], Boolean)] = {
+        //            result.mapfr(FeatureExpr.base,
+        //                //(FeatureExpr, ParseResult[T]) => ParseResult[U]
+        //                (f, result) => result match {
+        //                    case Success((r, f), in) =>
+        //                        if (f.isBase) Success((r, true), in)
+        //                        else if (f.isDead) Success((r, false), in)
+        //                        else SplittedParseResult(f, Success((r, true), in), Success((r, false), in))
+        //                    case e: Failure => e
+        //                }
+        //            )
+        //        }
+        //
+        //        def sep_~[U](thatParser: => MultiParser[Option[U]]): MultiParser[~[List[Opt[T]], Option[U]]] = new MultiParser[~[List[Opt[T]], Option[U]]] {
+        //            override def apply(in: Input, parserState: ParserState): MultiParseResult[~[List[Opt[T]], Option[U]]] = {
+        //                val firstResult = hasTrailingSeparator(thisParser(in, parserState))
+        //                firstResult.seqAllSuccessful(parserState, (fs, x) => {
+        //                    val secondResult = if (x.result._2) thatParser(x.next, fs)
+        //                    else Success(None, x.nextInput)
+        //                    x.seq(fs, secondResult).map({case a ~ b => new ~(a._1, b)})
+        //                })
+        //            }
+        //        }
 
-        def sep_~[U](thatParser: => MultiParser[Option[U]]): MultiParser[~[List[Opt[T]], Option[U]]] = new MultiParser[~[List[Opt[T]], Option[U]]] {
-            override def apply(in: Input, parserState: ParserState): MultiParseResult[~[List[Opt[T]], Option[U]]] = {
-                val firstResult = hasTrailingSeparator(thisParser(in, parserState))
-                firstResult.seqAllSuccessful(parserState, (fs, x) => {
-                    val secondResult = if (x.result._2) thatParser(x.next, fs)
-                    else Success(None, x.nextInput)
-                    x.seq(fs, secondResult).map({case a ~ b => new ~(a._1, b)})
-                })
-            }
-        }
-
-    }.named("repOpt-" + productionName)
+    }.named("repSepOpt-" + productionName)
 
 
     /**

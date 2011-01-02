@@ -120,7 +120,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         specList(typeQualifier | attributeDecl)
 
     def structDeclaratorList: MultiParser[List[Opt[StructDeclarator]]] =
-        repSepOpt(structDeclarator, COMMA)
+        repSepOpt(structDeclarator, COMMA, "structDeclaratorList")
     //consumes trailing commas
 
     def structDeclarator: MultiParser[StructDeclarator] =
@@ -134,14 +134,14 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
                         | (ID ^^ {case i => EnumSpecifier(Some(i), List())}))
 
     def enumList: MultiParser[List[Opt[Enumerator]]] =
-        rep1SepOpt(enumerator, COMMA)
+        rep1SepOpt(enumerator, COMMA, "enumList")
     //consumes trailing comma <~ opt(COMMA)
 
     def enumerator: MultiParser[Enumerator] =
         ID ~ opt(ASSIGN ~> constExpr) ^^ {case id ~ expr => Enumerator(id, expr)}
 
     def initDeclList: MultiParser[List[Opt[InitDeclarator]]] =
-        rep1SepOpt(initDecl, COMMA)
+        rep1SepOpt(initDecl, COMMA, "initDeclList")
     //consumes trailing comma <~ opt(COMMA)
 
     def initDecl: MultiParser[InitDeclarator] =
@@ -160,7 +160,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         repOpt(typeQualifier | attributeDecl)
 
     def idList0: MultiParser[List[Opt[Id]]] =
-        repSepOpt(ID, COMMA)
+        repSepOpt(ID, COMMA, "idList0")
     //consumes trailing comma
 
     def initializer: MultiParser[Initializer] =
@@ -181,10 +181,14 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
 
     def parameterTypeList: MultiParser[List[Opt[ParameterDeclaration]]] =
-        repSepOptIntern(false, parameterDeclaration, COMMA | SEMI).sep_~(opt(VARARGS)) ^^ {
+        rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt((COMMA | SEMI) ~> VARARGS) ^^ {
             case l ~ Some(v) => l ++ List(o(VarArgs())); case l ~ None => l
         }
-    //consumes trailing separators
+    //    def parameterTypeList: MultiParser[List[Opt[ParameterDeclaration]]] =
+    //        repSepOptIntern(false, parameterDeclaration, COMMA | SEMI).sep_~(opt(VARARGS)) ^^ {
+    //            case l ~ Some(v) => l ++ List(o(VarArgs())); case l ~ None => l
+    //        }
+    //    //consumes trailing separators
 
     def parameterDeclaration: MultiParser[ParameterDeclaration] =
         declSpecifiers ~ opt(declarator | nonemptyAbstractDeclarator) <~ opt(attributeDecl) ^^ {
@@ -232,10 +236,18 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ~ opt(statement) ^^ {case _ ~ e ~ _ ~ s => CaseStatement(e, s)})
             | (textToken("default") ~! COLON ~> opt(statement) ^^ {DefaultStatement(_)})
             //// Selection statements:
-            | (textToken("if") ~! LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ {case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es)})
+            | (textToken("if") ~! LPAREN ~ expr ~ RPAREN ~ statement ~
+            //ifelse handled as loop, because it is a common undisciplined pattern
+            elifs ~
+            opt(textToken("else") ~> statement) ^^ {case _ ~ _ ~ ex ~ _ ~ ts ~ elifs ~ es => IfStatement(ex, ts, elifs, es)})
             | (textToken("switch") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ {case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s)})
             | (expr <~ SEMI ^^ {ExprStatement(_)}) // Expressions
             | fail("statement expected")) ! AltStatement.join
+
+    private def elifs: MultiParser[List[Opt[ElifStatement]]] =
+        repOpt(
+            textToken("else") ~~ textToken("if") ~! LPAREN ~!> expr ~ (RPAREN ~> statement) ^^ {case e ~ s => ElifStatement(e, s)}
+        )
 
     def expr: MultiParser[Expr] = assignExpr ~! repOpt(COMMA ~> assignExpr) ^^ {
         case e ~ l => if (l.isEmpty) e else ExprList(List(o(e)) ++ l)
@@ -373,7 +385,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
                 | (token("charConst", _.getType == Token.CHARACTER) ^^ {t => Constant(t.getText)}))
 
     def argExprList: MultiParser[ExprList] =
-        rep1SepOpt(assignExpr, COMMA) ^^ {
+        rep1SepOpt(assignExpr, COMMA, "argExprList") ^^ {
             ExprList(_)
         }
     //consumes trailing commas
@@ -461,7 +473,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
 
     def offsetofMemberDesignator: MultiParser[List[Opt[Id]]] =
-        rep1SepOpt(ID, DOT)
+        rep1SepOpt(ID, DOT, "offsetofMemberDesignator")
     //consumes trailing dot
 
     def gnuAsmExpr: MultiParser[GnuAsmExpr] =
@@ -487,7 +499,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
 
     def initializerList: MultiParser[List[Opt[Initializer]]] =
-        rep1SepOpt(initializer, COMMA)
+        rep1SepOpt(initializer, COMMA, "initializerList")
     //consumes trailing commas
 
     def rangeExpr: MultiParser[Expr] = //used in initializers only  
@@ -506,7 +518,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
 
     //GNU note:  any __label__ declarations must come before regular declarations.            
     def localLabelDeclaration: MultiParser[LocalLabelDeclaration] =
-        textToken("__label__") ~> rep1SepOpt(ID, COMMA) <~ (/*rep1SepOpt already consumes trailing comma opt(COMMA) ~*/ rep1(SEMI)) ^^ {
+        textToken("__label__") ~> rep1SepOpt(ID, COMMA, "rep1SepOpt") <~ (/*rep1SepOpt already consumes trailing comma opt(COMMA) ~*/ rep1(SEMI)) ^^ {
             LocalLabelDeclaration(_)
         }
 

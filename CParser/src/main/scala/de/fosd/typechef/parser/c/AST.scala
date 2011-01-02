@@ -143,8 +143,12 @@ case class DefaultStatement(s: Option[Statement]) extends Statement {
     override def getInner = s.toList
 }
 
-case class IfStatement(condition: Expr, thenBranch: Statement, elseBranch: Option[Statement]) extends Statement {
+case class IfStatement(condition: Expr, thenBranch: Statement, elifs: List[Opt[ElifStatement]], elseBranch: Option[Statement]) extends Statement {
     override def getInner = List(condition, thenBranch) ++ elseBranch.toList
+}
+
+case class ElifStatement(condition: Expr, thenBranch: Statement) extends AST {
+    override def getInner = List(condition, thenBranch)
 }
 
 case class SwitchStatement(expr: Expr, s: Statement) extends Statement {
