@@ -33,10 +33,10 @@ object FeatureModel {
         val clauses = new Vec[IVecInt]()
 
         for (line <- scala.io.Source.fromFile(file).getLines) {
-            if ((line startsWith "@ ")||(line startsWith "$ ")) {
+            if ((line startsWith "@ ") || (line startsWith "$ ")) {
                 varIdx += 1
-                variables = variables("CONFIG_"+line.substring(2)) = varIdx
-            }else {
+                variables = variables("CONFIG_" + line.substring(2)) = varIdx
+            } else {
                 val vec = new VecInt()
                 for (literal <- line.split(" "))
                     vec.push(lookupLiteral(literal, variables))
@@ -47,11 +47,40 @@ object FeatureModel {
         new FeatureModel(variables, clauses)
     }
 
+    def createFromDimacsFile(file: String) = {
+        var variables: Map[String, Int] = Map()
+        val clauses = new Vec[IVecInt]()
+        var maxId = 0
+
+        for (line <- scala.io.Source.fromFile(file).getLines) {
+            if (line startsWith "c ") {
+                val entries = line.substring(2).split(" ")
+                val id = if (entries(0) endsWith "$")
+                    entries(0).substring(0, entries(0).length - 1).toInt
+                else
+                    entries(0).toInt
+                maxId = Math.max(id, maxId)
+                variables = variables("CONFIG_" + entries(1)) = id
+            } else if ((line startsWith "p ") || (line.trim.size == 0)) {
+                //comment, do nothing
+            } else {
+                val vec = new VecInt()
+                for (literal <- line.split(" "))
+                    if (literal != "0")
+                        vec.push(literal.toInt)
+                clauses.push(vec)
+            }
+
+        }
+        assert(maxId == variables.size)
+        new FeatureModel(variables, clauses)
+    }
+
     private def lookupLiteral(literal: String, variables: Map[String, Int]) =
         if (literal.startsWith("-"))
-            -variables.getOrElse("CONFIG_"+(literal.substring(1)), throw new Exception("variable not declared"))
+            -variables.getOrElse("CONFIG_" + (literal.substring(1)), throw new Exception("variable not declared"))
         else
-            variables.getOrElse("CONFIG_"+literal, throw new Exception("variable not declared"))
+            variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
 
 
     private def getVariables(expr: NF): Map[String, Int] = {
