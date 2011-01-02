@@ -15,20 +15,22 @@ import org.sat4j.specs.ContradictionException;
  */
 
 class SatSolver {
-    def isSatisfiable(exprCNF: NF, featureModel: FeatureModel = null): Boolean = {
-//        SatSolverCache.get(if (featureModel == null) NoFeatureModel else featureModel)
-                new SatSolverImpl(featureModel).isSatisfiable(exprCNF)
+    def isSatisfiable(exprCNF: NF, featureModel: FeatureModel = NoFeatureModel): Boolean = {
+        SatSolverCache.get(nfm(featureModel)).isSatisfiable(exprCNF)
     }
 
+    private def nfm(fm: FeatureModel) = if (fm == null) NoFeatureModel else fm
 }
 
 private object SatSolverCache {
     val cache: WeakHashMap[FeatureModel, SatSolverImpl] = new WeakHashMap()
-    def get(fm: FeatureModel) = new SatSolverImpl(fm)//cache.getOrElseUpdate(fm, new SatSolverImpl(fm))
+    def get(fm: FeatureModel) =
+    /*if (fm == NoFeatureModel) new SatSolverImpl(fm)
+   else */ cache.getOrElseUpdate(fm, new SatSolverImpl(fm))
 }
 
 private class SatSolverImpl(featureModel: FeatureModel) {
-    val PROFILING = false;
+    val PROFILING = false
 
     /**init / constructor */
     val solver = SolverFactory.newDefault();
@@ -37,6 +39,7 @@ private class SatSolverImpl(featureModel: FeatureModel) {
 
     assert(featureModel != null)
     solver.addAllClauses(featureModel.clauses)
+    var uniqueFlagIds: Map[String, Int] = featureModel.variables
 
 
     /**
@@ -66,7 +69,6 @@ private class SatSolverImpl(featureModel: FeatureModel) {
 
             if (PROFILING)
                 print(";")
-            var uniqueFlagIds: Map[String, Int] = featureModel.variables
             for (cnf <- cnfs; clause <- cnf.clauses)
                 for (literal <- (clause.posLiterals ++ clause.negLiterals))
                     if (!uniqueFlagIds.contains(literal.satName))
@@ -93,13 +95,13 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                 val unit = new VecInt();
                 try {
                     for (cnf <- cnfs; clause <- cnf.clauses; if !clause.isEmpty) {
-//                        if (clause.isAtomic)
-//                            unit.push(getAtomicId(uniqueFlagIds, clause))
-//                        else                   {
+                        if (clause.isAtomic)
+                            unit.push(getAtomicId(uniqueFlagIds, clause))
+                        else {
                             val constr = solver.addClause(getClauseVec(uniqueFlagIds, clause))
-//                            if (constr!=null)
-//                                constraintGroup.add(constr)
-//                        }
+                            if (constr != null)
+                                constraintGroup.add(constr)
+                        }
                     }
                 } catch {
                     case e: ContradictionException => return false;
@@ -147,37 +149,6 @@ private class SatSolverImpl(featureModel: FeatureModel) {
             -uniqueFlagIds(clause.negLiterals(0).satName)
         else uniqueFlagIds(clause.posLiterals(0).satName)
 
-
-    /*	public boolean isSatisfiable(Node node) throws TimeoutException {
-         if (contradiction)
-             return false;
-
-         if (!(node instanceof And))
-             node = new And(node);
-
-         ConstrGroup group = new ConstrGroup();
-         IVecInt unit = new VecInt();
-         try {
-             for (Node child : node.getChildren()) {
-                 if (child instanceof Or) {
-                     IVecInt clause = new VecInt();
-                     for (Node literal : child.getChildren())
-                         clause.push(getIntOfLiteral(literal));
-                     group.add(solver.addClause(clause));
-                 }
-                 else {
-                     unit.push(getIntOfLiteral(child));
-                 }
-             }
-         } catch (ContradictionException e) {
-             group.removeFrom(solver);
-             return false;
-         }
-
-         boolean satisfiable = solver.isSatisfiable(unit);
-         group.removeFrom(solver);
-         return satisfiable;
-     }*/
 
     /**
      * DefinedExternal translates directly into a flag for the SAT solver
