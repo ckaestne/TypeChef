@@ -172,11 +172,11 @@ class FeatureExpr private[featureexpr](var aexpr: FeatureExprTree) {
                 }
             }
 
-    def isContradiction(): Boolean = isContradiction(null)
-    def isTautology(): Boolean = isTautology(null)
-    def isDead(): Boolean = isContradiction(null)
-    def isBase(): Boolean = isTautology(null)
-    def isSatisfiable(): Boolean = isSatisfiable(null)
+    def isContradiction(): Boolean = isContradiction(NoFeatureModel)
+    def isTautology(): Boolean = isTautology(NoFeatureModel)
+    def isDead(): Boolean = isContradiction(NoFeatureModel)
+    def isBase(): Boolean = isTautology(NoFeatureModel)
+    def isSatisfiable(): Boolean = isSatisfiable(NoFeatureModel)
     /**
      * FM -> X is tautology if FM.implies(X).isTautology or
      * !FM.and.(x.not).isSatisfiable

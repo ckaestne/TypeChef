@@ -13,6 +13,7 @@ class TestSatSolver extends TestCase {
 
     @Test
     def testSATSolver() {
+        assertEquals(true, a.not isSatisfiable ())
         assertEquals(true, (a or b) and (a or b) isSatisfiable ())
         assertEquals(false, (a or b) and (a or b) isTautology ())
 
@@ -24,7 +25,6 @@ class TestSatSolver extends TestCase {
         assertEquals(true, dead isContradiction ())
         assertEquals(true, base isTautology ())
         assertEquals(true, createInteger(2) isTautology ())
-        assertEquals(true, a.not isSatisfiable ())
     }
 
     @Test

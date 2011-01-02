@@ -182,7 +182,6 @@ class TestFeatureExpr extends TestCase {
         assertTrue(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equivalentTo FeatureExpr.base)
         assertFalse(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equals FeatureExpr.base)
         assertTrue(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equivalentTo FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
-        assertFalse(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equals (FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a"))))
     }
 
     @Test
