@@ -192,7 +192,7 @@ class FeatureExpr private[featureexpr](var aexpr: FeatureExprTree) {
         cacheIsSatisfiable.getOrElseUpdate(fm, {
             val isSat = new SatSolver().isSatisfiable(toEquiCNF, fm)
             //an unsatisfiable expression can be simplified to DEAD
-            if (!isSat) {
+            if (!isSat && fm == NoFeatureModel) {
                 aexpr = DeadFeature()
                 cache_external = this
                 equiCnfCache = null
