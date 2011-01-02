@@ -32,30 +32,20 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         "sizeof", "_Pragma")
     val predefinedTypedefs = Set("__builtin_va_list")
 
-    def translationUnit = externalList ^^ {
-        TranslationUnit(_)
-    }
+    def translationUnit = externalList ^^ {TranslationUnit(_)}
 
     def externalList: MultiParser[List[Opt[ExternalDef]]] =
         repOpt(externalDef, AltExternalDef.join, "externalDef")
 
     def externalDef: MultiParser[ExternalDef] =
-        (lookahead(textToken("typedef")) ~! declaration ^^ {
-            case _ ~ r => r
-        } | declaration |
-                functionDef | typelessDeclaration | asm_expr | pragma | (SEMI ^^ {
-            x => EmptyExternalDef()
-        })) ^^! (AltExternalDef.join, x => x)
+        (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} | declaration |
+                functionDef | typelessDeclaration | asm_expr | pragma | (SEMI ^^ {x => EmptyExternalDef()})) ^^! (AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
-        asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {
-            case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)
-        }
+        asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)}
 
     def declaration: MultiParser[Declaration] =
-        (declSpecifiers ~~ opt(initDeclList) ~~ rep1(SEMI) ^^ {
-            case d ~ i ~ _ => ADeclaration(d, i)
-        } changeContext ({
+        (declSpecifiers ~~ opt(initDeclList) ~~ rep1(SEMI) ^^ {case d ~ i ~ _ => ADeclaration(d, i)} changeContext ({
             (result: ADeclaration, context: TypeContext) => {
                 var c = context
                 if (result.declSpecs.exists(o => o.entry == TypedefSpecifier()))
@@ -70,17 +60,13 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
 
     //gnu
     def typelessDeclaration: MultiParser[TypelessDeclaration] =
-        initDeclList <~ SEMI ^^ {
-            x => TypelessDeclaration(x)
-        }
+        initDeclList <~ SEMI ^^ {x => TypelessDeclaration(x)}
 
     def declSpecifiers: MultiParser[List[Opt[Specifier]]] =
         specList(storageClassSpecifier | typeQualifier | attributeDecl) | fail("declSpecifier expected")
 
     def storageClassSpecifier: MultiParser[Specifier] =
-        specifier("auto") | specifier("register") | (textToken("typedef") ^^ {
-            x => TypedefSpecifier()
-        }) | functionStorageClassSpecifier
+        specifier("auto") | specifier("register") | (textToken("typedef") ^^ {x => TypedefSpecifier()}) | functionStorageClassSpecifier
 
     def functionStorageClassSpecifier: MultiParser[Specifier] =
         specifier("extern") | specifier("static") | inline
@@ -88,9 +74,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     def typeQualifier: MultiParser[Specifier] =
         const | volatile | restrict
 
-    def specifier(name: String) = textToken(name) ^^ {
-        t => OtherSpecifier(t.getText)
-    }
+    def specifier(name: String) = textToken(name) ^^ {t => OtherSpecifier(t.getText)}
 
     def typeSpecifier: MultiParser[TypeSpecifier] = (((textToken("void")
             | textToken("char")
@@ -103,95 +87,65 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             | textToken("unsigned")
             | textToken("_Bool")
             | textToken("_Complex")
-            | textToken("__complex__")) ^^ {
-        (t: Elem) => PrimitiveTypeSpecifier(t.getText)
-    })
+            | textToken("__complex__")) ^^ {(t: Elem) => PrimitiveTypeSpecifier(t.getText)})
             | structOrUnionSpecifier
             | enumSpecifier
             //TypeDefName handled elsewhere!
-            | (typeof ~ LPAREN ~> ((typeName ^^ {
-        TypeOfSpecifierT(_)
-    }) | (expr ^^ {
-        TypeOfSpecifierU(_)
-    })) <~ RPAREN))
+            | (typeof ~ LPAREN ~> ((typeName ^^ {TypeOfSpecifierT(_)})
+            | (expr ^^ {TypeOfSpecifierU(_)})) <~ RPAREN))
 
     def typedefName =
         tokenWithContext("type",
-            (token, context) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || context.knowsType(token.getText))) ^^ {
-            t => TypeDefTypeSpecifier(Id(t.getText))
-        }
+            (token, context) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || context.knowsType(token.getText))) ^^ {t => TypeDefTypeSpecifier(Id(t.getText))}
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
-        structOrUnion ~ repOpt(attributeDecl) ~ structOrUnionSpecifierBody ^^ {
-            case k ~ _ ~ ((id, list)) => StructOrUnionSpecifier(k, id, list)
-        }
+        structOrUnion ~ repOpt(attributeDecl) ~ structOrUnionSpecifierBody ^^ {case k ~ _ ~ ((id, list)) => StructOrUnionSpecifier(k, id, list)}
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[Opt[StructDeclaration]])] =
     // XXX: PG: SEMI after LCURLY????
-        (ID ~~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {
-            case id ~ _ ~ (_ ~ list ~ _) ~ _ => (Some(id), list)
-        }) |
-                (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {
-                    case _ ~ _ ~ list ~ _ ~ _ => (None, list)
-                }) |
-                (ID ^^ {
-                    case id => (Some(id), List())
-                })
+        (ID ~~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {case id ~ _ ~ (_ ~ list ~ _) ~ _ => (Some(id), list)}) |
+                (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {case _ ~ _ ~ list ~ _ ~ _ => (None, list)}) |
+                (ID ^^ {case id => (Some(id), List())})
 
     def structOrUnion: MultiParser[String] =
-        (textToken("struct") | textToken("union")) ^^ {
-            case t: TokenWrapper => t.getText
-        }
+        (textToken("struct") | textToken("union")) ^^ {case t: TokenWrapper => t.getText}
 
     def structDeclarationList0 =
         repOpt(structDeclaration)
 
     def structDeclaration: MultiParser[StructDeclaration] =
-        specifierQualifierList ~ structDeclaratorList <~ (opt(COMMA) ~ rep1(SEMI)) ^^ {
-            case q ~ l => StructDeclaration(q, l)
-        }
+        specifierQualifierList ~ structDeclaratorList <~ rep1(SEMI) ^^ {case q ~ l => StructDeclaration(q, l)}
 
     def specifierQualifierList: MultiParser[List[Opt[Specifier]]] =
         specList(typeQualifier | attributeDecl)
 
     def structDeclaratorList: MultiParser[List[Opt[StructDeclarator]]] =
-        repSep(structDeclarator, COMMA)
+        repSepOpt(structDeclarator, COMMA)
+    //consumes trailing commas
 
     def structDeclarator: MultiParser[StructDeclarator] =
-        ((COLON ~> constExpr ~ repOpt(attributeDecl) ^^ {
-            case e ~ attr => StructDeclarator(None, Some(e), attr)
-        })
-                | (declarator ~ opt(COLON ~> constExpr) ~ repOpt(attributeDecl) ^^ {
-            case d ~ e ~ attr => StructDeclarator(Some(d), e, attr)
-        }))
+        ((COLON ~> constExpr ~ repOpt(attributeDecl) ^^ {case e ~ attr => StructDeclarator(None, Some(e), attr)})
+                | (declarator ~ opt(COLON ~> constExpr) ~ repOpt(attributeDecl) ^^ {case d ~ e ~ attr => StructDeclarator(Some(d), e, attr)}))
 
     def enumSpecifier: MultiParser[EnumSpecifier] =
         textToken("enum") ~>
-                ((ID ~~ LCURLY ~! (enumList ~ RCURLY) ^^ {
-                    case id ~ _ ~ (l ~ _) => EnumSpecifier(Some(id), l)
-                })
-                        | (LCURLY ~ enumList ~ RCURLY ^^ {
-                    case _ ~ l ~ _ => EnumSpecifier(None, l)
-                })
-                        | (ID ^^ {
-                    case i => EnumSpecifier(Some(i), List())
-                }))
+                ((ID ~~ LCURLY ~! (enumList ~ RCURLY) ^^ {case id ~ _ ~ (l ~ _) => EnumSpecifier(Some(id), l)})
+                        | (LCURLY ~ enumList ~ RCURLY ^^ {case _ ~ l ~ _ => EnumSpecifier(None, l)})
+                        | (ID ^^ {case i => EnumSpecifier(Some(i), List())}))
 
     def enumList: MultiParser[List[Opt[Enumerator]]] =
-        rep1Sep(enumerator, COMMA) <~ opt(COMMA)
+        rep1SepOpt(enumerator, COMMA)
+    //consumes trailing comma <~ opt(COMMA)
 
     def enumerator: MultiParser[Enumerator] =
-        ID ~ opt(ASSIGN ~> constExpr) ^^ {
-            case id ~ expr => Enumerator(id, expr)
-        }
+        ID ~ opt(ASSIGN ~> constExpr) ^^ {case id ~ expr => Enumerator(id, expr)}
 
     def initDeclList: MultiParser[List[Opt[InitDeclarator]]] =
-        rep1Sep(initDecl, COMMA) <~ opt(COMMA)
+        rep1SepOpt(initDecl, COMMA)
+    //consumes trailing comma <~ opt(COMMA)
 
     def initDecl: MultiParser[InitDeclarator] =
-        declarator ~ repOpt(attributeDecl) ~ opt((ASSIGN ~> initializer) | (COLON ~> expr)) ^^ {
-            case d ~ attr ~ Some(i: Initializer) => InitDeclaratorI(d, attr, Some(i)); case d ~ attr ~ Some(e: Expr) => InitDeclaratorE(d, attr, e); case d ~ attr ~ None => InitDeclaratorI(d, attr, None);
-        }
+        declarator ~ repOpt(attributeDecl) ~ opt((ASSIGN ~> initializer) | (COLON ~> expr)) ^^ {case d ~ attr ~ Some(i: Initializer) => InitDeclaratorI(d, attr, Some(i)); case d ~ attr ~ Some(e: Expr) => InitDeclaratorE(d, attr, e); case d ~ attr ~ None => InitDeclaratorI(d, attr, None);}
 
     def pointerGroup0: MultiParser[List[Opt[Pointer]]] =
         repOpt(STAR ~> opt(typeQualifierList) ^^ {
@@ -206,9 +160,8 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         repOpt(typeQualifier | attributeDecl)
 
     def idList0: MultiParser[List[Opt[Id]]] =
-        repSep(ID, COMMA)
-    def idList1: MultiParser[List[Opt[Id]]] =
-        rep1Sep(ID, COMMA)
+        repSepOpt(ID, COMMA)
+    //consumes trailing comma
 
     def initializer: MultiParser[Initializer] =
         opt(initializerElementLabel) ~ (assignExpr | lcurlyInitializer) ^^ {
@@ -219,24 +172,19 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     //XXX: why opt(attributeDecl) rather than rep?
         (pointerGroup0 ~~ (ID | (LPAREN ~~> opt(attributeDecl) ~~ declarator <~ RPAREN)) ~
                 repOpt(
-                    (LPAREN ~~> ((parameterTypeList ^^ {
-                        DeclParameterTypeList(_)
-                    })
-                            | (idList0 ^^ {
-                        DeclIdentifierList(_)
-                    })) <~~ (opt(COMMA) ~~ RPAREN))
-                            | (LBRACKET ~~> opt(constExpr) <~ RBRACKET ^^ {
-                        DeclArrayAccess(_)
-                    }))) ^^ {
+                    (LPAREN ~~> ((parameterTypeList ^^ {DeclParameterTypeList(_)})
+                            | (idList0 ^^ {DeclIdentifierList(_)})) <~~ RPAREN)
+                            | (LBRACKET ~~> opt(constExpr) <~ RBRACKET ^^ {DeclArrayAccess(_)}))) ^^ {
             case pointers ~ (id: Id) ~ ext => DeclaratorId(pointers, id, ext);
             case pointers ~ ((attr: Option[_ /*AttributeSpecifier*/ ]) ~ (decl: Declarator)) ~ ext =>
                 DeclaratorDecl(pointers, attr.asInstanceOf[Option[AttributeSpecifier]], decl, ext)
         }
 
     def parameterTypeList: MultiParser[List[Opt[ParameterDeclaration]]] =
-        rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt((COMMA | SEMI) ~> VARARGS) ^^ {
+        repSepOptIntern(false, parameterDeclaration, COMMA | SEMI).sep_~(opt(VARARGS)) ^^ {
             case l ~ Some(v) => l ++ List(o(VarArgs())); case l ~ None => l
         }
+    //consumes trailing separators
 
     def parameterDeclaration: MultiParser[ParameterDeclaration] =
         declSpecifiers ~ opt(declarator | nonemptyAbstractDeclarator) <~ opt(attributeDecl) ^^ {
@@ -248,9 +196,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     def functionDef: MultiParser[FunctionDef] =
         optList(functionDeclSpecifiers) ~~
                 declarator ~~
-                repOpt(declaration) ~~ opt2List(VARARGS ^^ {
-            x => VarArgs()
-        }) ~~ repOpt(SEMI) ~~
+                repOpt(declaration) ~~ opt2List(VARARGS ^^ {x => VarArgs()}) ~~ repOpt(SEMI) ~~
                 lookahead(LCURLY) ~! //prevents backtracking inside function bodies
                 compoundStatement ^^ {
             case sp ~ declarator ~ param ~ vparam ~ _ ~ _ ~ stmt => FunctionDef(sp, declarator, param ++ vparam.map(o(_)), stmt)
@@ -260,67 +206,35 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
 
     private def compoundDeclaration =
-        (declaration | nestedFunctionDef | localLabelDeclaration) ^^ {
-            DeclarationStatement(_)
-        } |
+        (declaration | nestedFunctionDef | localLabelDeclaration) ^^ {DeclarationStatement(_)} |
                 fail("expected compoundDeclaration")
 
     def compoundStatement: MultiParser[CompoundStatement] =
-        LCURLY ~> statementList <~ RCURLY ^^ {
-            CompoundStatement(_)
-        }
+        LCURLY ~> statementList <~ RCURLY ^^ {CompoundStatement(_)}
 
     def statementList: MultiParser[List[Opt[Statement]]] =
         repOpt(statement | compoundDeclaration, AltStatement.join, "statement")
 
-    def statement: MultiParser[Statement] = (SEMI ^^ {
-        _ => EmptyStatement()
-    } // Empty statements
+    def statement: MultiParser[Statement] = (SEMI ^^ {_ => EmptyStatement()} // Empty statements
             | (compoundStatement) // Group of statements
             //// Iteration statements:
-            | (textToken("while") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ {
-        case _ ~ _ ~ e ~ _ ~ s => WhileStatement(e, s)
-    })
-            | (textToken("do") ~! statement ~ textToken("while") ~ LPAREN ~ expr ~ RPAREN ~ SEMI ^^ {
-        case _ ~ s ~ _ ~ _ ~ e ~ _ ~ _ => DoStatement(e, s)
-    })
-            | (textToken("for") ~! LPAREN ~ opt(expr) ~ SEMI ~ opt(expr) ~ SEMI ~ opt(expr) ~ RPAREN ~ statement ^^ {
-        case _ ~ _ ~ e1 ~ _ ~ e2 ~ _ ~ e3 ~ _ ~ s => ForStatement(e1, e2, e3, s)
-    })
+            | (textToken("while") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ {case _ ~ _ ~ e ~ _ ~ s => WhileStatement(e, s)})
+            | (textToken("do") ~! statement ~ textToken("while") ~ LPAREN ~ expr ~ RPAREN ~ SEMI ^^ {case _ ~ s ~ _ ~ _ ~ e ~ _ ~ _ => DoStatement(e, s)})
+            | (textToken("for") ~! LPAREN ~ opt(expr) ~ SEMI ~ opt(expr) ~ SEMI ~ opt(expr) ~ RPAREN ~ statement ^^ {case _ ~ _ ~ e1 ~ _ ~ e2 ~ _ ~ e3 ~ _ ~ s => ForStatement(e1, e2, e3, s)})
             //// Jump statements:
-            | (textToken("goto") ~!> expr <~ SEMI ^^ {
-        GotoStatement(_)
-    })
-            | (textToken("continue") ~! SEMI ^^ {
-        _ => ContinueStatement()
-    })
-            | (textToken("break") ~! SEMI ^^ {
-        _ => BreakStatement()
-    })
-            | (textToken("return") ~!> opt(expr) <~ SEMI ^^ {
-        ReturnStatement(_)
-    })
+            | (textToken("goto") ~!> expr <~ SEMI ^^ {GotoStatement(_)})
+            | (textToken("continue") ~! SEMI ^^ {_ => ContinueStatement()})
+            | (textToken("break") ~! SEMI ^^ {_ => BreakStatement()})
+            | (textToken("return") ~!> opt(expr) <~ SEMI ^^ {ReturnStatement(_)})
             //// Labeled statements:
-            | (ID <~~ COLON ^^ {
-        LabelStatement(_)
-    })
+            | (ID <~~ COLON ^^ {LabelStatement(_)})
             // GNU allows range expressions in case statements
-            | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ~ opt(statement) ^^ {
-        case _ ~ e ~ _ ~ s => CaseStatement(e, s)
-    })
-            | (textToken("default") ~! COLON ~> opt(statement) ^^ {
-        DefaultStatement(_)
-    })
+            | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ~ opt(statement) ^^ {case _ ~ e ~ _ ~ s => CaseStatement(e, s)})
+            | (textToken("default") ~! COLON ~> opt(statement) ^^ {DefaultStatement(_)})
             //// Selection statements:
-            | (textToken("if") ~! LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ {
-        case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es)
-    })
-            | (textToken("switch") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ {
-        case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s)
-    })
-            | (expr <~ SEMI ^^ {
-        ExprStatement(_)
-    }) // Expressions
+            | (textToken("if") ~! LPAREN ~ expr ~ RPAREN ~ statement ~ opt(textToken("else") ~> statement) ^^ {case _ ~ _ ~ ex ~ _ ~ ts ~ es => IfStatement(ex, ts, es)})
+            | (textToken("switch") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ {case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s)})
+            | (expr <~ SEMI ^^ {ExprStatement(_)}) // Expressions
             | fail("statement expected")) ! AltStatement.join
 
     def expr: MultiParser[Expr] = assignExpr ~! repOpt(COMMA ~> assignExpr) ^^ {
@@ -360,16 +274,12 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     def multExpr: MultiParser[Expr] = nAryExpr(castExpr, STAR | DIV | MOD)
 
     def nAryExpr(innerExpr: MultiParser[Expr], operations: MultiParser[TokenWrapper]) =
-        innerExpr ~! repOpt(operations ~ innerExpr ^^ {
-            case t ~ e => (t.getText, e)
-        }) ^^ {
+        innerExpr ~! repOpt(operations ~ innerExpr ^^ {case t ~ e => (t.getText, e)}) ^^ {
             case e ~ l => if (l.isEmpty) e else NAryExpr(e, l)
         }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~~ typeName ~~ RPAREN ~! (castExpr | lcurlyInitializer) ^^ {
-            case b1 ~ t ~ b2 ~ e => CastExpr(t, e)
-        } | unaryExpr
+        LPAREN ~~ typeName ~~ RPAREN ~! (castExpr | lcurlyInitializer) ^^ {case b1 ~ t ~ b2 ~ e => CastExpr(t, e)} | unaryExpr
 
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         nonemptyAbstractDeclaratorA | nonemptyAbstractDeclaratorB
@@ -377,52 +287,32 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     def nonemptyAbstractDeclaratorA: MultiParser[AbstractDeclarator] =
         pointerGroup1 ~
                 repOpt(
-                    ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterTypeList) ^^ {
-                        DeclParameterTypeList(_)
-                    }))
+                    ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterTypeList) ^^ {DeclParameterTypeList(_)}))
                             <~ (opt(COMMA) ~ RPAREN))
-                            | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {
-                        DeclArrayAccess(_)
-                    }))) ^^ {
+                            | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)}))) ^^ {
             case pointers ~ directDecls => AbstractDeclarator(pointers, directDecls)
         }
 
     def nonemptyAbstractDeclaratorB: MultiParser[AbstractDeclarator] =
         rep1(
-            ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterTypeList) ^^ {
-                DeclParameterTypeList(_)
-            }))
+            ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterTypeList) ^^ {DeclParameterTypeList(_)}))
                     <~ (opt(COMMA) ~ RPAREN))
-                    | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {
-                DeclArrayAccess(_)
-            }))) ^^ {
+                    | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)}))) ^^ {
             AbstractDeclarator(List(), _)
         }
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
             | ({
         (INC | DEC) ~! castExpr
-    } ^^ {
-        case p ~ e => UnaryExpr(p.getText, e)
-    })
-            | (unaryOperator ~! castExpr ^^ {
-        case u ~ c => UCastExpr(u.getText, c)
-    })
+    } ^^ {case p ~ e => UnaryExpr(p.getText, e)})
+            | (unaryOperator ~! castExpr ^^ {case u ~ c => UCastExpr(u.getText, c)})
             | (textToken("sizeof") ~!> {
-        LPAREN ~> typeName <~ RPAREN ^^ {
-            SizeOfExprT(_)
-        } |
-                unaryExpr ^^ {
-                    SizeOfExprU(_)
-                }
+        LPAREN ~> typeName <~ RPAREN ^^ {SizeOfExprT(_)} |
+                unaryExpr ^^ {SizeOfExprU(_)}
     })
             | (alignof ~!> {
-        LPAREN ~> typeName <~ RPAREN ^^ {
-            AlignOfExprT(_)
-        } |
-                unaryExpr ^^ {
-                    AlignOfExprU(_)
-                }
+        LPAREN ~> typeName <~ RPAREN ^^ {AlignOfExprT(_)} |
+                unaryExpr ^^ {AlignOfExprU(_)}
     })
             | gnuAsmExpr
             | fail("expected unaryExpr"))
@@ -438,13 +328,9 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
 
     def postfixSuffix: MultiParser[List[Opt[PostfixSuffix]]] = repOpt[PostfixSuffix](
         (
-                ((PTR ~ ID) | (DOT ~ ID)) ^^ {
-                    case e ~ id => PointerPostfixSuffix(e.getText, id)
-                })
+                ((PTR ~ ID) | (DOT ~ ID)) ^^ {case e ~ id => PointerPostfixSuffix(e.getText, id)})
                 | functionCall
-                | (LBRACKET ~> expr <~ RBRACKET ^^ {
-            ArrayAccess(_)
-        })
+                | (LBRACKET ~> expr <~ RBRACKET ^^ {ArrayAccess(_)})
                 | ((INC | DEC) ^^ {
             c => SimplePostfixSuffix(c.getText)
         })
@@ -454,19 +340,14 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         LPAREN ~> opt(argExprList) <~ RPAREN ^^ {
             case Some(l) => FunctionCall(l); case None => FunctionCall(ExprList(List()))
         }
+    //XXX allows trailing comma after argument list
 
-    def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~ typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {
-        case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuildinOffsetof(tn, d)
-    }
-            | (textToken("__builtin_types_compatible_p") ~ LPAREN ~ typeName ~ COMMA ~ typeName ~ RPAREN ^^ {
-        case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinTypesCompatible(tn, tn2)
-    })
+    def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~ typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuildinOffsetof(tn, d)}
+            | (textToken("__builtin_types_compatible_p") ~ LPAREN ~ typeName ~ COMMA ~ typeName ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinTypesCompatible(tn, tn2)})
             | ID
             | numConst
             | stringConst
-            | (LPAREN ~> ((compoundStatement ^^ {
-        CompoundStatementExpr(_)
-    }) | expr) <~ RPAREN)
+            | (LPAREN ~> ((compoundStatement ^^ {CompoundStatementExpr(_)}) | expr) <~ RPAREN)
             | fail("primary expression expected"))
 
     def typeName: MultiParser[TypeName] =
@@ -488,17 +369,14 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         })
 
     def numConst: MultiParser[Constant] =
-        ((token("number", _.isInteger) ^^ {
-            t => Constant(t.getText)
-        })
-                | (token("charConst", _.getType == Token.CHARACTER) ^^ {
-            t => Constant(t.getText)
-        }))
+        ((token("number", _.isInteger) ^^ {t => Constant(t.getText)})
+                | (token("charConst", _.getType == Token.CHARACTER) ^^ {t => Constant(t.getText)}))
 
     def argExprList: MultiParser[ExprList] =
-        rep1Sep(assignExpr, COMMA) ^^ {
+        rep1SepOpt(assignExpr, COMMA) ^^ {
             ExprList(_)
         }
+    //consumes trailing commas
 
     //
     def ASSIGN = textToken('=')
@@ -583,7 +461,8 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
 
     def offsetofMemberDesignator: MultiParser[List[Opt[Id]]] =
-        rep1Sep(ID, DOT)
+        rep1SepOpt(ID, DOT)
+    //consumes trailing dot
 
     def gnuAsmExpr: MultiParser[GnuAsmExpr] =
         asm ~ opt(volatile) ~
@@ -603,12 +482,13 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
 
     // GCC allows empty initializer lists
     def lcurlyInitializer: MultiParser[Expr] =
-        LCURLY ~ optList(initializerList <~ opt(COMMA)) ~ RCURLY ^^ {
+        LCURLY ~ optList(initializerList /*initializerList already consumes tailing comma <~ opt(COMMA)*/) ~ RCURLY ^^ {
             case _ ~ inits ~ _ => LcurlyInitializer(inits)
         }
 
     def initializerList: MultiParser[List[Opt[Initializer]]] =
-        rep1Sep(initializer, COMMA)
+        rep1SepOpt(initializer, COMMA)
+    //consumes trailing commas
 
     def rangeExpr: MultiParser[Expr] = //used in initializers only  
         constExpr ~~ VARARGS ~! constExpr ^^ {
@@ -626,7 +506,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
 
     //GNU note:  any __label__ declarations must come before regular declarations.            
     def localLabelDeclaration: MultiParser[LocalLabelDeclaration] =
-        textToken("__label__") ~> rep1Sep(ID, COMMA) <~ (opt(COMMA) ~ rep1(SEMI)) ^^ {
+        textToken("__label__") ~> rep1SepOpt(ID, COMMA) <~ (/*rep1SepOpt already consumes trailing comma opt(COMMA) ~*/ rep1(SEMI)) ^^ {
             LocalLabelDeclaration(_)
         }
 
