@@ -5,9 +5,8 @@
 	<classpathentry exported="true" kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="lib/org.sat4j.core.jar" sourcepath="lib/org.sat4j.core-src.jar"/>
 	<classpathentry kind="lib" path="lib_managed/scala_2.8.1/test/scalacheck_2.8.1-1.8.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="con" path="sbt.eclipse.CLASSPATH_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sat4j"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

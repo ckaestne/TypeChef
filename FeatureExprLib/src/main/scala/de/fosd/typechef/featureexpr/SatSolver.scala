@@ -2,11 +2,9 @@ package de.fosd.typechef.featureexpr
 
 import org.sat4j.core.VecInt
 import collection.mutable.WeakHashMap
-import org.sat4j.tools.ConstrGroup
-;
+import org.sat4j.tools.ConstrGroup;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
-
 
 /**
  * connection to the SAT4j SAT solver
@@ -15,8 +13,10 @@ import org.sat4j.specs.ContradictionException;
  */
 
 class SatSolver {
+    val CACHING = true
     def isSatisfiable(exprCNF: NF, featureModel: FeatureModel = NoFeatureModel): Boolean = {
-        SatSolverCache.get(nfm(featureModel)).isSatisfiable(exprCNF)
+        if (CACHING) SatSolverCache.get(nfm(featureModel)).isSatisfiable(exprCNF)
+        else new SatSolverImpl(nfm(featureModel)).isSatisfiable(exprCNF)
     }
 
     private def nfm(fm: FeatureModel) = if (fm == null) NoFeatureModel else fm
@@ -30,7 +30,7 @@ private object SatSolverCache {
 }
 
 private class SatSolverImpl(featureModel: FeatureModel) {
-    val PROFILING = false
+    val PROFILING = true
 
     /**init / constructor */
     val solver = SolverFactory.newDefault();
@@ -40,7 +40,6 @@ private class SatSolverImpl(featureModel: FeatureModel) {
     assert(featureModel != null)
     solver.addAllClauses(featureModel.clauses)
     var uniqueFlagIds: Map[String, Int] = featureModel.variables
-
 
     /**
      * determines whether
@@ -58,11 +57,10 @@ private class SatSolverImpl(featureModel: FeatureModel) {
         val startTime = System.currentTimeMillis();
 
         if (PROFILING)
-            print("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags ")
+            print("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags; " + exprCNF + " ")
 
         val startTimeSAT = System.currentTimeMillis();
         try {
-
 
             //find used macros, combine them by common expansion
             val cnfs: List[NF] = prepareFormula(exprCNF)
@@ -89,7 +87,6 @@ private class SatSolverImpl(featureModel: FeatureModel) {
              * which is removed from the solver at the end
              */
 
-
             val constraintGroup = new ConstrGroup();
             try {
                 val unit = new VecInt();
@@ -110,7 +107,10 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                 if (PROFILING)
                     print(";")
 
-                return solver.isSatisfiable(unit)
+                val result = solver.isSatisfiable(unit)
+                if (PROFILING)
+                    print(result + ";")
+                return result
             } finally {
                 constraintGroup.removeFrom(solver)
             }
@@ -148,7 +148,6 @@ private class SatSolverImpl(featureModel: FeatureModel) {
         if (clause.posLiterals.isEmpty)
             -uniqueFlagIds(clause.negLiterals(0).satName)
         else uniqueFlagIds(clause.posLiterals(0).satName)
-
 
     /**
      * DefinedExternal translates directly into a flag for the SAT solver

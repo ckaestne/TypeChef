@@ -3,7 +3,8 @@ import reaktor.scct.ScctProject
 import webbytest.HtmlTestsProject
 
 class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
-    lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_))
+    lazy val sat4j = project("org.sat4j.core", "sat4j", new JavaSubProject(_))
+    lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_), sat4j)
     lazy val parserexp = project("ParserFramework", "Parser Core", new DefaultSubProject(_), featureexpr)
     lazy val jcpp = project("PartialPreprocessor", "Partial Preprocessor", new JavaSubProject(_), featureexpr)
     lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_), featureexpr, jcpp, parserexp)
@@ -21,6 +22,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     class JavaSubProject(info: ProjectInfo) extends DefaultProject(info) with HtmlTestsProject with ScctProject with IdeaProject {
         //-source 1.5 is required for standalone ecj - it defaults to 1.3!
         override def javaCompileOptions = super.javaCompileOptions ++ javaCompileOptions("-source", "1.5")
+        val junit = "junit" % "junit" % "4.8.2" % "test->default"
     }
 
 }

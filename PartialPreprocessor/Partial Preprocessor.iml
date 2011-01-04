@@ -21,7 +21,7 @@
     <orderEntry type="module-library" exported="" scope="TEST">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/target/scala_2.8.0/test-resources" />
+          <root url="file://$MODULE_DIR$/target/scala_2.8.1/test-resources" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -30,6 +30,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="buildScala" level="project" />
+    <orderEntry type="module" module-name="sat4j" />
     <orderEntry type="module" module-name="FeatureExprLib" />
     <orderEntry type="module-library" exported="">
       <library>

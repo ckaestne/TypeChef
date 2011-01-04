@@ -36,8 +36,9 @@ class NF(val clauses: Seq[Clause], val isFull: Boolean) {
     /**empty means true for CNF, false for DNF **/
     def isEmpty = !isFull && clauses.isEmpty
     def isAtomic = clauses.size == 1 && clauses.head.isAtomic
-    override def toString = if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
-    def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&&")
+    override def toString = printCNF
+    //if (isEmpty) "EMPTY" else if (isFull) "FULL" else clauses.mkString("*")
+    def printCNF = if (isEmpty) "1" else if (isFull) "0" else clauses.map(_.printCNF).mkString("&")
     override def hashCode = clauses.hashCode
     override def equals(that: Any) = that match {
         case thatNF: NF => this.clauses equals thatNF.clauses; case _ => false
@@ -79,7 +80,7 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
     override def toString =
         (posLiterals.map(_.satName) ++ negLiterals.map("!" + _.satName)).mkString("(", "*", ")")
     def printCNF =
-        (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "||", ")")
+        (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "|", ")")
     override def hashCode = {
         simplify;
         posLiterals.hashCode + negLiterals.hashCode
