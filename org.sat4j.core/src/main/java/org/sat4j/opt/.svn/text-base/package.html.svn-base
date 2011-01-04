@@ -1,0 +1,10 @@
+<body>
+Built-in optimization framework.
+<p>
+That package contains various optimization decorators for solving optimization 
+problems such as MAX-SAT, Weighted MAX-SAT, etc.
+</p>
+<p>
+Those decorators are supposed to be used with the Abstract Optimization Launcher.
+</p>
+</body>

@@ -1,0 +1,5 @@
+<body>
+Implementations of cardinality contraints.
+
+Cardinality constraints are implemented by counters and watched literals.
+</body>

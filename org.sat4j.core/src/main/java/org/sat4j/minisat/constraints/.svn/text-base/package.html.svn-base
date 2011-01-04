@@ -1,0 +1,6 @@
+<body>
+Implementations of various constraints for MiniSAT.
+
+One just needs to swap the DataStructureFactory in Solver to change 
+the internal representation of the constraints.
+</body>
