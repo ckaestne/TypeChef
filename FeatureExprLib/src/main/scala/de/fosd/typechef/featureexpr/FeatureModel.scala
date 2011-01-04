@@ -79,6 +79,39 @@ object FeatureModel {
         assert(maxId == variables.size)
         new FeatureModel(variables, clauses)
     }
+    /**
+     * special reader for the -2var model
+     */
+    def createFromDimacsFile_2Var(file: String) = {
+        var variables: Map[String, Int] = Map()
+        val clauses = new Vec[IVecInt]()
+        var maxId = 0
+
+        for (line <- scala.io.Source.fromFile(file).getLines) {
+            if (line startsWith "c ") {
+                val entries = line.substring(2).split(" ")
+                val id = if (entries(0) endsWith "$")
+                    entries(0).substring(0, entries(0).length - 1).toInt
+                else
+                    entries(0).toInt
+                maxId = scala.math.max(id, maxId)
+                //only interested in variables with _1
+                val varname = "CONFIG_" + (if (entries(1).endsWith("_1")) entries(1).substring(0, entries(1).length - 2) else entries(1))
+                variables = variables.updated(varname, id)
+            } else if ((line startsWith "p ") || (line.trim.size == 0)) {
+                //comment, do nothing
+            } else {
+                val vec = new VecInt()
+                for (literal <- line.split(" "))
+                    if (literal != "0")
+                        vec.push(literal.toInt)
+                clauses.push(vec)
+            }
+
+        }
+        assert(maxId == variables.size)
+        new FeatureModel(variables, clauses)
+    }
 
     private def lookupLiteral(literal: String, variables: Map[String, Int]) =
         if (literal.startsWith("-"))
