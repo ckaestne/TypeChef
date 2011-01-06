@@ -57,6 +57,7 @@ class LinuxFeatureModelTest extends TestCase {
     }
 
     @Test
+    @Ignore
     def testIsModelSatisfiable {
         val solver = SolverFactory.newDefault();
         solver.setTimeoutMs(1000);

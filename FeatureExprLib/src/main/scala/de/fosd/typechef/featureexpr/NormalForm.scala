@@ -173,13 +173,35 @@ object NFBuilder {
         new Clause(posLiterals, negLiterals).simplify
     }
 
-    //    def CNFtoFeatureExpr(cnf: NF): FeatureExpr =
-    //        if (cnf.isEmpty) BaseFeature()
-    //        else if (cnf.isFull) DeadFeature()
-    //        else new And(
-    //            for (clause <- cnf.clauses) yield new Or(clause.posLiterals ++ clause.negLiterals.map(Not(_)))
-    //        )
+    //for testing
+    def isCNF(expr: FeatureExpr) = isTrueFalse(expr) || isClause(expr) || (expr match {
+        case And(clauses) => clauses.forall(isClause(_))
+        case e => false
+    })
+    def isClauseOrTF(expr: FeatureExpr) = isTrueFalse(expr) || isClause(expr)
+    def isClause(expr: FeatureExpr) = isLiteral(expr) || (expr match {
+        case Or(literals) => literals.forall(isLiteral(_))
+        case _ => false
+    })
+    def isLiteral(expr: FeatureExpr) = expr match {
+        case x: DefinedExpr => true
+        case Not(DefinedExpr(_)) => true
+        case _ => false
+    }
+    def isTrueFalse(expr: FeatureExpr) = expr match {
+        case True => true
+        case False => true
+        case _ => false
+    }
 }
+
+//    def CNFtoFeatureExpr(cnf: NF): FeatureExpr =
+//        if (cnf.isEmpty) BaseFeature()
+//        else if (cnf.isFull) DeadFeature()
+//        else new And(
+//            for (clause <- cnf.clauses) yield new Or(clause.posLiterals ++ clause.negLiterals.map(Not(_)))
+//        )
+
 
 object SmallList {
     def apply[T](e: T*): Seq[T] = {

@@ -43,32 +43,34 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
         Gen.sized(sz => genFeatureExpr(sz))
     }
 
+
     property("and1") = Prop.forAll((a: FeatureExpr) => (a and FeatureExpr.base) equivalentTo a)
     property("and0") = Prop.forAll((a: FeatureExpr) => (a and FeatureExpr.dead) equivalentTo FeatureExpr.dead)
     property("andSelf") = Prop.forAll((a: FeatureExpr) => (a and a) equivalentTo a)
     property("or1") = Prop.forAll((a: FeatureExpr) => (a or base) equivalentTo base)
     property("or0") = Prop.forAll((a: FeatureExpr) => (a or dead) equivalentTo a)
     property("orSelf") = Prop.forAll((a: FeatureExpr) => (a or a) equivalentTo a)
-    property("simplify does not change satisfiability") = Prop.forAll((a: FeatureExpr) => a.simplify equivalentTo a)
 
     property("a eq a") = Prop.forAll((a: FeatureExpr) => a eq a)
     property("a equals a") = Prop.forAll((a: FeatureExpr) => a equals a)
     property("a equivalent a") = Prop.forAll((a: FeatureExpr) => a equivalentTo a)
-    property("simplify does not change pointer equality") = Prop.forAll((a: FeatureExpr) => a eq (a.simplify))
-    property("simplify does not change equality") = Prop.forAll((a: FeatureExpr) => a equals (a.simplify))
-    property("simplify does not change equivalence") = Prop.forAll((a: FeatureExpr) => a equivalentTo (a.simplify))
+    //    property("simplify does not change pointer equality") = Prop.forAll((a: FeatureExpr) => a eq (a.simplify))
+    //    property("simplify does not change equality") = Prop.forAll((a: FeatureExpr) => a equals (a.simplify))
+    //    property("simplify does not change equivalence") = Prop.forAll((a: FeatureExpr) => a equivalentTo (a.simplify))
 
     property("creating (a and b) twice creates the same object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) eq (a and b))
     property("creating (a or b) twice creates the same object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) eq (a or b))
     property("creating (not a) twice creates the same object") = Prop.forAll((a: FeatureExpr) => (a.not) eq (a.not))
     property("applying not twice yields the same object") = Prop.forAll((a: FeatureExpr) => a eq (a.not.not))
 
-    property("SAT(toCNF) == SAT(toEquiCNF)") = Prop.forAll((a: FeatureExpr) => new SatSolver().isSatisfiable(a.toCNF) == new SatSolver().isSatisfiable(a.toEquiCNF))
+    property("toCNF produces CNF") = Prop.forAll((a: FeatureExpr) => NFBuilder.isCNF(a.toCNF))
+    property("toEquiCNF produces CNF") = Prop.forAll((a: FeatureExpr) => NFBuilder.isCNF(a.toCnfEquiSat))
+    property("SAT(toCNF) == SAT(toEquiCNF)") = Prop.forAll((a: FeatureExpr) => new SatSolver().isSatisfiable(a.equiCNF) == new SatSolver().isSatisfiable(a.cnf))
 
-    property("normalize") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) =>
-        ((a and b).isSatisfiable == (a.normalize and (b.normalize)).isSatisfiable) &&
-                ((a or b).isSatisfiable == (a.normalize or (b.normalize)).isSatisfiable) &&
-                ((a not).isSatisfiable == (a.normalize.not).isSatisfiable)
+    property("cnf does not change satisifiability") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) =>
+        ((a and b).isSatisfiable == (a.toCNF and (b.toCNF)).isSatisfiable) &&
+                ((a or b).isSatisfiable == (a.toCNF or (b.toCNF)).isSatisfiable) &&
+                ((a not).isSatisfiable == (a.toCNF.not).isSatisfiable)
     )
 
     property("taut(a=>b) == contr(a and !b)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => a.implies(b).isTautology() == a.and(b.not).isContradiction)

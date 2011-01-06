@@ -10,42 +10,53 @@ import FeatureExpr._
 class TestFeatureExpr extends TestCase {
 
     @Test
-    def assertSimplify(exprA: FeatureExprTree, expectedResult: FeatureExprTree) {
-        println("simplify(" + exprA.print + ") = " + exprA.simplify().print() + ", expected " + expectedResult.print())
-        assert(exprA.simplify() == expectedResult, "Simplification failed. Found " + exprA.simplify() + " expected " + expectedResult)
+    def assertSimplify(exprA: FeatureExpr, expectedResult: FeatureExpr) {
+        println("simplify(" + exprA.print + ") = " + exprA.print() + ", expected " + expectedResult.print())
+        assert(exprA == expectedResult, "Simplification failed. Found " + exprA + " expected " + expectedResult)
     }
     @Test
-    def assertCNF(exprA: FeatureExprTree, expectedResult: FeatureExprTree) {
+    def assertCNF(exprA: FeatureExpr, expectedResult: FeatureExpr) {
         println("toCNF(" + exprA.print + ") = " + exprA.toCNF.print() + ", expected " + expectedResult.print())
-        assert(exprA.toCNF == expectedResult, "Simplification failed. Found " + exprA.simplify() + " expected " + expectedResult)
+        assert(exprA.toCNF == expectedResult, "Simplification failed. Found " + exprA + " expected " + expectedResult)
     }
 
-    def assertIsCNF(expr: FeatureExprTree) {
+    def assertIsCNF(expr: FeatureExpr) {
         _assertIsCNF(expr.toCNF);
     }
 
-    def _assertIsCNF(cnf: FeatureExprTree) {
+    def _assertIsCNF(cnf: FeatureExpr) {
         println("CNF: " + cnf)
         cnf match {
             case And(children) => for (child <- children) checkLevelOr(child);
             case e => checkLevelOr(e);
         }
     }
-    def checkLevelOr(expr: FeatureExprTree) {
+    def checkLevelOr(expr: FeatureExpr) {
         expr match {
             case Or(children) => for (child <- children) checkLevelLiteral(child);
             case e => checkLevelLiteral(e);
         }
 
     }
-    def checkLevelLiteral(expr: FeatureExprTree) {
+    def checkLevelLiteral(expr: FeatureExpr) {
         expr match {
-            case DefinedExternal(name) =>
-            case IntegerLit(v) =>
-            case Not(DefinedExternal(name)) =>
+            case a: DefinedExpr =>
+            case a: Value =>
+            case Not(DefinedExpr(name)) =>
             case e => assert(false, expr + " is not a literal")
         }
     }
+
+    //adapter for old model
+    def DefinedExternal(a: String) = FeatureExpr.createDefinedExternal(a)
+    def IntegerLit(a: Int) = FeatureExpr.createInteger(a)
+    def And(l: List[FeatureExpr]) = FExprBuilder.createAnd(l)
+    def Or(l: List[FeatureExpr]) = FExprBuilder.createOr(l)
+    def Not(e: FeatureExpr) = e.not
+    def Or(a: FeatureExpr, b: FeatureExpr) = a or b
+    def And(a: FeatureExpr, b: FeatureExpr) = a and b
+    def BaseFeature() = FeatureExpr.base
+    def DeadFeature() = FeatureExpr.dead
 
     def testSimplify() {
         assertSimplify(And(List(DefinedExternal("a"))), DefinedExternal("a"))
@@ -94,8 +105,8 @@ class TestFeatureExpr extends TestCase {
             FeatureExpr.createIf(
                 DefinedExternal("CONFIG_64BIT"),
                 IntegerLit(64),
-                IntegerLit(32))).expr,
-            IntegerLit(1))
+                IntegerLit(32))),
+            IntegerLit(1).toFeatureExpr)
 
         // (1 + (1 + (1 + __IF__(defined(a),1,2))))) = __IF__(defined(a),4,5), results overall in BaseFeature because both are true
         assertTrue(FeatureExpr.createPlus(
@@ -107,7 +118,7 @@ class TestFeatureExpr extends TestCase {
                     FeatureExpr.createIf(
                         DefinedExternal("a"),
                         IntegerLit(1),
-                        IntegerLit(2))))).isTautology)
+                        IntegerLit(2))))).toFeatureExpr.isTautology)
         //            FeatureExpr.createIf(
         //                DefinedExternal("a"),
         //                IntegerLit(4),
@@ -120,42 +131,52 @@ class TestFeatureExpr extends TestCase {
             FeatureExpr.createShiftLeft(
                 (FeatureExpr.createInteger(1)),
                 FeatureExpr.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))),
-            FeatureExpr.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))).and(createInteger(1)).expr, BaseFeature());
+            FeatureExpr.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))).and(createInteger(1).toFeatureExpr), BaseFeature());
 
         assertSimplify(
             FeatureExpr.createIf(
                 (FeatureExpr.createDefinedExternal("a")),
                 FeatureExpr.createLessThanEquals((FeatureExpr.createInteger(1)), (FeatureExpr.createInteger(64))),
-                FeatureExpr.createLessThanEquals((FeatureExpr.createInteger(1)), (FeatureExpr.createInteger(32)))).not.expr, DeadFeature());
+                FeatureExpr.createLessThanEquals((FeatureExpr.createInteger(1)), (FeatureExpr.createInteger(32)))).not, DeadFeature());
     }
 
     def testCFN() {
-        assertIsCNF(And(List(new Or(DefinedExternal("a1"), DefinedExternal("b")),
-            new Or(new And(DefinedExternal("a2"), new Or(DefinedExternal("b"), DefinedExternal("c"))),
-                new Or(DefinedExternal("a1"), DefinedExternal("c"))),
-            new Or(DefinedExternal("a2"), DefinedExternal("c")))))
+        assertIsCNF(And(List(Or(DefinedExternal("a1"), DefinedExternal("b")),
+            Or(And(DefinedExternal("a2"), Or(DefinedExternal("b"), DefinedExternal("c"))),
+                Or(DefinedExternal("a1"), DefinedExternal("c"))),
+            Or(DefinedExternal("a2"), DefinedExternal("c")))))
 
         assertEquals(Not(DefinedExternal("X")), Not(DefinedExternal("X")).toCNF);
 
-        val v = new Or(DefinedExternal("a"), new And(DefinedExternal("b"), DefinedExternal("c"))).toCNF;
+        val v = Or(DefinedExternal("a"), And(DefinedExternal("b"), DefinedExternal("c"))).toCNF;
         println(v)
-        val vs = v.simplify
-        println(vs)
 
         //(!((defined(a) && defined(b))) || defined(b))
-        assertIsCNF(new Or(Not(new And(DefinedExternal("a"), DefinedExternal("b"))), DefinedExternal("b")).toCNF)
+        assertIsCNF(Or(Not(And(DefinedExternal("a"), DefinedExternal("b"))), DefinedExternal("b")).toCNF)
 
         val a = DefinedExternal("a")
         val b = DefinedExternal("b")
         val c = DefinedExternal("c")
-        val expr2 = new FeatureExpr(Or(Not(And(a, b)), c))
-        expr2.toCNF
-        expr2.toEquiCNF
-        val expr = new FeatureExpr(Or(Not(And(a, a)), a))
-        expr.toCNF
-        expr.toEquiCNF
+        val expr2 = (Or(Not(And(a, b)), c))
+        expr2.cnf
+        expr2.equiCNF
+        val expr = (Or(Not(And(a, a)), a))
+        expr.cnf
+        expr.equiCNF
 
     }
+
+    def testCNF2() {
+        def d = createDefinedExternal("d")
+        def a = createDefinedExternal("a")
+        def f = createDefinedExternal("f")
+        def c = createDefinedExternal("c")
+        def e = createDefinedExternal("e")
+        def b = createDefinedExternal("b")
+        def !(f: FeatureExpr) = f.not
+        assertIsCNF(((d and ((a.not and (f or c or d)).not)) or (f and e) or ((c or b) and c) or ((b or f).not)).toCNF)
+    }
+
 
     def testCNFIf() {
         assertCNF(FeatureExpr.createEquals(
@@ -163,7 +184,7 @@ class TestFeatureExpr extends TestCase {
                 DefinedExternal("a"),
                 IntegerLit(1),
                 IntegerLit(0)),
-            FeatureExpr.createInteger(0)).expr, Not(DefinedExternal("a")))
+            FeatureExpr.createInteger(0)), Not(DefinedExternal("a")))
 
         //(__IF__(!(defined(CONFIG_NR_CPUS)),1,0) > 1)
         assertSimplify(FeatureExpr.createGreaterThan(
@@ -171,7 +192,7 @@ class TestFeatureExpr extends TestCase {
                 Not(DefinedExternal("a")),
                 IntegerLit(1),
                 IntegerLit(0)),
-            FeatureExpr.createInteger(1)).expr, DeadFeature())
+            FeatureExpr.createInteger(1)), DeadFeature())
 
     }
 
@@ -180,7 +201,7 @@ class TestFeatureExpr extends TestCase {
         assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a"))
         assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a")))
         assertTrue(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equivalentTo FeatureExpr.base)
-        assertFalse(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equals FeatureExpr.base)
+        assertTrue(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equals FeatureExpr.base)
         assertTrue(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equivalentTo FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
     }
 

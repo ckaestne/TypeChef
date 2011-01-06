@@ -24,7 +24,7 @@ class TestSatSolver extends TestCase {
         assertEquals(true, createIf(a, a.not, a) isContradiction ())
         assertEquals(true, dead isContradiction ())
         assertEquals(true, base isTautology ())
-        assertEquals(true, createInteger(2) isTautology ())
+        assertEquals(true, createInteger(2).toFeatureExpr.isTautology())
     }
 
     @Test

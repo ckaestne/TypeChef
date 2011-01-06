@@ -17,7 +17,7 @@ class TestDefinedMacro extends TestCase {
     def x = createDefinedExternal("X")
     def y = createDefinedExternal("Y")
 
-    def assertEquiv(a:FeatureExpr, b:FeatureExpr) = assertTrue(a equivalentTo b)
+    def assertEquiv(a: FeatureExpr, b: FeatureExpr) = assertTrue("expected: " + a + " equivalentTo " + b, a equivalentTo b)
 
     @Test
     def testMacroTable() {
@@ -40,7 +40,7 @@ class TestDefinedMacro extends TestCase {
 
         //        expectFail(macroTable.define("Y", createDefinedMacro("X"), "1"))
 
-        assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable).resolveToExternal(), "1").getMacroCondition("Y"))
+        assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable).resolveToExternal, "1").getMacroCondition("Y"))
         assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable), "1").getMacroCondition("Y"))
 
     }
@@ -105,8 +105,8 @@ class TestDefinedMacro extends TestCase {
         //        macroTable = macroTable.define("GLOBAL", createDefinedMacro("Y"), "")
 
         val u = macroTable.getMacroCondition("GLOBAL")
-        val x = u.resolveToExternal();
-        val y = new FeatureExpr(x.expr.toCNF)
+        val x = u.resolveToExternal
+        val y = x.toCNF
 
         assertFalse(u.isTautology())
         assertFalse(x.isTautology())
@@ -144,23 +144,23 @@ class TestDefinedMacro extends TestCase {
         var macroTable = new MacroContext()
         macroTable = macroTable.undefine("X", base)
 
-        val firstX =createDefinedMacro("X", macroTable)//false
+        val firstX = createDefinedMacro("X", macroTable) //false
         assertTrue(firstX.isContradiction)
-        
-        macroTable = macroTable.define("X", a,"")
-        val secondX =createDefinedMacro("X", macroTable)//A
+
+        macroTable = macroTable.define("X", a, "")
+        val secondX = createDefinedMacro("X", macroTable) //A
         assertTrue(firstX.isContradiction)
         assertTrue(secondX.isSatisfiable)
 
-        macroTable = macroTable.define("X", a.not,"")
-        val thirdX =createDefinedMacro("X", macroTable)//true
+        macroTable = macroTable.define("X", a.not, "")
+        val thirdX = createDefinedMacro("X", macroTable) //true
         assertTrue(firstX.isContradiction)
         assertTrue(secondX.isSatisfiable)
         assertTrue(thirdX.isTautology)
-        
+
         macroTable = macroTable.undefine("X", base)
-        macroTable = macroTable.define("X", a.not,"")//!A
-        val fourthX =createDefinedMacro("X", macroTable)
+        macroTable = macroTable.define("X", a.not, "") //!A
+        val fourthX = createDefinedMacro("X", macroTable)
         assertTrue(firstX.isContradiction)
         assertTrue(secondX.isSatisfiable)
         assertTrue(thirdX.isTautology)

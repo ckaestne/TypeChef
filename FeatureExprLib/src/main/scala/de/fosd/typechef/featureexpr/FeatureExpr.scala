@@ -1,7 +1,7 @@
 package de.fosd.typechef.featureexpr
 
-import collection.mutable.Map
 import LazyLib._
+import collection.mutable.{WeakHashMap, Map}
 
 /**
  * external interface to constructing feature expressions (mostly delegated to FExprBuilder)
@@ -63,7 +63,7 @@ object FeatureExprHelper {
  * an additional but expensive operation). propositions such as and or and not
  * cache results, so that the operation yields identical results on identical parameters
  */
-trait FeatureExpr {
+abstract class FeatureExpr {
 
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, that)
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, that)
@@ -91,7 +91,8 @@ trait FeatureExpr {
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
      * but is faster because FM is cached
      */
-    def isSatisfiable(fm: FeatureModel): Boolean = true
+    def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(equiCNF, fm))
+    private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
 
     //    def accept(f: FeatureExpr => Unit): Unit
 
@@ -129,7 +130,7 @@ trait FeatureExpr {
         //map used for caching (to not look twice at the same subtree)
         class FoundUnresolvedException extends Exception
         try {
-            this.map({
+            this.mapDefinedExpr({
                 case e: DefinedMacro => {throw new FoundUnresolvedException(); e}
                 case e => e
             }, Map())
@@ -139,7 +140,7 @@ trait FeatureExpr {
         }
     }
 
-    def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
+    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
     def print(): String
     def debug_print(indent: Int): String
 
@@ -148,10 +149,12 @@ trait FeatureExpr {
 
     def toCNF(): FeatureExpr = {
         if (cache_cnf == null) {cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf}
+        assert(NFBuilder.isCNF(cache_cnf))
         cache_cnf
     }
     def toCnfEquiSat(): FeatureExpr = {
         if (cache_cnfEquiSat == null) cache_cnfEquiSat = calcCNFEquiSat
+        assert(NFBuilder.isCNF(cache_cnfEquiSat))
         cache_cnfEquiSat
     }
     protected def calcCNF: FeatureExpr
@@ -161,7 +164,12 @@ trait FeatureExpr {
     private[featureexpr] lazy val equiCNF: NF = if (cache_cnf != null) cnf else NFBuilder.toCNF(toCnfEquiSat)
 }
 
-trait FeatureExprValue
+trait FeatureExprValue {
+    def toFeatureExpr: FeatureExpr = {
+        val zero = FExprBuilder.createValue(0)
+        FExprBuilder.evalRelation(this, zero, _ != _)
+    }
+}
 
 
 /**
@@ -178,7 +186,7 @@ private[featureexpr] object FExprBuilder {
         override def hashCode = a.hashCode + b.hashCode;
         override def equals(o: Any) = o match {
             case that: FExprPair => (this.a.equals(that.a) && this.b.equals(that.b)) ||
-                    (this.a.equals(that.b) && this.a.equals(that.b))
+                    (this.a.equals(that.b) && this.b.equals(that.a))
             case _ => false
         }
     }
@@ -201,7 +209,7 @@ private[featureexpr] object FExprBuilder {
             case (e, True) => e
             case (e1, e2) if (e1.not == e2) => False
             case other =>
-                orCache.getOrElseUpdate(new FExprPair(a, b), other match {
+                andCache.getOrElseUpdate(new FExprPair(a, b), other match {
                     case (a1: And, a2: And) => new And(a1.clauses ++ a2.clauses distinct)
                     case (a: And, e) => if (a.clauses contains e) a else new And(e :: a.clauses)
                     case (e, a: And) => if (a.clauses contains e) a else new And(e :: a.clauses)
@@ -219,7 +227,7 @@ private[featureexpr] object FExprBuilder {
             case (False, e) => e
             case (e, False) => e
             case (e1, e2) if (e1.not == e2) => True
-            case other => andCache.getOrElseUpdate(new FExprPair(a, b), other match {
+            case other => orCache.getOrElseUpdate(new FExprPair(a, b), other match {
                 case (o1: Or, o2: Or) => new Or(o1.clauses ++ o2.clauses distinct)
                 case (o: Or, e) => if (o.clauses contains e) a else new Or(e :: o.clauses)
                 case (e, o: Or) => if (o.clauses contains e) a else new Or(e :: o.clauses)
@@ -298,7 +306,7 @@ private[featureexpr] object FExprBuilder {
 
     def createValue(v: Long): FeatureExprValue = valCache.getOrElseUpdate(v, new Value(v))
 
-    def resolveToExternal(expr: FeatureExpr): FeatureExpr = expr.map({
+    def resolveToExternal(expr: FeatureExpr): FeatureExpr = expr.mapDefinedExpr({
         case e: DefinedMacro => e.presenceCondition.resolveToExternal
         case e => e
     }, resolvedCache)
@@ -720,15 +728,19 @@ private[featureexpr] abstract class TrueFalseFeatureExpr(isTrue: Boolean) extend
     override def calcSize = 0
     override def print = if (isTrue) "1" else "0"
     override def debug_print(ind: Int) = indent(ind) + print + "\n"
-    override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
+    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
     override def calcCNF = this
     override def calcCNFEquiSat = this
     override def isSatisfiable(fm: FeatureModel) = isTrue
 }
 
-object True extends TrueFalseFeatureExpr(true)
+object True extends TrueFalseFeatureExpr(true) {
+    override def toString = "True"
+}
 
-object False extends TrueFalseFeatureExpr(false)
+object False extends TrueFalseFeatureExpr(false) {
+    override def toString = "False"
+}
 
 
 class And(val clauses: List[FeatureExpr]) extends FeatureExpr {
@@ -737,9 +749,9 @@ class And(val clauses: List[FeatureExpr]) extends FeatureExpr {
     override def debug_print(ind: Int) = indent(ind) + "&\n" + clauses.map(_.debug_print(ind + 1)).mkString
 
     override def calcSize = clauses.foldLeft(0)(_ + _.size)
-    override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
+    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
         var anyChange = false
-        val newClauses = clauses.map(x => {val y = x.map(f, cache); anyChange |= x == y; y})
+        val newClauses = clauses.map(x => {val y = x.mapDefinedExpr(f, cache); anyChange |= x == y; y})
         if (anyChange) FExprBuilder.createAnd(newClauses) else this
     })
 
@@ -757,9 +769,9 @@ class Or(val clauses: List[FeatureExpr]) extends FeatureExpr {
     override def debug_print(ind: Int) = indent(ind) + "|\n" + clauses.map(_.debug_print(ind + 1)).mkString
 
     override def calcSize = clauses.foldLeft(0)(_ + _.size)
-    override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
+    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
         var anyChange = false
-        val newClauses = clauses.map(x => {val y = x.map(f, cache); anyChange |= x == y; y})
+        val newClauses = clauses.map(x => {val y = x.mapDefinedExpr(f, cache); anyChange |= x == y; y})
         if (anyChange) FExprBuilder.createOr(newClauses) else this
     })
 
@@ -771,13 +783,16 @@ class Or(val clauses: List[FeatureExpr]) extends FeatureExpr {
                 child match {
                     case And(innerChildren) => {
                         var newClauses: Seq[FeatureExpr] = SmallList()
-                        for (innerChild <- innerChildren)
-                            newClauses = newClauses ++ orClauses.map(_ or innerChild);
-                        orClauses = newClauses;
+                        for (innerChild <- innerChildren) {
+                            val aClauses =
+                                newClauses ++= orClauses.map(_ or innerChild)
+                        }
+                        orClauses = newClauses
                     }
-                    case _ => orClauses = orClauses.map(_ or child);
+                    case _ => orClauses = orClauses.map(_ or child)
                 }
             }
+            assert(orClauses.forall(c => NFBuilder.isClause(c) || c == True || c == False))
             FExprBuilder.createAnd(orClauses)
         } else FExprBuilder.createOr(cnfchildren)
     }
@@ -811,25 +826,25 @@ object Or {
 }
 
 class Not(val expr: FeatureExpr) extends FeatureExpr {
-    override def toString = "!" + expr
-    override def print = "!" + expr.toString
+    override def toString = "!" + expr.toString
+    override def print = "!" + expr.print
     override def debug_print(ind: Int) = indent(ind) + "!\n" + expr.debug_print(ind + 1)
 
     override def calcSize = expr.size
-    override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
-        val newExpr = expr.map(f, cache)
+    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
+        val newExpr = expr.mapDefinedExpr(f, cache)
         if (newExpr != expr) FExprBuilder.not(newExpr) else this
     })
     protected def calcCNF: FeatureExpr = expr match {
         case And(children) => FExprBuilder.createOr(children.map(_.not.toCNF)).toCNF
-        case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCNF)).toCNF
-        case e => e
+        case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCNF))
+        case e => this
     }
 
     protected def calcCNFEquiSat: FeatureExpr = expr match {
         case And(children) => FExprBuilder.createOr(children.map(_.not.toCnfEquiSat())).toCnfEquiSat()
         case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCnfEquiSat()))
-        case e => e.toCnfEquiSat.not
+        case e => this
     }
 
 }
@@ -852,7 +867,7 @@ abstract class DefinedExpr extends FeatureExpr {
     //used for sat solver only to distinguish extern and macro
     def isExternal: Boolean
     override def calcSize = 1
-    override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, f(this))
+    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, f(this))
     override def calcCNF = this
     override def calcCNFEquiSat = this
 }
@@ -868,11 +883,11 @@ object DefinedExpr {
 
 /**external definition of a feature (cannot be decided to Base or Dead inside this file) */
 class DefinedExternal(name: String) extends DefinedExpr {
+    DefinedExpr.checkFeatureName(name)
+
     def feature = name
-    def print(): String = {
-        DefinedExpr.checkFeatureName(name)
-        "definedEx(" + name + ")";
-    }
+    override def print(): String = "definedEx(" + name + ")";
+    override def toString = name
     def countSize() = 1
     def isExternal = true
 }
@@ -883,11 +898,11 @@ class DefinedExternal(name: String) extends DefinedExpr {
  * assumption: expandedName is unique and may be used for comparison
  */
 class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[NF]) extends DefinedExpr {
+    DefinedExpr.checkFeatureName(name)
+
     def feature = name
-    def print(): String = {
-        DefinedExpr.checkFeatureName(name)
-        "defined(" + name + ")";
-    }
+    override def print(): String = "defined(" + name + ")"
+    override def toString = "macro(" + name + ")"
     override def satName = expandedName
     def countSize() = 1
     def isExternal = false

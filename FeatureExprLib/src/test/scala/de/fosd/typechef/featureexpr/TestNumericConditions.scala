@@ -66,11 +66,12 @@ class TestNumericConditions extends TestCase {
         //				__ELSE__
         //					0
         //	CONFIG_SPARSEMEM
+        import FeatureExpr._
         val longExpr =
             FeatureExpr.createGreaterThan(
                 FeatureExpr.createPlus(
                     FeatureExpr.createMinus(
-                        FeatureExpr.createIf(Not(DefinedExternal("forcemaxzone")), IntegerLit(11), IntegerLit(0)),
+                        FeatureExpr.createIf((createDefinedExternal("forcemaxzone").not), createInteger(11), createInteger(0)),
                         (FeatureExpr.createInteger(1))),
                     (FeatureExpr.createInteger(12))),
                 FeatureExpr.createIf(
@@ -101,17 +102,17 @@ class TestNumericConditions extends TestCase {
             FeatureExpr.createLessThanEquals(
                 (FeatureExpr.createInteger(1)),
                 FeatureExpr.createIf(
-                    DefinedExternal("CONFIG_64BIT"),
-                    IntegerLit(64),
-                    IntegerLit(32))).not.isContradiction());
+                    createDefinedExternal("CONFIG_64BIT"),
+                    createInteger(64),
+                    createInteger(32))).not.isContradiction());
 
         //a?1:2==2
         assertTrue(
             FeatureExpr.createEquals(
                 FeatureExpr.createIf(
-                    DefinedExternal("a"),
-                    IntegerLit(1),
-                    IntegerLit(2)),
+                    createDefinedExternal("a"),
+                    createInteger(1),
+                    createInteger(2)),
                 FeatureExpr.createInteger(2)).isSatisfiable());
 
     }

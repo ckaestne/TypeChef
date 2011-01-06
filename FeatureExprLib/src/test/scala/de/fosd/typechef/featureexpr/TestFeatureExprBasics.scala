@@ -18,7 +18,7 @@ class TestFeatureExprBasics extends TestCase {
     //CONTRADICTION
 
     def check(x: FeatureExpr, f: Int = s) {
-        println(x.expr)
+        println(x)
         //        println("CNF: " + x.cnfExpr)
         //        println("DNF: " + x.dnfExpr)
         if (f == s) {
@@ -77,6 +77,6 @@ class TestFeatureExprBasics extends TestCase {
 
     @Test
     def testToCnf {
-        println(FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).expr.toCNF)
+        println(FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).toCNF)
     }
 }
