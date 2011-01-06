@@ -1,10 +1,7 @@
 package de.fosd.typechef.featureexpr
 
-import scala.collection.mutable.WeakHashMap
-
 import collection.mutable.Map
 import LazyLib._
-import ref.WeakReference
 
 /**
  * external interface to constructing feature expressions (mostly delegated to FExprBuilder)
@@ -33,8 +30,8 @@ object FeatureExpr {
     def createCharacter(value: Char): FeatureExprValue = FExprBuilder.createValue(value)
 
 
-    def createDefinedExternal(name: String): FeatureExpr = FExprBuilder.definedExternal(name)
-    def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = FExprBuilder.definedMacro(name, macroTable)
+    def createDefinedExternal(name: String) = FExprBuilder.definedExternal(name)
+    def createDefinedMacro(name: String, macroTable: FeatureProvider) = FExprBuilder.definedMacro(name, macroTable)
 
 
     //helper
@@ -148,12 +145,20 @@ trait FeatureExpr {
 
     private var cache_cnf: FeatureExpr = null
     private var cache_cnfEquiSat: FeatureExpr = null
+
     def toCNF(): FeatureExpr = {
         if (cache_cnf == null) {cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf}
         cache_cnf
     }
+    def toCnfEquiSat(): FeatureExpr = {
+        if (cache_cnfEquiSat == null) cache_cnfEquiSat = calcCNFEquiSat
+        cache_cnfEquiSat
+    }
     protected def calcCNF: FeatureExpr
+    protected def calcCNFEquiSat: FeatureExpr
 
+    private[featureexpr] lazy val cnf: NF = NFBuilder.toCNF(toCNF)
+    private[featureexpr] lazy val equiCNF: NF = if (cache_cnf != null) cnf else NFBuilder.toCNF(toCnfEquiSat)
 }
 
 trait FeatureExprValue
@@ -711,20 +716,19 @@ private[featureexpr] object FExprBuilder {
 /**
  * propositional formulas
  */
-
-object True extends FeatureExpr {
+private[featureexpr] abstract class TrueFalseFeatureExpr(isTrue: Boolean) extends FeatureExpr {
     override def calcSize = 0
+    override def print = if (isTrue) "1" else "0"
+    override def debug_print(ind: Int) = indent(ind) + print + "\n"
     override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
-    override def print = "1"
-    override def debug_print(ind: Int) = indent(ind) + "1\n"
+    override def calcCNF = this
+    override def calcCNFEquiSat = this
+    override def isSatisfiable(fm: FeatureModel) = isTrue
 }
 
-object False extends FeatureExpr {
-    override def calcSize = 0
-    override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
-    override def print = "0"
-    override def debug_print(ind: Int) = indent(ind) + "0\n"
-}
+object True extends TrueFalseFeatureExpr(true)
+
+object False extends TrueFalseFeatureExpr(false)
 
 
 class And(val clauses: List[FeatureExpr]) extends FeatureExpr {
@@ -740,6 +744,7 @@ class And(val clauses: List[FeatureExpr]) extends FeatureExpr {
     })
 
     protected def calcCNF: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
+    protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
 }
 
 object And {
@@ -777,6 +782,28 @@ class Or(val clauses: List[FeatureExpr]) extends FeatureExpr {
         } else FExprBuilder.createOr(cnfchildren)
     }
 
+
+    protected def calcCNFEquiSat: FeatureExpr = {
+        val cnfchildren = clauses.map(_.toCnfEquiSat)
+        if (cnfchildren.exists(_.isInstanceOf[And])) {
+            var orClauses: Seq[FeatureExpr] = SmallList() //list of Or expressions
+            var freshFeatureNames: Seq[FeatureExpr] = SmallList()
+            for (child <- cnfchildren) {
+                val freshFeatureName = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName()).not
+                child match {
+                    case And(innerChildren) => {
+                        for (innerChild <- innerChildren)
+                            orClauses = (freshFeatureName or innerChild) +: orClauses
+                    }
+                    case e => orClauses = (freshFeatureName or e) +: orClauses
+                }
+                freshFeatureNames = freshFeatureName.not +: freshFeatureNames
+            }
+            orClauses = FExprBuilder.createOr(freshFeatureNames) +: orClauses
+            FExprBuilder.createAnd(orClauses)
+        } else FExprBuilder.createOr(cnfchildren)
+    }
+
 }
 
 object Or {
@@ -798,6 +825,13 @@ class Not(val expr: FeatureExpr) extends FeatureExpr {
         case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCNF)).toCNF
         case e => e
     }
+
+    protected def calcCNFEquiSat: FeatureExpr = expr match {
+        case And(children) => FExprBuilder.createOr(children.map(_.not.toCnfEquiSat())).toCnfEquiSat()
+        case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCnfEquiSat()))
+        case e => e.toCnfEquiSat.not
+    }
+
 }
 
 object Not {
@@ -819,6 +853,8 @@ abstract class DefinedExpr extends FeatureExpr {
     def isExternal: Boolean
     override def calcSize = 1
     override def map(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, f(this))
+    override def calcCNF = this
+    override def calcCNFEquiSat = this
 }
 
 object DefinedExpr {
@@ -846,7 +882,7 @@ class DefinedExternal(name: String) extends DefinedExpr {
  * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
  * assumption: expandedName is unique and may be used for comparison
  */
-class DefinedMacro(name: String, val presenceCondition: FeatureExpr, expandedName: String, presenceConditionCNF: Susp[NF]) extends DefinedExpr {
+class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[NF]) extends DefinedExpr {
     def feature = name
     def print(): String = {
         DefinedExpr.checkFeatureName(name)
@@ -855,6 +891,10 @@ class DefinedMacro(name: String, val presenceCondition: FeatureExpr, expandedNam
     override def satName = expandedName
     def countSize() = 1
     def isExternal = false
+}
+
+object DefinedMacro {
+    def unapply(x: DefinedMacro) = Some((x.name, x.presenceCondition, x.expandedName, x.presenceConditionCNF))
 }
 
 

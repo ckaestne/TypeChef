@@ -185,7 +185,7 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                         if (PROFILING)
                             print(".")
                     }
-                    DefinedExternal(expansionName)
+                    FeatureExpr.createDefinedExternal(expansionName)
                 }
                 case e => e
             }

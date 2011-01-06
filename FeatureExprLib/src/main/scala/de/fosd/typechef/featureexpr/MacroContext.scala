@@ -1,9 +1,11 @@
 package de.fosd.typechef.featureexpr
+
 import java.io.PrintWriter
 import de.fosd.typechef.featureexpr.LazyLib.Susp
 
 object MacroContext {
-    private var flagFilters = List((x: String) => true) //return true means flag can be specified by user, false means it is undefined initially
+    private var flagFilters = List((x: String) => true)
+    //return true means flag can be specified by user, false means it is undefined initially
     def setPrefixFilter(prefix: String) {
         flagFilters = ((x: String) => !x.startsWith(prefix)) :: flagFilters
     }
@@ -24,15 +26,16 @@ object MacroContext {
 }
 
 import FeatureExpr.createDefinedExternal
+
 /**
  * represents the knowledge about macros at a specific point in time
- * 
+ *
  * knownMacros contains all macros but no duplicates
- * 
+ *
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
 class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (String, Susp[NF])]) extends FeatureProvider {
-    def this() = { this(Map(), Map()) }
+    def this() = {this (Map(), Map())}
     def define(name: String, infeature: FeatureExpr, other: Any): MacroContext = {
         val feature = infeature //.resolveToExternal()
         val newMC = new MacroContext(
@@ -73,9 +76,9 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
     /**
      * this returns a condition for the SAT solver in CNF in the following
      * form
-     * 
+     *
      * (newMacroName, DefinedExternal(newMacroName) <=> getMacroCondition)
-     * 
+     *
      * the result is cached. $$ is later replaced by a name for the SAT solver
      */
     def getMacroConditionCNF(name: String): (String, Susp[NF]) = {
@@ -86,7 +89,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
         val c = getMacroCondition(name)
         val d = FeatureExpr.createDefinedExternal(newMacroName)
         val condition = FeatureExpr.createEquiv(c, d)
-        val cnf = LazyLib.delay(condition.toEquiCNF)
+        val cnf = LazyLib.delay(condition.equiCNF)
         val result = (newMacroName, cnf)
         cnfCache = cnfCache + (name -> result)
         result
@@ -104,21 +107,22 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
     def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr): Array[MacroExpansion] =
         getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
 
-    override def toString() = { knownMacros.values.mkString("\n\n\n") + printStatistics }
+    override def toString() = {knownMacros.values.mkString("\n\n\n") + printStatistics}
     def debugPrint(writer: PrintWriter) {
-      knownMacros.values.foreach(x => {
-          writer print x; writer print "\n\n\n"
+        knownMacros.values.foreach(x => {
+            writer print x;
+            writer print "\n\n\n"
         })
-      writer print printStatistics
+        writer print printStatistics
     }
     def printStatistics =
         "\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions,number of distinct configuration flags):\n" +
-            knownMacros.size + ";" +
-            knownMacros.values.filter(_.numberOfExpansions > 1).size + ";" +
-            knownMacros.values.filter(_.numberOfExpansions > 2).size + ";" +
-            knownMacros.values.filter(_.numberOfExpansions > 3).size + ";" +
-            knownMacros.values.filter(_.numberOfExpansions > 4).size + ";" +
-            knownMacros.values.filter(!_.getFeature.isTautology).size + "\n"
+                knownMacros.size + ";" +
+                knownMacros.values.filter(_.numberOfExpansions > 1).size + ";" +
+                knownMacros.values.filter(_.numberOfExpansions > 2).size + ";" +
+                knownMacros.values.filter(_.numberOfExpansions > 3).size + ";" +
+                knownMacros.values.filter(_.numberOfExpansions > 4).size + ";" +
+                knownMacros.values.filter(!_.getFeature.isTautology).size + "\n"
     //    	+getNumberOfDistinctFlagsStatistic+"\n";
     //    private def getNumberOfDistinctFlagsStatistic = {
     //    	var flags:Set[String]=Set()
@@ -149,7 +153,7 @@ private class Macro(name: String, feature: FeatureExpr, var featureExpansions: L
         featureExpansions;
     }
     def addNewAlternative(exp: MacroExpansion): Macro =
-        //note addExpansion changes presence conditions of existing expansions
+    //note addExpansion changes presence conditions of existing expansions
         new Macro(name, feature.or(exp.getFeature()), addExpansion(exp))
 
     /**
@@ -173,7 +177,7 @@ private class Macro(name: String, feature: FeatureExpr, var featureExpansions: L
     def numberOfExpansions = featureExpansions.size
 }
 
-class MacroExpansion(feature: FeatureExpr, expansion: Any /* Actually, MacroData from PartialPreprocessor*/ ) {
+class MacroExpansion(feature: FeatureExpr, expansion: Any /* Actually, MacroData from PartialPreprocessor*/) {
     def getFeature(): FeatureExpr = feature
     def getExpansion(): Any = expansion
     def andNot(expr: FeatureExpr): MacroExpansion = new MacroExpansion(feature and (expr.not), expansion)

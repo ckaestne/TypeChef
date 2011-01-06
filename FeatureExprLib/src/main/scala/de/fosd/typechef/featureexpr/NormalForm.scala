@@ -80,7 +80,7 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
     override def toString =
         (posLiterals.map(_.satName) ++ negLiterals.map("!" + _.satName)).mkString("(", "*", ")")
     def printCNF =
-        (posLiterals.map(_.print) ++ negLiterals.map(Not(_).print)).mkString("(", "|", ")")
+        (posLiterals.map(_.print) ++ negLiterals.map(_.not.print)).mkString("(", "|", ")")
     override def hashCode = {
         simplify;
         posLiterals.hashCode + negLiterals.hashCode
@@ -95,7 +95,7 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
         ((posLiterals.toList) ++ (negLiterals.toList)).foreach(
             _ match {
                 case x: DefinedMacro => result = result + x
-                case DefinedExternal(_) =>
+                case x: DefinedExternal =>
             })
         result
     }
@@ -129,21 +129,11 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
  * a non-NF formula 
  */
 object NFBuilder {
-    def toCNF_(exprInCNF: FeatureExprTree): Option[NF] = try {
-        Some(toCNF(exprInCNF))
-    } catch {
-        case e: NFException => None
-    }
-    def toDNF_(exprInDNF: FeatureExprTree): Option[NF] = try {
-        Some(toDNF(exprInDNF))
-    } catch {
-        case e: NFException => None
-    }
-    def toCNF(exprInCNF: FeatureExprTree): NF = toNF(exprInCNF, true)
-    def toDNF(exprInDNF: FeatureExprTree): NF = toNF(exprInDNF, false)
-    private def toNF(exprInNF: FeatureExprTree, isCNF: Boolean) =
+    def toCNF(exprInCNF: FeatureExpr): NF = toNF(exprInCNF, true)
+    def toDNF(exprInDNF: FeatureExpr): NF = toNF(exprInDNF, false)
+    private def toNF(exprInNF: FeatureExpr, isCNF: Boolean) =
         try {
-            exprInNF simplify match {
+            exprInNF match {
                 case And(clauses) if isCNF => {
                     new NF((for (clause <- clauses) yield clause match {
                         case Or(o) => toClause(o)
@@ -160,8 +150,8 @@ object NFBuilder {
                 case And(o) if !isCNF => new NF(SmallList(toClause(o)))
                 case f@DefinedExpr(_) => new NF(SmallList(new Clause(SmallList(f), SmallList())))
                 case Not(f@DefinedExpr(_)) => new NF(SmallList(new Clause(SmallList(), SmallList(f))))
-                case BaseFeature() => new NF(!isCNF)
-                case DeadFeature() => new NF(isCNF)
+                case True => new NF(!isCNF)
+                case False => new NF(isCNF)
                 case e => throw new NoNFException(e, exprInNF, isCNF)
             }
         } catch {
@@ -171,7 +161,7 @@ object NFBuilder {
                 throw t
 
         }
-    private def toClause(literals: Seq[FeatureExprTree]): Clause = {
+    private def toClause(literals: Seq[FeatureExpr]): Clause = {
         var posLiterals: Seq[DefinedExpr] = SmallList()
         var negLiterals: Seq[DefinedExpr] = SmallList()
         for (literal <- literals)
@@ -183,12 +173,12 @@ object NFBuilder {
         new Clause(posLiterals, negLiterals).simplify
     }
 
-    def CNFtoFeatureExpr(cnf: NF): FeatureExprTree =
-        if (cnf.isEmpty) BaseFeature()
-        else if (cnf.isFull) DeadFeature()
-        else new And(
-            for (clause <- cnf.clauses) yield new Or(clause.posLiterals ++ clause.negLiterals.map(Not(_)))
-        )
+    //    def CNFtoFeatureExpr(cnf: NF): FeatureExpr =
+    //        if (cnf.isEmpty) BaseFeature()
+    //        else if (cnf.isFull) DeadFeature()
+    //        else new And(
+    //            for (clause <- cnf.clauses) yield new Or(clause.posLiterals ++ clause.negLiterals.map(Not(_)))
+    //        )
 }
 
 object SmallList {

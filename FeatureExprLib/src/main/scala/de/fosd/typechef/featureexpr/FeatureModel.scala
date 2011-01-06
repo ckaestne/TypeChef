@@ -25,7 +25,7 @@ object FeatureModel {
 
     def create(expr: FeatureExpr) = {
         //        assert(!expr.isDead)
-        val nf = expr.toCNF
+        val nf = expr.cnf
         val variables = getVariables(nf)
         val clauses = addClauses(nf, variables)
         new FeatureModel(variables, clauses)
