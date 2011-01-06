@@ -3846,4 +3846,22 @@ class CNFBenchmark {
     */
 
 
+    val stupidFormula = {
+        val a = FeatureExpr.createDefinedExternal("a")
+        val b = FeatureExpr.createDefinedExternal("b")
+        var result: FeatureExpr = a
+        for (i <- 1 until 100)
+            result = (result andNot b) or b
+        result
+    }
+
+    @Test def testBench2 = {
+        println("starting...")
+        val start = System.currentTimeMillis
+        val cnf = stupidFormula.toCnfEquiSat
+        val stop = System.currentTimeMillis
+        println("done. " + (stop - start) + " ms")
+        println(cnf)
+    }
+
 }
