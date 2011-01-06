@@ -12,13 +12,13 @@ import scala.collection.mutable.ArrayBuffer
 
 
 /**normal form for both DNF and CNF **/
-class NF(val clauses: Seq[Clause], val isFull: Boolean) {
+class NF(val clauses: Traversable[Clause], val isFull: Boolean) {
     /**isFull is meant to be the opposite of empty
      * with CNF empty means always true and full means always false
      * with DNF empty means always false and full means always true   
      * it is not valid to set clauses and isFull at the same time  */
 
-    def this(c: Seq[Clause]) = this (c.map(_.simplify).filter(!_.isEmpty), false)
+    def this(c: Traversable[Clause]) = this (c.map(_.simplify).filter(!_.isEmpty), false)
     def this(emptyOrFull_isFull: Boolean) = this (SmallList(), emptyOrFull_isFull)
 
     //    /** join (CNF and CNF / DNF or DNF)**/
@@ -53,7 +53,7 @@ class NF(val clauses: Seq[Clause], val isFull: Boolean) {
     }
     /**expensive operation, do not call on large NFs
      * feeding the formula unmodified into a SAT solver is usually faster*/
-    def simplify: NF = new NF(clauses.distinct)
+    def simplify: NF = new NF(clauses)
 }
 
 /**clause in a normal form **/
@@ -161,7 +161,7 @@ object NFBuilder {
                 throw t
 
         }
-    private def toClause(literals: Seq[FeatureExpr]): Clause = {
+    private def toClause(literals: TraversableOnce[FeatureExpr]): Clause = {
         var posLiterals: Seq[DefinedExpr] = SmallList()
         var negLiterals: Seq[DefinedExpr] = SmallList()
         for (literal <- literals)

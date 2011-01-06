@@ -210,13 +210,13 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => False
             case other =>
                 andCache.getOrElseUpdate(new FExprPair(a, b), other match {
-                    case (a1: And, a2: And) => new And(a1.clauses ++ a2.clauses distinct)
-                    case (a: And, e) => if (a.clauses contains e) a else new And(e :: a.clauses)
-                    case (e, a: And) => if (a.clauses contains e) a else new And(e :: a.clauses)
-                    case (e1, e2) => new And(e1 :: e2 :: Nil)
+                    case (a1: And, a2: And) => new And(a1.clauses ++ a2.clauses)
+                    case (a: And, e) => new And(a.clauses + e)
+                    case (e, a: And) => new And(a.clauses + e)
+                    case (e1, e2) => new And(Set(e1, e2))
                 })
         }
-    def createAnd(clauses: Seq[FeatureExpr]) = clauses.foldLeft[FeatureExpr](True)(and(_, _))
+    def createAnd(clauses: Traversable[FeatureExpr]) = clauses.foldLeft[FeatureExpr](True)(and(_, _))
 
     def or(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
     //simple cases without caching
@@ -228,13 +228,13 @@ private[featureexpr] object FExprBuilder {
             case (e, False) => e
             case (e1, e2) if (e1.not == e2) => True
             case other => orCache.getOrElseUpdate(new FExprPair(a, b), other match {
-                case (o1: Or, o2: Or) => new Or(o1.clauses ++ o2.clauses distinct)
-                case (o: Or, e) => if (o.clauses contains e) a else new Or(e :: o.clauses)
-                case (e, o: Or) => if (o.clauses contains e) a else new Or(e :: o.clauses)
-                case (e1, e2) => new Or(e1 :: e2 :: Nil)
+                case (o1: Or, o2: Or) => new Or(o1.clauses ++ o2.clauses)
+                case (o: Or, e) => new Or(o.clauses + e)
+                case (e, o: Or) => new Or(o.clauses + e)
+                case (e1, e2) => new Or(Set(e1, e2))
             })
         }
-    def createOr(clauses: Seq[FeatureExpr]) = clauses.foldLeft[FeatureExpr](False)(or(_, _))
+    def createOr(clauses: Traversable[FeatureExpr]) = clauses.foldLeft[FeatureExpr](False)(or(_, _))
 
     def not(a: FeatureExpr): FeatureExpr = a match {
         case True => False
@@ -743,7 +743,7 @@ object False extends TrueFalseFeatureExpr(false) {
 }
 
 
-class And(val clauses: List[FeatureExpr]) extends FeatureExpr {
+class And(val clauses: Set[FeatureExpr]) extends FeatureExpr {
     override def toString = clauses.mkString("(", "&", ")")
     override def print = clauses.map(_.print).mkString("(", " && ", ")")
     override def debug_print(ind: Int) = indent(ind) + "&\n" + clauses.map(_.debug_print(ind + 1)).mkString
@@ -763,7 +763,7 @@ object And {
     def unapply(x: And) = Some(x.clauses)
 }
 
-class Or(val clauses: List[FeatureExpr]) extends FeatureExpr {
+class Or(val clauses: Set[FeatureExpr]) extends FeatureExpr {
     override def toString = clauses.mkString("(", "|", ")")
     override def print = clauses.map(_.print).mkString("(", " || ", ")")
     override def debug_print(ind: Int) = indent(ind) + "|\n" + clauses.map(_.debug_print(ind + 1)).mkString

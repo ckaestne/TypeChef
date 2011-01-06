@@ -37,8 +37,9 @@ object LinuxParserMain {
     def main(args: Array[String]) = {
         println("loading feature model...");
         val start = System.currentTimeMillis
-        val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
+        //        val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
         //        val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
+        val featuremodel = null
         println("done. [" + (System.currentTimeMillis - start) + " ms]")
 
         val parserMain = new ParserMain(new CParser(featuremodel))
