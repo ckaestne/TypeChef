@@ -129,49 +129,49 @@ import scala.collection.mutable.ArrayBuffer
  * a non-NF formula 
  */
 object CNFHelper {
-//    def toCNF(exprInCNF: FeatureExpr): NF = toNF(exprInCNF, true)
-//    def toDNF(exprInDNF: FeatureExpr): NF = toNF(exprInDNF, false)
-//    private def toNF(exprInNF: FeatureExpr, isCNF: Boolean) =
-//        try {
-//            exprInNF match {
-//                case And(clauses) if isCNF => {
-//                    new NF((for (clause <- clauses) yield clause match {
-//                        case Or(o) => toClause(o)
-//                        case e => toClause(SmallList(e)) //literal?
-//                    }))
-//                }
-//                case Or(clauses) if !isCNF => {
-//                    new NF((for (clause <- clauses) yield clause match {
-//                        case And(c) => toClause(c)
-//                        case e => toClause(SmallList(e)) //literal?
-//                    }))
-//                }
-//                case Or(o) if isCNF => new NF(SmallList(toClause(o)))
-//                case And(o) if !isCNF => new NF(SmallList(toClause(o)))
-//                case f@DefinedExpr(_) => new NF(SmallList(new Clause(SmallList(f), SmallList())))
-//                case Not(f@DefinedExpr(_)) => new NF(SmallList(new Clause(SmallList(), SmallList(f))))
-//                case True => new NF(!isCNF)
-//                case False => new NF(isCNF)
-//                case e => throw new NoNFException(e, exprInNF, isCNF)
-//            }
-//        } catch {
-//            case t: Throwable =>
-//                System.err.println("Exception on NormalForm.toNF for: " + exprInNF.print())
-//                t.printStackTrace
-//                throw t
-//
-//        }
-//    private def toClause(literals: TraversableOnce[FeatureExpr]): Clause = {
-//        var posLiterals: Seq[DefinedExpr] = SmallList()
-//        var negLiterals: Seq[DefinedExpr] = SmallList()
-//        for (literal <- literals)
-//            literal match {
-//                case f@DefinedExpr(_) => posLiterals = f +: posLiterals
-//                case Not(f@DefinedExpr(_)) => negLiterals = f +: negLiterals
-//                case e => throw new NoLiteralException(e)
-//            }
-//        new Clause(posLiterals, negLiterals)
-//    }
+    //    def toCNF(exprInCNF: FeatureExpr): NF = toNF(exprInCNF, true)
+    //    def toDNF(exprInDNF: FeatureExpr): NF = toNF(exprInDNF, false)
+    //    private def toNF(exprInNF: FeatureExpr, isCNF: Boolean) =
+    //        try {
+    //            exprInNF match {
+    //                case And(clauses) if isCNF => {
+    //                    new NF((for (clause <- clauses) yield clause match {
+    //                        case Or(o) => toClause(o)
+    //                        case e => toClause(SmallList(e)) //literal?
+    //                    }))
+    //                }
+    //                case Or(clauses) if !isCNF => {
+    //                    new NF((for (clause <- clauses) yield clause match {
+    //                        case And(c) => toClause(c)
+    //                        case e => toClause(SmallList(e)) //literal?
+    //                    }))
+    //                }
+    //                case Or(o) if isCNF => new NF(SmallList(toClause(o)))
+    //                case And(o) if !isCNF => new NF(SmallList(toClause(o)))
+    //                case f@DefinedExpr(_) => new NF(SmallList(new Clause(SmallList(f), SmallList())))
+    //                case Not(f@DefinedExpr(_)) => new NF(SmallList(new Clause(SmallList(), SmallList(f))))
+    //                case True => new NF(!isCNF)
+    //                case False => new NF(isCNF)
+    //                case e => throw new NoNFException(e, exprInNF, isCNF)
+    //            }
+    //        } catch {
+    //            case t: Throwable =>
+    //                System.err.println("Exception on NormalForm.toNF for: " + exprInNF.print())
+    //                t.printStackTrace
+    //                throw t
+    //
+    //        }
+    //    private def toClause(literals: TraversableOnce[FeatureExpr]): Clause = {
+    //        var posLiterals: Seq[DefinedExpr] = SmallList()
+    //        var negLiterals: Seq[DefinedExpr] = SmallList()
+    //        for (literal <- literals)
+    //            literal match {
+    //                case f@DefinedExpr(_) => posLiterals = f +: posLiterals
+    //                case Not(f@DefinedExpr(_)) => negLiterals = f +: negLiterals
+    //                case e => throw new NoLiteralException(e)
+    //            }
+    //        new Clause(posLiterals, negLiterals)
+    //    }
 
     //for testing
     def isCNF(expr: FeatureExpr) = isTrueFalse(expr) || isClause(expr) || (expr match {
@@ -199,24 +199,24 @@ object CNFHelper {
         case _ => false
     }
 
-    def getCNFClauses(cnfExpr:FeatureExpr):Traversable[FeatureExpr/*Clause*/] = cnfExpr match {
+    def getCNFClauses(cnfExpr: FeatureExpr): Traversable[FeatureExpr /*Clause*/ ] = cnfExpr match {
         case And(clauses) => clauses
-        case e=>Set(e)
+        case e => Set(e)
     }
 
-    def getLiterals(orClause:FeatureExpr):Traversable[FeatureExpr/*Literal*/] = orClause match {
+    def getLiterals(orClause: FeatureExpr): Traversable[FeatureExpr /*Literal*/ ] = orClause match {
         case Or(literals) => literals
-        case e=>Set(e)
+        case e => Set(e)
     }
 
-    def getDefinedExprs(orClause:FeatureExpr):Set[DefinedExpr] = orClause match {
+    def getDefinedExprs(orClause: FeatureExpr): Set[DefinedExpr] = orClause match {
         case Or(literals) => literals.map(getDefinedExpr(_)).foldLeft[Set[DefinedExpr]](Set())(_ + _)
-        case e=>  Set(getDefinedExpr(e))
+        case e => Set(getDefinedExpr(e))
     }
-    def getDefinedExpr(literal:FeatureExpr):DefinedExpr =      literal match {
-        case x: DefinedExternal => x
-        case Not(x: DefinedExternal) => x
-        case _=> throw new NoLiteralException(literal)
+    def getDefinedExpr(literal: FeatureExpr): DefinedExpr = literal match {
+        case x: DefinedExpr => x
+        case Not(x: DefinedExpr) => x
+        case _ => throw new NoLiteralException(literal)
     }
 }
 
