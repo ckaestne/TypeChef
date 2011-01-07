@@ -42,6 +42,8 @@ class FeatureExprTest extends TestCase {
         assertEquals(a and b and a, a and b)
         assertEquals((a and b and c) and (a and b and c), a and b and c)
         assertEquals(a or b or a, a or b)
+        assertEquals((a and b) and (b.not and a), False)
+        assertEquals((a or b) or (b.not or a), True)
         assertEquals((a andNot b) or b, (a andNot b) or b)
         assertEquals(((a andNot b) or b).toCNF, a or b)
     }
@@ -74,7 +76,7 @@ class FeatureExprTest extends TestCase {
     def v(value: Int): FeatureExprValue = createInteger(value)
     def a = feature("a")
     def b = feature("b")
-    def cgit = feature("c")
+    def c = feature("c")
     def feature(n: String) = createDefinedExternal(n)
     def createLT(a: FeatureExprValue, b: FeatureExprValue) = createLessThan(a, b)
 }

@@ -210,9 +210,9 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => False
             case other =>
                 andCache.getOrElseUpdate(new FExprPair(a, b), other match {
-                    case (a1: And, a2: And) => new And(a1.clauses ++ a2.clauses)
-                    case (a: And, e) => if (a.clauses contains e) a else new And(a.clauses + e)
-                    case (e, a: And) => if (a.clauses contains e) a else new And(a.clauses + e)
+                    case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(_ and _)
+                    case (a: And, e) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else new And(a.clauses + e)
+                    case (e, a: And) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else new And(a.clauses + e)
                     case (e1, e2) => new And(Set(e1, e2))
                 })
         }
@@ -228,9 +228,9 @@ private[featureexpr] object FExprBuilder {
             case (e, False) => e
             case (e1, e2) if (e1.not == e2) => True
             case other => orCache.getOrElseUpdate(new FExprPair(a, b), other match {
-                case (o1: Or, o2: Or) => new Or(o1.clauses ++ o2.clauses)
-                case (o: Or, e) => if (o.clauses contains e) o else new Or(o.clauses + e)
-                case (e, o: Or) => if (o.clauses contains e) o else new Or(o.clauses + e)
+                case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
+                case (o: Or, e) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else new Or(o.clauses + e)
+                case (e, o: Or) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else new Or(o.clauses + e)
                 case (e1, e2) => new Or(Set(e1, e2))
             })
         }
