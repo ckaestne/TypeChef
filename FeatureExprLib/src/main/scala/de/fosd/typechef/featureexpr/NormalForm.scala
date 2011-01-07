@@ -18,7 +18,7 @@ class NF(val clauses: Traversable[Clause], val isFull: Boolean) {
      * with DNF empty means always false and full means always true   
      * it is not valid to set clauses and isFull at the same time  */
 
-    def this(c: Traversable[Clause]) = this (c.map(_.simplify).filter(!_.isEmpty), false)
+    def this(c: Traversable[Clause]) = this (c.filter(!_.isEmpty), false)
     def this(emptyOrFull_isFull: Boolean) = this (SmallList(), emptyOrFull_isFull)
 
     //    /** join (CNF and CNF / DNF or DNF)**/
@@ -58,23 +58,23 @@ class NF(val clauses: Traversable[Clause], val isFull: Boolean) {
 
 /**clause in a normal form **/
 class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr]) {
-    var cacheIsSimplified = false
-    def simplify = {
-        if (!cacheIsSimplified) {
-            //A || !A = true 
-            posLiterals = posLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
-            negLiterals = negLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
-            if (!(posLiterals intersect negLiterals).isEmpty) {
-                posLiterals = SmallList()
-                negLiterals = SmallList()
-            }
-            cacheIsSimplified = true
-        }
-        this
-    }
+    //    var cacheIsSimplified = false
+    //    def simplify = {
+    //        if (!cacheIsSimplified) {
+    //            //A || !A = true
+    //            posLiterals = posLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
+    //            negLiterals = negLiterals.distinct.sortWith((a, b) => a.feature > b.feature)
+    //            if (!(posLiterals intersect negLiterals).isEmpty) {
+    //                posLiterals = SmallList()
+    //                negLiterals = SmallList()
+    //            }
+    //            cacheIsSimplified = true
+    //        }
+    //        this
+    //    }
     def isEmpty = posLiterals.isEmpty && negLiterals.isEmpty
     /**join two clauses **/
-    def ++(that: Clause) = new Clause(this.posLiterals ++ that.posLiterals, this.negLiterals ++ that.negLiterals).simplify
+    def ++(that: Clause) = new Clause(this.posLiterals ++ that.posLiterals, this.negLiterals ++ that.negLiterals)
     def neg() = new Clause(this.negLiterals, this.posLiterals)
     def size = posLiterals.size + negLiterals.size
     override def toString =
@@ -82,11 +82,11 @@ class Clause(var posLiterals: Seq[DefinedExpr], var negLiterals: Seq[DefinedExpr
     def printCNF =
         (posLiterals.map(_.print) ++ negLiterals.map(_.not.print)).mkString("(", "|", ")")
     override def hashCode = {
-        simplify;
+        //        simplify;
         posLiterals.hashCode + negLiterals.hashCode
     }
     override def equals(that: Any) = that match {
-        case thatClause: Clause => (this.simplify.posLiterals equals thatClause.simplify.posLiterals) && (this.simplify.negLiterals equals thatClause.simplify.negLiterals)
+        case thatClause: Clause => (this.posLiterals equals thatClause.posLiterals) && (this.negLiterals equals thatClause.negLiterals)
         case _ => false
     }
     /**returns a set with all referenced macros (DefinedMacro)**/
@@ -170,7 +170,7 @@ object NFBuilder {
                 case Not(f@DefinedExpr(_)) => negLiterals = f +: negLiterals
                 case e => throw new NoLiteralException(e)
             }
-        new Clause(posLiterals, negLiterals).simplify
+        new Clause(posLiterals, negLiterals)
     }
 
     //for testing

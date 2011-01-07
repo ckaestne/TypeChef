@@ -14,7 +14,7 @@ import org.junit._
 class CNFBenchmark {
 
     @Test
-    def testBench1() = {
+    def testBenchCnf1() = {
         println("starting...")
         val start = System.currentTimeMillis
         val cnf = largeExpression.toCnfEquiSat
@@ -22,8 +22,14 @@ class CNFBenchmark {
         println("done. " + (stop - start) + " ms")
     }
 
-    def main(args: Array[String]) {
-        testBench1()
+    @Test
+    def testBenchSat1() = {
+        println("starting...")
+        val start = System.currentTimeMillis
+        val result = largeExpression.isSatisfiable
+        val stop = System.currentTimeMillis
+        println("done. " + (stop - start) + " ms")
+        println(result)
     }
 
 
