@@ -1,7 +1,10 @@
 package de.fosd.typechef.featureexpr
 
 import LazyLib._
-import collection.mutable.{WeakHashMap, Map}
+import collection.mutable.Map
+import collection.mutable.WeakHashMap
+import collection.mutable.HashMap
+import scala.ref.WeakReference
 
 /**
  * external interface to constructing feature expressions (mostly delegated to FExprBuilder)
@@ -30,8 +33,8 @@ object FeatureExpr {
     def createCharacter(value: Char): FeatureExprValue = FExprBuilder.createValue(value)
 
 
-    def createDefinedExternal(name: String) = FExprBuilder.definedExternal(name)
-    def createDefinedMacro(name: String, macroTable: FeatureProvider) = FExprBuilder.definedMacro(name, macroTable)
+    def createDefinedExternal(name: String): DefinedExternal = FExprBuilder.definedExternal(name)
+    def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = FExprBuilder.definedMacro(name, macroTable)
 
 
     //helper
@@ -92,7 +95,6 @@ abstract class FeatureExpr {
      * but is faster because FM is cached
      */
     def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(toCnfEquiSat, fm))
-    private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
 
     //    def accept(f: FeatureExpr => Unit): Unit
 
@@ -159,6 +161,12 @@ abstract class FeatureExpr {
     }
     protected def calcCNF: FeatureExpr
     protected def calcCNFEquiSat: FeatureExpr
+
+    private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
+    //only access these caches from FExprBuilder
+    private[featureexpr] val andCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
+    private[featureexpr] val orCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
+    private[featureexpr] var notCache: WeakReference[FeatureExpr] = null
 }
 
 trait FeatureExprValue {
@@ -175,8 +183,6 @@ trait FeatureExprValue {
  */
 private[featureexpr] object FExprBuilder {
 
-    import collection.mutable.WeakHashMap
-    import collection.mutable.HashMap
 
     private class FExprPair(val a: FeatureExpr, val b: FeatureExpr) {
         //pair in which the order does not matter
@@ -188,14 +194,49 @@ private[featureexpr] object FExprBuilder {
         }
     }
 
-    private val andCache: HashMap[FExprPair, FeatureExpr] = new HashMap()
-    private val orCache: HashMap[FExprPair, FeatureExpr] = new HashMap()
-    private val notCache: WeakHashMap[FeatureExpr, FeatureExpr] = new WeakHashMap()
-    private val ifCache: HashMap[(FeatureExpr, FeatureExprValue, FeatureExprValue), FeatureExprValue] = new HashMap()
-    private val featureCache: Map[String, DefinedExternal] = Map()
-    private var macroCache: Map[String, DefinedMacro] = Map()
-    private val valCache: Map[Long, Value] = Map()
+    private val ifCache: HashMap[(FeatureExpr, FeatureExprValue, FeatureExprValue), WeakReference[FeatureExprValue]] = new HashMap()
+    private val featureCache: Map[String, WeakReference[DefinedExternal]] = Map()
+    private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
+    private val valCache: Map[Long, WeakReference[Value]] = Map()
     private val resolvedCache: WeakHashMap[FeatureExpr, FeatureExpr] = WeakHashMap()
+
+    private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
+        def update() = {val d = op; map(key) = new WeakReference[B](d); d}
+        map.get(key) match {
+            case Some(v) => {
+                val ref = v.get
+                if (ref.isDefined) ref.get
+                else update()
+            }
+            case None => update()
+        }
+    }
+
+    private def getFromCache(cache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]], key: FeatureExpr): FeatureExpr = {
+        val v = cache.get(key)
+        if (v.isDefined) {
+            val ref = v.get.get
+            if (ref.isDefined)
+                return ref.get
+        }
+        return null
+    }
+    private def andCacheGetOrElseUpdate(a: FeatureExpr,
+                                        b: FeatureExpr,
+                                        getCache: FeatureExpr => WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]],
+                                        op: => FeatureExpr): FeatureExpr = {
+        var result = getFromCache(getCache(a), b)
+        if (result == null)
+            result = getFromCache(getCache(b), a)
+        if (result == null) {
+            result = op
+            val weakRef = new WeakReference(result)
+            getCache(a).update(b, weakRef)
+            //XXX it is enough to update one object, because we are searching in both of them anyway
+            //            getCache(b).update(a, weakRef)
+        }
+        result
+    }
 
     def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
         (a, b) match {
@@ -206,7 +247,7 @@ private[featureexpr] object FExprBuilder {
             case (e, True) => e
             case (e1, e2) if (e1.not == e2) => False
             case other =>
-                andCache.getOrElseUpdate(new FExprPair(a, b), other match {
+                andCacheGetOrElseUpdate(a, b, _.andCache, other match {
                     case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(_ and _)
                     case (a: And, e) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else new And(a.clauses + e)
                     case (e, a: And) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else new And(a.clauses + e)
@@ -224,7 +265,7 @@ private[featureexpr] object FExprBuilder {
             case (False, e) => e
             case (e, False) => e
             case (e1, e2) if (e1.not == e2) => True
-            case other => orCache.getOrElseUpdate(new FExprPair(a, b), other match {
+            case other => andCacheGetOrElseUpdate(a, b, _.orCache, other match {
                 case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
                 case (o: Or, e) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else new Or(o.clauses + e)
                 case (e, o: Or) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else new Or(o.clauses + e)
@@ -237,10 +278,22 @@ private[featureexpr] object FExprBuilder {
         case True => False
         case False => True
         case n: Not => n.expr
-        case e => notCache.getOrElseUpdate(e, new Not(e))
+        case e => {
+            var result: FeatureExpr = null
+            if (e.notCache != null) {
+                val ref = e.notCache.get
+                if (ref.isDefined)
+                    result = ref.get
+            }
+            if (result == null) {
+                result = new Not(e)
+                e.notCache = new WeakReference(result)
+            }
+            result
+        }
     }
 
-    def definedExternal(name: String) = featureCache.getOrElseUpdate(name, new DefinedExternal(name))
+    def definedExternal(name: String) = cacheGetOrElseUpdate(featureCache, name, new DefinedExternal(name))
 
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
@@ -256,7 +309,7 @@ private[featureexpr] object FExprBuilder {
              * the macro at different points in time and should not be considered equal)
              * actually, we only check the expansion name which is unique for each DefinedMacro anyway
              */
-            macroCache.getOrElseUpdate(macroConditionCNF._1,
+            cacheGetOrElseUpdate(macroCache, macroConditionCNF._1,
                 new DefinedMacro(
                     name,
                     macroTable.getMacroCondition(name),
@@ -296,12 +349,12 @@ private[featureexpr] object FExprBuilder {
         case False => elseBr
         case _ => {
             if (thenBr == elseBr) thenBr
-            else ifCache.getOrElseUpdate((expr, thenBr, elseBr), new If(expr, thenBr, elseBr))
+            else cacheGetOrElseUpdate(ifCache, (expr, thenBr, elseBr), new If(expr, thenBr, elseBr))
         }
     }
     def createIf(expr: FeatureExpr, thenBr: FeatureExpr, elseBr: FeatureExpr): FeatureExpr = (expr and thenBr) or (expr.not and elseBr)
 
-    def createValue(v: Long): FeatureExprValue = valCache.getOrElseUpdate(v, new Value(v))
+    def createValue(v: Long): FeatureExprValue = cacheGetOrElseUpdate(valCache, v, new Value(v))
 
     def resolveToExternal(expr: FeatureExpr): FeatureExpr = expr.mapDefinedExpr({
         case e: DefinedMacro => e.presenceCondition.resolveToExternal
