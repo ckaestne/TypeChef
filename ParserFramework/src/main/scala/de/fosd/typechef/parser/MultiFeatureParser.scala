@@ -996,10 +996,16 @@ try {
             SplittedParseResult(feature, resultA.map(f), resultB.map(f))
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U] =
             SplittedParseResult(feature, resultA.mapf(inFeature and feature, f), resultB.mapf(inFeature and (feature.not), f))
-        def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U] =
-            SplittedParseResult(feature, resultA.mapfr(inFeature and feature, f), resultB.mapfr(inFeature and (feature.not), f))
+        def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U] = {
+            val newResultA = resultA.mapfr(inFeature and feature, f)
+            val newResultB = resultB.mapfr(inFeature and (feature.not), f)
+            if ((newResultA eq resultA) && (newResultB eq resultB))
+                this
+            else
+                SplittedParseResult(feature, newResultA, newResultB)
+        }
 
-        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinTree(parserContext, f)
+        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinCrosstree(parserContext, f)
 
         /**
          * joinCrosstree is an aggressive join algorithm that joins any joinable elements in the tree
