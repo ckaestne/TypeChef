@@ -73,7 +73,10 @@ class FeatureExprTest extends TestCase {
         assertEquals(createLT(createIf(a, createPlus(createIf(b, v(1), v(2)), v(10)), createIf(b, v(3), v(4))), v(5)), a.not)
     }
 
+
+
     def v(value: Int): FeatureExprValue = createInteger(value)
+    def not(v:FeatureExpr)=v.not
     def a = feature("a")
     def b = feature("b")
     def c = feature("c")

@@ -91,7 +91,7 @@ abstract class FeatureExpr {
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
      * but is faster because FM is cached
      */
-    def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(equiCNF, fm))
+    def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(toCnfEquiSat, fm))
     private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
 
     //    def accept(f: FeatureExpr => Unit): Unit
@@ -149,19 +149,16 @@ abstract class FeatureExpr {
 
     def toCNF(): FeatureExpr = {
         if (cache_cnf == null) {cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf}
-        assert(NFBuilder.isCNF(cache_cnf))
+        assert(CNFHelper.isCNF(cache_cnf))
         cache_cnf
     }
     def toCnfEquiSat(): FeatureExpr = {
         if (cache_cnfEquiSat == null) cache_cnfEquiSat = calcCNFEquiSat
-        assert(NFBuilder.isCNF(cache_cnfEquiSat))
+        assert(CNFHelper.isCNF(cache_cnfEquiSat))
         cache_cnfEquiSat
     }
     protected def calcCNF: FeatureExpr
     protected def calcCNFEquiSat: FeatureExpr
-
-    private[featureexpr] lazy val cnf: NF = NFBuilder.toCNF(toCNF)
-    private[featureexpr] lazy val equiCNF: NF = if (cache_cnf != null) cnf else NFBuilder.toCNF(toCnfEquiSat)
 }
 
 trait FeatureExprValue {
@@ -403,7 +400,7 @@ class Or(val clauses: Set[FeatureExpr]) extends FeatureExpr {
                     case _ => orClauses = orClauses.map(_ or child)
                 }
             }
-            assert(orClauses.forall(c => NFBuilder.isClause(c) || c == True || c == False))
+            assert(orClauses.forall(c => CNFHelper.isClause(c) || c == True || c == False))
             FExprBuilder.createAnd(orClauses)
         } else FExprBuilder.createOr(cnfchildren)
 
@@ -513,7 +510,7 @@ class DefinedExternal(name: String) extends DefinedExpr {
  * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
  * assumption: expandedName is unique and may be used for comparison
  */
-class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[NF]) extends DefinedExpr {
+class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[FeatureExpr/*CNF*/]) extends DefinedExpr {
     DefinedExpr.checkFeatureName(name)
 
     def feature = name

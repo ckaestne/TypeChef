@@ -158,11 +158,11 @@ class TestFeatureExpr extends TestCase {
         val b = DefinedExternal("b")
         val c = DefinedExternal("c")
         val expr2 = (Or(Not(And(a, b)), c))
-        expr2.cnf
-        expr2.equiCNF
+        expr2.toCNF
+        expr2.toCnfEquiSat
         val expr = (Or(Not(And(a, a)), a))
-        expr.cnf
-        expr.equiCNF
+        expr.toCNF
+        expr.toCnfEquiSat
 
     }
 

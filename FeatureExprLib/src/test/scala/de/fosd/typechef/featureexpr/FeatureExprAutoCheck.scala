@@ -63,9 +63,9 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     property("creating (not a) twice creates the same object") = Prop.forAll((a: FeatureExpr) => (a.not) eq (a.not))
     property("applying not twice yields the same object") = Prop.forAll((a: FeatureExpr) => a eq (a.not.not))
 
-    property("toCNF produces CNF") = Prop.forAll((a: FeatureExpr) => NFBuilder.isCNF(a.toCNF))
-    property("toEquiCNF produces CNF") = Prop.forAll((a: FeatureExpr) => NFBuilder.isCNF(a.toCnfEquiSat))
-    property("SAT(toCNF) == SAT(toEquiCNF)") = Prop.forAll((a: FeatureExpr) => new SatSolver().isSatisfiable(a.equiCNF) == new SatSolver().isSatisfiable(a.cnf))
+    property("toCNF produces CNF") = Prop.forAll((a: FeatureExpr) => CNFHelper.isCNF(a.toCNF))
+    property("toEquiCNF produces CNF") = Prop.forAll((a: FeatureExpr) => CNFHelper.isCNF(a.toCnfEquiSat))
+    property("SAT(toCNF) == SAT(toEquiCNF)") = Prop.forAll((a: FeatureExpr) => new SatSolver().isSatisfiable(a.toCnfEquiSat) == new SatSolver().isSatisfiable(a.toCNF))
 
     property("cnf does not change satisifiability") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) =>
         ((a and b).isSatisfiable == (a.toCNF and (b.toCNF)).isSatisfiable) &&

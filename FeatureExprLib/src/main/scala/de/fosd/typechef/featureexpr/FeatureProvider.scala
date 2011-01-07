@@ -17,5 +17,5 @@ abstract class FeatureProvider {
      * returns the feature expression that is necessary to include this macro (may only reference to external definitons)
      */
     def getMacroCondition(feature: String): FeatureExpr
-    def getMacroConditionCNF(feature: String): (String, Susp[NF])
+    def getMacroConditionCNF(feature: String): (String, Susp[FeatureExpr])
 }

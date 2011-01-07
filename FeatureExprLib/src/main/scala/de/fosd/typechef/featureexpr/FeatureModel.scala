@@ -24,10 +24,10 @@ object FeatureModel {
     def empty = NoFeatureModel
 
     def create(expr: FeatureExpr) = {
-        //        assert(!expr.isDead)
-        val nf = expr.cnf
-        val variables = getVariables(nf)
-        val clauses = addClauses(nf, variables)
+        val cnf = expr.toCNF
+        assert(!expr.isContradiction)
+        val variables = getVariables(cnf)
+        val clauses = addClauses(cnf, variables)
         new FeatureModel(variables, clauses)
     }
 
@@ -120,34 +120,22 @@ object FeatureModel {
             variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
 
 
-    private def getVariables(expr: NF): Map[String, Int] = {
+    private def getVariables(expr: FeatureExpr/*CNF*/): Map[String, Int] = {
         import scala.collection.mutable.Map
         val uniqueFlagIds: scala.collection.mutable.Map[String, Int] = Map();
-        for (clause <- expr.clauses)
-            for (literal <- (clause.posLiterals ++ clause.negLiterals))
+
+        for (clause <- CNFHelper.getCNFClauses(expr))
+            for (literal <- CNFHelper.getDefinedExprs(clause))
                 if (!uniqueFlagIds.contains(literal.satName))
                     uniqueFlagIds(literal.satName) = uniqueFlagIds.size + 1
         scala.collection.immutable.Map[String, Int]() ++ uniqueFlagIds
     }
 
 
-    private def addClauses(cnf: NF, variables: Map[String, Int]): Vec[IVecInt] = {
+    private def addClauses(cnf: FeatureExpr/*CNF*/, variables: Map[String, Int]): Vec[IVecInt] = {
         val result = new Vec[IVecInt]()
-        for (clause <- cnf.clauses; if !clause.isEmpty)
-            result.push(addClause(clause, variables))
+        for (clause <- CNFHelper.getCNFClauses(cnf); if (clause!=True))
+            result.push(SatSolver.getClauseVec(variables, clause))
         result
-    }
-    private def addClause(clause: Clause, variables: Map[String, Int]): VecInt = {
-        val clauseArray: Array[Int] = new Array(clause.size)
-        var i = 0
-        for (literal <- clause.posLiterals) {
-            clauseArray(i) = variables(literal.satName)
-            i = i + 1;
-        }
-        for (literal <- clause.negLiterals) {
-            clauseArray(i) = -variables(literal.satName)
-            i = i + 1;
-        }
-        new VecInt(clauseArray)
     }
 }

@@ -14,7 +14,7 @@ import org.sat4j.specs.ContradictionException;
 
 class SatSolver {
     val CACHING = false
-    def isSatisfiable(exprCNF: NF, featureModel: FeatureModel = NoFeatureModel): Boolean = {
+    def isSatisfiable(exprCNF: FeatureExpr, featureModel: FeatureModel = NoFeatureModel): Boolean = {
         if (CACHING) SatSolverCache.get(nfm(featureModel)).isSatisfiable(exprCNF)
         else new SatSolverImpl(nfm(featureModel)).isSatisfiable(exprCNF)
     }
@@ -30,6 +30,13 @@ private object SatSolverCache {
 }
 
 private class SatSolverImpl(featureModel: FeatureModel) {
+    import SatSolver._
+    /** Type Aliases for Readability */
+    type CNF = FeatureExpr
+    type OrClause = FeatureExpr
+    type Literal = FeatureExpr
+    type Flag = DefinedExpr
+
     val PROFILING = false
 
     /**init / constructor */
@@ -47,12 +54,14 @@ private class SatSolverImpl(featureModel: FeatureModel) {
      *
      * featureModel is optional
      */
-    def isSatisfiable(exprCNF: NF): Boolean = {
-        if (exprCNF.isEmpty) return true
-        if (exprCNF.isFull) return false
+    def isSatisfiable(exprCNF: CNF): Boolean = {
+        assert(CNFHelper.isCNF(exprCNF))
+
+        if (exprCNF == True) return true
+        if (exprCNF == False) return false
         //as long as we do not consider feature models, expressions with a single variable 
         //are always satisfiable
-        if ((featureModel == NoFeatureModel) && (exprCNF.isAtomic)) return true
+        if ((featureModel == NoFeatureModel) && (CNFHelper.isLiteralExternal(exprCNF))) return true
 
         val startTime = System.currentTimeMillis();
 
@@ -63,12 +72,12 @@ private class SatSolverImpl(featureModel: FeatureModel) {
         try {
 
             //find used macros, combine them by common expansion
-            val cnfs: List[NF] = prepareFormula(exprCNF)
+            val cnfs: List[CNF] = prepareFormula(exprCNF,PROFILING)
 
             if (PROFILING)
                 print(";")
-            for (cnf <- cnfs; clause <- cnf.clauses)
-                for (literal <- (clause.posLiterals ++ clause.negLiterals))
+            for (cnf <- cnfs; clause <- CNFHelper.getCNFClauses(cnf))
+                for (literal <- CNFHelper.getDefinedExprs(clause))
                     if (!uniqueFlagIds.contains(literal.satName))
                         uniqueFlagIds = uniqueFlagIds + ((literal.satName, uniqueFlagIds.size + 1))
             if (PROFILING)
@@ -91,8 +100,8 @@ private class SatSolverImpl(featureModel: FeatureModel) {
             try {
                 val unit = new VecInt();
                 try {
-                    for (cnf <- cnfs; clause <- cnf.clauses; if !clause.isEmpty) {
-                        if (clause.isAtomic)
+                    for (cnf <- cnfs; clause <- CNFHelper.getCNFClauses(cnf)) {
+                        if (CNFHelper.isLiteral(clause))
                             unit.push(getAtomicId(uniqueFlagIds, clause))
                         else {
                             val constr = solver.addClause(getClauseVec(uniqueFlagIds, clause))
@@ -119,35 +128,46 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                 println(" in " + (System.currentTimeMillis() - startTimeSAT) + " ms>")
         }
     }
+}
 
-    private def countClauses(expr: NF) = expr.clauses.size
+object SatSolver {
+    /** Type Aliases for Readability */
+    type CNF = FeatureExpr
+    type OrClause = FeatureExpr
+    type Literal = FeatureExpr
+    type Flag = DefinedExpr
 
-    private def countFlags(expr: NF) = {
+
+    def countClauses(expr: CNF) = CNFHelper.getCNFClauses(expr).size
+
+    def countFlags(expr: CNF) = {
         var flags = Set[String]()
-        for (clause <- expr.clauses)
-            for (literal <- (clause.posLiterals ++ clause.negLiterals))
+        for (clause <- CNFHelper.getCNFClauses(expr))
+            for (literal <- CNFHelper.getDefinedExprs(clause))
                 flags = flags + literal.satName
         flags.size
     }
 
-    private def getClauseVec(uniqueFlagIds: Map[String, Int], clause: Clause) = {
-        val clauseArray: Array[Int] = new Array(clause.size)
+    def getClauseVec(uniqueFlagIds: Map[String, Int], orClause: OrClause) = {
+        val literals = CNFHelper.getLiterals(orClause)
+        val clauseArray: Array[Int] = new Array(literals.size)
         var i = 0
-        for (literal <- clause.posLiterals) {
-            clauseArray(i) = uniqueFlagIds(literal.satName)
-            i = i + 1;
-        }
-        for (literal <- clause.negLiterals) {
-            clauseArray(i) = -uniqueFlagIds(literal.satName)
+        for (literal <- literals) {
+            literal match {
+                case x: DefinedExpr => clauseArray(i) = uniqueFlagIds(x.satName)
+                case Not(x: DefinedExpr) => clauseArray(i) = -uniqueFlagIds(x.satName)
+                case _ => throw new NoLiteralException(literal)
+            }
             i = i + 1;
         }
         new VecInt(clauseArray)
     }
 
-    private def getAtomicId(uniqueFlagIds: Map[String, Int], clause: Clause) =
-        if (clause.posLiterals.isEmpty)
-            -uniqueFlagIds(clause.negLiterals(0).satName)
-        else uniqueFlagIds(clause.posLiterals(0).satName)
+    def getAtomicId(uniqueFlagIds: Map[String, Int], literal: Literal) = literal match {
+        case x: DefinedExpr => uniqueFlagIds(x.satName)
+        case Not(x: DefinedExpr) => -uniqueFlagIds(x.satName)
+        case _ => throw new NoLiteralException(literal)
+    }
 
     /**
      * DefinedExternal translates directly into a flag for the SAT solver
@@ -164,9 +184,10 @@ private class SatSolverImpl(featureModel: FeatureModel) {
      *
      * We first collect all expansions and detect identical ones             * 
      */
-    def prepareFormula(expr: NF): List[NF] = {
-
-        var macroExpansions: Map[String, NF] = Map()
+    def prepareFormula(expr: CNF, PROFILING:Boolean): List[CNF] = {
+        import scala.collection.mutable.Map
+        var macroExpansions: Map[String, FeatureExpr] = Map()
+        val cache:Map[FeatureExpr,FeatureExpr] = Map()
 
         def prepareLiteral(literal: DefinedExpr): DefinedExpr = {
             literal match {
@@ -174,11 +195,11 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                     if (!macroExpansions.contains(expansionName)) {
                         if (PROFILING)
                             print(expansionName)
-                        val e: NF = expansionNF.apply()
+                        val e: CNF = expansionNF.apply()
                         if (PROFILING)
                             print(":")
                         //recursively expand formula (dummy is necessary to avoid accidental recursion)
-                        macroExpansions = macroExpansions + (expansionName -> new NF(true) /*dummy*/)
+                        macroExpansions = macroExpansions + (expansionName -> False /*dummy*/)
                         val preparedExpansion = prepareFormulaInner(e)
                         macroExpansions = macroExpansions + (expansionName -> preparedExpansion)
 
@@ -190,14 +211,12 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                 case e => e
             }
         }
-        def prepareClause(clause: Clause): Clause = {
-            clause.substitute(prepareLiteral(_))
-        }
-        def prepareFormulaInner(formula: NF): NF = {
-            new NF(formula.clauses.map(prepareClause(_)), formula.isFull)
+        def prepareFormulaInner(formula: CNF): CNF = {
+            formula.mapDefinedExpr(prepareLiteral, cache)
         }
 
         val targetExpr = prepareFormulaInner(expr)
+
         List(targetExpr) ++ macroExpansions.values
     }
 

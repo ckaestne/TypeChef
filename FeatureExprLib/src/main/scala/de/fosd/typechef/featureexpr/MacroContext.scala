@@ -34,7 +34,7 @@ import FeatureExpr.createDefinedExternal
  *
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
-class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (String, Susp[NF])]) extends FeatureProvider {
+class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (String, Susp[FeatureExpr])]) extends FeatureProvider {
     def this() = {this (Map(), Map())}
     def define(name: String, infeature: FeatureExpr, other: Any): MacroContext = {
         val feature = infeature //.resolveToExternal()
@@ -81,7 +81,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
      *
      * the result is cached. $$ is later replaced by a name for the SAT solver
      */
-    def getMacroConditionCNF(name: String): (String, Susp[NF]) = {
+    def getMacroConditionCNF(name: String): (String, Susp[FeatureExpr]) = {
         if (cnfCache.contains(name))
             return cnfCache(name)
 
@@ -89,7 +89,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
         val c = getMacroCondition(name)
         val d = FeatureExpr.createDefinedExternal(newMacroName)
         val condition = FeatureExpr.createEquiv(c, d)
-        val cnf = LazyLib.delay(condition.equiCNF)
+        val cnf = LazyLib.delay(condition.toCnfEquiSat)
         val result = (newMacroName, cnf)
         cnfCache = cnfCache + (name -> result)
         result
