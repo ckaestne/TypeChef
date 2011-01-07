@@ -82,7 +82,7 @@ public class JcppFileTest extends AbstractCheckTests {
 //	}
 
     @Test
-    public void testIfElseParsing() throws LexerException, IOException {
+    public void testIfCondition() throws LexerException, IOException {
         testFile("ifcondition.c");
     }
 

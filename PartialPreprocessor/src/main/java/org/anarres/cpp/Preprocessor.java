@@ -2012,7 +2012,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                     break;
 
                 case '?':
-                    lhs = new ExprOrValue(parse_qifExpr(lhs.assumeExpression(tok), tok));
+                    lhs = parse_qifExpr(lhs.assumeExpression(tok), tok);
                     break;
 
                 default:
@@ -2109,11 +2109,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * @throws IOException
      * @throws LexerException
      */
-    private FeatureExprValue parse_qifExpr(FeatureExpr condition, Token tok) throws IOException, LexerException {
+    private ExprOrValue parse_qifExpr(FeatureExpr condition, Token tok) throws IOException, LexerException {
         ExprOrValue thenBranch = parse_featureExprOrValue(0, false);
         consumeToken(':', true);
         ExprOrValue elseBranch = parse_featureExprOrValue(0, false);
-        return FeatureExprLib.l().createIf(condition, thenBranch.assumeValue(tok), elseBranch.assumeValue(tok));
+        if (thenBranch.expr != null && elseBranch.expr != null)
+            return new ExprOrValue(FeatureExprLib.l().createIf(condition, thenBranch.expr, elseBranch.expr));
+        else
+            return new ExprOrValue(FeatureExprLib.l().createIf(condition, thenBranch.assumeValue(tok), elseBranch.assumeValue(tok)));
     }
 
     private void consumeToken(int tokenType, boolean inlineCppExpression)

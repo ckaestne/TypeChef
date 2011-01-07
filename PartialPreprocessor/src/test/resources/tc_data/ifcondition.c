@@ -8,12 +8,17 @@
 
 #if (defined(X) ? 3 : 0) == 3
 
-  _X is defined
+  _X is defined  CC1
 
 #endif
 
 #if VAL == 3
 
-  _X is defined
+  _X is defined CC2
 
+#endif
+
+
+#if defined (__GNU_LIBRARY__) ? defined (__USE_GNU) : !defined (__STRICT_ANSI__)
+  other condition CC3
 #endif
