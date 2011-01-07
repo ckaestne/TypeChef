@@ -1000,7 +1000,7 @@ try {
             val newResultA = resultA.mapfr(inFeature and feature, f)
             val newResultB = resultB.mapfr(inFeature and (feature.not), f)
             if ((newResultA eq resultA) && (newResultB eq resultB))
-                this
+                this.asInstanceOf[MultiParseResult[U]]
             else
                 SplittedParseResult(feature, newResultA, newResultB)
         }
