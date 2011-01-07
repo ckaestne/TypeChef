@@ -211,8 +211,8 @@ private[featureexpr] object FExprBuilder {
             case other =>
                 andCache.getOrElseUpdate(new FExprPair(a, b), other match {
                     case (a1: And, a2: And) => new And(a1.clauses ++ a2.clauses)
-                    case (a: And, e) => new And(a.clauses + e)
-                    case (e, a: And) => new And(a.clauses + e)
+                    case (a: And, e) => if (a.clauses contains e) a else new And(a.clauses + e)
+                    case (e, a: And) => if (a.clauses contains e) a else new And(a.clauses + e)
                     case (e1, e2) => new And(Set(e1, e2))
                 })
         }
@@ -229,8 +229,8 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => True
             case other => orCache.getOrElseUpdate(new FExprPair(a, b), other match {
                 case (o1: Or, o2: Or) => new Or(o1.clauses ++ o2.clauses)
-                case (o: Or, e) => new Or(o.clauses + e)
-                case (e, o: Or) => new Or(o.clauses + e)
+                case (o: Or, e) => if (o.clauses contains e) o else new Or(o.clauses + e)
+                case (e, o: Or) => if (o.clauses contains e) o else new Or(o.clauses + e)
                 case (e1, e2) => new Or(Set(e1, e2))
             })
         }
