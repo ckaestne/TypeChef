@@ -27,6 +27,8 @@ class TestFeatureExpr extends TestCase {
     def _assertIsCNF(cnf: FeatureExpr) {
         println("CNF: " + cnf)
         cnf match {
+            case True =>
+            case False =>
             case And(children) => for (child <- children) checkLevelOr(child);
             case e => checkLevelOr(e);
         }
