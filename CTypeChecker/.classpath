@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/FeatureExprLib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ParserFramework"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CParser"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.sat4j.core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
