@@ -124,9 +124,9 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * NFBuilder builds normal form classes from expressions that are already in normal form
  *
- * NFBuilder will not turn arbitrary expressions into normal forms! Use 
+ * NFBuilder will not turn arbitrary expressions into normal forms! Use
  * FeatureExprTree.toCNF before. Throws an exception when applied to
- * a non-NF formula 
+ * a non-NF formula
  */
 object CNFHelper {
     //    def toCNF(exprInCNF: FeatureExpr): NF = toNF(exprInCNF, true)

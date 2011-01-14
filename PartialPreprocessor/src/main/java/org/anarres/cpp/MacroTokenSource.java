@@ -121,7 +121,7 @@ import java.util.List;
 
 	/*
 	 * At this point, we have consumed the first M_PASTE.
-	 * 
+	 *
 	 * @see Macro#addPaste(Token)
 	 */
 	private void paste(Token ptok) throws IOException, LexerException {

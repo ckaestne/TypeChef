@@ -27,8 +27,8 @@ import java.io.StringReader;
  * code.
  */
 public class StringLexerSource extends LexerSource {
-	
-	
+
+
 
 	private String string;
 
@@ -58,12 +58,12 @@ public class StringLexerSource extends LexerSource {
 	public String toString() {
 		return "string literal: "+string;
 	}
-	
+
 	@Override
 	String debug_getContent() {
 		return string;
 	}
-	
+
 	public String getName(){
 		return "string input";
 	}

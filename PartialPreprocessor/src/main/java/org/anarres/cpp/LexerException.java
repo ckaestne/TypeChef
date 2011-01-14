@@ -21,7 +21,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A preprocessor exception.
- * 
+ *
  * Note to users: I don't really like the name of this class. S.
  */
 @SuppressWarnings("all")

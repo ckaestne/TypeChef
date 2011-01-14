@@ -28,7 +28,7 @@ class TestErrorReporting extends TestCase {
 
     }
 
-    // 
+    //
 
     @Test
     def test1() { parseFile("errors/test.c") }

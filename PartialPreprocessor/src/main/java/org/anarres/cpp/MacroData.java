@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * A macro object.
- * 
+ *
  * This encapsulates a name, an argument count, and a token stream for
  * replacement. The replacement token stream may contain the extra tokens
  * {@link Token#M_ARG} and {@link Token#M_STRING}.
@@ -59,7 +59,7 @@ public class MacroData {
 
 	/**
 	 * Returns the Source from which this macro was parsed.
-	 * 
+	 *
 	 * This method may return null if the macro was not parsed from a regular
 	 * file.
 	 */
@@ -113,7 +113,7 @@ public class MacroData {
 
 	/**
 	 * Adds a "paste" operator to the expansion of this macro.
-	 * 
+	 *
 	 * A paste operator causes the next token added to be pasted to the previous
 	 * token when the macro is expanded. It is an error for a macro to end with
 	 * a paste token.

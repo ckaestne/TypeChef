@@ -12,7 +12,7 @@ class BoaFilesTest extends AbstractTestProject {
         "mmap_cache", "pipe", "queue", "read", "request", "response",
         "select", "signals", "sublog", "util"
     )
-    //Considering HAVE_LIBDMALLOC causes the program to try including dmalloc.h, which is not installed. 
+    //Considering HAVE_LIBDMALLOC causes the program to try including dmalloc.h, which is not installed.
     override def extraPreprocessorOpt = super.extraPreprocessorOpt ++ Array("-U", "HAVE_LIBDMALLOC")
 }
 

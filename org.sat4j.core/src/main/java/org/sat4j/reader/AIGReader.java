@@ -93,7 +93,7 @@ public class AIGReader extends Reader {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sat4j.reader.Reader#parseInstance(java.io.InputStream)
      */
     @Override

@@ -9,11 +9,11 @@ import java.util.List;
 /**
  * helper class that returns a list of tokens (each with presence condition),
  * but without any #ifdef tokens, whitespace or such
- * 
+ *
  * to be extended to mirror the power of Main.java
- * 
+ *
  * @author kaestner
- * 
+ *
  */
 public class PartialPPLexer {
 
@@ -30,7 +30,7 @@ public class PartialPPLexer {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param stream stream containing the data to preprocess
 	 * @param filePath path of the file represented by the stream
 	 * @param folderPath path of the containing folder.

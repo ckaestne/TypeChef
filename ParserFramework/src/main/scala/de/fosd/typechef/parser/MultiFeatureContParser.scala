@@ -15,10 +15,10 @@ case object Else extends PreprocDirective {}
 case object Endif extends PreprocDirective {}
 
 /**
- * Continuation-based solution to parsing partially-preprocessed C code, 
+ * Continuation-based solution to parsing partially-preprocessed C code,
  * and more in general to parse an ambiguous input stream (as opposed to an input stream
  * with an ambiguous parse tree).
- * 
+ *
  * @author Paolo G. Giarrusso
  */
 
@@ -32,64 +32,64 @@ case object Endif extends PreprocDirective {}
 //   * the input). */
 //  sealed abstract class ParseResult[+T] {
 //    /** Functional composition of ParseResults
-//     * 
+//     *
 //     * @param `f' the function to be lifted over this result
 //     * @return `f' applied to the result of this `CpsParseResult', packaged up as a new `CpsParseResult'
 //     */
 //    def map[U](f: T => U): ParseResult[U]
-//    
+//
 //    /** Partial functional composition of ParseResults
-//     * 
+//     *
 //     * @param `f' the partial function to be lifted over this result
-//     * @param error a function that takes the same argument as `f' and produces an error message 
+//     * @param error a function that takes the same argument as `f' and produces an error message
 //     *        to explain why `f' wasn't applicable (it is called when this is the case)
 //     * @return <i>if `f' f is defined at the result in this `CpsParseResult',</i>
 //     *         `f' applied to the result of this `CpsParseResult', packaged up as a new `CpsParseResult'.
 //     *         If `f' is not defined, `CpsFailure'.
 //     */
-//    def mapPartial[U](f: PartialFunction[T, U], error: T => String): ParseResult[U]   
-//    
-//    def flatMapWithNext[U](f: T => CpsParser[U]): ParseResult[U]     
+//    def mapPartial[U](f: PartialFunction[T, U], error: T => String): ParseResult[U]
+//
+//    def flatMapWithNext[U](f: T => CpsParser[U]): ParseResult[U]
 //
 //    def append[U >: T](a: => CpsParseResult[U]): CpsParseResult[U]
-//    
+//
 //    def isEmpty = !successful
-//    
+//
 //    /** Returns the embedded result */
 //    def get: T
-//    
-//    def getOrElse[B >: T](default: => B): B = 
+//
+//    def getOrElse[B >: T](default: => B): B =
 //        if (isEmpty) default else this.get
-//    
+//
 //    val next: Input
-//    
+//
 //    val successful: Boolean
 //  }
 //
 //  /** The success case of CpsParseResult: contains the result and the remaining input.
 //   *
-//   *  @param result The parser's output 
+//   *  @param result The parser's output
 //   *  @param next   The parser's remaining input
 //   */
 //  case class CpsSuccess[+T](result: T, override val next: Input) extends ParseResult[T] {
 //    def map[U](f: T => U) = CpsSuccess(f(result), next)
-//    def mapPartial[U](f: PartialFunction[T, U], error: T => String): ParseResult[U] 
-//       = if(f.isDefinedAt(result)) CpsSuccess(f(result), next) 
+//    def mapPartial[U](f: PartialFunction[T, U], error: T => String): ParseResult[U]
+//       = if(f.isDefinedAt(result)) CpsSuccess(f(result), next)
 //         else CpsFailure(error(result), next)
 //
-//    def flatMapWithNext[U](f: T => CpsParser[U]): ParseResult[U] 
-//      = f(result)(next) 
+//    def flatMapWithNext[U](f: T => CpsParser[U]): ParseResult[U]
+//      = f(result)(next)
 //
 //    def append[U >: T](a: => CpsParseResult[U]): ParseResult[U] = this
 //
 //    def get: T = result
-//    
+//
 //    /** The toString method of a CpsSuccess */
 //    override def toString = "["+next.pos+"] parsed: "+result
-//    
+//
 //    val successful = true
 //  }
-//  
+//
 //  var lastNoSuccess: CpsNoSuccess = null
 //
 //  /** A common super-class for unsuccessful parse results
@@ -102,7 +102,7 @@ case object Endif extends PreprocDirective {}
 //    def map[U](f: Nothing => U) = this
 //    def mapPartial[U](f: PartialFunction[Nothing, U], error: Nothing => String): ParseResult[U] = this
 //
-//    def flatMapWithNext[U](f: Nothing => Input => CpsParseResult[U]): ParseResult[U] 
+//    def flatMapWithNext[U](f: Nothing => Input => CpsParseResult[U]): ParseResult[U]
 //      = this
 //
 //    def get: Nothing = error("No result when parsing failed")
@@ -116,7 +116,7 @@ case object Endif extends PreprocDirective {}
 //      case _                    => None
 //    }
 //  }
-//  
+//
 //  /** The failure case of CpsParseResult: contains an error-message and the remaining input.
 //   * Parsing will back-track when a failure occurs.
 //   *
@@ -126,15 +126,15 @@ case object Endif extends PreprocDirective {}
 //  case class CpsFailure(override val msg: String, override val next: Input) extends CpsNoSuccess(msg, next) {
 //    /** The toString method of a CpsFailure yields an error message */
 //    override def toString = "["+next.pos+"] failure: "+msg+"\n\n"+next.pos.longString
-//    
+//
 //    def append[U >: Nothing](a: => CpsParseResult[U]): ParseResult[U] = { val alt = a; alt match {
 //      case CpsSuccess(_, _) => alt
 //      case ns: CpsNoSuccess => if (alt.next.pos < next.pos) this else alt
 //    }}
 //  }
-//  
+//
 //  /** The fatal failure case of CpsParseResult: contains an error-message and the remaining input.
-//   * No back-tracking is done when a parser returns an `CpsError' 
+//   * No back-tracking is done when a parser returns an `CpsError'
 //   *
 //   *  @param msg    An error message string describing the error.
 //   *  @param next   The parser's unconsumed input at the point where the error occurred.
@@ -147,14 +147,14 @@ case object Endif extends PreprocDirective {}
 //
 //  def resetParser[U](next: CpsParser[U]) = (in: Input) => reset { next(in) }
 //  case class ParsingThread[+U](contPars: CpsParser[U], feature: FeatureExpr, captCont: CpsParseResult[U] => CpsParseResult[U])
-//  
+//
 //  case class ParsingThreads[+U](isComplete: Boolean, cont: CpsParser[U], currFeat: FeatureExpr, states: List[ParsingThread[U]])
 //  class ParsingContext extends ArrayStack[ParsingThreads[_]] {}
 //  //XXX make this thread-local
 //  def parsingCtx = new ParsingContext()
 //
 //  def pushNewCtx[U](next: CpsParser[U], feature: FeatureExpr) = parsingCtx.push(ParsingThreads(feature.isBase(), next, feature, Nil))
-//  
+//
 //  /* The returned parser fetches the top of the stack, and pushes it again after adding the captured continuation and feature,
 //   * in the list of suspended closures associated with firstNext,
 //   * reinvoke oldNext under reset (maybe the original reset is enough, maybe not).*/
@@ -173,7 +173,7 @@ case object Endif extends PreprocDirective {}
 //	  })
 //  def CpsParser[T](f: Input => CpsParseResult[T] @cpsParam[CpsParseResult[T], CpsParser[T]]): CpsParser[T] =
 //	new CpsParser[T]{ def apply(in: Input) = f(in) }
-//  
+//
 //  type CpsParserCont[U] = ControlContext[CpsParseResult[U],CpsParseResult[U],CpsParseResult[Any]]
 //  abstract class CpsParser[+T] extends (Input => CpsParseResult[T] @cpsParam[ParseResult[T], CpsParser[T]]) {
 //  //abstract class CpsParser[+T] extends (Input => CpsParseResult[T]) {
@@ -197,7 +197,7 @@ case object Endif extends PreprocDirective {}
 //
 //    // XXX: this should be part of a companion Object.
 //    //This needs to be invoked on the resulting parser to accept #ifdef also at the beginning.
-//    //All other positions are handled by ~  
+//    //All other positions are handled by ~
 //    def invoke[U](next: => CpsParser[U]) = new CpsParser[U] {
 //    	def apply(in: Input): CpsParseResult[U] = in.first match {
 //		    //do the same handling as below for #if: push next somewhere.
@@ -205,15 +205,15 @@ case object Endif extends PreprocDirective {}
 //    		case _ => next(in)
 //    	} // | next
 //    }
-//    def append[U >: T](p: => CpsParser[U]): CpsParser[U] 
+//    def append[U >: T](p: => CpsParser[U]): CpsParser[U]
 //      = CpsParser{ in => this(in) append p(in)}
 //
 //    def | [U >: T](q: => CpsParser[U]): CpsParser[U] = append(q).named("|")
 //
-//	//MultiFeatureContParsers.this.CpsParseResult[U] @cpsParam[CpsParseResult[U],Nothing]  required: MultiFeatureContParsers.this.CpsParseResult[U]    
-//    
+//	//MultiFeatureContParsers.this.CpsParseResult[U] @cpsParam[CpsParseResult[U],Nothing]  required: MultiFeatureContParsers.this.CpsParseResult[U]
+//
 //    def createAltNode(l: List[_]): AnyRef
-//    
+//
 //    def ~[U](next: => CpsParser[U]): CpsParser[~[T, U]] = {
 //    	this baseParserSeq ({
 //    		case If(feature) => pushNewCtx(next, feature); resetParser(next)
@@ -240,7 +240,7 @@ case object Endif extends PreprocDirective {}
 //        same next component; then, for each entry in the merged list, invoke
 //        next, pass the result to all continuations, and finally merge them in an
 //        alternative node. Fuuuh! */
-//      
+//
 //        /*accept ("#ifdef") ~ reset next |
 //        (accept("#else") | accept("#elif")) ~ shift k
 //        commit(reset next) |

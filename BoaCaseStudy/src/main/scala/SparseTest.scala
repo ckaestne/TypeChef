@@ -8,9 +8,9 @@ class SparseTest extends AbstractTestProject {
 
             //"compat-$(OS)",
             // Each of these files requires OS-specific headers:
-            //"compat-mingw", "compat-solaris"            
+            //"compat-mingw", "compat-solaris"
             "compat-linux", "compat-cygwin", "compat-bsd",
-            
+
             "ptrlist", "flow", "cse", "simplify", "memops",
             "liveness", "storage", "unssa", "dissect", "test-lexing", "test-parsing",
             "obfuscate", "compile", "graph", "sparse", "test-linearize", "example",

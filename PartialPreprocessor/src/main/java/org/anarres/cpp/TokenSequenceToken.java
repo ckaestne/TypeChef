@@ -7,14 +7,14 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A TokenSequenceToken is a token that internally is build from multiple tokens
- * 
+ *
  * the rational for this token is to avoid creating new objects with potentially
  * large strings (especially if FeatureExprTokens are involved)
- * 
+ *
  * behaves like the first token in the list (except for getText and printLazy)
- * 
+ *
  * @author kaestner
- * 
+ *
  */
 class TokenSequenceToken extends Token {
 

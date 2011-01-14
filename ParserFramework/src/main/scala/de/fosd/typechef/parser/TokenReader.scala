@@ -18,7 +18,7 @@ class TokenReader[+T <: AbstractToken, U](val tokens: List[T], val offst: Int, v
     def rest: TokenReader[T, U] = new TokenReader(tokens.tail, offst + 1, context, eofToken)
 
     /**position is for user output only. do not rely on this value.
-     * use offset for comparing position in tokenstream 
+     * use offset for comparing position in tokenstream
      */
     def pos: Position = first.getPosition
 

@@ -23,7 +23,7 @@ class TokenWrapper(
     def getFeature(): FeatureExpr = featureExpr
 
     def getText(): String = image
-    
+
     def getKind():Int = kind
 
     def getPosition(): Position = position

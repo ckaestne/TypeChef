@@ -128,7 +128,7 @@ class TestFeatureExpr extends TestCase {
     }
 
     def testSimplifyNumeric() {
-        //&&	<=		<<			1			__IF__				CONFIG_NODES_SHIFT			__THEN__				0			__ELSE__				0		__IF__			CONFIG_64BIT		__THEN__			64		__ELSE__			32	1	  
+        //&&	<=		<<			1			__IF__				CONFIG_NODES_SHIFT			__THEN__				0			__ELSE__				0		__IF__			CONFIG_64BIT		__THEN__			64		__ELSE__			32	1
         assertSimplify(FeatureExpr.createLessThanEquals(
             FeatureExpr.createShiftLeft(
                 (FeatureExpr.createInteger(1)),

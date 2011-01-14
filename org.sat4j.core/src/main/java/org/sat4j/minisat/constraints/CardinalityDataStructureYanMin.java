@@ -44,7 +44,7 @@ public class CardinalityDataStructureYanMin extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sat4j.minisat.DataStructureFactory#createClause(org.sat4j.datatype.VecInt)
      */
     public Constr createClause(IVecInt literals) throws ContradictionException {
@@ -58,7 +58,7 @@ public class CardinalityDataStructureYanMin extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sat4j.minisat.DataStructureFactory#createCardinalityConstraint(org.sat4j.datatype.VecInt,
      *      int)
      */

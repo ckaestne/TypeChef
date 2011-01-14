@@ -6,9 +6,9 @@ import java.util.List;
 /**
  * this token filter buffers tokens until a full line is completed.
  * additionally, it removes if-endif blocks if they are entirely empty
- * 
+ *
  * @author ckaestne
- * 
+ *
  */
 public class TokenFilter {
 

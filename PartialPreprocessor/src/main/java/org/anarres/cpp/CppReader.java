@@ -26,10 +26,10 @@ import java.io.Reader;
 
 /**
  * A Reader wrapper around the Preprocessor.
- * 
+ *
  * This is a utility class to provide a transparent {@link Reader} which
  * preprocesses the input text.
- * 
+ *
  * @see Preprocessor
  * @see Reader
  */
@@ -65,7 +65,7 @@ public class CppReader extends Reader {
 
 	/**
 	 * Defines the given name as a macro.
-	 * 
+	 *
 	 * This is a convnience method.
 	 */
 	public void addMacro(String name) throws LexerException {
@@ -74,7 +74,7 @@ public class CppReader extends Reader {
 
 	/**
 	 * Defines the given name as a macro.
-	 * 
+	 *
 	 * This is a convnience method.
 	 */
 	public void addMacro(String name, String value) throws LexerException {

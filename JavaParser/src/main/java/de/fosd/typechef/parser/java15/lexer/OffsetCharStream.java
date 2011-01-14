@@ -206,7 +206,7 @@ public class OffsetCharStream implements CharStream {
 	}
 
 	int pos=-1;
-	
+
 	protected char ReadByte() throws java.io.IOException {
 		if (++nextCharInd >= maxNextCharInd)
 			FillBuff();
@@ -545,7 +545,7 @@ public class OffsetCharStream implements CharStream {
 		bufAbsolutePos = null;
 	}
 
-	
+
 
 	public int getOffset() {
 		return bufAbsolutePos[tokenBegin];

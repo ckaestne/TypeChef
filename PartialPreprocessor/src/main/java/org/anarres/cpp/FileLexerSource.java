@@ -27,9 +27,9 @@ import java.io.Reader;
 
 /**
  * A {@link Source} which lexes a file.
- * 
+ *
  * The input is buffered.
- * 
+ *
  * @see Source
  */
 public class FileLexerSource extends LexerSource {
@@ -42,7 +42,7 @@ public class FileLexerSource extends LexerSource {
 	}
 	/**
 	 * Creates a new Source for lexing the given File
-	 * 
+	 *
 	 * Preprocessor directives are honoured within the file.
 	 * @param file the file object
 	 * @param the path to use in error messages - it might be different when loading files from a ChRoot.
@@ -53,7 +53,7 @@ public class FileLexerSource extends LexerSource {
 
 	/**
 	 * Creates a new Source for lexing the given File.
-	 * 
+	 *
 	 * Preprocessor directives are honoured within the file.
 	 */
 	public FileLexerSource(InputStream stream, String path) throws IOException {

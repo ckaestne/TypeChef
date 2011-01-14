@@ -502,7 +502,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         rep1SepOpt(initializer, COMMA, "initializerList")
     //consumes trailing commas
 
-    def rangeExpr: MultiParser[Expr] = //used in initializers only  
+    def rangeExpr: MultiParser[Expr] = //used in initializers only
         constExpr ~~ VARARGS ~! constExpr ^^ {
             case a ~ _ ~ b => RangeExpr(a, b)
         }
@@ -516,7 +516,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             case auto ~ sp ~ declarator ~ param ~ stmt => NestedFunctionDef(auto.isDefined, sp, declarator, param, stmt)
         }
 
-    //GNU note:  any __label__ declarations must come before regular declarations.            
+    //GNU note:  any __label__ declarations must come before regular declarations.
     def localLabelDeclaration: MultiParser[LocalLabelDeclaration] =
         textToken("__label__") ~> rep1SepOpt(ID, COMMA, "rep1SepOpt") <~ (/*rep1SepOpt already consumes trailing comma opt(COMMA) ~*/ rep1(SEMI)) ^^ {
             LocalLabelDeclaration(_)

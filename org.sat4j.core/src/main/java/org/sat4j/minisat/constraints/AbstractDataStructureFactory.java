@@ -60,7 +60,7 @@ public abstract class AbstractDataStructureFactory implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sat4j.minisat.core.DataStructureFactory#getWatchesFor(int)
      */
     public IVec<Propagatable> getWatchesFor(int p) {
@@ -81,7 +81,7 @@ public abstract class AbstractDataStructureFactory implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sat4j.minisat.DataStructureFactory#createVocabulary()
      */
     public ILits getVocabulary() {
@@ -109,7 +109,7 @@ public abstract class AbstractDataStructureFactory implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sat4j.minisat.core.DataStructureFactory#createCardinalityConstraint(org.sat4j.specs.VecInt,
      *      int)
      */

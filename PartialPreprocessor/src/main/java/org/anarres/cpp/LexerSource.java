@@ -558,7 +558,7 @@ public class LexerSource extends Source {
 
 	/*
 	 * We know we have at least one valid digit, but empty is not fine.
-	 * 
+	 *
 	 * also float digits are parsed by this, but do not yield to correct value
 	 * (do not depend on the value for floats!) this is a hack for tools using
 	 * the tokens produced by this preprocessor, floats are not used inside the

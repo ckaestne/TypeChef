@@ -24,7 +24,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A Preprocessor token.
- * 
+ *
  * @see Preprocessor
  */
 public class SimpleToken extends Token {
@@ -80,7 +80,7 @@ public class SimpleToken extends Token {
 
 	/**
 	 * Returns the line at which this token started.
-	 * 
+	 *
 	 * Lines are numbered from zero.
 	 */
 	public int getLine() {
@@ -89,7 +89,7 @@ public class SimpleToken extends Token {
 
 	/**
 	 * Returns the column at which this token started.
-	 * 
+	 *
 	 * Columns are numbered from zero.
 	 */
 	public int getColumn() {
@@ -98,9 +98,9 @@ public class SimpleToken extends Token {
 
 	/**
 	 * Returns the original or generated text of this token.
-	 * 
+	 *
 	 * This is distinct from the semantic value of the token.
-	 * 
+	 *
 	 * @see #getValue()
 	 */
 	public String getText() {
@@ -109,10 +109,10 @@ public class SimpleToken extends Token {
 
 	/**
 	 * Returns the semantic value of this token.
-	 * 
+	 *
 	 * For strings, this is the parsed String. For integers, this is an Integer
 	 * object. For other token types, as appropriate.
-	 * 
+	 *
 	 * @see #getText()
 	 */
 	public Object getValue() {

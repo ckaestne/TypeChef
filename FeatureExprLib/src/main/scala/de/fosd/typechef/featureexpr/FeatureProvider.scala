@@ -13,7 +13,7 @@ abstract class FeatureProvider {
      */
     def isFeatureBase(feature: String): Boolean
 
-    /** 
+    /**
      * returns the feature expression that is necessary to include this macro (may only reference to external definitons)
      */
     def getMacroCondition(feature: String): FeatureExpr

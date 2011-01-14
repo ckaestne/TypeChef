@@ -7,9 +7,9 @@ import de.fosd.typechef.featureexpr._
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
- * 
+ *
  * performs type checking in a single tree-walk
- * 
+ *
  * @author kaestner
  *
  */
@@ -79,7 +79,7 @@ class TypeSystem {
                 /**** references ****/
                 //function call (XXX: PG: not-so-good detection, but will work for typical code).
                 case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */ )
-                //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional. 
+                //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
                 case _ =>
             }
         }

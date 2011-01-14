@@ -25,7 +25,7 @@ class CGramFilesTest extends TestCase {
 
     }
 
-    // 
+    //
 
     @Test
     def test1() {parseFile("cgram/test.c")}

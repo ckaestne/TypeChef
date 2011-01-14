@@ -65,7 +65,7 @@ class RepOptTest extends TestCase {
 
     @Test
     def testRepOptCommonEnd() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef X
 typedef char a
 #else
@@ -83,7 +83,7 @@ typedef int b;
     }
 
     def testRepOptMultiFeatureOverlap2() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef X
 #ifdef Y
 typedef char a
@@ -104,7 +104,7 @@ typedef int b;
     }
 
     def testRepOptMultiFeatureOverlap7_linux() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef A
 #ifdef SMP
 
@@ -123,7 +123,7 @@ extern __attribute__((section(".data" "")))  __typeof__(u16) per_cpu__x86_bios_c
 #endif
 
 #endif
-;    
+;
 typedef long y;
 typedef long y;
 #endif
@@ -135,10 +135,10 @@ typedef long y;
     }
 
     def testRepOptMultiFeatureOverlap6_linux() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef A
 #ifdef CPU
-extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist;
 extern __attribute__((section(
 #ifdef SMP
 ".data.percpu"
@@ -157,7 +157,7 @@ extern __attribute__((section(
 #endif
 ;
 #ifdef CPU
-extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist;
 extern __attribute__((section(
 #ifdef SMP
 ".data.percpu"
@@ -193,10 +193,10 @@ typedef long y;
     }
 
     def testRepOptMultiFeatureOverlap5_linux() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef A
 #ifdef CPU
-extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist; 
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_orig_ist;
 extern __attribute__((section(
 #ifdef SMP
 ".data.percpu"
@@ -232,7 +232,7 @@ typedef long y;
     }
 
     def testRepOptMultiFeatureOverlap4() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef A
 #ifdef B
 typedef char a
@@ -262,15 +262,15 @@ typedef long y;
     }
 
     def testRepOptMultiFeatureOverlap3() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef X
 #ifdef Y
-typedef 
+typedef
 #else
 typedef
 #endif
 #ifdef Y
-char 
+char
 #else
 int
 #endif
@@ -287,7 +287,7 @@ typedef long a;
 
 
     def testRepOptMultiFeatureOverlap() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef X
 #ifdef Y
 typedef char a
@@ -307,7 +307,7 @@ typedef long a;
     }
 
     def testRepOptMultiFeature() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef X
 #ifdef Y
 typedef char a;
@@ -326,12 +326,12 @@ typedef long a;
     }
 
     /**
-     * for now, we add a type to the type context, even if it 
+     * for now, we add a type to the type context, even if it
      * is defined only conditionally XXX
      */
     @Test
     def testRepOptPlain() {
-        val (ast, next) = parseExtList(""" 
+        val (ast, next) = parseExtList("""
 #ifdef X
 typedef char a;
 #else
@@ -349,7 +349,7 @@ typedef int b;
 
     @Test
     def testRepOptPlain2() {
-        val (ast, next) = parseExtList(""" 
+        val (ast, next) = parseExtList("""
 #ifdef X
 typedef char a;
 typedef char c;
@@ -370,7 +370,7 @@ typedef int b;
 
     /*    @Test
     def testRepOptCommonEnd2() {
-        var (ast, next) = parseExtList(""" 
+        var (ast, next) = parseExtList("""
 #ifdef X
 typedef char a;
 typedef char c

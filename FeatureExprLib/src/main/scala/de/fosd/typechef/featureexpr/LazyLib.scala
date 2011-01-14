@@ -14,14 +14,14 @@ object LazyLib {
     /** Get the value of a delayed expression. */
     implicit def force[A](s: Susp[A]): A = s()
 
-    /** 
-     * Data type of suspended computations. (The name froms from ML.) 
+    /**
+     * Data type of suspended computations. (The name froms from ML.)
      */
     abstract class Susp[+A] extends Function0[A]
 
-    /** 
-     * Implementation of suspended computations, separated from the 
-     * abstract class so that the type parameter can be invariant. 
+    /**
+     * Implementation of suspended computations, separated from the
+     * abstract class so that the type parameter can be invariant.
      */
     class SuspImpl[A](lazyValue: => A) extends Susp[A] {
         private var maybeValue: Option[A] = None

@@ -12,5 +12,5 @@ class LexerTest extends TestCase {
 				+ "#define foo b\n" + "#endif\n" + "bar\n" + "#ifdef B\n"
 				+ "foo\n" + "#endif\n"))
 	}
-	
+
 }

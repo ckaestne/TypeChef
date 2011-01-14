@@ -33,7 +33,7 @@ import static org.anarres.cpp.Token.*;
 /**
  * modified C preprocessor with the following changes
  *
- * * ifdef never hides code (except for include guards 
+ * * ifdef never hides code (except for include guards
  *   which are recognized with some mechanism)
  *
  * * a history of all defines is remembered and associated
@@ -62,19 +62,19 @@ import static org.anarres.cpp.Token.*;
 
 /*
  * Source file name and line number information is conveyed by lines of the form
- * 
+ *
  * # linenum filename flags
- * 
+ *
  * These are called linemarkers. They are inserted as needed into the output
  * (but never within a string or character constant). They mean that the
  * following line originated in file filename at line linenum. filename will
  * never contain any non-printing characters; they are replaced with octal
  * escape sequences.
- * 
+ *
  * After the file name comes zero or more flags, which are `1', `2', `3', or
  * `4'. If there are multiple flags, spaces separate them. Here is what the
  * flags mean:
- * 
+ *
  * `1' This indicates the start of a new file. `2' This indicates returning to a
  * file (after having included another file). `3' This indicates that the
  * following text comes from a system header file, so certain warnings should be

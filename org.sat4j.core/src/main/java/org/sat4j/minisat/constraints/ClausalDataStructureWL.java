@@ -46,7 +46,7 @@ public class ClausalDataStructureWL extends AbstractDataStructureFactory {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sat4j.minisat.DataStructureFactory#createClause(org.sat4j.datatype.VecInt)
      */
     public Constr createClause(IVecInt literals) throws ContradictionException {

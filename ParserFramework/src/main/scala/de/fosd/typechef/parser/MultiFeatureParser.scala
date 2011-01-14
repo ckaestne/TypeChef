@@ -79,7 +79,7 @@ class MultiFeatureParser(featureModel: FeatureModel = null) {
             (thisParser ^^ (x => Some(x)) | success(None))(in, feature)
     }
 
-    //parser  
+    //parser
     abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T]) {
         thisParser =>
         protected var name: String = ""
@@ -184,7 +184,7 @@ class MultiFeatureParser(featureModel: FeatureModel = null) {
          */
         def *[U >: T](sep: => MultiParser[(U, U) => U]) = repSep(this, sep)
 
-        // TODO: improve precedence? a ~ b*(",") = a ~ (b*(","))  should be true 
+        // TODO: improve precedence? a ~ b*(",") = a ~ (b*(","))  should be true
 
         /**Returns a parser that repeatedly (at least once) parses what this parser parses.
          *
@@ -217,7 +217,7 @@ class MultiFeatureParser(featureModel: FeatureModel = null) {
      * a,b_1,c => List(a,Opt(1,b),c)
      *
      * Note: it is not allowed to sequence two repOpt calls (such as repOpt(a)~repOpt(b)), because it would not be
-     * able to parse correctly interleaved entries of both lists. In this case use rep instead for the first sequence. XXX 
+     * able to parse correctly interleaved entries of both lists. In this case use rep instead for the first sequence. XXX
      *
      * @param productionName provides a readable name for debugging purposes
      */
@@ -237,7 +237,7 @@ def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]]] =
     /**
      * @param in0: token stream position before attempting to parse this sequence
      *
-     * returns a single parse result with the corresponding feature 
+     * returns a single parse result with the corresponding feature
      */
     /*
 def selectFirstMostResult(in0: Input, context: FeatureExpr, result: MultiParseResult[T]): (FeatureExpr, ParseResult[T]) =
@@ -280,11 +280,11 @@ while (true) {
     */
     /**
      * strategy1: parse the next statement with the annotation of the next token.
-     *  if it yields a unique result before the next token that would be parsed 
-     *  with the alternative (split) parser, then this is the only result we need 
+     *  if it yields a unique result before the next token that would be parsed
+     *  with the alternative (split) parser, then this is the only result we need
      *  to care about
      *
-     * will work in the common case that the entire entry is annotated and 
+     * will work in the common case that the entire entry is annotated and
      *  is not interleaved with other annotations
      */
     /*
@@ -363,7 +363,7 @@ try {
   }.named("repOpt-" + productionName)*/
 
     /**
-     * straightforward implementation but computationally expensive without tail-call optimization, 
+     * straightforward implementation but computationally expensive without tail-call optimization,
      * therefore use iterative implementation repPlain instead
      * @param p
      * @return
@@ -379,7 +379,7 @@ try {
      *
      * may return alternative lists. a list is sealed if parser p cannot
      * parse an additional entry. parsing continues on unsealed lists
-     * until all lists are sealed 
+     * until all lists are sealed
      *
      * @param p
      * @return
@@ -474,7 +474,7 @@ try {
      * second attempt to implement repOpt
      *
      * it uses the following mechanism: it parses a single subexpression (p) at a time
-     * if there are multiple results, it only resumes the result which has consumed fewest tokens 
+     * if there are multiple results, it only resumes the result which has consumed fewest tokens
      * so far. after each step it tries to join parser branches.
      * the intuition is that after splitting, we parse branches in a regular fashion to
      * increase the chances for joins.
@@ -562,11 +562,11 @@ try {
 
         /**
          * performance heuristic 1: parse the next statement with the annotation of the next token.
-         *  if it yields a unique result before the next token that would be parsed 
-         *  with the alternative (split) parser, then this is the only result we need 
+         *  if it yields a unique result before the next token that would be parsed
+         *  with the alternative (split) parser, then this is the only result we need
          *  to care about
          *
-         * will work in the common case that the entire entry is annotated and 
+         * will work in the common case that the entire entry is annotated and
          *  is not interleaved with other annotations
          *
          *  XXX this probably conflicts with the greedy approach of skipping tokens already in next

@@ -251,9 +251,9 @@ class CParserTest extends TestCase {
         assertParseResult(Alt(fa, AssignExpr(a, "=", ConditionalExpr(b, Some(b), d)), AssignExpr(a, "=", ConditionalExpr(b, Some(c), d))),
             """|a=b?
         					|#ifdef a
-        					|b 
+        					|b
         					|#else
-        					|c 
+        					|c
         					|#endif
         					|:d""", p.expr)
     }
@@ -364,7 +364,7 @@ class CParserTest extends TestCase {
         assertParseable("void foo(){}", p.functionDef)
         assertParseable("void foo(){a;}", p.functionDef)
         assertParseable("void foo(int a) { a; }", p.functionDef)
-        assertParseable("""|void 
+        assertParseable("""|void
         				|#ifdef X
         				|foo
         				|#else
@@ -439,7 +439,7 @@ class CParserTest extends TestCase {
     def testMisc3d = assertParseable("(++(int)q23w3->ll881ss[3])", p.primaryExpr)
     def testMisc3e = assertParseable("(void *) (++(int)q23w3->ll881ss[3])", p.expr)
     def testMisc4 = assertParseable("""if (x3 && x4) {
-        char gh554j[19];  
+        char gh554j[19];
         gh554j[0]='\n';
     }""", p.statement)
 
@@ -509,7 +509,7 @@ int main(void) {}
 #endif
 """, p.translationUnit)
 
-    def testIfdefInStatement = assertParseable(""" 
+    def testIfdefInStatement = assertParseable("""
 int foo() {
   foo1();
   while (current) {
@@ -527,7 +527,7 @@ int foo() {
 			foo4();
 #endif
   }
-}    
+}
 """, p.translationUnit)
 
     def testBoaIp1 =
@@ -541,7 +541,7 @@ int foo() {
 
     def testBoaIp2 =
         assertParseable("""
-char *ascii_sockaddr(struct 
+char *ascii_sockaddr(struct
 #if defined(INET6)
 sockaddr_storage
 #endif

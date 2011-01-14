@@ -59,7 +59,7 @@ private class SatSolverImpl(featureModel: FeatureModel) {
 
         if (exprCNF == True) return true
         if (exprCNF == False) return false
-        //as long as we do not consider feature models, expressions with a single variable 
+        //as long as we do not consider feature models, expressions with a single variable
         //are always satisfiable
         if ((featureModel == NoFeatureModel) && (CNFHelper.isLiteralExternal(exprCNF))) return true
 
@@ -180,9 +180,9 @@ object SatSolver {
      * Both are independent clauses fed to the SAT solver
      *
      * Actually, DefinedMacro already contains an expression name <=> expr as CNF, where we
-     * just need to replace the Macro name by a fresh name. 
+     * just need to replace the Macro name by a fresh name.
      *
-     * We first collect all expansions and detect identical ones             * 
+     * We first collect all expansions and detect identical ones             *
      */
     def prepareFormula(expr: CNF, PROFILING:Boolean): List[CNF] = {
         import scala.collection.mutable.Map

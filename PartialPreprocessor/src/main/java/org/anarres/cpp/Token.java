@@ -23,7 +23,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A Preprocessor token.
- * 
+ *
  * @see Preprocessor
  */
 public abstract class Token {
@@ -37,33 +37,33 @@ public abstract class Token {
 
 	/**
 	 * Returns the line at which this token started.
-	 * 
+	 *
 	 * Lines are numbered from zero.
 	 */
 	public abstract int getLine();
 
 	/**
 	 * Returns the column at which this token started.
-	 * 
+	 *
 	 * Columns are numbered from zero.
 	 */
 	public abstract int getColumn();
 
 	/**
 	 * Returns the original or generated text of this token.
-	 * 
+	 *
 	 * This is distinct from the semantic value of the token.
-	 * 
+	 *
 	 * @see #getValue()
 	 */
 	public abstract String getText();
 
 	/**
 	 * Returns the semantic value of this token.
-	 * 
+	 *
 	 * For strings, this is the parsed String. For integers, this is an Integer
 	 * object. For other token types, as appropriate.
-	 * 
+	 *
 	 * @see #getText()
 	 */
 	public abstract Object getValue();
@@ -79,7 +79,7 @@ public abstract class Token {
 
 	/**
 	 * Returns the descriptive name of the given token type.
-	 * 
+	 *
 	 * This is mostly used for stringification and debugging.
 	 */
 	public static final String getTokenName(int type) {
@@ -188,7 +188,7 @@ public abstract class Token {
 	public static final int P_FEATUREEXPR = 303;
 	/**
 	 * The number of possible semantic token types.
-	 * 
+	 *
 	 * Please note that not all token types below 255 are used.
 	 */
 	public static final int _TOKENS = 304;

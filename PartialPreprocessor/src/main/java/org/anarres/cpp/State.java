@@ -40,7 +40,7 @@ class State {
 	/**
 	 * add a feature expression to the state. first the #if expression. if
 	 * called again, this is interpreted as an elif expression.
-	 * 
+	 *
 	 * @param feature
 	 * @param macroTable
 	 */
@@ -53,10 +53,10 @@ class State {
 	 * returns the local feature expression (explicitly negating prior features
 	 * from other elif branches, but not including features from outer nested
 	 * ifdefs)
-	 * 
+	 *
 	 * if this is already the else branch (sawElse is true) than the condition
 	 * for the else branch (negating all features) is returned
-	 * 
+	 *
 	 * @return
 	 */
 	public FeatureExpr getLocalFeatureExpr() {
@@ -82,7 +82,7 @@ class State {
 	/**
 	 * returns the full feature condition that leads to the inclusion of the
 	 * current token (includes all features of nested ifdefs)
-	 * 
+	 *
 	 * @return
 	 */
 	public FeatureExpr getFullPresenceCondition() {
@@ -98,12 +98,12 @@ class State {
 	/**
 	 * only returns false if a code fragment is certainly dead, i.e., there is
 	 * no variant in which it is included.
-	 * 
+	 *
 	 * this can happen when a feature is explicitly undefined or explicitly
 	 * defined in the source code
-	 * 
+	 *
 	 * @param context
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isActive() {

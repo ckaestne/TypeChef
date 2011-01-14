@@ -32,7 +32,7 @@
 //		public long evaluate(MacroStorage macros) {
 //			return 1;
 //		}
-//		
+//
 //		@Override
 //		public String print() {
 //			return "1";
@@ -109,7 +109,7 @@
 //		public long evaluate(MacroStorage macros) {
 //			return ~expr.evaluate(macros);
 //		}
-//		
+//
 //		@Override
 //		public String print() {
 //			return "~"+expr;
@@ -212,7 +212,7 @@
 //		public long evaluate(MacroStorage macros) {
 //			return val;
 //		}
-//		
+//
 //		@Override
 //		public String print() {
 //			return Long.toString(val);
@@ -279,7 +279,7 @@
 //		public long evaluate(MacroStorage macros) {
 //			return -expr.evaluate(macros);
 //		}
-//		
+//
 //		@Override
 //		public String print() {
 //			return "-"+expr.print();
@@ -335,7 +335,7 @@
 //			return lhs.evaluate(macros) != 0 || rhs.evaluate(macros) != 0 ? 1
 //					: 0;
 //		}
-//		
+//
 //		@Override
 //		public FeatureExpression simplify() {
 //			if (lhs == DEAD)
@@ -405,7 +405,7 @@
 //	public FeatureExpression simplify() {
 //		return this;
 //	}
-//	
+//
 //	@Override
 //	public String toString() {
 //		return print();

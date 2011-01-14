@@ -12,15 +12,15 @@ import java.util.List;
  * and when we expand a macro, we push a new source on top of the stack. when
  * expanding an item, we look up the stack whether we are already expanding this
  * item in parent sources
- * 
+ *
  * how, at some points, we push multiple items to the stack that are not in a
  * parent-child relationship. therefore multiple sources can be wrapped with a
  * SourceListSource, which behaves like a single source
- * 
- * 
- * 
+ *
+ *
+ *
  * @author ckaestne
- * 
+ *
  */
 public class SourceManager {
 
@@ -36,7 +36,7 @@ public class SourceManager {
 
 	/**
 	 * Returns the top Source on the input stack.
-	 * 
+	 *
 	 * @see Source
 	 * @see #push_source(Source,boolean)
 	 * @see #pop_source()
@@ -48,7 +48,7 @@ public class SourceManager {
 	/**
 	 * Pushes a Source onto the input stack. (either as new first sibling, or as
 	 * new parent)
-	 * 
+	 *
 	 * @see #getSource()
 	 * @see #pop_source()
 	 */
@@ -70,7 +70,7 @@ public class SourceManager {
 
 	/**
 	 * Pushes a Source onto the input stack.
-	 * 
+	 *
 	 * @see #getSource()
 	 * @see #pop_source()
 	 */
@@ -81,7 +81,7 @@ public class SourceManager {
 
 	/**
 	 * pushes a list of sources which are handled as siblings
-	 * 
+	 *
 	 * @param resultList
 	 * @param b
 	 */
@@ -94,7 +94,7 @@ public class SourceManager {
 
 	/**
 	 * Pops a Source from the input stack.
-	 * 
+	 *
 	 * @see #getSource()
 	 * @see #push_source(Source,boolean)
 	 */
@@ -189,7 +189,7 @@ public class SourceManager {
 			newSources=newSources+", "+_source.debug_getContent();
 			_source=_source.getSibling();
 		}
-		
+
 		return "["+newSources+"]";
 	}
 

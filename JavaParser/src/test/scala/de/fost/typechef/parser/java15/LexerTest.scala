@@ -21,7 +21,7 @@ class LexerTest {
     @Test
     def testLexerBasic() {
         val lexer = createLexer("""/* aa */
-        	class 
+        	class
         	//#ifdef X
         	test {}
         	//#endif

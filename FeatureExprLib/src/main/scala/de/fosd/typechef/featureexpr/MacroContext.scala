@@ -157,7 +157,7 @@ private class Macro(name: String, feature: FeatureExpr, var featureExpansions: L
         new Macro(name, feature.or(exp.getFeature()), addExpansion(exp))
 
     /**
-     * add an expansion (either by extending an existing one or by adding a new one). 
+     * add an expansion (either by extending an existing one or by adding a new one).
      * the scope of all others is restricted accordingly
      */
     private def addExpansion(exp: MacroExpansion): List[MacroExpansion] = {

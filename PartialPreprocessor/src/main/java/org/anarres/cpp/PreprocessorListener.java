@@ -23,7 +23,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A handler for preprocessor events, primarily errors and warnings.
- * 
+ *
  * If no PreprocessorListener is installed in a Preprocessor, all error and
  * warning events will throw an exception. Installing a listener allows more
  * intelligent handling of these events.
@@ -59,7 +59,7 @@ public class PreprocessorListener {
 
 	/**
 	 * Handles a warning.
-	 * 
+	 *
 	 * The behaviour of this method is defined by the implementation. It may
 	 * simply record the error message, or it may throw an exception.
 	 */
@@ -72,10 +72,10 @@ public class PreprocessorListener {
 
 	/**
 	 * Handles an error.
-	 * 
+	 *
 	 * The behaviour of this method is defined by the implementation. It may
 	 * simply record the error message, or it may throw an exception.
-	 * 
+	 *
 	 * @param featureExpr
 	 */
 	public void handleError(Source source, int line, int column, String msg,

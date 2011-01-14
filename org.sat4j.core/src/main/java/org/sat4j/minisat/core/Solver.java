@@ -24,7 +24,7 @@
  *
  * See www.minisat.se for the original solver in C++.
  *
- * The reason simplification methods are coming from MiniSAT 1.14 released under 
+ * The reason simplification methods are coming from MiniSAT 1.14 released under
  * the MIT license:
  * MiniSat -- Copyright (c) 2003-2005, Niklas Een, Niklas Sorensson
  *
@@ -45,7 +45,7 @@
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 package org.sat4j.minisat.core;
 

@@ -11,11 +11,11 @@ import scala.collection.mutable.ListBuffer
 /**
  * builds on top of a standard lexer (generated as part of CIDE
  * from a gcide grammer (internally using JavaCC))
- * 
+ *
  * the main extensions are:
- * 	(1) we look at special tokens and recognize Antenna 
- * 		IFDEF commands inside comments 
- * 
+ * 	(1) we look at special tokens and recognize Antenna
+ * 		IFDEF commands inside comments
+ *
  */
 object JavaLexer {
 

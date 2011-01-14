@@ -202,7 +202,7 @@ trait FeatureExprValue {
 
 /**
  * Central builder class, responsible for simplification of expressions during creation
- * and for extensive caching.  
+ * and for extensive caching.
  */
 private[featureexpr] object FExprBuilder {
     private class FExprPair(val a: FeatureExpr, val b: FeatureExpr) {

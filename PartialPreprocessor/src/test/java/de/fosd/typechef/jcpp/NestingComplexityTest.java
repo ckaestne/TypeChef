@@ -7,9 +7,9 @@ import org.junit.Test;
 
 /**
  * test output with .check files
- * 
+ *
  * @author kaestner
- * 
+ *
  */
 public class NestingComplexityTest extends AbstractCheckTests {
 

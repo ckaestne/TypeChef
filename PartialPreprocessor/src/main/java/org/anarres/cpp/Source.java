@@ -29,12 +29,12 @@ import java.util.Iterator;
 
 /**
  * An input to the Preprocessor.
- * 
+ *
  * Inputs may come from Files, Strings or other sources. The preprocessor
  * maintains a stack of Sources. Operations such as file inclusion or token
  * pasting will push a new source onto the Preprocessor stack. Sources pop from
  * the stack when they are exhausted; this may be transparent or explicit.
- * 
+ *
  * BUG: Error messages are not handled properly.
  */
 public abstract class Source implements Iterable<Token>, Closeable {
@@ -70,7 +70,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 
 	/**
 	 * Sets the parent source of this source.
-	 * 
+	 *
 	 * Sources form a singly linked list.
 	 */
 	/* pp */void setParent(Source parent, boolean autopop) {
@@ -84,7 +84,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 
 	/**
 	 * Returns the parent source of this source.
-	 * 
+	 *
 	 * Sources form a singly linked list.
 	 */
 	/* pp */final Source getParent() {
@@ -99,7 +99,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 
 	/**
 	 * Sets the listener for this Source.
-	 * 
+	 *
 	 * Normally this is set by the Preprocessor when a Source is used, but if
 	 * you are using a Source as a standalone object, you may wish to call this.
 	 */
@@ -109,7 +109,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 
 	/**
 	 * Returns the File currently being lexed.
-	 * 
+	 *
 	 * If this Source is not a {@link FileLexerSource}, then it will ask the
 	 * parent Source, and so forth recursively. If no Source on the stack is a
 	 * FileLexerSource, returns null.
@@ -153,7 +153,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 
 	/**
 	 * Returns true if this Source is expanding the given macro.
-	 * 
+	 *
 	 * This is used to prevent macro recursion.
 	 */
 	/* pp */boolean mayExpand(String macroName) {
@@ -166,7 +166,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 	/**
 	 * Returns true if this Source should be transparently popped from the input
 	 * stack.
-	 * 
+	 *
 	 * Examples of such sources are macro expansions.
 	 */
 	/* pp */boolean isAutopop() {
@@ -194,7 +194,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 
 	/**
 	 * Returns the next Token parsed from this input stream.
-	 * 
+	 *
 	 * @see Token
 	 */
 	public abstract Token token() throws IOException, LexerException;
@@ -208,7 +208,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 
 	/**
 	 * Skips tokens until the end of line.
-	 * 
+	 *
 	 * @param white
 	 *            true if only whitespace is permitted on the remainder of the
 	 *            line.
@@ -278,7 +278,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
 	/**
 	 * it is possible to define a source in which all defined(X) expressions are
 	 * already normalized so that they only refer to external definitions.
-	 * 
+	 *
 	 * in this case, this function may return true to avoid looking up the macro
 	 * in the macro table.
 	 */

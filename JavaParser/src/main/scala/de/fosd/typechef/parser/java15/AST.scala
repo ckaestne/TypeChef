@@ -5,7 +5,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser._
 
 //Expressions
-trait AST 
+trait AST
 
 class Choice(feature:FeatureExpr,left:Any,right:Any)
 object Choice {
