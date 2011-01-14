@@ -15,7 +15,7 @@ object LazyLib {
     implicit def force[A](s: Susp[A]): A = s()
 
     /**
-     * Data type of suspended computations. (The name froms from ML.)
+     * Data type of suspended computations. (The name stems from ML.)
      */
     abstract class Susp[+A] extends Function0[A]
 
