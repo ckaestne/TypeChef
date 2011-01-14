@@ -435,20 +435,27 @@ object False extends Or(Set()) with TrueFalseFeatureExpr {
 
 object And {
     def unapply(x: And) = Some(x.clauses)
-    private[featureexpr] def apply(clauses: Set[FeatureExpr]) =
-        if (!clauses.nonEmpty)
-            True
-        else
-            new And(clauses)
+    private[featureexpr] def apply(clauses: Set[FeatureExpr]) = {
+        clauses.size match {
+            case 0 => True
+            /* The case below seems to not occur, but better include it
+             * for extra robustness, to ensure the weak canonicalization property. */
+            case 1 => clauses.head
+            case _ => new And(clauses)
+        }
+    }
 }
 
 object Or {
     def unapply(x: Or) = Some(x.clauses)
-    private[featureexpr] def apply(clauses: Set[FeatureExpr]) =
-        if (!clauses.nonEmpty)
-            False
-        else
-            new Or(clauses)
+    private[featureexpr] def apply(clauses: Set[FeatureExpr]) = {
+        clauses.size match {
+            case 0 => False
+            /* The case below seems to not occur, handle it, as for And. */
+            case 1 => clauses.head
+            case _ => new Or(clauses)
+        }
+    }
 }
 
 private[featureexpr]
@@ -519,7 +526,11 @@ class Or(val clauses: Set[FeatureExpr]) extends FeatureExpr {
             }
             assert(orClauses.forall(c => CNFHelper.isClause(c) || c == True || c == False))
             FExprBuilder.createAnd(orClauses)
-        } else FExprBuilder.createOr(cnfchildren)
+        } else
+            /* Add an extra And, because a canonical CNF is an conjunction of disjunctions.
+             * Currently this is ignored, but here I do not want to rely on this detail.
+             */
+            FExprBuilder.createAnd(List(FExprBuilder.createOr(cnfchildren)))
 
     /**
      * introduces new variables to avoid exponential behavior
