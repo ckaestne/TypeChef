@@ -243,14 +243,14 @@ private[featureexpr] object FExprBuilder {
     private def binOpCacheGetOrElseUpdate(a: FeatureExpr,
                                         b: FeatureExpr,
                                         getCache: FeatureExpr => WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]],
-                                        op: => FeatureExpr): FeatureExpr = {
+                                        featThunk: => FeatureExpr): FeatureExpr = {
         var result = getFromCache(getCache(a), b)
         if (result == None)
             result = getFromCache(getCache(b), a)
         if (result == None) {
-            val computed = op
-            result = Some(op)
-            val weakRef = new WeakReference(computed)
+            val feat = featThunk
+            result = Some(feat)
+            val weakRef = new WeakReference(feat)
             getCache(a).update(b, weakRef)
             //XXX it is enough to update one object, because we are searching in both of them anyway
             //            getCache(b).update(a, weakRef)
