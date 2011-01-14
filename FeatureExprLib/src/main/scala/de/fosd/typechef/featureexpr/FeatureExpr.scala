@@ -7,7 +7,7 @@ import collection.mutable.HashMap
 import scala.ref.WeakReference
 
 /**
- * External interface for constructon of non-boolean feature expressions (mostly delegated to FExprBuilder)
+ * External interface for construction of non-boolean feature expressions (mostly delegated to FExprBuilder)
  */
 object FeatureExpr {
 
@@ -62,12 +62,31 @@ object FeatureExprHelper {
 /**
  * Propositional (or boolean) feature expressions.
  *
- * feature expressions are compared on object identity (comparing them for equivalence is
- * an additional but expensive operation). propositions such as and or and not
- * cache results, so that the operation yields identical results on identical parameters
+ * Feature expressions are compared on object identity (comparing them for equivalence is
+ * an additional but expensive operation). Connectives such as "and", "or" and "not"
+ * cache results, so that the operation yields identical results on identical parameters.
+ * Classes And, Or and Not are made package-private, and their constructors wrapped
+ * through companion objects, to prevent the construction of formulas in any other way.
+ *
+ * More in general, I believe one could prove a theorem called the weak-canonicalization guarantee:
+ *
+ * If at a given time during program execution, two formula objects represent structurally
+ * equal formulas, i.e. which are deeply equal modulo the order of operands of "and" and "or",
+ * then they are represented by the same object.
+ *
+ * Note that this is not related to formula equivalence.
+ * This does not for formulas existing at different moments, because caches
+ * are implemented using weak references, so if a formula disappears from the heap
+ * it is recreated. However, this is not observable for the code.
+ *
+ * The weak canonicalization property allows also ensuring the strong-canonicalization guarantee:
+ * If at a given time during program execution, two formula objects a and b
+ * represent equivalent formulas, then a.toCNF eq b.toCNF (where eq denotes pointer equality).
+ *
+ * CNF canonicalization, by construction, ensures that a.toCNF and b.toCNF are structurally equal.
+ * The weak canonicalization property also ensures that they are the same object.
  */
 abstract class FeatureExpr {
-
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, that)
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, that)
     def not(): FeatureExpr = FExprBuilder.not(this)
@@ -183,7 +202,7 @@ trait FeatureExprValue {
 
 /**
  * Central builder class, responsible for simplification of expressions during creation
- * and for extensive caching
+ * and for extensive caching.  
  */
 private[featureexpr] object FExprBuilder {
     private class FExprPair(val a: FeatureExpr, val b: FeatureExpr) {
@@ -251,9 +270,9 @@ private[featureexpr] object FExprBuilder {
             case other =>
                 andCacheGetOrElseUpdate(a, b, _.andCache, other match {
                     case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(_ and _)
-                    case (a: And, e) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else new And(a.clauses + e)
-                    case (e, a: And) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else new And(a.clauses + e)
-                    case (e1, e2) => new And(Set(e1, e2))
+                    case (a: And, e) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else And(a.clauses + e)
+                    case (e, a: And) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else And(a.clauses + e)
+                    case (e1, e2) => And(Set(e1, e2))
                 })
         }
     def createAnd(clauses: Traversable[FeatureExpr]) =
@@ -270,9 +289,9 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => True
             case other => andCacheGetOrElseUpdate(a, b, _.orCache, other match {
                 case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
-                case (o: Or, e) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else new Or(o.clauses + e)
-                case (e, o: Or) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else new Or(o.clauses + e)
-                case (e1, e2) => new Or(Set(e1, e2))
+                case (o: Or, e) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else Or(o.clauses + e)
+                case (e, o: Or) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else Or(o.clauses + e)
+                case (e1, e2) => Or(Set(e1, e2))
             })
         }
     def createOr(clauses: Traversable[FeatureExpr]) =
@@ -371,27 +390,68 @@ private[featureexpr] object FExprBuilder {
 // propositional formulas //
 ////////////////////////////
 /**
- * True and False
+ * True and False. They are represented as special cases of And and Or
+ * with no clauses, as it is common practice, for instance in the resolution algorithm.
+ *
+ * True is the zero element for And, while False is the zero element for Or.
+ * Therefore, True can be represented as an empty conjunction, while False
+ * by an empty disjunction.
+ *
+ * One can imagine to build a disjunction incrementally, by having an empty one
+ * be considered as false, so that each added operand can make the resulting
+ * formula true. Dually, an empty conjunction is true, and and'ing clauses can
+ * make it false.
+ *
+ * This avoids introducing two new leaf nodes to handle (avoiding some bugs causing NoLiteralException).
+ *
+ * Moreover, since those are valid formulas, they would otherwise be valid but
+ * non-canonical representations, and avoiding the very existence of such things
+ * simplifies ensuring that our canonicalization algorithms actually work.
+ *
+ * The use of only canonical representations for True and False is ensured thanks to the
+ * apply methods of the And and Or companion objects, which convert any empty set of
+ * clauses into the canonical True or False object.
  */
-private[featureexpr] abstract class TrueFalseFeatureExpr(isTrue: Boolean) extends FeatureExpr {
+private[featureexpr] trait TrueFalseFeatureExpr extends FeatureExpr {
+    def booleanValue: Boolean
     override def calcSize = 0
-    override def print = if (isTrue) "1" else "0"
+    override def print = if (booleanValue) "1" else "0"
     override def debug_print(ind: Int) = indent(ind) + print + "\n"
     override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
-    override def calcCNF = this
-    override def calcCNFEquiSat = this
-    override def isSatisfiable(fm: FeatureModel) = isTrue
+    override def calcCNF: FeatureExpr = this
+    override def calcCNFEquiSat = calcCNF
+    override def isSatisfiable(fm: FeatureModel) = booleanValue
 }
 
-object True extends TrueFalseFeatureExpr(true) {
+object True extends And(Set()) with TrueFalseFeatureExpr {
     override def toString = "True"
+    override def booleanValue = true
 }
 
-object False extends TrueFalseFeatureExpr(false) {
+object False extends Or(Set()) with TrueFalseFeatureExpr {
     override def toString = "False"
+    override def booleanValue = false
 }
 
+object And {
+    def unapply(x: And) = Some(x.clauses)
+    private[featureexpr] def apply(clauses: Set[FeatureExpr]) =
+        if (!clauses.nonEmpty)
+            True
+        else
+            new And(clauses)
+}
 
+object Or {
+    def unapply(x: Or) = Some(x.clauses)
+    private[featureexpr] def apply(clauses: Set[FeatureExpr]) =
+        if (!clauses.nonEmpty)
+            False
+        else
+            new Or(clauses)
+}
+
+private[featureexpr]
 class And(val clauses: Set[FeatureExpr]) extends FeatureExpr {
     override def toString = clauses.mkString("(", "&", ")")
     override def print = clauses.map(_.print).mkString("(", " && ", ")")
@@ -408,10 +468,7 @@ class And(val clauses: Set[FeatureExpr]) extends FeatureExpr {
     protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
 }
 
-object And {
-    def unapply(x: And) = Some(x.clauses)
-}
-
+private[featureexpr]
 class Or(val clauses: Set[FeatureExpr]) extends FeatureExpr {
     override def toString = clauses.mkString("(", "|", ")")
     override def print = clauses.map(_.print).mkString("(", " || ", ")")
@@ -494,10 +551,7 @@ class Or(val clauses: Set[FeatureExpr]) extends FeatureExpr {
 
 }
 
-object Or {
-    def unapply(x: Or) = Some(x.clauses)
-}
-
+private[featureexpr]
 class Not(val expr: FeatureExpr) extends FeatureExpr {
     override def toString = "!" + expr.toString
     override def print = "!" + expr.print
