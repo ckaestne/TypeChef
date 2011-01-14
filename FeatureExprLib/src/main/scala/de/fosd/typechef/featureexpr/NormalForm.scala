@@ -213,6 +213,7 @@ object CNFHelper {
         case Or(literals) => literals.map(getDefinedExpr(_)).foldLeft[Set[DefinedExpr]](Set())(_ + _)
         case e => Set(getDefinedExpr(e))
     }
+
     def getDefinedExpr(literal: FeatureExpr): DefinedExpr = literal match {
         case x: DefinedExpr => x
         case Not(x: DefinedExpr) => x

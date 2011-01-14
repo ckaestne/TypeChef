@@ -7,7 +7,7 @@ import collection.mutable.HashMap
 import scala.ref.WeakReference
 
 /**
- * external interface to constructing feature expressions (mostly delegated to FExprBuilder)
+ * External interface for constructon of non-boolean feature expressions (mostly delegated to FExprBuilder)
  */
 object FeatureExpr {
 
@@ -60,7 +60,7 @@ object FeatureExprHelper {
 }
 
 /**
- * feature expressions
+ * Propositional (or boolean) feature expressions.
  *
  * feature expressions are compared on object identity (comparing them for equivalence is
  * an additional but expensive operation). propositions such as and or and not
@@ -169,6 +169,10 @@ abstract class FeatureExpr {
     private[featureexpr] var notCache: WeakReference[FeatureExpr] = null
 }
 
+/**
+ * FeatureExprValue is the root class for non-propositional nodes in feature
+ * expressions, i.e., Integer and If nodes, which cannot be checked for satisfiability.
+ */
 trait FeatureExprValue {
     def toFeatureExpr: FeatureExpr = {
         val zero = FExprBuilder.createValue(0)
@@ -178,12 +182,10 @@ trait FeatureExprValue {
 
 
 /**
- * central builder class, responsible for simplification of expressions during creation
+ * Central builder class, responsible for simplification of expressions during creation
  * and for extensive caching
  */
 private[featureexpr] object FExprBuilder {
-
-
     private class FExprPair(val a: FeatureExpr, val b: FeatureExpr) {
         //pair in which the order does not matter
         override def hashCode = a.hashCode + b.hashCode;
@@ -519,6 +521,9 @@ object Not {
     def unapply(x: Not) = Some(x.expr)
 }
 
+/**
+ * Leaf nodes of propositional feature expressions
+ */
 
 abstract class DefinedExpr extends FeatureExpr {
     /*
