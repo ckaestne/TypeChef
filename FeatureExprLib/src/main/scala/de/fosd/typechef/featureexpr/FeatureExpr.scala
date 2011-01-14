@@ -59,6 +59,11 @@ object FeatureExprHelper {
     }
 }
 
+// Utility extractor to allow more convenient pattern matching.
+object WeakReference {
+    def unapply[T <: AnyRef](w: WeakReference[T]): Option[T] = w.get
+}
+
 /**
  * Propositional (or boolean) feature expressions.
  *
@@ -185,7 +190,7 @@ abstract class FeatureExpr {
     //only access these caches from FExprBuilder
     private[featureexpr] val andCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] val orCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
-    private[featureexpr] var notCache: WeakReference[FeatureExpr] = null
+    private[featureexpr] var notCache: Option[WeakReference[FeatureExpr]] = None
 }
 
 /**
@@ -224,39 +229,33 @@ private[featureexpr] object FExprBuilder {
     private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
         def update() = {val d = op; map(key) = new WeakReference[B](d); d}
         map.get(key) match {
-            case Some(v) => {
-                val ref = v.get
-                if (ref.isDefined) ref.get
-                else update()
-            }
-            case None => update()
+            case Some(WeakReference(value)) => value
+            case _ => update()
         }
     }
 
-    private def getFromCache(cache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]], key: FeatureExpr): FeatureExpr = {
+    private def getFromCache(cache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]], key: FeatureExpr): Option[FeatureExpr] = {
         cache.get(key) match {
-            case Some(weakRef) => weakRef.get match {
-                case Some(f) => f
-                case None => null
-            }
-            case None => null
+            case Some(WeakReference(f)) => Some(f)
+            case _ => None
         }
     }
-    private def andCacheGetOrElseUpdate(a: FeatureExpr,
+    private def binOpCacheGetOrElseUpdate(a: FeatureExpr,
                                         b: FeatureExpr,
                                         getCache: FeatureExpr => WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]],
                                         op: => FeatureExpr): FeatureExpr = {
         var result = getFromCache(getCache(a), b)
-        if (result == null)
+        if (result == None)
             result = getFromCache(getCache(b), a)
-        if (result == null) {
-            result = op
-            val weakRef = new WeakReference(result)
+        if (result == None) {
+            val computed = op
+            result = Some(op)
+            val weakRef = new WeakReference(computed)
             getCache(a).update(b, weakRef)
             //XXX it is enough to update one object, because we are searching in both of them anyway
             //            getCache(b).update(a, weakRef)
         }
-        result
+        result.get
     }
 
     def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
@@ -268,7 +267,7 @@ private[featureexpr] object FExprBuilder {
             case (e, True) => e
             case (e1, e2) if (e1.not == e2) => False
             case other =>
-                andCacheGetOrElseUpdate(a, b, _.andCache, other match {
+                binOpCacheGetOrElseUpdate(a, b, _.andCache, other match {
                     case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(_ and _)
                     case (a: And, e) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else And(a.clauses + e)
                     case (e, a: And) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else And(a.clauses + e)
@@ -287,7 +286,7 @@ private[featureexpr] object FExprBuilder {
             case (False, e) => e
             case (e, False) => e
             case (e1, e2) if (e1.not == e2) => True
-            case other => andCacheGetOrElseUpdate(a, b, _.orCache, other match {
+            case other => binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
                 case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
                 case (o: Or, e) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else Or(o.clauses + e)
                 case (e, o: Or) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else Or(o.clauses + e)
@@ -303,14 +302,11 @@ private[featureexpr] object FExprBuilder {
         case False => True
         case n: Not => n.expr
         case e => {
-            var result: Option[FeatureExpr] = None
-            if (e.notCache != null)
-                result = e.notCache.get
-            result match {
-                case Some(res) => res
-                case None =>
+            e.notCache match {
+                case Some(WeakReference(res)) => res
+                case _ =>
                     val res = new Not(e)
-                    e.notCache = new WeakReference(res)
+                    e.notCache = Some(new WeakReference(res))
                     res
             }
         }
@@ -325,19 +321,19 @@ private[featureexpr] object FExprBuilder {
         if (macroCondition.isSmall) {
             macroCondition
         } else {
-            val macroConditionCNF = macroTable.getMacroConditionCNF(name)
+            val (conditionName, conditionDef) = macroTable.getMacroConditionCNF(name)
 
             /**
              * definedMacros are equal if they have the same Name and the same expansion! (otherwise they refer to
              * the macro at different points in time and should not be considered equal)
              * actually, we only check the expansion name which is unique for each DefinedMacro anyway
              */
-            cacheGetOrElseUpdate(macroCache, macroConditionCNF._1,
+            cacheGetOrElseUpdate(macroCache, conditionName,
                 new DefinedMacro(
                     name,
                     macroTable.getMacroCondition(name),
-                    macroConditionCNF._1,
-                    macroConditionCNF._2))
+                    conditionName,
+                    conditionDef))
         }
     }
 
@@ -495,10 +491,11 @@ class Or(val clauses: Set[FeatureExpr]) extends FeatureExpr {
         //heuristic: up to a medium size do not introduce new variables but use normal toCNF mechansim
         //rational: we might actually simplify the formula by transforming it into CNF and in such cases it's not very expensive
         def size(child: FeatureExpr) = child match {case And(inner) => inner.size; case _ => 1}
-        val predicedCNFClauses = cnfchildren.foldRight(1)(size(_) * _)
-        if (predicedCNFClauses <= 16)
+        val predictedCNFClauses = cnfchildren.foldRight(1)(size(_) * _)
+        if (predictedCNFClauses <= 16)
             combineCNF(cnfchildren)
-        else combineEquiCNF(cnfchildren)
+        else
+            combineEquiCNF(cnfchildren)
     }
 
 
