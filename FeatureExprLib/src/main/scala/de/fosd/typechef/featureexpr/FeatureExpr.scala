@@ -215,13 +215,13 @@ private[featureexpr] object FExprBuilder {
     }
 
     private def getFromCache(cache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]], key: FeatureExpr): FeatureExpr = {
-        val v = cache.get(key)
-        if (v.isDefined) {
-            val ref = v.get.get
-            if (ref.isDefined)
-                return ref.get
+        cache.get(key) match {
+            case Some(weakRef) => weakRef.get match {
+                case Some(f) => f
+                case None => null
+            }
+            case None => null
         }
-        return null
     }
     private def andCacheGetOrElseUpdate(a: FeatureExpr,
                                         b: FeatureExpr,
@@ -278,22 +278,22 @@ private[featureexpr] object FExprBuilder {
     def createOr(clauses: Traversable[FeatureExpr]) =
         clauses.foldLeft[FeatureExpr](False)(or(_, _))
 
-    def not(a: FeatureExpr): FeatureExpr = a match {
+    def not(a: FeatureExpr): FeatureExpr =
+        a match {
         case True => False
         case False => True
         case n: Not => n.expr
         case e => {
-            var result: FeatureExpr = null
-            if (e.notCache != null) {
-                val ref = e.notCache.get
-                if (ref.isDefined)
-                    result = ref.get
+            var result: Option[FeatureExpr] = None
+            if (e.notCache != null)
+                result = e.notCache.get
+            result match {
+                case Some(res) => res
+                case None =>
+                    val res = new Not(e)
+                    e.notCache = new WeakReference(res)
+                    res
             }
-            if (result == null) {
-                result = new Not(e)
-                e.notCache = new WeakReference(result)
-            }
-            result
         }
     }
 
