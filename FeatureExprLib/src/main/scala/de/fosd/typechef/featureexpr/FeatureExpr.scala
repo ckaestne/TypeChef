@@ -256,7 +256,8 @@ private[featureexpr] object FExprBuilder {
                     case (e1, e2) => new And(Set(e1, e2))
                 })
         }
-    def createAnd(clauses: Traversable[FeatureExpr]) = clauses.foldLeft[FeatureExpr](True)(and(_, _))
+    def createAnd(clauses: Traversable[FeatureExpr]) =
+        clauses.foldLeft[FeatureExpr](True)(and(_, _))
 
     def or(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
     //simple cases without caching
@@ -274,7 +275,8 @@ private[featureexpr] object FExprBuilder {
                 case (e1, e2) => new Or(Set(e1, e2))
             })
         }
-    def createOr(clauses: Traversable[FeatureExpr]) = clauses.foldLeft[FeatureExpr](False)(or(_, _))
+    def createOr(clauses: Traversable[FeatureExpr]) =
+        clauses.foldLeft[FeatureExpr](False)(or(_, _))
 
     def not(a: FeatureExpr): FeatureExpr = a match {
         case True => False
@@ -365,8 +367,11 @@ private[featureexpr] object FExprBuilder {
 }
 
 
+////////////////////////////
+// propositional formulas //
+////////////////////////////
 /**
- * propositional formulas
+ * True and False
  */
 private[featureexpr] abstract class TrueFalseFeatureExpr(isTrue: Boolean) extends FeatureExpr {
     override def calcSize = 0
