@@ -59,11 +59,6 @@ object FeatureExprHelper {
     }
 }
 
-// Utility extractor to allow more convenient pattern matching.
-object WeakRef {
-    def unapply[T <: AnyRef](w: WeakReference[T]): Option[T] = w.get
-}
-
 /**
  * Propositional (or boolean) feature expressions.
  *
