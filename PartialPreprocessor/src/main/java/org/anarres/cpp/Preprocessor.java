@@ -525,7 +525,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         }
 
         public Token endIf(Token tok) {
-
             if (stack.pop().visible)
                 return OutputHelper.endif_token(tok.getLine());
             else
@@ -1735,6 +1734,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     private boolean processing_include;
 
+    //XXX:Rename as expr_token_get, and move in a small subclass.
     private Token expr_token(boolean inlineCppExpression) throws IOException,
             LexerException {
         Token tok = expr_token;
@@ -1749,6 +1749,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return tok;
     }
 
+    //XXX:Rename as expr_token_unget
     private void expr_untoken(Token tok) throws LexerException {
         if (expr_token != null)
             throw new InternalException("Cannot unget two expression tokens.");

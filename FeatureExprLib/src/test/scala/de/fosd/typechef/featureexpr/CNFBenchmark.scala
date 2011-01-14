@@ -3856,6 +3856,7 @@ class CNFBenchmark {
         val a = FeatureExpr.createDefinedExternal("a")
         val b = FeatureExpr.createDefinedExternal("b")
         var result: FeatureExpr = a
+        // XXX: Now this is simplified during construction. Is still there a point in benchmarking this? PG 
         for (i <- 1 until 100)
             result = (result andNot b) or b
         result

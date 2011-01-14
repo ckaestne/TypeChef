@@ -6,8 +6,6 @@ import FeatureExpr._
 import Prop._
 
 object FeatureExprAutoCheck extends Properties("FeatureExpr") {
-
-
     val featureNames = List("a", "b", "c", "d", "e", "f")
     val genAtomicFeatureWithDeadAndBase =
         oneOf(FeatureExpr.base :: FeatureExpr.dead :: featureNames.map(FeatureExpr.createDefinedExternal(_)))
@@ -85,7 +83,11 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
         b.isSatisfiable(fm) == a.and(b).isSatisfiable
     })
 
+    property("trueSat") = True.isSatisfiable
+    property("falseSat") = ! (False.isSatisfiable())
 
+    property("trueCNFSat") = True.toCNF.isSatisfiable
+    property("falseCNFSat") = ! (False.toCNF.isSatisfiable())
 
     //
     //  property("endsWith") = Prop.forAll((a: String, b: String) => (a+b).endsWith(b))

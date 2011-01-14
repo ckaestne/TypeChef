@@ -55,7 +55,7 @@ class FeatureExprTest extends TestCase {
         assertEquals(a, False or a)
         assertEquals(True, True or a)
         assertEquals(True, a or True)
-        
+
         assertEquals(((a andNot b) or b).toCNF, a or b)
         assertEquals((a or (a and b).not).toCNF, True)
         assertEquals(a, And(Set(a)))
@@ -91,6 +91,7 @@ class FeatureExprTest extends TestCase {
 
     def v(value: Int): FeatureExprValue = createInteger(value)
     def not(v:FeatureExpr)=v.not
+    //Leave these as def, not val, maybe (???) to test caching more.
     def a = feature("a")
     def b = feature("b")
     def c = feature("c")
