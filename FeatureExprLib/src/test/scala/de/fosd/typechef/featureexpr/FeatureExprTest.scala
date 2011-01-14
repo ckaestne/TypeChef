@@ -45,7 +45,19 @@ class FeatureExprTest extends TestCase {
         assertEquals((a and b) and (b.not and a), False)
         assertEquals((a or b) or (b.not or a), True)
         assertEquals((a andNot b) or b, (a andNot b) or b)
+
+        assertEquals(a, True and a)
+        assertEquals(a, a and True)
+        assertEquals(False, a and False)
+        assertEquals(False, False and a)
+
+        assertEquals(a, a or False)
+        assertEquals(a, False or a)
+        assertEquals(True, True or a)
+        assertEquals(True, a or True)
+        
         assertEquals(((a andNot b) or b).toCNF, a or b)
+        assertEquals((a or (a and b).not).toCNF, True)
     }
 
     @Test def testIf {
