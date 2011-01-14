@@ -25,10 +25,14 @@ object FeatureModel {
 
     def create(expr: FeatureExpr) = {
         val cnf = expr.toCNF
-        assert(!expr.isContradiction)
-        val variables = getVariables(cnf)
-        val clauses = addClauses(cnf, variables)
-        new FeatureModel(variables, clauses)
+        try {
+            assert(!expr.isContradiction)
+            val variables = getVariables(cnf)
+            val clauses = addClauses(cnf, variables)
+            new FeatureModel(variables, clauses)
+        } catch {
+            case e: Exception => println("FeatureModel.create: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
+        }
     }
 
     def createFromCNFFile(file: String) = {
