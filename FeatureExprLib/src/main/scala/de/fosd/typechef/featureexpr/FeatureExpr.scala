@@ -60,7 +60,7 @@ object FeatureExprHelper {
 }
 
 // Utility extractor to allow more convenient pattern matching.
-object WeakReference {
+object WeakRef {
     def unapply[T <: AnyRef](w: WeakReference[T]): Option[T] = w.get
 }
 
@@ -229,14 +229,14 @@ private[featureexpr] object FExprBuilder {
     private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
         def update() = {val d = op; map(key) = new WeakReference[B](d); d}
         map.get(key) match {
-            case Some(WeakReference(value)) => value
+            case Some(WeakRef(value)) => value
             case _ => update()
         }
     }
 
     private def getFromCache(cache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]], key: FeatureExpr): Option[FeatureExpr] = {
         cache.get(key) match {
-            case Some(WeakReference(f)) => Some(f)
+            case Some(WeakRef(f)) => Some(f)
             case _ => None
         }
     }
@@ -303,7 +303,7 @@ private[featureexpr] object FExprBuilder {
         case n: Not => n.expr
         case e => {
             e.notCache match {
-                case Some(WeakReference(res)) => res
+                case Some(WeakRef(res)) => res
                 case _ =>
                     val res = new Not(e)
                     e.notCache = Some(new WeakReference(res))
