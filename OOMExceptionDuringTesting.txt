@@ -1,0 +1,72 @@
+[info] ! FeatureExpr.cnf does not change satisifiability: Exception raised on
+property evaluation.
+[info] > ARG_0: (a&((!b&!f)|!a)&((f&e&b)|!(c|f)|!((d|f)&a)|(b&e)))
+[info] > ARG_1: c
+[info] > Exception: java.lang.OutOfMemoryError: Java heap space
+
+[info] == Parser Core / de.fosd.typechef.parser.test.JoinAutoCheck ==
+[info] + MultiParseResult.unique offsets after join: OK, passed 100 tests.
+[info] ! MultiParseResult.maintain presence conditions for entries: Exception
+raised on property evaluation.
+[info] > ARG_0:
+SplittedParseResult(f1812,SplittedParseResult(f1804,SplittedParseResult(f1797,SplittedParseResult(f1793,SplittedParseResult(f1792,Failure(generic
+message,TokenReader(1,_ , ...),List()),Success(L(1148),TokenReader(1,_ _ _ ,
+...))),Success(L(1149),TokenReader(1,_ _ ,
+...))),SplittedParseResult(f1796,SplittedParseResult(f1794,Success(L(1150),TokenReader(1,_
+, ...)),Success(L(1151),TokenReader(1,_ ,
+...))),SplittedParseResult(f1795,Success(L(1152),TokenReader(1,_ _ _ ,
+...)),Failure(generic message,TokenReader(1,_ _ _ ,
+...),List())))),SplittedParseResult(f1803,SplittedParseResult(f1799,Success(L(1153),TokenReader(1,_
+, ...)),SplittedParseResult(f1798,Failure(generic message,TokenReader(1,_ _ ,
+...),List()),Success(L(1154),TokenReader(1,_ _ ,
+...)))),SplittedParseResult(f1802,SplittedParseResult(f1800,Failure(generic
+message,TokenReader(1,_ , ...),List()),Success(L(1155),TokenReader(1,_ _ _ ,
+...))),SplittedParseResult(f1801,Success(L(1156),TokenReader(1,_ _ _ ,
+...)),Success(L(1157),TokenReader(1,_ ,
+...)))))),SplittedParseResult(f1811,SplittedParseResult(f1809,SplittedParseResult(f1806,Success(L(1158),TokenReader(1,_
+_ _ , ...)),SplittedParseResult(f1805,Failure(generic message,TokenReader(1,_ _
+, ...),List()),Success(L(1159),TokenReader(1,_ _ _ ,
+...)))),SplittedParseResult(f1808,Success(L(1160),TokenReader(1,_ _ ,
+...)),SplittedParseResult(f1807,Success(L(1161),TokenReader(1,_ _ _ ,
+...)),Success(L(1162),TokenReader(1,_ ,
+...))))),SplittedParseResult(f1810,Success(L(1163),TokenReader(1,_ _ ,
+...)),Success(L(1164),TokenReader(1,_ _ , ...)))))
+[info] > Exception: java.lang.OutOfMemoryError: Java heap space
+[info] == Parser Core / de.fosd.typechef.parser.test.JoinAutoCheck ==
+
+[info] == Parser Core / de.fosd.typechef.parser.test.JoinAutoCheck ==
+[info] + MultiParseResult.unique offsets after join: OK, passed 100 tests.
+[info] ! MultiParseResult.maintain presence conditions for entries: Exception
+raised on property evaluation.
+[info] > ARG_0:
+SplittedParseResult(f1709,SplittedParseResult(f1694,SplittedParseResult(f1687,SplittedParseResult(f1683,SplittedParseResult(f1682,Failure(generic
+message,TokenReader(1,_ , ...),List()),Failure(generic message,TokenReader(1,_ _
+, ...),List())),Success(L(1072),TokenReader(1,_ _ ,
+...))),SplittedParseResult(f1686,SplittedParseResult(f1684,Success(L(1073),TokenReader(1,_
+, ...)),Success(L(1074),TokenReader(1,_ _ ,
+...))),SplittedParseResult(f1685,Success(L(1075),TokenReader(1,_ ,
+...)),Failure(generic message,TokenReader(1,_ ,
+...),List())))),SplittedParseResult(f1693,SplittedParseResult(f1690,SplittedParseResult(f1688,Failure(generic
+message,TokenReader(1,_ , ...),List()),Failure(generic message,TokenReader(1,_ _
+_ , ...),List())),SplittedParseResult(f1689,Success(L(1076),TokenReader(1,_ _ ,
+...)),Success(L(1077),TokenReader(1,_ ,
+...)))),SplittedParseResult(f1692,Success(L(1078),TokenReader(1,_ _ _ ,
+...)),SplittedParseResult(f1691,Success(L(1079),TokenReader(1,_ ,
+...)),Success(L(1080),TokenReader(1,_ _ ,
+...)))))),SplittedParseResult(f1708,SplittedParseResult(f1700,SplittedParseResult(f1696,Success(L(1081),TokenReader(1,_
+_ _ , ...)),SplittedParseResult(f1695,Success(L(1082),TokenReader(1,_ _ _ ,
+...)),Failure(generic message,TokenReader(1,_ _ ,
+...),List()))),SplittedParseResult(f1699,SplittedParseResult(f1697,Failure(generic
+message,TokenReader(1,_ _ _ , ...),List()),Success(L(1083),TokenReader(1,_ ,
+...))),SplittedParseResult(f1698,Success(L(1084),TokenReader(1,_ _ ,
+...)),Success(L(1085),TokenReader(1,_ _ ,
+...))))),SplittedParseResult(f1707,SplittedParseResult(f1703,SplittedParseResult(f1701,Success(L(1086),TokenReader(1,_
+_ _ , ...)),Failure(generic message,TokenReader(1,_ _ ,
+...),List())),SplittedParseResult(f1702,Failure(generic message,TokenReader(1,_
+_ , ...),List()),Success(L(1087),TokenReader(1,_ _ _ ,
+...)))),SplittedParseResult(f1706,SplittedParseResult(f1704,Failure(generic
+message,TokenReader(1,_ _ , ...),List()),Success(L(1088),TokenReader(1,_ ,
+...))),SplittedParseResult(f1705,Success(L(1089),TokenReader(1,_ _ _ ,
+...)),Failure(generic message,TokenReader(1,_ _ _ , ...),List()))))))
+[info] > Exception: java.lang.OutOfMemoryError: GC overhead limit exceeded
+[info] == Parser Core / de.fosd.typechef.parser.test.JoinAutoCheck ==
