@@ -327,17 +327,21 @@ private[featureexpr] object FExprBuilder {
             case (False, e) => e
             case (e, False) => e
             case (e1, e2) if (e1.not == e2) => True
-            case other => binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
-                case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
-                case (o: Or, e) => orOr(e, o)
-                case (e, o: Or) => orOr(e, o)
-                case (e, a: And) => orAnd(e, a)
-                case (a: And, e) => orAnd(e, a)
-                case (e1, e2) => Or(Set(e1, e2))
-            })
+            case other =>
+                binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
+                    case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
+                    case (o: Or, e) => orOr(e, o)
+                    case (e, o: Or) => orOr(e, o)
+                    case (e, a: And) => orAnd(e, a)
+                    case (a: And, e) => orAnd(e, a)
+                    case (e1, e2) => Or(Set(e1, e2))
+                })
         }
+
     def createOr(clauses: Traversable[FeatureExpr]) =
         clauses.foldLeft[FeatureExpr](False)(or(_, _))
+
+    //End of dualized code.
 
     def not(a: FeatureExpr): FeatureExpr =
         a match {
