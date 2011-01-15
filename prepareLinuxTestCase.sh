@@ -15,3 +15,6 @@ done < $patchesPath/series
 
 make allnoconfig ARCH=x86
 make prepare ARCH=x86
+# Creates include/generated/compile.h needed for init/version.o; the command
+# will give an error which we want to ignore.
+make SUBDIRS=init ARCH=x86 &> /dev/null
