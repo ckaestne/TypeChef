@@ -75,12 +75,16 @@ for i in $list; do
   base=$(basename $i)
   . ./jcpp.sh $srcPath/$i.c $(flags "$base")
   . ./postProcess.sh $srcPath/$i.c $(flags "$base")
-  for j in $listToParse; do
-    if [ "$i" = "$j" ]; then
-      ./parseTypecheck.sh $srcPath/$i.pi
-      break
-    fi
-  done
+#  for j in $listToParse; do
+#    if [ "$i" = "$j" ]; then
+#      ./parseTypecheck.sh $srcPath/$i.pi
+#      break
+#    fi
+#  done
+done
+for i in $list; do
+  base=$(basename $i)
+  ./parseTypecheck.sh $srcPath/$i.pi
 done
 
 # The original invocation of the compiler:
