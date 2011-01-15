@@ -253,6 +253,32 @@ private[featureexpr] object FExprBuilder {
         result.get
     }
 
+    /*
+     * It seems that with the four patterns to optimize and/or, we can't
+     * produce a formula with duplicated literals.
+     * Please note that due to duality, the code below is essentially
+     * duplicated (andOr() is dual to orAnd(), and() to or(), and so on).
+     * Remember that to dualize this code, one must swap or with and, and False with True.
+     * Please check that it does not go out of sync.
+     */
+    //Optimized representation of e and (o: Or)
+    private def andOr(e: FeatureExpr, o: Or) =
+        if (o.clauses contains e) //o = (e || o'), then e || o == e && (e || o') == e
+            e
+        else if (o.clauses contains (e.not))
+            e and createOr(o.clauses - e.not)
+        else
+            And(Set(e, o))
+
+    //Optimized representation of e and (a: And)
+    private def andAnd(e: FeatureExpr, a: And) =
+        if (a.clauses contains e)
+            a
+        else if (a.clauses contains (e.not))
+            False
+        else
+            And(a.clauses + e)
+
     def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
         (a, b) match {
             case (e1, e2) if (e1 == e2) => e1
@@ -264,13 +290,33 @@ private[featureexpr] object FExprBuilder {
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.andCache, other match {
                     case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(_ and _)
-                    case (a: And, e) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else And(a.clauses + e)
-                    case (e, a: And) => if (a.clauses contains e) a else if (a.clauses contains (e.not)) False else And(a.clauses + e)
+                    case (a: And, e) => andAnd(e, a)
+                    case (e, a: And) => andAnd(e, a)
+                    case (e, o: Or) => andOr(e, o)
+                    case (o: Or, e) => andOr(e, o)
                     case (e1, e2) => And(Set(e1, e2))
                 })
         }
+
     def createAnd(clauses: Traversable[FeatureExpr]) =
         clauses.foldLeft[FeatureExpr](True)(and(_, _))
+
+    //Optimized representation of e or (a: And)
+    private def orAnd(e: FeatureExpr, a: And) =
+        if (a.clauses contains e) //a == (e && a'), then e || a == e || (e && a') == e
+            e
+        else if (a.clauses contains (e.not))
+            e or createAnd(a.clauses - e.not)
+        else
+            Or(Set(e, a))
+
+    private def orOr(e: FeatureExpr, o: Or) =
+        if (o.clauses contains e)
+            o
+        else if (o.clauses contains (e.not))
+            True
+        else
+            Or(o.clauses + e)
 
     def or(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
     //simple cases without caching
@@ -283,8 +329,10 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => True
             case other => binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
                 case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
-                case (o: Or, e) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else Or(o.clauses + e)
-                case (e, o: Or) => if (o.clauses contains e) o else if (o.clauses contains (e.not)) True else Or(o.clauses + e)
+                case (o: Or, e) => orOr(e, o)
+                case (e, o: Or) => orOr(e, o)
+                case (e, a: And) => orAnd(e, a)
+                case (a: And, e) => orAnd(e, a)
                 case (e1, e2) => Or(Set(e1, e2))
             })
         }
