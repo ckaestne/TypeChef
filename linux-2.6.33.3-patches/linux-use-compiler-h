@@ -1,0 +1,12 @@
+Index: linux-2.6.33.3/include/linux/compiler-gcc.h
+===================================================================
+--- linux-2.6.33.3.orig/include/linux/compiler-gcc.h	2010-04-26 16:48:30.000000000 +0200
++++ linux-2.6.33.3/include/linux/compiler-gcc.h	2010-11-17 14:51:01.000000000 +0100
+@@ -84,4 +84,6 @@
+ #define __gcc_header(x) #x
+ #define _gcc_header(x) __gcc_header(linux/compiler-gcc##x.h)
+ #define gcc_header(x) _gcc_header(x)
+-#include gcc_header(__GNUC__)
++//ChK: #include gcc_header(__GNUC__)
++//
++#include <linux/compiler-gcc3.h>
