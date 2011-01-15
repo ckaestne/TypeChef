@@ -28,8 +28,8 @@ shift
 
 . setupOutPaths.sh.inc
 
-#time scala -cp BoaCaseStudy/target/scala_2.8.0/classes:FeatureExprLib/lib/org.sat4j.core.jar:FeatureExprLib/target/scala_2.8.0/classes:\
-#  PartialPreprocessor/target/scala_2.8.0/classes:PartialPreprocessor/lib/gnu.getopt.jar \
+#time scala -cp BoaCaseStudy/target/scala_2.8.1/classes:FeatureExprLib/lib/org.sat4j.core.jar:FeatureExprLib/target/scala_2.8.1/classes:\
+#  PartialPreprocessor/target/scala_2.8.1/classes:PartialPreprocessor/lib/gnu.getopt.jar \
 #  <(echo -e '#define b ciao\nb')
 
 echo "=="
@@ -44,7 +44,6 @@ echo "==Partially preprocessing and typechecking $inp"
 
 bash -c "time java -ea $javaOpts -cp \
 $basePath/project/boot/scala-2.8.1/lib/scala-library.jar:\
-$basePath/FeatureExprLib/lib/org.sat4j.core.jar:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar:\
 $basePath/PartialPreprocessor/lib/junit.jar:\
 $basePath/org.sat4j.core/target/scala_2.8.1/classes:\
