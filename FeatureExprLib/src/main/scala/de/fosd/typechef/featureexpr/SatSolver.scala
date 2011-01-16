@@ -15,8 +15,10 @@ import org.sat4j.specs.ContradictionException;
 class SatSolver {
     val CACHING = false
     def isSatisfiable(exprCNF: FeatureExpr, featureModel: FeatureModel = NoFeatureModel): Boolean = {
-        if (CACHING) SatSolverCache.get(nfm(featureModel)).isSatisfiable(exprCNF)
-        else new SatSolverImpl(nfm(featureModel)).isSatisfiable(exprCNF)
+        (if (CACHING)
+            SatSolverCache.get(nfm(featureModel))
+        else
+            new SatSolverImpl(nfm(featureModel))).isSatisfiable(exprCNF)
     }
 
     private def nfm(fm: FeatureModel) = if (fm == null) NoFeatureModel else fm
