@@ -368,8 +368,11 @@ private[featureexpr] object FExprBuilder {
                 case Some(SoftRef(res)) => res
                 case _ =>
                     val res = e match {
-                        case And(clauses) => createOr(clauses.map(_.not))
-                        case Or(clauses) => createAnd(clauses.map(_.not))
+                        /* This transformation would be correct and should improve performance,
+                         * but probably due to suboptimal caching, it is too expensive.
+                         */
+                        /*case And(clauses) => createOr(clauses.map(_.not))
+                        case Or(clauses) => createAnd(clauses.map(_.not))*/
                         case _ => new Not(e)
                     }
                     e.notCache = Some(new SoftReference(res))
