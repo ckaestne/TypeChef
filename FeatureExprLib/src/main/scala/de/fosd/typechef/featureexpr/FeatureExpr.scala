@@ -4,6 +4,7 @@ import LazyLib._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
+import scala.ref.WeakReference
 import scala.ref.SoftReference
 
 /**
@@ -188,8 +189,8 @@ abstract class FeatureExpr {
 
     private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
     //only access these caches from FExprBuilder
-    private[featureexpr] val andCache: WeakHashMap[FeatureExpr, SoftReference[FeatureExpr]] = new WeakHashMap()
-    private[featureexpr] val orCache: WeakHashMap[FeatureExpr, SoftReference[FeatureExpr]] = new WeakHashMap()
+    private[featureexpr] val andCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
+    private[featureexpr] val orCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] var notCache: Option[SoftReference[FeatureExpr]] = None
 }
 
@@ -220,29 +221,29 @@ private[featureexpr] object FExprBuilder {
         }
     }
 
-    private val ifCache: HashMap[(FeatureExpr, FeatureExprValue, FeatureExprValue), SoftReference[FeatureExprValue]] = new HashMap()
-    private val featureCache: Map[String, SoftReference[DefinedExternal]] = Map()
-    private var macroCache: Map[String, SoftReference[DefinedMacro]] = Map()
-    private val valCache: Map[Long, SoftReference[Value]] = Map()
+    private val ifCache: HashMap[(FeatureExpr, FeatureExprValue, FeatureExprValue), WeakReference[FeatureExprValue]] = new HashMap()
+    private val featureCache: Map[String, WeakReference[DefinedExternal]] = Map()
+    private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
+    private val valCache: Map[Long, WeakReference[Value]] = Map()
     private val resolvedCache: WeakHashMap[FeatureExpr, FeatureExpr] = WeakHashMap()
 
-    private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, SoftReference[B]], key: A, op: => B): B = {
-        def update() = {val d = op; map(key) = new SoftReference[B](d); d}
+    private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
+        def update() = {val d = op; map(key) = new WeakReference[B](d); d}
         map.get(key) match {
-            case Some(SoftRef(value)) => value
+            case Some(WeakRef(value)) => value
             case _ => update()
         }
     }
 
-    private def getFromCache(cache: WeakHashMap[FeatureExpr, SoftReference[FeatureExpr]], key: FeatureExpr): Option[FeatureExpr] = {
+    private def getFromCache(cache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]], key: FeatureExpr): Option[FeatureExpr] = {
         cache.get(key) match {
-            case Some(SoftRef(f)) => Some(f)
+            case Some(WeakRef(f)) => Some(f)
             case _ => None
         }
     }
     private def binOpCacheGetOrElseUpdate(a: FeatureExpr,
                                         b: FeatureExpr,
-                                        getCache: FeatureExpr => WeakHashMap[FeatureExpr, SoftReference[FeatureExpr]],
+                                        getCache: FeatureExpr => WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]],
                                         featThunk: => FeatureExpr): FeatureExpr = {
         var result = getFromCache(getCache(a), b)
         if (result == None)
@@ -250,8 +251,8 @@ private[featureexpr] object FExprBuilder {
         if (result == None) {
             val feat = featThunk
             result = Some(feat)
-            val softRef = new SoftReference(feat)
-            getCache(a).update(b, softRef)
+            val weakRef = new WeakReference(feat)
+            getCache(a).update(b, weakRef)
             //XXX it is enough to update one object, because we are searching in both of them anyway
             //            getCache(b).update(a, weakRef)
         }
