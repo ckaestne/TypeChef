@@ -1,7 +1,6 @@
 package de.fosd.typechef.featureexpr
 
 import scala.ref.WeakReference
-import scala.ref.SoftReference
 
 abstract class NFException(msg:String) extends Exception(msg)
 
@@ -16,8 +15,4 @@ class NoLiteralException(e: FeatureExpr) extends NFException("expression is not 
 // Utility extractor to allow more convenient pattern matching.
 object WeakRef {
     def unapply[T <: AnyRef](w: WeakReference[T]): Option[T] = w.get
-}
-
-object SoftRef {
-    def unapply[T <: AnyRef](w: SoftReference[T]): Option[T] = w.get
 }
