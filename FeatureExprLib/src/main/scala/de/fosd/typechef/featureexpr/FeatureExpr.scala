@@ -367,7 +367,11 @@ private[featureexpr] object FExprBuilder {
             e.notCache match {
                 case Some(WeakRef(res)) => res
                 case _ =>
-                    val res = new Not(e)
+                    val res = e match {
+                        case And(clauses) => createOr(clauses.map(_.not))
+                        case Or(clauses) => createAnd(clauses.map(_.not))
+                        case _ => new Not(e)
+                    }
                     e.notCache = Some(new WeakReference(res))
                     res
             }
