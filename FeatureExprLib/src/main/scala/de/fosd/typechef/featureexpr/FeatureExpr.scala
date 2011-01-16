@@ -5,6 +5,7 @@ import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
 import scala.ref.WeakReference
+import scala.ref.SoftReference
 
 /**
  * External interface for construction of non-boolean feature expressions (mostly delegated to FExprBuilder)
@@ -190,7 +191,7 @@ abstract class FeatureExpr {
     //only access these caches from FExprBuilder
     private[featureexpr] val andCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] val orCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
-    private[featureexpr] var notCache: Option[WeakReference[FeatureExpr]] = None
+    private[featureexpr] var notCache: Option[SoftReference[FeatureExpr]] = None
 }
 
 /**
@@ -365,14 +366,14 @@ private[featureexpr] object FExprBuilder {
         case n: Not => n.expr
         case e => {
             e.notCache match {
-                case Some(WeakRef(res)) => res
+                case Some(SoftRef(res)) => res
                 case _ =>
                     val res = e match {
                         case And(clauses) => createOr(clauses.map(_.not))
                         case Or(clauses) => createAnd(clauses.map(_.not))
                         case _ => new Not(e)
                     }
-                    e.notCache = Some(new WeakReference(res))
+                    e.notCache = Some(new SoftReference(res))
                     res
             }
         }
