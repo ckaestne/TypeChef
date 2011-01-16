@@ -522,34 +522,42 @@ object Or {
 }
 
 private[featureexpr]
-class And(val clauses: Set[FeatureExpr]) extends FeatureExpr {
-    override def toString = clauses.mkString("(", "&", ")")
-    override def print = clauses.map(_.print).mkString("(", " && ", ")")
-    override def debug_print(ind: Int) = indent(ind) + "&\n" + clauses.map(_.debug_print(ind + 1)).mkString
+abstract class BinaryLogicConnective extends FeatureExpr {
+    def operName: String
+    def create(clauses: Traversable[FeatureExpr]): FeatureExpr
+    protected def clauses: Set[FeatureExpr]
+
+    override def toString = clauses.mkString("(", operName, ")")
+    override def print = clauses.map(_.print).mkString("(", " " + operName + operName + " ", ")")
+    override def debug_print(ind: Int) = indent(ind) + operName + "\n" + clauses.map(_.debug_print(ind + 1)).mkString
 
     override def calcSize = clauses.foldLeft(0)(_ + _.size)
     override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
         var anyChange = false
-        val newClauses = clauses.map(x => {val y = x.mapDefinedExpr(f, cache); anyChange |= x == y; y})
-        if (anyChange) FExprBuilder.createAnd(newClauses) else this
+        val newClauses = clauses.map(x => {
+            val y = x.mapDefinedExpr(f, cache)
+            anyChange |= x == y //XXX: Shouldn't be the opposite?
+            y})
+        if (anyChange)
+            create(newClauses)
+        else
+            this
     })
+}
+
+private[featureexpr]
+class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
+    override def operName = "&"
+    override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createAnd(clauses)
 
     protected def calcCNF: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
     protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
 }
 
 private[featureexpr]
-class Or(val clauses: Set[FeatureExpr]) extends FeatureExpr {
-    override def toString = clauses.mkString("(", "|", ")")
-    override def print = clauses.map(_.print).mkString("(", " || ", ")")
-    override def debug_print(ind: Int) = indent(ind) + "|\n" + clauses.map(_.debug_print(ind + 1)).mkString
-
-    override def calcSize = clauses.foldLeft(0)(_ + _.size)
-    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
-        var anyChange = false
-        val newClauses = clauses.map(x => {val y = x.mapDefinedExpr(f, cache); anyChange |= x == y; y})
-        if (anyChange) FExprBuilder.createOr(newClauses) else this
-    })
+class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
+    override def operName = "|"
+    override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createOr(clauses)
 
     protected def calcCNF: FeatureExpr =
         combineCNF(clauses.map(_.toCNF))
