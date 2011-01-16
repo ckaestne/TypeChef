@@ -68,23 +68,28 @@ object FeatureExprHelper {
  * Classes And, Or and Not are made package-private, and their constructors wrapped
  * through companion objects, to prevent the construction of formulas in any other way.
  *
- * More in general, I believe one could prove a theorem called the weak-canonicalization guarantee:
+ * More in general, one can almost prove a theorem called the weak-canonicalization guarantee:
  *
  * If at a given time during program execution, two formula objects represent structurally
  * equal formulas, i.e. which are deeply equal modulo the order of operands of "and" and "or",
  * then they are represented by the same object.
  *
- * Note that this is not related to formula equivalence.
- * This does not for formulas existing at different moments, because caches
+ * XXX: HOWEVER, that the associative property does not hold with pointer equality:
+ * (a and b) and c ne a and (b and c). Hopefully this is fixable through different caching.
+ *
+ * Note that this is not related to formula equivalence, rather to pointer equality.
+ * This does not hold for formulas existing at different moments, because caches
  * are implemented using weak references, so if a formula disappears from the heap
  * it is recreated. However, this is not observable for the code.
  *
- * The weak canonicalization property allows also ensuring the strong-canonicalization guarantee:
+ * The weak canonicalization property, if true, should allows also ensuring the strong-canonicalization guarantee:
  * If at a given time during program execution, two formula objects a and b
  * represent equivalent formulas, then a.toCNF eq b.toCNF (where eq denotes pointer equality).
  *
  * CNF canonicalization, by construction, ensures that a.toCNF and b.toCNF are structurally equal.
- * The weak canonicalization property also ensures that they are the same object.
+ * The weak canonicalization property would also ensure that they are the same object.
+ *
+ * It would be interesting to see what happens for toEquiCNF.
  */
 abstract class FeatureExpr {
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, that)
@@ -254,8 +259,18 @@ private[featureexpr] object FExprBuilder {
     }
 
     /*
-     * It seems that with the four patterns to optimize and/or, we can't
-     * produce a formula with duplicated literals.
+     * It seems that with the four patterns to optimize and/or, it's more difficult to
+     * produce a formula with duplicated literals - you need two levels of nesting for that to happen.
+     * Duplications is removed in variations of:
+     * a && (b || !a), where a and b can be any formula, and && and || can be replaced by any connective.
+     * Examples where duplication appears:
+     * a && !(a || b) - fixable by implementing DeMorgan laws in Not.
+     * (a || b) && (b || c)
+     * a && (b || (c && a)) - note the two levels of nesting. The inner a could
+     * be removed in this particular case using shortcircuiting, but there does
+     * not seem to be an easy way of implementing this.
+     *
+     *
      * Please note that due to duality, the code below is essentially
      * duplicated (andOr() is dual to orAnd(), and() to or(), and so on).
      * Remember that to dualize this code, one must swap or with and, and False with True.
