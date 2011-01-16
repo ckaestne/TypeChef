@@ -536,7 +536,7 @@ abstract class BinaryLogicConnective extends FeatureExpr {
         var anyChange = false
         val newClauses = clauses.map(x => {
             val y = x.mapDefinedExpr(f, cache)
-            anyChange |= x == y //XXX: Shouldn't be the opposite?
+            anyChange |= x != y
             y})
         if (anyChange)
             create(newClauses)
