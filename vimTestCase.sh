@@ -23,6 +23,9 @@ done
 for i in $fileList; do
   ./postProcess.sh $srcPath/$i.c $flags
 done
+for i in $fileList; do
+  ./parseTypecheck.sh $srcPath/$i.pi
+done
 # I commented out these other ones:
 # -DFEAT_GUI_GTK  # Should be a variable feature!
 # -O2 # This influences the _OPTIMIZE_ macro (check the exact spelling)
