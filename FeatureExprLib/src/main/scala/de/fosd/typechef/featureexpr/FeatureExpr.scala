@@ -191,6 +191,8 @@ abstract class FeatureExpr {
     private[featureexpr] val andCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] val orCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] var notCache: Option[WeakReference[FeatureExpr]] = None
+    def toFeatureExprValue: FeatureExprValue =
+        FExprBuilder.createIf(this, FExprBuilder.createValue(1), FExprBuilder.createValue(0))
 }
 
 /**

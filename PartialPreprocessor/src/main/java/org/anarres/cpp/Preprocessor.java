@@ -1821,8 +1821,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         ExprOrValue(FeatureExprValue value) { this(null, value);}
         public FeatureExprValue assumeValue(Token tok) throws LexerException {
             if (value == null) {
-                error(tok, "expecting value before token, found boolean expression " + expr + " instead");
-                return FeatureExprLib.zero();
+                warning(tok, "expecting value before token, found boolean expression " + expr + " instead");
+                return expr.toFeatureExprValue();
             } else
                 return value;
         }
