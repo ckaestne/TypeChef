@@ -40,7 +40,7 @@ gcc -Wp,-P -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
 # Beware: the embedded for loop requotes the passed argument. That's dark magic,
 # don't ever try to touch it. It simplifies your life as a user of this program
 # though!
-echo "==Partially preprocessing and typechecking $inp"
+echo "==Partially preprocessing $inp"
 
 bash -c "time java -ea $javaOpts -cp \
 $basePath/project/boot/scala-2.8.1/lib/scala-library.jar:\
