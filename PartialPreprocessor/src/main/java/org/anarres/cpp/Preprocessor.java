@@ -49,7 +49,7 @@ import static org.anarres.cpp.Token.*;
  * *	always expand macros in pure text, do not reexpand expanded tokens
  * * 	expand macros after #include
  * * 	expand macros in expression of #if and #elif, but not in defined(X)
- * * 	no expansion in other # directives, nie den identifier nach # expandieren
+ * * 	no expansion in other # directives, never expand the identifier after #
  *
  */
 
@@ -58,6 +58,7 @@ import static org.anarres.cpp.Token.*;
  * re-lexing for C or C++. Alternatively, the output text may be reconstructed
  * by concatenating the {@link Token#getText() text} values of the returned
  * {@link Token Tokens}. (See {@link CppReader}, which does this.)
+ * XXX: the above is now incorrect, because getText is not a valid operation on tokens which would produce huge strings.
  */
 
 /*
@@ -1222,7 +1223,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             return tok;
                         default:
                             error(tok, "error in macro parameters: "
-                                    + tok.getText());
+                                    + getTextOrDefault(tok, "<Feature Expression>"));
                             return source_skipline(false);
                     }
                     tok = source_token_nonwhite();
@@ -1250,7 +1251,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             return tok;
                         default:
                             error(tok, "Bad token in macro parameters: "
-                                    + tok.getText());
+                                    + getTextOrDefault(tok, "<Feature Expression>"));
                             return source_skipline(false);
                     }
                     tok = source_token_nonwhite();
@@ -1519,12 +1520,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                         case INTEGER:
                         case IDENTIFIER:
                         default:
-                            buf.append(tok.getText());
+                            buf.append(getTextOrDefault(tok, "<Feature Expression>"));
                             break;
                     }
                 }
             } else {
-                error(tok, "Expected string or header, not " + tok.getText());
+                error(tok, "Expected string or header, not " + getTextOrDefault(tok, "<Feature Expression>"));
                 switch (tok.getType()) {
                     case NL:
                     case EOF:
@@ -1699,8 +1700,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         for (; ;) {
             Token tok = retrieveTokenFromSource();
             // System.out.println("Source token is " + tok);
-            if ("defined".equals(tok.getText())
-                    || (hack_definedCounter == 0 && tok.getText().equals("(")))
+            if ("defined".equals(getTextOrDefault(tok, ""))
+                    || (hack_definedCounter == 0 && "(".equals(getTextOrDefault(tok, ""))))
                 hack_definedCounter = 0;
             else
                 hack_definedCounter++;
@@ -1907,7 +1908,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
             default:
                 expr_untoken(tok);
-                error(tok, "Bad token in expression: " + tok.getText());
+                error(tok, "Bad token in expression: " + getTextOrDefault(tok, "<Feature Expression>"));
                 return new ExprOrValue(FeatureExprLib.dead(), FeatureExprLib.zero());
         }
 
@@ -2066,7 +2067,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         // System.out.println("Core token is " + la);
 
         if (la.getType() != IDENTIFIER) {
-            error(la, "defined() needs identifier, not " + la.getText());
+            error(la, "defined() needs identifier, not " + getTextOrDefault(la, "<Feature Expression>"));
             lhs = FeatureExprLib.dead();
         } else
             // System.out.println("Found macro");
@@ -2617,7 +2618,18 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     public Source getSource() {
         return sourceManager.getSource();
-
     }
 
+    /**
+     * Return the token representation or an empty string.
+     * @param tok
+     * @return String representation or empty string.
+     */
+    public String getTextOrDefault(Token tok, String def) {
+	if (tok.getType() == P_FEATUREEXPR) {
+	    return def;
+	} else {
+	    return tok.getText();
+	}
+    }
 }

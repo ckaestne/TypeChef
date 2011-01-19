@@ -29,8 +29,7 @@ public class FeatureExprToken extends SimpleToken {
 	 */
 	@Override
 	public String getText() {
-		//Caching the return value would be a memory leak.
-		return expr.resolveToExternal().toTextExpr();
+		throw new IllegalArgumentException("getText not supported on FeatureExprToken");
 	}
 
 	public FeatureExpr getExpr() {

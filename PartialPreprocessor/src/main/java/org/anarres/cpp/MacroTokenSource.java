@@ -17,18 +17,11 @@
 
 package org.anarres.cpp;
 
-import static org.anarres.cpp.Token.CCOMMENT;
-import static org.anarres.cpp.Token.CPPCOMMENT;
-import static org.anarres.cpp.Token.EOF;
-import static org.anarres.cpp.Token.M_ARG;
-import static org.anarres.cpp.Token.M_PASTE;
-import static org.anarres.cpp.Token.M_STRING;
-import static org.anarres.cpp.Token.STRING;
-import static org.anarres.cpp.Token.NL;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.anarres.cpp.Token.*;
 
 /* This source should always be active, since we don't expand macros
  * in any inactive context. */
@@ -188,7 +181,8 @@ import java.util.List;
 
 	public Token token() throws IOException, LexerException {
 		Token tok = _token();
-		if (tok.getText().equals(macroName))
+	    	//XXX should be getType() == IDENTIFIER
+		if (tok.getType() != P_FEATUREEXPR && tok.getText().equals(macroName))
 			tok.setNoFurtherExpansion();
 		return tok;
 	}

@@ -20,6 +20,7 @@ package org.anarres.cpp;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -79,28 +80,25 @@ public class CppTask extends Task {
 	}
 
 	public void execute() {
-		FileWriter writer = null;
+		PrintWriter writer = null;
 		try {
 			if (input == null)
 				throw new BuildException("Input not specified");
 			if (output == null)
 				throw new BuildException("Output not specified");
 			cpp.addInput(this.input);
-			writer = new FileWriter(this.output);
+			writer = new PrintWriter(new FileWriter(this.output));
 			for (;;) {
 				Token tok = cpp.getNextToken();
 				if (tok != null && tok.getType() == Token.EOF)
 					break;
-				writer.write(tok.getText());
+				tok.lazyPrint(writer);
 			}
 		} catch (Exception e) {
 			throw new BuildException(e);
 		} finally {
 			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-				}
+				writer.close();
 			}
 		}
 	}
