@@ -536,10 +536,14 @@ abstract class BinaryLogicConnective extends FeatureExpr {
     override def calcSize = clauses.foldLeft(0)(_ + _.size)
     override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
         var anyChange = false
+        var anyNonChange = false
         val newClauses = clauses.map(x => {
             val y = x.mapDefinedExpr(f, cache)
             anyChange |= x != y
+            anyNonChange |= (x==y)
             y})
+        if (anyChange != anyNonChange)
+            println("Hey, anyChange (" + anyChange + ") != anyNonChange (" + anyNonChange + ")!") + this.toString
         if (anyChange)
             create(newClauses)
         else
