@@ -1885,9 +1885,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                         .createCharacter((Character) tok.getValue()));
                 break;
             case IDENTIFIER:
-                if (tok.getText().equals("BASE"))
+                if (tok.getText().equals("___BASE___"))				//XXX: dead code?
                     lhs = new ExprOrValue(FeatureExprLib.base());
-                else if (tok.getText().equals("DEAD"))
+                else if (tok.getText().equals("___DEAD___"))			//XXX: dead code?
                     lhs = new ExprOrValue(FeatureExprLib.dead());
                 else if (tok.getText().equals("__IF__")) {
                     lhs = new ExprOrValue(parse_ifExpr(tok));
