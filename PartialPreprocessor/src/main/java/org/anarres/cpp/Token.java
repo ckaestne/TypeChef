@@ -289,6 +289,11 @@ public abstract class Token {
 
 	public abstract Source getSource();
 
+	/**
+	 * "Lazily print" this token, i.e. print it without constructing a full in-memory representation. This is just a
+	 * default implementation, override it for tokens with a potentially huge string representation.
+	 * @param writer The {@link java.io.PrintWriter} to print onto.
+	 */
 	public void lazyPrint(PrintWriter writer) {
 		writer.append(getText());
 	}

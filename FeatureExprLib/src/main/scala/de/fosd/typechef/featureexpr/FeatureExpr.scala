@@ -5,6 +5,7 @@ import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
 import scala.ref.WeakReference
+import java.io.PrintWriter
 
 /**
  * External interface for construction of non-boolean feature expressions (mostly delegated to FExprBuilder)
@@ -167,7 +168,18 @@ abstract class FeatureExpr {
     }
 
     def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
-    def print(): String
+
+    /**
+     * Converts this formula to a textual expression.
+     */
+    def toTextExpr: String
+
+    /**
+     * Prints the textual representation of this formula on a PrintWriter. The result shall be equivalent to
+     * p.print(toTextExpr), but it should avoid consuming so much temporary space.
+     * @param p the output PrintWriter
+     */
+    def print(p: PrintWriter) = p.print(toTextExpr)
     def debug_print(indent: Int): String
 
     private var cache_cnf: FeatureExpr = null
@@ -481,9 +493,8 @@ private[featureexpr] object FExprBuilder {
  */
 private[featureexpr] trait TrueFalseFeatureExpr extends FeatureExpr {
     def booleanValue: Boolean
-    override def calcSize = 0
-    override def print = if (booleanValue) "1" else "0"
-    override def debug_print(ind: Int) = indent(ind) + print + "\n"
+    override def toTextExpr = if (booleanValue) "1" else "0"
+    override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
     override def calcCNF: FeatureExpr = this
     override def calcCNFEquiSat = calcCNF
@@ -532,7 +543,19 @@ abstract class BinaryLogicConnective extends FeatureExpr {
     protected def clauses: Set[FeatureExpr]
 
     override def toString = clauses.mkString("(", operName, ")")
-    override def print = clauses.map(_.print).mkString("(", " " + operName + operName + " ", ")")
+    override def toTextExpr = clauses.map(_.toTextExpr).mkString("(", " " + operName + operName + " ", ")")
+    override def print(p: PrintWriter) = {
+        trait PrintValue
+        case object NoPrint extends PrintValue
+        case object Printed extends PrintValue
+        case class ToPrint[T](x: T) extends PrintValue
+        p print "("
+        clauses.map(x => ToPrint(x)).foldLeft[PrintValue](NoPrint)({
+            case (NoPrint, ToPrint(c)) => { c.print(p); Printed}
+            case (Printed, ToPrint(c)) => { p.print(" " + operName + operName + " "); c.print(p); Printed}
+        })
+        p print ")"
+    }
     override def debug_print(ind: Int) = indent(ind) + operName + "\n" + clauses.map(_.debug_print(ind + 1)).mkString
 
     override def calcSize = clauses.foldLeft(0)(_ + _.size)
@@ -645,7 +668,11 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
 private[featureexpr]
 class Not(val expr: FeatureExpr) extends FeatureExpr {
     override def toString = "!" + expr.toString
-    override def print = "!" + expr.print
+    override def toTextExpr = "!" + expr.toTextExpr
+    override def print(p: PrintWriter) = {
+        p.print("!")
+        expr.print(p)
+    }
     override def debug_print(ind: Int) = indent(ind) + "!\n" + expr.debug_print(ind + 1)
 
     override def calcSize = expr.size
@@ -707,7 +734,7 @@ class DefinedExternal(name: String) extends DefinedExpr {
     DefinedExpr.checkFeatureName(name)
 
     def feature = name
-    override def print(): String = "definedEx(" + name + ")";
+    override def toTextExpr(): String = "definedEx(" + name + ")";
     override def toString = name
     def countSize() = 1
     def isExternal = true
@@ -722,7 +749,7 @@ class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val exp
     DefinedExpr.checkFeatureName(name)
 
     def feature = name
-    override def print(): String = "defined(" + name + ")"
+    override def toTextExpr(): String = "defined(" + name + ")"
     override def toString = "macro(" + name + ")"
     override def satName = expandedName
     def countSize() = 1

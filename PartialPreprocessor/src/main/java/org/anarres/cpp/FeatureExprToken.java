@@ -2,6 +2,8 @@ package org.anarres.cpp;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
+import java.io.PrintWriter;
+
 /**
  * special kind of token that contains a (possibly complex) feature expression
  *
@@ -23,23 +25,21 @@ public class FeatureExprToken extends SimpleToken {
 	}
 
 	/**
-	 * lazy expansion, hopefully never used. prefer lazyPrint instead
+	 * eager expansion, hopefully never used. prefer lazyPrint instead
 	 */
 	@Override
 	public String getText() {
-		if (text == null) {
-			text = expr.resolveToExternal().print();
-		}
-		return text;
+		//Caching the return value would be a memory leak.
+		return expr.resolveToExternal().toTextExpr();
 	}
 
 	public FeatureExpr getExpr() {
 		return expr;
 	}
 
-	// @Override
-	// public void lazyPrint(PrintWriter writer) {
-	// expr.print(writer);
-	// }
+	@Override
+	public void lazyPrint(PrintWriter writer) {
+		expr.resolveToExternal().print(writer);
+	}
 
 }

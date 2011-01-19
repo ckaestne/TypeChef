@@ -20,12 +20,7 @@ package org.anarres.cpp;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.Writer;
+import java.io.*;
 import java.util.EnumSet;
 
 import de.fosd.typechef.featureexpr.MacroContext$;
@@ -116,7 +111,7 @@ public class Main {
 		String arg;
 		int idx;
 
-		Writer output = new OutputStreamWriter(System.out);
+		PrintWriter output = new PrintWriter(new OutputStreamWriter(System.out));
 		Preprocessor pp = new Preprocessor();
 		// No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
 		// written with ASCII available!
@@ -181,7 +176,7 @@ public class Main {
 				pp.getWarnings().clear();
 				break;
 			case 'o':
-				output = new BufferedWriter(new FileWriter(g.getOptarg()));
+				output = new PrintWriter(new BufferedWriter(new FileWriter(g.getOptarg())));
 				break;
 			case 1: // --include=
 				pp.addInput(new File(g.getOptarg()));
@@ -241,7 +236,7 @@ public class Main {
 				// output.write(l + "\n");
 				// }
 				// System.out.print(tok.getText());
-				output.write(tok.getText());
+				tok.lazyPrint(output);
 			}
 			// System.out.println(pp.toString());
 		} catch (Throwable e) {

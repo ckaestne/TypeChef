@@ -165,8 +165,4 @@ public class SimpleToken extends Token {
 	public Source getSource() {
 		return source;
 	}
-
-	public void lazyPrint(PrintWriter writer) {
-		writer.append(getText());
-	}
 }
