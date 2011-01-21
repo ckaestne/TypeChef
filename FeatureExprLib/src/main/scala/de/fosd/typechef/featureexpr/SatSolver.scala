@@ -92,7 +92,7 @@ private class SatSolverImpl(featureModel: FeatureModel) {
              * to reuse SAT solver state, use the following strategy for adding
              * (adopted from Thomas Thuems solution in FeatureIDE):
              *
-             * clauses with only a single literal are added to "unit" and can be
+             * clauses with only a single literal are added to "assumptions" and can be
              * checked as paramter to isSatisfiable
              * all other clauses are added to the Solver but remembered in "constraintGroup"
              * which is removed from the solver at the end
@@ -100,11 +100,11 @@ private class SatSolverImpl(featureModel: FeatureModel) {
 
             val constraintGroup = new ConstrGroup();
             try {
-                val unit = new VecInt();
+                val assumptions = new VecInt();
                 try {
                     for (cnf <- cnfs; clause <- CNFHelper.getCNFClauses(cnf)) {
                         if (CNFHelper.isLiteral(clause))
-                            unit.push(getAtomicId(uniqueFlagIds, clause))
+                            assumptions.push(getAtomicId(uniqueFlagIds, clause))
                         else {
                             val constr = solver.addClause(getClauseVec(uniqueFlagIds, clause))
                             if (constr != null)
@@ -118,7 +118,7 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                 if (PROFILING)
                     print(";")
 
-                val result = solver.isSatisfiable(unit)
+                val result = solver.isSatisfiable(assumptions)
                 if (PROFILING)
                     print(result + ";")
                 return result
