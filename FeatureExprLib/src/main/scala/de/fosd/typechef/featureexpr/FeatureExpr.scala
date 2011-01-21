@@ -656,7 +656,7 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
                 val negatedFreshFeature = freshFeature.not
                 child match {
                     case And(innerChildren) =>
-                        orClauses = innerChildren.map(negatedFreshFeature or _) ++ orClauses
+                        orClauses = orClauses ++ innerChildren.map(negatedFreshFeature or _)
                     case e =>
                         orClauses = (negatedFreshFeature or e) +: orClauses
                 }

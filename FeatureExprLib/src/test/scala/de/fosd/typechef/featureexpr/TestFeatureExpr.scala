@@ -11,12 +11,12 @@ class TestFeatureExpr extends TestCase {
 
     @Test
     def assertSimplify(exprA: FeatureExpr, expectedResult: FeatureExpr) {
-        println("simplify(" + exprA.print + ") = " + exprA.print() + ", expected " + expectedResult.print())
+        println("simplify(" + exprA.toTextExpr + ") = " + exprA.toTextExpr + ", expected " + expectedResult.toTextExpr)
         assert(exprA == expectedResult, "Simplification failed. Found " + exprA + " expected " + expectedResult)
     }
     @Test
     def assertCNF(exprA: FeatureExpr, expectedResult: FeatureExpr) {
-        println("toCNF(" + exprA.print + ") = " + exprA.toCNF.print() + ", expected " + expectedResult.print())
+        println("toCNF(" + exprA.toTextExpr + ") = " + exprA.toCNF.toTextExpr + ", expected " + expectedResult.toTextExpr)
         assert(exprA.toCNF == expectedResult, "Simplification failed. Found " + exprA + " expected " + expectedResult)
     }
 
