@@ -504,14 +504,15 @@ private[featureexpr] trait TrueFalseFeatureExpr extends FeatureExpr {
 object True extends And(Set()) with TrueFalseFeatureExpr {
     override def toString = "True"
     override def booleanValue = true
-    override def toTextExpr = this.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
+    //Causes a compiler crash!!!
+    override def toTextExpr = super.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
     override def debug_print(ind: Int) = this.asInstanceOf[TrueFalseFeatureExpr].debug_print(ind)
 }
 
 object False extends Or(Set()) with TrueFalseFeatureExpr {
     override def toString = "False"
     override def booleanValue = false
-    override def toTextExpr = this.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
+    override def toTextExpr = super.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
     override def debug_print(ind: Int) = this.asInstanceOf[TrueFalseFeatureExpr].debug_print(ind)
 }
 
