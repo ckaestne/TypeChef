@@ -495,20 +495,24 @@ private[featureexpr] trait TrueFalseFeatureExpr extends FeatureExpr {
     def booleanValue: Boolean
     override def toTextExpr = if (booleanValue) "1" else "0"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
-    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
+    /*override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
     override def calcCNF: FeatureExpr = this
     override def calcCNFEquiSat = calcCNF
-    override def isSatisfiable(fm: FeatureModel) = booleanValue
+    override def isSatisfiable(fm: FeatureModel) = booleanValue*/
 }
 
 object True extends And(Set()) with TrueFalseFeatureExpr {
     override def toString = "True"
     override def booleanValue = true
+    override def toTextExpr = this.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
+    override def debug_print(ind: Int) = this.asInstanceOf[TrueFalseFeatureExpr].debug_print(ind)
 }
 
 object False extends Or(Set()) with TrueFalseFeatureExpr {
     override def toString = "False"
     override def booleanValue = false
+    override def toTextExpr = this.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
+    override def debug_print(ind: Int) = this.asInstanceOf[TrueFalseFeatureExpr].debug_print(ind)
 }
 
 object And {
