@@ -303,12 +303,17 @@ private[featureexpr] object FExprBuilder {
      * Remember that to dualize this code, one must swap or with and, and False with True.
      * Please check that it does not go out of sync.
      */
-    //Optimized representation of e and (o: Or)
+    // XXX: in various places, we merge sets with an O(N) reduction. It allows looking up the memoized results, but now
+    // that we later canonicalize everything, it is not clear whether we should still do it. Such occurrences are marked
+    // below with "XXX: O(N) set rebuild". Note however that to make them O(1) one needs to write a O(1) hash calculator
+    // for them as well - very simple, just some work to do. See specialized constructors in AndOrUnExtractor.
+
+    // Optimized representation of e and (o: Or)
     private def andOr(e: FeatureExpr, o: Or) =
         if (o.clauses contains e) //o = (e || o'), then e || o == e && (e || o') == e
             e
         else if (o.clauses contains (e.not))
-            fastAnd(e, createOr(o.clauses - e.not))
+            fastAnd(e, createOr(o.clauses - e.not))                         //XXX: O(N) set rebuild
         else
             And(Set(e, o))
 
@@ -332,7 +337,8 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => False
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.andCache, other match {
-                    case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _))
+                    case (a1: And, a2: And) =>
+                        a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _))  //XXX: O(N) set rebuild
                     case (a: And, e) => andAnd(e, a)
                     case (e, a: And) => andAnd(e, a)
                     case (e, o: Or) => andOr(e, o)
@@ -349,7 +355,7 @@ private[featureexpr] object FExprBuilder {
         if (a.clauses contains e) //a == (e && a'), then e || a == e || (e && a') == e
             e
         else if (a.clauses contains (e.not))
-            fastOr(e, createAnd(a.clauses - e.not))
+            fastOr(e, createAnd(a.clauses - e.not))                         //XXX: O(N) set rebuild
         else
             Or(Set(e, a))
 
@@ -372,7 +378,8 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => True
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
-                    case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _))
+                    case (o1: Or, o2: Or) =>
+                        o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _))  //XXX: O(N) set rebuild
                     case (o: Or, e) => orOr(e, o)
                     case (e, o: Or) => orOr(e, o)
                     case (e, a: And) => orAnd(e, a)
