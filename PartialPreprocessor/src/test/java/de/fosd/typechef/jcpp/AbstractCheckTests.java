@@ -211,10 +211,12 @@ public class AbstractCheckTests {
     }
 
     private String serialize(List<Token> tokenstream) {
-        StringBuffer output = new StringBuffer();
+        StringWriter strWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(strWriter);
         if (tokenstream != null)
             for (Token t : tokenstream)
-                output.append(t.getText());
+                t.lazyPrint(writer);
+        StringBuffer output = strWriter.getBuffer();
         return output.toString();
     }
 
