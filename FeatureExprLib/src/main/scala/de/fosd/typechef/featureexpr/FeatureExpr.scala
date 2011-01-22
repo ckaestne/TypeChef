@@ -118,6 +118,12 @@ abstract class FeatureExpr {
     def orNot(that: FeatureExpr) = this or (that.not)
     def andNot(that: FeatureExpr) = this and (that.not)
     def implies(that: FeatureExpr) = this.not.or(that)
+
+    // According to advanced textbooks, this representation is not always efficient:
+    // not (a equiv b) generates 4 clauses, of which 2 are tautologies.
+    // In positions of negative polarity (i.e. contravariant?), a equiv b is best transformed to
+    // (a and b) or (!a and !b). However, currently it seems that we never construct not (a equiv b).
+    // Be careful if that changes, though.
     def equiv(that: FeatureExpr) = (this implies that) and (that implies this)
     def mex(that: FeatureExpr): FeatureExpr = (this and that).not
 
@@ -149,17 +155,7 @@ abstract class FeatureExpr {
 
     final override def equals(that: Any) = super.equals(that)
 
-    protected var cachedHash: Option[Int] = None
     protected def calcHashCode = super.hashCode
-    final override def hashCode =
-        cachedHash match {
-            case Some(hash) =>
-                hash
-            case None =>
-                val hash = calcHashCode
-                cachedHash = Some(hash)
-                hash
-        }
 
     /**
      * uses a SAT solver to determine whether two expressions are
@@ -243,6 +239,13 @@ abstract class FeatureExpr {
     // This keeps the wrapper referenced in a reference cycle, so that the lifecycle of this object and the wrapper match.
     // This is crucial to use the wrapper in a WeakHashMap!
     val wrap = FeatureExpr.StructuralEqualityWrapper(this)
+}
+
+// Cache the computed hashCode. Note that this can make sense only if you override calcHashCode,
+// and the computation is complex enough. Currently this means only not, and even then I'm not sure it's the best.
+abstract class HashCachingFeatureExpr extends FeatureExpr {
+    protected val cachedHash = calcHashCode
+    final override def hashCode = cachedHash
 }
 
 /**
@@ -585,13 +588,15 @@ object Or extends AndOrUnExtractor[Or] {
 
 private[featureexpr]
 abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extends FeatureExpr {
+    //Only set by the constructor
+    protected var cl: Set[FeatureExpr] = _
+    private[featureexpr] def clauses = cl
+
     def operName: String
     def create(clauses: Traversable[FeatureExpr]): FeatureExpr
     //Can't declare This as return type - the optimizations in FExprBuilder are such that it might build an object of
     //unexpected type.
 
-    def primeHashMult: Int
-    override def calcHashCode = primeHashMult * clauses.map(_.hashCode).foldLeft(0)(_ + _)
     override def equal1Level(that: FeatureExpr) = that match {
         case e: BinaryLogicConnective[_] =>
             e.primeHashMult == primeHashMult && //check this as a class tag
@@ -599,11 +604,27 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
                 e.clauses.size == clauses.size
         case _ => false
     }
-    private[featureexpr] def clauses: Set[FeatureExpr]
+
+    def primeHashMult: Int
+    override def calcHashCode = primeHashMult * clauses.map(_.hashCode).foldLeft(0)(_ + _)
+
+    protected var cachedHash: Option[Int] = None
+    final override def hashCode =
+        cachedHash match {
+            case Some(hash) =>
+                hash
+            case None =>
+                val hash = calcHashCode
+                cachedHash = Some(hash)
+                hash
+        }
+
+    //Constructors of subclasses must call either of these methods. Since the hash computation is reasonably cheap
     protected def presetHash(old: This, newF: FeatureExpr) =
         //This computation is O(1); throwing out the hashCode and recomputing it would be O(n), and when growing
         //a Set, one element at a time, the time complexity of hash updates would be potentially O(n^2).
         cachedHash = Some(old.hashCode + primeHashMult * newF.hashCode)
+
 
     override def toString = clauses.mkString("(", operName, ")")
     override def toTextExpr = clauses.map(_.toTextExpr).mkString("(", " " + operName + operName + " ", ")")
@@ -636,7 +657,12 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
 }
 
 private[featureexpr]
-class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
+class And private () extends BinaryLogicConnective[And] {
+    def this(clauses: Set[FeatureExpr]) = {
+        this()
+        this.cl = clauses
+    }
+
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = {
         this(clauses)
@@ -652,7 +678,12 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
 }
 
 private[featureexpr]
-class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
+class Or private () extends BinaryLogicConnective[Or] {
+    def this(clauses: Set[FeatureExpr]) = {
+        this()
+        this.cl = clauses
+    }
+
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = {
         this(clauses)
@@ -743,7 +774,7 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
 }
 
 private[featureexpr]
-class Not(val expr: FeatureExpr) extends FeatureExpr {
+class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
     override def calcHashCode = 701 * expr.hashCode
     override def equal1Level(that: FeatureExpr) = that match {
         case Not(expr2) => expr eq expr2
