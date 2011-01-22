@@ -588,9 +588,7 @@ object Or extends AndOrUnExtractor[Or] {
 
 private[featureexpr]
 abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extends FeatureExpr {
-    //Only set by the constructor
-    protected var cl: Set[FeatureExpr] = _
-    private[featureexpr] def clauses = cl
+    private[featureexpr] def clauses: Set[FeatureExpr]
 
     def operName: String
     def create(clauses: Traversable[FeatureExpr]): FeatureExpr
@@ -657,12 +655,7 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
 }
 
 private[featureexpr]
-class And private () extends BinaryLogicConnective[And] {
-    def this(clauses: Set[FeatureExpr]) = {
-        this()
-        this.cl = clauses
-    }
-
+class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = {
         this(clauses)
@@ -678,12 +671,7 @@ class And private () extends BinaryLogicConnective[And] {
 }
 
 private[featureexpr]
-class Or private () extends BinaryLogicConnective[Or] {
-    def this(clauses: Set[FeatureExpr]) = {
-        this()
-        this.cl = clauses
-    }
-
+class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = {
         this(clauses)
