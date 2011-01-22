@@ -691,29 +691,33 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
             FExprBuilder.createAnd(List(FExprBuilder.createOr(cnfchildren)))
 
     /**
-     * introduces new variables to avoid exponential behavior
+     * Produce a CNF formula equiSatisfiable to the disjunction of @param cnfchildren.
+     * Introduces new variables to avoid exponential behavior
      *
      * for n CNF expressions with e1, e2, .., en clauses
      * this mechanism produces n new variables and results
      * in e1+e2+..+en+1 clauses
      *
+     * Algorithm: we need to represent Or(X_i, i=i..n), where X_i are subformulas in CNF. Each of them is a conjunction
+     * (or a literal, as a degenerate case).
+     * We produce a clause Or(Z_i) and clauses such that Z_i implies X_i, conjuncted together. For literals we just
+     * reuse the literal; if X_i = And(Y_ij, j=1..e_i), we produce clauses (Z_i implies Y_ij) for j=1..e_i.
      */
     private def combineEquiCNF(cnfchildren: Set[FeatureExpr]) =
         if (cnfchildren.exists(_.isInstanceOf[And])) {
             var orClauses: Seq[FeatureExpr] = SmallList() //list of Or expressions
-            var freshFeatureNames: Seq[FeatureExpr] = SmallList()
+            var renamedDisjunction: Seq[FeatureExpr] = SmallList()
             for (child <- cnfchildren) {
                 child match {
                     case And(innerChildren) =>
                         val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
-                        val negatedFreshFeature = freshFeature.not
-                        orClauses = orClauses ++ innerChildren.map(negatedFreshFeature or _)
-                        freshFeatureNames = freshFeature +: freshFeatureNames
+                        orClauses = orClauses ++ innerChildren.map(freshFeature implies _)
+                        renamedDisjunction = freshFeature +: renamedDisjunction
                     case e =>
-                        freshFeatureNames = e +: freshFeatureNames
+                        renamedDisjunction = e +: renamedDisjunction
                 }
             }
-            orClauses = FExprBuilder.createOr(freshFeatureNames) +: orClauses
+            orClauses = FExprBuilder.createOr(renamedDisjunction) +: orClauses
             FExprBuilder.createAnd(orClauses)
         } else FExprBuilder.createOr(cnfchildren)
 
