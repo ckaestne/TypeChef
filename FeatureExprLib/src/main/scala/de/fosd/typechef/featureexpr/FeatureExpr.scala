@@ -64,9 +64,13 @@ object FeatureExprHelper {
  *
  * Feature expressions are compared on object identity (comparing them for equivalence is
  * an additional but expensive operation). Connectives such as "and", "or" and "not"
- * cache results, so that the operation yields identical results on identical parameters.
+ * memoize results, so that the operation yields identical results on identical parameters.
  * Classes And, Or and Not are made package-private, and their constructors wrapped
  * through companion objects, to prevent the construction of formulas in any other way.
+ *
+ * However, this is not yet enough to guarantee the 'maximal sharing' property, because the
+ * and/or operators are also associative, but the memoization cannot be associative.
+ * Papers on hash-consing explain that one needs to perform a further normalization step.
  *
  * More in general, one can almost prove a theorem called the weak-canonicalization guarantee:
  *
@@ -122,16 +126,27 @@ abstract class FeatureExpr {
 
     //    def accept(f: FeatureExpr => Unit): Unit
 
-    final override def equals(that: Any) = super.equals(that)
-
-    val cachedHash = calcHashCode
-    def calcHashCode = super.hashCode
-    final override def hashCode = cachedHash
-
     /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.
+     * The default implementation returns false, because it would be a redundant test in its caller (the equals method).
      */
-    def equal1Level(that: FeatureExpr) = equals(that)
+    //def equal1Level(that: FeatureExpr) = super.equals(that)
+    protected def equal1Level(that: FeatureExpr) = false
+
+    final override def equals(that: Any) = super.equals(that) || that.isInstanceOf[FeatureExpr] && equal1Level(that.asInstanceOf[FeatureExpr])
+
+    protected var cachedHash: Option[Int] = None
+    protected def calcHashCode = super.hashCode
+    final override def hashCode =
+        cachedHash match {
+            case Some(hash) =>
+                hash
+            case None =>
+                val hash = calcHashCode
+                cachedHash = Some(hash)
+                hash
+        }
+
     /**
      * uses a SAT solver to determine whether two expressions are
      * equivalent.
@@ -166,7 +181,7 @@ abstract class FeatureExpr {
                 case e: DefinedMacro => {throw new FoundUnresolvedException(); e}
                 case e => e
             }, Map())
-            return true;
+            return true
         } catch {
             case e: FoundUnresolvedException => return false
         }
@@ -229,21 +244,12 @@ trait FeatureExprValue {
  * and for extensive caching.
  */
 private[featureexpr] object FExprBuilder {
-    private class FExprPair(val a: FeatureExpr, val b: FeatureExpr) {
-        //pair in which the order does not matter
-        override def hashCode = a.hashCode + b.hashCode;
-        override def equals(o: Any) = o match {
-            case that: FExprPair => (this.a.equals(that.a) && this.b.equals(that.b)) ||
-                    (this.a.equals(that.b) && this.b.equals(that.a))
-            case _ => false
-        }
-    }
-
     private val ifCache: HashMap[(FeatureExpr, FeatureExprValue, FeatureExprValue), WeakReference[FeatureExprValue]] = new HashMap()
     private val featureCache: Map[String, WeakReference[DefinedExternal]] = Map()
     private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
     private val valCache: Map[Long, WeakReference[Value]] = Map()
     private val resolvedCache: WeakHashMap[FeatureExpr, FeatureExpr] = WeakHashMap()
+    private val hashConsingCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = WeakHashMap()
 
     private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
         def update() = {val d = op; map(key) = new WeakReference[B](d); d}
@@ -277,6 +283,8 @@ private[featureexpr] object FExprBuilder {
         result.get
     }
 
+    private def canonical(f: FeatureExpr) = cacheGetOrElseUpdate(hashConsingCache, f, f)
+
     /*
      * It seems that with the four patterns to optimize and/or, it's more difficult to
      * produce a formula with duplicated literals - you need two levels of nesting for that to happen.
@@ -300,7 +308,7 @@ private[featureexpr] object FExprBuilder {
         if (o.clauses contains e) //o = (e || o'), then e || o == e && (e || o') == e
             e
         else if (o.clauses contains (e.not))
-            e and createOr(o.clauses - e.not)
+            fastAnd(e, createOr(o.clauses - e.not))
         else
             And(Set(e, o))
 
@@ -311,9 +319,10 @@ private[featureexpr] object FExprBuilder {
         else if (a.clauses contains (e.not))
             False
         else
-            And(a.clauses + e)
+            And(a.clauses + e, a, e)
 
-    def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
+    //Do not canonicalize the function at each step, do it only in the public wrappers.
+    private def fastAnd(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
         (a, b) match {
             case (e1, e2) if (e1 == e2) => e1
             case (_, False) => False
@@ -323,7 +332,7 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => False
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.andCache, other match {
-                    case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(_ and _)
+                    case (a1: And, a2: And) => a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _))
                     case (a: And, e) => andAnd(e, a)
                     case (e, a: And) => andAnd(e, a)
                     case (e, o: Or) => andOr(e, o)
@@ -333,14 +342,14 @@ private[featureexpr] object FExprBuilder {
         }
 
     def createAnd(clauses: Traversable[FeatureExpr]) =
-        clauses.foldLeft[FeatureExpr](True)(and(_, _))
+        canonical(clauses.foldLeft[FeatureExpr](True)(fastAnd(_, _)))
 
     //Optimized representation of e or (a: And)
     private def orAnd(e: FeatureExpr, a: And) =
         if (a.clauses contains e) //a == (e && a'), then e || a == e || (e && a') == e
             e
         else if (a.clauses contains (e.not))
-            e or createAnd(a.clauses - e.not)
+            fastOr(e, createAnd(a.clauses - e.not))
         else
             Or(Set(e, a))
 
@@ -350,9 +359,9 @@ private[featureexpr] object FExprBuilder {
         else if (o.clauses contains (e.not))
             True
         else
-            Or(o.clauses + e)
+            Or(o.clauses + e, o, e)
 
-    def or(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
+    def fastOr(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
     //simple cases without caching
         (a, b) match {
             case (e1, e2) if (e1 == e2) => e1
@@ -363,7 +372,7 @@ private[featureexpr] object FExprBuilder {
             case (e1, e2) if (e1.not == e2) => True
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
-                    case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(_ or _)
+                    case (o1: Or, o2: Or) => o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _))
                     case (o: Or, e) => orOr(e, o)
                     case (e, o: Or) => orOr(e, o)
                     case (e, a: And) => orAnd(e, a)
@@ -373,9 +382,13 @@ private[featureexpr] object FExprBuilder {
         }
 
     def createOr(clauses: Traversable[FeatureExpr]) =
-        clauses.foldLeft[FeatureExpr](False)(or(_, _))
+        canonical(clauses.foldLeft[FeatureExpr](False)(fastOr(_, _)))
 
     //End of dualized code.
+
+
+    def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr = canonical(fastAnd(a, b))
+    def or(a: FeatureExpr, b: FeatureExpr): FeatureExpr = canonical(fastOr(a, b))
 
     def not(a: FeatureExpr): FeatureExpr =
         a match {
@@ -395,7 +408,7 @@ private[featureexpr] object FExprBuilder {
                         case _ => new Not(e)
                     }
                     e.notCache = Some(new WeakReference(res))
-                    res
+                    canonical(res)
             }
         }
     }
@@ -510,46 +523,62 @@ object False extends Or(Set()) {
     override def isSatisfiable(fm: FeatureModel) = false
 }
 
-object And {
-    def unapply(x: And) = Some(x.clauses)
-    private[featureexpr] def apply(clauses: Set[FeatureExpr]) = {
+//The class name means And/Or (Un)Extractor.
+abstract class AndOrUnExtractor[This <: BinaryLogicConnective[This]] {
+    def identity: FeatureExpr
+    def unapply(x: This) = Some(x.clauses)
+    private def optBuild(clauses: Set[FeatureExpr], defaultRes: => This) = {
         clauses.size match {
-            case 0 => True
+            case 0 => identity
             /* The case below seems to not occur, but better include it
              * for extra robustness, to ensure the weak canonicalization property. */
             case 1 => clauses.head
-            case _ => new And(clauses)
+            case _ => defaultRes
         }
     }
+
+    private[featureexpr] def apply(clauses: Set[FeatureExpr]) = optBuild(clauses, create(clauses))
+    private[featureexpr] def apply(clauses: Set[FeatureExpr], old: This, newF: FeatureExpr) = optBuild(clauses, create(clauses, old, newF))
+
+    //Factory methods for the actual object type
+    protected def create(clauses: Set[FeatureExpr]): This
+    protected def create(clauses: Set[FeatureExpr], old: This, newF: FeatureExpr): This
 }
 
-object Or {
-    def unapply(x: Or) = Some(x.clauses)
-    private[featureexpr] def apply(clauses: Set[FeatureExpr]) = {
-        clauses.size match {
-            case 0 => False
-            /* The case below seems to not occur, handle it, as for And. */
-            case 1 => clauses.head
-            case _ => new Or(clauses)
-        }
-    }
+//objects And and Or are just boilerplate instances of AndOrUnExtractor
+object And extends AndOrUnExtractor[And] {
+    def identity = True
+    protected def create(clauses: Set[FeatureExpr]) = new And(clauses)
+    protected def create(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = new And(clauses, old, newF)
+}
+
+object Or extends AndOrUnExtractor[Or] {
+    def identity = False
+    protected def create(clauses: Set[FeatureExpr]) = new Or(clauses)
+    protected def create(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = new Or(clauses, old, newF)
 }
 
 private[featureexpr]
-abstract class BinaryLogicConnective extends FeatureExpr {
+abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extends FeatureExpr {
     def operName: String
     def create(clauses: Traversable[FeatureExpr]): FeatureExpr
+    //Can't declare This as return type - the optimizations in FExprBuilder are such that it might build an object of
+    //unexpected type.
 
     def primeHashMult: Int
     override def calcHashCode = primeHashMult * clauses.map(_.hashCode).foldLeft(0)(_ + _)
     override def equal1Level(that: FeatureExpr) = that match {
-        case e: BinaryLogicConnective =>
+        case e: BinaryLogicConnective[_] =>
             e.primeHashMult == primeHashMult && //check this as a class tag
                 e.clauses.forall(clauses contains _) &&
                 e.clauses.size == clauses.size
         case _ => false
     }
-    protected def clauses: Set[FeatureExpr]
+    private[featureexpr] def clauses: Set[FeatureExpr]
+    protected def presetHash(old: This, newF: FeatureExpr) =
+        //This computation is O(1); throwing out the hashCode and recomputing it would be O(n), and when growing
+        //a Set, one element at a time, the time complexity of hash updates would be potentially O(n^2).
+        cachedHash = Some(old.hashCode + primeHashMult * newF.hashCode)
 
     override def toString = clauses.mkString("(", operName, ")")
     override def toTextExpr = clauses.map(_.toTextExpr).mkString("(", " " + operName + operName + " ", ")")
@@ -582,7 +611,13 @@ abstract class BinaryLogicConnective extends FeatureExpr {
 }
 
 private[featureexpr]
-class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
+class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
+    //Use this constructor when adding newF to old, because it reuses the old hash.
+    def this(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = {
+        this(clauses)
+        presetHash(old, newF)
+    }
+
     override def primeHashMult = 37
     override def operName = "&"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createAnd(clauses)
@@ -592,7 +627,13 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
 }
 
 private[featureexpr]
-class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
+class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
+    //Use this constructor when adding newF to old, because it reuses the old hash.
+    def this(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = {
+        this(clauses)
+        presetHash(old, newF)
+    }
+
     override def primeHashMult = 97
     override def operName = "|"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createOr(clauses)
