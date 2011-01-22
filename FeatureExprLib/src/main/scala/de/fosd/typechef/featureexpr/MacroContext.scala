@@ -79,7 +79,15 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
      *
      * (newMacroName, DefinedExternal(newMacroName) <=> getMacroCondition)
      *
-     * the result is cached. $$ is later replaced by a name for the SAT solver
+     * This means that the MacroCondition appears twice in the output, and on nested macro definitions, this can cause
+     * a blowup exponential in the nesting depth of macro definitions (if each new definition is small).
+     *
+     * It could be safe to create just one implication, solving this problem, as we do in the
+     * equisatisfiable transformation. However, that depends on whether the macro is used in a covariant or
+     * contravariant position, i.e. if there is respectively an even or an odd number of Not above the formula
+     * when represented as a parse tree. If a macro is used both ways (as it often happens), we need both implications.
+     *
+     * The result is cached. $$ is later replaced by a name for the SAT solver
      */
     def getMacroConditionCNF(name: String): (String, Susp[FeatureExpr]) = {
         if (cnfCache.contains(name))
@@ -88,7 +96,7 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
         val newMacroName = name + "$$" + MacroIdGenerator.nextMacroId
         val c = getMacroCondition(name)
         val d = FeatureExpr.createDefinedExternal(newMacroName)
-        val condition = FeatureExpr.createEquiv(c, d)
+        val condition = c equiv d
         val cnf = LazyLib.delay(condition.toCnfEquiSat)
         val result = (newMacroName, cnf)
         cnfCache = cnfCache + (name -> result)
