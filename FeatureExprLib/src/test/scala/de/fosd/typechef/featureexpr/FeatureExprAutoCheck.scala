@@ -11,6 +11,7 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     val a = feature("a")
     val b = feature("b")
     val c = feature("c")
+    val d = feature("d")
     val e = feature("e")
     val f = feature("f")
 
@@ -94,11 +95,11 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
                 ((a not).isSatisfiable == (a.toCNF.not).isSatisfiable)
     )
 
-    property("equiCnf does not change satisifiability") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) =>
+    def equiCNFIdentity = (a: FeatureExpr, b: FeatureExpr) =>
         ((a and b).isSatisfiable == (a.toCnfEquiSat and (b.toCnfEquiSat)).isSatisfiable) &&
                 ((a or b).isSatisfiable == (a.toCnfEquiSat or (b.toCnfEquiSat)).isSatisfiable) &&
                 ((a not).isSatisfiable == (a.toCnfEquiSat.not).isSatisfiable)
-    )
+    property("equiCnf does not change satisifiability") = Prop.forAll(equiCNFIdentity)
 
     property("taut(a=>b) == contr(a and !b)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => a.implies(b).isTautology() == a.and(b.not).isContradiction)
 

@@ -33,12 +33,27 @@ class TestSatSolver extends TestCase {
         assertEquals(true, createInteger(2).toFeatureExpr.isTautology())
     }
 
+    def equiCNFIdentityAnd = (a: FeatureExpr, b: FeatureExpr) =>
+        ((a and b).isSatisfiable == (a.toCnfEquiSat and (b.toCnfEquiSat)).isSatisfiable)
+
+    def equiCNFIdentityOr = (a: FeatureExpr, b: FeatureExpr) =>
+        ((a or b).isSatisfiable == (a.toCnfEquiSat or (b.toCnfEquiSat)).isSatisfiable)
+
+    def equiCNFIdentityNot = (a: FeatureExpr) =>
+                ((a not).isSatisfiable == (a.toCnfEquiSat.not).isSatisfiable)
+
     @Test def testBrokenSat {
         val j=(((((d and (c not)) not) or (d and (a)) or (((d not) or c) not)) not) and ((((c or (b not)) and (c or a or (d not) or (c and d) or (a and c))) not) or (((d) not) and ((e or c) not))))
         val k=d
 
         assert(((j toCNF) or (k toCNF)).isSatisfiable)
         assert((j or k).isSatisfiable)
+
+        val f1 = (!(d&c)|c|(b&e&(e|d))| !(a|(c&f))| !(e|a)| !(e|d))
+        val f2 = False
+        assert(equiCNFIdentityAnd(f1, f2))
+        assert(equiCNFIdentityOr(f1, f2))
+        assert(equiCNFIdentityNot(f1))
     }
 
     @Test
