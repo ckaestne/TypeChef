@@ -122,9 +122,16 @@ abstract class FeatureExpr {
 
     //    def accept(f: FeatureExpr => Unit): Unit
 
-
     final override def equals(that: Any) = super.equals(that)
-    final override def hashCode = super.hashCode
+
+    val cachedHash = calcHashCode
+    def calcHashCode = super.hashCode
+    final override def hashCode = cachedHash
+
+    /**
+     * Check structural equality, assuming that all component nodes have already been canonicalized.
+     */
+    def equal1Level(that: FeatureExpr) = equals(that)
     /**
      * uses a SAT solver to determine whether two expressions are
      * equivalent.
@@ -532,6 +539,15 @@ private[featureexpr]
 abstract class BinaryLogicConnective extends FeatureExpr {
     def operName: String
     def create(clauses: Traversable[FeatureExpr]): FeatureExpr
+
+    def primeHashMult: Int
+    override def calcHashCode = primeHashMult * clauses.map(_.hashCode).reduceLeft(_+_)
+    override def equal1Level(that: FeatureExpr) = that match {
+        case e: BinaryLogicConnective =>
+            e.primeHashMult == primeHashMult && //check this as a class tag
+                e.clauses.forall(clauses contains _)
+        case _ => false
+    }
     protected def clauses: Set[FeatureExpr]
 
     override def toString = clauses.mkString("(", operName, ")")
@@ -566,6 +582,7 @@ abstract class BinaryLogicConnective extends FeatureExpr {
 
 private[featureexpr]
 class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
+    override def primeHashMult = 37
     override def operName = "&"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createAnd(clauses)
 
@@ -575,6 +592,7 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
 
 private[featureexpr]
 class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
+    override def primeHashMult = 97
     override def operName = "|"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createOr(clauses)
 
@@ -654,6 +672,12 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
 
 private[featureexpr]
 class Not(val expr: FeatureExpr) extends FeatureExpr {
+    override def calcHashCode = 701 * expr.hashCode
+    override def equal1Level(that: FeatureExpr) = that match {
+        case Not(expr2) => expr eq expr2
+        case _ => false
+    }
+
     override def toString = "!" + expr.toString
     override def toTextExpr = "!" + expr.toTextExpr
     override def print(p: PrintWriter) = {
