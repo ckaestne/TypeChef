@@ -47,6 +47,16 @@ object FeatureExpr {
 
     val base: FeatureExpr = True
     val dead: FeatureExpr = False
+
+    private[featureexpr] case class StructuralEqualityWrapper(f: FeatureExpr) {
+        final override def equals(that: Any) =
+            super.equals(that) || (that match {
+                case StructuralEqualityWrapper(thatF) => f.equal1Level(thatF)
+                case _ => false
+            })
+        final override def hashCode = f.hashCode
+        final def unwrap = f
+    }
 }
 
 object FeatureExprHelper {
@@ -133,12 +143,11 @@ abstract class FeatureExpr {
 
     /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.
-     * The default implementation returns false, because it would be a redundant test in its caller (the equals method).
+     * The default implementation checks for pointer equality.
      */
-    //def equal1Level(that: FeatureExpr) = super.equals(that)
-    protected def equal1Level(that: FeatureExpr) = false
+    def equal1Level(that: FeatureExpr) = this eq that
 
-    final override def equals(that: Any) = super.equals(that) || that.isInstanceOf[FeatureExpr] && equal1Level(that.asInstanceOf[FeatureExpr])
+    final override def equals(that: Any) = super.equals(that)
 
     protected var cachedHash: Option[Int] = None
     protected def calcHashCode = super.hashCode
@@ -230,6 +239,10 @@ abstract class FeatureExpr {
     private[featureexpr] var notCache: Option[WeakReference[FeatureExpr]] = None
     def toFeatureExprValue: FeatureExprValue =
         FExprBuilder.createIf(this, FExprBuilder.createValue(1), FExprBuilder.createValue(0))
+
+    // This keeps the wrapper referenced in a reference cycle, so that the lifecycle of this object and the wrapper match.
+    // This is crucial to use the wrapper in a WeakHashMap!
+    val wrap = FeatureExpr.StructuralEqualityWrapper(this)
 }
 
 /**
@@ -254,7 +267,7 @@ private[featureexpr] object FExprBuilder {
     private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
     private val valCache: Map[Long, WeakReference[Value]] = Map()
     private val resolvedCache: WeakHashMap[FeatureExpr, FeatureExpr] = WeakHashMap()
-    private val hashConsingCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = WeakHashMap()
+    private val hashConsingCache: WeakHashMap[FeatureExpr.StructuralEqualityWrapper, WeakReference[FeatureExpr.StructuralEqualityWrapper]] = WeakHashMap()
 
     private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
         def update() = {val d = op; map(key) = new WeakReference[B](d); d}
@@ -288,7 +301,7 @@ private[featureexpr] object FExprBuilder {
         result.get
     }
 
-    private def canonical(f: FeatureExpr) = cacheGetOrElseUpdate(hashConsingCache, f, f)
+    private def canonical(f: FeatureExpr) = cacheGetOrElseUpdate(hashConsingCache, f.wrap, f.wrap).unwrap
 
     /*
      * It seems that with the four patterns to optimize and/or, it's more difficult to
