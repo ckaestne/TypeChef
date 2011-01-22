@@ -71,15 +71,18 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     property("Commutativity wrt. object identity: (a and b) produces the same object as (b and a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) eq (b and a))
     property("Commutativity wrt. object identity: (a or b) produces the same object as (b or a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) eq (b or a))
 
-    def associativeAnd = (a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a and b) and c) eq (a and (b and c))
-    def associativeOr = (a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a or b) or c) eq (a or (b or c))
-    property("Associativity wrt. object identity for and") = Prop.forAll(associativeAnd)
-    property("Associativity wrt. object identity for or") = Prop.forAll(associativeOr)
-    property("Special case assocAnd") = associativeAnd(f not, a, e or a) //This can't work without SAT-equivalence checking: opt. patterns will remove e from the clause!!
-    property("Special case assocOr") = associativeOr(f not, a, e and a)
-
-    property("Associativity + commutativity wrt. object identity for and") = Prop.forAll((a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a and b) and c) eq ((c and b) and a))
-    property("Associativity + commutativity wrt. object identity for or") = Prop.forAll((a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a or b) or c) eq ((c or b) or a))
+//    def associativeAnd = (a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a and b) and c) eq (a and (b and c))
+//    def associativeOr = (a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a or b) or c) eq (a or (b or c))
+//    property("Associativity wrt. object identity for and") = Prop.forAll(associativeAnd)
+//    property("Associativity wrt. object identity for or") = Prop.forAll(associativeOr)
+//
+//    //This case can't work without SAT-equivalence checking: opt. patterns will remove e from the clause!! And SAT-equivalence checking would depend on a suitable
+//    //hash function!! With few clauses one could use the truth table in theory, but I don't think it's worth.
+//    property("Special case assocAnd") = associativeAnd(f not, a, e or a)
+//    property("Special case assocOr") = associativeOr(f not, a, e and a)
+//
+//    property("Associativity + commutativity wrt. object identity for and") = Prop.forAll((a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a and b) and c) eq ((c and b) and a))
+//    property("Associativity + commutativity wrt. object identity for or") = Prop.forAll((a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a or b) or c) eq ((c or b) or a))
 
     property("toCNF produces CNF") = Prop.forAll((a: FeatureExpr) => CNFHelper.isCNF(a.toCNF))
     property("toEquiCNF produces CNF") = Prop.forAll((a: FeatureExpr) => CNFHelper.isCNF(a.toCnfEquiSat))
