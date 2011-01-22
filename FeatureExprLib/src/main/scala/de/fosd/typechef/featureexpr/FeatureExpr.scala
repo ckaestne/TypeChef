@@ -236,7 +236,7 @@ abstract class FeatureExpr {
     def toFeatureExprValue: FeatureExprValue =
         FExprBuilder.createIf(this, FExprBuilder.createValue(1), FExprBuilder.createValue(0))
 
-    // This keeps the wrapper referenced in a reference cycle, so that the lifecycle of this object and the wrapper match.
+    // This field keeps the wrapper referenced in a reference cycle, so that the lifecycle of this object and the wrapper match.
     // This is crucial to use the wrapper in a WeakHashMap!
     val wrap = FeatureExpr.StructuralEqualityWrapper(this)
 }
@@ -606,6 +606,10 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
     def primeHashMult: Int
     override def calcHashCode = primeHashMult * clauses.map(_.hashCode).foldLeft(0)(_ + _)
 
+    // We need to compute the hashCode lazily (and pay a penalty when accessing it) because too many temporaries are
+    // created. We might want to change that, though (see comments above mentioning "XXX: O(N) set rebuild"), and
+    // retest this choice.
+    // In a few cases, however, we compute the hashcode eagerly and incrementally (to reuse old hashcode computations).
     protected var cachedHash: Option[Int] = None
     final override def hashCode =
         cachedHash match {
