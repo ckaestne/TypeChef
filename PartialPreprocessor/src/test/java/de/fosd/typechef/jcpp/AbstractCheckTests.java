@@ -216,8 +216,6 @@ public class AbstractCheckTests {
         if (tokenstream != null)
             for (Token t : tokenstream)
                 t.lazyPrint(writer);
-        StringBuffer output = strWriter.getBuffer();
-        return output.toString();
+	return strWriter.getBuffer().toString();
     }
-
 }

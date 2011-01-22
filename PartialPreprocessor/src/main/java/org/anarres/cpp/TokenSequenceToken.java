@@ -1,6 +1,7 @@
 package org.anarres.cpp;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -55,10 +56,10 @@ class TokenSequenceToken extends Token {
 
 	@Override
 	public String getText() {
-		StringBuffer result = new StringBuffer();
-		for (Token tok : internalTokens)
-			result.append(tok.getText());
-		return result.toString();
+	    	StringWriter strWriter = new StringWriter();
+	    	PrintWriter writer = new PrintWriter(strWriter);
+	    	lazyPrint(writer);
+	    	return strWriter.getBuffer().toString();
 	}
 
 	@Override

@@ -1,8 +1,6 @@
 package org.anarres.cpp;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +65,7 @@ public class PartialPPLexer {
 		pp.addInput(source);
 
 		ArrayList<Token> result = new ArrayList<Token>();
+		PrintWriter stdOut = new PrintWriter(new OutputStreamWriter(System.out));
 		for (;;) {
 			Token tok = pp.getNextToken();
 			if (tok == null)
@@ -80,7 +79,7 @@ public class PartialPPLexer {
 
 			if (tok.getType() != Token.P_LINE
 					&& tok.getType() != Token.WHITESPACE
-					&& !tok.getText().equals("__extension__")
+					&& !(tok.getType() != Token.P_FEATUREEXPR && tok.getText().equals("__extension__"))
 					&& tok.getType() != Token.NL && tok.getType() != Token.P_IF
 					&& tok.getType() != Token.CCOMMENT
 					&& tok.getType() != Token.CPPCOMMENT
@@ -88,7 +87,7 @@ public class PartialPPLexer {
 					&& tok.getType() != Token.P_ELIF)
 				result.add(tok);
 			if (debug)
-				System.out.print(tok.getText());
+				tok.lazyPrint(stdOut);
 		}
 		return result;
 	}
