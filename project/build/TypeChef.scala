@@ -22,6 +22,8 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         //		val scalatest = "org.scala-tools.testing" % "scalatest" % "0.9.5" % "test->default"
         override def javaCompileOptions = super.javaCompileOptions ++ javaCompileOptions("-source", "1.5")
         val scalacheck = "org.scala-tools.testing" % "scalacheck_2.8.1" % "1.8" % "test->default"
+        override def compileOptions = super.compileOptions ++ Seq(Unchecked,
+            Deprecation, ExplainTypes, Optimize)
     }
 
     class JavaSubProject(info: ProjectInfo) extends DefaultProject(info) with HtmlTestsProject with ScctProject with IdeaProject {
