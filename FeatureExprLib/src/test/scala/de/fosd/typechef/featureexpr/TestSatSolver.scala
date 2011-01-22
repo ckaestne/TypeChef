@@ -40,7 +40,7 @@ class TestSatSolver extends TestCase {
         ((a or b).isSatisfiable == (a.toCnfEquiSat or (b.toCnfEquiSat)).isSatisfiable)
 
     def equiCNFIdentityNot = (a: FeatureExpr) =>
-                ((a not).isSatisfiable == (a.toCnfEquiSat.not).isSatisfiable)
+        ((a not).isSatisfiable == (a.toCnfEquiSat.not).isSatisfiable)
 
     @Test def testBrokenSat {
         val j=(((((d and (c not)) not) or (d and (a)) or (((d not) or c) not)) not) and ((((c or (b not)) and (c or a or (d not) or (c and d) or (a and c))) not) or (((d) not) and ((e or c) not))))
@@ -53,7 +53,9 @@ class TestSatSolver extends TestCase {
         val f2 = False
         assert(equiCNFIdentityAnd(f1, f2))
         assert(equiCNFIdentityOr(f1, f2))
-        assert(equiCNFIdentityNot(f1))
+        /* You might be surprised by the not: surprises of equisatisfiable transformations, if you negate the result
+         * it's no more equisatisfiable. */
+        assert(!equiCNFIdentityNot(f1))
     }
 
     @Test
