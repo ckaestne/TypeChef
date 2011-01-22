@@ -636,15 +636,14 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective {
             var orClauses: Seq[FeatureExpr] = SmallList() //list of Or expressions
             var freshFeatureNames: Seq[FeatureExpr] = SmallList()
             for (child <- cnfchildren) {
-                val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
-                val negatedFreshFeature = freshFeature.not
                 child match {
                     case And(innerChildren) =>
+                        val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
+                        val negatedFreshFeature = freshFeature.not
                         orClauses = orClauses ++ innerChildren.map(negatedFreshFeature or _)
-                    case e =>
-                        orClauses = (negatedFreshFeature or e) +: orClauses
+                        freshFeatureNames = freshFeature +: freshFeatureNames
+                    case _ =>
                 }
-                freshFeatureNames = freshFeature +: freshFeatureNames
             }
             orClauses = FExprBuilder.createOr(freshFeatureNames) +: orClauses
             FExprBuilder.createAnd(orClauses)
