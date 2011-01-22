@@ -101,6 +101,10 @@ abstract class FeatureExpr {
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, that)
     def not(): FeatureExpr = FExprBuilder.not(this)
 
+    def unary_! = not
+    def &(that: FeatureExpr) = and(that)
+    def |(that: FeatureExpr) = or(that)
+
     def orNot(that: FeatureExpr) = this or (that.not)
     def andNot(that: FeatureExpr) = this and (that.not)
     def implies(that: FeatureExpr) = this.not.or(that)
