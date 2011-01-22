@@ -670,7 +670,7 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
     private def combineCNF(cnfchildren: Set[FeatureExpr]) =
         FExprBuilder.createAnd(
             if (cnfchildren.exists(_.isInstanceOf[And])) {
-                var conjuncts = List[FeatureExpr](False)
+                var conjuncts = Set[FeatureExpr](False)
                 for (child <- cnfchildren) {
                     child match {
                         case And(innerChildren) =>
