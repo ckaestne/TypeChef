@@ -227,12 +227,3 @@ object CNFHelper {
 //        else new And(
 //            for (clause <- cnf.clauses) yield new Or(clause.posLiterals ++ clause.negLiterals.map(Not(_)))
 //        )
-
-
-object SmallList {
-    def apply[T](e: T*): Seq[T] = {
-        val v = new ArrayBuffer[T](e.length)
-        v ++= e
-        v
-    }
-}

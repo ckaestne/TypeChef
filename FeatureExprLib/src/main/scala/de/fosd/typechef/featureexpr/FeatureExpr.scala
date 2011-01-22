@@ -4,6 +4,7 @@ import LazyLib._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
+import collection.mutable.ArrayBuffer
 import scala.ref.WeakReference
 import java.io.PrintWriter
 
@@ -668,14 +669,13 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
      */
     private def combineCNF(cnfchildren: Set[FeatureExpr]) =
         if (cnfchildren.exists(_.isInstanceOf[And])) {
-            var orClauses: Seq[FeatureExpr] = SmallList(False) //list of Or expressions
+            var orClauses = ArrayBuffer[FeatureExpr](False) //list of Or expressions
             for (child <- cnfchildren) {
                 child match {
                     case And(innerChildren) => {
-                        var newClauses: Seq[FeatureExpr] = SmallList()
+                        var newClauses = ArrayBuffer[FeatureExpr]()
                         for (innerChild <- innerChildren) {
-                            val aClauses =
-                                newClauses ++= orClauses.map(_ or innerChild)
+                            newClauses ++= orClauses.map(_ or innerChild)
                         }
                         orClauses = newClauses
                     }
@@ -705,19 +705,19 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
      */
     private def combineEquiCNF(cnfchildren: Set[FeatureExpr]) =
         if (cnfchildren.exists(_.isInstanceOf[And])) {
-            var orClauses: Seq[FeatureExpr] = SmallList() //list of Or expressions
-            var renamedDisjunction: Seq[FeatureExpr] = SmallList()
+            var orClauses = ArrayBuffer[FeatureExpr]() //list of Or expressions
+            var renamedDisjunction = ArrayBuffer[FeatureExpr]()
             for (child <- cnfchildren) {
                 child match {
                     case And(innerChildren) =>
                         val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
-                        orClauses = orClauses ++ innerChildren.map(freshFeature implies _)
-                        renamedDisjunction = freshFeature +: renamedDisjunction
+                        orClauses ++= innerChildren.map(freshFeature implies _)
+                        renamedDisjunction += freshFeature
                     case e =>
-                        renamedDisjunction = e +: renamedDisjunction
+                        renamedDisjunction += e
                 }
             }
-            orClauses = FExprBuilder.createOr(renamedDisjunction) +: orClauses
+            orClauses += FExprBuilder.createOr(renamedDisjunction)
             FExprBuilder.createAnd(orClauses)
         } else FExprBuilder.createOr(cnfchildren)
 
