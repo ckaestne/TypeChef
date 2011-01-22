@@ -512,8 +512,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             boolean visible = parentActive;
             if (visible && fullPresenceCondition.isDead())
                 visible = false;
-            // if (visible && fullPresenceCondition.isBase())
-            // visible = false;
+            if (visible && fullPresenceCondition.isBase())
+                visible = false;
             if (visible && expr.isBase())
                 visible = false;
 
@@ -538,8 +538,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             boolean isVisible = parentActive;
             if (isVisible && fullPresenceCondition.isDead())
                 isVisible = false;
-            // if (isVisible && fullPresenceCondition.isBase())
-            // isVisible = false;
+            if (isVisible && fullPresenceCondition.isBase())
+                isVisible = false;
             stack.push(new IfdefBlock(isVisible));
 
             return OutputHelper.elif_token(tok.getLine(), localFeatureExpr,
