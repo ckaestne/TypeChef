@@ -668,25 +668,26 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
      * this mechanism produces e1*e2*...*en clauses
      */
     private def combineCNF(cnfchildren: Set[FeatureExpr]) =
-        if (cnfchildren.exists(_.isInstanceOf[And])) {
-            var conjuncts = List[FeatureExpr](False)
-            for (child <- cnfchildren) {
-                child match {
-                    case And(innerChildren) =>
-                        conjuncts = innerChildren.flatMap(
-                          innerChild => conjuncts.map(
-                            _ or innerChild))
-                    case _ =>
-                      conjuncts = conjuncts.map(_ or child)
+        FExprBuilder.createAnd(
+            if (cnfchildren.exists(_.isInstanceOf[And])) {
+                var conjuncts = List[FeatureExpr](False)
+                for (child <- cnfchildren) {
+                    child match {
+                        case And(innerChildren) =>
+                            conjuncts = innerChildren.flatMap(
+                                innerChild => conjuncts.map(
+                                    _ or innerChild))
+                        case _ =>
+                            conjuncts = conjuncts.map(_ or child)
+                    }
                 }
-            }
-            assert(conjuncts.forall(c => CNFHelper.isClause(c) || c == True || c == False))
-            FExprBuilder.createAnd(conjuncts)
-        } else
-            /* Add an extra And, because a canonical CNF is an conjunction of disjunctions.
-             * Currently this is ignored, but here I do not want to rely on this detail.
-             */
-            FExprBuilder.createAnd(List(FExprBuilder.createOr(cnfchildren)))
+                assert(conjuncts.forall(c => CNFHelper.isClause(c) || c == True || c == False))
+                conjuncts
+            } else {
+                /* The context adds an extra And, because a canonical CNF is an conjunction of disjunctions.
+                 * Currently this extra And is optimized away, but here I do not want to rely on this detail. */
+                List(FExprBuilder.createOr(cnfchildren))
+            })
 
     /**
      * Produce a CNF formula equiSatisfiable to the disjunction of @param cnfchildren.
