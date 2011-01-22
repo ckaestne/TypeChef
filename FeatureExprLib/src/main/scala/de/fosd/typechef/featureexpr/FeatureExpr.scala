@@ -46,7 +46,6 @@ object FeatureExpr {
 
     val base: FeatureExpr = True
     val dead: FeatureExpr = False
-
 }
 
 object FeatureExprHelper {
@@ -137,7 +136,6 @@ abstract class FeatureExpr {
      * overhead)
      */
     def equivalentTo(that: FeatureExpr): Boolean = (this eq that) || (this equiv that).isTautology();
-
 
     protected def indent(level: Int): String = "\t" * level
 
@@ -491,29 +489,18 @@ private[featureexpr] object FExprBuilder {
  * apply methods of the And and Or companion objects, which convert any empty set of
  * clauses into the canonical True or False object.
  */
-private[featureexpr] trait TrueFalseFeatureExpr extends FeatureExpr {
-    def booleanValue: Boolean
-    override def toTextExpr = if (booleanValue) "1" else "0"
-    override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
-    /*override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = this
-    override def calcCNF: FeatureExpr = this
-    override def calcCNFEquiSat = calcCNF
-    override def isSatisfiable(fm: FeatureModel) = booleanValue*/
-}
-
-object True extends And(Set()) with TrueFalseFeatureExpr {
+object True extends And(Set()) {
     override def toString = "True"
-    override def booleanValue = true
-    //Causes a compiler crash!!!
-    override def toTextExpr = super.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
-    override def debug_print(ind: Int) = this.asInstanceOf[TrueFalseFeatureExpr].debug_print(ind)
+    override def toTextExpr = "1"
+    override def debug_print(ind: Int) = indent(ind) + f.toTextExpr + "\n"
+    override def isSatisfiable(fm: FeatureModel) = true
 }
 
-object False extends Or(Set()) with TrueFalseFeatureExpr {
+object False extends Or(Set()) {
     override def toString = "False"
-    override def booleanValue = false
-    override def toTextExpr = super.asInstanceOf[TrueFalseFeatureExpr].toTextExpr
-    override def debug_print(ind: Int) = this.asInstanceOf[TrueFalseFeatureExpr].debug_print(ind)
+    override def toTextExpr = "0"
+    override def debug_print(ind: Int) = indent(ind) + f.toTextExpr + "\n"
+    override def isSatisfiable(fm: FeatureModel) = false
 }
 
 object And {
