@@ -541,11 +541,12 @@ abstract class BinaryLogicConnective extends FeatureExpr {
     def create(clauses: Traversable[FeatureExpr]): FeatureExpr
 
     def primeHashMult: Int
-    override def calcHashCode = primeHashMult * clauses.map(_.hashCode).reduceLeft(_+_)
+    override def calcHashCode = primeHashMult * clauses.map(_.hashCode).foldLeft(0)(_ + _)
     override def equal1Level(that: FeatureExpr) = that match {
         case e: BinaryLogicConnective =>
             e.primeHashMult == primeHashMult && //check this as a class tag
-                e.clauses.forall(clauses contains _)
+                e.clauses.forall(clauses contains _) &&
+                e.clauses.size == clauses.size
         case _ => false
     }
     protected def clauses: Set[FeatureExpr]
