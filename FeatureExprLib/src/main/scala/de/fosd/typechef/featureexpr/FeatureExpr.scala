@@ -446,8 +446,8 @@ private[featureexpr] object FExprBuilder {
                          * expensive. HECK! I SHOULD SIMPLY STORE THE ORIGINAL EXPRESSION
                          * ITSELF IN THE _NOT_-CACHE!
                          */
-                        /*case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
-                        case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)*/
+                        case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
+                        case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)
                         case _ => new Not(e) //Triggered by leaves.
                     })
                     storeCache(e, res)
