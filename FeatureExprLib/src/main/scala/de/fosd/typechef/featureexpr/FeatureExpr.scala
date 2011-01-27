@@ -233,6 +233,17 @@ abstract class FeatureExpr {
     private[featureexpr] val andCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] val orCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] var notCache: Option[NotReference[FeatureExpr]] = None
+
+    /**
+     * Retrieves the memoized representation of this.not, if any exists; it is useful only to look for duplicated
+     * elements in a clause. Note that two non-trivial formula might be opposite, still using fastNot for the test might
+     * fail; e.g., a and b and !a or !b might be built independently.
+     */
+    private[featureexpr] def retrieveMemoizedNot = notCache match {
+        case Some(NotRef(x)) => x
+        case _ => null
+    }
+
     def toFeatureExprValue: FeatureExprValue =
         FExprBuilder.createIf(this, FExprBuilder.createValue(1), FExprBuilder.createValue(0))
 
@@ -355,7 +366,7 @@ private[featureexpr] object FExprBuilder {
             case (False, _) => False
             case (True, e) => e
             case (e, True) => e
-            case (e1, e2) if (e1.not == e2) => False
+            case (e1, e2) if (e1.retrieveMemoizedNot == e2) => False
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.andCache, other match {
                     case (a1: And, a2: And) =>
@@ -396,7 +407,7 @@ private[featureexpr] object FExprBuilder {
             case (True, _) => True
             case (False, e) => e
             case (e, False) => e
-            case (e1, e2) if (e1.not == e2) => True
+            case (e1, e2) if (e1.retrieveMemoizedNot == e2) => True
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
                     case (o1: Or, o2: Or) =>
@@ -437,7 +448,7 @@ private[featureexpr] object FExprBuilder {
                          */
                         /*case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
                         case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)*/
-                        case _ => new Not(e)
+                        case _ => new Not(e) //Triggered by leaves.
                     })
                     storeCache(e, res)
                     res
@@ -810,6 +821,7 @@ class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
         case e => this
     }
 
+    private[featureexpr] override def retrieveMemoizedNot = expr
 }
 
 object Not {
