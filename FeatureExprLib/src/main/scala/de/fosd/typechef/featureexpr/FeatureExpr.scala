@@ -232,7 +232,7 @@ abstract class FeatureExpr {
     //only access these caches from FExprBuilder
     private[featureexpr] val andCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
     private[featureexpr] val orCache: WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]] = new WeakHashMap()
-    private[featureexpr] var notCache: Option[WeakReference[FeatureExpr]] = None
+    private[featureexpr] var notCache: Option[NotReference[FeatureExpr]] = None
     def toFeatureExprValue: FeatureExprValue =
         FExprBuilder.createIf(this, FExprBuilder.createValue(1), FExprBuilder.createValue(0))
 
@@ -425,10 +425,10 @@ private[featureexpr] object FExprBuilder {
         case n: Not => n.expr
         case e => {
             e.notCache match {
-                case Some(WeakRef(res)) => res
+                case Some(NotRef(res)) => res
                 case _ =>
                     def storeCache(e: FeatureExpr, neg: FeatureExpr) = 
-                      { e.notCache = Some(new WeakReference(neg)); e }
+                      { e.notCache = Some(new NotReference(neg)); e }
                     val res = canonical(e match {
                         /* This transformation would be correct and should improve performance,
                          * but probably due to suboptimal caching, it is too
