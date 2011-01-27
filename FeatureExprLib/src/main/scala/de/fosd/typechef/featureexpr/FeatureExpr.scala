@@ -569,25 +569,25 @@ abstract class AndOrUnExtractor[This <: BinaryLogicConnective[This]] {
         }
     }
 
-    private[featureexpr] def apply(clauses: Set[FeatureExpr]) = optBuild(clauses, create(clauses))
-    private[featureexpr] def apply(clauses: Set[FeatureExpr], old: This, newF: FeatureExpr) = optBuild(clauses, create(clauses, old, newF))
+    private[featureexpr] def apply(clauses: Set[FeatureExpr]) = optBuild(clauses, createRaw(clauses))
+    private[featureexpr] def apply(clauses: Set[FeatureExpr], old: This, newF: FeatureExpr) = optBuild(clauses, createRaw(clauses, old, newF))
 
     //Factory methods for the actual object type
-    protected def create(clauses: Set[FeatureExpr]): This
-    protected def create(clauses: Set[FeatureExpr], old: This, newF: FeatureExpr): This
+    protected def createRaw(clauses: Set[FeatureExpr]): This
+    protected def createRaw(clauses: Set[FeatureExpr], old: This, newF: FeatureExpr): This
 }
 
 //objects And and Or are just boilerplate instances of AndOrUnExtractor
 object And extends AndOrUnExtractor[And] {
     def identity = True
-    protected def create(clauses: Set[FeatureExpr]) = new And(clauses)
-    protected def create(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = new And(clauses, old, newF)
+    protected def createRaw(clauses: Set[FeatureExpr]) = new And(clauses)
+    protected def createRaw(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = new And(clauses, old, newF)
 }
 
 object Or extends AndOrUnExtractor[Or] {
     def identity = False
-    protected def create(clauses: Set[FeatureExpr]) = new Or(clauses)
-    protected def create(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = new Or(clauses, old, newF)
+    protected def createRaw(clauses: Set[FeatureExpr]) = new Or(clauses)
+    protected def createRaw(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = new Or(clauses, old, newF)
 }
 
 private[featureexpr]
