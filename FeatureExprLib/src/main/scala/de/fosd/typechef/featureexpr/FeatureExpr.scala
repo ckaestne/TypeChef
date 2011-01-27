@@ -613,7 +613,7 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
     override def equal1Level(that: FeatureExpr) = that match {
         case e: BinaryLogicConnective[_] =>
             e.primeHashMult == primeHashMult && //check this as a class tag
-                e.clauses.forall(clauses contains _) &&
+                e.clauses.subsetOf(clauses) &&
                 e.clauses.size == clauses.size
         case _ => false
     }
