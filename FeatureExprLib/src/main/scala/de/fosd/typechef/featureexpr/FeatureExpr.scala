@@ -427,16 +427,20 @@ private[featureexpr] object FExprBuilder {
             e.notCache match {
                 case Some(WeakRef(res)) => res
                 case _ =>
-                    val res = e match {
+                    def storeCache(e: FeatureExpr, neg: FeatureExpr) = 
+                      { e.notCache = Some(new WeakReference(neg)); e }
+                    val res = canonical(e match {
                         /* This transformation would be correct and should improve performance,
-                         * but probably due to suboptimal caching, it is too expensive.
+                         * but probably due to suboptimal caching, it is too
+                         * expensive. HECK! I SHOULD SIMPLY STORE THE ORIGINAL EXPRESSION
+                         * ITSELF IN THE _NOT_-CACHE!
                          */
-                        /*case And(clauses) => createOr(clauses.map(_.not))
-                        case Or(clauses) => createAnd(clauses.map(_.not))*/
+                        /*case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
+                        case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)*/
                         case _ => new Not(e)
-                    }
-                    e.notCache = Some(new WeakReference(res))
-                    canonical(res)
+                    })
+                    storeCache(e, res)
+                    res
             }
         }
     }
@@ -760,6 +764,14 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
             }
             orClauses += FExprBuilder.createOr(renamedDisjunction)
             FExprBuilder.createAnd(orClauses)
+            /*val (orClauses, renamedDisjunction) = cnfchildren.map({
+                case And(innerChildren) =>
+                    val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
+                    (innerChildren.map(freshFeature implies _), freshFeature)
+                case e =>
+                    (Set.empty, e)
+            }).unzip
+            FExprBuilder.createAnd(orClauses.flatten[FeatureExpr] + FExprBuilder.createOr(renamedDisjunction))*/
         } else FExprBuilder.createOr(cnfchildren)
 
 
