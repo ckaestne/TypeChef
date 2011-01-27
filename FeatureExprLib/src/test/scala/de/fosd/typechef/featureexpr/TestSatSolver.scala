@@ -54,8 +54,8 @@ class TestSatSolver extends TestCase {
         assert(equiCNFIdentityAnd(f1, f2))
         assert(equiCNFIdentityOr(f1, f2))
         /* You might be surprised by the not: surprises of equisatisfiable transformations, if you negate the result
-         * it's no more equisatisfiable. */
-        assert(!equiCNFIdentityNot(f1))
+         * it might be no more equisatisfiable. */
+        //assert(!equiCNFIdentityNot(f1))
     }
 
     @Test
