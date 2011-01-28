@@ -864,7 +864,7 @@ class DefinedExternal(name: String) extends DefinedExpr {
     DefinedExpr.checkFeatureName(name)
 
     def feature = name
-    override def toTextExpr(): String = "definedEx(" + name + ")";
+    override def toTextExpr = "definedEx(" + name + ")";
     override def toString = name
     def countSize() = 1
     def isExternal = true
@@ -879,7 +879,7 @@ class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val exp
     DefinedExpr.checkFeatureName(name)
 
     def feature = name
-    override def toTextExpr(): String = "defined(" + name + ")"
+    override def toTextExpr = "defined(" + name + ")"
     override def toString = "macro(" + name + ")"
     override def satName = expandedName
     def countSize() = 1
