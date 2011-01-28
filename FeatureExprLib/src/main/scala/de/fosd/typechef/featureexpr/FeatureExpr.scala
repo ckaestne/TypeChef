@@ -865,7 +865,7 @@ class DefinedExternal(name: String) extends DefinedExpr {
 
     def feature = name
     override def toTextExpr = "definedEx(" + name + ")";
-    override def toString = name
+    override def toString = "def(" + name + ")"
     def countSize() = 1
     def isExternal = true
 }
