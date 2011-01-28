@@ -552,14 +552,19 @@ private[featureexpr] object FExprBuilder {
  * apply methods of the And and Or companion objects, which convert any empty set of
  * clauses into the canonical True or False object.
  */
-object True extends And(Set()) {
+
+trait DefaultPrint extends FeatureExpr { override def print(p: PrintWriter) = p.print(toTextExpr) }
+
+object True extends And(Set()) with DefaultPrint {
+    override def print(p: PrintWriter) = p.print(toTextExpr)
     override def toString = "True"
     override def toTextExpr = "1"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
 }
 
-object False extends Or(Set()) {
+object False extends Or(Set()) with DefaultPrint {
+    override def print(p: PrintWriter) = p.print(toTextExpr)
     override def toString = "False"
     override def toTextExpr = "0"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
