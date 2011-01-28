@@ -170,7 +170,7 @@ class MultiFeatureParser(featureModel: FeatureModel = null) {
                     case ~(a, b) => a
                 }
             }
-        }.named("<~")
+        }.named("<~~")
         /**Returns a parser that repeatedly parses what this parser parses
          *
          * @return rep(this)
@@ -649,7 +649,7 @@ try {
 
     /**
      * this is a performance optimization of repSep that avoids the exponential complexity
-     * of repSep in case of missaligned (undisciplined) annotations, which are quite common
+     * of repSep in case of misaligned (undisciplined) annotations, which are quite common
      * in certain lists of some language
      *
      * this parser has a number of serious restrictions, check if they apply:
@@ -716,7 +716,7 @@ try {
                             val nextToken = x.next.skipHidden(fs, featureSolverCache)
                             val parsingCtx = fs and (nextToken.first.getFeature)
                             val nextSep = separator(nextToken, parsingCtx)
-                            if (nextSep.isInstanceOf[Success[Elem]]) {
+                            if (nextSep.isInstanceOf[Success[_]]) {
                                 val freeSepBefore = x.result.freeSeparator
                                 //consume token only if not two subsequent separators, otherwise seal list
                                 if (featureSolverCache.mutuallyExclusive(freeSepBefore, parsingCtx))
