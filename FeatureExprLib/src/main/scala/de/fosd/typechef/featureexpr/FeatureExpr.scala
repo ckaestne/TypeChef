@@ -556,7 +556,6 @@ private[featureexpr] object FExprBuilder {
 trait DefaultPrint extends FeatureExpr { override def print(p: PrintWriter) = p.print(toTextExpr) }
 
 object True extends And(Set()) with DefaultPrint {
-    override def print(p: PrintWriter) = p.print(toTextExpr)
     override def toString = "True"
     override def toTextExpr = "1"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
@@ -564,7 +563,6 @@ object True extends And(Set()) with DefaultPrint {
 }
 
 object False extends Or(Set()) with DefaultPrint {
-    override def print(p: PrintWriter) = p.print(toTextExpr)
     override def toString = "False"
     override def toTextExpr = "0"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
