@@ -17,7 +17,8 @@ object FeatureExpr {
     def createNeg(expr: FeatureExprValue) = FExprBuilder.applyUnaryOperation(expr, -_)
     def createBitAnd(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ & _)
     def createBitOr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ | _)
-    def createDivision(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ / _)
+    def createDivision(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right,
+        (l, r) => if (r == 0) -1 /*XXX*/ else l / r)
     def createModulo(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ % _)
     def createEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ == _)
     def createNotEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ != _)
