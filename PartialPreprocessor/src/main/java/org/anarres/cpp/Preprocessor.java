@@ -753,6 +753,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         // replace macro
         if (macroName.equals("__LINE__")) {
+		//XXX: this uses the line of the original occurrence of
+		//__LINE__: when expanding a macro, __LINE__ will still be the
+		//same token with the same line number as the original source
+		//token.
             sourceManager.push_source(new FixedTokenSource(
                     new SimpleToken[]{new SimpleToken(INTEGER,
                             orig.getLine(), orig.getColumn(), String
@@ -2103,10 +2107,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     }
 
     /**
-     * condition and thenBranch have already been parsed. also parse else branch
+     * For parsing the ?: operator - the condition has already been parsed by
+     * the caller.
      *
-     * @param condition
-     * @param tok
+     * @param condition The parsed condition
+     * @param tok Used only for error reporting.
      * @return
      * @throws IOException
      * @throws LexerException
