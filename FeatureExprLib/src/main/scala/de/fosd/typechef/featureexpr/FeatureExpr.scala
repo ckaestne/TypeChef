@@ -219,11 +219,16 @@ abstract class FeatureExpr {
     def toCNF(): FeatureExpr = {
         if (cache_cnf == null) {cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf}
         assert(CNFHelper.isCNF(cache_cnf))
+        //XXX: add and test!
+        //cache_cnfEquiSat.cache_cnf = cache_cnf
+        //cache_cnfEquiSat.cache_cnfEquiSat = cache_cnf
         cache_cnf
     }
     def toCnfEquiSat(): FeatureExpr = {
         if (cache_cnfEquiSat == null) cache_cnfEquiSat = calcCNFEquiSat
         assert(CNFHelper.isCNF(cache_cnfEquiSat))
+        //XXX: add and test!
+        //cache_cnfEquiSat.cache_cnfEquiSat = cache_cnfEquiSat
         cache_cnfEquiSat
     }
     protected def calcCNF: FeatureExpr
@@ -237,8 +242,11 @@ abstract class FeatureExpr {
 
     /**
      * Retrieves the memoized representation of this.not, if any exists; it is useful only to look for duplicated
-     * elements in a clause. Note that two non-trivial formula might be opposite, still using fastNot for the test might
+     * elements in a clause. Note that two non-trivial formula might be
+     * opposite, still using retrieveMemoizedNot for the test might
      * fail; e.g., a and b and !a or !b might be built independently.
+     * XXX: Tillmann suggested transforming this into a boolean predicate,
+     * rather than using null as a meaningful value.
      */
     private[featureexpr] def retrieveMemoizedNot = notCache match {
         case Some(NotRef(x)) => x
@@ -442,15 +450,16 @@ private[featureexpr] object FExprBuilder {
                     def storeCache(e: FeatureExpr, neg: FeatureExpr) = 
                       { e.notCache = Some(new NotReference(neg)); e }
                     val res = canonical(e match {
-                        /* This transformation would be correct and should improve performance,
-                         * but probably due to suboptimal caching, it is too
-                         * expensive. HECK! I SHOULD SIMPLY STORE THE ORIGINAL EXPRESSION
-                         * ITSELF IN THE _NOT_-CACHE!
+                        /* This transformation is expensive, so we need to store
+                         * a reference to e in the created expression. However,
+                         * this enables more occasions for simplification and
+                         * ensures that the result is in Negation Normal Form.
                          */
                         case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
                         case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)
                         case _ => new Not(e) //Triggered by leaves.
                     })
+                    //Store in the old expression a reference to the new one.
                     storeCache(e, res)
                     res
             }
@@ -709,8 +718,14 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
         combineCNF(clauses.map(_.toCNF))
     protected def calcCNFEquiSat: FeatureExpr = {
         val cnfchildren = clauses.map(_.toCnfEquiSat)
+        //XXX: There is no need to estimate the size this way, we could maybe
+        //use the more precise size method. However, possibly this is the
+        //correct calculation of the number of generated clauses. The name
+        //predictedCNFClauses is maybe misleading, but I introduced it, and it
+        //would be my fault then. PG
+        //
         //heuristic: up to a medium size do not introduce new variables but use normal toCNF mechansim
-        //rational: we might actually simplify the formula by transforming it into CNF and in such cases it's not very expensive
+        //rationale: we might actually simplify the formula by transforming it into CNF and in such cases it's not very expensive
         def size(child: FeatureExpr) = child match {case And(inner) => inner.size; case _ => 1}
         val predictedCNFClauses = cnfchildren.foldRight(1)(size(_) * _)
         if (predictedCNFClauses <= 16)

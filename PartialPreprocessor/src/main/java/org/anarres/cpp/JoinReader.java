@@ -80,8 +80,7 @@ import java.io.Reader;
 				"JoinReader ungets too many characters";
 	}
 
-	protected void warning(String msg)
-						throws LexerException {
+	protected void warning(String msg) throws LexerException {
 		if (source != null)
 			source.warning(msg);
 		else
@@ -104,8 +103,7 @@ import java.io.Reader;
 		}
 	}
 
-	private int _read()
-						throws IOException, LexerException {
+	private int _read() throws IOException, LexerException {
 		int	c = __read();
 		if (c == '?' && (trigraphs || warnings)) {
 			int d = __read();
@@ -129,14 +127,17 @@ import java.io.Reader;
 		return c;
 	}
 
-	public int read()
-						throws IOException, LexerException {
+	public int read() throws IOException, LexerException {
+		/* After a series of concatenated lines, output as many newlines
+		 * as were ignored, so that the line count matches.
+		 * Probably this code is even correct, which I never believed. */
 		if (flushnl) {
 			if (newlines > 0) {
 				newlines--;
 				return '\n';
+			} else {
+				flushnl = false;
 			}
-			flushnl = false;
 		}
 
 		for (;;) {
@@ -189,8 +190,7 @@ import java.io.Reader;
 		return len;
 	}
 
-	public void close()
-						throws IOException {
+	public void close() throws IOException {
 		in.close();
 	}
 

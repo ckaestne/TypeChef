@@ -42,6 +42,9 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion(feature, other)))
                 case None => {
+                    //XXX createDefinedExternal should simply check
+                    //MacroContext.flagFilter and
+                    //evaluate to false if it is not defined.
                     val initialFeatureExpr = if (MacroContext.flagFilter(name))
                         feature.or(createDefinedExternal(name))
                     else
@@ -58,6 +61,8 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
         new MacroContext(
             knownMacros.get(name) match {
                 case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
+                //XXX: why is flagFilter() not checked? The condition associated
+                //with the definition would become false.
                 case None => knownMacros + ((name, new Macro(name, feature.not().and(createDefinedExternal(name)), List())))
             }, cnfCache - name)
     }
@@ -79,8 +84,13 @@ class MacroContext(knownMacros: Map[String, Macro], var cnfCache: Map[String, (S
      *
      * (newMacroName, DefinedExternal(newMacroName) <=> getMacroCondition)
      *
-     * This means that the MacroCondition appears twice in the output, and on nested macro definitions, this can cause
-     * a blowup exponential in the nesting depth of macro definitions (if each new definition is small).
+     * This means that the MacroCondition appears twice in the output.
+     * [Probably wrong:]
+     * //on nested macro definitions, this could cause a blowup exponential in the
+     * //nesting depth of macro definitions (if each new definition is small).
+     * [Real explanation:]
+     * there is no reason to duplicate the new clauses if the
+     * definition is used twice, or the formula is renamed!
      *
      * It could be safe to create just one implication, solving this problem, as we do in the
      * equisatisfiable transformation. However, that depends on whether the macro is used in a covariant or
