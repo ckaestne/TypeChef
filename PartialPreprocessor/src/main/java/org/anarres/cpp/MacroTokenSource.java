@@ -17,7 +17,7 @@
 
 package org.anarres.cpp;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 
@@ -79,7 +79,7 @@ import static org.anarres.cpp.Token.*;
 		}
 	}
 
-	private void concat(StringBuilder buf, Argument arg, boolean queuedComma) {
+	private void concat(PrintWriter buf, Argument arg, boolean queuedComma) {
 		if (queuedComma) {
 			if (!arg.isOmittedArg() || !gnuCExtensions) {
 				//Output the comma that we didn't output previously.
@@ -94,18 +94,19 @@ import static org.anarres.cpp.Token.*;
 		int i = 0;
 		for (Token tok: arg) {
 			if (i != 0 || tok.getType() != NL && !tok.isWhite()) {
-				buf.append(tok.getText());
+				tok.lazyPrint(buf);
 				i++;
 			}
 		}
 	}
 
 	private Token stringify(Token pos, Argument arg) {
-		StringBuilder buf = new StringBuilder();
-		concat(buf, arg, false);
+		StringWriter buf = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(buf);
+		concat(printWriter, arg, false);
 		// System.out.println("Concat: " + arg + " -> " + buf);
 		StringBuilder str = new StringBuilder("\"");
-		escape(str, buf);
+		escape(str, buf.getBuffer());
 		str.append("\"");
 		// System.out.println("Escape: " + buf + " -> " + str);
 		return new SimpleToken(STRING, pos.getLine(), pos.getColumn(),
@@ -118,7 +119,8 @@ import static org.anarres.cpp.Token.*;
 	 * @see Macro#addPaste(Token)
 	 */
 	private void paste(Token ptok) throws IOException, LexerException {
-		StringBuilder buf = new StringBuilder();
+		StringWriter buf = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(buf);
 		boolean queuedComma = false;
 		/*
 		 * We know here that arg is null or expired, since we cannot paste an
@@ -151,7 +153,7 @@ import static org.anarres.cpp.Token.*;
 				break;
 			case M_ARG:
 				int idx = ((Integer) tok.getValue()).intValue();
-				concat(buf, args.get(idx), queuedComma);
+				concat(printWriter, args.get(idx), queuedComma);
 				break;
 			/* XXX Test this. */
 			case CCOMMENT:
