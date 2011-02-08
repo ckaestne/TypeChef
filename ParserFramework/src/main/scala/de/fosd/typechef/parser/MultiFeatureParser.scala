@@ -1253,7 +1253,11 @@ try {
                         Failure("end of input expected", in1, List())
                     else
                         lastNoSuccess
-                case _ => lastNoSuccess
+                case _ =>
+                    if (lastNoSuccess != null)
+                        lastNoSuccess
+                    else
+                        result
             }
         }
     }
