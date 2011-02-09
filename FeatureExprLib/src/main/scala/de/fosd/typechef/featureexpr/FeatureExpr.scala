@@ -519,32 +519,32 @@ private[featureexpr] object FExprBuilder {
         propagateError(smaller, larger) match {
             case Some(ErrorValue(msg)) => return ErrorFeature(msg)
             case _ =>
-    (smaller, larger) match {
-        case (Value(a), Value(b)) => if (relation(a, b)) True else False
-        case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
-            createIf(e2, evalRelation(a1, a2, relation), evalRelation(a1, b2, relation)),
-            createIf(e2, evalRelation(b1, a2, relation), evalRelation(b1, b2, relation)))
-        case (If(e, a, b), x) => createIf(e, evalRelation(a, x, relation), evalRelation(b, x, relation))
-        case (x, If(e, a, b)) => createIf(e, evalRelation(x, a, relation), evalRelation(x, b, relation))
-        case _ => throw new Exception("evalRelation: unexpected " + (smaller, larger))
-    }
-    }
+                (smaller, larger) match {
+                    case (Value(a), Value(b)) => if (relation(a, b)) True else False
+                    case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
+                        createIf(e2, evalRelation(a1, a2, relation), evalRelation(a1, b2, relation)),
+                        createIf(e2, evalRelation(b1, a2, relation), evalRelation(b1, b2, relation)))
+                    case (If(e, a, b), x) => createIf(e, evalRelation(a, x, relation), evalRelation(b, x, relation))
+                    case (x, If(e, a, b)) => createIf(e, evalRelation(x, a, relation), evalRelation(x, b, relation))
+                    case _ => throw new Exception("evalRelation: unexpected " + (smaller, larger))
+                }
+        }
     }
 
     def applyBinaryOperation[T <% FeatureExprValue](left: FeatureExprValue, right: FeatureExprValue, operation: (Long, Long) => T): FeatureExprValue = {
         propagateError(left, right) match {
             case Some(err) => return err
             case _ =>
-    (left, right) match {
-        case (Value(a), Value(b)) => operation(a, b)
-        case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
-            createIf(e2, applyBinaryOperation(a1, a2, operation), applyBinaryOperation(a1, b2, operation)),
-            createIf(e2, applyBinaryOperation(b1, a2, operation), applyBinaryOperation(b1, b2, operation)))
-        case (If(e, a, b), x) => createIf(e, applyBinaryOperation(a, x, operation), applyBinaryOperation(b, x, operation))
-        case (x, If(e, a, b)) => createIf(e, applyBinaryOperation(x, a, operation), applyBinaryOperation(x, b, operation))
-        case _ => throw new Exception("applyBinaryOperation: unexpected " + (left, right))
-    }
-    }
+                (left, right) match {
+                    case (Value(a), Value(b)) => operation(a, b)
+                    case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
+                        createIf(e2, applyBinaryOperation(a1, a2, operation), applyBinaryOperation(a1, b2, operation)),
+                        createIf(e2, applyBinaryOperation(b1, a2, operation), applyBinaryOperation(b1, b2, operation)))
+                    case (If(e, a, b), x) => createIf(e, applyBinaryOperation(a, x, operation), applyBinaryOperation(b, x, operation))
+                    case (x, If(e, a, b)) => createIf(e, applyBinaryOperation(x, a, operation), applyBinaryOperation(x, b, operation))
+                    case _ => throw new Exception("applyBinaryOperation: unexpected " + (left, right))
+                }
+        }
     }
 
     def applyUnaryOperation(expr: FeatureExprValue, operation: Long => Long): FeatureExprValue = expr match {
