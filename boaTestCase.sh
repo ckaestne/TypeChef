@@ -11,7 +11,5 @@ export outCSV=boa.csv
 
 for i in $list; do
   ./jcpp.sh $srcPath/$i.c $flags
-done
-for i in $list; do
   ./postProcess.sh $srcPath/$i.c $flags
 done
