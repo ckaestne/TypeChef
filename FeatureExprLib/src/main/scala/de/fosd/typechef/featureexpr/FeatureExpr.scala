@@ -261,6 +261,8 @@ sealed abstract class FeatureExpr {
     val wrap = FeatureExpr.StructuralEqualityWrapper(this)
 }
 
+// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
+// however, this is only a concern for erroneous input anyway (but isn't it our point to detect it?)
 case class ErrorFeature(msg: String) extends FeatureExpr {
     private def error: Nothing = throw new Exception(msg)
     override def calcCNF = error
