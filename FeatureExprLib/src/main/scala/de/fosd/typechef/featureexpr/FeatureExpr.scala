@@ -18,7 +18,7 @@ object FeatureExpr {
     def createBitAnd(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ & _)
     def createBitOr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ | _)
     def createDivision(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right,
-        (l, r) => if (r == 0) -1 /*XXX*/ else l / r)
+        (l, r) => if (r == 0) ErrorValue("division by zero") else FExprBuilder.createValue(l / r))
     def createModulo(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ % _)
     def createEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ == _)
     def createNotEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ != _)
@@ -107,7 +107,7 @@ object FeatureExprHelper {
  *
  * It would be interesting to see what happens for toEquiCNF.
  */
-abstract class FeatureExpr {
+sealed abstract class FeatureExpr {
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, that)
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, that)
     def not(): FeatureExpr = FExprBuilder.not(this)
@@ -261,6 +261,16 @@ abstract class FeatureExpr {
     val wrap = FeatureExpr.StructuralEqualityWrapper(this)
 }
 
+case class ErrorFeature(msg: String) extends FeatureExpr {
+    private def error: Nothing = throw new Exception(msg)
+    override def calcCNF = error
+    override def calcCNFEquiSat = error
+    override def toTextExpr = error
+    override def calcSize = error
+    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]) = error
+    override def debug_print(x: Int) = error
+}
+
 // Cache the computed hashCode. Note that this can make sense only if you override calcHashCode,
 // and the computation is complex enough. Currently this means only not, and even then I'm not sure it's the best.
 abstract class HashCachingFeatureExpr extends FeatureExpr {
@@ -272,11 +282,15 @@ abstract class HashCachingFeatureExpr extends FeatureExpr {
  * FeatureExprValue is the root class for non-propositional nodes in feature
  * expressions, i.e., Integer and If nodes, which cannot be checked for satisfiability.
  */
-trait FeatureExprValue {
+sealed trait FeatureExprValue {
     def toFeatureExpr: FeatureExpr = {
         val zero = FExprBuilder.createValue(0)
         FExprBuilder.evalRelation(this, zero, _ != _)
     }
+}
+
+object FeatureExprValue {
+    implicit def long2value(x: Long): FeatureExprValue = FExprBuilder.createValue(x)
 }
 
 
@@ -492,7 +506,20 @@ private[featureexpr] object FExprBuilder {
     }
 
 
-    def evalRelation(smaller: FeatureExprValue, larger: FeatureExprValue, relation: (Long, Long) => Boolean): FeatureExpr = (smaller, larger) match {
+    private def propagateError(left: FeatureExprValue, right: FeatureExprValue): Option[ErrorValue] = {
+        (left, right) match {
+            case (ErrorValue(msg1), ErrorValue(msg2)) => Some(ErrorValue(msg1 + ";" + msg2))
+            case (ErrorValue(msg), _) => Some(ErrorValue(msg))
+            case (_, ErrorValue(msg)) => Some(ErrorValue(msg))
+            case _ => None
+        }
+    }
+
+    def evalRelation(smaller: FeatureExprValue, larger: FeatureExprValue, relation: (Long, Long) => Boolean): FeatureExpr = {
+        propagateError(smaller, larger) match {
+            case Some(ErrorValue(msg)) => return ErrorFeature(msg)
+            case _ =>
+    (smaller, larger) match {
         case (Value(a), Value(b)) => if (relation(a, b)) True else False
         case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
             createIf(e2, evalRelation(a1, a2, relation), evalRelation(a1, b2, relation)),
@@ -501,9 +528,15 @@ private[featureexpr] object FExprBuilder {
         case (x, If(e, a, b)) => createIf(e, evalRelation(x, a, relation), evalRelation(x, b, relation))
         case _ => throw new Exception("evalRelation: unexpected " + (smaller, larger))
     }
+    }
+    }
 
-    def applyBinaryOperation(left: FeatureExprValue, right: FeatureExprValue, operation: (Long, Long) => Long): FeatureExprValue = (left, right) match {
-        case (Value(a), Value(b)) => createValue(operation(a, b))
+    def applyBinaryOperation[T <% FeatureExprValue](left: FeatureExprValue, right: FeatureExprValue, operation: (Long, Long) => T): FeatureExprValue = {
+        propagateError(left, right) match {
+            case Some(err) => return err
+            case _ =>
+    (left, right) match {
+        case (Value(a), Value(b)) => operation(a, b)
         case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
             createIf(e2, applyBinaryOperation(a1, a2, operation), applyBinaryOperation(a1, b2, operation)),
             createIf(e2, applyBinaryOperation(b1, a2, operation), applyBinaryOperation(b1, b2, operation)))
@@ -511,6 +544,9 @@ private[featureexpr] object FExprBuilder {
         case (x, If(e, a, b)) => createIf(e, applyBinaryOperation(x, a, operation), applyBinaryOperation(x, b, operation))
         case _ => throw new Exception("applyBinaryOperation: unexpected " + (left, right))
     }
+    }
+    }
+
     def applyUnaryOperation(expr: FeatureExprValue, operation: Long => Long): FeatureExprValue = expr match {
         case Value(a) => createValue(operation(a))
         case If(e, a, b) => createIf(e, applyUnaryOperation(a, operation), applyUnaryOperation(b, operation))
@@ -525,6 +561,7 @@ private[featureexpr] object FExprBuilder {
             else cacheGetOrElseUpdate(ifCache, (expr, thenBr, elseBr), new If(expr, thenBr, elseBr))
         }
     }
+
     def createIf(expr: FeatureExpr, thenBr: FeatureExpr, elseBr: FeatureExpr): FeatureExpr = (expr and thenBr) or (expr.not and elseBr)
 
     def createValue(v: Long): FeatureExprValue = cacheGetOrElseUpdate(valCache, v, new Value(v))
@@ -930,3 +967,11 @@ object Value {
     def unapply(x: Value) = Some(x.value)
 }
 
+class ErrorValue(val msg: String) extends FeatureExprValue {
+    override def toString = "###Error: " + msg + " ###"
+}
+
+object ErrorValue {
+    def unapply(x: ErrorValue) = Some(x.msg)
+    def apply(x: String) = new ErrorValue(x)
+}
