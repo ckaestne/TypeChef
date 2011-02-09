@@ -753,10 +753,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         // replace macro
         if (macroName.equals("__LINE__")) {
-		//XXX: this uses the line of the original occurrence of
-		//__LINE__: when expanding a macro, __LINE__ will still be the
-		//same token with the same line number as the original source
-		//token.
+            //XXX: this uses the line of the original occurrence of
+            //__LINE__: when expanding a macro, __LINE__ will still be the
+            //same token with the same line number as the original source
+            //token.
             sourceManager.push_source(new FixedTokenSource(
                     new SimpleToken[]{new SimpleToken(INTEGER,
                             orig.getLine(), orig.getColumn(), String
@@ -1890,9 +1890,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                         .createCharacter((Character) tok.getValue()));
                 break;
             case IDENTIFIER:
-                if (tok.getText().equals("___BASE___"))				//XXX: dead code?
+                if (tok.getText().equals("___BASE___"))                //XXX: dead code?
                     lhs = new ExprOrValue(FeatureExprLib.base());
-                else if (tok.getText().equals("___DEAD___"))			//XXX: dead code?
+                else if (tok.getText().equals("___DEAD___"))            //XXX: dead code?
                     lhs = new ExprOrValue(FeatureExprLib.dead());
                 else if (tok.getText().equals("__IF__")) {
                     lhs = new ExprOrValue(parse_ifExpr(tok));
@@ -2111,7 +2111,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * the caller.
      *
      * @param condition The parsed condition
-     * @param tok Used only for error reporting.
+     * @param tok       Used only for error reporting.
      * @return
      * @throws IOException
      * @throws LexerException
@@ -2548,11 +2548,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * @see Token
      */
     public Token getNextToken() throws IOException, LexerException {
-        Token tok = parse_main();
-        tok.setFeature(state.getFullPresenceCondition());
-        if (getFeature(Feature.DEBUG))
-            System.err.println("pp: Returning " + tok);
-        return tok;
+        try {
+            Token tok = parse_main();
+            tok.setFeature(state.getFullPresenceCondition());
+            if (getFeature(Feature.DEBUG))
+                System.err.println("pp: Returning " + tok);
+            return tok;
+        } catch (de.fosd.typechef.featureexpr.FeatureException e) {
+            throw new LexerException(e.getMessage());
+        }
     }
 
     /* First ppcmd is 1, not 0. */
@@ -2627,14 +2631,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     /**
      * Return the token representation or an empty string.
+     *
      * @param tok
      * @return String representation or empty string.
      */
     public String getTextOrDefault(Token tok, String def) {
-	if (tok.getType() == P_FEATUREEXPR) {
-	    return def;
-	} else {
-	    return tok.getText();
-	}
+        if (tok.getType() == P_FEATUREEXPR) {
+            return def;
+        } else {
+            return tok.getText();
+        }
     }
 }

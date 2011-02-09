@@ -58,6 +58,7 @@ object FeatureExpr {
         final override def hashCode = f.hashCode
         final def unwrap = f
     }
+
 }
 
 object FeatureExprHelper {
@@ -261,10 +262,14 @@ sealed abstract class FeatureExpr {
     val wrap = FeatureExpr.StructuralEqualityWrapper(this)
 }
 
+class FeatureException(msg: String) extends RuntimeException(msg)
+
+class FeatureArithmeticException(msg: String) extends FeatureException(msg)
+
 // XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
 // however, this is only a concern for erroneous input anyway (but isn't it our point to detect it?)
 case class ErrorFeature(msg: String) extends FeatureExpr {
-    private def error: Nothing = throw new Exception(msg)
+    private def error: Nothing = throw new FeatureArithmeticException(msg)
     override def calcCNF = error
     override def calcCNFEquiSat = error
     override def toTextExpr = error
@@ -323,9 +328,9 @@ private[featureexpr] object FExprBuilder {
         }
     }
     private def binOpCacheGetOrElseUpdate(a: FeatureExpr,
-                                        b: FeatureExpr,
-                                        getCache: FeatureExpr => WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]],
-                                        featThunk: => FeatureExpr): FeatureExpr = {
+                                          b: FeatureExpr,
+                                          getCache: FeatureExpr => WeakHashMap[FeatureExpr, WeakReference[FeatureExpr]],
+                                          featThunk: => FeatureExpr): FeatureExpr = {
         var result = getFromCache(getCache(a), b)
         if (result == None)
             result = getFromCache(getCache(b), a)
@@ -370,7 +375,7 @@ private[featureexpr] object FExprBuilder {
         if (o.clauses contains e) //o = (e || o'), then e || o == e && (e || o') == e
             e
         else if (o.clauses contains (e.not))
-            fastAnd(e, createOr(o.clauses - e.not))                         //XXX: O(N) set rebuild
+            fastAnd(e, createOr(o.clauses - e.not)) //XXX: O(N) set rebuild
         else
             And(Set(e, o))
 
@@ -395,7 +400,7 @@ private[featureexpr] object FExprBuilder {
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.andCache, other match {
                     case (a1: And, a2: And) =>
-                        a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _))  //XXX: O(N) set rebuild
+                        a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _)) //XXX: O(N) set rebuild
                     case (a: And, e) => andAnd(e, a)
                     case (e, a: And) => andAnd(e, a)
                     case (e, o: Or) => andOr(e, o)
@@ -412,7 +417,7 @@ private[featureexpr] object FExprBuilder {
         if (a.clauses contains e) //a == (e && a'), then e || a == e || (e && a') == e
             e
         else if (a.clauses contains (e.not))
-            fastOr(e, createAnd(a.clauses - e.not))                         //XXX: O(N) set rebuild
+            fastOr(e, createAnd(a.clauses - e.not)) //XXX: O(N) set rebuild
         else
             Or(Set(e, a))
 
@@ -436,7 +441,7 @@ private[featureexpr] object FExprBuilder {
             case other =>
                 binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
                     case (o1: Or, o2: Or) =>
-                        o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _))  //XXX: O(N) set rebuild
+                        o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _)) //XXX: O(N) set rebuild
                     case (o: Or, e) => orOr(e, o)
                     case (e, o: Or) => orOr(e, o)
                     case (e, a: And) => orAnd(e, a)
@@ -456,31 +461,30 @@ private[featureexpr] object FExprBuilder {
 
     def not(a: FeatureExpr): FeatureExpr =
         a match {
-        case True => False
-        case False => True
-        case n: Not => n.expr
-        case e => {
-            e.notCache match {
-                case Some(NotRef(res)) => res
-                case _ =>
-                    def storeCache(e: FeatureExpr, neg: FeatureExpr) = 
-                      { e.notCache = Some(new NotReference(neg)); e }
-                    val res = canonical(e match {
+            case True => False
+            case False => True
+            case n: Not => n.expr
+            case e => {
+                e.notCache match {
+                    case Some(NotRef(res)) => res
+                    case _ =>
+                        def storeCache(e: FeatureExpr, neg: FeatureExpr) = {e.notCache = Some(new NotReference(neg)); e}
+                        val res = canonical(e match {
                         /* This transformation is expensive, so we need to store
                          * a reference to e in the created expression. However,
                          * this enables more occasions for simplification and
                          * ensures that the result is in Negation Normal Form.
                          */
-                        case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
-                        case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)
-                        case _ => new Not(e) //Triggered by leaves.
-                    })
-                    //Store in the old expression a reference to the new one.
-                    storeCache(e, res)
-                    res
+                            case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
+                            case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)
+                            case _ => new Not(e) //Triggered by leaves.
+                        })
+                        //Store in the old expression a reference to the new one.
+                        storeCache(e, res)
+                        res
+                }
             }
         }
-    }
 
     def definedExternal(name: String) = cacheGetOrElseUpdate(featureCache, name, new DefinedExternal(name))
 
@@ -602,7 +606,7 @@ private[featureexpr] object FExprBuilder {
  * clauses into the canonical True or False object.
  */
 
-trait DefaultPrint extends FeatureExpr { override def print(p: PrintWriter) = p.print(toTextExpr) }
+trait DefaultPrint extends FeatureExpr {override def print(p: PrintWriter) = p.print(toTextExpr)}
 
 object True extends And(Set()) with DefaultPrint {
     override def toString = "True"
@@ -654,6 +658,7 @@ object Or extends AndOrUnExtractor[Or] {
 }
 
 private[featureexpr]
+
 abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extends FeatureExpr {
     private[featureexpr] def clauses: Set[FeatureExpr]
 
@@ -665,8 +670,8 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
     override def equal1Level(that: FeatureExpr) = that match {
         case e: BinaryLogicConnective[_] =>
             e.primeHashMult == primeHashMult && //check this as a class tag
-                e.clauses.subsetOf(clauses) &&
-                e.clauses.size == clauses.size
+                    e.clauses.subsetOf(clauses) &&
+                    e.clauses.size == clauses.size
         case _ => false
     }
 
@@ -690,8 +695,8 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
 
     //Constructors of subclasses must call either of these methods. Since the hash computation is reasonably cheap
     protected def presetHash(old: This, newF: FeatureExpr) =
-        //This computation is O(1); throwing out the hashCode and recomputing it would be O(n), and when growing
-        //a Set, one element at a time, the time complexity of hash updates would be potentially O(n^2).
+    //This computation is O(1); throwing out the hashCode and recomputing it would be O(n), and when growing
+    //a Set, one element at a time, the time complexity of hash updates would be potentially O(n^2).
         cachedHash = Some(old.hashCode + primeHashMult * newF.hashCode)
 
 
@@ -704,8 +709,8 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
         case class ToPrint[T](x: T) extends PrintValue
         p print "("
         clauses.map(x => ToPrint(x)).foldLeft[PrintValue](NoPrint)({
-            case (NoPrint, ToPrint(c)) => { c.print(p); Printed}
-            case (Printed, ToPrint(c)) => { p.print(" " + operName + operName + " "); c.print(p); Printed}
+            case (NoPrint, ToPrint(c)) => {c.print(p); Printed}
+            case (Printed, ToPrint(c)) => {p.print(" " + operName + operName + " "); c.print(p); Printed}
         })
         p print ")"
     }
@@ -717,7 +722,8 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
         val newClauses = clauses.map(x => {
             val y = x.mapDefinedExpr(f, cache)
             anyChange |= x != y
-            y})
+            y
+        })
         if (anyChange)
             create(newClauses)
         else
@@ -726,10 +732,11 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
 }
 
 private[featureexpr]
+
 class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = {
-        this(clauses)
+        this (clauses)
         presetHash(old, newF)
     }
 
@@ -742,10 +749,11 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
 }
 
 private[featureexpr]
+
 class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = {
-        this(clauses)
+        this (clauses)
         presetHash(old, newF)
     }
 
@@ -787,8 +795,8 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
                 for (child <- cnfchildren) {
                     child match {
                         case And(innerChildren) =>
-                            //conjuncts@(a_1 & a_2) | innerChildren@(b_1 & b_2)
-                            //becomes conjuncts'@(a_1 | b_1) & (a_1 | b_2) & (a_2 | b_1) & (a_2 | b_2).
+                        //conjuncts@(a_1 & a_2) | innerChildren@(b_1 & b_2)
+                        //becomes conjuncts'@(a_1 | b_1) & (a_1 | b_2) & (a_2 | b_1) & (a_2 | b_2).
                             conjuncts = conjuncts.flatMap(
                                 conjunct => innerChildren.map(
                                     _ or conjunct))
@@ -847,6 +855,7 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
 }
 
 private[featureexpr]
+
 class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
     override def calcHashCode = 701 * expr.hashCode
     override def equal1Level(that: FeatureExpr) = that match {
@@ -933,7 +942,7 @@ class DefinedExternal(name: String) extends DefinedExpr {
  * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
  * assumption: expandedName is unique and may be used for comparison
  */
-class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[FeatureExpr/*CNF*/]) extends DefinedExpr {
+class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[FeatureExpr /*CNF*/ ]) extends DefinedExpr {
     DefinedExpr.checkFeatureName(name)
 
     def feature = name
