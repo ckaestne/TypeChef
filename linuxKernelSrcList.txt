@@ -306,8 +306,6 @@ fs/proc/generic
 fs/proc/array
 fs/sysfs/inode
 fs/proc/proc_tty
-drivers/char/consolemap_deftbl
-drivers/char/defkeymap
 fs/proc/cmdline
 fs/sysfs/file
 drivers/input/input
