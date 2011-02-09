@@ -95,8 +95,10 @@ res=0; diff -uBw <(removeEmptyDashedLines "$outPartialPreprocThenPreproc"| \
 
 if [ $res -ne 0 ]; then
   echo "Output mismatch"
-  echo
+else
+  echo "Output matches"
 fi
+echo
 #echo $res
 #if [ $res -ne 0 ]; then
 #  echo "*** WARNING! - $outDiff not empty, inconsistency detected ***"
