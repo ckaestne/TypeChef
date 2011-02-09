@@ -17,6 +17,8 @@ export outCSV=vim73.csv
 ## Reset output
 #echo -n > "$outCSV"
 
+# Limit output size to 128M
+ulimit -f $[128*1024]
 for i in $fileList; do
   ./jcpp.sh $srcPath/$i.c $flags
 done
