@@ -121,7 +121,9 @@ public class Main {
 		pp.addFeature(Feature.INCLUDENEXT);
 		pp.addFeature(Feature.GNUCEXTENSIONS);
 		pp.addWarning(Warning.IMPORT);
-		pp.addWarning(Warning.TRIGRAPHS);
+	    	// This warns about trigraphs which do not get expanded. Absolutely useless since trigraphs are hardly
+	    	// ever enabled.
+		//pp.addWarning(Warning.TRIGRAPHS);
 		//XXX too annoying during debugging, there are too many false positives
 		//pp.addWarning(Warning.UNDEF);
 		pp.setListener(new PreprocessorListener(pp));

@@ -1559,9 +1559,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         }
     }
 
-    protected void pragma(Token name, List<Token> value) throws IOException,
+    protected void pragma(Token nameTok, List<Token> value) throws IOException,
             LexerException {
-        warning(name, "Unknown #" + "pragma: " + name.getText());
+        String pragmaName = nameTok.getText();
+        if (!"pack".equals(pragmaName))
+                warning(nameTok, "Unknown #" + "pragma: " + pragmaName);
     }
 
     private Token parse_pragma() throws IOException, LexerException {
