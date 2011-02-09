@@ -155,4 +155,13 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testUseCondDef() throws LexerException, IOException {
         testFile("useconddef.c");
     }
+
+    @Test
+    public void testDivByZero() throws LexerException, IOException {
+        testFile("test_div_by_zero.c");
+    }
+    @Test
+    public void testDivByZero2() throws LexerException, IOException {
+        testFile("test_div_by_zero2.c");
+    }
 }

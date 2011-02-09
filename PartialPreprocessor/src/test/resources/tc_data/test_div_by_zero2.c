@@ -1,12 +1,6 @@
 #define F (1 / 0)
 F
-//#if F
-#if 1
-A
-#else
-B
-#endif
-#if F
+#if (0?F:1)
 A
 #else
 B
