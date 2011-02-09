@@ -753,15 +753,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         // replace macro
         if (macroName.equals("__LINE__")) {
-            //XXX: this uses the line of the original occurrence of
-            //__LINE__: when expanding a macro, __LINE__ will still be the
-            //same token with the same line number as the original source
-            //token.
-            sourceManager.push_source(new FixedTokenSource(
-                    new SimpleToken[]{new SimpleToken(INTEGER,
-                            orig.getLine(), orig.getColumn(), String
-                            .valueOf(orig.getLine()), Integer
-                            .valueOf(orig.getLine()), null)}), true);
+	    // orig is the original occurrence of __LINE__, which might come from a macro body; therefore, we need to
+	    // get the line number from the source.
+	    int lineNum = getSource().getLine();
+	    sourceManager.push_source(new FixedTokenSource(
+		    new SimpleToken[]{new SimpleToken(INTEGER,
+			    lineNum, getSource().getColumn(),
+			    String.valueOf(lineNum),
+			    Integer.valueOf(lineNum), null)}), true);
         } else if (macroName.equals("__FILE__")) {
             StringBuilder buf = new StringBuilder("\"");
             String name = getSource().getName();
