@@ -5,9 +5,6 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="buildScala" />
-        <option name="deprecationWarnings" value="true" />
-        <option name="explainTypeErrors" value="true" />
-        <option name="uncheckedWarnings" value="true" />
       </configuration>
     </facet>
   </component>
@@ -22,6 +19,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="buildScala" level="project" />
+    <orderEntry type="module" module-name="sat4j" />
     <orderEntry type="module" module-name="FeatureExprLib" />
     <orderEntry type="module" module-name="Partial Preprocessor" />
     <orderEntry type="module" module-name="Parser Core" />

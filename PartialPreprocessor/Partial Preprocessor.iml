@@ -5,9 +5,6 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="buildScala" />
-        <option name="deprecationWarnings" value="true" />
-        <option name="explainTypeErrors" value="true" />
-        <option name="uncheckedWarnings" value="true" />
       </configuration>
     </facet>
   </component>
@@ -35,6 +32,15 @@
     <orderEntry type="library" name="buildScala" level="project" />
     <orderEntry type="module" module-name="sat4j" />
     <orderEntry type="module" module-name="FeatureExprLib" />
+    <orderEntry type="module-library" exported="" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/test/junit-4.8.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
@@ -47,7 +53,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/junit.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/ant.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -56,7 +62,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/ant.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/junit.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
