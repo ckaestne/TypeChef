@@ -18,7 +18,7 @@ class SatSolver {
         (if (CACHING)
             SatSolverCache.get(nfm(featureModel))
         else
-            new SatSolverImpl(nfm(featureModel))).isSatisfiable(exprCNF)
+            new SatSolverImpl(nfm(featureModel), false)).isSatisfiable(exprCNF)
     }
 
     private def nfm(fm: FeatureModel) = if (fm == null) NoFeatureModel else fm
@@ -28,12 +28,14 @@ private object SatSolverCache {
     val cache: WeakHashMap[FeatureModel, SatSolverImpl] = new WeakHashMap()
     def get(fm: FeatureModel) =
     /*if (fm == NoFeatureModel) new SatSolverImpl(fm)
-   else */ cache.getOrElseUpdate(fm, new SatSolverImpl(fm))
+   else */ cache.getOrElseUpdate(fm, new SatSolverImpl(fm, true))
 }
 
-private class SatSolverImpl(featureModel: FeatureModel) {
+private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
+
     import SatSolver._
-    /** Type Aliases for Readability */
+
+    /**Type Aliases for Readability */
     type CNF = FeatureExpr
     type OrClause = FeatureExpr
     type Literal = FeatureExpr
@@ -68,13 +70,13 @@ private class SatSolverImpl(featureModel: FeatureModel) {
         val startTime = System.currentTimeMillis();
 
         if (PROFILING)
-            print("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags; " + exprCNF + " ")
+            print("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags; ")
 
         val startTimeSAT = System.currentTimeMillis();
         try {
 
             //find used macros, combine them by common expansion
-            val cnfs: List[CNF] = prepareFormula(exprCNF,PROFILING)
+            val cnfs: List[CNF] = prepareFormula(exprCNF, PROFILING)
 
             if (PROFILING)
                 print(";")
@@ -107,7 +109,7 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                             assumptions.push(getAtomicId(uniqueFlagIds, clause))
                         else {
                             val constr = solver.addClause(getClauseVec(uniqueFlagIds, clause))
-                            if (constr != null)
+                            if (isReused && constr != null)
                                 constraintGroup.add(constr)
                         }
                     }
@@ -123,7 +125,8 @@ private class SatSolverImpl(featureModel: FeatureModel) {
                     print(result + ";")
                 return result
             } finally {
-                constraintGroup.removeFrom(solver)
+                if (isReused)
+                    constraintGroup.removeFrom(solver)
             }
         } finally {
             if (PROFILING)
@@ -133,7 +136,7 @@ private class SatSolverImpl(featureModel: FeatureModel) {
 }
 
 object SatSolver {
-    /** Type Aliases for Readability */
+    /**Type Aliases for Readability */
     type CNF = FeatureExpr
     type OrClause = FeatureExpr
     type Literal = FeatureExpr
@@ -186,10 +189,10 @@ object SatSolver {
      *
      * We first collect all expansions and detect identical ones             *
      */
-    def prepareFormula(expr: CNF, PROFILING:Boolean): List[CNF] = {
+    def prepareFormula(expr: CNF, PROFILING: Boolean): List[CNF] = {
         import scala.collection.mutable.Map
         var macroExpansions: Map[String, FeatureExpr] = Map()
-        val cache:Map[FeatureExpr,FeatureExpr] = Map()
+        val cache: Map[FeatureExpr, FeatureExpr] = Map()
 
         def prepareLiteral(literal: DefinedExpr): DefinedExpr = {
             literal match {

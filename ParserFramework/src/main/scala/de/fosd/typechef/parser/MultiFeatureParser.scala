@@ -853,7 +853,7 @@ try {
         }
 
     def success[T](v: T) =
-        MultiParser{
+        MultiParser {
             (in: Input, fs: FeatureExpr) => Success(v, in)
         }
     def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T]): MultiParser[T] =
@@ -1245,20 +1245,24 @@ try {
         lastNoSuccess = null
         def apply(in: Input, fs: FeatureExpr) = {
             val result = p(in, fs)
-            result match {
-                case s@Success(out, in1) =>
-                    if (in1.atEnd)
-                        s
-                    else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
-                        Failure("end of input expected", in1, List())
-                    else
-                        lastNoSuccess
-                case _ =>
-                    if (lastNoSuccess != null)
-                        lastNoSuccess
-                    else
-                        result
-            }
+
+            result.mapfr(fs, (feature, result) =>
+                result match {
+                    case s@Success(out, in1) =>
+                        if (in1.atEnd)
+                            s
+                        else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
+                            Failure("end of input expected", in1, List())
+                        else
+                            lastNoSuccess
+                    case x: NoSuccess =>
+                        if (lastNoSuccess != null)
+                            lastNoSuccess
+                        else
+                            result
+                }
+            )
+
         }
     }
 }
@@ -1269,7 +1273,8 @@ case class ~[+a, +b](_1: a, _2: b) {
 
 case class Opt[+T](val feature: FeatureExpr, val entry: T) {
     override def equals(x: Any) = x match {
-        case Opt(f, e) => (f equivalentTo feature) && (entry == e)
+    //XXX: use feature equality instead of equivalence for performance! this may not always be what is expected.
+        case Opt(f, e) => (f == feature) && (entry == e)
         case _ => false
     }
     //helper function

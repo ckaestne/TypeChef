@@ -730,4 +730,16 @@ static int  func_name(const char *fileName __attribute__ ((__unused__)), const s
             """, p.phrase(p.statement))
 
 
+    @Test def testLinuxAddonCpuidFeature =
+        assertParseable("""
+struct cpuinfo_x86;
+void __attribute__ ((__section__(".cpuinit.text")))  detect_extended_topology(struct cpuinfo_x86 *c)
+{
+#if definedEx(CONFIG_SMP)
+	unsigned int eax, ebx, ecx, edx, sub_index;
+	return;
+#endif
+}
+""", p.phrase(p.translationUnit))
+
 }

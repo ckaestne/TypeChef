@@ -6,8 +6,8 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 class FeatureSolverCache(featureModel: FeatureModel) {
     var i_hits, i_query, m_hits, m_query = 0;
 
-    private val impliesCache: WeakHashMap[(FeatureExpr, FeatureExpr), Boolean] = new WeakHashMap()
-    private val mutuallyExclusiveCache: WeakHashMap[(FeatureExpr, FeatureExpr), Boolean] = new WeakHashMap()
+    private val impliesCache: WeakHashMap[FeatureExpr, WeakHashMap[FeatureExpr, Boolean]] = new WeakHashMap()
+    private val mutuallyExclusiveCache: WeakHashMap[FeatureExpr, WeakHashMap[FeatureExpr, Boolean]] = new WeakHashMap()
 
     val LOGGING = false
 
@@ -16,7 +16,7 @@ class FeatureSolverCache(featureModel: FeatureModel) {
      */
     def implies(a: FeatureExpr, b: FeatureExpr): Boolean = {
         i_query += 1
-        impliesCache.getOrElseUpdate((a, b), {
+        getOrElseUpdate(impliesCache, false, a, b, {
             i_hits += 1;
             if (LOGGING) println(a + " => " + b)
 
@@ -35,13 +35,39 @@ class FeatureSolverCache(featureModel: FeatureModel) {
      */
     def mutuallyExclusive(a: FeatureExpr, b: FeatureExpr): Boolean = {
         m_query += 1
-        mutuallyExclusiveCache.getOrElseUpdate((a, b), {
+        getOrElseUpdate(mutuallyExclusiveCache, true, a, b, {
             m_hits += 1;
             if (LOGGING) println(a + " x " + b);
             a.and(b).isContradiction(featureModel)
         })
     }
 
+    def getOrElseUpdate(cache: WeakHashMap[FeatureExpr, WeakHashMap[FeatureExpr, Boolean]], isCommutative: Boolean,
+                        a: FeatureExpr, b: FeatureExpr, newValue: => Boolean): Boolean = {
+        //find (a,b)
+        val ca = cache.get(a)
+        if (ca.isDefined) {
+            val v = ca.get.get(b)
+            if (v.isDefined)
+                return v.get
+        }
+        //find (b,a)  if commutative
+        if (isCommutative) {
+            val cb = cache.get(b)
+            if (cb.isDefined) {
+                val v = cb.get.get(a)
+                if (v.isDefined)
+                    return v.get
+            }
+        }
+
+        //add result to cache
+        val result: Boolean = newValue
+        cache.getOrElseUpdate(a, new WeakHashMap[FeatureExpr, Boolean]).update(b, result)
+        result
+    }
+
     def statistics = "implies " + i_hits + "/" + i_query + " (" + (1.0 - (1.0 * i_hits) / i_query) + "); mex " + m_hits + "/" + m_query + " (" + (1.0 - (1.0 * m_hits) / m_query) + ")";
 }
+
 

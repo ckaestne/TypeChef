@@ -34,7 +34,8 @@ object ParserMain {
 
 object LinuxParserMain {
 
-    def main(args: Array[String]) = {
+    def main(args: Array[String]): Unit = main(args, null)
+    def main(args: Array[String], check: AST => Unit) = {
         println("loading feature model...");
         val start = System.currentTimeMillis
         //        val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
@@ -49,7 +50,9 @@ object LinuxParserMain {
             println("** Processing file: " + filename)
             println("**************************************************************************")
             val parentPath = new File(filename).getParent()
-            parserMain.parserMain(filename, parentPath, new CTypeContext())
+            val ast = parserMain.parserMain(filename, parentPath, new CTypeContext())
+            if (check != null && ast != null)
+                check(ast)
             println("**************************************************************************")
             println("** End of processing for: " + filename)
             println("**************************************************************************")
@@ -80,6 +83,7 @@ class ParserMain(p: CParser) {
 
         val parserStartTime = System.currentTimeMillis
         val result = p.phrase(p.translationUnit)(in, FeatureExpr.base)
+        //        val result = p.translationUnit(in, FeatureExpr.base)
         val endTime = System.currentTimeMillis
 
         println(printParseResult(result, FeatureExpr.base))
@@ -104,10 +108,8 @@ class ParserMain(p: CParser) {
 
         //XXX: that's too simple, we need to typecheck also split results.
         // Moreover it makes the typechecker crash currently (easily workaroundable though).
-        result match {
-            case p.Success(ast, _) => ast
-            case _ => null
-        }
+        val l = result.toList(FeatureExpr.base).filter(_._2.isSuccess)
+        if (l.isEmpty) null else l.head._2.asInstanceOf[p.Success[AST]].result
     }
 
     def printParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr): String = {
@@ -119,7 +121,7 @@ class ParserMain(p: CParser) {
                     (feature.toString + "\tstopped before end (at " + unparsed.first.getPosition + ")\n")
             }
             case p.NoSuccess(msg, unparsed, inner) =>
-                (feature.toString + "\tfailed " + msg + "\n")
+                (feature.toString + "\tfailed: " + msg + " at " + unparsed.pos + " (" + inner + ")\n")
             case p.SplittedParseResult(f, left, right) => {
                 printParseResult(left, feature.and(f)) + "\n" +
                         printParseResult(right, feature.and(f.not))

@@ -1,5 +1,4 @@
 package de.fosd.typechef.typesystem
-import de.fosd.typechef.parser.c.ASTVisitor
 
 import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
@@ -18,6 +17,7 @@ class TypeSystem {
 
     val globalScope = 1
     var currentScope = 1
+    var functionCallChecks = 0
 
     /*
      * This dictionary groups error messages by function, consolidating duplicate warnings together.
@@ -46,6 +46,7 @@ class TypeSystem {
         declareBuiltins()
         ast.accept(new TSVisitor())
         dbgPrintln(table)
+        println("(performed " + functionCallChecks + " checks)");
         println("Type Errors: ");
         println(functionCallErrorMessages.values.mkString("\n"))
         println(functionRedefinitionErrorMessages.mkString("\n"))
@@ -64,21 +65,21 @@ class TypeSystem {
             //println(ast.getClass.getName)
 
             ast match {
-                /**** declarations ****/
-                //function definition
-                case FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) => table = table add (new LFunctionDef(name, "", currentScope, feature))
+            /**** declarations ****/
+            //function definition
+                case FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) => addToLookupTableAndCheckForDuplicates(new LFunctionDef(name, "", currentScope, feature))
                 //function declaration and other declarations
                 case ADeclaration(specifiers, initDecls) if (!isStatementLevel) =>
                     for (initDecl <- initDecls.toList.flatten)
                         initDecl.entry match {
-                            case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => addToLookupTableAndCheckForDuplicates(new LDeclaration(name, "", currentScope, feature))
-                            case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => addToLookupTableAndCheckForDuplicates(new LDeclaration(name, "", currentScope, feature))
+                            case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", currentScope, feature))
+                            case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", currentScope, feature))
                             case _ =>
                         }
 
                 /**** references ****/
                 //function call (XXX: PG: not-so-good detection, but will work for typical code).
-                case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */ )
+                case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */)
                 //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
                 case _ =>
             }
@@ -92,6 +93,7 @@ class TypeSystem {
     def checkFunctionCallTargets(source: AST, name: String, callerFeature: FeatureExpr, targets: List[Entry]) = {
         if (!targets.isEmpty) {
             //condition: feature implies (target1 or target2 ...)
+            functionCallChecks += 1
             val condition = callerFeature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
             if (condition.isTautology()) {
                 dbgPrintln(" always reachable " + condition)
@@ -119,7 +121,7 @@ class TypeSystem {
         }
     }
 
-    def addToLookupTableAndCheckForDuplicates(entry: Entry) {
+    def addToLookupTableAndCheckForDuplicates(entry: LFunctionDef) = {
         val existingEntries = table.find(entry.name).filter(_.isInstanceOf[LFunctionDef])
         for (otherEntry <- existingEntries) {
             if (!(otherEntry.feature and entry.feature).isContradiction) {
@@ -129,6 +131,5 @@ class TypeSystem {
         }
 
         table = table.add(entry)
-
     }
 }
