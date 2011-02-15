@@ -12,7 +12,7 @@ import de.fosd.typechef.featureexpr._
  * @author kaestner
  *
  */
-class TypeSystem {
+class TypeSystem(featureModel: FeatureModel = null) {
     var table = new LookupTable()
 
     val globalScope = 1
@@ -95,7 +95,7 @@ class TypeSystem {
             //condition: feature implies (target1 or target2 ...)
             functionCallChecks += 1
             val condition = callerFeature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
-            if (condition.isTautology()) {
+            if (condition.isTautology(featureModel)) {
                 dbgPrintln(" always reachable " + condition)
                 None
             } else {
@@ -124,7 +124,7 @@ class TypeSystem {
     def addToLookupTableAndCheckForDuplicates(entry: LFunctionDef) = {
         val existingEntries = table.find(entry.name).filter(_.isInstanceOf[LFunctionDef])
         for (otherEntry <- existingEntries) {
-            if (!(otherEntry.feature and entry.feature).isContradiction) {
+            if (!(otherEntry.feature and entry.feature).isContradiction(featureModel)) {
                 dbgPrintln("function " + entry.name + " redefined with feature " + entry.feature + "; previous: " + otherEntry)
                 functionRedefinitionErrorMessages = RedefErrorMsg(entry.name, entry, otherEntry) :: functionRedefinitionErrorMessages
             }

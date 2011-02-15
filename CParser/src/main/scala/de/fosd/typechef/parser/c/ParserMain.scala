@@ -34,13 +34,23 @@ object ParserMain {
 
 object LinuxParserMain {
 
+    def featureModelApprox = null
+//    {
+//        import FeatureExpr._
+//        FeatureModel.create(
+//            (createDefinedExternal("CONFIG_DISCONTIGMEM") and createDefinedExternal("CONFIG_NEED_MULTIPLE_NODES")).not
+//        )
+//    }
+
+
     def main(args: Array[String]): Unit = main(args, null)
     def main(args: Array[String], check: AST => Unit) = {
         println("loading feature model...");
         val start = System.currentTimeMillis
         //        val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
-        //        val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
-        val featuremodel = null
+        //                val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
+        val featuremodel = featureModelApprox
+
         println("done. [" + (System.currentTimeMillis - start) + " ms]")
 
         val parserMain = new ParserMain(new CParser(featuremodel))
