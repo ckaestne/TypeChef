@@ -1243,26 +1243,37 @@ try {
      */
     def phrase[T](p: MultiParser[T]) = new MultiParser[T] {
         lastNoSuccess = null
+
         def apply(in: Input, fs: FeatureExpr) = {
             val result = p(in, fs)
 
-            result.mapfr(fs, (feature, result) =>
-                result match {
-                    case s@Success(out, in1) =>
-                        if (in1.atEnd)
-                            s
-                        else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
-                            Failure("end of input expected", in1, List())
-                        else
-                            lastNoSuccess
-                    case x: NoSuccess =>
-                        if (lastNoSuccess != null)
-                            lastNoSuccess
-                        else
-                            result
-                }
-            )
-
+            result match {
+                case s@Success(out, in1) =>
+                    if (in1.atEnd)
+                        s
+                    else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
+                        Failure("end of input expected", in1, List())
+                    else
+                        lastNoSuccess
+                case x: NoSuccess =>
+                    if (lastNoSuccess != null)
+                        lastNoSuccess
+                    else
+                        result
+                case x: SplittedParseResult[T] =>
+                //cannot used lastNoSuccess on split results
+                    result.mapfr(fs, (feature, result) =>
+                        result match {
+                            case s@Success(out, in1) =>
+                                if (in1.atEnd)
+                                    s
+                                else
+                                    Failure("end of input expected", in1, List())
+                            case x: NoSuccess =>
+                                result
+                        }
+                    )
+            }
         }
     }
 }
