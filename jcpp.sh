@@ -52,11 +52,17 @@ $basePath/PartialPreprocessor/target/scala_2.8.1/classes:\
 $basePath/ParserFramework/target/scala_2.8.1/classes:\
 $basePath/CParser/target/scala_2.8.1/classes:\
 $basePath/CTypeChecker/target/scala_2.8.1/classes:\
-$basePath/BoaCaseStudy/target/scala_2.8.1/classes \
+$basePath/PreprocessorFrontend/target/scala_2.8.1/classes \
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' 2> '$outErr' >'$outDbg'" \
   2> "$outTime" || true
+#bash -c "time java -ea $javaOpts -jar $sbtPath 'project PreprocessorFrontend' \
+#  \"run $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
+#  '$inp' -o '$outPartialPreproc'\"  \
+#  2> '$outErr'|tee '$outDbg'" \
+#  2> "$outTime" || true
+
 
 cat "$outErr" 1>&2
 mv $macro_stats_path "$outMacroDebug" # || true
