@@ -506,26 +506,36 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         private Stack<IfdefBlock> stack = new Stack<IfdefBlock>();
 
-        public Token startIf(Token tok, boolean parentActive, FeatureExpr expr,
-                             FeatureExpr fullPresenceCondition) {
-            // skip output of ifdef 0 and ifdef 1
-            boolean visible = parentActive;
-            if (visible && fullPresenceCondition.isDead())
-                visible = false;
-            if (visible && fullPresenceCondition.isBase())
-                visible = false;
-            if (visible && expr.isBase())
-                visible = false;
+        public Token startIf(Token tok, boolean parentActive, State state) {
+	    FeatureExpr localCondition = state.getLocalFeatureExpr();
+	    boolean visible = isIfVisible(parentActive, state);
 
             stack.push(new IfdefBlock(visible));
             if (visible)
-                return OutputHelper.if_token(tok.getLine(), expr);
+                return OutputHelper.if_token(tok.getLine(), localCondition);
             else
                 return OutputHelper.emptyLine(tok.getLine(), tok.getColumn());
 
         }
 
-        public Token endIf(Token tok) {
+        // skip output of ifdef 0 and ifdef 1
+	private boolean isIfVisible(boolean parentActive, State state) {
+	    FeatureExpr expr = state.getLocalFeatureExpr();
+	    FeatureExpr fullPresenceCondition = state.getFullPresenceCondition();
+	    FeatureExpr parentPc = state.parent.getFullPresenceCondition();
+	    boolean visible = parentActive;
+	    if (visible &&
+		    (expr.isDead() ||
+		     expr.isBase() ||
+		     fullPresenceCondition.isDead() ||
+		     fullPresenceCondition.isBase() ||
+		     parentPc.implies(expr).isTautology() ||
+		     parentPc.implies(expr.not()).isTautology()))
+		visible = false;
+	    return visible;
+	}
+
+	public Token endIf(Token tok) {
             if (stack.pop().visible)
                 return OutputHelper.endif_token(tok.getLine());
             else
@@ -533,16 +543,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         }
 
         public Token startElIf(Token tok, boolean parentActive,
-                               FeatureExpr localFeatureExpr, FeatureExpr fullPresenceCondition) {
+                               State state) {
+	    FeatureExpr localCondition = state.getLocalFeatureExpr();
+
             boolean wasVisible = stack.pop().visible;
-            boolean isVisible = parentActive;
-            if (isVisible && fullPresenceCondition.isDead())
-                isVisible = false;
-            if (isVisible && fullPresenceCondition.isBase())
-                isVisible = false;
+            boolean isVisible = isIfVisible(parentActive, state);
             stack.push(new IfdefBlock(isVisible));
 
-            return OutputHelper.elif_token(tok.getLine(), localFeatureExpr,
+            return OutputHelper.elif_token(tok.getLine(), localCondition,
                     wasVisible, isVisible);
         }
     }
@@ -2396,9 +2404,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             if (tok.getType() != NL)
                                 source_skipline(isParentActive());
 
-                            return ifdefPrinter.startIf(tok, isParentActive(), state
-                                    .getLocalFeatureExpr(), state
-                                    .getFullPresenceCondition());
+                            return ifdefPrinter.startIf(tok, isParentActive(), state);
 
                         // break;
 
@@ -2423,8 +2429,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                     source_skipline(isParentActive());
 
                                 return ifdefPrinter.startElIf(tok, isParentActive(),
-                                        state.getLocalFeatureExpr(), state
-                                        .getFullPresenceCondition());
+                                        state);
 
                             }
                             // break;
@@ -2438,8 +2443,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                 source_skipline(warnings.contains(Warning.ENDIF_LABELS));
 
                                 return ifdefPrinter.startElIf(tok, isParentActive(),
-                                        state.getLocalFeatureExpr(), state
-                                        .getFullPresenceCondition());
+                                        state);
                             }
                             // break;
 
@@ -2462,8 +2466,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                     source_skipline(isParentActive());
 
                                 return ifdefPrinter.startIf(tok, isParentActive(),
-                                        state.getLocalFeatureExpr(), state
-                                        .getFullPresenceCondition());
+                                        state);
                             }
                             // break;
 
@@ -2483,8 +2486,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                     source_skipline(isParentActive());
 
                                 return ifdefPrinter.startIf(tok, isParentActive(),
-                                        state.getLocalFeatureExpr(), state
-                                        .getFullPresenceCondition());
+                                        state);
 
                             }
                             // break;
