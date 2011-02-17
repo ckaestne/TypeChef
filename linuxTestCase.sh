@@ -55,7 +55,7 @@ partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
 
-gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
+gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include linux_defs.h -include $srcPath/include/generated/autoconf.h"
 
 flags() {
   base="$1"
