@@ -24,7 +24,7 @@ done < linuxKernelSrcList.txt
 # Note: this clears $partialPreprocFlags
 #partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=include) -x CONFIG_ -U __INTEL_COMPILER \
 partialPreprocFlags="-c linux-$system.properties -x CONFIG_ -U __INTEL_COMPILER \
-  -U __ASSEMBLY__ --include $srcPath/include/generated/autoconf.h"
+  -U __ASSEMBLY__ --include linux_defs.h --include $srcPath/include/generated/autoconf.h"
 
 # XXX: These options workaround bugs triggered by these macros.
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
@@ -34,7 +34,7 @@ partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
 
-gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include linux_defs.h -include $srcPath/include/generated/autoconf.h"
+gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
 
 flags() {
   base="$1"
