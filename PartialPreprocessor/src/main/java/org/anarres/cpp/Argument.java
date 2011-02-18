@@ -39,7 +39,11 @@ import java.util.List;
 	}
 
 	public void addToken(Token tok) {
-		add(tok);
+	    	if (!omittedArg) {
+			add(tok);
+		} else {
+			throw new IllegalArgumentException("Tried to add a token to omittedVariadicArgument.");
+		}
 	}
 
 	public static Argument omittedVariadicArgument() {
@@ -57,7 +61,7 @@ import java.util.List;
 								LexerException {
 		/* Cache expansion. */
 		if (expansion == null) {
-			this.expansion = p.macro_expandArgument(this,inlineCppExpression, macroName);
+			this.expansion = p.macro_expandArgument(this, inlineCppExpression, macroName);
 			// System.out.println("Expanded arg " + this);
 		}
 	}
