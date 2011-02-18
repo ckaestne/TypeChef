@@ -726,42 +726,65 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * @return whether something was expanded or not
      */
     private boolean macro_expandToken(String macroName,
-                                      MacroExpansion[] macroExpansions, Token orig,
+                                      MacroExpansion[] macroExpansions, Token origInvokeTok,
                                       boolean inlineCppExpression) throws IOException, LexerException {
-        List<Token> originalTokens = new ArrayList<Token>();
-        originalTokens.add(orig);
+        //originalTokens.add(origInvokeTok);
         List<Argument> args;
         assert macroExpansions.length > 0;
 
-        // check compatible macros
-        MacroData firstMacro = ((MacroData) macroExpansions[0].getExpansion());
-        int argCount = firstMacro.getArgCount();
-        boolean isVariadic = firstMacro.isVariadic();
+        // check compatible macros. We allow a object-like macro to exist together with function-like macros, and check
+        // arity of all function-like definitions. Non-variadic function-like definitions are currently restricted to
+        // have the same arity; otherwise, each macro invocation would be required to use conditional compilation.
+
+        // Look for the first non-object-like macro to get the arity.
+	MacroData firstMacro = null;
+
+	boolean hasFunctionLikeDefs = false;
+        for (int i = 0; i < macroExpansions.length; i++) {
+            MacroData macro = ((MacroData) macroExpansions[i].getExpansion());
+	    if (macro.isFunctionLike() &&
+		(!hasFunctionLikeDefs || firstMacro.isVariadic() && !macro.isVariadic())) {
+		    firstMacro = macro;
+		    hasFunctionLikeDefs = true;
+		}
+	}
+
+	if (!hasFunctionLikeDefs)
+	    //Only if no function-like defs are available, we choose an object-like def as firstMacro.
+	    firstMacro = ((MacroData) macroExpansions[0].getExpansion());
+
+	int arity = firstMacro.getArgCount();
+	boolean isVariadic = firstMacro.isVariadic();
+
         for (int i = 1; i < macroExpansions.length; i++) {
             MacroData macro = ((MacroData) macroExpansions[i].getExpansion());
-            if (macro.getArgCount() != argCount
-                    || macro.isVariadic() != isVariadic)
-                error(orig,
-                        "Multiple alternative macros with different signatures not (yet) supported. "
-                                + macro.getText() + " vs. "
-                                + firstMacro.getText());
+	    if (macro.isFunctionLike() && ((!isVariadic && !macro.isVariadic()
+		    && macro.getArgCount() != arity) ||
+	    	isVariadic != macro.isVariadic() /* XXX: This would now be easy to support, there's just one bug to fix for that case. */)) {
+		error(origInvokeTok,
+			"Alternative non-variadic macros with different arities are not yet supported."
+				+ macro.getText() + " vs. "
+				+ firstMacro.getText());
+	    }
         }
 
+	List<Token> origArgTokens = new ArrayList<Token>();
         // parse parameters
         try {
             args = parse_macroParameters(macroName, inlineCppExpression,
-                    originalTokens, firstMacro);
+                    origArgTokens, firstMacro);
         } catch (ParseParamException e) {
             warning(e.tok, e.errorMsg);// ChK: skip errors for now
             return false;
         }
-        if (firstMacro.isFunctionLike() && args == null)
+	// XXX: we should still expand non-function-like defs.
+        if (hasFunctionLikeDefs && args == null)
             return false;// cannot expand function-like macro here (has to start
         // with lparan, see spec)
 
         // replace macro
         if (macroName.equals("__LINE__")) {
-	    // orig is the original occurrence of __LINE__, which might come from a macro body; therefore, we need to
+	    // origInvokeTok is the original occurrence of __LINE__, which might come from a macro body; therefore, we need to
 	    // get the line number from the source.
 	    int lineNum = getSource().getLine();
 	    sourceManager.push_source(new FixedTokenSource(
@@ -791,8 +814,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             buf.append("\"");
             String text = buf.toString();
             sourceManager.push_source(new FixedTokenSource(
-                    new SimpleToken[]{new SimpleToken(STRING, orig.getLine(),
-                            orig.getColumn(), text, text, null)}), true);
+                    new SimpleToken[]{new SimpleToken(STRING, origInvokeTok.getLine(),
+                            origInvokeTok.getColumn(), text, text, null)}), true);
         } else if (macroName.equals("__COUNTER__")) {
             /*
                 * This could equivalently have been done by adding a special Macro
@@ -801,7 +824,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             int value = this.counter++;
             sourceManager.push_source(new FixedTokenSource(
                     new SimpleToken[]{new SimpleToken(INTEGER,
-                            orig.getLine(), orig.getColumn(), String
+                            origInvokeTok.getLine(), origInvokeTok.getColumn(), String
                             .valueOf(value), Integer.valueOf(value),
                             null)}), true);
         } else {
@@ -810,38 +833,23 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             // is not replaced
             // currentstate => (alt1 || alt2|| alt3)
             FeatureExpr commonCondition = getCommonCondition(macroExpansions);
-            if (macroExpansions.length == 1 && isExaustive(commonCondition)) {// TODO
-                // what
-                // happens
-                // if
-                // the
-                // macro
-                // is not always defined? check this!
-                // currentFeature => macroFeature
-                //
-                /*
-                     * FeatureExpr commonCondition =
-                     * state.getFullPresenceCondition()
-                     * .not().or(macroExpansions[0].getFeature());
-                     */
-                // PG: XXX: dead code! But should this be moved elsewhere?
-                /*
-                     * if (!isExaustive(commonCondition)) macroConstraints.add(new
-                     * MacroConstraint(macroName, MacroConstraintKind.NOTEXPANDING,
-                     * commonCondition .not()));
-                     */
-
-                sourceManager.push_source(createMacroTokenSource(macroName,
-                        args, firstMacro), true);
-                // expand all alternative macros
-            } else {
-                if (inlineCppExpression)
-                    macro_expandAlternativesInline(macroName, macroExpansions,
-                            args, originalTokens, commonCondition);
-                else
-                    macro_expandAlternatives(macroName, macroExpansions, args,
-                            originalTokens, commonCondition);
-            }
+	    try {
+		if (macroExpansions.length == 1 && isExaustive(commonCondition)) {
+		    sourceManager.push_source(createMacroTokenSource(macroName,
+			    args, firstMacro, origInvokeTok), true);
+		    // expand all alternative macros
+		} else {
+		    if (inlineCppExpression)
+			macro_expandAlternativesInline(macroName, macroExpansions,
+				args, origInvokeTok, origArgTokens, commonCondition);
+		    else
+			macro_expandAlternatives(macroName, macroExpansions, args,
+				origInvokeTok, origArgTokens, commonCondition);
+		}
+	    } catch (ParseParamException e) {
+		warning(e.tok, e.errorMsg);
+		return false;
+	    }
         }
 
         logger.info("expanding " + macroName // + " by "
@@ -881,7 +889,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 originalTokens.add(tok);
                 // System.out.println("pp: open: token is " + tok);
                 switch (tok.getType()) {
-                    case WHITESPACE: /* XXX Really? */
+                    case WHITESPACE:
                     case CCOMMENT:
                     case CPPCOMMENT:
                     case NL:
@@ -923,6 +931,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
                         case ',':
                             if (depth == 0) {
+				// XXX: this is no more valid,
+				// now that alternative macros with different signatures are possible.
                                 if (firstMacro.isVariadic() &&
                                         /* We are building the last arg. */
                                         args.size() == firstMacro.getArgCount() - 1) {
@@ -986,24 +996,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                      * from arguments.
                      */
 
-                if (args.size() != firstMacro.getArgCount()) {
-                    if (firstMacro.isVariadic()
-                            && args.size() == firstMacro.getArgCount() - 1
-                            && getFeature(Feature.GNUCEXTENSIONS)) {
-                        // This is a GCC extension:
-                        // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-                        args.add(Argument.omittedVariadicArgument());
-                    } else {
-                        throw new ParseParamException(tok, "macro " + macroName
-                                + " has " + firstMacro.getArgCount()
-                                + " parameters " + "but given " + args.size()
-                                + " args");
-                    }
-                }
+		checkExpansionArity(macroName, firstMacro, tok, args);
 
-                /*
-                     * for (Argument a : args) a.expand(this);
-                     */
+		/*
+				     * for (Argument a : args) a.expand(this);
+				     */
 
                 for (int i = 0; i < args.size(); i++) {
                     args.get(i).expand(this, inlineCppExpression, macroName);
@@ -1022,10 +1019,30 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return args;
     }
 
+    private boolean checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args) throws ParseParamException {
+	if (expansion.isFunctionLike() && args.size() != expansion.getArgCount()) {
+	    if (expansion.isVariadic()
+		    && args.size() == expansion.getArgCount() - 1
+		    && getFeature(Feature.GNUCEXTENSIONS)) {
+		// This is a GCC extension:
+		// http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+		args.add(Argument.omittedVariadicArgument());
+		return true;
+	    } else {
+		throw new ParseParamException(tok, "macro " + macroName
+			+ " has " + expansion.getArgCount()
+			+ " parameters " + "but given " + args.size()
+			+ " args");
+	    }
+	} else {
+	    return false;
+	}
+    }
+
     private void macro_expandAlternatives(String macroName,
                                           MacroExpansion[] macroExpansions, List<Argument> args,
-                                          List<Token> originalTokens, FeatureExpr commonCondition)
-            throws IOException {
+                                          Token origInvokeTok, List<Token> origArgTokens, FeatureExpr commonCondition)
+            throws IOException, ParseParamException {
         boolean alternativesExaustive = isExaustive(commonCondition);
 
         List<Source> resultList = new ArrayList<Source>();
@@ -1039,11 +1056,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             else
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         prependNL(OutputHelper.elif_tokenStr(feature))));
-            resultList.add(createMacroTokenSource(macroName, args, macroData));
+            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok));
+	    if (!macroData.isFunctionLike())
+		resultList.add(new FixedTokenSource(origArgTokens));
             if (i == 0 && !alternativesExaustive) {
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         prependNL(OutputHelper.else_tokenStr())));
-                resultList.add(new FixedUnexpandingTokenSource(originalTokens,
+		resultList.add(new FixedUnexpandingTokenSource(Collections.singletonList(origInvokeTok),
+			macroName));
+                resultList.add(new FixedUnexpandingTokenSource(origArgTokens,
                         macroName));
             }
         }
@@ -1060,9 +1081,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     }
 
     private MacroTokenSource createMacroTokenSource(String macroName,
-                                                    List<Argument> args, MacroData macroData) {
-        return new MacroTokenSource(macroName, macroData, args,
-                getFeature(Feature.GNUCEXTENSIONS));
+                                                    List<Argument> args,
+						    MacroData macroData,
+						    Token origTok) throws ParseParamException {
+	boolean modified = checkExpansionArity(macroName, macroData, origTok, args);
+	MacroTokenSource ret = new MacroTokenSource(macroName, macroData, args,
+		getFeature(Feature.GNUCEXTENSIONS));
+	if (modified)
+	    args.remove(args.size() - 1);
+	return ret;
     }
 
     /**
@@ -1085,8 +1112,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      */
     private void macro_expandAlternativesInline(final String macroName,
                                                 MacroExpansion[] macroExpansions, List<Argument> args,
-                                                List<Token> originalTokens, FeatureExpr commonCondition)
-            throws IOException, LexerException {
+                                                Token origInvokeTok, List<Token> origArgTokens, FeatureExpr commonCondition)
+            throws IOException, LexerException, ParseParamException {
         boolean alternativesExaustive = isExaustive(commonCondition);
         if (!alternativesExaustive)
             macroConstraints.add(new MacroConstraint(macroName,
@@ -1100,14 +1127,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             if (i > 0 || !alternativesExaustive)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         OutputHelper.inlineIf_tokenStr(feature)));// "__IF__(feature,"
-            resultList.add(createMacroTokenSource(macroName, args, macroData));
+            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok));
+	    if (!macroData.isFunctionLike())
+		resultList.add(new FixedTokenSource(origArgTokens));
             if (i > 0 || !alternativesExaustive)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         Collections.singletonList(OutputHelper.comma())));
         }
 
         if (!alternativesExaustive) {
-            warning(originalTokens.iterator().next(),
+            warning(origInvokeTok,
                     "inline expansion of macro " + macroName
                             + " is not exaustive. assuming 0 for "
                             + commonCondition.not());
