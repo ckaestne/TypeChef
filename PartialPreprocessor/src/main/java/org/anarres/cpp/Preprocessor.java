@@ -123,7 +123,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     SourceManager sourceManager = new SourceManager(this);
 
     /* The fundamental engine. */
-    private MacroContext macros = new MacroContext();
+    private MacroContext<MacroData> macros = new MacroContext<MacroData>();
     State state;
 
     protected MacroContext getMacros() {
@@ -726,7 +726,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * @return whether something was expanded or not
      */
     private boolean macro_expandToken(String macroName,
-                                      MacroExpansion[] macroExpansions, Token origInvokeTok,
+                                      MacroExpansion<MacroData>[] macroExpansions, Token origInvokeTok,
                                       boolean inlineCppExpression) throws IOException, LexerException {
         //originalTokens.add(origInvokeTok);
         List<Argument> args;
@@ -741,7 +741,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	boolean hasFunctionLikeDefs = false;
         for (int i = 0; i < macroExpansions.length; i++) {
-            MacroData macro = ((MacroData) macroExpansions[i].getExpansion());
+            MacroData macro = macroExpansions[i].getExpansion();
 	    if (macro.isFunctionLike() &&
 		(!hasFunctionLikeDefs || firstMacro.isVariadic() && !macro.isVariadic())) {
 		    firstMacro = macro;
@@ -751,13 +751,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
 	if (!hasFunctionLikeDefs)
 	    //Only if no function-like defs are available, we choose an object-like def as firstMacro.
-	    firstMacro = ((MacroData) macroExpansions[0].getExpansion());
+	    firstMacro = macroExpansions[0].getExpansion();
 
 	int arity = firstMacro.getArgCount();
 	boolean isVariadic = firstMacro.isVariadic();
 
         for (int i = 1; i < macroExpansions.length; i++) {
-            MacroData macro = ((MacroData) macroExpansions[i].getExpansion());
+            MacroData macro = macroExpansions[i].getExpansion();
 	    if (macro.isFunctionLike() && ((!isVariadic && !macro.isVariadic()
 		    && macro.getArgCount() != arity) ||
 	    	isVariadic != macro.isVariadic() /* XXX: This would now be easy to support, there's just one bug to fix for that case. */)) {
@@ -859,14 +859,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return true;
     }
 
-    // private MacroExpansion[] filterApplicableMacros(
-    // MacroExpansion[] macroExpansions) {
+    // private MacroExpansion<MacroData>[] filterApplicableMacros(
+    // MacroExpansion<MacroData>[] macroExpansions) {
     // // TODO Auto-generated method stub
     // return null;
     // }
     //
     // private FeatureExpr getCombinedMacroCondition(
-    // MacroExpansion[] macroExpansions) {
+    // MacroExpansion<MacroData>[] macroExpansions) {
     // FeatureExpr commonCondition = state.getFullPresenceCondition().not();
     // for (int i = 0; i < macroExpansions.length; i++)
     // commonCondition = commonCondition.or(macroExpansions[i]
@@ -1040,7 +1040,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     }
 
     private void macro_expandAlternatives(String macroName,
-                                          MacroExpansion[] macroExpansions, List<Argument> args,
+                                          MacroExpansion<MacroData>[] macroExpansions, List<Argument> args,
                                           Token origInvokeTok, List<Token> origArgTokens, FeatureExpr commonCondition)
             throws IOException, ParseParamException {
         boolean alternativesExaustive = isExaustive(commonCondition);
@@ -1048,7 +1048,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         List<Source> resultList = new ArrayList<Source>();
         for (int i = macroExpansions.length - 1; i >= 0; i--) {
             FeatureExpr feature = macroExpansions[i].getFeature();
-            MacroData macroData = (MacroData) macroExpansions[i].getExpansion();
+            MacroData macroData = macroExpansions[i].getExpansion();
 
             if (i == macroExpansions.length - 1)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
@@ -1111,7 +1111,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * @throws LexerException
      */
     private void macro_expandAlternativesInline(final String macroName,
-                                                MacroExpansion[] macroExpansions, List<Argument> args,
+                                                MacroExpansion<MacroData>[] macroExpansions, List<Argument> args,
                                                 Token origInvokeTok, List<Token> origArgTokens, FeatureExpr commonCondition)
             throws IOException, LexerException, ParseParamException {
         boolean alternativesExaustive = isExaustive(commonCondition);
@@ -1122,7 +1122,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         List<Source> resultList = new ArrayList<Source>();
         for (int i = macroExpansions.length - 1; i >= 0; i--) {
             FeatureExpr feature = macroExpansions[i].getFeature();
-            MacroData macroData = (MacroData) macroExpansions[i].getExpansion();
+            MacroData macroData = macroExpansions[i].getExpansion();
 
             if (i > 0 || !alternativesExaustive)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
@@ -1161,7 +1161,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return commonCondition.isBase();
     }
 
-    private FeatureExpr getCommonCondition(MacroExpansion[] macroExpansions) {
+    private FeatureExpr getCommonCondition(MacroExpansion<MacroData>[] macroExpansions) {
         FeatureExpr commonCondition = macroExpansions[0].getFeature();
         for (int i = macroExpansions.length - 1; i >= 1; i--)
             commonCondition = commonCondition.or(macroExpansions[i]
@@ -1749,7 +1749,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 hack_definedCounter++;
             if (tok.getType() == IDENTIFIER
                     && (!hack_definedActivated || hack_definedCounter != 1)) {
-                MacroExpansion[] m = macros.getApplicableMacroExpansions(tok
+                MacroExpansion<MacroData>[] m = macros.getApplicableMacroExpansions(tok
                         .getText(), state.getFullPresenceCondition());
                 if (m.length > 0
                         && tok.mayExpand()
@@ -2329,7 +2329,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
                 case IDENTIFIER:
                     // apply macro (in visible code)
-                    MacroExpansion[] m = macros.getApplicableMacroExpansions(tok
+                    MacroExpansion<MacroData>[] m = macros.getApplicableMacroExpansions(tok
                             .getText(), state.getFullPresenceCondition());
                     if (m.length == 0)
                         return tok;
