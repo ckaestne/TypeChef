@@ -1,4 +1,7 @@
 scripts/mod/empty
+kernel/fork
+arch/x86/kernel/alternative
+mm/rmap
 init/main
 init/do_mounts
 arch/x86/kernel/process_32
@@ -22,7 +25,6 @@ arch/x86/mm/pageattr
 arch/x86/kernel/ioport
 arch/x86/kernel/ldt
 arch/x86/mm/mmap
-kernel/fork
 arch/x86/mm/pat
 arch/x86/kernel/dumpstack
 arch/x86/kernel/setup
@@ -58,7 +60,6 @@ arch/x86/kernel/topology
 kernel/softirq
 mm/fadvise
 arch/x86/kernel/kdebugfs
-arch/x86/kernel/alternative
 kernel/resource
 mm/maccess
 mm/page_alloc
@@ -150,7 +151,6 @@ mm/msync
 arch/x86/kernel/cpu/mtrr/cyrix
 kernel/notifier
 arch/x86/kernel/cpu/mtrr/centaur
-mm/rmap
 kernel/ksysfs
 arch/x86/kernel/cpu/capflags
 arch/x86/kernel/reboot
