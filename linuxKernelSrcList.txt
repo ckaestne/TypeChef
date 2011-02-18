@@ -1,4 +1,5 @@
 scripts/mod/empty
+kernel/sched
 kernel/fork
 arch/x86/kernel/alternative
 mm/rmap
@@ -18,7 +19,6 @@ arch/x86/vdso/vdso32-setup
 arch/x86/kernel/irq_32
 arch/x86/mm/ioremap
 arch/x86/kernel/dumpstack_32
-kernel/sched
 arch/x86/mm/extable
 arch/x86/kernel/time
 arch/x86/mm/pageattr
