@@ -30,8 +30,10 @@ partialPreprocFlags="-c linux-$system.properties -x CONFIG_ -U __INTEL_COMPILER 
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
 # Encode missing dependencies caught by the typechecker! :-D. CONFIG_SYMBOL_PREFIX must be undefined or defined to be a string.
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG_64BIT -U CONFIG_SYMBOL_PREFIX"
-# This flag is impossible in our config and causes inclusion of <asm/jazz.h>, not available for X86; it is not defined by X86, so it is not in the feature model.
-partialPreprocFlags="$partialPreprocFlags -U CONFIG_MACH_JAZZ"
+# CONFIG_MACH_JAZZ is impossible in our config and causes inclusion of
+# <asm/jazz.h>, not avilable for X86; it is not defined by X86, so it is not in
+# the feature model. Similarly for CONFIG_SGI_HAS_I8042
+partialPreprocFlags="$partialPreprocFlags -U CONFIG_MACH_JAZZ -U CONFIG_SGI_HAS_I8042"
 
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
