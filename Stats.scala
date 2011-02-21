@@ -10,8 +10,7 @@ import java.io._
 * Time: 09:17
 */
 
-object Stats extends Application {
-    
+object Stats {
     def parseLine(lines: List[String], key: String, trailing: String): Option[String] = {
         val l: List[String] = lines.filter(_ contains key)
         if (!l.isEmpty) {
@@ -23,14 +22,12 @@ object Stats extends Application {
         else None
     }
 
+    def main(args: Array[String]) {
+        val file = args(0)
+        val outStats = if (args.length > 1) args(1) else "stats.csv"
+        val out = new BufferedWriter(new FileWriter(outStats, true))
 
-    val dir = new File(".")
-    val out = new BufferedWriter(new FileWriter("stats.csv"))
-
-    for (file <- dir.listFiles(new FilenameFilter() {
-        def accept(dir: File, name: String): Boolean = name.endsWith(".pi.log")
-    })) {
-        println(file)
+        //println(file)
         out.write(file + ";")
 
         val lines = scala.io.Source.fromFile(file).getLines.toList
@@ -53,7 +50,9 @@ object Stats extends Application {
             out.write("0;")
 
         out.write("\n")
-    }
 
-    out.close
+        out.close
+    }
 }
+
+// vim: set sw=4:

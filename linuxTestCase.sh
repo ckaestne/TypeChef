@@ -1,20 +1,8 @@
 #!/bin/bash -e
 #!/bin/bash -vxe
 
-##################################################################
-# Location of the Linux kernel.
-##################################################################
-#srcPath=linux-2.6.33.3
-# XXX:$PWD/ makes the path absolute, it is needed for some stupid bug!
-srcPath=$PWD/linux-2.6.33.3
+. linuxFileList.inc
 
-##################################################################
-# List of files to preprocess
-##################################################################
-list=""
-while read i; do
-  list="$list $i"
-done < linuxKernelSrcList.txt
 ##################################################################
 # Preprocessing flags
 ##################################################################
@@ -32,8 +20,8 @@ partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRA
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG_64BIT -U CONFIG_SYMBOL_PREFIX"
 # CONFIG_MACH_JAZZ is impossible in our config and causes inclusion of
 # <asm/jazz.h>, not avilable for X86; it is not defined by X86, so it is not in
-# the feature model. Similarly for CONFIG_SGI_HAS_I8042
-partialPreprocFlags="$partialPreprocFlags -U CONFIG_MACH_JAZZ -U CONFIG_SGI_HAS_I8042"
+# the feature model. Similarly for CONFIG_SGI_HAS_I8042 and CONFIG_SNI_RM.
+partialPreprocFlags="$partialPreprocFlags -U CONFIG_MACH_JAZZ -U CONFIG_SGI_HAS_I8042 -U CONFIG_SNI_RM"
 
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
@@ -60,7 +48,7 @@ export outCSV=linux.csv
 ##################################################################
 # Actually invoke the preprocessor and analyze result.
 ##################################################################
-for i in $list; do
+for i in $filesToProcess; do
   extraFlags="$(flags "$i")"
   . ./jcpp.sh $srcPath/$i.c $extraFlags
   . ./postProcess.sh $srcPath/$i.c $extraFlags
@@ -70,10 +58,6 @@ for i in $list; do
 #      break
 #    fi
 #  done
-done
-for i in $list; do
-  base=$(basename $i)
-  ./parseTypecheck.sh $srcPath/$i.pi
 done
 
 # The original invocation of the compiler:
