@@ -667,7 +667,7 @@ try {
     def repSepOptIntern[T](firstOptional: Boolean, p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = "") = new MultiParser[(List[Opt[T]], FeatureExpr)] {
         thisParser =>
 
-        import FeatureExpr.dead
+        import FeatureExpr.base
 
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
         private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]], freeSeparator: FeatureExpr)
@@ -683,16 +683,17 @@ try {
             //parse token
             // convert alternative results into optList
             //but keep next entries
-            var res: MultiParseResult[Sealable] =
-                if (firstOptional)
-                    opt(p)(in, ctx).mapf(ctx, (f, t) => {
-                        t match {
-                            case Some(x) => Sealable(false, List(Opt(f, x)), dead)
-                            case None => Sealable(true, List(), dead)
-                        }
-                    })
-                else (p ^^ (r => Sealable(false, List(Opt(ctx, r)), dead)))(in, ctx)
-            res = join(ctx, res)
+            //            var res: MultiParseResult[Sealable] =
+            //                if (firstOptional)
+            //                    opt(p)(in, ctx).mapf(ctx, (f, t) => {
+            //                        t match {
+            //                            case Some(x) => Sealable(false, List(Opt(f, x)), dead)
+            //                            case None => Sealable(true, List(), dead)
+            //                        }
+            //                    })
+            //                else (p ^^ (r => Sealable(false, List(Opt(ctx, r)), dead)))(in, ctx)
+            //            res = join(ctx, res)
+            var res: MultiParseResult[Sealable] = Success(Sealable(false, List(), base), in)
 
             //while not all result failed
             while (anyUnsealed(res)) {

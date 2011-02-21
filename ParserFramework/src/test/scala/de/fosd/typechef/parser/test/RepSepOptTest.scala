@@ -54,6 +54,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
 
     @Test def testEasylist = easyList(100)
     @Test def testHardlist = hardList(100)
+    @Test def testHardlist2 = hardList2(100)
 
     //    @Test def testCommaChar1 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t(","), t("a")), List(ol(1), ol(2)))
     //    @Test def testCommaChar2 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t("a")), List(ol(1), ol(2)), 1)
@@ -80,6 +81,23 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
     private def hardList(length: Int) = {
         var l = List(t("0"), t(","))
         var expected = List(ol(0))
+        for (i <- 1 until length) {
+            val f = FeatureExpr.createDefinedExternal("f" + i)
+            l = l :+ t(i.toString, f) :+ t(",", f)
+            expected = expected :+ ol(i, f)
+        }
+        l = l :+ t("0")
+        expected = expected :+ ol(0)
+
+        println("in: " + l)
+        expectDigitList(l, expected)
+    }
+    /**
+     * like hardList but immediately starts with an annotated element
+     */
+    private def hardList2(length: Int) = {
+        var l: List[MyToken] = List()
+        var expected: List[Opt[Lit]] = List()
         for (i <- 1 until length) {
             val f = FeatureExpr.createDefinedExternal("f" + i)
             l = l :+ t(i.toString, f) :+ t(",", f)

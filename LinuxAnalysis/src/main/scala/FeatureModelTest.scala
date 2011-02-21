@@ -9,6 +9,7 @@ package de.fosd.typechef.parser.c
 import de.fosd.typechef.featureexpr.FeatureExpr._
 import io.Source
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import java.io._
 
 object FeatureModelTest extends Application {
     val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
@@ -17,15 +18,26 @@ object FeatureModelTest extends Application {
     val defines = Source.fromFile("autoconf.h").getLines.filter(_.startsWith(DEF))
     val partialConfiguration = defines.map(_.substring(DEF.length + 1)).map(_.split(' ')(0)).map(createDefinedExternal(_)).foldRight(base)(_ and _)
 
+
+    val output = new BufferedWriter(new FileWriter("linux_defs.hs"))
+
     for (feature <- featuremodel.variables.keys if (!feature.startsWith("CONFIG__X") && !feature.endsWith("_2"))) {
         val featureMandatory = (partialConfiguration implies createDefinedExternal(feature)).isTautology(featuremodel)
         val featureDead = (partialConfiguration implies (createDefinedExternal(feature).not)).isTautology(featuremodel)
 
-        if (featureMandatory)
+        if (featureMandatory) {
             println("#define " + feature)
-        if (featureDead)
+            output.write("#define " + feature + "\n")
+        }
+        if (featureDead) {
             println("#undef " + feature)
+            output.write("#undef " + feature + "\n")
+        }
+        // println(feature + ": "+featureMandatory+" "+featureDead )
     }
+
+    output.write("done.\n\n")
+    output.close
 
 
 

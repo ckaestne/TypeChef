@@ -34,13 +34,12 @@ object ParserMain {
 
 object LinuxParserMain {
 
-    def featureModelApprox = null
-//    {
-//        import FeatureExpr._
-//        FeatureModel.create(
-//            (createDefinedExternal("CONFIG_DISCONTIGMEM") and createDefinedExternal("CONFIG_NEED_MULTIPLE_NODES")).not
-//        )
-//    }
+    def featureModelApprox = {
+        import FeatureExpr._
+        FeatureModel.create(
+            createDefinedExternal("CONFIG_SYMBOL_PREFIX").not
+        )
+    }
 
 
     def main(args: Array[String]): Unit = main(args, null)
