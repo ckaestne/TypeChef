@@ -40,9 +40,14 @@ gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $s
 
 flags() {
   base="$1"
+  if grep -q "arch/x86/boot" "$base"; then
+    extraFlag="-D_SETUP"
+  else
+    extraFlag=""
+  fi
   # XXX: again, I need to specify $PWD, for the same bug as above.
   # "-I linux-2.6.33.3/include -I linux-2.6.33.3/arch/x86/include"
-  echo "-I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base) -DKBUILD_STR(s)=#s"
+  echo "$extraFlag -I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base) -DKBUILD_STR(s)=#s"
 }
 
 export outCSV=linux.csv
