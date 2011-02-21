@@ -1,14 +1,21 @@
 Index: linux-2.6.33.3/include/trace/define_trace.h
 ===================================================================
---- linux-2.6.33.3.orig/include/trace/define_trace.h	2010-11-17 14:50:03.000000000 +0100
-+++ linux-2.6.33.3/include/trace/define_trace.h	2010-11-17 14:52:23.000000000 +0100
-@@ -63,7 +63,8 @@
- /* Let the trace headers be reread */
- #define TRACE_HEADER_MULTI_READ
+--- linux-2.6.33.3.orig/include/trace/define_trace.h
++++ linux-2.6.33.3/include/trace/define_trace.h
+@@ -51,12 +51,12 @@
+ # define UNDEF_TRACE_INCLUDE_FILE
+ #endif
  
--#include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
-+//#include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
-+#include <trace/events/TRACE_INCLUDE_FILE>
+-#ifndef TRACE_INCLUDE_PATH
++//#ifndef TRACE_INCLUDE_PATH
+ # define __TRACE_INCLUDE(system) <trace/events/system.h>
+ # define UNDEF_TRACE_INCLUDE_PATH
+-#else
+-# define __TRACE_INCLUDE(system) __stringify(TRACE_INCLUDE_PATH/system.h)
+-#endif
++//#else
++//# define __TRACE_INCLUDE(system) __stringify(TRACE_INCLUDE_PATH/system.h)
++//#endif
  
- #ifdef CONFIG_EVENT_TRACING
- #include <trace/ftrace.h>
+ # define TRACE_INCLUDE(system) __TRACE_INCLUDE(system)
+ 

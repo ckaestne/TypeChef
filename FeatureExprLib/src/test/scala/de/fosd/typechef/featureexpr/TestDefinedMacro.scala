@@ -21,7 +21,7 @@ class TestDefinedMacro extends TestCase {
 
     @Test
     def testMacroTable() {
-        var macroTable = new MacroContext()
+        var macroTable = new MacroContext[String]()
 
         macroTable = macroTable.define("X", b, "1")
         assertEquiv(b or x, macroTable.getMacroCondition("X"))
@@ -46,7 +46,7 @@ class TestDefinedMacro extends TestCase {
     }
 
     def getMacroTable = {
-        var macroTable = new MacroContext()
+        var macroTable = new MacroContext[String]()
 
         //X if a | b
         //  -> 1 if b &!c
@@ -94,7 +94,7 @@ class TestDefinedMacro extends TestCase {
 
     @Test
     def testSatisfiability2() {
-        var macroTable = new MacroContext()
+        var macroTable = new MacroContext[String]()
         macroTable = macroTable.undefine("X", base)
         macroTable = macroTable.define("X", a, "1")
         macroTable = macroTable.define("X", a.not and b, "2")
@@ -119,7 +119,7 @@ class TestDefinedMacro extends TestCase {
 
     @Test
     def testSatisfiability3() {
-        var macroTable = new MacroContext()
+        var macroTable = new MacroContext[String]()
         macroTable = macroTable.undefine("X", base)
 
         assertFalse(createDefinedMacro("X", macroTable).isTautology())
@@ -141,7 +141,7 @@ class TestDefinedMacro extends TestCase {
 
     @Test
     def testOverTime() {
-        var macroTable = new MacroContext()
+        var macroTable = new MacroContext[String]()
         macroTable = macroTable.undefine("X", base)
 
         val firstX = createDefinedMacro("X", macroTable) //false
