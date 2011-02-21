@@ -11,17 +11,13 @@ import io.Source
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 
 object FeatureModelTest extends Application {
-
     val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
-    //    val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
 
+    val DEF = "#define"
+    val defines = Source.fromFile("autoconf.h").getLines.filter(_.startsWith(DEF))
+    val partialConfiguration = defines.map(_.substring(DEF.length + 1)).map(_.split(' ')(0)).map(createDefinedExternal(_)).foldRight(base)(_ and _)
 
-    val defines = Source.fromFile("autoconf.h").getLines.filter(_.startsWith("#define"))
-
-    val partialConfiguration = defines.map(_.substring(8)).map(_.split(' ')(0)).map(FeatureExpr.createDefinedExternal(_)).foldRight(base)(_ and _)
-
-    //for (feature<-featuremodel.variables.keys if (!feature.startsWith("CONFIG__X"))) {
-    for (feature <- List("CONFIG_SPARSEMEM", "CONFIG_NUMA", "CONFIG_DISCONTIGMEM")) {
+    for (feature <- featuremodel.variables.keys if (!feature.startsWith("CONFIG__X") && !feature.endsWith("_2"))) {
         val featureMandatory = (partialConfiguration implies createDefinedExternal(feature)).isTautology(featuremodel)
         val featureDead = (partialConfiguration implies (createDefinedExternal(feature).not)).isTautology(featuremodel)
 
@@ -29,7 +25,6 @@ object FeatureModelTest extends Application {
             println("#define " + feature)
         if (featureDead)
             println("#undef " + feature)
-        //        println(feature + ": "+featureMandatory+" "+featureDead )
     }
 
 

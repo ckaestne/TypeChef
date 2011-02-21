@@ -12,6 +12,7 @@ import org.junit._
 import org.junit.Assert._
 import org.sat4j.minisat.SolverFactory
 import junit.framework.TestCase
+import de.fosd.typechef.featureexpr.FeatureExpr.createDefinedExternal
 
 object LinuxFeatureModel {
     val featureModel: FeatureModel = {
@@ -56,6 +57,17 @@ class LinuxFeatureModelTest extends TestCase {
         assertTrue(((CONFIG_X86_64.not) and (CONFIG_HIGHMEM64G.not)).isSatisfiable(featureModel))
     }
 
+    @Test
+    def testCorrectness {
+      val allocators = List("SLAB", "SLOB", "SLUB")
+      println(allocators.reduceLeft(_+ "|" + _) + ": " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ or _).isTautology(featureModel))
+      println("!("+ allocators.reduceLeft(_+ "&" + _) + "): " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ and _).not.isTautology(featureModel))
+      for (a <- allocators; b <- allocators if (a != b)) {
+        println(a + " implies !" + b + ": " + (createDefinedExternal("CONFIG_" + a) implies createDefinedExternal("CONFIG_" + b).not).isTautology(featureModel))
+        println("!(" + a + " & " + b + "): " + (createDefinedExternal("CONFIG_" + a) and createDefinedExternal("CONFIG_" + b)).not.isTautology(featureModel))
+      }
+      println("CONFIG_DEFAULT_SECURITY implies CONFIG_SECURITY: " + (createDefinedExternal("CONFIG_DEFAULT_SECURITY") implies createDefinedExternal("CONFIG_SECURITY")).isTautology(featureModel))
+    }
     @Test
     @Ignore
     def testIsModelSatisfiable {
