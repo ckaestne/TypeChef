@@ -29,7 +29,7 @@ partialPreprocFlags="-c linux-$system.properties -x CONFIG_ -U __INTEL_COMPILER 
 # XXX: These options workaround bugs triggered by these macros.
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
 # Encode missing dependencies caught by the typechecker! :-D
-partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG_64BIT"
+partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG_64BIT -U CONFIG_MACH_JAZZ -U CONFIG_SYMBOL_PREFIX"
 
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
