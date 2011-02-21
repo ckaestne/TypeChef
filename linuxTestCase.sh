@@ -39,8 +39,9 @@ partialPreprocFlags="$partialPreprocFlags -U CONFIG_MACH_JAZZ"
 gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
 
 flags() {
-  base="$1"
-  if grep -q "arch/x86/boot" "$base"; then
+  name="$1"
+  base="$(basename "$1")"
+  if grep -q "arch/x86/boot" <<< "$name"; then
     extraFlag="-D_SETUP"
   else
     extraFlag=""
@@ -58,9 +59,9 @@ export outCSV=linux.csv
 # Actually invoke the preprocessor and analyze result.
 ##################################################################
 for i in $list; do
-  base=$(basename $i)
-  . ./jcpp.sh $srcPath/$i.c $(flags "$base")
-  . ./postProcess.sh $srcPath/$i.c $(flags "$base")
+  extraFlags="$(flags "$i")"
+  . ./jcpp.sh $srcPath/$i.c $extraFlags
+  . ./postProcess.sh $srcPath/$i.c $extraFlags
 #  for j in $listToParse; do
 #    if [ "$i" = "$j" ]; then
 #      ./parseTypecheck.sh $srcPath/$i.pi
