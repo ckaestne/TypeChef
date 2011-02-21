@@ -1,4 +1,5 @@
 scripts/mod/empty
+drivers/input/serio/i8042
 kernel/sched
 kernel/fork
 arch/x86/kernel/alternative
@@ -328,7 +329,6 @@ fs/sysfs/group
 fs/proc/version
 fs/proc/softirqs
 drivers/input/serio/serio
-drivers/input/serio/i8042
 fs/proc/proc_sysctl
 fs/eventpoll
 fs/proc/kmsg
