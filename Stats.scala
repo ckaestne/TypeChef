@@ -11,7 +11,7 @@ import java.io._
 */
 
 object Stats extends Application {
-
+    
     def parseLine(lines: List[String], key: String, trailing: String): Option[String] = {
         val l: List[String] = lines.filter(_ contains key)
         if (!l.isEmpty) {
