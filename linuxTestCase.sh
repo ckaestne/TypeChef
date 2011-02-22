@@ -12,7 +12,7 @@
 # Note: this clears $partialPreprocFlags
 #partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=include) -x CONFIG_ -U __INTEL_COMPILER \
 partialPreprocFlags="-c linux-$system.properties -x CONFIG_ -U __INTEL_COMPILER \
-  -U __ASSEMBLY__ -D CONFIG_X86 -U CONFIG_64BIT -D CONFIG_NR_CPUS=1 -D CONFIG_HZ=100 -D CONFIG_PAGE_OFFSET=0xC0000000 -D CONFIG_ILLEGAL_POINTER_VALUE=0x0"
+  -U __ASSEMBLY__ --include linux_defs.h --include partialConf.h --openFeat openFeaturesList.txt"
 #  --include linux_defs.h --include $srcPath/include/generated/autoconf.h
 
 # XXX: These options workaround bugs triggered by these macros.
@@ -25,7 +25,7 @@ partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG
 partialPreprocFlags="$partialPreprocFlags -U CONFIG_MACH_JAZZ -U CONFIG_SGI_HAS_I8042 -U CONFIG_SNI_RM"
 
 # Flags which I left out from Christian configuration - they are not useful.
-# partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
+# partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4"
 
 gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
 

@@ -76,7 +76,9 @@ object PreprocessorFrontend {
         var extraOpt = List("-p", "_")
         val optionsToForward = "pPUDx"
         val INCLUDE_OPT = 0
-        val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT))
+        val OPEN_FEAT_OPT = 1
+        val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT),
+                             new LongOpt("openFeat", LongOpt.REQUIRED_ARGUMENT, null, OPEN_FEAT_OPT))
         val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:t" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
         var typecheck = false
@@ -96,8 +98,9 @@ object PreprocessorFrontend {
                     case '?' => println("Unexpected option!");
                     exit(1)
 
-                    //Pass-through --include.
+                    //Pass-through --include and --openFeat.
                     case INCLUDE_OPT => extraOpt ++= List("--include", arg)
+                    case OPEN_FEAT_OPT => extraOpt ++= List("--openFeat", arg)
 
                     //Pass-through some other options
                     case _ => if (optionsToForward contains c) {

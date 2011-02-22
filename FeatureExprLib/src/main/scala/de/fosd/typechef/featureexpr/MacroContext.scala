@@ -15,6 +15,10 @@ object MacroContext {
     def setPrefixOnlyFilter(prefix: String) {
         flagFilters = ((x: String) => x.startsWith(prefix)) :: flagFilters
     }
+    def setListFilter(openFeaturesPath: String) {
+        val openFeatures = io.Source.fromFile(openFeaturesPath).getLines.toSet
+        flagFilters = (x => openFeatures.contains(x)) :: flagFilters
+    }
     // Returns whether the macro x represents a feature.
     // It checks if any flag filters classify this as non-feature - equivalently, if all
     // flag filters classify this as feature
@@ -22,7 +26,9 @@ object MacroContext {
     // If a macro does not represent a feature, it is not considered variable,
     // and if it is not defined it is assumed to be always undefined, and it
     // becomes thus easier to handle.
-    def flagFilter(x: String) = flagFilters.forall(_(x))
+
+    // This method must not be called for macros known to be defined!
+    private[featureexpr] def flagFilter(x: String) = flagFilters.forall(_(x))
 }
 
 import FeatureExpr.createDefinedExternal

@@ -11,33 +11,58 @@ import io.Source
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 import java.io._
 
-object FeatureModelTest extends Application {
-    val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
+object FeatureModelTest {
+    def main(args: Array[String]) {
+        val partialConfPath = "partialConf.h"
+        val featureModelPath = "2.6.33.3-2var.dimacs"
 
-    val DEF = "#define"
-    val defines = Source.fromFile("autoconf.h").getLines.filter(_.startsWith(DEF))
-    val partialConfiguration = defines.map(_.substring(DEF.length + 1)).map(_.split(' ')(0)).map(createDefinedExternal(_)).foldRight(base)(_ and _)
+        val DEF = "#define"
+        val UNDEF = "#undef"
 
+        val featureModel = FeatureModel.createFromDimacsFile_2Var(featureModelPath)
 
-    val output = new BufferedWriter(new FileWriter("linux_defs.hs"))
+        val directives = Source.fromFile(partialConfPath).getLines.filter(_.startsWith("#"))
 
-    for (feature <- featuremodel.variables.keys if (!feature.startsWith("CONFIG__X") && !feature.endsWith("_2"))) {
-        val featureMandatory = (partialConfiguration implies createDefinedExternal(feature)).isTautology(featuremodel)
-        val featureDead = (partialConfiguration implies (createDefinedExternal(feature).not)).isTautology(featuremodel)
+        def findMacroName(directive: String) = directive.split(' ')(1)
 
-        if (featureMandatory) {
-            println("#define " + feature)
-            output.write("#define " + feature + "\n")
+        val booleanDefs = directives.filter(directive => directive.startsWith(DEF) && directive.endsWith(" 1")).map(findMacroName)
+        val undefs = directives.filter(_.startsWith(UNDEF)).map(findMacroName)
+
+        val partialConfiguration = (booleanDefs.map(createDefinedExternal(_)) ++
+                                    undefs.map(createDefinedExternal(_).not)).
+                                foldRight(base)(_ and _)
+
+        val completedConf = new FileWriter("linux_defs.h")
+        val openFeatures = new FileWriter("openFeaturesList.txt")
+
+        for (feature <- featureModel.variables.keys if (!feature.startsWith("CONFIG__X") && !feature.endsWith("_2"))) {
+            print("Testing feature: " + feature + "...")
+            val start = System.currentTimeMillis
+            val featureMandatory = (partialConfiguration implies createDefinedExternal(feature)).isTautology(featureModel)
+            val featureDead = !featureMandatory && (partialConfiguration implies (createDefinedExternal(feature).not)).isTautology(featureModel)
+            val end = System.currentTimeMillis
+            println("time " + (end - start))
+
+            if (featureMandatory) {
+                println("#define " + feature)
+                completedConf.write("#define " + feature + "\n")
+                completedConf.flush
+            } else if (featureDead) {
+                println("#undef " + feature)
+                completedConf.write("#undef " + feature + "\n")
+                completedConf.flush
+            } else {
+                println("Open feature: " + feature)
+                openFeatures.write(feature + "\n")
+                openFeatures.flush
+            }
+            // println(feature + ": "+featureMandatory+" "+featureDead )
         }
-        if (featureDead) {
-            println("#undef " + feature)
-            output.write("#undef " + feature + "\n")
-        }
-        // println(feature + ": "+featureMandatory+" "+featureDead )
+
+        print("done.\n\n")
+        completedConf.close
+        openFeatures.close
     }
-
-    output.write("done.\n\n")
-    output.close
 
 
 
@@ -58,12 +83,14 @@ object FeatureModelTest extends Application {
     //
     //    for (form <- formulas) {
     //        println(
-    //            (if (form.isTautology(featuremodel)) "tautology"
+    //            (if (form.isTautology(featureModel)) "tautology"
     //            else
-    //            if (form.isContradiction(featuremodel)) "contradiction" else "satisfiable")
+    //            if (form.isContradiction(featureModel)) "contradiction" else "satisfiable")
     //                    + ": " +
     //                    form)
     //    }
 
 
 }
+
+// vim: set sw=4:
