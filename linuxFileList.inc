@@ -11,7 +11,7 @@ srcPath=$PWD/linux-2.6.33.3
 filesToProcess() {
   local listFile=linuxKernelSrcList.txt
   #cat $listFile
-  awk -F: '{print $1}' < linux_2.6.33.3_pcs.txt
+  awk -F: '$1 ~ /.c$/ {print gensub(/\.c$/, "", "", $1)}' < linux_2.6.33.3_pcs.txt
 }
 
 
