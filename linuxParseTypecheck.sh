@@ -1,6 +1,6 @@
 #!/bin/bash -e
 . linuxFileList.inc
 
-for i in $filesToProcess; do
+filesToProcess|while read i; do
   ./parseTypecheck.sh $srcPath/$i.pi
 done

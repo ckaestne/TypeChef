@@ -3,6 +3,6 @@
 
 #XXX hack
 scalac Stats.scala
-for i in $filesToProcess; do
+filesToProcess|while read i; do
   ./parsingStats.sh $srcPath/$i.pi.dbgT linuxParse.csv
 done

@@ -48,7 +48,7 @@ export outCSV=linux.csv
 ##################################################################
 # Actually invoke the preprocessor and analyze result.
 ##################################################################
-for i in $filesToProcess; do
+filesToProcess|while read i; do
   extraFlags="$(flags "$i")"
   . ./jcpp.sh $srcPath/$i.c $extraFlags
   . ./postProcess.sh $srcPath/$i.c $extraFlags
