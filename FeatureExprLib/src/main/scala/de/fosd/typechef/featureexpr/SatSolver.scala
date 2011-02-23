@@ -13,7 +13,7 @@ import org.sat4j.specs.ContradictionException;
  */
 
 class SatSolver {
-    val CACHING = false
+    val CACHING = true
     def isSatisfiable(exprCNF: FeatureExpr, featureModel: FeatureModel = NoFeatureModel): Boolean = {
         (if (CACHING && (nfm(featureModel) != NoFeatureModel))
             SatSolverCache.get(nfm(featureModel))
@@ -187,7 +187,7 @@ object SatSolver {
      * Actually, DefinedMacro already contains an expression name <=> expr as CNF, where we
      * just need to replace the Macro name by a fresh name.
      *
-     * We first collect all expansions and detect identical ones             *
+     * We first collect all expansions and detect identical ones
      */
     def prepareFormula(expr: CNF, PROFILING: Boolean): List[CNF] = {
         import scala.collection.mutable.Map
