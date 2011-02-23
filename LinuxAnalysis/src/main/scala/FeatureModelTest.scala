@@ -4,7 +4,7 @@
  * Date: 14.02.11
  * Time: 14:57
  */
-package de.fosd.typechef.parser.c
+package de.fosd.typechef.utils
 
 import de.fosd.typechef.featureexpr.FeatureExpr._
 import io.Source
@@ -13,6 +13,9 @@ import java.io._
 
 object FeatureModelTest {
     def main(args: Array[String]) {
+        val outPath = args(0)
+        new File(outPath).mkdir()
+
         val partialConfPath = "partialConf.h"
         val featureModelPath = "2.6.33.3-2var.dimacs"
 
@@ -32,8 +35,8 @@ object FeatureModelTest {
         val rawFeatureModel = FeatureModel.createFromDimacsFile_2Var(featureModelPath)
         val featureModel = rawFeatureModel and partialConfiguration
 
-        val completedConf = new FileWriter("completedConf.h")
-        val openFeatures = new FileWriter("openFeaturesList.txt")
+        val completedConf = new FileWriter(outPath + File.separator + "completedConf.h")
+        val openFeatures = new FileWriter(outPath + File.separator + "openFeaturesList.txt")
 
         for (feature <- featureModel.variables.keys if (!feature.startsWith("CONFIG__X") && !feature.endsWith("_2"))) {
             print("Testing feature: " + feature + "...")
