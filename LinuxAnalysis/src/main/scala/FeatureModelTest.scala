@@ -19,8 +19,6 @@ object FeatureModelTest {
         val DEF = "#define"
         val UNDEF = "#undef"
 
-        val featureModel = FeatureModel.createFromDimacsFile_2Var(featureModelPath)
-
         val directives = Source.fromFile(partialConfPath).getLines.filter(_.startsWith("#"))
 
         def findMacroName(directive: String) = directive.split(' ')(1)
@@ -31,15 +29,17 @@ object FeatureModelTest {
         val partialConfiguration = (booleanDefs.map(createDefinedExternal(_)) ++
                                     undefs.map(createDefinedExternal(_).not)).
                                 foldRight(base)(_ and _)
+        val rawFeatureModel = FeatureModel.createFromDimacsFile_2Var(featureModelPath)
+        val featureModel = rawFeatureModel and partialConfiguration
 
-        val completedConf = new FileWriter("linux_defs.h")
+        val completedConf = new FileWriter("completedConf.h")
         val openFeatures = new FileWriter("openFeaturesList.txt")
 
         for (feature <- featureModel.variables.keys if (!feature.startsWith("CONFIG__X") && !feature.endsWith("_2"))) {
             print("Testing feature: " + feature + "...")
             val start = System.currentTimeMillis
-            val featureMandatory = (partialConfiguration implies createDefinedExternal(feature)).isTautology(featureModel)
-            val featureDead = !featureMandatory && (partialConfiguration implies (createDefinedExternal(feature).not)).isTautology(featureModel)
+            val featureMandatory = createDefinedExternal(feature).isTautology(featureModel)
+            val featureDead = !featureMandatory && createDefinedExternal(feature).not.isTautology(featureModel)
             val end = System.currentTimeMillis
             println("time " + (end - start))
 
