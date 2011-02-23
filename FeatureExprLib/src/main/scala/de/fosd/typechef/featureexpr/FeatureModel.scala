@@ -1,7 +1,7 @@
 package de.fosd.typechef.featureexpr
 
 import org.sat4j.core.{VecInt, Vec}
-import org.sat4j.specs.IVecInt
+import org.sat4j.specs.{IVec, IVecInt}
 import scala.collection.{mutable, immutable}
 
 /**
@@ -16,14 +16,14 @@ import scala.collection.{mutable, immutable}
  * format (TODO)
  *
  */
-class FeatureModel(val variables: Map[String, Int], val clauses: org.sat4j.specs.IVec[org.sat4j.specs.IVecInt], val lastVarId: Int) {
+class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], val lastVarId: Int) {
     def and(expr: FeatureExpr) = {
         val cnf = expr.toCNF
         try {
             assert(!expr.isContradiction)
-            val (variables, newLastVarId) = FeatureModel.getVariables(cnf, lastVarId)
-            val clauses = FeatureModel.addClauses(cnf, variables)
-            new FeatureModel(variables, clauses, newLastVarId)
+            val (newVariables, newLastVarId) = FeatureModel.getVariables(cnf, lastVarId, variables)
+            val newClauses = FeatureModel.addClauses(cnf, newVariables, clauses)
+            new FeatureModel(newVariables, newClauses, newLastVarId)
         } catch {
             case e: Exception => println("FeatureModel.and: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
         }
@@ -126,8 +126,9 @@ object FeatureModel {
             variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
 
 
-    private[FeatureModel] def getVariables(expr: FeatureExpr/*CNF*/, lastVarId: Int): (Map[String, Int], Int) = {
+    private[FeatureModel] def getVariables(expr: FeatureExpr/*CNF*/, lastVarId: Int, oldMap: Map[String, Int] = Map()): (Map[String, Int], Int) = {
         val uniqueFlagIds = mutable.Map[String, Int]()
+        uniqueFlagIds ++= oldMap
         var lastId = lastVarId
 
         for (clause <- CNFHelper.getCNFClauses(expr))
@@ -140,8 +141,10 @@ object FeatureModel {
     }
 
 
-    private[FeatureModel] def addClauses(cnf: FeatureExpr/*CNF*/, variables: Map[String, Int]): Vec[IVecInt] = {
+    private[FeatureModel] def addClauses(cnf: FeatureExpr/*CNF*/, variables: Map[String, Int], oldVec: IVec[IVecInt] = null): Vec[IVecInt] = {
         val result = new Vec[IVecInt]()
+        if (oldVec != null)
+            oldVec.copyTo(result)
         for (clause <- CNFHelper.getCNFClauses(cnf); if (clause!=True))
             result.push(SatSolver.getClauseVec(variables, clause))
         result
