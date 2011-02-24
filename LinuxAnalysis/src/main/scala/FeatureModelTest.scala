@@ -4,44 +4,68 @@
  * Date: 14.02.11
  * Time: 14:57
  */
-package de.fosd.typechef.parser.c
+package de.fosd.typechef.utils
 
 import de.fosd.typechef.featureexpr.FeatureExpr._
 import io.Source
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 import java.io._
 
-object FeatureModelTest extends Application {
+object FeatureModelTest {
+    def main(args: Array[String]) {
+        val outPath = args(0)
+        new File(outPath).mkdir()
 
-    val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
-    //    val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
+        val partialConfPath = "partialConf.h"
+        val featureModelPath = "2.6.33.3-2var.dimacs"
 
+        val DEF = "#define"
+        val UNDEF = "#undef"
 
-    val defines = Source.fromFile("autoconf.h").getLines.filter(_.startsWith("#define"))
+        val directives = Source.fromFile(partialConfPath).getLines.filter(_.startsWith("#"))
 
-    val partialConfiguration = defines.map(_.substring(8)).map(_.split(' ')(0)).map(FeatureExpr.createDefinedExternal(_)).foldRight(base)(_ and _)
+        def findMacroName(directive: String) = directive.split(' ')(1)
 
+        val booleanDefs = directives.filter(directive => directive.startsWith(DEF) && directive.endsWith(" 1")).map(findMacroName)
+        val undefs = directives.filter(_.startsWith(UNDEF)).map(findMacroName)
 
-    val output = new BufferedWriter(new FileWriter("linux_defs.hs"))
+        val partialConfiguration = (booleanDefs.map(createDefinedExternal(_)) ++
+                                    undefs.map(createDefinedExternal(_).not)).
+                                foldRight(base)(_ and _)
+        val rawFeatureModel = FeatureModel.createFromDimacsFile_2Var(featureModelPath)
+        val featureModel = rawFeatureModel and partialConfiguration
 
-    for (feature <- featuremodel.variables.keys if (!feature.startsWith("CONFIG__X"))) {
-        //    for (feature <- List("CONFIG_SPARSEMEM", "CONFIG_NUMA", "CONFIG_DISCONTIGMEM")) {
-        val featureMandatory = (partialConfiguration implies createDefinedExternal(feature)).isTautology(featuremodel)
-        val featureDead = (partialConfiguration implies (createDefinedExternal(feature).not)).isTautology(featuremodel)
+        val completedConf = new FileWriter(outPath + File.separator + "completedConf.h")
+        val openFeatures = new FileWriter(outPath + File.separator + "openFeaturesList.txt")
 
-        if (featureMandatory) {
-            println("#define " + feature)
-            output.write("#define " + feature + "\n")
+        for (feature <- featureModel.variables.keys if (!feature.startsWith("CONFIG__X") && !feature.endsWith("_2"))) {
+            print("Testing feature: " + feature + "...")
+            val start = System.currentTimeMillis
+            val featureMandatory = createDefinedExternal(feature).isTautology(featureModel)
+            val featureDead = !featureMandatory && createDefinedExternal(feature).not.isTautology(featureModel)
+            val end = System.currentTimeMillis
+            println("time " + (end - start))
+
+            if (featureMandatory) {
+                println("#define " + feature)
+                completedConf.write("#define " + feature + "\n")
+                completedConf.flush
+            } else if (featureDead) {
+                println("#undef " + feature)
+                completedConf.write("#undef " + feature + "\n")
+                completedConf.flush
+            } else {
+                println("Open feature: " + feature)
+                openFeatures.write(feature + "\n")
+                openFeatures.flush
+            }
+            // println(feature + ": "+featureMandatory+" "+featureDead )
         }
-        if (featureDead) {
-            println("#undef " + feature)
-            output.write("#undef " + feature + "\n")
-        }
-        //        println(feature + ": "+featureMandatory+" "+featureDead )
+
+        print("done.\n\n")
+        completedConf.close
+        openFeatures.close
     }
-
-    output.write("done.\n\n")
-    output.close
 
 
 
@@ -62,12 +86,14 @@ object FeatureModelTest extends Application {
     //
     //    for (form <- formulas) {
     //        println(
-    //            (if (form.isTautology(featuremodel)) "tautology"
+    //            (if (form.isTautology(featureModel)) "tautology"
     //            else
-    //            if (form.isContradiction(featuremodel)) "contradiction" else "satisfiable")
+    //            if (form.isContradiction(featureModel)) "contradiction" else "satisfiable")
     //                    + ": " +
     //                    form)
     //    }
 
 
 }
+
+// vim: set sw=4:

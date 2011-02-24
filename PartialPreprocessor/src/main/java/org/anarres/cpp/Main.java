@@ -41,6 +41,7 @@ public class Main {
 		}
 	}
 
+	private static final int OPT_OPEN_FEAT = 4;
 	private static final Option[] OPTS = new Option[] {
 			new Option("help", LongOpt.NO_ARGUMENT, 'h', null,
 					"Displays help and usage information."),
@@ -63,6 +64,8 @@ public class Main {
 					"Analysis excludes all flags ending with this postfix."),
 			new Option("prefixonly", LongOpt.REQUIRED_ARGUMENT, 'x', "text",
 					"Analysis includes only flags beginning with this prefix."),
+			new Option("openFeat", LongOpt.REQUIRED_ARGUMENT, OPT_OPEN_FEAT, "text",
+					"List of flags with an unspecified value; other flags are considered undefined."),
 			new Option(
 					"incdir",
 					LongOpt.REQUIRED_ARGUMENT,
@@ -162,6 +165,9 @@ public class Main {
 				break;
 			case 'x':
 				MacroContext$.MODULE$.setPrefixOnlyFilter(g.getOptarg());
+				break;
+			case OPT_OPEN_FEAT:
+				MacroContext$.MODULE$.setListFilter(g.getOptarg());
 				break;
 			case 0: // --iquote=
 				pp.getQuoteIncludePath().add(g.getOptarg());

@@ -1,7 +1,8 @@
 package de.fosd.typechef.featureexpr
 
 import org.sat4j.core.{VecInt, Vec}
-import org.sat4j.specs.IVecInt
+import org.sat4j.specs.{IVec, IVecInt}
+import scala.collection.{mutable, immutable}
 
 /**
  * the feature model is a special container for a single feature expression
@@ -15,25 +16,26 @@ import org.sat4j.specs.IVecInt
  * format (TODO)
  *
  */
-class FeatureModel(val variables: Map[String, Int], val clauses: org.sat4j.specs.IVec[org.sat4j.specs.IVecInt])
-
-object NoFeatureModel extends FeatureModel(Map(), new Vec())
-
-object FeatureModel {
-
-    def empty = NoFeatureModel
-
-    def create(expr: FeatureExpr) = {
+class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], val lastVarId: Int) {
+    def and(expr: FeatureExpr) = {
         val cnf = expr.toCNF
         try {
             assert(!expr.isContradiction)
-            val variables = getVariables(cnf)
-            val clauses = addClauses(cnf, variables)
-            new FeatureModel(variables, clauses)
+            val (newVariables, newLastVarId) = FeatureModel.getVariables(cnf, lastVarId, variables)
+            val newClauses = FeatureModel.addClauses(cnf, newVariables, clauses)
+            new FeatureModel(newVariables, newClauses, newLastVarId)
         } catch {
-            case e: Exception => println("FeatureModel.create: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
+            case e: Exception => println("FeatureModel.and: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
         }
     }
+}
+
+object NoFeatureModel extends FeatureModel(Map(), new Vec(), 0)
+
+object FeatureModel {
+    def empty = NoFeatureModel
+
+    def create(expr: FeatureExpr) = NoFeatureModel.and(expr)
 
     def createFromCNFFile(file: String) = {
         var variables: Map[String, Int] = Map()
@@ -52,7 +54,7 @@ object FeatureModel {
             }
 
         }
-        new FeatureModel(variables, clauses)
+        new FeatureModel(variables, clauses, varIdx)
     }
 
     def createFromDimacsFile(file: String) = {
@@ -81,7 +83,7 @@ object FeatureModel {
 
         }
         assert(maxId == variables.size)
-        new FeatureModel(variables, clauses)
+        new FeatureModel(variables, clauses, maxId)
     }
     /**
      * special reader for the -2var model
@@ -114,7 +116,7 @@ object FeatureModel {
 
         }
         assert(maxId == variables.size)
-        new FeatureModel(variables, clauses)
+        new FeatureModel(variables, clauses, maxId)
     }
 
     private def lookupLiteral(literal: String, variables: Map[String, Int]) =
@@ -124,20 +126,25 @@ object FeatureModel {
             variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
 
 
-    private def getVariables(expr: FeatureExpr/*CNF*/): Map[String, Int] = {
-        import scala.collection.mutable.Map
-        val uniqueFlagIds: scala.collection.mutable.Map[String, Int] = Map();
+    private[FeatureModel] def getVariables(expr: FeatureExpr/*CNF*/, lastVarId: Int, oldMap: Map[String, Int] = Map()): (Map[String, Int], Int) = {
+        val uniqueFlagIds = mutable.Map[String, Int]()
+        uniqueFlagIds ++= oldMap
+        var lastId = lastVarId
 
         for (clause <- CNFHelper.getCNFClauses(expr))
             for (literal <- CNFHelper.getDefinedExprs(clause))
-                if (!uniqueFlagIds.contains(literal.satName))
-                    uniqueFlagIds(literal.satName) = uniqueFlagIds.size + 1
-        scala.collection.immutable.Map[String, Int]() ++ uniqueFlagIds
+                if (!uniqueFlagIds.contains(literal.satName)) {
+                    lastId = lastId + 1
+                    uniqueFlagIds(literal.satName) = lastId
+                }
+        (immutable.Map[String, Int]() ++ uniqueFlagIds, lastId)
     }
 
 
-    private def addClauses(cnf: FeatureExpr/*CNF*/, variables: Map[String, Int]): Vec[IVecInt] = {
+    private[FeatureModel] def addClauses(cnf: FeatureExpr/*CNF*/, variables: Map[String, Int], oldVec: IVec[IVecInt] = null): Vec[IVecInt] = {
         val result = new Vec[IVecInt]()
+        if (oldVec != null)
+            oldVec.copyTo(result)
         for (clause <- CNFHelper.getCNFClauses(cnf); if (clause!=True))
             result.push(SatSolver.getClauseVec(variables, clause))
         result

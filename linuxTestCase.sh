@@ -1,20 +1,8 @@
 #!/bin/bash -e
 #!/bin/bash -vxe
 
-##################################################################
-# Location of the Linux kernel.
-##################################################################
-#srcPath=linux-2.6.33.3
-# XXX:$PWD/ makes the path absolute, it is needed for some stupid bug!
-srcPath=$PWD/linux-2.6.33.3
+. linuxFileList.inc
 
-##################################################################
-# List of files to preprocess
-##################################################################
-list=""
-while read i; do
-  list="$list $i"
-done < linuxKernelSrcList.txt
 ##################################################################
 # Preprocessing flags
 ##################################################################
@@ -24,23 +12,34 @@ done < linuxKernelSrcList.txt
 # Note: this clears $partialPreprocFlags
 #partialPreprocFlags="-c linux-redhat.properties -I $(gcc -print-file-name=include) -x CONFIG_ -U __INTEL_COMPILER \
 partialPreprocFlags="-c linux-$system.properties -x CONFIG_ -U __INTEL_COMPILER \
-  -U __ASSEMBLY__ --include linux_defs.h --include $srcPath/include/generated/autoconf.h"
+  -U __ASSEMBLY__ --include completedConf.h --include partialConf.h --openFeat openFeaturesList.txt -U CONFIG_SPARC"
+#  --include linux_defs.h --include $srcPath/include/generated/autoconf.h
 
 # XXX: These options workaround bugs triggered by these macros.
-partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
-# Encode missing dependencies caught by the typechecker! :-D
-partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG_64BIT"
+#partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT -U CONFIG_TRACE_BRANCH_PROFILING"
+# Encode missing dependencies caught by the typechecker! :-D. CONFIG_SYMBOL_PREFIX must be undefined or defined to be a string.
+#partialPreprocFlags="$partialPreprocFlags -U CONFIG_PARAVIRT_SPINLOCKS -U CONFIG_64BIT -U CONFIG_SYMBOL_PREFIX"
+# CONFIG_MACH_JAZZ is impossible in our config and causes inclusion of
+# <asm/jazz.h>, not avilable for X86; it is not defined by X86, so it is not in
+# the feature model. Similarly for CONFIG_SGI_HAS_I8042 and CONFIG_SNI_RM.
+#partialPreprocFlags="$partialPreprocFlags -U CONFIG_MACH_JAZZ -U CONFIG_SGI_HAS_I8042 -U CONFIG_SNI_RM"
 
 # Flags which I left out from Christian configuration - they are not useful.
-# partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4 -D CONFIG_HZ=100"
+# partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4"
 
 gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
 
 flags() {
-  base="$1"
+  name="$1"
+  base="$(basename "$1")"
+  if grep -q "arch/x86/boot" <<< "$name"; then
+    extraFlag="-D_SETUP"
+  else
+    extraFlag=""
+  fi
   # XXX: again, I need to specify $PWD, for the same bug as above.
   # "-I linux-2.6.33.3/include -I linux-2.6.33.3/arch/x86/include"
-  echo "-I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base) -DKBUILD_STR(s)=#s"
+  echo "$extraFlag -I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base) -DKBUILD_STR(s)=#s"
 }
 
 export outCSV=linux.csv
@@ -50,20 +49,16 @@ export outCSV=linux.csv
 ##################################################################
 # Actually invoke the preprocessor and analyze result.
 ##################################################################
-for i in $list; do
-  base=$(basename $i)
-  . ./jcpp.sh $srcPath/$i.c $(flags "$base")
-  . ./postProcess.sh $srcPath/$i.c $(flags "$base")
+filesToProcess|while read i; do
+  extraFlags="$(flags "$i")"
+  . ./jcpp.sh $srcPath/$i.c $extraFlags
+  . ./postProcess.sh $srcPath/$i.c $extraFlags
 #  for j in $listToParse; do
 #    if [ "$i" = "$j" ]; then
 #      ./parseTypecheck.sh $srcPath/$i.pi
 #      break
 #    fi
 #  done
-done
-for i in $list; do
-  base=$(basename $i)
-  ./parseTypecheck.sh $srcPath/$i.pi
 done
 
 # The original invocation of the compiler:
