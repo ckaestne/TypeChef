@@ -768,7 +768,7 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
         //predictedCNFClauses is maybe misleading, but I introduced it, and it
         //would be my fault then. PG
         //
-        //heuristic: up to a medium size do not introduce new variables but use normal toCNF mechansim
+        //heuristic: up to a medium size do not introduce new variables but use normal toCNF mechanism
         //rationale: we might actually simplify the formula by transforming it into CNF and in such cases it's not very expensive
         def size(child: FeatureExpr) = child match {case And(inner) => inner.size; case _ => 1}
         val predictedCNFClauses = cnfchildren.foldRight(1)(size(_) * _)
