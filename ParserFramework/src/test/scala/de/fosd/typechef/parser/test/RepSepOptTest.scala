@@ -55,6 +55,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
     @Test def testEasylist = easyList(100)
     @Test def testHardlist = hardList(100)
     @Test def testHardlist2 = hardList2(100)
+    @Test def testAnnotatedList = annotatedList(100)
 
     //    @Test def testCommaChar1 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t(","), t("a")), List(ol(1), ol(2)))
     //    @Test def testCommaChar2 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t("a")), List(ol(1), ol(2)), 1)
@@ -110,19 +111,39 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
         expectDigitList(l, expected)
     }
 
+    /**
+     * simple list, but inside an annotation
+     */
+    private def annotatedList(length: Int) = {
+        val f = FeatureExpr.createDefinedExternal("f")
+
+        var l: List[MyToken] = List()
+        var expected: List[Opt[Lit]] = List()
+        for (i <- 1 until length) {
+            l = l :+ t(i.toString, f) :+ t(",", f)
+            expected = expected :+ ol(i, f)
+        }
+        l = l :+ t("0", f)
+        expected = expected :+ ol(0, f)
+
+        println("in: " + l)
+        expectDigitList(l, expected)
+    }
 
     private def ol(v: Int) = Opt(base, Lit(v))
     private def ol(v: Int, f: FeatureExpr) = Opt(f, Lit(v))
     private def expectDigitList(providedList: List[MyToken], expectedEntries: List[Opt[Lit]], expectUnparsedTokens: Int = 0) {
-        val in = p.tr(providedList)
-        val r = digitList(in, FeatureExpr.base)
+        val baseFeature = createDefinedExternal("X")
+
+        val in = p.tr(providedList.map(t => new MyToken(t.getText, t.getFeature and baseFeature)))
+        val r = digitList(in, baseFeature)
         println("parse result: " + r)
 
         r match {
             case p.Success(r, rest) =>
                 assertEquals("not at end " + rest, rest.tokens.size, expectUnparsedTokens)
                 assertEquals(
-                    expectedEntries, r
+                    expectedEntries.map(o => Opt(o.feature and baseFeature, o.entry)), r
                 )
             case _ => fail("unsuccessful result " + r)
         }

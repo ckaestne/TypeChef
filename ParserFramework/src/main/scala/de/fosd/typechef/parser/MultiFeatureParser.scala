@@ -667,8 +667,6 @@ try {
     def repSepOptIntern[T](firstOptional: Boolean, p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = "") = new MultiParser[(List[Opt[T]], FeatureExpr)] {
         thisParser =>
 
-        import FeatureExpr.base
-
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
         private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]], freeSeparator: FeatureExpr)
 
@@ -680,33 +678,19 @@ try {
             parseResult.exists(!_.isSealed)
 
         def apply(in: Input, ctx: ParserState): MultiParseResult[(List[Opt[T]], FeatureExpr)] = {
-            //parse token
-            // convert alternative results into optList
-            //but keep next entries
-            //            var res: MultiParseResult[Sealable] =
-            //                if (firstOptional)
-            //                    opt(p)(in, ctx).mapf(ctx, (f, t) => {
-            //                        t match {
-            //                            case Some(x) => Sealable(false, List(Opt(f, x)), dead)
-            //                            case None => Sealable(true, List(), dead)
-            //                        }
-            //                    })
-            //                else (p ^^ (r => Sealable(false, List(Opt(ctx, r)), dead)))(in, ctx)
-            //            res = join(ctx, res)
-            var res: MultiParseResult[Sealable] = Success(Sealable(false, List(), base), in)
+            var res: MultiParseResult[Sealable] = Success(Sealable(false, List(), ctx), in)
 
             //while not all result failed
             while (anyUnsealed(res)) {
                 //parse token (in shortest not-failed result)
                 //convert to optList
-                var nextTokenOffset: Int =
+                val nextTokenOffset: Int =
                     res.toList(ctx).foldLeft(Integer.MAX_VALUE)((_, _) match {
                         case (x, (f, Success(t, next))) => if (t.isSealed) x else min(x, next.offset)
                         case (x, _) => x
                     })
 
                 //try to parse separator first
-                var anySeparators = false
                 res = res.seqAllSuccessful(ctx,
                     (fs, x) =>
                     //only extend the firstmost unsealed result
@@ -715,7 +699,12 @@ try {
                         else {
                             //no split parsing for separators, just look at the next token
                             val nextToken = x.next.skipHidden(fs, featureSolverCache)
-                            val parsingCtx = fs and (nextToken.first.getFeature)
+                            //checking the implication is not necessary technically, but used
+                            //for optimization to avoid growing formula when all tokens have the same condition
+                            val parsingCtx =
+                                if (featureSolverCache.implies(fs, nextToken.first.getFeature))
+                                    fs
+                                else fs and (nextToken.first.getFeature)
                             val nextSep = separator(nextToken, parsingCtx)
                             if (nextSep.isInstanceOf[Success[_]]) {
                                 val freeSepBefore = x.result.freeSeparator
@@ -729,34 +718,33 @@ try {
                         }
                 )
 
-                if (!anySeparators)
-                    res = res.seqAllSuccessful(ctx,
-                        (fs, x) =>
-                        //only extend the firstmost unsealed result
-                            if (x.result.isSealed || x.next.offset != nextTokenOffset)
-                                x
-                            else {
-                                //try performance heuristic A first
-                                applyStrategyA(x.nextInput, fs) match {
-                                    case Some((result, next)) =>
-                                        Success(Sealable(false, result :: x.result.resultList, x.result.freeSeparator andNot (result.feature)), next)
-                                    case None =>
-                                    //default case, use normal mechanism
-                                    // extend unsealed lists with the next result (if there is no next result, seal the list)
-                                        x.seq(fs, opt(p)(x.next, fs)).mapfr(fs, (f, r) => r match {
-                                            case Success(Sealable(_, resultList, openSep) ~ Some(t), in) => {
-                                                //requires separator first
-                                                // XXX (might be more efficient to check before actually parsing, but unclear whether this works for split parse results)
-                                                if (featureSolverCache.implies(f, openSep))
-                                                    Success(Sealable(false, Opt(f, t) :: resultList, openSep and (fs.not)), in)
-                                                else
-                                                    Success(Sealable(true, resultList, openSep), x.nextInput)
-                                            }
-                                            case Success(Sealable(_, resultList, openSep) ~ None, in) => Success(Sealable(true, resultList, openSep), in)
-                                            case e: NoSuccess => e
-                                        })
-                                }
-                            })
+                res = res.seqAllSuccessful(ctx,
+                    (fs, x) =>
+                    //only extend the firstmost unsealed result
+                        if (x.result.isSealed || x.next.offset != nextTokenOffset)
+                            x
+                        else {
+                            //try performance heuristic A first
+                            applyStrategyA(x.nextInput, fs) match {
+                                case Some((result, next)) =>
+                                    Success(Sealable(false, result :: x.result.resultList, x.result.freeSeparator andNot (result.feature)), next)
+                                case None =>
+                                //default case, use normal mechanism
+                                // extend unsealed lists with the next result (if there is no next result, seal the list)
+                                    x.seq(fs, opt(p)(x.next, fs)).mapfr(fs, (f, r) => r match {
+                                        case Success(Sealable(_, resultList, openSep) ~ Some(t), in) => {
+                                            //requires separator first
+                                            // XXX (might be more efficient to check before actually parsing, but unclear whether this works for split parse results)
+                                            if (featureSolverCache.implies(f, openSep))
+                                                Success(Sealable(false, Opt(f, t) :: resultList, openSep andNot f), in)
+                                            else
+                                                Success(Sealable(true, resultList, openSep), x.nextInput)
+                                        }
+                                        case Success(Sealable(_, resultList, openSep) ~ None, in) => Success(Sealable(true, resultList, openSep), in)
+                                        case e: NoSuccess => e
+                                    })
+                            }
+                        })
                 //aggressive joins
                 res = join(ctx, res)
             }
@@ -1027,10 +1015,10 @@ try {
                     } else
                         None
                 }
-                //both not sucessful
-                case (nA@NoSuccess(mA, inA, iA), nB@NoSuccess(mB, inB, iB)) => {
-                    Some(Failure("joined error", inA, List(nA, nB)))
-                }
+                //                //both not sucessful
+                //                case (nA@NoSuccess(mA, inA, iA), nB@NoSuccess(mB, inB, iB)) => {
+                //                    Some(Failure("joined error", inA, List(nA, nB)))
+                //                }
                 //partially successful
                 case (a, b) => None
             }
