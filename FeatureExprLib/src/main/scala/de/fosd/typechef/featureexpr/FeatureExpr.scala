@@ -379,6 +379,18 @@ private[featureexpr] object FExprBuilder {
         else
             And(Set(e, o))
 
+    private def andOrOr(o1: Or, o2: Or) =
+        if (o1.clauses contains o2) //o = (e || o'), then e || o == e && (e || o') == e
+            o2
+        else if (o2.clauses contains o1) //o = (e || o'), then e || o == e && (e || o') == e
+            o1
+        else if (o1.clauses contains (o2.not))
+            fastAnd(o2, createOr(o1.clauses - o2.not)) //XXX: O(N) set rebuild
+        else if (o2.clauses contains (o1.not))
+            fastAnd(o1, createOr(o2.clauses - o1.not)) //XXX: O(N) set rebuild
+        else
+            And(Set(o1, o2))
+
     //Optimized representation of e and (a: And)
     private def andAnd(e: FeatureExpr, a: And) =
         if (a.clauses contains e)
@@ -396,17 +408,19 @@ private[featureexpr] object FExprBuilder {
             case (False, _) => False
             case (True, e) => e
             case (e, True) => e
-            case (e1, e2) if (e1.retrieveMemoizedNot == e2) => False
+            case (e1, e2) if ((e1.retrieveMemoizedNot == e2) || (e1 == e2.retrieveMemoizedNot)) => False
             case other =>
-                binOpCacheGetOrElseUpdate(a, b, _.andCache, other match {
-                    case (a1: And, a2: And) =>
-                        a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _)) //XXX: O(N) set rebuild
-                    case (a: And, e) => andAnd(e, a)
-                    case (e, a: And) => andAnd(e, a)
-                    case (e, o: Or) => andOr(e, o)
-                    case (o: Or, e) => andOr(e, o)
-                    case (e1, e2) => And(Set(e1, e2))
-                })
+                binOpCacheGetOrElseUpdate(a, b, _.andCache,
+                    other match {
+                        case (a1: And, a2: And) =>
+                            a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _)) //XXX: O(N) set rebuild
+                        case (a: And, e) => andAnd(e, a)
+                        case (e, a: And) => andAnd(e, a)
+                        case (o: Or, e: Or) => andOrOr(e, o)
+                        case (o: Or, e) => andOr(e, o)
+                        case (e, o: Or) => andOr(e, o)
+                        case (e1, e2) => And(Set(e1, e2))
+                    })
         }
 
     def createAnd(clauses: Traversable[FeatureExpr]) =
@@ -420,6 +434,18 @@ private[featureexpr] object FExprBuilder {
             fastOr(e, createAnd(a.clauses - e.not)) //XXX: O(N) set rebuild
         else
             Or(Set(e, a))
+
+    private def orAndAnd(a1: And, a2: And) =
+        if (a2.clauses contains a1) //a == (e && a'), then e || a == e || (e && a') == e
+            a1
+        else if (a1.clauses contains a2) //a == (e && a'), then e || a == e || (e && a') == e
+            a2
+        else if (a2.clauses contains (a1.not))
+            fastOr(a1, createAnd(a2.clauses - a1.not)) //XXX: O(N) set rebuild
+        else if (a1.clauses contains (a2.not))
+            fastOr(a2, createAnd(a1.clauses - a2.not)) //XXX: O(N) set rebuild
+        else
+            Or(Set(a1, a2))
 
     private def orOr(e: FeatureExpr, o: Or) =
         if (o.clauses contains e)
@@ -437,17 +463,19 @@ private[featureexpr] object FExprBuilder {
             case (True, _) => True
             case (False, e) => e
             case (e, False) => e
-            case (e1, e2) if (e1.retrieveMemoizedNot == e2) => True
+            case (e1, e2) if ((e1.retrieveMemoizedNot == e2) || (e1 == e2.retrieveMemoizedNot)) => True
             case other =>
-                binOpCacheGetOrElseUpdate(a, b, _.orCache, other match {
-                    case (o1: Or, o2: Or) =>
-                        o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _)) //XXX: O(N) set rebuild
-                    case (o: Or, e) => orOr(e, o)
-                    case (e, o: Or) => orOr(e, o)
-                    case (e, a: And) => orAnd(e, a)
-                    case (a: And, e) => orAnd(e, a)
-                    case (e1, e2) => Or(Set(e1, e2))
-                })
+                binOpCacheGetOrElseUpdate(a, b, _.orCache,
+                    other match {
+                        case (o1: Or, o2: Or) =>
+                            o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _)) //XXX: O(N) set rebuild
+                        case (o: Or, e) => orOr(e, o)
+                        case (e, o: Or) => orOr(e, o)
+                        case (e: And, a: And) => orAndAnd(e, a)
+                        case (e, a: And) => orAnd(e, a)
+                        case (a: And, e) => orAnd(e, a)
+                        case (e1, e2) => Or(Set(e1, e2))
+                    })
         }
 
     def createOr(clauses: Traversable[FeatureExpr]) =
@@ -475,10 +503,11 @@ private[featureexpr] object FExprBuilder {
                          * this enables more occasions for simplification and
                          * ensures that the result is in Negation Normal Form.
                          */
-                            case And(clauses) => storeCache(createOr(clauses.map(_.not)), e)
-                            case Or(clauses) => storeCache(createAnd(clauses.map(_.not)), e)
+                            case And(clauses) => createOr(clauses.map(_.not))
+                            case Or(clauses) => createAnd(clauses.map(_.not))
                             case _ => new Not(e) //Triggered by leaves.
                         })
+                        storeCache(res, e)
                         //Store in the old expression a reference to the new one.
                         storeCache(e, res)
                         res
@@ -771,7 +800,7 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
         //heuristic: up to a medium size do not introduce new variables but use normal toCNF mechanism
         //rationale: we might actually simplify the formula by transforming it into CNF and in such cases it's not very expensive
         def size(child: FeatureExpr) = child match {case And(inner) => inner.size; case _ => 1}
-        val predictedCNFClauses = cnfchildren.foldRight(1)(size(_) * _)
+        val predictedCNFClauses = cnfchildren.foldRight(1)((x, y) => if (y <= 16) size(x) * y else y)
         if (predictedCNFClauses <= 16)
             combineCNF(cnfchildren)
         else

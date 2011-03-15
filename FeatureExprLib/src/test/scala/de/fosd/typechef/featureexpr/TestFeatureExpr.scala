@@ -228,4 +228,49 @@ class TestFeatureExpr extends TestCase {
         assertFalse(e.isTautology(fm))
     }
 
+    @Test
+    def testAndNotOrPattern {
+        val a = FeatureExpr.createDefinedExternal("A")
+        val b = FeatureExpr.createDefinedExternal("B")
+        val aAndB = (a and b)
+
+        var expr: FeatureExpr = a
+        for (i <- 1 until 100) {
+            expr = expr andNot aAndB
+            expr = expr or aAndB
+        }
+        println(expr)
+        assertTrue(expr equivalentTo a)
+        assertTrue(expr.size < 10)
+        //        assertEquals(a,expr)
+    }
+
+    @Test
+    def testAndNotOrPattern2 {
+        val a = FeatureExpr.createDefinedExternal("A") //and FeatureExpr.createDefinedExternal("A2") or FeatureExpr.createDefinedExternal("A3")
+
+        var expr: FeatureExpr = a
+        for (i <- 1 until 100) {
+            val b = FeatureExpr.createDefinedExternal("B" + i)
+            expr = expr andNot (a and b)
+            expr = expr or (a and b)
+        }
+        println(expr)
+        assertTrue(expr equivalentTo a)
+        //        assertTrue(expr.size < 10)
+        //        assertEquals(a,expr)
+    }
+
+    @Test
+    def testCNF {
+        def d(s: String) = createDefinedExternal(s)
+
+        val a = ((d("f31").not or (d("X") not)) and ((d("f8") and d("X")) or (d("f24") and d("X")) or (d("f21") and d("X")) or (d("f1") and d("X")) or (d("f14") and d("X")) or (d("f17") and d("X")) or (d("f5") and d("X")) or (d("X") and (d("f1").not)) or (d("f2") and d("X")) or (d("f4") and d("X")) or (d("f10") and d("X")) or (d("f23") and d("X")) or (d("f11") and d("X")) or (d("f22") and d("X")) or (d("f16") and d("X")) or (d("f30") and d("X")) or (d("f9") and d("X")) or (d("f29") and d("X")) or (d("f15") and d("X")) or (d("f18") and d("X")) or (d("f13") and d("X")) or (d("f7") and d("X")) or (d("f6") and d("X")) or (d("f19") and d("X")) or (d("f27") and d("X")) or (d("f26") and d("X")) or (d("f25") and d("X")) or (d("f12") and d("X")) or (d("f3") and d("X")) or (d("f28") and d("X")) or (d("f20") and d("X"))))
+        val b = (d("f31") and d("X"))
+
+        assert(a.isSatisfiable)
+        assert(b.isSatisfiable)
+        assert((a and b).isContradiction)
+    }
+
 }
