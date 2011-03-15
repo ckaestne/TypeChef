@@ -59,15 +59,15 @@ class LinuxFeatureModelTest extends TestCase {
 
     @Test
     def testCorrectness {
-      val allocators = List("SLAB", "SLOB", "SLUB")
-      println(allocators.reduceLeft(_+ "|" + _) + ": " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ or _).isTautology(featureModel))
-      println("!("+ allocators.reduceLeft(_+ "&" + _) + "): " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ and _).not.isTautology(featureModel))
-      for (a <- allocators; b <- allocators if (a != b)) {
-        println(a + " implies !" + b + ": " + (createDefinedExternal("CONFIG_" + a) implies createDefinedExternal("CONFIG_" + b).not).isTautology(featureModel))
-        println("!(" + a + " & " + b + "): " + (createDefinedExternal("CONFIG_" + a) and createDefinedExternal("CONFIG_" + b)).not.isTautology(featureModel))
-      }
-      println("CONFIG_DEFAULT_SECURITY implies CONFIG_SECURITY: " + (createDefinedExternal("CONFIG_DEFAULT_SECURITY") implies createDefinedExternal("CONFIG_SECURITY")).isTautology(featureModel))
-      println("!CONFIG_X86_EXTENDED_PLATFORM: " + (!createDefinedExternal("CONFIG_X86_EXTENDED_PLATFORM")).isTautology(featureModel))
+        val allocators = List("SLAB", "SLOB", "SLUB")
+        println(allocators.reduceLeft(_ + "|" + _) + ": " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ or _).isTautology(featureModel))
+        println("!(" + allocators.reduceLeft(_ + "&" + _) + "): " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ and _).not.isTautology(featureModel))
+        for (a <- allocators; b <- allocators if (a != b)) {
+            println(a + " implies !" + b + ": " + (createDefinedExternal("CONFIG_" + a) implies createDefinedExternal("CONFIG_" + b).not).isTautology(featureModel))
+            println("!(" + a + " & " + b + "): " + (createDefinedExternal("CONFIG_" + a) and createDefinedExternal("CONFIG_" + b)).not.isTautology(featureModel))
+        }
+        println("CONFIG_DEFAULT_SECURITY implies CONFIG_SECURITY: " + (createDefinedExternal("CONFIG_DEFAULT_SECURITY") implies createDefinedExternal("CONFIG_SECURITY")).isTautology(featureModel))
+        println("!CONFIG_X86_EXTENDED_PLATFORM: " + (!createDefinedExternal("CONFIG_X86_EXTENDED_PLATFORM")).isTautology(featureModel))
     }
     @Test
     @Ignore
@@ -87,4 +87,24 @@ class LinuxFeatureModelTest extends TestCase {
     }
 
 
+}
+
+
+class LinuxDependencyAnalysis extends TestCase {
+
+    import LinuxFeatureModel.featureModel
+
+    @Test
+    def testSatisfiability {
+        val featureNames = List("CONFIG_FLATMEM", "CONFIG_SPARSEMEM");
+        val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
+
+        println(features)
+        for (f1 <- features; f2 <- features if f1 != f2) {
+            println(f1 + " => " + f2 + " = " + (f1 implies f2).isTautology(featureModel))
+            println(f1 + " mex " + f2 + " = " + (f1 mex f2).isTautology(featureModel))
+        }
+
+
+    }
 }

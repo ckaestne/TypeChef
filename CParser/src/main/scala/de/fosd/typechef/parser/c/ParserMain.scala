@@ -36,8 +36,13 @@ object LinuxParserMain {
 
     def featureModelApprox = {
         import FeatureExpr._
+        def d(f: String) = createDefinedExternal(f)
+
         FeatureModel.create(
-            createDefinedExternal("CONFIG_SYMBOL_PREFIX").not
+            (d("CONFIG_SYMBOL_PREFIX").not)
+                    and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_NEED_MULTIPLE_NODES"))
+                    and (d("CONFIG_FLATMEM") mex d("CONFIG_DISCONTIGMEM"))
+                    and (d("CONFIG_FLATMEM") mex d("CONFIG_SPARSEMEM")) //not in FM!
         )
     }
 
