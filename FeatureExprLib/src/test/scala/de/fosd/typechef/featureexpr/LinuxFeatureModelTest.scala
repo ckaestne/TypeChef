@@ -97,7 +97,7 @@ class LinuxDependencyAnalysis extends TestCase {
     @Test
     def testSatisfiability {
         val featureNames = List("CONFIG_MEMORY_HOTPLUG", "CONFIG_DEBUG_SPINLOCK", "CONFIG_BUG",
-            "CONFIG_SMP", "CONFIG_DEBUG_SPINLOCK", "CONFIG_NEED_MULTIPLE_NODES", "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM");
+            "CONFIG_SMP", "CONFIG_DEBUG_SPINLOCK", "CONFIG_NEED_MULTIPLE_NODES", "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM", "CONFIG_ACPI");
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
 
 
