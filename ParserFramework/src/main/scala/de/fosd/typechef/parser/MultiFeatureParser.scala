@@ -9,7 +9,7 @@ import annotation.tailrec
  *
  * @author kaestner
  */
-class MultiFeatureParser(featureModel: FeatureModel = null) {
+abstract class MultiFeatureParser(featureModel: FeatureModel = null) {
     type Elem <: AbstractToken
     type TypeContext
     type Input = TokenReader[Elem, TypeContext]
@@ -545,8 +545,8 @@ try {
                         })
                 //aggressive joins
                 res = join(ctx, res)
-                if (productionName == "externalDef")
-                    println("after join\n" + debug_printResult(res, 0))
+                //                if (productionName == "externalDef")
+                //                    println("after join\n" + debug_printResult(res, 0))
             }
             //return all sealed lists
             res.map(_.resultList.reverse)
@@ -672,7 +672,8 @@ try {
 
         //join anything, data does not matter, only position in tokenstream
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
-            res.join(ctx, (f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinLists(a.resultList, b.resultList), (a.freeSeparator) or (b.freeSeparator)))
+            res.join(ctx, (f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinLists(a.resultList, b.resultList), (a.freeSeparator) and (b.freeSeparator)))
+        //XXX a.freesep OR a.freesep is incorrect. is AND sufficient?
 
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
             parseResult.exists(!_.isSealed)
@@ -1058,7 +1059,9 @@ try {
             inA.offset == inB.offset || nextA.offset == nextB.offset
         }
         private def firstOf(inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]) =
-            if (inA.offst < inB.offst) inB else inA
+            (if (inA.offst < inB.offst) inB else inA).setContext(joinContext(inA.context, inB.context))
+
+
         //removes entries from the tree
         private def prune[U >: T](tree: MultiParseResult[U], pruneList: List[ParseResult[U]]): MultiParseResult[U] =
             if (pruneList.isEmpty) tree
@@ -1272,6 +1275,9 @@ try {
             }
         }
     }
+
+    /**overwrite for all reasonable contexts */
+    def joinContext(a: TypeContext, b: TypeContext): TypeContext = a
 }
 
 case class ~[+a, +b](_1: a, _2: b) {

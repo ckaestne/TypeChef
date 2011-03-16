@@ -57,6 +57,13 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
     @Test def testHardlist2 = hardList2(100)
     @Test def testAnnotatedList = annotatedList(100)
 
+
+    @Test def testAlternativeEntries = expectDigitList(List(t("1", f1), t("2", f1.not), t(","), t("3")), List(ol(1, f1), ol(2, f1.not), ol(3)))
+    @Test def testAlternativeEntries2 = expectDigitList(List(t("1", f1), t("2", f2), t(",", f1 or f2), t("3")), List(ol(1, f1), ol(2, f2), ol(3)))
+    @Test def testAlternativeEntries3 = expectDigitList(List(t("1", f1), t("2", f2), t(","), t("3")), List(ol(1, f1), ol(2, f2)), 2)
+    //abort at comma
+    @Test def testAlternativeEntries4 = expectDigitList(List(t("1", f1), t("2", f2), t(",", (f1 or f2)), t("3")), List(ol(1, f1), ol(2, f2), ol(3)))
+
     //    @Test def testCommaChar1 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t(","), t("a")), List(ol(1), ol(2)))
     //    @Test def testCommaChar2 = expectDigitListCommaChar(List(t("1"), t(","), t("2"), t("a")), List(ol(1), ol(2)), 1)
     //    @Test def testCommaChar3 = expectDigitListCommaChar(List(t("1"), t(",", f1), t("2", f1), t(","), t("a")), List(ol(1), ol(2, f1)))
