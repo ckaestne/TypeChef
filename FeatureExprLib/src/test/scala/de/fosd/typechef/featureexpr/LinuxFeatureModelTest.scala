@@ -107,4 +107,13 @@ class LinuxDependencyAnalysis extends TestCase {
 
 
     }
+
+    @Test
+    def testErrorConditions {
+        def d(s: String) = createDefinedExternal(s)
+        val c1 = (d("CONFIG_BUG") and (d("CONFIG_SMP") or d("CONFIG_DEBUG_SPINLOCK")))
+
+        println(c1 + ": " + (c1.isSatisfiable))
+
+    }
 }

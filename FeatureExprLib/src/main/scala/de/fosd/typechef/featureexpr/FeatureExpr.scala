@@ -388,6 +388,20 @@ private[featureexpr] object FExprBuilder {
             fastAnd(o2, createOr(o1.clauses - o2.not)) //XXX: O(N) set rebuild
         else if (o2.clauses contains (o1.not))
             fastAnd(o1, createOr(o2.clauses - o1.not)) //XXX: O(N) set rebuild
+        else if ((o1.clauses.size == 2) && (o2.clauses.size == 2)) {
+            //simple but common pattern ((a or b) and (a or !b)) == a
+            val i1 = o1.clauses.iterator
+            val o11 = i1.next
+            val o12 = i1.next
+            val i2 = o2.clauses.iterator
+            val o21 = i2.next
+            val o22 = i2.next
+            if (o11 == o21 && o12 == o22.not) o11
+            else if (o12 == o21 && o11 == o22.not) o12
+            else if (o11 == o22 && o12 == o21.not) o11
+            else if (o12 == o22 && o11 == o21.not) o12
+            else And(Set(o1, o2))
+        }
         else
             And(Set(o1, o2))
 
@@ -444,6 +458,20 @@ private[featureexpr] object FExprBuilder {
             fastOr(a1, createAnd(a2.clauses - a1.not)) //XXX: O(N) set rebuild
         else if (a1.clauses contains (a2.not))
             fastOr(a2, createAnd(a1.clauses - a2.not)) //XXX: O(N) set rebuild
+        else if ((a1.clauses.size == 2) && (a2.clauses.size == 2)) {
+            //simple but common pattern ((a and b) or (a and !b)) == a
+            val i1 = a1.clauses.iterator
+            val a11 = i1.next
+            val a12 = i1.next
+            val i2 = a2.clauses.iterator
+            val a21 = i2.next
+            val a22 = i2.next
+            if (a11 == a21 && a12 == a22.not) a11
+            else if (a12 == a21 && a11 == a22.not) a12
+            else if (a11 == a22 && a12 == a21.not) a11
+            else if (a12 == a22 && a11 == a21.not) a12
+            else Or(Set(a1, a2))
+        }
         else
             Or(Set(a1, a2))
 
