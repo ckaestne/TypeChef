@@ -8,7 +8,7 @@ object Main {
         for (path <- args) {
             val folder = new File(path).getParent
 
-            val ast = new ParserMain(new CParser).parserMain(path, folder)
+            val ast = new ParserMain(new CParser(LinuxFeatureModel.getFeatureModel)).parserMain(path, folder)
             if (ast != null)
                 new TypeSystem().checkAST(ast)
         }

@@ -32,9 +32,10 @@ object ParserMain {
     }
 }
 
-object LinuxParserMain {
 
-    def featureModelApprox = {
+object LinuxFeatureModel {
+
+    val featureModelApprox = {
         import FeatureExpr._
         def d(f: String) = createDefinedExternal(f)
 
@@ -52,18 +53,24 @@ object LinuxParserMain {
         )
     }
 
+    def getFeatureModel = {
+        //println("loading feature model...");
+        //val start = System.currentTimeMillis
+        //val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
+        //val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
+        //println("done. [" + (System.currentTimeMillis - start) + " ms]")
+        featureModelApprox
+    }
+
+}
+
+object LinuxParserMain {
+
 
     def main(args: Array[String]): Unit = main(args, null)
     def main(args: Array[String], check: AST => Unit) = {
-        println("loading feature model...");
-        val start = System.currentTimeMillis
-        //        val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
-        //                val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
-        val featuremodel = featureModelApprox
 
-        println("done. [" + (System.currentTimeMillis - start) + " ms]")
-
-        val parserMain = new ParserMain(new CParser(featuremodel))
+        val parserMain = new ParserMain(new CParser(LinuxFeatureModel.getFeatureModel))
 
         for (filename <- args) {
             println("**************************************************************************")

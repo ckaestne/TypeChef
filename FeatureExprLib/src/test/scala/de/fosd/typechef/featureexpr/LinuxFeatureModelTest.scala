@@ -96,13 +96,19 @@ class LinuxDependencyAnalysis extends TestCase {
 
     @Test
     def testSatisfiability {
-        val featureNames = List("CONFIG_FLATMEM", "CONFIG_SPARSEMEM");
+        val featureNames = List("CONFIG_MEMORY_HOTPLUG", "CONFIG_DEBUG_SPINLOCK", "CONFIG_BUG",
+            "CONFIG_SMP", "CONFIG_DEBUG_SPINLOCK", "CONFIG_NEED_MULTIPLE_NODES", "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM");
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
+
+
+
 
         println(features)
         for (f1 <- features; f2 <- features if f1 != f2) {
-            println(f1 + " => " + f2 + " = " + (f1 implies f2).isTautology(featureModel))
-            println(f1 + " mex " + f2 + " = " + (f1 mex f2).isTautology(featureModel))
+            if ((f1 implies f2).isTautology(featureModel))
+                println(f1 + " => " + f2)
+            if ((f1 mex f2).isTautology(featureModel))
+                println(f1 + " mex " + f2)
         }
 
 
