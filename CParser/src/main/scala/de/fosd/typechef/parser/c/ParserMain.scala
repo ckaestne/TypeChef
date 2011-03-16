@@ -40,9 +40,13 @@ object LinuxParserMain {
 
         FeatureModel.create(
             (d("CONFIG_SYMBOL_PREFIX").not)
-                    and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_NEED_MULTIPLE_NODES"))
-                    and (d("CONFIG_FLATMEM") mex d("CONFIG_DISCONTIGMEM"))
+                    and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_NEED_MULTIPLE_NODES")) //from FM
+                    and (d("CONFIG_FLATMEM") mex d("CONFIG_DISCONTIGMEM")) //from FM
                     and (d("CONFIG_FLATMEM") mex d("CONFIG_SPARSEMEM")) //not in FM!
+                    and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_SMP")) //from FM
+                    and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_SPARSEMEM")) //from FM
+                    and (d("CONFIG_NEED_MULTIPLE_NODES") implies d("CONFIG_SMP")) //from FM
+                    and (d("CONFIG_BUG") and (d("CONFIG_SMP") or d("CONFIG_DEBUG_SPINLOCK"))).not //parsing error
         )
     }
 
