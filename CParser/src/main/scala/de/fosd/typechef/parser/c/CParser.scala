@@ -52,7 +52,6 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
                     if (result.init.isDefined)
                         for (decl: Opt[InitDeclarator] <- result.init.get) {
                             c = c.addType(decl.entry.declarator.getName)
-                            println("typedef " + decl.entry.declarator.getName)
                             //                            println("add type " + decl.declarator.getName)//DEBUG only
                         }
                 c
