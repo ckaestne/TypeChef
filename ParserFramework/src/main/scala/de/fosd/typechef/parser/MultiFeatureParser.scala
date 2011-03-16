@@ -749,7 +749,14 @@ try {
                 res = join(ctx, res)
             }
             //return all sealed lists
-            res.map(sealable => (sealable.resultList.reverse, sealable.freeSeparator))
+            val result: MultiParseResult[(List[Opt[T]], FeatureExpr)] = res.map(sealable => (sealable.resultList.reverse, sealable.freeSeparator))
+            if (!firstOptional)
+                result.mapfr(ctx, (f, r) => r match {
+                    case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
+                    case e => e
+                })
+            else
+                result
         }
 
         /**
