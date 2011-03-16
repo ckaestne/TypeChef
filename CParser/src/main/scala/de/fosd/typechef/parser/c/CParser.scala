@@ -29,7 +29,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
         "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
-        "sizeof", "_Pragma")
+        "sizeof", "_Pragma", "__expectType")
     val predefinedTypedefs = Set("__builtin_va_list")
 
     def translationUnit = externalList ^^ {TranslationUnit(_)}
@@ -39,7 +39,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
 
     def externalDef: MultiParser[ExternalDef] =
         (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} | declaration |
-                functionDef | typelessDeclaration | asm_expr | pragma | (SEMI ^^ {x => EmptyExternalDef()})) ^^! (AltExternalDef.join, x => x)
+                functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) ^^! (AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
         asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)}
@@ -52,6 +52,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
                     if (result.init.isDefined)
                         for (decl: Opt[InitDeclarator] <- result.init.get) {
                             c = c.addType(decl.entry.declarator.getName)
+                            println("typedef " + decl.entry.declarator.getName)
                             //                            println("add type " + decl.declarator.getName)//DEBUG only
                         }
                 c
@@ -561,6 +562,9 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             case list1 ~ None ~ list2 => list1 ++ list2
         })
 
+    //XXX: CK: only for debugging purposes
+    def expectType = textToken("__expectType") ~ LBRACKET ~ COLON ~!> typedefName <~ COLON <~ RBRACKET ^^ {x => EmptyExternalDef()}
+
     // *** helper functions
     def textToken(t: String): MultiParser[Elem] =
         token(t, _.getText == t)
@@ -572,5 +576,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         token("any except " + exceptions, (t: Elem) => !exceptions.contains(t.getText))
 
     private def o[T](x: T) = Opt(base, x)
+
+    override def joinContext(a: CTypeContext, b: CTypeContext): CTypeContext = a join b
 
 }

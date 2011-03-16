@@ -398,6 +398,34 @@ class CParserTest extends TestCase {
         assertParseError("int main () { abs = ", p.translationUnit, true)
     }
 
+    def testInitializer {
+        assertParseable("a", p.initializer)
+        assertParseable(".a = 3", p.initializer)
+        assertParseable("a: 3", p.initializer)
+        assertParseable("[3] = 3", p.initializer)
+        assertParseable("{}", p.initializer)
+        assertParseable("{3}", p.initializer)
+        assertParseable("{3,4}", p.initializer)
+        assertParseable("{{3},4}", p.initializer)
+        assertParseable("{.l={{.r={.w={1},.m=2}}},.c=2}", p.initializer)
+        assertParseable("{ .lock = { { .rlock = { .raw_lock = { 1 } } } } }", p.initializer)
+        assertParseable("{ .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.initializer)
+        assertParseable("{(int) 3,4}", p.initializer)
+        assertParseable("(int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.castExpr)
+        assertParseable("(int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.expr)
+        assertParseable("sem = (int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } };", p.statement)
+    }
+
+    def testInitializerAlt =
+        assertParseable("""{
+        #ifdef X
+        {3}
+        #else
+        {2}
+        #endif
+        ,4}""", p.initializer)
+
+
     def testMisc0 {
         assertParseable("{__label__ hey, now;}", p.compoundStatement)
         assertParseable("{abs = ({__label__ hey, now;});}", p.compoundStatement)
@@ -585,50 +613,6 @@ static int  func_name(const char *fileName __attribute__ ((__unused__)), const s
 
     @Test def testLinux1 = assertParseable("extern char * \n#if (definedEx(CONFIG_ENABLE_MUST_CHECK) && definedEx(CONFIG_ENABLE_MUST_CHECK))\n__attribute__((warn_unused_result))\n#endif\n#if (!(definedEx(CONFIG_ENABLE_MUST_CHECK)) && !((definedEx(CONFIG_ENABLE_MUST_CHECK) && definedEx(CONFIG_ENABLE_MUST_CHECK))))\n\n#endif\n skip_spaces(const char *);", p.phrase(p.externalDef))
 
-    @Test def testLinux2 = assertParseable(
-        """static
-        #if !(definedEx(CONFIG_OPTIMIZE_INLINING))
-        inline __attribute__((always_inline))
-        #endif
-        #if definedEx(CONFIG_OPTIMIZE_INLINING)
-        inline
-        #endif
-         int
-        pfn_valid(unsigned long pfn)
-        {
-            if (((pfn) >> (
-        #if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
-        29
-        #endif
-        #if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
-        26
-        #endif
-         - 12)) >= (1UL << (
-        #if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
-        36
-        #endif
-        #if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
-        32
-        #endif
-         -
-        #if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
-        29
-        #endif
-        #if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
-        26
-        #endif
-        )))
-                return 0;
-            return valid_section(__nr_to_section(((pfn) >> (
-        #if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))
-        29
-        #endif
-        #if (!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM) && !((!(definedEx(CONFIG_X86_PAE)) && definedEx(CONFIG_SPARSEMEM) && definedEx(CONFIG_SPARSEMEM))))))
-        26
-        #endif
-         - 12))));
-        }""", p.externalDef)
-
 
     @Test def testLists {
         assertParseable("short foo(a, c)\n  short a;\n  char c;\n{   return 3;\n}", p.phrase(p.functionDef))
@@ -741,5 +725,110 @@ void __attribute__ ((__section__(".cpuinit.text")))  detect_extended_topology(st
 #endif
 }
 """, p.phrase(p.translationUnit))
+
+
+    @Test def testLinuxSpinlockInitializer =
+        assertParseable("""
+typedef struct spinlock {} spinlock_t;
+
+         void sema_init(struct semaphore *sem, int val)
+{
+	*sem = (struct abc) { .lock = (spinlock_t ) { { .rlock = { .raw_lock =
+{ 1 }
+,
+.magic = 0xdead4ead, .owner_cpu = -1, .owner = ((void *)-1L),
+
+.dep_map = { .name = "(*sem).lock" }
+ } } }, .count = val, .wait_list = { &((*sem).wait_list), &((*sem).wait_list) }, };
+ }
+""", p.phrase(p.translationUnit))
+
+
+    @Test def testTypeDefSequence {
+        assertParseable("""
+            typedef int a;
+            __expectType[:a:]
+            """, p.phrase(p.translationUnit))
+        assertParseError("""
+            typedef int b;
+            __expectType[:a:]
+            """, p.phrase(p.translationUnit))
+        assertParseable("""
+            #ifdef X
+            typedef int a;
+            #endif
+            __expectType[:a:]
+            """, p.phrase(p.translationUnit))
+        assertParseable("""
+            #ifdef X
+            typedef int a;
+            #endif
+            #ifdef Z
+            typedef int b;
+            #endif
+            __expectType[:a:]
+            __expectType[:b:]
+            """, p.phrase(p.translationUnit))
+        assertParseable("""
+            #ifdef X
+            typedef int a;
+            #else
+            typedef int b;
+            #endif
+            __expectType[:a:]
+            __expectType[:b:]
+            """, p.phrase(p.translationUnit))
+
+
+    }
+
+
+    def testLinux_cstate = assertParseable(
+        """
+typedef int spinlock_t;
+static
+#if !definedEx(CONFIG_OPTIMIZE_INLINING)
+inline __attribute__((always_inline))
+#endif
+#if definedEx(CONFIG_OPTIMIZE_INLINING)
+inline
+#endif
+void sema_init(struct semaphore *sem, int val)
+{
+static struct lock_class_key __key;
+*sem = (struct semaphore) { .lock = (int ) { { .rlock = { .raw_lock =
+{
+#if definedEx(CONFIG_SMP)
+0   }
+#endif
+#if !definedEx(CONFIG_SMP)
+1 }
+#endif
+
+,
+#if definedEx(CONFIG_DEBUG_SPINLOCK)
+.magic = 0xdead4ead, .owner_cpu = -1, .owner = ((void *)-1L),
+#endif
+#if !definedEx(CONFIG_DEBUG_SPINLOCK)
+
+#endif
+
+#if definedEx(CONFIG_DEBUG_LOCK_ALLOC)
+.dep_map = { .name = "(*sem).lock" }
+#endif
+#if !definedEx(CONFIG_DEBUG_LOCK_ALLOC)
+
+#endif
+} } }, .count = val, .wait_list = { &((*sem).wait_list), &((*sem).wait_list) }, };
+
+#if !definedEx(CONFIG_LOCKDEP)
+do { (void)("semaphore->lock"); (void)(&__key); } while (0)
+#endif
+#if definedEx(CONFIG_LOCKDEP)
+lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
+#endif
+;
+}
+        """, p.phrase(p.translationUnit))
 
 }
