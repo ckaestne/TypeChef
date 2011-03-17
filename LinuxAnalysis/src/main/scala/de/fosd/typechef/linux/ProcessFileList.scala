@@ -94,6 +94,7 @@ object ProcessFileList extends RegexParsers {
                             println(fullFilename + " " + cond)
 
                             fileListWriter.write(fullFilename + "\n")
+                            fileListWriter.flush
 
                             //create .cW and .piW file
                             val wrapperSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename + "W"))
@@ -109,7 +110,8 @@ object ProcessFileList extends RegexParsers {
                         }
                         else {
                             stderr.println(fullFilename + " has condition False, parsed from: " + fields(1))
-                            fileListWriter.write(fullFilename + ": " + fields(1) + "\n")
+                            ignoredFileListWriter.write(fullFilename + ": " + fields(1) + "\n")
+                            ignoredFileListWriter.flush
                         }
                     case NoSuccess(msg, _) =>
                         stderr.println(fullFilename + " " + pcExpr)
