@@ -4,6 +4,7 @@ import scala.util.parsing.combinator._
 import scala.util.control.Breaks
 import de.fosd.typechef.featureexpr._
 import java.io._
+import scala.collection.mutable.Map
 
 /**
  * processes thorstens file list (passed as parameter)
@@ -74,6 +75,7 @@ object ProcessFileList extends RegexParsers {
         val fileListWriter = new PrintWriter(new File("linux_files.lst"))
         val ignoredFileListWriter = new PrintWriter(new File("linux_file_ignored.lst"))
 
+        val knownConditions: Map[FeatureExpr, Boolean] = Map()
 
         import mybreaks.{break, breakable}
         breakable {
@@ -89,7 +91,9 @@ object ProcessFileList extends RegexParsers {
                 val pcExpr = parseAll(expr, fields(1))
                 pcExpr match {
                     case Success(cond, _) =>
-                        if (cond.isSatisfiable(fm)) {
+                        if (
+                            knownConditions.getOrElseUpdate(cond, cond.isSatisfiable(fm))
+                        ) {
                             //file should be parsed
                             println(fullFilename + " " + cond)
 
