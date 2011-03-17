@@ -168,4 +168,12 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testMacroPNF() throws LexerException, IOException {
         testFile("macroPFN.c");
     }
+    @Test
+    public void testParametricMacro() throws LexerException, IOException {
+        testFile("parametricmacro.h");
+    }
+    @Test
+    public void testParametricMacro2() throws LexerException, IOException {
+        testFile("parametricmacro2.h");
+    }
 }
