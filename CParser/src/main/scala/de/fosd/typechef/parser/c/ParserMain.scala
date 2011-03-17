@@ -33,61 +33,6 @@ object ParserMain {
 }
 
 
-object LinuxFeatureModel {
-
-    val featureModelApprox = {
-        import FeatureExpr._
-        def d(f: String) = createDefinedExternal(f)
-
-        FeatureModel.create(
-            (d("CONFIG_SYMBOL_PREFIX").not)
-                    and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_NEED_MULTIPLE_NODES")) //from FM
-                    and (d("CONFIG_FLATMEM") mex d("CONFIG_DISCONTIGMEM")) //from FM
-                    and (d("CONFIG_FLATMEM") mex d("CONFIG_SPARSEMEM")) //not in FM!
-                    and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_SMP")) //from FM
-                    and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_SPARSEMEM")) //from FM
-                    and (d("CONFIG_NEED_MULTIPLE_NODES") implies d("CONFIG_SMP")) //from FM
-            //                    and (d("CONFIG_BUG") and (d("CONFIG_SMP") or d("CONFIG_DEBUG_SPINLOCK"))).not //parsing error
-            //                    and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_DEBUG_SPINLOCK")) //parsing error
-
-        )
-    }
-
-    def getFeatureModel = {
-        //println("loading feature model...");
-        //val start = System.currentTimeMillis
-        //val featuremodel = FeatureModel.createFromDimacsFile_2Var("2.6.33.3-2var.dimacs")
-        //val featuremodel = FeatureModel.createFromCNFFile("linux_2.6.28.6.fm.cnf")
-        //println("done. [" + (System.currentTimeMillis - start) + " ms]")
-        featureModelApprox
-    }
-
-}
-
-object LinuxParserMain {
-
-
-    def main(args: Array[String]): Unit = main(args, null)
-    def main(args: Array[String], check: AST => Unit) = {
-
-        val parserMain = new ParserMain(new CParser(LinuxFeatureModel.getFeatureModel))
-
-        for (filename <- args) {
-            println("**************************************************************************")
-            println("** Processing file: " + filename)
-            println("**************************************************************************")
-            val parentPath = new File(filename).getParent()
-            val ast = parserMain.parserMain(filename, parentPath, new CTypeContext())
-            if (check != null && ast != null)
-                check(ast)
-            println("**************************************************************************")
-            println("** End of processing for: " + filename)
-            println("**************************************************************************")
-        }
-    }
-}
-
-
 class ParserMain(p: CParser) {
 
     def parserMain(filePath: String, parentPath: String): AST =

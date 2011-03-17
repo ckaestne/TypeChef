@@ -1,6 +1,5 @@
-package main
+package de.fosd.typechef.linux
 
-import io.Source
 import java.io._
 
 /*
@@ -38,13 +37,13 @@ object Stats {
             out.write(";1;")
 
 
-        out.write( parseLine(lines,"Duration parsing"," ms\n").getOrElse("") + ";" )
-        out.write( parseLine(lines,"Tokens:","\n").getOrElse("") + ";" )
-        out.write( parseLine(lines,"Tokens Consumed:","\n").getOrElse("") + ";" )
-        out.write( parseLine(lines,"Tokens Backtracked:","\n").getOrElse("") + ";" )
-        out.write( parseLine(lines,"Tokens Repeated:","\n").getOrElse("") + ";" )
+        out.write(parseLine(lines, "Duration parsing", " ms\n").getOrElse("") + ";")
+        out.write(parseLine(lines, "Tokens:", "\n").getOrElse("") + ";")
+        out.write(parseLine(lines, "Tokens Consumed:", "\n").getOrElse("") + ";")
+        out.write(parseLine(lines, "Tokens Backtracked:", "\n").getOrElse("") + ";")
+        out.write(parseLine(lines, "Tokens Repeated:", "\n").getOrElse("") + ";")
 
-        if (lines.exists(_ contains "True\tsucceeded")) 
+        if (lines.exists(_ contains "True\tsucceeded"))
             out.write("1;")
         else
             out.write("0;")

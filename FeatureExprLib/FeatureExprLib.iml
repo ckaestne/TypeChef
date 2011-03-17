@@ -56,7 +56,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../org.sat4j.core/target/scala_2.8.1/sat4j_2.8.1-1.0.jar!/" />

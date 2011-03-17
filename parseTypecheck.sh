@@ -36,8 +36,8 @@ shift
 #$basePath/CParser/target/scala_2.8.1/classes:\
 #$basePath/CTypeChecker/target/scala_2.8.1/classes \
 #  $mainClass '$inp' \
-bash -c "time java -ea $javaOpts -jar $sbtPath 'project CTypeChecker' \
-  'run $inp' \
+bash -c "time java -ea $javaOpts -jar $sbtPath 'project LinuxAnalysis' \
+  'parse $inp' \
   2> '$outErrT'|tee '$outDbgT'" \
   2> "$outTimeT" || true
 

@@ -1,28 +1,34 @@
+package de.fosd.typechef.linux
+
 /*
  * Created by IntelliJ IDEA.
  * User: kaestner
  * Date: 14.02.11
  * Time: 14:57
  */
-package de.fosd.typechef.utils
 
 import de.fosd.typechef.featureexpr.FeatureExpr._
 import io.Source
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 import java.io._
 
-object FeatureModelTest {
+/**
+ * completes a partial configuration
+ *
+ * output path a parameter, writes completedConf.h there
+ *
+ * assumes partialConf.h and feature model as input (LinuxSettings)
+ *
+ */
+object CompletePartialConfiguration {
     def main(args: Array[String]) {
         val outPath = args(0)
         new File(outPath).mkdir()
 
-        val partialConfPath = "partialConf.h"
-        val featureModelPath = "2.6.33.3-2var.dimacs"
 
         val DEF = "#define"
         val UNDEF = "#undef"
 
-        val directives = Source.fromFile(partialConfPath).getLines.filter(_.startsWith("#"))
+        val directives = Source.fromFile(LinuxSettings.partialConfFile).getLines.filter(_.startsWith("#"))
 
         def findMacroName(directive: String) = directive.split(' ')(1)
 
@@ -30,9 +36,9 @@ object FeatureModelTest {
         val undefs = directives.filter(_.startsWith(UNDEF)).map(findMacroName)
 
         val partialConfiguration = (booleanDefs.map(createDefinedExternal(_)) ++
-                                    undefs.map(createDefinedExternal(_).not)).
-                                foldRight(base)(_ and _)
-        val rawFeatureModel = FeatureModel.createFromDimacsFile_2Var(featureModelPath)
+                undefs.map(createDefinedExternal(_).not)).
+                foldRight(base)(_ and _)
+        val rawFeatureModel = LinuxFeatureModel.featureModel
         val featureModel = rawFeatureModel and partialConfiguration
 
         val completedConf = new FileWriter(outPath + File.separator + "completedConf.h")
@@ -66,7 +72,6 @@ object FeatureModelTest {
         completedConf.close
         openFeatures.close
     }
-
 
 
     //    def d(n: String) = createDefinedExternal(n)
