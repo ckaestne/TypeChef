@@ -17,7 +17,7 @@ import scala.collection.{mutable, immutable}
  *
  */
 class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], val lastVarId: Int) {
-    def and(expr: FeatureExpr) = {
+    def and(expr: FeatureExpr /*CNF*/) = {
         val cnf = expr.toCNF
         try {
             assert(!expr.isContradiction)
@@ -126,7 +126,7 @@ object FeatureModel {
             variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
 
 
-    private[FeatureModel] def getVariables(expr: FeatureExpr/*CNF*/, lastVarId: Int, oldMap: Map[String, Int] = Map()): (Map[String, Int], Int) = {
+    private[FeatureModel] def getVariables(expr: FeatureExpr /*CNF*/ , lastVarId: Int, oldMap: Map[String, Int] = Map()): (Map[String, Int], Int) = {
         val uniqueFlagIds = mutable.Map[String, Int]()
         uniqueFlagIds ++= oldMap
         var lastId = lastVarId
@@ -141,11 +141,11 @@ object FeatureModel {
     }
 
 
-    private[FeatureModel] def addClauses(cnf: FeatureExpr/*CNF*/, variables: Map[String, Int], oldVec: IVec[IVecInt] = null): Vec[IVecInt] = {
+    private[FeatureModel] def addClauses(cnf: FeatureExpr /*CNF*/ , variables: Map[String, Int], oldVec: IVec[IVecInt] = null): Vec[IVecInt] = {
         val result = new Vec[IVecInt]()
         if (oldVec != null)
             oldVec.copyTo(result)
-        for (clause <- CNFHelper.getCNFClauses(cnf); if (clause!=True))
+        for (clause <- CNFHelper.getCNFClauses(cnf); if (clause != True))
             result.push(SatSolver.getClauseVec(variables, clause))
         result
     }

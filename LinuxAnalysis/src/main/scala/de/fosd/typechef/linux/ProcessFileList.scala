@@ -15,6 +15,8 @@ import java.io._
  *  d) a .piW file for every .pi file, wrapping the .pi file with the corresponding condition
  */
 object ProcessFileList extends RegexParsers {
+
+
     def toFeature(name: String, isModule: Boolean) =
         FeatureExpr.createDefinedExternal("CONFIG_" +
                 (if (isModule)
@@ -63,45 +65,61 @@ object ProcessFileList extends RegexParsers {
     def main(args: Array[String]) {
         val pcList = args(0)
 
-        val outDir = "out" //XXX
-        val reversePath = ".." //XXX, reverse of outDir
-
         val lines = io.Source.fromFile(pcList).getLines
         val mybreaks = new Breaks
         val stderr = new PrintWriter(System.err, true)
 
-        val fm = LinuxFeatureModel.featureModel
+        val fm = LinuxFeatureModel.featureModelFull
+
+        val fileListWriter = new PrintWriter(new File("linux_files.lst"))
+        val ignoredFileListWriter = new PrintWriter(new File("linux_file_ignored.lst"))
+
 
         import mybreaks.{break, breakable}
         breakable {
             val FileNameFilter = """.*\.c""".r
-            for (line <- lines; fields = line.split(':'); fileName = fields(0) if (
-                    fileName match {
+            for (line <- lines; fields = line.split(':'); fullFilename = fields(0) if (
+                    fullFilename match {
                         case FileNameFilter(_*) => true
                         case _ => false
                     }
                     )) {
+                val filename = fullFilename.substring(fullFilename.lastIndexOf("/") + 1).dropRight(2)
+
                 val pcExpr = parseAll(expr, fields(1))
                 pcExpr match {
                     case Success(cond, _) =>
-                        if (cond.isSatisfiable(fm))
-                            println(fileName + " " + cond)
-                        else
-                            stderr.println(fileName + " has condition False, parsed from: " + fields(1))
-                    //                        val wrapperSrcPath = new File(outDir + File.separator + fileName)
-                    //                        wrapperSrcPath.getParentFile().mkdirs()
-                    //                        val wrapperSrc = new PrintWriter(wrapperSrcPath)
-                    //                        wrapperSrc.print("#if "); cond.print(wrapperSrc)
-                    //                        wrapperSrc.println("\n#include \"" + reversePath + "/" + fileName + "\"\n#endif")
-                    //                        wrapperSrc.close
-                    //                    case Success(cond, _) =>
-                    //                        stderr.println(fileName + " has condition False, parsed from: " + fields(1))
+                        if (cond.isSatisfiable(fm)) {
+                            //file should be parsed
+                            println(fullFilename + " " + cond)
+
+                            fileListWriter.write(fullFilename + "\n")
+
+                            //create .cW and .piW file
+                            val wrapperSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename + "W"))
+                            val wrapperPiSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename.dropRight(2) + ".piW"))
+                            wrapperSrc.print("#if ")
+                            wrapperPiSrc.print("#if ")
+                            cond.print(wrapperSrc)
+                            cond.print(wrapperPiSrc)
+                            wrapperSrc.println("\n#include \"" + filename + ".c" + "\"\n#endif")
+                            wrapperPiSrc.println("\n#include \"" + filename + ".pi" + "\"\n#endif")
+                            wrapperSrc.close
+                            wrapperPiSrc.close
+                        }
+                        else {
+                            stderr.println(fullFilename + " has condition False, parsed from: " + fields(1))
+                            fileListWriter.write(fullFilename + ": " + fields(1) + "\n")
+                        }
                     case NoSuccess(msg, _) =>
-                        stderr.println(fileName + " " + pcExpr)
+                        stderr.println(fullFilename + " " + pcExpr)
                         break
                 }
             }
         }
+        fileListWriter.close
+        ignoredFileListWriter.close
+
     }
 }
 

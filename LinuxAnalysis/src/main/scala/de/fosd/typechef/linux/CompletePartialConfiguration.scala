@@ -8,7 +8,6 @@ package de.fosd.typechef.linux
  */
 
 import de.fosd.typechef.featureexpr.FeatureExpr._
-import io.Source
 import java.io._
 
 /**
@@ -25,21 +24,7 @@ object CompletePartialConfiguration {
         new File(outPath).mkdir()
 
 
-        val DEF = "#define"
-        val UNDEF = "#undef"
-
-        val directives = Source.fromFile(LinuxSettings.partialConfFile).getLines.filter(_.startsWith("#"))
-
-        def findMacroName(directive: String) = directive.split(' ')(1)
-
-        val booleanDefs = directives.filter(directive => directive.startsWith(DEF) && directive.endsWith(" 1")).map(findMacroName)
-        val undefs = directives.filter(_.startsWith(UNDEF)).map(findMacroName)
-
-        val partialConfiguration = (booleanDefs.map(createDefinedExternal(_)) ++
-                undefs.map(createDefinedExternal(_).not)).
-                foldRight(base)(_ and _)
-        val rawFeatureModel = LinuxFeatureModel.featureModel
-        val featureModel = rawFeatureModel and partialConfiguration
+        val featureModel = LinuxFeatureModel.featureModelFull
 
         val completedConf = new FileWriter(outPath + File.separator + "completedConf.h")
         val openFeatures = new FileWriter(outPath + File.separator + "openFeaturesList.txt")

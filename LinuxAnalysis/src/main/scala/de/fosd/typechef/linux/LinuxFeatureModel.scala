@@ -7,7 +7,23 @@
 package de.fosd.typechef.linux
 
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import io.Source
 
+/**
+ * three feature models are available
+ *
+ * featureModel) the normal feature model (from dimacs)
+ *
+ * featureModelApprox) a small approximated feature model for parsing (contains only few dependencies). not accurate but fast
+ *
+ * featureModelFull) the normal feature model restricted by the partial configuration (i.e. certain features are already
+ *    defined or excluded due to the partial configuration)
+ *
+ *
+ * the approximated feature model is hardcoded in this file. the dimacs feature model and the partial configuration
+ * are loaded according to the settings in LinuxSettings
+ *
+ */
 object LinuxFeatureModel {
     /**
      * full feature model, used for analysis and preparation
@@ -42,6 +58,29 @@ object LinuxFeatureModel {
             //                    and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_DEBUG_SPINLOCK")) //parsing error
 
         )
+    }
+
+
+    lazy val partialConfiguration: FeatureExpr = readPartialConfiguration
+
+    lazy val featureModelFull = LinuxFeatureModel.featureModel and partialConfiguration
+
+
+    private def readPartialConfiguration = {
+        import FeatureExpr._
+        val DEF = "#define"
+        val UNDEF = "#undef"
+
+        val directives = Source.fromFile(LinuxSettings.partialConfFile).getLines.filter(_.startsWith("#"))
+
+        def findMacroName(directive: String) = directive.split(' ')(1)
+
+        val booleanDefs = directives.filter(directive => directive.startsWith(DEF) && directive.endsWith(" 1")).map(findMacroName)
+        val undefs = directives.filter(_.startsWith(UNDEF)).map(findMacroName)
+
+        (booleanDefs.map(createDefinedExternal(_)) ++
+                undefs.map(createDefinedExternal(_).not)).
+                foldRight(base)(_ and _)
     }
 
 }
