@@ -2,5 +2,10 @@
 . linuxFileList.inc
 
 filesToProcess|while read i; do
-  ./parseTypecheck.sh $srcPath/$i.pi
+  if [ ! -f $srcPath/$i.pi.dbgT ]; then
+    touch $srcPath/$i.pi.dbgT
+    ./parseTypecheck.sh $srcPath/$i.pi
+  else
+    echo "Skipping $srcPath/$i.pi"
+  fi
 done
