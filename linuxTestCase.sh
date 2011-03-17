@@ -51,8 +51,13 @@ export outCSV=linux.csv
 ##################################################################
 filesToProcess|while read i; do
   extraFlags="$(flags "$i")"
-  . ./jcpp.sh $srcPath/$i.c $extraFlags
-  . ./postProcess.sh $srcPath/$i.c $extraFlags
+  if [ ! -f $srcPath/$i.pi ]; then
+    touch $srcPath/$i.pi
+    . ./jcpp.sh $srcPath/$i.c $extraFlags
+    . ./postProcess.sh $srcPath/$i.c $extraFlags
+  else
+    echo "Skipping $srcPath/$i.c"
+  fi
 #  for j in $listToParse; do
 #    if [ "$i" = "$j" ]; then
 #      ./parseTypecheck.sh $srcPath/$i.pi
