@@ -18,7 +18,7 @@ object LinuxParser {
     def main(args: Array[String], check: AST => Unit) = {
 
 
-        for (filename <- files) {
+        for (filename <- args) {
             println("**************************************************************************")
             println("** Processing file: " + filename)
             println("**************************************************************************")
@@ -39,6 +39,6 @@ object LinuxParser {
         }
     }
 
-    private def loadFeatureModel(filename: String): FeatureExpr =
+    private def loadFeatureModel(filename: File): FeatureExpr =
         new FeatureExprParser().parse(new FileReader(filename))
 }
