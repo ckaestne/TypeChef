@@ -21,7 +21,8 @@ object LinuxDependencyAnalysis {
             //            "CONFIG_NEED_MULTIPLE_NODES",
             //            "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM",
             //            "CONFIG_X86_PAE",
-            "CONFIG_X86_IO_APIC", "CONFIG_ACPI");
+            //            "CONFIG_X86_IO_APIC", "CONFIG_ACPI",
+            "CONFIG_BLOCK", "CONFIG_BLK_DEV_DRBD");
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
 
 
