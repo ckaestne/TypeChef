@@ -176,4 +176,8 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testParametricMacro2() throws LexerException, IOException {
         testFile("parametricmacro2.h");
     }
+    @Test
+    public void testKBuildStr() throws LexerException, IOException {
+        testFile("kbuildstr.c");
+    }
 }
