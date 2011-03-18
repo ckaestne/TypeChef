@@ -10,7 +10,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr._
  * (currently by hardcoding them in source code. for the future, potentially provide commandline parameters)
  */
 
-class LinuxDependencyAnalysis {
+object LinuxDependencyAnalysis {
 
     import LinuxFeatureModel.featureModel
 
@@ -20,7 +20,7 @@ class LinuxDependencyAnalysis {
             //            "CONFIG_SMP", "CONFIG_DEBUG_SPINLOCK",
             //            "CONFIG_NEED_MULTIPLE_NODES",       "CONFIG_ACPI",
             "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM",
-            "CONFIG_X86_PAE");
+            "CONFIG_X86_PAE", "CONFIG_IA32_EMULATION", "CONFIG_COMPAT");
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
 
 
