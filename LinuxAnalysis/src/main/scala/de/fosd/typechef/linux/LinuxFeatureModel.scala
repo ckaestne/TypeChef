@@ -54,6 +54,7 @@ object LinuxFeatureModel {
                     and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_X86_PAE")) //from FM
                     and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_SPARSEMEM")) //from FM
                     and (d("CONFIG_NEED_MULTIPLE_NODES") implies d("CONFIG_SMP")) //from FM
+                    and (d("CONFIG_BLK_DEV_DRBD") implies d("CONFIG_BLOCK")) //from FM
             //                    and (d("CONFIG_BUG") and (d("CONFIG_SMP") or d("CONFIG_DEBUG_SPINLOCK"))).not //parsing error
             //                    and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_DEBUG_SPINLOCK")) //parsing error
 
