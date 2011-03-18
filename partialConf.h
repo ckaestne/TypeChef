@@ -39,3 +39,5 @@
 #define CONFIG_DEFAULT_SECURITY ""
 #define CONFIG_BASE_SMALL 0
 #define CONFIG_LOG_BUF_SHIFT 17
+
+#define KBUILD_STR(s) #s
