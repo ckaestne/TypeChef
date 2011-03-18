@@ -4,6 +4,7 @@ import org.scalacheck._
 import Gen._
 import FeatureExpr._
 import Prop._
+import java.io._
 
 object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     def feature(a: String) = FeatureExpr.createDefinedExternal(a)
@@ -49,6 +50,13 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
         Gen.sized(sz => genFeatureExpr(sz))
     }
 
+
+    property("parse(print(x))==x") = Prop.forAll((a: FeatureExpr) => {
+        val writer = new StringWriter()
+        a.print(writer)
+        val b = new FeatureExprParser().parse(new StringReader(writer.toString))
+        a equivalentTo b
+    })
 
     property("and1") = Prop.forAll((a: FeatureExpr) => (a and FeatureExpr.base) equivalentTo a)
     property("and0") = Prop.forAll((a: FeatureExpr) => (a and FeatureExpr.dead) equivalentTo FeatureExpr.dead)
@@ -126,6 +134,8 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
 
     property("trueCNFSat") = True.toCNF.isSatisfiable
     property("falseCNFSat") = !(False.toCNF.isSatisfiable())
+
+
 
     //
     //  property("endsWith") = Prop.forAll((a: String, b: String) => (a+b).endsWith(b))

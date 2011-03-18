@@ -6,7 +6,7 @@ import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
 import scala.ref.WeakReference
-import java.io.PrintWriter
+import java.io.Writer
 
 /**
  * External interface for construction of non-boolean feature expressions (mostly delegated to FExprBuilder)
@@ -207,11 +207,11 @@ sealed abstract class FeatureExpr {
     def toTextExpr: String
 
     /**
-     * Prints the textual representation of this formula on a PrintWriter. The result shall be equivalent to
+     * Prints the textual representation of this formula on a Writer. The result shall be equivalent to
      * p.print(toTextExpr), but it should avoid consuming so much temporary space.
-     * @param p the output PrintWriter
+     * @param p the output Writer
      */
-    def print(p: PrintWriter) = p.print(toTextExpr)
+    def print(p: Writer) = p.write(toTextExpr)
     def debug_print(indent: Int): String
 
     private var cache_cnf: FeatureExpr = null
@@ -663,7 +663,7 @@ private[featureexpr] object FExprBuilder {
  * clauses into the canonical True or False object.
  */
 
-trait DefaultPrint extends FeatureExpr {override def print(p: PrintWriter) = p.print(toTextExpr)}
+trait DefaultPrint extends FeatureExpr {override def print(p: Writer) = p.write(toTextExpr)}
 
 object True extends And(Set()) with DefaultPrint {
     override def toString = "True"
@@ -758,17 +758,17 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
 
     override def toString = clauses.mkString("(", operName, ")")
     override def toTextExpr = clauses.map(_.toTextExpr).mkString("(", " " + operName + operName + " ", ")")
-    override def print(p: PrintWriter) = {
+    override def print(p: Writer) = {
         trait PrintValue
         case object NoPrint extends PrintValue
         case object Printed extends PrintValue
         case class ToPrint[T](x: T) extends PrintValue
-        p print "("
+        p write "("
         clauses.map(x => ToPrint(x)).foldLeft[PrintValue](NoPrint)({
             case (NoPrint, ToPrint(c)) => {c.print(p); Printed}
-            case (Printed, ToPrint(c)) => {p.print(" " + operName + operName + " "); c.print(p); Printed}
+            case (Printed, ToPrint(c)) => {p.write(" " + operName + operName + " "); c.print(p); Printed}
         })
-        p print ")"
+        p write ")"
     }
     override def debug_print(ind: Int) = indent(ind) + operName + "\n" + clauses.map(_.debug_print(ind + 1)).mkString
 
@@ -918,8 +918,8 @@ class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
 
     override def toString = "!" + expr.toString
     override def toTextExpr = "!" + expr.toTextExpr
-    override def print(p: PrintWriter) = {
-        p.print("!")
+    override def print(p: Writer) = {
+        p.write("!")
         expr.print(p)
     }
     override def debug_print(ind: Int) = indent(ind) + "!\n" + expr.debug_print(ind + 1)

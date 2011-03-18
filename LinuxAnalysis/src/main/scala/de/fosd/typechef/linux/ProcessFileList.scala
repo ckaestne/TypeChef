@@ -114,6 +114,10 @@ object ProcessFileList extends RegexParsers {
                             wrapperPiSrc.println("\n#include \"" + filename + ".pi" + "\"\n#endif")
                             wrapperSrc.close
                             wrapperPiSrc.close
+
+                            val fmFile = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename.dropRight(2) + ".pi.fm"))
+                            cond.print(fmFile)
+                            fmFile.close
                         }
                         else {
                             stderr.println(fullFilename + " has condition False, parsed from: " + fields(1))

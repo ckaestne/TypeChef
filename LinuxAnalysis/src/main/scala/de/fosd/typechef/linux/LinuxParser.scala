@@ -7,7 +7,8 @@
 package de.fosd.typechef.linux
 
 import de.fosd.typechef.parser.c._
-import java.io.File
+import java.io.{FileReader, File}
+import de.fosd.typechef.featureexpr.{FeatureExprParser, FeatureExpr}
 ;
 
 object LinuxParser {
@@ -16,12 +17,18 @@ object LinuxParser {
     def main(args: Array[String]): Unit = this.main(args, null)
     def main(args: Array[String], check: AST => Unit) = {
 
-        val parserMain = new ParserMain(new CParser(LinuxFeatureModel.featureModelApprox))
 
-        for (filename <- args) {
+        for (filename <- files) {
             println("**************************************************************************")
             println("** Processing file: " + filename)
             println("**************************************************************************")
+            //load feature model in .fm file if available
+            val featureModelFile = new File(filename + ".fm")
+            val featureExpr = if (featureModelFile.exists) loadFeatureModel(featureModelFile) else FeatureExpr.base
+
+            //create parser and start parsing
+            val parserMain = new ParserMain(new CParser(LinuxFeatureModel.featureModelApprox.and(featureExpr)))
+
             val parentPath = new File(filename).getParent()
             val ast = parserMain.parserMain(filename, parentPath, new CTypeContext())
             if (check != null && ast != null)
@@ -31,4 +38,7 @@ object LinuxParser {
             println("**************************************************************************")
         }
     }
+
+    private def loadFeatureModel(filename: String): FeatureExpr =
+        new FeatureExprParser().parse(new FileReader(filename))
 }

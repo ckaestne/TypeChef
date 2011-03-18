@@ -17,7 +17,8 @@ import scala.collection.{mutable, immutable}
  *
  */
 class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], val lastVarId: Int) {
-    def and(expr: FeatureExpr /*CNF*/) = {
+    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExpr.base) this
+    else {
         val cnf = expr.toCNF
         try {
             assert(!expr.isContradiction)
