@@ -34,8 +34,11 @@ object Stats {
                 (scala.io.Source.fromFile(args(1)).getLines.toList, if (args.length > 2) args(2) else "stats.csv")
             else
                 (List(args(0)), if (args.length > 1) args(1) else "stats.csv")
+        val append = args(0) != "-f"
 
-        val out = new BufferedWriter(new FileWriter(outStats, true))
+        val out = new BufferedWriter(new FileWriter(outStats, append))
+        if (!append)
+            out.write("file;outofmemory;finished;parsingtime;tokens;tokensConsumed;tokensBacktracked;tokensRepeated;noError;errorMsg")
 
         for (file <- files) {
             val fullFilePath = LinuxSettings.pathToLinuxSource + "/" + file + ".pi.dbgT"
@@ -55,7 +58,7 @@ object Stats {
                     out.write(";1;")
 
 
-                out.write(parseLine(lines, "Duration parsing", " ms\n").getOrElse("") + ";")
+                out.write(parseLine(lines, "Duration parsing", " ms\n").getOrElse("").dropRight(3) + ";")
                 out.write(parseLine(lines, "Tokens:", "\n").getOrElse("") + ";")
                 out.write(parseLine(lines, "Tokens Consumed:", "\n").getOrElse("") + ";")
                 out.write(parseLine(lines, "Tokens Backtracked:", "\n").getOrElse("") + ";")
@@ -66,8 +69,8 @@ object Stats {
                 else
                     out.write("0;")
 
-		if (lines.exists(_ contains "failed: ")) 
-		    out.write(lines.filter(_ contains "failed: ").mkString)
+                if (lines.exists(_ contains "failed: "))
+                    out.write(lines.filter(_ contains "failed: ").mkString)
 
                 out.write("\n")
             }
