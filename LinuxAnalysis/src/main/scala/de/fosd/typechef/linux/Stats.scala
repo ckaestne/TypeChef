@@ -38,7 +38,7 @@ object Stats {
 
         val out = new BufferedWriter(new FileWriter(outStats, append))
         if (!append)
-            out.write("file;outofmemory;finished;parsingtime;tokens;tokensConsumed;tokensBacktracked;tokensRepeated;noError;errorMsg")
+            out.write("file;outofmemory;finished;parsingtime;tokens;tokensConsumed;tokensBacktracked;tokensRepeated;noError;errorMsg\n")
 
         for (file <- files) {
             val fullFilePath = LinuxSettings.pathToLinuxSource + "/" + file + ".pi.dbgT"
