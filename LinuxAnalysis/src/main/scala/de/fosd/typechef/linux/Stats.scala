@@ -38,29 +38,36 @@ object Stats {
         val out = new BufferedWriter(new FileWriter(outStats, true))
 
         for (file <- files) {
-            println("processing " + file)
-            out.write(file + ";")
+            val fullFilePath = LinuxSettings.pathToLinuxSource + "/" + file + ".pi.dbgT"
 
-            val lines = scala.io.Source.fromFile(file).getLines.toList
-            if (lines.exists(_ contains "java.lang.OutOfMemoryError")) {
-                println("out of memory")
-                out.write("out of memory;0;")
-            } else
-                out.write(";1;")
+            if (!new File(fullFilePath).exists)
+                println("skipping " + file)
+            else {
+
+                println("processing " + file)
+                out.write(file + ";")
+
+                val lines = scala.io.Source.fromFile(file).getLines.toList
+                if (lines.exists(_ contains "java.lang.OutOfMemoryError")) {
+                    println("out of memory")
+                    out.write("out of memory;0;")
+                } else
+                    out.write(";1;")
 
 
-            out.write(parseLine(lines, "Duration parsing", " ms\n").getOrElse("") + ";")
-            out.write(parseLine(lines, "Tokens:", "\n").getOrElse("") + ";")
-            out.write(parseLine(lines, "Tokens Consumed:", "\n").getOrElse("") + ";")
-            out.write(parseLine(lines, "Tokens Backtracked:", "\n").getOrElse("") + ";")
-            out.write(parseLine(lines, "Tokens Repeated:", "\n").getOrElse("") + ";")
+                out.write(parseLine(lines, "Duration parsing", " ms\n").getOrElse("") + ";")
+                out.write(parseLine(lines, "Tokens:", "\n").getOrElse("") + ";")
+                out.write(parseLine(lines, "Tokens Consumed:", "\n").getOrElse("") + ";")
+                out.write(parseLine(lines, "Tokens Backtracked:", "\n").getOrElse("") + ";")
+                out.write(parseLine(lines, "Tokens Repeated:", "\n").getOrElse("") + ";")
 
-            if (lines.exists(_ contains "True\tsucceeded"))
-                out.write("1;")
-            else
-                out.write("0;")
+                if (lines.exists(_ contains "True\tsucceeded"))
+                    out.write("1;")
+                else
+                    out.write("0;")
 
-            out.write("\n")
+                out.write("\n")
+            }
         }
 
         out.close
