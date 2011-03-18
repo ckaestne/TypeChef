@@ -9,7 +9,7 @@ srcPath=$PWD/linux-2.6.33.3
 # List of files to preprocess
 ##################################################################
 filesToProcess() {
-  local listFile=linuxKernelSrcList.txt
+  local listFile=linux_files.lst
   cat $listFile
   #awk -F: '$1 ~ /.c$/ {print gensub(/\.c$/, "", "", $1)}' < linux_2.6.33.3_pcs.txt
 }

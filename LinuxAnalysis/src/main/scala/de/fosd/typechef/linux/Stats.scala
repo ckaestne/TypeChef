@@ -66,6 +66,9 @@ object Stats {
                 else
                     out.write("0;")
 
+		if (lines.exists(_ contains "failed: ")) 
+		    out.write(lines.filter(_ contains "failed: ").mkString)
+
                 out.write("\n")
             }
         }
