@@ -410,7 +410,14 @@ class CParserTest extends TestCase {
         assertParseable("{.l={{.r={.w={1},.m=2}}},.c=2}", p.initializer)
         assertParseable("{ .lock = { { .rlock = { .raw_lock = { 1 } } } } }", p.initializer)
         assertParseable("{ .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.initializer)
-        assertParseable("{(int) 3,4}", p.initializer)
+        assertParseable("{ .lock = { { .rlock = { .raw_lock = { 1 } } } } }", p.initializer)
+        assertParseable("{ .entry.mask = 1 }", p.initializer) //from io_apic.c
+        assertParseable("{ [2].y = yv2, [2].x = xv2, [0].x = xv0 }", p.initializer) //from gcc spec
+        assertParseable("{ [' '] = 1, ['\\t'] = 1, ['\\h'] = 1,\n           ['\\f'] = 1, ['\\n'] = 1, ['\\r'] = 1 }", p.initializer) //from gcc spec
+        assertParseable("{ [1] = v1, v2, [4] = v4 }", p.initializer) //from gcc spec
+        assertParseable("{ y: yvalue, x: xvalue }", p.initializer) //from gcc spec
+        assertParseable("{ .y = yvalue, .x = xvalue }", p.initializer) //from gcc spec
+        assertParseable("{ [0 ... 9] = 1, [10 ... 99] = 2, [100] = 3 }", p.initializer) //from gcc spec
         assertParseable("(int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.castExpr)
         assertParseable("(int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.expr)
         assertParseable("sem = (int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } };", p.statement)

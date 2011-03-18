@@ -261,8 +261,9 @@ case class AbstractDeclarator(pointer: List[Opt[Pointer]], extensions: List[Opt[
     override def getInnerOpt = pointer ++ extensions
 }
 
-case class Initializer(initializerElementLabel: Option[InitializerElementLabel], expr: Expr) extends AST {
-    override def getInner = initializerElementLabel.toList ++ List(expr)
+case class Initializer(initializerElementLabel: List[Opt[InitializerElementLabel]], expr: Expr) extends AST {
+    override def getInner = List(expr)
+    override def getInnerOpt = initializerElementLabel
 }
 
 case class Pointer(specifier: List[Opt[Specifier]]) extends AST {
@@ -398,15 +399,11 @@ case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends Declaration {
 
 abstract class InitializerElementLabel() extends AST
 
-case class InitializerElementLabelExpr(expr: Expr, isAssign: Boolean) extends InitializerElementLabel {
+case class InitializerArrayDesignator(expr: Expr) extends InitializerElementLabel {
     override def getInner = List(expr)
 }
 
-case class InitializerElementLabelColon(id: Id) extends InitializerElementLabel {
-    override def getInner = List(id)
-}
-
-case class InitializerElementLabelDotAssign(id: Id) extends InitializerElementLabel {
+case class InitializerDesignator(id: Id) extends InitializerElementLabel {
     override def getInner = List(id)
 }
 

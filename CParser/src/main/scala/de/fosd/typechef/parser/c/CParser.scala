@@ -164,7 +164,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     //consumes trailing comma
 
     def initializer: MultiParser[Initializer] =
-        opt(initializerElementLabel) ~ (assignExpr | lcurlyInitializer) ^^ {
+        optList(initializerDesignation) ~ (assignExpr | lcurlyInitializer) ^^ {
             case iel ~ expr => Initializer(iel, expr)
         }
 
@@ -522,17 +522,19 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             LocalLabelDeclaration(_)
         }
 
+
     // GCC allows more specific initializers
-    def initializerElementLabel: MultiParser[InitializerElementLabel] =
-        (LBRACKET ~~ (rangeExpr | constExpr) ~~ RBRACKET ~~ opt(ASSIGN) ^^ {
-            case _ ~ e ~ _ ~ a => InitializerElementLabelExpr(e, a.isDefined)
-        }
-                | (ID <~~ COLON ^^ {
-            InitializerElementLabelColon(_)
-        })
-                | (DOT ~~> ID <~~ ASSIGN ^^ {
-            InitializerElementLabelDotAssign(_)
-        }))
+    def initializerDesignation: MultiParser[List[Opt[InitializerElementLabel]]] =
+        (rep1(designator) <~~ ASSIGN) | //designator-list =
+                (arrayDesignator ^^ {ad => List(Opt(base, ad))}) | //array-designator
+                (ID <~~ COLON ^^ {id => List(Opt(base, InitializerDesignator(id)))})
+
+    def designator: MultiParser[InitializerElementLabel] =
+        arrayDesignator |
+                (DOT ~~> ID ^^ {InitializerDesignator(_)})
+
+    def arrayDesignator: MultiParser[InitializerArrayDesignator] =
+        LBRACKET ~~ (rangeExpr | constExpr) ~~ RBRACKET ^^ {case _ ~ e ~ _ => InitializerArrayDesignator(e)}
 
     def attributeKw = textToken("__attribute__") |
             textToken("__attribute")
