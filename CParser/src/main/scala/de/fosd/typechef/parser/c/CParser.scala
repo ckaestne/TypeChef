@@ -314,18 +314,16 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
-            | ({
-        (INC | DEC) ~! castExpr
-    } ^^ {case p ~ e => UnaryExpr(p.getText, e)})
+            | ({(INC | DEC) ~! castExpr} ^^ {case p ~ e => UnaryExpr(p.getText, e)})
             | (unaryOperator ~! castExpr ^^ {case u ~ c => UCastExpr(u.getText, c)})
-            | (textToken("sizeof") ~!> {
-        LPAREN ~> typeName <~ RPAREN ^^ {SizeOfExprT(_)} |
-                unaryExpr ^^ {SizeOfExprU(_)}
-    })
-            | (alignof ~!> {
-        LPAREN ~> typeName <~ RPAREN ^^ {AlignOfExprT(_)} |
-                unaryExpr ^^ {AlignOfExprU(_)}
-    })
+            | (textToken("sizeof") ~!> (
+            LPAREN ~> typeName <~ RPAREN ^^ {SizeOfExprT(_)} |
+                    unaryExpr ^^ {SizeOfExprU(_)}
+            ))
+            | (alignof ~!> (
+            LPAREN ~> typeName <~ RPAREN ^^ {AlignOfExprT(_)} |
+                    unaryExpr ^^ {AlignOfExprU(_)}
+            ))
             | gnuAsmExpr
             | fail("expected unaryExpr"))
 
