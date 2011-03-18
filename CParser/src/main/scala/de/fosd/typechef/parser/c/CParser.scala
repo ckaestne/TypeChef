@@ -354,7 +354,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
     //XXX allows trailing comma after argument list
 
-    def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~ typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuildinOffsetof(tn, d)}
+    def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~! typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuildinOffsetof(tn, d)}
             | (textToken("__builtin_types_compatible_p") ~ LPAREN ~ typeName ~ COMMA ~ typeName ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinTypesCompatible(tn, tn2)})
             | ID
             | numConst
@@ -389,6 +389,13 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             ExprList(_)
         }
     //consumes trailing commas
+
+    def offsetofMemberDesignator: MultiParser[List[Opt[OffsetofMemberDesignator]]] =
+        ID ~ repOpt(offsetofMemberDesignatorExt) ^^ {case id ~ list => Opt(base, OffsetofMemberDesignatorID(id)) +: list}
+
+    def offsetofMemberDesignatorExt: MultiParser[OffsetofMemberDesignator] =
+        (DOT ~> ID ^^ {OffsetofMemberDesignatorID(_)}) |
+                (LBRACKET ~> expr <~ RBRACKET ^^ {OffsetofMemberDesignatorExpr(_)})
 
     //
     def ASSIGN = textToken('=')
@@ -472,9 +479,6 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             AttributeSequence(_)
         }
 
-    def offsetofMemberDesignator: MultiParser[List[Opt[Id]]] =
-        rep1SepOpt(ID, DOT, "offsetofMemberDesignator")
-    //consumes trailing dot
 
     def gnuAsmExpr: MultiParser[GnuAsmExpr] =
         asm ~ opt(volatile) ~

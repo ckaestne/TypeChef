@@ -18,9 +18,10 @@ object LinuxDependencyAnalysis {
         val featureNames = List(
             //            "CONFIG_MEMORY_HOTPLUG", "CONFIG_DEBUG_SPINLOCK", "CONFIG_BUG",
             //            "CONFIG_SMP", "CONFIG_DEBUG_SPINLOCK",
-            //            "CONFIG_NEED_MULTIPLE_NODES",       "CONFIG_ACPI",
-            "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM",
-            "CONFIG_X86_PAE", "CONFIG_IA32_EMULATION", "CONFIG_COMPAT");
+            //            "CONFIG_NEED_MULTIPLE_NODES",
+            //            "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM",
+            //            "CONFIG_X86_PAE",
+            "CONFIG_X86_IO_APIC", "CONFIG_ACPI");
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
 
 

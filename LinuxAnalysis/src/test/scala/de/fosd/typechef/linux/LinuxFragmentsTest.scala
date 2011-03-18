@@ -109,4 +109,153 @@ class LinuxFragmentsTest extends TestCase {
     //#endif
     //        """, p.phrase(p.translationUnit))
 
+
+    def testLinux_ptrace = assertParseable(
+        """long arch_ptrace(struct task_struct *child, long request, long addr, long data)
+        {
+            int ret;
+            unsigned long  *datap = (unsigned long  *)data;
+
+            switch (request) {
+            /* read the word at location addr in the USER area. */
+            case 3: {
+                unsigned long tmp;
+
+                ret = -5;
+                if ((addr & (sizeof(data) - 1)) || addr < 0 ||
+                    addr >= sizeof(struct user))
+                    break;
+
+                tmp = 0;  /* Default return condition */
+                if (addr < sizeof(struct user_regs_struct))
+                    tmp = getreg(child, addr);
+                else if (addr >= __builtin_offsetof(struct user,u_debugreg[0]) &&
+                     addr <= __builtin_offsetof(struct user,u_debugreg[7])) {
+                    addr -= __builtin_offsetof(struct user,u_debugreg[0]);
+                    tmp = ptrace_get_debugreg(child, addr / sizeof(data));
+                }
+                ret = ({ int __ret_pu; __typeof__(*(datap)) __pu_val; (void)0; might_fault(); __pu_val = tmp; switch (sizeof(*(datap))) { case 1: asm volatile("call __put_user_" "1" : "=a" (__ret_pu) : "0" ((typeof(*(datap)))(__pu_val)), "c" (datap) : "ebx"); break; case 2: asm volatile("call __put_user_" "2" : "=a" (__ret_pu) : "0" ((typeof(*(datap)))(__pu_val)), "c" (datap) : "ebx"); break; case 4: asm volatile("call __put_user_" "4" : "=a" (__ret_pu) : "0" ((typeof(*(datap)))(__pu_val)), "c" (datap) : "ebx"); break; case 8: asm volatile("call __put_user_8" : "=a" (__ret_pu) : "A" ((typeof(*(datap)))(__pu_val)), "c" (datap) : "ebx"); break; default: asm volatile("call __put_user_" "X" : "=a" (__ret_pu) : "0" ((typeof(*(datap)))(__pu_val)), "c" (datap) : "ebx"); break; } __ret_pu; });
+                break;
+            }
+
+            case 6: /* write the word at location addr in the USER area */
+                ret = -5;
+                if ((addr & (sizeof(data) - 1)) || addr < 0 ||
+                    addr >= sizeof(struct user))
+                    break;
+
+                if (addr < sizeof(struct user_regs_struct))
+                    ret = putreg(child, addr, data);
+                else if (addr >= __builtin_offsetof(struct user,u_debugreg[0]) &&
+                     addr <= __builtin_offsetof(struct user,u_debugreg[7])) {
+                    addr -= __builtin_offsetof(struct user,u_debugreg[0]);
+                    ret = ptrace_set_debugreg(child,
+                                  addr / sizeof(data), data);
+                }
+                break;
+
+            case 12:	/* Get all gp regs from the child. */
+                return copy_regset_to_user(child,
+                               task_user_regset_view(get_current()),
+                               REGSET_GENERAL,
+                               0, sizeof(struct user_regs_struct),
+                               datap);
+
+            case 13:	/* Set all gp regs in the child. */
+                return copy_regset_from_user(child,
+                                 task_user_regset_view(get_current()),
+                                 REGSET_GENERAL,
+                                 0, sizeof(struct user_regs_struct),
+                                 datap);
+
+            case 14:	/* Get the child FPU state. */
+                return copy_regset_to_user(child,
+                               task_user_regset_view(get_current()),
+                               REGSET_FP,
+                               0, sizeof(struct user_i387_struct),
+                               datap);
+
+            case 15:	/* Set the child FPU state. */
+                return copy_regset_from_user(child,
+                                 task_user_regset_view(get_current()),
+                                 REGSET_FP,
+                                 0, sizeof(struct user_i387_struct),
+                                 datap);
+
+
+            case 18:	/* Get the child extended FPU state. */
+                return copy_regset_to_user(child, &user_x86_32_view,
+                               REGSET_XFP,
+                               0, sizeof(struct user_fxsr_struct),
+                               datap) ? -5 : 0;
+
+            case 19:	/* Set the child extended FPU state. */
+                return copy_regset_from_user(child, &user_x86_32_view,
+                                 REGSET_XFP,
+                                 0, sizeof(struct user_fxsr_struct),
+                                 datap) ? -5 : 0;
+
+
+            case 25:
+                if (addr < 0)
+                    return -5;
+                ret = do_get_thread_area(child, addr,
+                             (struct user_desc  *) data);
+                break;
+
+            case 26:
+                if (addr < 0)
+                    return -5;
+                ret = do_set_thread_area(child, addr,
+                             (struct user_desc  *) data, 0);
+                break;
+
+
+
+
+
+
+
+
+
+            /*
+             * These bits need more cooking - not enabled yet:
+             */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            default:
+                ret = ptrace_request(child, request, addr, data);
+                break;
+            }
+
+            return ret;
+        }""", p.phrase(p.translationUnit))
+
 }

@@ -197,6 +197,7 @@ class CParserTest extends TestCase {
         assertParseable("++", p.postfixSuffix)
         assertParseable("b++", p.postfixExpr)
         assertParseable("__builtin_offsetof(void,a.b)", p.primaryExpr)
+        assertParseable("__builtin_offsetof(void,a[1])", p.primaryExpr)
         assertParseable("c", p.castExpr)
         assertParseable("__real__", p.unaryOperator)
         assertParseable("__real__ c", p.unaryOperator ~ p.castExpr)

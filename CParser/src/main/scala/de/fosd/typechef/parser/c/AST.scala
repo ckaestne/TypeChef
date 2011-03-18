@@ -407,10 +407,16 @@ case class InitializerDesignator(id: Id) extends InitializerElementLabel {
     override def getInner = List(id)
 }
 
-case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[Id]]) extends PrimaryExpr {
+case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[OffsetofMemberDesignator]]) extends PrimaryExpr {
     override def getInner = List(typeName)
     override def getInnerOpt = super.getInnerOpt ++ offsetofMemberDesignator
 }
+
+abstract class OffsetofMemberDesignator() extends AST
+
+case class OffsetofMemberDesignatorID(id: Id) extends OffsetofMemberDesignator
+
+case class OffsetofMemberDesignatorExpr(expr: Expr) extends OffsetofMemberDesignator
 
 case class BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) extends PrimaryExpr {
     override def getInner = List(typeName1, typeName2)
