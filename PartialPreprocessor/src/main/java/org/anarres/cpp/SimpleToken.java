@@ -34,7 +34,7 @@ public class SimpleToken extends Token {
     private int column;
     private Object value;
     protected String text;
-    private Source source;// for debugging purposes only
+    protected Source source;// for debugging purposes only
     private FeatureExpr presenceCondition = FeatureExprLib.base();
 
     public SimpleToken(int type, int line, int column, String text,
