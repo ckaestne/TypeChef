@@ -166,4 +166,10 @@ public class SimpleToken extends Token {
     public Source getSource() {
         return source;
     }
+    @Override
+    public Token clone() {
+        Token t = new SimpleToken(type, line, column, text, value, source);
+        t.setFeature(presenceCondition);
+        return t;
+    }
 }

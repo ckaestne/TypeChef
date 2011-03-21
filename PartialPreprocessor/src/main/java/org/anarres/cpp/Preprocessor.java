@@ -2586,6 +2586,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     public Token getNextToken() throws IOException, LexerException {
         try {
             Token tok = parse_main();
+            tok = tok.clone();
             tok.setFeature(state.getFullPresenceCondition());
             if (getFeature(Feature.DEBUG))
                 System.err.println("pp: Returning " + tok);
