@@ -229,6 +229,7 @@ public class Main {
         }
 
         List<Token> resultTokenList = new ArrayList<Token>();
+        int outputLine = 1;
         try {
             // TokenFilter tokenFilter = new TokenFilter();
             for (; ;) {
@@ -238,8 +239,15 @@ public class Main {
                 if (tok.getType() == Token.EOF)
                     break;
 
-                if (returnTokenList && PartialPPLexer.isResultToken(tok))
+
+                if (tok.getType() == Token.NL || tok.getType() == Token.P_IF || tok.getType() == Token.P_ENDIF || tok.getType() == Token.P_LINE || tok.getType() == Token.P_ELIF)
+                    outputLine++;
+
+                if (returnTokenList && PartialPPLexer.isResultToken(tok)) {
+                    if (tok instanceof SimpleToken)
+                        ((SimpleToken) tok).setLine(outputLine);
                     resultTokenList.add(tok);
+                }
 
                 if (output != null)
                     tok.lazyPrint(output);
