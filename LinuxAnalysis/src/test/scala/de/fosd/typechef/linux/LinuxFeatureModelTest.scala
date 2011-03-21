@@ -28,6 +28,7 @@ class LinuxFeatureModelTest extends TestCase {
         assertTrue((CONFIG_LBDAF or (CONFIG_LBDAF.not)).isSatisfiable(featureModel))
         assertTrue(CONFIG_LBDAF.not.isSatisfiable(featureModel))
         assertTrue(CONFIG_LBDAF.isSatisfiable(featureModel))
+        println(FeatureExpr.createDefinedExternal("CONFIG_X86").isTautology(featureModel))
 
     }
     @Test
