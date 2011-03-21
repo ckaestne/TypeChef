@@ -240,8 +240,11 @@ public class Main {
                     break;
 
 
-                if (tok.getType() == Token.NL || tok.getType() == Token.P_IF || tok.getType() == Token.P_ENDIF || tok.getType() == Token.P_LINE || tok.getType() == Token.P_ELIF)
-                    outputLine++;
+                    String image=tok.getText();
+                    while (image.indexOf('\n')>=0) {
+                        outputLine++;
+                        image=image.substring(image.indexOf('\n')+1);
+                    }
 
                 if (returnTokenList && PartialPPLexer.isResultToken(tok)) {
                     if (tok instanceof SimpleToken)

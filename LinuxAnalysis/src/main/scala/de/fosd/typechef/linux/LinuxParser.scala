@@ -25,7 +25,7 @@ object LinuxParser {
             //load feature model in .fm file if available
             val featureModelFile = new File(filename + ".fm")
             val featureExpr = if (featureModelFile.exists) loadFeatureModel(featureModelFile) else FeatureExpr.base
-
+println(featureExpr)
             //create parser and start parsing
             val parserMain = new ParserMain(new CParser(LinuxFeatureModel.featureModelApprox.and(featureExpr)))
 
