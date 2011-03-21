@@ -58,7 +58,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                     knownMacros + ((name, new Macro[T](name, initialFeatureExpr, List(new MacroExpansion[T](feature, other)))))
                 }
             }, cnfCache - name)
-        println("#define " + name)
+        //        println("#define " + name)
         newMC
     }
 
