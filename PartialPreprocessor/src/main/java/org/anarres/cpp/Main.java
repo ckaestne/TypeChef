@@ -22,7 +22,9 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * (Currently a simple test class).
@@ -101,11 +103,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        (new Main()).run(args);
+        (new Main()).run(args, false, true);
     }
 
-    @SuppressWarnings("unused")
-    public void run(String[] args) throws Exception {
+    public List<Token> run(String[] args, boolean returnTokenList, boolean printToStdOutput) throws Exception {
         Option[] opts = OPTS;
         String sopts = getShortOpts(opts);
         Getopt g = new Getopt("jcpp", args, sopts, opts);
@@ -113,7 +114,7 @@ public class Main {
         String arg;
         int idx;
 
-        PrintWriter output = new PrintWriter(new OutputStreamWriter(System.out));
+        PrintWriter output = printToStdOutput ? new PrintWriter(new OutputStreamWriter(System.out)) : null;
         Preprocessor pp = new Preprocessor();
         // No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
         // written with ASCII available!
@@ -195,7 +196,7 @@ public class Main {
                     break;
                 case 2: // --version
                     version(System.out);
-                    return;
+                    return new ArrayList<Token>();
                 case 'v':
                     pp.addFeature(Feature.VERBOSE);
                     break;
@@ -204,7 +205,7 @@ public class Main {
                     break;
                 case 'h':
                     usage(getClass().getName(), opts);
-                    return;
+                    return new ArrayList<Token>();
                 default:
                     throw new Exception("Illegal option " + (char) c);
                 case '?':
@@ -227,8 +228,8 @@ public class Main {
             System.err.println("End of search list.");
         }
 
+        List<Token> resultTokenList = new ArrayList<Token>();
         try {
-
             // TokenFilter tokenFilter = new TokenFilter();
             for (; ;) {
                 Token tok = pp.getNextToken();
@@ -237,17 +238,12 @@ public class Main {
                 if (tok.getType() == Token.EOF)
                     break;
 
-                // tokenFilter.push(tok);
+                if (returnTokenList && PartialPPLexer.isResultToken(tok))
+                    resultTokenList.add(tok);
 
-                // while (tokenFilter.hasLines()) {
-                // String l = tokenFilter.nextLine();
-                // System.out.println(l);
-                // output.write(l + "\n");
-                // }
-                // System.out.print(tok.getText());
-                tok.lazyPrint(output);
+                if (output != null)
+                    tok.lazyPrint(output);
             }
-            // System.out.println(pp.toString());
         } catch (Throwable e) {
             Preprocessor.logger.severe(e.toString());
             e.printStackTrace(System.err);
@@ -258,9 +254,10 @@ public class Main {
             }
         } finally {
             pp.debugWriteMacros();
-            output.close();
+            if (output != null)
+                output.close();
         }
-
+        return resultTokenList;
     }
 
     private void version(PrintStream out) {
