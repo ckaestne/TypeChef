@@ -75,6 +75,8 @@ object ProcessFileList extends RegexParsers {
 
         val fm = LinuxFeatureModel.featureModelFull
 
+        assert(FeatureExpr.base.isSatisfiable(fm))
+
         val fileListWriter = new PrintWriter(new File("linux_files.lst"))
         val ignoredFileListWriter = new PrintWriter(new File("linux_file_ignored.lst"))
 

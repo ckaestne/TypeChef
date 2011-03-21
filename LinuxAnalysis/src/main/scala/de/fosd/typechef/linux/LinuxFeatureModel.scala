@@ -1,5 +1,5 @@
 /*
- * Created by IntelliJ IDEA.
+  * Created by IntelliJ IDEA.
  * User: kaestner
  * Date: 17.03.11
  * Time: 16:06
@@ -34,6 +34,11 @@ object LinuxFeatureModel {
         val featureModel = FeatureModel.createFromDimacsFile_2Var(LinuxSettings.featureModelFile)
         println("done. [" + (System.currentTimeMillis - start) + " ms]")
         featureModel
+    }
+
+    lazy val featureModelExcludingDead: FeatureModel = {
+        val fm = featureModel
+        fm and getDeadFeatures(fm) and partialConfiguration
     }
 
 
@@ -83,6 +88,20 @@ object LinuxFeatureModel {
         (booleanDefs.map(createDefinedExternal(_)) ++
                 undefs.map(createDefinedExternal(_).not)).
                 foldRight(base)(_ and _)
+    }
+
+    /**
+     * reads the list of open features (LinuxSettings) and makes every
+     * feature dead that is not in that list
+     */
+    private def getDeadFeatures(fm: FeatureModel): FeatureExpr = {
+        import FeatureExpr._
+        var result: FeatureExpr = base
+        val openFeatures = Source.fromFile(LinuxSettings.openFeatureList).getLines.toList
+        for (feature <- fm.variables.keys if (feature.startsWith("CONFIG_") && !feature.startsWith("CONFIG__X") && !feature.endsWith("_2")))
+            if (!openFeatures.contains(feature))
+                result = result andNot createDefinedExternal(feature)
+        result
     }
 
 }
