@@ -22,7 +22,10 @@ object LinuxDependencyAnalysis {
             //            "CONFIG_DISCONTIGMEM", "CONFIG_FLATMEM", "CONFIG_SPARSEMEM",
             //            "CONFIG_X86_PAE",
             //            "CONFIG_X86_IO_APIC", "CONFIG_ACPI",
-            "CONFIG_BLOCK", "CONFIG_BLK_DEV_DRBD");
+            //            "CONFIG_BLOCK", "CONFIG_BLK_DEV_DRBD","CONFIG_BLK_DEV_INTEGRITY"
+            "CONFIG_AMIGA", "CONFIG_X86", "CONFIG_M32R", "CONFIG_SPARC", "CONFIG_M68K"
+
+        );
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
 
 
@@ -34,6 +37,7 @@ object LinuxDependencyAnalysis {
                 println(f1 + " => " + f2)
             if ((f1 mex f2).isTautology(featureModel))
                 println(f1 + " mex " + f2)
+            //            println(f1 + " boh " + f2)
         }
 
 
