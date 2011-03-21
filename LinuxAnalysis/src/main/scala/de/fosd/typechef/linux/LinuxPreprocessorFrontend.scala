@@ -15,7 +15,7 @@ import gnu.getopt.LongOpt
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
-import org.anarres.cpp.{Token, Main}
+import org.anarres.cpp.{SimpleToken, Token, Main}
 
 object LinuxPreprocessorFrontend {
 
@@ -71,7 +71,7 @@ object LinuxPreprocessorFrontend {
     ////////////////////////////////////////
     // Preprocessor/parser invocation
     ////////////////////////////////////////
-    def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String]): java.util.List[Token] =
+    def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String], getTokenstream: Boolean): java.util.List[Token] =
         new Main().run(Array(
             inFileName,
             "-o",
@@ -80,7 +80,7 @@ object LinuxPreprocessorFrontend {
             predefMacroDef
         ) ++
                 extraOpt ++
-                includeFlags, PARSEAFTERPREPROCESSING, !PARSEAFTERPREPROCESSING)
+                includeFlags, getTokenstream, !getTokenstream)
 
 
     def main(args: Array[String]): Unit = {
@@ -137,8 +137,9 @@ object LinuxPreprocessorFrontend {
             val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
 
-            val tokens = preprocessFile(filename, preprocOutputPath, extraOpt)
+            val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, parse)
             if (parse) {
+                fixLineNumbers(tokens)
                 val in = CLexer.prepareTokens(tokens)
                 val parserMain = new ParserMain(new CParser(getFeatureModel(preprocOutputPath)))
                 val ast = parserMain.parserMain(in)
@@ -148,6 +149,20 @@ object LinuxPreprocessorFrontend {
         }
     }
 
+
+    def fixLineNumbers(tokens: java.util.List[Token]) {
+        var line = 1
+        val ti = tokens.iterator
+        while (ti.hasNext) {
+            val tok = ti.next
+            if (tok.getType == Token.NL || tok.getType == Token.P_IF || tok.getType == Token.P_ENDIF || tok.getType == Token.P_LINE || tok.getType == Token.P_ELIF)
+                line = line + 1
+            if (tok.isInstanceOf[SimpleToken])
+                tok.asInstanceOf[SimpleToken].setLine(line);
+        }
+
+
+    }
 
     def getFeatureModel(cfilename: String): FeatureModel = {
         val featureModelFile = new File(cfilename + ".fm")
