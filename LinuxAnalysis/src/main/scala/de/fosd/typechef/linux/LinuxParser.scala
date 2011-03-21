@@ -30,7 +30,7 @@ object LinuxParser {
             val parserMain = new ParserMain(new CParser(LinuxFeatureModel.featureModelApprox.and(featureExpr)))
 
             val parentPath = new File(filename).getParent()
-            val ast = parserMain.parserMain(filename, parentPath, new CTypeContext())
+            val ast = parserMain.parserMain(filename, parentPath)
             if (check != null && ast != null)
                 check(ast)
             println("**************************************************************************")

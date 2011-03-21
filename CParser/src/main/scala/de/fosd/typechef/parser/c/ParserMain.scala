@@ -3,9 +3,6 @@ package de.fosd.typechef.parser.c
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.io.File
-import java.io.PrintStream
-import java.io.FileOutputStream
-import java.io.BufferedOutputStream
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -24,7 +21,7 @@ object ParserMain {
             println("** Processing file: " + filename)
             println("**************************************************************************")
             val parentPath = new File(filename).getParent()
-            parserMain.parserMain(filename, parentPath, new CTypeContext())
+            parserMain.parserMain(filename, parentPath)
             println("**************************************************************************")
             println("** End of processing for: " + filename)
             println("**************************************************************************")
@@ -35,23 +32,28 @@ object ParserMain {
 
 class ParserMain(p: CParser) {
 
-    def parserMain(filePath: String, parentPath: String): AST =
-        parserMain(filePath, parentPath, new CTypeContext())
+    def parserMain(filePath: String, parentPath: String): AST = {
+        val lexer = (() => CLexer.lexFile(filePath, parentPath))
+        parserMain(lexer, new CTypeContext())
+    }
 
+    def parserMain(tokenstream: TokenReader[TokenWrapper, CTypeContext]): AST = {
+        parserMain((() => tokenstream), new CTypeContext())
+    }
 
-    def parserMain(filePath: String, parentPath: String, initialContext: CTypeContext): AST = {
-        val logStats = MyUtil.runnable(() => {
-            if (TokenWrapper.profiling) {
-                val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
-                LineInformation.printStatistics(statistics)
-                statistics.close()
-            }
-        })
-
-        Runtime.getRuntime().addShutdownHook(new Thread(logStats))
+    private def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext): AST = {
+        //        val logStats = MyUtil.runnable(() => {
+        //            if (TokenWrapper.profiling) {
+        //                val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
+        //                LineInformation.printStatistics(statistics)
+        //                statistics.close()
+        //            }
+        //        })
+        //
+        //        Runtime.getRuntime().addShutdownHook(new Thread(logStats))
 
         val lexerStartTime = System.currentTimeMillis
-        val in = CLexer.lexFile(filePath, parentPath).setContext(initialContext)
+        val in = lexer().setContext(initialContext)
 
         val parserStartTime = System.currentTimeMillis
         val result = p.phrase(p.translationUnit)(in, FeatureExpr.base)

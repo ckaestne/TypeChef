@@ -1,5 +1,6 @@
-import org.anarres.cpp.Main
+package de.fosd.typechef
 
+import de.fosd.typechef.featureexpr.FeatureModel
 import java.util.Properties
 import java.io.File
 import java.io.FileInputStream
@@ -9,8 +10,14 @@ import gnu.getopt.LongOpt
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
+import org.anarres.cpp.{Token, Main}
 
 object PreprocessorFrontend {
+
+    //can be overriden with command line parameters p and t
+    def PARSEAFTERPREPROCESSING = true
+    def TYPECHECKAFTERPARSING = false
+
     ////////////////////////////////////////
     // General setup of built-in headers, should become more general and move
     // elsewhere.
@@ -59,8 +66,8 @@ object PreprocessorFrontend {
     ////////////////////////////////////////
     // Preprocessor/parser invocation
     ////////////////////////////////////////
-    def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String]) {
-        Main.main(Array(
+    def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String]): java.util.List[Token] =
+        new Main().run(Array(
             inFileName,
             "-o",
             outFileName,
@@ -68,8 +75,8 @@ object PreprocessorFrontend {
             predefMacroDef
         ) ++
                 extraOpt ++
-                includeFlags)
-    }
+                includeFlags, PARSEAFTERPREPROCESSING, !PARSEAFTERPREPROCESSING)
+
 
     def main(args: Array[String]): Unit = {
         initSettings
@@ -78,11 +85,12 @@ object PreprocessorFrontend {
         val INCLUDE_OPT = 0
         val OPEN_FEAT_OPT = 1
         val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT),
-                             new LongOpt("openFeat", LongOpt.REQUIRED_ARGUMENT, null, OPEN_FEAT_OPT))
+            new LongOpt("openFeat", LongOpt.REQUIRED_ARGUMENT, null, OPEN_FEAT_OPT))
         val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:t" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
-        var typecheck = false
         var preprocOutputPathOpt: Option[String] = None
+        var parse = PARSEAFTERPREPROCESSING
+        var typecheck = TYPECHECKAFTERPARSING
         do {
             val c = g.getopt()
             if (c != -1) {
@@ -92,6 +100,7 @@ object PreprocessorFrontend {
                     case 'I' => cmdLinePostIncludes :+= arg
                     case 'c' => loadSettings(arg)
                     case 'o' => preprocOutputPathOpt = Some(arg)
+                    case 'p' => parse = true
                     case 't' => typecheck = true
 
                     case ':' => println("Missing required argument!"); exit(1)
@@ -123,11 +132,16 @@ object PreprocessorFrontend {
             val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
 
-            preprocessFile(filename, preprocOutputPath, extraOpt)
-            if (typecheck) {
-                val ast = new ParserMain(null).parserMain(parserInput, folderPath)
-                new TypeSystem().checkAST(ast)
+            val tokens = preprocessFile(filename, preprocOutputPath, extraOpt)
+            if (parse) {
+                val in = CLexer.prepareTokens(tokens)
+                val parserMain = new ParserMain(new CParser(getFeatureModel(preprocOutputPath)))
+                val ast = parserMain.parserMain(in)
+                if (typecheck)
+                    new TypeSystem().checkAST(ast)
             }
         }
     }
+
+    def getFeatureModel(cfilename: String): FeatureModel = null
 }
