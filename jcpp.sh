@@ -14,7 +14,7 @@ debugsource_path=debugsource.txt
 basePath=.
 
 #mainClass="org.anarres.cpp.Main"
-mainClass="PreprocessorFrontend"
+mainClass="de.fosd.typechef.linux.LinuxPreprocessorFrontend"
 
 # Brute argument parsing
 # The right thing to do would be to be a gcc replacement, parse its flags and
@@ -52,10 +52,11 @@ $basePath/PartialPreprocessor/target/scala_2.8.1/classes:\
 $basePath/ParserFramework/target/scala_2.8.1/classes:\
 $basePath/CParser/target/scala_2.8.1/classes:\
 $basePath/CTypeChecker/target/scala_2.8.1/classes:\
+$basePath/LinuxAnalysis/target/scala_2.8.1/classes:\
 $basePath/PreprocessorFrontend/target/scala_2.8.1/classes \
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
-  '$inp' -o '$outPartialPreproc' 2> '$outErr' >'$outDbg'" \
+  '$inp' -o '$outPartialPreproc' 2> '$outErr' |tee '$outDbg'" \
   2> "$outTime" || true
 #bash -c "time java -ea $javaOpts -jar $sbtPath 'project PreprocessorFrontend' \
 #  \"run $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \

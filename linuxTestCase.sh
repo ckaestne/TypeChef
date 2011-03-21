@@ -1,6 +1,8 @@
 #!/bin/bash
 #!/bin/bash -vxe
 
+java -jar sbt-launch-0.7.4.jar  compile
+
 . linuxFileList.inc
 
 ##################################################################
