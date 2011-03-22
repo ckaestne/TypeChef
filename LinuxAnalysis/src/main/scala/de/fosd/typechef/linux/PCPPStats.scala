@@ -50,7 +50,9 @@ object PCPPStats {
                 println("processing " + file)
                 out.write(file + ";")
 
-                val lines = scala.io.Source.fromFile(fullFilePath).getLines.toList.filter(_ startsWith "SEVERE:")
+		val source= scala.io.Source.fromFile(fullFilePath)
+                val lines = source.getLines.toList.filter(_ startsWith "SEVERE:")
+		source.close
                 if (lines.isEmpty) {
                     out.write("0;;")
                 } else {
