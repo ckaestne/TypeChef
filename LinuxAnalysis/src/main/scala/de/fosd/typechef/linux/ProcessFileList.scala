@@ -73,7 +73,7 @@ object ProcessFileList extends RegexParsers {
         val mybreaks = new Breaks
         val stderr = new PrintWriter(System.err, true)
 
-        val fm = LinuxFeatureModel.featureModelFull
+        val fm = LinuxFeatureModel.featureModelExcludingDead
 
         assert(FeatureExpr.base.isSatisfiable(fm))
 
