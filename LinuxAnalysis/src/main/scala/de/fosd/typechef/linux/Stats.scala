@@ -41,7 +41,7 @@ object Stats {
             out.write("file;outofmemory;finished;parsingtime;tokens;tokensConsumed;tokensBacktracked;tokensRepeated;noError;errorMsg\n")
 
         for (file <- files) {
-            val fullFilePath = LinuxSettings.pathToLinuxSource + "/" + file + ".pi.dbgT"
+            val fullFilePath = LinuxSettings.pathToLinuxSource + "/" + file + ".dbg"
 
             if (!new File(fullFilePath).exists)
                 println("skipping " + file)
