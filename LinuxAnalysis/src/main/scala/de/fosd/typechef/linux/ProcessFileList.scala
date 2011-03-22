@@ -5,6 +5,7 @@ import scala.util.control.Breaks
 import de.fosd.typechef.featureexpr._
 import java.io._
 import scala.collection.mutable.Map
+import io.Source
 
 /**
  * processes thorstens file list (passed as parameter)
@@ -17,10 +18,13 @@ import scala.collection.mutable.Map
  */
 object ProcessFileList extends RegexParsers {
 
+    val openFeatures = Source.fromFile(LinuxSettings.openFeatureList).getLines.toList
 
     def toFeature(name: String, isModule: Boolean) =
     //ChK: deactivate modules for now. not interested and messes with the sat solver
         if (isModule) False
+        else
+        if (!(openFeatures contains ("CONFIG_" + name))) False //currently only interested in open features (and not in features that may not be in the feature model in the first place)
         else
             FeatureExpr.createDefinedExternal("CONFIG_" +
                     (if (isModule)
