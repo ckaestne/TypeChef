@@ -317,13 +317,11 @@ drivers/acpi/acpica/hwacpi
 drivers/acpi/acpica/hwgpe
 drivers/acpi/acpica/hwregs
 drivers/acpi/acpica/hwsleep
-drivers/acpi/acpica/hwtimer
 drivers/acpi/acpica/hwvalid
 drivers/acpi/acpica/hwxface
 drivers/acpi/acpica/nsaccess
 drivers/acpi/acpica/nsalloc
 drivers/acpi/acpica/nsdump
-drivers/acpi/acpica/nsdumpdv
 drivers/acpi/acpica/nseval
 drivers/acpi/acpica/nsinit
 drivers/acpi/acpica/nsload
@@ -351,7 +349,6 @@ drivers/acpi/acpica/psxface
 drivers/acpi/acpica/rsaddr
 drivers/acpi/acpica/rscalc
 drivers/acpi/acpica/rscreate
-drivers/acpi/acpica/rsdump
 drivers/acpi/acpica/rsinfo
 drivers/acpi/acpica/rsio
 drivers/acpi/acpica/rsirq
@@ -592,12 +589,9 @@ drivers/block/paride/pf
 drivers/block/paride/pg
 drivers/block/paride/pt
 drivers/block/pktcdvd
-drivers/block/ps3disk
-drivers/block/ps3vram
 drivers/block/sx8
 drivers/block/ub
 drivers/block/umem
-drivers/block/viodasd
 drivers/block/virtio_blk
 drivers/block/xd
 drivers/block/xen-blkfront
@@ -620,7 +614,6 @@ drivers/bluetooth/hci_ldisc
 drivers/bluetooth/hci_ll
 drivers/bluetooth/hci_vhci
 drivers/cdrom/cdrom
-drivers/cdrom/viocd
 drivers/char/agp/ali-agp
 drivers/char/agp/amd-k7-agp
 drivers/char/agp/amd64-agp
@@ -635,15 +628,12 @@ drivers/char/agp/nvidia-agp
 drivers/char/agp/sis-agp
 drivers/char/agp/sworks-agp
 drivers/char/agp/via-agp
-drivers/char/amiserial
 drivers/char/applicom
 drivers/char/consolemap
 drivers/char/cs5535_gpio
 drivers/char/cyclades
-drivers/char/dsp56k
 drivers/char/dtlk
 drivers/char/epca
-drivers/char/generic_serial
 drivers/char/genrtc
 drivers/char/hangcheck-timer
 drivers/char/hpet
@@ -674,7 +664,6 @@ drivers/char/lp
 drivers/char/mem
 drivers/char/misc
 drivers/char/moxa
-drivers/char/mspec
 drivers/char/mwave/3780i
 drivers/char/mwave/mwavedd
 drivers/char/mwave/smapi
@@ -695,7 +684,6 @@ drivers/char/pcmcia/ipwireless/network
 drivers/char/pcmcia/ipwireless/tty
 drivers/char/pcmcia/synclink_cs
 drivers/char/ppdev
-drivers/char/ps3flash
 drivers/char/pty
 drivers/char/random
 drivers/char/raw
@@ -704,7 +692,6 @@ drivers/char/rocket
 drivers/char/rtc
 drivers/char/scx200_gpio
 drivers/char/selection
-drivers/char/serial167
 drivers/char/sonypi
 drivers/char/specialix
 drivers/char/stallion
@@ -727,17 +714,12 @@ drivers/char/tty_ioctl
 drivers/char/tty_ldisc
 drivers/char/tty_port
 drivers/char/vc_screen
-drivers/char/viotape
 drivers/char/virtio_console
-drivers/char/vme_scc
 drivers/char/vt
 drivers/char/vt_ioctl
 drivers/clocksource/acpi_pm
 drivers/clocksource/cs5535-clockevt
 drivers/clocksource/scx200_hrt
-drivers/clocksource/sh_cmt
-drivers/clocksource/sh_mtu2
-drivers/clocksource/sh_tmu
 drivers/connector/cn_proc
 drivers/connector/cn_queue
 drivers/connector/connector
@@ -1460,7 +1442,6 @@ drivers/input/keyboard/matrix_keypad
 drivers/input/keyboard/max7359_keypad
 drivers/input/keyboard/newtonkbd
 drivers/input/keyboard/opencores-kbd
-drivers/input/keyboard/qt2160
 drivers/input/keyboard/stowaway
 drivers/input/keyboard/sunkbd
 drivers/input/keyboard/twl4030_keypad
@@ -2473,8 +2454,6 @@ drivers/misc/eeprom/eeprom
 drivers/misc/eeprom/eeprom_93cx6
 drivers/misc/eeprom/max6875
 drivers/misc/enclosure
-drivers/misc/hdpuftrs/hdpu_cpustate
-drivers/misc/hdpuftrs/hdpu_nexus
 drivers/misc/hpilo
 drivers/misc/ibmasm/command
 drivers/misc/ibmasm/dot_command
@@ -2702,7 +2681,6 @@ drivers/net/chelsio/subr
 drivers/net/chelsio/tp
 drivers/net/chelsio/vsc7326
 drivers/net/cnic
-drivers/net/cris/eth_v10
 drivers/net/cs89x0
 drivers/net/cxgb3/ael1002
 drivers/net/cxgb3/aq100x
@@ -3112,7 +3090,6 @@ drivers/net/wireless/ath/ath5k/phy
 drivers/net/wireless/ath/ath5k/qcu
 drivers/net/wireless/ath/ath5k/reset
 drivers/net/wireless/ath/ath5k/rfkill
-drivers/net/wireless/ath/ath9k/ahb
 drivers/net/wireless/ath/ath9k/ani
 drivers/net/wireless/ath/ath9k/beacon
 drivers/net/wireless/ath/ath9k/btcoex
@@ -3339,8 +3316,6 @@ drivers/net/wireless/zd1211rw/zd_usb
 drivers/net/xen-netfront
 drivers/net/yellowfin
 drivers/net/znet
-drivers/nubus/nubus
-drivers/nubus/proc
 drivers/parport/daisy
 drivers/parport/ieee1284
 drivers/parport/ieee1284_ops
@@ -3419,7 +3394,6 @@ drivers/pci/search
 drivers/pci/setup-bus
 drivers/pci/setup-res
 drivers/pci/slot
-drivers/pci/syscall
 drivers/pcmcia/cardbus
 drivers/pcmcia/cistpl
 drivers/pcmcia/cs
@@ -3788,7 +3762,6 @@ drivers/scsi/pm8001/pm8001_init
 drivers/scsi/pm8001/pm8001_sas
 drivers/scsi/pmcraid
 drivers/scsi/ppa
-drivers/scsi/ps3rom
 drivers/scsi/qla1280
 drivers/scsi/qla2xxx/qla_attr
 drivers/scsi/qla2xxx/qla_dbg
@@ -3864,7 +3837,6 @@ drivers/serial/8250_hub6
 drivers/serial/8250_mca
 drivers/serial/8250_pci
 drivers/serial/8250_pnp
-drivers/serial/crisv10
 drivers/serial/jsm/jsm_driver
 drivers/serial/jsm/jsm_neo
 drivers/serial/jsm/jsm_tty
@@ -4972,7 +4944,6 @@ drivers/xen/xenbus/xenbus_client
 drivers/xen/xenbus/xenbus_comms
 drivers/xen/xenbus/xenbus_probe
 drivers/xen/xenbus/xenbus_xs
-drivers/xen/xencomm
 drivers/xen/xenfs/super
 drivers/xen/xenfs/xenbus
 fs/9p/cache
@@ -5361,8 +5332,6 @@ fs/hfsplus/super
 fs/hfsplus/tables
 fs/hfsplus/unicode
 fs/hfsplus/wrapper
-fs/hostfs/hostfs_kern
-fs/hostfs/hostfs_user
 fs/hpfs/alloc
 fs/hpfs/anode
 fs/hpfs/buffer
@@ -5376,7 +5345,6 @@ fs/hpfs/map
 fs/hpfs/name
 fs/hpfs/namei
 fs/hpfs/super
-fs/hppfs/hppfs
 fs/hugetlbfs/inode
 fs/inode
 fs/ioctl
@@ -5705,7 +5673,6 @@ fs/omfs/dir
 fs/omfs/file
 fs/omfs/inode
 fs/open
-fs/openpromfs/inode
 fs/partitions/acorn
 fs/partitions/amiga
 fs/partitions/atari
@@ -5738,7 +5705,6 @@ fs/proc/meminfo
 fs/proc/mmu
 fs/proc/nommu
 fs/proc/page
-fs/proc/proc_devtree
 fs/proc/proc_net
 fs/proc/proc_sysctl
 fs/proc/proc_tty
@@ -5905,7 +5871,6 @@ fs/xfs/xfs_bit
 fs/xfs/xfs_bmap
 fs/xfs/xfs_bmap_btree
 fs/xfs/xfs_btree
-fs/xfs/xfs_btree_trace
 fs/xfs/xfs_buf_item
 fs/xfs/xfs_da_btree
 fs/xfs/xfs_dfrag
@@ -6141,7 +6106,6 @@ lib/bitrev
 lib/bug
 lib/bust_spinlocks
 lib/check_signature
-lib/checksum
 lib/cmdline
 lib/cpumask
 lib/crc-ccitt
@@ -7134,7 +7098,6 @@ security/capability
 security/commoncap
 security/device_cgroup
 security/inode
-security/keys/compat
 security/keys/gc
 security/keys/key
 security/keys/keyctl
