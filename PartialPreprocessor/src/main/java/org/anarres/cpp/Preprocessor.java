@@ -1023,24 +1023,27 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return args;
     }
 
-    private boolean checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args) throws ParseParamException {
+    //Returns a (potentially new) list with an extra argument added.
+    //@args is unchanged.
+    private List<Argument> checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args) throws ParseParamException {
         if (expansion.isFunctionLike() && args.size() != expansion.getArgCount()) {
             if (expansion.isVariadic()
                     && args.size() == expansion.getArgCount() - 1
                     && getFeature(Feature.GNUCEXTENSIONS)) {
                 // This is a GCC extension:
                 // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-                args.add(Argument.omittedVariadicArgument());
-                return true;
+                List<Argument> argsCopy = new ArrayList<Argument>(args.size() + 1);
+                Collections.copy(argsCopy, args);
+                argsCopy.add(Argument.omittedVariadicArgument());
+                return argsCopy;
             } else {
                 throw new ParseParamException(tok, "macro " + macroName
                         + " has " + expansion.getArgCount()
                         + " parameters " + "but given " + args.size()
                         + " args");
             }
-        } else {
-            return false;
         }
+        return args;
     }
 
     private void macro_expandAlternatives(String macroName,
@@ -1088,11 +1091,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                                     List<Argument> args,
                                                     MacroData macroData,
                                                     Token origTok) throws ParseParamException {
-        boolean modified = checkExpansionArity(macroName, macroData, origTok, args);
-        MacroTokenSource ret = new MacroTokenSource(macroName, macroData, args,
+        List<Argument> argsFixed = checkExpansionArity(macroName, macroData, origTok, args);
+        MacroTokenSource ret = new MacroTokenSource(macroName, macroData, argsFixed,
                 getFeature(Feature.GNUCEXTENSIONS));
-        if (modified)
-            args.remove(args.size() - 1);
         return ret;
     }
 
