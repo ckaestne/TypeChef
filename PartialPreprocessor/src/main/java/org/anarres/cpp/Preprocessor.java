@@ -915,13 +915,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             //that away. It makes a difference if the argument is stringified!
             originalTokens.add(tok);
 
+            args = new ArrayList<Argument>();
             /*
                 * We either have, or we should have args. This deals elegantly with
                 * the case that we have one empty arg.
                 */
             if (tok.getType() != ')' || firstMacro.getArgCount() > 0) {
-                args = new ArrayList<Argument>();
-
                 Argument arg = new Argument();
                 int depth = 0;
                 boolean space = false;
@@ -1011,10 +1010,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 }
 
                 // System.out.println("Macro " + m + " args " + args);
-            } else {
-                /* nargs == 0 and we (correctly) got () */
-                args = Collections.emptyList();
             }
+            /* Otherwise, nargs == 0 and we (correctly) got (); so leave the list
+             * empty. Don't use Collections.emptyList() because that's
+             * immutable. */
 
         } else {
             /* Macro without args. */
