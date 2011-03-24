@@ -848,6 +848,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                 origInvokeTok, origArgTokens, commonCondition);
                 }
             } catch (ParseParamException e) {
+                e.printStackTrace();
                 warning(e.tok, e.errorMsg);
                 return false;
             }
@@ -915,13 +916,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             //that away. It makes a difference if the argument is stringified!
             originalTokens.add(tok);
 
+            args = new ArrayList<Argument>();
             /*
                 * We either have, or we should have args. This deals elegantly with
                 * the case that we have one empty arg.
                 */
             if (tok.getType() != ')' || firstMacro.getArgCount() > 0) {
-                args = new ArrayList<Argument>();
-
                 Argument arg = new Argument();
                 int depth = 0;
                 boolean space = false;
@@ -1000,7 +1000,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                      * from arguments.
                      */
 
-                checkExpansionArity(macroName, firstMacro, tok, args);
+                //XXX: looks suspicious.
+                args = checkExpansionArity(macroName, firstMacro, tok, args);
 
                 /*
                          * for (Argument a : args) a.expand(this);
@@ -1011,10 +1012,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 }
 
                 // System.out.println("Macro " + m + " args " + args);
-            } else {
-                /* nargs == 0 and we (correctly) got () */
-                args = Collections.emptyList();
             }
+            /* Otherwise, nargs == 0 and we (correctly) got (); so leave the list
+             * empty. Don't use Collections.emptyList() because that's
+             * immutable. */
 
         } else {
             /* Macro without args. */
@@ -1023,24 +1024,27 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return args;
     }
 
-    private boolean checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args) throws ParseParamException {
+    //Returns a (potentially new) list with an extra argument added.
+    //@args is unchanged.
+    private List<Argument> checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args) throws ParseParamException {
         if (expansion.isFunctionLike() && args.size() != expansion.getArgCount()) {
             if (expansion.isVariadic()
                     && args.size() == expansion.getArgCount() - 1
                     && getFeature(Feature.GNUCEXTENSIONS)) {
                 // This is a GCC extension:
                 // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-                args.add(Argument.omittedVariadicArgument());
-                return true;
+                List<Argument> argsCopy = new ArrayList<Argument>(args.size() + 1);
+                argsCopy.addAll(args);
+                argsCopy.add(Argument.omittedVariadicArgument());
+                return argsCopy;
             } else {
                 throw new ParseParamException(tok, "macro " + macroName
                         + " has " + expansion.getArgCount()
                         + " parameters " + "but given " + args.size()
                         + " args");
             }
-        } else {
-            return false;
         }
+        return args;
     }
 
     private void macro_expandAlternatives(String macroName,
@@ -1088,11 +1092,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                                     List<Argument> args,
                                                     MacroData macroData,
                                                     Token origTok) throws ParseParamException {
-        boolean modified = checkExpansionArity(macroName, macroData, origTok, args);
-        MacroTokenSource ret = new MacroTokenSource(macroName, macroData, args,
+        List<Argument> argsFixed = checkExpansionArity(macroName, macroData, origTok, args);
+        MacroTokenSource ret = new MacroTokenSource(macroName, macroData, argsFixed,
                 getFeature(Feature.GNUCEXTENSIONS));
-        if (modified)
-            args.remove(args.size() - 1);
         return ret;
     }
 
@@ -1860,12 +1862,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     private class ExprOrValue {
         final FeatureExpr expr;
         final FeatureExprValue value;
+
         ExprOrValue(FeatureExpr expr, FeatureExprValue value) {
             this.expr = expr;
             this.value = value;
         }
-        ExprOrValue(FeatureExpr expr) {this(expr, null);}
-        ExprOrValue(FeatureExprValue value) { this(null, value);}
+
+        ExprOrValue(FeatureExpr expr) {
+            this(expr, null);
+        }
+
+        ExprOrValue(FeatureExprValue value) {
+            this(null, value);
+        }
+
         public FeatureExprValue assumeValue(Token tok) throws LexerException {
             if (value == null) {
                 warning(tok, "expecting value before token, found boolean expression " + expr + " instead");
@@ -1873,6 +1883,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             } else
                 return value;
         }
+
         public FeatureExpr assumeExpression(Token tok) throws LexerException {
             if (expr == null) {
 //                warning(tok, "interpreting value " + value + " as expression " + value.toFeatureExpr());
