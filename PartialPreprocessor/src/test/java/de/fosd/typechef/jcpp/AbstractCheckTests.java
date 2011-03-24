@@ -187,6 +187,7 @@ public class AbstractCheckTests {
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);
+        pp.addFeature(Feature.GNUCEXTENSIONS);
         pp.addWarnings(Warning.allWarnings());
         pp.setListener(new PreprocessorListener(pp) {
             @Override
@@ -226,6 +227,6 @@ public class AbstractCheckTests {
         if (tokenstream != null)
             for (Token t : tokenstream)
                 t.lazyPrint(writer);
-	return strWriter.getBuffer().toString();
+        return strWriter.getBuffer().toString();
     }
 }

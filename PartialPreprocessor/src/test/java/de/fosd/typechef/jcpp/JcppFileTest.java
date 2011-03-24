@@ -142,10 +142,12 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testIncludeMacros() throws LexerException, IOException {
         testFile("includemacro.c");
     }
+
     @Test
     public void testRecursiveMacro() throws LexerException, IOException {
         testFile("recursivemacro.h");
     }
+
     @Test
     public void testStringifyNl() throws LexerException, IOException {
         testFile("stringifyNl.c");
@@ -160,24 +162,39 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testDivByZero() throws LexerException, IOException {
         testFile("test_div_by_zero.c");
     }
+
     @Test
     public void testDivByZero2() throws LexerException, IOException {
         testFile("test_div_by_zero2.c");
     }
+
     @Test
     public void testMacroPNF() throws LexerException, IOException {
         testFile("macroPFN.c");
     }
+
     @Test
     public void testParametricMacro() throws LexerException, IOException {
         testFile("parametricmacro.h");
     }
+
     @Test
     public void testParametricMacro2() throws LexerException, IOException {
         testFile("parametricmacro2.h");
     }
+
     @Test
     public void testKBuildStr() throws LexerException, IOException {
         testFile("kbuildstr.c");
+    }
+
+    @Test
+    public void testAlternativeDifferentArities1() throws LexerException, IOException {
+        testFile("alternDiffArities1.c");
+    }
+
+    @Test
+    public void testAlternativeDifferentArities2() throws LexerException, IOException {
+        testFile("alternDiffArities2.c");
     }
 }

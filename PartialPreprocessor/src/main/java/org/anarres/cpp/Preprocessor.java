@@ -848,6 +848,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                 origInvokeTok, origArgTokens, commonCondition);
                 }
             } catch (ParseParamException e) {
+                e.printStackTrace();
                 warning(e.tok, e.errorMsg);
                 return false;
             }
@@ -999,7 +1000,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                      * from arguments.
                      */
 
-                checkExpansionArity(macroName, firstMacro, tok, args);
+                //XXX: looks suspicious.
+                args = checkExpansionArity(macroName, firstMacro, tok, args);
 
                 /*
                          * for (Argument a : args) a.expand(this);
@@ -1032,7 +1034,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 // This is a GCC extension:
                 // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
                 List<Argument> argsCopy = new ArrayList<Argument>(args.size() + 1);
-                Collections.copy(argsCopy, args);
+                argsCopy.addAll(args);
                 argsCopy.add(Argument.omittedVariadicArgument());
                 return argsCopy;
             } else {
@@ -1860,12 +1862,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     private class ExprOrValue {
         final FeatureExpr expr;
         final FeatureExprValue value;
+
         ExprOrValue(FeatureExpr expr, FeatureExprValue value) {
             this.expr = expr;
             this.value = value;
         }
-        ExprOrValue(FeatureExpr expr) {this(expr, null);}
-        ExprOrValue(FeatureExprValue value) { this(null, value);}
+
+        ExprOrValue(FeatureExpr expr) {
+            this(expr, null);
+        }
+
+        ExprOrValue(FeatureExprValue value) {
+            this(null, value);
+        }
+
         public FeatureExprValue assumeValue(Token tok) throws LexerException {
             if (value == null) {
                 warning(tok, "expecting value before token, found boolean expression " + expr + " instead");
@@ -1873,6 +1883,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             } else
                 return value;
         }
+
         public FeatureExpr assumeExpression(Token tok) throws LexerException {
             if (expr == null) {
 //                warning(tok, "interpreting value " + value + " as expression " + value.toFeatureExpr());
