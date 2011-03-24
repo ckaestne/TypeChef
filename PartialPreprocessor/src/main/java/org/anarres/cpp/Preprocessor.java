@@ -837,7 +837,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             try {
                 if (macroExpansions.length == 1 && isExaustive(commonCondition)) {
                     sourceManager.push_source(createMacroTokenSource(macroName,
-                            args, firstMacro, origInvokeTok), true);
+                            args, firstMacro, origInvokeTok, inlineCppExpression), true);
                     // expand all alternative macros
                 } else {
                     if (inlineCppExpression)
@@ -935,17 +935,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
                         case ',':
                             if (depth == 0) {
-                                // XXX: this is no more valid,
-                                // now that alternative macros with different signatures are possible.
-                                if (firstMacro.isVariadic() &&
-                                        /* We are building the last arg. */
-                                        args.size() == firstMacro.getArgCount() - 1) {
-                                    /* Just add the comma. */
-                                    arg.addToken(tok);
-                                } else {
-                                    args.add(arg);
-                                    arg = new Argument();
-                                }
+                                args.add(arg);
+                                arg = new Argument();
                             } else {
                                 arg.addToken(tok);
                             }
@@ -999,19 +990,6 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                      * space may still be true here, thus trailing space is stripped
                      * from arguments.
                      */
-
-                //XXX: looks suspicious.
-                args = checkExpansionArity(macroName, firstMacro, tok, args);
-
-                /*
-                         * for (Argument a : args) a.expand(this);
-                         */
-
-                for (int i = 0; i < args.size(); i++) {
-                    args.get(i).expand(this, inlineCppExpression, macroName);
-                }
-
-                // System.out.println("Macro " + m + " args " + args);
             }
             /* Otherwise, nargs == 0 and we (correctly) got (); so leave the list
              * empty. Don't use Collections.emptyList() because that's
@@ -1024,33 +1002,66 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return args;
     }
 
-    //Returns a (potentially new) list with an extra argument added.
-    //@args is unchanged.
-    private List<Argument> checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args) throws ParseParamException {
+    /**
+     * Compares macro arity against the count of actual arguments. For variadic macros, a new argument list is produced with
+     * the right argument count (i.e. the macro arity), by concatenating variadic arguments or producing an empty one.
+     * Otherwise, the original list is returned.
+     * @code {args} is unchanged.
+     * @return a list containing as many
+     */
+    private List<Argument> checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args)
+            throws ParseParamException {
+        assert (!expansion.isFunctionLike() || args != null);
+
         if (expansion.isFunctionLike() && args.size() != expansion.getArgCount()) {
-            if (expansion.isVariadic()
-                    && args.size() == expansion.getArgCount() - 1
-                    && getFeature(Feature.GNUCEXTENSIONS)) {
-                // This is a GCC extension:
-                // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-                List<Argument> argsCopy = new ArrayList<Argument>(args.size() + 1);
-                argsCopy.addAll(args);
-                argsCopy.add(Argument.omittedVariadicArgument());
-                return argsCopy;
-            } else {
-                throw new ParseParamException(tok, "macro " + macroName
-                        + " has " + expansion.getArgCount()
-                        + " parameters " + "but given " + args.size()
-                        + " args");
+            if (expansion.isVariadic()) {
+                // Try producing (and then returning) the fixed-up argument list.
+
+                assert (expansion.getArgCount() > 0);
+
+                if (args.size() == expansion.getArgCount() - 1
+                        && getFeature(Feature.GNUCEXTENSIONS)) {
+                    // This is a GCC extension:
+                    // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+                    List<Argument> argsCopy = new ArrayList<Argument>(args.size() + 1);
+                    argsCopy.addAll(args);
+                    argsCopy.add(Argument.omittedVariadicArgument());
+                    return argsCopy;
+                } else if (args.size() > expansion.getArgCount()) {
+                    //Remember that fromList accepts a [from, to[ range!
+                    List<Argument> newArgs = new ArrayList<Argument>(args.subList(0, expansion.getArgCount() - 1));
+                    List<Argument> argsToJoin = args.subList(expansion.getArgCount() - 1, args.size());
+                    Argument joinedArg = new Argument();
+                    int i = 0;
+                    for (Argument arg: argsToJoin) {
+                        for (Token argTok: arg) {
+                            joinedArg.addToken(argTok);
+                        }
+                        i++;
+                        if (i < argsToJoin.size()) {
+                            joinedArg.addToken(OutputHelper.comma());
+                            joinedArg.addToken(new SimpleToken(Token.WHITESPACE, " ", null));
+                        }
+                    }
+                    newArgs.add(joinedArg);
+                    return newArgs;
+                }
             }
+            // If the macro was not variadic, or if there was no way to make arities match, complain.
+
+            throw new ParseParamException(tok, "macro " + macroName
+                    + " has " + expansion.getArgCount()
+                    + " parameters (variadic: " + expansion.isVariadic() + ") but given " + args.size()
+                    + " args");
+        } else {
+            return args;
         }
-        return args;
     }
 
     private void macro_expandAlternatives(String macroName,
                                           MacroExpansion<MacroData>[] macroExpansions, List<Argument> args,
                                           Token origInvokeTok, List<Token> origArgTokens, FeatureExpr commonCondition)
-            throws IOException, ParseParamException {
+            throws IOException, LexerException, ParseParamException {
         boolean alternativesExaustive = isExaustive(commonCondition);
 
         List<Source> resultList = new ArrayList<Source>();
@@ -1064,7 +1075,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             else
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         prependNL(OutputHelper.elif_tokenStr(feature))));
-            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok));
+            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok, false));
             if (!macroData.isFunctionLike())
                 resultList.add(new FixedTokenSource(origArgTokens));
             if (i == 0 && !alternativesExaustive) {
@@ -1091,8 +1102,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     private MacroTokenSource createMacroTokenSource(String macroName,
                                                     List<Argument> args,
                                                     MacroData macroData,
-                                                    Token origTok) throws ParseParamException {
+                                                    Token origTok,
+                                                    boolean inlineCppExpansion) throws ParseParamException, IOException, LexerException {
         List<Argument> argsFixed = checkExpansionArity(macroName, macroData, origTok, args);
+        if (macroData.isFunctionLike())
+            for (Argument arg: argsFixed)
+                arg.expand(this, inlineCppExpansion, macroName);
         MacroTokenSource ret = new MacroTokenSource(macroName, macroData, argsFixed,
                 getFeature(Feature.GNUCEXTENSIONS));
         return ret;
@@ -1133,7 +1148,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             if (i > 0 || !alternativesExaustive)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         OutputHelper.inlineIf_tokenStr(feature)));// "__IF__(feature,"
-            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok));
+            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok, true));
             if (!macroData.isFunctionLike())
                 resultList.add(new FixedTokenSource(origArgTokens));
             if (i > 0 || !alternativesExaustive)
