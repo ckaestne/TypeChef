@@ -1040,7 +1040,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                         i++;
                         if (i < argsToJoin.size()) {
                             joinedArg.addToken(OutputHelper.comma());
-                            joinedArg.addToken(new SimpleToken(Token.WHITESPACE, " ", null));
+                            joinedArg.addToken(Token.space);
                         }
                     }
                     newArgs.add(joinedArg);
