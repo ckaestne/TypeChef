@@ -502,13 +502,7 @@ try {
             //parse token
             // convert alternative results into optList
             //but keep next entries
-            var res: MultiParseResult[Sealable] = opt(p)(in, ctx).mapf(ctx, (f, t) => {
-                t match {
-                    case Some(x) => Sealable(false, List(Opt(f, x)))
-                    case None => Sealable(true, List())
-                }
-            })
-            res = join(ctx, res)
+            var res: MultiParseResult[Sealable] = Success(Sealable(false, List()), in)
 
             //while not all result failed
             while (anyUnsealed(res)) {
