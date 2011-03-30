@@ -1,12 +1,15 @@
-#define CONFIG_X86
-#undef CONFIG_64BIT
-#undef CONFIG_NR_CPUS
-#undef CONFIG_SYMBOL_PREFIX
-#undef CONFIG_TRACE_BRANCH_PROFILING
+#ifdef CONFIG_SMP
+#define CONFIG_NR_CPUS 8
+#else
+#define CONFIG_NR_CPUS 1
+#endif
 
-#undef CONFIG_MACH_JAZZ
-#undef CONFIG_SGI_HAS_I8042
-#undef CONFIG_SNI_RM
+#undef CONFIG_TRACE_BRANCH_PROFILING
+//Needs generated header:
+#undef CONFIG_ACPI_CUSTOM_DSDT
+//Is always false on x86 even if defined:
+#undef CONFIG_SBUS
+
 
 #define AUTOCONF_INCLUDED
 #define CONFIG_FRAME_WARN 1024
