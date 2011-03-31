@@ -114,6 +114,7 @@ public class Main {
         String arg;
         int idx;
 
+        String outputName = null;
         PrintWriter output = printToStdOutput ? new PrintWriter(new OutputStreamWriter(System.out)) : null;
         Preprocessor pp = new Preprocessor();
         // No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
@@ -186,7 +187,9 @@ public class Main {
                     pp.getWarnings().clear();
                     break;
                 case 'o':
-                    output = new PrintWriter(new BufferedWriter(new FileWriter(g.getOptarg())));
+                    outputName = g.getOptarg();
+                    pp.openDebugFiles(outputName);
+                    output = new PrintWriter(new BufferedWriter(new FileWriter(outputName)));
                     break;
                 case 1: // --include=
                     pp.addInput(new File(g.getOptarg()));
