@@ -37,7 +37,7 @@ flags() {
   if grep -q "arch/x86/boot" <<< "$name"; then
     extraFlag="-D_SETUP"
   elif grep -q "arch/x86/kvm" <<< "$name"; then
-    extraFlag="-I $srcPath/virt/kvm -I $srcPath/arch/x86/kvm"
+    extraFlag="-I $srcPath/virt/kvm -I $srcPath/arch/x86/kvm -I $srcPath"
   elif grep -q "fs/ocfs2/" <<< "$name"; then
     extraFlag="-I $srcPath/fs/ocfs2 -DCATCH_BH_JBD_RACES"
   elif grep -q "fs/xfs/" <<< "$name"; then
