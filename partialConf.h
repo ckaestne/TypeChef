@@ -31,7 +31,7 @@
 #undef CONFIG_TULIP_DM910X //Depends on SPARC
 #undef CONFIG_SSB_PCICORE_HOSTMODE //Depends on MIPS
 #undef CONFIG_USB_EHCI_MXC
-#undef CONFIG_USB_OHCI_HCD_PPC_OF
+#undef CONFIG_USB_OHCI_HCD_PPC_OF //Depends on PPC_OF
 #undef CONFIG_ADB_PMU 
 
 //Second & last round of disabling:
@@ -40,6 +40,8 @@
 #undef CONFIG_BVME6000_NET
 #undef CONFIG_VME
 #undef CONFIG_BVME6000
+#undef CONFIG_USB_EHCI_HCD_PPC_OF
+#undef CONFIG_XPS_USB_HCD_XILINX
 /////////////////////////////////////
 
 //Non-boolean features
