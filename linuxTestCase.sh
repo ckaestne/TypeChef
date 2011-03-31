@@ -44,7 +44,32 @@ flags() {
     extraFlag="-I $srcPath/fs/xfs -I $srcPath/fs/xfs/linux-2.6"
   elif grep -q "drivers/gpu/drm/" <<< "$name"; then
     extraFlag="-I $srcPath/include/drm"
-  elif egrep -q "drivers/media/(dvb|video)/" <<< "$name"; then
+  elif egrep -q "drivers/scsi/pcmcia/|drivers/usb/storage/" <<< "$name"; then
+    extraFlag="-I $srcPath/drivers/scsi"
+  elif grep -q "drivers/scsi/cxgb3i/" <<< "$name"; then
+    extraFlag="-I $srcPath/drivers/net/cxgb3"
+  elif grep -q "drivers/infiniband/hw/cxgb3/" <<< "$name"; then
+    extraFlag="-I $srcPath/drivers/net/cxgb3"
+  elif grep -q "drivers/net/skfp/" <<< "$name"; then
+    extraFlag="-I $srcPath/drivers/net/skfp"
+  elif grep -q "drivers/staging/rtl8192e/" <<< "$name"; then
+    extraFlag="-DRTL8192E -DTHOMAS_TURBO -DENABLE_DOT11D"
+  elif grep -q "drivers/scsi/bfa/" <<< "$name"; then
+    extraFlag=""
+    for path in drivers/scsi/bfa drivers/scsi/bfa/include drivers/scsi/bfa/include/cna; do
+      extraFlag="$extraFlag -I $srcPath/$path"
+    done
+  elif egrep -q "drivers/media/common/tuners/|drivers/staging/go7007/" <<< "$name"; then
+    extraFlag=""
+    for path in drivers/media/dvb/dvb-core drivers/media/dvb/frontends; do
+      extraFlag="$extraFlag -I $srcPath/$path"
+    done
+    if grep -q "drivers/staging/go7007/" <<< "$name"; then
+      extraFlag="$extraFlag -I $srcPath/drivers/media/dvb/dvb-usb"
+    fi
+  elif egrep -q "drivers/media/video/gspca/(gl860|m5602|stv06xx)/" <<< "$name"; then
+    extraFlag="-I $srcPath/drivers/media/video/gspca"
+  elif egrep -q "drivers/media/(dvb|video)/|drivers/staging/cx25821/" <<< "$name"; then
     extraFlag=""
     for path in drivers/media/dvb/dvb-core drivers/media/dvb/frontends drivers/media/common/tuners \
       drivers/ieee1394 drivers/media/video/bt8xx drivers/media/video; do
