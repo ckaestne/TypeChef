@@ -38,6 +38,10 @@ flags() {
     extraFlag="-D_SETUP"
   elif grep -q "arch/x86/kvm" <<< "$name"; then
     extraFlag="-I $srcPath/virt/kvm -I $srcPath/arch/x86/kvm -I $srcPath"
+  elif [ "$name" = "net/mac80211/driver-trace" ]; then
+    extraFlag="-I $srcPath/net/mac80211"
+  elif grep -q "fs/gfs2/" <<< "$name"; then
+    extraFlag="-I $srcPath/fs/gfs2"
   elif grep -q "fs/ocfs2/" <<< "$name"; then
     extraFlag="-I $srcPath/fs/ocfs2 -DCATCH_BH_JBD_RACES"
   elif grep -q "fs/xfs/" <<< "$name"; then
@@ -51,9 +55,11 @@ flags() {
   elif grep -q "drivers/infiniband/hw/cxgb3/" <<< "$name"; then
     extraFlag="-I $srcPath/drivers/net/cxgb3"
   elif grep -q "drivers/net/skfp/" <<< "$name"; then
-    extraFlag="-I $srcPath/drivers/net/skfp"
+    extraFlag="-I $srcPath/drivers/net/skfp -DPCI -DMEM_MAPPED_IO"
   elif grep -q "drivers/staging/rtl8192e/" <<< "$name"; then
     extraFlag="-DRTL8192E -DTHOMAS_TURBO -DENABLE_DOT11D"
+  elif [ "$name" = "drivers/net/wireless/iwlwifi/iwl-devtrace" ]; then
+    extraFlag="-I $srcPath/drivers/net/wireless/iwlwifi/"
   elif grep -q "drivers/scsi/bfa/" <<< "$name"; then
     extraFlag=""
     for path in drivers/scsi/bfa drivers/scsi/bfa/include drivers/scsi/bfa/include/cna; do

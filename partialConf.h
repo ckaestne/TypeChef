@@ -15,7 +15,9 @@
 //Is always true on x86. If it's false it causes an error in
 //arch/x86/include/asm/paravirt.h.
 #define CONFIG_TRACE_IRQFLAGS_SUPPORT
-//Is always false on x86 even if defined or anyhow included in the feature model:
+
+/////////////////////////////////////
+//All the following macros are always false on x86, even if defined or anyhow included in the feature model:
 #undef CONFIG_SBUS
 #undef CONFIG_ATA_NONSTANDARD
 
@@ -31,6 +33,14 @@
 #undef CONFIG_USB_EHCI_MXC
 #undef CONFIG_USB_OHCI_HCD_PPC_OF
 #undef CONFIG_ADB_PMU 
+
+//Second & last round of disabling:
+#undef CONFIG_OF_GPIO
+#undef CONFIG_PMAC_BACKLIGHT
+#undef CONFIG_BVME6000_NET
+#undef CONFIG_VME
+#undef CONFIG_BVME6000
+/////////////////////////////////////
 
 //Non-boolean features
 #define AUTOCONF_INCLUDED
