@@ -736,7 +736,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         // arity of all function-like definitions. Non-variadic function-like definitions are currently restricted to
         // have the same arity; otherwise, each macro invocation would be required to use conditional compilation.
 
-        // Look for the first non-object-like macro to get the arity.
+        // Look for the first non-object-like macro, non-variadic if possible, to get the arity.
         MacroData firstMacro = null;
 
         boolean hasFunctionLikeDefs = false;
@@ -754,17 +754,24 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             firstMacro = macroExpansions[0].getExpansion();
 
         int arity = firstMacro.getArgCount();
-        boolean isVariadic = firstMacro.isVariadic();
+        boolean areAllVariadic = firstMacro.isVariadic();
 
         for (int i = 1; i < macroExpansions.length; i++) {
             MacroData macro = macroExpansions[i].getExpansion();
-            if (macro.isFunctionLike() && ((!isVariadic && !macro.isVariadic()
-                    && macro.getArgCount() != arity) ||
-                    isVariadic != macro.isVariadic() /* XXX: This would now be easy to support, there's just one bug to fix for that case. */)) {
-                error(origInvokeTok,
-                        "Alternative non-variadic macros with different arities are not yet supported."
-                                + macro.getText() + " vs. "
-                                + firstMacro.getText());
+            if (macro.isFunctionLike()) {
+                if (!areAllVariadic && !macro.isVariadic() && macro.getArgCount() != arity) {
+                    error(origInvokeTok,
+                            "Alternative non-variadic macros with different arities are not yet supported: "
+                                    + macro + " vs. "
+                                    + firstMacro);
+                }
+                if (macro.isVariadic() && macro.getArgCount() > arity + 1) {
+                    //Rationale for the "+ 1" in the above arity check
+                    //The last argument of a variadic macro can be omitted, but is counted by getArgCount()
+                    error(origInvokeTok,
+                            String.format("Alternative variadic expansion %s has %d arguments, more than the arity %d",
+                                macro, macro.getArgCount(), arity));
+                }
             }
         }
 
