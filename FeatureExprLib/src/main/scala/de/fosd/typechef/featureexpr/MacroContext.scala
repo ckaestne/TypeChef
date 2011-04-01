@@ -140,13 +140,14 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
         writer print printStatistics
     }
     def printStatistics =
-        "\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions,number of distinct configuration flags):\n" +
+        "\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions):\n" +
                 knownMacros.size + ";" +
                 knownMacros.values.filter(_.numberOfExpansions > 1).size + ";" +
                 knownMacros.values.filter(_.numberOfExpansions > 2).size + ";" +
                 knownMacros.values.filter(_.numberOfExpansions > 3).size + ";" +
                 knownMacros.values.filter(_.numberOfExpansions > 4).size + ";" +
                 knownMacros.values.filter(!_.getFeature.isTautology).size + "\n"
+    //,number of distinct configuration flags
     //    	+getNumberOfDistinctFlagsStatistic+"\n";
     //    private def getNumberOfDistinctFlagsStatistic = {
     //    	var flags:Set[String]=Set()
