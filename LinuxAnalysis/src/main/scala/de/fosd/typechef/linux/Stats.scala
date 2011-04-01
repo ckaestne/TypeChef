@@ -50,7 +50,9 @@ object Stats {
                 println("processing " + file)
                 out.write(file + ";")
 
-                val lines = scala.io.Source.fromFile(fullFilePath).getLines.toList
+		val source = scala.io.Source.fromFile(fullFilePath)
+                val lines = source.getLines.toList
+		source.close
                 if (lines.exists(_ contains "java.lang.OutOfMemoryError")) {
                     println("out of memory")
                     out.write("out of memory;0;")
