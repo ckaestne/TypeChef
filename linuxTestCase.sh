@@ -98,6 +98,12 @@ export outCSV=linux.csv
 ##################################################################
 filesToProcess|while read i; do
   extraFlags="$(flags "$i")"
+  if [ ! -f "$srcPath/$i.i" ]; then
+    echo "=="
+    echo "==Preprocess source"
+    echo "=="
+    gcc -Wp,-P -U __weak $gccOpts -E $srcPath/$i.c $extraFlags > "$srcPath/$i.i" || true
+  fi
   if [ ! -f $srcPath/$i.pi ]; then
     touch $srcPath/$i.pi
     . ./jcpp.sh $srcPath/$i.c $extraFlags

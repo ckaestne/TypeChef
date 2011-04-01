@@ -32,10 +32,12 @@ shift
 #  PartialPreprocessor/target/scala_2.8.1/classes:PartialPreprocessor/lib/gnu.getopt.jar \
 #  <(echo -e '#define b ciao\nb')
 
-echo "=="
-echo "==Preprocess source"
-echo "=="
-gcc -Wp,-P -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+if [ ! -f "$outPreproc" ]; then
+  echo "=="
+  echo "==Preprocess source"
+  echo "=="
+  gcc -Wp,-P -U __weak $gccOpts -E "$inp" "$@" > "$outPreproc" || true
+fi
 
 # Beware: the embedded for loop requotes the passed argument. That's dark magic,
 # don't ever try to touch it. It simplifies your life as a user of this program
