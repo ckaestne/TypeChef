@@ -2,8 +2,7 @@ package de.fosd.typechef.parser.java15
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.parser.java15.lexer._
-import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.featureexpr.FeatureExpr.base
+
 //
 ///*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // * based on GCIDE grammar in CIDE
@@ -39,40 +38,40 @@ class JavaParser extends MultiFeatureParser {
 
     def Modifier =
         ("public"
-            |
-            "static"
-            |
-            "protected"
-            |
-            "private"
-            |
-            "final"
-            |
-            "abstract"
-            |
-            "synchronized"
-            |
-            "native"
-            |
-            "transient"
-            |
-            "volatile"
-            |
-            "strictfp"
-            |
-            Annotation
-            | fail("expected modifier"))
+                |
+                "static"
+                |
+                "protected"
+                |
+                "private"
+                |
+                "final"
+                |
+                "abstract"
+                |
+                "synchronized"
+                |
+                "native"
+                |
+                "transient"
+                |
+                "volatile"
+                |
+                "strictfp"
+                |
+                Annotation
+                | fail("expected modifier"))
 
     def TypeDeclaration: MultiParser[Any] =
         (";"
-            | (Modifiers ~ ClassOrInterfaceDeclaration)
-            | (Modifiers ~ EnumDeclaration)
-            | (Modifiers ~ AnnotationTypeDeclaration)
-            | fail("expected TypeDeclaration")) ! Choice.join
+                | (Modifiers ~ ClassOrInterfaceDeclaration)
+                | (Modifiers ~ EnumDeclaration)
+                | (Modifiers ~ AnnotationTypeDeclaration)
+                | fail("expected TypeDeclaration")) ! Choice.join
 
     def ClassOrInterfaceDeclaration: MultiParser[Any] =
         ClassOrInterface ~ IDENTIFIER ~ opt(TypeParameters) ~ opt(ExtendsList) ~
-            opt(ImplementsList) ~ ClassOrInterfaceBody
+                opt(ImplementsList) ~ ClassOrInterfaceBody
 
     def ClassOrInterface: MultiParser[Any] = "class" | "interface"
 
@@ -84,14 +83,14 @@ class JavaParser extends MultiFeatureParser {
 
     def EnumDeclaration: MultiParser[Any] =
         "enum" ~> IDENTIFIER ~
-            opt(ImplementsList) ~
-            EnumBody
+                opt(ImplementsList) ~
+                EnumBody
 
     def EnumBody: MultiParser[Any] =
         "{" ~>
-            rep1Sep(EnumConstant, ",") ~
-            opt(EnumBodyInternal) ~
-            "}"
+                rep1Sep(EnumConstant, ",") ~
+                opt(EnumBodyInternal) ~
+                "}"
 
     def EnumBodyInternal: MultiParser[Any] = ";" ~ repOpt(ClassOrInterfaceBodyDeclaration)
 
@@ -111,14 +110,14 @@ class JavaParser extends MultiFeatureParser {
         "{" ~ repOpt(ClassOrInterfaceBodyDeclaration) ~ "}"
 
     def ClassOrInterfaceBodyDeclaration: MultiParser[Any] =
-        (Initializer
-            | (Modifiers ~ ClassOrInterfaceDeclaration)
-            | (Modifiers ~ EnumDeclaration)
-            | (Modifiers ~ ConstructorDeclaration)
-            | (Modifiers ~ FieldDeclaration)
-            | (Modifiers ~ MethodDeclaration)
-            |
-            ";")
+        (Initializer | Modifiers ~ (
+                ClassOrInterfaceDeclaration
+                        | EnumDeclaration
+                        | ConstructorDeclaration
+                        | FieldDeclaration
+                        | MethodDeclaration)
+                |
+                ";")
 
     def FieldDeclaration: MultiParser[Any] =
         Type ~ rep1Sep(VariableDeclarator, ",") <~ ";";
@@ -137,9 +136,9 @@ class JavaParser extends MultiFeatureParser {
 
     def MethodDeclaration: MultiParser[Any] =
         opt(TypeParameters) ~
-            ResultType ~
-            MethodDeclarator ~ opt("throws" ~> NameList) ~
-            MethodDeclarationBody
+                ResultType ~
+                MethodDeclarator ~ opt("throws" ~> NameList) ~
+                MethodDeclarationBody
 
     def MethodDeclarationBody: MultiParser[Any] = Block | ";"
 
@@ -157,7 +156,7 @@ class JavaParser extends MultiFeatureParser {
 
     def ExplicitConstructorInvocation: MultiParser[Any] =
         ("this" ~ Arguments <~ ";") |
-            ((opt(PrimaryExpression ~ ".") ~ "super" ~ Arguments <~ ";"))
+                ((opt(PrimaryExpression ~ ".") ~ "super" ~ Arguments <~ ";"))
 
     def Initializer: MultiParser[Any] =
         opt("static") ~ Block
@@ -171,43 +170,43 @@ class JavaParser extends MultiFeatureParser {
 
     def ReferenceTypeP: MultiParser[Any] =
         (PrimitiveType ~ rep1("[" ~ "]")) |
-            (ClassOrInterfaceType ~ repOpt("[" ~ "]"))
+                (ClassOrInterfaceType ~ repOpt("[" ~ "]"))
 
     def ClassOrInterfaceType: MultiParser[Any] =
         IDENTIFIER ~ opt(TypeArguments) ~
-            repOpt("." ~ IDENTIFIER ~ opt(TypeArguments)) named "ClassOrInterfaceType"
+                repOpt("." ~ IDENTIFIER ~ opt(TypeArguments)) named "ClassOrInterfaceType"
 
     def TypeArguments: MultiParser[Any] =
         "<" ~> rep1Sep(TypeArgument, ",") <~ ">"
 
     def TypeArgument: MultiParser[Any] =
         ReferenceTypeP |
-            ("?" ~ opt(WildcardBounds))
+                ("?" ~ opt(WildcardBounds))
 
     def WildcardBounds: MultiParser[Any] =
         ("extends" ~ ReferenceTypeP) |
-            ("super" ~ ReferenceTypeP)
+                ("super" ~ ReferenceTypeP)
 
     def PrimitiveType: MultiParser[Any] =
         ("boolean"
-            |
-            "char"
-            |
-            "byte"
-            |
-            "short"
-            |
-            "int"
-            |
-            "long"
-            |
-            "float"
-            |
-            "double")
+                |
+                "char"
+                |
+                "byte"
+                |
+                "short"
+                |
+                "int"
+                |
+                "long"
+                |
+                "float"
+                |
+                "double")
 
     def ResultType: MultiParser[Any] =
         "void" |
-            Type
+                Type
 
     def Name: MultiParser[Any] =
         rep1Sep(IDENTIFIER, ".") named ("Name")
@@ -281,12 +280,12 @@ class JavaParser extends MultiFeatureParser {
 
     def UnaryExpression: MultiParser[Any] =
         ((AdditiveOp ~ UnaryExpression)
-            |
-            PreIncrementExpression
-            |
-            PreDecrementExpression
-            |
-            UnaryExpressionNotPlusMinus)
+                |
+                PreIncrementExpression
+                |
+                PreDecrementExpression
+                |
+                UnaryExpressionNotPlusMinus)
 
     def PreIncrementExpression: MultiParser[Any] =
         "++" ~ PrimaryExpression
@@ -296,10 +295,10 @@ class JavaParser extends MultiFeatureParser {
 
     def UnaryExpressionNotPlusMinus: MultiParser[Any] =
         (UnaryOp ~ UnaryExpression
-            |
-            CastExpression
-            |
-            PostfixExpression)
+                |
+                CastExpression
+                |
+                PostfixExpression)
 
     def UnaryOp: MultiParser[Any] = "~" | "!";
 
@@ -310,7 +309,7 @@ class JavaParser extends MultiFeatureParser {
 
     def CastExpression: MultiParser[Any] =
         ("(" ~> Type <~ ")" ~ UnaryExpression) |
-            ("(" ~> Type <~ ")" ~ UnaryExpressionNotPlusMinus)
+                ("(" ~> Type <~ ")" ~ UnaryExpressionNotPlusMinus)
 
     def PrimaryExpression: MultiParser[Any] =
         PrimaryPrefix ~ repOpt(PrimarySuffix)
@@ -320,36 +319,36 @@ class JavaParser extends MultiFeatureParser {
 
     def PrimaryPrefix: MultiParser[Any] =
         (Literal
-            | ("this")
-            | ("super" ~ "." ~ IDENTIFIER)
-            | ("(" ~> Expression <~ ")")
-            | (AllocationExpression)
-            | (ResultType ~ "." ~ "class")
-            | (Name))
+                | ("this")
+                | ("super" ~ "." ~ IDENTIFIER)
+                | ("(" ~> Expression <~ ")")
+                | (AllocationExpression)
+                | (ResultType ~ "." ~ "class")
+                | (Name))
 
     def PrimarySuffix: MultiParser[Any] =
         (("." ~ "this")
-            | ("." ~ AllocationExpression)
-            | (MemberSelector)
-            | ("[" ~> Expression <~ "]")
-            | ("." ~ IDENTIFIER)
-            | (Arguments))
+                | ("." ~ AllocationExpression)
+                | (MemberSelector)
+                | ("[" ~> Expression <~ "]")
+                | ("." ~ IDENTIFIER)
+                | (Arguments))
 
     def IDENTIFIER = token("<IDENTIFIER>",
         _.getKind == Java15ParserConstants.IDENTIFIER)
 
     def Literal: MultiParser[Any] =
         (token("<INTEGER_LITERAL>", _.getKind == Java15ParserConstants.INTEGER_LITERAL)
-            |
-            token("<FLOATING_POINT_LITERAL>", _.getKind == Java15ParserConstants.FLOATING_POINT_LITERAL)
-            |
-            token("<CHARACTER_LITERAL>", _.getKind == Java15ParserConstants.CHARACTER_LITERAL)
-            |
-            token("<STRING_LITERAL>", _.getKind == Java15ParserConstants.STRING_LITERAL)
-            |
-            BooleanLiteral
-            |
-            NullLiteral)
+                |
+                token("<FLOATING_POINT_LITERAL>", _.getKind == Java15ParserConstants.FLOATING_POINT_LITERAL)
+                |
+                token("<CHARACTER_LITERAL>", _.getKind == Java15ParserConstants.CHARACTER_LITERAL)
+                |
+                token("<STRING_LITERAL>", _.getKind == Java15ParserConstants.STRING_LITERAL)
+                |
+                BooleanLiteral
+                |
+                NullLiteral)
 
     def BooleanLiteral: MultiParser[Any] =
         "true" | "false"
@@ -365,11 +364,11 @@ class JavaParser extends MultiFeatureParser {
 
     def AllocationExpression: MultiParser[Any] =
         ("new" ~ PrimitiveType ~ ArrayDimsAndInits) |
-            ("new" ~ ClassOrInterfaceType ~ opt(TypeArguments) ~ AllocationExpressionInit)
+                ("new" ~ ClassOrInterfaceType ~ opt(TypeArguments) ~ AllocationExpressionInit)
 
     def AllocationExpressionInit: MultiParser[Any] =
         ArrayDimsAndInits |
-            (Arguments ~ opt(ClassOrInterfaceBody))
+                (Arguments ~ opt(ClassOrInterfaceBody))
 
     /*
  * The third LOOK_AHEAD specification below is to parse to PrimarySuffix
@@ -377,42 +376,42 @@ class JavaParser extends MultiFeatureParser {
  */
     def ArrayDimsAndInits: MultiParser[Any] =
         (rep1("[" ~ Expression ~ "]") ~ opt("[" ~ "]")) |
-            (rep1("[" ~ "]") ~ ArrayInitializer)
+                (rep1("[" ~ "]") ~ ArrayInitializer)
 
     /*
  * Statement syntax follows.
  */
     def Statement: MultiParser[Any] =
         (LabeledStatement
-            |
-            AssertStatement
-            |
-            Block
-            |
-            EmptyStatement
-            | (StatementExpression <~ ";")
-            |
-            SwitchStatement
-            |
-            IfStatement
-            |
-            WhileStatement
-            |
-            DoStatement
-            |
-            ForStatement
-            |
-            BreakStatement
-            |
-            ContinueStatement
-            |
-            ReturnStatement
-            |
-            ThrowStatement
-            |
-            SynchronizedStatement
-            |
-            TryStatement | fail("expected Statement")) ! Choice.join named ("Statement")
+                |
+                AssertStatement
+                |
+                Block
+                |
+                EmptyStatement
+                | (StatementExpression <~ ";")
+                |
+                SwitchStatement
+                |
+                IfStatement
+                |
+                WhileStatement
+                |
+                DoStatement
+                |
+                ForStatement
+                |
+                BreakStatement
+                |
+                ContinueStatement
+                |
+                ReturnStatement
+                |
+                ThrowStatement
+                |
+                SynchronizedStatement
+                |
+                TryStatement | fail("expected Statement")) ! Choice.join named ("Statement")
 
     def AssertStatement: MultiParser[Any] =
         "assert" ~ Expression ~ opt(":" ~ Expression) ~ ";";
@@ -425,8 +424,8 @@ class JavaParser extends MultiFeatureParser {
 
     def BlockStatement: MultiParser[Any] =
         (LocalVariableDeclaration <~ ";") |
-            Statement |
-            ClassOrInterfaceDeclaration named ("BlockStatement")
+                Statement |
+                ClassOrInterfaceDeclaration named ("BlockStatement")
 
     def LocalVariableDeclaration: MultiParser[Any] =
         opt("final") ~ Type ~ rep1Sep(VariableDeclarator, ",") named ("LocalVariableDeclaration")
@@ -441,20 +440,20 @@ class JavaParser extends MultiFeatureParser {
  */
     def StatementExpression: MultiParser[Any] =
         (PreIncrementExpression
-            | PreDecrementExpression
-            | (PrimaryExpression ~ opt(StatementExpressionAssignment))) named ("ExpressionStatement");
+                | PreDecrementExpression
+                | (PrimaryExpression ~ opt(StatementExpressionAssignment))) named ("ExpressionStatement");
 
     def StatementExpressionAssignment: MultiParser[Any] =
         "++" |
-            "--" |
-            (AssignmentOperator ~ Expression) named ("StatementExpressionAssignment");
+                "--" |
+                (AssignmentOperator ~ Expression) named ("StatementExpressionAssignment");
 
     def SwitchStatement: MultiParser[Any] =
         "switch" ~ "(" ~ Expression ~ ")" ~ "{" ~ repOpt(SwitchLabel ~ repOpt(BlockStatement)) ~ "}"
 
     def SwitchLabel: MultiParser[Any] =
         ("case" ~ Expression ~ ":") |
-            ("default" ~ ":");
+                ("default" ~ ":");
 
     /*
  * The disambiguating algorithm of JavaCC automatically binds dangling
@@ -462,7 +461,10 @@ class JavaParser extends MultiFeatureParser {
  * is to tell JavaCC that we know what we are doing.
  */
     def IfStatement: MultiParser[Any] =
-        "if" ~ "(" ~ Expression ~ ")" ~ Statement ~ opt("else" ~ Statement);
+        "if" ~ "(" ~ Expression ~ ")" ~ Statement ~ repOpt(ElIfStatement) ~ opt("else" ~ Statement);
+
+    private def ElIfStatement: MultiParser[Any] =
+        "else" ~ "if" ~! "(" ~ Expression ~ ")" ~ Statement;
 
     def WhileStatement: MultiParser[Any] =
         "while" ~ "(" ~ Expression ~ ")" ~ Statement;
@@ -475,11 +477,11 @@ class JavaParser extends MultiFeatureParser {
 
     def ForStatementInternal: MultiParser[Any] =
         (Type ~ IDENTIFIER ~ ":" ~ Expression) |
-            (opt(ForInit) ~ ";" ~ opt(Expression) ~ ";" ~ opt(ForUpdate))
+                (opt(ForInit) ~ ";" ~ opt(Expression) ~ ";" ~ opt(ForUpdate))
 
     def ForInit: MultiParser[Any] =
         LocalVariableDeclaration |
-            StatementExpressionList;
+                StatementExpressionList;
 
     def StatementExpressionList: MultiParser[Any] =
         rep1Sep(StatementExpression, ",") named ("StatementExpressionList");
@@ -503,10 +505,10 @@ class JavaParser extends MultiFeatureParser {
         "synchronized" ~ "(" ~ Expression ~ ")" ~ Block;
 
     def TryStatement: MultiParser[Any] =
-        /*
- * Semantic check required here to make sure that at least one
- * finally/catch is present.
- */
+    /*
+    * Semantic check required here to make sure that at least one
+    * finally/catch is present.
+    */
         "try" ~ Block ~ TryStatementEnd
 
     def TryStatementEnd: MultiParser[Any] =
@@ -523,8 +525,8 @@ class JavaParser extends MultiFeatureParser {
 
     def Annotation: MultiParser[Any] =
         NormalAnnotation |
-            SingleMemberAnnotation |
-            MarkerAnnotation;
+                SingleMemberAnnotation |
+                MarkerAnnotation;
 
     def NormalAnnotation: MultiParser[Any] =
         "@" ~ Name ~ "(" ~ opt(MemberValuePairs) ~ ")";
@@ -543,8 +545,8 @@ class JavaParser extends MultiFeatureParser {
 
     def MemberValue: MultiParser[Any] =
         Annotation |
-            MemberValueArrayInitializer |
-            ConditionalExpression;
+                MemberValueArrayInitializer |
+                ConditionalExpression;
 
     def MemberValueArrayInitializer: MultiParser[Any] =
         "{" ~ rep1Sep(MemberValue, ",") ~ opt(",") ~ "}";
@@ -559,12 +561,12 @@ class JavaParser extends MultiFeatureParser {
 
     def AnnotationTypeMemberDeclaration: MultiParser[Any] =
         ((Modifiers ~ Type ~ IDENTIFIER ~ "(" ~ ")" ~ opt(DefaultValue) ~ ";")
-            | (Modifiers ~ ClassOrInterfaceDeclaration)
-            | (Modifiers ~ EnumDeclaration)
-            | (Modifiers ~ AnnotationTypeDeclaration)
-            | (Modifiers ~ FieldDeclaration)
-            |
-            ";")
+                | (Modifiers ~ ClassOrInterfaceDeclaration)
+                | (Modifiers ~ EnumDeclaration)
+                | (Modifiers ~ AnnotationTypeDeclaration)
+                | (Modifiers ~ FieldDeclaration)
+                |
+                ";")
 
     def DefaultValue: MultiParser[Any] =
         "default" ~ MemberValue
