@@ -180,4 +180,8 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testKBuildStr() throws LexerException, IOException {
         testFile("kbuildstr.c");
     }
+    @Test
+    public void testStringify() throws LexerException, IOException {
+        testFile("stringify.c");
+    }
 }
