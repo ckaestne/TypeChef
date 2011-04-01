@@ -152,7 +152,6 @@ class ParserMain(p: CParser) {
                 for (opt <- node.getInnerOpt)
                     if (opt.feature != FeatureExpr.base && opt.feature != ctx)
                         if (!((ctx implies (opt.feature)).isTautology)) {
-                            println(opt)
                             result += 1
                         }
             }
