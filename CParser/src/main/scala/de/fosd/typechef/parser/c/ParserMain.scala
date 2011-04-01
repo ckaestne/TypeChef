@@ -56,7 +56,7 @@ class ParserMain(p: CParser) {
         val in = lexer().setContext(initialContext)
 
         val parserStartTime = System.currentTimeMillis
-        val result = p.phrase(p.translationUnit)(in, FeatureExpr.base)
+        val result: p.MultiParseResult[AST] = p.phrase(p.translationUnit)(in, FeatureExpr.base)
         //        val result = p.translationUnit(in, FeatureExpr.base)
         val endTime = System.currentTimeMillis
 
@@ -69,7 +69,13 @@ class ParserMain(p: CParser) {
                 "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
                 "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
                 "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
-                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n")
+                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
+                "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
+                "  Distinct Features: " + countFeatures(in.tokens) + "\n" +
+                "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
+                "  Choice Nodes: " + countChoiceNodes(result) + "\n")
+
+
 
         //        checkParseResult(result, FeatureExpr.base)
 
@@ -120,4 +126,53 @@ class ParserMain(p: CParser) {
     }
 
 
+    def countConditionalTokens(tokens: List[TokenWrapper]): Int =
+        tokens.count(_.getFeature != FeatureExpr.base)
+    def countFeatures(tokens: List[TokenWrapper]): Int = {
+        var features: Set[String] = Set()
+        for (t <- tokens)
+            features ++= t.getFeature.resolveToExternal.collectDistinctFeatures.map(_.feature)
+        features.size
+    }
+    def countFeatureExpr(tokens: List[TokenWrapper]): Int =
+        tokens.foldLeft[Set[FeatureExpr]](Set())(_ + _.getFeature).size
+
+    def countChoiceNodes(ast: p.MultiParseResult[AST]): Int = ast match {
+        case p.Success(ast, _) => countChoices(ast)
+        case _ => -1
+    }
+
+
+    def countChoices(ast: AST): Int = {
+        var result: Int = 0
+        ast.accept(new ASTVisitor {
+            def visit(node: AST, ctx: FeatureExpr) {
+                if (node.isInstanceOf[Choice[_]])
+                    result += 1
+                for (opt <- node.getInnerOpt)
+                    if (opt.feature != FeatureExpr.base && opt.feature != ctx)
+                        if (!((ctx implies (opt.feature)).isTautology)) {
+                            result += 1
+                        }
+            }
+            def postVisit(node: AST, feature: FeatureExpr) {}
+        })
+        result
+    }
+
+    /* match {
+        case x: TokenWrapper => 0
+        case a ~ b => countCoices(a, ctx) + countCoices(b, ctx)
+        case l: List[Any] => l.foldLeft[Int](0)(_ + countCoices(_, ctx))
+        case Opt(f, r) =>
+            countCoices(r, ctx and f) + (if ((ctx implies f).isTautology)
+                0
+            else
+                1)
+        case c: Choice => countCoices(c.left, ctx and c.feature) + countCoices(c.right, ctx andNot (c.feature)) + 1
+        case Some(x) => countCoices(x, ctx)
+        case None => 0
+        case x: String => 0
+        case e => {println(e); assert(false); 0}
+    }*/
 }

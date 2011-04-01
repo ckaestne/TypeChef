@@ -45,16 +45,24 @@ class RepOptTest extends TestCase with DigitListUtilities {
     def testList1() {
         val input3 = List(t("5"), t("1", f1), t("2"), t("3"))
         println(parser.parse(input3))
+        assert(input3.map(_.profile_consumed_replicated).foldLeft(0)(_ + _) == 0)
 
         val input = List(t("5"), t("1"), t("2"), t("3"))
         println(parser.parse(input))
+        assert(input.map(_.profile_consumed_replicated).foldLeft(0)(_ + _) == 0)
 
 
         val input2 = List(t("5"), t("1", f2), t("2", f1), t("3", f2))
         println(parser.parse(input2))
+        assert(input2.map(_.profile_consumed_replicated).foldLeft(0)(_ + _) == 0)
 
         val input4 = List(t("5"), t("1", f2), t("2", f1), t("3", f1))
         println(parser.parse(input4))
+        assert(input4.map(_.profile_consumed_replicated).foldLeft(0)(_ + _) == 0)
+
+        val input5 = List(t("5", f1), t("1"), t("2"), t("3"))
+        println(parser.parse(input5))
+        assert(input5.map(_.profile_consumed_replicated).foldLeft(0)(_ + _) == 0)
     }
 
 }

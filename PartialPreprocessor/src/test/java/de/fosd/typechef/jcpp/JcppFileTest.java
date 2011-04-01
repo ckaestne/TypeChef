@@ -187,14 +187,20 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testKBuildStr() throws LexerException, IOException {
         testFile("kbuildstr.c");
     }
+    @Test
+    public void testStringify() throws LexerException, IOException {
+        testFile("stringify.c");
+    }
 
     @Test
-    public void testAlternativeDifferentArities1() throws LexerException, IOException {
+    public void testAlternativeDifferentArities1
+            () throws LexerException, IOException {
         testFile("alternDiffArities1.c");
     }
 
     @Test
-    public void testAlternativeDifferentArities2() throws LexerException, IOException {
+    public void testAlternativeDifferentArities2
+            () throws LexerException, IOException {
         testFile("alternDiffArities2.c");
     }
 }

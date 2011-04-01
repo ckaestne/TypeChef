@@ -14,11 +14,19 @@ trait AST {
             a.entry.accept(visitor, feature.and(a.feature))
         visitor.postVisit(this, feature)
     }
-    protected def getInnerOpt: List[Opt[AST]] = {
+    //to not normally use getInnerOpt, public only for statistics purposes
+    /*protected*/
+    def getInnerOpt: List[Opt[AST]] = {
         val v = getInner
         v.map(Opt(FeatureExpr.base, _))
     }
     protected def getInner: List[AST] = List()
+}
+
+trait Choice[T] {
+    def thenBranch: T
+    def elseBranch: T
+    def feature: FeatureExpr
 }
 
 trait ASTVisitor {
@@ -159,7 +167,7 @@ case class DeclarationStatement(decl: Declaration) extends Statement {
     override def getInner = List(decl)
 }
 
-case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement {
+case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement with Choice[Statement] {
     override def getInnerOpt = List(Opt(feature, thenBranch), Opt(feature.not, elseBranch))
     override def equals(x: Any) = x match {
         case AltStatement(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
@@ -203,7 +211,7 @@ case class ADeclaration(declSpecs: List[Opt[Specifier]], init: Option[List[Opt[I
     override def getInnerOpt = declSpecs ++ init.toList.flatten
 }
 
-case class AltDeclaration(feature: FeatureExpr, thenBranch: Declaration, elseBranch: Declaration) extends Declaration {
+case class AltDeclaration(feature: FeatureExpr, thenBranch: Declaration, elseBranch: Declaration) extends Declaration with Choice[Declaration] {
     override def getInnerOpt = List(Opt(feature, thenBranch), Opt(feature.not, elseBranch))
     override def equals(x: Any) = x match {
         case AltDeclaration(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
@@ -328,7 +336,7 @@ case class TypelessDeclaration(declList: List[Opt[InitDeclarator]]) extends Exte
     override def getInnerOpt = declList
 }
 
-case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef {
+case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef with Choice[ExternalDef] {
     override def getInnerOpt = List(Opt(feature, thenBranch), Opt(feature.not, elseBranch))
     override def equals(x: Any) = x match {
         case AltExternalDef(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
