@@ -19,6 +19,7 @@ package org.anarres.cpp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +50,7 @@ import java.util.List;
 	public static Argument omittedVariadicArgument() {
 	        Argument a = new Argument();
 	        a.omittedArg = true;
+                a.expansion = Collections.emptyList();
 	        return a;
 	}
 
@@ -71,7 +73,7 @@ import java.util.List;
 	}
 
 	public String toString() {
-		StringBuilder	buf = new StringBuilder();
+		StringBuilder buf = new StringBuilder();
 		buf.append("Argument(");
 		// buf.append(super.toString());
 		buf.append("raw=[ ");

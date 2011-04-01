@@ -66,5 +66,3 @@ $basePath/PreprocessorFrontend/target/scala_2.8.1/classes \
 
 
 cat "$outErr" 1>&2
-mv $macro_stats_path "$outMacroDebug" # || true
-mv $debugsource_path "$outDebugSource" # || true

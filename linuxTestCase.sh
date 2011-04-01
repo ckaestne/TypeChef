@@ -36,6 +36,20 @@ flags() {
   base="$(basename "$1")"
   if grep -q "arch/x86/boot" <<< "$name"; then
     extraFlag="-D_SETUP"
+  elif grep -q "arch/x86/kvm" <<< "$name"; then
+    extraFlag="-I $srcPath/virt/kvm -I $srcPath/arch/x86/kvm"
+  elif grep -q "fs/ocfs2/" <<< "$name"; then
+    extraFlag="-I $srcPath/fs/ocfs2 -DCATCH_BH_JBD_RACES"
+  elif grep -q "fs/xfs/" <<< "$name"; then
+    extraFlag="-I $srcPath/fs/xfs -I $srcPath/fs/xfs/linux-2.6"
+  elif grep -q "drivers/gpu/drm/" <<< "$name"; then
+    extraFlag="-I $srcPath/include/drm"
+  elif egrep -q "drivers/media/(dvb|video)/" <<< "$name"; then
+    extraFlag=""
+    for path in drivers/media/dvb/dvb-core drivers/media/dvb/frontends drivers/media/common/tuners \
+      drivers/ieee1394 drivers/media/video/bt8xx drivers/media/video; do
+      extraFlag="$extraFlag -I $srcPath/$path"
+    done
   else
     extraFlag=""
   fi

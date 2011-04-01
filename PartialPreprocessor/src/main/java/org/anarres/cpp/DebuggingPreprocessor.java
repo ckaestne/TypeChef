@@ -32,13 +32,19 @@ public abstract class DebuggingPreprocessor {
 
     BufferedWriter debugFile;
     BufferedWriter debugSourceFile;
-    {
+    String outputName;
+    private String baseOutName() {
+        return outputName.replace(".pi$", "");
+    }
+
+    public void openDebugFiles(String outputName) {
+        this.outputName = outputName;
         try {
             if (DEBUG_TOKENSTREAM)
                 debugFile = new BufferedWriter(new FileWriter(new File(
-                        "tokenstream.txt")));
+                        baseOutName() + ".tokStr")));
             debugSourceFile = new BufferedWriter(new FileWriter(new File(
-                    "debugsource.txt")));
+                    baseOutName() + ".dbgSrc")));
         } catch (IOException e) {
         }
     }
@@ -48,7 +54,7 @@ public abstract class DebuggingPreprocessor {
     public void debugWriteMacros() {
         try {
             PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
-                    "macroDebug.txt")));
+                    baseOutName() + ".macroDbg")));
             getMacros().debugPrint(writer);
             writer.close();
             // Confusing - it advances some debug files but not others.
@@ -86,7 +92,7 @@ public abstract class DebuggingPreprocessor {
 //	}
 
     public void debug_receivedToken(Source source, Token tok) {
-        if (DEBUG_TOKENSTREAM && tok != null)
+        if (DEBUG_TOKENSTREAM && tok != null && debugFile != null)
             try {
                 Source tmpSrc = source.getParent();
                 while (tmpSrc != null) {
