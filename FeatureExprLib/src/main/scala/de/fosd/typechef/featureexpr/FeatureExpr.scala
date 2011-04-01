@@ -260,6 +260,16 @@ sealed abstract class FeatureExpr {
     // This field keeps the wrapper referenced in a reference cycle, so that the lifecycle of this object and the wrapper match.
     // This is crucial to use the wrapper in a WeakHashMap!
     val wrap = FeatureExpr.StructuralEqualityWrapper(this)
+
+    def collectDistinctFeatures: Set[DefinedExternal] = {
+        var result: Set[DefinedExternal] = Set()
+        this.mapDefinedExpr(_ match {
+            case e: DefinedExternal => result += e; e
+            case e => e
+        }, Map())
+        result
+    }
+    def countDistinctFeatures: Int = collectDistinctFeatures.size
 }
 
 class FeatureException(msg: String) extends RuntimeException(msg)
@@ -904,7 +914,6 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
             }).unzip
             FExprBuilder.createAnd(orClauses.flatten[FeatureExpr] + FExprBuilder.createOr(renamedDisjunction))*/
         } else FExprBuilder.createOr(cnfchildren)
-
 
 }
 

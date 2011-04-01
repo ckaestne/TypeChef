@@ -46,6 +46,7 @@ public abstract class DebuggingPreprocessor {
             debugSourceFile = new BufferedWriter(new FileWriter(new File(
                     baseOutName() + ".dbgSrc")));
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -129,8 +130,10 @@ public abstract class DebuggingPreprocessor {
                                 + state.getFullPresenceCondition()
                                 + ")") + "\n");
 //				 System.out.println(b.toString());
-                debugSourceFile.write(b.toString());
-                debugSourceFile.flush();
+                if (debugSourceFile != null) {
+                    debugSourceFile.write(b.toString());
+                    debugSourceFile.flush();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -146,8 +149,10 @@ public abstract class DebuggingPreprocessor {
                     b.append("\t");
                 b.append("pop " + source.toString() + "\n");
 //				 System.out.println(b.toString());
-                debugSourceFile.write(b.toString());
-                debugSourceFile.flush();
+                if (debugSourceFile != null) {
+                    debugSourceFile.write(b.toString());
+                    debugSourceFile.flush();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
