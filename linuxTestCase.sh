@@ -55,7 +55,7 @@ flags() {
   fi
   # XXX: again, I need to specify $PWD, for the same bug as above.
   # "-I linux-2.6.33.3/include -I linux-2.6.33.3/arch/x86/include"
-  echo "$extraFlag -I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=KBUILD_STR($base) -DKBUILD_MODNAME=KBUILD_STR($base)"
+  echo "$extraFlag -I $srcPath/include -I $srcPath/arch/x86/include -D __KERNEL__ -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 -DKBUILD_BASENAME=\"$base\" -DKBUILD_MODNAME=\"$base\""
 }
 
 export outCSV=linux.csv

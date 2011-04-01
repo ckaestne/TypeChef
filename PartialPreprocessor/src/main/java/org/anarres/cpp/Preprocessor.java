@@ -844,7 +844,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             try {
                 if (macroExpansions.length == 1 && isExaustive(commonCondition)) {
                     sourceManager.push_source(createMacroTokenSource(macroName,
-                            args, firstMacro, origInvokeTok, inlineCppExpression), true);
+                            args, macroExpansions[0], origInvokeTok, inlineCppExpression), true);
+
                     // expand all alternative macros
                 } else {
                     if (inlineCppExpression)
@@ -1016,8 +1017,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * @code {args} is unchanged.
      * @return a list containing as many
      */
-    private List<Argument> checkExpansionArity(String macroName, MacroData expansion, Token tok, List<Argument> args)
-            throws ParseParamException {
+    private List<Argument> checkExpansionArity(String macroName, MacroExpansion<MacroData> macroExpansion, Token tok, List<Argument> args)
+            throws LexerException, ParseParamException {
+        MacroData expansion = macroExpansion.getExpansion();
         assert (!expansion.isFunctionLike() || args != null);
 
         if (expansion.isFunctionLike() && args.size() != expansion.getArgCount()) {
@@ -1054,12 +1056,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                     return newArgs;
                 }
             }
-            // If the macro was not variadic, or if there was no way to make arities match, complain.
-
-            throw new ParseParamException(tok, "macro " + macroName
+            // If the macro was not variadic, or if there was no way to make
+            // arities match, complain. This warning can be harmless if we are
+            // in a dead branch.
+            warning(tok, "macro " + macroName
                     + " has " + expansion.getArgCount()
-                    + " parameters (variadic: " + expansion.isVariadic() + ") but given " + args.size()
+                    + " parameters (variadic: " + expansion.isVariadic() + ") for expansion under condition "
+                    + macroExpansion.getFeature() + " but given " + args.size()
                     + " args");
+            return args;
         } else {
             return args;
         }
@@ -1082,7 +1087,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             else
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         prependNL(OutputHelper.elif_tokenStr(feature))));
-            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok, false));
+            resultList.add(createMacroTokenSource(macroName, args, macroExpansions[i], origInvokeTok, false));
             if (!macroData.isFunctionLike())
                 resultList.add(new FixedTokenSource(origArgTokens));
             if (i == 0 && !alternativesExaustive) {
@@ -1108,10 +1113,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     private MacroTokenSource createMacroTokenSource(String macroName,
                                                     List<Argument> args,
-                                                    MacroData macroData,
+                                                    MacroExpansion<MacroData> macroExpansion,
                                                     Token origTok,
                                                     boolean inlineCppExpansion) throws ParseParamException, IOException, LexerException {
-        List<Argument> argsFixed = checkExpansionArity(macroName, macroData, origTok, args);
+        List<Argument> argsFixed = checkExpansionArity(macroName, macroExpansion, origTok, args);
+        MacroData macroData = macroExpansion.getExpansion();
         if (macroData.isFunctionLike())
             for (Argument arg: argsFixed)
                 arg.expand(this, inlineCppExpansion, macroName);
@@ -1155,7 +1161,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             if (i > 0 || !alternativesExaustive)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         OutputHelper.inlineIf_tokenStr(feature)));// "__IF__(feature,"
-            resultList.add(createMacroTokenSource(macroName, args, macroData, origInvokeTok, true));
+            resultList.add(createMacroTokenSource(macroName, args, macroExpansions[i], origInvokeTok, true));
             if (!macroData.isFunctionLike())
                 resultList.add(new FixedTokenSource(origArgTokens));
             if (i > 0 || !alternativesExaustive)
