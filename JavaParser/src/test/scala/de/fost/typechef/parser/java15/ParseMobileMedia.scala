@@ -5,7 +5,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.java15._
 import de.fosd.typechef.parser._
 
-import java.io._
+import java.io.{Console => _, _}
 import scala.collection.mutable.Map
 
 object ParseMobileMedia {
@@ -135,6 +135,10 @@ object ParseMobileMedia {
             case Or(clauses) => clauses.foldLeft(Set[String]())(_ ++ findFeatures(_))
             case Not(clause) => findFeatures(clause)
             case d: DefinedExternal => Set(d.feature)
+            case _: DefinedMacro | _: ErrorFeature =>
+                Console.err.println("ParseMobileMedia.findFeatures: feature " + feature + " of unexpected type. Stack trace:")
+                (new Exception).printStackTrace()
+                Set()
         }
     }
 
