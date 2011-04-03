@@ -16,7 +16,7 @@
  */
 package org.anarres.cpp
 
-import java.{util => jUtil}
+import java.{util => jUtil, lang => jLang}
 import collection.JavaConversions._
 import collection.JavaConverters._
 
@@ -27,8 +27,10 @@ import collection.JavaConverters._
  */
 object MacroArg {
     def omittedVariadicArgument: Argument = OmittedVariadicArgument
-    def create(toks: jUtil.List[Token]) = new NormArgument(toks)
-    final val NO_ARGS: Int = -1
+    def create(toks: jUtil.List[Token]) = NormArgument(toks)
+    //Untested.
+    def fromSources(sources: jLang.Iterable[org.anarres.cpp.Source]) =
+        NormArgument(sources.asScala.toSeq.flatMap(_.asScala))
 }
 
 sealed abstract class Argument(omitted: Boolean) {
