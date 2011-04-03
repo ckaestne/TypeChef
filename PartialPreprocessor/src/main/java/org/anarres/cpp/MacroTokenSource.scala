@@ -20,8 +20,12 @@ import java.io._
 import java.util.Iterator
 import java.util.List
 import org.anarres.cpp.Token._
+import util.control.Breaks
+import java.lang.StringBuilder
+import collection.JavaConversions.asScalaIterable
 
 object MacroTokenSource {
+    /* XXX Called from Preprocessor [ugly]. */
     private[cpp] def escape(buf: StringBuilder, cs: CharSequence): Unit = {
         {
             var i: Int = 0
@@ -31,16 +35,12 @@ object MacroTokenSource {
                     c match {
                         case '\\' =>
                             buf.append("\\\\")
-                            break //todo: break is not supported
                         case '"' =>
                             buf.append("\\\"")
-                            break //todo: break is not supported
                         case '\n' =>
                             buf.append("\\n")
-                            break //todo: break is not supported
                         case '\r' =>
                             buf.append("\\r")
-                            break //todo: break is not supported
                         case _ =>
                             buf.append(c)
                     }
@@ -55,7 +55,7 @@ object MacroTokenSource {
 
 class MacroTokenSource extends Source {
     private[cpp] def this(macroName: String, m: MacroData, args: List[Argument], gnuCExtensions: Boolean) {
-        this ()
+        this()
         this.macroName = macroName
         this.macro = m
         this.tokenIter = m.getTokens.iterator
@@ -83,9 +83,7 @@ class MacroTokenSource extends Source {
         for (tok <- arg) {
             if (i != 0 || tok.getType != NL && !tok.isWhite) {
                 tok.lazyPrint(buf)
-                ({
-                    i += 1; i
-                })
+                i += 1
             }
         }
     }
@@ -95,67 +93,61 @@ class MacroTokenSource extends Source {
         var printWriter: PrintWriter = new PrintWriter(buf)
         concat(printWriter, arg, false)
         var str: StringBuilder = new StringBuilder("\"")
-        escape(str, buf.getBuffer)
+        MacroTokenSource.escape(str, buf.getBuffer)
         str.append("\"")
         return new SimpleToken(STRING, pos.getLine, pos.getColumn, str.toString, buf.toString, this)
     }
 
-    private def paste(ptok: Token): Unit = {
-        var buf: StringWriter = new StringWriter
-        var printWriter: PrintWriter = new PrintWriter(buf)
+    private def paste(_ptok: Token): Unit = {
+        var ptok = _ptok
+        var buf = new StringWriter
+        var printWriter = new PrintWriter(buf)
         var queuedComma: Boolean = false
         var count: Int = 2
-        {
-            var i: Int = 0
+
+        var i: Int = 0
+        import Breaks._
+        breakable {
             while (i < count) {
-                {
-                    if (!tokenIter.hasNext) {
-                        error(ptok.getLine, ptok.getColumn, "Paste at end of expansion")
-                        buf.append(' ').append(ptok.getText)
-                        break //todo: break is not supported
-                    }
-                    var tok: Token = tokenIter.next
-                    if (queuedComma && tok.getType != M_ARG) {
-                        buf.append(",")
-                        queuedComma = false
-                    }
-                    tok.getType match {
-                        case M_PASTE =>
-                            count += 2
-                            ptok = tok
-                            break //todo: break is not supported
-                        case M_ARG =>
-                            var idx: Int = (tok.getValue.asInstanceOf[Integer]).intValue
-                            concat(printWriter, args.get(idx), queuedComma)
-                            break //todo: break is not supported
-                        case CCOMMENT =>
-                        case CPPCOMMENT =>
-                            break //todo: break is not supported
-                        case ',' =>
-                            assert(",".equals(tok.getText))
-                            queuedComma = true
-                            break //todo: break is not supported
-                        case _ =>
-                            buf.append(tok.getText)
-                            break //todo: break is not supported
-                    }
+                if (!tokenIter.hasNext) {
+                    error(ptok.getLine, ptok.getColumn, "Paste at end of expansion")
+                    buf.append(' ').append(ptok.getText)
+                    break
                 }
-                ({
-                    i += 1; i
-                })
+                var tok: Token = tokenIter.next
+                if (queuedComma && tok.getType != M_ARG) {
+                    buf.append(",")
+                    queuedComma = false
+                }
+                tok.getType match {
+                    case M_PASTE =>
+                        count += 2
+                        ptok = tok
+                    case M_ARG =>
+                        val idx: Int = (tok.getValue.asInstanceOf[Int]).intValue
+                        concat(printWriter, args.get(idx), queuedComma)
+                    /* XXX Test this. */
+                    case CCOMMENT | CPPCOMMENT=>
+                    case ',' =>
+                        assert(",".equals(tok.getText))
+                        queuedComma = true
+                    case _ =>
+                        buf.append(tok.getText)
+                }
+                i += 1
             }
         }
         var sl: StringLexerSource = new StringLexerSource(buf.toString)
         arg = new SourceIterator(sl)
     }
 
-    def token: Token = {
-        var tok: Token = _token
+    def token(): Token = {
+        val tok: Token = _token()
         if (tok.getType != P_FEATUREEXPR && tok.getText.equals(macroName)) tok.setNoFurtherExpansion
         return tok
     }
 
-    def _token: Token = {
+    def _token(): Token = {
         while (true) {
             if (arg != null) {
                 if (arg.hasNext) {
@@ -166,7 +158,7 @@ class MacroTokenSource extends Source {
                 arg = null
             }
             if (!tokenIter.hasNext) return new SimpleToken(EOF, -1, -1, "", this)
-            var tok: Token = tokenIter.next
+            val tok: Token = tokenIter.next
             var idx: Int = 0
             tok.getType match {
                 case M_STRING =>
@@ -175,14 +167,13 @@ class MacroTokenSource extends Source {
                 case M_ARG =>
                     idx = (tok.getValue.asInstanceOf[Integer]).intValue
                     arg = args.get(idx).expansion
-                    break //todo: break is not supported
                 case M_PASTE =>
                     paste(tok)
-                    break //todo: break is not supported
                 case _ =>
                     return tok
             }
         }
+        null
     }
 
     override def toString: String = {
@@ -197,10 +188,10 @@ class MacroTokenSource extends Source {
         return macro.getTokens.toString + " args: " + args
     }
 
-    private final val macro: MacroData = null
+    private final var macro: MacroData = null
     private var tokenIter: Iterator[Token] = null
     private var args: List[Argument] = null
     private var arg: Iterator[Token] = null
-    private final val macroName: String = null
+    private final var macroName: String = null
     private var gnuCExtensions: Boolean = false
 }

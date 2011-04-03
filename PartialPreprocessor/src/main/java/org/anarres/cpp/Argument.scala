@@ -21,28 +21,27 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.Iterator
 import java.util.List
+import collection.JavaConversions.asScalaIterable
 
 /**
  * A macro argument.
  *
  * This encapsulates a raw and preprocessed token stream.
  */
-@SuppressWarnings(Array("serial")) object Argument {
+object Argument {
     def omittedVariadicArgument: Argument = {
         var a: Argument = new Argument
         a.omittedArg = true
-        a.expansion = Collections.emptyList
+        a.expanded = Collections.emptyList()
         return a
     }
 
     final val NO_ARGS: Int = -1
 }
 
-@SuppressWarnings(Array("serial")) class Argument extends ArrayList[Token] {
-    def this() {
-        this ()
-        this.expansion = null
-    }
+class Argument extends ArrayList[Token] {
+    private var omittedArg: Boolean = false
+    private var expanded: List[Token] = null
 
     def addToken(tok: Token): Unit = {
         if (!omittedArg) {
@@ -58,43 +57,28 @@ import java.util.List
     }
 
     private[cpp] def expand(p: Preprocessor, inlineCppExpression: Boolean, macroName: String): Unit = {
-        if (expansion == null) {
-            this.expansion = p.macro_expandArgument(this, inlineCppExpression, macroName)
+        if (expanded == null) {
+            this.expanded = p.macro_expandArgument(this, inlineCppExpression, macroName)
         }
     }
 
-    def expansion: Iterator[Token] = {
-        return expansion.iterator
+    def expansion(): Iterator[Token] = {
+        return expanded.iterator
     }
 
     override def toString: String = {
-        var buf: StringBuilder = new StringBuilder
+        val buf: StringBuilder = new StringBuilder
         buf.append("Argument(")
         buf.append("raw=[ ")
-        {
-            var i: Int = 0
-            while (i < size) {
-                buf.append(get(i).getText)
-                ({
-                    i += 1; i
-                })
-            }
-        }
+        for (tok <- this)
+            buf.append(tok.getText)
         buf.append(" ];expansion=[ ")
-        if (expansion == null) buf.append("null")
+        if (expanded == null) buf.append("null")
         else {
-            var i: Int = 0
-            while (i < expansion.size) {
-                buf.append(expansion.get(i).getText)
-                ({
-                    i += 1; i
-                })
-            }
+            for (tok <- expanded)
+                buf.append(tok.getText)
         }
         buf.append(" ])")
         return buf.toString
     }
-
-    private var omittedArg: Boolean = false
-    private var expansion: List[Token] = null
 }
