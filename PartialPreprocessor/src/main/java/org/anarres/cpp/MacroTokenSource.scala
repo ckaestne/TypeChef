@@ -124,7 +124,7 @@ class MacroTokenSource extends Source {
                         count += 2
                         ptok = tok
                     case M_ARG =>
-                        val idx: Int = (tok.getValue.asInstanceOf[Int]).intValue
+                        val idx: Int = (tok.getValue.asInstanceOf[java.lang.Integer]).intValue
                         concat(printWriter, args.get(idx), queuedComma)
                     /* XXX Test this. */
                     case CCOMMENT | CPPCOMMENT=>
@@ -162,10 +162,10 @@ class MacroTokenSource extends Source {
             var idx: Int = 0
             tok.getType match {
                 case M_STRING =>
-                    idx = (tok.getValue.asInstanceOf[Integer]).intValue
+                    idx = (tok.getValue.asInstanceOf[java.lang.Integer]).intValue
                     return stringify(tok, args.get(idx))
                 case M_ARG =>
-                    idx = (tok.getValue.asInstanceOf[Integer]).intValue
+                    idx = (tok.getValue.asInstanceOf[java.lang.Integer]).intValue
                     arg = args.get(idx).expansion
                 case M_PASTE =>
                     paste(tok)
