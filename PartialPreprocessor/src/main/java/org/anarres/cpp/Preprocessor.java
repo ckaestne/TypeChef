@@ -1045,9 +1045,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
                     int i = 0;
                     for (Argument arg: argsToJoin) {
-                        for (Token argTok: arg.jTokens()) {
-                            joinedArgToks.add(argTok);
-                        }
+                        joinedArgToks.addAll(arg.jTokens());
                         i++;
                         if (i < argsToJoin.size()) {
                             joinedArgToks.add(OutputHelper.comma());
