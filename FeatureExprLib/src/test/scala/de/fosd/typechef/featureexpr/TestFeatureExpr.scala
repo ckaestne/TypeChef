@@ -43,7 +43,7 @@ class TestFeatureExpr extends TestCase {
     def checkLevelLiteral(expr: FeatureExpr) {
         expr match {
             case a: DefinedExpr =>
-            case a: Value =>
+            case a: Value[_] =>
             case Not(DefinedExpr(name)) =>
             case e => assert(false, expr + " is not a literal")
         }

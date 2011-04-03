@@ -18,7 +18,7 @@
 package org.anarres.cpp;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprValue;
+import de.fosd.typechef.featureexpr.FeatureExprTree;
 import de.fosd.typechef.featureexpr.MacroContext;
 import de.fosd.typechef.featureexpr.MacroExpansion;
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
@@ -770,7 +770,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                     //The last argument of a variadic macro can be omitted, but is counted by getArgCount()
                     error(origInvokeTok,
                             String.format("Alternative variadic expansion %s has %d arguments, more than the arity %d",
-                                macro, macro.getArgCount(), arity));
+                                    macro, macro.getArgCount(), arity));
                 }
             }
         }
@@ -1015,6 +1015,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * the right argument count (i.e. the macro arity), by concatenating variadic arguments or producing an empty one.
      * Otherwise, the original list is returned.
      * @code {args} is unchanged.
+     *
      * @return a list containing as many
      */
     private List<Argument> checkExpansionArity(String macroName, MacroExpansion<MacroData> macroExpansion, Token tok, List<Argument> args)
@@ -1889,9 +1890,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     private class ExprOrValue {
         final FeatureExpr expr;
-        final FeatureExprValue value;
+        final FeatureExprTree<Long> value;
 
-        ExprOrValue(FeatureExpr expr, FeatureExprValue value) {
+        ExprOrValue(FeatureExpr expr, FeatureExprTree<Long> value) {
             this.expr = expr;
             this.value = value;
         }
@@ -1900,11 +1901,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             this(expr, null);
         }
 
-        ExprOrValue(FeatureExprValue value) {
+        ExprOrValue(FeatureExprTree<Long> value) {
             this(null, value);
         }
 
-        public FeatureExprValue assumeValue(Token tok) throws LexerException {
+        public FeatureExprTree<Long> assumeValue(Token tok) throws LexerException {
             if (value == null) {
                 warning(tok, "expecting value before token, found boolean expression " + expr + " instead");
                 return expr.toFeatureExprValue();
@@ -1915,8 +1916,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         public FeatureExpr assumeExpression(Token tok) throws LexerException {
             if (expr == null) {
 //                warning(tok, "interpreting value " + value + " as expression " + value.toFeatureExpr());
-                System.out.println("interpreting value " + value + " as expression " + value.toFeatureExpr());
-                return value.toFeatureExpr();
+                System.out.println("interpreting value " + value + " as expression " + FeatureExprLib.toFeatureExpr(value));
+                return FeatureExprLib.toFeatureExpr(value);
             } else
                 return expr;
         }
@@ -2176,7 +2177,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return lhs;
     }
 
-    private FeatureExprValue parse_ifExpr(Token tok) throws IOException, LexerException {
+    private FeatureExprTree<Long> parse_ifExpr(Token tok) throws IOException, LexerException {
         consumeToken('(', true);
         ExprOrValue condition = parse_featureExprOrValue(0, true);
         consumeToken(',', true);

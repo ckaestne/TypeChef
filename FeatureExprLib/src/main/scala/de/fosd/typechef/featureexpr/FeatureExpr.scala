@@ -11,27 +11,28 @@ import java.io.Writer
 /**
  * External interface for construction of non-boolean feature expressions (mostly delegated to FExprBuilder)
  */
-object FeatureExpr {
+object FeatureExpr extends FeatureExprValueOps {
 
-    def createComplement(expr: FeatureExprValue): FeatureExprValue = FExprBuilder.applyUnaryOperation(expr, ~_)
-    def createNeg(expr: FeatureExprValue) = FExprBuilder.applyUnaryOperation(expr, -_)
-    def createBitAnd(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ & _)
-    def createBitOr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ | _)
-    def createDivision(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right,
-        (l, r) => if (r == 0) ErrorValue("division by zero") else FExprBuilder.createValue(l / r))
-    def createModulo(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ % _)
-    def createEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ == _)
-    def createNotEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ != _)
-    def createLessThan(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ < _)
-    def createLessThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ <= _)
-    def createGreaterThan(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ > _)
-    def createGreaterThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right, _ >= _)
-    def createMinus(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ - _)
-    def createMult(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ * _)
-    def createPlus(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ + _)
-    def createPwr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ ^ _)
-    def createShiftLeft(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ << _)
-    def createShiftRight(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right, _ >> _)
+    def createComplement(expr: FeatureExprValue): FeatureExprValue = FExprBuilder.applyUnaryOperation(expr)(~_)
+    def createNeg(expr: FeatureExprValue) = FExprBuilder.applyUnaryOperation(expr)(-_)
+    def createBitAnd(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ & _)
+    def createBitOr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ | _)
+    def createDivision(left: FeatureExprValue, right: FeatureExprValue): FeatureExprValue = FExprBuilder.applyBinaryOperation(left, right)(
+        (l, r) => if (r == 0) ErrorValue[Long]("division by zero") else FExprBuilder.createValue(l / r))
+    def createModulo(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ % _)
+    def createEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ == _)
+    def createNotEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ != _)
+    def createLessThan(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ < _)
+    def createLessThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ <= _)
+    def createGreaterThan(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ > _)
+    def createGreaterThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ >= _)
+    def createMinus(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ - _)
+    def createMult(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ * _)
+    def createPlus(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ + _)
+    def createPwr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ ^ _)
+    def createShiftLeft(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ << _)
+    def createShiftRight(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ >> _)
+
     def createInteger(value: Long): FeatureExprValue = FExprBuilder.createValue(value)
     def createCharacter(value: Char): FeatureExprValue = FExprBuilder.createValue(value)
 
@@ -42,7 +43,8 @@ object FeatureExpr {
 
     //helper
     def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr): FeatureExpr = FExprBuilder.createIf(condition, thenBranch, elseBranch)
-    def createIf(condition: FeatureExpr, thenBranch: FeatureExprValue, elseBranch: FeatureExprValue): FeatureExprValue = FExprBuilder.createIf(condition, thenBranch, elseBranch)
+    def createIf[T](condition: FeatureExpr, thenBranch: FeatureExprTree[T], elseBranch: FeatureExprTree[T]): FeatureExprTree[T] = FExprBuilder.createIf(condition, thenBranch, elseBranch)
+
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
     def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
 
@@ -302,10 +304,10 @@ abstract class HashCachingFeatureExpr extends FeatureExpr {
  * and for extensive caching.
  */
 private[featureexpr] object FExprBuilder {
-    private val ifCache: HashMap[(FeatureExpr, FeatureExprValue, FeatureExprValue), WeakReference[FeatureExprValue]] = new HashMap()
+    private val ifCache: HashMap[(FeatureExpr, FeatureExprTree[_], FeatureExprTree[_]), WeakReference[FeatureExprTree[_]]] = new HashMap()
     private val featureCache: Map[String, WeakReference[DefinedExternal]] = Map()
     private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
-    private val valCache: Map[Long, WeakReference[Value]] = Map()
+    private val valCache: Map[Any, WeakReference[Value[_]]] = Map()
     private val resolvedCache: WeakHashMap[FeatureExpr, FeatureExpr] = WeakHashMap()
     private val hashConsingCache: WeakHashMap[FeatureExpr.StructuralEqualityWrapper, WeakReference[FeatureExpr.StructuralEqualityWrapper]] = WeakHashMap()
 
@@ -565,7 +567,7 @@ private[featureexpr] object FExprBuilder {
     }
 
 
-    private def propagateError(left: FeatureExprValue, right: FeatureExprValue): Option[ErrorValue] = {
+    private def propagateError[T](left: FeatureExprTree[T], right: FeatureExprTree[T]): Option[ErrorValue[T]] = {
         (left, right) match {
             case (ErrorValue(msg1), ErrorValue(msg2)) => Some(ErrorValue(msg1 + ";" + msg2))
             case (ErrorValue(msg), _) => Some(ErrorValue(msg))
@@ -574,56 +576,56 @@ private[featureexpr] object FExprBuilder {
         }
     }
 
-    def evalRelation(smaller: FeatureExprValue, larger: FeatureExprValue, relation: (Long, Long) => Boolean): FeatureExpr = {
+    def evalRelation[T](smaller: FeatureExprTree[T], larger: FeatureExprTree[T])(relation: (T, T) => Boolean): FeatureExpr = {
         propagateError(smaller, larger) match {
             case Some(ErrorValue(msg)) => return ErrorFeature(msg)
             case _ =>
                 (smaller, larger) match {
                     case (Value(a), Value(b)) => if (relation(a, b)) True else False
                     case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
-                        createIf(e2, evalRelation(a1, a2, relation), evalRelation(a1, b2, relation)),
-                        createIf(e2, evalRelation(b1, a2, relation), evalRelation(b1, b2, relation)))
-                    case (If(e, a, b), x) => createIf(e, evalRelation(a, x, relation), evalRelation(b, x, relation))
-                    case (x, If(e, a, b)) => createIf(e, evalRelation(x, a, relation), evalRelation(x, b, relation))
+                        createIf(e2, evalRelation(a1, a2)(relation), evalRelation(a1, b2)(relation)),
+                        createIf(e2, evalRelation(b1, a2)(relation), evalRelation(b1, b2)(relation)))
+                    case (If(e, a, b), x) => createIf(e, evalRelation(a, x)(relation), evalRelation(b, x)(relation))
+                    case (x, If(e, a, b)) => createIf(e, evalRelation(x, a)(relation), evalRelation(x, b)(relation))
                     case _ => throw new Exception("evalRelation: unexpected " + (smaller, larger))
                 }
         }
     }
 
-    def applyBinaryOperation[T <% FeatureExprValue](left: FeatureExprValue, right: FeatureExprValue, operation: (Long, Long) => T): FeatureExprValue = {
+    def applyBinaryOperation[T, U <% FeatureExprTree[T]](left: FeatureExprTree[T], right: FeatureExprTree[T])(operation: (T, T) => U): FeatureExprTree[T] = {
         propagateError(left, right) match {
             case Some(err) => return err
             case _ =>
                 (left, right) match {
                     case (Value(a), Value(b)) => operation(a, b)
                     case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
-                        createIf(e2, applyBinaryOperation(a1, a2, operation), applyBinaryOperation(a1, b2, operation)),
-                        createIf(e2, applyBinaryOperation(b1, a2, operation), applyBinaryOperation(b1, b2, operation)))
-                    case (If(e, a, b), x) => createIf(e, applyBinaryOperation(a, x, operation), applyBinaryOperation(b, x, operation))
-                    case (x, If(e, a, b)) => createIf(e, applyBinaryOperation(x, a, operation), applyBinaryOperation(x, b, operation))
+                        createIf(e2, applyBinaryOperation(a1, a2)(operation), applyBinaryOperation(a1, b2)(operation)),
+                        createIf(e2, applyBinaryOperation(b1, a2)(operation), applyBinaryOperation(b1, b2)(operation)))
+                    case (If(e, a, b), x) => createIf(e, applyBinaryOperation(a, x)(operation), applyBinaryOperation(b, x)(operation))
+                    case (x, If(e, a, b)) => createIf(e, applyBinaryOperation(x, a)(operation), applyBinaryOperation(x, b)(operation))
                     case _ => throw new Exception("applyBinaryOperation: unexpected " + (left, right))
                 }
         }
     }
 
-    def applyUnaryOperation(expr: FeatureExprValue, operation: Long => Long): FeatureExprValue = expr match {
+    def applyUnaryOperation[T](expr: FeatureExprTree[T])(operation: T => T): FeatureExprTree[T] = expr match {
         case Value(a) => createValue(operation(a))
-        case If(e, a, b) => createIf(e, applyUnaryOperation(a, operation), applyUnaryOperation(b, operation))
+        case If(e, a, b) => createIf(e, applyUnaryOperation(a)(operation), applyUnaryOperation(b)(operation))
         case _ => throw new Exception("applyUnaryOperation: unexpected " + expr)
     }
 
-    def createIf(expr: FeatureExpr, thenBr: FeatureExprValue, elseBr: FeatureExprValue): FeatureExprValue = expr match {
+    def createIf[T](expr: FeatureExpr, thenBr: FeatureExprTree[T], elseBr: FeatureExprTree[T]): FeatureExprTree[T] = expr match {
         case True => thenBr
         case False => elseBr
         case _ => {
             if (thenBr == elseBr) thenBr
-            else cacheGetOrElseUpdate(ifCache, (expr, thenBr, elseBr), new If(expr, thenBr, elseBr))
+            else cacheGetOrElseUpdate(ifCache, (expr, thenBr, elseBr), new If(expr, thenBr, elseBr)).asInstanceOf[FeatureExprTree[T]]
         }
     }
 
     def createIf(expr: FeatureExpr, thenBr: FeatureExpr, elseBr: FeatureExpr): FeatureExpr = (expr and thenBr) or (expr.not and elseBr)
 
-    def createValue(v: Long): FeatureExprValue = cacheGetOrElseUpdate(valCache, v, new Value(v))
+    def createValue[T](v: T): FeatureExprTree[T] = cacheGetOrElseUpdate(valCache, v, new Value[T](v)).asInstanceOf[FeatureExprTree[T]]
 
     def resolveToExternal(expr: FeatureExpr): FeatureExpr = expr.mapDefinedExpr({
         case e: DefinedMacro => e.presenceCondition.resolveToExternal
