@@ -1071,6 +1071,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         }
     }
 
+    List<Source> macro_expandAlternative(String macroName, MacroExpansion<MacroData> macroExpansion, List<Argument> args,
+                                         Token origInvokeTok, List<Token> origArgTokens, boolean inline)
+            throws IOException, LexerException, ParseParamException {
+        List<Source> resultList = new ArrayList<Source>();
+        resultList.add(createMacroTokenSource(macroName, args, macroExpansion, origInvokeTok, inline));
+        if (!macroExpansion.getExpansion().isFunctionLike())
+            resultList.add(new FixedTokenSource(origArgTokens));
+        return resultList;
+    }
+
     private void macro_expandAlternatives(String macroName,
                                           MacroExpansion<MacroData>[] macroExpansions, List<Argument> args,
                                           Token origInvokeTok, List<Token> origArgTokens, FeatureExpr commonCondition)
@@ -1088,9 +1098,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             else
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         prependNL(OutputHelper.elif_tokenStr(feature))));
-            resultList.add(createMacroTokenSource(macroName, args, macroExpansions[i], origInvokeTok, false));
-            if (!macroData.isFunctionLike())
-                resultList.add(new FixedTokenSource(origArgTokens));
+            resultList.addAll(macro_expandAlternative(macroName, macroExpansions[i], args, origInvokeTok, origArgTokens, false));
             if (i == 0 && !alternativesExaustive) {
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         prependNL(OutputHelper.else_tokenStr())));
@@ -1162,9 +1170,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             if (i > 0 || !alternativesExaustive)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         OutputHelper.inlineIf_tokenStr(feature)));// "__IF__(feature,"
-            resultList.add(createMacroTokenSource(macroName, args, macroExpansions[i], origInvokeTok, true));
-            if (!macroData.isFunctionLike())
-                resultList.add(new FixedTokenSource(origArgTokens));
+            resultList.addAll(macro_expandAlternative(macroName, macroExpansions[i], args, origInvokeTok, origArgTokens, true));
             if (i > 0 || !alternativesExaustive)
                 resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                         Collections.singletonList(OutputHelper.comma())));
