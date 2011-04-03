@@ -19,6 +19,7 @@ package org.anarres.cpp
 import java.{util => jUtil, lang => jLang}
 import collection.JavaConversions._
 import collection.JavaConverters._
+import de.fosd.typechef.featureexpr.{FeatureExprTree, MacroExpansion, FeatureExpr}
 
 /**
  * A macro argument.
@@ -31,6 +32,26 @@ object MacroArg {
     //Untested.
     def fromSources(sources: jLang.Iterable[org.anarres.cpp.Source]) =
         NormArgument(sources.asScala.toSeq.flatMap(_.asScala))
+}
+
+object MacroExpander {
+    //TODO: finish and test, only compiled.
+    def expandAlternatives(pp: Preprocessor, macroName: String,
+                           macroExpansions: Array[MacroExpansion[MacroData]], args: List[Argument],
+                           origInvokeTok: Token, origArgTokens: List[Token], commonCondition: FeatureExpr, inline: Boolean) = {
+        val alternativesExaustive: Boolean = commonCondition.isBase
+        val fallbackAlternative =
+            if (alternativesExaustive)
+                Seq[Source]()
+            else //if (inline)
+                Seq[Source]() //XXX: Should be the unexpanded code, or 0, depending on inline. Ask it to the caller!
+
+        macroExpansions.map(expansion => FeatureExpr.createValue[Seq[Source]](
+            pp.macro_expandAlternative(macroName, expansion, args, origInvokeTok, origArgTokens, inline))).zip(
+                macroExpansions.map(_.getFeature)).foldRight[FeatureExprTree[Seq[Source]]](FeatureExpr.createValue(fallbackAlternative)) {
+            case ((expanded, feature), tree) => FeatureExpr.createIf(feature, expanded, tree)
+        }
+    }
 }
 
 sealed abstract class Argument(omitted: Boolean) {

@@ -35,6 +35,7 @@ object FeatureExpr extends FeatureExprValueOps {
 
     def createInteger(value: Long): FeatureExprValue = FExprBuilder.createValue(value)
     def createCharacter(value: Char): FeatureExprValue = FExprBuilder.createValue(value)
+    def createValue[T](v: T): FeatureExprTree[T] = FExprBuilder.createValue(v)
 
 
     def createDefinedExternal(name: String): DefinedExternal = FExprBuilder.definedExternal(name)
