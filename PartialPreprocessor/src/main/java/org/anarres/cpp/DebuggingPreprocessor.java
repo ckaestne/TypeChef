@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 public abstract class DebuggingPreprocessor {
     public static Logger logger = Logger.getLogger("de.ovgu.jcpp");
     public static boolean DEBUG_TOKENSTREAM = false;
+
     static {
         try {
             Handler fh;
@@ -33,8 +34,12 @@ public abstract class DebuggingPreprocessor {
     BufferedWriter debugFile;
     BufferedWriter debugSourceFile;
     String outputName;
+
     private String baseOutName() {
-        return outputName.replace(".pi$", "");
+        if (outputName != null)
+            return outputName.replace(".pi$", "");
+        else
+            return null;
     }
 
     public void openDebugFiles(String outputName) {
@@ -54,8 +59,13 @@ public abstract class DebuggingPreprocessor {
 
     public void debugWriteMacros() {
         try {
+            String outName = baseOutName();
+            if (outName == null) {
+                logger.info("macro dump skipped");
+                return;
+            }
             PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
-                    baseOutName() + ".macroDbg")));
+                    outName + ".macroDbg")));
             getMacros().debugPrint(writer);
             writer.close();
             // Confusing - it advances some debug files but not others.
