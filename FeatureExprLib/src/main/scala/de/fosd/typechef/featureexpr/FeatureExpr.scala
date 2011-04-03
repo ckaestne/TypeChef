@@ -292,22 +292,8 @@ case class ErrorFeature(msg: String) extends FeatureExpr {
 // and the computation is complex enough. Currently this means only not, and even then I'm not sure it's the best.
 abstract class HashCachingFeatureExpr extends FeatureExpr {
     protected val cachedHash = calcHashCode
+
     final override def hashCode = cachedHash
-}
-
-/**
- * FeatureExprValue is the root class for non-propositional nodes in feature
- * expressions, i.e., Integer and If nodes, which cannot be checked for satisfiability.
- */
-sealed trait FeatureExprValue {
-    def toFeatureExpr: FeatureExpr = {
-        val zero = FExprBuilder.createValue(0)
-        FExprBuilder.evalRelation(this, zero, _ != _)
-    }
-}
-
-object FeatureExprValue {
-    implicit def long2value(x: Long): FeatureExprValue = FExprBuilder.createValue(x)
 }
 
 
@@ -1017,34 +1003,4 @@ class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val exp
 
 object DefinedMacro {
     def unapply(x: DefinedMacro) = Some((x.name, x.presenceCondition, x.expandedName, x.presenceConditionCNF))
-}
-
-
-/**
- * values (integers, chars and operations and relations on them)
- */
-
-class If(val expr: FeatureExpr, val thenBr: FeatureExprValue, val elseBr: FeatureExprValue) extends FeatureExprValue {
-    override def toString = "(" + expr + "?" + thenBr + ":" + elseBr + ")"
-}
-
-object If {
-    def unapply(x: If) = Some(Tuple3(x.expr, x.thenBr, x.elseBr))
-}
-
-class Value(val value: Long) extends FeatureExprValue {
-    override def toString = value.toString
-}
-
-object Value {
-    def unapply(x: Value) = Some(x.value)
-}
-
-class ErrorValue(val msg: String) extends FeatureExprValue {
-    override def toString = "###Error: " + msg + " ###"
-}
-
-object ErrorValue {
-    def unapply(x: ErrorValue) = Some(x.msg)
-    def apply(x: String) = new ErrorValue(x)
 }
