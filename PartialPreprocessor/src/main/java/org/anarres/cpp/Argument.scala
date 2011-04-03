@@ -16,69 +16,60 @@
  */
 package org.anarres.cpp
 
-import java.io.IOException
-import java.util.ArrayList
-import java.util.Collections
-import java.util.Iterator
-import java.util.List
-import collection.JavaConversions.asScalaIterable
+import java.{util => jUtil}
+import collection.JavaConversions._
+import collection.JavaConverters._
 
 /**
  * A macro argument.
  *
  * This encapsulates a raw and preprocessed token stream.
  */
-object Argument {
-    def omittedVariadicArgument: Argument = {
-        var a: Argument = new Argument
-        a.omittedArg = true
-        a.expanded = Collections.emptyList()
-        return a
-    }
-
+object MacroArg {
+    def omittedVariadicArgument: Argument = OmittedVariadicArgument
+    def create(toks: jUtil.List[Token]) = new NormArgument(toks)
     final val NO_ARGS: Int = -1
 }
 
-class Argument extends ArrayList[Token] {
-    private var omittedArg: Boolean = false
-    private var expanded: List[Token] = null
+sealed abstract class Argument(omitted: Boolean) {
+    def isOmittedArg: Boolean = omitted
+    def tokens: Seq[Token]
+    def jTokens = tokens.asJava
+    def expandedTokens: Seq[Token]
+    def expansion: jUtil.Iterator[Token] = expandedTokens.iterator
 
-    def addToken(tok: Token): Unit = {
-        if (!omittedArg) {
-            add(tok)
-        }
-        else {
-            throw new IllegalArgumentException("Tried to add a token to omittedVariadicArgument.")
-        }
-    }
-
-    def isOmittedArg: Boolean = {
-        return omittedArg
-    }
-
-    private[cpp] def expand(p: Preprocessor, inlineCppExpression: Boolean, macroName: String): Unit = {
-        if (expanded == null) {
-            this.expanded = p.macro_expandArgument(this, inlineCppExpression, macroName)
-        }
-    }
-
-    def expansion(): Iterator[Token] = {
-        return expanded.iterator
-    }
+    private[cpp] def expand(p: Preprocessor, inlineCppExpression: Boolean, macroName: String) {}
 
     override def toString: String = {
         val buf: StringBuilder = new StringBuilder
         buf.append("Argument(")
         buf.append("raw=[ ")
-        for (tok <- this)
+        for (tok <- tokens)
             buf.append(tok.getText)
         buf.append(" ];expansion=[ ")
-        if (expanded == null) buf.append("null")
+        if (expandedTokens.isEmpty) buf.append("null")
         else {
-            for (tok <- expanded)
+            for (tok <- expandedTokens)
                 buf.append(tok.getText)
         }
         buf.append(" ])")
         return buf.toString
     }
+}
+
+case object OmittedVariadicArgument extends Argument(true) {
+    def expandedTokens = Seq()
+    def tokens = Seq()
+}
+
+case class NormArgument(tokens: Seq[Token]) extends Argument(false) {
+    private var expanded: Seq[Token] = Seq()
+
+    private var omittedArg: Boolean = false
+    override private[cpp] def expand(p: Preprocessor, inlineCppExpression: Boolean, macroName: String) {
+        if (expanded.isEmpty)
+            this.expanded = p.macro_expandArgument(tokens, inlineCppExpression, macroName).asScala.toSeq
+    }
+
+    def expandedTokens = expanded
 }

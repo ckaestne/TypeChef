@@ -930,7 +930,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 * the case that we have one empty arg.
                 */
             if (tok.getType() != ')' || firstMacro.getArgCount() > 0) {
-                Argument arg = new Argument();
+                List<Token> argTokens = new ArrayList<Token>();
                 int depth = 0;
                 boolean space = false;
 
@@ -943,26 +943,26 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
                         case ',':
                             if (depth == 0) {
-                                args.add(arg);
-                                arg = new Argument();
+                                args.add(MacroArg.create(argTokens));
+                                argTokens = new ArrayList<Token>();
                             } else {
-                                arg.addToken(tok);
+                                argTokens.add(tok);
                             }
                             space = false;
                             break;
                         case ')':
                             if (depth == 0) {
-                                args.add(arg);
+                                args.add(MacroArg.create(argTokens));
                                 break ARGS;
                             } else {
                                 depth--;
-                                arg.addToken(tok);
+                                argTokens.add(tok);
                             }
                             space = false;
                             break;
                         case '(':
                             depth++;
-                            arg.addToken(tok);
+                            argTokens.add(tok);
                             space = false;
                             break;
 
@@ -983,9 +983,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                 * Do not put space on the beginning of an argument
                                 * token.
                                 */
-                            if (space && !arg.isEmpty())
-                                arg.addToken(Token.space);
-                            arg.addToken(tok);
+                            if (space && !argTokens.isEmpty())
+                                argTokens.add(Token.space);
+                            argTokens.add(tok);
                             space = false;
                             break;
 
@@ -1035,25 +1035,26 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                     // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
                     List<Argument> argsCopy = new ArrayList<Argument>(args.size() + 1);
                     argsCopy.addAll(args);
-                    argsCopy.add(Argument.omittedVariadicArgument());
+                    argsCopy.add(MacroArg.omittedVariadicArgument());
                     return argsCopy;
                 } else if (args.size() > expansion.getArgCount()) {
                     //Remember that fromList accepts a [from, to[ range!
                     List<Argument> newArgs = new ArrayList<Argument>(args.subList(0, expansion.getArgCount() - 1));
                     List<Argument> argsToJoin = args.subList(expansion.getArgCount() - 1, args.size());
-                    Argument joinedArg = new Argument();
+                    List<Token> joinedArgToks = new ArrayList<Token>();
+
                     int i = 0;
                     for (Argument arg: argsToJoin) {
-                        for (Token argTok: arg) {
-                            joinedArg.addToken(argTok);
+                        for (Token argTok: arg.jTokens()) {
+                            joinedArgToks.add(argTok);
                         }
                         i++;
                         if (i < argsToJoin.size()) {
-                            joinedArg.addToken(OutputHelper.comma());
-                            joinedArg.addToken(Token.space);
+                            joinedArgToks.add(OutputHelper.comma());
+                            joinedArgToks.add(Token.space);
                         }
                     }
-                    newArgs.add(joinedArg);
+                    newArgs.add(MacroArg.create(joinedArgToks));
                     return newArgs;
                 }
             }

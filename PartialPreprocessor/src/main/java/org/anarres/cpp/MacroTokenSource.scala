@@ -75,12 +75,12 @@ class MacroTokenSource extends Source {
                 buf.append(",")
             }
             else {
-                assert(arg.isEmpty)
+                assert(arg.tokens.isEmpty)
                 return
             }
         }
         var i: Int = 0
-        for (tok <- arg) {
+        for (tok <- arg.tokens) {
             if (i != 0 || tok.getType != NL && !tok.isWhite) {
                 tok.lazyPrint(buf)
                 i += 1
