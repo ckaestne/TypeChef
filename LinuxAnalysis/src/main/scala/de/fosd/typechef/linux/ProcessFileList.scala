@@ -37,7 +37,7 @@ object ProcessFileList extends RegexParsers {
         ("(" ~> (expr ~ "||" ~ expr) <~ ")") ^^ {case (a ~ _ ~ b) => a or b} |
                 term
     def term: Parser[FeatureExpr] =
-        "!" ~> commit(bool) ^^ (_ not) |
+        "!" ~> commit(expr) ^^ (_ not) |
                 ("(" ~> (expr ~ "&&" ~ expr) <~ ")") ^^ {case (a ~ _ ~ b) => a and b} |
                 bool
 
