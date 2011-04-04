@@ -802,9 +802,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             String.valueOf(lineNum),
                             Integer.valueOf(lineNum), null)}), true);
         } else if (macroName.equals("__DATE__")) {
-            outputStringTokenSource(origInvokeTok, String.format(Locale.US, "%1$tb %1$2te %1$tY", Calendar.getInstance()));
+            outputStringTokenSource(origInvokeTok, String.format(Locale.US, "\"%1$tb %1$2te %1$tY\"", Calendar.getInstance()));
         } else if (macroName.equals("__TIME__")) {
-            outputStringTokenSource(origInvokeTok, String.format(Locale.US, "%1$tT", Calendar.getInstance()));
+            outputStringTokenSource(origInvokeTok, String.format(Locale.US, "\"%1$tT\"", Calendar.getInstance()));
         } else if (macroName.equals("__FILE__")) {
             StringBuilder buf = new StringBuilder("\"");
             String name = getSource().getName();
@@ -872,6 +872,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return true;
     }
 
+    /**
+     * @param text text to output. Must include embedded quotes.
+     */
     private void outputStringTokenSource(Token positionToken, String text) {
         sourceManager.push_source(new FixedTokenSource(
                 new SimpleToken[]{new SimpleToken(STRING, positionToken.getLine(),
