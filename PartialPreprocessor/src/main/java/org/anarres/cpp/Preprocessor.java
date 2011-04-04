@@ -1575,6 +1575,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             break;
                         case WHITESPACE:// ignore whitespace and comments for now
                             // ChK
+                        case CPPCOMMENT:
                         case CCOMMENT:
                             break;
                         case NL:
