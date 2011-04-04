@@ -201,4 +201,9 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testAlternativeDifferentArities2() throws LexerException, IOException {
         testFile("alternDiffArities2.c");
     }
+
+    @Test
+    public void testDateTime() throws LexerException, IOException {
+        testFile("dateTime.c");
+    }
 }
