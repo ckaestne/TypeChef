@@ -37,6 +37,9 @@ public abstract class DebuggingPreprocessor {
 
     private String baseOutName() {
         if (outputName != null)
+            //TODO: Buggy, should use replaceFirst, otherwise the 1st is not
+            //interpreted as a regexp and doesn't work at all (here, no
+	    //replacement is done).
             return outputName.replace(".pi$", "");
         else
             return null;
