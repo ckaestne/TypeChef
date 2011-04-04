@@ -797,9 +797,10 @@ public class LexerSource extends Source {
                 d = read();
                 if (d == 'x' || d == 'X')
                     tok = number_hex((char) d);
-                else if  (d == '.')
+                else if  (d == '.') {
+                    unread(d);
                     tok = number_decimal('0', false);
-                else {
+                } else {
                     unread(d);
                     tok = number_octal();
                 }
