@@ -81,11 +81,11 @@ public class AbstractCheckTests {
         while ((line = checkFile.readLine()) != null) {
             if (line.startsWith("!")) {
                 String substring = line.substring(2);
-                if (cleanedOutput.toString().contains(substring)) {
+                if (cleanedOutput.contains(substring)) {
                     System.err.println(cleanedOutput);
                     Assert.fail(substring
                             + " found but not expected in output\n"
-                            + cleanedOutput.toString());
+                            + cleanedOutput);
                 }
             }
             if (line.startsWith("+")) {
@@ -93,7 +93,7 @@ public class AbstractCheckTests {
                 int found = 0;
                 String substring = line.substring(3);
 
-                String content = cleanedOutput.toString();
+                String content = cleanedOutput;
                 int idx = content.indexOf(substring);
                 while (idx >= 0) {
                     found++;
@@ -111,12 +111,11 @@ public class AbstractCheckTests {
             if (line.startsWith("*")) {
                 String substring = line.substring(2);
 
-                String content = cleanedOutput.toString();
-                int idx = content.indexOf(substring);
+                int idx = cleanedOutput.indexOf(substring);
                 if (idx < 0) {
                     failOutput(cleanedOutput);
                     Assert.fail(substring + " not found but expected\n"
-                            + content);
+                            + cleanedOutput);
                 }
             }
             if (line.startsWith("T")) {
@@ -151,7 +150,7 @@ public class AbstractCheckTests {
                         errorMsg != null);
             }
             if (line.trim().equals("print")) {
-                System.out.println(cleanedOutput.toString());
+                System.out.println(cleanedOutput);
             }
             if (line.trim().equals("macrooutput")) {
                 pp.debugWriteMacros();
