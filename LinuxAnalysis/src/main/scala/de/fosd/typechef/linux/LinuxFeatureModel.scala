@@ -67,6 +67,8 @@ object LinuxFeatureModel {
                     and (d("CONFIG_EXT4_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_JBD") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_JBD2") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_MD") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_GFS2_FS") implies d("CONFIG_BLOCK")) //from FM
             //                    and (d("CONFIG_BUG") and (d("CONFIG_SMP") or d("CONFIG_DEBUG_SPINLOCK"))).not //parsing error
             //                    and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_DEBUG_SPINLOCK")) //parsing error
 
