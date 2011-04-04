@@ -27,6 +27,7 @@ object LinuxDependencyAnalysis {
             //"CONFIG_X86_64",
             //"CONFIG_X86"  ,
             "CONFIG_PARAVIRT", "CONFIG_PROC_FS", "CONFIG_TRACE_IRQFLAGS_SUPPORT", "CONFIG_X86_PAE"
+            // "CONFIG_MD", "CONFIG_GFS2_FS", "CONFIG_BLOCK"
             // "CONFIG_BLK_DEV_DRBD","CONFIG_BLK_DEV_INTEGRITY", "CONFIG_BLK_DEV_RAM" , "CONFIG_BLK_DEV_LOOP"
             //            "CONFIG_AMIGA", "CONFIG_X86", "CONFIG_M32R", "CONFIG_SPARC", "CONFIG_M68K", "CONFIG_AMIGA_FLOPPY"
             //            "CONFIG_BLOCK", "CONFIG_PS3_DISK", "CONFIG_PPC_PS3"
@@ -45,8 +46,10 @@ object LinuxDependencyAnalysis {
                 println(f1 + " is contradiction")
         }
         for (f1 <- features; f2 <- features if f1 != f2) {
-            if ((f1 implies f2).isTautology(fm))
+            if ((f1 implies f2).isTautology(fm)) {
                 println(f1 + " => " + f2)
+                println("""Add to LinuxFeatureModel.featureModelApprox: d("%s") implies d("%s")""".format(f1.feature, f2.feature))
+            }
             if ((f1 mex f2).isTautology(fm))
                 println(f1 + " mex " + f2)
             //            println(f1 + " boh " + f2)
