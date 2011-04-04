@@ -126,7 +126,7 @@ object ProcessFileList extends RegexParsers {
                             fmFile.close
                         }
                         else {
-                            stderr.println(fullFilename + " has condition False, parsed from: " + fields(1))
+                            stderr.println(fullFilename + " has unsatisfiable condition " + cond + ", parsed from: " + fields(1))
                             ignoredFileListWriter.write(fullFilename + ": " + fields(1) + "\n")
                             ignoredFileListWriter.flush
                         }
