@@ -759,8 +759,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         for (int i = 1; i < macroExpansions.length; i++) {
             MacroData macro = macroExpansions[i].getExpansion();
-            if (macro.isFunctionLike()) {
-                if (!areAllVariadic && !macro.isVariadic() && macro.getArgCount() != arity) {
+            if (macro.isFunctionLike() && !areAllVariadic) {
+                if (!macro.isVariadic() && macro.getArgCount() != arity) {
                     error(origInvokeTok,
                             "Alternative non-variadic macros with different arities are not yet supported: "
                                     + macro + " vs. "
