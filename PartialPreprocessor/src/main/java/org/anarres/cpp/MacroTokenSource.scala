@@ -71,10 +71,13 @@ class MacroTokenSource extends Source {
 
     private def concat(buf: PrintWriter, arg: Argument, queuedComma: Boolean): Unit = {
         if (queuedComma) {
+            //Output the comma that we didn't output previously.
             if (!arg.isOmittedArg || !gnuCExtensions) {
                 buf.append(",")
             }
             else {
+                //Swallow the comma, as prescribed by:
+                // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
                 assert(arg.tokens.isEmpty)
                 return
             }
