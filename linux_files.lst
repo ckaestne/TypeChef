@@ -5833,7 +5833,6 @@ fs/reiserfs/xattr_acl
 fs/reiserfs/xattr_security
 fs/reiserfs/xattr_trusted
 fs/reiserfs/xattr_user
-fs/romfs/mmap-nommu
 fs/romfs/storage
 fs/romfs/super
 fs/select
