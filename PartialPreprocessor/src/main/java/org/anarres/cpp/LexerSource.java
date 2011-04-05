@@ -793,11 +793,14 @@ public class LexerSource extends Source {
                 break;
 
             case '0':
-                /* octal or hex */
+                /* octal, hex or 0.decimal */
                 d = read();
                 if (d == 'x' || d == 'X')
                     tok = number_hex((char) d);
-                else {
+                else if  (d == '.') {
+                    unread(d);
+                    tok = number_decimal('0', false);
+                } else {
                     unread(d);
                     tok = number_octal();
                 }

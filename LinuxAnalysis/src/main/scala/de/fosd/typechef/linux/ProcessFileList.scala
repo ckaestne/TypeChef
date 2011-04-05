@@ -37,7 +37,7 @@ object ProcessFileList extends RegexParsers {
         ("(" ~> (expr ~ "||" ~ expr) <~ ")") ^^ {case (a ~ _ ~ b) => a or b} |
                 term
     def term: Parser[FeatureExpr] =
-        "!" ~> commit(bool) ^^ (_ not) |
+        "!" ~> commit(expr) ^^ (_ not) |
                 ("(" ~> (expr ~ "&&" ~ expr) <~ ")") ^^ {case (a ~ _ ~ b) => a and b} |
                 bool
 
@@ -95,6 +95,7 @@ object ProcessFileList extends RegexParsers {
                         case _ => false
                     }
                     )) {
+                val fullFilenameNoExt = fullFilename.dropRight(2)
                 val filename = fullFilename.substring(fullFilename.lastIndexOf("/") + 1).dropRight(2)
 
                 val pcExpr = parseAll(expr, fields(1))
@@ -106,12 +107,12 @@ object ProcessFileList extends RegexParsers {
                             //file should be parsed
                             println(fullFilename + " " + cond)
 
-                            fileListWriter.write(fullFilename + "\n")
+                            fileListWriter.write(fullFilenameNoExt + "\n")
                             fileListWriter.flush
 
                             //create .cW and .piW file
                             val wrapperSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename + "W"))
-                            val wrapperPiSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename.dropRight(2) + ".piW"))
+                            val wrapperPiSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilenameNoExt + ".piW"))
                             wrapperSrc.print("#if ")
                             wrapperPiSrc.print("#if ")
                             cond.print(wrapperSrc)
@@ -121,12 +122,12 @@ object ProcessFileList extends RegexParsers {
                             wrapperSrc.close
                             wrapperPiSrc.close
 
-                            val fmFile = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename.dropRight(2) + ".pi.fm"))
+                            val fmFile = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilenameNoExt + ".pi.fm"))
                             cond.print(fmFile)
                             fmFile.close
                         }
                         else {
-                            stderr.println(fullFilename + " has condition False, parsed from: " + fields(1))
+                            stderr.println(fullFilename + " has unsatisfiable condition " + cond + ", parsed from: " + fields(1))
                             ignoredFileListWriter.write(fullFilename + ": " + fields(1) + "\n")
                             ignoredFileListWriter.flush
                         }

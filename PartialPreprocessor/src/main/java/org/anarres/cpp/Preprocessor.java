@@ -26,6 +26,7 @@ import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.*;
 
 import static org.anarres.cpp.Token.*;
@@ -145,11 +146,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     private List<MacroConstraint> macroConstraints = new ArrayList<MacroConstraint>();
 
     public Preprocessor() {
-
-        macros = macros.define("__LINE__", FeatureExprLib.base(),
-                new MacroData(INTERNAL)).define("__FILE__",
-                FeatureExprLib.base(), new MacroData(INTERNAL)).define(
-                "__COUNTER__", FeatureExprLib.base(), new MacroData(INTERNAL));
+        for (String name: new String[] {
+            "__LINE__", "__FILE__", "__COUNTER__", "__TIME__", "__DATE__"
+        }) {
+            macros = macros.define(name, FeatureExprLib.base(), new MacroData(INTERNAL));
+        }
 
         state = new State();
 
@@ -758,8 +759,8 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         for (int i = 1; i < macroExpansions.length; i++) {
             MacroData macro = macroExpansions[i].getExpansion();
-            if (macro.isFunctionLike()) {
-                if (!areAllVariadic && !macro.isVariadic() && macro.getArgCount() != arity) {
+            if (macro.isFunctionLike() && !areAllVariadic) {
+                if (!macro.isVariadic() && macro.getArgCount() != arity) {
                     error(origInvokeTok,
                             "Alternative non-variadic macros with different arities are not yet supported: "
                                     + macro + " vs. "
@@ -800,6 +801,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             lineNum, getSource().getColumn(),
                             String.valueOf(lineNum),
                             Integer.valueOf(lineNum), null)}), true);
+        } else if (macroName.equals("__DATE__")) {
+            outputStringTokenSource(origInvokeTok, String.format(Locale.US, "\"%1$tb %1$2te %1$tY\"", Calendar.getInstance()));
+        } else if (macroName.equals("__TIME__")) {
+            outputStringTokenSource(origInvokeTok, String.format(Locale.US, "\"%1$tT\"", Calendar.getInstance()));
         } else if (macroName.equals("__FILE__")) {
             StringBuilder buf = new StringBuilder("\"");
             String name = getSource().getName();
@@ -821,9 +826,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             }
             buf.append("\"");
             String text = buf.toString();
-            sourceManager.push_source(new FixedTokenSource(
-                    new SimpleToken[]{new SimpleToken(STRING, origInvokeTok.getLine(),
-                            origInvokeTok.getColumn(), text, text, null)}), true);
+            outputStringTokenSource(origInvokeTok, text);
         } else if (macroName.equals("__COUNTER__")) {
             /*
                 * This could equivalently have been done by adding a special Macro
@@ -867,6 +870,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         );
 
         return true;
+    }
+
+    /**
+     * @param text text to output. Must include embedded quotes.
+     */
+    private void outputStringTokenSource(Token positionToken, String text) {
+        sourceManager.push_source(new FixedTokenSource(
+                new SimpleToken[]{new SimpleToken(STRING, positionToken.getLine(),
+                        positionToken.getColumn(), text, text, null)}), true);
     }
 
     // private MacroExpansion<MacroData>[] filterApplicableMacros(
@@ -1563,6 +1575,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             break;
                         case WHITESPACE:// ignore whitespace and comments for now
                             // ChK
+                        case CPPCOMMENT:
                         case CCOMMENT:
                             break;
                         case NL:

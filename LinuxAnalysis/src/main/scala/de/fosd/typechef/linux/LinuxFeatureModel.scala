@@ -78,15 +78,10 @@ object LinuxFeatureModel {
                     and (d("CONFIG_MD_RAID1") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_MD_RAID456") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_NFTL") implies d("CONFIG_BLOCK")) //from FM
-                    and (d("CONFIG_") implies d("CONFIG_BLOCK")) //from FM
-                    and (d("CONFIG_") implies d("CONFIG_BLOCK")) //from FM
-                    and (d("CONFIG_") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_I2C_SCMI") implies d("CONFIG_ACPI")) //from FM
                     and (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI") implies d("CONFIG_TOUCHSCREEN_AD7879")) //from FM
-
-            //                    and (d("CONFIG_BUG") and (d("CONFIG_SMP") or d("CONFIG_DEBUG_SPINLOCK"))).not //parsing error
-            //                    and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_DEBUG_SPINLOCK")) //parsing error
-
+                    and (d("CONFIG_MD") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_GFS2_FS") implies d("CONFIG_BLOCK")) //from FM
         )
     }
 

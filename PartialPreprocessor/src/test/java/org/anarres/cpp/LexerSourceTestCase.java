@@ -55,7 +55,7 @@ public class LexerSourceTestCase extends BaseTestCase implements Test {
 			OR_EQ, WHITESPACE,
 			XOR_EQ, WHITESPACE,
 			IDENTIFIER);
-
+                testLexerSource("-0.76", '-', INTEGER);
 	}
 
 }
