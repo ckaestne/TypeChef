@@ -152,6 +152,7 @@ object LinuxPreprocessorFrontend {
     def getFeatureModel(cfilename: String): FeatureModel = {
         val featureModelFile = new File(cfilename + ".fm")
         val featureExpr = if (featureModelFile.exists) loadFeatureModel(featureModelFile) else FeatureExpr.base
+println(cfilename+" FM "+featureExpr)
         LinuxFeatureModel.featureModelApprox.and(featureExpr)
     }
 

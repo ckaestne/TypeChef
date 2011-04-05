@@ -99,11 +99,11 @@ object Stats {
             out.write("0;")
 
         //macros, altmacros, altmacros3, altmacros4, altmacros5, condmacros
-        val macroStats = getLines(fullFilePath + ".macroDbg").last
+        val macroStats = getLines(fullFilePath + ".pi.macroDbg").last
         out.write(macroStats + ";")
 
         //        "headernesting;includecount;distinctheaders;" +
-        val includeStats = getLines(fullFilePath + ".dbgSrc").last
+        val includeStats = getLines(fullFilePath + ".pi.dbgSrc").last
         out.write(includeStats + ";")
 
         //        "condtokens;distinctfeatures;featureexpr;choicenodes;" +
