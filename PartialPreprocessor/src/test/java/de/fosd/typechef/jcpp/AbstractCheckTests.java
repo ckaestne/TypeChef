@@ -162,7 +162,7 @@ public class AbstractCheckTests {
     private FeatureExpr parseFeatureExpr(String expectedFeature) {
         try {
             return new Preprocessor(new StringLexerSource(expectedFeature
-                    + "\n")).parse_featureExpr();
+                    + "\n"),null).parse_featureExpr();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (LexerException e) {

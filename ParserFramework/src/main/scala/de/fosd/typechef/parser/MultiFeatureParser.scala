@@ -9,7 +9,7 @@ import annotation.tailrec
  *
  * @author kaestner
  */
-abstract class MultiFeatureParser(featureModel: FeatureModel = null) {
+abstract class MultiFeatureParser(val featureModel: FeatureModel = null) {
     type Elem <: AbstractToken
     type TypeContext
     type Input = TokenReader[Elem, TypeContext]
@@ -574,7 +574,8 @@ try {
                     case Success(result, next) =>
                         if (next.offset <= in0.skipHidden(ctx.and(firstFeature.not), featureSolverCache).offst)
                             Some(Opt(ctx.and(firstFeature), result): Opt[T], next)
-                        else None
+                        else
+                            None
                     case _ => None
                 }
             } else
@@ -747,7 +748,13 @@ try {
             val result: MultiParseResult[(List[Opt[T]], FeatureExpr)] = res.map(sealable => (sealable.resultList.reverse, sealable.freeSeparator))
             if (!firstOptional)
                 result.mapfr(ctx, (f, r) => r match {
-                    case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
+                    case e@Success((l, f), next) => {
+                        val nonEmptyCondition = l.foldRight(FeatureExpr.dead)(_.feature or _)
+                        lazy val failure = Failure("empty list (" + productionName + ")", next, List())
+                        if (nonEmptyCondition.isTautology(featureModel)) e
+                        else if (nonEmptyCondition.isContradiction(featureModel)) failure
+                        else SplittedParseResult(nonEmptyCondition, e, failure)
+                    }
                     case e => e
                 })
             else

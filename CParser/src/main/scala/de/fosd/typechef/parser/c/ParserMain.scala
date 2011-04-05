@@ -33,7 +33,7 @@ object ParserMain {
 class ParserMain(p: CParser) {
 
     def parserMain(filePath: String, parentPath: String): AST = {
-        val lexer = (() => CLexer.lexFile(filePath, parentPath))
+        val lexer = (() => CLexer.lexFile(filePath, parentPath,p.featureModel))
         parserMain(lexer, new CTypeContext())
     }
 

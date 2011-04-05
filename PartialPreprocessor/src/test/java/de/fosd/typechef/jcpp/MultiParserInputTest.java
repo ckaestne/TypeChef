@@ -21,7 +21,7 @@ public class MultiParserInputTest {
 	private void checkStr(String orig, int expectedNumber)
 			throws LexerException, IOException {
 		List<Token> tokens = new PartialPPLexer().parse(new StringLexerSource(
-				orig, true), null);
+				orig, true), null,null);
 		for (Token t : tokens)
 			System.out.println(t);
 		assert (tokens.size() == expectedNumber);

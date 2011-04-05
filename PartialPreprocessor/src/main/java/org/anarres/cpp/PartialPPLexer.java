@@ -1,5 +1,7 @@
 package org.anarres.cpp;
 
+import de.fosd.typechef.featureexpr.FeatureModel;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +18,14 @@ public class PartialPPLexer {
 
     public boolean debug = false;
 
-    public List<Token> parse(String code, String folderPath) throws LexerException,
+    public List<Token> parse(String code, String folderPath, FeatureModel featureModel) throws LexerException,
             IOException {
-        return parse(new StringLexerSource(code, true), folderPath);
+        return parse(new StringLexerSource(code, true), folderPath, featureModel);
     }
 
-    public List<Token> parseFile(String fileName, String folderPath)
+    public List<Token> parseFile(String fileName, String folderPath, FeatureModel featureModel)
             throws LexerException, IOException {
-        return parse(new FileLexerSource(new File(fileName)), folderPath);
+        return parse(new FileLexerSource(new File(fileName)), folderPath, featureModel);
     }
 
     /**
@@ -34,14 +36,14 @@ public class PartialPPLexer {
      * @throws LexerException
      * @throws IOException
      */
-    public List<Token> parseStream(InputStream stream, String filePath, String folderPath)
+    public List<Token> parseStream(InputStream stream, String filePath, String folderPath, FeatureModel featureModel)
             throws LexerException, IOException {
-        return parse(new FileLexerSource(stream, filePath), folderPath);
+        return parse(new FileLexerSource(stream, filePath), folderPath, featureModel);
     }
 
-    public List<Token> parse(Source source, String folderPath)
+    public List<Token> parse(Source source, String folderPath, FeatureModel featureModel)
             throws LexerException, IOException {
-        Preprocessor pp = new Preprocessor();
+        Preprocessor pp = new Preprocessor(featureModel);
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);

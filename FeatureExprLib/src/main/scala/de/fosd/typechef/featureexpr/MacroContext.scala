@@ -40,8 +40,9 @@ import FeatureExpr.createDefinedExternal
  *
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
-class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[String, (String, Susp[FeatureExpr])]) extends FeatureProvider {
-    def this() = {this (Map(), Map())}
+class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[String, (String, Susp[FeatureExpr])], featureModel: FeatureModel) extends FeatureProvider {
+    def this(fm:FeatureModel) = {this (Map(), Map(),fm)}
+    def this() = {this (null)}
     def define(name: String, infeature: FeatureExpr, other: T): MacroContext[T] = {
         val feature = infeature //.resolveToExternal()
         val newMC = new MacroContext(
@@ -57,7 +58,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                         feature
                     knownMacros + ((name, new Macro[T](name, initialFeatureExpr, List(new MacroExpansion[T](feature, other)))))
                 }
-            }, cnfCache - name)
+            }, cnfCache - name,featureModel)
         //        println("#define " + name)
         newMC
     }
@@ -70,7 +71,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                 //XXX: why is flagFilter() not checked? The condition associated
                 //with the definition would become false.
                 case None => knownMacros + ((name, new Macro[T](name, feature.not().and(createDefinedExternal(name)), List())))
-            }, cnfCache - name)
+            }, cnfCache - name,featureModel)
     }
 
     def getMacroCondition(feature: String): FeatureExpr = {
@@ -119,17 +120,17 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
         result
     }
 
-    def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isDead()
+    def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isContradiction(featureModel)
 
-    def isFeatureBase(feature: String): Boolean = getMacroCondition(feature).isBase()
+    def isFeatureBase(feature: String): Boolean = getMacroCondition(feature).isTautology(featureModel)
 
     def getMacroExpansions(identifier: String): Array[MacroExpansion[T]] =
         knownMacros.get(identifier) match {
-            case Some(macro) => macro.getOther().toArray
+            case Some(macro) => macro.getOther(featureModel).toArray
             case None => Array()
         }
     def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr): Array[MacroExpansion[T]] =
-        getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isDead());
+        getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isContradiction(featureModel));
 
     override def toString() = {knownMacros.values.mkString("\n\n\n") + printStatistics}
     def debugPrint(writer: PrintWriter) {
@@ -146,7 +147,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                 knownMacros.values.filter(_.numberOfExpansions > 2).size + ";" +
                 knownMacros.values.filter(_.numberOfExpansions > 3).size + ";" +
                 knownMacros.values.filter(_.numberOfExpansions > 4).size + ";" +
-                knownMacros.values.filter(!_.getFeature.isTautology).size + "\n"
+                knownMacros.values.filter(!_.getFeature.isTautology(featureModel)).size + "\n"
     //,number of distinct configuration flags
     //    	+getNumberOfDistinctFlagsStatistic+"\n";
     //    private def getNumberOfDistinctFlagsStatistic = {
@@ -172,9 +173,9 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
 private class Macro[T](name: String, feature: FeatureExpr, var featureExpansions: List[MacroExpansion[T]]) {
     def getName() = name;
     def getFeature() = feature;
-    def getOther() = {
+    def getOther(fm: FeatureModel) = {
         //lazy filtering
-        featureExpansions = featureExpansions.filter(!_.getFeature().isContradiction())
+        featureExpansions = featureExpansions.filter(!_.getFeature().isContradiction(fm))
         featureExpansions;
     }
     def addNewAlternative(exp: MacroExpansion[T]) =

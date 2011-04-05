@@ -21,7 +21,7 @@ class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], 
     else {
         val cnf = expr.toCNF
         try {
-            assert(!expr.isContradiction)
+            assert(!expr.isContradiction(null))
             val (newVariables, newLastVarId) = FeatureModel.getVariables(cnf, lastVarId, variables)
             val newClauses = FeatureModel.addClauses(cnf, newVariables, clauses)
             new FeatureModel(newVariables, newClauses, newLastVarId)

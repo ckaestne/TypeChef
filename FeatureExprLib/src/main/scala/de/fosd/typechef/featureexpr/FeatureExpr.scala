@@ -173,6 +173,7 @@ sealed abstract class FeatureExpr {
      * overhead)
      */
     def equivalentTo(that: FeatureExpr): Boolean = (this eq that) || (this equiv that).isTautology();
+    def equivalentTo(that: FeatureExpr, fm:FeatureModel): Boolean = (this eq that) || (this equiv that).isTautology(fm);
 
     protected def indent(level: Int): String = "\t" * level
 
