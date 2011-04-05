@@ -748,13 +748,15 @@ try {
             val result: MultiParseResult[(List[Opt[T]], FeatureExpr)] = res.map(sealable => (sealable.resultList.reverse, sealable.freeSeparator))
             if (!firstOptional)
                 result.mapfr(ctx, (f, r) => r match {
-                    case e@Success((l, f), next) => {
-                        val nonEmptyCondition = l.foldRight(FeatureExpr.dead)(_.feature or _)
-                        lazy val failure = Failure("empty list (" + productionName + ")", next, List())
-                        if (nonEmptyCondition.isTautology(featureModel)) e
-                        else if (nonEmptyCondition.isContradiction(featureModel)) failure
-                        else SplittedParseResult(nonEmptyCondition, e, failure)
-                    }
+			//XXX ChK: the following is an incorrect approximation and the lower code should be used, but reduces performance significantly 
+                   case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
+ //		    case e@Success((l, f), next) => {
+ //                       val nonEmptyCondition = l.foldRight(FeatureExpr.dead)(_.feature or _)
+ //                       lazy val failure = Failure("empty list (" + productionName + ")", next, List())
+ //                       if (nonEmptyCondition.isTautology(featureModel)) e
+ //                       else if (nonEmptyCondition.isContradiction(featureModel)) failure
+ //                       else SplittedParseResult(nonEmptyCondition, e, failure)
+ //                   }
                     case e => e
                 })
             else
