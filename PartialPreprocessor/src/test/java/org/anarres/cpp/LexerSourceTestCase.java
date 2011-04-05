@@ -32,12 +32,12 @@ public class LexerSourceTestCase extends BaseTestCase implements Test {
 
 		// \n is WHITESPACE because ppvalid = false
 		testLexerSource("# #   \r\n\n\r \rfoo",
-			HASH, WHITESPACE, '#', WHITESPACE, IDENTIFIER
+			HASH, WHITESPACE, HASH, WHITESPACE, IDENTIFIER
 		);
 
 		testLexerSource("%:%:", PASTE);
-		testLexerSource("%:?", '#', '?');
-		testLexerSource("%:%=", '#', MOD_EQ);
+		testLexerSource("%:?", HASH, '?');
+		testLexerSource("%:%=", HASH, MOD_EQ);
 		testLexerSource("0x1234ffdUL 0765I",
 				INTEGER, WHITESPACE, INTEGER);
 

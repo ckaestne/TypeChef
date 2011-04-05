@@ -652,7 +652,7 @@ public class LexerSource extends Source {
                 if (bol)
                     tok = new SimpleToken(HASH, this);
                 else
-                    tok = cond('#', PASTE, '#');
+                    tok = cond('#', PASTE, HASH);
                 break;
 
             case '+':
@@ -702,14 +702,14 @@ public class LexerSource extends Source {
                         d = read();
                         if (d != '%') {
                             unread(d);
-                            tok = new SimpleToken('#', this); // digraph
+                            tok = new SimpleToken(HASH, this); // digraph
                             break PASTE;
                         }
                         d = read();
                         if (d != ':') {
                             unread(d); // Unread 2 chars here.
                             unread('%');
-                            tok = new SimpleToken('#', this); // digraph
+                            tok = new SimpleToken(HASH, this); // digraph
                             break PASTE;
                         }
                         tok = new SimpleToken(PASTE, this); // digraph

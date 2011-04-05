@@ -1416,7 +1416,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                     break;
 
                 /* Stringify. */
-                case '#':
+                case HASH:
                     if (space)
                         m.addToken(Token.space);
                     space = false;
