@@ -93,6 +93,7 @@ export outCSV=linux.csv
 ## Reset output
 #echo -n > "$outCSV"
 
+#echo $partialPreprocFlags
 ##################################################################
 # Actually invoke the preprocessor and analyze result.
 ##################################################################
@@ -109,6 +110,8 @@ filesToProcess|while read i; do
     . ./jcpp.sh $srcPath/$i.c $extraFlags
     . ./postProcess.sh $srcPath/$i.c $extraFlags
   else
+    #echo ./jcpp.sh $srcPath/$i.c $extraFlags
+    #exit 0
     echo "Skipping $srcPath/$i.c"
   fi
 #  for j in $listToParse; do
