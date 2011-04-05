@@ -170,6 +170,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         this.listener = null;
     }
 
+    public Preprocessor() {
+        this(null);
+    }
     public Preprocessor(Source initial, FeatureModel fm) {
         this(fm);
         addInput(initial);

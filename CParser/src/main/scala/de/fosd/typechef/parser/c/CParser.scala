@@ -16,10 +16,10 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
     type TypeContext = CTypeContext
 
     def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST]): MultiParseResult[AST] =
-        mainProduction(CLexer.lex(code), FeatureExpr.base)
+        mainProduction(CLexer.lex(code, featureModel), FeatureExpr.base)
 
     def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
-        mainProduction(CLexer.lex(code), FeatureExpr.base)
+        mainProduction(CLexer.lex(code, featureModel), FeatureExpr.base)
 
     //parser
     val keywords = Set("__real__", "__imag__", "__alignof__", "__alignof", "__asm", "__asm__", "__attribute__", "__attribute",

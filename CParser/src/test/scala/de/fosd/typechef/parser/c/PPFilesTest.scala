@@ -13,7 +13,7 @@ class PPFilesTest extends TestCase {
     assertNotNull("file not found " + fileName, inputStream)
     val p = new CParser()
     val result = p.translationUnit(
-      CLexer.lexStream(inputStream, fileName, "testfiles/boa/"), FeatureExpr.base)
+      CLexer.lexStream(inputStream, fileName, "testfiles/boa/",null), FeatureExpr.base)
     System.out.println(result)
     (result: @unchecked) match {
       case p.Success(ast, unparsed) => {

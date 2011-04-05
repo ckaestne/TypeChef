@@ -9,7 +9,7 @@ import annotation.tailrec
  *
  * @author kaestner
  */
-abstract class MultiFeatureParser(featureModel: FeatureModel = null) {
+abstract class MultiFeatureParser(val featureModel: FeatureModel = null) {
     type Elem <: AbstractToken
     type TypeContext
     type Input = TokenReader[Elem, TypeContext]

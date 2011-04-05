@@ -17,7 +17,7 @@ object ParserBenchmark extends Application {
         if (inputStream == null && new File(fileName).exists)
             inputStream = new FileInputStream(new File(fileName))
         assertNotNull("file not found " + fileName, inputStream)
-        val in = CLexer.lexStream(inputStream, fileName, "testfiles/cgram/")
+        val in = CLexer.lexStream(inputStream, fileName, "testfiles/cgram/",null)
         println(in.tokens.size)
         val result = p.phrase(p.translationUnit)(in, FeatureExpr.base)
         (result: @unchecked) match {
