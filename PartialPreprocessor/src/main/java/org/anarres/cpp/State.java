@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.featureexpr.FeatureProvider;
 
 class State {
@@ -106,14 +107,14 @@ class State {
 	 *
 	 * @return
 	 */
-	public boolean isActive() {
+	public boolean isActive(FeatureModel featureModel) {
 		// check with cache and parent before using SAT solver
 		if (cache_isActive != null)
 			return cache_isActive.booleanValue();
 		if (parent != null && parent.isCachedInactive())
 			return false;
 		FeatureExpr condition = getFullPresenceCondition();
-		cache_isActive = new Boolean(condition.isSatisfiable());
+		cache_isActive = new Boolean(condition.isSatisfiable(featureModel));
 		return cache_isActive.booleanValue();
 	}
 

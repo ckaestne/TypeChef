@@ -45,7 +45,7 @@ public class CppReader extends Reader {
 			public String getName() {
 				return "<CppReader Input@" + System.identityHashCode(r) + ">";
 			}
-		});
+		},null);
 		token = "";
 		idx = 0;
 	}

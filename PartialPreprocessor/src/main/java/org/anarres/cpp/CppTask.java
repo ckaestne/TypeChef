@@ -59,7 +59,7 @@ public class CppTask extends Task {
 
 	public CppTask() {
 		super();
-		cpp = new Preprocessor();
+		cpp = new Preprocessor(null);
 	}
 
 	public void setInput(File input) {

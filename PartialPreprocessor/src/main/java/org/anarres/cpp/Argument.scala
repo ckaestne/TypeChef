@@ -19,7 +19,7 @@ package org.anarres.cpp
 import java.{util => jUtil, lang => jLang}
 import collection.JavaConversions._
 import collection.JavaConverters._
-import de.fosd.typechef.featureexpr.{FeatureExprTree, MacroExpansion, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprTree, MacroExpansion, FeatureExpr}
 
 /**
  * A macro argument.
@@ -38,10 +38,11 @@ object MacroExpander {
     //TODO: finish and test, only compiled.
     def expandAlternatives(pp: Preprocessor, macroName: String,
                            macroExpansions: Array[MacroExpansion[MacroData]], args: List[Argument],
-                           origInvokeTok: Token, origArgTokens: List[Token], commonCondition: FeatureExpr, inline: Boolean) = {
-        val alternativesExaustive: Boolean = commonCondition.isBase
+                           origInvokeTok: Token, origArgTokens: List[Token], commonCondition: FeatureExpr, inline: Boolean,
+                                  featureModel: FeatureModel) = {
+        val alternativesExhaustive: Boolean = commonCondition.isTautology(featureModel)
         val fallbackAlternative =
-            if (alternativesExaustive)
+            if (alternativesExhaustive)
                 Seq[Source]()
             else //if (inline)
                 Seq[Source]() //XXX: Should be the unexpanded code, or 0, depending on inline. Ask it to the caller!

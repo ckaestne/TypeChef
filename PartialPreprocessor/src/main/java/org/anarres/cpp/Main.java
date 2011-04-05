@@ -116,7 +116,7 @@ public class Main {
 
         String outputName = null;
         PrintWriter output = printToStdOutput ? new PrintWriter(new OutputStreamWriter(System.out)) : null;
-        Preprocessor pp = new Preprocessor();
+        Preprocessor pp = new Preprocessor(null);
         // No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
         // written with ASCII available!
         //pp.addFeature(Feature.DIGRAPHS);

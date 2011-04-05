@@ -17,10 +17,12 @@
 
 package org.anarres.cpp;
 
+import de.fosd.typechef.featureexpr.*;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
 import de.fosd.typechef.featureexpr.MacroContext;
 import de.fosd.typechef.featureexpr.MacroExpansion;
+import de.fosd.typechef.featureexpr.FeatureModel;
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
 import java.io.Closeable;
@@ -123,8 +125,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     SourceManager sourceManager = new SourceManager(this);
 
+    private final FeatureModel featureModel;
     /* The fundamental engine. */
-    private MacroContext<MacroData> macros = new MacroContext<MacroData>();
+    private MacroContext<MacroData> macros;
     State state;
 
     protected MacroContext getMacros() {
@@ -145,9 +148,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     private List<MacroConstraint> macroConstraints = new ArrayList<MacroConstraint>();
 
-    public Preprocessor() {
-        for (String name: new String[] {
-            "__LINE__", "__FILE__", "__COUNTER__", "__TIME__", "__DATE__"
+    public Preprocessor(FeatureModel fm) {
+        this.featureModel = fm;
+        macros = new MacroContext<MacroData>(featureModel);
+        for (String name : new String[]{
+                "__LINE__", "__FILE__", "__COUNTER__", "__TIME__", "__DATE__"
         }) {
             macros = macros.define(name, FeatureExprLib.base(), new MacroData(INTERNAL));
         }
@@ -165,16 +170,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         this.listener = null;
     }
 
-    public Preprocessor(Source initial) {
-        this();
+    public Preprocessor(Source initial, FeatureModel fm) {
+        this(fm);
         addInput(initial);
     }
 
     /**
      * Equivalent to 'new Preprocessor(new {@link FileLexerSource}(file))'
      */
-    public Preprocessor(File file) throws IOException {
-        this(new FileLexerSource(file));
+    public Preprocessor(File file, FeatureModel fm) throws IOException {
+        this(new FileLexerSource(file), fm);
     }
 
     /**
@@ -483,11 +488,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * @return
      */
     private boolean isActive() {
-        return state.isActive();
+        return state.isActive(featureModel);
     }
 
     private boolean isParentActive() {
-        return state.parent == null || state.parent.isActive();
+        return state.parent == null || state.parent.isActive(featureModel);
     }
 
     /* Source tokens */
@@ -526,12 +531,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             FeatureExpr parentPc = state.parent.getFullPresenceCondition();
             boolean visible = parentActive;
             if (visible &&
-                    (expr.isDead() ||
-                            expr.isBase() ||
-                            fullPresenceCondition.isDead() ||
-                            fullPresenceCondition.isBase() ||
-                            parentPc.implies(expr).isTautology() ||
-                            parentPc.implies(expr.not()).isTautology()))
+                    (expr.isContradiction(featureModel) ||
+                            expr.isTautology(featureModel) ||
+                            fullPresenceCondition.isContradiction(featureModel) ||
+                            fullPresenceCondition.isTautology(featureModel) ||
+                            parentPc.implies(expr).isTautology(featureModel) ||
+                            parentPc.implies(expr.not()).isTautology(featureModel)))
                 visible = false;
             return visible;
         }
@@ -1026,9 +1031,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
      * Compares macro arity against the count of actual arguments. For variadic macros, a new argument list is produced with
      * the right argument count (i.e. the macro arity), by concatenating variadic arguments or producing an empty one.
      * Otherwise, the original list is returned.
-     * @code {args} is unchanged.
      *
      * @return a list containing as many
+     * @code {args} is unchanged.
      */
     private List<Argument> checkExpansionArity(String macroName, MacroExpansion<MacroData> macroExpansion, Token tok, List<Argument> args)
             throws LexerException, ParseParamException {
@@ -1056,7 +1061,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                     List<Token> joinedArgToks = new ArrayList<Token>();
 
                     int i = 0;
-                    for (Argument arg: argsToJoin) {
+                    for (Argument arg : argsToJoin) {
                         joinedArgToks.addAll(arg.jTokens());
                         i++;
                         if (i < argsToJoin.size()) {
@@ -1139,7 +1144,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         List<Argument> argsFixed = checkExpansionArity(macroName, macroExpansion, origTok, args);
         MacroData macroData = macroExpansion.getExpansion();
         if (macroData.isFunctionLike())
-            for (Argument arg: argsFixed)
+            for (Argument arg : argsFixed)
                 arg.expand(this, inlineCppExpansion, macroName);
         MacroTokenSource ret = new MacroTokenSource(macroName, macroData, argsFixed,
                 getFeature(Feature.GNUCEXTENSIONS));
@@ -1210,7 +1215,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         //getCommonCondition), therefore this is correct: it checks
         //whether the alternative expansions are correct in the context
         //of the current presence condition.
-        return commonCondition.isBase();
+        return commonCondition.isTautology(featureModel);
     }
 
     private FeatureExpr getCommonCondition(MacroExpansion<MacroData>[] macroExpansions) {
@@ -2155,7 +2160,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         // i.e. NOT (state AND NOT flag) dead
 
         return !state.getFullPresenceCondition().and(
-                FeatureExprLib.l().createDefinedExternal(flag).not()).isDead();
+                FeatureExprLib.l().createDefinedExternal(flag).not()).isContradiction(featureModel);
     }
 
     private FeatureExpr parse_definedExpr(boolean referToExternalDefinitionsOnly)
