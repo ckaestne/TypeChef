@@ -71,7 +71,8 @@ object LinuxPreprocessorFrontend {
     ////////////////////////////////////////
     // Preprocessor/parser invocation
     ////////////////////////////////////////
-    def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String], getTokenstream: Boolean): java.util.List[Token] =
+    def preprocessFile(inFileName: String, outFileName: String, extraOpt: Seq[String], getTokenstream: Boolean,
+                       featureModel: FeatureModel): java.util.List[Token] =
         new Main().run(Array(
             inFileName,
             "-o",
@@ -80,7 +81,7 @@ object LinuxPreprocessorFrontend {
             predefMacroDef
         ) ++
                 extraOpt ++
-                includeFlags, getTokenstream, !getTokenstream)
+                includeFlags, getTokenstream, !getTokenstream, featureModel)
 
 
     def main(args: Array[String]): Unit = {
@@ -137,10 +138,11 @@ object LinuxPreprocessorFrontend {
             val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
 
-            val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, parse)
+            val fm = getFeatureModel(preprocOutputPath)
+            val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, parse, fm)
             if (parse) {
                 val in = CLexer.prepareTokens(tokens)
-                val parserMain = new ParserMain(new CParser(getFeatureModel(preprocOutputPath)))
+                val parserMain = new ParserMain(new CParser(fm))
                 val ast = parserMain.parserMain(in)
                 if (typecheck)
                     new TypeSystem().checkAST(ast)

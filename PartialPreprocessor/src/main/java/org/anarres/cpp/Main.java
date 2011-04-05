@@ -17,6 +17,7 @@
 
 package org.anarres.cpp;
 
+import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.featureexpr.MacroContext$;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -103,10 +104,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        (new Main()).run(args, false, true);
+        (new Main()).run(args, false, true,null);
     }
 
-    public List<Token> run(String[] args, boolean returnTokenList, boolean printToStdOutput) throws Exception {
+    public List<Token> run(String[] args, boolean returnTokenList, boolean printToStdOutput, FeatureModel featureModel) throws Exception {
         Option[] opts = OPTS;
         String sopts = getShortOpts(opts);
         Getopt g = new Getopt("jcpp", args, sopts, opts);
@@ -116,7 +117,7 @@ public class Main {
 
         String outputName = null;
         PrintWriter output = printToStdOutput ? new PrintWriter(new OutputStreamWriter(System.out)) : null;
-        Preprocessor pp = new Preprocessor(null);
+        Preprocessor pp = new Preprocessor(featureModel);
         // No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
         // written with ASCII available!
         //pp.addFeature(Feature.DIGRAPHS);
