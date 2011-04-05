@@ -2620,7 +2620,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             // return source_skipline(false);
                     }
                 default:
-                    throw new InternalException("Bad token, type: " + tok.getType() + ", token: " + tok);
+                    throw new InternalException("Bad token, type: " + tok.getType() + ", token: " + tok + ", source: " + tok.getSource());
                     // break;
             }
         }
