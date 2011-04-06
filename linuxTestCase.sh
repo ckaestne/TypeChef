@@ -29,7 +29,7 @@ partialPreprocFlags="-c linux-$system.properties -x CONFIG_ -U __INTEL_COMPILER 
 # Flags which I left out from Christian configuration - they are not useful.
 # partialPreprocFlags="$partialPreprocFlags -D PAGETABLE_LEVELS=4"
 
-gccOpts="$gccOpts -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
+gccOpts="$gccOpts -m32 -nostdinc -isystem $(gcc -print-file-name=include) -include $srcPath/include/generated/autoconf.h"
 
 flags() {
   name="$1"
