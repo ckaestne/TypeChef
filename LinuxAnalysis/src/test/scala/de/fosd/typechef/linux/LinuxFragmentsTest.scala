@@ -155,5 +155,28 @@ nla_put_failure: __attribute__ ((unused))
         return -1;
 }""", p.phrase(p.translationUnit))
 
+    def testLinux6 = assertParseable(
+        """
+#if definedEx(CONFIG_DEBUG_FORCE_WEAK_PER_CPU)extern __attribute__((section(".discard"), unused)) char __pcpu_scope_this_cpu_off; extern __attribute__((section(#if definedEx(CONFIG_SMP)
+".data.percpu"
+#endif
+#if !definedEx(CONFIG_SMP)
+".data"
+#endif
+ "")))  __typeof__(unsigned long) per_cpu__this_cpu_off
+#endif
+#if !definedEx(CONFIG_DEBUG_FORCE_WEAK_PER_CPU)
+extern __attribute__((section(
+#if definedEx(CONFIG_SMP)
+".data.percpu"
+#endif
+#if !definedEx(CONFIG_SMP)
+".data"
+#endif
+ "")))  __typeof__(unsigned long) per_cpu__this_cpu_off
+#endif
+;
+""", p.phrase(p.translationUnit))
+
 
 }

@@ -23,7 +23,6 @@ import org.anarres.cpp.Token._
 import util.control.Breaks
 import java.lang.StringBuilder
 import collection.JavaConverters._
-import collection.JavaConversions._
 import collection.immutable.Queue
 import annotation.tailrec
 
@@ -49,7 +48,8 @@ object MacroTokenSource {
                     }
                 }
                 ({
-                    i += 1; i
+                    i += 1;
+                    i
                 })
             }
         }
@@ -58,7 +58,7 @@ object MacroTokenSource {
 
 class MacroTokenSource extends Source {
     private[cpp] def this(macroName: String, m: MacroData, args: jUtil.List[Argument], gnuCExtensions: Boolean) {
-        this()
+        this ()
         this.macroName = macroName
         this.macro = m
         this.tokenIter = m.getTokens.iterator
@@ -120,6 +120,8 @@ class MacroTokenSource extends Source {
                 val sl = new StringLexerSource(buf.toString)
                 stringPasting = false
                 tokens ++= sl.asScala
+                buf = new StringWriter()
+                printWriter = new PrintWriter(buf)
             }
         }
 
