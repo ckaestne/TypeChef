@@ -15,13 +15,14 @@ object LinuxDependencyAnalysis {
 
     def main(args: Array[String]): Unit = {
         val featureNames = List(
-            "CONFIG_NET_EMATCH", "CONFIG_NET_EMATCH_U32", "CONFIG_NET_EMATCH_CMP", "CONFIG_NET_EMATCH_META", "CONFIG_NET_EMATCH_NBYTE", "CONFIG_NET_EMATCH_TEXT", "CONFIG_NET_EMATCH_U32"
+            "CONFIG_MATOM", "CONFIG_GENERIC_CPU", "CONFIG_X86_ELAN"
         );
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
 
 
         val fm = LinuxFeatureModel.featureModel
 
+        println(LinuxFeatureModel.featureModelApprox)
 
         println(features)
         //        for (f1 <- features) {

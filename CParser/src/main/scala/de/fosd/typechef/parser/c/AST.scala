@@ -139,8 +139,8 @@ case class ReturnStatement(expr: Option[Expr]) extends Statement {
     override def getInner = expr.toList
 }
 
-case class LabelStatement(id: Id) extends Statement {
-    override def getInner = List(id)
+case class LabelStatement(id: Id, attribute: Option[AttributeSpecifier]) extends Statement {
+    override def getInner = List(id) ++ attribute.toList
 }
 
 case class CaseStatement(c: Expr, s: Option[Statement]) extends Statement {

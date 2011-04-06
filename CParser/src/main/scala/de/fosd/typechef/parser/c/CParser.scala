@@ -231,7 +231,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             | (textToken("break") ~! SEMI ^^ {_ => BreakStatement()})
             | (textToken("return") ~!> opt(expr) <~ SEMI ^^ {ReturnStatement(_)})
             //// Labeled statements:
-            | (ID <~~ COLON ^^ {LabelStatement(_)})
+            | ((ID <~~ COLON) ~! opt(attributeDecl) ^^ {case i ~ a => LabelStatement(i, a)})
             // GNU allows range expressions in case statements
             | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ~ opt(statement) ^^ {case _ ~ e ~ _ ~ s => CaseStatement(e, s)})
             | (textToken("default") ~! COLON ~> opt(statement) ^^ {DefaultStatement(_)})
