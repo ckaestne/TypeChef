@@ -113,6 +113,32 @@ public class PreprocessorTestCase extends BaseTestCase {
         testInput("#define one one\n", NL);
         testInput("one /* one */\n", NL, I("one"), WHITESPACE, CCOMMENT);
 
+        testInput("#define FNAME(name) paging##64_##name\n", NL);
+        testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
+        //The kernel sources expect this result:
+        //testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
+        testInput("gpte_to_gfn_lvl\n", NL, I("paging64"), I("_gpte_to_gfn_lvl"));
+
+        testInput("#undef FNAME\n", NL);
+        testInput("#undef gpte_to_gfn_lvl\n", NL);
+
+        //Variants expanding to the expected name:
+        testInput("#define FNAME(name) paging64_##name\n", NL);
+        testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
+        testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
+
+        testInput("#define FNAME(name) paging##64##_##name\n", NL);
+	testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
+	testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
+
+        testInput("#undef FNAME\n", NL);
+        testInput("#undef gpte_to_gfn_lvl\n", NL);
+
+        testInput("#define FNAME(name) pagin##g64_##name\n", NL);
+        testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
+        testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
+
+
         testInput("#define _Widen(x) L ## x\n", NL);
         testInput("#define Widen(x) _Widen(x)\n", NL);
         testInput("#define LStr(x) _Widen(#x)\n", NL);
