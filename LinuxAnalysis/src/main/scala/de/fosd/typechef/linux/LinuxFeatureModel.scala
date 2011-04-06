@@ -83,13 +83,17 @@ object LinuxFeatureModel {
                     and (d("CONFIG_NFTL") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_NILFS2_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_OCFS2_FS") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_BOUNCE") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_I2C_SCMI") implies d("CONFIG_ACPI")) //from FM
                     and (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI") implies d("CONFIG_TOUCHSCREEN_AD7879")) //from FM
                     and (d("CONFIG_MD") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_GFS2_FS") implies d("CONFIG_BLOCK")) //from FM
-                    and (d("CONFIG_MTD_UBI_DEBUG_PARANOID") implies d("CONFIG_MTD_UBI_DEBUG"))
-                    and (d("CONFIG_GENERIC_PENDING_IRQ") implies d("CONFIG_SMP"))
-                    and (d("CONFIG_PROVE_LOCKING") implies d("CONFIG_DEBUG_SPINLOCK"))
+                    and (d("CONFIG_MTD_UBI_DEBUG_PARANOID") implies d("CONFIG_MTD_UBI_DEBUG")) //from FM
+                    and (d("CONFIG_GENERIC_PENDING_IRQ") implies d("CONFIG_SMP")) //from FM
+                    and (d("CONFIG_PROVE_LOCKING") implies d("CONFIG_DEBUG_SPINLOCK")) //from FM
+                    and (d("CONFIG_NET_EMATCH_META") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_X86_USE_3DNOW") mex d("CONFIG_KMEMCHECK")) //from FM
+                    and (d("CONFIG_HUGETLBFS") equiv d("CONFIG_HUGETLB_PAGE")) //from FM
         )
     }
 
