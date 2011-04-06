@@ -206,10 +206,17 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testDateTime() throws LexerException, IOException {
         testFile("dateTime.c");
     }
+
     @Test
     public void testNumbers() throws LexerException, IOException {
         testFile("numbers.c");
     }
+
+    @Test
+    public void testConcatVarargs() throws LexerException, IOException {
+        testFile("concatVarargs.c");
+    }
+
     @Test
     public void testDeadcomparison() throws LexerException, IOException {
         testFile("deadcomparison.c");
