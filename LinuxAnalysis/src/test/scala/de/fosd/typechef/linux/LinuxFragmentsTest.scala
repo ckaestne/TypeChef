@@ -125,9 +125,15 @@ static gfn_t paging64_gpte_to_gfn_lvl(int gpte, int lvl)
 }""", p.phrase(p.translationUnit))
 
 
-    def testLinux2_ = assertParseable(
-        """    string = __builtin_va_arg(ap,int *);""", p.phrase(p.statement))
-    def testLinux2 = assertParseable(
-        """  int *""", p.phrase(p.typeName))
+    def testLinux2 {
+        assertParseable(
+            """  __builtin_type *""", p.phrase(p.typeName))
+        assertParseable(
+            """    ap""", p.phrase(p.expr))
+        assertParseable(
+            """    __builtin_va_arg(ap,__builtin_type *)""", p.phrase(p.primaryExpr))
+        assertParseable(
+            """    string = __builtin_va_arg(ap,__builtin_type *);""", p.phrase(p.statement))
+    }
 
 }

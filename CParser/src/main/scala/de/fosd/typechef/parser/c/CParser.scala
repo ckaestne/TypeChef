@@ -30,7 +30,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
         "sizeof", "_Pragma", "__expectType")
-    val predefinedTypedefs = Set("__builtin_va_list")
+    val predefinedTypedefs = Set("__builtin_va_list", "__builtin_type")
 
     def translationUnit = externalList ^^ {TranslationUnit(_)}
 
@@ -354,7 +354,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
 
     def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~! typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuildinOffsetof(tn, d)}
             | (textToken("__builtin_types_compatible_p") ~ LPAREN ~ typeName ~ COMMA ~ typeName ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinTypesCompatible(tn, tn2)})
-            | (textToken("__builtin_va_arg") ~ LPAREN ~ expr ~ COMMA ~ typeName ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinVaArgs(tn, tn2)})
+            | (textToken("__builtin_va_arg") ~ LPAREN ~ primaryExpr ~ COMMA ~ typeName ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinVaArgs(tn, tn2)})
             | ID
             | numConst
             | stringConst
