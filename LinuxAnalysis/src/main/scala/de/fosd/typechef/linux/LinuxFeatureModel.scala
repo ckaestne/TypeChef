@@ -96,10 +96,11 @@ object LinuxFeatureModel {
                     and (d("CONFIG_NET_EMATCH_NBYTE") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_NET_EMATCH_TEXT") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_X86_USE_3DNOW") mex d("CONFIG_KMEMCHECK")) //from FM
-                    and oneOf(List("CONFIG_M386", "CONFIG_M486", "CONFIG_M586", "CONFIG_M586TSC", "CONFIG_M586MMX", "CONFIG_M686", "CONFIG_MPENTIUMII",
-                "CONFIG_MPENTIUMIII", "CONFIG_MPENTIUMM", "CONFIG_MPENTIUM4", "CONFIG_MK6", "CONFIG_MK7", "CONFIG_MK8", "CONFIG_MCRUSOE",
-                "CONFIG_MEFFICEON", "CONFIG_MWINCHIPC6", "CONFIG_MWINCHIP3D", "CONFIG_MGEODEGX1", "CONFIG_MGEODE_LX", "CONFIG_MCYRIXIII",
-                "CONFIG_MVIAC3_2", "CONFIG_MVIAC7", "CONFIG_MPSC", "CONFIG_MCORE2", "CONFIG_MATOM", "CONFIG_GENERIC_CPU"))
+                    and atLeastOne(List(/*"CONFIG_M386", "CONFIG_M486",*/ "CONFIG_M586", "CONFIG_M586TSC", "CONFIG_M586MMX",
+                "CONFIG_M686", "CONFIG_MPENTIUMII", "CONFIG_MPENTIUMIII", "CONFIG_MPENTIUMM", "CONFIG_MPENTIUM4",
+                "CONFIG_MK6", "CONFIG_MK7", "CONFIG_MK8", "CONFIG_MCRUSOE", "CONFIG_MEFFICEON", "CONFIG_MWINCHIPC6",
+                "CONFIG_MWINCHIP3D", "CONFIG_MGEODEGX1", "CONFIG_MGEODE_LX", "CONFIG_MCYRIXIII", "CONFIG_MVIAC3_2",
+                "CONFIG_MVIAC7", "CONFIG_MCORE2", "CONFIG_MATOM"))
                     and (d("CONFIG_HUGETLBFS") equiv d("CONFIG_HUGETLB_PAGE")) //from FM
         )
     }
@@ -114,6 +115,8 @@ object LinuxFeatureModel {
                         foldLeft(FeatureExpr.base)(_ and _)
                 )
     }
+    def atLeastOne(featuresNames: List[String]): FeatureExpr =
+        featuresNames.map(FeatureExpr.createDefinedExternal(_)).foldLeft(FeatureExpr.dead)(_ or _)
 
     lazy val partialConfiguration: FeatureExpr = readPartialConfiguration
 
