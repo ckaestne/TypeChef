@@ -216,4 +216,9 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testConcatVarargs() throws LexerException, IOException {
         testFile("concatVarargs.c");
     }
+
+    @Test
+    public void testDeadcomparison() throws LexerException, IOException {
+        testFile("deadcomparison.c");
+    }
 }

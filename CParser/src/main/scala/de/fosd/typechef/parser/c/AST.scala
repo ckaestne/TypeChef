@@ -430,6 +430,10 @@ case class BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) exte
     override def getInner = List(typeName1, typeName2)
 }
 
+case class BuiltinVaArgs(expr: Expr, typeName: TypeName) extends PrimaryExpr {
+    override def getInner = List(expr, typeName)
+}
+
 case class CompoundStatementExpr(compoundStatement: CompoundStatement) extends PrimaryExpr {
     override def getInner = List(compoundStatement)
 }
