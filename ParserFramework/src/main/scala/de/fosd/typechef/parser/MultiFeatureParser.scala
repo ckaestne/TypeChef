@@ -748,15 +748,15 @@ try {
             val result: MultiParseResult[(List[Opt[T]], FeatureExpr)] = res.map(sealable => (sealable.resultList.reverse, sealable.freeSeparator))
             if (!firstOptional)
                 result.mapfr(ctx, (f, r) => r match {
-			//XXX ChK: the following is an incorrect approximation and the lower code should be used, but reduces performance significantly 
-                   case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
- //		    case e@Success((l, f), next) => {
- //                       val nonEmptyCondition = l.foldRight(FeatureExpr.dead)(_.feature or _)
- //                       lazy val failure = Failure("empty list (" + productionName + ")", next, List())
- //                       if (nonEmptyCondition.isTautology(featureModel)) e
- //                       else if (nonEmptyCondition.isContradiction(featureModel)) failure
- //                       else SplittedParseResult(nonEmptyCondition, e, failure)
- //                   }
+                //XXX ChK: the following is an incorrect approximation and the lower code should be used, but reduces performance significantly
+                    case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
+                    //		    case e@Success((l, f), next) => {
+                    //                       val nonEmptyCondition = l.foldRight(FeatureExpr.dead)(_.feature or _)
+                    //                       lazy val failure = Failure("empty list (" + productionName + ")", next, List())
+                    //                       if (nonEmptyCondition.isTautology(featureModel)) e
+                    //                       else if (nonEmptyCondition.isContradiction(featureModel)) failure
+                    //                       else SplittedParseResult(nonEmptyCondition, e, failure)
+                    //                   }
                     case e => e
                 })
             else
@@ -862,7 +862,7 @@ try {
         }
 
     def matchInput(p: (Elem, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
-        private def err(e: Option[Elem]) = errorMsg(kind, e)
+        private def err(e: Option[Elem], ctx: TypeContext) = errorMsg(kind, e, ctx)
         @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
@@ -875,7 +875,7 @@ try {
                     }
                     else {
                         resultPair._2.countFailure
-                        Failure(err(Some(resultPair._2)), resultPair._1, List())
+                        Failure(err(Some(resultPair._2), in.context), resultPair._1, List())
                     }
                 case (_, f: Failure) => f
                 case (_, e: Error) => e
@@ -901,7 +901,7 @@ try {
         @tailrec
         def getNext(in: Input, context: FeatureExpr): MultiParseResult[(Input, Elem)] = {
             if (in.atEnd)
-                Failure(errorMsg("EOF", None), in, List())
+                Failure(errorMsg("EOF", None, in.context), in, List())
             else {
                 val tokenPresenceCondition = in.first.getFeature
                 if (featureSolverCache.implies(context, tokenPresenceCondition))
@@ -936,8 +936,10 @@ try {
     def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
     def tokenWithContext(kind: String, p: (Elem, TypeContext) => Boolean) = matchInput(p, kind)
     private
-    def errorMsg(kind: String, inEl: Option[Elem]) =
+    def errorMsg(kind: String, inEl: Option[Elem], ctx: TypeContext): String =
         (if (!inEl.isDefined) "reached EOF, " else "found \"" + inEl.get.getText + "\", ") + "but expected \"" + kind + "\""
+
+    // +" -- "+ctx
 
     /**
      *

@@ -116,4 +116,18 @@ class LinuxFragmentsTest extends TestCase {
                                 '\x02', '\x04', '\x01', '\x07',
                                 '\x04', '\x01', '\x04', '\x03',};""", p.phrase(p.translationUnit))
 
+
+    def testLinux_mmu = assertParseable(
+        """typedef unsigned long  gfn_t;
+static gfn_t paging64_gpte_to_gfn_lvl(int gpte, int lvl)
+{
+    return (gpte & ((((1ULL << 52) - 1) & ~(u64)(((1UL) << 12)-1)) & ~((1ULL << (12 + (((lvl) - 1) * 9))) - 1))) >> 12;
+}""", p.phrase(p.translationUnit))
+
+
+    def testLinux2_ = assertParseable(
+        """    string = __builtin_va_arg(ap,int *);""", p.phrase(p.statement))
+    def testLinux2 = assertParseable(
+        """  int *""", p.phrase(p.typeName))
+
 }
