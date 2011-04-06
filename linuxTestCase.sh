@@ -46,6 +46,8 @@ flags() {
     extraFlag="-I $srcPath/fs/ocfs2 -DCATCH_BH_JBD_RACES"
   elif grep -q "fs/xfs/" <<< "$name"; then
     extraFlag="-I $srcPath/fs/xfs -I $srcPath/fs/xfs/linux-2.6"
+  elif grep -q "fs/ntfs/" <<< "$name"; then
+    extraFlag="-DNTFS_VERSION=\"\\\"2.1.29\"\\\""
   elif grep -q "drivers/gpu/drm/" <<< "$name"; then
     extraFlag="-I $srcPath/include/drm"
   elif egrep -q "drivers/scsi/pcmcia/|drivers/usb/storage/" <<< "$name"; then
@@ -56,6 +58,10 @@ flags() {
     extraFlag="-I $srcPath/drivers/net/cxgb3"
   elif grep -q "drivers/net/skfp/" <<< "$name"; then
     extraFlag="-I $srcPath/drivers/net/skfp -DPCI -DMEM_MAPPED_IO"
+  elif grep -q "drivers/staging/rt2860/" <<< "$name"; then
+    extraFlag="-DLINUX -DAGGREGATION_SUPPORT -DPIGGYBACK_SUPPORT -DWMM_SUPPORT -DRTMP_MAC_PCI -DRTMP_PCI_SUPPORT -DRT2860 -DRTMP_RF_RW_SUPPORT -DRTMP_EFUSE_SUPPORT -DRT30xx -DRT3090 -DDBG"
+  elif grep -q "drivers/staging/rt2870/" <<< "$name"; then
+    extraFlag="-DLINUX -DAGGREGATION_SUPPORT -DPIGGYBACK_SUPPORT -DWMM_SUPPORT -DRTMP_MAC_USB -DRTMP_USB_SUPPORT -DRT2870 -DRTMP_TIMER_TASK_SUPPORT -DRTMP_RF_RW_SUPPORT -DRTMP_EFUSE_SUPPORT -DRT30xx -DRT3070 -DDBG"
   elif grep -q "drivers/staging/rtl8192e/" <<< "$name"; then
     extraFlag="-DRTL8192E -DTHOMAS_TURBO -DENABLE_DOT11D"
   elif [ "$name" = "drivers/net/wireless/iwlwifi/iwl-devtrace" ]; then
