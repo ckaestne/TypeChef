@@ -32,7 +32,7 @@ object LinuxDependencyAnalysis {
             //            "CONFIG_AMIGA", "CONFIG_X86", "CONFIG_M32R", "CONFIG_SPARC", "CONFIG_M68K", "CONFIG_AMIGA_FLOPPY"
             //            "CONFIG_BLOCK", "CONFIG_PS3_DISK", "CONFIG_PPC_PS3"
             //        "CONFIG_USB", "CONFIG_USB_LIBUSUAL"
-            "CONFIG_MD", "CONFIG_BLOCK", "CONFIG_GFS2_FS"
+            "CONFIG_MTD_UBI_DEBUG_PARANOID", "CONFIG_MTD_UBI_DEBUG", "CONFIG_MTD_UBI", "CONFIG_MTD"
             //        (definedEx(CONFIG_INPUT_TOUCHSCREEN) && definedEx(CONFIG_INPUT) && definedEx(CONFIG_TOUCHSCREEN_AD7879))
             //        "(!def(CONFIG_TOUCHSCREEN_AD7879_SPI)&!def(CONFIG_TOUCHSCREEN_AD7879_I2C))	failed: found ""bus_device"", but expected ""}"" at token no. 268100 (line: 354849) (List())"
 
