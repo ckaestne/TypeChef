@@ -6,8 +6,8 @@
  */
 package de.fosd.typechef.linux
 
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 import io.Source
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 
 /**
  * three feature models are available
@@ -51,9 +51,7 @@ object LinuxFeatureModel {
 
         FeatureModel.create(
             (d("CONFIG_SYMBOL_PREFIX").not)
-                    and (d("CONFIG_FLATMEM") mex d("CONFIG_DISCONTIGMEM")) //from FM
-                    and (d("CONFIG_FLATMEM") mex d("CONFIG_SPARSEMEM")) //not in FM!
-                    and (d("CONFIG_DISCONTIGMEM") mex d("CONFIG_SPARSEMEM")) //not in FM!
+                    and oneOf(List("CONFIG_FLATMEM", "CONFIG_DISCONTIGMEM", "CONFIG_SPARSEMEM")) //not all in FM!
                     and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_NEED_MULTIPLE_NODES")) //from FM
                     and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_SMP")) //from FM
                     and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_X86_PAE")) //from FM
@@ -92,12 +90,30 @@ object LinuxFeatureModel {
                     and (d("CONFIG_MTD_UBI_DEBUG_PARANOID") implies d("CONFIG_MTD_UBI_DEBUG")) //from FM
                     and (d("CONFIG_GENERIC_PENDING_IRQ") implies d("CONFIG_SMP")) //from FM
                     and (d("CONFIG_PROVE_LOCKING") implies d("CONFIG_DEBUG_SPINLOCK")) //from FM
+                    and (d("CONFIG_NET_EMATCH_U32") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_NET_EMATCH_CMP") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_NET_EMATCH_META") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_NET_EMATCH_NBYTE") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_NET_EMATCH_TEXT") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_X86_USE_3DNOW") mex d("CONFIG_KMEMCHECK")) //from FM
+                    and oneOf(List("CONFIG_M386", "CONFIG_M486", "CONFIG_M586", "CONFIG_M586TSC", "CONFIG_M586MMX", "CONFIG_M686", "CONFIG_MPENTIUMII",
+                "CONFIG_MPENTIUMIII", "CONFIG_MPENTIUMM", "CONFIG_MPENTIUM4", "CONFIG_MK6", "CONFIG_MK7", "CONFIG_MK8", "CONFIG_MCRUSOE",
+                "CONFIG_MEFFICEON", "CONFIG_MWINCHIPC6", "CONFIG_MWINCHIP3D", "CONFIG_MGEODEGX1", "CONFIG_MGEODE_LX", "CONFIG_MCYRIXIII",
+                "CONFIG_MVIAC3_2", "CONFIG_MVIAC7", "CONFIG_MPSC", "CONFIG_MCORE2", "CONFIG_MATOM", "CONFIG_GENERIC_CPU"))
                     and (d("CONFIG_HUGETLBFS") equiv d("CONFIG_HUGETLB_PAGE")) //from FM
         )
     }
 
+    /**
+     * creates (A or B or ... or X) and (A mex B) and (A mex X) and (B mex X) ...
+     */
+    def oneOf(featuresNames: List[String]): FeatureExpr = {
+        val features = featuresNames.map(FeatureExpr.createDefinedExternal(_))
+        features.foldLeft(FeatureExpr.dead)(_ or _) and (
+                (for (f1 <- features; f2 <- features; if (f1.feature.compareTo(f2.feature)) > 0) yield f1 mex f2).
+                        foldLeft(FeatureExpr.base)(_ and _)
+                )
+    }
 
     lazy val partialConfiguration: FeatureExpr = readPartialConfiguration
 
