@@ -83,6 +83,7 @@ object LinuxFeatureModel {
                     and (d("CONFIG_NFTL") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_NILFS2_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_OCFS2_FS") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_EXOFS_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_BOUNCE") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_I2C_SCMI") implies d("CONFIG_ACPI")) //from FM
                     and (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI") implies d("CONFIG_TOUCHSCREEN_AD7879")) //from FM
