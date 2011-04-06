@@ -471,6 +471,7 @@ class CParserTest extends TestCase {
     def testMisc2b = assertParseable("if ((( checkme )->j76g) ) { }", p.statement)
     def testMisc3a = assertParseable("(int)q23w3", p.expr)
     def testMisc3b = assertParseable("void *", p.typeName)
+    def testMisc3f = assertParseable("__builtin_type *", p.typeName)
     def testMisc3c = assertParseable("++(int)q23w3", p.unaryExpr)
     def testMisc3d = assertParseable("(++(int)q23w3->ll881ss[3])", p.primaryExpr)
     def testMisc3e = assertParseable("(void *) (++(int)q23w3->ll881ss[3])", p.expr)
