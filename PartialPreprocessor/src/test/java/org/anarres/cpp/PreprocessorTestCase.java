@@ -76,6 +76,17 @@ public class PreprocessorTestCase extends BaseTestCase {
         /* Concatenation */
         testInput("#define _CONCAT(x, y) x ## y\n", NL);
         testInput("_CONCAT(A, B)\n", NL, I("AB"));
+
+        testInput("#define _CONCAT_X(y) X ## y\n", NL);
+        testInput("_CONCAT_X(A)\n", NL, I("XA"));
+        testInput("#define _CONCAT_INT_X(y) int X ## y\n", NL);
+        testInput("_CONCAT_INT_X(A)\n", NL, I("int"), WHITESPACE, I("XA"));
+
+        testInput("#define _CONCAT_X2(y) y ## X\n", NL);
+        testInput("_CONCAT_X2(A)\n", NL, I("AX"));
+        testInput("#define _CONCAT_INT_X2(y) int y ## X\n", NL);
+        testInput("_CONCAT_INT_X2(A)\n", NL, I("int"), WHITESPACE, I("AX"));
+
         testInput("#define A_CONCAT done_a_concat\n", NL);
         testInput("_CONCAT(A, _CONCAT(B, C))\n", NL, I("done_a_concat"), '(',
                 I("b"), ',', WHITESPACE, I("c"), ')');
