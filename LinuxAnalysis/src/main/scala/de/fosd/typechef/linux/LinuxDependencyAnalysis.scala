@@ -15,7 +15,7 @@ object LinuxDependencyAnalysis {
 
     def main(args: Array[String]): Unit = {
         val featureNames = List(
-            "CONFIG_BOUNCE", "CONFIG_BLOCK"
+            "CONFIG_NET_EMATCH", "CONFIG_NET_EMATCH_U32", "CONFIG_NET_EMATCH_CMP", "CONFIG_NET_EMATCH_META", "CONFIG_NET_EMATCH_NBYTE", "CONFIG_NET_EMATCH_TEXT", "CONFIG_NET_EMATCH_U32"
         );
         val features = featureNames.map(FeatureExpr.createDefinedExternal(_))
 
