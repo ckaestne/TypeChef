@@ -139,7 +139,21 @@ class LinuxFragmentsTest extends TestCase {
     }
 
     def testLinux3 {
-        assertParseable("""hrt = (__builtin_type *) c->hrt.virt;""", p.phrase(p.statement))
     }
+
+    def testLinux4 {
+        assertParseable("""(__builtin_constant_p((6)) ? __constant_memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)) : __memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)));""", p.phrase(p.statement))
+        assertParseable("""__memcpy((&mesg->content.normal.mac_addr), (mac_addr), (6));""", p.phrase(p.statement))
+
+
+    }
+
+    def testLinux5 = assertParseable(
+        """void foo(){
+        return 0;
+nla_put_failure: __attribute__ ((unused))
+        return -1;
+}""", p.phrase(p.translationUnit))
+
 
 }
