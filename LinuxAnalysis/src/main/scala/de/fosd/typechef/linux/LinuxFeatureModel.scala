@@ -58,11 +58,14 @@ object LinuxFeatureModel {
                     and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_SMP")) //from FM
                     and (d("CONFIG_DISCONTIGMEM") implies d("CONFIG_X86_PAE")) //from FM
                     and (d("CONFIG_MEMORY_HOTPLUG") implies d("CONFIG_SPARSEMEM")) //from FM
+                    and (d("CONFIG_HOTPLUG_CPU") implies d("CONFIG_SMP")) //from FM
+                    and (d("CONFIG_PROC_KCORE") implies d("CONFIG_PROC_FS")) //from FM
                     and (d("CONFIG_NEED_MULTIPLE_NODES") implies d("CONFIG_SMP")) //from FM
                     and (d("CONFIG_BLK_DEV_DRBD") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_BLK_DEV_INTEGRITY") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_BLK_DEV_LOOP") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_BLK_DEV_RAM") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_BLK_DEV_IO_TRACE") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_EXT3_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_EXT4_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_JBD") implies d("CONFIG_BLOCK")) //from FM
@@ -78,11 +81,15 @@ object LinuxFeatureModel {
                     and (d("CONFIG_MD_RAID1") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_MD_RAID456") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_NFTL") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_NILFS2_FS") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_OCFS2_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_I2C_SCMI") implies d("CONFIG_ACPI")) //from FM
                     and (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI") implies d("CONFIG_TOUCHSCREEN_AD7879")) //from FM
                     and (d("CONFIG_MD") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_GFS2_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_MTD_UBI_DEBUG_PARANOID") implies d("CONFIG_MTD_UBI_DEBUG"))
+                    and (d("CONFIG_GENERIC_PENDING_IRQ") implies d("CONFIG_SMP"))
+                    and (d("CONFIG_PROVE_LOCKING") implies d("CONFIG_DEBUG_SPINLOCK"))
         )
     }
 
