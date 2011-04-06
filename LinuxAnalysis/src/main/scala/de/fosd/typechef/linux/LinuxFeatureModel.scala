@@ -82,6 +82,7 @@ object LinuxFeatureModel {
                     and (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI") implies d("CONFIG_TOUCHSCREEN_AD7879")) //from FM
                     and (d("CONFIG_MD") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_GFS2_FS") implies d("CONFIG_BLOCK")) //from FM
+                    and (d("CONFIG_MTD_UBI_DEBUG_PARANOID") implies d("CONFIG_MTD_UBI_DEBUG"))
         )
     }
 
