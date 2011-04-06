@@ -74,6 +74,7 @@ object ProcessFileList extends RegexParsers {
         val pcList = args(0)
 
         val lines = io.Source.fromFile(pcList).getLines
+        val ignoredFiles = io.Source.fromFile("generatedFiles.lst").getLines.toList
         val mybreaks = new Breaks
         val stderr = new PrintWriter(System.err, true)
 
@@ -102,7 +103,7 @@ object ProcessFileList extends RegexParsers {
                 pcExpr match {
                     case Success(cond, _) =>
                         if (
-                            knownConditions.getOrElseUpdate(cond, cond.isSatisfiable(fm))
+                            (!ignoredFiles.contains(fullFilenameNoExt)) && knownConditions.getOrElseUpdate(cond, cond.isSatisfiable(fm))
                         ) {
                             //file should be parsed
                             println(fullFilename + " " + cond)
