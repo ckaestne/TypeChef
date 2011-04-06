@@ -18,17 +18,11 @@
 package org.anarres.cpp;
 
 import de.fosd.typechef.featureexpr.*;
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprTree;
-import de.fosd.typechef.featureexpr.MacroContext;
-import de.fosd.typechef.featureexpr.MacroExpansion;
-import de.fosd.typechef.featureexpr.FeatureModel;
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.*;
 
 import static org.anarres.cpp.Token.*;
@@ -2495,13 +2489,17 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                         case PP_IF:
                             push_state();
                             expr_token = null;
-                            FeatureExpr localFeatureExpr = parse_featureExpr();
-                            state.putLocalFeature(isParentActive() ? localFeatureExpr
-                                    : FeatureExprLib.dead(), macros);
-                            tok = expr_token(true); /* unget */
+                            if (isParentActive()) {
+                                FeatureExpr localFeatureExpr = parse_featureExpr();
+                                state.putLocalFeature(localFeatureExpr, macros);
+                                tok = expr_token(true); /* unget */
+                                if (tok.getType() != NL)
+                                    source_skipline(isParentActive());
+                            } else {
+                                state.putLocalFeature(FeatureExprLib.dead(), macros);
+                                source_skipline(false);
+                            }
 
-                            if (tok.getType() != NL)
-                                source_skipline(isParentActive());
 
                             return ifdefPrinter.startIf(tok, isParentActive(), state);
 

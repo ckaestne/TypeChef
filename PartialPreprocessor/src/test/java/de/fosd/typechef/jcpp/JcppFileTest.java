@@ -210,4 +210,8 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testNumbers() throws LexerException, IOException {
         testFile("numbers.c");
     }
+    @Test
+    public void testDeadcomparison() throws LexerException, IOException {
+        testFile("deadcomparison.c");
+    }
 }
