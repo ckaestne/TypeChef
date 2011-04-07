@@ -1,5 +1,5 @@
---- linux-2.6.33.3.orig/drivers/staging/rtl8192e/ieee80211/ieee80211.h	2011-04-05 17:09:48.000000000 +0200
-+++ linux-2.6.33.3/drivers/staging/rtl8192e/ieee80211/ieee80211.h	2011-04-05 17:10:20.000000000 +0200
+--- l/drivers/staging/rtl8192e/ieee80211/ieee80211.h-orig	2011-04-05 17:09:48.000000000 +0200
++++ l/drivers/staging/rtl8192e/ieee80211/ieee80211.h	2011-04-05 17:19:54.000000000 +0200
 @@ -57,24 +57,24 @@
  #define IWEVCUSTOM 0x8c02
  #endif
