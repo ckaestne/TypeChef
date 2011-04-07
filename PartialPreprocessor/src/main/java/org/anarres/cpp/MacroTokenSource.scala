@@ -179,8 +179,10 @@ class MacroTokenSource extends Source {
                         assert(",".equals(tok.getText))
                         queuedComma = Some(tok)
                     case _ =>
-                        strToTokens()
-                        tokens += tok
+                        //strToTokens()
+                        //tokens += tok
+                        stringPasting = true
+                        tok.lazyPrint(printWriter)
                 }
                 i += 1
             }

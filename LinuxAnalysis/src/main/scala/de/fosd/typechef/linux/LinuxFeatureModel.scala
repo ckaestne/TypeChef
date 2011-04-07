@@ -96,6 +96,13 @@ object LinuxFeatureModel {
                     and (d("CONFIG_NET_EMATCH_NBYTE") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_NET_EMATCH_TEXT") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_X86_USE_3DNOW") mex d("CONFIG_KMEMCHECK")) //from FM
+                    and (d("CONFIG_TOUCHSCREEN_AD7879") implies (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI"))) //from FM
+                    and (d("CONFIG_NET_EMATCH_CMP") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_NET_EMATCH_NBYTE") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_NET_EMATCH_TEXT") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_NET_EMATCH_U32") implies d("CONFIG_NET_EMATCH")) //from FM
+                    and (d("CONFIG_DEBUG_LOCK_ALLOC") implies d("CONFIG_LOCKDEP")) //from FM
+                    and (d("CONFIG_IRQSOFF_TRACER") implies d("CONFIG_TRACE_IRQFLAGS")) //from FM
                     and atLeastOne(List(/*"CONFIG_M386", "CONFIG_M486",*/ "CONFIG_M586", "CONFIG_M586TSC", "CONFIG_M586MMX",
                 "CONFIG_M686", "CONFIG_MPENTIUMII", "CONFIG_MPENTIUMIII", "CONFIG_MPENTIUMM", "CONFIG_MPENTIUM4",
                 "CONFIG_MK6", "CONFIG_MK7", "CONFIG_MK8", "CONFIG_MCRUSOE", "CONFIG_MEFFICEON", "CONFIG_MWINCHIPC6",
