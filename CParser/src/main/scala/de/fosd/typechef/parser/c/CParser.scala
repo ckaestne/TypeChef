@@ -291,7 +291,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~~ typeName ~~ RPAREN ~! (castExpr | lcurlyInitializer) ^^ {case b1 ~ t ~ b2 ~ e => CastExpr(t, e)} | unaryExpr
+        LPAREN ~~ typeName ~~ RPAREN ~~ (castExpr | lcurlyInitializer) ^^ {case b1 ~ t ~ b2 ~ e => CastExpr(t, e)} | unaryExpr
 
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         nonemptyAbstractDeclaratorA | nonemptyAbstractDeclaratorB
