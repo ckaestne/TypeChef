@@ -381,6 +381,10 @@ class CParserTest extends TestCase {
         assertParseable("int a;", p.translationUnit)
         assertParseError("foo a;", p.translationUnit)
         assertParseable("typedef int foo; foo a;", p.translationUnit)
+        assertParseable("__builtin_type a;", p.translationUnit)
+        assertParseable("(notATypeName)", p.expr)
+        assertParseable("(__builtin_type)", p.expr)
+        assertParseable("3+(__builtin_type)", p.expr)
         //scoping of typedef not considered yet:
         //assertParseable("typedef int T;main(){int T=100, a=(T)+1;}", p.functionDef)
     }

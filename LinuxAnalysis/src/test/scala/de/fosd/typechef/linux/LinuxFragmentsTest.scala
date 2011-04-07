@@ -173,6 +173,7 @@ __memcpy((&mesg->content.normal.mac_addr), (mac_addr), (6))
  * the LE_ARP based TLVs introduced in the LANE2 spec
  */
  typedef int atmlec_msg_type;       typedef int gfp_t;
+ typedef int mac_addr;
 static int
 send_to_lecd(struct lec_priv *priv, atmlec_msg_type type,
 	     const unsigned char *mac_addr, const unsigned char *atm_addr,
