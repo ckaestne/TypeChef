@@ -84,7 +84,6 @@ object LinuxFeatureModel {
                     and (d("CONFIG_EXOFS_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_BOUNCE") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_I2C_SCMI") implies d("CONFIG_ACPI")) //from FM
-                    and (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI") implies d("CONFIG_TOUCHSCREEN_AD7879")) //from FM
                     and (d("CONFIG_MD") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_GFS2_FS") implies d("CONFIG_BLOCK")) //from FM
                     and (d("CONFIG_MTD_UBI_DEBUG_PARANOID") implies d("CONFIG_MTD_UBI_DEBUG")) //from FM
@@ -96,7 +95,7 @@ object LinuxFeatureModel {
                     and (d("CONFIG_NET_EMATCH_NBYTE") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_NET_EMATCH_TEXT") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_X86_USE_3DNOW") mex d("CONFIG_KMEMCHECK")) //from FM
-                    and (d("CONFIG_TOUCHSCREEN_AD7879") implies (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI"))) //from FM
+                    and (d("CONFIG_TOUCHSCREEN_AD7879") equiv (d("CONFIG_TOUCHSCREEN_AD7879_I2C") or d("CONFIG_TOUCHSCREEN_AD7879_SPI"))) //from FM
                     and (d("CONFIG_NET_EMATCH_CMP") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_NET_EMATCH_NBYTE") implies d("CONFIG_NET_EMATCH")) //from FM
                     and (d("CONFIG_NET_EMATCH_TEXT") implies d("CONFIG_NET_EMATCH")) //from FM
