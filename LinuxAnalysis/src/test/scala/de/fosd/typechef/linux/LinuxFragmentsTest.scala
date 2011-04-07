@@ -148,6 +148,102 @@ class LinuxFragmentsTest extends TestCase {
 
     }
 
+    def testLinux4b {
+        assertParseable("""	if (mac_addr)
+
+#if (((!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || !definedEx(CONFIG_KMEMCHECK)) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT)) && definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_X86_USE_3DNOW) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK)) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_KMEMCHECK))) || (definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT)))
+(__builtin_constant_p((6)) ? __constant_memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)) : __memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)))
+#endif
+#if ((definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_KMEMCHECK)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || !definedEx(CONFIG_KMEMCHECK))) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))) && (definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_X86_USE_3DNOW)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK)) || (!definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_X86_USE_3DNOW) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_PARAVIRT) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))))
+__builtin_memcpy(&mesg->content.normal.mac_addr, mac_addr, 6)
+#endif
+#if ((definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_X86_USE_3DNOW)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT))) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK))) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK)) || (!definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_X86_USE_3DNOW) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_PARAVIRT) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))) && ((!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || ((definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT)) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || (definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)))) || (definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT))))
+__memcpy((&mesg->content.normal.mac_addr), (mac_addr), (6))
+#endif
+;
+	else
+		mesg->content.normal.targetless_le_arp = 1;""", p.phrase(p.statement))
+
+
+    }
+
+    def testLinux4c =
+        assertParseable("""/*
+ * LANE2: new argument struct sk_buff *data contains
+ * the LE_ARP based TLVs introduced in the LANE2 spec
+ */
+ typedef int atmlec_msg_type;       typedef int gfp_t;
+static int
+send_to_lecd(struct lec_priv *priv, atmlec_msg_type type,
+	     const unsigned char *mac_addr, const unsigned char *atm_addr,
+	     struct sk_buff *data)
+{
+	struct sock *sk;
+	struct sk_buff *skb;
+	struct atmlec_msg *mesg;
+
+	if (!priv || !priv->lecd) {
+		return -1;
+	}
+	skb = alloc_skb(sizeof(struct atmlec_msg), ((( gfp_t)0x20u)));
+	if (!skb)
+		return -1;
+	skb->len = sizeof(struct atmlec_msg);
+	mesg = (struct atmlec_msg *)skb->data;
+	__builtin_memset(mesg, 0, sizeof(struct atmlec_msg));
+	mesg->type = type;
+	if (data != ((void *)0))
+		mesg->sizeoftlvs = data->len;
+	if (mac_addr)
+
+#if (((!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || !definedEx(CONFIG_KMEMCHECK)) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT)) && definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_X86_USE_3DNOW) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK)) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_KMEMCHECK))) || (definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT)))
+(__builtin_constant_p((6)) ? __constant_memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)) : __memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)))
+#endif
+#if ((definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_KMEMCHECK)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || !definedEx(CONFIG_KMEMCHECK))) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))) && (definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_X86_USE_3DNOW)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK)) || (!definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_X86_USE_3DNOW) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_PARAVIRT) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))))
+__builtin_memcpy(&mesg->content.normal.mac_addr, mac_addr, 6)
+#endif
+#if ((definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_X86_USE_3DNOW)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT))) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK))) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK)) || (!definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_X86_USE_3DNOW) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_PARAVIRT) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))) && ((!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || ((definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT)) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || (definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)))) || (definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT))))
+__memcpy((&mesg->content.normal.mac_addr), (mac_addr), (6))
+#endif
+;
+	else
+		mesg->content.normal.targetless_le_arp = 1;
+	if (atm_addr)
+
+#if (((!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || !definedEx(CONFIG_KMEMCHECK)) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT)) && definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_X86_USE_3DNOW) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK)) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_KMEMCHECK))) || (definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT)))
+(__builtin_constant_p((20)) ? __constant_memcpy3d((&mesg->content.normal.atm_addr), (atm_addr), (20)) : __memcpy3d((&mesg->content.normal.atm_addr), (atm_addr), (20)))
+#endif
+#if ((definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_KMEMCHECK)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || !definedEx(CONFIG_KMEMCHECK))) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))) && (definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_X86_USE_3DNOW)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK)) || (!definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_X86_USE_3DNOW) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_PARAVIRT) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))))
+__builtin_memcpy(&mesg->content.normal.atm_addr, atm_addr, 20)
+#endif
+#if ((definedEx(CONFIG_PARAVIRT) || !definedEx(CONFIG_X86_USE_3DNOW)) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK) && (definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT))) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK))) && ((definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK)) || (!definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_X86_USE_3DNOW) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || !definedEx(CONFIG_PARAVIRT) || (!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_KMEMCHECK) && !definedEx(CONFIG_PARAVIRT))) && ((!definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT) && definedEx(CONFIG_KMEMCHECK)) || ((definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || definedEx(CONFIG_PARAVIRT)) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_USE_3DNOW) || definedEx(CONFIG_KMEMCHECK) || (definedEx(CONFIG_PARAVIRT) && !definedEx(CONFIG_X86_USE_3DNOW) && definedEx(CONFIG_KMEMCHECK)))) || (definedEx(CONFIG_X86_USE_3DNOW) && !definedEx(CONFIG_PARAVIRT))))
+__memcpy((&mesg->content.normal.atm_addr), (atm_addr), (20))
+#endif
+;
+
+	atm_force_charge(priv->lecd, skb->truesize);
+	sk = sk_atm(priv->lecd);
+	skb_queue_tail(&sk->sk_receive_queue, skb);
+	sk->sk_data_ready(sk, skb->len);
+
+	if (data != ((void *)0)) {
+
+#if definedEx(CONFIG_DYNAMIC_DEBUG)
+do { static struct _ddebug descriptor __attribute__((__used__)) __attribute__((section("__verbose"), aligned(8))) = { "lec", __func__, "/app/home/kaestner/TypeChef/linux-2.6.33.3/net/atm/lec.c", "lec: about to send %d bytes of data\n", DEBUG_HASH, DEBUG_HASH2, 636, 0 }; if (({ int __ret = 0; if (__builtin_expect(!!((dynamic_debug_enabled &(1LL << DEBUG_HASH)) &&(dynamic_debug_enabled2 &(1LL << DEBUG_HASH2))), 0)) if (__builtin_expect(!!(descriptor.flags), 0)) __ret = 1; __ret; })) printk("<7>" "lec: about to send %d bytes of data\n",data->len); } while (0)
+#endif
+#if !definedEx(CONFIG_DYNAMIC_DEBUG)
+({ if (0) printk("<7>" "lec: about to send %d bytes of data\n",data->len); 0; })
+#endif
+;
+		atm_force_charge(priv->lecd, data->truesize);
+		skb_queue_tail(&sk->sk_receive_queue, data);
+		sk->sk_data_ready(sk, skb->len);
+	}
+
+	return 0;
+}""", p.phrase(p.translationUnit))
+
+
     def testLinux5 = assertParseable(
         """void foo(){
         return 0;
