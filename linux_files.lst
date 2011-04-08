@@ -2053,7 +2053,6 @@ drivers/media/dvb/frontends/zl10353
 drivers/media/dvb/mantis/hopper_cards
 drivers/media/dvb/mantis/hopper_vp3028
 drivers/media/dvb/mantis/mantis_cards
-drivers/media/dvb/mantis/mantis_core
 drivers/media/dvb/mantis/mantis_vp1033
 drivers/media/dvb/mantis/mantis_vp1034
 drivers/media/dvb/mantis/mantis_vp1041
@@ -2474,7 +2473,6 @@ drivers/message/i2o/device
 drivers/message/i2o/driver
 drivers/message/i2o/exec-osm
 drivers/message/i2o/i2o_block
-drivers/message/i2o/i2o_config
 drivers/message/i2o/i2o_proc
 drivers/message/i2o/i2o_scsi
 drivers/message/i2o/iop
