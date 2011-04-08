@@ -179,8 +179,8 @@ class MacroTokenSource extends Source {
                         assert(",".equals(tok.getText))
                         queuedComma = Some(tok)
                     case _ =>
-                        //strToTokens()
-                        //tokens += tok
+                    //strToTokens()
+                    //tokens += tok
                         stringPasting = true
                         tok.lazyPrint(printWriter)
                 }
@@ -216,7 +216,14 @@ class MacroTokenSource extends Source {
                     return stringify(tok, args.get(idx))
                 case M_ARG =>
                     idx = (tok.getValue.asInstanceOf[java.lang.Integer]).intValue
-                    arg = args.get(idx).expansion
+                    if (idx < args.size) {
+                        arg = args.get(idx).expansion
+                    } else {
+                        //This can happen in valid code only because of the brokenness of expanded_token(), see comment there.
+                        //This affects linux-2.6.33.3/fs/jfs/jfs_lockmgr.c
+                        arg = null
+                    }
+
                 case M_PASTE =>
                     paste(tok)
                 case _ =>
