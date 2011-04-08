@@ -221,4 +221,9 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testDeadcomparison() throws LexerException, IOException {
         testFile("deadcomparison.c");
     }
+
+    @Test
+    public void testExpandWithinExpand() throws LexerException, IOException {
+        testFile("expandWithinExpand.c");
+    }
 }
