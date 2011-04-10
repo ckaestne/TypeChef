@@ -33,7 +33,7 @@ object ParserMain {
 class ParserMain(p: CParser) {
 
     def parserMain(filePath: String, parentPath: String): AST = {
-        val lexer = (() => CLexer.lexFile(filePath, parentPath,p.featureModel))
+        val lexer = (() => CLexer.lexFile(filePath, parentPath, p.featureModel))
         parserMain(lexer, new CTypeContext())
     }
 
@@ -63,13 +63,13 @@ class ParserMain(p: CParser) {
         println(printParseResult(result, FeatureExpr.base))
 
         println("Parsing statistics: \n" +
-                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
+                //                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
                 "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
                 "  Tokens: " + in.tokens.size + "\n" +
                 "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
                 "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
                 "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
-                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
+                //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
                 "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
                 "  Distinct Features: " + countFeatures(in.tokens) + "\n" +
                 "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
