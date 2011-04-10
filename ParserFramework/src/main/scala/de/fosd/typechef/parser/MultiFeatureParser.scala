@@ -9,7 +9,7 @@ import annotation.tailrec
  *
  * @author kaestner
  */
-abstract class MultiFeatureParser(val featureModel: FeatureModel = null) {
+abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOutput: Boolean = false) {
     type Elem <: AbstractToken
     type TypeContext
     type Input = TokenReader[Elem, TypeContext]
@@ -529,7 +529,7 @@ try {
                                 // extend unsealed lists with the next result (if there is no next result, seal the list)
                                     x.seq(fs, opt(p)(x.next, fs)).mapf(fs, (f, t) => t match {
                                         case Sealable(_, resultList) ~ Some(t) => {
-                                            if (productionName == "externalDef")
+                                            if (debugOutput && productionName == "externalDef")
                                                 println("next externalDef @ " + x.next.first.getPosition) //+"   "+t+"/"+f)
                                             Sealable(false, Opt(f, t) :: resultList)
                                         }

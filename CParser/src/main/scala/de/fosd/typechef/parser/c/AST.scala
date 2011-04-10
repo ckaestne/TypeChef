@@ -27,6 +27,7 @@ trait Choice[T] {
     def thenBranch: T
     def elseBranch: T
     def feature: FeatureExpr
+    override def toString = "Choice(" + feature + "," + thenBranch + "," + elseBranch + ")"
 }
 
 trait ASTVisitor {
