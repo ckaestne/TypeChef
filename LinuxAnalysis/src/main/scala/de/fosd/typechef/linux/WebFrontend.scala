@@ -29,11 +29,11 @@ object WebFrontend {
 
     def parse(file: File) {
 
-        println("<pre name='partiallypreprocessed'>")
+        println("<h2>Input after macro expansion</h2><pre name='partiallypreprocessed'>")
         val tokenStream = new Main().run(Array(file.getAbsolutePath), true, true, null)
         println("</pre>")
 
-        println("<div name='tokenstream'>")
+        println("<h2>Conditional Token Stream</h2><div name='tokenstream'>")
         val in = CLexer.prepareTokens(tokenStream)
         for (tok <- in.tokens) {
             print('"' + tok.getText + '"')
@@ -43,15 +43,14 @@ object WebFrontend {
         }
         println("</div>")
 
-        println("<div name='parserresult'>")
+        println("<h2>Parser report</h2><pre name='parserresult'>")
         val parserMain = new ParserMain(new CParser(null, false))
         val ast = parserMain.parserMain(in)
-        println("</div>")
-        println("<div name='ast'>")
+        println("</pre>")
+        println("<h2>AST</h2><div name='ast'>")
         println(ast)
         println("</div>")
 
-        println("done.")
         //            //create parser and start parsing
         //            val parserMain = new ParserMain(new CParser())
         //
