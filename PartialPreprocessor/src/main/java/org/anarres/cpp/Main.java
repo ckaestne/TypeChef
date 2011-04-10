@@ -269,6 +269,8 @@ public class Main {
             }
         } finally {
             pp.debugWriteMacros();
+            if (output != null)
+                output.flush();
             if (output != null && !printToStdOutput)
                 output.close();
         }
