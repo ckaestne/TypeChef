@@ -11,7 +11,7 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
  * and Monty Zukowski (jamz@cdsnet.net) April 28, 1998
  */
 
-class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(featureModel) {
+class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) extends MultiFeatureParser(featureModel, debugOutput) {
     type Elem = TokenWrapper
     type TypeContext = CTypeContext
 
