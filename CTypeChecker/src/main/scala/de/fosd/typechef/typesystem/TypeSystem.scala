@@ -46,10 +46,14 @@ class TypeSystem(featureModel: FeatureModel = null) {
         declareBuiltins()
         ast.accept(new TSVisitor())
         dbgPrintln(table)
-        println("(performed " + functionCallChecks + " checks)");
-        println("Type Errors: ");
-        println(functionCallErrorMessages.values.mkString("\n"))
-        println(functionRedefinitionErrorMessages.mkString("\n"))
+        if (functionCallErrorMessages.values.isEmpty && functionRedefinitionErrorMessages.isEmpty)
+            println("No type errors found.")
+        else {
+            println("Type Errors: ");
+            println(functionCallErrorMessages.values.mkString("\n"))
+            println(functionRedefinitionErrorMessages.mkString("\n"))
+        }
+        println("(performed " + functionCallChecks + " checks regarding function calls)");
     }
 
     class TSVisitor extends ASTVisitor {

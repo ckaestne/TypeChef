@@ -4,6 +4,7 @@ import java.io.File
 import de.fosd.typechef.parser.c._
 import org.anarres.cpp.Main
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.typesystem.TypeSystem
 
 /**
  * Created by IntelliJ IDEA.
@@ -51,13 +52,11 @@ object WebFrontend {
         println(ast)
         println("</div>")
 
-        //            //create parser and start parsing
-        //            val parserMain = new ParserMain(new CParser())
-        //
-        //            val parentPath = new File(filename).getParent()
-        //            val ast = parserMain.parserMain(filename, parentPath)
-        //            if (check != null && ast != null)
-        //                check(ast)
+        if (ast != null) {
+            println("<h2>Type checking (incomplete!)</h2><pre name='tsoutput'>")
+            new TypeSystem(null).checkAST(ast)
+            println("</pre>")
+        }
     }
 
 
