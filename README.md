@@ -1,7 +1,7 @@
 TypeChef
 ========
 
-TypeChef is a research project with the goal of *type* *ch*ecking ifd*ef* variability in C code with the target of
+TypeChef is a research project with the goal of type checking ifdef variability in C code with the target of
 type checking the entire Linux kernel with several thousand features (or configuration options).
 
 Instead of type checking each variant for each feature combination in isolation, TypeChef parses the
@@ -79,14 +79,14 @@ Credits
 
 The project was only possible with fruitful collaboration of many researchers.
 
-[http://www.uni-marburg.de/fb12/ps/team/kaestner](Christian Kaestner) (Philipps University Marburg, project leader)
-[http://www.informatik.uni-marburg.de/~pgiarrusso/](Paolo G. Giarrusso) (Philipps University Marburg)
-[http://www.informatik.uni-marburg.de/~rendel/](Tillmann Rendel) (Philipps University Marburg)
-[http://www.informatik.uni-marburg.de/~seba/](Sebastian Erdweg) (Philipps University Marburg)
-[http://www.informatik.uni-marburg.de/~kos/](Klaus Ostermann) (Philipps University Marburg)
-[http://bis.uni-leipzig.de/ThorstenBerger](Thorsten Berger) (University of Leipzig)
-Andy Kenner (Metop Research Institute, Magdeburg)
-Steffen Haase (Metop Research Institute, Magdeburg)
+* [http://www.uni-marburg.de/fb12/ps/team/kaestner](Christian Kaestner) (Philipps University Marburg, project leader)
+* [http://www.informatik.uni-marburg.de/~pgiarrusso/](Paolo G. Giarrusso) (Philipps University Marburg)
+* [http://www.informatik.uni-marburg.de/~rendel/](Tillmann Rendel) (Philipps University Marburg)
+* [http://www.informatik.uni-marburg.de/~seba/](Sebastian Erdweg) (Philipps University Marburg)
+* [http://www.informatik.uni-marburg.de/~kos/](Klaus Ostermann) (Philipps University Marburg)
+* [http://bis.uni-leipzig.de/ThorstenBerger](Thorsten Berger) (University of Leipzig)
+* Andy Kenner (Metop Research Institute, Magdeburg)
+* Steffen Haase (Metop Research Institute, Magdeburg)
 
 The variability-aware lexer is implemented on top of jcpp, an implementation of the
 C preprocessor in Java: http://www.anarres.org/projects/jcpp/
@@ -99,10 +99,10 @@ The Java parser is based on a grammar that can be traced back to the Java 1.5 gr
 JavaCC repository: http://java.net/projects/javacc/downloads/directory/contrib/grammars
 
 We would further more thank for their contributions and discussions
-[http://www.eng.uwaterloo.ca/~shshe/](Steven She) (University of Waterloo)
-[http://gsd.uwaterloo.ca/kczarnec](Krzysztof Czarnecki) (University of Waterloo)
-[http://www.infosun.fim.uni-passau.de/spl/apel/](Sven Apel) (University of Passau)
-[http://www.cs.brown.edu/~sk/](Shriram Krishnamurthi) (Brown University)
+* [http://www.eng.uwaterloo.ca/~shshe/](Steven She) (University of Waterloo)
+* [http://gsd.uwaterloo.ca/kczarnec](Krzysztof Czarnecki) (University of Waterloo)
+* [http://www.infosun.fim.uni-passau.de/spl/apel/](Sven Apel) (University of Passau)
+* [http://www.cs.brown.edu/~sk/](Shriram Krishnamurthi) (Brown University)
 
 This work is supported in part by the European Research Council, grant #203099.
 
