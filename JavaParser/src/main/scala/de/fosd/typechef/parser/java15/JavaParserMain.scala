@@ -1,4 +1,4 @@
-package de.fosd.typechef.parser.c
+package de.fosd.typechef.parser.java15
 
 object JavaParserMain {
     //        def parserMain(filePath: String, parentPath: String): AST =
