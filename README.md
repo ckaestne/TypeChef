@@ -39,7 +39,7 @@ The TypeChef project contains of four main components and several helper librari
 Installation and Usage
 ----------------------
 
-For simple experimentation, try our online version at http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/
+For simple experimentation, try our online version at [http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/)
 
 To install TypeChef, build it from scratch using [sbt](http://code.google.com/p/simple-build-tool/). Install
 *sbt* and *git* and download and compile the code as follows
@@ -71,7 +71,7 @@ Evaluation
 ----------
 
 Details on our Linux analysis are currently under review for publication.
-You find additional information on that evaluation at http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/
+You find additional information on that evaluation at [http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/)
 
 
 Credits
@@ -88,15 +88,15 @@ The project was only possible with fruitful collaboration of many researchers.
 * Andy Kenner (Metop Research Institute, Magdeburg)
 * Steffen Haase (Metop Research Institute, Magdeburg)
 
-The variability-aware lexer is implemented on top of jcpp, an implementation of the
-C preprocessor in Java: [http://www.anarres.org/projects/jcpp/]
+The variability-aware lexer is implemented on top of [jcpp](http://www.anarres.org/projects/jcpp/), an implementation of the
+C preprocessor in Java.
 
-For reasoning about propositional formulas, we use the SAT solver sat4j: [http://www.sat4j.org/]
+For reasoning about propositional formulas, we use the SAT solver [sat4j](http://www.sat4j.org/).
 
-The GNU C parser is based on an ANTLR grammar: [http://www.antlr.org/grammar/cgram]
+The GNU C parser is based on an [ANTLR grammar for GNU C](http://www.antlr.org/grammar/cgram).
 
 The Java parser is based on a grammar that can be traced back to the Java 1.5 grammar in the
-JavaCC repository: [http://java.net/projects/javacc/downloads/directory/contrib/grammars]
+[JavaCC repository](http://java.net/projects/javacc/downloads/directory/contrib/grammars).
 
 We would further more thank for their contributions and discussions
 * [Steven She](http://www.eng.uwaterloo.ca/~shshe/) (University of Waterloo)
@@ -106,6 +106,12 @@ We would further more thank for their contributions and discussions
 * Thomas Leich (Metop Research Institute, Magdeburg)
 
 This work is supported in part by the European Research Council, grant #203099.
+
+Contributing
+------------
+
+Fork the project, write bug reports, contact us, .... We are open for collaborations and extensions and other scenarios.
+
 
 Publications
 ------------
@@ -124,4 +130,4 @@ An article about the variability-aware parser framework and our evaluation with 
 License
 -------
 
-TypeChef is published as open source under GPL 3.0. See [LICENSE](blob/master/LICENSE).
+TypeChef is published as open source under GPL 3.0. See [LICENSE](TypeChef/blob/master/LICENSE).
