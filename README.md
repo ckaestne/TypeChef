@@ -57,15 +57,15 @@ simplifies path management significantly. Example:
 
 Useful frontend classes are:
 
-org.anarres.cpp.Main                  -- the variability-aware lexer (or partial preprocessor)
-de.fosd.typechef.parser.c.ParserMain  -- the GNU C parser (calls the lexer internally)
-de.fosd.typechef.typesystem.Main      -- type system for C (calls the parser internally)
-de.fosd.typechef.linux.WebFrontend    -- output of our online version
+> org.anarres.cpp.Main                  -- the variability-aware lexer (or partial preprocessor)  
+> de.fosd.typechef.parser.c.ParserMain  -- the GNU C parser (calls the lexer internally)  
+> de.fosd.typechef.typesystem.Main      -- type system for C (calls the parser internally)  
+> de.fosd.typechef.linux.WebFrontend    -- output of our online version
 
 or the specific ones for the Linux evaluation:
 
-de.fosd.typechef.linux.LinuxParser
-de.fosd.typechef.linux.LinuxPreprocessorFrontend
+> de.fosd.typechef.linux.LinuxParser  
+> de.fosd.typechef.linux.LinuxPreprocessorFrontend
 
 Evaluation
 ----------
