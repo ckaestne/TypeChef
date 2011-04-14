@@ -89,20 +89,39 @@ The project was only possible with fruitful collaboration of many researchers.
 * Steffen Haase (Metop Research Institute, Magdeburg)
 
 The variability-aware lexer is implemented on top of jcpp, an implementation of the
-C preprocessor in Java: http://www.anarres.org/projects/jcpp/
+C preprocessor in Java: [http://www.anarres.org/projects/jcpp/]
 
-For reasoning about propositional formulas, we use the SAT solver sat4j: http://www.sat4j.org/
+For reasoning about propositional formulas, we use the SAT solver sat4j: [http://www.sat4j.org/]
 
-The GNU C parser is based on an ANTLR grammar: http://www.antlr.org/grammar/cgram
+The GNU C parser is based on an ANTLR grammar: [http://www.antlr.org/grammar/cgram]
 
 The Java parser is based on a grammar that can be traced back to the Java 1.5 grammar in the
-JavaCC repository: http://java.net/projects/javacc/downloads/directory/contrib/grammars
+JavaCC repository: [http://java.net/projects/javacc/downloads/directory/contrib/grammars]
 
 We would further more thank for their contributions and discussions
 * [Steven She](http://www.eng.uwaterloo.ca/~shshe/) (University of Waterloo)
 * [Krzysztof Czarnecki](http://gsd.uwaterloo.ca/kczarnec) (University of Waterloo)
 * [Sven Apel](http://www.infosun.fim.uni-passau.de/spl/apel/) (University of Passau)
 * [Shriram Krishnamurthi](http://www.cs.brown.edu/~sk/) (Brown University)
+* Thomas Leich (Metop Research Institute, Magdeburg)
 
 This work is supported in part by the European Research Council, grant #203099.
 
+Publications
+------------
+
+An early overview of the project with a very preliminary implementation was published at
+
+> Andy Kenner, Christian Kästner, Steffen Haase, and Thomas Leich. [TypeChef: Toward Type Checking #ifdef Variability in C](http://www.informatik.uni-marburg.de/~kaestner/FOSD10-typechef.pdf). In Proceedings of the Second Workshop on Feature-Oriented Software Development (FOSD) (Eindhoven, The Netherlands), pages 25-32, New York, NY, USA, October 2010. ACM Press.
+
+A more detailed discussion of the variability-aware lexer (or partial preprocessor) was presented at
+
+> Christian Kästner, Paolo G. Giarrusso, and Klaus Ostermann. [Partial Preprocessing C Code for Variability Analysis](http://www.informatik.uni-marburg.de/~kaestner/vamos11.pdf). In Proceedings of the Fifth International Workshop on Variability Modelling of Software-intensive Systems (VaMoS) (Namur, Belgium), pages 137-140, New York, NY, USA, January 2011. ACM Press.
+
+An article about the variability-aware parser framework and our evaluation with Linux is currently under review.
+
+
+License
+-------
+
+TypeChef is published as open source under GPL 3.0. See [LICENSE](blob/master/LICENSE).
