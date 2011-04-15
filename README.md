@@ -42,11 +42,11 @@ Installation and Usage
 For simple experimentation, try our online version at [http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/)
 
 To install TypeChef, build it from scratch using [sbt](http://code.google.com/p/simple-build-tool/). Install
-*sbt* and *git* and download and compile the code as follows
+*git* and download and compile the code as follows
 
     git clone git://github.com/ckaestne/TypeChef.git
     cd TypeChef
-    sbt compile
+    java -jar sbt-launch-0.7.4.jar clean update compile
 
 TypeChef can be run normally in the Java VM (use `sbt package` to build jar files) or from within `sbt` which
 simplifies path management significantly. Example:
@@ -97,6 +97,8 @@ The GNU C parser is based on an [ANTLR grammar for GNU C](http://www.antlr.org/g
 
 The Java parser is based on a grammar that can be traced back to the Java 1.5 grammar in the
 [JavaCC repository](http://java.net/projects/javacc/downloads/directory/contrib/grammars).
+
+For convenience we include [sbt](http://code.google.com/p/simple-build-tool/) in the repository.
 
 We would further more thank for their contributions and discussions
 * [Steven She](http://www.eng.uwaterloo.ca/~shshe/) (University of Waterloo)
