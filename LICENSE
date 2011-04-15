@@ -8,10 +8,11 @@ developed by Ben Mankin and released under Apache License 2.0
 see http://www.anarres.org/projects/jcpp/
 We massively modified the original implementation.
 
-The TypeChef project includes the SAT solver sat4j released
-as LGPL. We did not modify the code, but include it only
-for convenience.
-see http://www.sat4j.org/
+The TypeChef project uses the SAT solver sat4j released
+as LGPL (downloaded by sbt). see http://www.sat4j.org/
+
+For convenience, we include *sbt* which is released under
+BSD license. see http://code.google.com/p/simple-build-tool/
 
 Possible contained case studies and examples are not
 covered by this license.
