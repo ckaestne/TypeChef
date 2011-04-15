@@ -16,19 +16,23 @@ case class ErrorMsgs(name: String, callers: List[(FeatureExpr, AST)], targets: L
         val msg = definitionFeatures match {
             case Nil =>
                 assert(targets.isEmpty)
-                "declaration of function " + name + " not found"
+                "undefined function: '" + name + "'\n" +
+                "  no declaration found"
             case _ =>
-                "declaration of function " + name + " not always reachable" +
-                    " (" + targets.size + " potential targets): features of callsites (" +
-                    callerFeatures.mkString(", ") + ") do not imply " +
-                    definitionFeatures.mkString(" || ")
+                "undefined function: '" + name + "'\n" +
+                "  callsite features: " + callerFeatures.mkString(", ") + "\n" +
+                "  " + definitionFeatures.size + " potential declarations found:\n" +
+                definitionFeatures.mkString("    declaration features: ", "\n    declaration features: ", "")
         }
         new ErrorMsg(msg, callerSources, targets)
     }
     override def toString = toError.toString
 }
 case class RedefErrorMsg(name: String, newDef: Entry, existingDef: Entry) {
-    override def toString = "function " + name + " redefined with feature " + newDef.feature + "; previous: " + existingDef
+    override def toString =
+      "duplicate definition: '" + name + "'\n" +
+      "  previous features: " + existingDef.feature + "\n" +
+      "  new features:      " + newDef.feature
 }
 
 object ErrorMsgs {
