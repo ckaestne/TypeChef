@@ -17,12 +17,14 @@
 package org.anarres.cpp
 
 import java.io._
+import java.{util => jUtil}
 import java.util.Iterator
-import java.util.List
 import org.anarres.cpp.Token._
 import util.control.Breaks
 import java.lang.StringBuilder
-import collection.JavaConversions.asScalaIterable
+import collection.JavaConverters._
+import collection.immutable.Queue
+import annotation.tailrec
 
 object MacroTokenSource {
     /* XXX Called from Preprocessor [ugly]. */
@@ -46,7 +48,8 @@ object MacroTokenSource {
                     }
                 }
                 ({
-                    i += 1; i
+                    i += 1;
+                    i
                 })
             }
         }
@@ -54,8 +57,8 @@ object MacroTokenSource {
 }
 
 class MacroTokenSource extends Source {
-    private[cpp] def this(macroName: String, m: MacroData, args: List[Argument], gnuCExtensions: Boolean) {
-        this()
+    private[cpp] def this(macroName: String, m: MacroData, args: jUtil.List[Argument], gnuCExtensions: Boolean) {
+        this ()
         this.macroName = macroName
         this.macro = m
         this.tokenIter = m.getTokens.iterator
@@ -69,32 +72,37 @@ class MacroTokenSource extends Source {
         return super.mayExpand(macroName)
     }
 
-    private def concat(buf: PrintWriter, arg: Argument, queuedComma: Boolean): Unit = {
-        if (queuedComma) {
-            //Output the comma that we didn't output previously.
-            if (!arg.isOmittedArg || !gnuCExtensions) {
-                buf.append(",")
+    @tailrec
+    private def addFirstNonSpaceToken(srcTokens: Seq[Token], _destTokens: Queue[Token]): Queue[Token] = {
+        var destTokens = _destTokens
+        if (srcTokens.nonEmpty) {
+            val argTok0 = srcTokens.head
+            if (argTok0.getType != NL && !argTok0.isWhite) {
+                destTokens += argTok0
+                destTokens ++= srcTokens.tail
+                destTokens
+            } else {
+                addFirstNonSpaceToken(srcTokens.tail, destTokens)
             }
-            else {
-                //Swallow the comma, as prescribed by:
-                // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
-                assert(arg.tokens.isEmpty)
-                return
-            }
-        }
-        var i: Int = 0
-        for (tok <- arg.tokens) {
-            if (i != 0 || tok.getType != NL && !tok.isWhite) {
-                tok.lazyPrint(buf)
-                i += 1
-            }
+        } else
+            destTokens
+    }
+
+    //XXX inline, probably.
+    @deprecated
+    private def extractTokensForConcat(arg: Argument) =
+        addFirstNonSpaceToken(arg.tokens, Queue[Token]())
+
+    private def tokensToStr(printWriter: PrintWriter, arg: Argument) {
+        extractTokensForConcat(arg) foreach {
+            _.lazyPrint(printWriter)
         }
     }
 
     private def stringify(pos: Token, arg: Argument): Token = {
         var buf: StringWriter = new StringWriter
         var printWriter: PrintWriter = new PrintWriter(buf)
-        concat(printWriter, arg, false)
+        tokensToStr(printWriter, arg)
         var str: StringBuilder = new StringBuilder("\"")
         MacroTokenSource.escape(str, buf.getBuffer)
         str.append("\"")
@@ -102,10 +110,44 @@ class MacroTokenSource extends Source {
     }
 
     private def paste(_ptok: Token): Unit = {
-        var ptok = _ptok
         var buf = new StringWriter
         var printWriter = new PrintWriter(buf)
-        var queuedComma: Boolean = false
+        var tokens = Queue[Token]()
+        var stringPasting = false
+
+        def strToTokens() {
+            if (stringPasting) {
+                val sl = new StringLexerSource(buf.toString)
+                stringPasting = false
+                tokens ++= sl.asScala
+                buf = new StringWriter()
+                printWriter = new PrintWriter(buf)
+            }
+        }
+
+        def concat(_tokens: Queue[Token], arg: Argument, queuedCommaOpt: Option[Token]): Queue[Token] = {
+            var tokens = _tokens
+            queuedCommaOpt match {
+                case Some(queuedComma) =>
+                    strToTokens()
+                    //Output the comma that we didn't output previously.
+                    if (!arg.isOmittedArg || !gnuCExtensions) {
+                        tokens += queuedComma
+                        tokens ++= extractTokensForConcat(arg)
+                    } else {
+                        //Swallow the comma, as prescribed by:
+                        // http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+                        assert(arg.tokens.isEmpty)
+                    }
+                case None =>
+                    stringPasting = true
+                    tokensToStr(printWriter, arg)
+            }
+            tokens
+        }
+
+        var ptok = _ptok
+        var queuedComma: Option[Token] = None
         var count: Int = 2
 
         var i: Int = 0
@@ -114,13 +156,15 @@ class MacroTokenSource extends Source {
             while (i < count) {
                 if (!tokenIter.hasNext) {
                     error(ptok.getLine, ptok.getColumn, "Paste at end of expansion")
-                    buf.append(' ').append(ptok.getText)
+                    strToTokens()
+                    tokens ++= Seq(Token.space, ptok)
                     break
                 }
                 var tok: Token = tokenIter.next
-                if (queuedComma && tok.getType != M_ARG) {
-                    buf.append(",")
-                    queuedComma = false
+                if (queuedComma.isDefined && tok.getType != M_ARG) {
+                    strToTokens()
+                    tokens += queuedComma.get
+                    queuedComma = None
                 }
                 tok.getType match {
                     case M_PASTE =>
@@ -128,20 +172,23 @@ class MacroTokenSource extends Source {
                         ptok = tok
                     case M_ARG =>
                         val idx: Int = (tok.getValue.asInstanceOf[java.lang.Integer]).intValue
-                        concat(printWriter, args.get(idx), queuedComma)
+                        tokens = concat(tokens, args.get(idx), queuedComma)
                     /* XXX Test this. */
-                    case CCOMMENT | CPPCOMMENT=>
+                    case CCOMMENT | CPPCOMMENT =>
                     case ',' =>
                         assert(",".equals(tok.getText))
-                        queuedComma = true
+                        queuedComma = Some(tok)
                     case _ =>
-                        buf.append(tok.getText)
+                    //strToTokens()
+                    //tokens += tok
+                        stringPasting = true
+                        tok.lazyPrint(printWriter)
                 }
                 i += 1
             }
         }
-        var sl: StringLexerSource = new StringLexerSource(buf.toString)
-        arg = new SourceIterator(sl)
+        strToTokens()
+        arg = tokens.iterator.asJava
     }
 
     def token(): Token = {
@@ -169,7 +216,14 @@ class MacroTokenSource extends Source {
                     return stringify(tok, args.get(idx))
                 case M_ARG =>
                     idx = (tok.getValue.asInstanceOf[java.lang.Integer]).intValue
-                    arg = args.get(idx).expansion
+                    if (idx < args.size) {
+                        arg = args.get(idx).expansion
+                    } else {
+                        //This can happen in valid code only because of the brokenness of expanded_token(), see comment there.
+                        //This affects linux-2.6.33.3/fs/jfs/jfs_lockmgr.c
+                        arg = null
+                    }
+
                 case M_PASTE =>
                     paste(tok)
                 case _ =>
@@ -193,7 +247,7 @@ class MacroTokenSource extends Source {
 
     private final var macro: MacroData = null
     private var tokenIter: Iterator[Token] = null
-    private var args: List[Argument] = null
+    private var args: jUtil.List[Argument] = null
     private var arg: Iterator[Token] = null
     private final var macroName: String = null
     private var gnuCExtensions: Boolean = false

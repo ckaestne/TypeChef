@@ -11,7 +11,7 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
  * and Monty Zukowski (jamz@cdsnet.net) April 28, 1998
  */
 
-class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(featureModel) {
+class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) extends MultiFeatureParser(featureModel, debugOutput) {
     type Elem = TokenWrapper
     type TypeContext = CTypeContext
 
@@ -231,7 +231,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
             | (textToken("break") ~! SEMI ^^ {_ => BreakStatement()})
             | (textToken("return") ~!> opt(expr) <~ SEMI ^^ {ReturnStatement(_)})
             //// Labeled statements:
-            | (ID <~~ COLON ^^ {LabelStatement(_)})
+            | ((ID <~~ COLON) ~! opt(attributeDecl) ^^ {case i ~ a => LabelStatement(i, a)})
             // GNU allows range expressions in case statements
             | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ~ opt(statement) ^^ {case _ ~ e ~ _ ~ s => CaseStatement(e, s)})
             | (textToken("default") ~! COLON ~> opt(statement) ^^ {DefaultStatement(_)})
@@ -291,7 +291,7 @@ class CParser(featureModel: FeatureModel = null) extends MultiFeatureParser(feat
         }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~~ typeName ~~ RPAREN ~! (castExpr | lcurlyInitializer) ^^ {case b1 ~ t ~ b2 ~ e => CastExpr(t, e)} | unaryExpr
+        LPAREN ~~ typeName ~~ RPAREN ~~ (castExpr | lcurlyInitializer) ^^ {case b1 ~ t ~ b2 ~ e => CastExpr(t, e)} | unaryExpr
 
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         nonemptyAbstractDeclaratorA | nonemptyAbstractDeclaratorB

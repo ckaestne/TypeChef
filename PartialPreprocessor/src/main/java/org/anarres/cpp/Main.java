@@ -104,7 +104,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        (new Main()).run(args, false, true,null);
+        (new Main()).run(args, false, true, null);
     }
 
     public List<Token> run(String[] args, boolean returnTokenList, boolean printToStdOutput, FeatureModel featureModel) throws Exception {
@@ -244,11 +244,11 @@ public class Main {
                     break;
 
 
-                    String image=tok.getText();
-                    while (image.indexOf('\n')>=0) {
-                        outputLine++;
-                        image=image.substring(image.indexOf('\n')+1);
-                    }
+                String image = tok.getText();
+                while (image.indexOf('\n') >= 0) {
+                    outputLine++;
+                    image = image.substring(image.indexOf('\n') + 1);
+                }
 
                 if (returnTokenList && PartialPPLexer.isResultToken(tok)) {
                     if (tok instanceof SimpleToken)
@@ -270,6 +270,8 @@ public class Main {
         } finally {
             pp.debugWriteMacros();
             if (output != null)
+                output.flush();
+            if (output != null && !printToStdOutput)
                 output.close();
         }
         return resultTokenList;

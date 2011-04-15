@@ -15,15 +15,14 @@ public abstract class DebuggingPreprocessor {
     public static boolean DEBUG_TOKENSTREAM = false;
 
     static {
+        logger.setLevel(Level.WARNING);
         try {
             Handler fh;
             fh = new FileHandler("jcpp.log");
             logger.addHandler(fh);
-            logger.setLevel(Level.WARNING);
         } catch (SecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -39,7 +38,7 @@ public abstract class DebuggingPreprocessor {
         if (outputName != null)
             //TODO: Buggy, should use replaceFirst, otherwise the 1st is not
             //interpreted as a regexp and doesn't work at all (here, no
-	    //replacement is done).
+            //replacement is done).
             return outputName.replace(".pi$", "");
         else
             return null;

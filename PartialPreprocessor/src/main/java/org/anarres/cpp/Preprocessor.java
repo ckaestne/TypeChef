@@ -1088,7 +1088,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                          Token origInvokeTok, List<Token> origArgTokens, boolean inline)
             throws IOException, LexerException, ParseParamException {
         List<Source> resultList = new ArrayList<Source>();
+        //push_state();
+        //state.putLocalFeature(macroExpansion.getFeature(), macros);
+        //XXX: here, the current status is not saved in the created macro token source. The caller will not understand the needed ifdef directives.
+        //My God. So this change is useless. The produced #if directives are then not parsed by expanded_token, leading to breakage.
         resultList.add(createMacroTokenSource(macroName, args, macroExpansion, origInvokeTok, inline));
+        //pop_state();
         if (!macroExpansion.getExpansion().isFunctionLike())
             resultList.add(new FixedTokenSource(origArgTokens));
         return resultList;
@@ -1791,6 +1796,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
       *
       * hack_definedActivated excludes the parameter of a defined statement from
       * expansion during pre-expansion of arguments
+      *
+      * TODO: this is completely broken for partial preprocessing. It only passes on #if directives, does not parse them.
+      * Therefore, we do not correctly update the state, which in turn results in getApplicableMacroExpansions returning
+      * too many expansions, including ones which might be invalid. It should probably just call parse_main again
+      * (actually, I fear something more complicated is needed).
       */
     private Token expanded_token(boolean inlineCppExpression,
                                  boolean hack_definedActivated) throws IOException, LexerException {

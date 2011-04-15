@@ -151,7 +151,6 @@ arch/x86/lguest/boot
 arch/x86/lib/atomic64_32
 arch/x86/lib/cache-smp
 arch/x86/lib/delay
-arch/x86/lib/inat
 arch/x86/lib/insn
 arch/x86/lib/mmx_32
 arch/x86/lib/msr-reg-export
@@ -850,7 +849,6 @@ drivers/edac/i82875p_edac
 drivers/edac/i82975x_edac
 drivers/edac/r82600_edac
 drivers/edac/x38_edac
-drivers/eisa/eisa-bus
 drivers/firewire/core-card
 drivers/firewire/core-cdev
 drivers/firewire/core-device
@@ -1025,11 +1023,7 @@ drivers/gpu/drm/r128/r128_state
 drivers/gpu/drm/radeon/atom
 drivers/gpu/drm/radeon/atombios_crtc
 drivers/gpu/drm/radeon/atombios_dp
-drivers/gpu/drm/radeon/r100
-drivers/gpu/drm/radeon/r200
-drivers/gpu/drm/radeon/r300
 drivers/gpu/drm/radeon/r300_cmdbuf
-drivers/gpu/drm/radeon/r420
 drivers/gpu/drm/radeon/r520
 drivers/gpu/drm/radeon/r600
 drivers/gpu/drm/radeon/r600_audio
@@ -1072,9 +1066,7 @@ drivers/gpu/drm/radeon/radeon_state
 drivers/gpu/drm/radeon/radeon_test
 drivers/gpu/drm/radeon/radeon_ttm
 drivers/gpu/drm/radeon/rs400
-drivers/gpu/drm/radeon/rs600
 drivers/gpu/drm/radeon/rs690
-drivers/gpu/drm/radeon/rv515
 drivers/gpu/drm/radeon/rv770
 drivers/gpu/drm/savage/savage_bci
 drivers/gpu/drm/savage/savage_drv
@@ -3120,7 +3112,6 @@ drivers/net/wan/pci200syn
 drivers/net/wan/sbni
 drivers/net/wan/sdla
 drivers/net/wan/sealevel
-drivers/net/wan/wanxl
 drivers/net/wan/x25_asy
 drivers/net/wan/z85230
 drivers/net/wd
@@ -3639,19 +3630,6 @@ drivers/scsi/advansys
 drivers/scsi/aha152x
 drivers/scsi/aha1542
 drivers/scsi/aha1740
-drivers/scsi/aic7xxx/aic7770
-drivers/scsi/aic7xxx/aic7770_osm
-drivers/scsi/aic7xxx/aic79xx_core
-drivers/scsi/aic7xxx/aic79xx_osm
-drivers/scsi/aic7xxx/aic79xx_osm_pci
-drivers/scsi/aic7xxx/aic79xx_pci
-drivers/scsi/aic7xxx/aic79xx_proc
-drivers/scsi/aic7xxx/aic7xxx_93cx6
-drivers/scsi/aic7xxx/aic7xxx_core
-drivers/scsi/aic7xxx/aic7xxx_osm
-drivers/scsi/aic7xxx/aic7xxx_osm_pci
-drivers/scsi/aic7xxx/aic7xxx_pci
-drivers/scsi/aic7xxx/aic7xxx_proc
 drivers/scsi/aic7xxx_old
 drivers/scsi/aic94xx/aic94xx_dev
 drivers/scsi/aic94xx/aic94xx_dump
@@ -6013,7 +5991,6 @@ kernel/backtracetest
 kernel/capability
 kernel/cgroup
 kernel/cgroup_freezer
-kernel/configs
 kernel/cpu
 kernel/cpuset
 kernel/cred
@@ -6188,7 +6165,6 @@ lib/crc-ccitt
 lib/crc-itu-t
 lib/crc-t10dif
 lib/crc16
-lib/crc32
 lib/crc7
 lib/ctype
 lib/debug_locks
@@ -7236,7 +7212,6 @@ samples/kobject/kset-example
 samples/kprobes/jprobe_example
 samples/kprobes/kprobe_example
 samples/kprobes/kretprobe_example
-samples/trace_events/trace-events-sample
 samples/tracepoints/tracepoint-probe-sample
 samples/tracepoints/tracepoint-probe-sample2
 samples/tracepoints/tracepoint-sample
@@ -7435,14 +7410,11 @@ sound/oss/midi_synth
 sound/oss/midibuf
 sound/oss/mpu401
 sound/oss/msnd
-sound/oss/msnd_classic
-sound/oss/msnd_pinnacle
 sound/oss/opl3
 sound/oss/pas2_card
 sound/oss/pas2_midi
 sound/oss/pas2_mixer
 sound/oss/pas2_pcm
-sound/oss/pss
 sound/oss/sb_audio
 sound/oss/sb_card
 sound/oss/sb_common
@@ -7453,7 +7425,6 @@ sound/oss/sequencer
 sound/oss/sound_timer
 sound/oss/soundcard
 sound/oss/sys_timer
-sound/oss/trix
 sound/oss/uart401
 sound/oss/uart6850
 sound/oss/v_midi
