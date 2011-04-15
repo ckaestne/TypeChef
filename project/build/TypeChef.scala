@@ -2,12 +2,10 @@ import sbt._
 import reaktor.scct.ScctProject
 
 class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
-    val junit = "junit" % "junit" % "4.8.2" % "test->default"
-    val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
-    val scalacheck = "org.scala-tools.testing" % "scalacheck_2.8.1" % "1.8" % "test->default"
 
-    lazy val sat4j = project("org.sat4j.core", "sat4j", new JavaSubProject(_))
-    lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_), sat4j)
+    lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_){
+        val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.0"
+    })
     lazy val parserexp = project("ParserFramework", "Parser Core", new DefaultSubProject(_), featureexpr)
     lazy val jcpp = project("PartialPreprocessor", "Partial Preprocessor", new JavaSubProject(_), featureexpr)
     lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_), featureexpr, jcpp, parserexp)
@@ -19,6 +17,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         val junit = "junit" % "junit" % "4.8.2" % "test->default"
         val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
         val scalacheck = "org.scala-tools.testing" % "scalacheck_2.8.1" % "1.8" % "test->default"
+
         override def javaCompileOptions = super.javaCompileOptions ++ javaCompileOptions("-source", "1.5", "-Xlint:unchecked")
         override def compileOptions = super.compileOptions ++ Seq(Unchecked,
             Deprecation, ExplainTypes, Optimize)
@@ -31,6 +30,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         lazy val stats = runTask("de.fosd.typechef.linux.Stats")
         lazy val pcppStats = runTask("de.fosd.typechef.linux.PCPPStats")
         lazy val linuxDependencyAnalysis = runTask("de.fosd.typechef.linux.LinuxDependencyAnalysis")
+        lazy val web = runTask("de.fosd.typechef.linux.WebFrontend")
     }
 
 
