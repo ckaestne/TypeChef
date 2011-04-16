@@ -13,10 +13,12 @@ import scala.collection.{mutable, immutable}
  *
  *
  * it can load an expression from a FeatureExpr or from a file in CNF
- * format (TODO)
- *
+ * format
  */
 class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], val lastVarId: Int) {
+    /**
+     * make the feature model stricter by a formula
+     */
     def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExpr.base) this
     else {
         val cnf = expr.toCNF
@@ -31,13 +33,29 @@ class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], 
     }
 }
 
+/**
+ * empty feature model
+ */
 object NoFeatureModel extends FeatureModel(Map(), new Vec(), 0)
 
+/**
+ * companion object to create feature models
+ */
 object FeatureModel {
+    /**
+     * create an empty feature model
+     */
     def empty = NoFeatureModel
 
+    /**
+     * create a feature model from a feature expression
+     */
     def create(expr: FeatureExpr) = NoFeatureModel.and(expr)
 
+    /**
+     * create a feature model by loading a CNF file
+     * (proprietary format used previously by LinuxAnalysis tools)
+     */
     def createFromCNFFile(file: String) = {
         var variables: Map[String, Int] = Map()
         var varIdx = 0
@@ -58,6 +76,9 @@ object FeatureModel {
         new FeatureModel(variables, clauses, varIdx)
     }
 
+    /**
+     * load a standard Dimacs file as feature model
+     */
     def createFromDimacsFile(file: String) = {
         var variables: Map[String, Int] = Map()
         val clauses = new Vec[IVecInt]()
@@ -87,7 +108,7 @@ object FeatureModel {
         new FeatureModel(variables, clauses, maxId)
     }
     /**
-     * special reader for the -2var model
+     * special reader for the -2var model used by the LinuxAnalysis tools from waterloo
      */
     def createFromDimacsFile_2Var(file: String) = {
         var variables: Map[String, Int] = Map()

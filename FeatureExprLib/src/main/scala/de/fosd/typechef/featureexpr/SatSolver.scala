@@ -13,6 +13,11 @@ import org.sat4j.specs.ContradictionException;
  */
 
 class SatSolver {
+    /**
+     * caching can reuse SAT solver instances, but experience
+     * has shown that it can lead to incorrect results,
+     * hence caching is currently disabled
+     */
     val CACHING = false
     def isSatisfiable(exprCNF: FeatureExpr, featureModel: FeatureModel = NoFeatureModel): Boolean = {
         (if (CACHING && (nfm(featureModel) != NoFeatureModel))
@@ -135,7 +140,7 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
     }
 }
 
-object SatSolver {
+private object SatSolver {
     /**Type Aliases for Readability */
     type CNF = FeatureExpr
     type OrClause = FeatureExpr

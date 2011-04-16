@@ -9,7 +9,6 @@ import java.io._
  *
  * does not support integer values yet
  */
-
 class FeatureExprParser extends RegexParsers {
 
     def toFeature(name: String) = FeatureExpr.createDefinedExternal(name)
