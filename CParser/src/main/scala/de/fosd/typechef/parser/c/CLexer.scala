@@ -1,4 +1,5 @@
 package de.fosd.typechef.parser.c
+
 import java.io.InputStream
 
 import de.fosd.typechef.parser._
@@ -14,13 +15,13 @@ import de.fosd.typechef.featureexpr.FeatureModel
 object CLexer {
 
     def lexFile(fileName: String, directory: String, featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
-        prepareTokens(new PartialPPLexer().parseFile(fileName, directory,featureModel))
+        prepareTokens(new PartialPPLexer().parseFile(fileName, directory, featureModel))
 
     def lexStream(stream: InputStream, filePath: String, directory: String, featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
-        prepareTokens(new PartialPPLexer().parseStream(stream, filePath, directory,featureModel))
+        prepareTokens(new PartialPPLexer().parseStream(stream, filePath, directory, featureModel))
 
     def lex(text: String, featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
-        prepareTokens(new PartialPPLexer().parse(text, null,featureModel))
+        prepareTokens(new PartialPPLexer().parse(text, null, featureModel))
 
     def prepareTokens(tokenList: java.util.List[Token]): TokenReader[TokenWrapper, CTypeContext] = {
         val tokens = tokenList.iterator
@@ -31,10 +32,10 @@ object CLexer {
             result += TokenWrapper(t, tokenNr)
             tokenNr = tokenNr + 1
         }
-        new TokenReader(result.toList, 0, new CTypeContext(),TokenWrapper.EOF)
+        new TokenReader(result.toList, 0, new CTypeContext(), TokenWrapper.EOF)
     }
 
-    /** used to recognize identifiers in the token implementation **/
+    /**used to recognize identifiers in the token implementation **/
     val keywords = Set(
         "auto",
         "break",

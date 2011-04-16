@@ -58,7 +58,7 @@ public abstract class DebuggingPreprocessor {
         }
     }
 
-    protected abstract MacroContext getMacros();
+    protected abstract MacroContext<MacroData> getMacros();
 
     public void debugWriteMacros() {
         try {

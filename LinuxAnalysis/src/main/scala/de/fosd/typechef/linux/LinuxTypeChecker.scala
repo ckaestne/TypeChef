@@ -6,11 +6,9 @@
  */
 package de.fosd.typechef.linux
 
-import java.io.File
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.TypeSystem
 
 object LinuxTypeChecker {
     def main(args: Array[String]): Unit =
-      LinuxParser.main(args, new TypeSystem(LinuxFeatureModel.featureModelExcludingDead).checkAST(_))
+        LinuxParser.main(args, new TypeSystem(LinuxFeatureModel.featureModelExcludingDead).checkAST(_))
 }

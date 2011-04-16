@@ -21,6 +21,6 @@ package de.fosd.typechef.lexer;
  * An extremely lightweight virtual file system interface.
  */
 public interface VirtualFileSystem {
-	public VirtualFile getFile(String path);
-	public VirtualFile getFile(String dir, String name);
+    public VirtualFile getFile(String path);
+    public VirtualFile getFile(String dir, String name);
 }

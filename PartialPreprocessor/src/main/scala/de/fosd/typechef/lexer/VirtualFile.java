@@ -23,11 +23,11 @@ import java.io.IOException;
  * An extremely lightweight virtual file interface.
  */
 public interface VirtualFile {
-	// public String getParent();
-	public boolean isFile();
-	public String getPath();
-	public String getName();
-	public VirtualFile getParentFile();
-	public VirtualFile getChildFile(String name);
-	public Source getSource() throws IOException;
+    // public String getParent();
+    public boolean isFile();
+    public String getPath();
+    public String getName();
+    public VirtualFile getParentFile();
+    public VirtualFile getChildFile(String name);
+    public Source getSource() throws IOException;
 }

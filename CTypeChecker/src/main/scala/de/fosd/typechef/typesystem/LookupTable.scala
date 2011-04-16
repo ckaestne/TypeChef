@@ -1,4 +1,5 @@
 package de.fosd.typechef.typesystem
+
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
@@ -17,5 +18,7 @@ class LookupTable(functions: List[Entry] = List()) {
 abstract class Entry(val name: String, typeSig: String, scope: Int, val feature: FeatureExpr) {
     override def toString = getClass.getName + " " + name + " (" + typeSig + "), " + scope + ": " + feature
 }
+
 class LFunctionDef(name: String, typeSig: String, scope: Int, feature: FeatureExpr) extends Entry(name, typeSig, scope, feature)
+
 class LDeclaration(name: String, typeSig: String, scope: Int, feature: FeatureExpr) extends Entry(name, typeSig, scope, feature)

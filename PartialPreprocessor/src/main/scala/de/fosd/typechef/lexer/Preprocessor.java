@@ -24,9 +24,9 @@
 package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.featureexpr.*;
+import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
 import de.fosd.typechef.lexer.macrotable.MacroExpansion;
-import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 
 import java.io.Closeable;
 import java.io.File;
@@ -132,7 +132,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     private MacroContext<MacroData> macros;
     State state;
 
-    protected MacroContext getMacros() {
+    protected MacroContext<MacroData> getMacros() {
         return macros;
     }
 

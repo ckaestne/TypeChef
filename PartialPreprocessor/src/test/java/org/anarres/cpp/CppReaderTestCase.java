@@ -1,14 +1,14 @@
 package org.anarres.cpp;
 
-import java.io.File;
-import java.util.Collections;
-
-import java.io.StringReader;
-import java.io.BufferedReader;
-
-import de.fosd.typechef.lexer.*;
-import org.junit.Ignore;
+import de.fosd.typechef.lexer.CppReader;
+import de.fosd.typechef.lexer.Feature;
 import org.junit.Test;
+import de.fosd.typechef.featureexpr.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.StringReader;
+import java.util.Collections;
 
 public class CppReaderTestCase {
 

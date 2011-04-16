@@ -1,11 +1,8 @@
 package de.fosd.typechef.parser.c
-import junit.framework.TestCase
 
-import org.junit._
 import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.parser._
 import org.junit.Test
 
 class TestErrorReporting extends TestCase {
@@ -15,7 +12,7 @@ class TestErrorReporting extends TestCase {
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser()
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/",null), FeatureExpr.base)
+            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExpr.base)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -31,6 +28,6 @@ class TestErrorReporting extends TestCase {
     //
 
     @Test
-    def test1() { parseFile("errors/test.c") }
+    def test1() {parseFile("errors/test.c")}
 
 }

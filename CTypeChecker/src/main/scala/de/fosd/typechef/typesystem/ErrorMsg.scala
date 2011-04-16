@@ -1,5 +1,5 @@
 package de.fosd.typechef.typesystem
-import de.fosd.typechef.parser.c.AST
+
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 
@@ -17,22 +17,23 @@ case class ErrorMsgs(name: String, callers: List[(FeatureExpr, AST)], targets: L
             case Nil =>
                 assert(targets.isEmpty)
                 "undefined function: '" + name + "'\n" +
-                "  no declaration found"
+                        "  no declaration found"
             case _ =>
                 "undefined function: '" + name + "'\n" +
-                "  callsite features: " + callerFeatures.mkString(", ") + "\n" +
-                "  " + definitionFeatures.size + " potential declarations found:\n" +
-                definitionFeatures.mkString("    declaration features: ", "\n    declaration features: ", "")
+                        "  callsite features: " + callerFeatures.mkString(", ") + "\n" +
+                        "  " + definitionFeatures.size + " potential declarations found:\n" +
+                        definitionFeatures.mkString("    declaration features: ", "\n    declaration features: ", "")
         }
         new ErrorMsg(msg, callerSources, targets)
     }
     override def toString = toError.toString
 }
+
 case class RedefErrorMsg(name: String, newDef: Entry, existingDef: Entry) {
     override def toString =
-      "duplicate definition: '" + name + "'\n" +
-      "  previous features: " + existingDef.feature + "\n" +
-      "  new features:      " + newDef.feature
+        "duplicate definition: '" + name + "'\n" +
+                "  previous features: " + existingDef.feature + "\n" +
+                "  new features:      " + newDef.feature
 }
 
 object ErrorMsgs {

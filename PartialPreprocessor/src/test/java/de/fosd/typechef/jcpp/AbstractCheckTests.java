@@ -1,9 +1,9 @@
 package de.fosd.typechef.jcpp;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.lexer.*;
 import de.fosd.typechef.lexer.macrotable.MacroContext$;
 import junit.framework.Assert;
-import de.fosd.typechef.lexer.*;
 
 import java.io.*;
 import java.net.URISyntaxException;

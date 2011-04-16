@@ -1,4 +1,5 @@
 package de.fosd.typechef.featureexpr
+
 import de.fosd.typechef.featureexpr.LazyLib.Susp
 
 abstract class FeatureProvider {

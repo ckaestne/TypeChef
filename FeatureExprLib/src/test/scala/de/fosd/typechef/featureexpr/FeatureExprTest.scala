@@ -88,9 +88,8 @@ class FeatureExprTest extends TestCase {
     }
 
 
-
     def v(value: Int): FeatureExprValue = createInteger(value)
-    def not(v:FeatureExpr)=v.not
+    def not(v: FeatureExpr) = v.not
     //Leave these as def, not val, maybe (???) to test caching more.
     def a = feature("a")
     def b = feature("b")

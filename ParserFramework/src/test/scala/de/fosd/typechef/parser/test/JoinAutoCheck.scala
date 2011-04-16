@@ -22,7 +22,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
     var fCounter: Int = 0
 
     implicit def arbFeatureExpr: Arbitrary[jt.MultiParseResult[A]] =
-        Arbitrary{
+        Arbitrary {
             def genL: L = {
                 lCounter += 1;
                 L(lCounter)
@@ -102,7 +102,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
             var knownSuccessOffsets: Set[Int] = Set()
             var knownFailureOffsets: Set[Int] = Set()
             val joined = x.join(base, joinV)
-//                        println(x.toList(base).size+" => "+joined.toList(base).size)
+            //                        println(x.toList(base).size+" => "+joined.toList(base).size)
             joined.toList(base).forall(p => {
                 p._2 match {
                     case jt.Success(_, _) => {
@@ -110,8 +110,8 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
                         knownSuccessOffsets += p._2.next.offset;
                         !v
                     }
-                        //we no longer join Failure results
-                    case _ => true/*{
+                    //we no longer join Failure results
+                    case _ => true /*{
                         val v = knownFailureOffsets contains (p._2.next.offset);
                         knownFailureOffsets += p._2.next.offset;
                         !v
@@ -126,9 +126,9 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
         (x: jt.MultiParseResult[A]) =>
             val mBefore: Map[L, FeatureExpr] = collectL(x)
 
-//                        println(x)
+            //                        println(x)
             val joined = x.join(base, joinV)
-//                        println(".")
+            //                        println(".")
 
             mBefore.forall((p: (L, FeatureExpr)) => assertContainsL(joined, p._2, p._1))
     })

@@ -1,7 +1,5 @@
 package de.fosd.typechef.parser.c
-import de.fosd.typechef.parser.MultiFeatureParser
 
-import de.fosd.typechef.parser._
 //import de.fosd.typechef.parser.MultiFeatureParser._
 
 object GrammarAnalyzer {
@@ -61,9 +59,9 @@ object GrammarAnalyzer {
         if (c.isInstanceOf[p.SeqParser[_, _]]) {
             val aa = c.asInstanceOf[p.SeqParser[Any, Any]].a
             return first(aa, newknown, level + 1) ++
-                (if (aa.isInstanceOf[p.RepParser[_]] || aa.isInstanceOf[p.OptParser[_]])
-                    first(c.asInstanceOf[p.SeqParser[Any, Any]].b, newknown, level + 1)
-                else List())
+                    (if (aa.isInstanceOf[p.RepParser[_]] || aa.isInstanceOf[p.OptParser[_]])
+                        first(c.asInstanceOf[p.SeqParser[Any, Any]].b, newknown, level + 1)
+                    else List())
         }
         if (c.isInstanceOf[p.AltParser[_, _]]) {
             return first(c.asInstanceOf[p.AltParser[Any, Any]].a, newknown, level + 1) ++ first(c.asInstanceOf[p.AltParser[Any, Any]].b, newknown, level + 1)

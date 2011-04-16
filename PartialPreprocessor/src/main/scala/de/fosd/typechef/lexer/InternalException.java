@@ -19,14 +19,14 @@ package de.fosd.typechef.lexer;
 
 /**
  * An internal exception.
- *
+ * <p/>
  * This exception is thrown when an internal state violation is
  * encountered. This should never happen. If it ever happens, please
  * report it as a bug.
  */
 @SuppressWarnings("serial")
 public class InternalException extends RuntimeException {
-	public InternalException(String msg) {
-		super(msg);
-	}
+    public InternalException(String msg) {
+        super(msg);
+    }
 }

@@ -1,4 +1,5 @@
 package de.fosd.typechef.parser.java15
+
 import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 
 import de.fosd.typechef.featureexpr.FeatureExpr
@@ -6,8 +7,6 @@ import de.fosd.typechef.parser.java15.lexer._
 import de.fosd.typechef.parser.java15.lexer.Java15ParserConstants._
 import java.io._
 import de.fosd.typechef.parser._
-import scala.collection.mutable.ListBuffer
-
 /**
  * builds on top of a standard lexer (generated as part of CIDE
  * from a gcide grammer (internally using JavaCC))
@@ -108,12 +107,12 @@ object PreprocessorParser extends StandardTokenParsers {
     //ifdef and ifndef
     def pifdef =
         phrase("#" ~> ("ifdef" ~> atomicFeature
-            | "ifndef" ~> atomicFeature ^^ { _.not }
-            | "if" ~> featureExpr))
+                | "ifndef" ~> atomicFeature ^^ {_.not}
+                | "if" ~> featureExpr))
     //elifdef and elifndef
     def pelifdef = phrase("#" ~> ("elifdef" ~> atomicFeature
-        | "elifndef" ~> atomicFeature ^^ { _.not }
-        | "elif" ~> featureExpr))
+            | "elifndef" ~> atomicFeature ^^ {_.not}
+            | "elif" ~> featureExpr))
     def pelse = phrase("#" ~ "else")
     def pendif = phrase("#" ~ "endif")
 
@@ -130,9 +129,9 @@ object PreprocessorParser extends StandardTokenParsers {
     }
     def literal =
         ("(" ~> featureExpr <~ ")" |
-            "!" ~> featureExpr ^^ { _.not }
-            | atomicFeature)
-    def atomicFeature = ident ^^ { FeatureExpr.createDefinedExternal(_) }
+                "!" ~> featureExpr ^^ {_.not}
+                | atomicFeature)
+    def atomicFeature = ident ^^ {FeatureExpr.createDefinedExternal(_)}
 
     def lex(s: String) =
         new lexical.Scanner(s)

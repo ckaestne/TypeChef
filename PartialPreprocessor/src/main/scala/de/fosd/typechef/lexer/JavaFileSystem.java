@@ -24,28 +24,28 @@ import java.io.IOException;
  * A virtual filesystem implementation using java.io.
  */
 public class JavaFileSystem implements VirtualFileSystem {
-	public VirtualFile getFile(String path) {
-		return new JavaFile(path);
-	}
+    public VirtualFile getFile(String path) {
+        return new JavaFile(path);
+    }
 
-	public VirtualFile getFile(String dir, String name) {
-		return new JavaFile(dir, name);
-	}
+    public VirtualFile getFile(String dir, String name) {
+        return new JavaFile(dir, name);
+    }
 
-	@SuppressWarnings("serial")
-	private class JavaFile extends File implements VirtualFile {
-		public JavaFile(String path) {
-			super(path);
-		}
+    @SuppressWarnings("serial")
+    private class JavaFile extends File implements VirtualFile {
+        public JavaFile(String path) {
+            super(path);
+        }
 
-		public JavaFile(String dir, String name) {
-			super(dir, name);
-		}
+        public JavaFile(String dir, String name) {
+            super(dir, name);
+        }
 
-		/* private */
-		public JavaFile(File dir, String name) {
-			super(dir, name);
-		}
+        /* private */
+        public JavaFile(File dir, String name) {
+            super(dir, name);
+        }
 
 /*
 		@Override
@@ -54,28 +54,28 @@ public class JavaFileSystem implements VirtualFileSystem {
 		}
 */
 
-		@Override
-		public JavaFile getParentFile() {
-			String	parent = getParent();
-			if (parent != null)
-				return new JavaFile(parent);
-			File	absolute = getAbsoluteFile();
-			parent = absolute.getParent();
-			/*
-			if (parent == null)
-				return null;
-			*/
-			return new JavaFile(parent);
-		}
+        @Override
+        public JavaFile getParentFile() {
+            String parent = getParent();
+            if (parent != null)
+                return new JavaFile(parent);
+            File absolute = getAbsoluteFile();
+            parent = absolute.getParent();
+            /*
+               if (parent == null)
+                   return null;
+               */
+            return new JavaFile(parent);
+        }
 
-		public JavaFile getChildFile(String name) {
-			return new JavaFile(this, name);
-		}
+        public JavaFile getChildFile(String name) {
+            return new JavaFile(this, name);
+        }
 
-		public Source getSource() throws IOException {
-			return new FileLexerSource(this);
-		}
+        public Source getSource() throws IOException {
+            return new FileLexerSource(this);
+        }
 
-	}
+    }
 
 }

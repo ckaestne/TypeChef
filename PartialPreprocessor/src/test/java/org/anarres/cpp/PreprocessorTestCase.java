@@ -1,18 +1,24 @@
 package org.anarres.cpp;
 
+import de.fosd.typechef.lexer.Feature;
+import de.fosd.typechef.lexer.LexerSource;
+import de.fosd.typechef.lexer.Preprocessor;
+import de.fosd.typechef.lexer.Token;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import de.fosd.typechef.featureexpr.*;
+
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import de.fosd.typechef.lexer.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import static de.fosd.typechef.lexer.Token.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-public class PreprocessorTestCase{
+public class PreprocessorTestCase {
     private OutputStreamWriter writer;
     private Preprocessor p;
 
@@ -134,8 +140,8 @@ public class PreprocessorTestCase{
         testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
 
         testInput("#define FNAME(name) paging##64##_##name\n", NL);
-	testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
-	testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
+        testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
+        testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
 
         testInput("#undef FNAME\n", NL);
         testInput("#undef gpte_to_gfn_lvl\n", NL);

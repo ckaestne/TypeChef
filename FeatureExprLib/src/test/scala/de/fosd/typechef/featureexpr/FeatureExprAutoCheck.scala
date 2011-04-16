@@ -135,8 +135,8 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     property("trueCNFSat") = True.toCNF.isSatisfiable
     property("falseCNFSat") = !(False.toCNF.isSatisfiable())
 
-    property("can_print") = Prop.forAll((a: FeatureExpr) => {a.toTextExpr; a.debug_print(0); true} )
-    property("can_calcSize") = Prop.forAll((a: FeatureExpr) => {a.size; true} )
+    property("can_print") = Prop.forAll((a: FeatureExpr) => {a.toTextExpr; a.debug_print(0); true})
+    property("can_calcSize") = Prop.forAll((a: FeatureExpr) => {a.size; true})
 
 
     //
