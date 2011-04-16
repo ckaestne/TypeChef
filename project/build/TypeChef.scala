@@ -7,16 +7,16 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_) {
         val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.0"
     })
-    lazy val parserexp = project("ParserFramework", "Parser Core", new DefaultSubProject(_), featureexpr)
-    lazy val jcpp = project("PartialPreprocessor", "Partial Preprocessor", new JavaSubProject(_), featureexpr)
+    lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_), featureexpr)
+    lazy val jcpp = project("PartialPreprocessor", "PartialPreprocessor", new JavaSubProject(_), featureexpr)
     lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_), featureexpr, jcpp, parserexp)
     lazy val linuxAnalysis = project("LinuxAnalysis", "LinuxAnalysis", new LinuxAnalysisProject(_), featureexpr, jcpp, cparser, ctypechecker)
     lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_), cparser)
     lazy val javaparser = project("JavaParser", "JavaParser", new DefaultSubProject(_), featureexpr, parserexp)
 
     class DefaultSubProject(info: ProjectInfo) extends DefaultProject(info) with ScctProject with IdeaProject {
-        val junit = "junit" % "junit" % "4.8.2" % "test->default"
-        val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
+        val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test->default"
+        override def testOptions = super.testOptions ++ Seq(TestArgument(TestFrameworks.JUnit, "-q", "-v"))
         val scalacheck = "org.scala-tools.testing" % "scalacheck_2.8.1" % "1.8" % "test->default"
         def junitXmlListener: TestReportListener = new JUnitXmlTestsListener(outputPath.toString)
         override def testListeners: Seq[TestReportListener] = super.testListeners ++ Seq(junitXmlListener)
