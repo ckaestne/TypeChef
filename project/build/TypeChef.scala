@@ -1,24 +1,28 @@
 import sbt._
 import reaktor.scct.ScctProject
+import eu.henkelmann.sbt.JUnitXmlTestsListener
 
 class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
-    val junit = "junit" % "junit" % "4.8.2" % "test->default"
-    val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
-    val scalacheck = "org.scala-tools.testing" % "scalacheck_2.8.1" % "1.8" % "test->default"
 
-    lazy val sat4j = project("org.sat4j.core", "sat4j", new JavaSubProject(_))
-    lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_), sat4j)
-    lazy val parserexp = project("ParserFramework", "Parser Core", new DefaultSubProject(_), featureexpr)
-    lazy val jcpp = project("PartialPreprocessor", "Partial Preprocessor", new JavaSubProject(_), featureexpr)
+    lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_) {
+        val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.0"
+    })
+    lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_), featureexpr)
+    lazy val jcpp = project("PartialPreprocessor", "PartialPreprocessor", new JavaSubProject(_), featureexpr)
     lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_), featureexpr, jcpp, parserexp)
     lazy val linuxAnalysis = project("LinuxAnalysis", "LinuxAnalysis", new LinuxAnalysisProject(_), featureexpr, jcpp, cparser, ctypechecker)
-    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_), cparser)
+    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_){
+		val kiama = "com.googlecode" %% "kiama" % "1.0.2"
+	}, cparser)
     lazy val javaparser = project("JavaParser", "JavaParser", new DefaultSubProject(_), featureexpr, parserexp)
 
     class DefaultSubProject(info: ProjectInfo) extends DefaultProject(info) with ScctProject with IdeaProject {
-        val junit = "junit" % "junit" % "4.8.2" % "test->default"
-        val junitInterface = "com.novocode" % "junit-interface" % "0.5" % "test->default"
+        val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test->default"
+        override def testOptions = super.testOptions ++ Seq(TestArgument(TestFrameworks.JUnit, "-q", "-v"))
         val scalacheck = "org.scala-tools.testing" % "scalacheck_2.8.1" % "1.8" % "test->default"
+        def junitXmlListener: TestReportListener = new JUnitXmlTestsListener(outputPath.toString)
+        override def testListeners: Seq[TestReportListener] = super.testListeners ++ Seq(junitXmlListener)
+
         override def javaCompileOptions = super.javaCompileOptions ++ javaCompileOptions("-source", "1.5", "-Xlint:unchecked")
         override def compileOptions = super.compileOptions ++ Seq(Unchecked,
             Deprecation, ExplainTypes, Optimize)
@@ -30,7 +34,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         lazy val processFileList = runTask("de.fosd.typechef.linux.ProcessFileList")
         lazy val stats = runTask("de.fosd.typechef.linux.Stats")
         lazy val pcppStats = runTask("de.fosd.typechef.linux.PCPPStats")
-        lazy val linuxDependencyAnalysis = runTask("de.fosd.typechef.linux.LinuxDependencyAnalysis")
+        lazy val web = runTask("de.fosd.typechef.linux.WebFrontend")
     }
 
 

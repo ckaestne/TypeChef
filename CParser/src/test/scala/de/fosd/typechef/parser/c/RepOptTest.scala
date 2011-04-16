@@ -131,7 +131,7 @@ typedef long y;
         ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
-        assert(ast.size == 10)
+        assert(ast.size == 9) //and one internal choice node
     }
 
     def testRepOptMultiFeatureOverlap6_linux() {
@@ -393,7 +393,7 @@ typedef int b;
         var result: List[Opt[ExternalDef]] = List()
         for (e <- optList.reverse) {
             e.entry match {
-                case AltDeclaration(f, a, b) =>
+                case AltExternalDef(f, a, b) =>
                     result = flatten(List(Opt(e.feature and f, a))) ++ flatten(List(Opt(e.feature and (f.not), b))) ++ result;
                 case _ =>
                     result = e :: result;

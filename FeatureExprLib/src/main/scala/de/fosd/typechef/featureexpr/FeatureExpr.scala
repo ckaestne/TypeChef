@@ -9,7 +9,11 @@ import scala.ref.WeakReference
 import java.io.Writer
 
 /**
- * External interface for construction of non-boolean feature expressions (mostly delegated to FExprBuilder)
+ * External interface for construction of non-boolean feature expressions
+ * (mostly delegated to FExprBuilder)
+ *
+ * Also provides access to the primitives base and dead (for true and false)
+ * and allows to create DefinedExternal nodes
  */
 object FeatureExpr extends FeatureExprValueOps {
 
@@ -150,13 +154,11 @@ sealed abstract class FeatureExpr {
      */
     def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(toCnfEquiSat, fm))
 
-    //    def accept(f: FeatureExpr => Unit): Unit
-
     /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.
      * The default implementation checks for pointer equality.
      */
-    def equal1Level(that: FeatureExpr) = this eq that
+    private[featureexpr] def equal1Level(that: FeatureExpr) = this eq that
 
     final override def equals(that: Any) = super.equals(that)
 
@@ -173,14 +175,27 @@ sealed abstract class FeatureExpr {
      * overhead)
      */
     def equivalentTo(that: FeatureExpr): Boolean = (this eq that) || (this equiv that).isTautology();
-    def equivalentTo(that: FeatureExpr, fm:FeatureModel): Boolean = (this eq that) || (this equiv that).isTautology(fm);
+    def equivalentTo(that: FeatureExpr, fm: FeatureModel): Boolean = (this eq that) || (this equiv that).isTautology(fm);
 
     protected def indent(level: Int): String = "\t" * level
 
     final lazy val size: Int = calcSize
     protected def calcSize: Int
+
+    /**
+     * heuristic to determine whether a feature expression is small
+     * (may be used to decide whether to inline it or not)
+     *
+     * use with care
+     */
     def isSmall(): Boolean = size <= 10
 
+    /**
+     * replaces all DefinedMacro tokens by their full expansion.
+     *
+     * the resulting feature expression contains only DefinedExternal nodes as leafs
+     * and can be printed and read again
+     */
     lazy val resolveToExternal: FeatureExpr = FExprBuilder.resolveToExternal(this)
 
     /**
@@ -203,6 +218,9 @@ sealed abstract class FeatureExpr {
         }
     }
 
+    /**
+     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
+     */
     def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
 
     /**
@@ -221,6 +239,11 @@ sealed abstract class FeatureExpr {
     private var cache_cnf: FeatureExpr = null
     private var cache_cnfEquiSat: FeatureExpr = null
 
+    /**
+     * creates an equivalent feature expression in CNF
+     *
+     * be aware of exponential explosion. consider using toCnfEquiSat instead if possible
+     */
     def toCNF(): FeatureExpr = {
         if (cache_cnf == null) {cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf}
         assert(CNFHelper.isCNF(cache_cnf))
@@ -229,6 +252,14 @@ sealed abstract class FeatureExpr {
         //cache_cnfEquiSat.cache_cnfEquiSat = cache_cnf
         cache_cnf
     }
+    /**
+     * creates an equisatisfiable feature expression in CNF
+     *
+     * the result is not equivalent but will yield the same result
+     * in satisifiability tests with SAT solvers
+     *
+     * the algorithm introduces new variables and is faster than toCNF
+     */
     def toCnfEquiSat(): FeatureExpr = {
         if (cache_cnfEquiSat == null) cache_cnfEquiSat = calcCNFEquiSat
         assert(CNFHelper.isCNF(cache_cnfEquiSat))
@@ -258,13 +289,21 @@ sealed abstract class FeatureExpr {
         case _ => null
     }
 
+    /**
+     * simple translation into a FeatureExprValue if needed for some reason
+     * (creates IF(expr, 1, 0))
+     */
     def toFeatureExprValue: FeatureExprValue =
         FExprBuilder.createIf(this, FExprBuilder.createValue(1), FExprBuilder.createValue(0))
 
     // This field keeps the wrapper referenced in a reference cycle, so that the lifecycle of this object and the wrapper match.
     // This is crucial to use the wrapper in a WeakHashMap!
-    val wrap = FeatureExpr.StructuralEqualityWrapper(this)
+    private[featureexpr] val wrap = FeatureExpr.StructuralEqualityWrapper(this)
 
+    /**
+     * helper function for statistics and such that determines which
+     * features are involved in this feature expression
+     */
     def collectDistinctFeatures: Set[DefinedExternal] = {
         var result: Set[DefinedExternal] = Set()
         this.mapDefinedExpr(_ match {
@@ -273,6 +312,10 @@ sealed abstract class FeatureExpr {
         }, Map())
         result
     }
+    /**
+     * counts the number of features in this expression for statistic
+     * purposes
+     */
     def countDistinctFeatures: Int = collectDistinctFeatures.size
 }
 
@@ -662,9 +705,6 @@ private[featureexpr] object FExprBuilder {
  * apply methods of the And and Or companion objects, which convert any empty set of
  * clauses into the canonical True or False object.
  */
-
-trait DefaultPrint extends FeatureExpr {override def print(p: Writer) = p.write(toTextExpr)}
-
 object True extends And(Set()) with DefaultPrint {
     override def toString = "True"
     override def toTextExpr = "1"
@@ -678,6 +718,8 @@ object False extends Or(Set()) with DefaultPrint {
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
 }
+
+trait DefaultPrint extends FeatureExpr {override def print(p: Writer) = p.write(toTextExpr)}
 
 //The class name means And/Or (Un)Extractor.
 abstract class AndOrUnExtractor[This <: BinaryLogicConnective[This]] {
@@ -799,8 +841,8 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
     override def operName = "&"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createAnd(clauses)
 
-    protected def calcCNF: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
-    protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
+    override protected def calcCNF: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
+    override protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
 }
 
 private[featureexpr]
@@ -815,9 +857,9 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
     override def operName = "|"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createOr(clauses)
 
-    protected def calcCNF: FeatureExpr =
+    override protected def calcCNF: FeatureExpr =
         combineCNF(clauses.map(_.toCNF))
-    protected def calcCNFEquiSat: FeatureExpr = {
+    override protected def calcCNFEquiSat: FeatureExpr = {
         val cnfchildren = clauses.map(_.toCnfEquiSat)
         //XXX: There is no need to estimate the size this way, we could maybe
         //use the more precise size method. However, possibly this is the
@@ -928,13 +970,13 @@ class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
         val newExpr = expr.mapDefinedExpr(f, cache)
         if (newExpr != expr) FExprBuilder.not(newExpr) else this
     })
-    protected def calcCNF: FeatureExpr = expr match {
+    override protected def calcCNF: FeatureExpr = expr match {
         case And(children) => FExprBuilder.createOr(children.map(_.not.toCNF)).toCNF
         case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCNF))
         case e => this
     }
 
-    protected def calcCNFEquiSat: FeatureExpr = expr match {
+    override protected def calcCNFEquiSat: FeatureExpr = expr match {
         case And(children) => FExprBuilder.createOr(children.map(_.not.toCnfEquiSat())).toCnfEquiSat()
         case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCnfEquiSat()))
         case e => this
@@ -948,9 +990,9 @@ object Not {
 }
 
 /**
- * Leaf nodes of propositional feature expressions
+ * Leaf nodes of propositional feature expressions, either an external
+ * feature defined by the user or another feature expression from a macro.
  */
-
 abstract class DefinedExpr extends FeatureExpr {
     /*
      * This method is overriden by children case classes to return the name.
@@ -978,7 +1020,9 @@ object DefinedExpr {
     def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "")
 }
 
-/**external definition of a feature (cannot be decided to Base or Dead inside this file) */
+/**
+ * external definition of a feature (cannot be decided to Base or Dead inside this file)
+ */
 class DefinedExternal(name: String) extends DefinedExpr {
     DefinedExpr.checkFeatureName(name)
 

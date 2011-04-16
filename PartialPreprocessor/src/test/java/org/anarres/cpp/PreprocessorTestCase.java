@@ -1,16 +1,28 @@
 package org.anarres.cpp;
 
+import de.fosd.typechef.lexer.Feature;
+import de.fosd.typechef.lexer.LexerSource;
+import de.fosd.typechef.lexer.Preprocessor;
+import de.fosd.typechef.lexer.Token;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import de.fosd.typechef.featureexpr.*;
+
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import static org.anarres.cpp.Token.*;
+import static de.fosd.typechef.lexer.Token.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-public class PreprocessorTestCase extends BaseTestCase {
+public class PreprocessorTestCase {
     private OutputStreamWriter writer;
     private Preprocessor p;
 
+    @Before
     public void setUp() throws Exception {
         final PipedOutputStream po = new PipedOutputStream();
         writer = new OutputStreamWriter(po);
@@ -46,7 +58,7 @@ public class PreprocessorTestCase extends BaseTestCase {
       * so you won't see an immediate NL at the end of any input line. You will
       * see it right before the next nonblank on the following input line.
       */
-
+    @Test
     public void testPreprocessor() throws Exception {
         /* Magic macros */
         testInput("line = __LINE__\n", I("line"), WHITESPACE, '=', WHITESPACE,
@@ -128,8 +140,8 @@ public class PreprocessorTestCase extends BaseTestCase {
         testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
 
         testInput("#define FNAME(name) paging##64##_##name\n", NL);
-	testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
-	testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
+        testInput("#define gpte_to_gfn_lvl FNAME(gpte_to_gfn_lvl)\n", NL);
+        testInput("gpte_to_gfn_lvl\n", NL, I("paging64_gpte_to_gfn_lvl"));
 
         testInput("#undef FNAME\n", NL);
         testInput("#undef gpte_to_gfn_lvl\n", NL);
@@ -174,12 +186,12 @@ public class PreprocessorTestCase extends BaseTestCase {
             //Flush the remaining NL
             testInput("", NL);
             fail("expected exception");
-        } catch (org.anarres.cpp.LexerException e) {
+        } catch (de.fosd.typechef.lexer.LexerException e) {
             //expected
         }
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         writer.close();
 

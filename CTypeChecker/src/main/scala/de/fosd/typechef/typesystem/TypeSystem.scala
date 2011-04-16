@@ -46,10 +46,14 @@ class TypeSystem(featureModel: FeatureModel = null) {
         declareBuiltins()
         ast.accept(new TSVisitor())
         dbgPrintln(table)
-        println("(performed " + functionCallChecks + " checks)");
-        println("Type Errors: ");
-        println(functionCallErrorMessages.values.mkString("\n"))
-        println(functionRedefinitionErrorMessages.mkString("\n"))
+        if (functionCallErrorMessages.values.isEmpty && functionRedefinitionErrorMessages.isEmpty)
+            println("No type errors found.")
+        else {
+            println("Type Errors: ");
+            println(functionCallErrorMessages.values.mkString("\n"))
+            println(functionRedefinitionErrorMessages.mkString("\n"))
+        }
+        println("(performed " + functionCallChecks + " checks regarding function calls)");
     }
 
     class TSVisitor extends ASTVisitor {
@@ -95,7 +99,7 @@ class TypeSystem(featureModel: FeatureModel = null) {
             //condition: feature implies (target1 or target2 ...)
             functionCallChecks += 1
             val condition = callerFeature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
-            if (condition.isTautology(featureModel)) {
+            if (condition.isTautology(null) || condition.isTautology(featureModel)) {
                 dbgPrintln(" always reachable " + condition)
                 None
             } else {

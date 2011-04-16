@@ -15,7 +15,7 @@ import gnu.getopt.LongOpt
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
-import org.anarres.cpp.{Token, Main}
+import de.fosd.typechef.lexer._
 
 object LinuxPreprocessorFrontend {
 
@@ -154,7 +154,7 @@ object LinuxPreprocessorFrontend {
     def getFeatureModel(cfilename: String): FeatureModel = {
         val featureModelFile = new File(cfilename + ".fm")
         val featureExpr = if (featureModelFile.exists) loadFeatureModel(featureModelFile) else FeatureExpr.base
-println(cfilename+" FM "+featureExpr)
+        println(cfilename + " FM " + featureExpr)
         LinuxFeatureModel.featureModelApprox.and(featureExpr)
     }
 

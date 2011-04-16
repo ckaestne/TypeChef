@@ -20,7 +20,7 @@ class CParserTest2 extends TestCase {
                 //succeed
             }
             case p.NoSuccess(msg, unparsed, inner) =>
-                fail(msg + " at " + unparsed  + " " + inner)
+                fail(msg + " at " + unparsed + " " + inner)
         }
     }
 

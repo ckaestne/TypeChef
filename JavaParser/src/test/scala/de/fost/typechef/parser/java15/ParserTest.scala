@@ -1,5 +1,4 @@
 package de.fost.typechef.parser.java15
-import de.fosd.typechef.parser.java15.PreprocessorException
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 

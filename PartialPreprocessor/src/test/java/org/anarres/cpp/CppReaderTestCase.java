@@ -1,35 +1,41 @@
 package org.anarres.cpp;
 
+import de.fosd.typechef.lexer.CppReader;
+import de.fosd.typechef.lexer.Feature;
+import org.junit.Test;
+import de.fosd.typechef.featureexpr.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.StringReader;
 import java.util.Collections;
 
-import java.io.StringReader;
-import java.io.BufferedReader;
+public class CppReaderTestCase {
 
-import junit.framework.Test;
+    private void testCppReader(String in, String out)
+            throws Exception {
+        System.out.println("Testing " + in + " => " + out);
+        StringReader r = new StringReader(in);
+        CppReader p = new CppReader(r);
+        p.getPreprocessor().setSystemIncludePath(
+                Collections.singletonList(
+                        new File(this.getClass().getResource("/input").toURI()).getAbsolutePath())
+        );
+        p.getPreprocessor().getFeatures().add(Feature.LINEMARKERS);
+        BufferedReader b = new BufferedReader(p);
 
-public class CppReaderTestCase extends BaseTestCase implements Test {
+        String line;
+        while ((line = b.readLine()) != null) {
+            System.out.println(" >> " + line);
+        }
+    }
 
-	private void testCppReader(String in, String out)
-						throws Exception {
-		System.out.println("Testing " + in + " => " + out);
-		StringReader	r = new StringReader(in);
-		CppReader		p = new CppReader(r);
-		p.getPreprocessor().setSystemIncludePath(
-				Collections.singletonList("src/input")
-					);
-		p.getPreprocessor().getFeatures().add(Feature.LINEMARKERS);
-		BufferedReader	b = new BufferedReader(p);
+    @Test
+    public void testCppReader()
+            throws Exception {
+        testCppReader("#include <test0.h>\n", "ab");
+    }
 
-		String	line;
-		while ((line = b.readLine()) != null) {
-			System.out.println(" >> " + line);
-		}
-	}
-
-	public void ignoreChK_testCppReader()
-						throws Exception {
-		testCppReader("#include <test0.h>\n", "ab");
-	}
-
-	public void testNone(){}
+    @Test
+    public void testNone() {}
 }
