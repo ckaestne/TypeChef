@@ -1,10 +1,16 @@
-package de.fosd.typechef.lexer;
+package org.anarres.cpp;
+
+import de.fosd.typechef.lexer.*;
+import junit.framework.TestCase;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.*;
 
 import static de.fosd.typechef.lexer.Token.*;
+import static org.junit.Assert.*;
 
-public class ErrorTestCase extends BaseTestCase {
+public class ErrorTestCase  {
 
 	private boolean testError(Preprocessor p)
 						throws LexerException,
@@ -55,11 +61,13 @@ public class ErrorTestCase extends BaseTestCase {
 		assertTrue(testError(p));
 	}
 
-	public void ignoreChK_testErrors() throws Exception {
+    @Test@Ignore
+	public void testErrors() throws Exception {
 		testError("\"");
 		testError("'");
 		testError("''");
 	}
+    @Test
 	public void testNone(){}
 
 }

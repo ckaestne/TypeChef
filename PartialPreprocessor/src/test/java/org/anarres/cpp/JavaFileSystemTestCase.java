@@ -1,9 +1,13 @@
-package de.fosd.typechef.lexer;
+package org.anarres.cpp;
 
 import java.io.FileNotFoundException;
+import de.fosd.typechef.lexer.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class JavaFileSystemTestCase extends BaseTestCase {
+public class JavaFileSystemTestCase  {
 
+    @Test
 	public void testJavaFileSystem() throws Exception {
 		JavaFileSystem	fs = new JavaFileSystem();
 		VirtualFile		f;

@@ -1,12 +1,14 @@
-package de.fosd.typechef.lexer;
+package org.anarres.cpp;
 
 import java.util.Arrays;
 
-import junit.framework.Test;
-
 import static de.fosd.typechef.lexer.Token.*;
 
-public class LexerSourceTestCase extends BaseTestCase implements Test {
+import de.fosd.typechef.lexer.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class LexerSourceTestCase {
 
 	private void testLexerSource(String in, int... out)
 						throws Exception {
@@ -22,6 +24,7 @@ public class LexerSourceTestCase extends BaseTestCase implements Test {
 		assertEquals(EOF, s.token().getType());
 	}
 
+    @Test
 	public void testLexerSource()
 						throws Exception {
 

@@ -18,10 +18,6 @@ public class AbstractCheckTests {
         super();
     }
 
-    protected void testFile(String filename) throws LexerException, IOException {
-        testFile(filename, false);
-    }
-
     /**
      * parses a file and checks the result against the results specified in the
      * filename.check file
@@ -30,7 +26,15 @@ public class AbstractCheckTests {
      * @throws LexerException
      * @throws IOException
      */
-    private void testFile(String filename, boolean debug)
+    protected void testFile(String filename) throws LexerException, IOException {
+        testFile(filename, false);
+    }
+
+
+    protected void testFile(String filename, boolean debug) throws LexerException, IOException {
+        testFile(filename, debug, false);
+    }
+    protected void testFile(String filename, boolean debug, boolean ignoreWarning)
             throws LexerException, IOException {
         String folder = "tc_data/";
 
@@ -47,7 +51,7 @@ public class AbstractCheckTests {
             //getResource() returns an URL containing escapes. toURI().getPath() is needed to unescape them.
             //Otherwise one gets a path where, e.g., spaces are represented by %20!
             output = parse(new FileLexerSource(inputStream, folder + filename),
-                    debug, getClass().getResource("/" + folder).toURI().getPath());
+                    debug, getClass().getResource("/" + folder).toURI().getPath(), ignoreWarning);
         } catch (LexerException e) {
             ex = e;
             error = "ERROR: " + e.toString();
@@ -64,7 +68,7 @@ public class AbstractCheckTests {
 
     protected String parseCodeFragment(String code) throws LexerException,
             IOException {
-        return serialize(parse(new StringLexerSource(code, true), false, null));
+        return serialize(parse(new StringLexerSource(code, true), false, null, false));
     }
 
     private boolean check(String filename, String folder,
@@ -177,7 +181,7 @@ public class AbstractCheckTests {
             pp.debugWriteMacros();
     }
 
-    private List<Token> parse(Source source, boolean debug, String folder)
+    private List<Token> parse(Source source, boolean debug, String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
         // XXX Why here? And isn't the whole thing duplicated from elsewhere?
         MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
@@ -193,8 +197,9 @@ public class AbstractCheckTests {
             public void handleWarning(Source source, int line, int column,
                                       String msg) throws LexerException {
                 super.handleWarning(source, line, column, msg);
-                throw new LexerException(msg + " " + source + ":" + line + ":"
-                        + column);
+                if (!ignoreWarnings)
+                    throw new LexerException(msg + " " + source + ":" + line + ":"
+                            + column);
             }
         });
         pp.addMacro("__JCPP__", FeatureExprLib.base());

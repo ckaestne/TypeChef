@@ -1,16 +1,22 @@
-package de.fosd.typechef.lexer;
+package org.anarres.cpp;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import de.fosd.typechef.lexer.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static de.fosd.typechef.lexer.Token.*;
+import static org.junit.Assert.*;
 
-public class PreprocessorTestCase extends BaseTestCase {
+public class PreprocessorTestCase{
     private OutputStreamWriter writer;
     private Preprocessor p;
 
+    @Before
     public void setUp() throws Exception {
         final PipedOutputStream po = new PipedOutputStream();
         writer = new OutputStreamWriter(po);
@@ -46,7 +52,7 @@ public class PreprocessorTestCase extends BaseTestCase {
       * so you won't see an immediate NL at the end of any input line. You will
       * see it right before the next nonblank on the following input line.
       */
-
+    @Test
     public void testPreprocessor() throws Exception {
         /* Magic macros */
         testInput("line = __LINE__\n", I("line"), WHITESPACE, '=', WHITESPACE,
@@ -179,7 +185,7 @@ public class PreprocessorTestCase extends BaseTestCase {
         }
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         writer.close();
 

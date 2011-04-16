@@ -1,10 +1,12 @@
-package de.fosd.typechef.lexer;
+package org.anarres.cpp;
 
 import java.io.StringReader;
 
-import junit.framework.Test;
+import de.fosd.typechef.lexer.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class JoinReaderTestCase extends BaseTestCase implements Test {
+public class JoinReaderTestCase {
 
 	private void testJoinReader(String in, String out, boolean tg)
 						throws Exception {
@@ -27,6 +29,7 @@ public class JoinReaderTestCase extends BaseTestCase implements Test {
 		testJoinReader(in, out, false);
 	}
 
+    @Test
 	public void testJoinReader()
 						throws Exception {
 		testJoinReader("ab", "ab");

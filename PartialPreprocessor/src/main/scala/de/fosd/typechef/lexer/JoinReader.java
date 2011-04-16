@@ -26,7 +26,7 @@ package de.fosd.typechef.lexer;
 import java.io.IOException;
 import java.io.Reader;
 
-/* pp */ class JoinReader /* extends Reader */ {
+/* pp */ public class JoinReader /* extends Reader */ {
     private Reader in;
 
     @SuppressWarnings("all")
