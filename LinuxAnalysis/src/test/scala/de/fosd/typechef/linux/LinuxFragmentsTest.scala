@@ -1,12 +1,12 @@
 package de.fosd.typechef.linux
 
-import junit.framework._;
-import junit.framework.Assert._
+import org.junit._;
+import org.junit.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.parser.c._
 
-class LinuxFragmentsTest extends TestCase {
+class LinuxFragmentsTest {
     val p = new CParser(LinuxFeatureModel.featureModelApprox)
 
     case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr {
@@ -110,13 +110,14 @@ class LinuxFragmentsTest extends TestCase {
     //        """, p.phrase(p.translationUnit))
 
 
+    @Test
     def testLinux_ptrace = assertParseable(
         """static char vmac_string[128] = {'\x01', '\x01', '\x01', '\x01',
                                 '\x02', '\x03', '\x02', '\x02',
                                 '\x02', '\x04', '\x01', '\x07',
                                 '\x04', '\x01', '\x04', '\x03',};""", p.phrase(p.translationUnit))
 
-
+    @Test
     def testLinux_mmu = {
         assertParseable("""return (gpte & ((((1ULL << 52) - 1) & ~(u64)(((1UL) << 12)-1)) & ~((1ULL << (12 + (((lvl) - 1) * 9))) - 1))) >> 12;""", p.phrase(p.statement))
         assertParseable(
@@ -127,6 +128,7 @@ class LinuxFragmentsTest extends TestCase {
             }""", p.phrase(p.translationUnit))
     }
 
+    @Test
     def testLinux2 {
         assertParseable(
             """  __builtin_type *""", p.phrase(p.typeName))
@@ -138,9 +140,7 @@ class LinuxFragmentsTest extends TestCase {
             """    string = __builtin_va_arg(ap,__builtin_type *);""", p.phrase(p.statement))
     }
 
-    def testLinux3 {
-    }
-
+    @Test
     def testLinux4 {
         assertParseable("""(__builtin_constant_p((6)) ? __constant_memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)) : __memcpy3d((&mesg->content.normal.mac_addr), (mac_addr), (6)));""", p.phrase(p.statement))
         assertParseable("""__memcpy((&mesg->content.normal.mac_addr), (mac_addr), (6));""", p.phrase(p.statement))
@@ -148,6 +148,7 @@ class LinuxFragmentsTest extends TestCase {
 
     }
 
+    @Test
     def testLinux4b {
         assertParseable("""	if (mac_addr)
 
@@ -167,6 +168,7 @@ __memcpy((&mesg->content.normal.mac_addr), (mac_addr), (6))
 
     }
 
+    @Test
     def testLinux4c =
         assertParseable("""/*
  * LANE2: new argument struct sk_buff *data contains
@@ -245,6 +247,7 @@ do { static struct _ddebug descriptor __attribute__((__used__)) __attribute__((s
 }""", p.phrase(p.translationUnit))
 
 
+    @Test
     def testLinux5 = assertParseable(
         """void foo(){
         return 0;
@@ -252,6 +255,7 @@ nla_put_failure: __attribute__ ((unused))
         return -1;
 }""", p.phrase(p.translationUnit))
 
+    @Test
     def testLinux6 = assertParseable(
         """
 #if definedEx(CONFIG_DEBUG_FORCE_WEAK_PER_CPU)extern __attribute__((section(".discard"), unused)) char __pcpu_scope_this_cpu_off; extern __attribute__((section(#if definedEx(CONFIG_SMP)
