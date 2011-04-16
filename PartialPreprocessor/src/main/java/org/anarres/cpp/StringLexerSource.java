@@ -1,4 +1,10 @@
 /*
+ * TypeChef Variability-Aware Lexer.
+ * Copyright 2010-2011, Christian Kaestner, Paolo Giarrusso
+ * Licensed under GPL 3.0
+ *
+ * built on top of
+ *
  * Anarres C Preprocessor
  * Copyright (c) 2007-2008, Shevek
  *
@@ -22,49 +28,48 @@ import java.io.StringReader;
 
 /**
  * A Source for lexing a String.
- *
+ * <p/>
  * This class is used by token pasting, but can be used by user
  * code.
  */
 public class StringLexerSource extends LexerSource {
 
 
+    private String string;
 
-	private String string;
+    /**
+     * Creates a new Source for lexing the given String.
+     *
+     * @param ppvalid true if preprocessor directives are to be
+     *                honoured within the string.
+     */
+    public StringLexerSource(String string, boolean ppvalid)
+            throws IOException {
+        super(new StringReader(string), ppvalid);
+        this.string = string;
+    }
 
-	/**
-	 * Creates a new Source for lexing the given String.
-	 *
-	 * @param ppvalid true if preprocessor directives are to be
-	 *	honoured within the string.
-	 */
-	public StringLexerSource(String string, boolean ppvalid)
-						throws IOException {
-		super(new StringReader(string), ppvalid);
-		this.string=string;
-	}
+    /**
+     * Creates a new Source for lexing the given String.
+     * <p/>
+     * By default, preprocessor directives are not honoured within
+     * the string.
+     */
+    public StringLexerSource(String string)
+            throws IOException {
+        this(string, false);
+    }
 
-	/**
-	 * Creates a new Source for lexing the given String.
-	 *
-	 * By default, preprocessor directives are not honoured within
-	 * the string.
-	 */
-	public StringLexerSource(String string)
-						throws IOException {
-		this(string, false);
-	}
+    public String toString() {
+        return "string literal: " + string;
+    }
 
-	public String toString() {
-		return "string literal: "+string;
-	}
+    @Override
+    String debug_getContent() {
+        return string;
+    }
 
-	@Override
-	String debug_getContent() {
-		return string;
-	}
-
-	public String getName(){
-		return "string input";
-	}
+    public String getName() {
+        return "string input";
+    }
 }

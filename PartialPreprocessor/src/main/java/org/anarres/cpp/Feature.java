@@ -1,4 +1,10 @@
 /*
+ * TypeChef Variability-Aware Lexer.
+ * Copyright 2010-2011, Christian Kaestner, Paolo Giarrusso
+ * Licensed under GPL 3.0
+ *
+ * built on top of
+ *
  * Anarres C Preprocessor
  * Copyright (c) 2007-2008, Shevek
  *
@@ -21,23 +27,37 @@ package org.anarres.cpp;
  * Features of the Preprocessor, which may be enabled or disabled.
  */
 public enum Feature {
-	/** Supports ANSI digraphs. */
-	DIGRAPHS,
-	/** Supports ANSI trigraphs. */
-	TRIGRAPHS,
-	/** Outputs linemarker tokens. */
-	LINEMARKERS,
-	/** Reports tokens of type INVALID as errors. */
-	CSYNTAX,
-	/** Preserves comments in the lexed output. */
-	KEEPCOMMENTS,
-	/** Preserves comments in the lexed output, even when inactive. */
-	KEEPALLCOMMENTS,
-	VERBOSE,
-	DEBUG,
+    /**
+     * Supports ANSI digraphs.
+     */
+    DIGRAPHS,
+    /**
+     * Supports ANSI trigraphs.
+     */
+    TRIGRAPHS,
+    /**
+     * Outputs linemarker tokens.
+     */
+    LINEMARKERS,
+    /**
+     * Reports tokens of type INVALID as errors.
+     */
+    CSYNTAX,
+    /**
+     * Preserves comments in the lexed output.
+     */
+    KEEPCOMMENTS,
+    /**
+     * Preserves comments in the lexed output, even when inactive.
+     */
+    KEEPALLCOMMENTS,
+    VERBOSE,
+    DEBUG,
 
-	/** Supports lexing of objective-C. */
-	OBJCSYNTAX,
-	INCLUDENEXT,
-	GNUCEXTENSIONS
+    /**
+     * Supports lexing of objective-C.
+     */
+    OBJCSYNTAX,
+    INCLUDENEXT,
+    GNUCEXTENSIONS
 }

@@ -1,4 +1,10 @@
 /*
+ * TypeChef Variability-Aware Lexer.
+ * Copyright 2010-2011, Christian Kaestner, Paolo Giarrusso
+ * Licensed under GPL 3.0
+ *
+ * built on top of
+ *
  * Anarres C Preprocessor
  * Copyright (c) 2007-2008, Shevek
  *
@@ -22,55 +28,55 @@ import java.util.Arrays;
 import java.util.List;
 
 /* pp */class FixedTokenSource extends Source {
-	private static final Token EOF = new SimpleToken(Token.EOF, "<ts-eof>", null);
+    private static final Token EOF = new SimpleToken(Token.EOF, "<ts-eof>", null);
 
-	private List<Token> tokens;
-	private int idx;
+    private List<Token> tokens;
+    private int idx;
 
-	/* pp */FixedTokenSource(Token... tokens) {
-		this.tokens = Arrays.asList(tokens);
-		this.idx = 0;
-	}
+    /* pp */FixedTokenSource(Token... tokens) {
+        this.tokens = Arrays.asList(tokens);
+        this.idx = 0;
+    }
 
-	/* pp */FixedTokenSource(List<Token> tokens) {
-		this.tokens = tokens;
-		this.idx = 0;
-	}
+    /* pp */FixedTokenSource(List<Token> tokens) {
+        this.tokens = tokens;
+        this.idx = 0;
+    }
 
-	public Token token() throws IOException, LexerException {
-		if (idx >= tokens.size())
-			return EOF;
-		return tokens.get(idx++);
-	}
+    public Token token() throws IOException, LexerException {
+        if (idx >= tokens.size())
+            return EOF;
+        return tokens.get(idx++);
+    }
 
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
-		buf.append("constant token stream " + tokens);
-		Source parent = getParent();
-		if (parent != null)
-			buf.append(" in ").append(String.valueOf(parent));
-		return buf.toString();
-	}
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append("constant token stream " + tokens);
+        Source parent = getParent();
+        if (parent != null)
+            buf.append(" in ").append(String.valueOf(parent));
+        return buf.toString();
+    }
 
-	@Override
-	String debug_getContent() {
-		return tokens.toString();
-	}
+    @Override
+    String debug_getContent() {
+        return tokens.toString();
+    }
 }
 
 /* pp */class FixedUnexpandingTokenSource extends FixedTokenSource {
-	private String macroName;
+    private String macroName;
 
-	FixedUnexpandingTokenSource(List<Token> tokens, String macroName) {
-		super(tokens);
-		this.macroName = macroName;
-	}
+    FixedUnexpandingTokenSource(List<Token> tokens, String macroName) {
+        super(tokens);
+        this.macroName = macroName;
+    }
 
-	@Override
-	boolean mayExpand(String macroName) {
-		if (macroName.equals(this.macroName))
-			return false;// already expanding this macro
+    @Override
+    boolean mayExpand(String macroName) {
+        if (macroName.equals(this.macroName))
+            return false;// already expanding this macro
 
-		return super.mayExpand(macroName);
-	}
+        return super.mayExpand(macroName);
+    }
 }

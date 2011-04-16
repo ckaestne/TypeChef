@@ -1,4 +1,10 @@
 /*
+ * TypeChef Variability-Aware Lexer.
+ * Copyright 2010-2011, Christian Kaestner, Paolo Giarrusso
+ * Licensed under GPL 3.0
+ *
+ * built on top of
+ *
  * Anarres C Preprocessor
  * Copyright (c) 2007-2008, Shevek
  *
@@ -21,23 +27,23 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
  * A preprocessor exception.
- *
+ * <p/>
  * Note to users: I don't really like the name of this class. S.
  */
 @SuppressWarnings("all")
 public class LexerException extends Exception {
-	private FeatureExpr presenceCondition;
+    private FeatureExpr presenceCondition;
 
-	public LexerException(String msg) {
-		super(msg);
-	}
+    public LexerException(String msg) {
+        super(msg);
+    }
 
-	public LexerException(Throwable cause) {
-		super(cause);
-	}
+    public LexerException(Throwable cause) {
+        super(cause);
+    }
 
-	public LexerException(String msg, FeatureExpr fullPresenceCondition) {
-		this(msg + "\nPresence Condition: " + fullPresenceCondition.toString());
-		presenceCondition = fullPresenceCondition;
-	}
+    public LexerException(String msg, FeatureExpr fullPresenceCondition) {
+        this(msg + "\nPresence Condition: " + fullPresenceCondition.toString());
+        presenceCondition = fullPresenceCondition;
+    }
 }

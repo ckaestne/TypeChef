@@ -1,4 +1,10 @@
 /*
+ * TypeChef Variability-Aware Lexer.
+ * Copyright 2010-2011, Christian Kaestner, Paolo Giarrusso
+ * Licensed under GPL 3.0
+ *
+ * built on top of
+ *
  * Anarres C Preprocessor
  * Copyright (c) 2007-2008, Shevek
  *
@@ -24,40 +30,40 @@ import java.io.InputStreamReader;
 
 /**
  * A {@link Source} which lexes a file.
- *
+ * <p/>
  * The input is buffered.
  *
  * @see Source
  */
 public class InputLexerSource extends LexerSource {
-	/**
-	 * Creates a new Source for lexing the given Reader.
-	 *
-	 * Preprocessor directives are honoured within the file.
-	 */
-	public InputLexerSource(InputStream input)
-						throws IOException {
-		super(
-			new BufferedReader(
-				new InputStreamReader(
-					input
-				)
-			),
-			true
-		);
-	}
+    /**
+     * Creates a new Source for lexing the given Reader.
+     * <p/>
+     * Preprocessor directives are honoured within the file.
+     */
+    public InputLexerSource(InputStream input)
+            throws IOException {
+        super(
+                new BufferedReader(
+                        new InputStreamReader(
+                                input
+                        )
+                ),
+                true
+        );
+    }
 
-	@Override
-	/* pp */ String getPath() {
-		return "<standard-input>";
-	}
+    @Override
+        /* pp */ String getPath() {
+        return "<standard-input>";
+    }
 
-	@Override
-	/* pp */ String getName() {
-		return "standard input";
-	}
+    @Override
+        /* pp */ String getName() {
+        return "standard input";
+    }
 
-	public String toString() {
-		return getPath();
-	}
+    public String toString() {
+        return getPath();
+    }
 }

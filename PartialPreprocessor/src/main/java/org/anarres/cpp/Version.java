@@ -1,4 +1,10 @@
 /*
+ * TypeChef Variability-Aware Lexer.
+ * Copyright 2010-2011, Christian Kaestner, Paolo Giarrusso
+ * Licensed under GPL 3.0
+ *
+ * built on top of
+ *
  * Anarres C Preprocessor
  * Copyright (c) 2007-2008, Shevek
  *
@@ -18,51 +24,49 @@
 package org.anarres.cpp;
 
 /**
- * System version metadata for Anarres Java C Preprocessor 1.2.6.
- *
  * This class contains a main() and may be run to print the version.
  */
 public class Version {
 
-	/* Don't instantiate me */
-	private Version() {
-	}
+    /* Don't instantiate me */
+    private Version() {
+    }
 
-	private static final String	VERSION = "1.2.6";
+    private static final String VERSION = "0.2";
 
-	private static final int	major;
-	private static final int	minor;
-	private static final int	patch;
+    private static final int major;
+    private static final int minor;
+    private static final int patch;
 
-	static {
-		String[]	tmp = VERSION.split("\\.");
-		major = Integer.parseInt(tmp[0]);
-		minor = Integer.parseInt(tmp[1]);
-		patch = Integer.parseInt(tmp[2]);
-	}
+    static {
+        String[] tmp = VERSION.split("\\.");
+        major = Integer.parseInt(tmp[0]);
+        minor = Integer.parseInt(tmp[1]);
+        patch = Integer.parseInt(tmp[2]);
+    }
 
-	public static String getVersion() {
-		return VERSION;
-	}
+    public static String getVersion() {
+        return VERSION;
+    }
 
-	public static int getMajor() {
-		return major;
-	}
+    public static int getMajor() {
+        return major;
+    }
 
-	public static int getMinor() {
-		return minor;
-	}
+    public static int getMinor() {
+        return minor;
+    }
 
-	public static int getPatch() {
-		return patch;
-	}
+    public static int getPatch() {
+        return patch;
+    }
 
-	public static void main(String[] args) {
-		System.out.println("Version " + VERSION);
-		System.out.println("getVersion() returns " + getVersion());
-		System.out.println("getMajor() returns " + getMajor());
-		System.out.println("getMinor() returns " + getMinor());
-		System.out.println("getPatch() returns " + getPatch());
-	}
+    public static void main(String[] args) {
+        System.out.println("Version " + VERSION);
+        System.out.println("getVersion() returns " + getVersion());
+        System.out.println("getMajor() returns " + getMajor());
+        System.out.println("getMinor() returns " + getMinor());
+        System.out.println("getPatch() returns " + getPatch());
+    }
 
 }

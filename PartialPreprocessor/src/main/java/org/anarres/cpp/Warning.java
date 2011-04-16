@@ -1,4 +1,10 @@
 /*
+ * TypeChef Variability-Aware Lexer.
+ * Copyright 2010-2011, Christian Kaestner, Paolo Giarrusso
+ * Licensed under GPL 3.0
+ *
+ * built on top of
+ *
  * Anarres C Preprocessor
  * Copyright (c) 2007-2008, Shevek
  *
@@ -24,14 +30,14 @@ import java.util.Collection;
  * Warning classes which may optionally be emitted by the Preprocessor.
  */
 public enum Warning {
-	TRIGRAPHS,
-	// TRADITIONAL,
-	IMPORT, UNDEF, UNUSED_MACROS, ENDIF_LABELS, ERROR;
-	// SYSTEM_HEADERS
+    TRIGRAPHS,
+    // TRADITIONAL,
+    IMPORT, UNDEF, UNUSED_MACROS, ENDIF_LABELS, ERROR;
+    // SYSTEM_HEADERS
 
-	public static Collection<Warning> allWarnings() {
-		return Arrays.asList(new Warning[] { TRIGRAPHS, IMPORT, UNDEF,
-				UNUSED_MACROS, ENDIF_LABELS });
+    public static Collection<Warning> allWarnings() {
+        return Arrays.asList(new Warning[]{TRIGRAPHS, IMPORT, UNDEF,
+                UNUSED_MACROS, ENDIF_LABELS});
 
-	}
+    }
 }
