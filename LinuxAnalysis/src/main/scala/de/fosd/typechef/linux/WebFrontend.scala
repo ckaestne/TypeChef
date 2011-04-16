@@ -2,7 +2,7 @@ package de.fosd.typechef.linux
 
 import java.io.File
 import de.fosd.typechef.parser.c._
-import org.anarres.cpp.Main
+import de.fosd.typechef.lexer.Main
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.typesystem.TypeSystem
 

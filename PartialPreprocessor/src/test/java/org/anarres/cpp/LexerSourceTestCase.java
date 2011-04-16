@@ -1,10 +1,10 @@
-package org.anarres.cpp;
+package de.fosd.typechef.lexer;
 
 import java.util.Arrays;
 
 import junit.framework.Test;
 
-import static org.anarres.cpp.Token.*;
+import static de.fosd.typechef.lexer.Token.*;
 
 public class LexerSourceTestCase extends BaseTestCase implements Test {
 

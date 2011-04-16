@@ -1,11 +1,11 @@
-package org.anarres.cpp;
+package de.fosd.typechef.lexer;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import static org.anarres.cpp.Token.*;
+import static de.fosd.typechef.lexer.Token.*;
 
 public class PreprocessorTestCase extends BaseTestCase {
     private OutputStreamWriter writer;
@@ -174,7 +174,7 @@ public class PreprocessorTestCase extends BaseTestCase {
             //Flush the remaining NL
             testInput("", NL);
             fail("expected exception");
-        } catch (org.anarres.cpp.LexerException e) {
+        } catch (de.fosd.typechef.lexer.LexerException e) {
             //expected
         }
     }

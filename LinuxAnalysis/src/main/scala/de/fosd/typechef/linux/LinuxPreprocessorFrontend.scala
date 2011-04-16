@@ -15,7 +15,7 @@ import gnu.getopt.LongOpt
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
-import org.anarres.cpp.{Token, Main}
+import de.fosd.typechef.lexer._
 
 object LinuxPreprocessorFrontend {
 

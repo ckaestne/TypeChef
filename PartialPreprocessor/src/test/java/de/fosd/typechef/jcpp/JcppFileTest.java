@@ -1,6 +1,6 @@
 package de.fosd.typechef.jcpp;
 
-import org.anarres.cpp.LexerException;
+import de.fosd.typechef.lexer.LexerException;
 import org.junit.Test;
 
 import java.io.IOException;

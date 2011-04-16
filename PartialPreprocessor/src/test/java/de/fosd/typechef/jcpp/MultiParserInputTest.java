@@ -3,10 +3,10 @@ package de.fosd.typechef.jcpp;
 import java.io.IOException;
 import java.util.List;
 
-import org.anarres.cpp.LexerException;
-import org.anarres.cpp.PartialPPLexer;
-import org.anarres.cpp.StringLexerSource;
-import org.anarres.cpp.Token;
+import de.fosd.typechef.lexer.LexerException;
+import de.fosd.typechef.lexer.PartialPPLexer;
+import de.fosd.typechef.lexer.StringLexerSource;
+import de.fosd.typechef.lexer.Token;
 import org.junit.Test;
 
 public class MultiParserInputTest {

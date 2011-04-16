@@ -1,8 +1,8 @@
-package org.anarres.cpp;
+package de.fosd.typechef.lexer;
 
 import java.io.*;
 
-import static org.anarres.cpp.Token.*;
+import static de.fosd.typechef.lexer.Token.*;
 
 public class ErrorTestCase extends BaseTestCase {
 

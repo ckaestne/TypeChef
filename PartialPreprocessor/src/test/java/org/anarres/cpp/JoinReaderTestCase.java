@@ -1,4 +1,4 @@
-package org.anarres.cpp;
+package de.fosd.typechef.lexer;
 
 import java.io.StringReader;
 

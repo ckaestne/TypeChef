@@ -2,7 +2,7 @@ package de.fosd.typechef.parser.c
 import java.io.InputStream
 
 import de.fosd.typechef.parser._
-import org.anarres.cpp._
+import de.fosd.typechef.lexer._
 import scala.collection.mutable.ListBuffer
 import de.fosd.typechef.featureexpr.FeatureModel
 

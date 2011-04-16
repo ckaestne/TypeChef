@@ -1,4 +1,4 @@
-package org.anarres.cpp;
+package de.fosd.typechef.lexer;
 
 public class MainTestCase extends BaseTestCase {
 

@@ -1,6 +1,6 @@
 package de.fosd.typechef.parser.c
 
-import org.anarres.cpp.Token
+import de.fosd.typechef.lexer.Token
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr.base

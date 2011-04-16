@@ -2,7 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr._
-import org.anarres.cpp._
+import de.fosd.typechef.lexer._
 
 /**
  * thin wrapper around jccp tokens to make them accessible to MultiFeatureParser
