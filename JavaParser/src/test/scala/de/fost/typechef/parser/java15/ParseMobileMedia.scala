@@ -7,6 +7,7 @@ import de.fosd.typechef.parser._
 
 import java.io.{Console => _, _}
 import scala.collection.mutable.Map
+import scala.math.pow
 
 object ParseMobileMedia {
 
@@ -88,7 +89,7 @@ object ParseMobileMedia {
             sumRepeated += ProfilingTokenHelper.totalRepeated(tokens)
             features = features ++ fileFeatures
             featuresPerFile.put(fileFeatures.size, featuresPerFile.getOrElse(fileFeatures.size, 0) + 1)
-            bruteForcePerFile = bruteForcePerFile + (Math.pow(2, fileFeatures.size) * (sumTokens * 2 - sumAnnotated) / 2).toLong
+            bruteForcePerFile = bruteForcePerFile + (pow(2, fileFeatures.size) * (sumTokens * 2 - sumAnnotated) / 2).toLong
             sumChoices += choices;
 
             ast match {
@@ -103,7 +104,7 @@ object ParseMobileMedia {
         ast match {
             case x: TokenWrapper => 0
             case a ~ b => countCoices(a, ctx) + countCoices(b, ctx)
-            case l: List[Any] => l.foldLeft[Int](0)(_ + countCoices(_, ctx))
+            case l: List[_] => l.foldLeft[Int](0)(_ + countCoices(_, ctx))
             case Opt(f, r) =>
                 countCoices(r, ctx and f) + (if ((ctx implies f).isTautology)
                     0

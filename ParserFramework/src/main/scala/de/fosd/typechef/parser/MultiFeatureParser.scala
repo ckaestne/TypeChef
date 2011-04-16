@@ -1264,7 +1264,7 @@ try {
                         lastNoSuccess
                     else
                         result
-                case x: SplittedParseResult[T] =>
+                case x: SplittedParseResult[_] =>
                 //cannot used lastNoSuccess on split results
                     result.mapfr(fs, (feature, result) =>
                         result match {

@@ -78,7 +78,7 @@ class MacroTokenSource extends Source {
         if (srcTokens.nonEmpty) {
             val argTok0 = srcTokens.head
             if (argTok0.getType != NL && !argTok0.isWhite) {
-                destTokens += argTok0
+                destTokens = destTokens enqueue argTok0
                 destTokens ++= srcTokens.tail
                 destTokens
             } else {
@@ -89,7 +89,6 @@ class MacroTokenSource extends Source {
     }
 
     //XXX inline, probably.
-    @deprecated
     private def extractTokensForConcat(arg: Argument) =
         addFirstNonSpaceToken(arg.tokens, Queue[Token]())
 
@@ -132,7 +131,7 @@ class MacroTokenSource extends Source {
                     strToTokens()
                     //Output the comma that we didn't output previously.
                     if (!arg.isOmittedArg || !gnuCExtensions) {
-                        tokens += queuedComma
+                        tokens = tokens enqueue queuedComma
                         tokens ++= extractTokensForConcat(arg)
                     } else {
                         //Swallow the comma, as prescribed by:
@@ -163,7 +162,7 @@ class MacroTokenSource extends Source {
                 var tok: Token = tokenIter.next
                 if (queuedComma.isDefined && tok.getType != M_ARG) {
                     strToTokens()
-                    tokens += queuedComma.get
+                    tokens = tokens enqueue (queuedComma.get)
                     queuedComma = None
                 }
                 tok.getType match {
