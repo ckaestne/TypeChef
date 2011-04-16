@@ -47,7 +47,7 @@ flags() {
   elif grep -q "fs/xfs/" <<< "$name"; then
     extraFlag="-I $srcPath/fs/xfs -I $srcPath/fs/xfs/linux-2.6"
   elif grep -q "fs/ntfs/" <<< "$name"; then
-    extraFlag="-DNTFS_VERSION=\"\\\"2.1.29\"\\\""
+    extraFlag="-DNTFS_VERSION=\"\\\"2.1.29\"\\\" --include ntfs.h"
   elif grep -q "drivers/gpu/drm/" <<< "$name"; then
     extraFlag="-I $srcPath/include/drm"
   elif egrep -q "drivers/scsi/pcmcia/|drivers/usb/storage/" <<< "$name"; then
