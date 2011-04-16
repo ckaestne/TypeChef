@@ -258,7 +258,10 @@ nla_put_failure: __attribute__ ((unused))
     @Test
     def testLinux6 = assertParseable(
         """
-#if definedEx(CONFIG_DEBUG_FORCE_WEAK_PER_CPU)extern __attribute__((section(".discard"), unused)) char __pcpu_scope_this_cpu_off; extern __attribute__((section(#if definedEx(CONFIG_SMP)
+#if definedEx(CONFIG_DEBUG_FORCE_WEAK_PER_CPU)
+extern __attribute__((section(".discard"), unused)) char __pcpu_scope_this_cpu_off;
+extern __attribute__((section(
+#if definedEx(CONFIG_SMP)
 ".data.percpu"
 #endif
 #if !definedEx(CONFIG_SMP)
