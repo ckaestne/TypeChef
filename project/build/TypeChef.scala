@@ -32,7 +32,6 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         lazy val processFileList = runTask("de.fosd.typechef.linux.ProcessFileList")
         lazy val stats = runTask("de.fosd.typechef.linux.Stats")
         lazy val pcppStats = runTask("de.fosd.typechef.linux.PCPPStats")
-        lazy val linuxDependencyAnalysis = runTask("de.fosd.typechef.linux.LinuxDependencyAnalysis")
         lazy val web = runTask("de.fosd.typechef.linux.WebFrontend")
     }
 
