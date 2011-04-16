@@ -841,8 +841,8 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
     override def operName = "&"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createAnd(clauses)
 
-    protected def calcCNF: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
-    protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
+    override protected def calcCNF: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
+    override protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
 }
 
 private[featureexpr]
@@ -857,9 +857,9 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
     override def operName = "|"
     override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createOr(clauses)
 
-    protected def calcCNF: FeatureExpr =
+    override protected def calcCNF: FeatureExpr =
         combineCNF(clauses.map(_.toCNF))
-    protected def calcCNFEquiSat: FeatureExpr = {
+    override protected def calcCNFEquiSat: FeatureExpr = {
         val cnfchildren = clauses.map(_.toCnfEquiSat)
         //XXX: There is no need to estimate the size this way, we could maybe
         //use the more precise size method. However, possibly this is the
@@ -970,13 +970,13 @@ class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
         val newExpr = expr.mapDefinedExpr(f, cache)
         if (newExpr != expr) FExprBuilder.not(newExpr) else this
     })
-    protected def calcCNF: FeatureExpr = expr match {
+    override protected def calcCNF: FeatureExpr = expr match {
         case And(children) => FExprBuilder.createOr(children.map(_.not.toCNF)).toCNF
         case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCNF))
         case e => this
     }
 
-    protected def calcCNFEquiSat: FeatureExpr = expr match {
+    override protected def calcCNFEquiSat: FeatureExpr = expr match {
         case And(children) => FExprBuilder.createOr(children.map(_.not.toCnfEquiSat())).toCnfEquiSat()
         case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCnfEquiSat()))
         case e => this
