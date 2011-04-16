@@ -1,7 +1,9 @@
-package de.fosd.typechef.featureexpr
+package de.fosd.typechef.lexer.macrotable
 
 import java.io.PrintWriter
 import de.fosd.typechef.featureexpr.LazyLib.Susp
+import de.fosd.typechef.featureexpr._
+
 
 object MacroContext {
     private var flagFilters = List((x: String) => true)
@@ -19,16 +21,18 @@ object MacroContext {
         val openFeatures = io.Source.fromFile(openFeaturesPath).getLines.toSet
         flagFilters = (x => openFeatures.contains(x)) :: flagFilters
     }
-    // Returns whether the macro x represents a feature.
-    // It checks if any flag filters classify this as non-feature - equivalently, if all
-    // flag filters classify this as feature
-
-    // If a macro does not represent a feature, it is not considered variable,
-    // and if it is not defined it is assumed to be always undefined, and it
-    // becomes thus easier to handle.
-
-    // This method must not be called for macros known to be defined!
-    private[featureexpr] def flagFilter(x: String) = flagFilters.forall(_(x))
+    /**
+     * Returns whether the macro x represents a feature.
+     * It checks if any flag filters classify this as non-feature - equivalently, if all
+     *  flag filters classify this as feature
+     *
+     *  If a macro does not represent a feature, it is not considered variable,
+     *  and if it is not defined it is assumed to be always undefined, and it
+     *  becomes thus easier to handle.
+     *
+     *  This method must not be called for macros known to be defined!
+     */
+    def flagFilter(x: String) = flagFilters.forall(_(x))
 }
 
 import FeatureExpr.createDefinedExternal
@@ -41,7 +45,7 @@ import FeatureExpr.createDefinedExternal
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
 class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[String, (String, Susp[FeatureExpr])], featureModel: FeatureModel) extends FeatureProvider {
-    def this(fm:FeatureModel) = {this (Map(), Map(),fm)}
+    def this(fm: FeatureModel) = {this (Map(), Map(), fm)}
     def this() = {this (null)}
     def define(name: String, infeature: FeatureExpr, other: T): MacroContext[T] = {
         val feature = infeature //.resolveToExternal()
@@ -58,7 +62,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                         feature
                     knownMacros + ((name, new Macro[T](name, initialFeatureExpr, List(new MacroExpansion[T](feature, other)))))
                 }
-            }, cnfCache - name,featureModel)
+            }, cnfCache - name, featureModel)
         //        println("#define " + name)
         newMC
     }
@@ -71,7 +75,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                 //XXX: why is flagFilter() not checked? The condition associated
                 //with the definition would become false.
                 case None => knownMacros + ((name, new Macro[T](name, feature.not().and(createDefinedExternal(name)), List())))
-            }, cnfCache - name,featureModel)
+            }, cnfCache - name, featureModel)
     }
 
     def getMacroCondition(feature: String): FeatureExpr = {

@@ -1,7 +1,7 @@
 package de.fosd.typechef.jcpp;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.MacroContext$;
+import de.fosd.typechef.lexer.macrotable.MacroContext$;
 import junit.framework.Assert;
 import org.anarres.cpp.*;
 
@@ -162,7 +162,7 @@ public class AbstractCheckTests {
     private FeatureExpr parseFeatureExpr(String expectedFeature) {
         try {
             return new Preprocessor(new StringLexerSource(expectedFeature
-                    + "\n"),null).parse_featureExpr();
+                    + "\n"), null).parse_featureExpr();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (LexerException e) {

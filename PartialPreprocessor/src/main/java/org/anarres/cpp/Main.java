@@ -18,7 +18,7 @@
 package org.anarres.cpp;
 
 import de.fosd.typechef.featureexpr.FeatureModel;
-import de.fosd.typechef.featureexpr.MacroContext$;
+import de.fosd.typechef.lexer.macrotable.MacroContext$;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 

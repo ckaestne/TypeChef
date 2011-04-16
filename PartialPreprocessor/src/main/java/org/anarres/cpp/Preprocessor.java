@@ -17,7 +17,8 @@
 
 package org.anarres.cpp;
 
-import de.fosd.typechef.featureexpr.*;
+import de.fosd.typechef.lexer.macrotable.MacroContext;
+import de.fosd.typechef.lexer.macrotable.MacroExpansion;
 import org.anarres.cpp.MacroConstraint.MacroConstraintKind;
 
 import java.io.Closeable;

@@ -19,7 +19,8 @@ package org.anarres.cpp
 import java.{util => jUtil, lang => jLang}
 import collection.JavaConversions._
 import collection.JavaConverters._
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprTree, MacroExpansion, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprTree, FeatureExpr}
+import de.fosd.typechef.lexer.macrotable.MacroExpansion
 
 /**
  * A macro argument.
@@ -39,7 +40,7 @@ object MacroExpander {
     def expandAlternatives(pp: Preprocessor, macroName: String,
                            macroExpansions: Array[MacroExpansion[MacroData]], args: List[Argument],
                            origInvokeTok: Token, origArgTokens: List[Token], commonCondition: FeatureExpr, inline: Boolean,
-                                  featureModel: FeatureModel) = {
+                           featureModel: FeatureModel) = {
         val alternativesExhaustive: Boolean = commonCondition.isTautology(featureModel)
         val fallbackAlternative =
             if (alternativesExhaustive)
@@ -49,7 +50,7 @@ object MacroExpander {
 
         macroExpansions.map(expansion => FeatureExpr.createValue[Seq[Source]](
             pp.macro_expandAlternative(macroName, expansion, args, origInvokeTok, origArgTokens, inline))).zip(
-                macroExpansions.map(_.getFeature)).foldRight[FeatureExprTree[Seq[Source]]](FeatureExpr.createValue(fallbackAlternative)) {
+            macroExpansions.map(_.getFeature)).foldRight[FeatureExprTree[Seq[Source]]](FeatureExpr.createValue(fallbackAlternative)) {
             case ((expanded, feature), tree) => FeatureExpr.createIf(feature, expanded, tree)
         }
     }

@@ -1,6 +1,7 @@
 package org.anarres.cpp;
 
-import de.fosd.typechef.featureexpr.MacroContext;
+
+import de.fosd.typechef.lexer.macrotable.MacroContext;
 
 import java.io.*;
 import java.util.HashSet;

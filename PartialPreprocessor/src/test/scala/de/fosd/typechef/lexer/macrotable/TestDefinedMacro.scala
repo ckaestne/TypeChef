@@ -1,12 +1,11 @@
-package de.fosd.typechef.featureexpr
+package de.fosd.typechef.lexer.macrotable
 
 import junit.framework._
 import junit.framework.Assert._
 import org.junit.Test
 
-import FeatureExpr._
-
-import FeatureExpr.createDefinedExternal
+import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureExpr._
 
 class TestDefinedMacro extends TestCase {
 
