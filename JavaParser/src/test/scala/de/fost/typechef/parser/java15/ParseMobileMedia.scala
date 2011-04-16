@@ -130,7 +130,7 @@ object ParseMobileMedia {
         result
     }
     def findFeatures(feature: FeatureExpr): Set[String] = {
-        feature match {
+        (feature: @unchecked) match {
             case And(clauses) => clauses.foldLeft(Set[String]())(_ ++ findFeatures(_))
             case Or(clauses) => clauses.foldLeft(Set[String]())(_ ++ findFeatures(_))
             case Not(clause) => findFeatures(clause)
