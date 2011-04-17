@@ -3,6 +3,11 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
+import org.kiama.attribution.DynamicAttribution._
+import org.kiama._
+import attribution.Attributable
+import org.kiama.rewriting.Rewriter._
+import FeatureExpr.base
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -13,10 +18,6 @@ import de.fosd.typechef.featureexpr._
  *
  */
 class TypeSystem(featureModel: FeatureModel = null) {
-    var table = new LookupTable()
-
-    val globalScope = 1
-    var currentScope = 1
     var functionCallChecks = 0
 
     /*
@@ -29,23 +30,11 @@ class TypeSystem(featureModel: FeatureModel = null) {
     def dbgPrint(o: Any) = if (DEBUG_PRINT) print(o)
     def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
 
-    val gccBuiltins = List(
-        "constant_p",
-        "expect",
-        "memcpy",
-        "memset",
-        "return_address", "va_start", "va_end")
-
-    def declareBuiltins() {
-        for (name <- gccBuiltins) {
-            table = table.add(new LFunctionDef("__builtin_" + name, "", globalScope, FeatureExpr.base))
-        }
-    }
 
     def checkAST(ast: AST) {
-        declareBuiltins()
-        ast.accept(new TSVisitor())
-        dbgPrintln(table)
+
+        topdown(checkFunctionCalls)(ast)
+
         if (functionCallErrorMessages.values.isEmpty && functionRedefinitionErrorMessages.isEmpty)
             println("No type errors found.")
         else {
@@ -56,43 +45,43 @@ class TypeSystem(featureModel: FeatureModel = null) {
         println("(performed " + functionCallChecks + " checks regarding function calls)");
     }
 
-    class TSVisitor extends ASTVisitor {
-        var in: List[Int] = List()
-        private def isStatementLevel = in.contains(2)
-        override def visit(ast: AST, feature: FeatureExpr) {
-            in = (ast match {
-                case s: Statement => 2
-                case _ => 1
-            }) :: in
-            //for (a<-in)
-            //	print("  ")
-            //println(ast.getClass.getName)
-
-            ast match {
-            /**** declarations ****/
-            //function definition
-                case FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) => addToLookupTableAndCheckForDuplicates(new LFunctionDef(name, "", currentScope, feature))
-                //function declaration and other declarations
-                case ADeclaration(specifiers, initDecls) if (!isStatementLevel) =>
-                    for (initDecl <- initDecls.toList.flatten)
-                        initDecl.entry match {
-                            case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", currentScope, feature))
-                            case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", currentScope, feature))
-                            case _ =>
-                        }
-
-                /**** references ****/
-                //function call (XXX: PG: not-so-good detection, but will work for typical code).
-                case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */)
-                //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
-                case _ =>
-            }
-        }
-        override def postVisit(ast: AST, feature: FeatureExpr) {
-            in = in.tail
-        }
-
-    }
+    //    class TSVisitor extends ASTVisitor {
+    //        var in: List[Int] = List()
+    //        private def isStatementLevel = in.contains(2)
+    //        override def visit(ast: AST, feature: FeatureExpr) {
+    //            in = (ast match {
+    //                case s: Statement => 2
+    //                case _ => 1
+    //            }) :: in
+    //            //for (a<-in)
+    //            //	print("  ")
+    //            //println(ast.getClass.getName)
+    //
+    //            ast match {
+    //            /**** declarations ****/
+    //            //function definition
+    //                case FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) => addToLookupTableAndCheckForDuplicates(new LFunctionDef(name, "", currentScope, feature))
+    //                //function declaration and other declarations
+    //                case ADeclaration(specifiers, initDecls) if (!isStatementLevel) =>
+    //                    for (initDecl <- initDecls.toList.flatten)
+    //                        initDecl.entry match {
+    //                            case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", currentScope, feature))
+    //                            case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", currentScope, feature))
+    //                            case _ =>
+    //                        }
+    //
+    //                /**** references ****/
+    //                //function call (XXX: PG: not-so-good detection, but will work for typical code).
+    //                case PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => checkFunctionCall(ast, name, feature /* and feat2 */)
+    //                //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
+    //                case _ =>
+    //            }
+    //        }
+    //        override def postVisit(ast: AST, feature: FeatureExpr) {
+    //            in = in.tail
+    //        }
+    //
+    //    }
 
     def checkFunctionCallTargets(source: AST, name: String, callerFeature: FeatureExpr, targets: List[Entry]) = {
         if (!targets.isEmpty) {
@@ -115,7 +104,84 @@ class TypeSystem(featureModel: FeatureModel = null) {
         }
     }
 
-    def checkFunctionCall(source: AST, name: String, callerFeature: FeatureExpr) {
+
+    //    def addToLookupTableAndCheckForDuplicates(entry: LFunctionDef) = {
+    //        val existingEntries = table.find(entry.name).filter(_.isInstanceOf[LFunctionDef])
+    //        for (otherEntry <- existingEntries) {
+    //            if (!(otherEntry.feature and entry.feature).isContradiction(featureModel)) {
+    //                dbgPrintln("function " + entry.name + " redefined with feature " + entry.feature + "; previous: " + otherEntry)
+    //                functionRedefinitionErrorMessages = RedefErrorMsg(entry.name, entry, otherEntry) :: functionRedefinitionErrorMessages
+    //            }
+    //        }
+    //
+    //        table = table.add(entry)
+    //    }
+
+    val gccBuiltins = List(
+        "constant_p",
+        "expect",
+        "memcpy",
+        "memset",
+        "return_address", "va_start", "va_end")
+
+    def initTable() = {
+        var table = new LookupTable()
+        for (name <- gccBuiltins) {
+            table = table.add(new LFunctionDef("__builtin_" + name, "", 0, FeatureExpr.base))
+        }
+        table
+    }
+
+    val isStatementLevel: Attributable ==> Boolean = attr {
+        case _: Statement => true
+        case e => if (e.parent == null) false else (e.parent -> isStatementLevel)
+    }
+
+    val env: Attributable ==> LookupTable = attr {
+        case e@FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) =>
+            e.parent -> env add (new LFunctionDef(name, "", 1, e->presenceCondition))
+        //            addToLookupTableAndCheckForDuplicates(new LFunctionDef(name, "", currentScope, feature))
+        //function declaration and other declarations
+        case e@ADeclaration(specifiers, initDecls) if (!(e -> isStatementLevel)) => {
+            var table = e.parent -> env
+            for (initDecl <- initDecls.toList.flatten)
+                initDecl.entry match {
+                    case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e->presenceCondition))
+                    case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e->presenceCondition))
+                    case _ =>
+                }
+            table
+        }
+        case _:TranslationUnit => initTable
+        case e =>
+            if (e.prev[AST] != null) e.prev[AST] -> env else
+                if (e.parent!=null) e.parent -> env else
+                initTable   TODO should not occur. problem: Opt is not of type Attributable, hence parent does not work
+
+    }
+
+    private def ppc(e: Attributable):FeatureExpr = if (e.parent == null) base else e.parent -> presenceCondition
+
+    val presenceCondition: Attributable ==> FeatureExpr = childAttr {
+        case e => {
+            case c: Choice[_]                            if (e == c.thenBranch) =>                 ppc(e) and c.feature
+            case c: Choice[_] if (e == c.elseBranch) => ppc(e) andNot c.feature
+            case o : Opt[_] => ppc(e) and o.feature
+            case e => ppc(e)
+        }
+    }
+
+    val checkFunctionCalls = query {
+        //function call (XXX: PG: not-so-good detection, but will work for typical code).
+        case e@PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => {
+            //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
+            checkFunctionCall(e -> env, e, name, e->presenceCondition /* and feat2 */)
+        }
+        case _ =>
+    }
+
+
+    def checkFunctionCall(table: LookupTable, source: AST, name: String, callerFeature: FeatureExpr) {
         val targets: List[Entry] = table.find(name)
         dbgPrint("function " + name + " found " + targets.size + " targets: ")
         checkFunctionCallTargets(source, name, callerFeature, targets) match {
@@ -125,15 +191,4 @@ class TypeSystem(featureModel: FeatureModel = null) {
         }
     }
 
-    def addToLookupTableAndCheckForDuplicates(entry: LFunctionDef) = {
-        val existingEntries = table.find(entry.name).filter(_.isInstanceOf[LFunctionDef])
-        for (otherEntry <- existingEntries) {
-            if (!(otherEntry.feature and entry.feature).isContradiction(featureModel)) {
-                dbgPrintln("function " + entry.name + " redefined with feature " + entry.feature + "; previous: " + otherEntry)
-                functionRedefinitionErrorMessages = RedefErrorMsg(entry.name, entry, otherEntry) :: functionRedefinitionErrorMessages
-            }
-        }
-
-        table = table.add(entry)
-    }
 }

@@ -9,11 +9,10 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     })
     lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_), featureexpr)
     lazy val jcpp = project("PartialPreprocessor", "PartialPreprocessor", new JavaSubProject(_), featureexpr)
-    lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_), featureexpr, jcpp, parserexp)
+    lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_) with Kiama, featureexpr, jcpp, parserexp) 
     lazy val linuxAnalysis = project("LinuxAnalysis", "LinuxAnalysis", new LinuxAnalysisProject(_), featureexpr, jcpp, cparser, ctypechecker)
-    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_){
-		val kiama = "com.googlecode" %% "kiama" % "1.0.2"
-	}, cparser)
+    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_) with Kiama
+	, cparser)
     lazy val javaparser = project("JavaParser", "JavaParser", new DefaultSubProject(_), featureexpr, parserexp)
 
     class DefaultSubProject(info: ProjectInfo) extends DefaultProject(info) with ScctProject with IdeaProject {
@@ -35,6 +34,10 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         lazy val stats = runTask("de.fosd.typechef.linux.Stats")
         lazy val pcppStats = runTask("de.fosd.typechef.linux.PCPPStats")
         lazy val web = runTask("de.fosd.typechef.linux.WebFrontend")
+    }
+
+    trait Kiama {
+		val kiama = "com.googlecode" %% "kiama" % "1.0.2"
     }
 
 

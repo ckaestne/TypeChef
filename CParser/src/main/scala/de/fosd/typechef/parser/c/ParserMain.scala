@@ -145,18 +145,18 @@ class ParserMain(p: CParser) {
 
     def countChoices(ast: AST): Int = {
         var result: Int = 0
-        ast.accept(new ASTVisitor {
-            def visit(node: AST, ctx: FeatureExpr) {
-                if (node.isInstanceOf[Choice[_]])
-                    result += 1
-                for (opt <- node.getInnerOpt)
-                    if (opt.feature != FeatureExpr.base && opt.feature != ctx)
-                        if (!((ctx implies (opt.feature)).isTautology)) {
-                            result += 1
-                        }
-            }
-            def postVisit(node: AST, feature: FeatureExpr) {}
-        })
+//        ast.accept(new ASTVisitor {
+//            def visit(node: AST, ctx: FeatureExpr) {
+//                if (node.isInstanceOf[Choice[_]])
+//                    result += 1
+//                for (opt <- node.getInnerOpt)
+//                    if (opt.feature != FeatureExpr.base && opt.feature != ctx)
+//                        if (!((ctx implies (opt.feature)).isTautology)) {
+//                            result += 1
+//                        }
+//            }
+//            def postVisit(node: AST, feature: FeatureExpr) {}
+//        })
         result
     }
 
