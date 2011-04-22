@@ -8,6 +8,7 @@ import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.DynamicAttribution._
 import org.kiama._
+import attribution.Attributable
 import de.fosd.typechef.featureexpr.FeatureExpr
 import FeatureExpr.base
 import de.fosd.typechef.parser.Opt
@@ -23,8 +24,8 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
         ast
     }
 
-    private def check(code: String) =
-        new CTypeSystem().checkAST(getAST(code))
+    private def check(code: String): Boolean = check(getAST(code))
+    private def check(ast: AST): Boolean = new CTypeSystem().checkAST(ast)
 
     private def functionDef(functionName: String): AST ==> List[FunctionDef] =
         attr {
@@ -35,8 +36,14 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
             case AltExternalDef(_, a, b) => functionDef(functionName)(a) ++ functionDef(functionName)(b)
             case e => List()
         }
+    private val postfixExpr: Attributable ==> List[PostfixExpr] =
+        attr {
+            case e: PostfixExpr => List(e)
+            case e => e.children.map(_ -> postfixExpr).toList.flatten
+        }
 
     val ast = getAST("void foo() {}" +
+            ";" +
             "void bar(){foo();}")
     val foo = functionDef("foo")(ast).head
     val bar = functionDef("bar")(ast).head
@@ -49,7 +56,7 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
     test("ast navigation with Opt") {
         foo -> parentAST should equal(ast)
         bar -> parentAST should equal(ast)
-        bar -> prevAST should equal(foo)
+        bar -> prevAST -> prevAST should equal(foo)
     }
     test("ast navigation with Choice and Opt") {
         val stmt0 = LabelStatement(Id("stmt0"), None)
@@ -87,13 +94,16 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
         env(bar) find ("foo") should have size (1)
         env(bar) find ("bar") should have size (1)
         env(bar) find ("foo") should have size (1)
+
+        val expr = postfixExpr(bar).head
+        env(expr) find ("bar") should have size (1)
+        env(expr) find ("foo") should have size (1)
     }
 
     test("typecheck simple translation unit") {
 
         expect(true) {
-            check("void foo() {};" +
-                    "void bar(){foo();}")
+            check(ast)
         }
 
     }
