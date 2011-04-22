@@ -11,7 +11,7 @@ import org.kiama.attribution.Attributable
 //Expressions
 trait AST extends Attributable
 
-trait Choice[T] {
+trait Choice[+T <: AST] extends AST {
     def thenBranch: T
     def elseBranch: T
     def feature: FeatureExpr

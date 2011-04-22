@@ -3,10 +3,10 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
-import FeatureExpr.base
 import org.kiama.attribution.DynamicAttribution._
 import org.kiama._
 import attribution.Attributable
+import FeatureExpr.base
 
 /**
  * kiama attributes for type analysis
@@ -33,13 +33,13 @@ trait CTypeAnalysis {
         case e => if (e.parent == null) false else (e.parent -> isStatementLevel)
     }
 
-    val env: Attributable ==> LookupTable = attr {
+    val env: AST ==> LookupTable = attr {
         case e@FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) =>
-            e.parent -> env add (new LFunctionDef(name, "", 1, e -> presenceCondition))
-        //            addToLookupTableAndCheckForDuplicates(new LFunctionDef(name, "", currentScope, feature))
+            e -> outerEnv add (new LFunctionDef(name, "", 1, e -> presenceCondition))
+
         //function declaration and other declarations
         case e@ADeclaration(specifiers, initDecls) if (!(e -> isStatementLevel)) => {
-            var table = e.parent -> env
+            var table = e -> outerEnv
             for (initDecl <- initDecls.toList.flatten)
                 initDecl.entry match {
                     case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e -> presenceCondition))
@@ -49,13 +49,64 @@ trait CTypeAnalysis {
             table
         }
         case _: TranslationUnit => initTable
-        case e =>
-            if (e.prev[AST] != null) e.prev[AST] -> env
+        case e: AST => e -> outerEnv
+
+    }
+    private val outerEnv: AST ==> LookupTable = attr {
+        case e: AST =>
+            if (e -> prevAST != null) e -> prevAST -> env
             else
-            if (e.parent != null) e.parent -> env
+            if (e -> parentAST != null) e -> parentAST -> env
             else
                 initTable //should not occur when checking entire TranslationUnits
     }
+
+    /**
+     * prevAST and parentAST provide navigation between
+     * AST nodes not affected by Opt and Choice nodes
+     * (those are just flattened)
+     */
+    val parentAST: Attributable ==> AST = attr {case a: Attributable => findParent(a)}
+    private def findParent(a: Attributable): AST =
+        a.parent match {
+            case o: Opt[_] => findParent(o)
+            case c: Choice[_] => findParent(c)
+            case a: AST => a
+            case _ => null
+        }
+
+    val prevAST: Attributable ==> AST = attr {
+        case a =>
+            a.prev[Attributable] match {
+                case c: Choice[_] => lastChoice(c)
+                case a: AST => a
+                case Opt(_, v: Choice[AST]) => lastChoice(v)
+                case Opt(_, v: AST) => v
+                case null => {
+                    a.parent match {
+                        case o: Opt[_] => o -> prevAST
+                        case c: Choice[AST] => c -> prevAST
+                        case _ => null
+                    }
+                }
+            }
+
+    }
+    private def prevOfChoice(c: Choice[AST]): AST = c -> prevAST match {
+        case x: Choice[AST] => lastChoice(x)
+        case x: AST => x
+        case null => c.parent match {
+            case x: Choice[AST] => prevOfChoice(x)
+            case _ => null
+        }
+    }
+
+
+    private def lastChoice[T <: AST](x: Choice[T]): T =
+        x.elseBranch match {
+            case c: Choice[T] => lastChoice(c)
+            case c => c
+        }
 
     private def ppc(e: Attributable): FeatureExpr = if (e.parent == null) base else e.parent -> presenceCondition
 
