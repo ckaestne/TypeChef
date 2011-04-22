@@ -101,10 +101,50 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
     }
 
     test("typecheck simple translation unit") {
-
         expect(true) {check(ast)}
         expect(false) {check("void bar(){foo();}")}
+    }
+    test("detect redefinitions") {
         expect(false) {check("void foo(){} void foo(){}")}
+        expect(false) {
+            check("void foo(){} \n" +
+                    "#ifdef A\n" +
+                    "void foo(){}\n" +
+                    "#endif\n")
+        }
+        expect(true) {
+            check("#ifndef A\n" +
+                    "void foo(){} \n" +
+                    "#endif\n" +
+                    "#ifdef A\n" +
+                    "void foo(){}\n" +
+                    "#endif\n")
+        }
+    }
+    test("typecheck translation unit with features") {
+        expect(true) {
+            check("void foo(){} \n" +
+                    "#ifdef A\n" +
+                    "void bar(){foo();}\n" +
+                    "#endif\n")
+        }
+        expect(false) {
+            check(
+                "#ifdef A\n" +
+                        "void foo(){} \n" +
+                        "#endif\n" +
+                        "void bar(){foo();}\n")
+        }
+        expect(true) {
+            check(
+                "#ifdef A\n" +
+                        "void foo(){} \n" +
+                        "#endif\n" +
+                        "#ifndef A\n" +
+                        "void foo(){} \n" +
+                        "#endif\n" +
+                        "void bar(){foo();}\n")
+        }
 
     }
 
