@@ -145,7 +145,7 @@ object LinuxPreprocessorFrontend {
                 val parserMain = new ParserMain(new CParser(fm))
                 val ast = parserMain.parserMain(in)
                 if (typecheck)
-                    new CTypeSystem().checkAST(ast)
+                    new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
             }
         }
     }

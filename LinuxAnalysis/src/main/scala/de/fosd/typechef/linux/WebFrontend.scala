@@ -54,7 +54,7 @@ object WebFrontend {
 
         if (ast != null) {
             println("<h2>Type checking (incomplete!)</h2><pre name='tsoutput'>")
-            new CTypeSystem(null).checkAST(ast)
+            new CTypeSystem(null).checkAST(ast.asInstanceOf[TranslationUnit])
             println("</pre>")
         }
     }
