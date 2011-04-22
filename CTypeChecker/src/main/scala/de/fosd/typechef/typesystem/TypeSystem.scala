@@ -3,12 +3,11 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
+import FeatureExpr.base
 import org.kiama.attribution.DynamicAttribution._
 import org.kiama._
 import attribution.Attributable
 import org.kiama.rewriting.Rewriter._
-import FeatureExpr.base
-
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
  *
@@ -31,7 +30,7 @@ class TypeSystem(featureModel: FeatureModel = null) {
     def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
 
 
-    def checkAST(ast: AST) {
+    def checkAST(ast: AST):Boolean = {
 
         topdown(checkFunctionCalls)(ast)
 
@@ -43,6 +42,8 @@ class TypeSystem(featureModel: FeatureModel = null) {
             println(functionRedefinitionErrorMessages.mkString("\n"))
         }
         println("(performed " + functionCallChecks + " checks regarding function calls)");
+
+        return (functionCallErrorMessages.values.isEmpty && functionRedefinitionErrorMessages.isEmpty)
     }
 
     //    class TSVisitor extends ASTVisitor {
@@ -139,56 +140,57 @@ class TypeSystem(featureModel: FeatureModel = null) {
 
     val env: Attributable ==> LookupTable = attr {
         case e@FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) =>
-            e.parent -> env add (new LFunctionDef(name, "", 1, e->presenceCondition))
+            e.parent -> env add (new LFunctionDef(name, "", 1, e -> presenceCondition))
         //            addToLookupTableAndCheckForDuplicates(new LFunctionDef(name, "", currentScope, feature))
         //function declaration and other declarations
         case e@ADeclaration(specifiers, initDecls) if (!(e -> isStatementLevel)) => {
             var table = e.parent -> env
             for (initDecl <- initDecls.toList.flatten)
                 initDecl.entry match {
-                    case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e->presenceCondition))
-                    case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e->presenceCondition))
+                    case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e -> presenceCondition))
+                    case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e -> presenceCondition))
                     case _ =>
                 }
             table
         }
-        case _:TranslationUnit => initTable
+        case _: TranslationUnit => initTable
         case e =>
-            if (e.prev[AST] != null) e.prev[AST] -> env else
-                if (e.parent!=null) e.parent -> env else
-                initTable   TODO should not occur. problem: Opt is not of type Attributable, hence parent does not work
+            if (e.prev[AST] != null) e.prev[AST] -> env
+            else
+            if (e.parent != null) e.parent -> env
+            else
+                initTable//should not occur when checking entire TranslationUnits
+}
 
-    }
+private def ppc (e: Attributable): FeatureExpr = if (e.parent == null) base else e.parent -> presenceCondition
 
-    private def ppc(e: Attributable):FeatureExpr = if (e.parent == null) base else e.parent -> presenceCondition
+val presenceCondition: Attributable ==> FeatureExpr = childAttr {
+case e => {
+case c: Choice[_] if (e == c.thenBranch) => ppc (e) and c.feature
+case c: Choice[_] if (e == c.elseBranch) => ppc (e) andNot c.feature
+case o: Opt[_] => ppc (e) and o.feature
+case e => ppc (e)
+}
+}
 
-    val presenceCondition: Attributable ==> FeatureExpr = childAttr {
-        case e => {
-            case c: Choice[_]                            if (e == c.thenBranch) =>                 ppc(e) and c.feature
-            case c: Choice[_] if (e == c.elseBranch) => ppc(e) andNot c.feature
-            case o : Opt[_] => ppc(e) and o.feature
-            case e => ppc(e)
-        }
-    }
-
-    val checkFunctionCalls = query {
-        //function call (XXX: PG: not-so-good detection, but will work for typical code).
-        case e@PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => {
-            //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
-            checkFunctionCall(e -> env, e, name, e->presenceCondition /* and feat2 */)
-        }
-        case _ =>
-    }
+val checkFunctionCalls = query {
+//function call (XXX: PG: not-so-good detection, but will work for typical code).
+case e@PostfixExpr (Id (name), Opt (feat2, FunctionCall (_) ) :: _) => {
+//Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
+checkFunctionCall (e -> env, e, name, e -> presenceCondition /* and feat2 */ )
+}
+case _ =>
+}
 
 
-    def checkFunctionCall(table: LookupTable, source: AST, name: String, callerFeature: FeatureExpr) {
-        val targets: List[Entry] = table.find(name)
-        dbgPrint("function " + name + " found " + targets.size + " targets: ")
-        checkFunctionCallTargets(source, name, callerFeature, targets) match {
-            case Some(newEntry) =>
-                functionCallErrorMessages = functionCallErrorMessages.updated(name, newEntry)
-            case _ => ()
-        }
-    }
+def checkFunctionCall (table: LookupTable, source: AST, name: String, callerFeature: FeatureExpr) {
+val targets: List[Entry] = table.find (name)
+dbgPrint ("function " + name + " found " + targets.size + " targets: ")
+checkFunctionCallTargets (source, name, callerFeature, targets) match {
+case Some (newEntry) =>
+functionCallErrorMessages = functionCallErrorMessages.updated (name, newEntry)
+case _ => ()
+}
+}
 
 }
