@@ -41,7 +41,7 @@ class ParserMain(p: CParser) {
         parserMain((() => tokenstream), new CTypeContext())
     }
 
-    private def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext): AST = {
+    def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext, printStatistics: Boolean = true): AST = {
         //        val logStats = MyUtil.runnable(() => {
         //            if (TokenWrapper.profiling) {
         //                val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
@@ -60,22 +60,23 @@ class ParserMain(p: CParser) {
         //        val result = p.translationUnit(in, FeatureExpr.base)
         val endTime = System.currentTimeMillis
 
-        println(printParseResult(result, FeatureExpr.base))
+        if (printStatistics) {
+            println(printParseResult(result, FeatureExpr.base))
 
-        println("Parsing statistics: \n" +
-                //                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
-                "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
-                "  Tokens: " + in.tokens.size + "\n" +
-                "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
-                "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
-                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
-                //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
-                "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
-                "  Distinct Features: " + countFeatures(in.tokens) + "\n" +
-                "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
-                "  Choice Nodes: " + countChoiceNodes(result) + "\n")
+            println("Parsing statistics: \n" +
+                    //                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
+                    "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
+                    "  Tokens: " + in.tokens.size + "\n" +
+                    "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
+                    "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
+                    "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
+                    //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
+                    "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
+                    "  Distinct Features: " + countFeatures(in.tokens) + "\n" +
+                    "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
+                    "  Choice Nodes: " + countChoiceNodes(result) + "\n")
 
-
+        }
 
         //        checkParseResult(result, FeatureExpr.base)
 
@@ -145,18 +146,18 @@ class ParserMain(p: CParser) {
 
     def countChoices(ast: AST): Int = {
         var result: Int = 0
-//        ast.accept(new ASTVisitor {
-//            def visit(node: AST, ctx: FeatureExpr) {
-//                if (node.isInstanceOf[Choice[_]])
-//                    result += 1
-//                for (opt <- node.getInnerOpt)
-//                    if (opt.feature != FeatureExpr.base && opt.feature != ctx)
-//                        if (!((ctx implies (opt.feature)).isTautology)) {
-//                            result += 1
-//                        }
-//            }
-//            def postVisit(node: AST, feature: FeatureExpr) {}
-//        })
+        //        ast.accept(new ASTVisitor {
+        //            def visit(node: AST, ctx: FeatureExpr) {
+        //                if (node.isInstanceOf[Choice[_]])
+        //                    result += 1
+        //                for (opt <- node.getInnerOpt)
+        //                    if (opt.feature != FeatureExpr.base && opt.feature != ctx)
+        //                        if (!((ctx implies (opt.feature)).isTautology)) {
+        //                            result += 1
+        //                        }
+        //            }
+        //            def postVisit(node: AST, feature: FeatureExpr) {}
+        //        })
         result
     }
 

@@ -10,18 +10,18 @@ import org.kiama.attribution.DynamicAttribution._
 import org.kiama._
 
 @RunWith(classOf[JUnitRunner])
-class TypeSystemTest extends FunSuite with ShouldMatchers {
+class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
 
 
     def getAST(code: String) = {
         val ast: AST = new ParserMain(new CParser).parserMain(
-            CLexer.lex(code, null))
+            () => CLexer.lex(code, null), new CTypeContext, false)
         ast should not be (null)
         ast
     }
 
     def check(code: String) =
-        new TypeSystem().checkAST(getAST(code))
+        new CTypeSystem().checkAST(getAST(code))
 
     //    def getFunction(ast:AST, name: String):FunctionD {}
 
@@ -38,9 +38,11 @@ class TypeSystemTest extends FunSuite with ShouldMatchers {
 
     test("function environments") {
 
-        val ast=getAST("void foo() {};" +
+        val ast = getAST("void foo() {};" +
                 "void bar(){foo();}")
-        println(functionDef("foo")(ast))
+        val foo = functionDef("foo")(ast)
+
+        println(foo -> env)
 
     }
 

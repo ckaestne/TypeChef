@@ -10,7 +10,7 @@ object Main {
 
             val ast = new ParserMain(new CParser).parserMain(path, folder)
             if (ast != null)
-                new TypeSystem().checkAST(ast)
+                new CTypeSystem().checkAST(ast)
         }
     }
 }
