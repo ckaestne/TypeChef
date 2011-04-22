@@ -29,10 +29,10 @@ case class ErrorMsgs(name: String, callers: List[(FeatureExpr, AST)], targets: L
     override def toString = toError.toString
 }
 
-case class RedefErrorMsg(name: String, newDef: Entry, existingDef: Entry) {
+case class RedefErrorMsg(name: String, newDef: Entry, priorFExpr: FeatureExpr) {
     override def toString =
         "duplicate definition: '" + name + "'\n" +
-                "  previous features: " + existingDef.feature + "\n" +
+                "  previous features: " + priorFExpr + "\n" +
                 "  new features:      " + newDef.feature
 }
 

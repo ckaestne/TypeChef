@@ -4,7 +4,7 @@ import java.io.File
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.lexer.Main
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.typesystem.TypeSystem
+import de.fosd.typechef.typesystem.CTypeSystem
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,7 +54,7 @@ object WebFrontend {
 
         if (ast != null) {
             println("<h2>Type checking (incomplete!)</h2><pre name='tsoutput'>")
-            new TypeSystem(null).checkAST(ast)
+            new CTypeSystem(null).checkAST(ast.asInstanceOf[TranslationUnit])
             println("</pre>")
         }
     }

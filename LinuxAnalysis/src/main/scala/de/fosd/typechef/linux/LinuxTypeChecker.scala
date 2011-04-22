@@ -6,9 +6,10 @@
  */
 package de.fosd.typechef.linux
 
-import de.fosd.typechef.typesystem.TypeSystem
+import de.fosd.typechef.typesystem.CTypeSystem
+import de.fosd.typechef.parser.c.TranslationUnit
 
 object LinuxTypeChecker {
     def main(args: Array[String]): Unit =
-        LinuxParser.main(args, new TypeSystem(LinuxFeatureModel.featureModelExcludingDead).checkAST(_))
+        LinuxParser.main(args, x=>new CTypeSystem(LinuxFeatureModel.featureModelExcludingDead).checkAST(x.asInstanceOf[TranslationUnit]))
 }
