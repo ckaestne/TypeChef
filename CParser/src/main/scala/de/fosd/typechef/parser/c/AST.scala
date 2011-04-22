@@ -4,6 +4,10 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser._
 import org.kiama.attribution.Attributable
 
+/**
+ * AST for C
+ */
+
 //Expressions
 trait AST extends Attributable
 
