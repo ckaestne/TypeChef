@@ -3,6 +3,7 @@ package de.fosd.typechef.parser
 import scala.math._
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 import annotation.tailrec
+import org.kiama.attribution.Attributable
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing
@@ -1289,7 +1290,7 @@ case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"
 }
 
-case class Opt[+T](val feature: FeatureExpr, val entry: T) {
+case class Opt[+T](val feature: FeatureExpr, val entry: T) extends Attributable {
     override def equals(x: Any) = x match {
     //XXX: use feature equality instead of equivalence for performance! this may not always be what is expected.
         case Opt(f, e) => (f == feature) && (entry == e)

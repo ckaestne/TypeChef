@@ -7,12 +7,11 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_) {
         val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.0"
     })
-    lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_), featureexpr)
+    lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_) with Kiama, featureexpr)
     lazy val jcpp = project("PartialPreprocessor", "PartialPreprocessor", new JavaSubProject(_), featureexpr)
     lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_) with Kiama, featureexpr, jcpp, parserexp) 
     lazy val linuxAnalysis = project("LinuxAnalysis", "LinuxAnalysis", new LinuxAnalysisProject(_), featureexpr, jcpp, cparser, ctypechecker)
-    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_) with Kiama
-	, cparser)
+    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_) with Kiama, cparser)
     lazy val javaparser = project("JavaParser", "JavaParser", new DefaultSubProject(_), featureexpr, parserexp)
 
     class DefaultSubProject(info: ProjectInfo) extends DefaultProject(info) with ScctProject with IdeaProject {
