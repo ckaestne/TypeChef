@@ -9,8 +9,8 @@ object Main {
             val folder = new File(path).getParent
 
             val ast = new ParserMain(new CParser).parserMain(path, folder)
-            if (ast != null)
-                new CTypeSystem().checkAST(ast)
+            if (ast != null && ast.isInstanceOf[TranslationUnit])
+                new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
         }
     }
 }

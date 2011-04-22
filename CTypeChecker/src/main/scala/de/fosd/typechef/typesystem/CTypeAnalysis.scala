@@ -33,7 +33,7 @@ trait CTypeAnalysis {
         case e => if (e.parent == null) false else (e.parent -> isStatementLevel)
     }
 
-    val env: AST ==> LookupTable = attr {
+    val env: AST ==> LookupTable = /*attr*/ {
         case e@FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) =>
             e -> outerEnv add (new LFunctionDef(name, "", 1, e -> presenceCondition))
 
@@ -52,7 +52,7 @@ trait CTypeAnalysis {
         case e: AST => e -> outerEnv
 
     }
-    private val outerEnv: AST ==> LookupTable = attr {
+    private val outerEnv: AST ==> LookupTable = /*attr*/ {
         case e: AST =>
             if (e -> prevAST != null) e -> prevAST -> env
             else

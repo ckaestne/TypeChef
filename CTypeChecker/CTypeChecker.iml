@@ -24,6 +24,16 @@
     <orderEntry type="module" module-name="PartialPreprocessor" />
     <orderEntry type="module" module-name="ParserFramework" />
     <orderEntry type="module" module-name="CParser" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/kiama_2.8.1-1.0.2-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/compile/kiama_2.8.1-1.0.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

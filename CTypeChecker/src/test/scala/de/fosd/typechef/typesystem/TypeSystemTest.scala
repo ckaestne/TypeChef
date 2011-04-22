@@ -21,11 +21,11 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
         val ast: AST = new ParserMain(new CParser).parserMain(
             () => CLexer.lex(code, null), new CTypeContext, false)
         ast should not be (null)
-        ast
+        ast.asInstanceOf[TranslationUnit]
     }
 
     private def check(code: String): Boolean = check(getAST(code))
-    private def check(ast: AST): Boolean = new CTypeSystem().checkAST(ast)
+    private def check(ast: TranslationUnit): Boolean = new CTypeSystem().checkAST(ast)
 
     private def functionDef(functionName: String): AST ==> List[FunctionDef] =
         attr {
@@ -102,9 +102,9 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
 
     test("typecheck simple translation unit") {
 
-        expect(true) {
-            check(ast)
-        }
+        expect(true) {check(ast)}
+        expect(false) {check("void bar(){foo();}")}
+        expect(false) {check("void foo(){} void foo(){}")}
 
     }
 

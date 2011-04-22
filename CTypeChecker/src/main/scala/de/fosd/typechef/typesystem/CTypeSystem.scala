@@ -3,7 +3,9 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
-import org.kiama.rewriting.Rewriter._
+import org.kiama.attribution.DynamicAttribution._
+import org.kiama._
+import attribution.Attributable
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -27,9 +29,13 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
     def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
 
 
-    def checkAST(ast: AST): Boolean = {
+    def checkAST(ast: TranslationUnit): Boolean = {
 
-        topdown(checkFunctionCalls)(ast)
+        ast -> checkFunctionCalls
+        if (!ast.defs.isEmpty) {
+            val lastEnv = ast.defs.last.entry -> env
+            checkFunctionRedefinition(lastEnv)
+        }
 
         if (functionCallErrorMessages.values.isEmpty && functionRedefinitionErrorMessages.isEmpty)
             println("No type errors found.")
@@ -115,14 +121,36 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
     //        table = table.add(entry)
     //    }
 
-
-    val checkFunctionCalls = query {
-        //function call (XXX: PG: not-so-good detection, but will work for typical code).
-        case e@PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => {
-            //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
-            checkFunctionCall(e -> env, e, name, e -> presenceCondition /* and feat2 */)
+    def checkFunctionRedefinition(env: LookupTable) {
+        val definitions = env.byNames
+        for ((name, defs) <- definitions) {
+            if (defs.size > 1) {
+                var fexpr = defs.head.feature
+                for (adef <- defs.tail) {
+                    if (!(adef.feature mex fexpr).isTautology(featureModel)) {
+                        dbgPrintln("function " + name + " redefined with feature " + adef.feature + "; previous: " + fexpr)
+                        functionRedefinitionErrorMessages = RedefErrorMsg(name, adef, fexpr) :: functionRedefinitionErrorMessages
+                    }
+                    fexpr = fexpr or adef.feature
+                }
+            }
         }
-        case _ =>
+    }
+
+    val checkFunctionCalls: Attributable ==> Unit = attr {
+        case obj => {
+            // Process the errors of the children of t
+            for (child <- obj.children)
+                checkFunctionCalls(child)
+            obj match {
+            //function call (XXX: PG: not-so-good detection, but will work for typical code).
+                case e@PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => {
+                    //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
+                    checkFunctionCall(e -> env, e, name, e -> presenceCondition /* and feat2 */)
+                }
+                case _ =>
+            }
+        }
     }
 
 

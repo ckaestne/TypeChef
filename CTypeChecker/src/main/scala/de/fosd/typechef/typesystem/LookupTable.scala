@@ -11,6 +11,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 class LookupTable(functions: List[Entry] = List()) {
     def add(f: Entry) = new LookupTable(f :: functions)
     def find(name: String): List[Entry] = functions.filter(_.name == name)
+    def byNames = functions.groupBy(_.name)
     override def toString = functions.mkString("\n") + "\n" + functions.size + " entries."
 }
 
