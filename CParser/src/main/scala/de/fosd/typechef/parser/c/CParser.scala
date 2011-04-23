@@ -315,7 +315,9 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
             | ({(INC | DEC) ~! castExpr} ^^ {case p ~ e => UnaryExpr(p.getText, e)})
-            | (unaryOperator ~! castExpr ^^ {case u ~ c => UCastExpr(u.getText, c)})
+            | (STAR ~! castExpr ^^ {case _ ~ c => PointerDerefExpr(c)})
+            | (BAND ~! castExpr ^^ {case _ ~ c => PointerCreationExpr(c)})
+            | (unaryOperator ~! castExpr ^^ {case u ~ c => UnaryOpExpr(u.getText, c)})
             | (textToken("sizeof") ~!> (
             LPAREN ~> typeName <~ RPAREN ^^ {SizeOfExprT(_)} |
                     unaryExpr ^^ {SizeOfExprU(_)}
@@ -327,16 +329,20 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
             | gnuAsmExpr
             | fail("expected unaryExpr"))
 
-    def unaryOperator = (BAND | STAR | PLUS | MINUS | BNOT | LNOT
+    def unaryOperator = (PLUS | MINUS | BNOT | LNOT
             | LAND //for label dereference (&&label)
             | textToken("__real__")
             | textToken("__imag__"))
 
     def postfixExpr = primaryExpr ~ postfixSuffix ^^ {
-        case p ~ s => if (s.isEmpty) p else PostfixExpr(p, s)
+        case p ~ s =>
+            var result = p
+            for (suffix <- s)
+                result = PostfixExpr(result, suffix)
+            result
     }
 
-    def postfixSuffix: MultiParser[List[Opt[PostfixSuffix]]] = repOpt[PostfixSuffix](
+    def postfixSuffix: MultiParser[List[PostfixSuffix]] = repPlain[PostfixSuffix](
         (
                 ((PTR ~ ID) | (DOT ~ ID)) ^^ {case e ~ id => PointerPostfixSuffix(e.getText, id)})
                 | functionCall

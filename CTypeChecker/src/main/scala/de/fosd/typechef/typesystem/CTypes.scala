@@ -67,6 +67,18 @@ trait CTypes {
 
     case class CFunction(param: Seq[CType], ret: CType) extends CType
 
+    /**objects in memory */
+    case class CObj(t: CType) extends CType
+
+    /**errors */
+    case class CUnknown(msg: String = "") extends CType {
+        override def equals(that: Any) = that match {
+            case CUnknown(_) => true
+            case _ => super.equals(that)
+        }
+    }
+
+
     type StructEnv = Map[String, Seq[(String, CType)]]
     type PtrEnv = Set[String]
     //assumed well-formed pointer targets on structures
@@ -95,6 +107,8 @@ trait CTypes {
                             t != CVoid() && wellformed(structEnv, ptrEnv + name, t)
                         }))
             }
+            case CUnknown(_) => false
+            case CObj(_) => false
         }
     }
 

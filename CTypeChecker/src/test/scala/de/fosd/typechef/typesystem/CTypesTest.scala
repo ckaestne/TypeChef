@@ -5,15 +5,10 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
+import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
-class CTypesTest extends FunSuite with ShouldMatchers with CTypes {
-
-    //    test("basic types equality") {
-    //        CSigned(CInt()) should equal (CSigned(CInt()))
-    //        CSigned(CInt()) should equal (CInt())
-    //        CInt() should equal (CSigned(CInt()))
-    //   }
+class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping {
 
     test("wellformed types") {
         val sEnv: StructEnv = Map(
@@ -59,5 +54,10 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes {
         nwf(CStruct("nwf3"))
     }
 
+    test("simple expression types") {
+        val et = exprType(Map(), Map(), Map(), _: Expr)
+
+        et(Constant("1")) should be(CSigned(CInt()))
+    }
 
 }

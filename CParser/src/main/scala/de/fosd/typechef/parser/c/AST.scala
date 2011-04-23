@@ -46,8 +46,7 @@ case class FunctionCall(params: ExprList) extends PostfixSuffix {
 case class ArrayAccess(expr: Expr) extends PostfixSuffix {
 }
 
-case class PostfixExpr(p: Expr, s: List[Opt[PostfixSuffix]]) extends Expr {
-}
+case class PostfixExpr(p: Expr, s: PostfixSuffix) extends Expr
 
 case class UnaryExpr(kind: String, e: Expr) extends Expr {
 }
@@ -61,20 +60,21 @@ case class SizeOfExprU(expr: Expr) extends Expr {
 case class CastExpr(typeName: TypeName, expr: Expr) extends Expr {
 }
 
-case class UCastExpr(kind: String, castExpr: Expr) extends Expr {
+case class PointerDerefExpr(castExpr: Expr) extends Expr
+
+case class PointerCreationExpr(castExpr: Expr) extends Expr
+
+case class UnaryOpExpr(kind: String, castExpr: Expr) extends Expr {
 }
 
 case class NAryExpr(e: Expr, others: List[Opt[(String, Expr)]]) extends Expr {
 }
 
-case class ConditionalExpr(condition: Expr, thenExpr: Option[Expr], elseExpr: Expr) extends Expr {
-}
+case class ConditionalExpr(condition: Expr, thenExpr: Option[Expr], elseExpr: Expr) extends Expr
 
-case class AssignExpr(target: Expr, operation: String, source: Expr) extends Expr {
-}
+case class AssignExpr(target: Expr, operation: String, source: Expr) extends Expr
 
-case class ExprList(exprs: List[Opt[Expr]]) extends Expr {
-}
+case class ExprList(exprs: List[Opt[Expr]]) extends Expr
 
 //Statements
 abstract class Statement extends AST

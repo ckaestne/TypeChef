@@ -1,6 +1,5 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import org.kiama.attribution.DynamicAttribution._
@@ -144,9 +143,9 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
                 checkFunctionCalls(child)
             obj match {
             //function call (XXX: PG: not-so-good detection, but will work for typical code).
-                case e@PostfixExpr(Id(name), Opt(feat2, FunctionCall(_)) :: _) => {
+                case e@PostfixExpr(Id(name), FunctionCall(_)) => {
                     //Omit feat2, for typical code a function call is always a function call, even if the parameter list is conditional.
-                    checkFunctionCall(e -> env, e, name, e -> presenceCondition /* and feat2 */)
+                    checkFunctionCall(e -> env, e, name, e -> presenceCondition)
                 }
                 case _ =>
             }
