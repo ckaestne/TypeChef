@@ -16,26 +16,37 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
         val r = p.phrase(p.expr)(in, FeatureExpr.base)
-        println(r)
         r.asInstanceOf[p.Success[Expr]].result
     }
-    private def expr(code: String): CType =
-        exprType(varCtx, Map(), structEnv, parseExpr(code))
+    private def expr(code: String): CType = {
+        val ast = parseExpr(code)
+        val r = exprType(varCtx, funCtx, structEnv, ast)
+        println(ast + " --> " + r)
+        r
+    }
 
 
     val varCtx: VarTypingContext =
         Map(
             ("a" -> CDouble()),
             ("v" -> CVoid()),
-            ("s" -> CStruct("str")))
+            ("s" -> CStruct("str")),
+            ("sp" -> CPointer(CStruct("str"))),
+            ("arr" -> CArray(CDouble(), 5))
+        )
+    val funCtx: FunTypingContext =
+        Map(
+            ("foo" -> CFunction(Seq(), CDouble())),
+            ("bar" -> CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
+        )
     val structEnv: StructEnv =
         Map(
-            ("str" -> Seq(("a" -> CDouble()), ("b" -> CPointer(CStruct("str")))))
+            ("str" -> Seq(("a" -> CDouble()), ("b" -> CStruct("str"))))
         )
 
     test("primitives and pointers") {
         expr("1") should be(CSigned(CInt()))
-        expr("foo") should be(CUnknown())
+        expr("blub") should be(CUnknown())
         expr("a") should be(CObj(CDouble()))
         expr("&a") should be(CPointer(CDouble()))
         expr("*(&a)") should be(CObj(CDouble()))
@@ -43,13 +54,49 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("*v") should be(CUnknown())
     }
 
-    test("struct member access"){
+    test("struct member access") {
         expr("s.a") should be(CObj(CDouble()))
-        expr("s.b") should be(CObj(CPointer(CStruct("str"))))
+        expr("s.b") should be(CObj(CStruct("str")))
+        expr("s.b.a") should be(CObj(CDouble()))
+        expr("s.b.b.a") should be(CObj(CDouble()))
+        expr("(&s)->a") should be(CObj(CDouble()))
     }
 
     test("coersion") {
-
+        expr("(double)3") should be(CDouble())
+        coerce(CDouble(), CInt()) should be(true)
+        coerce(CUnsigned(CInt()), CInt()) should be(true)
+        coerce(CStruct("a"), CInt()) should be(false)
+        coerce(CPointer(CStruct("a")), CPointer(CVoid())) should be(true)
     }
 
+    test("function calls") {
+        expr("foo") should be(CFunction(Seq(), CDouble()))
+        expr("foo()") should be(CDouble())
+        expr("foo(1)") should be(CUnknown())
+        expr("bar") should be(CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
+        expr("bar()") should be(CUnknown())
+        expr("bar(1,s)") should be(CUnknown())
+        expr("bar(1,&s)") should be(CVoid())
+    }
+
+    test("assignment") {
+        expr("a=2") should be(CDouble())
+        expr("a=s") should be(CUnknown())
+    }
+    test("pre/post increment") {
+        expr("a++") should be(CDouble())
+        expr("a--") should be(CDouble())
+        expr("v++") should be(CUnknown())
+        expr("3++") should be(CUnknown())
+        expr("--a") should be(CDouble())
+        expr("++3") should be(CUnknown())
+    }
+    test("binary operation") {
+        expr("1+2") should be(CSigned(CInt()))
+        expr("a+=2") should be(CDouble())
+    }
+    test("array access") {
+        expr("arr[3]") should be(CDouble())
+    }
 }

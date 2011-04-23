@@ -291,7 +291,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
         }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~~ typeName ~~ RPAREN ~~ (castExpr | lcurlyInitializer) ^^ {case b1 ~ t ~ b2 ~ e => CastExpr(t, e)} | unaryExpr
+        LPAREN ~~ typeName ~~ RPAREN ~~ (castExpr | lcurlyInitializer) ^^ {case _ ~ t ~ _ ~ e => CastExpr(t, e)} | unaryExpr
 
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
         nonemptyAbstractDeclaratorA | nonemptyAbstractDeclaratorB
@@ -565,7 +565,6 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
 
     def alignof = textToken("__alignof__") | textToken("__alignof")
 
-    //XXX: PG - probably the rep's here should be optimized to repOpt
     def specList(otherSpecifiers: MultiParser[Specifier]): MultiParser[List[Opt[Specifier]]] =
         nonEmpty(repOpt(otherSpecifiers) ~~ opt(typedefName) ~~ repOpt(otherSpecifiers | typeSpecifier) ^^ {
             case list1 ~ Some(typedefn) ~ list2 => list1 ++ List(Opt(base, typedefn)) ++ list2

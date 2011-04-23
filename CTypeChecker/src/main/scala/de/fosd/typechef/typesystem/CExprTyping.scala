@@ -2,6 +2,8 @@ package de.fosd.typechef.typesystem
 
 
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
  * typing C expressions
@@ -43,13 +45,13 @@ trait CExprTyping extends CTypes {
                 else if (funCtx contains name)
                     funCtx(name)
                 else CUnknown("unknown id " + name)
-            //create pointer
+            //&a: create pointer
             case PointerCreationExpr(expr) =>
                 et(expr) match {
                     case CObj(t) => CPointer(t)
                     case e => CUnknown("& on " + e)
                 }
-            //pointer dereferencing
+            //*a: pointer dereferencing
             case PointerDerefExpr(expr) =>
                 et(expr) match {
                     case CPointer(t) if (t != CVoid) => CObj(t)
@@ -65,57 +67,106 @@ trait CExprTyping extends CTypes {
                     }
                     case e => CUnknown("(" + e + ")." + id)
                 }
+            //e->n
+            case PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
+                et(PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id))))
+            case CastExpr(targetTypeName, expr) =>
+                val targetType = typeName(targetTypeName)
+                val sourceType = et(expr)
+                if (targetType == CVoid() || (isScalar(sourceType) && isScalar(targetType)))
+                    targetType
+                else
+                    CUnknown("incorrect cast from " + sourceType + " to " + targetType)
+            //a()
+            case PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
+            //TODO ignoring variability for now
+                et(expr) match {
+                    case CFunction(parameterTypes, retType) =>
+                        if (parameterExprs.size != parameterTypes.size)
+                            CUnknown("parameter number mismatch in " + expr)
+                        else
+                        if ((parameterExprs zip parameterTypes) forall {
+                            case (Opt(_, e), t) => coerce(et(e), t)
+                        }) retType
+                        else
+                            CUnknown("parameter type mismatch")
+                    case _ => CUnknown(expr + " is not a function")
+                }
+            //a=b, a+=b, ...
+            case AssignExpr(texpr, op, sexpr) =>
+                val stype = et(sexpr)
+                val ttype = et(texpr)
+                val opType = operationType(op, ttype, stype)
+                ttype match {
+                    case CObj(t) if (!arrayType(t) && coerce(t, opType)) => t
+                    case e => CUnknown("incorrect assignment with " + e + " " + op + " " + stype)
+                }
+            //a++, a--
+            case PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) match {
+                case CObj(t) if (isScalar(t)) => t
+                //TODO check?: not on function references
+                case e => CUnknown("incorrect post increment/decrement on type " + e)
+            }
+            //a+b
+            case NAryExpr(expr, opList) =>
+            //TODO ignoring variability for now
+                var result = et(expr)
+                for (Opt(_, (op, thatExpr)) <- opList) {
+                    val thatType = et(thatExpr)
+                    result = operationType(op, result, thatType)
+                }
+                result
+            //a[e]
+            case PostfixExpr(expr, ArrayAccess(idx)) =>
+            //syntactic sugar for *(a+i)
+                et(PointerDerefExpr(createSum(expr, idx)))
+            //"a"
+            case StringLit(_) => CPointer(CUnsigned(CChar())) //TODO unsigned?
+            //++a, --a
+            case UnaryExpr(_, expr) =>
+                et(AssignExpr(expr, "+=", Constant("1")))
 
-
-
-        //            case class Id(name: String) extends PrimaryExpr
-        //
-        //            case class Constant(value: Int) extends PrimaryExpr
-        //
-        //            case class StringLit(name: List[Opt[String]]) extends PrimaryExpr
-        //
-        //            abstract class PostfixSuffix extends AST
-        //
-        //            case class SimplePostfixSuffix(t: String) extends PostfixSuffix
-        //
-        //            case class PointerPostfixSuffix(kind: String, id: Id) extends PostfixSuffix {
-        //            }
-        //
-        //            case class FunctionCall(params: ExprList) extends PostfixSuffix {
-        //            }
-        //
-        //            case class ArrayAccess(expr: Expr) extends PostfixSuffix {
-        //            }
-        //
-        //            case class PostfixExpr(p: Expr, s: List[Opt[PostfixSuffix]]) extends Expr {
-        //            }
-        //
-        //            case class UnaryExpr(kind: String, e: Expr) extends Expr {
-        //            }
-        //
-        //            case class SizeOfExprT(typeName: TypeName) extends Expr {
-        //            }
-        //
-        //            case class SizeOfExprU(expr: Expr) extends Expr {
-        //            }
-        //
-        //            case class CastExpr(typeName: TypeName, expr: Expr) extends Expr {
-        //            }
-        //
-        //            case class UnaryOpExpr(kind: String, castExpr: Expr) extends Expr {
-        //            }
-        //
-        //            case class NAryExpr(e: Expr, others: List[Opt[(String, Expr)]]) extends Expr {
-        //            }
-        //
-        //            case class ConditionalExpr(condition: Expr, thenExpr: Option[Expr], elseExpr: Expr) extends Expr
-        //
-        //            case class AssignExpr(target: Expr, operation: String, source: Expr) extends Expr
-        //
-        //            case class ExprList(exprs: List[Opt[Expr]]) extends Expr
-
-
+            case SizeOfExprT(_) => CInt()
+            case SizeOfExprU(_) => CInt()
+            case UnaryOpExpr(kind, expr) => kind match {
+            //TODO complete list: + - ~ ! && and __real__ __imag__
+                case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
+            }
+            case ConditionalExpr(condition, thenExpr, elseExpr) =>
+                CUnknown("not implemented yet (TODO)")
         }
     }
+
+    def typeName(name: TypeName): CType = {
+        //TODO ignoring variability for now
+        if (name.decl.isDefined) return CUnknown("unsupported declarator (TODO)")
+        if (name.specifiers.size != 1) return CUnknown("unsupported type with " + name.specifiers.size + " specifiers (TODO)")
+        for (Opt(_, specifier) <- name.specifiers) specifier match {
+        //TODO handle signed and unsigned
+            case PrimitiveTypeSpecifier("double") => return CDouble()
+            case PrimitiveTypeSpecifier("char") => return CSigned(CChar())
+            case PrimitiveTypeSpecifier("short") => return CShort()
+            case PrimitiveTypeSpecifier("int") => return CInt()
+            case PrimitiveTypeSpecifier("long") => return CLong()
+            case PrimitiveTypeSpecifier("float") => return CFloat()
+        }
+        return CUnknown("unsupported type " + name)
+    }
+
+    /**
+     * defines types of various operations
+     * TODO currently incomplete and possibly incorrect
+     */
+    def operationType(op: String, t1: CType, t2: CType): CType = (op, t1, t2) match {
+        case ("+", t1, t2) if (coerce(t1, t2)) => t1
+        case ("=", _, t2) => t2
+        case ("+=", CObj(t1), t2) if (coerce(t1, t2)) => t1
+        case _ => CUnknown("unknown operation or incompatible types " + t1 + " " + op + " " + t2)
+    }
+
+
+    private def createSum(a: Expr, b: Expr) =
+        NAryExpr(a, List(Opt(FeatureExpr.base, ("+", b))))
+
 
 }

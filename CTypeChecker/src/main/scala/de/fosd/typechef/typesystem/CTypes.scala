@@ -112,10 +112,39 @@ trait CTypes {
         }
     }
 
-    def arrayType(t: CType) = t match {
+    def arrayType(t: CType): Boolean = t match {
         case CArray(_, _) => true
         case _ => false
     }
+
+    def isScalar(t: CType): Boolean = isArithmetic(t) || (t match {
+        case CPointer(_) => true
+        //case function references => true
+        case _ => false
+    })
+
+    def isIntegral(t: CType): Boolean = t match {
+        case CSigned(_) => true
+        case CUnsigned(_) => true
+        case _ => false
+    }
+    def isArithmetic(t: CType): Boolean = isIntegral(t) || (t match {
+        case CFloat() => true
+        case CDouble() => true
+        case CLongDouble() => true
+        case _ => false
+    })
+
+    /**
+     * determines whether types are compatible in assignements etc
+     */
+    def coerce(t1: CType, t2: CType) =
+        (t1 == t2) ||
+                (isArithmetic(t1) && isArithmetic(t2)) ||
+                ((t1, t2) match {
+                    case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()
+                    case _ => false
+                })
 
 
 }

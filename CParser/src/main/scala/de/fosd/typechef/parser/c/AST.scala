@@ -23,9 +23,9 @@ trait ASTVisitor {
     def postVisit(node: AST, feature: FeatureExpr)
 }
 
-abstract class Expr extends AST
+sealed abstract class Expr extends AST
 
-abstract class PrimaryExpr extends Expr
+sealed abstract class PrimaryExpr extends Expr
 
 case class Id(name: String) extends PrimaryExpr
 
