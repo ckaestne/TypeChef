@@ -44,6 +44,7 @@ trait CTypes {
     case class CLong() extends CBasicType
 
     implicit def toCType(x: CInt): CType = CSigned(x)
+    implicit def toCType(x: CChar): CType = CSignUnspecified(x)
     implicit def toCType(x: CShort): CType = CSigned(x)
     implicit def toCType(x: CLong): CType = CSigned(x)
 
@@ -52,6 +53,10 @@ trait CTypes {
     case class CSigned(b: CBasicType) extends CType
 
     case class CUnsigned(b: CBasicType) extends CType
+
+    case class CSignUnspecified(b: CBasicType) extends CType
+
+    //implementationspecific for Char
 
     case class CFloat() extends CType
 
@@ -99,6 +104,7 @@ trait CTypes {
     def isIntegral(t: CType): Boolean = t match {
         case CSigned(_) => true
         case CUnsigned(_) => true
+        case CSignUnspecified(_) => true
         case _ => false
     }
     def isArithmetic(t: CType): Boolean = isIntegral(t) || (t match {
