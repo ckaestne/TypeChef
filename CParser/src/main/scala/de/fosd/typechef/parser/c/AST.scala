@@ -23,7 +23,7 @@ trait ASTVisitor {
     def postVisit(node: AST, feature: FeatureExpr)
 }
 
-sealed abstract class Expr extends AST
+abstract class Expr extends AST
 
 sealed abstract class PrimaryExpr extends Expr
 

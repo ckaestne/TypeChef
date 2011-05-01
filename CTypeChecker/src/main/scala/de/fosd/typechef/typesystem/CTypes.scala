@@ -79,49 +79,22 @@ trait CTypes {
     }
 
 
-    type StructEnv = Map[String, Seq[(String, CType)]]
     type PtrEnv = Set[String]
     //assumed well-formed pointer targets on structures
 
-
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
-        val wf = wellformed(structEnv, ptrEnv, _: CType)
-        ctype match {
-            case CSigned(_) => true
-            case CUnsigned(_) => true
-            case CVoid() => true
-            case CFloat() => true
-            case CDouble() => true
-            case CLongDouble() => true
-            case CPointer(CStruct(s)) => ptrEnv contains s
-            case CPointer(t) => wf(t)
-            case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
-            case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                    param.forall(p => wf(p) && !arrayType(p) && p != CVoid()))
-            case CStruct(name) => {
-                val members = structEnv.getOrElse(name, Seq())
-                val memberNames = members.map(_._1)
-                val memberTypes = members.map(_._2)
-                (!members.isEmpty && memberNames.distinct.size == memberNames.size &&
-                        memberTypes.forall(t => {
-                            t != CVoid() && wellformed(structEnv, ptrEnv + name, t)
-                        }))
-            }
-            case CUnknown(_) => false
-            case CObj(_) => false
-        }
-    }
 
     def arrayType(t: CType): Boolean = t match {
         case CArray(_, _) => true
         case _ => false
     }
 
-    def isScalar(t: CType): Boolean = isArithmetic(t) || (t match {
+    def isScalar(t: CType): Boolean = isArithmetic(t) || isPointer(t)
+
+    def isPointer(t: CType): Boolean = t match {
         case CPointer(_) => true
         //case function references => true
         case _ => false
-    })
+    }
 
     def isIntegral(t: CType): Boolean = t match {
         case CSigned(_) => true

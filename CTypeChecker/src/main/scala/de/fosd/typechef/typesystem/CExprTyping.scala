@@ -8,20 +8,16 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes {
-    //Variable-Typing Context: identifier to its non-void wellformed type
-    type VarTypingContext = Map[String, CType]
-
-    //Function-Typing Context: identifer to function types
-    type FunTypingContext = Map[String, CFunction]
+trait CExprTyping extends CTypes with CTypeEnv {
 
 
     private def structEnvLookup(strEnv: StructEnv, structName: String, fieldName: String): CType = {
         if (strEnv contains structName) {
-            val struct = strEnv(structName)
+            val struct = strEnv.get(structName)
+            //TODO handle alternatives
             val field = struct.find(_._1 == fieldName)
             if (field.isDefined)
-                field.get._2
+                field.get._3
             else
                 CUnknown(fieldName + " unknown in " + structName)
         } else CUnknown("struct " + structName + " unknown")
@@ -128,12 +124,21 @@ trait CExprTyping extends CTypes {
 
             case SizeOfExprT(_) => CInt()
             case SizeOfExprU(_) => CInt()
-            case UnaryOpExpr(kind, expr) => kind match {
-            //TODO complete list: + - ~ ! && and __real__ __imag__
-                case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
-            }
+            case UnaryOpExpr(kind, expr) =>
+                val exprType = et(expr)
+                kind match {
+                //TODO complete list: __real__ __imag__
+                //TODO promotions
+                    case "+" => if (isArithmetic(exprType)) exprType else CUnknown("incorrect type, expected arithmetic, was " + exprType)
+                    case "-" => if (isArithmetic(exprType)) exprType else CUnknown("incorrect type, expected arithmetic, was " + exprType)
+                    case "~" => if (isIntegral(exprType)) exprType else CUnknown("incorrect type, expected integer, was " + exprType)
+                    case "!" => if (isScalar(exprType)) exprType else CUnknown("incorrect type, expected scalar, was " + exprType)
+                    case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
+                }
             case ConditionalExpr(condition, thenExpr, elseExpr) =>
                 CUnknown("not implemented yet (TODO)")
+            //TODO initializers 6.5.2.5
+            case e => CUnknown("unknown expression " + e + " (TODO)")
         }
     }
 
@@ -158,7 +163,13 @@ trait CExprTyping extends CTypes {
      * TODO currently incomplete and possibly incorrect
      */
     def operationType(op: String, t1: CType, t2: CType): CType = (op, t1, t2) match {
-        case ("+", t1, t2) if (coerce(t1, t2)) => t1
+        case ("+", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+        case ("+", t1, t2) if (((isPointer(t1) && isIntegral(t2)) || (isPointer(t2) && isIntegral(t1))) && coerce(t1, t2)) => t1
+        case ("-", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+        //TODO other cases for addition and substraction
+        case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+        case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+        case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => t1
         case ("=", _, t2) => t2
         case ("+=", CObj(t1), t2) if (coerce(t1, t2)) => t1
         case _ => CUnknown("unknown operation or incompatible types " + t1 + " " + op + " " + t2)

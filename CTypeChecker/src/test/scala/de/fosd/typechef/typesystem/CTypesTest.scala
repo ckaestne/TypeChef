@@ -6,19 +6,21 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.featureexpr.FeatureExpr
+import FeatureExpr.base
 
 @RunWith(classOf[JUnitRunner])
 class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping {
 
     test("wellformed types") {
-        val sEnv: StructEnv = Map(
-            ("wf1" -> Seq(("a", CFloat()))),
-            ("wf2" -> Seq(("a", CFloat()), ("b", CDouble()))),
-            ("wf3" -> Seq(("a", CPointer(CStruct("wf2"))), ("b", CDouble()))),
-            ("wf4" -> Seq(("a", CPointer(CStruct("wf2"))), ("b", CPointer(CStruct("wf4"))))),
-            ("nwf1" -> Seq(("a", CFloat()), ("a", CDouble()))),
-            ("nwf2" -> Seq(("a", CVoid()), ("b", CDouble()))),
-            ("nwf3" -> Seq())
+        val sEnv: StructEnv = new StructEnv(Map(
+            ("wf1" -> Seq(("a", base, CFloat()))),
+            ("wf2" -> Seq(("a", base, CFloat()), ("b", base, CDouble()))),
+            ("wf3" -> Seq(("a", base, CPointer(CStruct("wf2"))), ("b", base, CDouble()))),
+            ("wf4" -> Seq(("a", base, CPointer(CStruct("wf2"))), ("b", base, CPointer(CStruct("wf4"))))),
+            ("nwf1" -> Seq(("a", base, CFloat()), ("a", base, CDouble()))),
+            ("nwf2" -> Seq(("a", base, CVoid()), ("b", base, CDouble()))),
+            ("nwf3" -> Seq()))
         )
         val tEnv: PtrEnv = Set("Str", "wf2")
         val wf = wellformed(sEnv, tEnv, _: CType) should be(true)
@@ -55,7 +57,7 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
     }
 
     test("simple expression types") {
-        val et = exprType(Map(), Map(), Map(), _: Expr)
+        val et = exprType(Map(), Map(), new StructEnv(), _: Expr)
 
         et(Constant("1")) should be(CSigned(CInt()))
     }
