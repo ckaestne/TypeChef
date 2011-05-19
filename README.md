@@ -46,7 +46,7 @@ To install TypeChef, build it from scratch using [sbt](http://code.google.com/p/
 
     git clone git://github.com/ckaestne/TypeChef.git
     cd TypeChef
-    java -jar sbt-launch-0.7.4.jar clean update compile
+    java -Xmx512M -Xss10m -jar sbt-launch-0.7.5.jar clean update compile
 
 TypeChef can be run normally in the Java VM (use `sbt package` to build jar files) or from within `sbt` which
 simplifies path management significantly. Example:
