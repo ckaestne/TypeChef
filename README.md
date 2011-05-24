@@ -67,6 +67,8 @@ or the specific ones for the Linux evaluation:
 > de.fosd.typechef.linux.LinuxParser  
 > de.fosd.typechef.linux.LinuxPreprocessorFrontend
 
+IntelliJ Idea users may run `sbt idea` to create corresponding project and classpath information for the IDE. Similar sbt plugins for Eclipse are available, but we have not tried or integrated them yet. In general avoid to set the classpath in IDEs manually, but let sbt generate corresponding files for you.
+
 Evaluation
 ----------
 
