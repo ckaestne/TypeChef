@@ -4,6 +4,7 @@ import de.fosd.typechef.lexer.Main
 import de.fosd.typechef.featureexpr.FeatureExpr
 import FeatureExpr._
 import scala.collection.JavaConversions._
+import scala.math.min
 
 
 object MinimalVariants {
@@ -39,17 +40,15 @@ object MinimalVariants {
 
 
 
-        println(edges)
         println(edges.size)
 
-        println(cromatic(nodes, edges))
-
+        println("minimal number of variants: " +cromatic(nodes, edges))
     }
 
     private def v(vertexid: Int, colorid: Int) = FeatureExpr.createDefinedExternal("v_" + vertexid + "_" + colorid)
 
     def cromatic(vertices: List[Int], edges: Set[(Int, Int)]): Int =
-        search(vertices, edges, 1, vertices.size, vertices.size)
+        search(vertices, edges, 1, min(vertices.size,32), vertices.size)
 
 
     private def search(vertices: List[Int], edges: Set[(Int, Int)], low: Int, up: Int, last: Int): Int = {

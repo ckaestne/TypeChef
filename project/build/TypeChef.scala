@@ -33,6 +33,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         lazy val stats = runTask("de.fosd.typechef.linux.Stats")
         lazy val pcppStats = runTask("de.fosd.typechef.linux.PCPPStats")
         lazy val web = runTask("de.fosd.typechef.linux.WebFrontend")
+        lazy val minvar = runTask("de.fosd.typechef.minimalvariants.MinimalVariants")
     }
 
     trait Kiama {
