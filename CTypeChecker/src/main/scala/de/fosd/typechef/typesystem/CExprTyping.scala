@@ -148,12 +148,12 @@ trait CExprTyping extends CTypes with CTypeEnv {
         if (name.specifiers.size != 1) return CUnknown("unsupported type with " + name.specifiers.size + " specifiers (TODO)")
         for (Opt(_, specifier) <- name.specifiers) specifier match {
         //TODO handle signed and unsigned
-            case PrimitiveTypeSpecifier("double") => return CDouble()
-            case PrimitiveTypeSpecifier("char") => return CSigned(CChar())
-            case PrimitiveTypeSpecifier("short") => return CShort()
-            case PrimitiveTypeSpecifier("int") => return CInt()
-            case PrimitiveTypeSpecifier("long") => return CLong()
-            case PrimitiveTypeSpecifier("float") => return CFloat()
+            case DoubleSpecifier() => return CDouble()
+            case CharSpecifier() => return CSigned(CChar())
+            case ShortSpecifier() => return CShort()
+            case IntSpecifier() => return CInt()
+            case LongSpecifier() => return CLong()
+            case FloatSpecifier() => return CFloat()
         }
         return CUnknown("unsupported type " + name)
     }

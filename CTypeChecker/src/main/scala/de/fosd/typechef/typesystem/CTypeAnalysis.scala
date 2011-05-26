@@ -40,7 +40,7 @@ trait CTypeAnalysis extends ASTNavigation {
         //function declaration and other declarations
         case e@ADeclaration(specifiers, initDecls) if (!(e -> isStatementLevel)) => {
             var table = e -> outerEnv
-            for (initDecl <- initDecls.toList.flatten)
+            for (initDecl <- initDecls)
                 initDecl.entry match {
                     case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e -> presenceCondition))
                     case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e -> presenceCondition))

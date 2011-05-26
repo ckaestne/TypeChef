@@ -82,7 +82,7 @@ class LinuxFragmentsTest {
     def c = Id("c");
     def d = Id("d");
     def x = Id("x");
-    def intType = TypeName(lo(PrimitiveTypeSpecifier("int")), None)
+    def intType = TypeName(lo(IntSpecifier()), None)
     def o[T](x: T) = Opt(FeatureExpr.base, x)
     def lo[T](x: T) = List(o(x))
     def lo[T](x: T, y: T) = List(o(x), o(y))

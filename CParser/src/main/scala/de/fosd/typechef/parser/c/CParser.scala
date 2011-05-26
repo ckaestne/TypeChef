@@ -45,12 +45,11 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
         asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)}
 
     def declaration: MultiParser[Declaration] =
-        (declSpecifiers ~~ opt(initDeclList) ~~ rep1(SEMI) ^^ {case d ~ i ~ _ => ADeclaration(d, i)} changeContext ({
+        (declSpecifiers ~~ optList(initDeclList) ~~ rep1(SEMI) ^^ {case d ~ i ~ _ => ADeclaration(d, i)} changeContext ({
             (result: ADeclaration, context: TypeContext) => {
                 var c = context
                 if (result.declSpecs.exists(o => o.entry == TypedefSpecifier()))
-                    if (result.init.isDefined)
-                        for (decl: Opt[InitDeclarator] <- result.init.get) {
+                        for (decl: Opt[InitDeclarator] <- result.init) {
                             c = c.addType(decl.entry.declarator.getName)
                             //                            println("add type " + decl.declarator.getName)//DEBUG only
                         }
@@ -66,33 +65,38 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
         specList(storageClassSpecifier | typeQualifier | attributeDecl) | fail("declSpecifier expected")
 
     def storageClassSpecifier: MultiParser[Specifier] =
-        specifier("auto") | specifier("register") | (textToken("typedef") ^^ {x => TypedefSpecifier()}) | functionStorageClassSpecifier
+        (specifier("auto") ^^^ AutoSpecifier()) |
+                (specifier("register") ^^^ RegisterSpecifier()) |
+                (textToken("typedef") ^^^ TypedefSpecifier()) |
+                functionStorageClassSpecifier
 
     def functionStorageClassSpecifier: MultiParser[Specifier] =
-        specifier("extern") | specifier("static") | inline
+        (specifier("extern") ^^^ ExternSpecifier()) |
+                (specifier("static") ^^^ StaticSpecifier()) | inline
 
     def typeQualifier: MultiParser[Specifier] =
         const | volatile | restrict
 
-    def specifier(name: String) = textToken(name) ^^ {t => OtherSpecifier(t.getText)}
+    def specifier(name: String) = textToken(name)
 
-    def typeSpecifier: MultiParser[TypeSpecifier] = (((textToken("void")
-            | textToken("char")
-            | textToken("short")
-            | textToken("int")
-            | textToken("long")
-            | textToken("float")
-            | textToken("double")
+    def typeSpecifier: MultiParser[TypeSpecifier] = ((textToken("void") ^^^ VoidSpecifier())
+            | (textToken("char") ^^^ CharSpecifier())
+            | (textToken("short") ^^^ ShortSpecifier())
+            | (textToken("int") ^^^ IntSpecifier())
+            | (textToken("long") ^^^ LongSpecifier())
+            | (textToken("float") ^^^ FloatSpecifier())
+            | (textToken("double") ^^^ DoubleSpecifier())
             | signed
-            | textToken("unsigned")
-            | textToken("_Bool")
+            | (textToken("unsigned") ^^^ UnsignedSpecifier())
+            | (textToken("_Bool")
             | textToken("_Complex")
-            | textToken("__complex__")) ^^ {(t: Elem) => PrimitiveTypeSpecifier(t.getText)})
+            | textToken("__complex__")) ^^ {(t: Elem) => OtherPrimitiveTypeSpecifier(t.getText)}
             | structOrUnionSpecifier
             | enumSpecifier
             //TypeDefName handled elsewhere!
-            | (typeof ~ LPAREN ~> ((typeName ^^ {TypeOfSpecifierT(_)})
-            | (expr ^^ {TypeOfSpecifierU(_)})) <~ RPAREN))
+            | (typeof ~ LPAREN ~> (
+            (typeName ^^ {TypeOfSpecifierT(_)}) | (expr ^^ {TypeOfSpecifierU(_)})
+            ) <~ RPAREN))
 
     def typedefName =
         tokenWithContext("type",
@@ -551,17 +555,17 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
 
     def typeof = textToken("typeof") | textToken("__typeof") | textToken("__typeof__")
 
-    def volatile = specifier("volatile") | specifier("__volatile") | specifier("__volatile__")
+    def volatile = (specifier("volatile") | specifier("__volatile") | specifier("__volatile__")) ^^^ VolatileSpecifier()
 
     def asm = textToken("asm") | textToken("__asm") | textToken("__asm__")
 
-    def const = specifier("const") | specifier("__const") | specifier("__const__")
+    def const = (specifier("const") | specifier("__const") | specifier("__const__")) ^^^ ConstSpecifier()
 
-    def restrict = specifier("restrict") | specifier("__restrict") | specifier("__restrict__")
+    def restrict = (specifier("restrict") | specifier("__restrict") | specifier("__restrict__")) ^^^ RestrictSpecifier()
 
-    def signed = textToken("signed") | textToken("__signed") | textToken("__signed__")
+    def signed = (textToken("signed") | textToken("__signed") | textToken("__signed__")) ^^^ SignedSpecifier()
 
-    def inline = specifier("inline") | specifier("__inline") | specifier("__inline__")
+    def inline = (specifier("inline") | specifier("__inline") | specifier("__inline__")) ^^^ InlineSpecifier()
 
     def alignof = textToken("__alignof__") | textToken("__alignof")
 

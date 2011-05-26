@@ -116,6 +116,8 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
          */
         def ^^[U](f: T => U): MultiParser[U] = map(f)
         def map[U](f: T => U): MultiParser[U] = new MapParser(this, f)
+        //replace on success
+        def ^^^[U](repl: U): MultiParser[U] = map(x=>repl)
 
         /**
          * map and join ASTs (when possible)

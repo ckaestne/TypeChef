@@ -140,16 +140,39 @@ object AltStatement {
 
 abstract class Specifier extends AST
 
-abstract class TypeSpecifier extends Specifier
+abstract sealed class TypeSpecifier extends Specifier
+abstract sealed class PrimitiveTypeSpecifier extends TypeSpecifier
+abstract sealed class OtherSpecifier extends Specifier
 
-case class PrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
 
-case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier {
-}
+case class OtherPrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
+case class VoidSpecifier extends PrimitiveTypeSpecifier
+case class ShortSpecifier extends PrimitiveTypeSpecifier
+case class IntSpecifier extends PrimitiveTypeSpecifier
+case class FloatSpecifier extends PrimitiveTypeSpecifier
+case class DoubleSpecifier extends PrimitiveTypeSpecifier
+case class LongSpecifier extends PrimitiveTypeSpecifier
+case class CharSpecifier extends PrimitiveTypeSpecifier
 
-case class TypedefSpecifier() extends Specifier
+case class TypedefSpecifier extends Specifier
+case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier
 
-case class OtherSpecifier(name: String) extends Specifier
+case class SignedSpecifier extends TypeSpecifier
+case class UnsignedSpecifier extends TypeSpecifier
+
+
+
+
+
+case class InlineSpecifier extends OtherSpecifier
+case class AutoSpecifier extends OtherSpecifier
+case class RegisterSpecifier extends OtherSpecifier
+case class VolatileSpecifier extends OtherSpecifier
+case class ExternSpecifier extends OtherSpecifier
+case class ConstSpecifier extends OtherSpecifier
+case class RestrictSpecifier extends OtherSpecifier
+case class StaticSpecifier extends OtherSpecifier
+
 
 abstract class Attribute extends AST
 
@@ -163,7 +186,7 @@ case class CompoundAttribute(inner: List[Opt[AttributeSequence]]) extends Attrib
 
 trait Declaration extends AST with ExternalDef
 
-case class ADeclaration(declSpecs: List[Opt[Specifier]], init: Option[List[Opt[InitDeclarator]]]) extends Declaration {
+case class ADeclaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) extends Declaration {
 }
 
 case class AltDeclaration(feature: FeatureExpr, thenBranch: Declaration, elseBranch: Declaration) extends Declaration with Choice[Declaration] {

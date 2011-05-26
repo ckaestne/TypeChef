@@ -82,7 +82,7 @@ class CParserTest extends TestCase {
     def c = Id("c");
     def d = Id("d");
     def x = Id("x");
-    def intType = TypeName(lo(PrimitiveTypeSpecifier("int")), None)
+    def intType = TypeName(lo(IntSpecifier()), None)
     def o[T](x: T) = Opt(FeatureExpr.base, x)
     def lo[T](x: T) = List(o(x))
     def lo[T](x: T, y: T) = List(o(x), o(y))
@@ -335,8 +335,8 @@ class CParserTest extends TestCase {
         assertParseResult(DeclaratorDecl(List(), None, DeclaratorId(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
         assertParseResult(DeclaratorId(lo(Pointer(List())), a, List()), "*a", p.declarator)
         assertParseResult(DeclaratorId(lo(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(lo(OtherSpecifier("const")))), a, List()), "*const a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(lo(OtherSpecifier("const"), OtherSpecifier("volatile")))), a, List()), "*const volatile a", p.declarator)
+        assertParseResult(DeclaratorId(lo(Pointer(lo(ConstSpecifier()))), a, List()), "*const a", p.declarator)
+        assertParseResult(DeclaratorId(lo(Pointer(lo(ConstSpecifier(), VolatileSpecifier()))), a, List()), "*const volatile a", p.declarator)
         assertParseResult(DeclaratorId(List(), a, lo(DeclArrayAccess(None))), "a[]", p.declarator)
         //    	assertParseResult(DeclaratorId(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
         //    	assertParseResult(DeclaratorId(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))

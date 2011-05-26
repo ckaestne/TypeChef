@@ -70,25 +70,28 @@ trait CTypeEnv extends CTypes with ASTNavigation {
         //type specifiers
 
         val isSigned: Boolean = specifiers.exists({
-            case Opt(_, PrimitiveTypeSpecifier("signed")) => true
+            case Opt(_, SignedSpecifier()) => true
             case _ => false
         })
         val isUnsigned: Boolean = specifiers.exists({
-            case Opt(_, PrimitiveTypeSpecifier("unsigned")) => true
+            case Opt(_, UnsignedSpecifier()) => true
             case _ => false
         })
         if (isSigned && isUnsigned)
             return CUnknown("type both signed and unsigned")
 
         def sign(t: CBasicType): CType = if (isSigned) CSigned(t) else if (isUnsigned) CUnsigned(t) else CSignUnspecified(t)
-        var types = for (specifier <- specifiers) yield specifier match {
-            case Opt(_, PrimitiveTypeSpecifier("char")) => sign(CChar())
-            case Opt(_, PrimitiveTypeSpecifier("short")) => sign(CShort())
-            case Opt(_, PrimitiveTypeSpecifier("int")) => sign(CInt())
-            case Opt(_, PrimitiveTypeSpecifier("long")) => sign(CLong())
-            case Opt(_, PrimitiveTypeSpecifier("float")) => CFloat()
-            case Opt(_, PrimitiveTypeSpecifier("double")) => CDouble()
-            case e => CUnknown("unknown type specifier " + e)
+        var types = List[CType]()
+        for (Opt(_, specifier) <- specifiers) specifier match {
+            case CharSpecifier() => types = types :+ sign(CChar())
+            case ShortSpecifier() => types = types :+ sign(CShort())
+            case IntSpecifier() => types = types :+ sign(CInt())
+            case LongSpecifier() => types = types :+ sign(CLong())
+            case FloatSpecifier() => types = types :+ CFloat()
+            case DoubleSpecifier() => types = types :+ CDouble()
+            case VoidSpecifier() => types = types :+ CVoid()
+            case e: OtherSpecifier =>
+            case e: TypeSpecifier => types = types :+ CUnknown("unknown type specifier " + e)
         }
         if (types.contains(CDouble()) && types.contains(CSigned(CLong())))
             types = CLongDouble() +: types.-(CDouble()).-(CSigned(CLong()))
