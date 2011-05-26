@@ -66,7 +66,8 @@ trait CTypes {
 
     case class CPointer(t: CType) extends CType
 
-    case class CArray(t: CType, length: Int) extends CType
+    //length is currently not analyzed. using always -1
+    case class CArray(t: CType, length: Int = -1) extends CType
 
     case class CStruct(s: String) extends CType
 

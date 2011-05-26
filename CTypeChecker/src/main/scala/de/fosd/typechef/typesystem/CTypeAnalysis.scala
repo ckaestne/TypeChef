@@ -34,16 +34,16 @@ trait CTypeAnalysis extends ASTNavigation {
     }
 
     val env: AST ==> LookupTable = /*attr*/ {
-        case e@FunctionDef(specifiers, DeclaratorId(pointers, Id(name), extensions), params, stmt) =>
-            e -> outerEnv add (new LFunctionDef(name, "", 1, e -> presenceCondition))
+        case e@FunctionDef(specifiers, decl, params, stmt) =>
+            e -> outerEnv add (new LFunctionDef(decl.getName, "", 1, e -> presenceCondition))
 
         //function declaration and other declarations
         case e@ADeclaration(specifiers, initDecls) if (!(e -> isStatementLevel)) => {
             var table = e -> outerEnv
             for (initDecl <- initDecls)
                 initDecl.entry match {
-                    case InitDeclaratorI(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e -> presenceCondition))
-                    case InitDeclaratorE(DeclaratorId(_, Id(name), _), _, _) => table = table add (new LDeclaration(name, "", 1, e -> presenceCondition))
+                    case InitDeclaratorI(decl, _, _) => table = table add (new LDeclaration(decl.getName, "", 1, e -> presenceCondition))
+                    case InitDeclaratorE(decl, _, _) => table = table add (new LDeclaration(decl.getName, "", 1, e -> presenceCondition))
                     case _ =>
                 }
             table

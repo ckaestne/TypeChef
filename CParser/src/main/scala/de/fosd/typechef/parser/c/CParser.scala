@@ -49,10 +49,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
             (result: ADeclaration, context: TypeContext) => {
                 var c = context
                 if (result.declSpecs.exists(o => o.entry == TypedefSpecifier()))
-                        for (decl: Opt[InitDeclarator] <- result.init) {
-                            c = c.addType(decl.entry.declarator.getName)
-                            //                            println("add type " + decl.declarator.getName)//DEBUG only
-                        }
+                    for (decl: Opt[InitDeclarator] <- result.init) {
+                        c = c.addType(decl.entry.declarator.getName)
+                        //                            println("add type " + decl.declarator.getName)//DEBUG only
+                    }
                 c
             }
         })) ^^! (AltDeclaration.join, x => x)
@@ -149,7 +149,11 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
     //consumes trailing comma <~ opt(COMMA)
 
     def initDecl: MultiParser[InitDeclarator] =
-        declarator ~ repOpt(attributeDecl) ~ opt((ASSIGN ~> initializer) | (COLON ~> expr)) ^^ {case d ~ attr ~ Some(i: Initializer) => InitDeclaratorI(d, attr, Some(i)); case d ~ attr ~ Some(e: Expr) => InitDeclaratorE(d, attr, e); case d ~ attr ~ None => InitDeclaratorI(d, attr, None);}
+        declarator ~ repOpt(attributeDecl) ~ opt((ASSIGN ~> initializer) | (COLON ~> expr)) ^^ {
+            case d ~ attr ~ Some(i: Initializer) => InitDeclaratorI(d, attr, Some(i));
+            case d ~ attr ~ Some(e: Expr) => InitDeclaratorE(d, attr, e);
+            case d ~ attr ~ None => InitDeclaratorI(d, attr, None);
+        }
 
     def pointerGroup0: MultiParser[List[Opt[Pointer]]] =
         repOpt(STAR ~> opt(typeQualifierList) ^^ {
@@ -176,15 +180,15 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
     //XXX: why opt(attributeDecl) rather than rep?
         (pointerGroup0 ~~ (ID | (LPAREN ~~> opt(attributeDecl) ~~ declarator <~ RPAREN)) ~
                 repOpt(
-                    (LPAREN ~~> ((parameterTypeList ^^ {DeclParameterTypeList(_)})
+                    (LPAREN ~~> ((parameterDeclList ^^ {DeclParameterDeclList(_)})
                             | (idList0 ^^ {DeclIdentifierList(_)})) <~~ RPAREN)
                             | (LBRACKET ~~> opt(constExpr) <~ RBRACKET ^^ {DeclArrayAccess(_)}))) ^^ {
-            case pointers ~ (id: Id) ~ ext => DeclaratorId(pointers, id, ext);
+            case pointers ~ (id: Id) ~ ext => AtomicNamedDeclarator(pointers, id, ext);
             case pointers ~ ((attr: Option[_ /*AttributeSpecifier*/ ]) ~ (decl: Declarator)) ~ ext =>
-                DeclaratorDecl(pointers, attr.asInstanceOf[Option[AttributeSpecifier]], decl, ext)
+                NestedNamedDeclarator(pointers, decl, ext)
         }
 
-    def parameterTypeList: MultiParser[List[Opt[ParameterDeclaration]]] =
+    def parameterDeclList: MultiParser[List[Opt[ParameterDeclaration]]] =
         rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt((COMMA | SEMI) ~> VARARGS) ^^ {
             case l ~ Some(v) => l ++ List(o(VarArgs())); case l ~ None => l
         }
@@ -297,25 +301,53 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
     def castExpr: MultiParser[Expr] =
         LPAREN ~~ typeName ~~ RPAREN ~~ (castExpr | lcurlyInitializer) ^^ {case _ ~ t ~ _ ~ e => CastExpr(t, e)} | unaryExpr
 
+    //ChK: changed the grammar according to the gnu gcc parser (stricter than before)
+    //avoiding repeatition, more parallel to named declarators
+    //    def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
+    //        nonemptyAbstractDeclaratorA | nonemptyAbstractDeclaratorB
+    //
+    //    def nonemptyAbstractDeclaratorA: MultiParser[AbstractDeclarator] =
+    //        pointerGroup1 ~
+    //                repOpt(
+    //                    ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterDeclList) ^^ {DeclParameterDeclList(_)}))
+    //                            <~ (opt(COMMA) ~ RPAREN))
+    //                            | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)}))) ^^ {
+    //            case pointers ~ (directDecls) => AbstractDeclarator(pointers, directDecls)
+    //            case pointers ~ directDecls => AbstractDeclarator(pointers, directDecls)
+    //        }
+    //
+    //    def nonemptyAbstractDeclaratorB: MultiParser[AbstractDeclarator] =
+    //        rep1(
+    //            ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterDeclList) ^^ {DeclParameterDeclList(_)}))
+    //                    <~ (opt(COMMA) ~ RPAREN))
+    //                    | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)}))) ^^ {
+    //            AbstractDeclarator(List(), _)
+    //        }
+
+
+    // either required pointer, then possible nesting and possible extensions
+    // or no pointers, required nesting, possible extensions
+    // or no pointers, no nesting, at least one extension
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
-        nonemptyAbstractDeclaratorA | nonemptyAbstractDeclaratorB
-
-    def nonemptyAbstractDeclaratorA: MultiParser[AbstractDeclarator] =
-        pointerGroup1 ~
+        (pointerGroup1 ~ opt(LPAREN ~ repOpt(attributeDecl) ~> nonemptyAbstractDeclarator <~ RPAREN) ~
                 repOpt(
-                    ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterTypeList) ^^ {DeclParameterTypeList(_)}))
-                            <~ (opt(COMMA) ~ RPAREN))
-                            | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)}))) ^^ {
-            case pointers ~ directDecls => AbstractDeclarator(pointers, directDecls)
-        }
-
-    def nonemptyAbstractDeclaratorB: MultiParser[AbstractDeclarator] =
-        rep1(
-            ((LPAREN ~> (nonemptyAbstractDeclarator | (optList(parameterTypeList) ^^ {DeclParameterTypeList(_)}))
-                    <~ (opt(COMMA) ~ RPAREN))
-                    | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)}))) ^^ {
-            AbstractDeclarator(List(), _)
-        }
+                    ((LPAREN ~> (optList(parameterDeclList) <~ (opt(COMMA) ~ RPAREN) ^^ {DeclParameterDeclList(_)}))
+                            | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)})))
+                ^^ {
+            case ptrs ~ Some(nestedADecl) ~ ext => NestedAbstractDeclarator(ptrs, nestedADecl, ext)
+            case ptrs ~ None ~ ext => AtomicAbstractDeclarator(ptrs, ext)
+        }) |
+                ((LPAREN ~ repOpt(attributeDecl) ~> nonemptyAbstractDeclarator <~ RPAREN) ~
+                        repOpt(
+                            ((LPAREN ~> (optList(parameterDeclList) <~ (opt(COMMA) ~ RPAREN) ^^ {DeclParameterDeclList(_)}))
+                                    | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)})))
+                        ^^ {
+                    case nestedADecl ~ ext => NestedAbstractDeclarator(List(), nestedADecl, ext)
+                }) |
+                (rep1(
+                    ((LPAREN ~> (optList(parameterDeclList) <~ (opt(COMMA) ~ RPAREN) ^^ {DeclParameterDeclList(_)}))
+                            | (LBRACKET ~> opt(expr) <~ (opt(COMMA) ~ RBRACKET) ^^ {DeclArrayAccess(_)})))
+                        ^^ {AtomicAbstractDeclarator(List(), _)})
 
     def unaryExpr: MultiParser[Expr] = (postfixExpr
             | ({(INC | DEC) ~! castExpr} ^^ {case p ~ e => UnaryExpr(p.getText, e)})

@@ -170,7 +170,7 @@ class CParserTest extends TestCase {
         assertParseAnyResult(List(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
     }
     def testPostfixExpr {
-        assertParseResult(Alt(fa, PostfixExpr(Id("b"), SimplePostfixSuffix("++")),Id("b")),
+        assertParseResult(Alt(fa, PostfixExpr(Id("b"), SimplePostfixSuffix("++")), Id("b")),
             """|b
         					|#ifdef a
         					|++
@@ -331,15 +331,15 @@ class CParserTest extends TestCase {
         assertParseable("void ****a", p.parameterDeclaration)
     }
     def testDeclarator {
-        assertParseResult(DeclaratorId(List(), a, List()), "a", p.declarator)
-        assertParseResult(DeclaratorDecl(List(), None, DeclaratorId(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(List())), a, List()), "*a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(lo(ConstSpecifier()))), a, List()), "*const a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(lo(ConstSpecifier(), VolatileSpecifier()))), a, List()), "*const volatile a", p.declarator)
-        assertParseResult(DeclaratorId(List(), a, lo(DeclArrayAccess(None))), "a[]", p.declarator)
-        //    	assertParseResult(DeclaratorId(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
-        //    	assertParseResult(DeclaratorId(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
+        assertParseResult(AtomicNamedDeclarator(List(), a, List()), "a", p.declarator)
+        assertParseResult(NestedNamedDeclarator(List(), AtomicNamedDeclarator(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(List())), a, List()), "*a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(lo(ConstSpecifier()))), a, List()), "*const a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(lo(ConstSpecifier(), VolatileSpecifier()))), a, List()), "*const volatile a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(List(), a, lo(DeclArrayAccess(None))), "a[]", p.declarator)
+        //    	assertParseResult(AtomicNamedDeclarator(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
+        //    	assertParseResult(AtomicNamedDeclarator(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
     }
     def testEnumerator {
         assertParseable("enum e", p.enumSpecifier)
@@ -370,8 +370,8 @@ class CParserTest extends TestCase {
 
     def testFunctionDef {
 
-        assertParseable("int a", p.parameterTypeList)
-        assertParseError("int a)", p.parameterTypeList)
+        assertParseable("int a", p.parameterDeclList)
+        assertParseError("int a)", p.parameterDeclList)
         //        assertParseable("(int a)", p.declaratorParamaterList)
         assertParseable("void foo(){}", p.functionDef)
         assertParseable("void foo(){a;}", p.functionDef)

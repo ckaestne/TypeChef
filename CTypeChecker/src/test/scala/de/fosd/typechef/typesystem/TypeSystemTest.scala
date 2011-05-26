@@ -29,7 +29,7 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with CTypeAnalysis {
 
     private def functionDef(functionName: String): AST ==> List[FunctionDef] =
         attr {
-            case e@FunctionDef(_, DeclaratorId(_, Id(name), _), _, _) if (name == functionName) => List(e)
+            case e@FunctionDef(_, decl, _, _) if (decl.getName == functionName) => List(e)
             case TranslationUnit(extDefs) => extDefs.map(opt =>
                 functionDef(functionName)(opt.entry)
             ).flatten

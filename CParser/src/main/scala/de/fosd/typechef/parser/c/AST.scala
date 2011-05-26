@@ -141,36 +141,51 @@ object AltStatement {
 abstract class Specifier extends AST
 
 abstract sealed class TypeSpecifier extends Specifier
+
 abstract sealed class PrimitiveTypeSpecifier extends TypeSpecifier
+
 abstract sealed class OtherSpecifier extends Specifier
 
 
 case class OtherPrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
+
 case class VoidSpecifier extends PrimitiveTypeSpecifier
+
 case class ShortSpecifier extends PrimitiveTypeSpecifier
+
 case class IntSpecifier extends PrimitiveTypeSpecifier
+
 case class FloatSpecifier extends PrimitiveTypeSpecifier
+
 case class DoubleSpecifier extends PrimitiveTypeSpecifier
+
 case class LongSpecifier extends PrimitiveTypeSpecifier
+
 case class CharSpecifier extends PrimitiveTypeSpecifier
 
 case class TypedefSpecifier extends Specifier
+
 case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier
 
 case class SignedSpecifier extends TypeSpecifier
+
 case class UnsignedSpecifier extends TypeSpecifier
 
 
-
-
-
 case class InlineSpecifier extends OtherSpecifier
+
 case class AutoSpecifier extends OtherSpecifier
+
 case class RegisterSpecifier extends OtherSpecifier
+
 case class VolatileSpecifier extends OtherSpecifier
+
 case class ExternSpecifier extends OtherSpecifier
+
 case class ConstSpecifier extends OtherSpecifier
+
 case class RestrictSpecifier extends OtherSpecifier
+
 case class StaticSpecifier extends OtherSpecifier
 
 
@@ -200,41 +215,66 @@ object AltDeclaration {
     def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
 }
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[Specifier]]) extends AST
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST
 
-case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Opt[Specifier]], i: Option[Initializer]) extends InitDeclarator(declarator, attributes) {
+case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], i: Option[Initializer]) extends InitDeclarator(declarator, attributes) {
 }
 
-case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Opt[Specifier]], e: Expr) extends InitDeclarator(declarator, attributes) {
+case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], e: Expr) extends InitDeclarator(declarator, attributes) {
 }
 
-abstract class Declarator(pointer: List[Opt[Pointer]], extensions: List[Opt[DeclaratorExtension]]) extends AST {
-    def getName: String
-}
 
-case class DeclaratorId(pointer: List[Opt[Pointer]], id: Id, extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointer, extensions) {
-    def getName = id.name
-}
+/**
+ * A declaration has two parts
+ *   specifier+ declarator+
+ * The specifier describes the basic type (which is modified by information in the declarator)
+ *
+ * A declarator is either an atomic declarator with a name, pointers and extensions or
+ * a nested declarator.
+ *
+ * All declarators are available also as AbstractDeclarators, which do not have a name and
+ * do not support the DeclIdentifierList extension
+ *
+ */
 
-case class DeclaratorDecl(pointer: List[Opt[Pointer]], attrib: Option[AttributeSpecifier], decl: Declarator, extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointer, extensions) {
-    def getName = decl.getName
-}
 
-abstract class DeclaratorExtension extends AST
+sealed abstract class AbstractDeclarator(val pointers: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AST
 
-case class DeclIdentifierList(idList: List[Opt[Id]]) extends DeclaratorExtension {
-}
+sealed abstract class Declarator(val pointers: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorExtension]]) extends AST {def getName: String}
 
-case class DeclParameterTypeList(parameterTypes: List[Opt[ParameterDeclaration]]) extends DeclaratorExtension with DirectAbstractDeclarator {
-}
 
-case class DeclArrayAccess(expr: Option[Expr]) extends DeclaratorExtension with DirectAbstractDeclarator {
-}
+case class AtomicNamedDeclarator(override val pointers: List[Opt[Pointer]], id: Id, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {def getName = id.name}
 
-trait DirectAbstractDeclarator extends AST
+case class NestedNamedDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: Declarator, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {def getName = nestedDecl.getName}
 
-case class AbstractDeclarator(pointer: List[Opt[Pointer]], extensions: List[Opt[DirectAbstractDeclarator]]) extends AST with DirectAbstractDeclarator {
-}
+case class AtomicAbstractDeclarator(override val pointers: List[Opt[Pointer]], override val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AbstractDeclarator(pointers, extensions)
+
+case class NestedAbstractDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: AbstractDeclarator, override val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AbstractDeclarator(pointers, extensions)
+
+
+sealed abstract class DeclaratorExtension extends AST
+
+sealed abstract class DeclaratorAbstrExtension extends DeclaratorExtension
+
+case class DeclIdentifierList(idList: List[Opt[Id]]) extends DeclaratorExtension
+
+case class DeclParameterDeclList(parameterDecls: List[Opt[ParameterDeclaration]]) extends DeclaratorAbstrExtension
+
+case class DeclArrayAccess(expr: Option[Expr]) extends DeclaratorAbstrExtension
+
+//
+//sealed abstract class Declarator(val pointer: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorExtension]]) extends AST {
+//    def getName: String
+//}
+//
+//case class DeclaratorId(override val pointer: List[Opt[Pointer]], id: Id, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointer, extensions) {
+//    def getName = id.name
+//}
+//
+//case class DeclaratorDecl(override val pointer: List[Opt[Pointer]], attrib: Option[AttributeSpecifier], decl: Declarator,override val  extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointer, extensions) {
+//
+//}
+
 
 case class Initializer(initializerElementLabel: List[Opt[InitializerElementLabel]], expr: Expr) extends AST {
 }
