@@ -28,7 +28,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
             int bar;
             struct account *a;
             void main(double a);
-            int i() { int foo=0; return foo; }"""))
+            int i() { int inner; double foo=0; return foo; }
+            double inner;"""))
 
     test("parse struct decl") {
 
@@ -61,7 +62,19 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
         env("acc") should be(CStruct("account"))
         env("main") should be(CFunction(Seq(CDouble()), CVoid()))
 
+        env("i") should be(CFunction(Seq(), CSignUnspecified(CInt())))
+        env("inner") should be(CDouble())
+    }
 
+    test("variable scoping") {
+        //finding but last statement in last functiondef
+        val fundef = ast.defs.takeRight(2).head.entry.asInstanceOf[FunctionDef]
+        val env = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry -> varEnv
+
+        println(env)
+
+        env("inner") should be(CSignUnspecified(CInt()))
+        env("foo") should be(CDouble())
     }
 
 }

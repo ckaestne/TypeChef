@@ -76,7 +76,12 @@ trait CDeclTyping extends CTypes {
 
     }
 
-    def declType(decl: ADeclaration): List[(String, CType)] = {
+    def declType(decl: Declaration): List[(String, CType)] = decl match {
+    //TODO variability
+        case a: ADeclaration => adeclType(a)
+        case AltDeclaration(f, a, b) => declType(a) ++ declType(b)
+    }
+    private def adeclType(decl: ADeclaration): List[(String, CType)] = {
 
 
         val returnType = constructType(decl.declSpecs)

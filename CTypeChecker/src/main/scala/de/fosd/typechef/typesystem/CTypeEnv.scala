@@ -33,8 +33,12 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
      */
 
     val varEnv: AST ==> VarTypingContext = attr {
-        case e: ADeclaration => outerVarEnv(e) ++ declType(e)
-        case e: AST => outerVarEnv(e)
+        case e: Declaration => outerVarEnv(e) ++ declType(e)
+        case e@FunctionDef(specs, decl, altparamlist, stmt) =>
+            assert(altparamlist.isEmpty, "alternative parameter notation not supported yet")
+            outerVarEnv(e) + (decl.getName -> declType(specs, decl))
+        case e@DeclarationStatement(decl) => outerVarEnv(e) ++ declType(decl)
+        case e: AST => println(e); outerVarEnv(e)
     }
     private def outerVarEnv(e: AST): VarTypingContext =
         outer[VarTypingContext](varEnv, () => Map(), e)
