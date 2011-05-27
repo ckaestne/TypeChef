@@ -17,26 +17,38 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
         ast.asInstanceOf[TranslationUnit]
     }
 
+    val ast = (getAST("""
+            int foo;
+            struct account {
+               int account_number;
+               char *first_name;
+               char *last_name;
+               float balance, *b;
+            };
+            int bar;
+            restricted account* a;
+            void main(double a);"""))
+
     test("parse struct decl") {
-        val ast = (getAST("""
-struct account {
-   int account_number;
-   char *first_name;
-   char *last_name;
-   float balance;
-};        """))
+
         val env: StructEnv = ast.defs.last.entry -> structEnv
 
         println(env.env)
 
         //should be in environement
         env.contains("account") should be(true)
+        val accountStruct = env.get("account")
+
         //four fields
-        env.get("account").size should be(4)
+        accountStruct.size should be(5)
         //should have field "firstname"
-        env.get("account").filter(_._1 == "first_name").size should be(1)
-        //should have numeric type
-        isIntegral(env.get("account").filter(_._1 == "first_name").head._3) should be(true)
+        accountStruct.filter(_._1 == "first_name").size should be(1)
+        //should have correct type
+        val firstname = accountStruct.filter(_._1 == "first_name").head
+        val balance = accountStruct.filter(_._1 == "balance").head
+
+        balance._3 should be(CFloat())
+        firstname._3 should be(CPointer(CChar()))
     }
 
 }

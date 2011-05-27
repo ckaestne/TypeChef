@@ -304,11 +304,14 @@ case class Enumerator(id: Id, assignment: Option[Expr]) extends AST {
 case class StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) extends TypeSpecifier {
 }
 
-case class StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDeclarator]]) extends AST {
+case class StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDecl]]) extends AST {
 }
 
-case class StructDeclarator(declarator: Option[Declarator], expr: Option[Expr], attributes: List[Opt[Specifier]]) extends AST {
-}
+sealed abstract class StructDecl extends AST
+
+case class StructDeclarator(decl: Declarator, initializer: Option[Expr], attributes: List[Opt[AttributeSpecifier]]) extends StructDecl
+
+case class StructInitializer(expr: Expr, attributes: List[Opt[AttributeSpecifier]]) extends StructDecl
 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef {
 }

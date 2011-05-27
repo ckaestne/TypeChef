@@ -123,13 +123,13 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
     def specifierQualifierList: MultiParser[List[Opt[Specifier]]] =
         specList(typeQualifier | attributeDecl)
 
-    def structDeclaratorList: MultiParser[List[Opt[StructDeclarator]]] =
+    def structDeclaratorList: MultiParser[List[Opt[StructDecl]]] =
         repSepOpt(structDeclarator, COMMA, "structDeclaratorList")
     //consumes trailing commas
 
-    def structDeclarator: MultiParser[StructDeclarator] =
-        ((COLON ~> constExpr ~ repOpt(attributeDecl) ^^ {case e ~ attr => StructDeclarator(None, Some(e), attr)})
-                | (declarator ~ opt(COLON ~> constExpr) ~ repOpt(attributeDecl) ^^ {case d ~ e ~ attr => StructDeclarator(Some(d), e, attr)}))
+    def structDeclarator: MultiParser[StructDecl] =
+        ((COLON ~> constExpr ~ repOpt(attributeDecl) ^^ {case e ~ attr => StructInitializer(e, attr)})
+                | (declarator ~ opt(COLON ~> constExpr) ~ repOpt(attributeDecl) ^^ {case d ~ e ~ attr => StructDeclarator(d, e, attr)}))
 
     def enumSpecifier: MultiParser[EnumSpecifier] =
         textToken("enum") ~>
