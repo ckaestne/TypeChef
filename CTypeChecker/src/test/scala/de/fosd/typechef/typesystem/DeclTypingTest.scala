@@ -22,6 +22,7 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
     private def declTL(code: String) = {
         val ast = parseDecl(code)
         val r = declType(ast)
+        println(r)
         r
     }
     private def declT(code: String) = declTL(code)(0)._2
@@ -51,7 +52,13 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
         declT("void main(double(*(*)())());") should be(CFunction(Seq(
             CPointer(CFunction(Seq(), CPointer(CFunction(Seq(), CDouble()))))
         ), CVoid()))
+    }
 
+    test("struct declarations") {
+        declT("struct { double a;} foo;") should be(CAnonymousStruct(List(("a", CDouble()))))
+        declT("struct a foo;") should be(CStruct("a"))
+        declT("struct a { double a;} foo;") should be(CStruct("a"))
+        declTL("struct a;").size should be(0)
     }
 
 }

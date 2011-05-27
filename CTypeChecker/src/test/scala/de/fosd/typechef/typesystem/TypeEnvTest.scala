@@ -17,17 +17,18 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
         ast.asInstanceOf[TranslationUnit]
     }
 
-    val ast = (getAST("""
+    private def ast = (getAST("""
             int foo;
             struct account {
                int account_number;
                char *first_name;
                char *last_name;
                float balance, *b;
-            };
+            } acc;
             int bar;
-            restricted account* a;
-            void main(double a);"""))
+            struct account *a;
+            void main(double a);
+            int i() { int foo=0; return foo; }"""))
 
     test("parse struct decl") {
 
@@ -49,6 +50,18 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
 
         balance._3 should be(CFloat())
         firstname._3 should be(CPointer(CChar()))
+    }
+
+    test("variable environment") {
+        val env = ast.defs.last.entry -> varEnv
+
+        env("foo") should be(CSignUnspecified(CInt()))
+        env("bar") should be(CSignUnspecified(CInt()))
+        env("a") should be(CPointer(CStruct("account")))
+        env("acc") should be(CStruct("account"))
+        env("main") should be(CFunction(Seq(CDouble()), CVoid()))
+
+
     }
 
 }

@@ -71,6 +71,8 @@ trait CTypes {
 
     case class CStruct(s: String) extends CType
 
+    case class CAnonymousStruct(fields: List[(String, CType)]) extends CType
+
     case class CFunction(param: Seq[CType], ret: CType) extends CType
 
     /**objects in memory */

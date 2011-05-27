@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser._
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -41,6 +42,8 @@ trait CDeclTyping extends CTypes {
             case FloatSpecifier() => types = types :+ CFloat()
             case DoubleSpecifier() => types = types :+ CDouble()
             case VoidSpecifier() => types = types :+ CVoid()
+            case StructOrUnionSpecifier("struct", Some(id), _) => types = types :+ CStruct(id.name)
+            case StructOrUnionSpecifier("struct", None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members).map(x => (x._1, x._3)))
             case e: OtherSpecifier =>
             case e: TypeSpecifier => types = types :+ CUnknown("unknown type specifier " + e)
         }
@@ -128,5 +131,13 @@ trait CDeclTyping extends CTypes {
 
     }
 
+    def parseStructMembers(members: List[Opt[StructDeclaration]]): List[(String, FeatureExpr, CType)] = {
+        var result = List[(String, FeatureExpr, CType)]()
+        for (Opt(f, attr) <- members; Opt(g, strDecl) <- attr.declaratorList) strDecl match {
+            case StructDeclarator(decl, _, _) => result = result :+ ((decl.getName, f and g, declType(attr.qualifierList, decl)))
+            case StructInitializer(expr, _) => assert(false) //TODO check: should only occur in initializers, not in struct declarations
+        }
+        result
+    }
 
 }

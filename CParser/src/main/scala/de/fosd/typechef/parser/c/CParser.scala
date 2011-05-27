@@ -607,7 +607,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = true) ex
             case list1 ~ None ~ list2 => list1 ++ list2
         })
 
-    //XXX: CK: only for debugging purposes
+    //XXX: CK: only for debugging purposes, not part of the C grammar
     def expectType = textToken("__expectType") ~ LBRACKET ~ COLON ~!> typedefName <~ COLON <~ RBRACKET ^^ {x => EmptyExternalDef()}
 
     // *** helper functions

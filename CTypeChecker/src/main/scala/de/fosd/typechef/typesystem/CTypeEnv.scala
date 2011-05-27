@@ -27,6 +27,22 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
     }
 
 
+    /*****
+     * Variable-Typing context (collects all top-level and local declarations)
+     * variables with local scope overwrite variables with global scope
+     */
+
+    val varEnv: AST ==> VarTypingContext = attr {
+        case e: ADeclaration => outerVarEnv(e) ++ declType(e)
+        case e: AST => outerVarEnv(e)
+    }
+    private def outerVarEnv(e: AST): VarTypingContext =
+        outer[VarTypingContext](varEnv, () => Map(), e)
+
+
+    /***
+     * Structs
+     */
     val structEnv: AST ==> StructEnv = attr {
         case e@ADeclaration(decls, _) =>
             decls.foldRight(outerStructEnv(e))({
@@ -38,23 +54,14 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
     val struct: AST ==> Option[(String, Seq[(String, FeatureExpr, CType)])] = attr {
         case e@StructOrUnionSpecifier(_, Some(Id(name)), attributes) =>
         //TODO variability
-            Some(name, readAttributes(attributes.map(_.entry)))
+            Some((name, parseStructMembers(attributes)))
         case _ => None
-    }
-
-    def readAttributes(attrs: List[StructDeclaration]): Seq[(String, FeatureExpr, CType)] = {
-        //TODO variability
-        var result = Seq[(String, FeatureExpr, CType)]()
-        for (attr <- attrs; Opt(f, strDecl) <- attr.declaratorList) strDecl match {
-            case StructDeclarator(decl, _, _) => result = result :+ ((decl.getName, f, declType(attr.qualifierList, decl)))
-            case StructInitializer(expr, _) => //TODO check: should only occur in initializers, not in struct declarations
-        }
-        result
     }
 
 
     private def outerStructEnv(e: AST): StructEnv =
         outer[StructEnv](structEnv, () => new StructEnv(Map()), e)
+
 
     private def outer[T](f: AST ==> T, init: () => T, e: AST): T =
         if (e -> prevAST != null) f(e -> prevAST)
@@ -89,6 +96,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
                             t != CVoid() && wellformed(structEnv, ptrEnv + name, t)
                         }))
             }
+            case CAnonymousStruct(members) => members.forall(x => wf(x._2))
             case CUnknown(_) => false
             case CObj(_) => false
         }
