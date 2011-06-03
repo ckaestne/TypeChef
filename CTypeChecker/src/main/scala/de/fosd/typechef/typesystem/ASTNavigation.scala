@@ -3,7 +3,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
-import org.kiama.attribution.DynamicAttribution._
+import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
 

@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import org.kiama.attribution.DynamicAttribution._
+import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
 import de.fosd.typechef.featureexpr.FeatureExpr

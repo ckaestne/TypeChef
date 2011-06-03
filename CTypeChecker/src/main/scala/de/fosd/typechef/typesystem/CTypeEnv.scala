@@ -3,7 +3,7 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import org.kiama.attribution.DynamicAttribution._
+import org.kiama.attribution.Attribution._
 import org.kiama._
 
 trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
@@ -28,10 +28,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
 
     val varEnv: AST ==> VarTypingContext = attr {
         case e: Declaration => outerVarEnv(e) ++ declType(e)
-        case e@FunctionDef(specs, decl, altparamlist, stmt) =>
-            assert(altparamlist.isEmpty, "alternative parameter notation not supported yet")
-            assert(!isTypedef(specs), "Invalid typedef specificer for function definition (?)")
-            outerVarEnv(e) + (decl.getName -> declType(specs, decl))
+        case fun: FunctionDef => outerVarEnv(fun) + (fun.getName -> (fun -> ctype))
         case e@DeclarationStatement(decl) => assertNoTypedef(decl); outerVarEnv(e) ++ declType(decl)
         case e: AST => outerVarEnv(e)
     }

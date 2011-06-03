@@ -2,14 +2,14 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
-import org.kiama.attribution.DynamicAttribution._
+import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
  *
- * performs type checking in a single tree-walk
+ * performs type checking in a single tree-walk, uses lookup functions from various traits
  *
  * @author kaestner
  *
@@ -25,6 +25,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
     //    var functionRedefinitionErrorMessages: List[RedefErrorMsg] = List()
 
     trait ErrorMsg
+
+    class SimpleError(msg: String, where: AST) extends ErrorMsg
 
     var errors: List[ErrorMsg] = List()
 
@@ -61,7 +63,16 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
 
 
     def performCheck(node: Attributable): Unit = node match {
+        case fun: FunctionDef => //check function redefinitions
+            val priorDefs = fun -> priorDefinitions
+            if (!priorDefs.isEmpty)
+                issueError("function redefinition of " + fun.getName + "; prior: " + priorDefs.mkString(", "), fun)
+
         case _ =>
+    }
+
+    private def issueError(msg: String, where: AST) {
+        errors = new SimpleError(msg, where) :: errors
     }
 
     //

@@ -56,7 +56,7 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
     }
 
     test("simple expression types") {
-        val et = exprType(Map(), new StructEnv(), _: Expr)
+        val et = exprType(Map(), new StructEnv(), _: PrimaryExpr)
 
         et(Constant("1")) should be(CSigned(CInt()))
     }

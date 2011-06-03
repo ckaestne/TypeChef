@@ -4,7 +4,7 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import org.kiama.attribution.DynamicAttribution._
+import org.kiama.attribution.Attribution._
 import org.kiama._
 
 /**
@@ -13,6 +13,14 @@ import org.kiama._
  * handling of typedef synonyms
  */
 trait CDeclTyping extends CTypes with ASTNavigation {
+
+
+    val ctype: FunctionDef ==> CType = attr {
+        case fun =>
+            if (!fun.parameters.isEmpty) CUnknown("alternative parameter notation not supported yet")
+            else if (isTypedef(fun.specifiers)) CUnknown("Invalid typedef specificer for function definition (?)")
+            else declType(fun.specifiers, fun.declarator)
+    }
 
 
     def constructType(specifiers: List[Opt[Specifier]]): CType = {
