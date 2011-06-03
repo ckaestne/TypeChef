@@ -13,7 +13,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
 
     private def expr(code: String): CType = {
         val ast = parseExpr(code)
-        val r = exprType(varCtx, astructEnv, ast)
+        val r = getExprType(varCtx, astructEnv, ast)
         println(ast + " --> " + r)
         r
     }

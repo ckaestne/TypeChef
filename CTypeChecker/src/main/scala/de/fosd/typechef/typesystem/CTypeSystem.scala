@@ -5,6 +5,7 @@ import de.fosd.typechef.featureexpr._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
+import de.fosd.typechef.parser.Opt
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -42,6 +43,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             // Process the errors of the children of t
             for (child <- obj.children)
                 child -> checkNode
+            checkAssumptions(obj)
             performCheck(obj)
         }
     }
@@ -71,7 +73,30 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
                 if (!mex(fun -> featureExpr, priorFun -> featureExpr))
                     issueError("function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
 
+        case expr: PostfixExpr => // check function calls in PostfixExpressions
+            ctype(expr) match {
+                case CUnknown(msg) => issueError("cannot resolve expression: " + msg, expr)
+                case _ =>
+            }
+
         case _ =>
+    }
+
+    /**
+     * enforce certain assumptions about the layout of the AST
+     *
+     * these can later be relaxed or automatically ensured by tree transformations
+     * before type checking
+     *
+     * for example, we assume that there is no variability within type declarations
+     * for now.
+     */
+    def checkAssumptions(node: Attributable): Unit = node match {
+        case ADeclaration(specifiers, _) => assertNoVariability(specifiers)
+        case _ =>
+    }
+    private def assertNoVariability[T](l: List[Opt[T]]) {
+        assert(l.forall(_.feature == FeatureExpr.base))
     }
 
     private def mex(a: FeatureExpr, b: FeatureExpr): Boolean = (a mex b).isTautology(featureModel)

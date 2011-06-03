@@ -64,4 +64,14 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation wit
         }
 
     }
+
+    test("ensure assumptions are checked") {
+        intercept[AssertionError] {
+            check("#ifdef X\nint\n#else\ndouble\n#endif\n a;")
+        }
+
+
+    }
+
+
 }

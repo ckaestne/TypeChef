@@ -4,12 +4,18 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.featureexpr.FeatureExpr
+import org.kiama.attribution.Attribution._
+import org.kiama._
 
 /**
  * typing C expressions
  */
 trait CExprTyping extends CTypes with CTypeEnv {
 
+    def ctype(expr: Expr) = expr -> exprType
+    val exprType: Expr ==> CType = attr {
+        case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
+    }
 
     private def structEnvLookup(strEnv: StructEnv, structName: String, fieldName: String): CType = {
         if (strEnv contains structName) {
@@ -23,8 +29,8 @@ trait CExprTyping extends CTypes with CTypeEnv {
         } else CUnknown("struct " + structName + " unknown")
     }
 
-    def exprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
-        val et = exprType(varCtx, strEnv, _: Expr)
+    private[typesystem] def getExprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
+        val et = getExprType(varCtx, strEnv, _: Expr)
         //TODO assert types in varCtx and funCtx are welltyped and non-void
         expr match {
         /**

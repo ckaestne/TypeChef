@@ -28,7 +28,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
 
     val varEnv: AST ==> VarTypingContext = attr {
         case e: Declaration => outerVarEnv(e) ++ declType(e)
-        case fun: FunctionDef => outerVarEnv(fun) + (fun.getName -> (fun -> ctype))
+        case fun: FunctionDef => outerVarEnv(fun) + (fun.getName -> (ctype(fun)))
         case e@DeclarationStatement(decl) => assertNoTypedef(decl); outerVarEnv(e) ++ declType(decl)
         case e: AST => outerVarEnv(e)
     }
