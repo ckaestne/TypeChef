@@ -14,7 +14,7 @@ import attribution.Attributable
  * @author kaestner
  *
  */
-class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
+class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with FeatureExprLookup {
 
     //    var functionCallChecks = 0
 
@@ -26,7 +26,9 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
 
     trait ErrorMsg
 
-    class SimpleError(msg: String, where: AST) extends ErrorMsg
+    class SimpleError(msg: String, where: AST) extends ErrorMsg {
+        override def toString = msg
+    }
 
     var errors: List[ErrorMsg] = List()
 
@@ -57,7 +59,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
                 println("  - " + e)
         }
         //        println("(performed " + functionCallChecks + " checks regarding function calls)");
-
+        println("\n")
         return errors.isEmpty
     }
 
@@ -65,13 +67,16 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis {
     def performCheck(node: Attributable): Unit = node match {
         case fun: FunctionDef => //check function redefinitions
             val priorDefs = fun -> priorDefinitions
-            if (!priorDefs.isEmpty)
-                issueError("function redefinition of " + fun.getName + "; prior: " + priorDefs.mkString(", "), fun)
+            for (priorFun <- priorDefs)
+                if (!mex(fun -> featureExpr, priorFun -> featureExpr))
+                    issueError("function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
 
         case _ =>
     }
 
-    private def issueError(msg: String, where: AST) {
+    private def mex(a: FeatureExpr, b: FeatureExpr): Boolean = (a mex b).isTautology(featureModel)
+
+    private def issueError(msg: String, where: AST, whereElse: AST = null) {
         errors = new SimpleError(msg, where) :: errors
     }
 

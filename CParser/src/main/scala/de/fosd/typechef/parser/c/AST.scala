@@ -317,6 +317,7 @@ case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 }
 
 case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) extends AST with ExternalDef {
+    def getName = declarator.getName
 }
 
 trait ExternalDef extends AST

@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExpr.base
 
 @RunWith(classOf[JUnitRunner])
 class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping {

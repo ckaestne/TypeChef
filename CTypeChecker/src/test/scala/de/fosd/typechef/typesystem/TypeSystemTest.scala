@@ -10,7 +10,7 @@ import de.fosd.typechef.parser.c._
 @RunWith(classOf[JUnitRunner])
 class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation with TestHelper {
 
-    private def check(code: String): Boolean = check(getAST(code))
+    private def check(code: String): Boolean = {println("checking " + code); check(getAST(code));}
     private def check(ast: TranslationUnit): Boolean = new CTypeSystem().checkAST(ast)
 
 
@@ -38,7 +38,7 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation wit
                     "#endif\n")
         }
     }
-    test("typecheck translation unit with features") {
+    test("typecheck function calls in translation unit with features") {
         expect(true) {
             check("void foo(){} \n" +
                     "#ifdef A\n" +
