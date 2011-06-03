@@ -14,15 +14,7 @@ import FeatureExpr.base
 import de.fosd.typechef.parser.Opt
 
 @RunWith(classOf[JUnitRunner])
-class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation {
-
-
-    private def getAST(code: String) = {
-        val ast: AST = new ParserMain(new CParser).parserMain(
-            () => CLexer.lex(code, null), new CTypeContext, false)
-        ast should not be (null)
-        ast.asInstanceOf[TranslationUnit]
-    }
+class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation with TestHelper {
 
 
     private def functionDef(functionName: String): AST ==> List[FunctionDef] =

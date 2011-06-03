@@ -8,14 +8,8 @@ import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
-class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes {
+class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes with TestHelper {
 
-    private def getAST(code: String) = {
-        val ast: AST = new ParserMain(new CParser).parserMain(
-            () => CLexer.lex(code, null), new CTypeContext, false)
-        ast should not be (null)
-        ast.asInstanceOf[TranslationUnit]
-    }
 
     private def ast = (getAST("""
             typedef int myint;

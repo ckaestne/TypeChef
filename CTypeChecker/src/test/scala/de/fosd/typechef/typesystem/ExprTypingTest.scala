@@ -4,21 +4,13 @@ package de.fosd.typechef.typesystem
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExpr
 import FeatureExpr.base
 import org.scalatest.FunSuite
 
 @RunWith(classOf[JUnitRunner])
-class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping {
+class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with TestHelper {
 
 
-    private def parseExpr(code: String): Expr = {
-        val in = CLexer.lex(code, null).setContext(new CTypeContext())
-        val p = new CParser()
-        val r = p.phrase(p.expr)(in, FeatureExpr.base)
-        r.asInstanceOf[p.Success[Expr]].result
-    }
     private def expr(code: String): CType = {
         val ast = parseExpr(code)
         val r = exprType(varCtx, astructEnv, ast)
