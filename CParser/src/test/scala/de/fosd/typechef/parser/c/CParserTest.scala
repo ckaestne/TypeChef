@@ -5,6 +5,7 @@ import junit.framework.Assert._
 import org.junit.Test
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
+import org.kiama.attribution.Attributable
 
 class CParserTest extends TestCase {
     val p = new CParser()
@@ -27,6 +28,7 @@ class CParserTest extends TestCase {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
+                assertNoDeadNodes(ast)
             }
             case p.NoSuccess(msg, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " " + inner)
@@ -37,18 +39,35 @@ class CParserTest extends TestCase {
             assertParseResult(expected, code, production)
     }
 
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
+    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]): Unit = {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
+                if (ast.isInstanceOf[AST])
+                    assertNoDeadNodes(ast.asInstanceOf[AST])
                 //succeed
             }
             case p.NoSuccess(msg, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " " + inner)
         }
     }
+    def assertParseableAST(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]): AST = {
+        val actual = p.parse(code.stripMargin, mainProduction)
+        System.out.println(actual)
+        (actual: @unchecked) match {
+            case p.Success(ast, unparsed) => {
+                assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
+                ast
+                //succeed
+            }
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
+                null
+        }
+    }
+
     def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
@@ -854,5 +873,42 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
 ;
 }
         """, p.phrase(p.translationUnit))
+
+
+    /**this code produced dead AST nodes */
+    @Test def testNoDeadAstNodes {
+        val c = """
+         #ifdef X
+         int a;
+         #else
+         double a;
+         #endif
+
+         #ifdef X
+         int x;
+         #endif
+         #ifdef Y
+         double x;
+         #endif
+
+         double
+         #ifdef X
+         b
+         #else
+         c
+         #endif
+         ;"""
+        val ast = assertParseableAST(c, p.translationUnit)
+        assertNoDeadNodes(ast, FeatureExpr.base)
+    }
+
+    private def assertNoDeadNodes(ast: Attributable, f: FeatureExpr = FeatureExpr.base) {
+        assert(f.isSatisfiable(), "dead AST subtree: " + ast)
+        ast match {
+            case Opt(g, e: Attributable) => assertNoDeadNodes(e, f and g)
+            case c: Choice[Attributable] => assertNoDeadNodes(c.thenBranch, f and c.feature); assertNoDeadNodes(c.elseBranch, f andNot c.feature)
+            case e => for (c <- e.children) assertNoDeadNodes(c, f)
+        }
+    }
 
 }
