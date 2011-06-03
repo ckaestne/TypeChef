@@ -38,10 +38,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         repOpt(externalDef, AltExternalDef.join, "externalDef")
 
     def externalDef: MultiParser[ExternalDef] =
-        (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} |// only
-    for error reporting, i.e.don 't try to parse anything else after a typedef
-    declaration |
-            functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) ^^!(AltExternalDef.join, x => x)
+    // first part (with lookahead) only for error reporting, i.e.don 't try to parse anything else after a typedef
+        (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} |
+                declaration |
+                functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) ^^! (AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
         asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)}
