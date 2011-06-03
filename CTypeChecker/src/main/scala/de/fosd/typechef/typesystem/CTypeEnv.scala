@@ -36,17 +36,14 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
         outer[VarTypingContext](varEnv, () => Map(), e)
 
 
-    private def assertNoTypedef(decl: Declaration): Unit = decl match {
-        case ADeclaration(specs, _) => assert(!isTypedef(specs))
-        case AltDeclaration(_, a, b) => assertNoTypedef(a); assertNoTypedef(b)
-    }
+    private def assertNoTypedef(decl: Declaration): Unit = assert(!isTypedef(decl.declSpecs))
 
 
     /***
      * Structs
      */
     val structEnv: AST ==> StructEnv = attr {
-        case e@ADeclaration(decls, _) =>
+        case e@Declaration(decls, _) =>
             decls.foldRight(outerStructEnv(e))({
                 case (Opt(_, a), b) => val s = a -> struct; if (s.isDefined) b.add(s.get._1, s.get._2) else b;
             })

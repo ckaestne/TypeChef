@@ -77,7 +77,7 @@ case class AssignExpr(target: Expr, operation: String, source: Expr) extends Exp
 case class ExprList(exprs: List[Opt[Expr]]) extends Expr
 
 //Statements
-abstract class Statement extends AST
+abstract sealed class Statement extends AST
 
 case class CompoundStatement(innerStatements: List[Opt[Statement]]) extends Statement {
 }
@@ -124,8 +124,13 @@ case class ElifStatement(condition: Expr, thenBranch: Statement) extends AST {
 case class SwitchStatement(expr: Expr, s: Statement) extends Statement {
 }
 
-case class DeclarationStatement(decl: Declaration) extends Statement {
-}
+abstract sealed class CompoundDeclaration extends Statement
+
+case class DeclarationStatement(decl: Declaration) extends CompoundDeclaration
+
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) extends CompoundDeclaration
+
+case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends CompoundDeclaration
 
 case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement with Choice[Statement] {
     override def equals(x: Any) = x match {
@@ -199,21 +204,8 @@ case class AttributeSequence(attributes: List[Opt[Attribute]]) extends AST {
 case class CompoundAttribute(inner: List[Opt[AttributeSequence]]) extends Attribute {
 }
 
-trait Declaration extends AST with ExternalDef
+case class Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) extends ExternalDef with OldParameterDeclaration
 
-case class ADeclaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) extends Declaration {
-}
-
-case class AltDeclaration(feature: FeatureExpr, thenBranch: Declaration, elseBranch: Declaration) extends Declaration with Choice[Declaration] {
-    override def equals(x: Any) = x match {
-        case AltDeclaration(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
-        case _ => false
-    }
-}
-
-object AltDeclaration {
-    def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
-}
 
 abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {def getName = declarator.getName;}
 
@@ -293,7 +285,9 @@ case class ParameterDeclarationD(override val specifiers: List[Opt[Specifier]], 
 case class ParameterDeclarationAD(override val specifiers: List[Opt[Specifier]], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers) {
 }
 
-case class VarArgs() extends ParameterDeclaration(List()) with Declaration
+trait OldParameterDeclaration extends AST
+
+case class VarArgs() extends ParameterDeclaration(List()) with OldParameterDeclaration
 
 case class EnumSpecifier(id: Option[Id], enumerators: List[Opt[Enumerator]]) extends TypeSpecifier {
 }
@@ -316,7 +310,7 @@ case class StructInitializer(expr: Expr, attributes: List[Opt[AttributeSpecifier
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef {
 }
 
-case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) extends AST with ExternalDef {
+case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: Statement) extends AST with ExternalDef {
     def getName = declarator.getName
 }
 
@@ -368,8 +362,6 @@ case class GnuAsmExpr(isVolatile: Boolean, expr: StringLit, stuff: Any) extends 
 case class RangeExpr(from: Expr, to: Expr) extends Expr {
 }
 
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) extends Declaration {
-}
 
 case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier {
 }
@@ -377,8 +369,6 @@ case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier {
 case class TypeOfSpecifierU(expr: Expr) extends TypeSpecifier {
 }
 
-case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends Declaration {
-}
 
 abstract class InitializerElementLabel() extends AST
 

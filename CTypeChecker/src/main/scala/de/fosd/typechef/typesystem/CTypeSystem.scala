@@ -92,7 +92,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
      * for now.
      */
     def checkAssumptions(node: Attributable): Unit = node match {
-        case ADeclaration(specifiers, _) => assertNoVariability(specifiers)
+        case Declaration(specifiers, _) => assertNoVariability(specifiers)
+        case x: NestedFunctionDef => assert(false, "NestedFunctionDef not supported, yet")
         case _ =>
     }
     private def assertNoVariability[T](l: List[Opt[T]]) {

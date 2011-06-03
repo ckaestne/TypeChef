@@ -25,11 +25,11 @@ trait TestHelper {
         r.asInstanceOf[p.Success[Expr]].result
     }
 
-    def parseDecl(code: String): ADeclaration = {
+    def parseDecl(code: String): Declaration = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
         val r = p.phrase(p.declaration)(in, FeatureExpr.base)
-        r.asInstanceOf[p.Success[ADeclaration]].result
+        r.asInstanceOf[p.Success[Declaration]].result
     }
 
 }

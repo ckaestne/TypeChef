@@ -17,7 +17,7 @@ trait CDeclTyping extends CTypes with ASTNavigation {
     def ctype(fun: FunctionDef) = fun -> funType
     val funType: FunctionDef ==> CType = attr {
         case fun =>
-            if (!fun.parameters.isEmpty) CUnknown("alternative parameter notation not supported yet")
+            if (!fun.oldStyleParameters.isEmpty) CUnknown("alternative parameter notation not supported yet")
             else if (isTypedef(fun.specifiers)) CUnknown("Invalid typedef specificer for function definition (?)")
             else declType(fun.specifiers, fun.declarator)
     }
@@ -94,12 +94,7 @@ trait CDeclTyping extends CTypes with ASTNavigation {
 
     }
 
-    def declType(decl: Declaration): List[(String, CType)] = decl match {
-    //TODO variability
-        case a: ADeclaration => adeclType(a)
-        case AltDeclaration(f, a, b) => declType(a) ++ declType(b)
-    }
-    private def adeclType(decl: ADeclaration): List[(String, CType)] = {
+    def declType(decl: Declaration): List[(String, CType)] = {
         if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType = constructType(decl.declSpecs)
@@ -180,11 +175,7 @@ trait CDeclTyping extends CTypes with ASTNavigation {
     private def outerTypedefEnv(e: AST): TypeDefEnv =
         outer[TypeDefEnv](typedefEnv, () => Map(), e)
 
-    private def recognizeTypedefs(d: Declaration): TypeDefEnv = d match {
-        case a: ADeclaration => recognizeTypedef(a)
-        case AltDeclaration(_, a, b) => recognizeTypedefs(a) ++ recognizeTypedefs(b)
-    }
-    private def recognizeTypedef(decl: ADeclaration): TypeDefEnv = {
+    private def recognizeTypedefs(decl: Declaration): TypeDefEnv = {
         if (isTypedef(decl.declSpecs))
             (for (Opt(f, init) <- decl.init) yield (init.getName -> declType(decl.declSpecs, init.declarator))) toMap
         else Map()

@@ -38,15 +38,17 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         repOpt(externalDef, AltExternalDef.join, "externalDef")
 
     def externalDef: MultiParser[ExternalDef] =
-        (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} | declaration |
-                functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) ^^! (AltExternalDef.join, x => x)
+        (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} |// only
+    for error reporting, i.e.don 't try to parse anything else after a typedef
+    declaration |
+            functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) ^^!(AltExternalDef.join, x => x)
 
     def asm_expr: MultiParser[AsmExpr] =
         asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)}
 
     def declaration: MultiParser[Declaration] =
-        (declSpecifiers ~~ optList(initDeclList) ~~ rep1(SEMI) ^^ {case d ~ i ~ _ => ADeclaration(d, i)} changeContext ({
-            (result: ADeclaration, context: TypeContext) => {
+        (declSpecifiers ~~ optList(initDeclList) ~~ rep1(SEMI) ^^ {case d ~ i ~ _ => Declaration(d, i)} changeContext ({
+            (result: Declaration, context: TypeContext) => {
                 var c = context
                 if (result.declSpecs.exists(o => o.entry == TypedefSpecifier()))
                     for (decl: Opt[InitDeclarator] <- result.init) {
@@ -55,7 +57,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                     }
                 c
             }
-        })) ^^! (AltDeclaration.join, x => x)
+        }))
 
     //gnu
     def typelessDeclaration: MultiParser[TypelessDeclaration] =
@@ -218,7 +220,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
 
     private def compoundDeclaration =
-        (declaration | nestedFunctionDef | localLabelDeclaration) ^^ {DeclarationStatement(_)} |
+        declaration ^^ {DeclarationStatement(_)} | nestedFunctionDef | localLabelDeclaration |
                 fail("expected compoundDeclaration")
 
     def compoundStatement: MultiParser[CompoundStatement] =
