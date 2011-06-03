@@ -8,7 +8,7 @@ import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
-class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with CTypeEnv with CTypes {
+class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes {
 
     private def getAST(code: String) = {
         val ast: AST = new ParserMain(new CParser).parserMain(
