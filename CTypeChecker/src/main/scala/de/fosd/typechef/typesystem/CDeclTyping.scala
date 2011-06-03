@@ -12,7 +12,7 @@ import org.kiama._
  *
  * handling of typedef synonyms
  */
-trait CDeclTyping extends CTypes with ASTNavigation {
+trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def ctype(fun: FunctionDef) = fun -> funType
     val funType: FunctionDef ==> CType = attr {
@@ -23,13 +23,18 @@ trait CDeclTyping extends CTypes with ASTNavigation {
     }
 
 
-    def constructType(specifiers: List[Opt[Specifier]]): CType = {
-        //TODO variability
-        //other specifiers for declarations
-        //        specifier("auto") | specifier("register") | (textToken("typedef") ^^ {x => TypedefSpecifier()}) | functionStorageClassSpecifier
-        //        specifier("extern") | specifier("static") | inline
-        //  const | volatile | restrict
-        //        attributes
+    def constructType(specifiers2: List[Opt[Specifier]]): CType = {
+        /**
+         * filtering is a workaround for a parsing problem (see open test) that can produce
+         * dead AST-subtrees in some combinations.
+         *
+         * remove when problem is fixed
+         */
+        val specifiers = specifiers2.filter(o => ((o.feature) and (o -> featureExpr)).isSatisfiable)
+
+        //checked assumption: there is no variability in specifier lists
+        assert(specifiers.forall(o => ((o -> featureExpr) implies (o.feature)).isTautology), "Unexpected variability in specifiers: " + specifiers + "  " + featureExpr(specifiers.head))
+
 
         //type specifiers
 
@@ -94,12 +99,12 @@ trait CDeclTyping extends CTypes with ASTNavigation {
 
     }
 
-    def declType(decl: Declaration): List[(String, CType)] = {
+    def declType(decl: Declaration): List[(String, FeatureExpr, CType)] = {
         if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType = constructType(decl.declSpecs)
 
-            for (init <- decl.init) yield (init.entry.declarator.getName, getDeclaratorType(init.entry.declarator, returnType))
+            for (init <- decl.init) yield (init.entry.declarator.getName, init -> featureExpr, getDeclaratorType(init.entry.declarator, returnType))
         }
     }
 

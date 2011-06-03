@@ -1,6 +1,13 @@
 package de.fosd.typechef.typesystem
 
+import de.fosd.typechef.featureexpr.FeatureExpr
 
+
+/**
+ * basic types of C and definitions which types are compatible
+ *
+ * extended by alternative types with variability: CChoice
+ */
 trait CTypes {
 
     /**
@@ -33,7 +40,9 @@ trait CTypes {
 
     sealed abstract class CBasicType
 
-    sealed abstract class CType extends CAbstractType
+    sealed abstract class CType extends CAbstractType {
+        def toObj: CType = CObj(this)
+    }
 
     case class CChar() extends CBasicType
 
@@ -73,17 +82,32 @@ trait CTypes {
 
     case class CAnonymousStruct(fields: List[(String, CType)]) extends CType
 
-    case class CFunction(param: Seq[CType], ret: CType) extends CType
+    case class CFunction(param: Seq[CType], ret: CType) extends CType {
+        override def toObj = this
+    }
 
     /**objects in memory */
     case class CObj(t: CType) extends CType
 
     /**errors */
     case class CUnknown(msg: String = "") extends CType {
+        override def toObj = this
         override def equals(that: Any) = that match {
             case CUnknown(_) => true
             case _ => super.equals(that)
         }
+    }
+
+    /**no defined in environment, typically only used in CChoice types */
+    case class CUndefined() extends CUnknown("undefined")
+
+
+    /**
+     * variability: alternative types (choice node on types!)
+     */
+    case class CChoice(f: FeatureExpr, a: CType, b: CType) extends CType {
+        def simplify = this
+        override def toObj = CChoice(f, a.toObj, b.toObj)
     }
 
 
@@ -91,6 +115,9 @@ trait CTypes {
     //assumed well-formed pointer targets on structures
 
 
+    /**
+     * helper functions
+     */
     def arrayType(t: CType): Boolean = t match {
         case CArray(_, _) => true
         case _ => false
@@ -118,9 +145,10 @@ trait CTypes {
     })
 
     /**
-     * determines whether types are compatible in assignements etc
+     *  determines whether types are compatible in assignements etc
      */
     def coerce(t1: CType, t2: CType) =
+    //TODO variability
         (t1 == t2) ||
                 (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {

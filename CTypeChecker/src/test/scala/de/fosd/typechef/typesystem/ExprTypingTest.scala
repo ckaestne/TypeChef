@@ -20,14 +20,14 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
 
 
     val varCtx: VarTypingContext =
-        Map(
-            ("a" -> CDouble()),
-            ("v" -> CVoid()),
-            ("s" -> CStruct("str")),
-            ("sp" -> CPointer(CStruct("str"))),
-            ("arr" -> CArray(CDouble(), 5)),
-            ("foo" -> CFunction(Seq(), CDouble())),
-            ("bar" -> CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
+        new VarTypingContext() ++ Seq(
+            ("a", base, CDouble()),
+            ("v", base, CVoid()),
+            ("s", base, CStruct("str")),
+            ("sp", base, CPointer(CStruct("str"))),
+            ("arr", base, CArray(CDouble(), 5)),
+            ("foo", base, CFunction(Seq(), CDouble())),
+            ("bar", base, CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
         )
     val astructEnv: StructEnv =
         new StructEnv().add(

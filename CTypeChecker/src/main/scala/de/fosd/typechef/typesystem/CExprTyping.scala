@@ -41,12 +41,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
         //TODO constant 0 is special, can be any pointer or function
             case Constant(_) => CSigned(CInt())
             //variable or function ref TODO check
-            case Id(name) =>
-                if (varCtx contains name) varCtx(name) match {
-                    case f: CFunction => f
-                    case v => CObj(v)
-                }
-                else CUnknown("unknown id " + name)
+            case Id(name) => varCtx(name).toObj
             //&a: create pointer
             case PointerCreationExpr(expr) =>
                 et(expr) match {

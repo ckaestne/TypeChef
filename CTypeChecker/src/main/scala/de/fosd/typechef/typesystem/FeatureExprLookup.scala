@@ -9,6 +9,9 @@ import attribution.Attributable
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 
+/**
+ * provides featureExpr lookup for *all* AST nodes
+ */
 trait FeatureExprLookup {
 
     val featureExpr: Attributable ==> FeatureExpr = attr {

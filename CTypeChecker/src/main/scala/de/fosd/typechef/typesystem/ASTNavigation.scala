@@ -7,13 +7,15 @@ import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
 
+/**
+ * Simplified navigation support
+ *
+ * prevAST and parentAST provide navigation between
+ * AST nodes not affected by Opt and Choice nodes
+ * (those are just flattened)
+ */
 trait ASTNavigation {
 
-    /**
-     * prevAST and parentAST provide navigation between
-     * AST nodes not affected by Opt and Choice nodes
-     * (those are just flattened)
-     */
     val parentAST: Attributable ==> AST = attr {case a: Attributable => findParent(a)}
     private def findParent(a: Attributable): AST =
         a.parent match {

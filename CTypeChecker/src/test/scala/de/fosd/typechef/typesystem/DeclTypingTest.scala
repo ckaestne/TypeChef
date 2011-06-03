@@ -12,7 +12,7 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
 
     private def declTL(code: String) = {
         val ast = parseDecl(code)
-        val r = declType(ast)
+        val r = declType(ast).map(e => (e._1, e._3))
         println(r)
         r
     }
