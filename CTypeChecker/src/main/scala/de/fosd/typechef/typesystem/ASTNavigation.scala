@@ -56,4 +56,11 @@ trait ASTNavigation {
             case c => c
         }
 
+
+    protected def outer[T](f: AST ==> T, init: () => T, e: AST): T =
+        if (e -> prevAST != null) f(e -> prevAST)
+        else
+        if (e -> parentAST != null) f(e -> parentAST)
+        else
+            init()
 }

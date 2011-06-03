@@ -6,7 +6,6 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExpr
 import FeatureExpr.base
 
 @RunWith(classOf[JUnitRunner])
@@ -57,7 +56,7 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
     }
 
     test("simple expression types") {
-        val et = exprType(Map(), Map(), new StructEnv(), _: Expr)
+        val et = exprType(Map(), new StructEnv(), _: Expr)
 
         et(Constant("1")) should be(CSigned(CInt()))
     }

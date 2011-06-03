@@ -215,7 +215,7 @@ object AltDeclaration {
     def join = (f: FeatureExpr, x: Declaration, y: Declaration) => if (x == y) x else AltDeclaration(f, x, y)
 }
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {def getName = declarator.getName;}
 
 case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], i: Option[Initializer]) extends InitDeclarator(declarator, attributes) {
 }

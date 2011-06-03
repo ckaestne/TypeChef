@@ -11,12 +11,6 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
     //Variable-Typing Context: identifier to its non-void wellformed type
     type VarTypingContext = Map[String, CType]
 
-    //Function-Typing Context: identifer to function types
-    type FunTypingContext = Map[String, CFunction]
-
-    //Type synonyms with typedef
-    type TypeDefEnv = Map[String, CType]
-
     class StructEnv(val env: Map[String, Seq[(String, FeatureExpr, CType)]]) {
         def this() = this (Map())
         def contains(name: String) = env contains name
@@ -36,12 +30,19 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
         case e: Declaration => outerVarEnv(e) ++ declType(e)
         case e@FunctionDef(specs, decl, altparamlist, stmt) =>
             assert(altparamlist.isEmpty, "alternative parameter notation not supported yet")
+            assert(!isTypedef(specs), "Invalid typedef specificer for function definition (?)")
             outerVarEnv(e) + (decl.getName -> declType(specs, decl))
-        case e@DeclarationStatement(decl) => outerVarEnv(e) ++ declType(decl)
-        case e: AST => println(e); outerVarEnv(e)
+        case e@DeclarationStatement(decl) => assertNoTypedef(decl); outerVarEnv(e) ++ declType(decl)
+        case e: AST => outerVarEnv(e)
     }
     private def outerVarEnv(e: AST): VarTypingContext =
         outer[VarTypingContext](varEnv, () => Map(), e)
+
+
+    private def assertNoTypedef(decl: Declaration): Unit = decl match {
+        case ADeclaration(specs, _) => assert(!isTypedef(specs))
+        case AltDeclaration(_, a, b) => assertNoTypedef(a); assertNoTypedef(b)
+    }
 
 
     /***
@@ -65,14 +66,6 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
 
     private def outerStructEnv(e: AST): StructEnv =
         outer[StructEnv](structEnv, () => new StructEnv(Map()), e)
-
-
-    private def outer[T](f: AST ==> T, init: () => T, e: AST): T =
-        if (e -> prevAST != null) f(e -> prevAST)
-        else
-        if (e -> parentAST != null) f(e -> parentAST)
-        else
-            init()
 
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {

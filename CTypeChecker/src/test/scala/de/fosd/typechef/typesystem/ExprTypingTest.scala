@@ -21,7 +21,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
     }
     private def expr(code: String): CType = {
         val ast = parseExpr(code)
-        val r = exprType(varCtx, funCtx, astructEnv, ast)
+        val r = exprType(varCtx, astructEnv, ast)
         println(ast + " --> " + r)
         r
     }
@@ -33,10 +33,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
             ("v" -> CVoid()),
             ("s" -> CStruct("str")),
             ("sp" -> CPointer(CStruct("str"))),
-            ("arr" -> CArray(CDouble(), 5))
-        )
-    val funCtx: FunTypingContext =
-        Map(
+            ("arr" -> CArray(CDouble(), 5)),
             ("foo" -> CFunction(Seq(), CDouble())),
             ("bar" -> CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
         )

@@ -23,8 +23,8 @@ trait CExprTyping extends CTypes with CTypeEnv {
         } else CUnknown("struct " + structName + " unknown")
     }
 
-    def exprType(varCtx: VarTypingContext, funCtx: FunTypingContext, strEnv: StructEnv, expr: Expr): CType = {
-        val et = exprType(varCtx, funCtx, strEnv, _: Expr)
+    def exprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
+        val et = exprType(varCtx, strEnv, _: Expr)
         //TODO assert types in varCtx and funCtx are welltyped and non-void
         expr match {
         /**
@@ -36,10 +36,10 @@ trait CExprTyping extends CTypes with CTypeEnv {
             case Constant(_) => CSigned(CInt())
             //variable or function ref TODO check
             case Id(name) =>
-                if (varCtx contains name)
-                    CObj(varCtx(name))
-                else if (funCtx contains name)
-                    funCtx(name)
+                if (varCtx contains name) varCtx(name) match {
+                    case f: CFunction => f
+                    case v => CObj(v)
+                }
                 else CUnknown("unknown id " + name)
             //&a: create pointer
             case PointerCreationExpr(expr) =>

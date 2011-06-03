@@ -18,6 +18,13 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
     }
 
     private def ast = (getAST("""
+            typedef int myint;
+            typedef struct { double x; } mystr;
+            typedef struct pair { double x,y; } mypair;
+            myint myintvar;
+            mystr *mystrvar;
+            mypair mypairvar;
+
             int foo;
             struct account {
                int account_number;
@@ -29,7 +36,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
             struct account *a;
             void main(double a);
             int i() { int inner; double foo=0; return foo; }
-            double inner;"""))
+            double inner;
+            """))
 
     test("parse struct decl") {
 
@@ -51,6 +59,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
 
         balance._3 should be(CFloat())
         firstname._3 should be(CPointer(CChar()))
+
     }
 
     test("variable environment") {
@@ -75,6 +84,27 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with C
 
         env("inner") should be(CSignUnspecified(CInt()))
         env("foo") should be(CDouble())
+    }
+
+    test("typedef synonyms") {
+        val env = ast.defs.last.entry -> varEnv
+        val typedefs = ast.defs.last.entry -> typedefEnv
+
+        typedefs("myint") should be(CSignUnspecified(CInt()))
+        typedefs("mystr") should be(CAnonymousStruct(List(("x", CDouble()))))
+
+        //typedef is not a declaration
+        env.contains("myint") should be(false)
+        env.contains("mystr") should be(false)
+
+        env("myintvar") should be(CSignUnspecified(CInt()))
+        env("mystrvar") should be(CPointer(CAnonymousStruct(List(("x", CDouble())))))
+        env("mypairvar") should be(CStruct("pair"))
+
+        //structure definitons should be recognized despite typedefs
+        val structenv: StructEnv = ast.defs.last.entry -> structEnv
+        structenv.contains("pair") should be(true)
+        structenv.contains("mystr") should be(false)
     }
 
 }

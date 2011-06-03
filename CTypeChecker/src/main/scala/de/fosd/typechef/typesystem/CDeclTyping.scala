@@ -4,11 +4,15 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
+import org.kiama.attribution.DynamicAttribution._
+import org.kiama._
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
+ *
+ * handling of typedef synonyms
  */
-trait CDeclTyping extends CTypes {
+trait CDeclTyping extends CTypes with ASTNavigation {
 
 
     def constructType(specifiers: List[Opt[Specifier]]): CType = {
@@ -44,7 +48,13 @@ trait CDeclTyping extends CTypes {
             case VoidSpecifier() => types = types :+ CVoid()
             case StructOrUnionSpecifier("struct", Some(id), _) => types = types :+ CStruct(id.name)
             case StructOrUnionSpecifier("struct", None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members).map(x => (x._1, x._3)))
+            case e@TypeDefTypeSpecifier(Id(typedefname)) => {
+                val typedefEnvironment = e -> typedefEnv
+                if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
+                else types = types :+ CUnknown("type not defined " + typedefname) //should not occur, because the parser should reject this already
+            }
             case e: OtherSpecifier =>
+            case e: TypedefSpecifier =>
             case e: TypeSpecifier => types = types :+ CUnknown("unknown type specifier " + e)
         }
         if (types.contains(CDouble()) && types.contains(CSigned(CLong())))
@@ -82,16 +92,18 @@ trait CDeclTyping extends CTypes {
         case AltDeclaration(f, a, b) => declType(a) ++ declType(b)
     }
     private def adeclType(decl: ADeclaration): List[(String, CType)] = {
+        if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
+        else {
+            val returnType = constructType(decl.declSpecs)
 
-
-        val returnType = constructType(decl.declSpecs)
-
-        for (init <- decl.init) yield (init.entry.declarator.getName, getDeclaratorType(init.entry.declarator, returnType))
+            for (init <- decl.init) yield (init.entry.declarator.getName, getDeclaratorType(init.entry.declarator, returnType))
+        }
     }
 
     def declType(specs: List[Opt[Specifier]], decl: Declarator) =
         getDeclaratorType(decl, constructType(specs))
 
+    def isTypedef(specs: List[Opt[Specifier]]) = specs.map(_.entry).contains(TypedefSpecifier())
 
     private def getDeclaratorType(decl: Declarator, returnType: CType): CType = {
         val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions)
@@ -143,6 +155,31 @@ trait CDeclTyping extends CTypes {
             case StructInitializer(expr, _) => assert(false) //TODO check: should only occur in initializers, not in struct declarations
         }
         result
+    }
+
+
+    /*************
+     * Typedef environment (all defined type synonyms up to here)
+     */
+    //Type synonyms with typedef
+    type TypeDefEnv = Map[String, CType]
+
+    val typedefEnv: AST ==> TypeDefEnv = attr {
+        //TODO variability
+        case e: Declaration => outerTypedefEnv(e) ++ recognizeTypedefs(e)
+        case e: AST => outerTypedefEnv(e)
+    }
+    private def outerTypedefEnv(e: AST): TypeDefEnv =
+        outer[TypeDefEnv](typedefEnv, () => Map(), e)
+
+    private def recognizeTypedefs(d: Declaration): TypeDefEnv = d match {
+        case a: ADeclaration => recognizeTypedef(a)
+        case AltDeclaration(_, a, b) => recognizeTypedefs(a) ++ recognizeTypedefs(b)
+    }
+    private def recognizeTypedef(decl: ADeclaration): TypeDefEnv = {
+        if (isTypedef(decl.declSpecs))
+            (for (Opt(f, init) <- decl.init) yield (init.getName -> declType(decl.declSpecs, init.declarator))) toMap
+        else Map()
     }
 
 }
