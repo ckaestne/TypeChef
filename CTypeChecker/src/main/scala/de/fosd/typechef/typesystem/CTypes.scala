@@ -1,6 +1,7 @@
 package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr
+import FeatureExpr.base
 
 
 /**
@@ -42,6 +43,10 @@ trait CTypes {
 
     sealed abstract class CType extends CAbstractType {
         def toObj: CType = CObj(this)
+
+        //simplify rewrites Choice Types; requires reasoning about variability
+        def simplify = _simplify(base)
+        protected[CTypes] def _simplify(context: FeatureExpr) = this
     }
 
     case class CChar() extends CBasicType
@@ -106,7 +111,13 @@ trait CTypes {
      * variability: alternative types (choice node on types!)
      */
     case class CChoice(f: FeatureExpr, a: CType, b: CType) extends CType {
-        def simplify = this
+        protected[CTypes] override def _simplify(context: FeatureExpr) = {
+            val aa = a._simplify(context and f)
+            val bb = b._simplify(context andNot f)
+            if ((context and f).isTautology) aa
+            else if ((context andNot f).isTautology) bb
+            else CChoice(f, aa, bb)
+        }
         override def toObj = CChoice(f, a.toObj, b.toObj)
     }
 

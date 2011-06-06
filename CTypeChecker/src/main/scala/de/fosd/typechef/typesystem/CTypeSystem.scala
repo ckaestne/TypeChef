@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import org.kiama.attribution.Attribution._
 import org.kiama._
+import org.kiama.rewriting.Rewriter._
 import attribution.Attributable
 import de.fosd.typechef.parser.Opt
 
@@ -43,15 +44,23 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             // Process the errors of the children of t
             for (child <- obj.children)
                 child -> checkNode
+            checkTree(obj)
             checkAssumptions(obj)
             performCheck(obj)
         }
     }
 
+
     def checkAST(ast: TranslationUnit): Boolean = {
+        //XXX kiama works only on trees without sharing. Clone AST to avoid sharing. Reset parents afterward (Kiama problem?)
+        val clone = everywherebu(rule {
+            case n: AST => n.clone()
+            case Opt(f, a: AST) => Opt(f, a.clone())
+        })
+        val cast = clone(ast).get.asInstanceOf[TranslationUnit]
+        ensureTree(cast)
 
-
-        checkNode(ast)
+        checkNode(cast)
 
         if (errors.isEmpty)
             println("No type errors found.")
@@ -65,6 +74,12 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         return errors.isEmpty
     }
 
+    private def ensureTree(ast: Attributable) {
+        for (c <- ast.children) {
+            c.parent = ast
+            ensureTree(c)
+        }
+    }
 
     def performCheck(node: Attributable): Unit = node match {
         case fun: FunctionDef => //check function redefinitions
@@ -95,6 +110,10 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         case Declaration(specifiers, _) => assertNoVariability(specifiers)
         case x: NestedFunctionDef => assert(false, "NestedFunctionDef not supported, yet")
         case _ =>
+    }
+    private def checkTree(node: Attributable) {
+        for (c <- node.children) assert(c.parent == node, "Child " + c + " points to different parent:\n  " + c.parent + "\nshould be\n  " + node)
+
     }
     private def assertNoVariability[T](l: List[Opt[T]]) {
         assert(l.forall(_.feature == FeatureExpr.base))

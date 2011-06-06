@@ -42,7 +42,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
         def +(name: String, f: FeatureExpr, t: CType) = this ++ Seq((name, f, t))
         private[typesystem] def contains(name: String) = entries contains name
 
-        private def createChoiceType(types: Seq[(FeatureExpr, CType)]) = types.foldRight[CType](CUndefined())((p, t) => CChoice(p._1, p._2, t))
+        private def createChoiceType(types: Seq[(FeatureExpr, CType)]) = types.foldRight[CType](CUndefined())((p, t) => CChoice(p._1, p._2, t)) simplify
     }
 
 

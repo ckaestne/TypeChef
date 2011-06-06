@@ -28,6 +28,7 @@ class CParserTest extends TestCase {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
+                assertTree(ast)
                 assertNoDeadNodes(ast)
             }
             case p.NoSuccess(msg, unparsed, inner) =>
@@ -45,8 +46,10 @@ class CParserTest extends TestCase {
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
-                if (ast.isInstanceOf[AST])
+                if (ast.isInstanceOf[AST]) {
+                    assertTree(ast.asInstanceOf[AST])
                     assertNoDeadNodes(ast.asInstanceOf[AST])
+                }
                 //succeed
             }
             case p.NoSuccess(msg, unparsed, inner) =>
@@ -899,6 +902,7 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
          #endif
          ;"""
         val ast = assertParseableAST(c, p.translationUnit)
+        assertTree(ast)
         assertNoDeadNodes(ast, FeatureExpr.base)
     }
 
@@ -908,6 +912,17 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
             case Opt(g, e: Attributable) => assertNoDeadNodes(e, f and g)
             case c: Choice[Attributable] => assertNoDeadNodes(c.thenBranch, f and c.feature); assertNoDeadNodes(c.elseBranch, f andNot c.feature)
             case e => for (c <- e.children) assertNoDeadNodes(c, f)
+        }
+    }
+
+    /**
+     * for type checking we want a real AST not a DAG.
+     * check that each node points to exactly one parent
+     */
+    private def assertTree(ast: Attributable) {
+        for (c <- ast.children) {
+            assert(c.parent == ast, "Child " + c + " points to different parent:\n  " + c.parent + "\nshould be\n  " + ast)
+            assertTree(c)
         }
     }
 

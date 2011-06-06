@@ -23,14 +23,17 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     }
 
 
-    def constructType(specifiers2: List[Opt[Specifier]]): CType = {
-        /**
-         * filtering is a workaround for a parsing problem (see open test) that can produce
-         * dead AST-subtrees in some combinations.
-         *
-         * remove when problem is fixed
-         */
-        val specifiers = specifiers2.filter(o => ((o.feature) and (o -> featureExpr)).isSatisfiable)
+    /**
+     * filtering is a workaround for a parsing problem (see open test) that can produce
+     * dead AST-subtrees in some combinations.
+     *
+     * remove when problem is fixed
+     */
+    protected def filterDeadSpecifiers[T](l: List[Opt[T]], ctx: FeatureExpr): List[Opt[T]] =
+        l.filter(o => ((o.feature) and ctx).isSatisfiable)
+
+
+    def constructType(specifiers: List[Opt[Specifier]]): CType = {
 
         //checked assumption: there is no variability in specifier lists
         assert(specifiers.forall(o => ((o -> featureExpr) implies (o.feature)).isTautology), "Unexpected variability in specifiers: " + specifiers + "  " + featureExpr(specifiers.head))
@@ -102,7 +105,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     def declType(decl: Declaration): List[(String, FeatureExpr, CType)] = {
         if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
-            val returnType = constructType(decl.declSpecs)
+            val returnType = constructType(filterDeadSpecifiers(decl.declSpecs, decl -> featureExpr))
 
             for (init <- decl.init) yield (init.entry.declarator.getName, init -> featureExpr, getDeclaratorType(init.entry.declarator, returnType))
         }

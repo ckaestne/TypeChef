@@ -9,7 +9,9 @@ import org.kiama.attribution.Attributable
  */
 
 //Expressions
-trait AST extends Attributable
+trait AST extends Attributable with Cloneable {
+    override def clone() = super.clone().asInstanceOf[AST]
+}
 
 trait Choice[+T <: AST] extends AST {
     def thenBranch: T
