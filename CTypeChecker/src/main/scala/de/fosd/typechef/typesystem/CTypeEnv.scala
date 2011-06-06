@@ -33,7 +33,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
             var r = entries
             for (decl <- decls) {
                 if (r contains decl._1)
-                    r = r + (decl._1 -> (r(decl._1) :+ (decl._2, decl._3)))
+                    r = r + (decl._1 -> ((decl._2, decl._3) +: r(decl._1)))
                 else
                     r = r + (decl._1 -> Seq((decl._2, decl._3)))
             }

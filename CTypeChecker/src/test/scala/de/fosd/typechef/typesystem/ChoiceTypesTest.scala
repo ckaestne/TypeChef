@@ -13,7 +13,8 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExp
     val fx = FeatureExpr.createDefinedExternal("X")
     val fy = FeatureExpr.createDefinedExternal("Y")
 
-    test("alternatives in declarations") {
+    test("alternatives in declarations") {t()}
+    def t() {
         val ast = getAST("""
          #ifdef X
          int a;
@@ -38,8 +39,8 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExp
         println(ast)
         val env = ast.defs.last.entry -> varEnv
 
-        env("a") should be(CChoice(fx, CSignUnspecified(CInt()), CChoice(fx.not, CDouble(), CUndefined())))
-        env("x") should be(CChoice(fx, CSignUnspecified(CInt()), CChoice(fy, CDouble(), CUndefined())))
+        env("a") should be(CChoice(fx.not, CDouble(), CChoice(fx, CSignUnspecified(CInt()), CUndefined())))
+        env("x") should be(CChoice(fy, CDouble(), CChoice(fx, CSignUnspecified(CInt()), CUndefined())))
         env("b") should be(CChoice(fx, CDouble(), CUndefined()))
     }
 

@@ -107,7 +107,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         else {
             val returnType = constructType(filterDeadSpecifiers(decl.declSpecs, decl -> featureExpr))
 
-            for (init <- decl.init) yield (init.entry.declarator.getName, init -> featureExpr, getDeclaratorType(init.entry.declarator, returnType))
+            for (Opt(f, init) <- decl.init) yield (init.declarator.getName, init -> featureExpr, getDeclaratorType(init.declarator, returnType))
         }
     }
 

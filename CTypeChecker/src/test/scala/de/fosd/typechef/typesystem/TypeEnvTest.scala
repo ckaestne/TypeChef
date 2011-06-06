@@ -69,7 +69,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         env("inner") should be(CDouble())
     }
 
-    test("variable scoping") {
+    test("variable scoping") {t()}
+    def t() {
         //finding but last statement in last functiondef
         val fundef = ast.defs.takeRight(2).head.entry.asInstanceOf[FunctionDef]
         val env = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry -> varEnv
