@@ -18,6 +18,20 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
     }
     private def declT(code: String) = declTL(code)(0)._2
 
+    test("recognizing basic types") {
+        declT("int a;") should be(CSignUnspecified(CInt()))
+        declT("signed int a;") should be(CSigned(CInt()))
+        declT("unsigned int a;") should be(CUnsigned(CInt()))
+        declT("unsigned char a;") should be(CUnsigned(CChar()))
+        declT("unsigned a;") should be(CUnsigned(CInt()))
+        declT("signed a;") should be(CSigned(CInt()))
+        declT("double a;") should be(CDouble())
+        declT("long double a;") should be(CLongDouble())
+        declT("int double a;").sometimesUnknown should be(true)
+        declT("signed unsigned char a;").sometimesUnknown should be(true)
+        declT("auto a;").sometimesUnknown should be(true)
+    }
+
     test("variable declarations") {
         declTL("double a;") should be(List(("a", CDouble())))
         declTL("double a,b;") should be(List(("a", CDouble()), ("b", CDouble())))

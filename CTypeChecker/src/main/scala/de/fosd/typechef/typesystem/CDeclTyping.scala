@@ -72,13 +72,17 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             case e: OtherSpecifier =>
             case e: TypedefSpecifier =>
             case e: AttributeSpecifier =>
+            case SignedSpecifier() =>
+            case UnsignedSpecifier() =>
             case e: TypeSpecifier => types = types :+ CUnknown("unknown type specifier " + e)
         }
-        if (types.contains(CDouble()) && types.contains(CSigned(CLong())))
-            types = CLongDouble() +: types.-(CDouble()).-(CSigned(CLong()))
+        if (types.contains(CDouble()) && types.contains(CSignUnspecified(CLong())))
+            types = CLongDouble() +: types.-(CDouble()).-(CSignUnspecified(CLong()))
 
         if (types.size == 1)
             types.head
+        else if (types.size == 0 && (isSigned || isUnsigned)) //unsigned foo == unsigned int foo
+            sign(CInt())
         else if (types.size == 0)
             CUnknown("no type specfier found")
         else
@@ -165,7 +169,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         var result = List[(String, FeatureExpr, CType)]()
         for (Opt(f, attr) <- members; Opt(g, strDecl) <- attr.declaratorList) strDecl match {
             case StructDeclarator(decl, _, _) => result = result :+ ((decl.getName, f and g, declType(attr.qualifierList, decl)))
-            case StructInitializer(expr, _) => assert(false) //TODO check: should only occur in initializers, not in struct declarations
+            case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
         }
         result
     }

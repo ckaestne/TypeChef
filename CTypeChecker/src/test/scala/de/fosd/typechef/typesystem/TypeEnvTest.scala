@@ -15,6 +15,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
             typedef int myint;
             typedef struct { double x; } mystr;
             typedef struct pair { double x,y; } mypair;
+            typedef unsigned myunsign;
             myint myintvar;
             mystr *mystrvar;
             mypair mypairvar;
@@ -87,6 +88,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
 
         typedefs("myint") should be(CSignUnspecified(CInt()))
         typedefs("mystr") should be(CAnonymousStruct(List(("x", CDouble()))))
+        typedefs("myunsign") should be(CUnsigned(CInt()))
 
         //typedef is not a declaration
         env.contains("myint") should be(false)
