@@ -48,19 +48,35 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation wit
         expect(false) {
             check(
                 "#ifdef A\n" +
-                        "void foo(){} \n" +
+                        "void foo2(){} \n" +
                         "#endif\n" +
-                        "void bar(){foo();}\n")
+                        "void bar(){foo2();}\n")
         }
         expect(true) {
             check(
                 "#ifdef A\n" +
-                        "void foo(){} \n" +
+                        "void foo3(){} \n" +
                         "#endif\n" +
                         "#ifndef A\n" +
-                        "void foo(){} \n" +
+                        "void foo3(){} \n" +
                         "#endif\n" +
-                        "void bar(){foo();}\n")
+                        "void bar(){foo3();}\n")
+        }
+        expect(true) {
+            check(
+                "#ifdef A\n" +
+                        "int foo4(){} \n" +
+                        "#endif\n" +
+                        "#ifndef A\n" +
+                        "double foo4(){}\n" +
+                        "#endif\n" +
+                        "void bar(){foo4();}\n")
+        }
+        expect(true) {
+            check("#ifdef A\n" +
+                    "void foo(){} \n" +
+                    "void bar(){foo();}\n" +
+                    "#endif\n")
         }
 
     }

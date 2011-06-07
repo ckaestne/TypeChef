@@ -37,17 +37,25 @@ trait CTypes {
      * section 2.3 below.
      */
 
-    abstract class CAbstractType
-
     sealed abstract class CBasicType
 
-    sealed abstract class CType extends CAbstractType {
+    sealed abstract class CType {
         def toObj: CType = CObj(this)
 
         //simplify rewrites Choice Types; requires reasoning about variability
         def simplify = _simplify(base)
+        def simplify(ctx: FeatureExpr) = _simplify(ctx)
         protected[CTypes] def _simplify(context: FeatureExpr) = this
+
+        /* map over this type considering variability */
+        def mapV(f: FeatureExpr, op: (FeatureExpr, CType) => CType): CType = op(f, this)
+        def map(op: CType => CType): CType = op(this)
+
+        def sometimesUnknown: Boolean = false
     }
+
+    //    /** type without variability */
+    //    sealed abstract class CStaticType extends CType
 
     case class CChar() extends CBasicType
 
@@ -101,6 +109,7 @@ trait CTypes {
             case CUnknown(_) => true
             case _ => super.equals(that)
         }
+        override def sometimesUnknown: Boolean = true
     }
 
     /**no defined in environment, typically only used in CChoice types */
@@ -114,11 +123,16 @@ trait CTypes {
         protected[CTypes] override def _simplify(context: FeatureExpr) = {
             val aa = a._simplify(context and f)
             val bb = b._simplify(context andNot f)
-            if ((context and f).isTautology) aa
-            else if ((context andNot f).isTautology) bb
+            if ((context and f).isContradiction) bb
+            else if ((context andNot f).isContradiction) aa
             else CChoice(f, aa, bb)
         }
         override def toObj = CChoice(f, a.toObj, b.toObj)
+        override def mapV(ctx: FeatureExpr, op: (FeatureExpr, CType) => CType): CType =
+            CChoice(f, op(ctx and f, a), op(ctx andNot f, b))
+        override def map(op: CType => CType): CType =
+            CChoice(f, op(a), op(b))
+        override def sometimesUnknown: Boolean = a.sometimesUnknown || b.sometimesUnknown
     }
 
 

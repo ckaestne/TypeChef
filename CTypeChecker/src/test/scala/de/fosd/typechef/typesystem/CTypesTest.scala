@@ -7,6 +7,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
 class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping {
@@ -59,6 +60,22 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
         val et = getExprType(new VarTypingContext(), new StructEnv(), _: PrimaryExpr)
 
         et(Constant("1")) should be(CSigned(CInt()))
+    }
+
+    test("choice types and their operations") {
+        val fx = FeatureExpr.createDefinedExternal("X")
+        val fy = FeatureExpr.createDefinedExternal("Y")
+        val c = CChoice(fx, CDouble(), CFloat())
+        val c2 = CChoice(fx, CDouble(), CChoice(fx.not, CFloat(), CUnknown("")))
+
+        c2.simplify should be(c)
+        c2.simplify(fx) should be(CDouble())
+        c2.simplify(fx) should be(c.simplify(fx))
+
+        c2.map({
+            case CDouble() => CUnsigned(CChar())
+            case x => x
+        }) should be(CChoice(fx, CUnsigned(CChar()), CChoice(fx.not, CFloat(), CUnknown(""))))
     }
 
 }

@@ -77,7 +77,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
             //a()
             case PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
             //TODO ignoring variability for now
-                et(expr) match {
+                et(expr) map {
                     case CFunction(parameterTypes, retType) =>
                         if (parameterExprs.size != parameterTypes.size)
                             CUnknown("parameter number mismatch in " + expr)
@@ -87,6 +87,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
                         }) retType
                         else
                             CUnknown("parameter type mismatch")
+                    case x: CUnknown => x
                     case _ => CUnknown(expr + " is not a function")
                 }
             //a=b, a+=b, ...
