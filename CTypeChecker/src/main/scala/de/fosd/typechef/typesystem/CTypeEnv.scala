@@ -65,6 +65,11 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         case e: Declaration => outerVarEnv(e) ++ declType(e)
         case fun: FunctionDef => outerVarEnv(fun) + (fun.getName, fun -> featureExpr, ctype(fun))
         case e@DeclarationStatement(decl) => assertNoTypedef(decl); outerVarEnv(e) ++ declType(decl)
+        //parameters in the body of functions
+        case c@CompoundStatement(_) => c -> parentAST match {
+            case FunctionDef(_, decl, _, _) => outerVarEnv(c) ++ parameterTypes(decl)
+            case _ => outerVarEnv(c)
+        }
         case e: AST => outerVarEnv(e)
     }
     private def outerVarEnv(e: AST): VarTypingContext =
@@ -73,6 +78,21 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
 
     private def assertNoTypedef(decl: Declaration): Unit = assert(!isTypedef(decl.declSpecs))
 
+
+    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, CType)] = {
+        assert(decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclParameterDeclList], "expect a single declarator extension for function parameters, not " + decl.extensions)
+
+        val param: DeclParameterDeclList = decl.extensions.head.entry.asInstanceOf[DeclParameterDeclList]
+        var result = List[(String, FeatureExpr, CType)]()
+        for (Opt(_, p) <- param.parameterDecls) p match {
+            case PlainParameterDeclaration(specifiers) => //having int foo(void) is Ok, but for everything else we expect named parameters
+                assert(specifiers.size == 1 && specifiers.head.entry == VoidSpecifier(), "no name, old parameter style?") //TODO
+            case ParameterDeclarationD(specifiers, decl) => result = ((decl.getName, p -> featureExpr, getDeclaratorType(decl, constructType(specifiers)))) :: result
+            case ParameterDeclarationAD(specifiers, decl) => assert(false, "no name, old parameter style?") //TODO
+            case VarArgs() => //TODO not accessible as parameter?
+        }
+        result
+    }
 
     /***
      * Structs

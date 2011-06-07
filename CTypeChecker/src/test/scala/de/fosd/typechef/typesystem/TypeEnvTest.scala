@@ -30,7 +30,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
             int bar;
             struct account *a;
             void main(double a);
-            int i() { int inner; double foo=0; return foo; }
+            int i(double param, void (*param2)(void)) { int inner; double foo=0; return foo; }
             double inner;
             """))
 
@@ -60,13 +60,13 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
     test("variable environment") {
         val env = ast.defs.last.entry -> varEnv
 
-        env("foo") should be(CSignUnspecified(CInt()))
-        env("bar") should be(CSignUnspecified(CInt()))
+        env("foo") should be(CSigned(CInt()))
+        env("bar") should be(CSigned(CInt()))
         env("a") should be(CPointer(CStruct("account")))
         env("acc") should be(CStruct("account"))
         env("main") should be(CFunction(Seq(CDouble()), CVoid()))
 
-        env("i") should be(CFunction(Seq(), CSignUnspecified(CInt())))
+        env("i") should be(CFunction(Seq(CDouble(), CPointer(CFunction(Seq(CVoid()), CVoid()))), CSigned(CInt())))
         env("inner") should be(CDouble())
     }
 
@@ -78,15 +78,19 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
 
         println(env)
 
-        env("inner") should be(CSignUnspecified(CInt()))
+        env("inner") should be(CSigned(CInt()))
         env("foo") should be(CDouble())
+
+        //parameters should be in scope
+        env("param") should be(CDouble())
+        env("param2") should be(CPointer(CFunction(Seq(CVoid()), CVoid())))
     }
 
     test("typedef synonyms") {
         val env = ast.defs.last.entry -> varEnv
         val typedefs = ast.defs.last.entry -> typedefEnv
 
-        typedefs("myint") should be(CSignUnspecified(CInt()))
+        typedefs("myint") should be(CSigned(CInt()))
         typedefs("mystr") should be(CAnonymousStruct(List(("x", CDouble()))))
         typedefs("myunsign") should be(CUnsigned(CInt()))
 
@@ -94,7 +98,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         env.contains("myint") should be(false)
         env.contains("mystr") should be(false)
 
-        env("myintvar") should be(CSignUnspecified(CInt()))
+        env("myintvar") should be(CSigned(CInt()))
         env("mystrvar") should be(CPointer(CAnonymousStruct(List(("x", CDouble())))))
         env("mypairvar") should be(CStruct("pair"))
 
@@ -102,6 +106,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         val structenv: StructEnv = ast.defs.last.entry -> structEnv
         structenv.contains("pair") should be(true)
         structenv.contains("mystr") should be(false)
+
     }
 
 

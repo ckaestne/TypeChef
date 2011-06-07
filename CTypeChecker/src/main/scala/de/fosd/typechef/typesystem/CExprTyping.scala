@@ -100,7 +100,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
                         //                            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
                             retType
                     case x: CUnknown => x
-                    case _ => CUnknown(expr + " is not a function")
+                    case e => CUnknown(expr + " is not a function, but " + e)
                 }
             //a=b, a+=b, ...
             case AssignExpr(texpr, op, sexpr) =>
