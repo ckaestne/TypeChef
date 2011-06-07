@@ -121,4 +121,30 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         //expect no exception due to cyclic dependencies anymore
     }
 
+    test("enum environment and lookup") {
+        val ast = (getAST("""
+            enum Direction { North, South, East, West };
+            enum Color { Red, Green, Blue };
+            enum Direction d = South;
+            enum Direction e = Red;
+            enum Undef x = Red;
+            enum Direction e = Undef;
+            """))
+        val env = ast.defs.last.entry -> varEnv
+        val enumenv = ast.defs.last.entry -> enumEnv
+
+        enumenv should contain key ("Direction")
+        enumenv should contain key ("Color")
+        enumenv should not contain key("Undef")
+
+        env("North") should be(CSigned(CInt()))
+        env("South") should be(CSigned(CInt()))
+        env("Red") should be(CSigned(CInt()))
+        env("Green") should be(CSigned(CInt()))
+        env("d") should be(CSigned(CInt()))
+        env("e") should be(CSigned(CInt()))
+        //        env("x").sometimesUnknown should be(true) TODO
+        env("Undef") should be(CUndefined())
+    }
+
 }

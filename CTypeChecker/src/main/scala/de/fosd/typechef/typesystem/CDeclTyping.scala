@@ -49,6 +49,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
                 else types = types :+ CUnknown("type not defined " + typedefname) //should not occur, because the parser should reject this already
             }
+            case EnumSpecifier(_, _) => types = types :+ CSigned(CInt()) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case _ =>
         }
 
@@ -119,7 +120,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     }
 
-    def declType(decl: Declaration): List[(String, FeatureExpr, CType)] = {
+    def declType(decl: Declaration): List[(String, FeatureExpr, CType)] = enumDeclarations(decl.declSpecs) ++ {
         if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType = constructType(filterDeadSpecifiers(decl.declSpecs, decl -> featureExpr))
@@ -127,6 +128,18 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             for (Opt(f, init) <- decl.init) yield (init.declarator.getName, init -> featureExpr, getDeclaratorType(init.declarator, returnType))
         }
     }
+
+    /**define all fields from enum type specifiers as int values */
+    private def enumDeclarations(specs: List[Opt[Specifier]]): List[(String, FeatureExpr, CType)] = {
+        var result = List[(String, FeatureExpr, CType)]()
+        for (Opt(_, spec) <- specs) spec match {
+            case EnumSpecifier(_, enums) => for (Opt(_, enum) <- enums)
+                result = (enum.id.name, enum -> featureExpr, CSigned(CInt())) :: result
+            case _ =>
+        }
+        result
+    }
+
 
     def declType(specs: List[Opt[Specifier]], decl: Declarator) =
         getDeclaratorType(decl, constructType(specs))

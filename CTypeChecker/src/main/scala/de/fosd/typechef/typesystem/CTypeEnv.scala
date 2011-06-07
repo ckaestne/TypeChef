@@ -154,4 +154,25 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     }
 
 
+    /**
+     * Enum Environment: Just a set of names that are valid enums.
+     * No need to remember fields etc, because they are integers anyway and no further checking is done in C
+     */
+
+    type EnumEnv = Map[String, FeatureExpr]
+
+    val enumEnv: AST ==> EnumEnv = attr {
+        case e@Declaration(decls, _) =>
+            decls.foldRight(outerEnumEnv(e))({
+                case (Opt(_, typeSpec), b: EnumEnv) => typeSpec match {
+                    case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) => b + (name -> ((typeSpec -> featureExpr) or b.getOrElse(name, FeatureExpr.dead)))
+                    case _ => b
+                }
+            })
+        case e: AST => outerEnumEnv(e)
+    }
+
+
+    private def outerEnumEnv(e: AST): EnumEnv =
+        outer[EnumEnv](enumEnv, () => Map(), e)
 }
