@@ -69,8 +69,9 @@ case class PointerCreationExpr(castExpr: Expr) extends Expr
 case class UnaryOpExpr(kind: String, castExpr: Expr) extends Expr {
 }
 
-case class NAryExpr(e: Expr, others: List[Opt[(String, Expr)]]) extends Expr {
-}
+case class NAryExpr(e: Expr, others: List[Opt[NArySubExpr]]) extends Expr
+
+case class NArySubExpr(op: String, e: Expr) extends AST
 
 case class ConditionalExpr(condition: Expr, thenExpr: Option[Expr], elseExpr: Expr) extends Expr
 
@@ -145,58 +146,58 @@ object AltStatement {
     def join = (f: FeatureExpr, x: Statement, y: Statement) => if (x == y) x else AltStatement(f, x, y)
 }
 
-abstract class Specifier extends AST
+abstract class Specifier() extends AST
 
-abstract sealed class TypeSpecifier extends Specifier
+abstract sealed class TypeSpecifier() extends Specifier()
 
-abstract sealed class PrimitiveTypeSpecifier extends TypeSpecifier
+abstract sealed class PrimitiveTypeSpecifier() extends TypeSpecifier()
 
-abstract sealed class OtherSpecifier extends Specifier
-
-
-case class OtherPrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier
-
-case class VoidSpecifier extends PrimitiveTypeSpecifier
-
-case class ShortSpecifier extends PrimitiveTypeSpecifier
-
-case class IntSpecifier extends PrimitiveTypeSpecifier
-
-case class FloatSpecifier extends PrimitiveTypeSpecifier
-
-case class DoubleSpecifier extends PrimitiveTypeSpecifier
-
-case class LongSpecifier extends PrimitiveTypeSpecifier
-
-case class CharSpecifier extends PrimitiveTypeSpecifier
-
-case class TypedefSpecifier extends Specifier
-
-case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier
-
-case class SignedSpecifier extends TypeSpecifier
-
-case class UnsignedSpecifier extends TypeSpecifier
+abstract sealed class OtherSpecifier() extends Specifier()
 
 
-case class InlineSpecifier extends OtherSpecifier
+case class OtherPrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier()
 
-case class AutoSpecifier extends OtherSpecifier
+case class VoidSpecifier() extends PrimitiveTypeSpecifier()
 
-case class RegisterSpecifier extends OtherSpecifier
+case class ShortSpecifier() extends PrimitiveTypeSpecifier()
 
-case class VolatileSpecifier extends OtherSpecifier
+case class IntSpecifier() extends PrimitiveTypeSpecifier()
 
-case class ExternSpecifier extends OtherSpecifier
+case class FloatSpecifier() extends PrimitiveTypeSpecifier()
 
-case class ConstSpecifier extends OtherSpecifier
+case class DoubleSpecifier() extends PrimitiveTypeSpecifier()
 
-case class RestrictSpecifier extends OtherSpecifier
+case class LongSpecifier() extends PrimitiveTypeSpecifier()
 
-case class StaticSpecifier extends OtherSpecifier
+case class CharSpecifier() extends PrimitiveTypeSpecifier()
+
+case class TypedefSpecifier() extends Specifier()
+
+case class TypeDefTypeSpecifier(name: Id) extends TypeSpecifier()
+
+case class SignedSpecifier() extends TypeSpecifier()
+
+case class UnsignedSpecifier() extends TypeSpecifier()
 
 
-abstract class Attribute extends AST
+case class InlineSpecifier() extends OtherSpecifier()
+
+case class AutoSpecifier() extends OtherSpecifier()
+
+case class RegisterSpecifier() extends OtherSpecifier()
+
+case class VolatileSpecifier() extends OtherSpecifier()
+
+case class ExternSpecifier() extends OtherSpecifier()
+
+case class ConstSpecifier() extends OtherSpecifier()
+
+case class RestrictSpecifier() extends OtherSpecifier()
+
+case class StaticSpecifier() extends OtherSpecifier()
+
+
+abstract class Attribute() extends AST
 
 case class AtomicAttribute(n: String) extends Attribute
 
@@ -341,7 +342,7 @@ case class TranslationUnit(defs: List[Opt[ExternalDef]]) extends AST {
 }
 
 //GnuC stuff here:
-abstract class AttributeSpecifier extends Specifier
+abstract class AttributeSpecifier() extends Specifier()
 
 case class GnuAttributeSpecifier(attributeList: List[Opt[AttributeSequence]]) extends AttributeSpecifier {
 }

@@ -109,7 +109,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
             case NAryExpr(expr, opList) =>
             //TODO ignoring variability for now
                 var result = et(expr)
-                for (Opt(_, (op, thatExpr)) <- opList) {
+                for (Opt(_, NArySubExpr(op, thatExpr)) <- opList) {
                     val thatType = et(thatExpr)
                     result = operationType(op, result, thatType)
                 }
@@ -157,8 +157,10 @@ trait CExprTyping extends CTypes with CTypeEnv {
             case LongSpecifier() => return CLong()
             case FloatSpecifier() => return CFloat()
             case TypeDefTypeSpecifier(Id(typedefname)) =>
-                assert(name -> typedefEnv contains typedefname, "typedefname not in typedef environment " + typedefname)
-                (name -> typedefEnv)(typedefname)
+                val env = name -> typedefEnv
+                println(env)
+                assert(env contains typedefname, "typedefname " + typedefname + " not in typedef environment " + env)
+                env(typedefname)
         }
         return CUnknown("unsupported type " + name)
     }
@@ -182,7 +184,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
 
 
     private def createSum(a: Expr, b: Expr) =
-        NAryExpr(a, List(Opt(FeatureExpr.base, ("+", b))))
+        NAryExpr(a, List(Opt(FeatureExpr.base, NArySubExpr("+", b))))
 
 
 }

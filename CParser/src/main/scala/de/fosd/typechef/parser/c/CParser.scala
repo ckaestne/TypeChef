@@ -296,7 +296,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def multExpr: MultiParser[Expr] = nAryExpr(castExpr, STAR | DIV | MOD)
 
     def nAryExpr(innerExpr: MultiParser[Expr], operations: MultiParser[TokenWrapper]) =
-        innerExpr ~! repOpt(operations ~ innerExpr ^^ {case t ~ e => (t.getText, e)}) ^^ {
+        innerExpr ~! repOpt(operations ~ innerExpr ^^ {case t ~ e => NArySubExpr(t.getText, e)}) ^^ {
             case e ~ l => if (l.isEmpty) e else NAryExpr(e, l)
         }
 

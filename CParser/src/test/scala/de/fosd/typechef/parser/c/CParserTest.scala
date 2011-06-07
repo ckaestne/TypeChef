@@ -256,17 +256,17 @@ class CParserTest extends TestCase {
     }
 
     def testNAryExpr {
-        assertParseResult(NAryExpr(a, List(o("*", b))), "a*b", p.multExpr)
-        assertParseResult(NAryExpr(a, List(o("*", b), o("*", b))), "a*b*b", p.multExpr)
+        assertParseResult(NAryExpr(a, List(o(NArySubExpr("*", b)))), "a*b", p.multExpr)
+        assertParseResult(NAryExpr(a, List(o(NArySubExpr("*", b)), o(NArySubExpr("*", b)))), "a*b*b", p.multExpr)
     }
     def testExprs {
-        assertParseResult(NAryExpr(NAryExpr(a, List(o("*", b))), List(o("+", c))), "a*b+c", p.expr)
-        assertParseResult(NAryExpr(c, List(o("+", NAryExpr(a, List(o("*", b)))))), "c+a*b", p.expr)
-        assertParseResult(NAryExpr(NAryExpr(a, List(o("+", b))), List(o("*", c))), "(a+b)*c", p.expr)
-        assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(o("==", c)))), "a=b==c", p.expr)
-        assertParseResult(NAryExpr(a, List(o("/", b))), "a/b", p.expr)
+        assertParseResult(NAryExpr(NAryExpr(a, List(o(NArySubExpr("*", b)))), List(o(NArySubExpr("+", c)))), "a*b+c", p.expr)
+        assertParseResult(NAryExpr(c, List(o(NArySubExpr("+", NAryExpr(a, List(o(NArySubExpr("*", b)))))))), "c+a*b", p.expr)
+        assertParseResult(NAryExpr(NAryExpr(a, List(o(NArySubExpr("+", b)))), List(o(NArySubExpr("*", c)))), "(a+b)*c", p.expr)
+        assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(o(NArySubExpr("==", c))))), "a=b==c", p.expr)
+        assertParseResult(NAryExpr(a, List(o(NArySubExpr("/", b)))), "a/b", p.expr)
         assertParseResult(ConditionalExpr(a, Some(b), c), "a?b:c", p.expr)
-        assertParseResult(ExprList(List(o(a), o(b), o(NAryExpr(NAryExpr(c, List(o("+", NAryExpr(c, List(o("/", d)))))), List(o("|", x)))))), "a,b,c+c/d|x", p.expr)
+        assertParseResult(ExprList(List(o(a), o(b), o(NAryExpr(NAryExpr(c, List(o(NArySubExpr("+", NAryExpr(c, List(o(NArySubExpr("/", d)))))))), List(o(NArySubExpr("|", x))))))), "a,b,c+c/d|x", p.expr)
     }
     def testAltExpr {
         assertParseResult(Alt(fa, a, b),
@@ -275,7 +275,7 @@ class CParserTest extends TestCase {
         					|#else
         					|b
         					|#endif""", p.expr)
-        assertParseResult(Alt(fa, NAryExpr(a, List(Opt(fa, ("+", c)))), NAryExpr(b, List(Opt(fa.not, (("+", c)))))),
+        assertParseResult(Alt(fa, NAryExpr(a, List(Opt(fa, NArySubExpr("+", c)))), NAryExpr(b, List(Opt(fa.not, (NArySubExpr("+", c)))))),
             """|#ifdef a
         					|a +
         					|#else
