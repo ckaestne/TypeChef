@@ -54,6 +54,11 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
         nwf(CStruct("nwf1"))
         nwf(CStruct("nwf2"))
         nwf(CStruct("nwf3"))
+        nwf(CVarArgs())
+        nwf(CFunction(Seq(), CVarArgs()))
+        wf(CFunction(Seq(CDouble(), CVarArgs()), CVoid()))
+        nwf(CFunction(Seq(CVarArgs(), CDouble()), CVoid()))
+        nwf(CFunction(Seq(CDouble(), CVarArgs(), CVarArgs()), CVoid()))
     }
 
     test("simple expression types") {

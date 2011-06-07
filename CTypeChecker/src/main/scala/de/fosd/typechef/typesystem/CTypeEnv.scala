@@ -99,6 +99,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
         val wf = wellformed(structEnv, ptrEnv, _: CType)
+        def lastParam(p: Option[CType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
         ctype match {
             case CSigned(_) => true
             case CUnsigned(_) => true
@@ -111,7 +112,10 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
             case CPointer(t) => wf(t)
             case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
             case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                    param.forall(p => wf(p) && !arrayType(p) && p != CVoid()))
+                    param.forall(p => !arrayType(p) && p != CVoid())) &&
+                    param.dropRight(1).forall(wf(_)) &&
+                    lastParam(param.lastOption) //last param may be varargs
+            case CVarArgs() => false
             case CStruct(name) => {
                 val members = structEnv.env.getOrElse(name, Seq())
                 //TODO variability
@@ -128,5 +132,6 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
             case CChoice(_, a, b) => wf(a) && wf(b)
         }
     }
+
 
 }

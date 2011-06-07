@@ -99,6 +99,9 @@ trait CTypes {
         override def toObj = this
     }
 
+    //varargs should only occur in paramter lists
+    case class CVarArgs() extends CType
+
     /**objects in memory */
     case class CObj(t: CType) extends CType
 
