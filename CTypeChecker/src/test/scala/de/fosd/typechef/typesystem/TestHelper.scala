@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attributable
 import org.kiama.rewriting.Rewriter._
+import java.io.InputStream
 
 /**
  * common infrastructure for tests.
@@ -16,16 +17,13 @@ trait TestHelper {
     def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
             () => CLexer.lex(code, null), new CTypeContext, false)
-        assert(ast != null)
+        prepareAST(ast)
+    }
 
-        val clone = everywherebu(rule {
-            case n: AST => n.clone()
-            //            case Opt(f, a: AST) => Opt(f, a.clone())
-        })
-        val cast = clone(ast).get.asInstanceOf[TranslationUnit]
-        ensureTree(cast)
-        assertTree(cast)
-        cast
+    def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
+        val ast: AST = new ParserMain(new CParser).parserMain(
+            () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, false)
+        prepareAST(ast)
     }
 
     def parseExpr(code: String): Expr = {
@@ -56,5 +54,18 @@ trait TestHelper {
             ensureTree(c)
         }
     }
+
+    private def prepareAST(ast: AST): TranslationUnit = {
+        assert(ast != null)
+        val clone = everywherebu(rule {
+            case n: AST => n.clone()
+            //            case Opt(f, a: AST) => Opt(f, a.clone())
+        })
+        val cast = clone(ast).get.asInstanceOf[TranslationUnit]
+        ensureTree(cast)
+        assertTree(cast)
+        cast
+    }
+
 
 }
