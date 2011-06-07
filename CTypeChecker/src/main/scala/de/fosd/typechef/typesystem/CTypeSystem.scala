@@ -88,7 +88,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
                 if (!mex(fun -> featureExpr, priorFun -> featureExpr))
                     issueError("function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
 
-        case expr: PostfixExpr => // check function calls in PostfixExpressions
+        case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
             if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
                 issueError("cannot (always) resolve expression " + expr + ": " + ctype(expr), expr)
         case _ =>

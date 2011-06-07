@@ -82,20 +82,23 @@ trait CExprTyping extends CTypes with CTypeEnv {
                         var expectedTypes = parameterTypes
                         var foundTypes = parameterExprs.map({case Opt(_, e) => et(e)})
                         //variadic macros
-                        if (parameterTypes.lastOption == Some(CVarArgs())) {
+                        if (expectedTypes.lastOption == Some(CVarArgs())) {
                             expectedTypes = expectedTypes.dropRight(1)
                             foundTypes = foundTypes.take(expectedTypes.size)
                         }
+                        else if (expectedTypes.lastOption == Some(CVoid()))
+                            expectedTypes = expectedTypes.dropRight(1)
 
                         //check parameter size and types
                         if (expectedTypes.size != foundTypes.size)
                             CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
                         else
-                        if ((foundTypes zip expectedTypes) forall {
-                            case (ft, et) => coerce(ft, et)
-                        }) retType
-                        else
-                            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
+                        //                        if ((foundTypes zip expectedTypes) forall {
+                        //                            case (ft, et) => coerce(ft, et)
+                        //                        }) retType
+                        //                        else
+                        //                            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
+                            retType
                     case x: CUnknown => x
                     case _ => CUnknown(expr + " is not a function")
                 }
