@@ -65,6 +65,8 @@ trait CTypes {
 
     case class CLong() extends CBasicType
 
+    case class CLongLong() extends CBasicType
+
     implicit def toCType(x: CInt): CType = CSigned(x)
     implicit def toCType(x: CChar): CType = CSignUnspecified(x)
     implicit def toCType(x: CShort): CType = CSigned(x)

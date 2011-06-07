@@ -19,7 +19,7 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
     private def declT(code: String) = declTL(code)(0)._2
 
     test("recognizing basic types") {
-        declT("int a;") should be(CSignUnspecified(CInt()))
+        declT("int a;") should be(CSigned(CInt()))
         declT("signed int a;") should be(CSigned(CInt()))
         declT("unsigned int a;") should be(CUnsigned(CInt()))
         declT("unsigned char a;") should be(CUnsigned(CChar()))
@@ -27,6 +27,28 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
         declT("signed a;") should be(CSigned(CInt()))
         declT("double a;") should be(CDouble())
         declT("long double a;") should be(CLongDouble())
+
+        //allow also uncommon but correct notations
+        declT("char a;") should be(CSignUnspecified(CChar()))
+        declT("signed char a;") should be(CSigned(CChar()))
+        declT("unsigned char a;") should be(CUnsigned(CChar()))
+        declT("short a;") should be(CSigned(CShort()))
+        declT("short int a;") should be(CSigned(CShort()))
+        declT("unsigned short a;") should be(CUnsigned(CShort()))
+        declT("int a;") should be(CSigned(CInt()))
+        declT("unsigned int a;") should be(CUnsigned(CInt()))
+        declT("long int a;") should be(CSigned(CLong()))
+        declT("unsigned long int a;") should be(CUnsigned(CLong()))
+        declT("long a;") should be(CSigned(CLong()))
+        declT("unsigned long a;") should be(CUnsigned(CLong()))
+        declT("long long int a;") should be(CSigned(CLongLong()))
+        declT("unsigned long long int a;") should be(CUnsigned(CLongLong()))
+        declT("long long a;") should be(CSigned(CLongLong()))
+        declT("unsigned long long a;") should be(CUnsigned(CLongLong()))
+        declT("float a;") should be(CFloat())
+        declT("double a;") should be(CDouble())
+        declT("long double a;") should be(CLongDouble())
+
         declT("int double a;").sometimesUnknown should be(true)
         declT("signed unsigned char a;").sometimesUnknown should be(true)
         declT("auto a;").sometimesUnknown should be(true)

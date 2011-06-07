@@ -40,31 +40,8 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
 
         //type specifiers
-
-        val isSigned: Boolean = specifiers.exists({
-            case Opt(_, SignedSpecifier()) => true
-            case _ => false
-        })
-        val isUnsigned: Boolean = specifiers.exists({
-            case Opt(_, UnsignedSpecifier()) => true
-            case _ => false
-        })
-        if (isSigned && isUnsigned)
-            return CUnknown("type both signed and unsigned")
-
-        //for int, short, etc, always assume signed by default
-        def sign(t: CBasicType): CType = if (isUnsigned) CUnsigned(t) else CSigned(t)
-        //for characters care about SignUnspecified
-        def signC(t: CBasicType): CType = if (isSigned) CSigned(t) else if (isUnsigned) CUnsigned(t) else CSignUnspecified(t)
         var types = List[CType]()
         for (Opt(_, specifier) <- specifiers) specifier match {
-            case CharSpecifier() => types = types :+ signC(CChar())
-            case ShortSpecifier() => types = types :+ sign(CShort())
-            case IntSpecifier() => types = types :+ sign(CInt())
-            case LongSpecifier() => types = types :+ sign(CLong())
-            case FloatSpecifier() => types = types :+ CFloat()
-            case DoubleSpecifier() => types = types :+ CDouble()
-            case VoidSpecifier() => types = types :+ CVoid()
             case StructOrUnionSpecifier("struct", Some(id), _) => types = types :+ CStruct(id.name)
             case StructOrUnionSpecifier("struct", None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members).map(x => (x._1, x._3)))
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
@@ -72,20 +49,52 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
                 else types = types :+ CUnknown("type not defined " + typedefname) //should not occur, because the parser should reject this already
             }
-            case e: OtherSpecifier =>
-            case e: TypedefSpecifier =>
-            case e: AttributeSpecifier =>
-            case SignedSpecifier() =>
-            case UnsignedSpecifier() =>
-            case e: TypeSpecifier => types = types :+ CUnknown("unknown type specifier " + e)
+            case _ =>
         }
-        if (types.contains(CDouble()) && types.contains(CSignUnspecified(CLong())))
-            types = CLongDouble() +: types.-(CDouble()).-(CSignUnspecified(CLong()))
+
+
+
+        def count(spec: Specifier): Int = specifiers.count({
+            case Opt(_, s) => spec == s
+            case _ => false
+        })
+        def has(spec: Specifier): Boolean = count(spec) > 0
+
+        val isSigned = has(SignedSpecifier())
+        val isUnsigned = has(UnsignedSpecifier())
+        if (isSigned && isUnsigned)
+            return CUnknown("type both signed and unsigned")
+
+        //for int, short, etc, always assume signed by default
+        def sign(t: CBasicType): CType = if (isUnsigned) CUnsigned(t) else CSigned(t)
+        //for characters care about SignUnspecified
+        def signC(t: CBasicType): CType = if (isSigned) CSigned(t) else if (isUnsigned) CUnsigned(t) else CSignUnspecified(t)
+
+        if (has(CharSpecifier()))
+            types = types :+ signC(CChar())
+        if (count(LongSpecifier()) == 2)
+            types = types :+ sign(CLongLong())
+        if (count(LongSpecifier()) == 1 && !has(DoubleSpecifier()))
+            types = types :+ sign(CLong())
+        if (has(ShortSpecifier()))
+            types = types :+ sign(CShort())
+        if (has(DoubleSpecifier()) && has(LongSpecifier()))
+            types = types :+ CLongDouble()
+        if (has(DoubleSpecifier()) && !has(LongSpecifier()))
+            types = types :+ CDouble()
+        if (has(FloatSpecifier()))
+            types = types :+ CFloat()
+        if ((isSigned || isUnsigned || has(IntSpecifier())) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
+            types = types :+ sign(CInt())
+
+        if (has(VoidSpecifier()))
+            types = types :+ CVoid()
+
+        //TODO prevent invalid combinations completely?
+
 
         if (types.size == 1)
             types.head
-        else if (types.size == 0 && (isSigned || isUnsigned)) //unsigned foo == unsigned int foo
-            sign(CInt())
         else if (types.size == 0)
             CUnknown("no type specfier found")
         else
@@ -124,7 +133,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def isTypedef(specs: List[Opt[Specifier]]) = specs.map(_.entry).contains(TypedefSpecifier())
 
-    private def getDeclaratorType(decl: Declarator, returnType: CType): CType = {
+    protected def getDeclaratorType(decl: Declarator, returnType: CType): CType = {
         val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions)
 
         //this is an absurd order but seems to be as specified
