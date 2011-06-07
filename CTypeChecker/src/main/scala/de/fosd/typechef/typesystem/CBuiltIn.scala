@@ -108,12 +108,10 @@ trait CBuiltIn extends CTypes with CDeclTyping {
         }
 
         val ast = getAST(buffer)
-        val r = for (Opt(_, decl: Declaration) <- ast.defs) yield {
+        Map() ++ (for (Opt(_, decl: Declaration) <- ast.defs) yield {
             val init = decl.init.head.entry
             (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs)))
-        }
-        println(r)
-        Map() ++ r
+        })
     }
 
     private def getAST(code: String): TranslationUnit = {
