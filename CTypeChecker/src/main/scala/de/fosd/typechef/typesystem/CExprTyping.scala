@@ -93,6 +93,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
                         if (expectedTypes.size != foundTypes.size)
                             CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
                         else
+                        //TODO ignore parameter types for now
                         //                        if ((foundTypes zip expectedTypes) forall {
                         //                            case (ft, et) => coerce(ft, et)
                         //                        }) retType
