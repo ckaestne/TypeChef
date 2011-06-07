@@ -156,6 +156,9 @@ trait CExprTyping extends CTypes with CTypeEnv {
             case IntSpecifier() => return CInt()
             case LongSpecifier() => return CLong()
             case FloatSpecifier() => return CFloat()
+            case TypeDefTypeSpecifier(Id(typedefname)) =>
+                assert(name -> typedefEnv contains typedefname, "typedefname not in typedef environment " + typedefname)
+                (name -> typedefEnv)(typedefname)
         }
         return CUnknown("unsupported type " + name)
     }
