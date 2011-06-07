@@ -79,14 +79,23 @@ trait CExprTyping extends CTypes with CTypeEnv {
             //TODO ignoring variability for now
                 et(expr) map {
                     case CFunction(parameterTypes, retType) =>
-                        if (parameterExprs.size != parameterTypes.size)
-                            CUnknown("parameter number mismatch in " + expr)
+                        var expectedTypes = parameterTypes
+                        var foundTypes = parameterExprs.map({case Opt(_, e) => et(e)})
+                        //variadic macros
+                        if (parameterTypes.lastOption == Some(CVarArgs())) {
+                            expectedTypes = expectedTypes.dropRight(1)
+                            foundTypes = foundTypes.take(expectedTypes.size)
+                        }
+
+                        //check parameter size and types
+                        if (expectedTypes.size != foundTypes.size)
+                            CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
                         else
-                        if ((parameterExprs zip parameterTypes) forall {
-                            case (Opt(_, e), t) => coerce(et(e), t)
+                        if ((foundTypes zip expectedTypes) forall {
+                            case (ft, et) => coerce(ft, et)
                         }) retType
                         else
-                            CUnknown("parameter type mismatch")
+                            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
                     case x: CUnknown => x
                     case _ => CUnknown(expr + " is not a function")
                 }
@@ -119,7 +128,7 @@ trait CExprTyping extends CTypes with CTypeEnv {
             //syntactic sugar for *(a+i)
                 et(PointerDerefExpr(createSum(expr, idx)))
             //"a"
-            case StringLit(_) => CPointer(CUnsigned(CChar())) //TODO unsigned?
+            case StringLit(_) => CPointer(CSignUnspecified(CChar())) //unspecified sign according to Paolo
             //++a, --a
             case UnaryExpr(_, expr) =>
                 et(AssignExpr(expr, "+=", Constant("1")))
@@ -158,7 +167,6 @@ trait CExprTyping extends CTypes with CTypeEnv {
             case FloatSpecifier() => return CFloat()
             case TypeDefTypeSpecifier(Id(typedefname)) =>
                 val env = name -> typedefEnv
-                println(env)
                 assert(env contains typedefname, "typedefname " + typedefname + " not in typedef environment " + env)
                 env(typedefname)
         }

@@ -52,10 +52,13 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         if (isSigned && isUnsigned)
             return CUnknown("type both signed and unsigned")
 
-        def sign(t: CBasicType): CType = if (isSigned) CSigned(t) else if (isUnsigned) CUnsigned(t) else CSignUnspecified(t)
+        //for int, short, etc, always assume signed by default
+        def sign(t: CBasicType): CType = if (isUnsigned) CUnsigned(t) else CSigned(t)
+        //for characters care about SignUnspecified
+        def signC(t: CBasicType): CType = if (isSigned) CSigned(t) else if (isUnsigned) CUnsigned(t) else CSignUnspecified(t)
         var types = List[CType]()
         for (Opt(_, specifier) <- specifiers) specifier match {
-            case CharSpecifier() => types = types :+ sign(CChar())
+            case CharSpecifier() => types = types :+ signC(CChar())
             case ShortSpecifier() => types = types :+ sign(CShort())
             case IntSpecifier() => types = types :+ sign(CInt())
             case LongSpecifier() => types = types :+ sign(CLong())

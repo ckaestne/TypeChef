@@ -65,7 +65,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         if (errors.isEmpty)
             println("No type errors found.")
         else {
-            println("Type Errors: ");
+            println("Found " + errors.size + " type errors: ");
             for (e <- errors)
                 println("  - " + e)
         }
