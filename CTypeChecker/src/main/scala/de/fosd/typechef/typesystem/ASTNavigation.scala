@@ -40,8 +40,11 @@ trait ASTNavigation {
                     }
                 }
             }
-
     }
+
+    /**try first prev and if that does not exist, then parent*/
+    val prevOrParentAST: Attributable ==> AST = {case a: Attributable => val p = a -> prevAST; if (p != null) p else a -> parentAST}
+
     private def prevOfChoice(c: Choice[AST]): AST = c -> prevAST match {
         case x: Choice[AST] => lastChoice(x)
         case x: AST => x
@@ -60,9 +63,7 @@ trait ASTNavigation {
 
 
     protected def outer[T](f: AST ==> T, init: () => T, e: AST): T =
-        if (e -> prevAST != null) f(e -> prevAST)
-        else
-        if (e -> parentAST != null) f(e -> parentAST)
+        if (e -> prevOrParentAST != null) f(e -> prevOrParentAST)
         else
             init()
 }

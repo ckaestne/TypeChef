@@ -102,4 +102,16 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         structenv.contains("mystr") should be(false)
     }
 
+
+    test("typedefEnv cycle") {
+        val ast = (getAST("""
+            typedef int myint;
+            typedef myint mymyint;
+            mymyint inner;
+            """))
+        val typedefs = ast.defs.last.entry -> typedefEnv
+        println(typedefs)
+        //expect no exception due to cyclic dependencies anymore
+    }
+
 }

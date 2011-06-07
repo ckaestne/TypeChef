@@ -65,12 +65,13 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             case StructOrUnionSpecifier("struct", Some(id), _) => types = types :+ CStruct(id.name)
             case StructOrUnionSpecifier("struct", None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members).map(x => (x._1, x._3)))
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
-                val typedefEnvironment = e -> typedefEnv
+                val typedefEnvironment = e -> previousTypedefEnv
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
                 else types = types :+ CUnknown("type not defined " + typedefname) //should not occur, because the parser should reject this already
             }
             case e: OtherSpecifier =>
             case e: TypedefSpecifier =>
+            case e: AttributeSpecifier =>
             case e: TypeSpecifier => types = types :+ CUnknown("unknown type specifier " + e)
         }
         if (types.contains(CDouble()) && types.contains(CSigned(CLong())))
@@ -155,6 +156,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             case PlainParameterDeclaration(specifiers) => constructType(specifiers)
             case ParameterDeclarationD(specifiers, decl) => getDeclaratorType(decl, constructType(specifiers))
             case ParameterDeclarationAD(specifiers, decl) => getAbstractDeclaratorType(decl, constructType(specifiers))
+            case VarArgs() => CVarArgs()
         }
 
     }
@@ -175,6 +177,13 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     //Type synonyms with typedef
     type TypeDefEnv = Map[String, CType]
 
+    /**typedef enviroment, outside the current declaration*/
+    val previousTypedefEnv: AST ==> TypeDefEnv = {
+        case ast: AST =>
+            if (!(ast -> inDeclaration)) ast -> typedefEnv
+            else (ast -> outerDeclaration -> prevOrParentAST -> typedefEnv)
+    }
+
     val typedefEnv: AST ==> TypeDefEnv = attr {
         //TODO variability
         case e: Declaration => outerTypedefEnv(e) ++ recognizeTypedefs(e)
@@ -187,6 +196,16 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         if (isTypedef(decl.declSpecs))
             (for (Opt(f, init) <- decl.init) yield (init.getName -> declType(decl.declSpecs, init.declarator))) toMap
         else Map()
+    }
+
+    private val inDeclaration: AST ==> Boolean = attr {
+        case e: Declaration => true
+        case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclaration
+    }
+    //get the first parent node that is a declaration
+    private val outerDeclaration: AST ==> Declaration = attr {
+        case e: Declaration => e
+        case e: AST => if ((e -> parentAST) == null) null else e -> parentAST -> outerDeclaration
     }
 
 }
