@@ -7,11 +7,11 @@ import FeatureExpr.base
 import org.kiama.attribution.Attribution._
 import org.kiama._
 
-trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
+trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn {
 
     //Variable-Typing Context: identifier to its non-void wellformed type
     class VarTypingContext(entries: Map[String, Seq[(FeatureExpr, CType)]]) {
-        def this() = this (Map())
+        def this() = this (initBuiltinVarEnv)
         /*
             feature expressions are not rewritten as in the macrotable, but we
              may later want to ensure that they are mutually exclusive
@@ -68,7 +68,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
         case e: AST => outerVarEnv(e)
     }
     private def outerVarEnv(e: AST): VarTypingContext =
-        outer[VarTypingContext](varEnv, () => new VarTypingContext(Map()), e)
+        outer[VarTypingContext](varEnv, () => new VarTypingContext(), e)
 
 
     private def assertNoTypedef(decl: Declaration): Unit = assert(!isTypedef(decl.declSpecs))
@@ -94,7 +94,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping {
 
 
     private def outerStructEnv(e: AST): StructEnv =
-        outer[StructEnv](structEnv, () => new StructEnv(Map()), e)
+        outer[StructEnv](structEnv, () => new StructEnv(), e)
 
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
