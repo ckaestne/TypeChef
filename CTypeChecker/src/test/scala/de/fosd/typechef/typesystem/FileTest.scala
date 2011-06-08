@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
 import org.junit.Test
-import de.fosd.typechef.parser.c.TranslationUnit
 import java.io.{InputStream, FileNotFoundException}
+import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
 
 class FileTest extends TestHelper {
 

@@ -109,18 +109,6 @@ object PrettyPrinter {
             case NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) =>
                 (if (isAuto) "auto" ~~ Empty else Empty) ~ sep(specifiers, _ ~~ _) ~~ declarator ~~ sep(parameters, _ ~~ _) ~~ stmt
             case LocalLabelDeclaration(ids: List[Opt[Id]]) => "__label__" ~~ sep(ids, _ ~ "," ~~ _) ~ ";"
-            //
-            //            case AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement with Choice[Statement] {
-            //                override def equals(x: Any) = x match {
-            //                    case AltStatement(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
-            //                    case _ => false
-            //                }
-            //            }
-            //
-            //            object AltStatement {
-            //                def join = (f: FeatureExpr, x: Statement, y: Statement) => if (x == y) x else AltStatement(f, x, y)
-            //            }
-            //
             case OtherPrimitiveTypeSpecifier(typeName: String) => typeName
             case VoidSpecifier() => "void"
             case ShortSpecifier() => "short"
@@ -186,17 +174,6 @@ object PrettyPrinter {
                 spaceSep(specifiers) ~~ declarator ~~ spaceSep(oldStyleParameters) ~~ stmt
             case EmptyExternalDef() => ";"
             case TypelessDeclaration(declList: List[Opt[InitDeclarator]]) => commaSep(declList) ~ ";"
-            //            case AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef with Choice[ExternalDef] {
-            //                override def equals(x: Any) = x match {
-            //                    case AltExternalDef(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
-            //                    case _ => false
-            //                }
-            //            }
-            //
-            //            object AltExternalDef {
-            //                def join = (f: FeatureExpr, x: ExternalDef, y: ExternalDef) => if (x == y) x else AltExternalDef(f, x, y)
-            //            }
-            //
             case TypeName(specifiers: List[Opt[Specifier]], decl: Option[AbstractDeclarator]) => spaceSep(specifiers) ~~ opt(decl)
 
             case GnuAttributeSpecifier(attributeList: List[Opt[AttributeSequence]]) => "__attribute__((" ~ commaSep(attributeList) ~ "))"
@@ -220,6 +197,9 @@ object PrettyPrinter {
             case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
             case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
 
+
+            case AltExternalDef(f, a, b) => assert(false, "todo"); a * b
+            case AltStatement(f, a, b) => assert(false, "todo"); a * b
 
         }
     }

@@ -1,6 +1,5 @@
-package de.fosd.typechef.typesystem
+package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attributable
 import org.kiama.rewriting.Rewriter._

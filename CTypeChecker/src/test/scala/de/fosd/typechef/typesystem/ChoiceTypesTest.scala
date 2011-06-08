@@ -6,6 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.parser.c.TestHelper
 
 @RunWith(classOf[JUnitRunner])
 class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with TestHelper {
