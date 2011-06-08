@@ -133,7 +133,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     private def enumDeclarations(specs: List[Opt[Specifier]]): List[(String, FeatureExpr, CType)] = {
         var result = List[(String, FeatureExpr, CType)]()
         for (Opt(_, spec) <- specs) spec match {
-            case EnumSpecifier(_, enums) => for (Opt(_, enum) <- enums)
+            case EnumSpecifier(_, Some(enums)) => for (Opt(_, enum) <- enums)
                 result = (enum.id.name, enum -> featureExpr, CSigned(CInt())) :: result
             case _ =>
         }

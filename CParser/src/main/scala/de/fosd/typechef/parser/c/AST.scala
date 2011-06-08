@@ -271,29 +271,23 @@ case class DeclArrayAccess(expr: Option[Expr]) extends DeclaratorAbstrExtension
 //}
 
 
-case class Initializer(initializerElementLabel: List[Opt[InitializerElementLabel]], expr: Expr) extends AST {
-}
+case class Initializer(initializerElementLabel: Option[InitializerElementLabel], expr: Expr) extends AST
 
-case class Pointer(specifier: List[Opt[Specifier]]) extends AST {
-}
+case class Pointer(specifier: List[Opt[Specifier]]) extends AST
 
 abstract class ParameterDeclaration(val specifiers: List[Opt[Specifier]]) extends AST
 
-case class PlainParameterDeclaration(override val specifiers: List[Opt[Specifier]]) extends ParameterDeclaration(specifiers) {
-}
+case class PlainParameterDeclaration(override val specifiers: List[Opt[Specifier]]) extends ParameterDeclaration(specifiers)
 
-case class ParameterDeclarationD(override val specifiers: List[Opt[Specifier]], decl: Declarator) extends ParameterDeclaration(specifiers) {
-}
+case class ParameterDeclarationD(override val specifiers: List[Opt[Specifier]], decl: Declarator) extends ParameterDeclaration(specifiers)
 
-case class ParameterDeclarationAD(override val specifiers: List[Opt[Specifier]], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers) {
-}
+case class ParameterDeclarationAD(override val specifiers: List[Opt[Specifier]], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers)
 
 trait OldParameterDeclaration extends AST
 
 case class VarArgs() extends ParameterDeclaration(List()) with OldParameterDeclaration
 
-case class EnumSpecifier(id: Option[Id], enumerators: List[Opt[Enumerator]]) extends TypeSpecifier {
-}
+case class EnumSpecifier(id: Option[Id], enumerators: Option[List[Opt[Enumerator]]]) extends TypeSpecifier
 
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST {
 }
@@ -375,11 +369,14 @@ case class TypeOfSpecifierU(expr: Expr) extends TypeSpecifier {
 
 abstract class InitializerElementLabel() extends AST
 
-case class InitializerArrayDesignator(expr: Expr) extends InitializerElementLabel {
-}
+case class InitializerArrayDesignator(expr: Expr) extends InitializerElementLabel
 
-case class InitializerDesignator(id: Id) extends InitializerElementLabel {
-}
+case class InitializerDesignatorC(id: Id) extends InitializerElementLabel
+
+case class InitializerDesignatorD(id: Id) extends InitializerElementLabel
+
+case class InitializerAssigment(designators: List[Opt[InitializerElementLabel]]) extends InitializerElementLabel
+
 
 case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[OffsetofMemberDesignator]]) extends PrimaryExpr {
 }

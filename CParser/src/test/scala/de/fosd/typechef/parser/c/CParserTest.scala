@@ -28,7 +28,7 @@ class CParserTest extends TestCase {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
-                assertTree(ast)
+                //                assertTree(ast)
                 assertNoDeadNodes(ast)
             }
             case p.NoSuccess(msg, unparsed, inner) =>
@@ -47,7 +47,7 @@ class CParserTest extends TestCase {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 if (ast.isInstanceOf[AST]) {
-                    assertTree(ast.asInstanceOf[AST])
+                    //                    assertTree(ast.asInstanceOf[AST])
                     assertNoDeadNodes(ast.asInstanceOf[AST])
                 }
                 //succeed

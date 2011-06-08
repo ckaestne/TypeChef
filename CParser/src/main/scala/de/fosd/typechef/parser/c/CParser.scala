@@ -135,9 +135,9 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def enumSpecifier: MultiParser[EnumSpecifier] =
         textToken("enum") ~>
-                ((ID ~~ LCURLY ~! (enumList ~ RCURLY) ^^ {case id ~ _ ~ (l ~ _) => EnumSpecifier(Some(id), l)})
-                        | (LCURLY ~ enumList ~ RCURLY ^^ {case _ ~ l ~ _ => EnumSpecifier(None, l)})
-                        | (ID ^^ {case i => EnumSpecifier(Some(i), List())}))
+                ((ID ~~ LCURLY ~! (enumList ~ RCURLY) ^^ {case id ~ _ ~ (l ~ _) => EnumSpecifier(Some(id), Some(l))})
+                        | (LCURLY ~ enumList ~ RCURLY ^^ {case _ ~ l ~ _ => EnumSpecifier(None, Some(l))})
+                        | (ID ^^ {case i => EnumSpecifier(Some(i), None)}))
 
     def enumList: MultiParser[List[Opt[Enumerator]]] =
         rep1SepOpt(enumerator, COMMA, "enumList")
@@ -174,7 +174,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     //consumes trailing comma
 
     def initializer: MultiParser[Initializer] =
-        optList(initializerDesignation) ~ (assignExpr | lcurlyInitializer) ^^ {
+        opt(initializerDesignation) ~ (assignExpr | lcurlyInitializer) ^^ {
             case iel ~ expr => Initializer(iel, expr)
         }
 
@@ -571,14 +571,14 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
 
     // GCC allows more specific initializers
-    def initializerDesignation: MultiParser[List[Opt[InitializerElementLabel]]] =
-        (rep1(designator) <~~ ASSIGN) | //designator-list =
-                (arrayDesignator ^^ {ad => List(Opt(base, ad))}) | //array-designator
-                (ID <~~ COLON ^^ {id => List(Opt(base, InitializerDesignator(id)))})
+    def initializerDesignation: MultiParser[InitializerElementLabel] =
+        (rep1(designator) <~~ ASSIGN ^^ {InitializerAssigment(_)}) |
+                arrayDesignator |
+                (ID <~~ COLON ^^ {InitializerDesignatorC(_)})
 
     def designator: MultiParser[InitializerElementLabel] =
         arrayDesignator |
-                (DOT ~~> ID ^^ {InitializerDesignator(_)})
+                (DOT ~~> ID ^^ {InitializerDesignatorD(_)})
 
     def arrayDesignator: MultiParser[InitializerArrayDesignator] =
         LBRACKET ~~ (rangeExpr | constExpr) ~~ RBRACKET ^^ {case _ ~ e ~ _ => InitializerArrayDesignator(e)}
