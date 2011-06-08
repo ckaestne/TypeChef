@@ -42,6 +42,8 @@ object PrettyPrinter {
     }
 
 
+    def print(ast: AST): String = layout(prettyPrint(ast))
+
     def prettyPrint(ast: AST): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a)
         implicit def prettyOpt(a: Opt[AST]): Doc = prettyPrint(a.entry)
@@ -81,7 +83,7 @@ object PrettyPrinter {
             case NAryExpr(e: Expr, others: List[Opt[NArySubExpr]]) => "(" ~ e ~~ sep(others, _ ~~ _) ~ ")"
             case NArySubExpr(op: String, e: Expr) => op ~~ e
             case ConditionalExpr(condition: Expr, thenExpr, elseExpr: Expr) => "(" ~ condition ~~ "?" ~~ opt(thenExpr) ~~ ":" ~~ elseExpr ~ ")"
-            case AssignExpr(target: Expr, operation: String, source: Expr) => target ~~ operation ~~ source
+            case AssignExpr(target: Expr, operation: String, source: Expr) => "(" ~ target ~~ operation ~~ source ~ ")"
             case ExprList(exprs: List[Opt[Expr]]) => sep(exprs, _ ~~ "," ~~ _)
 
             case CompoundStatement(innerStatements: List[Opt[Statement]]) => block(sep(innerStatements, _ * _))

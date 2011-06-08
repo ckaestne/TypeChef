@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
+import de.fosd.typechef.parser.c.TestHelper
 
 @RunWith(classOf[JUnitRunner])
 class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDeclTyping with TestHelper {

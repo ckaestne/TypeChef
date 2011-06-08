@@ -118,8 +118,7 @@ case class CaseStatement(c: Expr, s: Option[Statement]) extends Statement {
 case class DefaultStatement(s: Option[Statement]) extends Statement {
 }
 
-case class IfStatement(condition: Expr, thenBranch: Statement, elifs: List[Opt[ElifStatement]], elseBranch: Option[Statement]) extends Statement {
-}
+case class IfStatement(condition: Expr, thenBranch: Statement, elifs: List[Opt[ElifStatement]], elseBranch: Option[Statement]) extends Statement
 
 case class ElifStatement(condition: Expr, thenBranch: Statement) extends AST {
 }
