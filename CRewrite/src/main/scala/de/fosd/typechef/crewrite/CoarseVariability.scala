@@ -25,11 +25,11 @@ class CoarseVariability  {
     }
 
 
-    /** returns a choice of nodes, that should not contain inner variability */
-    def explodeVariability(ast:AST):Choice[AST] = {
-//        ast.children
-
-    }
+//    /** returns a choice of nodes, that should not contain inner variability */
+//    def explodeVariability(ast:AST):Choice[AST] = {
+////        ast.children
+//
+//    }
 
 
     /*** ensure the result is correct. returns true if at most the desired variability is left */
