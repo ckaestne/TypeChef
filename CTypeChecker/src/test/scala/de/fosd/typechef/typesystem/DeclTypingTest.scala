@@ -88,5 +88,11 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
         declT("struct a { double a;} foo;") should be(CStruct("a"))
         declTL("struct a;").size should be(0)
     }
+    test("union declarations") {
+        declT("union { double a;} foo;") should be(CAnonymousStruct(List(("a", CDouble())), true))
+        declT("union a foo;") should be(CStruct("a", true))
+        declT("union a { double a;} foo;") should be(CStruct("a", true))
+        declTL("union a;").size should be(0)
+    }
 
 }

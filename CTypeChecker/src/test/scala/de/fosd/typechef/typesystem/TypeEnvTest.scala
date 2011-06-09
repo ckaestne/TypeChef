@@ -27,6 +27,11 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
                char *last_name;
                float balance, *b;
             } acc;
+            union uaccount {
+                int foo;
+                int bar;
+            } uua;
+            union uaccount *ua;
             int bar;
             struct account *a;
             void main(double a);
@@ -40,9 +45,14 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
 
         println(env.env)
 
-        //should be in environement
-        env.contains("account") should be(true)
-        val accountStruct = env.get("account")
+        //struct should be in environement
+        env.contains("account", false) should be(true)
+        env.contains("account", true) should be(false) //not a union
+
+        env.contains("uaccount", false) should be(false)
+        env.contains("uaccount", true) should be(true) //a union
+
+        val accountStruct = env.get("account", false)
 
         //four fields
         accountStruct.size should be(5)
@@ -63,6 +73,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         env("foo") should be(CSigned(CInt()))
         env("bar") should be(CSigned(CInt()))
         env("a") should be(CPointer(CStruct("account")))
+        env("ua") should be(CPointer(CStruct("uaccount", true)))
         env("acc") should be(CStruct("account"))
         env("main") should be(CFunction(Seq(CDouble()), CVoid()))
 
@@ -104,8 +115,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
 
         //structure definitons should be recognized despite typedefs
         val structenv: StructEnv = ast.defs.last.entry -> structEnv
-        structenv.contains("pair") should be(true)
-        structenv.contains("mystr") should be(false)
+        structenv.contains("pair", false) should be(true)
+        structenv.contains("mystr", false) should be(false)
 
     }
 

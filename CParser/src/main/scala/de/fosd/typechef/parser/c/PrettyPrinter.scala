@@ -165,7 +165,7 @@ object PrettyPrinter {
             case EnumSpecifier(Some(id), None) => "enum" ~~ id
             case Enumerator(id, Some(init)) => id ~~ "=" ~~ init
             case Enumerator(id, None) => id
-            case StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) => kind ~~ opt(id) ~~ block(sep(enumerators, _ * _))
+            case StructOrUnionSpecifier(isUnion: Boolean, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) => (if (isUnion) "union" else "struct") ~~ opt(id) ~~ block(sep(enumerators, _ * _))
             case StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDecl]]) => spaceSep(qualifierList) ~~ commaSep(declaratorList) ~ ";"
             case StructDeclarator(decl: Declarator, initializer: Option[Expr], _) => decl ~ optExt(initializer, ":" ~~ _)
             case StructInitializer(expr: Expr, _) => ":" ~~ expr

@@ -14,13 +14,13 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
 
     test("wellformed types") {
         val sEnv: StructEnv = new StructEnv(Map(
-            ("wf1" -> Seq(("a", base, CFloat()))),
-            ("wf2" -> Seq(("a", base, CFloat()), ("b", base, CDouble()))),
-            ("wf3" -> Seq(("a", base, CPointer(CStruct("wf2"))), ("b", base, CDouble()))),
-            ("wf4" -> Seq(("a", base, CPointer(CStruct("wf2"))), ("b", base, CPointer(CStruct("wf4"))))),
-            ("nwf1" -> Seq(("a", base, CFloat()), ("a", base, CDouble()))),
-            ("nwf2" -> Seq(("a", base, CVoid()), ("b", base, CDouble()))),
-            ("nwf3" -> Seq()))
+            (("wf1", false) -> Seq(("a", base, CFloat()))),
+            (("wf2", true) -> Seq(("a", base, CFloat()), ("b", base, CDouble()))), //union
+            (("wf3", false) -> Seq(("a", base, CPointer(CStruct("wf2"))), ("b", base, CDouble()))),
+            (("wf4", false) -> Seq(("a", base, CPointer(CStruct("wf2"))), ("b", base, CPointer(CStruct("wf4"))))),
+            (("nwf1", false) -> Seq(("a", base, CFloat()), ("a", base, CDouble()))),
+            (("nwf2", false) -> Seq(("a", base, CVoid()), ("b", base, CDouble()))),
+            (("nwf3", false) -> Seq()))
         )
         val tEnv: PtrEnv = Set("Str", "wf2")
         val wf = wellformed(sEnv, tEnv, _: CType) should be(true)
@@ -48,7 +48,9 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
         nwf(CFunction(Seq(CArray(CDouble(), 2)), CVoid()))
         nwf(CFunction(Seq(CDouble()), CArray(CDouble(), 2)))
         wf(CStruct("wf1"))
-        wf(CStruct("wf2"))
+        nwf(CStruct("wf1", true)) //union not allowed as struct and vice versa
+        wf(CStruct("wf2", true))
+        nwf(CStruct("wf2"))
         wf(CStruct("wf3"))
         wf(CStruct("wf4"))
         nwf(CStruct("nwf1"))

@@ -42,8 +42,8 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         //type specifiers
         var types = List[CType]()
         for (Opt(_, specifier) <- specifiers) specifier match {
-            case StructOrUnionSpecifier("struct", Some(id), _) => types = types :+ CStruct(id.name)
-            case StructOrUnionSpecifier("struct", None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members).map(x => (x._1, x._3)))
+            case StructOrUnionSpecifier(isUnion, Some(id), _) => types = types :+ CStruct(id.name, isUnion)
+            case StructOrUnionSpecifier(isUnion, None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members).map(x => (x._1, x._3)), isUnion)
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = e -> previousTypedefEnv
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)

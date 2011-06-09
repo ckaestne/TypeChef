@@ -339,7 +339,7 @@ case class EnumSpecifier(id: Option[Id], enumerators: Option[List[Opt[Enumerator
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST {
 }
 
-case class StructOrUnionSpecifier(kind: String, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) extends TypeSpecifier {
+case class StructOrUnionSpecifier(isUnion: Boolean, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) extends TypeSpecifier {
 }
 
 case class StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDecl]]) extends AST {

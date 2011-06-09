@@ -105,7 +105,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             (token, context) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || context.knowsType(token.getText))) ^^ {t => TypeDefTypeSpecifier(Id(t.getText))}
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
-        structOrUnion ~ repOpt(attributeDecl) ~ structOrUnionSpecifierBody ^^ {case k ~ _ ~ ((id, list)) => StructOrUnionSpecifier(k, id, list)}
+        structOrUnion ~ repOpt(attributeDecl) ~ structOrUnionSpecifierBody ^^ {case isUnion ~ _ ~ ((id, list)) => StructOrUnionSpecifier(isUnion, id, list)}
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[Opt[StructDeclaration]])] =
     // XXX: PG: SEMI after LCURLY????
@@ -113,8 +113,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                 (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {case _ ~ _ ~ list ~ _ ~ _ => (None, list)}) |
                 (ID ^^ {case id => (Some(id), List())})
 
-    def structOrUnion: MultiParser[String] =
-        (textToken("struct") | textToken("union")) ^^ {case t: TokenWrapper => t.getText}
+    def structOrUnion: MultiParser[Boolean] = // isUnion
+        (textToken("struct") ^^^ (false) | textToken("union") ^^^ (true))
 
     def structDeclarationList0 =
         repOpt(structDeclaration)

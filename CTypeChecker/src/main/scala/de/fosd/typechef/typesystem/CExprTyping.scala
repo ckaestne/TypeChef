@@ -17,9 +17,9 @@ trait CExprTyping extends CTypes with CTypeEnv {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
 
-    private def structEnvLookup(strEnv: StructEnv, structName: String, fieldName: String): CType = {
-        if (strEnv contains structName) {
-            val struct = strEnv.get(structName)
+    private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): CType = {
+        if (strEnv contains (structName, isUnion)) {
+            val struct = strEnv.get(structName, isUnion)
             //TODO handle alternatives
             val field = struct.find(_._1 == fieldName)
             if (field.isDefined)
@@ -57,8 +57,8 @@ trait CExprTyping extends CTypes with CTypeEnv {
             //e.n notation
             case PostfixExpr(expr, PointerPostfixSuffix(".", Id(id))) =>
                 et(expr) match {
-                    case CObj(CStruct(s)) => CObj(structEnvLookup(strEnv, s, id))
-                    case CStruct(s) => structEnvLookup(strEnv, s, id) match {
+                    case CObj(CStruct(s, isUnion)) => CObj(structEnvLookup(strEnv, s, isUnion, id))
+                    case CStruct(s, isUnion) => structEnvLookup(strEnv, s, isUnion, id) match {
                         case e if (arrayType(e)) => CUnknown("(" + e + ")." + id + " has array type")
                         case e => e
                     }

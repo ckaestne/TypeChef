@@ -46,13 +46,17 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     }
 
 
-    class StructEnv(val env: Map[String, Seq[(String, FeatureExpr, CType)]]) {
+    /**for struct and union */
+    class StructEnv(val env: Map[(String, Boolean), Seq[(String, FeatureExpr, CType)]]) {
         def this() = this (Map())
-        def contains(name: String) = env contains name
-        def add(name: String, attributes: Seq[(String, FeatureExpr, CType)]) =
+        def contains(name: String, isUnion: Boolean) = env contains ((name, isUnion))
+        def containsUnion(name: String) = contains(name, true)
+        def containsStruct(name: String) = contains(name, false)
+        def add(name: String, isUnion: Boolean, attributes: Seq[(String, FeatureExpr, CType)]) =
         //TODO check distinct attribute names in each variant
-            new StructEnv(env + (name -> (env.getOrElse(name, Seq()) ++ attributes)))
-        def get(name: String): Seq[(String, FeatureExpr, CType)] = env(name)
+        //TODO check that there is not both a struct and a union with the same name
+            new StructEnv(env + ((name, isUnion) -> (env.getOrElse((name, isUnion), Seq()) ++ attributes)))
+        def get(name: String, isUnion: Boolean): Seq[(String, FeatureExpr, CType)] = env((name, isUnion))
     }
 
 
@@ -106,15 +110,14 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     val structEnv: AST ==> StructEnv = attr {
         case e@Declaration(decls, _) =>
             decls.foldRight(outerStructEnv(e))({
-                case (Opt(_, a), b) => val s = a -> struct; if (s.isDefined) b.add(s.get._1, s.get._2) else b;
+                case (Opt(_, a), b) => val s = a -> struct; if (s.isDefined) b.add(s.get._1, s.get._2, s.get._3) else b;
             })
         case e: AST => outerStructEnv(e)
     }
 
-    val struct: AST ==> Option[(String, Seq[(String, FeatureExpr, CType)])] = attr {
-        case e@StructOrUnionSpecifier(_, Some(Id(name)), attributes) =>
-        //TODO variability
-            Some((name, parseStructMembers(attributes)))
+    val struct: AST ==> Option[(String, Boolean, Seq[(String, FeatureExpr, CType)])] = attr {
+        case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), attributes) =>
+            Some((name, isUnion, parseStructMembers(attributes)))
         case _ => None
     }
 
@@ -134,7 +137,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             case CFloat() => true
             case CDouble() => true
             case CLongDouble() => true
-            case CPointer(CStruct(s)) => ptrEnv contains s
+            case CPointer(CStruct(s, _)) => ptrEnv contains s
             case CPointer(t) => wf(t)
             case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
             case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
@@ -142,8 +145,8 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
                     param.dropRight(1).forall(wf(_)) &&
                     lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
-            case CStruct(name) => {
-                val members = structEnv.env.getOrElse(name, Seq())
+            case CStruct(name, isUnion) => {
+                val members = structEnv.env.getOrElse((name, isUnion), Seq())
                 //TODO variability
                 val memberNames = members.map(_._1)
                 val memberTypes = members.map(_._3)
@@ -152,7 +155,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
                             t != CVoid() && wellformed(structEnv, ptrEnv + name, t)
                         }))
             }
-            case CAnonymousStruct(members) => members.forall(x => wf(x._2))
+            case CAnonymousStruct(members, _) => members.forall(x => wf(x._2))
             case CUnknown(_) => false
             case CObj(_) => false
             case CChoice(_, a, b) => wf(a) && wf(b)

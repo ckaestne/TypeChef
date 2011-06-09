@@ -93,9 +93,10 @@ trait CTypes {
     //length is currently not analyzed. using always -1
     case class CArray(t: CType, length: Int = -1) extends CType
 
-    case class CStruct(s: String) extends CType
+    /**struct and union are handled in the same construct but distinguished with a flag */
+    case class CStruct(s: String, isUnion: Boolean = false) extends CType
 
-    case class CAnonymousStruct(fields: List[(String, CType)]) extends CType
+    case class CAnonymousStruct(fields: List[(String, CType)], isUnion: Boolean = false) extends CType
 
     case class CFunction(param: Seq[CType], ret: CType) extends CType {
         override def toObj = this
