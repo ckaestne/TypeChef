@@ -24,7 +24,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         if (strEnv contains (structName, isUnion)) {
             val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
             struct.getOrElse(fieldName, CUnknown(fieldName + " unknown in " + structName))
-        } else CUnknown("struct " + structName + " unknown")
+        } else CUnknown("struct/union " + structName + " unknown")
     }
 
     //    private def anonymousStructLookup(fields: List[(String, CType)], fieldName:String):CType =
@@ -58,8 +58,10 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 }
             //e.n notation
             case PostfixExpr(expr, PointerPostfixSuffix(".", Id(id))) =>
+                def lookup(fields: ConditionalTypeMap) = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))
                 et(expr) match {
-                //                    case CObj(CAnonymousStruct(fields, isUnion)) =>
+                    case CObj(CAnonymousStruct(fields, _)) => CObj(lookup(fields))
+                    case CAnonymousStruct(fields, _) => lookup(fields)
                     case CObj(CStruct(s, isUnion)) => CObj(structEnvLookup(strEnv, s, isUnion, id))
                     case CStruct(s, isUnion) => structEnvLookup(strEnv, s, isUnion, id) match {
                         case e if (arrayType(e)) => CUnknown("(" + e + ")." + id + " has array type")
