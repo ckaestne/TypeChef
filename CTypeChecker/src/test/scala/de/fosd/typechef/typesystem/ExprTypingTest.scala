@@ -100,6 +100,14 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("({1;foo();2;})") should be(CSigned(CInt()))
     }
 
+    test("operations") {
+
+        operationType("+", CPointer(CUnsigned(CLong())), CSigned(CInt())) should be(CPointer(CUnsigned(CLong())))
+        CObj(CArray(CUnsigned(CLong()), -1)).toValue should be(CPointer(CUnsigned(CLong())))
+        operationType("+", CObj(CArray(CUnsigned(CLong()), -1)), CSigned(CInt())) should be(CPointer(CUnsigned(CLong())))
+
+    }
+
     //    @Ignore
     //    test("array access") {
     //        expr("arr[3]") should be(CDouble())

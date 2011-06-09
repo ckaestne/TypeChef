@@ -133,6 +133,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     case "-" => if (isArithmetic(exprType)) exprType else CUnknown("incorrect type, expected arithmetic, was " + exprType)
                     case "~" => if (isIntegral(exprType)) exprType else CUnknown("incorrect type, expected integer, was " + exprType)
                     case "!" => if (isScalar(exprType)) exprType else CUnknown("incorrect type, expected scalar, was " + exprType)
+                    case "&&" => CPointer(CVoid()) //label dereference
                     case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
                 }
             case ConditionalExpr(condition, thenExpr, elseExpr) =>
@@ -153,7 +154,8 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
      */
     def operationType(op: String, type1: CType, type2: CType): CType = (op, type1.toValue, type2.toValue) match {
         case ("+", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        case ("+", t1, t2) if (((isPointer(t1) && isIntegral(t2)) || (isPointer(t2) && isIntegral(t1))) && coerce(t1, t2)) => t1
+        case ("+", t1, t2) if (isPointer(t1) && isIntegral(t2)) => t1
+        case ("+", t1, t2) if (isPointer(t2) && isIntegral(t1)) => t2
         case ("-", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
         //bitwise operations defined on isIntegral
         case (op, t1, t2) if ((Set("&", "|", "^", "<<", ">>", "~") contains op) && isIntegral(t1) && isIntegral(t2)) => wider(t1, t2)
