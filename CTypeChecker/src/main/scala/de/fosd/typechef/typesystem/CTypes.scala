@@ -37,7 +37,9 @@ trait CTypes {
      * section 2.3 below.
      */
 
-    sealed abstract class CBasicType
+    sealed abstract class CBasicType {
+        def <(that: CBasicType): Boolean
+    }
 
     sealed abstract class CType {
         def toObj: CType = CObj(this)
@@ -54,20 +56,33 @@ trait CTypes {
         def map(op: CType => CType): CType = op(this)
 
         def sometimesUnknown: Boolean = false
+
+        /**compares with of two types. if this<that, this type can be converted (widened) to that */
+        def <(that: CType): Boolean = false
     }
 
     //    /** type without variability */
     //    sealed abstract class CStaticType extends CType
 
-    case class CChar() extends CBasicType
+    case class CChar() extends CBasicType {
+        def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+    }
 
-    case class CShort() extends CBasicType
+    case class CShort() extends CBasicType {
+        def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+    }
 
-    case class CInt() extends CBasicType
+    case class CInt() extends CBasicType {
+        def <(that: CBasicType) = that == CLongLong() || that == CLong()
+    }
 
-    case class CLong() extends CBasicType
+    case class CLong() extends CBasicType {
+        def <(that: CBasicType) = that == CLongLong()
+    }
 
-    case class CLongLong() extends CBasicType
+    case class CLongLong() extends CBasicType {
+        def <(that: CBasicType) = false
+    }
 
     implicit def toCType(x: CInt): CType = CSigned(x)
     implicit def toCType(x: CChar): CType = CSignUnspecified(x)
@@ -76,11 +91,26 @@ trait CTypes {
 
     case class CVoid() extends CType
 
-    case class CSigned(b: CBasicType) extends CType
+    case class CSigned(b: CBasicType) extends CType {
+        override def <(that: CType) = that match {
+            case CSigned(thatb) => b < thatb
+            case _ => false
+        }
+    }
 
-    case class CUnsigned(b: CBasicType) extends CType
+    case class CUnsigned(b: CBasicType) extends CType {
+        override def <(that: CType) = that match {
+            case CUnsigned(thatb) => b < thatb
+            case _ => false
+        }
+    }
 
-    case class CSignUnspecified(b: CBasicType) extends CType
+    case class CSignUnspecified(b: CBasicType) extends CType {
+        override def <(that: CType) = that match {
+            case CSignUnspecified(thatb) => b < thatb
+            case _ => false
+        }
+    }
 
     //implementationspecific for Char
 
@@ -185,14 +215,23 @@ trait CTypes {
     /**
      *  determines whether types are compatible in assignements etc
      */
-    def coerce(t1: CType, t2: CType) =
-    //TODO variability
+    def coerce(type1: CType, type2: CType) = {
+        val t1 = normalize(type1)
+        val t2 = normalize(type2)
+        //TODO variability
         (t1 == t2) ||
                 (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {
                     case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()
                     case _ => false
                 })
+    }
+
+    private def normalize(t: CType) = t.toValue match {
+        case CPointer(f: CFunction) => f
+        case CArray(t, _) => CPointer(t) //TODO do this recursively for all occurences of Array
+        case c => c
+    }
 
 
 }

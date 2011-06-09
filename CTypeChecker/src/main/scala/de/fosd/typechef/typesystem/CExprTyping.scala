@@ -154,6 +154,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         case ("+", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
         case ("+", t1, t2) if (((isPointer(t1) && isIntegral(t2)) || (isPointer(t2) && isIntegral(t1))) && coerce(t1, t2)) => t1
         case ("-", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+        //bitwise operations defined on isIntegral
+        case (op, t1, t2) if ((Set("&", "|", "^", "<<", ">>", "~") contains op) && isIntegral(t1) && isIntegral(t2)) => wider(t1, t2)
+
         //TODO other cases for addition and substraction
         case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
         case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
@@ -162,6 +165,14 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         case ("+=", CObj(t1), t2) if (coerce(t1, t2)) => t1
         case _ => CUnknown("unknown operation or incompatible types " + t1 + " " + op + " " + t2)
     }
+
+
+    /**
+     * returns the wider of two types for automatic widening
+     * TODO check correctness
+     */
+    private def wider(t1: CType, t2: CType) =
+        if (t2 < t1) t2 else t1
 
 
     private def createSum(a: Expr, b: Expr) =
