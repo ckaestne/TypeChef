@@ -9,7 +9,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.parser.c.TestHelper
 
 @RunWith(classOf[JUnitRunner])
-class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with TestHelper {
+class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping with TestHelper {
 
 
     private def expr(code: String): CType = {
@@ -71,7 +71,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("foo(1)") should be(CUnknown())
         expr("bar") should be(CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
         expr("bar()") should be(CUnknown())
-        //        expr("bar(1,s)") should be(CUnknown()) TODO not checking parameter types for now
+        expr("bar(1,s)") should be(CUnknown())
         expr("bar(1,&s)") should be(CVoid())
         expr("funparam()") should be(CDouble())
         expr("(*funparam)()") should be(CDouble())
@@ -95,6 +95,9 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
     test("binary operation") {
         expr("1+2") should be(CSigned(CInt()))
         expr("a+=2") should be(CDouble())
+    }
+    test("compound statement expressions") {
+        expr("({1;foo();2;})") should be(CSigned(CInt()))
     }
 
     //    @Ignore

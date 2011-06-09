@@ -17,6 +17,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
 
+    def stmtType(stmt: Statement): CType
+    //implemented by CStmtTyping
+
     private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): CType = {
         if (strEnv contains (structName, isUnion)) {
             val struct = strEnv.get(structName, isUnion)
@@ -133,6 +136,11 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 }
             case ConditionalExpr(condition, thenExpr, elseExpr) =>
                 CUnknown("not implemented yet (TODO)")
+            //compound statement in expr. ({a;b;c;}), type is the type of the last statement
+            case CompoundStatementExpr(compoundStatement) =>
+            //TODO variability (there might be alternative last statements)
+                stmtType(compoundStatement)
+
             //TODO initializers 6.5.2.5
             case e => CUnknown("unknown expression " + e + " (TODO)")
         }
@@ -175,13 +183,11 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         if (expectedTypes.size != foundTypes.size)
             CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
         else
-        //TODO ignore parameter types for now
-        //                        if ((foundTypes zip expectedTypes) forall {
-        //                            case (ft, et) => coerce(ft, et)
-        //                        }) retType
-        //                        else
-        //                            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
-            retType
+        if ((foundTypes zip expectedTypes) forall {
+            case (ft, et) => coerce(ft, et)
+        }) retType
+        else
+            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
     }
 
 }

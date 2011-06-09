@@ -9,7 +9,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c.TestHelper
 
 @RunWith(classOf[JUnitRunner])
-class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with TestHelper {
+class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping with TestHelper {
 
     val fx = FeatureExpr.createDefinedExternal("X")
     val fy = FeatureExpr.createDefinedExternal("Y")
