@@ -8,6 +8,55 @@ import org.kiama.attribution.Attributable
  * AST for C
  */
 
+
+/**
+Variability is supported in the following locations
+===================================================
+Core variability
+----------------
+AltExternalDe..
+AltStatement
+CompoundStatement
+IfStatement -elifs
+TranslationUnit
+EnumSpecifier - enumerators
+StructOrUnionSpecifier - structdeclaration
+
+Variability in types
+--------------------
+FunctionDefinition -> specifiers and parameters
+FunctionDef -> specifiers and parameters
+Declaration -> specifiers and declarators
+Declarator -> pointers and extensions
+ParameterDeclaration (various) - specifiers
+DeclIdentifierList (untyped parameter list in declarators)  -> ids
+DeclParameterDeclList (typed parameter list in declarators) ->  params
+Pointer -> specifier (each pointer can have type qualifiers (const, volatile) and attributes)
+
+StructDeclaration - speciiers and declarators
+
+TypelessDeclaration -> declarators
+TypeName -> specifiers
+
+Futher variability
+------------------
+
+String literals (irrelevant for typing, ugly for rewrites)
+
+NAryExpr (easy to handle for typing and rewrites?)
+
+Function-Call-Parameters (ExprList)
+
+AttributeSequence, gnuattributes, etc -- don't care now
+
+LcurlyInitializer - initializers
+InitializerAssigment - designators
+
+LocalLabelDeclaration -- label names
+
+ *
+ */
+
 //Expressions
 trait AST extends Attributable with Cloneable {
     override def clone() = super.clone().asInstanceOf[AST]
@@ -219,7 +268,7 @@ case class InitDeclaratorE(override val declarator: Declarator, override val att
 
 
 /**
- * A declaration has two parts
+ *  A declaration has two parts
  *   specifier+ declarator+
  * The specifier describes the basic type (which is modified by information in the declarator)
  *
