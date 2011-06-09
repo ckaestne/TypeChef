@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
+import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
@@ -54,16 +55,14 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
 
         val accountStruct = env.get("account", false)
 
-        //four fields
-        accountStruct.size should be(5)
         //should have field "firstname"
-        accountStruct.filter(_._1 == "first_name").size should be(1)
+        accountStruct contains "first_name" should be(true)
         //should have correct type
-        val firstname = accountStruct.filter(_._1 == "first_name").head
-        val balance = accountStruct.filter(_._1 == "balance").head
+        val firstname = accountStruct("first_name")
+        val balance = accountStruct("balance")
 
-        balance._3 should be(CFloat())
-        firstname._3 should be(CPointer(CChar()))
+        balance should be(CFloat())
+        firstname should be(CPointer(CChar()))
 
     }
 
@@ -102,7 +101,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         val typedefs = ast.defs.last.entry -> typedefEnv
 
         typedefs("myint") should be(CSigned(CInt()))
-        typedefs("mystr") should be(CAnonymousStruct(List(("x", CDouble()))))
+        typedefs("mystr") should be(CAnonymousStruct(new ConditionalTypeMap(Map("x" -> Seq((base, CDouble()))))))
         typedefs("myunsign") should be(CUnsigned(CInt()))
 
         //typedef is not a declaration
@@ -110,7 +109,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         env.contains("mystr") should be(false)
 
         env("myintvar") should be(CSigned(CInt()))
-        env("mystrvar") should be(CPointer(CAnonymousStruct(List(("x", CDouble())))))
+        env("mystrvar") should be(CPointer(CAnonymousStruct(new ConditionalTypeMap(Map("x" -> Seq((base, CDouble())))))))
         env("mypairvar") should be(CStruct("pair"))
 
         //structure definitons should be recognized despite typedefs

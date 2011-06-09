@@ -48,7 +48,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         var types = List[CType]()
         for (Opt(_, specifier) <- specifiers) specifier match {
             case StructOrUnionSpecifier(isUnion, Some(id), _) => types = types :+ CStruct(id.name, isUnion)
-            case StructOrUnionSpecifier(isUnion, None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members).map(x => (x._1, x._3)), isUnion)
+            case StructOrUnionSpecifier(isUnion, None, members) => types = types :+ CAnonymousStruct(parseStructMembers(members), isUnion)
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = e -> previousTypedefEnv
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
@@ -195,10 +195,10 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     }
 
-    def parseStructMembers(members: List[Opt[StructDeclaration]]): List[(String, FeatureExpr, CType)] = {
-        var result = List[(String, FeatureExpr, CType)]()
+    def parseStructMembers(members: List[Opt[StructDeclaration]]): ConditionalTypeMap = {
+        var result = new ConditionalTypeMap()
         for (Opt(f, attr) <- members; Opt(g, strDecl) <- attr.declaratorList) strDecl match {
-            case StructDeclarator(decl, _, _) => result = result :+ ((decl.getName, f and g, declType(attr.qualifierList, decl)))
+            case StructDeclarator(decl, _, _) => result = result + (decl.getName, f and g, declType(attr.qualifierList, decl))
             case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
         }
         result

@@ -3,60 +3,29 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import FeatureExpr.base
 import org.kiama.attribution.Attribution._
 import org.kiama._
 
 trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn {
 
     //Variable-Typing Context: identifier to its non-void wellformed type
-    class VarTypingContext(entries: Map[String, Seq[(FeatureExpr, CType)]]) {
-        def this() = this (initBuiltinVarEnv)
-        /*
-            feature expressions are not rewritten as in the macrotable, but we
-             may later want to ensure that they are mutually exclusive
-             in get, they simply overwrite each other in order of addition
-         */
-        /**
-         * apply returns a type, possibly CUndefined or a
-         * choice type
-         */
-        def apply(name: String): CType = {
-            if (!(entries contains name) || entries(name).isEmpty) CUndefined()
-            else {
-                val types = entries(name)
-                if (types.size == 1 && types.head._1 == base) types.head._2
-                else createChoiceType(types)
-            }
-        }
-        def ++(decls: Seq[(String, FeatureExpr, CType)]) = {
-            var r = entries
-            for (decl <- decls) {
-                if (r contains decl._1)
-                    r = r + (decl._1 -> ((decl._2, decl._3) +: r(decl._1)))
-                else
-                    r = r + (decl._1 -> Seq((decl._2, decl._3)))
-            }
-            new VarTypingContext(r)
-        }
-        def +(name: String, f: FeatureExpr, t: CType) = this ++ Seq((name, f, t))
-        private[typesystem] def contains(name: String) = entries contains name
-
-        private def createChoiceType(types: Seq[(FeatureExpr, CType)]) = types.foldRight[CType](CUndefined())((p, t) => CChoice(p._1, p._2, t)) simplify
-    }
+    type VarTypingContext = ConditionalTypeMap
 
 
-    /**for struct and union */
-    class StructEnv(val env: Map[(String, Boolean), Seq[(String, FeatureExpr, CType)]]) {
+    /**
+     * for struct and union
+     * we reuse the vartyping context for the fields of the struct
+     */
+    class StructEnv(val env: Map[(String, Boolean), ConditionalTypeMap]) {
         def this() = this (Map())
         def contains(name: String, isUnion: Boolean) = env contains ((name, isUnion))
         def containsUnion(name: String) = contains(name, true)
         def containsStruct(name: String) = contains(name, false)
-        def add(name: String, isUnion: Boolean, attributes: Seq[(String, FeatureExpr, CType)]) =
+        def add(name: String, isUnion: Boolean, fields: ConditionalTypeMap) =
         //TODO check distinct attribute names in each variant
         //TODO check that there is not both a struct and a union with the same name
-            new StructEnv(env + ((name, isUnion) -> (env.getOrElse((name, isUnion), Seq()) ++ attributes)))
-        def get(name: String, isUnion: Boolean): Seq[(String, FeatureExpr, CType)] = env((name, isUnion))
+            new StructEnv(env + ((name, isUnion) -> (env.getOrElse((name, isUnion), new ConditionalTypeMap()) ++ fields)))
+        def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion))
     }
 
 
@@ -77,7 +46,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         case e: AST => outerVarEnv(e)
     }
     private def outerVarEnv(e: AST): VarTypingContext =
-        outer[VarTypingContext](varEnv, () => new VarTypingContext(), e)
+        outer[VarTypingContext](varEnv, () => new VarTypingContext(initBuiltinVarEnv), e)
 
 
     private def assertNoTypedef(decl: Declaration): Unit = assert(!isTypedef(decl.declSpecs))
@@ -110,12 +79,14 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     val structEnv: AST ==> StructEnv = attr {
         case e@Declaration(decls, _) =>
             decls.foldRight(outerStructEnv(e))({
-                case (Opt(_, a), b) => val s = a -> struct; if (s.isDefined) b.add(s.get._1, s.get._2, s.get._3) else b;
+                case (Opt(_, a), b: StructEnv) =>
+                    val s = a -> struct
+                    if (s.isDefined) b.add(s.get._1, s.get._2, s.get._3) else b
             })
         case e: AST => outerStructEnv(e)
     }
 
-    val struct: AST ==> Option[(String, Boolean, Seq[(String, FeatureExpr, CType)])] = attr {
+    val struct: AST ==> Option[(String, Boolean, ConditionalTypeMap)] = attr {
         case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), attributes) =>
             Some((name, isUnion, parseStructMembers(attributes)))
         case _ => None
@@ -128,6 +99,9 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
         val wf = wellformed(structEnv, ptrEnv, _: CType)
+        def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) = !m.isEmpty && m.allTypes.forall(t => {
+            t != CVoid() && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t)
+        })
         def lastParam(p: Option[CType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
         ctype match {
             case CSigned(_) => true
@@ -146,16 +120,14 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
                     lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
-                val members = structEnv.env.getOrElse((name, isUnion), Seq())
-                //TODO variability
-                val memberNames = members.map(_._1)
-                val memberTypes = members.map(_._3)
-                (!members.isEmpty && memberNames.distinct.size == memberNames.size &&
-                        memberTypes.forall(t => {
-                            t != CVoid() && wellformed(structEnv, ptrEnv + name, t)
-                        }))
+                true
+                //TODO check struct welltypeness
+                val members = structEnv.env.get((name, isUnion))
+                if (members.isDefined)
+                    nonEmptyWellformedEnv(members.get, Some(name))
+                else false
             }
-            case CAnonymousStruct(members, _) => members.forall(x => wf(x._2))
+            case CAnonymousStruct(members, _) => nonEmptyWellformedEnv(members, None)
             case CUnknown(_) => false
             case CObj(_) => false
             case CChoice(_, a, b) => wf(a) && wf(b)

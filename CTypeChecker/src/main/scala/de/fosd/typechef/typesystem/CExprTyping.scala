@@ -22,15 +22,13 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
     private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): CType = {
         if (strEnv contains (structName, isUnion)) {
-            val struct = strEnv.get(structName, isUnion)
-            //TODO handle alternatives
-            val field = struct.find(_._1 == fieldName)
-            if (field.isDefined)
-                field.get._3
-            else
-                CUnknown(fieldName + " unknown in " + structName)
+            val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
+            struct.getOrElse(fieldName, CUnknown(fieldName + " unknown in " + structName))
         } else CUnknown("struct " + structName + " unknown")
     }
+
+    //    private def anonymousStructLookup(fields: List[(String, CType)], fieldName:String):CType =
+    //        if (fie)
 
     private[typesystem] def getExprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
         val et = getExprType(varCtx, strEnv, _: Expr)
@@ -61,6 +59,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //e.n notation
             case PostfixExpr(expr, PointerPostfixSuffix(".", Id(id))) =>
                 et(expr) match {
+                //                    case CObj(CAnonymousStruct(fields, isUnion)) =>
                     case CObj(CStruct(s, isUnion)) => CObj(structEnvLookup(strEnv, s, isUnion, id))
                     case CStruct(s, isUnion) => structEnvLookup(strEnv, s, isUnion, id) match {
                         case e if (arrayType(e)) => CUnknown("(" + e + ")." + id + " has array type")
@@ -124,7 +123,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case SizeOfExprT(_) => CInt()
             case SizeOfExprU(_) => CInt()
             case UnaryOpExpr(kind, expr) =>
-                val exprType = et(expr)
+                val exprType = et(expr).toValue
                 kind match {
                 //TODO complete list: __real__ __imag__
                 //TODO promotions
