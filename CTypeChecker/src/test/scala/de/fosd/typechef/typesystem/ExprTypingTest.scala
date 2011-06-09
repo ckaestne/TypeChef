@@ -28,7 +28,10 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
             ("sp", base, CPointer(CStruct("str"))),
             ("arr", base, CArray(CDouble(), 5)),
             ("foo", base, CFunction(Seq(), CDouble())),
-            ("bar", base, CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
+            ("bar", base, CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid())),
+            ("strf", base, CFunction(Seq(), CStruct("str"))),
+            ("funparam", base, CPointer(CFunction(Seq(), CDouble()))),
+            ("funparamptr", base, CPointer(CPointer(CFunction(Seq(), CDouble()))))
         )
     val astructEnv: StructEnv =
         new StructEnv().add(
@@ -47,6 +50,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
 
     test("struct member access") {
         expr("s.a") should be(CObj(CDouble()))
+        expr("strf().a") should be(CDouble())
         expr("s.b") should be(CObj(CStruct("str")))
         expr("s.b.a") should be(CObj(CDouble()))
         expr("s.b.b.a") should be(CObj(CDouble()))
@@ -69,6 +73,11 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("bar()") should be(CUnknown())
         //        expr("bar(1,s)") should be(CUnknown()) TODO not checking parameter types for now
         expr("bar(1,&s)") should be(CVoid())
+        expr("funparam()") should be(CDouble())
+        expr("(*funparam)()") should be(CDouble())
+        expr("(****funparam)()") should be(CDouble())
+        expr("funparamptr()") should be(CUnknown())
+        expr("(*funparamptr)()") should be(CDouble())
     }
 
     test("assignment") {

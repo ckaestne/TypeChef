@@ -41,6 +41,8 @@ trait CTypes {
 
     sealed abstract class CType {
         def toObj: CType = CObj(this)
+        //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
+        def toValue: CType = this
 
         //simplify rewrites Choice Types; requires reasoning about variability
         def simplify = _simplify(base)
@@ -106,7 +108,12 @@ trait CTypes {
     case class CVarArgs() extends CType
 
     /**objects in memory */
-    case class CObj(t: CType) extends CType
+    case class CObj(t: CType) extends CType {
+        override def toValue: CType = t match {
+            case CArray(t, _) => CPointer(t)
+            case _ => t
+        }
+    }
 
     /**errors */
     case class CUnknown(msg: String = "") extends CType {

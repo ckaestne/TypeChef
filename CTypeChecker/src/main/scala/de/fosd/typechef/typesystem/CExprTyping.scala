@@ -50,8 +50,9 @@ trait CExprTyping extends CTypes with CTypeEnv {
                 }
             //*a: pointer dereferencing
             case PointerDerefExpr(expr) =>
-                et(expr) match {
+                et(expr).toValue match {
                     case CPointer(t) if (t != CVoid) => CObj(t)
+                    case f: CFunction => f // for some reason deref of a function still yields a valid function in gcc
                     case e => CUnknown("* on " + e)
                 }
             //e.n notation
@@ -77,29 +78,9 @@ trait CExprTyping extends CTypes with CTypeEnv {
             //a()
             case PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
             //TODO ignoring variability for now
-                et(expr) map {
-                    case CFunction(parameterTypes, retType) =>
-                        var expectedTypes = parameterTypes
-                        var foundTypes = parameterExprs.map({case Opt(_, e) => et(e)})
-                        //variadic macros
-                        if (expectedTypes.lastOption == Some(CVarArgs())) {
-                            expectedTypes = expectedTypes.dropRight(1)
-                            foundTypes = foundTypes.take(expectedTypes.size)
-                        }
-                        else if (expectedTypes.lastOption == Some(CVoid()))
-                            expectedTypes = expectedTypes.dropRight(1)
-
-                        //check parameter size and types
-                        if (expectedTypes.size != foundTypes.size)
-                            CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
-                        else
-                        //TODO ignore parameter types for now
-                        //                        if ((foundTypes zip expectedTypes) forall {
-                        //                            case (ft, et) => coerce(ft, et)
-                        //                        }) retType
-                        //                        else
-                        //                            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
-                            retType
+                et(expr).toValue map {
+                    case CPointer(CFunction(p, r)) => typeFunctionCall(expr, p, r, parameterExprs.map({case Opt(_, e) => et(e)}))
+                    case CFunction(parameterTypes, retType) => typeFunctionCall(expr, parameterTypes, retType, parameterExprs.map({case Opt(_, e) => et(e)}))
                     case x: CUnknown => x
                     case e => CUnknown(expr + " is not a function, but " + e)
                 }
@@ -198,5 +179,29 @@ trait CExprTyping extends CTypes with CTypeEnv {
     private def createSum(a: Expr, b: Expr) =
         NAryExpr(a, List(Opt(FeatureExpr.base, NArySubExpr("+", b))))
 
+
+    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType]) = {
+        var expectedTypes = parameterTypes
+        var foundTypes = _foundTypes
+        //variadic macros
+        if (expectedTypes.lastOption == Some(CVarArgs())) {
+            expectedTypes = expectedTypes.dropRight(1)
+            foundTypes = foundTypes.take(expectedTypes.size)
+        }
+        else if (expectedTypes.lastOption == Some(CVoid()))
+            expectedTypes = expectedTypes.dropRight(1)
+
+        //check parameter size and types
+        if (expectedTypes.size != foundTypes.size)
+            CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
+        else
+        //TODO ignore parameter types for now
+        //                        if ((foundTypes zip expectedTypes) forall {
+        //                            case (ft, et) => coerce(ft, et)
+        //                        }) retType
+        //                        else
+        //                            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
+            retType
+    }
 
 }
