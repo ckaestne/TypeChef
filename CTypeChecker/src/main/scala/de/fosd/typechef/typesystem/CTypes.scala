@@ -45,6 +45,7 @@ trait CTypes {
         def toObj: CType = CObj(this)
         //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
         def toValue: CType = this
+        def isObject: Boolean = false
 
         //simplify rewrites Choice Types; requires reasoning about variability
         def simplify = _simplify(base)
@@ -143,6 +144,7 @@ trait CTypes {
             case CArray(t, _) => CPointer(t)
             case _ => t
         }
+        override def isObject = true
     }
 
     /**errors */

@@ -150,7 +150,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
      * defines types of various operations
      * TODO currently incomplete and possibly incorrect
      */
-    def operationType(op: String, t1: CType, t2: CType): CType = (op, t1, t2) match {
+    def operationType(op: String, type1: CType, type2: CType): CType = (op, type1.toValue, type2.toValue) match {
         case ("+", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
         case ("+", t1, t2) if (((isPointer(t1) && isIntegral(t2)) || (isPointer(t2) && isIntegral(t1))) && coerce(t1, t2)) => t1
         case ("-", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
@@ -161,9 +161,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
         case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
         case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => t1
-        case ("=", _, t2) => t2
-        case ("+=", CObj(t1), t2) if (coerce(t1, t2)) => t1
-        case _ => CUnknown("unknown operation or incompatible types " + t1 + " " + op + " " + t2)
+        case ("=", _, t2) if (type1.isObject) => t2
+        case ("+=", t1, t2) if (type1.isObject && coerce(t1, t2)) => t1
+        case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
     }
 
 
