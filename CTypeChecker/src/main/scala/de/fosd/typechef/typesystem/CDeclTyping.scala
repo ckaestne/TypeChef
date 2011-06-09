@@ -15,11 +15,16 @@ import org.kiama._
 trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def ctype(fun: FunctionDef) = fun -> funType
+    def ctype(fun: TypeName) = fun -> typenameType
     val funType: FunctionDef ==> CType = attr {
         case fun =>
             if (!fun.oldStyleParameters.isEmpty) CUnknown("alternative parameter notation not supported yet")
             else if (isTypedef(fun.specifiers)) CUnknown("Invalid typedef specificer for function definition (?)")
             else declType(fun.specifiers, fun.declarator)
+    }
+    val typenameType: TypeName ==> CType = attr {
+        case TypeName(specs, None) => constructType(specs)
+        case TypeName(specs, Some(decl)) => getAbstractDeclaratorType(decl, constructType(specs))
     }
 
 

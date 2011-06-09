@@ -10,7 +10,7 @@ import org.kiama._
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CTypeEnv {
+trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
     def ctype(expr: Expr) = expr -> exprType
     val exprType: Expr ==> CType = attr {
@@ -69,8 +69,8 @@ trait CExprTyping extends CTypes with CTypeEnv {
             case PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
                 et(PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id))))
             case CastExpr(targetTypeName, expr) =>
-                val targetType = typeName(targetTypeName)
-                val sourceType = et(expr)
+                val targetType = ctype(targetTypeName)
+                val sourceType = et(expr).toValue
                 if (targetType == CVoid() || (isScalar(sourceType) && isScalar(targetType)))
                     targetType
                 else
@@ -136,26 +136,6 @@ trait CExprTyping extends CTypes with CTypeEnv {
             //TODO initializers 6.5.2.5
             case e => CUnknown("unknown expression " + e + " (TODO)")
         }
-    }
-
-    def typeName(name: TypeName): CType = {
-        //TODO ignoring variability for now
-        if (name.decl.isDefined) return CUnknown("unsupported declarator (TODO)")
-        if (name.specifiers.size != 1) return CUnknown("unsupported type with " + name.specifiers.size + " specifiers (TODO)")
-        for (Opt(_, specifier) <- name.specifiers) specifier match {
-        //TODO handle signed and unsigned
-            case DoubleSpecifier() => return CDouble()
-            case CharSpecifier() => return CSigned(CChar())
-            case ShortSpecifier() => return CShort()
-            case IntSpecifier() => return CInt()
-            case LongSpecifier() => return CLong()
-            case FloatSpecifier() => return CFloat()
-            case TypeDefTypeSpecifier(Id(typedefname)) =>
-                val env = name -> typedefEnv
-                assert(env contains typedefname, "typedefname " + typedefname + " not in typedef environment " + env)
-                env(typedefname)
-        }
-        return CUnknown("unsupported type " + name)
     }
 
     /**
