@@ -80,18 +80,24 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
 
 
     private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, CType)] = {
-        assert(decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclParameterDeclList], "expect a single declarator extension for function parameters, not " + decl.extensions)
+        //declarations with empty parameter lists
+        if (decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclIdentifierList] && decl.extensions.head.entry.asInstanceOf[DeclIdentifierList].idList.isEmpty)
+            List()
+        else {
 
-        val param: DeclParameterDeclList = decl.extensions.head.entry.asInstanceOf[DeclParameterDeclList]
-        var result = List[(String, FeatureExpr, CType)]()
-        for (Opt(_, p) <- param.parameterDecls) p match {
-            case PlainParameterDeclaration(specifiers) => //having int foo(void) is Ok, but for everything else we expect named parameters
-                assert(specifiers.size == 1 && specifiers.head.entry == VoidSpecifier(), "no name, old parameter style?") //TODO
-            case ParameterDeclarationD(specifiers, decl) => result = ((decl.getName, p -> featureExpr, getDeclaratorType(decl, constructType(specifiers)))) :: result
-            case ParameterDeclarationAD(specifiers, decl) => assert(false, "no name, old parameter style?") //TODO
-            case VarArgs() => //TODO not accessible as parameter?
+            assert(decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclParameterDeclList], "expect a single declarator extension for function parameters, not " + decl.extensions)
+
+            val param: DeclParameterDeclList = decl.extensions.head.entry.asInstanceOf[DeclParameterDeclList]
+            var result = List[(String, FeatureExpr, CType)]()
+            for (Opt(_, p) <- param.parameterDecls) p match {
+                case PlainParameterDeclaration(specifiers) => //having int foo(void) is Ok, but for everything else we expect named parameters
+                    assert(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), "no name, old parameter style?") //TODO
+                case ParameterDeclarationD(specifiers, decl) => result = ((decl.getName, p -> featureExpr, getDeclaratorType(decl, constructType(specifiers)))) :: result
+                case ParameterDeclarationAD(specifiers, decl) => assert(false, "no name, old parameter style?") //TODO
+                case VarArgs() => //TODO not accessible as parameter?
+            }
+            result
         }
-        result
     }
 
     /***

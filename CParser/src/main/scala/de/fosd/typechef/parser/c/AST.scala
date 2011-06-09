@@ -24,7 +24,6 @@ StructOrUnionSpecifier - structdeclaration
 
 Variability in types
 --------------------
-FunctionDefinition -> specifiers and parameters
 FunctionDef -> specifiers and parameters
 Declaration -> specifiers and declarators
 Declarator -> pointers and extensions
