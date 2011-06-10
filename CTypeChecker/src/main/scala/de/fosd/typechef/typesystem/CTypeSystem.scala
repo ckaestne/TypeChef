@@ -92,12 +92,27 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
                 issueError("cannot (always) resolve function call " + expr + ": " + ctype(expr), expr)
 
-        case ExprStatement(expr) =>
-            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
-                issueError("cannot (always) resolve expression " + expr + ": " + ctype(expr), expr)
+        case ExprStatement(expr) => checkExpr(expr)
+        case WhileStatement(expr, _) => checkExpr(expr)
+        case DoStatement(expr, _) => checkExpr(expr)
+        case ForStatement(expr1, expr2, expr3, _) =>
+            if (expr1.isDefined) checkExpr(expr1.get)
+            if (expr2.isDefined) checkExpr(expr2.get)
+            if (expr3.isDefined) checkExpr(expr3.get)
+        case GotoStatement(expr) => checkExpr(expr)
+        case ReturnStatement(expr) => if (expr.isDefined) checkExpr(expr.get)
+        case CaseStatement(expr, _) => checkExpr(expr)
+        case IfStatement(expr, _, _, _) => checkExpr(expr)
+        case ElifStatement(expr, _) => checkExpr(expr)
+        case SwitchStatement(expr, _) => checkExpr(expr)
 
         case _ =>
     }
+
+    private def checkExpr(expr: Expr) =
+        if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+            issueError("cannot (always) resolve expression " + expr + ": " + ctype(expr), expr)
+
 
     /**
      * enforce certain assumptions about the layout of the AST
