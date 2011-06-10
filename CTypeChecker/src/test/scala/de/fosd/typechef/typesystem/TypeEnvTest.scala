@@ -20,6 +20,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
             myint myintvar;
             mystr *mystrvar;
             mypair mypairvar;
+            struct announcedStruct;
 
             int foo;
             struct account {
@@ -52,6 +53,9 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
 
         env.contains("uaccount", false) should be(false)
         env.contains("uaccount", true) should be(true) //a union
+
+        env.contains("announcedStruct", false) should be(true) //announced structs should be in the environement, but empty
+        env.get("announcedStruct", false) should be('isEmpty)
 
         val accountStruct = env.get("account", false)
 
