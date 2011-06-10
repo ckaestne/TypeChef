@@ -339,6 +339,23 @@ class CParserTest extends TestCase {
         					|#endif
     			  			|c;}""", p.statement)
     }
+
+    def testLocalDeclarations {
+        assertParseableAST("{int * a = 3;}", p.compoundStatement) match {
+            case CompoundStatement(List(Opt(_, DeclarationStatement(_)))) =>
+            case e => fail("expected declaration, found " + e)
+        }
+        assertParseableAST("{t * a = 3;}", p.compoundStatement) match {
+            case CompoundStatement(List(Opt(_, ExprStatement(AssignExpr(_, _, _))))) =>
+            case e => fail("expected declaration, found " + e)
+        }
+        assertParseable("__builtin_type * a = 3;", p.compoundDeclaration)
+        assertParseableAST("{__builtin_type * a = 3;}", p.compoundStatement) match {
+            case CompoundStatement(List(Opt(_, DeclarationStatement(_)))) =>
+            case e => fail("expected declaration, found " + e)
+        }
+    }
+
     def testParameterDecl {
         assertParseable("void", p.parameterDeclaration)
         assertParseable("extern void", p.parameterDeclaration)

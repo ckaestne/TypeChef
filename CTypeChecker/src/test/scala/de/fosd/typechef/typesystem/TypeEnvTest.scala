@@ -157,4 +157,27 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         env("Undef") should be(CUndefined())
     }
 
+    test("anonymous struct and typedef") {
+        val ast = (getAST("""
+            typedef struct {
+             volatile long counter;
+            } atomic64_t;
+            typedef atomic64_t atomic_long_t;
+
+            static inline __attribute__((always_inline)) long atomic_long_sub_return(long i, atomic_long_t *l)
+            {
+             atomic64_t *v = (atomic64_t *)l;
+             return (long)atomic64_sub_return(i, v);
+            }
+        """))
+        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+        val env = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry -> varEnv
+        println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
+        println(env)
+        env("v") match {
+            case CPointer(CAnonymousStruct(_, _)) =>
+            case e => fail(e.toString)
+        }
+    }
+
 }
