@@ -180,4 +180,44 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         }
     }
 
+    test("anonymous structs nested") {
+        //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
+        //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+        val ast = getAST("""
+          struct stra { double a1, a2; };
+          struct {
+            struct {
+              int b1;
+              int b2;
+            };
+            union {
+              float f1;
+              int i1;
+            };
+            struct stra;
+            int b3;
+          } foo = {{31, 17}, {3.2}, 13};
+
+          int
+          main ()
+          {
+            int b1 = foo.b1;
+            int b3 = foo.b3;
+            return 0;
+          }""")
+        val env = ast.defs.last.entry -> varEnv
+        println(env)
+        env("foo") match {
+            case CAnonymousStruct(members, false) =>
+                members("b3") should be(CSigned(CInt()))
+                members("b1") should be(CSigned(CInt()))
+                members("b2") should be(CSigned(CInt()))
+                members("f1") should be(CFloat())
+                members("i1") should be(CSigned(CInt()))
+            //                members("a1") should be(CDouble()) //TODO, not implemented yet
+            //                members("a2") should be(CDouble())
+            case e => fail(e.toString)
+        }
+    }
+
 }

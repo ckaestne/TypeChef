@@ -136,8 +136,8 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     case "&&" => CPointer(CVoid()) //label dereference
                     case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
                 }
-            case ConditionalExpr(condition, thenExpr, elseExpr) =>
-                CUnknown("not implemented yet (TODO)")
+            //x?y:z  (gnuc: x?:z === x?x:z)
+            case ConditionalExpr(condition, thenExpr, elseExpr) => getConditionalExprType(ctype(thenExpr.getOrElse(condition)), ctype(elseExpr))
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
             //TODO variability (there might be alternative last statements)
@@ -147,6 +147,14 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case e => CUnknown("unknown expression " + e + " (TODO)")
         }
     }
+
+    private def getConditionalExprType(thenType: CType, elseType: CType) = (thenType.toValue, elseType.toValue) match {
+        case (CPointer(CVoid()), CPointer(_)) => CPointer(CVoid())
+        case (CPointer(_), CPointer(CVoid())) => CPointer(CVoid())
+        case (t1, t2) if (coerce(t1, t2)) => wider(t1, t2) //TODO check
+        case (t1, t2) => CUnknown("different address spaces in conditional expression: " + t1 + " and " + t2)
+    }
+
 
     /**
      * defines types of various operations
@@ -174,7 +182,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
      * returns the wider of two types for automatic widening
      * TODO check correctness
      */
-    private def wider(t1: CType, t2: CType) =
+    def wider(t1: CType, t2: CType) =
         if (t2 < t1) t2 else t1
 
 

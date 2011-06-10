@@ -197,9 +197,19 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def parseStructMembers(members: List[Opt[StructDeclaration]]): ConditionalTypeMap = {
         var result = new ConditionalTypeMap()
-        for (Opt(f, attr) <- members; Opt(g, strDecl) <- attr.declaratorList) strDecl match {
-            case StructDeclarator(decl, _, _) => result = result + (decl.getName, f and g, declType(attr.qualifierList, decl))
-            case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
+        for (Opt(f, structDeclaration) <- members) {
+            for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
+                structDeclarator match {
+                    case StructDeclarator(decl, _, _) => result = result + (decl.getName, f and g, declType(structDeclaration.qualifierList, decl))
+                    case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
+                }
+            //for unnamed fields, if they are struct or union inline their fields
+            //cf. http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+            if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList) match {
+                case CAnonymousStruct(fields, _) => result = result ++ fields
+                case CStruct(name, _) => //TODO inline as well
+                case _ => //don't care about other types
+            }
         }
         result
     }
