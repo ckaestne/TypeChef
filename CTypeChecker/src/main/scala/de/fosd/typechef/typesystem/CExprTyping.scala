@@ -146,6 +146,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 stmtType(compoundStatement)
             case LcurlyInitializer(inits) => CCompound() //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
             case GnuAsmExpr(_, _, _) => CIgnore() //don't care about asm now
+            case BuiltinOffsetof(_, _) => CSigned(CInt())
+            case c: BuiltinTypesCompatible => CSigned(CInt()) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
+            case c: BuiltinVaArgs => CSigned(CInt())
 
             //TODO initializers 6.5.2.5
             case e => CUnknown("unknown expression " + e + " (TODO)")

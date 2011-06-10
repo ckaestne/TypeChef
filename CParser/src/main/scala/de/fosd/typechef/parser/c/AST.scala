@@ -425,7 +425,7 @@ case class InitializerDesignatorD(id: Id) extends InitializerElementLabel
 case class InitializerAssigment(designators: List[Opt[InitializerElementLabel]]) extends InitializerElementLabel
 
 
-case class BuildinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[OffsetofMemberDesignator]]) extends PrimaryExpr {
+case class BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[OffsetofMemberDesignator]]) extends PrimaryExpr {
 }
 
 abstract class OffsetofMemberDesignator() extends AST
