@@ -140,6 +140,8 @@ trait CTypes {
 
     /**objects in memory */
     case class CObj(t: CType) extends CType {
+        override def toObj = this
+        //no CObj(CObj(...))
         override def toValue: CType = t match {
             case CArray(t, _) => CPointer(t)
             case _ => t
@@ -305,7 +307,7 @@ trait CTypes {
         val t2 = normalize(type2)
         //TODO variability
         (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
-        (isArithmetic(t1) && isArithmetic(t2)) ||
+                (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {
                     case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()
                     case _ => false
