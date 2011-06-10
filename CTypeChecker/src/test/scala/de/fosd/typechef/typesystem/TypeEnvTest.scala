@@ -9,7 +9,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
-class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes with TestHelper {
+class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
 
 
     private def ast = (getAST("""

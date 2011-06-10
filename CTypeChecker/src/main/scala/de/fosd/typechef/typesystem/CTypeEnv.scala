@@ -45,7 +45,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         }
         case e: AST => outerVarEnv(e)
     }
-    private def outerVarEnv(e: AST): VarTypingContext =
+    protected def outerVarEnv(e: AST): VarTypingContext =
         outer[VarTypingContext](varEnv, () => new VarTypingContext(initBuiltinVarEnv), e)
 
 
@@ -93,7 +93,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     }
 
 
-    private def outerStructEnv(e: AST): StructEnv =
+    protected def outerStructEnv(e: AST): StructEnv =
         outer[StructEnv](structEnv, () => new StructEnv(), e)
 
 

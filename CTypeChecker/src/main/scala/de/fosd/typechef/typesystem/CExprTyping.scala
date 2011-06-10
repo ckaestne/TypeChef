@@ -13,6 +13,8 @@ import org.kiama._
 trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
     def ctype(expr: Expr) = expr -> exprType
+    def ctype(expr: Expr, context: AST) =
+        getExprType(outerVarEnv(context), outerStructEnv(context), expr)
     val exprType: Expr ==> CType = attr {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
@@ -167,21 +169,24 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
      * defines types of various operations
      * TODO currently incomplete and possibly incorrect
      */
-    def operationType(op: String, type1: CType, type2: CType): CType = (op, type1.toValue, type2.toValue) match {
-        case ("+", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        case ("+", t1, t2) if (isPointer(t1) && isIntegral(t2)) => t1
-        case ("+", t1, t2) if (isPointer(t2) && isIntegral(t1)) => t2
-        case ("-", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        //bitwise operations defined on isIntegral
-        case (op, t1, t2) if ((Set("&", "|", "^", "<<", ">>", "~") contains op) && isIntegral(t1) && isIntegral(t2)) => wider(t1, t2)
+    def operationType(op: String, type1: CType, type2: CType): CType = {
+        def plusMinus(o: String) = Set("+", "-") contains o
 
-        //TODO other cases for addition and substraction
-        case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => t1
-        case ("=", _, t2) if (type1.isObject) => t2
-        case ("+=", t1, t2) if (type1.isObject && coerce(t1, t2)) => t1
-        case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
+        (op, type1.toValue, type2.toValue) match {
+            case (o, t1, t2) if (plusMinus(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+            case (o, t1, t2) if (plusMinus(o) && isPointer(t1) && isIntegral(t2)) => t1
+            case (o, t1, t2) if (plusMinus(o) && isPointer(t2) && isIntegral(t1)) => t2
+            //bitwise operations defined on isIntegral
+            case (op, t1, t2) if ((Set("&", "|", "^", "<<", ">>", "~") contains op) && isIntegral(t1) && isIntegral(t2)) => wider(t1, t2)
+
+            //TODO other cases for addition and substraction
+            case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+            case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+            case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => t1
+            case ("=", _, t2) if (type1.isObject) => t2
+            case ("+=", t1, t2) if (type1.isObject && coerce(t1, t2)) => t1
+            case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
+        }
     }
 
 

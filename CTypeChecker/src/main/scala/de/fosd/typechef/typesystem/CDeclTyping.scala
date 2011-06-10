@@ -16,6 +16,10 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def ctype(fun: FunctionDef) = fun -> funType
     def ctype(fun: TypeName) = fun -> typenameType
+    def ctype(exp: Expr): CType
+    //provided by CExprTyping
+    def ctype(expr: Expr, context: AST): CType
+
     val funType: FunctionDef ==> CType = attr {
         case fun =>
             if (!fun.oldStyleParameters.isEmpty) CUnknown("alternative parameter notation not supported yet")
@@ -55,6 +59,11 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
                 else types = types :+ CUnknown("type not defined " + typedefname) //should not occur, because the parser should reject this already
             }
             case EnumSpecifier(_, _) => types = types :+ CSigned(CInt()) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
+            case TypeOfSpecifierT(typename) => types = types :+ ctype(typename)
+            case TypeOfSpecifierU(expr) =>
+                val outer=findOutermostDeclaration(expr)
+
+                types = types :+ (if (outer==null) ctype(expr) else ctype(expr, outer)) //use context outside declaration to avoid recursion
             case _ =>
         }
 
@@ -226,6 +235,15 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         case ast: AST =>
             if (!(ast -> inDeclaration)) ast -> typedefEnv
             else (ast -> outerDeclaration -> prevOrParentAST -> typedefEnv)
+    }
+
+
+    protected def findOutermostDeclaration(a: AST): AST = findOutermostDeclaration(a,null)
+    protected def findOutermostDeclaration(a: AST, last:AST): AST = a match  {
+        case decl: Declaration => findOutermostDeclaration(decl -> parentAST,decl)
+        case decl: DeclarationStatement => findOutermostDeclaration(decl -> parentAST,decl)
+        case a: AST => findOutermostDeclaration(a -> parentAST,last)
+        case null=>last
     }
 
     val typedefEnv: AST ==> TypeDefEnv = attr {
