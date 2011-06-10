@@ -89,5 +89,23 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation wit
 
     }
 
+    test("local variable test") {
+        expect(true) {
+            check("""
+enum {
+ false = 0,
+ true = 1
+};
+void *__alloc_percpu()
+{
+ ({
+    static _Bool __warned;
+    __warned = true;
+ });
+ return 1;
+}""")
+        }
+    }
+
 
 }

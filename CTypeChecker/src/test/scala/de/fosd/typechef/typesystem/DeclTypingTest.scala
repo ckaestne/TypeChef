@@ -49,6 +49,7 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         declT("float a;") should be(CFloat())
         declT("double a;") should be(CDouble())
         declT("long double a;") should be(CLongDouble())
+        declT("_Bool a;") should be(CSigned(CInt()))
 
         declT("int double a;").sometimesUnknown should be(true)
         declT("signed unsigned char a;").sometimesUnknown should be(true)

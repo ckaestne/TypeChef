@@ -61,9 +61,9 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             case EnumSpecifier(_, _) => types = types :+ CSigned(CInt()) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case TypeOfSpecifierT(typename) => types = types :+ ctype(typename)
             case TypeOfSpecifierU(expr) =>
-                val outer=findOutermostDeclaration(expr)
+                val outer = findOutermostDeclaration(expr)
 
-                types = types :+ (if (outer==null) ctype(expr) else ctype(expr, outer)) //use context outside declaration to avoid recursion
+                types = types :+ (if (outer == null) ctype(expr) else ctype(expr, outer)) //use context outside declaration to avoid recursion
             case _ =>
         }
 
@@ -99,7 +99,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             types = types :+ CDouble()
         if (has(FloatSpecifier()))
             types = types :+ CFloat()
-        if ((isSigned || isUnsigned || has(IntSpecifier())) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
+        if ((isSigned || isUnsigned || has(IntSpecifier()) || has(OtherPrimitiveTypeSpecifier("_Bool"))) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
             types = types :+ sign(CInt())
 
         if (has(VoidSpecifier()))
@@ -238,12 +238,12 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     }
 
 
-    protected def findOutermostDeclaration(a: AST): AST = findOutermostDeclaration(a,null)
-    protected def findOutermostDeclaration(a: AST, last:AST): AST = a match  {
-        case decl: Declaration => findOutermostDeclaration(decl -> parentAST,decl)
-        case decl: DeclarationStatement => findOutermostDeclaration(decl -> parentAST,decl)
-        case a: AST => findOutermostDeclaration(a -> parentAST,last)
-        case null=>last
+    protected def findOutermostDeclaration(a: AST): AST = findOutermostDeclaration(a, null)
+    protected def findOutermostDeclaration(a: AST, last: AST): AST = a match {
+        case decl: Declaration => findOutermostDeclaration(decl -> parentAST, decl)
+        case decl: DeclarationStatement => findOutermostDeclaration(decl -> parentAST, decl)
+        case a: AST => findOutermostDeclaration(a -> parentAST, last)
+        case null => last
     }
 
     val typedefEnv: AST ==> TypeDefEnv = attr {
