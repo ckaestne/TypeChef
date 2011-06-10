@@ -78,6 +78,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 val sourceType = et(expr).toValue
                 if (targetType == CVoid() || (isScalar(sourceType) && isScalar(targetType))) targetType
                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
+                else if (sourceType == CIgnore()) targetType
                 else
                     CUnknown("incorrect cast from " + sourceType + " to " + targetType)
             //a()
@@ -144,6 +145,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //TODO variability (there might be alternative last statements)
                 stmtType(compoundStatement)
             case LcurlyInitializer(inits) => CCompound() //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
+            case GnuAsmExpr(_, _, _) => CIgnore() //don't care about asm now
 
             //TODO initializers 6.5.2.5
             case e => CUnknown("unknown expression " + e + " (TODO)")

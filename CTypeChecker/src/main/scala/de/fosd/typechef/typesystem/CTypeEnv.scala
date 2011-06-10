@@ -131,6 +131,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             case CUnknown(_) => false
             case CObj(_) => false
             case CCompound() => true
+            case CIgnore() => true
             case CChoice(_, a, b) => wf(a) && wf(b)
         }
     }

@@ -155,6 +155,13 @@ trait CTypes {
      */
     case class CCompound() extends CType
 
+    /**
+     * CIgnore is a type for stuff we currently do not want to check
+     * it can be cast to anything and is not considered an error
+     */
+    case class CIgnore() extends CType
+
+
     /**errors */
     case class CUnknown(msg: String = "") extends CType {
         override def toObj = this
@@ -297,8 +304,8 @@ trait CTypes {
         val t1 = normalize(type1)
         val t2 = normalize(type2)
         //TODO variability
-        (t1 == t2) ||
-                (isArithmetic(t1) && isArithmetic(t2)) ||
+        (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
+        (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {
                     case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()
                     case _ => false
