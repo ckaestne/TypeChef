@@ -147,6 +147,14 @@ trait CTypes {
         override def isObject = true
     }
 
+    /**
+     * CCompound is a workaround for initializers.
+     * This type is created by initializers with any structure.
+     * We currently don't care about internals.
+     * CCompound can be cast into any array or structure
+     */
+    case class CCompound() extends CType
+
     /**errors */
     case class CUnknown(msg: String = "") extends CType {
         override def toObj = this
@@ -269,6 +277,18 @@ trait CTypes {
         case CLongDouble() => true
         case _ => false
     })
+
+    def isArray(t: CType): Boolean = t match {
+        case CArray(_, _) => true
+        case _ => false
+    }
+    def isStruct(t: CType): Boolean = t match {
+        case CStruct(_, _) => true
+        case CAnonymousStruct(_, _) => true
+        case _ => false
+    }
+    def isCompound(t: CType): Boolean = t == CCompound()
+
 
     /**
      *  determines whether types are compatible in assignements etc
