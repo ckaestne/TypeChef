@@ -1,6 +1,5 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.Test
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser.Opt
 import org.kiama.attribution.Attributable
@@ -12,65 +11,52 @@ import org.junit.runner.RunWith
 @RunWith(classOf[JUnitRunner])
 class RewriteTest extends FunSuite with ShouldMatchers with TestHelper {
 
+  private def processTest(t: => TranslationUnit) = {
+    val newast = new IfdefToIf().rewrite(t)
+    println(t)
+    println(PrettyPrinter.print(t))
+    assertNotVariability(newast)
+    println(PrettyPrinter.print(newast))
+  }
 
-    @Test
-    def eliminateVariability() {
-        val ast = getAST("""
+  test("eliminateVariabilityFunctionCall") {
+    processTest(getAST("""
+        volatile int k;
         int foo() {
+            int a;
             #ifdef X
             foo();
             #else
             bar();
             #endif
+            #ifdef Y
+            spam();
+            #endif
         }
-        """)
+        """))
+  }
 
-        val newast = new IfdefToIf().rewrite(ast)
+  test("eliminateVariabilityIfStatement") {
+    processTest(getAST("""
+      int foo() {
+        #if defined(X)
+        if (null)
+        #endif
+        foo();
+      }
+      """))
+  }
 
-        assertNotVariability(newast)
 
-        println(PrettyPrinter.print(newast))
+  private def assertNotVariability(ast: Attributable) {
+    ast match {
+      case Opt(f, _) => assert(f.isTautology, "Optional children not expected: " + ast)
+      case c: Choice[_] => assert(false, "Choice nodes not expected: " + ast)
+      case _ =>
     }
 
-
-    private def assertNotVariability(ast: Attributable) {
-        ast match {
-            case Opt(f, _) => assert(f.isTautology, "Optional children not expected: " + ast)
-            case c: Choice[_] => assert(false, "Choice nodes not expected: " + ast)
-            case _ =>
-        }
-
-        for (c <- ast.children)
-            assertNotVariability(c)
-
-
-    }
-
-    //    test("rewrite variability granularity") {
-    //       val ast= getAST("""
-    //        int foo() {
-    //            foo(
-    //            #ifdef X
-    //                a
-    //            #endif
-    //            );
-    //            static
-    //            #ifdef Y
-    //            long
-    //            #endif
-    //            int a=3;
-    //        }
-    //        """)
-    //        println(ast)
-    //
-    //        val cv=new CoarseVariability()
-    //        cv.check(ast) should be (false)
-    //
-    //        val newast=cv.rewrite(ast)
-    //        cv.check(newast) should be (true)
-    //
-    //
-    //
-    //    }
+    for (c <- ast.children)
+      assertNotVariability(c)
+  }
 
 }
