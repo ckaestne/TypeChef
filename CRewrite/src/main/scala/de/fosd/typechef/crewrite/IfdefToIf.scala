@@ -4,7 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser.Opt
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.FeatureExpr.base
-import de.fosd.typechef.featureexpr.{DefinedExternal, FeatureExpr}
+import de.fosd.typechef.featureexpr._
 
 /**
  * strategies to rewrite ifdefs to ifs
@@ -23,14 +23,22 @@ class IfdefToIf  {
 
     def rewrite(ast:AST):AST = {
          rewriteStrategy(ast).get.asInstanceOf[AST]
-
-
     }
 
     def featureToCExpr(feature:FeatureExpr):Expr = feature match {
         case d:DefinedExternal=>Id(CONFIGPREFIX+d.feature)
-            //TODO implement complex feature expressions
+        case a:And =>
+          val l = a.clauses.toList
+          var del = List[Opt[NArySubExpr]]()
+          for (e <- l.tail)
+            del = del ++ List(Opt(FeatureExpr.base, NArySubExpr("&&", featureToCExpr(e))))
+          NAryExpr(featureToCExpr(l.head), del)
+        case o:Or =>
+          val l = o.clauses.toList
+          var del = List[Opt[NArySubExpr]]()
+          for (e <- l.tail)
+            del = del ++ List(Opt(FeatureExpr.base, NArySubExpr("||", featureToCExpr(e))))
+          NAryExpr(featureToCExpr(l.head), del)
+        case n:Not => UnaryOpExpr("!", featureToCExpr(n))
     }
-
-
 }

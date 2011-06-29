@@ -23,8 +23,9 @@ class RewriteTest extends FunSuite with ShouldMatchers with TestHelper {
     processTest(getAST("""
         volatile int k;
         int foo() {
+            if (!x || y || z) test();
             int a;
-            #ifdef X
+            #if (defined(X) || defined(Y)) && defined(Z)
             foo();
             #else
             bar();
