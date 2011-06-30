@@ -70,6 +70,20 @@ export partialPreprocFlags="-p false\
 flags="\
 	-I $prjPath -I $srcPath\
 	--include ./host/platform.h\
+	-DLSTAT_FOLLOWS_SLASHED_SYMLINK=1\
+	-DPACKAGE=\"lighttpd\"\
+	-DPACKAGE_BUGREPORT=\"jan@kneschke.de\"\
+	-DPACKAGE_NAME=\"lighttpd\"\
+	-DPACKAGE_STRING=\"lighttpd 1.4.22\"\
+	-DPACKAGE_TARNAME=\"lighttpd\"\
+	-DPACKAGE_VERSION=\"1.4.22\"\
+	-DVERSION=\"1.4.22\"\
+	-D__PROTOTYPES=1\
+	-DPROTOTYPES=1\
+	-DRETSIGTYPE=void\
+	-DSIZEOF_LONG=8\
+	-DSIZEOF_OFF_T=8\
+	-DSTDC_HEADERS=1\
 	-I /usr/local/include\
 	-I /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include\
 	-I /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include-fixed\
