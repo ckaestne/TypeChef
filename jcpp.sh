@@ -55,7 +55,8 @@ $basePath/ParserFramework/target/scala_2.8.1/classes:\
 $basePath/CParser/target/scala_2.8.1/classes:\
 $basePath/CTypeChecker/target/scala_2.8.1/classes:\
 $basePath/LinuxAnalysis/target/scala_2.8.1/classes:\
-$basePath/PreprocessorFrontend/target/scala_2.8.1/classes \
+$basePath/PreprocessorFrontend/target/scala_2.8.1/classes:\
+$basePath/ParserFramework/lib_managed/scala_2.8.1/compile/kiama_2.8.1-1.0.2.jar\
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' 2> '$outErr' |tee '$outDbg'" \
