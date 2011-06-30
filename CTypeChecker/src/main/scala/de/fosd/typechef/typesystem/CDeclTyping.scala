@@ -16,6 +16,10 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def ctype(fun: FunctionDef) = fun -> funType
     def ctype(fun: TypeName) = fun -> typenameType
+    def ctype(exp: Expr): CType
+    //provided by CExprTyping
+    def ctype(expr: Expr, context: AST): CType
+
     val funType: FunctionDef ==> CType = attr {
         case fun =>
             if (!fun.oldStyleParameters.isEmpty) CUnknown("alternative parameter notation not supported yet")
@@ -55,6 +59,11 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
                 else types = types :+ CUnknown("type not defined " + typedefname) //should not occur, because the parser should reject this already
             }
             case EnumSpecifier(_, _) => types = types :+ CSigned(CInt()) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
+            case TypeOfSpecifierT(typename) => types = types :+ ctype(typename)
+            case TypeOfSpecifierU(expr) =>
+                val outer = findOutermostDeclaration(expr)
+
+                types = types :+ (if (outer == null) ctype(expr) else ctype(expr, outer)) //use context outside declaration to avoid recursion
             case _ =>
         }
 
@@ -90,7 +99,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             types = types :+ CDouble()
         if (has(FloatSpecifier()))
             types = types :+ CFloat()
-        if ((isSigned || isUnsigned || has(IntSpecifier())) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
+        if ((isSigned || isUnsigned || has(IntSpecifier()) || has(OtherPrimitiveTypeSpecifier("_Bool"))) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
             types = types :+ sign(CInt())
 
         if (has(VoidSpecifier()))
@@ -197,9 +206,19 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def parseStructMembers(members: List[Opt[StructDeclaration]]): ConditionalTypeMap = {
         var result = new ConditionalTypeMap()
-        for (Opt(f, attr) <- members; Opt(g, strDecl) <- attr.declaratorList) strDecl match {
-            case StructDeclarator(decl, _, _) => result = result + (decl.getName, f and g, declType(attr.qualifierList, decl))
-            case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
+        for (Opt(f, structDeclaration) <- members) {
+            for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
+                structDeclarator match {
+                    case StructDeclarator(decl, _, _) => result = result + (decl.getName, f and g, declType(structDeclaration.qualifierList, decl))
+                    case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
+                }
+            //for unnamed fields, if they are struct or union inline their fields
+            //cf. http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+            if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList) match {
+                case CAnonymousStruct(fields, _) => result = result ++ fields
+                case CStruct(name, _) => //TODO inline as well
+                case _ => //don't care about other types
+            }
         }
         result
     }
@@ -216,6 +235,15 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         case ast: AST =>
             if (!(ast -> inDeclaration)) ast -> typedefEnv
             else (ast -> outerDeclaration -> prevOrParentAST -> typedefEnv)
+    }
+
+
+    protected def findOutermostDeclaration(a: AST): AST = findOutermostDeclaration(a, null)
+    protected def findOutermostDeclaration(a: AST, last: AST): AST = a match {
+        case decl: Declaration => findOutermostDeclaration(decl -> parentAST, decl)
+        case decl: DeclarationStatement => findOutermostDeclaration(decl -> parentAST, decl)
+        case a: AST => findOutermostDeclaration(a -> parentAST, last)
+        case null => last
     }
 
     val typedefEnv: AST ==> TypeDefEnv = attr {

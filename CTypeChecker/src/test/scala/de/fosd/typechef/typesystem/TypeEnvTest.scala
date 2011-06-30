@@ -9,7 +9,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
-class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes with TestHelper {
+class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
 
 
     private def ast = (getAST("""
@@ -20,6 +20,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
             myint myintvar;
             mystr *mystrvar;
             mypair mypairvar;
+            struct announcedStruct;
 
             int foo;
             struct account {
@@ -52,6 +53,9 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
 
         env.contains("uaccount", false) should be(false)
         env.contains("uaccount", true) should be(true) //a union
+
+        env.contains("announcedStruct", false) should be(true) //announced structs should be in the environement, but empty
+        env.get("announcedStruct", false) should be('isEmpty)
 
         val accountStruct = env.get("account", false)
 
@@ -155,6 +159,69 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeEnv with CTypes
         env("e") should be(CSigned(CInt()))
         //        env("x").sometimesUnknown should be(true) TODO
         env("Undef") should be(CUndefined())
+    }
+
+    test("anonymous struct and typedef") {
+        val ast = (getAST("""
+            typedef struct {
+             volatile long counter;
+            } atomic64_t;
+            typedef atomic64_t atomic_long_t;
+
+            static inline __attribute__((always_inline)) long atomic_long_sub_return(long i, atomic_long_t *l)
+            {
+             atomic64_t *v = (atomic64_t *)l;
+             return (long)atomic64_sub_return(i, v);
+            }
+        """))
+        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+        val env = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry -> varEnv
+        println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
+        println(env)
+        env("v") match {
+            case CPointer(CAnonymousStruct(_, _)) =>
+            case e => fail(e.toString)
+        }
+    }
+
+    test("anonymous structs nested") {
+        //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
+        //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+        val ast = getAST("""
+          struct stra { double a1, a2; };
+          struct {
+            struct {
+              int b1;
+              int b2;
+            };
+            union {
+              float f1;
+              int i1;
+            };
+            struct stra;
+            int b3;
+          } foo = {{31, 17}, {3.2}, 13};
+
+          int
+          main ()
+          {
+            int b1 = foo.b1;
+            int b3 = foo.b3;
+            return 0;
+          }""")
+        val env = ast.defs.last.entry -> varEnv
+        println(env)
+        env("foo") match {
+            case CAnonymousStruct(members, false) =>
+                members("b3") should be(CSigned(CInt()))
+                members("b1") should be(CSigned(CInt()))
+                members("b2") should be(CSigned(CInt()))
+                members("f1") should be(CFloat())
+                members("i1") should be(CSigned(CInt()))
+            //                members("a1") should be(CDouble()) //TODO, not implemented yet
+            //                members("a2") should be(CDouble())
+            case e => fail(e.toString)
+        }
     }
 
 }

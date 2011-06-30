@@ -13,6 +13,8 @@ import org.kiama._
 trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
     def ctype(expr: Expr) = expr -> exprType
+    def ctype(expr: Expr, context: AST) =
+        getExprType(outerVarEnv(context), outerStructEnv(context), expr)
     val exprType: Expr ==> CType = attr {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
@@ -52,7 +54,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //*a: pointer dereferencing
             case PointerDerefExpr(expr) =>
                 et(expr).toValue match {
-                    case CPointer(t) if (t != CVoid) => CObj(t)
+                    case CPointer(t) if (t != CVoid) => t.toObj
                     case f: CFunction => f // for some reason deref of a function still yields a valid function in gcc
                     case e => CUnknown("* on " + e)
                 }
@@ -60,9 +62,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case PostfixExpr(expr, PointerPostfixSuffix(".", Id(id))) =>
                 def lookup(fields: ConditionalTypeMap) = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))
                 et(expr) match {
-                    case CObj(CAnonymousStruct(fields, _)) => CObj(lookup(fields))
+                    case CObj(CAnonymousStruct(fields, _)) => lookup(fields).toObj
                     case CAnonymousStruct(fields, _) => lookup(fields)
-                    case CObj(CStruct(s, isUnion)) => CObj(structEnvLookup(strEnv, s, isUnion, id))
+                    case CObj(CStruct(s, isUnion)) => structEnvLookup(strEnv, s, isUnion, id).toObj
                     case CStruct(s, isUnion) => structEnvLookup(strEnv, s, isUnion, id) match {
                         case e if (arrayType(e)) => CUnknown("(" + e + ")." + id + " has array type")
                         case e => e
@@ -72,11 +74,13 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //e->n
             case PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
                 et(PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id))))
+            //(a)b
             case CastExpr(targetTypeName, expr) =>
                 val targetType = ctype(targetTypeName)
                 val sourceType = et(expr).toValue
-                if (targetType == CVoid() || (isScalar(sourceType) && isScalar(targetType)))
-                    targetType
+                if (targetType == CVoid() || (isScalar(sourceType) && isScalar(targetType))) targetType
+                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
+                else if (sourceType == CIgnore()) targetType
                 else
                     CUnknown("incorrect cast from " + sourceType + " to " + targetType)
             //a()
@@ -136,37 +140,63 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     case "&&" => CPointer(CVoid()) //label dereference
                     case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
                 }
-            case ConditionalExpr(condition, thenExpr, elseExpr) =>
-                CUnknown("not implemented yet (TODO)")
+            //x?y:z  (gnuc: x?:z === x?x:z)
+            case ConditionalExpr(condition, thenExpr, elseExpr) => getConditionalExprType(ctype(thenExpr.getOrElse(condition)), ctype(elseExpr))
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
             //TODO variability (there might be alternative last statements)
                 stmtType(compoundStatement)
+            case ExprList(exprs) => //comma operator, evaluated left to right, last expr yields value and type; like compound statement expression
+            //TODO variability (there might be alternative last statements)
+                et(exprs.last.entry)
+            case LcurlyInitializer(inits) => CCompound() //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
+            case GnuAsmExpr(_, _, _) => CIgnore() //don't care about asm now
+            case BuiltinOffsetof(_, _) => CSigned(CInt())
+            case c: BuiltinTypesCompatible => CSigned(CInt()) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
+            case c: BuiltinVaArgs => CSigned(CInt())
 
             //TODO initializers 6.5.2.5
             case e => CUnknown("unknown expression " + e + " (TODO)")
         }
     }
 
+    private def getConditionalExprType(thenType: CType, elseType: CType) = (thenType.toValue, elseType.toValue) match {
+        case (CPointer(CVoid()), CPointer(_)) => CPointer(CVoid())
+        case (CPointer(_), CPointer(CVoid())) => CPointer(CVoid())
+        case (t1, t2) if (coerce(t1, t2)) => wider(t1, t2) //TODO check
+        case (t1, t2) => CUnknown("different address spaces in conditional expression: " + t1 + " and " + t2)
+    }
+
+
     /**
      * defines types of various operations
      * TODO currently incomplete and possibly incorrect
      */
-    def operationType(op: String, type1: CType, type2: CType): CType = (op, type1.toValue, type2.toValue) match {
-        case ("+", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        case ("+", t1, t2) if (isPointer(t1) && isIntegral(t2)) => t1
-        case ("+", t1, t2) if (isPointer(t2) && isIntegral(t1)) => t2
-        case ("-", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        //bitwise operations defined on isIntegral
-        case (op, t1, t2) if ((Set("&", "|", "^", "<<", ">>", "~") contains op) && isIntegral(t1) && isIntegral(t2)) => wider(t1, t2)
+    def operationType(op: String, type1: CType, type2: CType): CType = {
+        def pointerArthOp(o: String) = Set("+", "-") contains o
+        def pointerArthAssignOp(o: String) = Set("+=", "-=") contains o
+        def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=") contains o
+        def compOp(o: String) = Set("==", "!=", "<", ">", "<=", ">=") contains o
+        def artithmeticOp(o: String) = Set("+", "-", "*", "/", "%") contains o
+        def logicalOp(o: String) = Set("&&", "||") contains o
+        def bitwiseOp(o: String) = Set("&", "|", "^", "<<", ">>", "~") contains o
 
-        //TODO other cases for addition and substraction
-        case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
-        case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => t1
-        case ("=", _, t2) if (type1.isObject) => t2
-        case ("+=", t1, t2) if (type1.isObject && coerce(t1, t2)) => t1
-        case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
+        (op, type1.toValue, type2.toValue) match {
+            case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1
+            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t2) && isIntegral(t1)) => t2
+            //bitwise operations defined on isIntegral
+            case (op, t1, t2) if (bitwiseOp(op) && isIntegral(t1) && isIntegral(t2)) => wider(t1, t2)
+
+            case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
+            case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
+            case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => wider(t1, t2)
+            case ("=", _, t2) if (type1.isObject) => t2
+            case (o, t1, t2) if (logicalOp(o) && type1.isObject && isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => CSigned(CInt())
+            case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2
+            case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1
+            case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
+        }
     }
 
 
@@ -174,7 +204,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
      * returns the wider of two types for automatic widening
      * TODO check correctness
      */
-    private def wider(t1: CType, t2: CType) =
+    def wider(t1: CType, t2: CType) =
         if (t2 < t1) t2 else t1
 
 

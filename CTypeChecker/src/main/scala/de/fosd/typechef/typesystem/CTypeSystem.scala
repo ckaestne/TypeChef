@@ -90,7 +90,12 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
 
         case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
             if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+                issueError("cannot (always) resolve function call " + expr + ": " + ctype(expr), expr)
+
+        case ExprStatement(expr) =>
+            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
                 issueError("cannot (always) resolve expression " + expr + ": " + ctype(expr), expr)
+
         case _ =>
     }
 

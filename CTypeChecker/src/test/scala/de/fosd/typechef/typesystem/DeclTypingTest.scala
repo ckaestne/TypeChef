@@ -8,7 +8,7 @@ import org.scalatest.FunSuite
 import de.fosd.typechef.parser.c.TestHelper
 
 @RunWith(classOf[JUnitRunner])
-class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDeclTyping with TestHelper {
+class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
 
 
     private def declTL(code: String) = {
@@ -49,6 +49,7 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
         declT("float a;") should be(CFloat())
         declT("double a;") should be(CDouble())
         declT("long double a;") should be(CLongDouble())
+        declT("_Bool a;") should be(CSigned(CInt()))
 
         declT("int double a;").sometimesUnknown should be(true)
         declT("signed unsigned char a;").sometimesUnknown should be(true)
@@ -93,6 +94,11 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypes with CDecl
         declT("union a foo;") should be(CStruct("a", true))
         declT("union a { double a;} foo;") should be(CStruct("a", true))
         declTL("union a;").size should be(0)
+    }
+
+    test("typeof declarations") {
+        declT("typeof(int *) a;") should be(CPointer(CSigned(CInt())))
+        declT("typeof(1) a;") should be(CSigned(CInt()))
     }
 
 }

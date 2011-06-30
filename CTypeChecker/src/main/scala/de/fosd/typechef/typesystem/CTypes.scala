@@ -140,12 +140,29 @@ trait CTypes {
 
     /**objects in memory */
     case class CObj(t: CType) extends CType {
+        override def toObj = this
+        //no CObj(CObj(...))
         override def toValue: CType = t match {
             case CArray(t, _) => CPointer(t)
             case _ => t
         }
         override def isObject = true
     }
+
+    /**
+     * CCompound is a workaround for initializers.
+     * This type is created by initializers with any structure.
+     * We currently don't care about internals.
+     * CCompound can be cast into any array or structure
+     */
+    case class CCompound() extends CType
+
+    /**
+     * CIgnore is a type for stuff we currently do not want to check
+     * it can be cast to anything and is not considered an error
+     */
+    case class CIgnore() extends CType
+
 
     /**errors */
     case class CUnknown(msg: String = "") extends CType {
@@ -270,6 +287,18 @@ trait CTypes {
         case _ => false
     })
 
+    def isArray(t: CType): Boolean = t match {
+        case CArray(_, _) => true
+        case _ => false
+    }
+    def isStruct(t: CType): Boolean = t match {
+        case CStruct(_, _) => true
+        case CAnonymousStruct(_, _) => true
+        case _ => false
+    }
+    def isCompound(t: CType): Boolean = t == CCompound()
+
+
     /**
      *  determines whether types are compatible in assignements etc
      */
@@ -277,7 +306,7 @@ trait CTypes {
         val t1 = normalize(type1)
         val t2 = normalize(type2)
         //TODO variability
-        (t1 == t2) ||
+        (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
                 (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {
                     case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()

@@ -219,7 +219,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def functionDeclSpecifiers: MultiParser[List[Opt[Specifier]]] =
         specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
 
-    private def compoundDeclaration =
+    def compoundDeclaration =
         declaration ^^ {DeclarationStatement(_)} | nestedFunctionDef | localLabelDeclaration |
                 fail("expected compoundDeclaration")
 
@@ -227,7 +227,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         LCURLY ~> statementList <~ RCURLY ^^ {CompoundStatement(_)}
 
     def statementList: MultiParser[List[Opt[Statement]]] =
-        repOpt(statement | compoundDeclaration, AltStatement.join, "statement")
+        repOpt(compoundDeclaration | statement, AltStatement.join, "statement")
 
     def statement: MultiParser[Statement] = (SEMI ^^ {_ => EmptyStatement()} // Empty statements
             | (compoundStatement) // Group of statements
@@ -396,7 +396,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         }
     //XXX allows trailing comma after argument list
 
-    def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~! typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuildinOffsetof(tn, d)}
+    def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~! typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuiltinOffsetof(tn, d)}
             | (textToken("__builtin_types_compatible_p") ~ LPAREN ~ typeName ~ COMMA ~ typeName ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinTypesCompatible(tn, tn2)})
             | (textToken("__builtin_va_arg") ~ LPAREN ~ primaryExpr ~ COMMA ~ typeName ~ RPAREN ^^ {case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinVaArgs(tn, tn2)})
             | ID
