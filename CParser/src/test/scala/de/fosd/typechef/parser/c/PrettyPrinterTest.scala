@@ -250,7 +250,7 @@ class PrettyPrinterTest extends TestCase {
 
 
         //pretty print
-        val doc = prettyPrint(ast.get.asInstanceOf[One[AST]].value)//temporary workaround with typecast
+        val doc = prettyPrint(ast.get.asInstanceOf[One[AST]].value) //temporary workaround with typecast
         val printed = layout(doc)
 
         println("Pretty: " + printed)
@@ -270,7 +270,7 @@ class PrettyPrinterTest extends TestCase {
 
         val ast2 = parse(printed, p.translationUnit)
 
-        assertEquals("AST after parsing printed result is different\n" + printed, ast, ast2)
+        assertEquals("AST after parsing printed result is different\n" + printed, ast, ast2.get)
     }
 
 

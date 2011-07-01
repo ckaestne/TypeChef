@@ -45,16 +45,16 @@ object PrettyPrinter {
     def print(ast: AST): String = layout(prettyPrint(ast))
 
 
-    private def ppConditional(e:Conditional[AST]):Doc = e match {
-        case One(c:AST) => prettyPrint(c)
-        case Choice(f, a:AST, b:AST) => assert(false, "todo"); prettyPrint(a) * prettyPrint(b)
+    private def ppConditional(e: Conditional[AST]): Doc = e match {
+        case One(c: AST) => prettyPrint(c)
+        case Choice(f, a: AST, b: AST) => assert(false, "todo"); prettyPrint(a) * prettyPrint(b)
     }
 
     def prettyPrint(ast: AST): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a)
         implicit def prettyOpt(a: Opt[Any]): Doc = a.entry match {
             case node: AST => prettyPrint(node)
-            case x:Conditional[AST] => ppConditional(x)
+            case x: Conditional[AST] => ppConditional(x)
         }
         implicit def prettyCond(a: Conditional[AST]): Doc = ppConditional(a)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
@@ -186,7 +186,7 @@ object PrettyPrinter {
             case StructDeclarator(decl: Declarator, initializer: Option[Expr], _) => decl ~ optExt(initializer, ":" ~~ _)
             case StructInitializer(expr: Expr, _) => ":" ~~ expr
             case AsmExpr(isVolatile: Boolean, expr: Expr) => "asm" ~~ (if (isVolatile) "volatile " else "") ~ "{" ~ expr ~ "}" ~ ";"
-            case FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: Statement) =>
+            case FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) =>
                 spaceSep(specifiers) ~~ declarator ~~ spaceSep(oldStyleParameters) ~~ stmt
             case EmptyExternalDef() => ";"
             case TypelessDeclaration(declList: List[Opt[InitDeclarator]]) => commaSep(declList) ~ ";"
