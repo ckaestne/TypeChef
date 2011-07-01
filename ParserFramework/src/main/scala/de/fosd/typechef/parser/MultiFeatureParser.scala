@@ -1036,44 +1036,46 @@ try {
          * branch. if there is, we create a new parent SplittedParseResult with the joined result, and subsequently
          * prune both original entries from the tree (each removing the direct parent SplittedParseResult node)
          */
-        def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] =  joinTree(parserContext)
-//        {
-//            def performJoin(featureA: FeatureExpr, a: ParseResult[T], b: ParseResult[T]): Option[ParseResult[Conditional[T]]] = (a, b) match {
-//                case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
-//                    if (isSamePosition(parserContext, inA, inB)) {
-//                        Some(Success(Choice(featureA, rA, rB), firstOf(inA, inB)))
-//                    } else
-//                        None
-//                }
-//                //                //both not sucessful
-//                //                case (nA@NoSuccess(mA, inA, iA), nB@NoSuccess(mB, inB, iB)) => {
-//                //                    Some(Failure("joined error", inA, List(nA, nB)))
-//                //                }
-//                //partially successful
-//                case (a, b) => None
-//            }
-//
-//
-//
-//            val left = resultA.joinCrosstree(parserContext and feature)
-//            val right = resultB.joinCrosstree(parserContext and (feature.not))
-//            var result = SplittedParseResult(feature, left, right)
-//
-//            //implementation note: features local from here. does not make a difference for local rewrites, but keeps rewritten formulas shorter
-//            val leftResults = left.toList(feature)
-//            val rightResults = right.toList(feature.not)
-//
-//            //compare every entry from the left with every entry from the right to find join candidates
-//            var toPruneList: List[ParseResult[T]] = List()
-//            for (lr <- leftResults; rr <- rightResults) {
-//                val joined = performJoin(lr._1, lr._2, rr._2)
-//                if (joined.isDefined) {
-//                    result = SplittedParseResult(lr._1 or (rr._1), joined.get, result)
-//                    toPruneList = lr._2 :: rr._2 :: toPruneList
-//                }
-//            }
-//            prune(result, toPruneList)
-//        }
+        def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] =
+        {
+            def performJoin(featureA: FeatureExpr, a: ParseResult[Conditional[T]], b: ParseResult[Conditional[T]]): Option[ParseResult[Conditional[T]]] = (a, b) match {
+                case (sA@Success(rA:Conditional[T], inA), sB@Success(rB:Conditional[T], inB)) => {
+                    if (isSamePosition(parserContext, inA, inB)) {
+                        val r=Choice(featureA, rA, rB)
+                        val pos=firstOf(inA, inB)
+                        Some(Success(r, pos))
+                    } else
+                        None
+                }
+                //                //both not sucessful
+                //                case (nA@NoSuccess(mA, inA, iA), nB@NoSuccess(mB, inB, iB)) => {
+                //                    Some(Failure("joined error", inA, List(nA, nB)))
+                //                }
+                //partially successful
+                case (a, b) => None
+            }
+
+
+
+            val left = resultA.joinCrosstree(parserContext and feature)
+            val right = resultB.joinCrosstree(parserContext and (feature.not))
+            var result = SplittedParseResult(feature, left, right)
+
+            //implementation note: features local from here. does not make a difference for local rewrites, but keeps rewritten formulas shorter
+            val leftResults:List[(FeatureExpr, ParseResult[Conditional[T]])] = left.toList(feature)
+            val rightResults:List[(FeatureExpr, ParseResult[Conditional[T]])] = right.toList(feature.not)
+
+            //compare every entry from the left with every entry from the right to find join candidates
+            var toPruneList: List[ParseResult[Conditional[T]]] = List()
+            for (lr <- leftResults; rr <- rightResults) {
+                val joined :Option[ParseResult[Conditional[T]]] = performJoin(lr._1, lr._2, rr._2)
+                if (joined.isDefined) {
+                    result = SplittedParseResult(lr._1 or (rr._1), joined.get, result)
+                    toPruneList = lr._2 :: rr._2 :: toPruneList
+                }
+            }
+            prune(result, toPruneList)
+        }
 
         private def isSamePosition(parserContext: FeatureExpr, inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]): Boolean = {
             val nextA = inA.skipHidden(parserContext and feature, featureSolverCache)
@@ -1085,7 +1087,7 @@ try {
 
 
         //removes entries from the tree
-        private def prune[U >: T](tree: MultiParseResult[U], pruneList: List[ParseResult[U]]): MultiParseResult[U] =
+        private def prune[U >: T](tree: MultiParseResult[Conditional[U]], pruneList: List[ParseResult[Conditional[U]]]): MultiParseResult[Conditional[U]] =
             if (pruneList.isEmpty) tree
             else tree match {
                 case SplittedParseResult(f, a, b) => {
