@@ -35,7 +35,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def translationUnit = externalList ^^ {TranslationUnit(_)}
 
     def externalList: MultiParser[List[Opt[ExternalDef]]] =
-        repOpt(externalDef,  "externalDef") ^^ {Conditional.flatten(_)}
+        repOpt(externalDef, "externalDef") ^^ {Conditional.flatten(_)}
 
     def externalDef: MultiParser[Conditional[ExternalDef]] =
     // first part (with lookahead) only for error reporting, i.e.don 't try to parse anything else after a typedef
@@ -221,15 +221,15 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def compoundDeclaration: MultiParser[Conditional[CompoundDeclaration]] =
         declaration ^^ {DeclarationStatement(_)} | nestedFunctionDef | localLabelDeclaration |
-                fail("expected compoundDeclaration")  !
+                fail("expected compoundDeclaration") !
 
     def compoundStatement: MultiParser[CompoundStatement] =
         LCURLY ~> statementList <~ RCURLY ^^ {CompoundStatement(_)}
 
-//    private def compoundStatementCond: MultiParser[Conditional[CompoundStatement]] = compoundStatement ^^ {One(_)}
+    //    private def compoundStatementCond: MultiParser[Conditional[CompoundStatement]] = compoundStatement ^^ {One(_)}
 
-    def statementList: MultiParser[List[Opt[Conditional[Statement]]]] =
-        repOpt(compoundDeclaration | statement, "statement")
+    def statementList: MultiParser[List[Opt[Statement]]] =
+        repOpt(compoundDeclaration | statement, "statement") ^^ {Conditional.flatten(_)}
 
     def statement: MultiParser[Conditional[Statement]] = (SEMI ^^ {_ => EmptyStatement()} // Empty statements
             | (compoundStatement) // Group of statements

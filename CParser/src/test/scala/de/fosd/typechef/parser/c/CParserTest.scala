@@ -11,8 +11,8 @@ class CParserTest extends TestCase {
     val p = new CParser()
 
 
-    def assertParseResult(expected: AST, code: String, mainProduction:  p.MultiParser[AST]) {
-        assertParseResult(One(expected),code,mainProduction ^^ {One(_)})
+    def assertParseResult(expected: AST, code: String, mainProduction: p.MultiParser[AST]) {
+        assertParseResult(One(expected), code, mainProduction ^^ {One(_)})
     }
     def assertParseResult(expected: Conditional[AST], code: String, mainProduction: p.MultiParser[Conditional[AST]]) {
         val actual = p.parse(code.stripMargin, mainProduction).expectOneResult
@@ -29,7 +29,7 @@ class CParserTest extends TestCase {
         }
     }
     def assertParseResultL(expected: AST, code: String, productions: List[p.MultiParser[AST]]) {
-          assertParseResultL(One(expected), code, productions.map(_ ^^ {One(_)}))
+        assertParseResultL(One(expected), code, productions.map(_ ^^ {One(_)}))
     }
     def assertParseResultL(expected: Conditional[AST], code: String, productions: List[p.MultiParser[Conditional[AST]]]) {
         for (production <- productions)
@@ -114,7 +114,7 @@ class CParserTest extends TestCase {
         					|test
         					|#else
         					|bar
-        					|#endif""", List(p.primaryExpr!, p.ID!))
+        					|#endif""", List(p.primaryExpr !, p.ID !))
         assertParseError("case", List(p.primaryExpr, p.ID))
     }
 
@@ -124,7 +124,7 @@ class CParserTest extends TestCase {
         					|"test"
         					|#else
         					|"ba\"r"
-        					|#endif""", List(p.primaryExpr!, p.stringConst!))
+        					|#endif""", List(p.primaryExpr !, p.stringConst !))
         assertParseError("'c'", List(p.stringConst))
     }
 
@@ -171,7 +171,7 @@ class CParserTest extends TestCase {
         					|1
         					|#else
         					|2
-        					|#endif""", List(p.primaryExpr!, p.numConst!))
+        					|#endif""", List(p.primaryExpr !, p.numConst !))
     }
     def testDots() {
         assertParseable(".", p.DOT)
@@ -192,7 +192,7 @@ class CParserTest extends TestCase {
             """|b
         					|#ifdef a
         					|++
-        					|#endif""", p.postfixExpr!)
+        					|#endif""", p.postfixExpr !)
 
         assertParseResultL(PostfixExpr(Id("b"), PointerPostfixSuffix("->", Id("a"))), "b->a", List(p.postfixExpr, p.unaryExpr))
         assertParseResultL(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
@@ -222,7 +222,7 @@ class CParserTest extends TestCase {
         					|#else
         					|->
         					|#endif
-        					|a""", p.postfixExpr!)
+        					|a""", p.postfixExpr !)
         assertParseable("++", p.postfixSuffix)
         assertParseable("b++", p.postfixExpr)
         assertParseable("__builtin_offsetof(void,a.b)", p.primaryExpr)
@@ -270,14 +270,14 @@ class CParserTest extends TestCase {
         					|a
         					|#else
         					|b
-        					|#endif""", p.expr!)
+        					|#endif""", p.expr !)
         assertParseResult(Choice(fa, NAryExpr(a, List(Opt(fa, NArySubExpr("+", c)))), NAryExpr(b, List(Opt(fa.not, (NArySubExpr("+", c)))))),
             """|#ifdef a
         					|a +
         					|#else
         					|b +
         					|#endif
-        					|c""", p.expr!)
+        					|c""", p.expr !)
         assertParseResult(Choice(fa, AssignExpr(a, "=", ConditionalExpr(b, Some(b), d)), AssignExpr(a, "=", ConditionalExpr(b, Some(c), d))),
             """|a=b?
         					|#ifdef a
@@ -285,10 +285,10 @@ class CParserTest extends TestCase {
         					|#else
         					|c
         					|#endif
-        					|:d""", p.expr!)
+        					|:d""", p.expr !)
     }
 
-    private implicit def makeConditionalOne[T<:AST](a:T):Conditional[T]=One(a)
+    private implicit def makeConditionalOne[T <: AST](a: T): Conditional[T] = One(a)
 
     def testStatements {
         assertParseable("a;", p.statement)
@@ -340,16 +340,16 @@ class CParserTest extends TestCase {
 
     def testLocalDeclarations {
         assertParseableAST("{int * a = 3;}", p.compoundStatement) match {
-            case Some(CompoundStatement(List(Opt(_, One(DeclarationStatement(_)))))) =>
+            case Some(CompoundStatement(List(Opt(_, (DeclarationStatement(_)))))) =>
             case e => fail("expected declaration, found " + e)
         }
         assertParseableAST("{t * a = 3;}", p.compoundStatement) match {
-            case Some(CompoundStatement(List(Opt(_, One(ExprStatement(AssignExpr(_, _, _))))))) =>
+            case Some(CompoundStatement(List(Opt(_, (ExprStatement(AssignExpr(_, _, _))))))) =>
             case e => fail("expected declaration, found " + e)
         }
         assertParseable("__builtin_type * a = 3;", p.compoundDeclaration)
         assertParseableAST("{__builtin_type * a = 3;}", p.compoundStatement) match {
-            case Some(CompoundStatement(List(Opt(_, One(DeclarationStatement(_)))))) =>
+            case Some(CompoundStatement(List(Opt(_, (DeclarationStatement(_)))))) =>
             case e => fail("expected declaration, found " + e)
         }
     }
@@ -924,12 +924,12 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
     private def assertNoDeadNodes(ast: Attributable) {
         assertNoDeadNodes(ast, FeatureExpr.base, ast)
     }
-    private def assertNoDeadNodes(ast: Attributable, f: FeatureExpr , orig: Attributable) {
-        assert(f.isSatisfiable(), "dead AST subtree: " + ast+" in "+orig)
+    private def assertNoDeadNodes(ast: Attributable, f: FeatureExpr, orig: Attributable) {
+        assert(f.isSatisfiable(), "dead AST subtree: " + ast + " in " + orig)
         ast match {
-            case Opt(g, e: Attributable) => assertNoDeadNodes(e, f and g,orig)
-            case c: Choice[Attributable] => assertNoDeadNodes(c.thenBranch, f and c.feature,orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature,orig)
-            case e => for (c <- e.children) assertNoDeadNodes(c, f,orig)
+            case Opt(g, e: Attributable) => assertNoDeadNodes(e, f and g, orig)
+            case c: Choice[Attributable] => assertNoDeadNodes(c.thenBranch, f and c.feature, orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature, orig)
+            case e => for (c <- e.children) assertNoDeadNodes(c, f, orig)
         }
     }
 

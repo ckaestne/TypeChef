@@ -117,7 +117,7 @@ case class ExprList(exprs: List[Opt[Expr]]) extends Expr
 //Statements
 abstract sealed class Statement extends AST
 
-case class CompoundStatement(innerStatements: List[Opt[Conditional[Statement]]]) extends Statement {
+case class CompoundStatement(innerStatements: List[Opt[Statement]]) extends Statement {
 }
 
 case class EmptyStatement() extends Statement
