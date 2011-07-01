@@ -10,29 +10,29 @@ class MultiExpressionParser extends MultiFeatureParser {
     def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).expectOneResult
 
     def expr: MultiParser[Conditional[AST]] = {
-        val r = term ~ opt((t("+") | t("-")) ~ expr) ^^! ( {
+        val r = term ~ opt((t("+") | t("-")) ~ expr) ^^! ({
             case ~(f, Some(~(op, e))) if (op.text == "+") => One(Plus(f, e))
             case ~(f, Some(~(op, e))) if (op.text == "-") => One(Minus(f, e))
             case ~(f, None) => f
             case _ => throw new Exception("unsupported match")
         })
-        r. map(Conditional.combine(_))
+        r.map(Conditional.combine(_))
     }
 
 
     def term: MultiParser[Conditional[AST]] =
-        (fact ~ ((t("*") ~! expr) ?) ^^! ( {
+        (fact ~ ((t("*") ~! expr) ?) ^^! ({
             case ~(f, Some(~(m, e))) => One(Mul(f, e))
             case ~(f, None) => f
         })).map(Conditional.combine(_))
 
     def fact: MultiParser[Conditional[AST]] =
-        (digits ^^! ( {
+        (digits ^^! ({
             t => Lit(t.text.toInt)
         })
-                | (lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^ {
-            case _ ~ (b1 ~ e ~ b2) =>  e
-        }
+                | ((lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^! {
+            case _ ~ (b1 ~ e ~ b2) => e
+        }).map(Conditional.combine(_))
                 | failc("digit or '(' expected"))
 
 

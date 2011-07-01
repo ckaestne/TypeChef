@@ -128,7 +128,7 @@ typedef long y;
 """)
         println(ast.mkString("\n"))
         println(next)
-        assert(ast.size == 9) //and one internal choice node
+        assertEquals(9, ast.size) //and one internal choice node
     }
 
     def testRepOptMultiFeatureOverlap6_linux() {

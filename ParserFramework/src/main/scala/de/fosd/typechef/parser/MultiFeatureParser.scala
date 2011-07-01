@@ -125,8 +125,8 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def ^^![U](f: T => U): MultiParser[Conditional[U]] =
             this.map(f).join
 
-//        def ^^!![U](f: Conditional[T] => Conditional[U]): MultiParser[Conditional[U]] =
-//            this.map(f).join.map(Conditional.combine(_))
+        //        def ^^!![U](f: Conditional[T] => Conditional[U]): MultiParser[Conditional[U]] =
+        //            this.map(f).join.map(Conditional.combine(_))
 
         /**
          * join parse results when possible
@@ -429,8 +429,6 @@ try {
     }
 
 
-
-
     /**joins two optList with two special features:
      *
      * common elements at the end of the list (eq) are joined (they originated from replication in ~)
@@ -500,7 +498,7 @@ try {
         private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]])
 
         //join anything, data does not matter, only position in tokenstream
-        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]):MultiParseResult[Sealable] =
+        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]): MultiParseResult[Sealable] =
             res.join(ctx).map(_.flatten((f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList))))
 
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
@@ -638,7 +636,7 @@ try {
             case Some(l) => l; case None => List()
         }
         val jr: MultiParser[Conditional[List[Opt[T]]]] = r.join
-        jr ^^ {_.flatten[List[Opt[T]]]((f,a,b)=>joinOptLists(a,b,f))}
+        jr ^^ {_.flatten[List[Opt[T]]]((f, a, b) => joinOptLists(a, b, f))}
     }
 
     /**see repSepOptIntern, consumes tailing separator(!) **/
@@ -677,10 +675,10 @@ try {
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
             res.join(ctx).map(_.flatten(joinSealable))
 
-        private def joinSealable(f:FeatureExpr, a: Sealable, b: Sealable) =
+        private def joinSealable(f: FeatureExpr, a: Sealable, b: Sealable) =
             Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList), (a.freeSeparator) and (b.freeSeparator))
 
-//        private def flattenConditionalSealable(r:Co)
+        //        private def flattenConditionalSealable(r:Co)
         //XXX a.freesep OR a.freesep is incorrect. is AND sufficient?
 
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
@@ -1036,13 +1034,12 @@ try {
          * branch. if there is, we create a new parent SplittedParseResult with the joined result, and subsequently
          * prune both original entries from the tree (each removing the direct parent SplittedParseResult node)
          */
-        def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] =
-        {
+        def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = {
             def performJoin(featureA: FeatureExpr, a: ParseResult[Conditional[T]], b: ParseResult[Conditional[T]]): Option[ParseResult[Conditional[T]]] = (a, b) match {
-                case (sA@Success(rA:Conditional[T], inA), sB@Success(rB:Conditional[T], inB)) => {
+                case (sA@Success(rA: Conditional[T], inA), sB@Success(rB: Conditional[T], inB)) => {
                     if (isSamePosition(parserContext, inA, inB)) {
-                        val r=Choice(featureA, rA, rB)
-                        val pos=firstOf(inA, inB)
+                        val r = createChoiceC(featureA, rA, rB)
+                        val pos = firstOf(inA, inB)
                         Some(Success(r, pos))
                     } else
                         None
@@ -1062,13 +1059,13 @@ try {
             var result = SplittedParseResult(feature, left, right)
 
             //implementation note: features local from here. does not make a difference for local rewrites, but keeps rewritten formulas shorter
-            val leftResults:List[(FeatureExpr, ParseResult[Conditional[T]])] = left.toList(feature)
-            val rightResults:List[(FeatureExpr, ParseResult[Conditional[T]])] = right.toList(feature.not)
+            val leftResults: List[(FeatureExpr, ParseResult[Conditional[T]])] = left.toList(feature)
+            val rightResults: List[(FeatureExpr, ParseResult[Conditional[T]])] = right.toList(feature.not)
 
             //compare every entry from the left with every entry from the right to find join candidates
             var toPruneList: List[ParseResult[Conditional[T]]] = List()
             for (lr <- leftResults; rr <- rightResults) {
-                val joined :Option[ParseResult[Conditional[T]]] = performJoin(lr._1, lr._2, rr._2)
+                val joined: Option[ParseResult[Conditional[T]]] = performJoin(lr._1, lr._2, rr._2)
                 if (joined.isDefined) {
                     result = SplittedParseResult(lr._1 or (rr._1), joined.get, result)
                     toPruneList = lr._2 :: rr._2 :: toPruneList
@@ -1085,6 +1082,9 @@ try {
         private def firstOf(inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]) =
             (if (inA.offst < inB.offst) inB else inA).setContext(joinContext(inA.context, inB.context))
 
+        //don't create a choice when both branches are the same
+        private def createChoice[T](f: FeatureExpr, a: T, b: T): Conditional[T] = createChoiceC(f, One(a), One(b))
+        private def createChoiceC[T](f: FeatureExpr, a: Conditional[T], b: Conditional[T]): Conditional[T] = if (a == b) a else Choice(f, a, b)
 
         //removes entries from the tree
         private def prune[U >: T](tree: MultiParseResult[Conditional[U]], pruneList: List[ParseResult[Conditional[U]]]): MultiParseResult[Conditional[U]] =
@@ -1111,7 +1111,7 @@ try {
             //both successful
                 case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
                     if (isSamePosition(parserContext, inA, inB)) {
-                        Success(Choice(feature, rA, rB), firstOf(inA, inB))
+                        Success(createChoiceC(feature, rA, rB), firstOf(inA, inB))
                     } else
                         SplittedParseResult(feature, sA, sB)
                 }
@@ -1323,11 +1323,11 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) extends Attributable 
 
 //conditional is either Choice or One
 abstract class Conditional[+T] extends Attributable {
-    def flatten[U >: T](f: (FeatureExpr,U,U)=>U):U
+    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U
 }
 
 case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
-    def flatten[U >: T](f: (FeatureExpr,U,U)=>U):U = f(feature, thenBranch.flatten(f), elseBranch.flatten(f))
+    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = f(feature, thenBranch.flatten(f), elseBranch.flatten(f))
     override def equals(x: Any) = x match {
         case Choice(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
         case _ => false
@@ -1336,28 +1336,28 @@ case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBran
 }
 
 case class One[+T](value: T) extends Conditional[T] {
-    override def toString = value.toString
-   def flatten[U >: T](f: (FeatureExpr,U,U)=>U):U = value
+    //    override def toString = value.toString
+    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = value
 }
 
 object Conditional {
     //collapse double conditionals Cond[Cond[T]] to Cond[T]
-    def combine[T](r:Conditional[Conditional[T]]):Conditional[T] = r match {
+    def combine[T](r: Conditional[Conditional[T]]): Conditional[T] = r match {
         case One(t) => t
-        case Choice(e,a,b) => Choice(e,combine(a),combine(b))
+        case Choice(e, a, b) => Choice(e, combine(a), combine(b))
     }
     //flatten optlists of conditionals into optlists without conditionals
     def flatten[T](optList: List[Opt[Conditional[T]]]): List[Opt[T]] = {
-           var result: List[Opt[T]] = List()
-           for (e <- optList.reverse) {
-               e.entry match {
-                   case Choice(f, a, b) =>
-                       result = flatten(List(Opt(e.feature and f, a))) ++ flatten(List(Opt(e.feature and (f.not), b))) ++ result;
-                   case One(a) =>
-                       result = Opt(e.feature,a) :: result;
-               }
-           }
-           result
-       }
+        var result: List[Opt[T]] = List()
+        for (e <- optList.reverse) {
+            e.entry match {
+                case Choice(f, a, b) =>
+                    result = flatten(List(Opt(e.feature and f, a))) ++ flatten(List(Opt(e.feature and (f.not), b))) ++ result;
+                case One(a) =>
+                    result = Opt(e.feature, a) :: result;
+            }
+        }
+        result
+    }
 
 }
