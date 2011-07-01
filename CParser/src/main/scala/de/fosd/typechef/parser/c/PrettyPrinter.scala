@@ -52,19 +52,13 @@ object PrettyPrinter {
 
     def prettyPrint(ast: AST): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a)
-        implicit def prettyOpt(a: Opt[Any]): Doc = a.entry match {
-            case node: AST => prettyPrint(node)
-            case x: Conditional[AST] => ppConditional(x)
-        }
+        implicit def prettyOpt(a: Opt[AST]): Doc = prettyPrint(a.entry)
         implicit def prettyCond(a: Conditional[AST]): Doc = ppConditional(a)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
+
         def sep(l: List[Opt[AST]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
-            l.drop(1).foldLeft(r)(s(_, _))
-        }
-        def sepC(l: List[Opt[Conditional[AST]]], s: (Doc, Doc) => Doc) = {
-            val r: Doc = if (l.isEmpty) Empty else l.head
-            l.drop(1).foldLeft(r)(s(_, _))
+            l.drop(1).foldLeft(r)((a, b) => s(a, prettyOpt(b)))
         }
         def seps(l: List[Opt[String]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
@@ -102,7 +96,9 @@ object PrettyPrinter {
             case AssignExpr(target: Expr, operation: String, source: Expr) => "(" ~ target ~~ operation ~~ source ~ ")"
             case ExprList(exprs: List[Opt[Expr]]) => sep(exprs, _ ~~ "," ~~ _)
 
-            case CompoundStatement(innerStatements: List[Opt[Statement]]) => block(sep(innerStatements, _ * _))
+            case CompoundStatement(innerStatements: List[Opt[Statement]]) =>
+                println(innerStatements)
+                block(sep(innerStatements, _ * _))
             case EmptyStatement() => ";"
             case ExprStatement(expr: Expr) => expr ~ ";"
             case WhileStatement(expr: Expr, s: Conditional[Statement]) => "while (" ~ expr ~ ")" ~~ s

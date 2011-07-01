@@ -21,7 +21,7 @@ class LinuxFragmentsTest {
     }
 
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]) {
-        val actual = p.parse(code.stripMargin, mainProduction).forceJoin(FeatureExpr.base, Alt.join)
+        val actual = p.parse(code.stripMargin, mainProduction).expectOneResult
         System.out.println(actual)
         actual match {
             case p.Success(ast, unparsed) => {
