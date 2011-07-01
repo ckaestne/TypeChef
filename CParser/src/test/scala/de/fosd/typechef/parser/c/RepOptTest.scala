@@ -74,7 +74,6 @@ typedef int a
 ;
 typedef int b;
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assertTrue("actual AST size: " + ast.size, ast.size == 3)
@@ -96,7 +95,6 @@ typedef long a;
 typedef int b;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 4)
@@ -128,7 +126,6 @@ typedef long y;
 typedef long y;
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 9) //and one internal choice node
@@ -186,7 +183,6 @@ typedef long y;
 #endif
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 11)
@@ -225,7 +221,6 @@ typedef long y;
 #endif
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 8)
@@ -255,7 +250,6 @@ typedef long y;
 #endif
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 8)
@@ -278,7 +272,6 @@ a;
 typedef long a;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
@@ -299,7 +292,6 @@ typedef int a
 typedef long a;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
@@ -318,7 +310,6 @@ typedef int a;
 typedef long a;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
@@ -389,18 +380,6 @@ typedef int b;
         assert(next.context.knowsType("b"))
     }*/
 
-    private def flatten(optList: List[Opt[ExternalDef]]): List[Opt[ExternalDef]] = {
-        var result: List[Opt[ExternalDef]] = List()
-        for (e <- optList.reverse) {
-            e.entry match {
-                case AltExternalDef(f, a, b) =>
-                    result = flatten(List(Opt(e.feature and f, a))) ++ flatten(List(Opt(e.feature and (f.not), b))) ++ result;
-                case _ =>
-                    result = e :: result;
-            }
-        }
-        result
-    }
 
     @Test
     def testPrintStatistics() {

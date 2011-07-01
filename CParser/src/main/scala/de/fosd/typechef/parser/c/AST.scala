@@ -165,7 +165,7 @@ abstract sealed class CompoundDeclaration extends Statement
 
 case class DeclarationStatement(decl: Declaration) extends CompoundDeclaration
 
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Conditional[Statement]) extends CompoundDeclaration
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration
 
 case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends CompoundDeclaration
 
@@ -330,7 +330,7 @@ case class StructInitializer(expr: Expr, attributes: List[Opt[AttributeSpecifier
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef {
 }
 
-case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: Conditional[Statement]) extends AST with ExternalDef {
+case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef {
     def getName = declarator.getName
 }
 
@@ -345,7 +345,7 @@ case class TypelessDeclaration(declList: List[Opt[InitDeclarator]]) extends Exte
 case class TypeName(specifiers: List[Opt[Specifier]], decl: Option[AbstractDeclarator]) extends AST {
 }
 
-case class TranslationUnit(defs: List[Opt[Conditional[ExternalDef]]]) extends AST {
+case class TranslationUnit(defs: List[Opt[ExternalDef]]) extends AST {
 }
 
 //GnuC stuff here:

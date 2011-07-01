@@ -15,7 +15,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     type Elem = TokenWrapper
     type TypeContext = CTypeContext
 
-    def parse(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[AST]): MultiParseResult[AST] =
+    def parse[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
         mainProduction(CLexer.lex(code, featureModel), FeatureExpr.base)
 
     def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
@@ -35,13 +35,13 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def translationUnit = externalList ^^ {TranslationUnit(_)}
 
     def externalList: MultiParser[List[Opt[ExternalDef]]] =
-        repOpt(externalDef, AltExternalDef.join, "externalDef")
+        repOpt(externalDef,  "externalDef") ^^ {Conditional.flatten(_)}
 
-    def externalDef: MultiParser[ExternalDef] =
+    def externalDef: MultiParser[Conditional[ExternalDef]] =
     // first part (with lookahead) only for error reporting, i.e.don 't try to parse anything else after a typedef
         (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} |
                 declaration |
-                functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) ^^! (AltExternalDef.join, x => x)
+                functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) !
 
     def asm_expr: MultiParser[AsmExpr] =
         asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)}
@@ -219,17 +219,19 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def functionDeclSpecifiers: MultiParser[List[Opt[Specifier]]] =
         specList(functionStorageClassSpecifier | typeQualifier | attributeDecl)
 
-    def compoundDeclaration =
+    def compoundDeclaration: MultiParser[Conditional[CompoundDeclaration]] =
         declaration ^^ {DeclarationStatement(_)} | nestedFunctionDef | localLabelDeclaration |
-                fail("expected compoundDeclaration")
+                fail("expected compoundDeclaration")  !
 
     def compoundStatement: MultiParser[CompoundStatement] =
         LCURLY ~> statementList <~ RCURLY ^^ {CompoundStatement(_)}
 
-    def statementList: MultiParser[List[Opt[Statement]]] =
-        repOpt(compoundDeclaration | statement, AltStatement.join, "statement")
+//    private def compoundStatementCond: MultiParser[Conditional[CompoundStatement]] = compoundStatement ^^ {One(_)}
 
-    def statement: MultiParser[Statement] = (SEMI ^^ {_ => EmptyStatement()} // Empty statements
+    def statementList: MultiParser[List[Opt[Conditional[Statement]]]] =
+        repOpt(compoundDeclaration | statement, "statement")
+
+    def statement: MultiParser[Conditional[Statement]] = (SEMI ^^ {_ => EmptyStatement()} // Empty statements
             | (compoundStatement) // Group of statements
             //// Iteration statements:
             | (textToken("while") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ {case _ ~ _ ~ e ~ _ ~ s => WhileStatement(e, s)})
@@ -252,7 +254,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             opt(textToken("else") ~> statement) ^^ {case _ ~ _ ~ ex ~ _ ~ ts ~ elifs ~ es => IfStatement(ex, ts, elifs, es)})
             | (textToken("switch") ~! LPAREN ~ expr ~ RPAREN ~ statement ^^ {case _ ~ _ ~ e ~ _ ~ s => SwitchStatement(e, s)})
             | (expr <~ SEMI ^^ {ExprStatement(_)}) // Expressions
-            | fail("statement expected")) ! AltStatement.join
+            | fail("statement expected")) !
 
     private def elifs: MultiParser[List[Opt[ElifStatement]]] =
         repOpt(
