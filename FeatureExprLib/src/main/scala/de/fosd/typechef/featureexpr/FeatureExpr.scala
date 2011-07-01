@@ -829,7 +829,7 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
     })
 }
 
-private[featureexpr]
+//private[featureexpr]
 class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = {
@@ -845,7 +845,7 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
     override protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
 }
 
-private[featureexpr]
+//private[featureexpr]
 class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = {
@@ -949,7 +949,7 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
 
 }
 
-private[featureexpr]
+//private[featureexpr]
 class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
     override def calcHashCode = 701 * expr.hashCode
     override def equal1Level(that: FeatureExpr) = that match {
