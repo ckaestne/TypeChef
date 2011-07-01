@@ -99,7 +99,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             if (expr1.isDefined) checkExpr(expr1.get)
             if (expr2.isDefined) checkExpr(expr2.get)
             if (expr3.isDefined) checkExpr(expr3.get)
-        case GotoStatement(expr) => checkExpr(expr)
+        //        case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
         case ReturnStatement(expr) => if (expr.isDefined) checkExpr(expr.get)
         case CaseStatement(expr, _) => checkExpr(expr)
         case IfStatement(expr, _, _, _) => checkExpr(expr)
