@@ -1,6 +1,5 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser._
 import org.kiama.attribution.Attributable
 
@@ -61,18 +60,6 @@ trait AST extends Attributable with Cloneable {
     override def clone() = super.clone().asInstanceOf[AST]
 }
 
-trait Choice[+T <: AST] extends AST {
-    def thenBranch: T
-    def elseBranch: T
-    def feature: FeatureExpr
-    override def toString = "Choice(" + feature + "," + thenBranch + "," + elseBranch + ")"
-}
-
-trait ASTVisitor {
-    def visit(node: AST, feature: FeatureExpr)
-    def postVisit(node: AST, feature: FeatureExpr)
-}
-
 abstract class Expr extends AST
 
 sealed abstract class PrimaryExpr extends Expr
@@ -130,7 +117,7 @@ case class ExprList(exprs: List[Opt[Expr]]) extends Expr
 //Statements
 abstract sealed class Statement extends AST
 
-case class CompoundStatement(innerStatements: List[Opt[Statement]]) extends Statement {
+case class CompoundStatement(innerStatements: List[Opt[Conditional[Statement]]]) extends Statement {
 }
 
 case class EmptyStatement() extends Statement
@@ -138,13 +125,13 @@ case class EmptyStatement() extends Statement
 case class ExprStatement(expr: Expr) extends Statement {
 }
 
-case class WhileStatement(expr: Expr, s: Statement) extends Statement {
+case class WhileStatement(expr: Expr, s: Conditional[Statement]) extends Statement {
 }
 
-case class DoStatement(expr: Expr, s: Statement) extends Statement {
+case class DoStatement(expr: Expr, s: Conditional[Statement]) extends Statement {
 }
 
-case class ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Statement) extends Statement {
+case class ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Conditional[Statement]) extends Statement {
 }
 
 case class GotoStatement(target: Expr) extends Statement {
@@ -160,38 +147,27 @@ case class ReturnStatement(expr: Option[Expr]) extends Statement {
 case class LabelStatement(id: Id, attribute: Option[AttributeSpecifier]) extends Statement {
 }
 
-case class CaseStatement(c: Expr, s: Option[Statement]) extends Statement {
+case class CaseStatement(c: Expr, s: Option[Conditional[Statement]]) extends Statement {
 }
 
-case class DefaultStatement(s: Option[Statement]) extends Statement {
+case class DefaultStatement(s: Option[Conditional[Statement]]) extends Statement {
 }
 
-case class IfStatement(condition: Expr, thenBranch: Statement, elifs: List[Opt[ElifStatement]], elseBranch: Option[Statement]) extends Statement
+case class IfStatement(condition: Expr, thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
 
-case class ElifStatement(condition: Expr, thenBranch: Statement) extends AST {
+case class ElifStatement(condition: Expr, thenBranch: Conditional[Statement]) extends AST {
 }
 
-case class SwitchStatement(expr: Expr, s: Statement) extends Statement {
+case class SwitchStatement(expr: Expr, s: Conditional[Statement]) extends Statement {
 }
 
 abstract sealed class CompoundDeclaration extends Statement
 
 case class DeclarationStatement(decl: Declaration) extends CompoundDeclaration
 
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) extends CompoundDeclaration
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Conditional[Statement]) extends CompoundDeclaration
 
 case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends CompoundDeclaration
-
-case class AltStatement(feature: FeatureExpr, thenBranch: Statement, elseBranch: Statement) extends Statement with Choice[Statement] {
-    override def equals(x: Any) = x match {
-        case AltStatement(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
-        case _ => false
-    }
-}
-
-object AltStatement {
-    def join = (f: FeatureExpr, x: Statement, y: Statement) => if (x == y) x else AltStatement(f, x, y)
-}
 
 abstract class Specifier() extends AST
 
@@ -354,7 +330,7 @@ case class StructInitializer(expr: Expr, attributes: List[Opt[AttributeSpecifier
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef {
 }
 
-case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: Statement) extends AST with ExternalDef {
+case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: Conditional[Statement]) extends AST with ExternalDef {
     def getName = declarator.getName
 }
 
@@ -365,21 +341,11 @@ case class EmptyExternalDef() extends ExternalDef
 case class TypelessDeclaration(declList: List[Opt[InitDeclarator]]) extends ExternalDef {
 }
 
-case class AltExternalDef(feature: FeatureExpr, thenBranch: ExternalDef, elseBranch: ExternalDef) extends ExternalDef with Choice[ExternalDef] {
-    override def equals(x: Any) = x match {
-        case AltExternalDef(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
-        case _ => false
-    }
-}
-
-object AltExternalDef {
-    def join = (f: FeatureExpr, x: ExternalDef, y: ExternalDef) => if (x == y) x else AltExternalDef(f, x, y)
-}
 
 case class TypeName(specifiers: List[Opt[Specifier]], decl: Option[AbstractDeclarator]) extends AST {
 }
 
-case class TranslationUnit(defs: List[Opt[ExternalDef]]) extends AST {
+case class TranslationUnit(defs: List[Opt[Conditional[ExternalDef]]]) extends AST {
 }
 
 //GnuC stuff here:
