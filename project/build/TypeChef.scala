@@ -13,7 +13,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     lazy val linuxAnalysis = project("LinuxAnalysis", "LinuxAnalysis", new LinuxAnalysisProject(_), featureexpr, jcpp, cparser, ctypechecker)
     lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_) with Kiama, cparser)
     lazy val javaparser = project("JavaParser", "JavaParser", new DefaultSubProject(_), featureexpr, parserexp)
-    lazy val crewrite = project("CRewrite", "CRewrite", new DefaultSubProject(_) with Kiama, cparser)
+    lazy val crewrite = project("CRewrite", "CRewrite", new DefaultSubProject(_) with Kiama, cparser, ctypechecker)
 
     class DefaultSubProject(info: ProjectInfo) extends DefaultProject(info) with ScctProject with IdeaProject {
         val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test->default"
