@@ -1,6 +1,7 @@
 package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.parser.{Conditional, Opt, One, Choice}
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 object PrettyPrinter {
 
@@ -47,12 +48,17 @@ object PrettyPrinter {
 
     private def ppConditional(e: Conditional[AST]): Doc = e match {
         case One(c: AST) => prettyPrint(c)
-        case Choice(f, a: AST, b: AST) => assert(false, "todo"); prettyPrint(a) * prettyPrint(b)
+        case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a) * "#else" * prettyPrint(b) * "#endif"
+    }
+
+    private def optConditional(e: Opt[AST]) : Doc = {
+        if (e.feature == FeatureExpr.base) prettyPrint(e.entry)
+        else "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry) * "#endif"
     }
 
     def prettyPrint(ast: AST): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a)
-        implicit def prettyOpt(a: Opt[AST]): Doc = prettyPrint(a.entry)
+        implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a)
         implicit def prettyCond(a: Conditional[AST]): Doc = ppConditional(a)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
 
@@ -208,6 +214,7 @@ object PrettyPrinter {
             case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ exit ~ "," ~~ typeName ~ ")"
             case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
             case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
+
         }
     }
 
