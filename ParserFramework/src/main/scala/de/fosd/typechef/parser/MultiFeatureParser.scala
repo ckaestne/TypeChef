@@ -134,10 +134,10 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def !(): MultiParser[Conditional[T]] = join.named("!")
         def join: MultiParser[Conditional[T]] = new JoinParser(this)
 
-        def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParser[T] =
+        def changeContext(contextModification: (T, FeatureExpr, TypeContext) => TypeContext): MultiParser[T] =
             new MultiParser[T] {
                 def apply(in: Input, feature: FeatureExpr): MultiParseResult[T] =
-                    thisParser(in, feature).changeContext(contextModification)
+                    thisParser(in, feature).changeContext(feature, contextModification)
             }.named("__context")
 
         /**
@@ -875,14 +875,14 @@ try {
             def apply(in: Input, fs: FeatureExpr) = f(in, fs)
         }
 
-    def matchInput(p: (Elem, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
+    def matchInput(p: (Elem, FeatureExpr, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
         private def err(e: Option[Elem], ctx: TypeContext) = errorMsg(kind, e, ctx)
         @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
             parseResult.mapfr(context, {
                 case (feature, Success(resultPair, inNext)) =>
-                    if (p(resultPair._2, in.context)) {
+                    if (p(resultPair._2, context, in.context)) {
                         //consumed one token
                         resultPair._2.countSuccess(feature)
                         Success(resultPair._2, inNext)
@@ -947,8 +947,8 @@ try {
     }.named("next")
 
 
-    def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
-    def tokenWithContext(kind: String, p: (Elem, TypeContext) => Boolean) = matchInput(p, kind)
+    def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, _, _) => p(e))
+    def tokenWithContext(kind: String, p: (Elem, FeatureExpr, TypeContext) => Boolean) = matchInput(p, kind)
     private
     def errorMsg(kind: String, inEl: Option[Elem], ctx: TypeContext): String =
         (if (!inEl.isDefined) "reached EOF, " else "found \"" + inEl.get.getText + "\", ") + "but expected \"" + kind + "\""
@@ -992,7 +992,7 @@ try {
          */
         def toList(baseFeatureExpr: FeatureExpr): List[(FeatureExpr, ParseResult[T])]
         def toErrorList: List[Error]
-        def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParseResult[T]
+        def changeContext(ctx: FeatureExpr, contextModification: (T, FeatureExpr, TypeContext) => TypeContext): MultiParseResult[T]
         //replace all failures by errors (non-backtracking!)
         def commit: MultiParseResult[T]
     }
@@ -1154,8 +1154,8 @@ try {
         def exists(p: T => Boolean) = resultA.exists(p) || resultB.exists(p)
         def toList(context: FeatureExpr) = resultA.toList(context and feature) ++ resultB.toList(context and (feature.not))
         def toErrorList = resultA.toErrorList ++ resultB.toErrorList
-        def changeContext(contextModification: (T, TypeContext) => TypeContext) =
-            SplittedParseResult(feature, resultA.changeContext(contextModification), resultB.changeContext(contextModification))
+        def changeContext(ctx: FeatureExpr, contextModification: (T, FeatureExpr, TypeContext) => TypeContext) =
+            SplittedParseResult(feature, resultA.changeContext(ctx and feature, contextModification), resultB.changeContext(ctx andNot feature, contextModification))
         def commit: MultiParseResult[T] =
             SplittedParseResult(feature, resultA.commit, resultB.commit)
     }
@@ -1193,7 +1193,7 @@ try {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[Nothing]) => MultiParseResult[U]): MultiParseResult[U] = this
         def allFailed = true
         def exists(predicate: Nothing => Boolean) = false
-        def changeContext(contextModification: (Nothing, TypeContext) => TypeContext) = this
+        def changeContext(ctx: FeatureExpr, contextModification: (Nothing, FeatureExpr, TypeContext) => TypeContext) = this
     }
 
     /**An extractor so NoSuccess(msg, next) can be used in matches.
@@ -1235,7 +1235,7 @@ try {
         def allFailed = false
         def exists(predicate: T => Boolean) = predicate(result)
         def toErrorList = List()
-        def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParseResult[T] = Success(result, nextInput.setContext(contextModification(result, nextInput.context)))
+        def changeContext(ctx: FeatureExpr, contextModification: (T, FeatureExpr, TypeContext) => TypeContext): MultiParseResult[T] = Success(result, nextInput.setContext(contextModification(result, ctx, nextInput.context)))
         def commit: MultiParseResult[T] = this
     }
 
