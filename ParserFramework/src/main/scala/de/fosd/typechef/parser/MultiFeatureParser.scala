@@ -1317,7 +1317,7 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) extends Attributable 
     //helper function
     def and(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f), entry)
     def andNot(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f.not), entry)
-    override def toString = if (feature == FeatureExpr.base) entry.toString else "Opt(" + feature + "," + entry + ")"
+    override def toString = "Opt(" + feature + "," + entry + ")"
 }
 
 
@@ -1333,10 +1333,11 @@ case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBran
         case _ => false
     }
     override def hashCode = thenBranch.hashCode + elseBranch.hashCode
+    override def toString = "Choice(" + feature + ", " + thenBranch + ", " + elseBranch + ")"
 }
 
 case class One[+T](value: T) extends Conditional[T] {
-    override def toString = value.toString
+    override def toString = "One(" + value.toString + ")"
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = value
 }
 

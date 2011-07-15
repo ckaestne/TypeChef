@@ -48,23 +48,24 @@ object PrettyPrinter {
 
     private def ppConditional(e: Conditional[AST]): Doc = e match {
         case One(c: AST) => prettyPrint(c)
-        case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a) * "#else" * prettyPrint(b) * "#endif"
+        case Choice(f, a: AST, b: AST) =>
+          Line ~ "#if" ~~ f.toTextExpr * prettyPrint(a, f) * "#else" * prettyPrint(b, f.not()) * "#endif" ~ Line
     }
 
-    private def optConditional(e: Opt[AST]) : Doc = {
-        if (e.feature == FeatureExpr.base) prettyPrint(e.entry)
-        else "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry) * "#endif"
+    private def optConditional(e: Opt[AST], context: FeatureExpr) : Doc = {
+        if ((e.feature == FeatureExpr.base) || (context.equals(e.feature))) prettyPrint(e.entry, e.feature)
+        else Line ~ "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry, e.feature) * "#endif" ~ Line
     }
 
-    def prettyPrint(ast: AST): Doc = {
+    def prettyPrint(ast: AST, context: FeatureExpr = FeatureExpr.base): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a)
-        implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a)
+        implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a, context)
         implicit def prettyCond(a: Conditional[AST]): Doc = ppConditional(a)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
 
         def sep(l: List[Opt[AST]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
-            l.drop(1).foldLeft(r)((a, b) => s(a, prettyOpt(b)))
+            l.drop(1).foldLeft(r)((a, b) => s(a, b))
         }
         def seps(l: List[Opt[String]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
