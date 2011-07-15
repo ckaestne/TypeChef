@@ -20,6 +20,7 @@ flags='
 	-I /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include-fixed
 	-I /usr/include/x86_64-linux-gnu
 	-I /usr/include
+	-I /usr/include/tcl8.5
 '
 
 ##################################################################
@@ -27,11 +28,6 @@ flags='
 ##################################################################
 
 for i in `find "$srcPath" -type f -name "*.c"`;
-do
-    ./jcpp.sh $i $flags
-done
-
-for i in `find "$srcPath" -type f -name "*.h"`;
 do
     ./jcpp.sh $i $flags
 done
