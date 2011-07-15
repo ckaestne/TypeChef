@@ -137,6 +137,8 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
       optstmt6->prevOpt should equal(null)
       stmt8->isVariable should equal(false)
       stmt9->isVariable should equal(false)
+      optstmt6->isVariable should equal(true)
+      optstmt7->isVariable should equal(true)
     }
 
     test("ast navigation with Opt") {

@@ -8,7 +8,7 @@ import java.io.{PrintWriter, FileWriter}
 
 object Annotations2FeatureModules {
 
-  val DEBUG = false
+  val DEBUG = true
 
   // file operations write and append to file
   // http://stackoverflow.com/questions/4604237/how-to-write-to-a-file-in-scala
@@ -54,7 +54,26 @@ import org.kiama.attribution.DynamicAttribution._
 
 class CRefactorings extends ASTNavigation {
 
-  val DEBUG = false
+  override val DEBUG = true
+
+  private def optStmtBlock[T](a: Opt[T]): List[Opt[T]] = {
+    var result = List[Opt[T]]()
+    result.+:(a)
+    var prev = a->prevOpt
+    var next = a->nextOpt
+
+    while (next != null) {
+      result.+:(next)
+      next = next->nextOpt
+    }
+
+    while (prev != null) {
+      result.+:(prev)
+      prev = prev->prevOpt
+    }
+
+    return result
+  }
 
   val hvars: Attributable ==> List[Id] = attr {
     case Id(name) => List(Id(name))
@@ -67,12 +86,14 @@ class CRefactorings extends ASTNavigation {
   }
 
   private val rewriteStrategy = everywhere(rule {
-    case Opt(f, stmt: Statement) if (!f.isTautology) =>
+    case e @ Opt(f, stmt: Statement) if (!f.isTautology) =>
       val hookname = generateHookname
       val hooks = stmt -> hvars
+      if (DEBUG) println("number of hookparameters: " + hooks.size)
       var hookparameters = List[Opt[Expr]]()
-      hooks.map(hookparameters.+:(_))
+      for (h <- hooks) hookparameters = hookparameters.+:(Opt(FeatureExpr.base, h))
       if (DEBUG) println("hookparameters: " + hookparameters)
+      if (DEBUG) println("optStmtBlock: " + optStmtBlock(e))
       Opt(True, ExprStatement(PostfixExpr(Id(hookname), FunctionCall(ExprList(hookparameters)))))
   })
 
