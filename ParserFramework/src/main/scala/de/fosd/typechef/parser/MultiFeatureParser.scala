@@ -3,7 +3,7 @@ package de.fosd.typechef.parser
 import scala.math._
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 import annotation.tailrec
-import org.kiama.attribution.Attributable
+import de.fosd.typechef.conditional._
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing

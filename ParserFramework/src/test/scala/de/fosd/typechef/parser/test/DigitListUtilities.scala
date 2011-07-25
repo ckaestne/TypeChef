@@ -1,9 +1,8 @@
 package de.fosd.typechef.parser.test
 
-import de.fosd.typechef.parser._
-
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.test.parsers._
+import de.fosd.typechef.conditional._
 
 trait DigitListUtilities {
     val f1 = FeatureExpr.createDefinedExternal("a")
@@ -15,7 +14,7 @@ trait DigitListUtilities {
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
     def outer(x: AST) = DigitList2(List(o(x)))
-    def outer(x: Conditional[AST]) = DigitList2(List(Opt(FeatureExpr.base,x)))
+    def outer(x: Conditional[AST]) = DigitList2(List(Opt(FeatureExpr.base, x)))
     def wrapList(x: AST*) = DigitList2(List() ++ x.map(One(_)).map(Opt(FeatureExpr.base, _)))
     def wrapList(x: List[AST]): DigitList2 = wrapList(x: _*)
 

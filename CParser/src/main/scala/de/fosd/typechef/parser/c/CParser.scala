@@ -3,6 +3,7 @@ package de.fosd.typechef.parser.c
 import de.fosd.typechef.lexer.Token
 
 import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 

@@ -1,7 +1,6 @@
 package de.fosd.typechef.parser.test.parsers
 
-import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.Conditional
+import de.fosd.typechef.conditional._
 
 abstract class AST
 

@@ -1,6 +1,6 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 import org.kiama.attribution.Attributable
 
 /**

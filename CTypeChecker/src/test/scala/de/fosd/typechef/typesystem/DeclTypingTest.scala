@@ -101,4 +101,8 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         declT("typeof(1) a;") should be(CSigned(CInt()))
     }
 
+    test("conditional declarations") {
+        declT
+    }
+
 }

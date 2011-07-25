@@ -6,6 +6,7 @@ import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.test.parsers._
+import de.fosd.typechef.conditional._
 
 class MultiFeatureParserTest extends TestCase {
 

@@ -2,10 +2,10 @@ package de.fosd.typechef.typesystem
 
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attribution._
 import org.kiama._
+import de.fosd.typechef.conditional._
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -44,7 +44,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def constructType(specifiers: List[Opt[Specifier]]): Conditional[CType] = {
         //unwrap variability
-        val exploded:Conditional[List[Specifier]]=explodeVariability(specifiers)
+        val exploded: Conditional[List[Specifier]] = explodeVariability(specifiers)
         exploded.map(constructTypeOne)
     }
 

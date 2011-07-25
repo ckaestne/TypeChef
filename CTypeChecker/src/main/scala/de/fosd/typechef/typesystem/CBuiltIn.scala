@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.conditional._
 
 /**
  * all compiler-specific built-in stuff

@@ -3,6 +3,7 @@ package de.fosd.typechef.parser.test
 import junit.framework.TestCase
 import org.junit._
 import de.fosd.typechef.parser.test.parsers._
+import de.fosd.typechef.conditional._
 
 class RepOptTest extends TestCase with DigitListUtilities {
 
