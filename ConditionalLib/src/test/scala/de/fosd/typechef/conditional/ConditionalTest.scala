@@ -21,6 +21,16 @@ class ConditionalTest {
 
     }
 
+    @Test
+    def testFold {
+        assertEquals(
+            Choice(fa, One("ab"), One("b")),
+            conditionalFoldRight(List(Opt(fa, "a"), Opt(base, "b")), One(""), (a: String, b: String) => a + b))
+        assertEquals(
+            Choice(fb, Choice(fa, One(7), One(5)), Choice(fa, One(3), One(1))),
+            conditionalFoldRight(List(Opt(fa, 2), Opt(base, 1), Opt(fb, 4)), One(0), (a: Int, b: Int) => a + b))
+    }
+
 
     @Test
     def testExplode {
