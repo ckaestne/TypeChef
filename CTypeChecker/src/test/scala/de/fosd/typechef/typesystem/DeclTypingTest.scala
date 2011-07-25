@@ -6,9 +6,11 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import de.fosd.typechef.parser.c.TestHelper
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
-class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
+class DeclTypingTest extends FunSuite with ShouldMatchers with CDeclTyping with TestHelper {
 
 
     private def declTL(code: String) = {
@@ -17,7 +19,11 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         println(r)
         r
     }
-    private def declT(code: String) = declTL(code)(0)._2
+    private def declCT(code: String):Conditional[CType] = declTL(code)(0)._2
+    private def declT(code: String):CType = declCT(code) match {
+        case One(e)=>e
+        case e => CUnknown("Multiple types not expected "+e)
+    }
 
     test("recognizing basic types") {
         declT("int a;") should be(CSigned(CInt()))
@@ -101,8 +107,16 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         declT("typeof(1) a;") should be(CSigned(CInt()))
     }
 
+    val fx=FeatureExpr.createDefinedExternal("X")
+    val fy=FeatureExpr.createDefinedExternal("Y")
     test("conditional declarations") {
-        declT
+        declCT("int a;") should be(One(CSigned(CInt())))
+        declCT("#ifdef X\nint\n#else\nlong\n#endif\n a;") should be(Choice(fx.not,One(CSigned(CLong())),One(CSigned(CInt()))))
+        declCT("#ifdef X\nlong\n#endif\nlong a;") should be(Choice(fx,One(CSigned(CLongLong())),One(CSigned(CLong()))))
+        declCT("long \n#ifdef X\n*\n#endif\n a;") should be(Choice(fx,One(CPointer(CSigned(CLong()))),One(CSigned(CLong()))))
+        declCT("long \n#ifdef X\n*\n#endif\n#ifdef Y\n*\n#endif\n a;") should be(
+            Choice(fy,Choice(fx,One(CPointer(CPointer(CSigned(CLong())))),One(CPointer(CSigned(CLong())))),
+                Choice(fx,One(CPointer(CSigned(CLong()))),One(CSigned(CLong())))))
     }
 
 }
