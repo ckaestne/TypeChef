@@ -314,9 +314,21 @@ trait CTypes {
                 })
     }
 
-    private def normalize(t: CType) = t.toValue match {
-        case CPointer(f: CFunction) => f
-        case CArray(t, _) => CPointer(t) //TODO do this recursively for all occurences of Array
+    /**
+     * normalize types for internal comparison (do not return this to the outside)
+     *
+     * * Pointers to functions -> functions
+     *
+     * * remove any CObj within the type
+     *
+     * * regard arrays as pointers
+     */
+    private def normalize(t: CType): CType = t.toValue match {
+        case CPointer(f: CFunction) => normalize(f)
+        case CPointer(x: CType) => CPointer(normalize(x))
+        case CArray(t, _) => CPointer(normalize(t)) //TODO do this recursively for all occurences of Array
+        case CChoice(f, a, b) => CChoice(f, normalize(a), normalize(b))
+        case CFunction(p, rt) => CFunction(p.map(normalize), normalize(rt))
         case c => c
     }
 
