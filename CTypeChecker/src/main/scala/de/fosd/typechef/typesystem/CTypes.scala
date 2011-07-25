@@ -47,10 +47,6 @@ trait CTypes {
         def toValue: CType = this
         def isObject: Boolean = false
 
-        //simplify rewrites Choice Types; requires reasoning about variability
-        def simplify = _simplify(base)
-        def simplify(ctx: FeatureExpr) = _simplify(ctx)
-        protected[CTypes] def _simplify(context: FeatureExpr) = this
 
         /* map over this type considering variability */
         def mapV(f: FeatureExpr, op: (FeatureExpr, CType) => CType): CType = op(f, this)
@@ -182,13 +178,6 @@ trait CTypes {
      * variability: alternative types (choice node on types!)
      */
     case class CChoice(f: FeatureExpr, a: CType, b: CType) extends CType {
-        protected[CTypes] override def _simplify(context: FeatureExpr) = {
-            val aa = a._simplify(context and f)
-            val bb = b._simplify(context andNot f)
-            if ((context and f).isContradiction) bb
-            else if ((context andNot f).isContradiction) aa
-            else CChoice(f, aa, bb)
-        }
         override def toObj = CChoice(f, a.toObj, b.toObj)
         override def mapV(ctx: FeatureExpr, op: (FeatureExpr, CType) => CType): CType =
             CChoice(f, op(ctx and f, a), op(ctx andNot f, b))

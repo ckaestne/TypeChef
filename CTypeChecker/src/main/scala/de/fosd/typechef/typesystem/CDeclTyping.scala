@@ -42,7 +42,14 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         l.filter(o => ((o.feature) and ctx).isSatisfiable)
 
 
-    def constructType(specifiers: List[Opt[Specifier]]): CType = {
+    def constructType(specifiers: List[Opt[Specifier]]): Conditional[CType] = {
+        //unwrap variability
+        val exploded:Conditional[List[Specifier]]=explodeVariability(specifiers)
+        exploded.map(constructTypeOne)
+    }
+
+
+    def constructTypeOne(specifiers: List[Specifier]): CType = {
 
         //checked assumption: there is no variability in specifier lists
         assert(specifiers.forall(o => ((o -> featureExpr) implies (o.feature)).isTautology), "Unexpected variability in specifiers: " + specifiers + "  " + featureExpr(specifiers.head))

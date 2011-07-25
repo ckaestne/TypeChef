@@ -22,6 +22,7 @@
     <orderEntry type="library" name="buildScala" level="project" />
     <orderEntry type="module" module-name="FeatureExprLib" />
     <orderEntry type="module" module-name="PartialPreprocessor" />
+    <orderEntry type="module" module-name="ConditionalLib" />
     <orderEntry type="module" module-name="ParserFramework" />
     <orderEntry type="module" module-name="CParser" />
     <orderEntry type="module" module-name="CTypeChecker" />
