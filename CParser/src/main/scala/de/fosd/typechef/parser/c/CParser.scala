@@ -100,6 +100,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             (typeName ^^ {TypeOfSpecifierT(_)}) | (expr ^^ {TypeOfSpecifierU(_)})
             ) <~ RPAREN))
 
+    //TODO need to split when conditionally defined as typedef
     def typedefName =
         tokenWithContext("type",
             (token, featureContext, typeContext) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || typeContext.knowsType(token.getText, featureContext, featureModel))) ^^ {t => TypeDefTypeSpecifier(Id(t.getText))}
