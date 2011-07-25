@@ -13,11 +13,15 @@ object ConditionalLib {
      * explodes an optlist. use carefully, can be very expensive
      */
     def explodeOptList[T](l: List[Opt[T]]): Conditional[List[T]] = {
-        var result=One(List())
-//        for (Opt(feature,entry)<-l.reverseIterator) {
-//            if (feature==FeatureExpr.base)
-//                result=result.map(entry :: _)
-//        }
+        var result: Conditional[List[T]] = One(List())
+        for (Opt(entryFeature, entry) <- l.reverseIterator) {
+            result = result.mapfr(FeatureExpr.base,
+                (choiceFeature, x) =>
+                    if ((choiceFeature implies entryFeature).isTautology) One(entry :: x)
+                    else if ((choiceFeature mex entryFeature).isTautology) One(x)
+                    else Choice(entryFeature, One(entry :: x), One(x))
+            )
+        }
         result
     }
 }

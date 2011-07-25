@@ -27,6 +27,12 @@ class ConditionalTest {
         assertEquals(
             Choice(fa, One(List("a", "b")), One(List("b"))),
             explodeOptList(List(Opt(fa, "a"), Opt(base, "b"))))
+        assertEquals(
+            Choice(fa, One(List("a")), One(List("b"))),
+            explodeOptList(List(Opt(fa.not, "b"), Opt(fa, "a"))))
+        assertEquals(
+            Choice(fa, Choice(fb, One(List("b", "a")), One(List("a"))), Choice(fb, One(List("b")), One(List()))),
+            explodeOptList(List(Opt(fb, "b"), Opt(fa, "a"))))
     }
 
 
