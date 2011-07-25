@@ -133,7 +133,10 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
 
     }
     private def assertNoVariability[T](l: List[Opt[T]]) {
-        assert(l.forall(_.feature == FeatureExpr.base))
+        def noVariability(o: Opt[T]) =
+            (o.feature == FeatureExpr.base) ||
+                    (o -> featureExpr implies (o.feature)).isTautology
+        assert(l.forall(noVariability), "found unexpected variability in " + l)
     }
 
     private def mex(a: FeatureExpr, b: FeatureExpr): Boolean = (a mex b).isTautology(featureModel)
