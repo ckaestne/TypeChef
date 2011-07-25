@@ -21,7 +21,7 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
         else {
             val types = entries(key)
             if (types.size == 1 && types.head._1 == FeatureExpr.base) One(types.head._2)
-            else createChoiceType(types, other)
+            else createChoice(types, other)
         }
     }
 
@@ -45,12 +45,12 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
         }
         new ConditionalMap(r)
     }
-    def +(name: A, f: FeatureExpr, t: B) = this ++ Seq((name, f, t))
+    def +(key: A, f: FeatureExpr, t: B) = this ++ Seq((key, f, t))
     def contains(name: A) = (entries contains name) && !entries(name).isEmpty
     def isEmpty = entries.isEmpty
-    def allTypes: Iterable[B] = entries.values.flatten.map(_._2)
+    //    def allTypes: Iterable[B] = entries.values.flatten.map(_._2)
 
-    private def createChoiceType(types: Seq[(FeatureExpr, B)], errorType: B) =
-        types.foldRight[Conditional[B]](One(errorType))((p, t) => Choice(p._1, One(p._2), t)) simplify
+    private def createChoice(entries: Seq[(FeatureExpr, B)], other: B) =
+        entries.foldRight[Conditional[B]](One(other))((p, t) => Choice(p._1, One(p._2), t)) simplify
 }
 

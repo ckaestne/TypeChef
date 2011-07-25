@@ -1,8 +1,7 @@
 package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr
-import FeatureExpr.base
-
+import de.fosd.typechef.conditional._
 
 /**
  * basic types of C and definitions which types are compatible
@@ -127,7 +126,7 @@ trait CTypes {
 
     case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType
 
-    case class CFunction(param: Seq[CType], ret: CType) extends CType {
+    case class CFunction(param: List[Opt[CType]], ret: CType) extends CType {
         override def toObj = this
     }
 
@@ -196,54 +195,20 @@ trait CTypes {
      * maintains a map from names to types
      * a name may be mapped to alternative types with different feature expressions
      */
-    case class ConditionalTypeMap(private val entries: Map[String, Seq[(FeatureExpr, CType)]]) {
-        def this() = this (Map())
-        /*
-            feature expressions are not rewritten as in the macrotable, but we
-             may later want to ensure that they are mutually exclusive
-             in get, they simply overwrite each other in order of addition
-         */
+    class ConditionalTypeMap(private val m: ConditionalMap[String, Conditional[CType]]) {
+        def this() = this (new ConditionalMap())
         /**
          * apply returns a type, possibly CUndefined or a
          * choice type
          */
-        def apply(name: String): CType = getOrElse(name, CUndefined())
-        def getOrElse(name: String, errorType: CType): CType = {
-            if (!contains(name)) errorType
-            else {
-                val types = entries(name)
-                if (types.size == 1 && types.head._1 == base) types.head._2
-                else createChoiceType(types, errorType)
-            }
-        }
+        def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown())
+        def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType)))
 
-        def ++(that: ConditionalTypeMap) = {
-            var r = entries
-            for ((name, seq) <- that.entries) {
-                if (r contains name)
-                    r = r + (name -> (seq ++ r(name)))
-                else
-                    r = r + (name -> seq)
-            }
-            new ConditionalTypeMap(r)
-        }
-        def ++(decls: Seq[(String, FeatureExpr, CType)]) = {
-            var r = entries
-            for (decl <- decls) {
-                if (r contains decl._1)
-                    r = r + (decl._1 -> ((decl._2, decl._3) +: r(decl._1)))
-                else
-                    r = r + (decl._1 -> Seq((decl._2, decl._3)))
-            }
-            new ConditionalTypeMap(r)
-        }
-        def +(name: String, f: FeatureExpr, t: CType) = this ++ Seq((name, f, t))
-        def contains(name: String) = (entries contains name) && !entries(name).isEmpty
-        def isEmpty = entries.isEmpty
-        def allTypes: Iterable[CType] = entries.values.flatten.map(_._2)
-
-        private def createChoiceType(types: Seq[(FeatureExpr, CType)], errorType: CType) =
-            types.foldRight[CType](errorType)((p, t) => CChoice(p._1, p._2, t)) simplify
+        def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
+        def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+        def contains(name: String) = m.contains(name)
+        def isEmpty = m.isEmpty
+        //        def allTypes: Iterable[CType] = entries.values.flatten.map(_._2)
     }
 
 

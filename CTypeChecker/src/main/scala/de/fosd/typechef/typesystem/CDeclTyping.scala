@@ -58,7 +58,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             case StructOrUnionSpecifier(isUnion, None, members) => types = types :+ One(CAnonymousStruct(parseStructMembers(members), isUnion))
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = e -> previousTypedefEnv
-                if (typedefEnvironment contains typedefname) types = types :+ One(typedefEnvironment(typedefname)) //TODO variability
+                if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
                 else types = types :+ One(CUnknown("type not defined " + typedefname)) //should not occur, because the parser should reject this already
             }
             case EnumSpecifier(_, _) => types = types :+ One(CSigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
@@ -187,7 +187,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     private def decorateDeclaratorExt(t: Conditional[CType], extensions: List[Opt[DeclaratorExtension]]): Conditional[CType] =
         conditionalFoldRight(extensions.reverse, t,
             (ext: DeclaratorExtension, rtype: CType) => ext match {
-                case DeclIdentifierList(idList) => if (idList.isEmpty) CFunction(Seq(), rtype) else CUnknown("cannot derive type of function in this style yet")
+                case DeclIdentifierList(idList) => if (idList.isEmpty) CFunction(List(), rtype) else CUnknown("cannot derive type of function in this style yet")
                 case DeclParameterDeclList(parameterDecls) => CFunction(getParameterTypes(parameterDecls), rtype)
                 case DeclArrayAccess(expr) => CArray(rtype)
             }
@@ -197,16 +197,14 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         ConditionalLib.conditionalFoldRight(pointers, t, (a: Pointer, b: CType) => CPointer(b))
 
 
-    private def getParameterTypes(parameterDecls: List[Opt[ParameterDeclaration]]): List[CType] = {
+    private def getParameterTypes(parameterDecls: List[Opt[ParameterDeclaration]]): List[Opt[CType]] = {
         val r: List[Opt[Conditional[CType]]] = for (Opt(f, param) <- parameterDecls) yield param match {
             case PlainParameterDeclaration(specifiers) => Opt(f, constructType(specifiers))
             case ParameterDeclarationD(specifiers, decl) => Opt(f, getDeclaratorType(decl, constructType(specifiers)))
             case ParameterDeclarationAD(specifiers, decl) => Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers)))
             case VarArgs() => Opt(f, One(CVarArgs()))
         }
-        val s=Conditional.flatten(r)
-        //TODO variability
-        s.map(_.entry)
+        Conditional.flatten(r)
     }
 
     def parseStructMembers(members: List[Opt[StructDeclaration]]): ConditionalTypeMap = {
@@ -220,8 +218,9 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             //for unnamed fields, if they are struct or union inline their fields
             //cf. http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
             if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList) match {
-                case CAnonymousStruct(fields, _) => result = result ++ fields
-                case CStruct(name, _) => //TODO inline as well
+            //TODO correctly deal with variability. "One" in the next line is a hack for the common case
+                case One(CAnonymousStruct(fields, _)) => result = result ++ fields
+                //                case CStruct(name, _) => //TODO inline as well
                 case _ => //don't care about other types
             }
         }
@@ -233,7 +232,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
      * Typedef environment (all defined type synonyms up to here)
      */
     //Type synonyms with typedef
-    type TypeDefEnv = Map[String, CType]
+    type TypeDefEnv = Map[String, Conditional[CType]]
 
     /**typedef enviroment, outside the current declaration*/
     val previousTypedefEnv: AST ==> TypeDefEnv = {
