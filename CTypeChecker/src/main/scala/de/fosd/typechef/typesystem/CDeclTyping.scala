@@ -185,11 +185,14 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     }
 
     private def decorateDeclaratorExt(t: Conditional[CType], extensions: List[Opt[DeclaratorExtension]]): Conditional[CType] =
-        conditionalFoldRight(extensions.reverse, t,
+        conditionalFoldRightR(extensions.reverse, t,
             (ext: DeclaratorExtension, rtype: CType) => ext match {
-                case DeclIdentifierList(idList) => if (idList.isEmpty) CFunction(List(), rtype) else CUnknown("cannot derive type of function in this style yet")
-                case DeclParameterDeclList(parameterDecls) => CFunction(getParameterTypes(parameterDecls), rtype)
-                case DeclArrayAccess(expr) => CArray(rtype)
+                case DeclIdentifierList(idList) => One(if (idList.isEmpty) CFunction(List(), rtype) else CUnknown("cannot derive type of function in this style yet"))
+                case DeclParameterDeclList(parameterDecls) =>
+                    var paramLists: Conditional[List[CType]] =
+                        ConditionalLib.explodeOptList(getParameterTypes(parameterDecls))
+                    paramLists.map(CFunction(_, rtype))
+                case DeclArrayAccess(expr) => One(CArray(rtype))
             }
         )
 

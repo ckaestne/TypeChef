@@ -27,18 +27,21 @@ object ConditionalLib {
     //        result
     //    }
 
+    def conditionalFoldRight[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => B): Conditional[B] =
+        conditionalFoldRightR(list, init, (a: A, b: B) => One(op(a, b)))
+
     /**
      * folds a conditional list. if an entry is optional, the result is split and the entry
      * affects the result only partially
      */
-    def conditionalFoldRight[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => B): Conditional[B] =
+    def conditionalFoldRightR[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => Conditional[B]): Conditional[B] =
         list.foldRight(init)(
             (opt: Opt[A], b: Conditional[B]) =>
                 b.mapfr(FeatureExpr.base,
                     (choiceFeature, x) =>
-                        if ((choiceFeature implies opt.feature).isTautology) One(op(opt.entry, x))
+                        if ((choiceFeature implies opt.feature).isTautology) op(opt.entry, x)
                         else if ((choiceFeature mex opt.feature).isTautology) One(x)
-                        else Choice(opt.feature, One(op(opt.entry, x)), One(x))
+                        else Choice(opt.feature, op(opt.entry, x), One(x))
 
                 )
 

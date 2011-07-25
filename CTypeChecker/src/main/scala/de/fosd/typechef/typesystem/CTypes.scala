@@ -126,7 +126,7 @@ trait CTypes {
 
     case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType
 
-    case class CFunction(param: List[Opt[CType]], ret: CType) extends CType {
+    case class CFunction(param: Seq[CType], ret: CType) extends CType {
         override def toObj = this
     }
 
@@ -173,19 +173,6 @@ trait CTypes {
     case class CUndefined() extends CUnknown("undefined")
 
 
-    /**
-     * variability: alternative types (choice node on types!)
-     */
-    case class CChoice(f: FeatureExpr, a: CType, b: CType) extends CType {
-        override def toObj = CChoice(f, a.toObj, b.toObj)
-        override def mapV(ctx: FeatureExpr, op: (FeatureExpr, CType) => CType): CType =
-            CChoice(f, op(ctx and f, a), op(ctx andNot f, b))
-        override def map(op: CType => CType): CType =
-            CChoice(f, op(a), op(b))
-        override def sometimesUnknown: Boolean = a.sometimesUnknown || b.sometimesUnknown
-    }
-
-
     type PtrEnv = Set[String]
 
     //assumed well-formed pointer targets on structures
@@ -205,6 +192,7 @@ trait CTypes {
         def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType)))
 
         def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
+        def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = new ConditionalTypeMap(m ++ l)
         def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
         def contains(name: String) = m.contains(name)
         def isEmpty = m.isEmpty

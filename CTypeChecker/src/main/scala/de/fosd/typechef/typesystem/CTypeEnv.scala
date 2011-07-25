@@ -46,13 +46,13 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         case e: AST => outerVarEnv(e)
     }
     protected def outerVarEnv(e: AST): VarTypingContext =
-        outer[VarTypingContext](varEnv, () => new VarTypingContext(initBuiltinVarEnv), e)
+        outer[VarTypingContext](varEnv, () => new VarTypingContext() ++ initBuiltinVarEnv, e)
 
 
     private def assertNoTypedef(decl: Declaration): Unit = assert(!isTypedef(decl.declSpecs))
 
 
-    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, CType)] = {
+    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, Conditional[CType])] = {
         //declarations with empty parameter lists
         if (decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclIdentifierList] && decl.extensions.head.entry.asInstanceOf[DeclIdentifierList].idList.isEmpty)
             List()
@@ -61,7 +61,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             assert(decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclParameterDeclList], "expect a single declarator extension for function parameters, not " + decl.extensions)
 
             val param: DeclParameterDeclList = decl.extensions.head.entry.asInstanceOf[DeclParameterDeclList]
-            var result = List[(String, FeatureExpr, CType)]()
+            var result = List[(String, FeatureExpr, Conditional[CType])]()
             for (Opt(_, p) <- param.parameterDecls) p match {
                 case PlainParameterDeclaration(specifiers) => //having int foo(void) is Ok, but for everything else we expect named parameters
                     assert(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), "no name, old parameter style?") //TODO

@@ -213,7 +213,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         NAryExpr(a, List(Opt(FeatureExpr.base, NArySubExpr("+", b))))
 
 
-    private def typeFunctionCall(expr: AST, parameterTypes: List[Opt[CType]], retType: CType, _foundTypes: List[CType]) = {
+    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType]): CType = {
         var expectedTypes = parameterTypes
         var foundTypes = _foundTypes
         //variadic macros
