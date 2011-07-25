@@ -191,7 +191,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
             case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
             case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => wider(t1, t2)
-            case (op, t1, t2) if (compOp(op) && isArithmetic(t1) && isArithmetic(t2)) => CSigned(CInt())
+            case (op, t1, t2) if (compOp(op) && isScalar(t1) && isScalar(t2)) => CSigned(CInt())
             case ("=", _, t2) if (type1.isObject) => t2
             case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt())
             case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2
