@@ -24,6 +24,10 @@ abstract class Conditional[+T] extends Attributable {
     def simplify = _simplify(FeatureExpr.base)
     def simplify(ctx: FeatureExpr) = _simplify(ctx)
     protected[conditional] def _simplify(context: FeatureExpr) = this
+
+    def map[U](f: T => U): Conditional[U]
+    def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U]
+    def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U]
 }
 
 case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
@@ -40,11 +44,27 @@ case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBran
         else if ((context andNot feature).isContradiction) aa
         else Choice(feature, aa, bb)
     }
+
+    def map[U](f: T => U): Conditional[U] =
+        Choice(feature, thenBranch.map(f), elseBranch.map(f))
+    def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U] =
+        Choice(feature, thenBranch.mapf(inFeature and feature, f), elseBranch.mapf(inFeature and (feature.not), f))
+    def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = {
+        val newResultA = thenBranch.mapfr(inFeature and feature, f)
+        val newResultB = elseBranch.mapfr(inFeature and (feature.not), f)
+        if ((newResultA eq thenBranch) && (newResultB eq elseBranch))
+            this.asInstanceOf[Conditional[U]]
+        else
+            Choice(feature, newResultA, newResultB)
+    }
 }
 
 case class One[+T](value: T) extends Conditional[T] {
     override def toString = value.toString
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = value
+    def map[U](f: T => U): Conditional[U] = One(f(value))
+    def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U] = One(f(inFeature, value))
+    def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = f(inFeature, value)
 }
 
 object Conditional {
