@@ -48,7 +48,7 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
     def +(key: A, f: FeatureExpr, t: B) = this ++ Seq((key, f, t))
     def contains(name: A) = (entries contains name) && !entries(name).isEmpty
     def isEmpty = entries.isEmpty
-    //    def allTypes: Iterable[B] = entries.values.flatten.map(_._2)
+    def allEntriesFlat: Iterable[B] = entries.values.flatten.map(_._2)
 
     private def createChoice(entries: Seq[(FeatureExpr, B)], other: B) =
         entries.foldRight[Conditional[B]](One(other))((p, t) => Choice(p._1, One(p._2), t)) simplify

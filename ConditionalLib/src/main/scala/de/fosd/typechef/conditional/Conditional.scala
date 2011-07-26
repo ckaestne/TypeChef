@@ -28,6 +28,9 @@ abstract class Conditional[+T] extends Attributable {
     def map[U](f: T => U): Conditional[U]
     def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U]
     def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U]
+
+    def forall(f: T => Boolean): Boolean
+    def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
 }
 
 case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
@@ -57,6 +60,7 @@ case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBran
         else
             Choice(feature, newResultA, newResultB)
     }
+    def forall(f: T => Boolean): Boolean = thenBranch.forall(f) && elseBranch.forall(f)
 }
 
 case class One[+T](value: T) extends Conditional[T] {
@@ -65,6 +69,7 @@ case class One[+T](value: T) extends Conditional[T] {
     def map[U](f: T => U): Conditional[U] = One(f(value))
     def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U] = One(f(inFeature, value))
     def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = f(inFeature, value)
+    def forall(f: T => Boolean): Boolean = f(value)
 }
 
 object Conditional {
