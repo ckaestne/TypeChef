@@ -21,7 +21,7 @@ trait CStmtTyping extends CTypes with CExprTyping {
      * information extracted from sparse (evaluate.c)
      */
     val stmtType: Statement ==> CType = attr {
-        case ExprStatement(expr) => ctype(expr)
+        case ExprStatement(expr) => __makeOne(ctype(expr))
         case CompoundStatement(inner) =>
         //TODO variability (the last statement may differ)
             if (inner.isEmpty) CVoid() //sparse

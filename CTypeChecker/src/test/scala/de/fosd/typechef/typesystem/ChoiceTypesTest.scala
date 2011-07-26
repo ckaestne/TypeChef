@@ -7,6 +7,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c.TestHelper
+import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
 class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping with TestHelper {
@@ -40,9 +41,9 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExp
         println(ast)
         val env = ast.defs.last.entry -> varEnv
 
-        env("a") should be(CChoice(fx.not, CDouble(), CSigned(CInt())))
-        env("x") should be(CChoice(fy, CDouble(), CChoice(fx, CSigned(CInt()), CUndefined())))
-        env("b") should be(CChoice(fx, CDouble(), CUndefined()))
+        env("a") should be(TChoice(fx.not, TOne(CDouble()), TOne(CSigned(CInt()))))
+        env("x") should be(TChoice(fy, TOne(CDouble()), TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined()))))
+        env("b") should be(TChoice(fx, TOne(CDouble()), TOne(CUndefined())))
     }
 
 

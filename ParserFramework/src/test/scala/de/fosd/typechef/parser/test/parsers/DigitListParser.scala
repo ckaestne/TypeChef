@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.conditional._
 
 case class DigitList(list: List[Lit]) extends AST
 
@@ -17,7 +18,7 @@ class DigitListParser extends MultiFeatureParser {
         }
 
     def digits: MultiParser[Conditional[AST]] =
-        (digit ~ opt(digits) ^^!  {
+        (digit ~ opt(digits) ^^! {
             case ~(x, Some(One(DigitList(list: List[_])))) => One(DigitList(List(x) ++ list))
             case ~(x, Some(Choice(f, One(DigitList(listA: List[_])), One(DigitList(listB: List[_]))))) => Choice(f, One(DigitList(List(x) ++ listA)), One(DigitList(List(x) ++ listB)))
             case ~(x, None) => One(DigitList(List(x)))

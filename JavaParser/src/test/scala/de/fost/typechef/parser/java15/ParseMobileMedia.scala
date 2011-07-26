@@ -8,6 +8,7 @@ import de.fosd.typechef.parser._
 import java.io.{Console => _, _}
 import scala.collection.mutable.Map
 import scala.math.pow
+import de.fosd.typechef.conditional._
 
 object ParseMobileMedia {
 

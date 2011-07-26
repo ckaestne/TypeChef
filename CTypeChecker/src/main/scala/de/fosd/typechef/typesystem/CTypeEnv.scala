@@ -1,7 +1,7 @@
 package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attribution._
 import org.kiama._
@@ -46,13 +46,13 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         case e: AST => outerVarEnv(e)
     }
     protected def outerVarEnv(e: AST): VarTypingContext =
-        outer[VarTypingContext](varEnv, () => new VarTypingContext(initBuiltinVarEnv), e)
+        outer[VarTypingContext](varEnv, () => new VarTypingContext() ++ initBuiltinVarEnv, e)
 
 
     private def assertNoTypedef(decl: Declaration): Unit = assert(!isTypedef(decl.declSpecs))
 
 
-    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, CType)] = {
+    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, TConditional[CType])] = {
         //declarations with empty parameter lists
         if (decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclIdentifierList] && decl.extensions.head.entry.asInstanceOf[DeclIdentifierList].idList.isEmpty)
             List()
@@ -61,7 +61,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             assert(decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclParameterDeclList], "expect a single declarator extension for function parameters, not " + decl.extensions)
 
             val param: DeclParameterDeclList = decl.extensions.head.entry.asInstanceOf[DeclParameterDeclList]
-            var result = List[(String, FeatureExpr, CType)]()
+            var result = List[(String, FeatureExpr, TConditional[CType])]()
             for (Opt(_, p) <- param.parameterDecls) p match {
                 case PlainParameterDeclaration(specifiers) => //having int foo(void) is Ok, but for everything else we expect named parameters
                     assert(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), "no name, old parameter style?") //TODO
@@ -96,12 +96,15 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     protected def outerStructEnv(e: AST): StructEnv =
         outer[StructEnv](structEnv, () => new StructEnv(), e)
 
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: TConditional[CType]): Boolean =
+        ctype.simplify.forall(wellformed(structEnv, ptrEnv, _))
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
         val wf = wellformed(structEnv, ptrEnv, _: CType)
-        def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) = !m.isEmpty && m.allTypes.forall(t => {
-            t != CVoid() && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t)
-        })
+        def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) =
+            !m.isEmpty && m.allTypes.forall(t => {
+                t.forall(_ != CVoid()) && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t)
+            })
         def lastParam(p: Option[CType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
         ctype match {
             case CSigned(_) => true
@@ -132,7 +135,6 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             case CObj(_) => false
             case CCompound() => true
             case CIgnore() => true
-            case CChoice(_, a, b) => wf(a) && wf(b)
         }
     }
 

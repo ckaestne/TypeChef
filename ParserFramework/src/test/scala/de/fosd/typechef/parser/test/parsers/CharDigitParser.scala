@@ -1,14 +1,8 @@
 package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 
-/**
- * Created by IntelliJ IDEA.
- * User: kaestner
- * Date: 30.12.10
- * Time: 09:23
- * To change this template use File | Settings | File Templates.
- */
 
 class CharDigitParser extends MultiFeatureParser {
     type Elem = MyToken
@@ -46,15 +40,15 @@ class CharDigitParser extends MultiFeatureParser {
             (x: Elem) => Char(x.text)
         }
 
-    def expr: MultiParser[Conditional[AST]] = (expr1 ~ opt(t("*") ~> expr) ^^! ( {
+    def expr: MultiParser[Conditional[AST]] = (expr1 ~ opt(t("*") ~> expr) ^^! ({
         case ~(f, Some(e)) => One(Mul(f, e))
         case ~(f, None) => f
     })).map(Conditional.combine(_))
 
-    def expr1: MultiParser[Conditional[AST]] = (expr2 ~ opt(t("+") ~> expr) ^^! ( {
+    def expr1: MultiParser[Conditional[AST]] = (expr2 ~ opt(t("+") ~> expr) ^^! ({
         case ~(f, Some(e)) => One(Plus(f, e))
         case ~(f, None) => f
-    }) ).map(Conditional.combine(_))
+    })).map(Conditional.combine(_))
 
     def expr2: MultiParser[Conditional[AST]] = t("(") ~> expr <~ t(")") | (digit.join)
 

@@ -5,7 +5,8 @@ import org.junit.Assert._
 import PrettyPrinter._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import junit.framework.TestCase
-import de.fosd.typechef.parser.{Conditional, One, TokenReader, Opt}
+import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 
 class PrettyPrinterTest extends TestCase {
     val p = new CParser()

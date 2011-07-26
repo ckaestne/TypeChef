@@ -1,6 +1,6 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.parser.{Conditional, Opt, One, Choice}
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 object PrettyPrinter {
@@ -51,7 +51,7 @@ object PrettyPrinter {
         case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a) * "#else" * prettyPrint(b) * "#endif"
     }
 
-    private def optConditional(e: Opt[AST]) : Doc = {
+    private def optConditional(e: Opt[AST]): Doc = {
         if (e.feature == FeatureExpr.base) prettyPrint(e.entry)
         else "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry) * "#endif"
     }

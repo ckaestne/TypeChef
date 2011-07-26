@@ -6,6 +6,7 @@ import org.junit.Test
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import org.kiama.attribution.Attributable
+import de.fosd.typechef.conditional._
 
 class CParserTest extends TestCase {
     val p = new CParser()
