@@ -52,5 +52,9 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
 
     private def createChoice(entries: Seq[(FeatureExpr, B)], other: B) =
         entries.foldRight[Conditional[B]](One(other))((p, t) => Choice(p._1, One(p._2), t)) simplify
+
+
+    override def equals(that: Any) = that match {case c: ConditionalMap[_, _] => entries equals c.entries; case _ => false}
+    override def hashCode = entries.hashCode
 }
 

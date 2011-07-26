@@ -189,7 +189,7 @@ trait CTypes {
          * choice type
          */
         def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown())
-        def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType)))
+        def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
 
         def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
         def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = new ConditionalTypeMap(m ++ l)
@@ -197,6 +197,9 @@ trait CTypes {
         def contains(name: String) = m.contains(name)
         def isEmpty = m.isEmpty
         def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat
+
+        override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
+        override def hashCode = m.hashCode
     }
 
 
