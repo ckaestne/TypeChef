@@ -1,12 +1,12 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser.Opt
 import org.kiama.attribution.Attributable
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.junit.runner.RunWith
+import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
 class RewriteTest extends FunSuite with ShouldMatchers with TestHelper {

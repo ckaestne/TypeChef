@@ -5,6 +5,7 @@ import de.fosd.typechef.parser._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr._
+import de.fosd.typechef.conditional._
 
 /**
  * strategies to rewrite ifdefs to ifs
