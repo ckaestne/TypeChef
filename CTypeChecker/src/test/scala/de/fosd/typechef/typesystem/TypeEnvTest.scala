@@ -66,23 +66,23 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         val firstname = accountStruct("first_name")
         val balance = accountStruct("balance")
 
-        balance should be(One(CFloat()))
-        firstname should be(One(CPointer(CChar())))
+        balance should be(TOne(CFloat()))
+        firstname should be(TOne(CPointer(CChar())))
 
     }
 
     test("variable environment") {
         val env = ast.defs.last.entry -> varEnv
 
-        env("foo") should be(One(CSigned(CInt())))
-        env("bar") should be(One(CSigned(CInt())))
-        env("a") should be(One(CPointer(CStruct("account"))))
-        env("ua") should be(One(CPointer(CStruct("uaccount", true))))
-        env("acc") should be(One(CStruct("account")))
-        env("main") should be(One(CFunction(Seq(CDouble()), CVoid())))
+        env("foo") should be(TOne(CSigned(CInt())))
+        env("bar") should be(TOne(CSigned(CInt())))
+        env("a") should be(TOne(CPointer(CStruct("account"))))
+        env("ua") should be(TOne(CPointer(CStruct("uaccount", true))))
+        env("acc") should be(TOne(CStruct("account")))
+        env("main") should be(TOne(CFunction(Seq(CDouble()), CVoid())))
 
-        env("i") should be(One(CFunction(Seq(CDouble(), CPointer(CFunction(Seq(CVoid()), CVoid()))), CSigned(CInt()))))
-        env("inner") should be(One(CDouble()))
+        env("i") should be(TOne(CFunction(Seq(CDouble(), CPointer(CFunction(Seq(CVoid()), CVoid()))), CSigned(CInt()))))
+        env("inner") should be(TOne(CDouble()))
     }
 
     test("variable scoping") {t()}
@@ -93,29 +93,29 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
 
         println(env)
 
-        env("inner") should be(One(CSigned(CInt())))
-        env("foo") should be(One(CDouble()))
+        env("inner") should be(TOne(CSigned(CInt())))
+        env("foo") should be(TOne(CDouble()))
 
         //parameters should be in scope
-        env("param") should be(One(CDouble()))
-        env("param2") should be(One(CPointer(CFunction(Seq(CVoid()), CVoid()))))
+        env("param") should be(TOne(CDouble()))
+        env("param2") should be(TOne(CPointer(CFunction(Seq(CVoid()), CVoid()))))
     }
 
     test("typedef synonyms") {
         val env = ast.defs.last.entry -> varEnv
         val typedefs = ast.defs.last.entry -> typedefEnv
 
-        typedefs("myint") should be(One(CSigned(CInt())))
-        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, One(CDouble())))))
-        typedefs("myunsign") should be(One(CUnsigned(CInt())))
+        typedefs("myint") should be(TOne(CSigned(CInt())))
+        typedefs("mystr") should be(TOne(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, TOne(CDouble())))))
+        typedefs("myunsign") should be(TOne(CUnsigned(CInt())))
 
         //typedef is not a declaration
         env.contains("myint") should be(false)
         env.contains("mystr") should be(false)
 
-        env("myintvar") should be(One(CSigned(CInt())))
-        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, One(CDouble()))))))
-        env("mypairvar") should be(One(CStruct("pair")))
+        env("myintvar") should be(TOne(CSigned(CInt())))
+        env("mystrvar") should be(TOne(CPointer(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, TOne(CDouble()))))))
+        env("mypairvar") should be(TOne(CStruct("pair")))
 
         //structure definitons should be recognized despite typedefs
         val structenv: StructEnv = ast.defs.last.entry -> structEnv
@@ -152,14 +152,14 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         enumenv should contain key ("Color")
         enumenv should not contain key("Undef")
 
-        env("North") should be(One(CSigned(CInt())))
-        env("South") should be(One(CSigned(CInt())))
-        env("Red") should be(One(CSigned(CInt())))
-        env("Green") should be(One(CSigned(CInt())))
-        env("d") should be(One(CSigned(CInt())))
-        env("e") should be(One(CSigned(CInt())))
-        //        env("x").sometimesUnknown should be(One(true) TODO
-        env("Undef") should be(One(CUndefined()))
+        env("North") should be(TOne(CSigned(CInt())))
+        env("South") should be(TOne(CSigned(CInt())))
+        env("Red") should be(TOne(CSigned(CInt())))
+        env("Green") should be(TOne(CSigned(CInt())))
+        env("d") should be(TOne(CSigned(CInt())))
+        env("e") should be(TOne(CSigned(CInt())))
+        //        env("x").sometimesUnknown should be(TOne(true) TODO
+        env("Undef") should be(TOne(CUndefined()))
     }
 
     test("anonymous struct and typedef") {
@@ -180,7 +180,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
         println(env)
         env("v") match {
-            case One(CPointer(CAnonymousStruct(_, _))) =>
+            case TOne(CPointer(CAnonymousStruct(_, _))) =>
             case e => fail(e.toString)
         }
     }
@@ -213,12 +213,12 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         val env = ast.defs.last.entry -> varEnv
         println(env)
         env("foo") match {
-            case One(CAnonymousStruct(members, false)) =>
-                members("b3") should be(One(CSigned(CInt())))
-                members("b1") should be(One(CSigned(CInt())))
-                members("b2") should be(One(CSigned(CInt())))
-                members("f1") should be(One(CFloat()))
-                members("i1") should be(One(CSigned(CInt())))
+            case TOne(CAnonymousStruct(members, false)) =>
+                members("b3") should be(TOne(CSigned(CInt())))
+                members("b1") should be(TOne(CSigned(CInt())))
+                members("b2") should be(TOne(CSigned(CInt())))
+                members("f1") should be(TOne(CFloat()))
+                members("i1") should be(TOne(CSigned(CInt())))
             //                members("a1") should be(CDouble()) //TODO, not implemented yet
             //                members("a2") should be(CDouble())
             case e => fail(e.toString)

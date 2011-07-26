@@ -41,9 +41,9 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExp
         println(ast)
         val env = ast.defs.last.entry -> varEnv
 
-        env("a") should be(Choice(fx.not, One(CDouble()), One(CSigned(CInt()))))
-        env("x") should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined()))))
-        env("b") should be(Choice(fx, One(CDouble()), One(CUndefined())))
+        env("a") should be(TChoice(fx.not, TOne(CDouble()), TOne(CSigned(CInt()))))
+        env("x") should be(TChoice(fy, TOne(CDouble()), TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined()))))
+        env("b") should be(TChoice(fx, TOne(CDouble()), TOne(CUndefined())))
     }
 
 

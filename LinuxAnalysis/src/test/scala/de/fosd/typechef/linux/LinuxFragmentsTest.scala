@@ -5,6 +5,7 @@ import org.junit.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional.Opt
 
 class LinuxFragmentsTest {
     val p = new CParser(LinuxFeatureModel.featureModelApprox)

@@ -182,21 +182,21 @@ trait CTypes {
      * maintains a map from names to types
      * a name may be mapped to alternative types with different feature expressions
      */
-    class ConditionalTypeMap(private val m: ConditionalMap[String, Conditional[CType]]) {
+    class ConditionalTypeMap(private val m: ConditionalMap[String, TConditional[CType]]) {
         def this() = this (new ConditionalMap())
         /**
          * apply returns a type, possibly CUndefined or a
          * choice type
          */
-        def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown())
-        def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
+        def apply(name: String): TConditional[CType] = getOrElse(name, CUnknown())
+        def getOrElse(name: String, errorType: CType): TConditional[CType] = TConditional.combine(m.getOrElse(name, TOne(errorType))) simplify
 
         def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
-        def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = new ConditionalTypeMap(m ++ l)
-        def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+        def ++(l: Seq[(String, FeatureExpr, TConditional[CType])]) = new ConditionalTypeMap(m ++ l)
+        def +(name: String, f: FeatureExpr, t: TConditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
         def contains(name: String) = m.contains(name)
         def isEmpty = m.isEmpty
-        def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat
+        def allTypes: Iterable[TConditional[CType]] = m.allEntriesFlat
 
         override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
         override def hashCode = m.hashCode
@@ -279,9 +279,9 @@ trait CTypes {
 
     //ugly workaround
     //TODO remove, replace by proper variability handling
-    def __makeOne(c: Conditional[CType]): CType = c match {
-        case One(e) => e
-        case Choice(_, a, _) => __makeOne(a)
+    def __makeOne(c: TConditional[CType]): CType = c match {
+        case TOne(e) => e
+        case TChoice(_, a, _) => __makeOne(a)
     }
 
 }

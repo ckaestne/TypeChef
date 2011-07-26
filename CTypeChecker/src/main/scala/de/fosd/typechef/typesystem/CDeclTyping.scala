@@ -17,17 +17,17 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def ctype(fun: FunctionDef) = fun -> funType
     def ctype(fun: TypeName) = fun -> typenameType
-    def ctype(exp: Expr): Conditional[CType]
+    def ctype(exp: Expr): TConditional[CType]
     //provided by CExprTyping
-    def ctype(expr: Expr, context: AST): Conditional[CType]
+    def ctype(expr: Expr, context: AST): TConditional[CType]
 
-    val funType: FunctionDef ==> Conditional[CType] = attr {
+    val funType: FunctionDef ==> TConditional[CType] = attr {
         case fun =>
-            if (!fun.oldStyleParameters.isEmpty) One(CUnknown("alternative parameter notation not supported yet"))
-            else if (isTypedef(fun.specifiers)) One(CUnknown("Invalid typedef specificer for function definition (?)"))
+            if (!fun.oldStyleParameters.isEmpty) TOne(CUnknown("alternative parameter notation not supported yet"))
+            else if (isTypedef(fun.specifiers)) TOne(CUnknown("Invalid typedef specificer for function definition (?)"))
             else declType(fun.specifiers, fun.declarator)
     }
-    val typenameType: TypeName ==> Conditional[CType] = attr {
+    val typenameType: TypeName ==> TConditional[CType] = attr {
         case TypeName(specs, None) => constructType(specs)
         case TypeName(specs, Some(decl)) => getAbstractDeclaratorType(decl, constructType(specs))
     }
@@ -43,25 +43,25 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         l.filter(o => ((o.feature) and ctx).isSatisfiable)
 
 
-    def constructType(specifiers: List[Opt[Specifier]]): Conditional[CType] = {
+    def constructType(specifiers: List[Opt[Specifier]]): TConditional[CType] = {
         //unwrap variability
-        val exploded: Conditional[List[Specifier]] = explodeOptList(specifiers)
-        Conditional.combine(exploded.map(constructTypeOne)) simplify
+        val exploded: TConditional[List[Specifier]] = explodeOptList(specifiers)
+        TConditional.combine(exploded.map(constructTypeOne)) simplify
     }
 
 
-    def constructTypeOne(specifiers: List[Specifier]): Conditional[CType] = {
+    def constructTypeOne(specifiers: List[Specifier]): TConditional[CType] = {
         //type specifiers
-        var types = List[Conditional[CType]]()
+        var types = List[TConditional[CType]]()
         for (specifier <- specifiers) specifier match {
-            case StructOrUnionSpecifier(isUnion, Some(id), _) => types = types :+ One(CStruct(id.name, isUnion))
-            case StructOrUnionSpecifier(isUnion, None, members) => types = types :+ One(CAnonymousStruct(parseStructMembers(members), isUnion))
+            case StructOrUnionSpecifier(isUnion, Some(id), _) => types = types :+ TOne(CStruct(id.name, isUnion))
+            case StructOrUnionSpecifier(isUnion, None, members) => types = types :+ TOne(CAnonymousStruct(parseStructMembers(members), isUnion))
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = e -> previousTypedefEnv
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
-                else types = types :+ One(CUnknown("type not defined " + typedefname)) //should not occur, because the parser should reject this already
+                else types = types :+ TOne(CUnknown("type not defined " + typedefname)) //should not occur, because the parser should reject this already
             }
-            case EnumSpecifier(_, _) => types = types :+ One(CSigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
+            case EnumSpecifier(_, _) => types = types :+ TOne(CSigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case TypeOfSpecifierT(typename) => types = types :+ ctype(typename)
             case TypeOfSpecifierU(expr) =>
                 val outer = findOutermostDeclaration(expr)
@@ -78,12 +78,12 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         val isSigned = has(SignedSpecifier())
         val isUnsigned = has(UnsignedSpecifier())
         if (isSigned && isUnsigned)
-            return One(CUnknown("type both signed and unsigned"))
+            return TOne(CUnknown("type both signed and unsigned"))
 
         //for int, short, etc, always assume signed by default
-        def sign(t: CBasicType): One[CType] = One(if (isUnsigned) CUnsigned(t) else CSigned(t))
+        def sign(t: CBasicType): TOne[CType] = TOne(if (isUnsigned) CUnsigned(t) else CSigned(t))
         //for characters care about SignUnspecified
-        def signC(t: CBasicType): One[CType] = One(if (isSigned) CSigned(t) else if (isUnsigned) CUnsigned(t) else CSignUnspecified(t))
+        def signC(t: CBasicType): TOne[CType] = TOne(if (isSigned) CSigned(t) else if (isUnsigned) CUnsigned(t) else CSignUnspecified(t))
 
         if (has(CharSpecifier()))
             types = types :+ signC(CChar())
@@ -94,16 +94,16 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         if (has(ShortSpecifier()))
             types = types :+ sign(CShort())
         if (has(DoubleSpecifier()) && has(LongSpecifier()))
-            types = types :+ One(CLongDouble())
+            types = types :+ TOne(CLongDouble())
         if (has(DoubleSpecifier()) && !has(LongSpecifier()))
-            types = types :+ One(CDouble())
+            types = types :+ TOne(CDouble())
         if (has(FloatSpecifier()))
-            types = types :+ One(CFloat())
+            types = types :+ TOne(CFloat())
         if ((isSigned || isUnsigned || has(IntSpecifier()) || has(OtherPrimitiveTypeSpecifier("_Bool"))) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
             types = types :+ sign(CInt())
 
         if (has(VoidSpecifier()))
-            types = types :+ One(CVoid())
+            types = types :+ TOne(CVoid())
 
         //TODO prevent invalid combinations completely?
 
@@ -111,9 +111,9 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         if (types.size == 1)
             types.head
         else if (types.size == 0)
-            One(CUnknown("no type specifier found"))
+            TOne(CUnknown("no type specifier found"))
         else
-            One(CUnknown("multiple types found " + types))
+            TOne(CUnknown("multiple types found " + types))
         //
         //                      | textToken("char")
         //            | textToken("short")
@@ -134,10 +134,10 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     }
 
-    def declType(decl: Declaration): List[(String, FeatureExpr, Conditional[CType])] = enumDeclarations(decl.declSpecs) ++ {
+    def declType(decl: Declaration): List[(String, FeatureExpr, TConditional[CType])] = enumDeclarations(decl.declSpecs) ++ {
         if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
-            val returnType: Conditional[CType] = constructType(filterDeadSpecifiers(decl.declSpecs, decl -> featureExpr))
+            val returnType: TConditional[CType] = constructType(filterDeadSpecifiers(decl.declSpecs, decl -> featureExpr))
 
             for (Opt(f, init) <- decl.init)
             yield (init.declarator.getName, init -> featureExpr, getDeclaratorType(init.declarator, returnType))
@@ -145,24 +145,24 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     }
 
     /**define all fields from enum type specifiers as int values */
-    private def enumDeclarations(specs: List[Opt[Specifier]]): List[(String, FeatureExpr, Conditional[CType])] = {
-        var result = List[(String, FeatureExpr, Conditional[CType])]()
+    private def enumDeclarations(specs: List[Opt[Specifier]]): List[(String, FeatureExpr, TConditional[CType])] = {
+        var result = List[(String, FeatureExpr, TConditional[CType])]()
         //TODO variability
         for (Opt(_, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(_, enum) <- enums)
-                result = (enum.id.name, enum -> featureExpr, One(CSigned(CInt()))) :: result
+                result = (enum.id.name, enum -> featureExpr, TOne(CSigned(CInt()))) :: result
             case _ =>
         }
         result
     }
 
 
-    def declType(specs: List[Opt[Specifier]], decl: Declarator): Conditional[CType] =
+    def declType(specs: List[Opt[Specifier]], decl: Declarator): TConditional[CType] =
         getDeclaratorType(decl, constructType(specs))
 
     def isTypedef(specs: List[Opt[Specifier]]) = specs.map(_.entry).contains(TypedefSpecifier())
 
-    protected def getDeclaratorType(decl: Declarator, returnType: Conditional[CType]): Conditional[CType] = {
+    protected def getDeclaratorType(decl: Declarator, returnType: TConditional[CType]): TConditional[CType] = {
         val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions)
 
         //this is an absurd order but seems to be as specified
@@ -173,7 +173,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         }
     }
 
-    private def getAbstractDeclaratorType(decl: AbstractDeclarator, returnType: Conditional[CType]): Conditional[CType] = {
+    private def getAbstractDeclaratorType(decl: AbstractDeclarator, returnType: TConditional[CType]): TConditional[CType] = {
         val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions)
 
         //this is an absurd order but seems to be as specified
@@ -184,30 +184,30 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         }
     }
 
-    private def decorateDeclaratorExt(t: Conditional[CType], extensions: List[Opt[DeclaratorExtension]]): Conditional[CType] =
+    private def decorateDeclaratorExt(t: TConditional[CType], extensions: List[Opt[DeclaratorExtension]]): TConditional[CType] =
         conditionalFoldRightR(extensions.reverse, t,
             (ext: DeclaratorExtension, rtype: CType) => ext match {
-                case DeclIdentifierList(idList) => One(if (idList.isEmpty) CFunction(List(), rtype) else CUnknown("cannot derive type of function in this style yet"))
+                case DeclIdentifierList(idList) => TOne(if (idList.isEmpty) CFunction(List(), rtype) else CUnknown("cannot derive type of function in this style yet"))
                 case DeclParameterDeclList(parameterDecls) =>
-                    var paramLists: Conditional[List[CType]] =
+                    var paramLists: TConditional[List[CType]] =
                         ConditionalLib.explodeOptList(getParameterTypes(parameterDecls))
                     paramLists.map(CFunction(_, rtype))
-                case DeclArrayAccess(expr) => One(CArray(rtype))
+                case DeclArrayAccess(expr) => TOne(CArray(rtype))
             }
         )
 
-    private def decorateDeclaratorPointer(t: Conditional[CType], pointers: List[Opt[Pointer]]): Conditional[CType] =
+    private def decorateDeclaratorPointer(t: TConditional[CType], pointers: List[Opt[Pointer]]): TConditional[CType] =
         ConditionalLib.conditionalFoldRight(pointers, t, (a: Pointer, b: CType) => CPointer(b))
 
 
     private def getParameterTypes(parameterDecls: List[Opt[ParameterDeclaration]]): List[Opt[CType]] = {
-        val r: List[Opt[Conditional[CType]]] = for (Opt(f, param) <- parameterDecls) yield param match {
+        val r: List[Opt[TConditional[CType]]] = for (Opt(f, param) <- parameterDecls) yield param match {
             case PlainParameterDeclaration(specifiers) => Opt(f, constructType(specifiers))
             case ParameterDeclarationD(specifiers, decl) => Opt(f, getDeclaratorType(decl, constructType(specifiers)))
             case ParameterDeclarationAD(specifiers, decl) => Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers)))
-            case VarArgs() => Opt(f, One(CVarArgs()))
+            case VarArgs() => Opt(f, TOne(CVarArgs()))
         }
-        Conditional.flatten(r)
+        TConditional.flatten(r)
     }
 
     def parseStructMembers(members: List[Opt[StructDeclaration]]): ConditionalTypeMap = {
@@ -221,8 +221,8 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             //for unnamed fields, if they are struct or union inline their fields
             //cf. http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
             if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList) match {
-            //TODO correctly deal with variability. "One" in the next line is a hack for the common case
-                case One(CAnonymousStruct(fields, _)) => result = result ++ fields
+                //TODO correctly deal with variability. "TOne" in the next line is a hack for the common case
+                case TOne(CAnonymousStruct(fields, _)) => result = result ++ fields
                 //                case CStruct(name, _) => //TODO inline as well
                 case _ => //don't care about other types
             }
@@ -235,7 +235,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
      * Typedef environment (all defined type synonyms up to here)
      */
     //Type synonyms with typedef
-    type TypeDefEnv = Map[String, Conditional[CType]]
+    type TypeDefEnv = Map[String, TConditional[CType]]
 
     /**typedef enviroment, outside the current declaration*/
     val previousTypedefEnv: AST ==> TypeDefEnv = {

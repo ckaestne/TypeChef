@@ -33,10 +33,10 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
             ("strf", base, CFunction(Seq(), CStruct("str"))),
             ("funparam", base, CPointer(CFunction(Seq(), CDouble()))),
             ("funparamptr", base, CPointer(CPointer(CFunction(Seq(), CDouble()))))
-        ).map(x => (x._1, x._2, One(x._3))))
+        ).map(x => (x._1, x._2, TOne(x._3))))
     val astructEnv: StructEnv =
         new StructEnv().add(
-            "str", false, new ConditionalTypeMap() + ("a", base, One(CDouble())) + ("b", base, One(CStruct("str")))
+            "str", false, new ConditionalTypeMap() + ("a", base, TOne(CDouble())) + ("b", base, TOne(CStruct("str")))
         )
 
     test("primitives and pointers") {
