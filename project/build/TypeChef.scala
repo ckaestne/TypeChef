@@ -38,7 +38,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     }
 
     trait Kiama {
-        val kiama = "com.googlecode" %% "kiama" % "1.0.2"
+        val kiama = "com.googlecode" %% "kiama" % "1.1.0"
     }
 
 
