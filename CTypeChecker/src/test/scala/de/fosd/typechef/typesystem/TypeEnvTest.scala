@@ -225,4 +225,25 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         }
     }
 
+
+    test("typedef environment") {
+        val ast = (getAST("""
+            typedef struct {
+                long counter;
+            } a;
+            typedef a b;
+
+            void foo() {}
+        """))
+        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+
+        val tdenv = fundef -> typedefEnv
+
+        println(tdenv)
+
+        assert(wellformed(null, null, tdenv("a")))
+        assert(wellformed(null, null, tdenv("b")))
+    }
+
+
 }
