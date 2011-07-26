@@ -15,9 +15,10 @@ trait DigitListUtilities {
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
     def outer(x: AST) = DigitList2(List(o(x)))
-    def wrapList(x: AST*) = DigitList2(List() ++ x.map(Opt(FeatureExpr.base, _)))
+    def outer(x: Conditional[AST]) = DigitList2(List(Opt(FeatureExpr.base,x)))
+    def wrapList(x: AST*) = DigitList2(List() ++ x.map(One(_)).map(Opt(FeatureExpr.base, _)))
     def wrapList(x: List[AST]): DigitList2 = wrapList(x: _*)
 
 
-    def o(ast: AST) = Opt(FeatureExpr.base, ast)
+    def o(ast: AST) = Opt(FeatureExpr.base, One(ast))
 }

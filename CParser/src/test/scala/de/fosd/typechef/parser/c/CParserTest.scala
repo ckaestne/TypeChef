@@ -5,50 +5,68 @@ import junit.framework.Assert._
 import org.junit.Test
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
+import org.kiama.attribution.Attributable
 
 class CParserTest extends TestCase {
     val p = new CParser()
 
-    case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr {
-        override def equals(x: Any) = x match {
-            case Alt(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
-            case _ => false
-        }
-    }
 
-    object Alt {
-        def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
+    def assertParseResult(expected: AST, code: String, mainProduction: p.MultiParser[AST]) {
+        assertParseResult(One(expected), code, mainProduction ^^ {One(_)})
     }
-
-    def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]) {
-        val actual = p.parse(code.stripMargin, mainProduction).forceJoin(FeatureExpr.base, Alt.join)
+    def assertParseResult(expected: Conditional[AST], code: String, mainProduction: p.MultiParser[Conditional[AST]]) {
+        val actual = p.parse(code.stripMargin, mainProduction).expectOneResult
         System.out.println(actual)
         actual match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
+                //                assertTree(ast)
+                assertNoDeadNodes(ast)
             }
             case p.NoSuccess(msg, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " " + inner)
         }
     }
-    def assertParseResult(expected: AST, code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]]) {
+    def assertParseResultL(expected: AST, code: String, productions: List[p.MultiParser[AST]]) {
+        assertParseResultL(One(expected), code, productions.map(_ ^^ {One(_)}))
+    }
+    def assertParseResultL(expected: Conditional[AST], code: String, productions: List[p.MultiParser[Conditional[AST]]]) {
         for (production <- productions)
             assertParseResult(expected, code, production)
     }
 
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
+    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]): Unit = {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
+                if (ast.isInstanceOf[AST]) {
+                    //                    assertTree(ast.asInstanceOf[AST])
+                    assertNoDeadNodes(ast.asInstanceOf[AST])
+                }
                 //succeed
             }
             case p.NoSuccess(msg, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " " + inner)
         }
     }
+    def assertParseableAST[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
+        val actual = p.parse(code.stripMargin, mainProduction)
+        System.out.println(actual)
+        (actual: @unchecked) match {
+            case p.Success(ast, unparsed) => {
+                assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
+                Some(ast)
+                //succeed
+            }
+            case p.NoSuccess(msg, unparsed, inner) =>
+                fail(msg + " at " + unparsed + " " + inner)
+                None
+        }
+    }
+
     def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
@@ -82,7 +100,7 @@ class CParserTest extends TestCase {
     def c = Id("c");
     def d = Id("d");
     def x = Id("x");
-    def intType = TypeName(lo(PrimitiveTypeSpecifier("int")), None)
+    def intType = TypeName(lo(IntSpecifier()), None)
     def o[T](x: T) = Opt(FeatureExpr.base, x)
     def lo[T](x: T) = List(o(x))
     def lo[T](x: T, y: T) = List(o(x), o(y))
@@ -91,22 +109,22 @@ class CParserTest extends TestCase {
     def fa = FeatureExpr.createDefinedExternal("a")
 
     def testId() {
-        assertParseResult(Id("test"), "test", List(p.primaryExpr, p.ID))
-        assertParseResult(Alt(fa, Id("test"), Id("bar")), """|#ifdef a
+        assertParseResultL(Id("test"), "test", List(p.primaryExpr, p.ID))
+        assertParseResultL(Choice(fa, Id("test"), Id("bar")), """|#ifdef a
         					|test
         					|#else
         					|bar
-        					|#endif""", List(p.primaryExpr, p.ID))
+        					|#endif""", List(p.primaryExpr !, p.ID !))
         assertParseError("case", List(p.primaryExpr, p.ID))
     }
 
     def testStringLit() {
-        assertParseResult(StringLit(lo("\"test\"")), "\"test\"", List(p.primaryExpr, p.stringConst))
-        assertParseResult(Alt(fa, StringLit(lo("\"test\"")), StringLit(lo("\"ba\\\"r\""))), """|#ifdef a
+        assertParseResultL(StringLit(lo("\"test\"")), "\"test\"", List(p.primaryExpr, p.stringConst))
+        assertParseResultL(Choice(fa, StringLit(lo("\"test\"")), StringLit(lo("\"ba\\\"r\""))), """|#ifdef a
         					|"test"
         					|#else
         					|"ba\"r"
-        					|#endif""", List(p.primaryExpr, p.stringConst))
+        					|#endif""", List(p.primaryExpr !, p.stringConst !))
         assertParseError("'c'", List(p.stringConst))
     }
 
@@ -149,11 +167,11 @@ class CParserTest extends TestCase {
         parseConstant("'a'")
         parseConstant("L'a'")
         parseString("L\"a\"")
-        assertParseResult(Alt(fa, Constant("1"), Constant("2")), """|#ifdef a
+        assertParseResultL(Choice(fa, Constant("1"), Constant("2")), """|#ifdef a
         					|1
         					|#else
         					|2
-        					|#endif""", List(p.primaryExpr, p.numConst))
+        					|#endif""", List(p.primaryExpr !, p.numConst !))
     }
     def testDots() {
         assertParseable(".", p.DOT)
@@ -162,38 +180,49 @@ class CParserTest extends TestCase {
         assertParseError(".", p.VARARGS)
     }
     def testPostfixSuffix {
-        assertParseAnyResult(lo(PointerPostfixSuffix("->", Id("a"))), "->a", p.postfixSuffix)
-        assertParseAnyResult(lo(PointerPostfixSuffix("->", Id("a"))), "->    a", p.postfixSuffix)
-        assertParseAnyResult(lo(PointerPostfixSuffix("->", Id("a")), PointerPostfixSuffix("->", Id("a"))), "->a->a", p.postfixSuffix)
-        assertParseAnyResult(lo(PointerPostfixSuffix(".", Id("a"))), ".a", p.postfixSuffix)
-        assertParseAnyResult(lo(SimplePostfixSuffix("++")), "++", p.postfixSuffix)
-        assertParseAnyResult(lo(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
+        assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a"))), "->a", p.postfixSuffix)
+        assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a"))), "->    a", p.postfixSuffix)
+        assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a")), PointerPostfixSuffix("->", Id("a"))), "->a->a", p.postfixSuffix)
+        assertParseAnyResult(List(PointerPostfixSuffix(".", Id("a"))), ".a", p.postfixSuffix)
+        assertParseAnyResult(List(SimplePostfixSuffix("++")), "++", p.postfixSuffix)
+        assertParseAnyResult(List(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
     }
     def testPostfixExpr {
-        assertParseResult(PostfixExpr(Id("b"), List(Opt(fa, SimplePostfixSuffix("++")))),
+        assertParseResult(Choice(fa, PostfixExpr(Id("b"), SimplePostfixSuffix("++")), Id("b")),
             """|b
         					|#ifdef a
         					|++
-        					|#endif""", p.postfixExpr)
+        					|#endif""", p.postfixExpr !)
 
-        assertParseResult(PostfixExpr(Id("b"), lo(PointerPostfixSuffix("->", Id("a")))), "b->a", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())))), "b()", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(lo(a, b, c))))), "b(a,b,c)", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())), FunctionCall(ExprList(lo(a))))), "b()(a)", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), lo(ArrayAccess(a))), "b[a]", List(p.postfixExpr, p.unaryExpr))
-        assertParseResult(PostfixExpr(Id("b"), lo(FunctionCall(ExprList(List())), ArrayAccess(a))), "b()[a]", List(p.postfixExpr, p.unaryExpr))
+        assertParseResultL(PostfixExpr(Id("b"), PointerPostfixSuffix("->", Id("a"))), "b->a", List(p.postfixExpr, p.unaryExpr))
+        assertParseResultL(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
+        assertParseResultL(PostfixExpr(Id("b"), FunctionCall(ExprList(List()))), "b()", List(p.postfixExpr, p.unaryExpr))
+        assertParseResultL(PostfixExpr(Id("b"), FunctionCall(ExprList(lo(a, b, c)))), "b(a,b,c)", List(p.postfixExpr, p.unaryExpr))
+        assertParseResultL(PostfixExpr(PostfixExpr(Id("b"), FunctionCall(ExprList(List()))), FunctionCall(ExprList(lo(a)))), "b()(a)", List(p.postfixExpr, p.unaryExpr))
+        assertParseResultL(PostfixExpr(Id("b"), ArrayAccess(a)), "b[a]", List(p.postfixExpr, p.unaryExpr))
+        assertParseResultL(PostfixExpr(PostfixExpr(Id("b"), FunctionCall(ExprList(List()))), ArrayAccess(a)), "b()[a]", List(p.postfixExpr, p.unaryExpr))
 
-        assertParseAnyResult(
-            PostfixExpr(Id("b"),
-                List(Opt(fa, PointerPostfixSuffix(".", Id("a"))), Opt(fa.not, PointerPostfixSuffix("->", Id("a"))))),
+        //TODO
+        //        assertParseAnyResult(
+        //            PostfixExpr(Id("b"),
+        //                List(Opt(fa, PointerPostfixSuffix(".", Id("a"))), Opt(fa.not, PointerPostfixSuffix("->", Id("a"))))),
+        //            """|b
+        //        					|#ifdef a
+        //        					|.
+        //        					|#else
+        //        					|->
+        //        					|#endif
+        //        					|a""", p.postfixExpr)
+        assertParseResult(Choice(fa,
+            PostfixExpr(Id("b"), PointerPostfixSuffix(".", Id("a"))),
+            PostfixExpr(Id("b"), PointerPostfixSuffix("->", Id("a")))),
             """|b
         					|#ifdef a
         					|.
         					|#else
         					|->
         					|#endif
-        					|a""", p.postfixExpr)
+        					|a""", p.postfixExpr !)
         assertParseable("++", p.postfixSuffix)
         assertParseable("b++", p.postfixExpr)
         assertParseable("__builtin_offsetof(void,a.b)", p.primaryExpr)
@@ -209,55 +238,57 @@ class CParserTest extends TestCase {
         assertParseResult(SizeOfExprT(intType), "sizeof(int)", p.unaryExpr)
         assertParseResult(SizeOfExprU(Id("b")), "sizeof b", p.unaryExpr)
         assertParseResult(SizeOfExprU(UnaryExpr("++", Id("b"))), "sizeof ++b", p.unaryExpr)
-        assertParseResult(UCastExpr("+", CastExpr(intType, Id("b"))), "+(int)b", List(p.unaryExpr))
-        assertParseResult(UCastExpr("&", CastExpr(intType, Id("b"))), "&(int)b", List(p.unaryExpr))
-        assertParseResult(UCastExpr("!", CastExpr(intType, Id("b"))), "!(int)b", List(p.unaryExpr))
+        assertParseResult(UnaryOpExpr("+", CastExpr(intType, Id("b"))), "+(int)b", (p.unaryExpr))
+        assertParseResult(PointerCreationExpr(CastExpr(intType, Id("b"))), "&(int)b", (p.unaryExpr))
+        assertParseResult(UnaryOpExpr("!", CastExpr(intType, Id("b"))), "!(int)b", (p.unaryExpr))
         assertParseError("(c)b", List(p.unaryExpr))
     }
 
     def testCastExpr {
-        assertParseResult(CastExpr(intType, SizeOfExprT(intType)), "(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/))
-        assertParseResult(CastExpr(intType, Id("b")), "(int)b", List(p.castExpr /*, p.unaryExpr*/))
-        assertParseResult(CastExpr(intType, CastExpr(intType, CastExpr(intType, SizeOfExprT(intType)))), "(int)(int)(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/))
+        assertParseResultL(CastExpr(intType, SizeOfExprT(intType)), "(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/))
+        assertParseResultL(CastExpr(intType, Id("b")), "(int)b", List(p.castExpr /*, p.unaryExpr*/))
+        assertParseResultL(CastExpr(intType, CastExpr(intType, CastExpr(intType, SizeOfExprT(intType)))), "(int)(int)(int)sizeof(int)", List(p.castExpr /*, p.unaryExpr*/))
         assertParseable("(int)sizeof(void)", p.castExpr)
     }
 
     def testNAryExpr {
-        assertParseResult(NAryExpr(a, List(o("*", b))), "a*b", p.multExpr)
-        assertParseResult(NAryExpr(a, List(o("*", b), o("*", b))), "a*b*b", p.multExpr)
+        assertParseResult(NAryExpr(a, List(o(NArySubExpr("*", b)))), "a*b", p.multExpr)
+        assertParseResult(NAryExpr(a, List(o(NArySubExpr("*", b)), o(NArySubExpr("*", b)))), "a*b*b", p.multExpr)
     }
     def testExprs {
-        assertParseResult(NAryExpr(NAryExpr(a, List(o("*", b))), List(o("+", c))), "a*b+c", p.expr)
-        assertParseResult(NAryExpr(c, List(o("+", NAryExpr(a, List(o("*", b)))))), "c+a*b", p.expr)
-        assertParseResult(NAryExpr(NAryExpr(a, List(o("+", b))), List(o("*", c))), "(a+b)*c", p.expr)
-        assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(o("==", c)))), "a=b==c", p.expr)
-        assertParseResult(NAryExpr(a, List(o("/", b))), "a/b", p.expr)
+        assertParseResult(NAryExpr(NAryExpr(a, List(o(NArySubExpr("*", b)))), List(o(NArySubExpr("+", c)))), "a*b+c", p.expr)
+        assertParseResult(NAryExpr(c, List(o(NArySubExpr("+", NAryExpr(a, List(o(NArySubExpr("*", b)))))))), "c+a*b", p.expr)
+        assertParseResult(NAryExpr(NAryExpr(a, List(o(NArySubExpr("+", b)))), List(o(NArySubExpr("*", c)))), "(a+b)*c", p.expr)
+        assertParseResult(AssignExpr(a, "=", NAryExpr(b, List(o(NArySubExpr("==", c))))), "a=b==c", p.expr)
+        assertParseResult(NAryExpr(a, List(o(NArySubExpr("/", b)))), "a/b", p.expr)
         assertParseResult(ConditionalExpr(a, Some(b), c), "a?b:c", p.expr)
-        assertParseResult(ExprList(List(o(a), o(b), o(NAryExpr(NAryExpr(c, List(o("+", NAryExpr(c, List(o("/", d)))))), List(o("|", x)))))), "a,b,c+c/d|x", p.expr)
+        assertParseResult(ExprList(List(o(a), o(b), o(NAryExpr(NAryExpr(c, List(o(NArySubExpr("+", NAryExpr(c, List(o(NArySubExpr("/", d)))))))), List(o(NArySubExpr("|", x))))))), "a,b,c+c/d|x", p.expr)
     }
     def testAltExpr {
-        assertParseResult(Alt(fa, a, b),
+        assertParseResult(Choice(fa, a, b),
             """|#ifdef a
         					|a
         					|#else
         					|b
-        					|#endif""", p.expr)
-        assertParseResult(Alt(fa, NAryExpr(a, List(Opt(fa, ("+", c)))), NAryExpr(b, List(Opt(fa.not, (("+", c)))))),
+        					|#endif""", p.expr !)
+        assertParseResult(Choice(fa, NAryExpr(a, List(Opt(fa, NArySubExpr("+", c)))), NAryExpr(b, List(Opt(fa.not, (NArySubExpr("+", c)))))),
             """|#ifdef a
         					|a +
         					|#else
         					|b +
         					|#endif
-        					|c""", p.expr)
-        assertParseResult(Alt(fa, AssignExpr(a, "=", ConditionalExpr(b, Some(b), d)), AssignExpr(a, "=", ConditionalExpr(b, Some(c), d))),
+        					|c""", p.expr !)
+        assertParseResult(Choice(fa, AssignExpr(a, "=", ConditionalExpr(b, Some(b), d)), AssignExpr(a, "=", ConditionalExpr(b, Some(c), d))),
             """|a=b?
         					|#ifdef a
         					|b
         					|#else
         					|c
         					|#endif
-        					|:d""", p.expr)
+        					|:d""", p.expr !)
     }
+
+    private implicit def makeConditionalOne[T <: AST](a: T): Conditional[T] = One(a)
 
     def testStatements {
         assertParseable("a;", p.statement)
@@ -275,22 +306,22 @@ class CParserTest extends TestCase {
         assertParseable("break;", p.statement)
         assertParseable("a:", p.statement)
         assertParseable("goto x;", p.statement)
-        assertParseResult(AltStatement(fa, IfStatement(a, ExprStatement(b), List(), None), ExprStatement(b)),
+        assertParseResult(Choice(fa, One(IfStatement(a, ExprStatement(b), List(), None)), One(ExprStatement(b))),
             """|#ifdef a
         					|if (a)
         					|#endif
     			  			|b;""", p.statement)
-        assertParseResult(IfStatement(a, AltStatement(fa, ExprStatement(b), ExprStatement(c)), List(), None),
+        assertParseResult(IfStatement(a, Choice(fa, One(ExprStatement(b)), One(ExprStatement(c))), List(), None),
             """|if (a)
     			  			|#ifdef a
         					|b;
         					|#else
     			  			|c;
         					|#endif""", p.statement)
-        assertParseAnyResult(CompoundStatement(List(
+        assertParseAnyResult(One(CompoundStatement(List(
             Opt(fa, IfStatement(a, ExprStatement(b), List(), None)),
             Opt(fa, ExprStatement(c)),
-            Opt(fa.not, IfStatement(a, ExprStatement(c), List(), None)))),
+            Opt(fa.not, IfStatement(a, ExprStatement(c), List(), None))))),
             """|{
         		|if (a)
     			  			|#ifdef a
@@ -298,7 +329,7 @@ class CParserTest extends TestCase {
         					|#endif
     			  			|c;}""", p.statement)
 
-        assertParseAnyResult(CompoundStatement(List(o(ExprStatement(a)), Opt(fa, ExprStatement(b)), o(ExprStatement(c)))),
+        assertParseAnyResult(One(CompoundStatement(List(o(ExprStatement(a)), Opt(fa, ExprStatement(b)), o(ExprStatement(c))))),
             """|{
         		|a;
     			  			|#ifdef a
@@ -306,6 +337,23 @@ class CParserTest extends TestCase {
         					|#endif
     			  			|c;}""", p.statement)
     }
+
+    def testLocalDeclarations {
+        assertParseableAST("{int * a = 3;}", p.compoundStatement) match {
+            case Some(CompoundStatement(List(Opt(_, (DeclarationStatement(_)))))) =>
+            case e => fail("expected declaration, found " + e)
+        }
+        assertParseableAST("{t * a = 3;}", p.compoundStatement) match {
+            case Some(CompoundStatement(List(Opt(_, (ExprStatement(AssignExpr(_, _, _))))))) =>
+            case e => fail("expected declaration, found " + e)
+        }
+        assertParseable("__builtin_type * a = 3;", p.compoundDeclaration)
+        assertParseableAST("{__builtin_type * a = 3;}", p.compoundStatement) match {
+            case Some(CompoundStatement(List(Opt(_, (DeclarationStatement(_)))))) =>
+            case e => fail("expected declaration, found " + e)
+        }
+    }
+
     def testParameterDecl {
         assertParseable("void", p.parameterDeclaration)
         assertParseable("extern void", p.parameterDeclaration)
@@ -320,15 +368,15 @@ class CParserTest extends TestCase {
         assertParseable("void ****a", p.parameterDeclaration)
     }
     def testDeclarator {
-        assertParseResult(DeclaratorId(List(), a, List()), "a", p.declarator)
-        assertParseResult(DeclaratorDecl(List(), None, DeclaratorId(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(List())), a, List()), "*a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(lo(OtherSpecifier("const")))), a, List()), "*const a", p.declarator)
-        assertParseResult(DeclaratorId(lo(Pointer(lo(OtherSpecifier("const"), OtherSpecifier("volatile")))), a, List()), "*const volatile a", p.declarator)
-        assertParseResult(DeclaratorId(List(), a, lo(DeclArrayAccess(None))), "a[]", p.declarator)
-        //    	assertParseResult(DeclaratorId(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
-        //    	assertParseResult(DeclaratorId(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
+        assertParseResult(AtomicNamedDeclarator(List(), a, List()), "a", p.declarator)
+        assertParseResult(NestedNamedDeclarator(List(), AtomicNamedDeclarator(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(List())), a, List()), "*a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(lo(ConstSpecifier()))), a, List()), "*const a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(lo(Pointer(lo(ConstSpecifier(), VolatileSpecifier()))), a, List()), "*const volatile a", p.declarator)
+        assertParseResult(AtomicNamedDeclarator(List(), a, lo(DeclArrayAccess(None))), "a[]", p.declarator)
+        //    	assertParseResult(AtomicNamedDeclarator(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
+        //    	assertParseResult(AtomicNamedDeclarator(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
     }
     def testEnumerator {
         assertParseable("enum e", p.enumSpecifier)
@@ -359,8 +407,8 @@ class CParserTest extends TestCase {
 
     def testFunctionDef {
 
-        assertParseable("int a", p.parameterTypeList)
-        assertParseError("int a)", p.parameterTypeList)
+        assertParseable("int a", p.parameterDeclList)
+        assertParseError("int a)", p.parameterDeclList)
         //        assertParseable("(int a)", p.declaratorParamaterList)
         assertParseable("void foo(){}", p.functionDef)
         assertParseable("void foo(){a;}", p.functionDef)
@@ -759,6 +807,7 @@ typedef struct spinlock {} spinlock_t;
 
     @Test def testTypeDefSequence {
         assertParseable("""
+            __expectNotType[:a:]
             typedef int a;
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
@@ -766,13 +815,24 @@ typedef struct spinlock {} spinlock_t;
             typedef int b;
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
-        assertParseable("""
+        assertParseError("""
             #ifdef X
             typedef int a;
             #endif
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
         assertParseable("""
+            #ifdef X
+            typedef int a;
+            #endif
+            int b;
+            #ifdef X
+            __expectType[:a:]
+            #else
+            __expectNotType[:a:]
+            #endif
+            """, p.phrase(p.translationUnit))
+        assertParseError("""
             #ifdef X
             typedef int a;
             #endif
@@ -788,8 +848,13 @@ typedef struct spinlock {} spinlock_t;
             #else
             typedef int b;
             #endif
+            #ifdef X
             __expectType[:a:]
+            __expectNotType[:b:]
+            #else
             __expectType[:b:]
+            __expectNotType[:a:]
+            #endif
             """, p.phrase(p.translationUnit))
 
 
@@ -843,5 +908,58 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
 ;
 }
         """, p.phrase(p.translationUnit))
+
+
+    /**this code produced dead AST nodes */
+    @Test def testNoDeadAstNodes {
+        val c = """
+         #ifdef X
+         int a;
+         #else
+         double a;
+         #endif
+
+         #ifdef X
+         int x;
+         #endif
+         #ifdef Y
+         double x;
+         #endif
+
+         double
+         #ifdef X
+         b
+         #else
+         c
+         #endif
+         ;"""
+        val ast = assertParseableAST(c, p.translationUnit)
+        assertTree(ast.get)
+        assertNoDeadNodes(ast.get, FeatureExpr.base, ast.get)
+    }
+
+    private def assertNoDeadNodes(ast: Attributable) {
+        assertNoDeadNodes(ast, FeatureExpr.base, ast)
+    }
+    private def assertNoDeadNodes(ast: Attributable, f: FeatureExpr, orig: Attributable) {
+        assert(f.isSatisfiable(), "dead AST subtree: " + ast + " in " + orig)
+        ast match {
+            case Opt(g, e: Attributable) => assertNoDeadNodes(e, f and g, orig)
+            case c: Choice[Attributable] => assertNoDeadNodes(c.thenBranch, f and c.feature, orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature, orig)
+            case e => for (c <- e.children) assertNoDeadNodes(c, f, orig)
+        }
+    }
+
+    /**
+     * for type checking we want a real AST not a DAG.
+     * check that each node points to exactly one parent
+     */
+    private def assertTree(ast: Attributable) {
+        for (c <- ast.children) {
+            assert(c.parent == ast, "Child " + c + " points to different parent:\n  " + c.parent + "\nshould be\n  " + ast)
+            assertTree(c)
+        }
+    }
+
 
 }

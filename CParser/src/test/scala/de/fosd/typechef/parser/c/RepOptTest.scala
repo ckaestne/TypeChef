@@ -5,6 +5,7 @@ import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import org.junit.Test
+import FeatureExpr._
 
 class RepOptTest extends TestCase {
     val p = new CParser()
@@ -74,12 +75,11 @@ typedef int a
 ;
 typedef int b;
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assertTrue("actual AST size: " + ast.size, ast.size == 3)
-        assert(next.context.knowsType("a"))
-        assert(next.context.knowsType("b"))
+        assert(next.context.knowsType("a",base))
+        assert(next.context.knowsType("b",base))
     }
 
     def testRepOptMultiFeatureOverlap2() {
@@ -96,11 +96,10 @@ typedef long a;
 typedef int b;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 4)
-        assert(next.context.knowsType("a"))
+        assert(next.context.knowsType("a",base))
     }
 
     def testRepOptMultiFeatureOverlap7_linux() {
@@ -128,10 +127,9 @@ typedef long y;
 typedef long y;
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
-        assert(ast.size == 9) //and one internal choice node
+        assertEquals(9, ast.size) //and one internal choice node
     }
 
     def testRepOptMultiFeatureOverlap6_linux() {
@@ -145,7 +143,7 @@ extern __attribute__((section(
 #else
 ".data"
 #endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+"")))  __typeof__(struct orig_ist) per_cpu__orig_ist
 #else
 extern __attribute__((section(
 #ifdef SMP
@@ -153,7 +151,7 @@ extern __attribute__((section(
 #else
 ".data"
 #endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+"")))  __typeof__(struct orig_ist) per_cpu__orig_ist
 #endif
 ;
 #ifdef CPU
@@ -164,7 +162,7 @@ extern __attribute__((section(
 #else
 ".data"
 #endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+"")))  __typeof__(struct orig_ist) per_cpu__orig_ist
 #else
 extern __attribute__((section(
 #ifdef SMP
@@ -172,7 +170,7 @@ extern __attribute__((section(
 #else
 ".data"
 #endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+"")))  __typeof__(struct orig_ist) per_cpu__orig_ist
 #endif
 ;
 typedef unsigned long a;
@@ -186,7 +184,6 @@ typedef long y;
 #endif
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 11)
@@ -203,7 +200,7 @@ extern __attribute__((section(
 #else
 ".data"
 #endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+"")))  __typeof__(struct orig_ist) per_cpu__orig_ist
 #else
 extern __attribute__((section(
 #ifdef SMP
@@ -211,7 +208,7 @@ extern __attribute__((section(
 #else
 ".data"
 #endif
- "")))  __typeof__(struct orig_ist) per_cpu__orig_ist
+"")))  __typeof__(struct orig_ist) per_cpu__orig_ist
 #endif
 ;
 typedef unsigned long a;
@@ -225,7 +222,6 @@ typedef long y;
 #endif
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 8)
@@ -255,7 +251,6 @@ typedef long y;
 #endif
 #endif
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 8)
@@ -278,11 +273,11 @@ a;
 typedef long a;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
-        assert(next.context.knowsType("a"))
+        println(next.context)
+        assert(next.context.knowsType("a",base))
     }
 
 
@@ -299,11 +294,10 @@ typedef int a
 typedef long a;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
-        assert(next.context.knowsType("a"))
+        assert(next.context.knowsType("a",base))
     }
 
     def testRepOptMultiFeature() {
@@ -318,11 +312,10 @@ typedef int a;
 typedef long a;
 #end
 """)
-        ast = flatten(ast)
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
-        assert(next.context.knowsType("a"))
+        assert(next.context.knowsType("a",base))
     }
 
     /**
@@ -343,8 +336,8 @@ typedef int b;
         println(next)
         val size = ast.asInstanceOf[List[Opt[ExternalDef]]].size
         assert(size == 2 || size == 3)
-        assert(next.context.knowsType("a"))
-        assert(next.context.knowsType("b"))
+        assert(next.context.knowsType("a",base))
+        assert(next.context.knowsType("b",base))
     }
 
     @Test
@@ -362,9 +355,9 @@ typedef int b;
         println(ast)
         println(next)
         assert(ast.asInstanceOf[List[Opt[ExternalDef]]].size == 5)
-        assert(next.context.knowsType("a"))
-        assert(next.context.knowsType("b"))
-        assert(next.context.knowsType("c"))
+        assert(next.context.knowsType("a",base))
+        assert(next.context.knowsType("b",base))
+        assert(next.context.knowsType("c",base))
     }
 
 
@@ -389,18 +382,6 @@ typedef int b;
         assert(next.context.knowsType("b"))
     }*/
 
-    private def flatten(optList: List[Opt[ExternalDef]]): List[Opt[ExternalDef]] = {
-        var result: List[Opt[ExternalDef]] = List()
-        for (e <- optList.reverse) {
-            e.entry match {
-                case AltExternalDef(f, a, b) =>
-                    result = flatten(List(Opt(e.feature and f, a))) ++ flatten(List(Opt(e.feature and (f.not), b))) ++ result;
-                case _ =>
-                    result = e :: result;
-            }
-        }
-        result
-    }
 
     @Test
     def testPrintStatistics() {

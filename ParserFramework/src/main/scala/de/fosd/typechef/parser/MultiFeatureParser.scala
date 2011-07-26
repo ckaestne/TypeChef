@@ -58,11 +58,11 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         name = "*"
     }
 
-    class JoinParser[T, U >: T](thisParser: => MultiParser[T], joinFunction: (FeatureExpr, U, U) => U) extends MultiParser[U] {
+    class JoinParser[T](thisParser: => MultiParser[T]) extends MultiParser[Conditional[T]] {
         name = "!"
         def a = thisParser
-        def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] =
-            thisParser(in, feature).join[U](feature, joinFunction)
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[Conditional[T]] =
+            thisParser(in, feature).join(feature)
     }
 
     abstract class AtomicParser[T](val kind: String) extends MultiParser[T] {
@@ -116,23 +116,28 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
          */
         def ^^[U](f: T => U): MultiParser[U] = map(f)
         def map[U](f: T => U): MultiParser[U] = new MapParser(this, f)
+        //replace on success
+        def ^^^[U](repl: U): MultiParser[U] = map(x => repl)
 
         /**
          * map and join ASTs (when possible)
          */
-        def ^^![U](joinFunction: (FeatureExpr, U, U) => U, f: T => U): MultiParser[U] =
-            this.map(f).join(joinFunction)
+        def ^^![U](f: T => U): MultiParser[Conditional[U]] =
+            this.map(f).join
+
+        //        def ^^!![U](f: Conditional[T] => Conditional[U]): MultiParser[Conditional[U]] =
+        //            this.map(f).join.map(Conditional.combine(_))
 
         /**
          * join parse results when possible
          */
-        def ![U >: T](joinFunction: (FeatureExpr, U, U) => U): MultiParser[U] = join(joinFunction).named("!")
-        def join[U >: T](joinFunction: (FeatureExpr, U, U) => U): MultiParser[U] = new JoinParser(this, joinFunction)
+        def !(): MultiParser[Conditional[T]] = join.named("!")
+        def join: MultiParser[Conditional[T]] = new JoinParser(this)
 
-        def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParser[T] =
+        def changeContext(contextModification: (T, FeatureExpr, TypeContext) => TypeContext): MultiParser[T] =
             new MultiParser[T] {
                 def apply(in: Input, feature: FeatureExpr): MultiParseResult[T] =
-                    thisParser(in, feature).changeContext(contextModification)
+                    thisParser(in, feature).changeContext(feature, contextModification)
             }.named("__context")
 
         /**
@@ -439,7 +444,7 @@ try {
      * XXX check whether there can be problems due to comparing two AST nodes. if a list produces
      * several equal AST nodes, can joinLists swallow some of them?
      */
-    private def joinLists[T](inA: List[Opt[T]], inB: List[Opt[T]], feature: FeatureExpr = null): List[Opt[T]] = {
+    private def joinOptLists[T](inA: List[Opt[T]], inB: List[Opt[T]], feature: FeatureExpr = null): List[Opt[T]] = {
         var a = inA;
         var b = inB
         var lastEntry: Opt[T] = null;
@@ -493,8 +498,8 @@ try {
         private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]])
 
         //join anything, data does not matter, only position in tokenstream
-        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
-            res.join(ctx, (f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinLists(a.resultList, b.resultList)))
+        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]): MultiParseResult[Sealable] =
+            res.join(ctx).map(_.flatten((f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList))))
 
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
             parseResult.exists(!_.isSealed)
@@ -585,9 +590,6 @@ try {
 
     }.named("repOpt-" + productionName)
 
-    //old signature
-    def repOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[Opt[T]]] =
-        repOpt(p, productionName)
 
     /**
      * repeated parsing, at least once (result may not be the empty list)
@@ -629,10 +631,13 @@ try {
      * for the pattern
      * [p ~ (separator ~ p)*]
      */
-    def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
-        opt(rep1Sep(p, separator)) ^^ {
+    def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] = {
+        val r: MultiParser[List[Opt[T]]] = opt(rep1Sep(p, separator)) ^^ {
             case Some(l) => l; case None => List()
-        } join ((f, a, b) => joinLists(a, b, f))
+        }
+        val jr: MultiParser[Conditional[List[Opt[T]]]] = r.join
+        jr ^^ {_.flatten[List[Opt[T]]]((f, a, b) => joinOptLists(a, b, f))}
+    }
 
     /**see repSepOptIntern, consumes tailing separator(!) **/
     def repSepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] =
@@ -668,7 +673,12 @@ try {
 
         //join anything, data does not matter, only position in tokenstream
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]) =
-            res.join(ctx, (f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinLists(a.resultList, b.resultList), (a.freeSeparator) and (b.freeSeparator)))
+            res.join(ctx).map(_.flatten(joinSealable))
+
+        private def joinSealable(f: FeatureExpr, a: Sealable, b: Sealable) =
+            Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList), (a.freeSeparator) and (b.freeSeparator))
+
+        //        private def flattenConditionalSealable(r:Co)
         //XXX a.freesep OR a.freesep is incorrect. is AND sufficient?
 
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
@@ -852,7 +862,10 @@ try {
         new MultiParser[T] {
             def apply(in: Input, fs: FeatureExpr) = Failure(msg, in, List())
         }
-
+    def failc[T](msg: String): MultiParser[Conditional[T]] =
+        new MultiParser[Conditional[T]] {
+            def apply(in: Input, fs: FeatureExpr) = Failure(msg, in, List())
+        }
     def success[T](v: T) =
         MultiParser {
             (in: Input, fs: FeatureExpr) => Success(v, in)
@@ -862,14 +875,14 @@ try {
             def apply(in: Input, fs: FeatureExpr) = f(in, fs)
         }
 
-    def matchInput(p: (Elem, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
+    def matchInput(p: (Elem, FeatureExpr, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
         private def err(e: Option[Elem], ctx: TypeContext) = errorMsg(kind, e, ctx)
         @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
             parseResult.mapfr(context, {
                 case (feature, Success(resultPair, inNext)) =>
-                    if (p(resultPair._2, in.context)) {
+                    if (p(resultPair._2, context, in.context)) {
                         //consumed one token
                         resultPair._2.countSuccess(feature)
                         Success(resultPair._2, inNext)
@@ -934,8 +947,8 @@ try {
     }.named("next")
 
 
-    def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, c) => p(e))
-    def tokenWithContext(kind: String, p: (Elem, TypeContext) => Boolean) = matchInput(p, kind)
+    def token(kind: String, p: Elem => Boolean) = tokenWithContext(kind, (e, _, _) => p(e))
+    def tokenWithContext(kind: String, p: (Elem, FeatureExpr, TypeContext) => Boolean) = matchInput(p, kind)
     private
     def errorMsg(kind: String, inEl: Option[Elem], ctx: TypeContext): String =
         (if (!inEl.isDefined) "reached EOF, " else "found \"" + inEl.get.getText + "\", ") + "but expected \"" + kind + "\""
@@ -961,11 +974,11 @@ try {
          * joins as far as possible. joins all successful ones but maintains partially successful results.
          * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
          **/
-        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U]
-        def joinTree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U]
-        def joinCrosstree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U]
-        def forceJoin[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): ParseResult[U] =
-            join(parserContext, f) match {
+        def join(parserContext: FeatureExpr): MultiParseResult[Conditional[T]]
+        def joinTree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]]
+        def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]]
+        def expectOneResult: ParseResult[T] =
+            this match {
                 case s@Success(_, _) => s
                 case s@NoSuccess(_, _, _) => s
                 case SplittedParseResult(f, a, b) => Error("Unsuccessful join " + f + ": " + a + " / " + b, null, List())
@@ -979,7 +992,7 @@ try {
          */
         def toList(baseFeatureExpr: FeatureExpr): List[(FeatureExpr, ParseResult[T])]
         def toErrorList: List[Error]
-        def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParseResult[T]
+        def changeContext(ctx: FeatureExpr, contextModification: (T, FeatureExpr, TypeContext) => TypeContext): MultiParseResult[T]
         //replace all failures by errors (non-backtracking!)
         def commit: MultiParseResult[T]
     }
@@ -1008,7 +1021,7 @@ try {
                 SplittedParseResult(feature, newResultA, newResultB)
         }
 
-        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = joinCrosstree(parserContext, f)
+        def join(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = joinCrosstree(parserContext)
 
         /**
          * joinCrosstree is an aggressive join algorithm that joins any joinable elements in the tree
@@ -1021,11 +1034,13 @@ try {
          * branch. if there is, we create a new parent SplittedParseResult with the joined result, and subsequently
          * prune both original entries from the tree (each removing the direct parent SplittedParseResult node)
          */
-        def joinCrosstree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
-            def performJoin(featureA: FeatureExpr, a: ParseResult[U], b: ParseResult[U]): Option[ParseResult[U]] = (a, b) match {
-                case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
+        def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = {
+            def performJoin(featureA: FeatureExpr, a: ParseResult[Conditional[T]], b: ParseResult[Conditional[T]]): Option[ParseResult[Conditional[T]]] = (a, b) match {
+                case (sA@Success(rA: Conditional[T], inA), sB@Success(rB: Conditional[T], inB)) => {
                     if (isSamePosition(parserContext, inA, inB)) {
-                        Some(Success(f(featureA, rA, rB), firstOf(inA, inB)))
+                        val r = createChoiceC(featureA, rA, rB)
+                        val pos = firstOf(inA, inB)
+                        Some(Success(r, pos))
                     } else
                         None
                 }
@@ -1039,18 +1054,18 @@ try {
 
 
 
-            val left = resultA.joinCrosstree(parserContext and feature, f)
-            val right = resultB.joinCrosstree(parserContext and (feature.not), f)
+            val left = resultA.joinCrosstree(parserContext and feature)
+            val right = resultB.joinCrosstree(parserContext and (feature.not))
             var result = SplittedParseResult(feature, left, right)
 
             //implementation note: features local from here. does not make a difference for local rewrites, but keeps rewritten formulas shorter
-            val leftResults = left.toList(feature)
-            val rightResults = right.toList(feature.not)
+            val leftResults: List[(FeatureExpr, ParseResult[Conditional[T]])] = left.toList(feature)
+            val rightResults: List[(FeatureExpr, ParseResult[Conditional[T]])] = right.toList(feature.not)
 
             //compare every entry from the left with every entry from the right to find join candidates
-            var toPruneList: List[ParseResult[U]] = List()
+            var toPruneList: List[ParseResult[Conditional[T]]] = List()
             for (lr <- leftResults; rr <- rightResults) {
-                val joined = performJoin(lr._1, lr._2, rr._2)
+                val joined: Option[ParseResult[Conditional[T]]] = performJoin(lr._1, lr._2, rr._2)
                 if (joined.isDefined) {
                     result = SplittedParseResult(lr._1 or (rr._1), joined.get, result)
                     toPruneList = lr._2 :: rr._2 :: toPruneList
@@ -1067,9 +1082,12 @@ try {
         private def firstOf(inA: TokenReader[Elem, TypeContext], inB: TokenReader[Elem, TypeContext]) =
             (if (inA.offst < inB.offst) inB else inA).setContext(joinContext(inA.context, inB.context))
 
+        //don't create a choice when both branches are the same
+        private def createChoice[T](f: FeatureExpr, a: T, b: T): Conditional[T] = createChoiceC(f, One(a), One(b))
+        private def createChoiceC[T](f: FeatureExpr, a: Conditional[T], b: Conditional[T]): Conditional[T] = if (a == b) a else Choice(f, a, b)
 
         //removes entries from the tree
-        private def prune[U >: T](tree: MultiParseResult[U], pruneList: List[ParseResult[U]]): MultiParseResult[U] =
+        private def prune[U >: T](tree: MultiParseResult[Conditional[U]], pruneList: List[ParseResult[Conditional[U]]]): MultiParseResult[Conditional[U]] =
             if (pruneList.isEmpty) tree
             else tree match {
                 case SplittedParseResult(f, a, b) => {
@@ -1087,13 +1105,13 @@ try {
          * not perform cross-tree joins. the advantage is that the algorithm is simple and quick,
          * the disadvantage is that it misses opportunaties for joins
          */
-        def joinTree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = {
+        def joinTree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = {
             //do not skip ahead, important for repOpt
-            (resultA.joinTree(parserContext and feature, f), resultB.joinTree(parserContext and (feature.not), f)) match {
+            (resultA.joinTree(parserContext and feature), resultB.joinTree(parserContext and (feature.not))) match {
             //both successful
                 case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
                     if (isSamePosition(parserContext, inA, inB)) {
-                        Success(f(feature, rA, rB), firstOf(inA, inB))
+                        Success(createChoiceC(feature, rA, rB), firstOf(inA, inB))
                     } else
                         SplittedParseResult(feature, sA, sB)
                 }
@@ -1109,7 +1127,7 @@ try {
                         DebugSplitting("joinT at \"" + inA.first.getText + "\" at " + inA.first.getPosition + " from " + feature)
                         SplittedParseResult(
                             parserContext and (feature or innerFeature),
-                            Success(f(feature or innerFeature, rA, rB),
+                            Success(Choice(feature or innerFeature, rA, rB),
                                 if (inA.offst < inB.offst) inB else inA),
                             otherParseResult)
                     } else
@@ -1136,8 +1154,8 @@ try {
         def exists(p: T => Boolean) = resultA.exists(p) || resultB.exists(p)
         def toList(context: FeatureExpr) = resultA.toList(context and feature) ++ resultB.toList(context and (feature.not))
         def toErrorList = resultA.toErrorList ++ resultB.toErrorList
-        def changeContext(contextModification: (T, TypeContext) => TypeContext) =
-            SplittedParseResult(feature, resultA.changeContext(contextModification), resultB.changeContext(contextModification))
+        def changeContext(ctx: FeatureExpr, contextModification: (T, FeatureExpr, TypeContext) => TypeContext) =
+            SplittedParseResult(feature, resultA.changeContext(ctx and feature, contextModification), resultB.changeContext(ctx andNot feature, contextModification))
         def commit: MultiParseResult[T] =
             SplittedParseResult(feature, resultA.commit, resultB.commit)
     }
@@ -1158,9 +1176,9 @@ try {
         def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U] = f(feature, this)
         def next = nextInput
         def isSuccess: Boolean
-        def join[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
-        def joinTree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
-        def joinCrosstree[U >: T](parserContext: FeatureExpr, f: (FeatureExpr, U, U) => U): MultiParseResult[U] = this
+        def join(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = this.map(One(_))
+        def joinTree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = join(parserContext)
+        def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = join(parserContext)
         def joinNoSuccess() = this
         def toList(context: FeatureExpr) = List((context, this))
     }
@@ -1175,7 +1193,7 @@ try {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[Nothing]) => MultiParseResult[U]): MultiParseResult[U] = this
         def allFailed = true
         def exists(predicate: Nothing => Boolean) = false
-        def changeContext(contextModification: (Nothing, TypeContext) => TypeContext) = this
+        def changeContext(ctx: FeatureExpr, contextModification: (Nothing, FeatureExpr, TypeContext) => TypeContext) = this
     }
 
     /**An extractor so NoSuccess(msg, next) can be used in matches.
@@ -1217,7 +1235,7 @@ try {
         def allFailed = false
         def exists(predicate: T => Boolean) = predicate(result)
         def toErrorList = List()
-        def changeContext(contextModification: (T, TypeContext) => TypeContext): MultiParseResult[T] = Success(result, nextInput.setContext(contextModification(result, nextInput.context)))
+        def changeContext(ctx: FeatureExpr, contextModification: (T, FeatureExpr, TypeContext) => TypeContext): MultiParseResult[T] = Success(result, nextInput.setContext(contextModification(result, ctx, nextInput.context)))
         def commit: MultiParseResult[T] = this
     }
 
@@ -1299,4 +1317,48 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) extends Attributable 
     //helper function
     def and(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f), entry)
     def andNot(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f.not), entry)
+    override def toString = if (feature == FeatureExpr.base) entry.toString else "Opt(" + feature + "," + entry + ")"
+}
+
+
+//conditional is either Choice or One
+abstract class Conditional[+T] extends Attributable {
+    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U
+}
+
+case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
+    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = f(feature, thenBranch.flatten(f), elseBranch.flatten(f))
+    override def equals(x: Any) = x match {
+        case Choice(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
+        case _ => false
+    }
+    override def hashCode = thenBranch.hashCode + elseBranch.hashCode
+}
+
+case class One[+T](value: T) extends Conditional[T] {
+    override def toString = value.toString
+    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = value
+}
+
+object Conditional {
+    //collapse double conditionals Cond[Cond[T]] to Cond[T]
+    def combine[T](r: Conditional[Conditional[T]]): Conditional[T] = r match {
+        case One(t) => t
+        case Choice(e, a, b) => Choice(e, combine(a), combine(b))
+    }
+    //flatten optlists of conditionals into optlists without conditionals
+    def flatten[T](optList: List[Opt[Conditional[T]]]): List[Opt[T]] = {
+        var result: List[Opt[T]] = List()
+        for (e <- optList.reverse) {
+            e.entry match {
+                case Choice(f, a, b) =>
+                    result = flatten(List(Opt(e.feature and f, a))) ++ flatten(List(Opt(e.feature and (f.not), b))) ++ result;
+                case One(a) =>
+                    result = Opt(e.feature, a) :: result;
+            }
+        }
+        result
+    }
+    def toOptList[T](c: Conditional[T]): List[Opt[T]] = flatten(List(Opt(FeatureExpr.base, c)))
+
 }

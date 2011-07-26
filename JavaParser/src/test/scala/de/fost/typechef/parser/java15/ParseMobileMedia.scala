@@ -110,7 +110,8 @@ object ParseMobileMedia {
                     0
                 else
                     1)
-            case c: Choice => countCoices(c.left, ctx and c.feature) + countCoices(c.right, ctx andNot (c.feature)) + 1
+            case c: Choice[_] => countCoices(c.thenBranch, ctx and c.feature) + countCoices(c.elseBranch, ctx andNot (c.feature)) + 1
+            case c: One[_] => countCoices(c.value, ctx)
             case Some(x) => countCoices(x, ctx)
             case None => 0
             case x: String => 0

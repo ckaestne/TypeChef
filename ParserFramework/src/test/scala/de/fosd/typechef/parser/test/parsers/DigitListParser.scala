@@ -9,19 +9,19 @@ class DigitListParser extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[AST] = digitList(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).forceJoin[AST](FeatureExpr.base, Alt.join)
+    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = digitList(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).expectOneResult
 
-    def digitList: MultiParser[AST] =
-        (t("(") ~ digits ~ t(")")) ^^! (Alt.join, {
+    def digitList: MultiParser[Conditional[AST]] =
+        (t("(") ~ digits ~ t(")")) ^^ {
             case (~(~(b1, e), b2)) => e
-        })
+        }
 
-    def digits: MultiParser[AST] =
-        digit ~ opt(digits) ^^! (Alt.join, {
-            case ~(x, Some(DigitList(list: List[_]))) => DigitList(List(x) ++ list)
-            case ~(x, Some(Alt(f, DigitList(listA: List[_]), DigitList(listB: List[_])))) => Alt(f, DigitList(List(x) ++ listA), DigitList(List(x) ++ listB))
-            case ~(x, None) => DigitList(List(x))
-        })
+    def digits: MultiParser[Conditional[AST]] =
+        (digit ~ opt(digits) ^^!  {
+            case ~(x, Some(One(DigitList(list: List[_])))) => One(DigitList(List(x) ++ list))
+            case ~(x, Some(Choice(f, One(DigitList(listA: List[_])), One(DigitList(listB: List[_]))))) => Choice(f, One(DigitList(List(x) ++ listA)), One(DigitList(List(x) ++ listB)))
+            case ~(x, None) => One(DigitList(List(x)))
+        }).map(Conditional.combine(_))
 
     def t(text: String) = token(text, (x => x.t == text))
 

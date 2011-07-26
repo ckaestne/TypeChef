@@ -40,8 +40,8 @@ object GrammarAnalyzer {
         if (c.isInstanceOf[p.RepParser[_]]) {
             analyze(c.asInstanceOf[p.RepParser[Any]].a, level + 1)
         }
-        if (c.isInstanceOf[p.JoinParser[_, _]]) {
-            analyze(c.asInstanceOf[p.JoinParser[Any, Any]].a, level + 1)
+        if (c.isInstanceOf[p.JoinParser[_]]) {
+            analyze(c.asInstanceOf[p.JoinParser[Any]].a, level + 1)
         }
     }
 
@@ -75,8 +75,8 @@ object GrammarAnalyzer {
         if (c.isInstanceOf[p.OtherParser[_]]) {
             return first(c.asInstanceOf[p.OtherParser[Any]].a, newknown, level + 1)
         }
-        if (c.isInstanceOf[p.JoinParser[_, _]]) {
-            return first(c.asInstanceOf[p.JoinParser[Any, Any]].a, newknown, level + 1)
+        if (c.isInstanceOf[p.JoinParser[ _]]) {
+            return first(c.asInstanceOf[p.JoinParser[ Any]].a, newknown, level + 1)
         }
         return List()
     }

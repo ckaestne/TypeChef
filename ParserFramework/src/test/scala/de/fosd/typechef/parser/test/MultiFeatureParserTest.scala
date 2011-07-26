@@ -15,7 +15,7 @@ class MultiFeatureParserTest extends TestCase {
     def t(text: String): MyToken = t(text, FeatureExpr.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
-    def assertParseResult(expected: AST, actual: parser.ParseResult[AST]) {
+    def assertParseResult(expected: Conditional[AST], actual: parser.ParseResult[Conditional[AST]]) {
         System.out.println(actual)
         actual match {
             case parser.Success(ast, unparsed) => {
@@ -35,6 +35,8 @@ class MultiFeatureParserTest extends TestCase {
         val expected = Lit(1)
         assertParseResult(expected, parser.parse(input))
     }
+
+    private implicit def astToConditional(a: AST): Conditional[AST] = One(a)
 
     def testParseSimple() {
         //"(3+5)*(4+2+1)"
@@ -67,23 +69,23 @@ class MultiFeatureParserTest extends TestCase {
 
     def testMultiParseAlternative() {
         val input = List(t("1", f2), t("2", f2.not), t("+"), t("5"))
-        val expected = Plus(Alt(f2, Lit(1), Lit(2)), Lit(5))
+        val expected = Plus(Choice(f2, Lit(1), Lit(2)), Lit(5))
         assertParseResult(expected, parser.parse(input))
     }
 
     def testMultiParseAlternativePlusMinusB() {
         val input = List(t("1"), t("+", f1), t("-", f1.not), t("4", f2), t("5", f2.not))
-        val expected = Alt(f1, Plus(Lit(1), Alt(f2, Lit(4), Lit(5))), Minus(Lit(1), Alt(f2, Lit(4), Lit(5))))
+        val expected = Choice(f1, Plus(Lit(1), Choice(f2, Lit(4), Lit(5))), Minus(Lit(1), Choice(f2, Lit(4), Lit(5))))
         assertParseResult(expected, parser.parse(input))
     }
     def testMultiParseAlternativePlusMinus() {
         val input = List(t("1", f2), t("2", f2.not), t("+", f1), t("-", f1.not), t("5"))
-        val expected = Alt(f1, Plus(Alt(f2, Lit(1), Lit(2)), Lit(5)), Minus(Alt(f2, Lit(1), Lit(2)), Lit(5)))
+        val expected = Choice(f1, Plus(Choice(f2, Lit(1), Lit(2)), Lit(5)), Minus(Choice(f2, Lit(1), Lit(2)), Lit(5)))
         assertParseResult(expected, parser.parse(input))
     }
     def testMultiParseAlternativeTwoPlus() {
         val input = List(t("1", f2), t("2", f2.not), t("+", f1), t("+", f1.not), t("5"))
-        val expected = Plus(Alt(f2, Lit(1), Lit(2)), Lit(5))
+        val expected = Plus(Choice(f2, Lit(1), Lit(2)), Lit(5))
         assertParseResult(expected, parser.parse(input))
     }
     def testMultiParseAlternativeOverBrakets() {
@@ -92,7 +94,7 @@ class MultiFeatureParserTest extends TestCase {
             t("(", f1.not), t("2", f1.not),
             t(")"), t("*"), t("("),
             t("4", f2), t("1", f2.not), t("+"), t("1"), t("+"), t("1"), t(")"))
-        val expected = Mul(Alt(f1, Plus(Lit(3), Lit(5)), Lit(2)), Plus(Alt(f2, Lit(4), Lit(1)), Plus(Lit(1), Lit(1))))
+        val expected = Mul(Choice(f1, Plus(Lit(3), Lit(5)), Lit(2)), Plus(Choice(f2, Lit(4), Lit(1)), Plus(Lit(1), Lit(1))))
         assertParseResult(expected, parser.parse(input))
     }
 
@@ -103,24 +105,24 @@ class MultiFeatureParserTest extends TestCase {
             t(")"), t("*"), t("("),
             t("4", f2), t("1", f2.not), t("+"), t("2"), t("+"), t("1"), t(")"))
 
-        val expected = Mul(Alt(f1, Plus(Lit(3), Lit(5)), Lit(3)), Plus(Alt(f2, Lit(4), Lit(1)), Plus(Lit(2), Lit(1))))
+        val expected = Mul(Choice(f1, Plus(Lit(3), Lit(5)), Lit(3)), Plus(Choice(f2, Lit(4), Lit(1)), Plus(Lit(2), Lit(1))))
         assertParseResult(expected, parser.parse(input))
     }
 
     def testOptionalEnd() {
         {
             val input = List(t("("), t("1"), t("+", f2), t("5", f2), t(")"))
-            val expected = Alt(f2, Plus(Lit(1), Lit(5)), Lit(1))
+            val expected = Choice(f2, Plus(Lit(1), Lit(5)), Lit(1))
             assertParseResult(expected, parser.parse(input))
         }
         {
             val input = List(t("1"), t("+", f2), t("5", f2))
-            val expected = Alt(f2, Plus(Lit(1), Lit(5)), Lit(1))
+            val expected = Choice(f2, Plus(Lit(1), Lit(5)), Lit(1))
             assertParseResult(expected, parser.parse(input))
         }
         {
             val input = List(t("1"), t("+", f2.not), t("5", f2.not))
-            val expected = Alt(f2.not, Plus(Lit(1), Lit(5)), Lit(1))
+            val expected = Choice(f2.not, Plus(Lit(1), Lit(5)), Lit(1))
             assertParseResult(expected, parser.parse(input))
         }
     }

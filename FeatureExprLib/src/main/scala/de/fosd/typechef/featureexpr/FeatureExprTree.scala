@@ -9,7 +9,8 @@ sealed trait FeatureExprTree[T]
 trait FeatureExprValueOps {
     implicit def long2value(x: Long): FeatureExprValue = FExprBuilder.createValue(x)
 
-    //This is to add, for Scala sources, the toFeatureExpr method to FeatureExprTree[Long
+    //This is to add, for Scala sources, the toFeatureExpr method to
+    //FeatureExprTree[Long] = FeatureExprValue
     class RichFeatureExprValue private[featureexpr](val v: FeatureExprValue) {
         def toFeatureExpr: FeatureExpr = FeatureExprValue.toFeatureExpr(v)
     }
