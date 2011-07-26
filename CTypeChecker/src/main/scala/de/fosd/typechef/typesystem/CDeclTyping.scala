@@ -111,7 +111,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         if (types.size == 1)
             types.head
         else if (types.size == 0)
-            One(CUnknown("no type specfier found"))
+            One(CUnknown("no type specifier found"))
         else
             One(CUnknown("multiple types found " + types))
         //

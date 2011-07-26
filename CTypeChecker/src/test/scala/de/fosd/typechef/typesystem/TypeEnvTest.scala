@@ -7,6 +7,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
 class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
@@ -105,7 +106,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         val typedefs = ast.defs.last.entry -> typedefEnv
 
         typedefs("myint") should be(CSigned(CInt()))
-        typedefs("mystr") should be(CAnonymousStruct(new ConditionalTypeMap(Map("x" -> Seq((base, CDouble()))))))
+        typedefs("mystr") should be(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, One(CDouble()))))
         typedefs("myunsign") should be(CUnsigned(CInt()))
 
         //typedef is not a declaration
@@ -113,7 +114,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         env.contains("mystr") should be(false)
 
         env("myintvar") should be(CSigned(CInt()))
-        env("mystrvar") should be(CPointer(CAnonymousStruct(new ConditionalTypeMap(Map("x" -> Seq((base, CDouble())))))))
+        env("mystrvar") should be(CPointer(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, One(CDouble())))))
         env("mypairvar") should be(CStruct("pair"))
 
         //structure definitons should be recognized despite typedefs
@@ -179,7 +180,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
         println(env)
         env("v") match {
-            case CPointer(CAnonymousStruct(_, _)) =>
+            case One(CPointer(CAnonymousStruct(_, _))) =>
             case e => fail(e.toString)
         }
     }
@@ -212,7 +213,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         val env = ast.defs.last.entry -> varEnv
         println(env)
         env("foo") match {
-            case CAnonymousStruct(members, false) =>
+            case One(CAnonymousStruct(members, false)) =>
                 members("b3") should be(CSigned(CInt()))
                 members("b1") should be(CSigned(CInt()))
                 members("b2") should be(CSigned(CInt()))

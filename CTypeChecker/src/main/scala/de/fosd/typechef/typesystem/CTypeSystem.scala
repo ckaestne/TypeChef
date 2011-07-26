@@ -6,7 +6,7 @@ import org.kiama.attribution.Attribution._
 import org.kiama._
 import org.kiama.rewriting.Rewriter._
 import attribution.Attributable
-import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.conditional._
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -89,7 +89,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
                     issueError("function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
 
         case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
-            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+        //TODO variability//            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+            if (ctype(expr).exists(_.sometimesUnknown))
                 issueError("cannot (always) resolve function call " + expr + ": " + ctype(expr), expr)
 
         case ExprStatement(expr) => checkExpr(expr)
@@ -110,7 +111,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     }
 
     private def checkExpr(expr: Expr) =
-        if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+    //TODO variability: if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+        if (ctype(expr).exists(_.sometimesUnknown))
             issueError("cannot (always) resolve expression " + expr + ": " + ctype(expr), expr)
 
 

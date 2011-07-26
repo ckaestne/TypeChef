@@ -6,6 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr.FeatureExpr
 
@@ -14,13 +15,13 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
 
     test("wellformed types") {
         val sEnv: StructEnv = new StructEnv(Map(
-            (("wf1", false) -> new ConditionalTypeMap(Map("a" -> Seq((base, CFloat()))))),
-            (("wf2", true) -> new ConditionalTypeMap(Map("a" -> Seq((base, CFloat())), "b" -> Seq((base, CDouble()))))), //union
-            (("wf3", false) -> new ConditionalTypeMap(Map("a" -> Seq((base, CPointer(CStruct("wf2")))), "b" -> Seq((base, CDouble()))))),
-            (("wf4", false) -> new ConditionalTypeMap(Map("a" -> Seq((base, CPointer(CStruct("wf2")))), "b" -> Seq((base, CPointer(CStruct("wf4"))))))),
+            (("wf1", false) -> (new ConditionalTypeMap() + ("a", base, One(CFloat())))),
+            (("wf2", true) -> (new ConditionalTypeMap() + ("a", base, One(CFloat())) + ("b", base, One(CDouble())))), //union
+            (("wf3", false) -> (new ConditionalTypeMap() + ("a", base, One(CPointer(CStruct("wf2")))) + ("b", base, One(CDouble())))),
+            (("wf4", false) -> (new ConditionalTypeMap() + ("a", base, One(CPointer(CStruct("wf2")))) + ("b", base, One(CPointer(CStruct("wf4")))))),
             //            (("nwf1", false) -> new ConditionalTypeMap(Map("a" -> Seq((base, CFloat()), (base, CDouble()))))),
-            (("nwf2", false) -> new ConditionalTypeMap(Map("a" -> Seq((base, CVoid())), "b" -> Seq((base, CDouble()))))),
-            (("nwf3", false) -> new ConditionalTypeMap(Map()))
+            (("nwf2", false) -> (new ConditionalTypeMap() + ("a", base, One(CVoid())) + ("b", base, One(CDouble())))),
+            (("nwf3", false) -> new ConditionalTypeMap())
         ))
         val tEnv: PtrEnv = Set("Str", "wf2")
         val wf = wellformed(sEnv, tEnv, _: CType) should be(true)
@@ -66,23 +67,23 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
     test("simple expression types") {
         val et = getExprType(new VarTypingContext(), new StructEnv(), _: PrimaryExpr)
 
-        et(Constant("1")) should be(CSigned(CInt()))
+        et(Constant("1")) should be(One(CSigned(CInt())))
     }
 
     test("choice types and their operations") {
         val fx = FeatureExpr.createDefinedExternal("X")
         val fy = FeatureExpr.createDefinedExternal("Y")
-        val c = CChoice(fx, CDouble(), CFloat())
-        val c2 = CChoice(fx, CDouble(), CChoice(fx.not, CFloat(), CUnknown("")))
+        val c = Choice(fx, One(CDouble()), One(CFloat()))
+        val c2 = Choice(fx, One(CDouble()), Choice(fx.not, One(CFloat()), One(CUnknown(""))))
 
         c2.simplify should be(c)
-        c2.simplify(fx) should be(CDouble())
+        c2.simplify(fx) should be(One(CDouble()))
         c2.simplify(fx) should be(c.simplify(fx))
 
         c2.map({
             case CDouble() => CUnsigned(CChar())
             case x => x
-        }) should be(CChoice(fx, CUnsigned(CChar()), CChoice(fx.not, CFloat(), CUnknown(""))))
+        }) should be(Choice(fx, One(CUnsigned(CChar())), Choice(fx.not, One(CFloat()), One(CUnknown("")))))
     }
 
 }

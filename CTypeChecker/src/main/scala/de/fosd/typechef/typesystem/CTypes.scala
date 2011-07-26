@@ -196,7 +196,7 @@ trait CTypes {
         def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
         def contains(name: String) = m.contains(name)
         def isEmpty = m.isEmpty
-        //        def allTypes: Iterable[CType] = entries.values.flatten.map(_._2)
+        def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat
     }
 
 
@@ -269,10 +269,16 @@ trait CTypes {
         case CPointer(f: CFunction) => normalize(f)
         case CPointer(x: CType) => CPointer(normalize(x))
         case CArray(t, _) => CPointer(normalize(t)) //TODO do this recursively for all occurences of Array
-        case CChoice(f, a, b) => CChoice(f, normalize(a), normalize(b))
         case CFunction(p, rt) => CFunction(p.map(normalize), normalize(rt))
         case c => c
     }
 
+
+    //ugly workaround
+    //TODO remove, replace by proper variability handling
+    def __makeOne(c: Conditional[CType]): CType = c match {
+        case One(e) => e
+        case Choice(_, a, _) => __makeOne(a)
+    }
 
 }

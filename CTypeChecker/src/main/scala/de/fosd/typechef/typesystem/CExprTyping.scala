@@ -12,10 +12,10 @@ import org.kiama._
  */
 trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
-    def ctype(expr: Expr): CType = expr -> exprType
-    def ctype(expr: Expr, context: AST): CType =
+    def ctype(expr: Expr): Conditional[CType] = expr -> exprType
+    def ctype(expr: Expr, context: AST): Conditional[CType] =
         getExprType(outerVarEnv(context), outerStructEnv(context), expr)
-    val exprType: Expr ==> CType = attr {
+    val exprType: Expr ==> Conditional[CType] = attr {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
 
@@ -32,8 +32,11 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
     //    private def anonymousStructLookup(fields: List[(String, CType)], fieldName:String):CType =
     //        if (fie)
 
-    private[typesystem] def getExprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
-        val et = getExprType(varCtx, strEnv, _: Expr)
+    private[typesystem] def getExprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): Conditional[CType] = One(getExprTypeOne(varCtx, strEnv, expr))
+
+    //TODO proper variability
+    private def getExprTypeOne(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
+        val et = getExprTypeOne(varCtx, strEnv, _: Expr)
         //TODO assert types in varCtx and funCtx are welltyped and non-void
         expr match {
         /**
@@ -141,7 +144,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
                 }
             //x?y:z  (gnuc: x?:z === x?x:z)
-            case ConditionalExpr(condition, thenExpr, elseExpr) => getConditionalExprType(ctype(thenExpr.getOrElse(condition)), ctype(elseExpr))
+            case ConditionalExpr(condition, thenExpr, elseExpr) => getConditionalExprType(__makeOne(ctype(thenExpr.getOrElse(condition))), __makeOne(ctype(elseExpr)))
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
             //TODO variability (there might be alternative last statements)
@@ -235,12 +238,5 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
     }
 
-
-    //ugly workaround
-    //TODO remove, replace by proper variability handling
-    private def __makeOne(c: Conditional[CType]): CType = c match {
-        case One(e) => e
-        case Choice(_, a, _) => __makeOne(a)
-    }
 
 }

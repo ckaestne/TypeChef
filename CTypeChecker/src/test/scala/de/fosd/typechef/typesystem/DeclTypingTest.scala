@@ -10,7 +10,7 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
-class DeclTypingTest extends FunSuite with ShouldMatchers with CDeclTyping with TestHelper {
+class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
 
 
     private def declTL(code: String) = {
@@ -19,10 +19,10 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CDeclTyping with 
         println(r)
         r
     }
-    private def declCT(code: String):Conditional[CType] = declTL(code)(0)._2
-    private def declT(code: String):CType = declCT(code) match {
-        case One(e)=>e
-        case e => CUnknown("Multiple types not expected "+e)
+    private def declCT(code: String): Conditional[CType] = declTL(code)(0)._2
+    private def declT(code: String): CType = declCT(code) match {
+        case One(e) => e
+        case e => CUnknown("Multiple types not expected " + e)
     }
 
     test("recognizing basic types") {
@@ -63,14 +63,14 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CDeclTyping with 
     }
 
     test("variable declarations") {
-        declTL("double a;") should be(List(("a", CDouble())))
-        declTL("double a,b;") should be(List(("a", CDouble()), ("b", CDouble())))
-        declTL("double a[];") should be(List(("a", CArray(CDouble()))))
-        declTL("double **a;") should be(List(("a", CPointer(CPointer(CDouble())))))
-        declTL("double *a[];") should be(List(("a", CArray(CPointer(CDouble())))))
-        declTL("double a[][];") should be(List(("a", CArray(CArray(CDouble())))))
-        declTL("double *a[][];") should be(List(("a", CArray(CArray(CPointer(CDouble()))))))
-        declTL("double (*a)[];") should be(List(("a", CPointer(CArray(CDouble())))))
+        declT("double a;") should be(CDouble())
+        declTL("double a,b;") should be(List(("a", One(CDouble())), ("b", One(CDouble()))))
+        declT("double a[];") should be(CArray(CDouble()))
+        declT("double **a;") should be(CPointer(CPointer(CDouble())))
+        declT("double *a[];") should be(CArray(CPointer(CDouble())))
+        declT("double a[][];") should be(CArray(CArray(CDouble())))
+        declT("double *a[][];") should be(CArray(CArray(CPointer(CDouble()))))
+        declT("double (*a)[];") should be(CPointer(CArray(CDouble())))
         declT("double *(*a[1])();") should be(CArray(CPointer(CFunction(Seq(), CPointer(CDouble())))))
     }
 
@@ -107,16 +107,16 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CDeclTyping with 
         declT("typeof(1) a;") should be(CSigned(CInt()))
     }
 
-    val fx=FeatureExpr.createDefinedExternal("X")
-    val fy=FeatureExpr.createDefinedExternal("Y")
+    val fx = FeatureExpr.createDefinedExternal("X")
+    val fy = FeatureExpr.createDefinedExternal("Y")
     test("conditional declarations") {
         declCT("int a;") should be(One(CSigned(CInt())))
-        declCT("#ifdef X\nint\n#else\nlong\n#endif\n a;") should be(Choice(fx.not,One(CSigned(CLong())),One(CSigned(CInt()))))
-        declCT("#ifdef X\nlong\n#endif\nlong a;") should be(Choice(fx,One(CSigned(CLongLong())),One(CSigned(CLong()))))
-        declCT("long \n#ifdef X\n*\n#endif\n a;") should be(Choice(fx,One(CPointer(CSigned(CLong()))),One(CSigned(CLong()))))
+        declCT("#ifdef X\nint\n#else\nlong\n#endif\n a;") should be(Choice(fx.not, One(CSigned(CLong())), One(CSigned(CInt()))))
+        declCT("#ifdef X\nlong\n#endif\nlong a;") should be(Choice(fx, One(CSigned(CLongLong())), One(CSigned(CLong()))))
+        declCT("long \n#ifdef X\n*\n#endif\n a;") should be(Choice(fx, One(CPointer(CSigned(CLong()))), One(CSigned(CLong()))))
         declCT("long \n#ifdef X\n*\n#endif\n#ifdef Y\n*\n#endif\n a;") should be(
-            Choice(fy,Choice(fx,One(CPointer(CPointer(CSigned(CLong())))),One(CPointer(CSigned(CLong())))),
-                Choice(fx,One(CPointer(CSigned(CLong()))),One(CSigned(CLong())))))
+            Choice(fy, Choice(fx, One(CPointer(CPointer(CSigned(CLong())))), One(CPointer(CSigned(CLong())))),
+                Choice(fx, One(CPointer(CSigned(CLong()))), One(CSigned(CLong())))))
     }
 
 }

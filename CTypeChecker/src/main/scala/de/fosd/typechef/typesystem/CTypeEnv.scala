@@ -96,12 +96,15 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     protected def outerStructEnv(e: AST): StructEnv =
         outer[StructEnv](structEnv, () => new StructEnv(), e)
 
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean =
+        ctype.simplify.forall(wellformed(structEnv, ptrEnv, _))
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
         val wf = wellformed(structEnv, ptrEnv, _: CType)
-        def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) = !m.isEmpty && m.allTypes.forall(t => {
-            t != CVoid() && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t)
-        })
+        def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) =
+            !m.isEmpty && m.allTypes.forall(t => {
+                t.forall(_ != CVoid()) && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t)
+            })
         def lastParam(p: Option[CType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
         ctype match {
             case CSigned(_) => true
@@ -132,7 +135,6 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             case CObj(_) => false
             case CCompound() => true
             case CIgnore() => true
-            case CChoice(_, a, b) => wf(a) && wf(b)
         }
     }
 
