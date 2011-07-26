@@ -6,6 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExpr.dead
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 
@@ -49,13 +50,13 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         println(env.env)
 
         //struct should be in environement
-        env.contains("account", false) should be(true)
-        env.contains("account", true) should be(false) //not a union
+        env.isDefined("account", false) should be(base)
+        env.isDefined("account", true) should be(dead) //not a union
 
-        env.contains("uaccount", false) should be(false)
-        env.contains("uaccount", true) should be(true) //a union
+        env.isDefined("uaccount", false) should be(dead)
+        env.isDefined("uaccount", true) should be(base) //a union
 
-        env.contains("announcedStruct", false) should be(true) //announced structs should be in the environement, but empty
+        env.isDefined("announcedStruct", false) should be(base) //announced structs should be in the environement, but empty
         env.get("announcedStruct", false) should be('isEmpty)
 
         val accountStruct = env.get("account", false)
@@ -119,8 +120,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
 
         //structure definitons should be recognized despite typedefs
         val structenv: StructEnv = ast.defs.last.entry -> structEnv
-        structenv.contains("pair", false) should be(true)
-        structenv.contains("mystr", false) should be(false)
+        structenv.isDefined("pair", false) should be(base)
+        structenv.isDefined("mystr", false) should be(dead)
 
     }
 
@@ -342,8 +343,16 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
                 int c;
             } vs2;
             #endif
+            ;
+            #ifdef X
+            struct s3 { long a; } vs3;
+            #elif defined Y
+            struct s3 { int b; } vs3;
+            #endif
+            ;
             struct s1 vvs1;
             struct s2 vvs2;
+            struct s3 vvs3;
             struct {
                 int a;
                 #ifdef Y
@@ -354,11 +363,20 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
             void foo() {}
         """))
 
-        val env: StructEnv = ast.defs.last.entry -> structEnv
+        println(ast)
 
-        println(env)
+        val structenv: StructEnv = ast.defs.last.entry -> structEnv
+
+        println(structenv)
+
+        structenv.isDefined("s1", false) should be(base)
+        structenv.isDefined("s2", false) should be(fx)
+        structenv.isDefined("s3", false) should be(fx or fy)
+
 
         println(ast.defs.last.entry -> varEnv)
+
+        fail("TODO: add other checks")
     }
 
 }

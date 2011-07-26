@@ -23,10 +23,10 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
     //implemented by CStmtTyping
 
     private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): TConditional[CType] = {
-        if (strEnv contains (structName, isUnion)) {
-            val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
-            struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
-        } else TOne(CUnknown("struct/union " + structName + " unknown"))
+        assert(strEnv.someDefinition(structName, isUnion), "struct/union " + structName + " unknown") //should not occur by construction. system won't build a struct type if its name is not in the struct table
+
+        val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
+        struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
     }
 
     //    private def anonymousStructLookup(fields: List[(String, CType)], fieldName:String):CType =

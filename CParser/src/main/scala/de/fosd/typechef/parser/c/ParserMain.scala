@@ -88,7 +88,7 @@ class ParserMain(p: CParser) {
         //        println("done.")
 
         val l = result.toList(FeatureExpr.base).filter(_._2.isSuccess)
-        if (l.isEmpty) {
+        if (l.isEmpty || !result.toErrorList.isEmpty) {
             println(printParseResult(result, FeatureExpr.base))
             null
         } else l.head._2.asInstanceOf[p.Success[AST]].result
