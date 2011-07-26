@@ -7,7 +7,6 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
 class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
@@ -107,8 +106,6 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         declT("typeof(1) a;") should be(CSigned(CInt()))
     }
 
-    val fx = FeatureExpr.createDefinedExternal("X")
-    val fy = FeatureExpr.createDefinedExternal("Y")
     test("conditional declarations") {
         declCT("int a;") should be(TOne(CSigned(CInt())))
         declCT("#ifdef X\nint\n#else\nlong\n#endif\n a;") should be(TChoice(fx.not, TOne(CSigned(CLong())), TOne(CSigned(CInt()))))

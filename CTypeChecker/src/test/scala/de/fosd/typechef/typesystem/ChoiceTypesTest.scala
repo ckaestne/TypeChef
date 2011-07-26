@@ -5,15 +5,12 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
 class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping with TestHelper {
 
-    val fx = FeatureExpr.createDefinedExternal("X")
-    val fy = FeatureExpr.createDefinedExternal("Y")
 
     test("alternatives in declarations") {t()}
     def t() {

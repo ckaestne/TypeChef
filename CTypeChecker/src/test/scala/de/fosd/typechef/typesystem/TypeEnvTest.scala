@@ -245,5 +245,120 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         assert(wellformed(null, null, tdenv("b")))
     }
 
+    test("conditional typedef environment") {
+        val ast = (getAST("""
+        #ifdef X
+            typedef int a;
+        #else
+            typedef long a;
+        #endif
+            typedef a b;
+
+            a v;
+            b w;
+
+            void foo() {}
+        """))
+        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+
+        val tdenv = fundef -> typedefEnv
+        val env = fundef -> varEnv
+
+        println("tdenv: " + tdenv)
+
+        env("v") should be(TChoice(fx.not, TOne(CSigned(CLong())), TOne(CSigned(CInt()))))
+        env("w") should equal(env("v"))
+    }
+
+
+    test("conditional enum environment") {
+        val ast = (getAST("""
+            enum Direction {
+                #ifdef X
+                    South,
+                #endif
+                #ifdef X
+                    North,
+                #else
+                    North,
+                #endif
+                #ifdef X
+                    East,
+                #endif
+                #ifdef Y
+                    East,
+                #endif
+                West };
+            #ifdef Y
+            enum Color { Red, Green, Blue };
+            #endif
+            #ifdef X
+            enum Color { Blue };
+            #endif
+            """))
+        val env = ast.defs.last.entry -> varEnv
+        val enumenv = ast.defs.last.entry -> enumEnv
+
+        enumenv should contain key ("Direction")
+        enumenv should contain key ("Color")
+        enumenv should not contain key("Undef")
+
+        enumenv("Direction") should be(base)
+        enumenv("Color") should be(fy or fx)
+
+        env("South") should be(TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined())))
+        env("North") should be(TOne(CSigned(CInt())))
+        env("East") should be(TChoice(fx, TOne(CSigned(CInt())), TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined()))))
+        env("West") should be(TOne(CSigned(CInt())))
+        env("Red") should be(TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined())))
+        env("Blue") should be(TChoice(fx, TOne(CSigned(CInt())), TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined()))))
+    }
+
+
+    test("conditional structs") {
+        val ast = (getAST("""
+            struct s1 {
+                #ifdef X
+                int a;
+                #endif
+                int b;
+                #ifdef X
+                int c;
+                #else
+                long c;
+                #endif
+                #ifdef X
+                int d;
+                #elif defined(Y)
+                long d;
+                #endif
+            } vs1;
+            #ifdef X
+            struct s2 {
+                int a;
+                #ifdef Y
+                int b;
+                #endif
+                int c;
+            } vs2;
+            #endif
+            struct s1 vvs1;
+            struct s2 vvs2;
+            struct {
+                int a;
+                #ifdef Y
+                int b;
+                #endif
+                int c;
+            } vs3;
+            void foo() {}
+        """))
+
+        val env: StructEnv = ast.defs.last.entry -> structEnv
+
+        println(env)
+
+        println(ast.defs.last.entry -> varEnv)
+    }
 
 }

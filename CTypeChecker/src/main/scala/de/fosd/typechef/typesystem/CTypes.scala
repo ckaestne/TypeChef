@@ -200,6 +200,7 @@ trait CTypes {
 
         override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
         override def hashCode = m.hashCode
+        override def toString = m.toString
     }
 
 

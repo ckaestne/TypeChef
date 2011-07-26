@@ -147,7 +147,6 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     /**define all fields from enum type specifiers as int values */
     private def enumDeclarations(specs: List[Opt[Specifier]]): List[(String, FeatureExpr, TConditional[CType])] = {
         var result = List[(String, FeatureExpr, TConditional[CType])]()
-        //TODO variability
         for (Opt(_, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(_, enum) <- enums)
                 result = (enum.id.name, enum -> featureExpr, TOne(CSigned(CInt()))) :: result
@@ -160,6 +159,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     def declType(specs: List[Opt[Specifier]], decl: Declarator): TConditional[CType] =
         getDeclaratorType(decl, constructType(specs))
 
+    // assumptions: we expect that a typedef specifier is either always included or never
     def isTypedef(specs: List[Opt[Specifier]]) = specs.map(_.entry).contains(TypedefSpecifier())
 
     protected def getDeclaratorType(decl: Declarator, returnType: TConditional[CType]): TConditional[CType] = {
@@ -234,11 +234,8 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     /*************
      * Typedef environment (all defined type synonyms up to here)
      */
-    //Type synonyms with typedef
-    type TypeDefEnv = Map[String, TConditional[CType]]
-
     /**typedef enviroment, outside the current declaration*/
-    val previousTypedefEnv: AST ==> TypeDefEnv = {
+    val previousTypedefEnv: AST ==> ConditionalTypeMap = {
         case ast: AST =>
             if (!(ast -> inDeclaration)) ast -> typedefEnv
             else (ast -> outerDeclaration -> prevOrParentAST -> typedefEnv)
@@ -253,18 +250,18 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         case null => last
     }
 
-    val typedefEnv: AST ==> TypeDefEnv = attr {
+    val typedefEnv: AST ==> ConditionalTypeMap = attr {
         //TODO variability
         case e: Declaration => outerTypedefEnv(e) ++ recognizeTypedefs(e)
         case e: AST => outerTypedefEnv(e)
     }
-    private def outerTypedefEnv(e: AST): TypeDefEnv =
-        outer[TypeDefEnv](typedefEnv, () => Map(), e)
+    private def outerTypedefEnv(e: AST): ConditionalTypeMap =
+        outer[ConditionalTypeMap](typedefEnv, () => new ConditionalTypeMap(), e)
 
-    private def recognizeTypedefs(decl: Declaration): TypeDefEnv = {
+    private def recognizeTypedefs(decl: Declaration): Seq[(String, FeatureExpr, TConditional[CType])] = {
         if (isTypedef(decl.declSpecs))
-            (for (Opt(f, init) <- decl.init) yield (init.getName -> declType(decl.declSpecs, init.declarator))) toMap
-        else Map()
+            (for (Opt(f, init) <- decl.init) yield (init.getName, init -> featureExpr, declType(decl.declSpecs, init.declarator)))
+        else Seq()
     }
 
     private val inDeclaration: AST ==> Boolean = attr {

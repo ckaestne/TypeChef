@@ -9,7 +9,6 @@ import de.fosd.typechef.parser.c._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
-import de.fosd.typechef.featureexpr.FeatureExpr
 import FeatureExpr.base
 import de.fosd.typechef.conditional._
 
@@ -37,9 +36,6 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
     val foo = functionDef("foo")(ast).head
     val bar = functionDef("bar")(ast).head
 
-    private val fa = FeatureExpr.createDefinedExternal("a")
-    private val fb = FeatureExpr.createDefinedExternal("b")
-    private val fc = FeatureExpr.createDefinedExternal("c")
     private def o[T](o: T) = Option(base, o)
 
     test("ast navigation with Opt") {

@@ -55,5 +55,6 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
 
     override def equals(that: Any) = that match {case c: ConditionalMap[_, _] => entries equals c.entries; case _ => false}
     override def hashCode = entries.hashCode
+    override def toString = entries.toString
 }
 

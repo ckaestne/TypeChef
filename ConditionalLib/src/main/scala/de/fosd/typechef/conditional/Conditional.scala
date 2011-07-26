@@ -32,6 +32,7 @@ case class TChoice[+T](feature: FeatureExpr, thenBranch: TConditional[T], elseBr
         val bb = elseBranch._simplify(context andNot feature)
         if ((context and feature).isContradiction) bb
         else if ((context andNot feature).isContradiction) aa
+        else if (aa == bb) aa
         else TChoice(feature, aa, bb)
     }
 

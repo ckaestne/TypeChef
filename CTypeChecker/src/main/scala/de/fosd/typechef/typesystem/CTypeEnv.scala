@@ -14,7 +14,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
 
     /**
      * for struct and union
-     * we reuse the vartyping context for the fields of the struct
+     * ConditionalTypeMap represents for the fields of the struct
      */
     class StructEnv(val env: Map[(String, Boolean), ConditionalTypeMap]) {
         def this() = this (Map())
@@ -26,6 +26,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         //TODO check that there is not both a struct and a union with the same name
             new StructEnv(env + ((name, isUnion) -> (env.getOrElse((name, isUnion), new ConditionalTypeMap()) ++ fields)))
         def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion))
+        override def toString = env.toString
     }
 
 
@@ -150,7 +151,8 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         case e@Declaration(decls, _) =>
             decls.foldRight(outerEnumEnv(e))({
                 case (Opt(_, typeSpec), b: EnumEnv) => typeSpec match {
-                    case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) => b + (name -> ((typeSpec -> featureExpr) or b.getOrElse(name, FeatureExpr.dead)))
+                    case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) =>
+                        b + (name -> ((typeSpec -> featureExpr) or b.getOrElse(name, FeatureExpr.dead)))
                     case _ => b
                 }
             })
