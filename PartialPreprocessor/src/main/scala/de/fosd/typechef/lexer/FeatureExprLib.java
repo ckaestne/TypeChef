@@ -23,11 +23,14 @@ public class FeatureExprLib {
         return FeatureExpr$.MODULE$.dead();
     }
 
-    public static FeatureExprTree<Long> zero() {
+    //TODO: for some reason FeatureExprTree<Long> does no longer work since
+    //scala 2.9. We use FeatureExprTree<Object>, which seems unproblematic since
+    //the result is not constructed or inspected in Java code anyway, but only passed around
+    public static FeatureExprTree<Object> zero() {
         return FeatureExpr$.MODULE$.createInteger(0);
     }
 
-    public static FeatureExpr toFeatureExpr(FeatureExprTree<Long> v) {
+    public static FeatureExpr toFeatureExpr(FeatureExprTree<Object> v) {
         return FeatureExprValue$.MODULE$.toFeatureExpr(v);
     }
 }
