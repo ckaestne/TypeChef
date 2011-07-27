@@ -12,18 +12,35 @@ import de.fosd.typechef.conditional._
 @RunWith(classOf[JUnitRunner])
 class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping with TestHelper {
 
+    val _i = TOne(CSigned(CInt()))
+    val _l = TOne(CSigned(CLong()))
+    val _oi = TOne(CObj(CSigned(CInt())))
+    val _ol = TOne(CObj(CSigned(CLong())))
+    val _u = TOne(CUndefined())
+    val c_i_l = TChoice(fx, _i, _l)
 
-    private def expr(code: String): CType = {
+    protected def assertCondEquals(exp: TConditional[CType], act: TConditional[CType]) {
+        assert(ConditionalLib.equals(exp, act), "Expected: " + exp + "\nActual: " + act)
+    }
+
+    private def exprV(code: String): TConditional[CType] = {
         val ast = parseExpr(code)
         val r = getExprType(varCtx, astructEnv, ast)
         println(ast + " --> " + r)
-        __makeOne(r)
+        r
     }
+
+    private def expr(code: String): CType =
+        exprV(code) match {
+            case TOne(t) => t
+            case e => CUnknown("Multiple types " + e)
+        }
 
 
     val varCtx: VarTypingContext =
         new VarTypingContext() ++ (Seq(
             ("a", base, CDouble()),
+            ("ca", fa, CDouble()),
             ("v", base, CVoid()),
             ("s", base, CStruct("str")),
             ("sp", base, CPointer(CStruct("str"))),
@@ -33,10 +50,17 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
             ("strf", base, CFunction(Seq(), CStruct("str"))),
             ("funparam", base, CPointer(CFunction(Seq(), CDouble()))),
             ("funparamptr", base, CPointer(CPointer(CFunction(Seq(), CDouble()))))
-        ).map(x => (x._1, x._2, TOne(x._3))))
+        ).map(x => (x._1, x._2, TOne(x._3))) ++ Seq(
+            ("c", base, c_i_l),
+            ("vstruct", base, TChoice(fx, TOne(CStruct("vstrA")), TOne(CStruct("vstrB")))),
+            ("vstruct2", base, TChoice(fx, TOne(CStruct("vstrA")), _u))
+        )
+                )
     val astructEnv: StructEnv =
         new StructEnv().add(
-            "str", false, base, new ConditionalTypeMap() + ("a", base, TOne(CDouble())) + ("b", base, TOne(CStruct("str")))
+            "str", false, base, new ConditionalTypeMap() + ("a", base, TOne(CDouble())) + ("b", base, TOne(CStruct("str")))).add(
+            "vstrA", false, fx, new ConditionalTypeMap() + ("a", fx and fy, _l) + ("b", fx, TOne(CStruct("str")))).add(
+            "vstrB", false, base, new ConditionalTypeMap() + ("a", base, _i) + ("b", base, _i) + ("c", fx.not, _i)
         )
 
     test("primitives and pointers") {
@@ -49,6 +73,13 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("*v") should be(CUnknown())
     }
 
+    test("conditional primitives and pointers") {
+        exprV("ca") should be(TChoice(fa, TOne(CObj(CDouble())), _u))
+        exprV("c") should be(c_i_l.map(CObj(_)))
+        exprV("&c") should be(c_i_l.map(CPointer(_)))
+        exprV("*c").simplify should be(TOne(CUnknown()))
+    }
+
     test("struct member access") {
         expr("s.a") should be(CObj(CDouble()))
         expr("strf().a") should be(CDouble())
@@ -56,6 +87,12 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("s.b.a") should be(CObj(CDouble()))
         expr("s.b.b.a") should be(CObj(CDouble()))
         expr("(&s)->a") should be(CObj(CDouble()))
+    }
+    test("conditional struct member access") {
+        assertCondEquals(
+            exprV("vstruct.a"),
+            TChoice(fx and fy, _ol, TChoice(fx.not, _oi, TOne(CUndefined())))
+        )
     }
 
     test("coersion") {
@@ -94,6 +131,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("++3") should be(CUnknown())
     }
     test("binary operation") {
+        //TODO test variability!
         expr("1+2") should be(CSigned(CInt()))
         expr("a+=2") should be(CDouble())
     }
@@ -101,13 +139,13 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("({1;foo();2;})") should be(CSigned(CInt()))
     }
     test("conditional compound statement expressions") {
-        expr("""({1;
+        exprV("""({1;
                     foo();
                     "";
                     #ifdef X
                     2;
                     #endif
-                    })""") should be(TConditional(fx, _i, TOne(CPointer(CSigned(CChar())))))
+                    })""") should be(TChoice(fx, _i, TOne(CPointer(CSignUnspecified(CChar())))))
     }
 
 

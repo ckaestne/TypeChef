@@ -169,7 +169,7 @@ trait CTypes {
         override def sometimesUnknown: Boolean = true
     }
 
-    /**no defined in environment, typically only used in CChoice types */
+    /**not defined in environment, typically only used in CChoice types */
     case class CUndefined() extends CUnknown("undefined")
 
 

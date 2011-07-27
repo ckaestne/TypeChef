@@ -100,5 +100,35 @@ class ConditionalTest {
 
     }
 
+    @Test
+    def testZip {
+        assertEquals(
+            TOne((1, "a")),
+            zip(TOne(1), TOne("a"))
+        )
+        assertEquals(
+            TChoice(fa, TOne((1, "a")), TOne((2, "a"))),
+            zip(TChoice(fa, TOne(1), TOne(2)), TOne("a"))
+        )
+        assertEquals(
+            TChoice(fa, TOne((1, "a")), TOne((1, "b"))),
+            zip(TOne(1), TChoice(fa, TOne("a"), TOne("b")))
+        )
+        assertEquals(
+            TChoice(fa, TOne((1, "a")), TOne((2, "b"))),
+            zip(TChoice(fa, TOne(1), TOne(2)), TChoice(fa, TOne("a"), TOne("b")))
+        )
+        assertEquals(
+            TChoice(fa, TChoice(fb, TOne((1, "a")), TOne((1, "b"))), TChoice(fb, TOne((2, "a")), TOne((2, "b")))),
+            zip(TChoice(fa, TOne(1), TOne(2)), TChoice(fb, TOne("a"), TOne("b")))
+        )
+        assertEquals(
+            TChoice(fa, TOne((1, "a")), TChoice(fa or fb, TOne((2, "a")), TOne((2, "b")))),
+            zip(TChoice(fa, TOne(1), TOne(2)), TChoice(fa or fb, TOne("a"), TOne("b")))
+        )
+
+
+    }
+
 
 }
