@@ -45,5 +45,47 @@ class ConditionalTest {
             explodeOptList(List(Opt(fb, "b"), Opt(fa, "a"))))
     }
 
+    @Test
+    def testFindSubtree {
+        assertEquals(TOne(1), findSubtree(fa, TChoice(fa, TOne(1), TOne(2))))
+        assertEquals(TOne(2), findSubtree(fa.not, TChoice(fa, TOne(1), TOne(2))))
+        assertEquals(TChoice(fa, TOne(1), TOne(2)), findSubtree(fb, TChoice(fa, TOne(1), TOne(2))))
+    }
+
+    @Test
+    def testEquals {
+        assert(ConditionalLib.equals(TOne(1), TOne(1)))
+        assert(ConditionalLib.equals(TChoice(fa, TOne(1), TOne(2)), TChoice(fa.not, TOne(2), TOne(1))))
+        assert(ConditionalLib.equals(
+            TChoice(fa, TChoice(fb, TOne(1), TOne(2)), TOne(3)),
+            TChoice(fb.not, TChoice(fa, TOne(2), TOne(3)), TChoice(fa, TOne(1), TOne(3)))))
+    }
+
+    @Test
+    def testCompare {
+        assertEquals(
+            TChoice(fa, TOne(true), TOne(false)),
+            compare(
+                TChoice(fa, TOne(1), TOne(2)),
+                TChoice(fa, TOne(1), TOne(3)),
+                (x: Int, y: Int) => x equals y
+            ))
+        assertEquals(
+            TOne(true),
+            compare(
+                TChoice(fa, TChoice(fb, TOne(1), TOne(2)), TOne(3)),
+                TChoice(fb.not, TChoice(fa, TOne(2), TOne(3)), TChoice(fa, TOne(1), TOne(3))),
+                (x: Int, y: Int) => x equals y
+            ).simplify)
+        assertEquals(
+            TChoice(fb.not, TChoice(fa.not, false, true), true),
+            compare(
+                TChoice(fa, TChoice(fb, TOne(1), TOne(2)), TOne(3)),
+                TChoice(fb.not, TChoice(fa, TOne(2), TOne(5)), TChoice(fa, TOne(1), TOne(3))),
+                (x: Int, y: Int) => x equals y
+            ).simplify)
+
+    }
+
 
 }

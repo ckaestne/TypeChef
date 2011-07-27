@@ -2,7 +2,6 @@ package de.fosd.typechef.conditional
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 
-//TODO refactor into conditional library together with Conditional, One, Choice and Opt
 
 /**
  * maintains a map
@@ -35,6 +34,30 @@ object ConditionalLib {
                 )
 
         )
+
+    def equals[T](a: TConditional[T], b: TConditional[T]): Boolean =
+        compare(a, b, (x: T, y: T) => x equals y).simplify.forall(a => a)
+
+    def compare[T, R](a: TConditional[T], b: TConditional[T], f: (T, T) => R): TConditional[R] = {
+        def compareSubcondition(context: FeatureExpr, entry: T, other: TConditional[T]) =
+            findSubtree(context, other).map(otherEntry => f(entry, otherEntry))
+
+
+
+
+        a.mapfr(FeatureExpr.base, (feature, x) => compareSubcondition(feature, x, b))
+    }
+
+
+    def findSubtree[T](context: FeatureExpr, tree: TConditional[T]): TConditional[T] = tree match {
+        case o@TOne(_) => o
+        case TChoice(feature, a, b) =>
+            lazy val aa = findSubtree(context and feature, a)
+            lazy val bb = findSubtree(context andNot feature, b)
+            if ((context and feature).isContradiction()) bb
+            else if ((context andNot feature).isContradiction()) aa
+            else TChoice(feature, aa, bb)
+    }
 
 
 }

@@ -28,8 +28,8 @@ case class TChoice[+T](feature: FeatureExpr, thenBranch: TConditional[T], elseBr
     }
     override def hashCode = thenBranch.hashCode + elseBranch.hashCode
     protected[conditional] override def _simplify(context: FeatureExpr) = {
-        val aa = thenBranch._simplify(context and feature)
-        val bb = elseBranch._simplify(context andNot feature)
+        lazy val aa = thenBranch._simplify(context and feature)
+        lazy val bb = elseBranch._simplify(context andNot feature)
         if ((context and feature).isContradiction) bb
         else if ((context andNot feature).isContradiction) aa
         else if (aa == bb) aa
