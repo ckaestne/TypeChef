@@ -19,7 +19,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
 
-    def stmtType(stmt: Statement): CType
+    def getStmtType(stmt: Statement): TConditional[CType]
     //implemented by CStmtTyping
 
     private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): TConditional[CType] = {
@@ -148,7 +148,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
                 //TODO variability (there might be alternative last statements)
-                stmtType(compoundStatement)
+                __makeOne(getStmtType(compoundStatement))
             case ExprList(exprs) => //comma operator, evaluated left to right, last expr yields value and type; like compound statement expression
                 //TODO variability (there might be alternative last statements)
                 et(exprs.last.entry)

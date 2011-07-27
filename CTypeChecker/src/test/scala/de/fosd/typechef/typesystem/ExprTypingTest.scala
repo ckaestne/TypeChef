@@ -100,6 +100,16 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
     test("compound statement expressions") {
         expr("({1;foo();2;})") should be(CSigned(CInt()))
     }
+    test("conditional compound statement expressions") {
+        expr("""({1;
+                    foo();
+                    "";
+                    #ifdef X
+                    2;
+                    #endif
+                    })""") should be(TConditional(fx, _i, TOne(CPointer(CSigned(CChar())))))
+    }
+
 
     test("operations") {
 
