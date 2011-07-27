@@ -6,7 +6,6 @@ import ConditionalLib._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import FeatureExpr._
 
-
 class ConditionalTest {
 
     val fa = createDefinedExternal("a")
@@ -84,6 +83,20 @@ class ConditionalTest {
                 TChoice(fb.not, TChoice(fa, TOne(2), TOne(5)), TChoice(fa, TOne(1), TOne(3))),
                 (x: Int, y: Int) => x equals y
             ).simplify)
+
+    }
+
+    @Test
+    def testLast {
+        assertEquals(TOne(None), lastEntry(List()))
+        assertEquals(TOne(Some(2)), lastEntry(List(Opt(fa, 1), Opt(base, 2))))
+        assertEquals(TChoice(fa, TOne(Some(2)), TOne(None)), lastEntry(List(Opt(fa, 2))))
+        assertEquals(
+            TChoice(fa, TOne(Some(2)), TOne(Some(1))),
+            lastEntry(List(Opt(base, 1), Opt(fa, 2))))
+        assertEquals(
+            TChoice(fa, TOne(Some(2)), TChoice(fb, TOne(Some(1)), TOne(None))),
+            lastEntry(List(Opt(fb, 1), Opt(fa, 2))))
 
     }
 

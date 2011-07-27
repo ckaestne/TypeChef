@@ -60,5 +60,12 @@ object ConditionalLib {
     }
 
 
+    /**
+     * returns the last element (which may differ in different contexts)
+     * or None if the list is empty
+     */
+    def lastEntry[T](list: List[Opt[T]]): TConditional[Option[T]] =
+        conditionalFoldRight(list, TOne(None), (e: T, result: Option[T]) => if (result.isDefined) result else Some(e)) simplify
+
 }
 
