@@ -12,8 +12,9 @@ abstract class TConditional[+T] {
     def simplify(ctx: FeatureExpr) = _simplify(ctx)
     protected[conditional] def _simplify(context: FeatureExpr) = this
 
-    def map[U](f: T => U): TConditional[U]
-    def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): TConditional[U]
+    def map[U](f: T => U): TConditional[U] = mapr(x => TOne(f(x)))
+    def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): TConditional[U] = mapfr(inFeature, (c, x) => TOne(f(c, x)))
+    def mapr[U](f: T => TConditional[U]): TConditional[U] = mapfr(FeatureExpr.base, (c, x) => f(x))
     def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => TConditional[U]): TConditional[U]
 
     def forall(f: T => Boolean): Boolean
@@ -36,17 +37,10 @@ case class TChoice[+T](feature: FeatureExpr, thenBranch: TConditional[T], elseBr
         else TChoice(feature, aa, bb)
     }
 
-    def map[U](f: T => U): TConditional[U] =
-        TChoice(feature, thenBranch.map(f), elseBranch.map(f))
-    def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): TConditional[U] =
-        TChoice(feature, thenBranch.mapf(inFeature and feature, f), elseBranch.mapf(inFeature and (feature.not), f))
     def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => TConditional[U]): TConditional[U] = {
         val newResultA = thenBranch.mapfr(inFeature and feature, f)
         val newResultB = elseBranch.mapfr(inFeature and (feature.not), f)
-        if ((newResultA eq thenBranch) && (newResultB eq elseBranch))
-            this.asInstanceOf[TConditional[U]]
-        else
-            TChoice(feature, newResultA, newResultB)
+        TChoice(feature, newResultA, newResultB)
     }
     def forall(f: T => Boolean): Boolean = thenBranch.forall(f) && elseBranch.forall(f)
 }
@@ -54,8 +48,6 @@ case class TChoice[+T](feature: FeatureExpr, thenBranch: TConditional[T], elseBr
 case class TOne[+T](value: T) extends TConditional[T] {
     override def toString = value.toString
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = value
-    def map[U](f: T => U): TConditional[U] = TOne(f(value))
-    def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): TConditional[U] = TOne(f(inFeature, value))
     def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => TConditional[U]): TConditional[U] = f(inFeature, value)
     def forall(f: T => Boolean): Boolean = f(value)
 }
