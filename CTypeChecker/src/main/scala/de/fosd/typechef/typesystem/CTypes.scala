@@ -251,7 +251,6 @@ trait CTypes {
     def coerce(type1: CType, type2: CType) = {
         val t1 = normalize(type1)
         val t2 = normalize(type2)
-        //TODO variability
         (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
                 (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {
@@ -277,12 +276,5 @@ trait CTypes {
         case c => c
     }
 
-
-    //ugly workaround
-    //TODO remove, replace by proper variability handling
-    def __makeOne(c: TConditional[CType]): CType = c match {
-        case TOne(e) => e
-        case TChoice(_, a, _) => __makeOne(a)
-    }
 
 }
