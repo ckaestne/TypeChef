@@ -2,8 +2,6 @@ package de.fosd.typechef.conditional
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 
-//TODO refactor into conditional library together with Conditional, One, Choice and Opt
-
 /**
  * maintains a map
  * a name may be mapped to alternative entries with different feature expressions
@@ -36,6 +34,47 @@ object ConditionalLib {
 
         )
 
+    def equals[T](a: TConditional[T], b: TConditional[T]): Boolean =
+        compare(a, b, (x: T, y: T) => x equals y).simplify.forall(a => a)
 
+    def compare[T, R](a: TConditional[T], b: TConditional[T], f: (T, T) => R): TConditional[R] =
+        zip(a, b).map(x => f(x._1, x._2))
+
+    def findSubtree[T](context: FeatureExpr, tree: TConditional[T]): TConditional[T] = tree match {
+        case o@TOne(_) => o
+        case TChoice(feature, a, b) =>
+            lazy val aa = findSubtree(context and feature, a)
+            lazy val bb = findSubtree(context andNot feature, b)
+            if ((context and feature).isContradiction()) bb
+            else if ((context andNot feature).isContradiction()) aa
+            else TChoice(feature, aa, bb)
+    }
+
+
+    /**
+     * returns the last element (which may differ in different contexts)
+     * or None if the list is empty
+     */
+    def lastEntry[T](list: List[Opt[T]]): TConditional[Option[T]] =
+        conditionalFoldRight(list, TOne(None), (e: T, result: Option[T]) => if (result.isDefined) result else Some(e)) simplify
+
+
+    /**
+     * combines entries from two conditional values to a conditional pair of values
+     *
+     * this explodes variability and may repeat values as needed
+     */
+    def zip[A, B](a: TConditional[A], b: TConditional[B]): TConditional[(A, B)] =
+        a.mapfr(FeatureExpr.base, (feature, x) => zipSubcondition(feature, x, b))
+
+    private def zipSubcondition[A, B](context: FeatureExpr, entry: A, other: TConditional[B]): TConditional[(A, B)] =
+        findSubtree(context, other).map(otherEntry => (entry, otherEntry))
+
+
+    /**
+     * convenience function, zip two conditional values and map the result
+     */
+    def mapCombination[A, B, C](a: TConditional[A], b: TConditional[B], f: (A, B) => C): TConditional[C] =
+        zip(a, b).map(x => f(x._1, x._2))
 }
 

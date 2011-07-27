@@ -100,7 +100,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     }
 
     val struct: AST ==> Option[(String, Boolean, FeatureExpr, ConditionalTypeMap)] = attr {
-        case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), attributes) if (!attributes.isEmpty) =>
+        case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), attributes) =>
             Some((name, isUnion, e -> featureExpr, parseStructMembers(attributes)))
         case _ => None
     }

@@ -4,15 +4,16 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.Attribution._
 import org.kiama._
+import de.fosd.typechef.conditional.{TOne, ConditionalLib, TConditional}
 
 /**
  * typing C statements
  */
 trait CStmtTyping extends CTypes with CExprTyping {
 
-    def ctype(stmt: Statement) = stmt -> stmtType
+    def ctype(stmt: Statement) = getStmtType(stmt)
 
-    def stmtType(stmt: Statement): CType = stmt -> stmtType
+    def getStmtType(stmt: Statement): TConditional[CType] = stmt -> stmtType
 
 
     /**
@@ -20,13 +21,16 @@ trait CStmtTyping extends CTypes with CExprTyping {
      *
      * information extracted from sparse (evaluate.c)
      */
-    val stmtType: Statement ==> CType = attr {
-        case ExprStatement(expr) => __makeOne(ctype(expr))
+    val stmtType: Statement ==> TConditional[CType] = attr {
+        case ExprStatement(expr) => ctype(expr)
         case CompoundStatement(inner) =>
-        //TODO variability (the last statement may differ)
-            if (inner.isEmpty) CVoid() //sparse
-            else ctype(inner.last.entry)
-        case stmt => CUnknown("no type for " + stmt)
+            val lastStmt: TConditional[Option[Statement]] = ConditionalLib.lastEntry(inner)
+            lastStmt.mapr({
+                case None => TOne(CVoid())
+                case Some(stmt) => stmt -> stmtType
+            }) simplify
+        case stmt =>
+            TOne(CUnknown("no type for " + stmt))
     }
 
 }

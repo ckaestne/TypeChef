@@ -251,7 +251,6 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     }
 
     val typedefEnv: AST ==> ConditionalTypeMap = attr {
-        //TODO variability
         case e: Declaration => outerTypedefEnv(e) ++ recognizeTypedefs(e)
         case e: AST => outerTypedefEnv(e)
     }

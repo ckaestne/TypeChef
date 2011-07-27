@@ -13,6 +13,10 @@ import de.fosd.typechef.conditional._
 @RunWith(classOf[JUnitRunner])
 class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
 
+    val _l = TOne(CSigned(CLong()))
+    val _i = TOne(CSigned(CInt()))
+    val x_i = TChoice(fx, _i, TOne(CUndefined()))
+
 
     private def ast = (getAST("""
             typedef int myint;
@@ -75,8 +79,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
     test("variable environment") {
         val env = ast.defs.last.entry -> varEnv
 
-        env("foo") should be(TOne(CSigned(CInt())))
-        env("bar") should be(TOne(CSigned(CInt())))
+        env("foo") should be(_i)
+        env("bar") should be(_i)
         env("a") should be(TOne(CPointer(CStruct("account"))))
         env("ua") should be(TOne(CPointer(CStruct("uaccount", true))))
         env("acc") should be(TOne(CStruct("account")))
@@ -94,7 +98,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
 
         println(env)
 
-        env("inner") should be(TOne(CSigned(CInt())))
+        env("inner") should be(_i)
         env("foo") should be(TOne(CDouble()))
 
         //parameters should be in scope
@@ -106,7 +110,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         val env = ast.defs.last.entry -> varEnv
         val typedefs = ast.defs.last.entry -> typedefEnv
 
-        typedefs("myint") should be(TOne(CSigned(CInt())))
+        typedefs("myint") should be(_i)
         typedefs("mystr") should be(TOne(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, TOne(CDouble())))))
         typedefs("myunsign") should be(TOne(CUnsigned(CInt())))
 
@@ -114,7 +118,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         env.contains("myint") should be(false)
         env.contains("mystr") should be(false)
 
-        env("myintvar") should be(TOne(CSigned(CInt())))
+        env("myintvar") should be(_i)
         env("mystrvar") should be(TOne(CPointer(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, TOne(CDouble()))))))
         env("mypairvar") should be(TOne(CStruct("pair")))
 
@@ -153,12 +157,12 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         enumenv should contain key ("Color")
         enumenv should not contain key("Undef")
 
-        env("North") should be(TOne(CSigned(CInt())))
-        env("South") should be(TOne(CSigned(CInt())))
-        env("Red") should be(TOne(CSigned(CInt())))
-        env("Green") should be(TOne(CSigned(CInt())))
-        env("d") should be(TOne(CSigned(CInt())))
-        env("e") should be(TOne(CSigned(CInt())))
+        env("North") should be(_i)
+        env("South") should be(_i)
+        env("Red") should be(_i)
+        env("Green") should be(_i)
+        env("d") should be(_i)
+        env("e") should be(_i)
         //        env("x").sometimesUnknown should be(TOne(true) TODO
         env("Undef") should be(TOne(CUndefined()))
     }
@@ -215,11 +219,11 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         println(env)
         env("foo") match {
             case TOne(CAnonymousStruct(members, false)) =>
-                members("b3") should be(TOne(CSigned(CInt())))
-                members("b1") should be(TOne(CSigned(CInt())))
-                members("b2") should be(TOne(CSigned(CInt())))
+                members("b3") should be(_i)
+                members("b1") should be(_i)
+                members("b2") should be(_i)
                 members("f1") should be(TOne(CFloat()))
-                members("i1") should be(TOne(CSigned(CInt())))
+                members("i1") should be(_i)
             //                members("a1") should be(CDouble()) //TODO, not implemented yet
             //                members("a2") should be(CDouble())
             case e => fail(e.toString)
@@ -267,7 +271,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
 
         println("tdenv: " + tdenv)
 
-        env("v") should be(TChoice(fx.not, TOne(CSigned(CLong())), TOne(CSigned(CInt()))))
+        env("v") should be(TChoice(fx.not, _l, _i))
         env("w") should equal(env("v"))
     }
 
@@ -307,12 +311,12 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         enumenv("Direction") should be(base)
         enumenv("Color") should be(fy or fx)
 
-        env("South") should be(TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined())))
-        env("North") should be(TOne(CSigned(CInt())))
-        env("East") should be(TChoice(fx, TOne(CSigned(CInt())), TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined()))))
-        env("West") should be(TOne(CSigned(CInt())))
-        env("Red") should be(TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined())))
-        env("Blue") should be(TChoice(fx, TOne(CSigned(CInt())), TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined()))))
+        env("South") should be(TChoice(fx, _i, TOne(CUndefined())))
+        env("North") should be(_i)
+        env("East") should be(TChoice(fx, _i, TChoice(fy, _i, TOne(CUndefined()))))
+        env("West") should be(_i)
+        env("Red") should be(TChoice(fy, _i, TOne(CUndefined())))
+        env("Blue") should be(TChoice(fx, _i, TChoice(fy, _i, TOne(CUndefined()))))
     }
 
 
@@ -345,21 +349,25 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
             #endif
             ;
             #ifdef X
-            struct s3 { long a; } vs3;
+            struct s3 { long a; long b; } vs3;
             #elif defined Y
             struct s3 { int b; } vs3;
             #endif
             ;
             struct s1 vvs1;
+            #ifdef X
             struct s2 vvs2;
+            #endif
+            #if defined(X) || defined(Y)
             struct s3 vvs3;
+            #endif
             struct {
                 int a;
                 #ifdef Y
                 int b;
                 #endif
                 int c;
-            } vs3;
+            } vs4;
             void foo() {}
         """))
 
@@ -373,10 +381,100 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         structenv.isDefined("s2", false) should be(fx)
         structenv.isDefined("s3", false) should be(fx or fy)
 
+        val structS1 = structenv.get("s1", false)
+        structS1("b") should be(_i)
+        structS1("a") should be(x_i)
+        structS1("c") should be(TChoice(fx.not, _l, _i))
+        structS1("d") should be(TChoice(fx.not and fy, _l, TChoice(fx, _i, TOne(CUndefined()))))
 
-        println(ast.defs.last.entry -> varEnv)
+        val structS2 = structenv.get("s2", false)
+        structS2("a") should be(TChoice(fx, _i, TOne(CUndefined())))
+        structS2("b") should be(TChoice(fx and fy, _i, TOne(CUndefined())))
 
-        fail("TODO: add other checks")
+        val structS3 = structenv.get("s3", false)
+        ConditionalLib.equals(
+            structS3("a"),
+            TChoice(fx, _l, TOne(CUndefined()))) should be(true)
+        ConditionalLib.equals(
+            structS3("b"),
+            TChoice(fx, _l, TChoice(fy, _i, TOne(CUndefined())))) should be(true)
+
+
+        val venv = ast.defs.last.entry -> varEnv
+
+
+        venv("vs1") should be(TOne(CStruct("s1", false)))
+        venv("vvs1") should be(TOne(CStruct("s1", false)))
+        venv("vs2") should be(TChoice(fx, TOne(CStruct("s2", false)), TOne(CUndefined())))
+        venv("vvs2") should be(TChoice(fx, TOne(CStruct("s2", false)), TOne(CUndefined())))
+        ConditionalLib.equals(
+            venv("vs3"),
+            TChoice(fx or fy, TOne(CStruct("s3", false)), TOne(CUndefined()))) should be(true)
+        ConditionalLib.equals(
+            venv("vvs3"),
+            TChoice(fx or fy, TOne(CStruct("s3", false)), TOne(CUndefined()))) should be(true)
+
+
+        //anonymous struct
+        venv("vs4") match {
+            case TOne(CAnonymousStruct(fields, false)) =>
+                fields("a") should be(_i)
+                fields("b") should be(TChoice(fy, _i, TOne(CUndefined())))
+            case e => fail("vs4 illtyped: " + e)
+        }
+
+    }
+
+    test("conditional variable environment") {
+        val ast = (getAST("""
+
+            int a;
+            #ifdef X
+            int b;
+            #endif
+            ;
+            #ifdef X
+            int c;
+            #else
+            long c;
+            #endif
+            int x;
+
+            void foo(int p
+                #ifdef X
+                ,int q
+                #endif
+                ,int r) {
+               int l;
+               #ifdef X
+               long x;
+               long p; //TODO local redefinition of parameter
+               #endif
+            }
+            long l;
+
+        """))
+
+
+
+        val venv = ast.defs.last.entry -> varEnv
+
+        val fundef = ast.defs.takeRight(2).head.entry.asInstanceOf[FunctionDef]
+        val fenv = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry -> varEnv
+
+        venv("l") should be(_l)
+        fenv("l") should be(_i)
+        fenv("a") should be(_i)
+        fenv("b") should be(x_i)
+        fenv("c") should be(TChoice(fx.not, _l, _i))
+        venv("x") should be(_i)
+        fenv("x") should be(TChoice(fx, _l, _i))
+        fenv("q") should be(x_i)
+        fenv("p") should be(TChoice(fx, _l, _i))
+        fenv("r") should be(_i)
+
+
+        //TODO check local redefinition of parameter for validity
     }
 
 }
