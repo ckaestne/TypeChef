@@ -6,7 +6,7 @@ import org.kiama.attribution.Attribution._
 import org.kiama._
 import org.kiama.rewriting.Rewriter._
 import attribution.Attributable
-import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.conditional._
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -89,7 +89,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
                     issueError("function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
 
         case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
-            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+            //TODO variability//            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+            if (ctype(expr).exists(_.sometimesUnknown))
                 issueError("cannot (always) resolve function call " + expr + ": " + ctype(expr), expr)
 
         case ExprStatement(expr) => checkExpr(expr)
@@ -110,7 +111,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     }
 
     private def checkExpr(expr: Expr) =
-        if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+    //TODO variability: if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
+        if (ctype(expr).exists(_.sometimesUnknown))
             issueError("cannot (always) resolve expression " + expr + ": " + ctype(expr), expr)
 
 
@@ -128,12 +130,20 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         case x: NestedFunctionDef => assert(false, "NestedFunctionDef not supported, yet")
         case _ =>
     }
+    /**
+     * TODO additional assumptions:
+     * * typedef specifier applies to the whole declaration
+     *
+     */
     private def checkTree(node: Attributable) {
         for (c <- node.children) assert(c.parent == node, "Child " + c + " points to different parent:\n  " + c.parent + "\nshould be\n  " + node)
 
     }
     private def assertNoVariability[T](l: List[Opt[T]]) {
-        assert(l.forall(_.feature == FeatureExpr.base))
+        def noVariability(o: Opt[T]) =
+            (o.feature == FeatureExpr.base) ||
+                    (o -> featureExpr implies (o.feature)).isTautology
+        assert(l.forall(noVariability), "found unexpected variability in " + l)
     }
 
     private def mex(a: FeatureExpr, b: FeatureExpr): Boolean = (a mex b).isTautology(featureModel)

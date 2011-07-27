@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.conditional._
 
 class MultiExpressionParser extends MultiFeatureParser {
     type Elem = MyToken

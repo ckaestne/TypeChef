@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attribution._
 import org.kiama._
@@ -12,39 +12,42 @@ import org.kiama._
  */
 trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
-    def ctype(expr: Expr) = expr -> exprType
-    def ctype(expr: Expr, context: AST) =
+    def ctype(expr: Expr): TConditional[CType] = expr -> exprType
+    def ctype(expr: Expr, context: AST): TConditional[CType] =
         getExprType(outerVarEnv(context), outerStructEnv(context), expr)
-    val exprType: Expr ==> CType = attr {
+    val exprType: Expr ==> TConditional[CType] = attr {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
 
     def stmtType(stmt: Statement): CType
     //implemented by CStmtTyping
 
-    private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): CType = {
-        if (strEnv contains (structName, isUnion)) {
-            val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
-            struct.getOrElse(fieldName, CUnknown(fieldName + " unknown in " + structName))
-        } else CUnknown("struct/union " + structName + " unknown")
+    private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): TConditional[CType] = {
+        assert(strEnv.someDefinition(structName, isUnion), "struct/union " + structName + " unknown") //should not occur by construction. system won't build a struct type if its name is not in the struct table
+
+        val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
+        struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
     }
 
     //    private def anonymousStructLookup(fields: List[(String, CType)], fieldName:String):CType =
     //        if (fie)
 
-    private[typesystem] def getExprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
-        val et = getExprType(varCtx, strEnv, _: Expr)
+    private[typesystem] def getExprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): TConditional[CType] = TOne(getExprTypeOne(varCtx, strEnv, expr))
+
+    //TODO proper variability
+    private def getExprTypeOne(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): CType = {
+        val et = getExprTypeOne(varCtx, strEnv, _: Expr)
         //TODO assert types in varCtx and funCtx are welltyped and non-void
         expr match {
-        /**
-         * The standard provides for methods of
-         * specifying constants in unsigned, long and oating point types; we omit
-         * these for brevity's sake
-         */
-        //TODO constant 0 is special, can be any pointer or function
+            /**
+             * The standard provides for methods of
+             * specifying constants in unsigned, long and oating point types; we omit
+             * these for brevity's sake
+             */
+            //TODO constant 0 is special, can be any pointer or function
             case Constant(_) => CSigned(CInt())
             //variable or function ref TODO check
-            case Id(name) => varCtx(name).toObj
+            case Id(name) => __makeOne(varCtx(name)).toObj
             //&a: create pointer
             case PointerCreationExpr(expr) =>
                 et(expr) match {
@@ -60,12 +63,12 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 }
             //e.n notation
             case PostfixExpr(expr, PointerPostfixSuffix(".", Id(id))) =>
-                def lookup(fields: ConditionalTypeMap) = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))
+                def lookup(fields: ConditionalTypeMap) = __makeOne(fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields)))
                 et(expr) match {
                     case CObj(CAnonymousStruct(fields, _)) => lookup(fields).toObj
                     case CAnonymousStruct(fields, _) => lookup(fields)
-                    case CObj(CStruct(s, isUnion)) => structEnvLookup(strEnv, s, isUnion, id).toObj
-                    case CStruct(s, isUnion) => structEnvLookup(strEnv, s, isUnion, id) match {
+                    case CObj(CStruct(s, isUnion)) => __makeOne(structEnvLookup(strEnv, s, isUnion, id)).toObj
+                    case CStruct(s, isUnion) => __makeOne(structEnvLookup(strEnv, s, isUnion, id)) match {
                         case e if (arrayType(e)) => CUnknown("(" + e + ")." + id + " has array type")
                         case e => e
                     }
@@ -76,7 +79,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 et(PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id))))
             //(a)b
             case CastExpr(targetTypeName, expr) =>
-                val targetType = ctype(targetTypeName)
+                val targetType = __makeOne(ctype(targetTypeName))
                 val sourceType = et(expr).toValue
                 if (targetType == CVoid() || (isScalar(sourceType) && isScalar(targetType))) targetType
                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
@@ -85,7 +88,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     CUnknown("incorrect cast from " + sourceType + " to " + targetType)
             //a()
             case PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
-            //TODO ignoring variability for now
+                //TODO ignoring variability for now
                 et(expr).toValue map {
                     case CPointer(CFunction(p, r)) => typeFunctionCall(expr, p, r, parameterExprs.map({case Opt(_, e) => et(e)}))
                     case CFunction(parameterTypes, retType) => typeFunctionCall(expr, parameterTypes, retType, parameterExprs.map({case Opt(_, e) => et(e)}))
@@ -109,7 +112,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             }
             //a+b
             case NAryExpr(expr, opList) =>
-            //TODO ignoring variability for now
+                //TODO ignoring variability for now
                 var result = et(expr)
                 for (Opt(_, NArySubExpr(op, thatExpr)) <- opList) {
                     val thatType = et(thatExpr)
@@ -118,7 +121,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 result
             //a[e]
             case PostfixExpr(expr, ArrayAccess(idx)) =>
-            //syntactic sugar for *(a+i)
+                //syntactic sugar for *(a+i)
                 et(PointerDerefExpr(createSum(expr, idx)))
             //"a"
             case StringLit(_) => CPointer(CSignUnspecified(CChar())) //unspecified sign according to Paolo
@@ -131,8 +134,8 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case UnaryOpExpr(kind, expr) =>
                 val exprType = et(expr).toValue
                 kind match {
-                //TODO complete list: __real__ __imag__
-                //TODO promotions
+                    //TODO complete list: __real__ __imag__
+                    //TODO promotions
                     case "+" => if (isArithmetic(exprType)) exprType else CUnknown("incorrect type, expected arithmetic, was " + exprType)
                     case "-" => if (isArithmetic(exprType)) exprType else CUnknown("incorrect type, expected arithmetic, was " + exprType)
                     case "~" => if (isIntegral(exprType)) exprType else CUnknown("incorrect type, expected integer, was " + exprType)
@@ -141,13 +144,13 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     case _ => CUnknown("unknown unary operator " + kind + " (TODO)")
                 }
             //x?y:z  (gnuc: x?:z === x?x:z)
-            case ConditionalExpr(condition, thenExpr, elseExpr) => getConditionalExprType(ctype(thenExpr.getOrElse(condition)), ctype(elseExpr))
+            case ConditionalExpr(condition, thenExpr, elseExpr) => getConditionalExprType(__makeOne(ctype(thenExpr.getOrElse(condition))), __makeOne(ctype(elseExpr)))
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
-            //TODO variability (there might be alternative last statements)
+                //TODO variability (there might be alternative last statements)
                 stmtType(compoundStatement)
             case ExprList(exprs) => //comma operator, evaluated left to right, last expr yields value and type; like compound statement expression
-            //TODO variability (there might be alternative last statements)
+                //TODO variability (there might be alternative last statements)
                 et(exprs.last.entry)
             case LcurlyInitializer(inits) => CCompound() //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
             case GnuAsmExpr(_, _, _) => CIgnore() //don't care about asm now
@@ -191,9 +194,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
             case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
             case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => wider(t1, t2)
-            case (op, t1, t2) if (compOp(op) && isArithmetic(t1) && isArithmetic(t2)) => CSigned(CInt())
+            case (op, t1, t2) if (compOp(op) && isScalar(t1) && isScalar(t2)) => CSigned(CInt())
             case ("=", _, t2) if (type1.isObject) => t2
-            case (o, t1, t2) if (logicalOp(o) && isIntegral(t1) && isIntegral(t2)) => CSigned(CInt())
+            case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt())
             case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2
             case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1
             case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
@@ -213,7 +216,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         NAryExpr(a, List(Opt(FeatureExpr.base, NArySubExpr("+", b))))
 
 
-    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType]) = {
+    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType]): CType = {
         var expectedTypes = parameterTypes
         var foundTypes = _foundTypes
         //variadic macros
@@ -234,5 +237,6 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         else
             CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
     }
+
 
 }

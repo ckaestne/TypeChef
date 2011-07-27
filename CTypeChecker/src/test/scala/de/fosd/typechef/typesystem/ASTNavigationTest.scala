@@ -9,9 +9,8 @@ import de.fosd.typechef.parser.c._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
-import de.fosd.typechef.featureexpr.FeatureExpr
 import FeatureExpr.base
-import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
 class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation with TestHelper {

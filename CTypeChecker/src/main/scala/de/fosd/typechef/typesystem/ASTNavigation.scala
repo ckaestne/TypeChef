@@ -5,8 +5,7 @@ import de.fosd.typechef.parser.c._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
-import de.fosd.typechef.parser.{Conditional, One, Opt, Choice}
-import javax.management.remote.rmi._RMIConnection_Stub
+import de.fosd.typechef.conditional._
 
 /**
  * Simplified navigation support

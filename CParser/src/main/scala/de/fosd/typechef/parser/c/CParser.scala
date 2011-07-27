@@ -3,6 +3,7 @@ package de.fosd.typechef.parser.c
 import de.fosd.typechef.lexer.Token
 
 import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 
@@ -29,7 +30,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
         "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
-        "sizeof", "_Pragma", "__expectType")
+        "sizeof", "_Pragma", "__expectType", "__expectNotType")
     val predefinedTypedefs = Set("__builtin_va_list", "__builtin_type")
 
     def translationUnit = externalList ^^ {TranslationUnit(_)}
@@ -41,18 +42,18 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     // first part (with lookahead) only for error reporting, i.e.don 't try to parse anything else after a typedef
         (lookahead(textToken("typedef")) ~! declaration ^^ {case _ ~ r => r} |
                 declaration |
-                functionDef | typelessDeclaration | asm_expr | pragma | expectType | (SEMI ^^ {x => EmptyExternalDef()})) !
+                functionDef | typelessDeclaration | asm_expr | pragma | expectType | expectNotType | (SEMI ^^ {x => EmptyExternalDef()})) !
 
     def asm_expr: MultiParser[AsmExpr] =
         asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)}
 
     def declaration: MultiParser[Declaration] =
         (declSpecifiers ~~ optList(initDeclList) ~~ rep1(SEMI) ^^ {case d ~ i ~ _ => Declaration(d, i)} changeContext ({
-            (result: Declaration, context: TypeContext) => {
-                var c = context
+            (result: Declaration, featureCtx, typeCtx: TypeContext) => {
+                var c = typeCtx
                 if (result.declSpecs.exists(o => o.entry == TypedefSpecifier()))
                     for (decl: Opt[InitDeclarator] <- result.init) {
-                        c = c.addType(decl.entry.declarator.getName)
+                        c = c.addType(decl.entry.declarator.getName, featureCtx)
                         //                            println("add type " + decl.declarator.getName)//DEBUG only
                     }
                 c
@@ -100,9 +101,13 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             (typeName ^^ {TypeOfSpecifierT(_)}) | (expr ^^ {TypeOfSpecifierU(_)})
             ) <~ RPAREN))
 
+    //TODO need to split when conditionally defined as typedef
     def typedefName =
         tokenWithContext("type",
-            (token, context) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || context.knowsType(token.getText))) ^^ {t => TypeDefTypeSpecifier(Id(t.getText))}
+            (token, featureContext, typeContext) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || typeContext.knowsType(token.getText, featureContext, featureModel))) ^^ {t => TypeDefTypeSpecifier(Id(t.getText))}
+    def notypedefName =
+        tokenWithContext("notype",
+            (token, featureContext, typeContext) => isIdentifier(token) && !predefinedTypedefs.contains(token.getText) && !typeContext.knowsType(token.getText, featureContext, featureModel)) ^^ {t => Id(t.getText)}
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
         structOrUnion ~ repOpt(attributeDecl) ~ structOrUnionSpecifierBody ^^ {case isUnion ~ _ ~ ((id, list)) => StructOrUnionSpecifier(isUnion, id, list)}
@@ -613,6 +618,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     //XXX: CK: only for debugging purposes, not part of the C grammar
     def expectType = textToken("__expectType") ~ LBRACKET ~ COLON ~!> typedefName <~ COLON <~ RBRACKET ^^ {x => EmptyExternalDef()}
+    def expectNotType = textToken("__expectNotType") ~ LBRACKET ~ COLON ~!> notypedefName <~ COLON <~ RBRACKET ^^ {x => EmptyExternalDef()}
 
     // *** helper functions
     def textToken(t: String): MultiParser[Elem] =

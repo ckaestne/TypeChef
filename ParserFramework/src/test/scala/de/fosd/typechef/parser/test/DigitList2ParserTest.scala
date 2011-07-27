@@ -1,10 +1,10 @@
 package de.fosd.typechef.parser.test
 
-import de.fosd.typechef.parser._
 import junit.framework._;
 import junit.framework.Assert._
 import org.junit.Test
 import de.fosd.typechef.parser.test.parsers._
+import de.fosd.typechef.conditional._
 
 class DigitList2ParserTest extends TestCase with DigitListUtilities {
     val newParser = new DigitList2Parser() {

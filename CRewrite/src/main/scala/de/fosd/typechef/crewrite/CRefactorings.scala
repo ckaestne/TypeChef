@@ -51,6 +51,7 @@ import org.kiama.rewriting.Rewriter._
 import org.kiama._
 import attribution.Attributable
 import org.kiama.attribution.DynamicAttribution._
+import de.fosd.typechef.conditional._
 
 class CRefactorings extends ASTNavigation {
 

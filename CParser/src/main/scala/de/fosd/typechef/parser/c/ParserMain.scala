@@ -87,10 +87,11 @@ class ParserMain(p: CParser) {
         //        writer.close
         //        println("done.")
 
-        //XXX: that's too simple, we need to typecheck also split results.
-        // Moreover it makes the typechecker crash currently (easily workaroundable though).
         val l = result.toList(FeatureExpr.base).filter(_._2.isSuccess)
-        if (l.isEmpty) null else l.head._2.asInstanceOf[p.Success[AST]].result
+        if (l.isEmpty || !result.toErrorList.isEmpty) {
+            println(printParseResult(result, FeatureExpr.base))
+            null
+        } else l.head._2.asInstanceOf[p.Success[AST]].result
     }
 
     def printParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr): String = {

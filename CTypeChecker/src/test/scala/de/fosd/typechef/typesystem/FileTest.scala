@@ -25,7 +25,9 @@ class FileTest extends TestHelper {
 
 
     //async.i
-    @Test def test1 {assert(check("test1.i"))}
+    @Test def test1 {assert(check("test1.xi"))}
+    @Test def busybox_ar {assert(check("ar.xi"))}
+    @Test def boa_boa {assert(check("boa.xi"))}
 
 
 }

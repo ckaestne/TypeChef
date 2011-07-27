@@ -25,3 +25,6 @@ tokenstream.txt
 *.diffs
 .idea
 linux-2.6.33.3
+casestudies
+*.log
+tmp

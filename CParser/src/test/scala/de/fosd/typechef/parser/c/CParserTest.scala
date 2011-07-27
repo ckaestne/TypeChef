@@ -6,6 +6,7 @@ import org.junit.Test
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import org.kiama.attribution.Attributable
+import de.fosd.typechef.conditional._
 
 class CParserTest extends TestCase {
     val p = new CParser()
@@ -807,6 +808,7 @@ typedef struct spinlock {} spinlock_t;
 
     @Test def testTypeDefSequence {
         assertParseable("""
+            __expectNotType[:a:]
             typedef int a;
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
@@ -814,13 +816,24 @@ typedef struct spinlock {} spinlock_t;
             typedef int b;
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
-        assertParseable("""
+        assertParseError("""
             #ifdef X
             typedef int a;
             #endif
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
         assertParseable("""
+            #ifdef X
+            typedef int a;
+            #endif
+            int b;
+            #ifdef X
+            __expectType[:a:]
+            #else
+            __expectNotType[:a:]
+            #endif
+            """, p.phrase(p.translationUnit))
+        assertParseError("""
             #ifdef X
             typedef int a;
             #endif
@@ -836,8 +849,13 @@ typedef struct spinlock {} spinlock_t;
             #else
             typedef int b;
             #endif
+            #ifdef X
             __expectType[:a:]
+            __expectNotType[:b:]
+            #else
             __expectType[:b:]
+            __expectNotType[:a:]
+            #endif
             """, p.phrase(p.translationUnit))
 
 
@@ -943,5 +961,6 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
             assertTree(c)
         }
     }
+
 
 }

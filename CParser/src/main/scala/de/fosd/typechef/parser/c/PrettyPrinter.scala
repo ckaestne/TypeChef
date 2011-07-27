@@ -1,6 +1,6 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.parser.{Conditional, Opt, One, Choice}
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 object PrettyPrinter {

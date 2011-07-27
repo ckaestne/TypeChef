@@ -12,6 +12,11 @@ import java.io.InputStream
 
 trait TestHelper {
 
+    val fa = FeatureExpr.createDefinedExternal("A")
+    val fb = FeatureExpr.createDefinedExternal("B")
+    val fc = FeatureExpr.createDefinedExternal("C")
+    val fx = FeatureExpr.createDefinedExternal("X")
+    val fy = FeatureExpr.createDefinedExternal("Y")
 
     def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
