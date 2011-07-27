@@ -345,21 +345,25 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
             #endif
             ;
             #ifdef X
-            struct s3 { long a; } vs3;
+            struct s3 { long a; long b; } vs3;
             #elif defined Y
             struct s3 { int b; } vs3;
             #endif
             ;
             struct s1 vvs1;
+            #ifdef X
             struct s2 vvs2;
+            #endif
+            #if defined(X) || defined(Y)
             struct s3 vvs3;
+            #endif
             struct {
                 int a;
                 #ifdef Y
                 int b;
                 #endif
                 int c;
-            } vs3;
+            } vs4;
             void foo() {}
         """))
 
@@ -373,10 +377,48 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         structenv.isDefined("s2", false) should be(fx)
         structenv.isDefined("s3", false) should be(fx or fy)
 
+        val structS1 = structenv.get("s1", false)
+        structS1("b") should be(TOne(CSigned(CInt())))
+        structS1("a") should be(TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined())))
+        structS1("c") should be(TChoice(fx.not, TOne(CSigned(CLong())), TOne(CSigned(CInt()))))
+        structS1("d") should be(TChoice(fx.not and fy, TOne(CSigned(CLong())), TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined()))))
 
-        println(ast.defs.last.entry -> varEnv)
+        val structS2 = structenv.get("s2", false)
+        structS2("a") should be(TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined())))
+        structS2("b") should be(TChoice(fx and fy, TOne(CSigned(CInt())), TOne(CUndefined())))
 
-        fail("TODO: add other checks")
+        val structS3 = structenv.get("s3", false)
+        ConditionalLib.equals(
+            structS3("a"),
+            TChoice(fx, TOne(CSigned(CLong())), TOne(CUndefined()))) should be(true)
+        ConditionalLib.equals(
+            structS3("b"),
+            TChoice(fx, TOne(CSigned(CLong())), TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined())))) should be(true)
+
+
+        val venv = ast.defs.last.entry -> varEnv
+
+
+        venv("vs1") should be(TOne(CStruct("s1", false)))
+        venv("vvs1") should be(TOne(CStruct("s1", false)))
+        venv("vs2") should be(TChoice(fx, TOne(CStruct("s2", false)), TOne(CUndefined())))
+        venv("vvs2") should be(TChoice(fx, TOne(CStruct("s2", false)), TOne(CUndefined())))
+        ConditionalLib.equals(
+            venv("vs3"),
+            TChoice(fx or fy, TOne(CStruct("s3", false)), TOne(CUndefined()))) should be(true)
+        ConditionalLib.equals(
+            venv("vvs3"),
+            TChoice(fx or fy, TOne(CStruct("s3", false)), TOne(CUndefined()))) should be(true)
+
+
+        //anonymous struct
+        venv("vs4") match {
+            case TOne(CAnonymousStruct(fields, false)) =>
+                fields("a") should be(TOne(CSigned(CInt())))
+                fields("b") should be(TChoice(fy, TOne(CSigned(CInt())), TOne(CUndefined())))
+            case e => fail("vs4 illtyped: " + e)
+        }
+
     }
 
 }

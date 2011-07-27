@@ -78,7 +78,7 @@ class ConditionalTest {
                 (x: Int, y: Int) => x equals y
             ).simplify)
         assertEquals(
-            TChoice(fb.not, TChoice(fa.not, false, true), true),
+            TChoice(fa, TOne(true), TChoice(fb.not, TOne(false), TOne(true))),
             compare(
                 TChoice(fa, TChoice(fb, TOne(1), TOne(2)), TOne(3)),
                 TChoice(fb.not, TChoice(fa, TOne(2), TOne(5)), TChoice(fa, TOne(1), TOne(3))),

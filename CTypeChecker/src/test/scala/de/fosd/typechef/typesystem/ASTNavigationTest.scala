@@ -9,7 +9,7 @@ import de.fosd.typechef.parser.c._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
-import FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
