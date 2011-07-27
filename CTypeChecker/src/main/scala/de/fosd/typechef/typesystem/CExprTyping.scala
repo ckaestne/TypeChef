@@ -42,7 +42,8 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
              * these for brevity's sake
              */
             //TODO constant 0 is special, can be any pointer or function
-            case Constant(_) => TOne(CSigned(CInt()))
+            //TODO other constant types
+            case Constant(v) => if (v.last.toLower == 'l') TOne(CSigned(CLong())) else TOne(CSigned(CInt()))
             //variable or function ref TODO check
             case Id(name) => varCtx(name).map(_.toObj)
             //&a: create pointer
@@ -196,7 +197,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         def bitwiseOp(o: String) = Set("&", "|", "^", "<<", ">>", "~") contains o
 
         (op, type1.toValue, type2.toValue) match {
-            case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => t1
+            case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
             case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1
             case (o, t1, t2) if (pointerArthOp(o) && isPointer(t2) && isIntegral(t1)) => t2
             //bitwise operations defined on isIntegral
@@ -220,7 +221,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
      * TODO check correctness
      */
     def wider(t1: CType, t2: CType) =
-        if (t2 < t1) t2 else t1
+        if (t1 < t2) t2 else t1
 
 
     private def createSum(a: Expr, b: Expr) =

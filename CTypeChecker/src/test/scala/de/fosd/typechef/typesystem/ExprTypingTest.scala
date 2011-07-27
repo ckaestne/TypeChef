@@ -14,13 +14,15 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
 
     val _i = TOne(CSigned(CInt()))
     val _l = TOne(CSigned(CLong()))
+    val _d = TOne(CDouble())
     val _oi = TOne(CObj(CSigned(CInt())))
     val _ol = TOne(CObj(CSigned(CLong())))
+    val _od = TOne(CObj(CDouble()))
     val _u = TOne(CUndefined())
     val c_i_l = TChoice(fx, _i, _l)
 
     protected def assertCondEquals(exp: TConditional[CType], act: TConditional[CType]) {
-        assert(ConditionalLib.equals(exp, act), "Expected: " + exp + "\nActual: " + act)
+        assert(ConditionalLib.equals(exp, act), "Expected: " + exp + "\nActual:   " + act)
     }
 
     private def exprV(code: String): TConditional[CType] = {
@@ -53,9 +55,12 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         ).map(x => (x._1, x._2, TOne(x._3))) ++ Seq(
             ("c", base, c_i_l),
             ("vstruct", base, TChoice(fx, TOne(CStruct("vstrA")), TOne(CStruct("vstrB")))),
-            ("vstruct2", base, TChoice(fx, TOne(CStruct("vstrA")), _u))
-        )
-                )
+            ("vstruct2", base, TChoice(fx, TOne(CStruct("vstrA")), _u)),
+            ("cfun", base, TChoice(fx,
+                TOne(CFunction(Seq(CSigned(CInt())), CSigned(CInt()))),
+                TOne(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong()))))) //i->i or i,i->l
+        ))
+
     val astructEnv: StructEnv =
         new StructEnv().add(
             "str", false, base, new ConditionalTypeMap() + ("a", base, TOne(CDouble())) + ("b", base, TOne(CStruct("str")))).add(
@@ -93,6 +98,8 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
             exprV("vstruct.a"),
             TChoice(fx and fy, _ol, TChoice(fx.not, _oi, TOne(CUndefined())))
         )
+        assertCondEquals(exprV("vstruct2.a"), TChoice(fx and fy, _ol, _u))
+        assertCondEquals(exprV("vstruct.b.a"), TChoice(fx, _od, _u))
     }
 
     test("coersion") {
@@ -118,6 +125,15 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("(*funparamptr)()") should be(CDouble())
     }
 
+    test("conditional function calls") {
+        assertCondEquals(exprV("""cfun(1
+            #ifdef Y
+            ,2
+            #endif
+            )"""),
+            TChoice(fx, TChoice(fy.not, _i, _u), TChoice(fy.not, _u, _l)))
+    }
+
     test("assignment") {
         expr("a=2") should be(CDouble())
         expr("a=s") should be(CUnknown())
@@ -131,9 +147,31 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("++3") should be(CUnknown())
     }
     test("binary operation") {
-        //TODO test variability!
         expr("1+2") should be(CSigned(CInt()))
+        expr("1l+2") should be(CSigned(CLong()))
+        expr("1+2l") should be(CSigned(CLong()))
         expr("a+=2") should be(CDouble())
+    }
+    test("conditional binary operation") {
+        assertCondEquals(_i,
+            exprV("""1
+                 #ifdef X
+                 +2
+                 #endif
+                 +3"""))
+        assertCondEquals(TChoice(fx, _u, _i),
+            exprV("""1
+                 #ifdef X
+                 +s
+                 #endif
+                 +3"""))
+        assertCondEquals(TChoice(fx, _l, _i),
+            exprV("""1
+                 #ifdef X
+                 +1l
+                 #endif
+                 +3"""))
+
     }
     test("compound statement expressions") {
         expr("({1;foo();2;})") should be(CSigned(CInt()))
