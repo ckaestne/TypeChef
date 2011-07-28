@@ -47,10 +47,26 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
     }
 
     class MapParser[T, U](thisParser: => MultiParser[T], f: T => U) extends MultiParser[U] {
-        name = "^^"
+        name = "map"
         def a = thisParser
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] =
             thisParser(in, feature).map(f)
+    }
+    class MapWithPositionParser[T, U](thisParser: => MultiParser[T], f: T => U) extends MultiParser[U] {
+        name = "map"
+        def a = thisParser
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] = {
+            val startPos = in.pos
+            val result = thisParser(in, feature).map(f)
+            result.mapfr(FeatureExpr.base, (_, r) => r match {
+                case Success(t, restIn) =>
+                    if (t.isInstanceOf[WithPosition])
+                        t.asInstanceOf[WithPosition].setPositionRange(startPos, restIn.pos)
+                    null
+                case _ => null
+            })
+            result
+        }
     }
 
     abstract class RepParser[T](thisParser: => MultiParser[T]) extends MultiParser[List[Opt[T]]] {
@@ -114,8 +130,11 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         /**
          * ^^ as in the original combinator parser framework
          */
-        def ^^[U](f: T => U): MultiParser[U] = map(f)
+        def ^^[U](f: T => U): MultiParser[U] = mapWithPosition(f)
+
         def map[U](f: T => U): MultiParser[U] = new MapParser(this, f)
+        def mapWithPosition[U](f: T => U): MultiParser[U] = new MapWithPositionParser(this, f)
+
         //replace on success
         def ^^^[U](repl: U): MultiParser[U] = map(x => repl)
 
@@ -416,8 +435,8 @@ try {
                         // extend unsealed lists with the next result (if there is no next result, seal the list)
                             x.seq(fs, opt(p)(x.next, fs)).map({
                                 case slist ~ Some(x) =>
-                                /* Appending to the tail would take linear time, and building a list that way
-            * would take quadratic time; therefore, add x to the head and remember to reverse the list at the end. */
+                                    /* Appending to the tail would take linear time, and building a list that way
+                * would take quadratic time; therefore, add x to the head and remember to reverse the list at the end. */
                                     unsealed(x +: slist.list)
                                 case slist ~ None =>
                                     seal(slist.list)
@@ -531,8 +550,8 @@ try {
                                 case Some((result, next)) =>
                                     Success(Sealable(false, result :: x.result.resultList), next)
                                 case None =>
-                                //default case, use normal mechanism
-                                // extend unsealed lists with the next result (if there is no next result, seal the list)
+                                    //default case, use normal mechanism
+                                    // extend unsealed lists with the next result (if there is no next result, seal the list)
                                     x.seq(fs, opt(p)(x.next, fs)).mapf(fs, (f, t) => t match {
                                         case Sealable(_, resultList) ~ Some(t) => {
                                             if (debugOutput && productionName == "externalDef")
@@ -633,7 +652,8 @@ try {
      */
     def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] = {
         val r: MultiParser[List[Opt[T]]] = opt(rep1Sep(p, separator)) ^^ {
-            case Some(l) => l; case None => List()
+            case Some(l) => l;
+            case None => List()
         }
         val jr: MultiParser[Conditional[List[Opt[T]]]] = r.join
         jr ^^ {_.flatten[List[Opt[T]]]((f, a, b) => joinOptLists(a, b, f))}
@@ -736,8 +756,8 @@ try {
                                 case Some((result, next)) =>
                                     Success(Sealable(false, result :: x.result.resultList, x.result.freeSeparator andNot (result.feature)), next)
                                 case None =>
-                                //default case, use normal mechanism
-                                // extend unsealed lists with the next result (if there is no next result, seal the list)
+                                    //default case, use normal mechanism
+                                    // extend unsealed lists with the next result (if there is no next result, seal the list)
                                     x.seq(fs, opt(p)(x.next, fs)).mapfr(fs, (f, r) => r match {
                                         case Success(Sealable(_, resultList, openSep) ~ Some(t), in) => {
                                             //requires separator first
@@ -759,7 +779,7 @@ try {
             val result: MultiParseResult[(List[Opt[T]], FeatureExpr)] = res.map(sealable => (sealable.resultList.reverse, sealable.freeSeparator))
             if (!firstOptional)
                 result.mapfr(ctx, (f, r) => r match {
-                //XXX ChK: the following is an incorrect approximation and the lower code should be used, but reduces performance significantly
+                    //XXX ChK: the following is an incorrect approximation and the lower code should be used, but reduces performance significantly
                     case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
                     //		    case e@Success((l, f), next) => {
                     //                       val nonEmptyCondition = l.foldRight(FeatureExpr.dead)(_.feature or _)
@@ -1108,7 +1128,7 @@ try {
         def joinTree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = {
             //do not skip ahead, important for repOpt
             (resultA.joinTree(parserContext and feature), resultB.joinTree(parserContext and (feature.not))) match {
-            //both successful
+                //both successful
                 case (sA@Success(rA, inA), sB@Success(rB, inB)) => {
                     if (isSamePosition(parserContext, inA, inB)) {
                         Success(createChoiceC(feature, rA, rB), firstOf(inA, inB))
@@ -1284,7 +1304,7 @@ try {
                     else
                         result
                 case x: SplittedParseResult[_] =>
-                //cannot used lastNoSuccess on split results
+                    //cannot used lastNoSuccess on split results
                     result.mapfr(fs, (feature, result) =>
                         result match {
                             case s@Success(out, in1) =>

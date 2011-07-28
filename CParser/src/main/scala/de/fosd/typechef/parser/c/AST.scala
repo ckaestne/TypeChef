@@ -58,7 +58,8 @@ LocalLabelDeclaration -- label names
 
 //Expressions
 trait AST extends Attributable with Cloneable with WithPosition {
-    override def clone() = super.clone().asInstanceOf[AST.this.type]
+    override def clone(): AST.this.type = super.clone().asInstanceOf[AST.this.type]
+    override def setChildConnections() = super.setChildConnections()
 }
 
 abstract class Expr extends AST

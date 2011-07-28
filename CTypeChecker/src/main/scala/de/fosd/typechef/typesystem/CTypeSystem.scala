@@ -7,6 +7,7 @@ import org.kiama._
 import org.kiama.rewriting.Rewriter._
 import attribution.Attributable
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.{WithPosition, Position, NoPosition}
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -26,13 +27,26 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     //    var functionCallErrorMessages: Map[String, ErrorMsgs] = Map()
     //    var functionRedefinitionErrorMessages: List[RedefErrorMsg] = List()
 
+    val startPosition: Attributable ==> Position = attr {
+        case a: WithPosition with Attributable =>
+            if (a.hasPosition)
+                a.getPositionFrom
+            else
+            if (a.parent == null) NoPosition else a.parent -> startPosition
+        case a => if (a.parent == null) NoPosition else a.parent -> startPosition
+    }
+
     trait ErrorMsg
 
     class SimpleError(msg: String, where: AST) extends ErrorMsg {
-        override def toString = msg
+        override def toString =
+            (where -> startPosition).toString() + ": \n" +
+                    msg
     }
     class TypeError(msg: String, where: AST, ctype: TConditional[CType]) extends ErrorMsg {
-        override def toString = msg + "\n" + indentAllLines(prettyPrintType(ctype))
+        override def toString =
+            (where -> startPosition).toString() + ": \n" +
+                    msg + "\n" + indentAllLines(prettyPrintType(ctype))
     }
 
     def prettyPrintType(ctype: TConditional[CType]): String =

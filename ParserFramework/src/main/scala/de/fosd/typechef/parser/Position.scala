@@ -11,6 +11,12 @@ trait Position {
     override def toString = getFile + ":" + getLine + ":" + getColumn
 }
 
+object NoPosition extends Position {
+    def getFile = ""
+    def getLine = -1
+    def getColumn = -1
+}
+
 
 /**
  * stores position range (from to)
@@ -22,7 +28,7 @@ trait Position {
  * position might not always be set. try parent nodes if not set
  */
 trait WithPosition {
-    private var range: Option[(Position, Position)] = None
+    protected var range: Option[(Position, Position)] = None
     def setPositionRange(from: Position, to: Position): WithPosition.this.type = {
         range = Some((from, to))
         this
