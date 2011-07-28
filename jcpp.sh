@@ -46,23 +46,22 @@ echo "==Partially preprocessing $inp"
 echo $partialPreprocFlags
 
 bash -c "time java -ea $javaOpts -cp \
-$basePath/project/boot/scala-2.8.1/lib/scala-library.jar:\
+$basePath/project/boot/scala-2.9.0/lib/scala-library.jar:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar:\
 $basePath/PartialPreprocessor/lib/junit.jar:\
-$basePath/org.sat4j.core/target/scala_2.8.1/classes:\
 $basePath/lib/junit-4.8.1.jar:\
-$basePath/lib/kiama_2.8.1-1.0.2.jar:\
 $basePath/lib/org.sat4j.core-2.3.0.jar:\
 $basePath/lib/scalacheck_2.8.1-1.8.jar:\
 $basePath/lib/scalatest-1.2.jar:\
-$basePath/FeatureExprLib/target/scala_2.8.1/classes:\
-$basePath/PartialPreprocessor/target/scala_2.8.1/classes:\
-$basePath/ParserFramework/target/scala_2.8.1/classes:\
-$basePath/CParser/target/scala_2.8.1/classes:\
-$basePath/CTypeChecker/target/scala_2.8.1/classes:\
-$basePath/LinuxAnalysis/target/scala_2.8.1/classes:\
-$basePath/PreprocessorFrontend/target/scala_2.8.1/classes:\
-$basePath/ParserFramework/lib_managed/scala_2.8.1/compile/kiama_2.8.1-1.0.2.jar\
+$basePath/FeatureExprLib/target/scala_2.9.0/classes:\
+$basePath/ConditionalLib/target/scala_2.9.0/classes:\
+$basePath/PartialPreprocessor/target/scala_2.9.0/classes:\
+$basePath/ParserFramework/target/scala_2.9.0/classes:\
+$basePath/CParser/target/scala_2.9.0/classes:\
+$basePath/CTypeChecker/target/scala_2.9.0/classes:\
+$basePath/LinuxAnalysis/target/scala_2.9.0/classes:\
+$basePath/PreprocessorFrontend/target/scala_2.9.0/classes:\
+$basePath/ParserFramework/lib_managed/scala_2.9.0/compile/kiama_2.9.0-1.1.0.jar\
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' 2> '$outErr' |tee '$outDbg'" \
