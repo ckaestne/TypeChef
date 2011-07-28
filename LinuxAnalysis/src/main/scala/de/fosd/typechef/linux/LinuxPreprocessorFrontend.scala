@@ -59,13 +59,13 @@ object LinuxPreprocessorFrontend {
     }
 
     def includeFlags =
-        ((preIncludeDirs ++ List(systemIncludes) ++ postIncludeDirs).flatMap(
+        (cmdLinePostIncludes ++ (preIncludeDirs ++ List(systemIncludes) ++ postIncludeDirs).flatMap(
             (path: String) =>
                 if (path != null && !("" equals path))
                     List(systemRoot + File.separator + path)
                 else
                     List()
-        ) ++ cmdLinePostIncludes).flatMap((path: String) => List("-I", path))
+        )).flatMap((path: String) => List("-I", path))
 
 
     ////////////////////////////////////////

@@ -15,26 +15,15 @@ flags="\
 	-I $prjPath -I $srcPath\
 	--include ./host/platform.h\
 	--include $srcPath/config.h\
-	-I /usr/local/include\
-	-I /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include\
-	-I /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include-fixed\
-	-I /usr/include/x86_64-linux-gnu\
-	-I /usr/include/"
+"
 
 ##################################################################
 # Actually invoke the preprocessor and analyze result.
 ##################################################################
 
-./jcpp.sh $srcPath/hash.c
-
-exit
 
 for i in `find "$srcPath" -type f -name "*.c"`;
 do
     ./jcpp.sh $i $flags
 done
 
-for i in `find "$srcPath" -type f -name "*.h"`;
-do
-    ./jcpp.sh $i $flags
-done
