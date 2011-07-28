@@ -43,6 +43,7 @@ fi
 # don't ever try to touch it. It simplifies your life as a user of this program
 # though!
 echo "==Partially preprocessing $inp"
+echo $partialPreprocFlags
 
 bash -c "time java -ea $javaOpts -cp \
 $basePath/project/boot/scala-2.8.1/lib/scala-library.jar:\
@@ -60,7 +61,8 @@ $basePath/ParserFramework/target/scala_2.8.1/classes:\
 $basePath/CParser/target/scala_2.8.1/classes:\
 $basePath/CTypeChecker/target/scala_2.8.1/classes:\
 $basePath/LinuxAnalysis/target/scala_2.8.1/classes:\
-$basePath/PreprocessorFrontend/target/scala_2.8.1/classes \
+$basePath/PreprocessorFrontend/target/scala_2.8.1/classes:\
+$basePath/ParserFramework/lib_managed/scala_2.8.1/compile/kiama_2.8.1-1.0.2.jar\
   $mainClass \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' 2> '$outErr' |tee '$outDbg'" \
