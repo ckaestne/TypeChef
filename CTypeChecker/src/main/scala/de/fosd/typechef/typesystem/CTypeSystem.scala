@@ -146,12 +146,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
      *
      * these can later be relaxed or automatically ensured by tree transformations
      * before type checking
-     *
-     * for example, we assume that there is no variability within type declarations
-     * for now.
      */
     def checkAssumptions(node: Attributable): Unit = node match {
-        case Declaration(specifiers, _) => assertNoVariability(specifiers)
         case x: NestedFunctionDef => assert(false, "NestedFunctionDef not supported, yet")
         case _ =>
     }
