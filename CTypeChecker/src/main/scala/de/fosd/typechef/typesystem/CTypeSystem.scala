@@ -4,7 +4,6 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import org.kiama.attribution.Attribution._
 import org.kiama._
-import org.kiama.rewriting.Rewriter._
 import attribution.Attributable
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.{WithPosition, Position, NoPosition}
@@ -17,7 +16,7 @@ import de.fosd.typechef.parser.{WithPosition, Position, NoPosition}
  * @author kaestner
  *
  */
-class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with FeatureExprLookup {
+class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with FeatureExprLookup with EnforceTreeHelper {
 
     //    var functionCallChecks = 0
 
@@ -40,12 +39,12 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
 
     class SimpleError(msg: String, where: AST) extends ErrorMsg {
         override def toString =
-            (where -> startPosition).toString() + ": \n" +
+            (where -> startPosition).toString() + ": \n\t" +
                     msg
     }
     class TypeError(msg: String, where: AST, ctype: TConditional[CType]) extends ErrorMsg {
         override def toString =
-            (where -> startPosition).toString() + ": \n" +
+            (where -> startPosition).toString() + ": \n\t" +
                     msg + "\n" + indentAllLines(prettyPrintType(ctype))
     }
 
@@ -53,7 +52,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         TConditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
 
     private def indentAllLines(s: String): String =
-        s.lines.map("\t" + _).foldLeft("")(_ + "\n" + _)
+        s.lines.map("\t\t" + _).foldLeft("")(_ + "\n" + _)
 
     var errors: List[ErrorMsg] = List()
 
@@ -77,15 +76,9 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
 
 
     def checkAST(ast: TranslationUnit): Boolean = {
-        //XXX kiama works only on trees without sharing. Clone AST to avoid sharing. Reset parents afterward (Kiama problem?)
-        val clone = everywherebu(rule {
-            case n: AST => n.clone()
-            case Opt(f, a: AST) => Opt(f, a.clone())
-        })
-        val cast = clone(ast).get.asInstanceOf[TranslationUnit]
-        ensureTree(cast)
 
-        checkNode(cast)
+
+        checkNode(prepareAST(ast))
 
         if (errors.isEmpty)
             println("No type errors found.")
@@ -99,12 +92,6 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         return errors.isEmpty
     }
 
-    private def ensureTree(ast: Attributable) {
-        for (c <- ast.children) {
-            c.parent = ast
-            ensureTree(c)
-        }
-    }
 
     def performCheck(node: Attributable): Unit = node match {
         case fun: FunctionDef => //check function redefinitions
@@ -116,7 +103,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
             val ct = ctype(expr).simplify(expr -> featureExpr)
             if (ct.exists(_.sometimesUnknown))
-                issueTypeError("cannot (always) resolve function call " + expr + ": " + ct, expr, ct)
+                issueTypeError("cannot (always) resolve function call. found type " + ct, expr, ct)
 
         case ExprStatement(expr) => checkExpr(expr)
         case WhileStatement(expr, _) => checkExpr(expr)
@@ -138,7 +125,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     private def checkExpr(expr: Expr) = {
         val ct = ctype(expr).simplify(expr -> featureExpr)
         if (ct.exists(_.sometimesUnknown))
-            issueTypeError("cannot (always) resolve expression " + expr + ": " + ct, expr, ct)
+            issueTypeError("cannot (always) resolve expression. found type " + ct, expr, ct)
     }
 
     /**
