@@ -73,4 +73,6 @@ object TConditional {
     }
     def toOptList[T](c: TConditional[T]): List[Opt[T]] = flatten(List(Opt(FeatureExpr.base, c)))
 
+    def toList[T](c: TConditional[T]): List[(FeatureExpr, T)] =
+        toOptList(c).map(o => (o.feature, o.entry))
 }
