@@ -16,12 +16,20 @@ class TokenWrapper(token: Token, number: Int) extends /*AbstractToken*/ Profilin
     def getText: String = token.getText
     def getType = token.getType
     override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isBase()) getFeature else "")
-    def getPosition = new Position {
-        def getFile = token.getSource.toString
-        def getLine = token.getLine
-        def getColumn = token.getColumn
-        override def toString = "token no. " + number + " (line: " + getLine + ")"
-    }
+    def getPosition = pos
+    private lazy val pos = new TokenPosition(
+        token.getSource.toString,
+        token.getLine,
+        token.getColumn,
+        number
+    )
+}
+
+class TokenPosition(file: String, line: Int, column: Int, tokenNr: Int) extends Position {
+    def getFile = file
+    def getLine = line
+    def getColumn = column
+    //    override def toString = "token no. " + tokenNr + " (line: " + getLine + ")"
 }
 
 ///**
