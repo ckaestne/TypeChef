@@ -63,7 +63,6 @@ trait TestHelper {
         assert(ast != null)
         val clone = everywherebu(rule {
             case n: AST => n.clone()
-            //            case Opt(f, a: AST) => Opt(f, a.clone())
         })
         val cast = clone(ast).get.asInstanceOf[TranslationUnit]
         ensureTree(cast)
