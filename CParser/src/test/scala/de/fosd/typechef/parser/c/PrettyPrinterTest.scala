@@ -4,8 +4,9 @@ import org.junit.Test
 import org.junit.Assert._
 import PrettyPrinter._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.{TokenReader, Opt}
 import junit.framework.TestCase
+import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 
 class PrettyPrinterTest extends TestCase {
     val p = new CParser()
@@ -100,21 +101,21 @@ class PrettyPrinterTest extends TestCase {
     }
 
     def testStatements {
-        parsePrintParse("a;", p.statement)
+        parsePrintParseCond("a;", p.statement)
         parsePrintParse("{}", p.compoundStatement)
-        parsePrintParse("{}", p.statement)
-        parsePrintParse("a(x->i);", p.statement)
-        parsePrintParse("while (x) a;", p.statement)
-        parsePrintParse(";", p.statement)
-        parsePrintParse("if (a) b; ", p.statement)
-        parsePrintParse("if (a) {b;c;} ", p.statement)
-        parsePrintParse("if (a) b; else c;", p.statement)
-        parsePrintParse("if (a) if (b) if (c) d; ", p.statement)
-        parsePrintParse("{a;b;}", p.statement)
-        parsePrintParse("case a: x;", p.statement)
-        parsePrintParse("break;", p.statement)
-        parsePrintParse("a:", p.statement)
-        parsePrintParse("goto x;", p.statement)
+        parsePrintParseCond("{}", p.statement)
+        parsePrintParseCond("a(x->i);", p.statement)
+        parsePrintParseCond("while (x) a;", p.statement)
+        parsePrintParseCond(";", p.statement)
+        parsePrintParseCond("if (a) b; ", p.statement)
+        parsePrintParseCond("if (a) {b;c;} ", p.statement)
+        parsePrintParseCond("if (a) b; else c;", p.statement)
+        parsePrintParseCond("if (a) if (b) if (c) d; ", p.statement)
+        parsePrintParseCond("{a;b;}", p.statement)
+        parsePrintParseCond("case a: x;", p.statement)
+        parsePrintParseCond("break;", p.statement)
+        parsePrintParseCond("a:", p.statement)
+        parsePrintParseCond("goto x;", p.statement)
         //        assertParseResult(AltStatement(fa, IfStatement(a, ExprStatement(b), List(), None), ExprStatement(b)),
         //            """|#ifdef a
         //        					|if (a)
@@ -218,7 +219,7 @@ class PrettyPrinterTest extends TestCase {
         parsePrintParse("{ [0 ... 9] = 1, [10 ... 99] = 2, [100] = 3 }", p.initializer) //from gcc spec
         parsePrintParse("(int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.castExpr)
         parsePrintParse("(int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } }", p.expr)
-        parsePrintParse("sem = (int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } };", p.statement)
+        parsePrintParseCond("sem = (int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } };", p.statement)
     }
 
     def testNAryExpr {
@@ -238,24 +239,27 @@ class PrettyPrinterTest extends TestCase {
         parsePrintParse("a,b,c+c/d|x", p.expr)
     }
 
-    private def parsePrintParse(code: String, production: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]) {
+    private def parsePrintParse(code: String, production: p.MultiParser[AST]) {
+        parsePrintParseCond(code, production ^^ {One(_)})
+    }
+    private def parsePrintParseCond(code: String, production: p.MultiParser[Conditional[AST]]) {
 
         //parse
         val ast = parse(code, production)
 
-        println("AST: " + ast)
+        println("AST: " + ast.get)
 
 
         //pretty print
-        val doc = prettyPrint(ast)
+        val doc = prettyPrint(ast.get.asInstanceOf[One[AST]].value) //temporary workaround with typecast
         val printed = layout(doc)
 
         println("Pretty: " + printed)
 
         val ast2 = parse(printed, production)
-        println("new AST: " + ast2)
+        println("new AST: " + ast2.get)
 
-        assertEquals("AST after parsing printed result is different\n" + printed, ast, ast2)
+        assertEquals("AST after parsing printed result is different\n" + printed, ast.get, ast2.get)
     }
 
     private def parseFile(filename: String) {
@@ -267,20 +271,20 @@ class PrettyPrinterTest extends TestCase {
 
         val ast2 = parse(printed, p.translationUnit)
 
-        assertEquals("AST after parsing printed result is different\n" + printed, ast, ast2)
+        assertEquals("AST after parsing printed result is different\n" + printed, ast, ast2.get)
     }
 
 
-    private def parse(code: String, production: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]): AST = {
+    private def parse[T](code: String, production: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
         val actual = p.parse(code.stripMargin, production)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
-                ast
+                Some(ast)
             }
             case p.NoSuccess(msg, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " " + inner + "\nin " + code)
-                null
+                None
         }
     }
     private def _parseFile(fileName: String): TranslationUnit = {

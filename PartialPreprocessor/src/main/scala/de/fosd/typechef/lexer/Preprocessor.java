@@ -578,7 +578,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             StringBuilder buf = new StringBuilder();
             buf.append("#line ").append(line).append(" \"");
             /* XXX This call to escape(name) is correct but ugly. */
-            MacroTokenSource.escape(buf, name);
+            MacroTokenSource$.MODULE$.escape(buf, name);
             buf.append("\"").append(extra).append("\n");
             return new SimpleToken(P_LINE, line, 0, buf.toString(), null);
         }
@@ -1928,9 +1928,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     private class ExprOrValue {
         final FeatureExpr expr;
-        final FeatureExprTree<Long> value;
+        final FeatureExprTree<Object> value;
 
-        ExprOrValue(FeatureExpr expr, FeatureExprTree<Long> value) {
+        ExprOrValue(FeatureExpr expr, FeatureExprTree<Object> value) {
             this.expr = expr;
             this.value = value;
         }
@@ -1939,14 +1939,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             this(expr, null);
         }
 
-        ExprOrValue(FeatureExprTree<Long> value) {
+        ExprOrValue(FeatureExprTree<Object> value) {
             this(null, value);
         }
 
-        public FeatureExprTree<Long> assumeValue(Token tok) throws LexerException {
+        public FeatureExprTree<Object> assumeValue(Token tok) throws LexerException {
             if (value == null) {
                 warning(tok, "expecting value before token, found boolean expression " + expr + " instead");
-                return expr.toFeatureExprValue();
+                return (FeatureExprTree<Object>) expr.toFeatureExprValue();
             } else
                 return value;
         }
@@ -2215,7 +2215,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         return lhs;
     }
 
-    private FeatureExprTree<Long> parse_ifExpr(Token tok) throws IOException, LexerException {
+    private FeatureExprTree<Object> parse_ifExpr(Token tok) throws IOException, LexerException {
         consumeToken('(', true);
         ExprOrValue condition = parse_featureExprOrValue(0, true);
         consumeToken(',', true);

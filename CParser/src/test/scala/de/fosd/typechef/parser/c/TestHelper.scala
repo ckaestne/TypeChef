@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attributable
 import org.kiama.rewriting.Rewriter._
 import java.io.InputStream
+import util.parsing.input.OffsetPosition
 
 /**
  * common infrastructure for tests.
@@ -12,6 +13,11 @@ import java.io.InputStream
 
 trait TestHelper {
 
+    val fa = FeatureExpr.createDefinedExternal("A")
+    val fb = FeatureExpr.createDefinedExternal("B")
+    val fc = FeatureExpr.createDefinedExternal("C")
+    val fx = FeatureExpr.createDefinedExternal("X")
+    val fy = FeatureExpr.createDefinedExternal("Y")
 
     def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
@@ -56,9 +62,17 @@ trait TestHelper {
 
     private def prepareAST(ast: AST): TranslationUnit = {
         assert(ast != null)
+        //        val clone = everywherebu(rule {
+        //            case n: AST => n.clone()
+        //        })
+        ast.pos = new OffsetPosition("abcde", 3)
         val clone = everywherebu(rule {
-            case n: AST => n.clone()
-            //            case Opt(f, a: AST) => Opt(f, a.clone())
+            case n: AST =>
+                if (n.hasChildren) {
+                    n.setChildConnections
+                    n
+                } else
+                    n.clone()
         })
         val cast = clone(ast).get.asInstanceOf[TranslationUnit]
         ensureTree(cast)

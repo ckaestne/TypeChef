@@ -10,9 +10,10 @@ class CGramFilesTest extends TestCase {
     //XXX duplicate of TestErrorReportingTest.parseFile
     def parseFile(fileName: String) {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
+        println(inputStream.toString)
         assertNotNull("file not found " + fileName, inputStream)
         val result = p.phrase(p.translationUnit)(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExpr.base)
+            CLexer.lexStream(inputStream, fileName, "", null), FeatureExpr.base)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -117,5 +118,5 @@ class CGramFilesTest extends TestCase {
     def test86() {parseFile("cgram/test86.c")}
     def test87() {parseFile("cgram/test87.c")}
 
-
+    def testparamstruct() {parseFile("errors/parameterstruct.c")}
 }

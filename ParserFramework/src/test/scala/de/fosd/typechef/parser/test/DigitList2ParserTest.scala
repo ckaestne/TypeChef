@@ -1,19 +1,18 @@
 package de.fosd.typechef.parser.test
 
-import de.fosd.typechef.parser._
 import junit.framework._;
 import junit.framework.Assert._
-import de.fosd.typechef.featureexpr._
 import org.junit.Test
 import de.fosd.typechef.parser.test.parsers._
+import de.fosd.typechef.conditional._
 
 class DigitList2ParserTest extends TestCase with DigitListUtilities {
     val newParser = new DigitList2Parser() {
         type OptResult[T] = Opt[T]
-        def myRepOpt[T](p: => MultiParser[T], joinFunction: (FeatureExpr, T, T) => T, productionName: String): MultiParser[List[OptResult[T]]] =
+        def myRepOpt[T](p: => MultiParser[T], productionName: String): MultiParser[List[OptResult[T]]] =
             repOpt(p, "")
         def digits: MultiParser[AST] =
-            myRepOpt(digitList | digit, Alt.join, "digitList") ^^! (Alt.join, {
+            myRepOpt(digitList | (digit ^^ {One(_)}), "digitList") ^^ ({
                 //List(Opt(AST)) -> DigitList[List[Opt[Lit]]
                 DigitList2(_)
             })
@@ -32,6 +31,7 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
 
         }
     }
+    implicit def makeConditional(x: AST): Conditional[AST] = One(x)
 
     @Test
     def testParseSimpleList() {
@@ -115,12 +115,12 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
         }
     }
 
-    def assertParseResult(expected: AST, actual: newParser.ParseResult[AST]) {
+    def assertParseResult(expected: Conditional[AST], actual: newParser.ParseResult[Conditional[AST]]) {
         System.out.println(actual)
         actual match {
             case newParser.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
-                assertEquals("incorrect parse result", outer(expected), ast)
+                assertEquals("incorrect parse result", One(outer(expected)), ast)
             }
             case newParser.NoSuccess(msg, unparsed, inner) =>
                 fail(msg + " at " + unparsed + " " + inner)

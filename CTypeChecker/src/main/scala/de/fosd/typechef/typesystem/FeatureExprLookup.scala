@@ -1,8 +1,7 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.parser.Opt
-import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable

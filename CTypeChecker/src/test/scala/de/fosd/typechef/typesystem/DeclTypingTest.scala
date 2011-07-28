@@ -6,6 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import de.fosd.typechef.parser.c.TestHelper
+import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
 class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
@@ -17,7 +18,11 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         println(r)
         r
     }
-    private def declT(code: String) = declTL(code)(0)._2
+    private def declCT(code: String): TConditional[CType] = declTL(code)(0)._2
+    private def declT(code: String): CType = declCT(code) match {
+        case TOne(e) => e
+        case e => CUnknown("Multiple types not expected " + e)
+    }
 
     test("recognizing basic types") {
         declT("int a;") should be(CSigned(CInt()))
@@ -57,14 +62,14 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
     }
 
     test("variable declarations") {
-        declTL("double a;") should be(List(("a", CDouble())))
-        declTL("double a,b;") should be(List(("a", CDouble()), ("b", CDouble())))
-        declTL("double a[];") should be(List(("a", CArray(CDouble()))))
-        declTL("double **a;") should be(List(("a", CPointer(CPointer(CDouble())))))
-        declTL("double *a[];") should be(List(("a", CArray(CPointer(CDouble())))))
-        declTL("double a[][];") should be(List(("a", CArray(CArray(CDouble())))))
-        declTL("double *a[][];") should be(List(("a", CArray(CArray(CPointer(CDouble()))))))
-        declTL("double (*a)[];") should be(List(("a", CPointer(CArray(CDouble())))))
+        declT("double a;") should be(CDouble())
+        declTL("double a,b;") should be(List(("a", TOne(CDouble())), ("b", TOne(CDouble()))))
+        declT("double a[];") should be(CArray(CDouble()))
+        declT("double **a;") should be(CPointer(CPointer(CDouble())))
+        declT("double *a[];") should be(CArray(CPointer(CDouble())))
+        declT("double a[][];") should be(CArray(CArray(CDouble())))
+        declT("double *a[][];") should be(CArray(CArray(CPointer(CDouble()))))
+        declT("double (*a)[];") should be(CPointer(CArray(CDouble())))
         declT("double *(*a[1])();") should be(CArray(CPointer(CFunction(Seq(), CPointer(CDouble())))))
     }
 
@@ -99,6 +104,16 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
     test("typeof declarations") {
         declT("typeof(int *) a;") should be(CPointer(CSigned(CInt())))
         declT("typeof(1) a;") should be(CSigned(CInt()))
+    }
+
+    test("conditional declarations") {
+        declCT("int a;") should be(TOne(CSigned(CInt())))
+        declCT("#ifdef X\nint\n#else\nlong\n#endif\n a;") should be(TChoice(fx.not, TOne(CSigned(CLong())), TOne(CSigned(CInt()))))
+        declCT("#ifdef X\nlong\n#endif\nlong a;") should be(TChoice(fx, TOne(CSigned(CLongLong())), TOne(CSigned(CLong()))))
+        declCT("long \n#ifdef X\n*\n#endif\n a;") should be(TChoice(fx, TOne(CPointer(CSigned(CLong()))), TOne(CSigned(CLong()))))
+        declCT("long \n#ifdef X\n*\n#endif\n#ifdef Y\n*\n#endif\n a;") should be(
+            TChoice(fy, TChoice(fx, TOne(CPointer(CPointer(CSigned(CLong())))), TOne(CPointer(CSigned(CLong())))),
+                TChoice(fx, TOne(CPointer(CSigned(CLong()))), TOne(CSigned(CLong())))))
     }
 
 }

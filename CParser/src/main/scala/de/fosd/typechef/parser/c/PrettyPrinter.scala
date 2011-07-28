@@ -1,6 +1,7 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 object PrettyPrinter {
 
@@ -44,13 +45,26 @@ object PrettyPrinter {
 
     def print(ast: AST): String = layout(prettyPrint(ast))
 
+
+    private def ppConditional(e: Conditional[AST]): Doc = e match {
+        case One(c: AST) => prettyPrint(c)
+        case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a) * "#else" * prettyPrint(b) * "#endif"
+    }
+
+    private def optConditional(e: Opt[AST]): Doc = {
+        if (e.feature == FeatureExpr.base) prettyPrint(e.entry)
+        else "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry) * "#endif"
+    }
+
     def prettyPrint(ast: AST): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a)
-        implicit def prettyOpt(a: Opt[AST]): Doc = prettyPrint(a.entry)
+        implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a)
+        implicit def prettyCond(a: Conditional[AST]): Doc = ppConditional(a)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
+
         def sep(l: List[Opt[AST]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
-            l.drop(1).foldLeft(r)(s(_, _))
+            l.drop(1).foldLeft(r)((a, b) => s(a, prettyOpt(b)))
         }
         def seps(l: List[Opt[String]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
@@ -59,7 +73,9 @@ object PrettyPrinter {
         def commaSep(l: List[Opt[AST]]) = sep(l, _ ~ "," ~~ _)
         def spaceSep(l: List[Opt[AST]]) = sep(l, _ ~~ _)
         def opt(o: Option[AST]): Doc = if (o.isDefined) o.get else Empty
+        def optCond(o: Option[Conditional[AST]]): Doc = if (o.isDefined) o.get else Empty
         def optExt(o: Option[AST], ext: (Doc) => Doc): Doc = if (o.isDefined) ext(o.get) else Empty
+        def optCondExt(o: Option[Conditional[AST]], ext: (Doc) => Doc): Doc = if (o.isDefined) ext(o.get) else Empty
 
         ast match {
             case TranslationUnit(ext) => sep(ext, _ * _)
@@ -86,12 +102,14 @@ object PrettyPrinter {
             case AssignExpr(target: Expr, operation: String, source: Expr) => "(" ~ target ~~ operation ~~ source ~ ")"
             case ExprList(exprs: List[Opt[Expr]]) => sep(exprs, _ ~~ "," ~~ _)
 
-            case CompoundStatement(innerStatements: List[Opt[Statement]]) => block(sep(innerStatements, _ * _))
+            case CompoundStatement(innerStatements: List[Opt[Statement]]) =>
+                println(innerStatements)
+                block(sep(innerStatements, _ * _))
             case EmptyStatement() => ";"
             case ExprStatement(expr: Expr) => expr ~ ";"
-            case WhileStatement(expr: Expr, s: Statement) => "while (" ~ expr ~ ")" ~~ s
-            case DoStatement(expr: Expr, s: Statement) => "do" ~~ s ~~ "while (" ~ expr ~ ")"
-            case ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Statement) =>
+            case WhileStatement(expr: Expr, s: Conditional[Statement]) => "while (" ~ expr ~ ")" ~~ s
+            case DoStatement(expr: Expr, s: Conditional[Statement]) => "do" ~~ s ~~ "while (" ~ expr ~ ")"
+            case ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Conditional[Statement]) =>
                 "for (" ~ opt(expr1) ~ ";" ~~ opt(expr2) ~ ";" ~~ opt(expr3) ~ ")" ~~ s
             case GotoStatement(target: Expr) => "goto" ~~ target ~ ";"
             case ContinueStatement() => "continue;"
@@ -99,14 +117,14 @@ object PrettyPrinter {
             case ReturnStatement(None) => "return;"
             case ReturnStatement(Some(e)) => "return" ~~ e ~ ";"
             case LabelStatement(id: Id, _) => id ~ ":"
-            case CaseStatement(c: Expr, s: Option[Statement]) => "case" ~~ c ~ ":" ~~ opt(s)
-            case DefaultStatement(s: Option[Statement]) => "default:" ~~ opt(s)
-            case IfStatement(condition: Expr, thenBranch: Statement, elifs: List[Opt[ElifStatement]], elseBranch: Option[Statement]) =>
-                "if (" ~ condition ~ ")" ~~ thenBranch ~~ sep(elifs, _ * _) ~~ optExt(elseBranch, line ~ "else" ~~ _)
-            case ElifStatement(condition: Expr, thenBranch: Statement) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch
-            case SwitchStatement(expr: Expr, s: Statement) => "switch (" ~ expr ~ ")" ~~ s
+            case CaseStatement(c: Expr, s: Option[Conditional[Statement]]) => "case" ~~ c ~ ":" ~~ optCond(s)
+            case DefaultStatement(s: Option[Conditional[Statement]]) => "default:" ~~ optCond(s)
+            case IfStatement(condition: Expr, thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) =>
+                "if (" ~ condition ~ ")" ~~ thenBranch ~~ sep(elifs, _ * _) ~~ optCondExt(elseBranch, line ~ "else" ~~ _)
+            case ElifStatement(condition: Expr, thenBranch: Conditional[Statement]) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch
+            case SwitchStatement(expr: Expr, s: Conditional[Statement]) => "switch (" ~ expr ~ ")" ~~ s
             case DeclarationStatement(decl: Declaration) => decl
-            case NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: Statement) =>
+            case NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) =>
                 (if (isAuto) "auto" ~~ Empty else Empty) ~ sep(specifiers, _ ~~ _) ~~ declarator ~~ sep(parameters, _ ~~ _) ~~ stmt
             case LocalLabelDeclaration(ids: List[Opt[Id]]) => "__label__" ~~ sep(ids, _ ~ "," ~~ _) ~ ";"
             case OtherPrimitiveTypeSpecifier(typeName: String) => typeName
@@ -170,7 +188,7 @@ object PrettyPrinter {
             case StructDeclarator(decl: Declarator, initializer: Option[Expr], _) => decl ~ optExt(initializer, ":" ~~ _)
             case StructInitializer(expr: Expr, _) => ":" ~~ expr
             case AsmExpr(isVolatile: Boolean, expr: Expr) => "asm" ~~ (if (isVolatile) "volatile " else "") ~ "{" ~ expr ~ "}" ~ ";"
-            case FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: Statement) =>
+            case FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) =>
                 spaceSep(specifiers) ~~ declarator ~~ spaceSep(oldStyleParameters) ~~ stmt
             case EmptyExternalDef() => ";"
             case TypelessDeclaration(declList: List[Opt[InitDeclarator]]) => commaSep(declList) ~ ";"
@@ -196,10 +214,6 @@ object PrettyPrinter {
             case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ exit ~ "," ~~ typeName ~ ")"
             case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
             case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
-
-
-            case AltExternalDef(f, a, b) => assert(false, "todo"); a * b
-            case AltStatement(f, a, b) => assert(false, "todo"); a * b
 
         }
     }

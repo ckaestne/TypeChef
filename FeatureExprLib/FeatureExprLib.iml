@@ -9,8 +9,8 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/target/scala_2.8.1/classes" />
-    <output-test url="file://$MODULE_DIR$/target/scala_2.8.1/test-classes" />
+    <output url="file://$MODULE_DIR$/target/scala_2.9.0/classes" />
+    <output-test url="file://$MODULE_DIR$/target/scala_2.9.0/test-classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/scala" isTestSource="false" />
@@ -23,7 +23,7 @@
     <orderEntry type="module-library" exported="" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/test/junit-4.8.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.9.0/test/junit-4.8.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -32,7 +32,7 @@
     <orderEntry type="module-library" exported="" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/test/junit-interface-0.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.9.0/test/junit-interface-0.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -41,7 +41,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/compile/org.sat4j.core-2.3.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.9.0/compile/org.sat4j.core-2.3.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -50,7 +50,7 @@
     <orderEntry type="module-library" exported="" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/test/scalacheck_2.8.1-1.8.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.9.0/test/scalacheck_2.8.1-1.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -59,7 +59,7 @@
     <orderEntry type="module-library" exported="" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/test/test-interface-0.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.9.0/test/test-interface-0.5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

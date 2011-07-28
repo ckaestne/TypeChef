@@ -5,6 +5,7 @@ import org.junit.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional.Opt
 
 class LinuxFragmentsTest {
     val p = new CParser(LinuxFeatureModel.featureModelApprox)
@@ -21,7 +22,7 @@ class LinuxFragmentsTest {
     }
 
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]) {
-        val actual = p.parse(code.stripMargin, mainProduction).forceJoin(FeatureExpr.base, Alt.join)
+        val actual = p.parse(code.stripMargin, mainProduction).expectOneResult
         System.out.println(actual)
         actual match {
             case p.Success(ast, unparsed) => {

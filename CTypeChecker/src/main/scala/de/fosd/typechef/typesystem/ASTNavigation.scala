@@ -1,11 +1,11 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.parser.Opt
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
+import de.fosd.typechef.conditional._
 
 /**
  * Simplified navigation support
@@ -20,7 +20,7 @@ trait ASTNavigation {
     private def findParent(a: Attributable): AST =
         a.parent match {
             case o: Opt[_] => findParent(o)
-            case c: Choice[_] => findParent(c)
+            case c: Conditional[_] => findParent(c)
             case a: AST => a
             case _ => null
         }
@@ -28,14 +28,17 @@ trait ASTNavigation {
     val prevAST: Attributable ==> AST = attr {
         case a =>
             a.prev[Attributable] match {
-                case c: Choice[_] => lastChoice(c)
+                case c: Choice[AST] => lastChoice(c)
+                case o: One[AST] => o.value
                 case a: AST => a
                 case Opt(_, v: Choice[AST]) => lastChoice(v)
+                case Opt(_, v: One[AST]) => v.value
                 case Opt(_, v: AST) => v
                 case null => {
                     a.parent match {
                         case o: Opt[_] => o -> prevAST
                         case c: Choice[AST] => c -> prevAST
+                        case c: One[AST] => c -> prevAST
                         case _ => null
                     }
                 }
@@ -58,7 +61,7 @@ trait ASTNavigation {
     private def lastChoice[T <: AST](x: Choice[T]): T =
         x.elseBranch match {
             case c: Choice[T] => lastChoice(c)
-            case c => c
+            case One(c) => c
         }
 
 

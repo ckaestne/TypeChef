@@ -3,13 +3,14 @@ package de.fosd.typechef.parser.test
 import junit.framework.TestCase
 import org.junit._
 import de.fosd.typechef.parser.test.parsers._
+import de.fosd.typechef.conditional._
 
 class RepOptTest extends TestCase with DigitListUtilities {
 
     import de.fosd.typechef.parser._
     import de.fosd.typechef.featureexpr.FeatureExpr
 
-    case class DList(list: List[Opt[AST]]) extends AST {
+    case class DList(list: List[Opt[Conditional[AST]]]) extends AST {
         override def toString(): String = list.map(o => o.entry + " - " + o.feature).mkString("[", "\n", "]")
     }
 
@@ -19,14 +20,14 @@ class RepOptTest extends TestCase with DigitListUtilities {
         type Elem = MyToken
         type TypeContext = Any
 
-        def parse(tokens: List[MyToken]): ParseResult[AST] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).forceJoin[AST](FeatureExpr.base, Alt.join)
+        def parse(tokens: List[MyToken]): ParseResult[AST] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).expectOneResult
 
-        def digitList: MultiParser[AST] =
-            (t("(") ~! (digits ~ t(")"))) ^^! (Alt.join, {
+        def digitList: MultiParser[Conditional[AST]] =
+            (t("(") ~! (digits ~ t(")"))) ^^! {
                 case b1 ~ (e ~ b2) => e
-            })
+            }
 
-        def digits: MultiParser[AST] = repOpt(digitList | digit, "") ^^ {
+        def digits: MultiParser[AST] = repOpt(digitList | (digit.map(One(_))), "") ^^ {
             DList(_)
         }
 

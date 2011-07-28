@@ -7,6 +7,7 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.featureexpr.FeatureExpr._
 import de.fosd.typechef.parser.test.parsers._
+import de.fosd.typechef.conditional._
 
 object JoinAutoCheck extends Properties("MultiParseResult") {
 
@@ -80,12 +81,12 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
     }
 
     //checks recursively that there is an according V with the required presence condition
-    private def assertContainsL(result: jt.MultiParseResult[A], f: FeatureExpr, l: L) = {
+    private def assertContainsL(result: jt.MultiParseResult[Conditional[A]], f: FeatureExpr, l: L) = {
         var found = false
 
-        def find(feature: FeatureExpr, r: A, expectedFeature: FeatureExpr, expectedL: L): Boolean =
-            ((r == expectedL) && (feature equivalentTo expectedFeature)) || (r match {
-                case V(f, a, b) => find(feature and f, a, expectedFeature, expectedL) || find(feature and (f.not), b, expectedFeature, expectedL)
+        def find(feature: FeatureExpr, r: Conditional[A], expectedFeature: FeatureExpr, expectedL: L): Boolean =
+            ((r == One(expectedL)) && (feature equivalentTo expectedFeature)) || (r match {
+                case Choice(f, a, b) => find(feature and f, a, expectedFeature, expectedL) || find(feature and (f.not), b, expectedFeature, expectedL)
                 case _ => false
             })
 
@@ -101,7 +102,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
         (x: jt.MultiParseResult[A]) => {
             var knownSuccessOffsets: Set[Int] = Set()
             var knownFailureOffsets: Set[Int] = Set()
-            val joined = x.join(base, joinV)
+            val joined = x.join(base)
             //                        println(x.toList(base).size+" => "+joined.toList(base).size)
             joined.toList(base).forall(p => {
                 p._2 match {
@@ -127,7 +128,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
             val mBefore: Map[L, FeatureExpr] = collectL(x)
 
             //                        println(x)
-            val joined = x.join(base, joinV)
+            val joined = x.join(base)
             //                        println(".")
 
             mBefore.forall((p: (L, FeatureExpr)) => assertContainsL(joined, p._2, p._1))

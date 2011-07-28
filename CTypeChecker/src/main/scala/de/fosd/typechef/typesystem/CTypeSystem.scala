@@ -6,7 +6,8 @@ import org.kiama.attribution.Attribution._
 import org.kiama._
 import org.kiama.rewriting.Rewriter._
 import attribution.Attributable
-import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.{WithPosition, Position, NoPosition}
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -21,22 +22,46 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     //    var functionCallChecks = 0
 
     /*
-     * This dictionary groups error messages by function, consolidating duplicate warnings together.
-     */
+    * This dictionary groups error messages by function, consolidating duplicate warnings together.
+    */
     //    var functionCallErrorMessages: Map[String, ErrorMsgs] = Map()
     //    var functionRedefinitionErrorMessages: List[RedefErrorMsg] = List()
+
+    val startPosition: Attributable ==> Position = attr {
+        case a: WithPosition with Attributable =>
+            if (a.hasPosition)
+                a.getPositionFrom
+            else
+            if (a.parent == null) NoPosition else a.parent -> startPosition
+        case a => if (a.parent == null) NoPosition else a.parent -> startPosition
+    }
 
     trait ErrorMsg
 
     class SimpleError(msg: String, where: AST) extends ErrorMsg {
-        override def toString = msg
+        override def toString =
+            (where -> startPosition).toString() + ": \n" +
+                    msg
     }
+    class TypeError(msg: String, where: AST, ctype: TConditional[CType]) extends ErrorMsg {
+        override def toString =
+            (where -> startPosition).toString() + ": \n" +
+                    msg + "\n" + indentAllLines(prettyPrintType(ctype))
+    }
+
+    def prettyPrintType(ctype: TConditional[CType]): String =
+        TConditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
+
+    private def indentAllLines(s: String): String =
+        s.lines.map("\t" + _).foldLeft("")(_ + "\n" + _)
 
     var errors: List[ErrorMsg] = List()
 
 
     val DEBUG_PRINT = false
+
     def dbgPrint(o: Any) = if (DEBUG_PRINT) print(o)
+
     def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
 
     private val checkNode: Attributable ==> Unit = attr {
@@ -89,14 +114,31 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
                     issueError("function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
 
         case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
-            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
-                issueError("cannot (always) resolve function call " + expr + ": " + ctype(expr), expr)
+            val ct = ctype(expr).simplify(expr -> featureExpr)
+            if (ct.exists(_.sometimesUnknown))
+                issueTypeError("cannot (always) resolve function call " + expr + ": " + ct, expr, ct)
 
-        case ExprStatement(expr) =>
-            if (ctype(expr).simplify(expr -> featureExpr).sometimesUnknown)
-                issueError("cannot (always) resolve expression " + expr + ": " + ctype(expr), expr)
+        case ExprStatement(expr) => checkExpr(expr)
+        case WhileStatement(expr, _) => checkExpr(expr)
+        case DoStatement(expr, _) => checkExpr(expr)
+        case ForStatement(expr1, expr2, expr3, _) =>
+            if (expr1.isDefined) checkExpr(expr1.get)
+            if (expr2.isDefined) checkExpr(expr2.get)
+            if (expr3.isDefined) checkExpr(expr3.get)
+        //case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
+        case ReturnStatement(expr) => if (expr.isDefined) checkExpr(expr.get)
+        case CaseStatement(expr, _) => checkExpr(expr)
+        case IfStatement(expr, _, _, _) => checkExpr(expr)
+        case ElifStatement(expr, _) => checkExpr(expr)
+        case SwitchStatement(expr, _) => checkExpr(expr)
 
         case _ =>
+    }
+
+    private def checkExpr(expr: Expr) = {
+        val ct = ctype(expr).simplify(expr -> featureExpr)
+        if (ct.exists(_.sometimesUnknown))
+            issueTypeError("cannot (always) resolve expression " + expr + ": " + ct, expr, ct)
     }
 
     /**
@@ -113,18 +155,32 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         case x: NestedFunctionDef => assert(false, "NestedFunctionDef not supported, yet")
         case _ =>
     }
+
+    /**
+     * TODO additional assumptions:
+     * * typedef specifier applies to the whole declaration
+     *
+     */
     private def checkTree(node: Attributable) {
         for (c <- node.children) assert(c.parent == node, "Child " + c + " points to different parent:\n  " + c.parent + "\nshould be\n  " + node)
 
     }
+
     private def assertNoVariability[T](l: List[Opt[T]]) {
-        assert(l.forall(_.feature == FeatureExpr.base))
+        def noVariability(o: Opt[T]) =
+            (o.feature == FeatureExpr.base) ||
+                    (o -> featureExpr implies (o.feature)).isTautology
+        assert(l.forall(noVariability), "found unexpected variability in " + l)
     }
 
     private def mex(a: FeatureExpr, b: FeatureExpr): Boolean = (a mex b).isTautology(featureModel)
 
     private def issueError(msg: String, where: AST, whereElse: AST = null) {
         errors = new SimpleError(msg, where) :: errors
+    }
+
+    private def issueTypeError(msg: String, where: AST, ctype: TConditional[CType]) {
+        errors = new TypeError(msg, where, ctype) :: errors
     }
 
     //

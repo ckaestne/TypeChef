@@ -1,14 +1,8 @@
 package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
+import de.fosd.typechef.conditional._
 
-/**
- * Created by IntelliJ IDEA.
- * User: kaestner
- * Date: 30.12.10
- * Time: 09:23
- * To change this template use File | Settings | File Templates.
- */
 
 class CharDigitParser extends MultiFeatureParser {
     type Elem = MyToken
@@ -46,15 +40,17 @@ class CharDigitParser extends MultiFeatureParser {
             (x: Elem) => Char(x.text)
         }
 
-    def expr: MultiParser[AST] = expr1 ~ opt(t("*") ~> expr) ^^! (Alt.join, {
-        case ~(f, Some(e)) => Mul(f, e);
+    def expr: MultiParser[Conditional[AST]] = (expr1 ~ opt(t("*") ~> expr) ^^! ({
+        case ~(f, Some(e)) => One(Mul(f, e))
         case ~(f, None) => f
-    })
-    def expr1: MultiParser[AST] = expr2 ~ opt(t("+") ~> expr) ^^! (Alt.join, {
-        case ~(f, Some(e)) => Plus(f, e);
+    })).map(Conditional.combine(_))
+
+    def expr1: MultiParser[Conditional[AST]] = (expr2 ~ opt(t("+") ~> expr) ^^! ({
+        case ~(f, Some(e)) => One(Plus(f, e))
         case ~(f, None) => f
-    })
-    def expr2: MultiParser[AST] = t("(") ~> expr <~ t(")") | (digit ! (Alt.join))
+    })).map(Conditional.combine(_))
+
+    def expr2: MultiParser[Conditional[AST]] = t("(") ~> expr <~ t(")") | (digit.join)
 
 
     def tr(l: List[Elem]): Input = new TokenReader[Elem, Any](l, 0, null, EofToken)

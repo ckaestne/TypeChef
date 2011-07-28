@@ -4,7 +4,7 @@
 
 srcPath=./casestudies/gnuplot-4.2.5/src
 prjPath=./casestudies/gnuplot-4.2.5
-export partialPreprocFlags="-p false
+export partialPreprocFlags='-p true
 	-U CGI
 	-U COLUMN_HELP
 	-U DJSVGA
@@ -76,8 +76,8 @@ export partialPreprocFlags="-p false
 	-U MTOS
 	-U MSDOS
 	-U DOS386
-	--openFeat $prjPath/gnuplotfeatures.txt
-"
+	--openFeat '$prjPath'/gnuplotfeatures.txt
+'
 flags='
 	-I '$prjPath' -I '$srcPath'
 	--include ./host/platform.h
@@ -95,6 +95,7 @@ flags='
 	-I /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include-fixed
 	-I /usr/include/x86_64-linux-gnu
 	-I /usr/include
+	-I /usr/include/cairo
 '
 #	-D'\''SELECT_TYPE_ARG234=(fd_set'\ '*)'\''
 #	-D'\''SELECT_TYPE_ARG5=(struct timeval'\ '*)'\''
@@ -106,11 +107,6 @@ flags='
 for i in `find "$srcPath" -type f -name "*.c"`;
 do
 	echo './jcpp.sh' $i $flags $partialPreprocFlags
-    ./jcpp.sh $i $flags
-done
-
-for i in `find "$srcPath" -type f -name "*.h"`;
-do
     ./jcpp.sh $i $flags
 done
 
