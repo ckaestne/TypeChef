@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attributable
 import org.kiama.rewriting.Rewriter._
 import java.io.InputStream
+import util.parsing.input.OffsetPosition
 
 /**
  * common infrastructure for tests.
@@ -61,8 +62,17 @@ trait TestHelper {
 
     private def prepareAST(ast: AST): TranslationUnit = {
         assert(ast != null)
+        //        val clone = everywherebu(rule {
+        //            case n: AST => n.clone()
+        //        })
+        ast.pos = new OffsetPosition("abcde", 3)
         val clone = everywherebu(rule {
-            case n: AST => n.clone()
+            case n: AST =>
+                if (n.hasChildren) {
+                    n.setChildConnections
+                    n
+                } else
+                    n.clone()
         })
         val cast = clone(ast).get.asInstanceOf[TranslationUnit]
         ensureTree(cast)
