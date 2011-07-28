@@ -45086,12 +45086,7 @@ static void fixup_server_root()
     if (!server_root) {
 
         server_root = strdup(
-#if !definedEx(SERVER_ROOT)
 "/etc/boa"
-#endif
-#if definedEx(SERVER_ROOT)
-SERVER_ROOT
-#endif
 );
         if (!server_root) {
             perror("strdup (SERVER_ROOT)");

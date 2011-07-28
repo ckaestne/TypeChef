@@ -108,6 +108,10 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         coerce(CUnsigned(CInt()), CInt()) should be(true)
         coerce(CStruct("a"), CInt()) should be(false)
         coerce(CPointer(CStruct("a")), CPointer(CVoid())) should be(true)
+
+        coerce(CPointer(CVoid()), CPointer(CFunction(List(), CSigned(CInt())))) should be(true)
+        coerce(CPointer(CFunction(List(), CSigned(CInt()))), CPointer(CVoid())) should be(true)
+
     }
 
     test("function calls") {

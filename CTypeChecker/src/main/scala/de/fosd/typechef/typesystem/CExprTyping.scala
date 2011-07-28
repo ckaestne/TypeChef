@@ -47,7 +47,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //TODO constant 0 is special, can be any pointer or function
             //TODO other constant types
             case Constant(v) => if (v.last.toLower == 'l') TOne(CSigned(CLong())) else TOne(CSigned(CInt()))
-            //variable or function ref TODO check
+            //variable or function ref
             case Id(name) => varCtx(name).map(_.toObj)
             //&a: create pointer
             case PointerCreationExpr(expr) =>
@@ -200,7 +200,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
     def operationType(op: String, type1: CType, type2: CType): CType = {
         def pointerArthOp(o: String) = Set("+", "-") contains o
         def pointerArthAssignOp(o: String) = Set("+=", "-=") contains o
-        def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=") contains o
+        def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=", "^=") contains o
         def compOp(o: String) = Set("==", "!=", "<", ">", "<=", ">=") contains o
         def artithmeticOp(o: String) = Set("+", "-", "*", "/", "%") contains o
         def logicalOp(o: String) = Set("&&", "||") contains o
@@ -253,12 +253,20 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         if (expectedTypes.size != foundTypes.size)
             CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
         else
-        if ((foundTypes zip expectedTypes) forall {
-            case (ft, et) => coerce(ft, et)
-        }) retType
+        if (areParameterCompatible(foundTypes, expectedTypes))
+            retType
         else
-            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
+            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes + " (matching: " + findIncompatibleParamter(foundTypes, expectedTypes).mkString(", ") + ")")
     }
+
+    private def areParameterCompatible(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Boolean =
+        findIncompatibleParamter(foundTypes, expectedTypes) forall (x => x)
+
+
+    private def findIncompatibleParamter(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Seq[Boolean] =
+        (foundTypes zip expectedTypes) map {
+            case (ft, et) => coerce(ft, et)
+        }
 
 
 }

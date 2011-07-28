@@ -254,7 +254,11 @@ trait CTypes {
         (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
                 (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {
-                    case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()
+                    //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
+                    case (CPointer(CVoid()), CPointer(_)) => true
+                    case (CPointer(CVoid()), CFunction(_, _)) => true
+                    case (CPointer(_), CPointer(CVoid())) => true
+                    case (CFunction(_, _), CPointer(CVoid())) => true
                     case _ => false
                 })
     }
