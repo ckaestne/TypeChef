@@ -76,6 +76,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("*(&a)") should be(CObj(CDouble()))
         expr("*a") should be(CUnknown())
         expr("*v") should be(CUnknown())
+        expr("&foo") should be(CPointer(CFunction(Seq(), CDouble())))
     }
 
     test("conditional primitives and pointers") {

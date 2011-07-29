@@ -53,6 +53,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case PointerCreationExpr(expr) =>
                 et(expr).map({
                     case CObj(t) => CPointer(t)
+                    case t: CFunction => CPointer(t)
                     case e => CUnknown("& on " + e)
                 })
             //*a: pointer dereferencing
