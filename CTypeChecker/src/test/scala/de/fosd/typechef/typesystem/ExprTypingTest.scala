@@ -51,7 +51,8 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
             ("bar", base, CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid())),
             ("strf", base, CFunction(Seq(), CStruct("str"))),
             ("funparam", base, CPointer(CFunction(Seq(), CDouble()))),
-            ("funparamptr", base, CPointer(CPointer(CFunction(Seq(), CDouble()))))
+            ("funparamptr", base, CPointer(CPointer(CFunction(Seq(), CDouble())))),
+            ("argv", base, CArray(CPointer(CSignUnspecified(CChar())), -1))
         ).map(x => (x._1, x._2, TOne(x._3))) ++ Seq(
             ("c", base, c_i_l),
             ("vstruct", base, TChoice(fx, TOne(CStruct("vstrA")), TOne(CStruct("vstrB")))),
@@ -145,6 +146,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         expr("3++") should be(CUnknown())
         expr("--a") should be(CDouble())
         expr("++3") should be(CUnknown())
+        expr("*++argv") should be(CObj(CPointer(CSignUnspecified(CChar()))))
     }
     test("binary operation") {
         expr("1+2") should be(CSigned(CInt()))

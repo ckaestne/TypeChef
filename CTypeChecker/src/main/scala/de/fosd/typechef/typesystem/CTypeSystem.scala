@@ -91,7 +91,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             println("No type errors found.")
         else {
             println("Found " + errors.size + " type errors: ");
-            for (e <- errors)
+            for (e <- errors.reverse)
                 println("  - " + e)
         }
         //        println("(performed " + functionCallChecks + " checks regarding function calls)");

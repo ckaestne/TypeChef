@@ -119,8 +119,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     (rtype: CType, ltype: CType) => {
                         val opType = operationType(op, ltype, rtype)
                         ltype match {
-                            case CObj(t) if (!arrayType(t) && coerce(t, opType)) => t.toValue
-                            case CObj(t) if (!arrayType(t) && coerce(t, opType)) => t.toValue
+                            case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
                             case e => CUnknown("incorrect assignment with " + e + " " + op + " " + rtype)
                         }
                     })
@@ -211,17 +210,19 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         def pointerArthAssignOp(o: String) = Set("+=", "-=") contains o
         def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=", "^=") contains o
         def compOp(o: String) = Set("==", "!=", "<", ">", "<=", ">=") contains o
-        def artithmeticOp(o: String) = Set("+", "-", "*", "/", "%") contains o
         def logicalOp(o: String) = Set("&&", "||") contains o
         def bitwiseOp(o: String) = Set("&", "|", "^", "~") contains o
         def shiftOp(o: String) = Set("<<", ">>") contains o
 
-        (op, type1.toValue, type2.toValue) match {
+        (op, prepareArray(type1).toValue, prepareArray(type2).toValue) match {
             //pointer arithmetic
             case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2) //spec
             case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1 //spec
             case ("+", t1, t2) if (isIntegral(t1) && isPointer(t2)) => t2 //spec
             case ("-", t1, t2) if (isPointer(t1) && (t1 == t2)) => CSigned(CInt()) //spec
+            case (o, t1, t2) if ((Set("+=", "-=") contains o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1 //spec
+            case ("+=", t1, t2) if (type1.isObject && isIntegral(t1) && isPointer(t2)) => t2 //spec
+            case ("-=", t1, t2) if (type1.isObject && isPointer(t1) && (t1 == t2)) => CSigned(CInt()) //spec
             //bitwise operations defined on isIntegral
             case (op, t1, t2) if (bitwiseOp(op) && isIntegral(t1) && isIntegral(t2)) => converse(t1, t2)
             case (op, t1, t2) if (shiftOp(op) && isIntegral(t1) && isIntegral(t2)) => promote(t1) //spec
@@ -238,8 +239,13 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt()) //spec
             case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2.toValue //TODO spec says return t1?
             case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1
-            case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
+            case (o, t1, t2) => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
         }
+    }
+
+    private def prepareArray(t: CType): CType = t match {
+        case CObj(CArray(x, _)) => CObj(CPointer(x))
+        case x => x
     }
 
 
