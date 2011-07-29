@@ -26,22 +26,25 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     //    var functionCallErrorMessages: Map[String, ErrorMsgs] = Map()
     //    var functionRedefinitionErrorMessages: List[RedefErrorMsg] = List()
 
-    val startPosition: Attributable ==> Position = attr {
+    val startPosition: Attributable ==> Position = {
+        case a: Attributable => (a -> positionRange)._1
+    }
+    val positionRange: Attributable ==> (Position, Position) = attr {
         case a: WithPosition with Attributable =>
             if (a.hasPosition)
-                a.getPositionFrom
+                a.range.get
             else
-            if (a.parent == null) NoPosition else a.parent -> startPosition
-        case a => if (a.parent == null) NoPosition else a.parent -> startPosition
+            if (a.parent == null) (NoPosition, NoPosition) else a.parent -> positionRange
+        case a => if (a.parent == null) (NoPosition, NoPosition) else a.parent -> positionRange
     }
 
-    abstract class ErrorMsg(condition: FeatureExpr, msg: String, location: Position) {
+    abstract class ErrorMsg(condition: FeatureExpr, msg: String, location: (Position, Position)) {
         override def toString =
-            condition + ": " + location + "\n\t" + msg
+            "[" + condition + "] " + location._1 + "--" + location._2 + "\n\t" + msg
     }
 
-    class SimpleError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where.getPositionFrom)
-    class TypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) extends ErrorMsg(condition, msg, where.getPositionFrom)
+    class SimpleError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where -> positionRange)
+    class TypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) extends ErrorMsg(condition, msg, where -> positionRange)
 
     def prettyPrintType(ctype: TConditional[CType]): String =
         TConditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
