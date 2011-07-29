@@ -102,17 +102,12 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
         assertCondEquals(exprV("vstruct.b.a"), TChoice(fx, _od, _u))
     }
 
-    test("coersion") {
+    test("casts") {
         expr("(double)3") should be(CDouble())
-        coerce(CDouble(), CInt()) should be(true)
-        coerce(CUnsigned(CInt()), CInt()) should be(true)
-        coerce(CStruct("a"), CInt()) should be(false)
-        coerce(CPointer(CStruct("a")), CPointer(CVoid())) should be(true)
-
-        coerce(CPointer(CVoid()), CPointer(CFunction(List(), CSigned(CInt())))) should be(true)
-        coerce(CPointer(CFunction(List(), CSigned(CInt()))), CPointer(CVoid())) should be(true)
-
+        expr("(void*)foo") should be(CPointer(CVoid()))
     }
+
+
 
     test("function calls") {
         expr("foo") should be(CFunction(Seq(), CDouble()))

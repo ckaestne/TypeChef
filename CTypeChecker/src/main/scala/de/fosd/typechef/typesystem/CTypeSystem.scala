@@ -35,18 +35,13 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
         case a => if (a.parent == null) NoPosition else a.parent -> startPosition
     }
 
-    trait ErrorMsg
+    abstract class ErrorMsg(condition: FeatureExpr, msg: String, location: Position) {
+        override def toString =
+            condition + ": " + location + "\n\t" + msg
+    }
 
-    class SimpleError(msg: String, where: AST) extends ErrorMsg {
-        override def toString =
-            (where -> startPosition).toString() + ": \n\t" +
-                    msg
-    }
-    class TypeError(msg: String, where: AST, ctype: TConditional[CType]) extends ErrorMsg {
-        override def toString =
-            (where -> startPosition).toString() + ": \n\t" +
-                    msg + "\n" + indentAllLines(prettyPrintType(ctype))
-    }
+    class SimpleError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where.getPositionFrom)
+    class TypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) extends ErrorMsg(condition, msg, where.getPositionFrom)
 
     def prettyPrintType(ctype: TConditional[CType]): String =
         TConditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
@@ -98,34 +93,68 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             val priorDefs = fun -> priorDefinitions
             for (priorFun <- priorDefs)
                 if (!mex(fun -> featureExpr, priorFun -> featureExpr))
-                    issueError("function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
+                    issueError(fun -> featureExpr, "function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
 
         case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
-            val ct = ctype(expr).simplify(expr -> featureExpr)
-            if (ct.exists(_.sometimesUnknown))
-                issueTypeError("cannot (always) resolve function call. found type " + ct, expr, ct)
+            checkFunctionCall(expr)
 
         case ExprStatement(expr) => checkExpr(expr)
-        case WhileStatement(expr, _) => checkExpr(expr)
-        case DoStatement(expr, _) => checkExpr(expr)
+        case WhileStatement(expr, _) => expectScalar(expr) //spec
+        case DoStatement(expr, _) => expectScalar(expr) //spec
         case ForStatement(expr1, expr2, expr3, _) =>
             if (expr1.isDefined) checkExpr(expr1.get)
-            if (expr2.isDefined) checkExpr(expr2.get)
+            if (expr2.isDefined) expectScalar(expr2.get) //spec
             if (expr3.isDefined) checkExpr(expr3.get)
         //case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
-        case ReturnStatement(expr) => if (expr.isDefined) checkExpr(expr.get)
+        case r@ReturnStatement(expr) =>
+            val funTypes: TConditional[CType] = r -> surroundingFunType
+            funTypes.simplify(r -> featureExpr).mapf(r -> featureExpr,
+                (fFeature, fType) => fType match {
+                    case CFunction(_, returnType) =>
+                        if (returnType == CVoid()) {
+                            if (expr.isDefined) issueError(fFeature, "return statement with expression despite void return type", r)
+                        } else {
+                            if (!expr.isDefined) issueError(fFeature, "no return expression, expected type " + returnType, r)
+                            else {
+                                checkExpr(
+                                fFeature and (expr.get -> featureExpr),
+                                expr.get, {r => coerce(returnType, r)}, {c => "incorrect return type, expected " + returnType + ", found " + c})
+                            }
+                        }
+                    case e =>
+                        issueError(fFeature, "return statement outside a function definition " + funType, r) //should not occur
+                })
+
         case CaseStatement(expr, _) => checkExpr(expr)
-        case IfStatement(expr, _, _, _) => checkExpr(expr)
-        case ElifStatement(expr, _) => checkExpr(expr)
-        case SwitchStatement(expr, _) => checkExpr(expr)
+        case IfStatement(expr, _, _, _) => expectScalar(expr) //spec
+        case ElifStatement(expr, _) => expectScalar(expr) //spec
+        case SwitchStatement(expr, _) => expectIntegral(expr) //spec
 
         case _ =>
     }
 
-    private def checkExpr(expr: Expr) = {
-        val ct = ctype(expr).simplify(expr -> featureExpr)
-        if (ct.exists(_.sometimesUnknown))
-            issueTypeError("cannot (always) resolve expression. found type " + ct, expr, ct)
+
+    private def expectScalar(expr: Expr) {
+        checkExpr(expr, isScalar, {c => "expected scalar, found " + c})
+    }
+    private def expectIntegral(expr: Expr) {
+        checkExpr(expr, isIntegral, {c => "expected int, found " + c})
+    }
+    private def checkFunctionCall(call: PostfixExpr) {
+        checkExpr(call, !_.isUnknown, {ct => "cannot resolve function call, found " + ct})
+    }
+
+    private def checkExpr(expr: Expr): Unit =
+        checkExpr(expr, !_.isUnknown, {ct => "cannot resolve expression, found " + ct})
+
+    private def checkExpr(expr: Expr, check: CType => Boolean, errorMsg: CType => String): Unit =
+        checkExpr(expr -> featureExpr, expr, check, errorMsg)
+
+    private def checkExpr(context: FeatureExpr, expr: Expr, check: CType => Boolean, errorMsg: CType => String): Unit = {
+        val ct = ctype(expr).simplify(context)
+        ct.mapf(context, {
+            (f, c) => if (!check(c)) issueTypeError(f, errorMsg(c), expr, c)
+        })
     }
 
     /**
@@ -158,12 +187,15 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
 
     private def mex(a: FeatureExpr, b: FeatureExpr): Boolean = (a mex b).isTautology(featureModel)
 
-    private def issueError(msg: String, where: AST, whereElse: AST = null) {
-        errors = new SimpleError(msg, where) :: errors
+    private def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) {
+        errors = new SimpleError(condition, msg, where) :: errors
     }
+    //    private def issueError(msg: String, where: AST, whereElse: AST = null) {
+    //        errors = new SimpleError(FeatureExpr.base, msg, where) :: errors
+    //    }
 
-    private def issueTypeError(msg: String, where: AST, ctype: TConditional[CType]) {
-        errors = new TypeError(msg, where, ctype) :: errors
+    private def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) {
+        errors = new TypeError(condition, msg, where, ctype) :: errors
     }
 
     //
