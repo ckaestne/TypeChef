@@ -45,13 +45,14 @@ trait CTypes {
         //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
         def toValue: CType = this
         def isObject: Boolean = false
+        def isFunction: Boolean = false
 
 
         /* map over this type considering variability */
         def mapV(f: FeatureExpr, op: (FeatureExpr, CType) => CType): CType = op(f, this)
         def map(op: CType => CType): CType = op(this)
 
-        def sometimesUnknown: Boolean = false
+        def isUnknown: Boolean = false
 
         /**compares with of two types. if this<that, this type can be converted (widened) to that */
         def <(that: CType): Boolean = false
@@ -128,6 +129,7 @@ trait CTypes {
 
     case class CFunction(param: Seq[CType], ret: CType) extends CType {
         override def toObj = this
+        override def isFunction: Boolean = true
     }
 
     //varargs should only occur in paramter lists
@@ -166,7 +168,7 @@ trait CTypes {
             case CUnknown(_) => true
             case _ => super.equals(that)
         }
-        override def sometimesUnknown: Boolean = true
+        override def isUnknown: Boolean = true
     }
 
     /**not defined in environment, typically only used in CChoice types */
@@ -207,42 +209,42 @@ trait CTypes {
     /**
      * helper functions
      */
-    def arrayType(t: CType): Boolean = t match {
+    def arrayType(t: CType): Boolean = t.toValue match {
         case CArray(_, _) => true
         case _ => false
     }
 
     def isScalar(t: CType): Boolean = isArithmetic(t) || isPointer(t)
 
-    def isPointer(t: CType): Boolean = t match {
+    def isPointer(t: CType): Boolean = t.toValue match {
         case CPointer(_) => true
         //case function references => true
         case _ => false
     }
 
-    def isIntegral(t: CType): Boolean = t match {
+    def isIntegral(t: CType): Boolean = t.toValue match {
         case CSigned(_) => true
         case CUnsigned(_) => true
         case CSignUnspecified(_) => true
         case _ => false
     }
-    def isArithmetic(t: CType): Boolean = isIntegral(t) || (t match {
+    def isArithmetic(t: CType): Boolean = isIntegral(t) || (t.toValue match {
         case CFloat() => true
         case CDouble() => true
         case CLongDouble() => true
         case _ => false
     })
 
-    def isArray(t: CType): Boolean = t match {
+    def isArray(t: CType): Boolean = t.toValue match {
         case CArray(_, _) => true
         case _ => false
     }
-    def isStruct(t: CType): Boolean = t match {
+    def isStruct(t: CType): Boolean = t.toValue match {
         case CStruct(_, _) => true
         case CAnonymousStruct(_, _) => true
         case _ => false
     }
-    def isCompound(t: CType): Boolean = t == CCompound()
+    def isCompound(t: CType): Boolean = t.toValue == CCompound()
 
 
     /**
@@ -251,28 +253,74 @@ trait CTypes {
     def coerce(type1: CType, type2: CType) = {
         val t1 = normalize(type1)
         val t2 = normalize(type2)
-        (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
+        (type1.toValue == CPointer(CVoid())) || (type2.toValue == CPointer(CVoid())) ||
+                (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
                 (isArithmetic(t1) && isArithmetic(t2)) ||
                 ((t1, t2) match {
+                    //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
                     case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()
                     case _ => false
+                    //                    case (CPointer(CVoid()), CPointer(_)) => true
+                    //                    case (CPointer(CVoid()), CFunction(_, _)) => true
+                    //                    case (CPointer(_), CPointer(CVoid())) => true
+                    //                    case (CFunction(_, _), CPointer(CVoid())) => true
                 })
     }
 
     /**
-     * normalize types for internal comparison (do not return this to the outside)
+     * ansi c conversion rules of two arithmetic types
+     * (if called on other types, it just returns the first type; hence the pattern
+     * if cocerce(x,y) return converse(x,y) should yield the default behavior )
      *
-     * * Pointers to functions -> functions
+     * default is int. if either operand has a higher priority, it is preferred over int
+     *
+     * according to specification: http://techpubs.sgi.com/library/manuals/0000/007-0701-150/pdf/007-0701-150.pdf
+     */
+    def converse(a: CType, b: CType): CType =
+        if (isArithmetic(a) && isArithmetic(b)) {
+            val priority = List[CType](
+                CLongDouble(), CLong(), CFloat(),
+                CUnsigned(CLongLong()), CSigned(CLongLong()), CSignUnspecified(CLongLong()),
+                CUnsigned(CLong()), CSigned(CLong()), CSignUnspecified(CLong()),
+                CUnsigned(CInt()))
+            def either(c: CType): Boolean = (a == c) || (b == c)
+            priority.foldRight[CType](CSigned(CInt()))((ctype, result) => if (either(ctype)) ctype else result)
+        } else a
+    /**promotion is what happens internally during conversion */
+    def promote(x: CType) = converse(x, x)
+
+    /**
+     * normalize types for internal comparison in coerce (do not return this to the outside)
+     *
+     * * function -> pointer to function
+     *
+     * * pointer to pointer to function -> pointer to function
      *
      * * remove any CObj within the type
      *
      * * regard arrays as pointers
      */
-    private def normalize(t: CType): CType = t.toValue match {
-        case CPointer(f: CFunction) => normalize(f)
-        case CPointer(x: CType) => CPointer(normalize(x))
-        case CArray(t, _) => CPointer(normalize(t)) //TODO do this recursively for all occurences of Array
-        case CFunction(p, rt) => CFunction(p.map(normalize), normalize(rt))
+    private def normalize(t: CType): CType =
+        addFunctionPointers(normalizeA(t))
+
+
+    /**helper function, part of normalize */
+    private def normalizeA(t: CType): CType = t.toValue match {
+        case CPointer(x: CType) =>
+            normalizeA(x) match {
+                case c: CFunction => c
+                case e => CPointer(e)
+            }
+        case CArray(t, _) => CPointer(normalizeA(t)) //TODO do this recursively for all occurences of Array
+        case CFunction(p, rt) => CFunction(p.map(normalizeA), normalizeA(rt))
+        case c => c
+    }
+
+    /**helper function, part of normalize */
+    private def addFunctionPointers(t: CType): CType = t match {
+        case CFunction(p, rt) => CPointer(CFunction(p.map(addFunctionPointers), addFunctionPointers(rt)))
+        //congruence:
+        case CPointer(x: CType) => CPointer(addFunctionPointers(x))
         case c => c
     }
 

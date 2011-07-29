@@ -44,7 +44,7 @@ trait EnforceTreeHelper {
         val clone = everywherebu(rule {
             case n: AST =>
                 if (n.hasChildren) {
-                    n.setChildConnections
+                    //                    n.setChildConnections
                     n
                 } else
                     n.clone()

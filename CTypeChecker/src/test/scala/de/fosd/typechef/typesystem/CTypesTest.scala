@@ -72,7 +72,6 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
 
     test("choice types and their operations") {
         val fx = FeatureExpr.createDefinedExternal("X")
-        val fy = FeatureExpr.createDefinedExternal("Y")
         val c = TChoice(fx, TOne(CDouble()), TOne(CFloat()))
         val c2 = TChoice(fx, TOne(CDouble()), TChoice(fx.not, TOne(CFloat()), TOne(CUnknown(""))))
 
@@ -84,6 +83,20 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
             case CDouble() => CUnsigned(CChar())
             case x => x
         }) should be(TChoice(fx, TOne(CUnsigned(CChar())), TChoice(fx.not, TOne(CFloat()), TOne(CUnknown("")))))
+    }
+
+    test("coersion") {
+        coerce(CDouble(), CInt()) should be(true)
+        coerce(CUnsigned(CInt()), CInt()) should be(true)
+        coerce(CStruct("a"), CInt()) should be(false)
+        coerce(CPointer(CStruct("a")), CPointer(CVoid())) should be(true)
+
+        coerce(CPointer(CVoid()), CPointer(CFunction(List(), CSigned(CInt())))) should be(true)
+        coerce(CPointer(CFunction(List(), CSigned(CInt()))), CPointer(CVoid())) should be(true)
+
+        coerce(CPointer(CFunction(Seq(), CVoid())), CFunction(Seq(), CVoid())) should be(true)
+        coerce(CFunction(Seq(), CVoid()), CPointer(CFunction(Seq(), CVoid()))) should be(true)
+        coerce(CPointer(CPointer(CPointer(CFunction(Seq(), CVoid())))), CFunction(Seq(), CVoid())) should be(true)
     }
 
 }
