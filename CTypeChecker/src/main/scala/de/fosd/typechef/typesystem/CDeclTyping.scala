@@ -5,6 +5,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import org.kiama.attribution.Attribution._
 import org.kiama._
+import attribution.Attributable
 import de.fosd.typechef.conditional._
 import ConditionalLib._
 
@@ -27,6 +28,12 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             else if (isTypedef(fun.specifiers)) TOne(CUnknown("Invalid typedef specificer for function definition (?)"))
             else declType(fun.specifiers, fun.declarator)
     }
+
+    val surroundingFunType: Attributable ==> TConditional[CType] = {
+        case f: FunctionDef => f -> funType
+        case x => if (x.parent == null) TOne(CUndefined()) else x.parent -> surroundingFunType
+    }
+
     val typenameType: TypeName ==> TConditional[CType] = attr {
         case TypeName(specs, None) => constructType(specs)
         case TypeName(specs, Some(decl)) => getAbstractDeclaratorType(decl, constructType(specs))

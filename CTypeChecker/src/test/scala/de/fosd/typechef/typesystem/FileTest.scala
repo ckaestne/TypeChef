@@ -28,6 +28,8 @@ class FileTest extends TestHelper {
     @Test def test1 {assert(check("test1.xi"))}
     @Test def busybox_ar {assert(check("ar.xi"))}
     @Test def boa_boa {assert(check("boa.xi"))}
+    @Test def boa_boa_pi {assert(check("boa.pi"))}
+    @Test def busybox_top_pi {assert(check("top.pi"))}
 
 
 }

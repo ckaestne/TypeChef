@@ -13,13 +13,16 @@ import org.kiama._
 trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
     def ctype(expr: Expr): TConditional[CType] = expr -> exprType
+
     def ctype(expr: Expr, context: AST): TConditional[CType] =
         getExprType(outerVarEnv(context), outerStructEnv(context), expr)
+
     val exprType: Expr ==> TConditional[CType] = attr {
         case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
     }
 
     def getStmtType(stmt: Statement): TConditional[CType]
+
     //implemented by CStmtTyping
 
     private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): TConditional[CType] = {
@@ -44,7 +47,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //TODO constant 0 is special, can be any pointer or function
             //TODO other constant types
             case Constant(v) => if (v.last.toLower == 'l') TOne(CSigned(CLong())) else TOne(CSigned(CInt()))
-            //variable or function ref TODO check
+            //variable or function ref
             case Id(name) => varCtx(name).map(_.toObj)
             //&a: create pointer
             case PointerCreationExpr(expr) =>
@@ -74,17 +77,20 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     })
                     case e => TOne(CUnknown("(" + e + ")." + id))
                 })
-            //e->n
-            case PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
-                //TODO prevent rewiring of parents in Kiama (and correct intermediate rewiring)!; same for a[e] and --a below
-                et(PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id))))
+            //e->n (by rewrite to &e.n)
+            case p@PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
+                val newExpr = PostfixExpr(PointerDerefExpr(expr.clone), PointerPostfixSuffix(".", Id(id))) //deep cloning not necessary, because no properties affected by parent are changed here
+                newExpr.parent = p.parent //important clone entries and set parent to avoid rewrites of the original ast
+                et(newExpr)
             //(a)b
             case CastExpr(targetTypeName, expr) =>
                 val targetTypes = ctype(targetTypeName)
                 val sourceTypes = et(expr).map(_.toValue)
                 ConditionalLib.mapCombination(sourceTypes, targetTypes,
                     (sourceType: CType, targetType: CType) =>
-                        if (targetType == CVoid() || (isScalar(sourceType) && isScalar(targetType))) targetType
+                        if (targetType == CVoid() ||
+                                targetType == CPointer(CVoid()) ||
+                                (isScalar(sourceType) && isScalar(targetType))) targetType
                         else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
                         else if (sourceType == CIgnore()) targetType
                         else
@@ -93,7 +99,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //a()
             case PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
                 val functionType: TConditional[CType] = et(expr)
-                val providedParameterTypes: List[Opt[TConditional[CType]]] = parameterExprs.map({case Opt(f, e) => Opt(f, et(e))})
+                val providedParameterTypes: List[Opt[TConditional[CType]]] = parameterExprs.map({
+                    case Opt(f, e) => Opt(f, et(e))
+                })
                 val providedParameterTypesExploded: TConditional[List[CType]] = ConditionalLib.explodeOptList(TConditional.flatten(providedParameterTypes))
                 ConditionalLib.mapCombination(functionType, providedParameterTypesExploded,
                     (funType: CType, paramTypes: List[CType]) => {
@@ -105,13 +113,14 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     })
 
             //a=b, a+=b, ...
-            case AssignExpr(texpr, op, sexpr) =>
-                ConditionalLib.mapCombination(et(sexpr), et(texpr),
-                    (stype: CType, ttype: CType) => {
-                        val opType = operationType(op, ttype, stype)
-                        ttype match {
-                            case CObj(t) if (!arrayType(t) && coerce(t, opType)) => t
-                            case e => CUnknown("incorrect assignment with " + e + " " + op + " " + stype)
+            case AssignExpr(lexpr, op, rexpr) =>
+                ConditionalLib.mapCombination(et(rexpr), et(lexpr),
+                    (rtype: CType, ltype: CType) => {
+                        val opType = operationType(op, ltype, rtype)
+                        ltype match {
+                            case CObj(t) if (!arrayType(t) && coerce(t, opType)) => t.toValue
+                            case CObj(t) if (!arrayType(t) && coerce(t, opType)) => t.toValue
+                            case e => CUnknown("incorrect assignment with " + e + " " + op + " " + rtype)
                         }
                     })
             //a++, a--
@@ -127,38 +136,47 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                         et(subExpr.e) map (subExprType => operationType(subExpr.op, ctype, subExprType))
                 )
             //a[e]
-            case PostfixExpr(expr, ArrayAccess(idx)) =>
+            case p@PostfixExpr(expr, ArrayAccess(idx)) =>
                 //syntactic sugar for *(a+i)
-                et(PointerDerefExpr(createSum(expr, idx)))
+                val newExpr = PointerDerefExpr(createSum(expr.clone, idx.clone)) //deep cloning not necessary, because no properties affected by parent are changed here
+                newExpr.parent = p.parent //important clone entries and set parent to avoid rewrites of the original ast
+                et(newExpr)
             //"a"
             case StringLit(_) => TOne(CPointer(CSignUnspecified(CChar()))) //unspecified sign according to Paolo
             //++a, --a
-            case UnaryExpr(_, expr) =>
-                et(AssignExpr(expr, "+=", Constant("1")))
+            case p@UnaryExpr(_, expr) =>
+                val newExpr = AssignExpr(expr.clone, "+=", Constant("1")) //deep cloning not necessary, because no properties affected by parent are changed here
+                newExpr.parent = p.parent //important clone entries and set parent to avoid rewrites of the original ast
+                et(newExpr)
 
-            case SizeOfExprT(_) => TOne(CInt())
-            case SizeOfExprU(_) => TOne(CInt())
+            case SizeOfExprT(_) => TOne(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
+            case SizeOfExprU(_) => TOne(CUnsigned(CInt()))
             case UnaryOpExpr(kind, expr) =>
                 val exprType = et(expr).map(_.toValue)
                 kind match {
                     //TODO complete list: __real__ __imag__
                     //TODO promotions
-                    case "+" => exprType.map(x => if (isArithmetic(x)) x else CUnknown("incorrect type, expected arithmetic, was " + x))
-                    case "-" => exprType.map(x => if (isArithmetic(x)) x else CUnknown("incorrect type, expected arithmetic, was " + x))
-                    case "~" => exprType.map(x => if (isIntegral(x)) x else CUnknown("incorrect type, expected integer, was " + x))
-                    case "!" => exprType.map(x => if (isScalar(x)) x else CUnknown("incorrect type, expected scalar, was " + x))
+                    case "+" => exprType.map(x => if (isArithmetic(x)) promote(x) else CUnknown("incorrect type, expected arithmetic, was " + x))
+                    case "-" => exprType.map(x => if (isArithmetic(x)) promote(x) else CUnknown("incorrect type, expected arithmetic, was " + x))
+                    case "~" => exprType.map(x => if (isIntegral(x)) CSigned(CInt()) else CUnknown("incorrect type, expected integer, was " + x))
+                    case "!" => exprType.map(x => if (isScalar(x)) CSigned(CInt()) else CUnknown("incorrect type, expected scalar, was " + x))
                     case "&&" => TOne(CPointer(CVoid())) //label dereference
                     case _ => TOne(CUnknown("unknown unary operator " + kind + " (TODO)"))
                 }
             //x?y:z  (gnuc: x?:z === x?x:z)
             case ConditionalExpr(condition, thenExpr, elseExpr) =>
-                getConditionalExprType(ctype(thenExpr.getOrElse(condition)), ctype(elseExpr))
+                et(condition) mapr {
+                    conditionType =>
+                        if (isScalar(conditionType))
+                            getConditionalExprType(ctype(thenExpr.getOrElse(condition)), ctype(elseExpr))
+                        else TOne(CUnknown("invalid type of condition: " + conditionType))
+                }
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
                 getStmtType(compoundStatement)
             case ExprList(exprs) => //comma operator, evaluated left to right, last expr yields value and type; like compound statement expression
                 ConditionalLib.lastEntry(exprs).mapr({
-                    case None => TOne(CUnknown("empty list")) // TODO what's the type of an empty expression list?
+                    case None => TOne(CVoid())
                     case Some(expr) => et(expr)
                 })
             case LcurlyInitializer(inits) => TOne(CCompound()) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
@@ -175,9 +193,9 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
     private def getConditionalExprType(thenTypes: TConditional[CType], elseTypes: TConditional[CType]) =
         ConditionalLib.mapCombination(thenTypes, elseTypes, (thenType: CType, elseType: CType) => {
             (thenType.toValue, elseType.toValue) match {
-                case (CPointer(CVoid()), CPointer(_)) => CPointer(CVoid())
-                case (CPointer(_), CPointer(CVoid())) => CPointer(CVoid())
-                case (t1, t2) if (coerce(t1, t2)) => wider(t1, t2) //TODO check
+                case (CPointer(CVoid()), CPointer(x)) => CPointer(x) //spec
+                case (CPointer(x), CPointer(CVoid())) => CPointer(x) //spec
+                case (t1, t2) if (coerce(t1, t2)) => converse(t1, t2) //spec
                 case (t1, t2) => CUnknown("different address spaces in conditional expression: " + t1 + " and " + t2)
             }
         })
@@ -190,26 +208,34 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
     def operationType(op: String, type1: CType, type2: CType): CType = {
         def pointerArthOp(o: String) = Set("+", "-") contains o
         def pointerArthAssignOp(o: String) = Set("+=", "-=") contains o
-        def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=") contains o
+        def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=", "^=") contains o
         def compOp(o: String) = Set("==", "!=", "<", ">", "<=", ">=") contains o
         def artithmeticOp(o: String) = Set("+", "-", "*", "/", "%") contains o
         def logicalOp(o: String) = Set("&&", "||") contains o
-        def bitwiseOp(o: String) = Set("&", "|", "^", "<<", ">>", "~") contains o
+        def bitwiseOp(o: String) = Set("&", "|", "^", "~") contains o
+        def shiftOp(o: String) = Set("<<", ">>") contains o
 
         (op, type1.toValue, type2.toValue) match {
-            case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
-            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1
-            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t2) && isIntegral(t1)) => t2
+            //pointer arithmetic
+            case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2) //spec
+            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1 //spec
+            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t2) && isIntegral(t1)) => t2 //spec
+            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && (t1 == t2)) => t1
             //bitwise operations defined on isIntegral
-            case (op, t1, t2) if (bitwiseOp(op) && isIntegral(t1) && isIntegral(t2)) => wider(t1, t2)
+            case (op, t1, t2) if (bitwiseOp(op) && isIntegral(t1) && isIntegral(t2)) => converse(t1, t2)
+            case (op, t1, t2) if (shiftOp(op) && isIntegral(t1) && isIntegral(t2)) => promote(t1) //spec
 
-            case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
-            case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => wider(t1, t2)
-            case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => wider(t1, t2)
-            case (op, t1, t2) if (compOp(op) && isScalar(t1) && isScalar(t2)) => CSigned(CInt())
-            case ("=", _, t2) if (type1.isObject) => t2
-            case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt())
-            case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2
+            //comparisons
+            case (op, t1, t2) if (compOp(op) && isScalar(t1) && isScalar(t2)) => CSigned(CInt()) //spec
+            case (op, t1, t2) if (compOp(op) && isPointer(t1) && isPointer(t2) && coerce(t1, t2)) => CSigned(CInt()) //spec
+
+
+            case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2)
+            case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2)
+            case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => converse(t1, t2)
+            case ("=", t1, t2) if (type1.isObject) => t2.toValue //TODO spec says return t1?
+            case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt()) //spec
+            case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2.toValue //TODO spec says return t1?
             case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1
             case _ => CUnknown("unknown operation or incompatible types " + type1 + " " + op + " " + type2)
         }
@@ -243,12 +269,20 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         if (expectedTypes.size != foundTypes.size)
             CUnknown("parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")")
         else
-        if ((foundTypes zip expectedTypes) forall {
-            case (ft, et) => coerce(ft, et)
-        }) retType
+        if (areParameterCompatible(foundTypes, expectedTypes))
+            retType
         else
-            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes)
+            CUnknown("parameter type mismatch: expected " + parameterTypes + " found " + foundTypes + " (matching: " + findIncompatibleParamter(foundTypes, expectedTypes).mkString(", ") + ")")
     }
+
+    private def areParameterCompatible(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Boolean =
+        findIncompatibleParamter(foundTypes, expectedTypes) forall (x => x)
+
+
+    private def findIncompatibleParamter(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Seq[Boolean] =
+        (foundTypes zip expectedTypes) map {
+            case (ft, et) => coerce(ft, et)
+        }
 
 
 }

@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import org.kiama.attribution.Attributable
+import de.fosd.typechef.parser.WithPosition
 
 /**
  * AST for C
@@ -56,8 +57,9 @@ LocalLabelDeclaration -- label names
  */
 
 //Expressions
-trait AST extends Attributable with Cloneable {
-    override def clone() = super.clone().asInstanceOf[AST]
+trait AST extends Attributable with Cloneable with WithPosition {
+    override def clone(): AST.this.type = super.clone().asInstanceOf[AST.this.type]
+    override def setChildConnections() = super.setChildConnections()
 }
 
 abstract class Expr extends AST

@@ -81,14 +81,6 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation wit
 
     }
 
-    test("ensure assumptions are checked") {
-        intercept[AssertionError] {
-            check("#ifdef X\nint\n#else\ndouble\n#endif\n a;")
-        }
-
-
-    }
-
     test("local variable test") {
         expect(true) {
             check("""
@@ -107,5 +99,21 @@ void *__alloc_percpu()
         }
     }
 
-
+    test("typecheck return statements") {
+        expect(true) {
+            check("void foo(){ return; }")
+        }
+        expect(false) {
+            check("void foo(){ return 1; }")
+        }
+        expect(true) {
+            check("int foo(){ return 1; }")
+        }
+        expect(false) {
+            check("int * foo(){ return 1; }")
+        }
+        expect(false) {
+            check("int foo(){ return; }")
+        }
+    }
 }

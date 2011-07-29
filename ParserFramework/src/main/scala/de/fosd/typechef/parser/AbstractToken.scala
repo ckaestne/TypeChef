@@ -13,13 +13,6 @@ trait AbstractToken {
     def countSplit = {}
 }
 
-trait Position {
-    def getFile: String
-    def getLine: Int
-    def getColumn: Int
-    def <(that: Position) = (this.getLine < that.getLine) || ((this.getLine == that.getLine) && (this.getColumn < that.getColumn))
-    override def toString = getFile + ":" + getLine + ":" + getColumn
-}
 
 /**
  * counts the number of times this token was consumed during parsing
