@@ -190,7 +190,7 @@ trait CTypes {
          * apply returns a type, possibly CUndefined or a
          * choice type
          */
-        def apply(name: String): TConditional[CType] = getOrElse(name, CUnknown())
+        def apply(name: String): TConditional[CType] = getOrElse(name, CUnknown(name))
         def getOrElse(name: String, errorType: CType): TConditional[CType] = TConditional.combine(m.getOrElse(name, TOne(errorType))) simplify
 
         def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)

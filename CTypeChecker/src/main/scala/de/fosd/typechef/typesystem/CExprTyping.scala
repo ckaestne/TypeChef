@@ -219,8 +219,8 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //pointer arithmetic
             case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2) //spec
             case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1 //spec
-            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t2) && isIntegral(t1)) => t2 //spec
-            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && (t1 == t2)) => t1
+            case ("+", t1, t2) if (isIntegral(t1) && isPointer(t2)) => t2 //spec
+            case ("-", t1, t2) if (isPointer(t1) && (t1 == t2)) => CSigned(CInt()) //spec
             //bitwise operations defined on isIntegral
             case (op, t1, t2) if (bitwiseOp(op) && isIntegral(t1) && isIntegral(t2)) => converse(t1, t2)
             case (op, t1, t2) if (shiftOp(op) && isIntegral(t1) && isIntegral(t2)) => promote(t1) //spec
