@@ -104,7 +104,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     //TODO need to split when conditionally defined as typedef
     def typedefName =
         tokenWithContext("type",
-            (token, featureContext, typeContext) => isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || typeContext.knowsType(token.getText, featureContext, featureModel))) ^^ {t => TypeDefTypeSpecifier(Id(t.getText))}
+            (token, featureContext, typeContext) =>
+                isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || typeContext.knowsType(token.getText, featureContext, featureModel))) ^^ {t => TypeDefTypeSpecifier(Id(t.getText))}
     def notypedefName =
         tokenWithContext("notype",
             (token, featureContext, typeContext) => isIdentifier(token) && !predefinedTypedefs.contains(token.getText) && !typeContext.knowsType(token.getText, featureContext, featureModel)) ^^ {t => Id(t.getText)}
@@ -164,11 +165,13 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def pointerGroup0: MultiParser[List[Opt[Pointer]]] =
         repOpt(STAR ~> opt(typeQualifierList) ^^ {
-            case Some(l) => Pointer(l); case None => Pointer(List())
+            case Some(l) => Pointer(l);
+            case None => Pointer(List())
         })
     def pointerGroup1: MultiParser[List[Opt[Pointer]]] =
         rep1(STAR ~> opt(typeQualifierList) ^^ {
-            case Some(l) => Pointer(l); case None => Pointer(List())
+            case Some(l) => Pointer(l);
+            case None => Pointer(List())
         })
 
     def typeQualifierList: MultiParser[List[Opt[Specifier]]] =
@@ -197,7 +200,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def parameterDeclList: MultiParser[List[Opt[ParameterDeclaration]]] =
         rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt((COMMA | SEMI) ~> VARARGS) ^^ {
-            case l ~ Some(v) => l ++ List(o(VarArgs())); case l ~ None => l
+            case l ~ Some(v) => l ++ List(o(VarArgs()));
+            case l ~ None => l
         }
     //    def parameterTypeList: MultiParser[List[Opt[ParameterDeclaration]]] =
     //        repSepOptIntern(false, parameterDeclaration, COMMA | SEMI).sep_~(opt(VARARGS)) ^^ {
@@ -272,7 +276,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def assignExpr: MultiParser[Expr] =
         conditionalExpr ~! opt(assignOperator ~ assignExpr) ^^ {
-            case e ~ Some(o ~ e2) => AssignExpr(e, o.getText, e2); case e ~ None => e
+            case e ~ Some(o ~ e2) => AssignExpr(e, o.getText, e2);
+            case e ~ None => e
         }
 
     def assignOperator = (ASSIGN
@@ -288,7 +293,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             | BXOR_ASSIGN)
 
     def conditionalExpr: MultiParser[Expr] = logicalOrExpr ~! opt(QUESTION ~ opt(expr) ~ COLON ~ conditionalExpr) ^^ {
-        case e ~ Some(q ~ e2 ~ c ~ e3) => ConditionalExpr(e, e2, e3); case e ~ None => e
+        case e ~ Some(q ~ e2 ~ c ~ e3) => ConditionalExpr(e, e2, e3);
+        case e ~ None => e
     }
     def constExpr = conditionalExpr
     def logicalOrExpr: MultiParser[Expr] = nAryExpr(logicalAndExpr, LOR)
@@ -399,7 +405,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     //
     def functionCall: MultiParser[FunctionCall] =
         LPAREN ~> opt(argExprList) <~ RPAREN ^^ {
-            case Some(l) => FunctionCall(l); case None => FunctionCall(ExprList(List()))
+            case Some(l) => FunctionCall(l);
+            case None => FunctionCall(ExprList(List()))
         }
     //XXX allows trailing comma after argument list
 
