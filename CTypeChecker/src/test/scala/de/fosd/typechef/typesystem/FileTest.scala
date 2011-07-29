@@ -1,6 +1,6 @@
 package de.fosd.typechef.typesystem
 
-import org.junit.Test
+import org.junit._
 import java.io.{InputStream, FileNotFoundException}
 import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
 
@@ -30,6 +30,8 @@ class FileTest extends TestHelper {
     @Test def boa_boa {assert(check("boa.xi"))}
     @Test def boa_boa_pi {assert(check("boa.pi"))}
     @Test def busybox_top_pi {assert(check("top.pi"))}
+    @Test
+    @Ignore def linux_fork_pi {assert(check("fork.pi"))}
 
 
 }

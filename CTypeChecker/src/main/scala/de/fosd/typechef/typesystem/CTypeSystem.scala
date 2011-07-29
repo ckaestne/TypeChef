@@ -73,10 +73,19 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     }
 
 
-    def checkAST(ast: TranslationUnit): Boolean = {
+    def checkAST(iast: TranslationUnit): Boolean = {
+        val ast = prepareAST(iast)
 
-
-        checkNode(prepareAST(ast))
+        val verbose = true
+        var i = 0
+        for (Opt(_, d) <- ast.defs) {
+            //            if (i<2000)
+            checkNode(d)
+            if (verbose) {
+                i = i + 1
+                println("check " + i + "/" + ast.defs.size + ". line " + (d -> startPosition).getLine + ". err " + errors.size)
+            }
+        }
 
         if (errors.isEmpty)
             println("No type errors found.")
