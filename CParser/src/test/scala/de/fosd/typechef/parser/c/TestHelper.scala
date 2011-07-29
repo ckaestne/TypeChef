@@ -25,6 +25,7 @@ trait TestHelper extends EnforceTreeHelper {
     def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
             () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, false)
+        println("preparing AST...")
         prepareAST(ast)
     }
 
