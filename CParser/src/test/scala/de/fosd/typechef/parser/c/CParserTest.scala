@@ -939,6 +939,24 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
         assertNoDeadNodes(ast.get, FeatureExpr.base, ast.get)
     }
 
+    @Test def test_va_list {
+        assertParseableAST("""
+typedef __builtin_va_list __gnuc_va_list;
+typedef __gnuc_va_list va_list;
+extern int vsscanf(const char *, const char *, va_list)
+	__attribute__ ((format (scanf, 2, 0)));
+         ;""", p.translationUnit)
+
+        assertParseableAST("""
+#ifdef A
+typedef __builtin_va_list __gnuc_va_list;
+typedef __gnuc_va_list va_list;
+extern int vsscanf(const char *, const char *, va_list)
+	__attribute__ ((format (scanf, 2, 0)));
+#endif
+         ;""", p.translationUnit)
+    }
+
     private def assertNoDeadNodes(ast: Attributable) {
         assertNoDeadNodes(ast, FeatureExpr.base, ast)
     }
