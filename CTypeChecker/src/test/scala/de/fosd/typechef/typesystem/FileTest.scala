@@ -33,5 +33,4 @@ class FileTest extends TestHelper {
     @Test
     @Ignore def linux_fork_pi {assert(check("fork.pi"))}
 
-
 }

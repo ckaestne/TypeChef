@@ -91,7 +91,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             println("No type errors found.")
         else {
             println("Found " + errors.size + " type errors: ");
-            for (e <- errors)
+            for (e <- errors.reverse)
                 println("  - " + e)
         }
         //        println("(performed " + functionCallChecks + " checks regarding function calls)");
@@ -109,6 +109,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
 
         case expr@PostfixExpr(_, FunctionCall(_)) => // check function calls in PostfixExpressions
             checkFunctionCall(expr)
+        //        case id: Id =>//not a good idea. not all identifier are expressions?
+        //            checkIdentifier(id)
 
         case ExprStatement(expr) => checkExpr(expr)
         case WhileStatement(expr, _) => expectScalar(expr) //spec
@@ -154,6 +156,9 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     }
     private def checkFunctionCall(call: PostfixExpr) {
         checkExpr(call, !_.isUnknown, {ct => "cannot resolve function call, found " + ct})
+    }
+    private def checkIdentifier(id: Id) {
+        checkExpr(id, !_.isUnknown, {ct => "identifier " + id.name + " unknown: " + ct})
     }
 
     private def checkExpr(expr: Expr): Unit =
