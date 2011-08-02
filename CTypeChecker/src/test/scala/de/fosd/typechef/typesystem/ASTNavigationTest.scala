@@ -9,7 +9,7 @@ import de.fosd.typechef.parser.c._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
-import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
@@ -36,14 +36,14 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
     val foo = functionDef("foo")(ast).head
     val bar = functionDef("bar")(ast).head
 
-    private val fa = FeatureExpr.createDefinedExternal("a")
-    private val fb = FeatureExpr.createDefinedExternal("b")
-    private val fc = FeatureExpr.createDefinedExternal("c")
-    private val fd = FeatureExpr.createDefinedExternal("d")
-    private val fe = FeatureExpr.createDefinedExternal("e")
-    private val ff = FeatureExpr.createDefinedExternal("f")
-    private val fg = FeatureExpr.createDefinedExternal("g")
-    private def o[T](o: T) = Option(base, o)
+    private val ga = FeatureExpr.createDefinedExternal("a")
+    private val gb = FeatureExpr.createDefinedExternal("b")
+    private val gc = FeatureExpr.createDefinedExternal("c")
+    private val gd = FeatureExpr.createDefinedExternal("d")
+    private val ge = FeatureExpr.createDefinedExternal("e")
+    private val gf = FeatureExpr.createDefinedExternal("f")
+    private val gg = FeatureExpr.createDefinedExternal("g")
+    private def o[T](o: T) = Option(FeatureExpr.base, o)
 
     test("ast navigation (parent) with Opt and Choice (tree)") {
         implicit def toOne[T](x: T): Conditional[T] = One(x)
@@ -55,10 +55,10 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
         val stmt5 = LabelStatement(Id("stmt5"), None)
         val stmt6 = LabelStatement(Id("stmt6"), None)
         val stmt7 = LabelStatement(Id("stmt7"), None)
-        val c1 = Choice(fb, stmt4, stmt5)
-        val c2 = Choice(fb, stmt2, stmt3)
-        val c3 = Choice(fa, c2, c1)
-        val c4 = Choice(fc, stmt1, c3)
+        val c1 = Choice(gb, stmt4, stmt5)
+        val c2 = Choice(gb, stmt2, stmt3)
+        val c3 = Choice(ga, c2, c1)
+        val c4 = Choice(gc, stmt1, c3)
         //val root = CompoundStatement(Conditional.flatten(List[Conditional[Statement]](stmt0, c4, stmt6, stmt7).map(Opt(base, _))))
 
         c4 -> parentOpt should equal(null)
@@ -81,22 +81,22 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
       val stmt7 = LabelStatement(Id("stmt7"), None)
       val stmt8 = LabelStatement(Id("stmt8"), None)
       val stmt9 = LabelStatement(Id("stmt9"), None)
-      val optstmt0 = Opt(fd, stmt0)
-      val optstmt1 = Opt(fd, stmt1)
-      val optstmt2 = Opt(fd, stmt2)
-      val optstmt3 = Opt(fd, stmt3)
-      val optstmt4 = Opt(fd, stmt4)
-      val optstmt5 = Opt(fd, stmt5)
-      val optstmt6 = Opt(fd, stmt6)
-      val optstmt7 = Opt(fd, stmt7)
+      val optstmt0 = Opt(gd, stmt0)
+      val optstmt1 = Opt(gd, stmt1)
+      val optstmt2 = Opt(gd, stmt2)
+      val optstmt3 = Opt(gd, stmt3)
+      val optstmt4 = Opt(gd, stmt4)
+      val optstmt5 = Opt(gd, stmt5)
+      val optstmt6 = Opt(gd, stmt6)
+      val optstmt7 = Opt(gd, stmt7)
       val optstmt8 = Opt(FeatureExpr.base, stmt8)
       val optstmt9 = Opt(FeatureExpr.base, stmt9)
 
-      val c1 = Choice(fb, stmt4, stmt5)
-      val c2 = Choice(fb, stmt2, stmt3)
-      val c3 = Choice(fa, c2, c1)
-      val c4 = Choice(fc, stmt1, c3)
-      val optc4 = Opt(fd, c4)
+      val c1 = Choice(gb, stmt4, stmt5)
+      val c2 = Choice(gb, stmt2, stmt3)
+      val c3 = Choice(ga, c2, c1)
+      val c4 = Choice(gc, stmt1, c3)
+      val optc4 = Opt(gd, c4)
       val l = List[Opt[Statement]](optstmt0) ++
           Conditional.flatten(List(optc4)) ++
           List[Opt[Statement]](optstmt6, optstmt7, optstmt8, optstmt9)
@@ -155,8 +155,8 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
         val stmt5 = LabelStatement(Id("stmt5"), None)
         val stmt6 = LabelStatement(Id("stmt6"), None)
         val stmt7 = LabelStatement(Id("stmt7"), None)
-        val choicestmt = Choice(fc, stmt1, Choice(fa, Choice(fb, stmt2, stmt3), Choice(fb, stmt4, stmt5)))
-        val root = CompoundStatement(Conditional.flatten(List[Conditional[Statement]](stmt0, choicestmt, stmt6, stmt7).map(Opt(base, _))))
+        val choicestmt = Choice(gc, stmt1, Choice(ga, Choice(gb, stmt2, stmt3), Choice(gb, stmt4, stmt5)))
+        val root = CompoundStatement(Conditional.flatten(List[Conditional[Statement]](stmt0, choicestmt, stmt6, stmt7).map(Opt(FeatureExpr.base, _))))
         stmt0 -> prevAST should equal(null)
         stmt1 -> prevAST should equal(stmt0)
         stmt2 -> prevAST should equal(stmt1)
@@ -185,10 +185,10 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
         val stmt5 = LabelStatement(Id("stmt5"), None)
         val stmt6 = LabelStatement(Id("stmt6"), None)
         val stmt7 = LabelStatement(Id("stmt7"), None)
-        val choicestmt = Choice(fc, stmt1, Choice(fa, Choice(fb, stmt2, stmt3), Choice(fb, stmt4, stmt5)))
+        val choicestmt = Choice(gc, stmt1, Choice(ga, Choice(gb, stmt2, stmt3), Choice(gb, stmt4, stmt5)))
         val exp = Constant("true")
         val ifStmt = IfStatement(exp, choicestmt, List(), None)
-        val root = CompoundStatement(List(stmt0, ifStmt, stmt6, stmt7).map(Opt(base, _)))
+        val root = CompoundStatement(List(stmt0, ifStmt, stmt6, stmt7).map(Opt(FeatureExpr.base, _)))
         stmt0 -> prevAST should equal(null)
         exp -> prevAST should equal(null)
         stmt1 -> prevAST should equal(exp)

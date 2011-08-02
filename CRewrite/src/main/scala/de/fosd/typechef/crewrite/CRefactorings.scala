@@ -1,7 +1,6 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.featureexpr._
 import java.io.{PrintWriter, FileWriter}

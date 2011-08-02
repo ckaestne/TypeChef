@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser.Opt
+import de.fosd.typechef.conditional._
 import org.kiama.attribution.Attributable
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite

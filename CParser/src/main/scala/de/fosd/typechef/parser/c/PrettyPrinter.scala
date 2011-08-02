@@ -1,5 +1,6 @@
 package de.fosd.typechef.parser.c
 
+import de.fosd.typechef.typesystem._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
@@ -52,14 +53,14 @@ object PrettyPrinter {
           Line ~ "#if" ~~ f.toTextExpr * prettyPrint(a, f) * "#else" * prettyPrint(b, f.not()) * "#endif" ~ Line
     }
 
-    private def optConditional(e: Opt[AST], context: FeatureExpr) : Doc = {
-        if ((e.feature == FeatureExpr.base) || (context.equals(e.feature))) prettyPrint(e.entry, e.feature)
+    private def optConditional(e: Opt[AST]) : Doc = {
+        if (e.feature == FeatureExpr.base) e prettyPrint(e.entry, e.feature)
         else Line ~ "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry, e.feature) * "#endif" ~ Line
     }
 
-    def prettyPrint(ast: AST, context: FeatureExpr = FeatureExpr.base): Doc = {
+    def prettyPrint(ast: AST): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a)
-        implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a, context)
+        implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a)
         implicit def prettyCond(a: Conditional[AST]): Doc = ppConditional(a)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
 
