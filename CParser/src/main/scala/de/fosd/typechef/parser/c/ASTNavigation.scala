@@ -12,58 +12,8 @@ import attribution.Attributable
  * prevAST, nextAST, and parentAST provide navigation between
  * AST nodes not affected by Opt and Choice nodes
  * (those are just flattened)
- *
- * prevOpt, nextOpt, and parentOpt provide navigation between
- * Opt nodes not affected by AST nodes
- * (those are just flattened)
  */
 trait ASTNavigation {
-
-  val DEBUG = true
-
-  val prevOpt: Attributable ==> Opt[AST] = attr {
-    case a =>
-      a.prev[Attributable] match {
-        case c: Conditional[_] => null
-        case o: Opt[AST] if (o.feature.isTautology) => null
-        case o: Opt[AST] if (!o.feature.isTautology) => {
-          a match {
-            case no: Opt[AST] if (o.feature.equals(no.feature)) => o
-            case _ => null
-          }
-        }
-        case null => null
-        case _ => assert(false, "cannot call prevOpt on instances other than Choice, One, or Opt"); null
-      }
-  }
-
-  val nextOpt: Attributable ==> Opt[AST] = attr {
-    case a =>
-      a.next[Attributable] match {
-        case c: Conditional[_] => null
-        case o: Opt[AST] if (o.feature.isTautology) => null
-        case o: Opt[AST] if (!o.feature.isTautology) => {
-          a match {
-            case po: Opt[AST] if (o.feature.equals(po.feature)) => o
-            case _ => null
-          }
-        }
-        case null => null
-        case _ => assert(false, "cannot call nextOpt on instances other than Choice, One, or Opt"); null
-      }
-  }
-
-  val isVariable: Attributable ==> Boolean = attr {
-    case a =>
-      a match {
-        case _: Conditional[_] => true
-        case o: Opt[_] if (o.feature.isTautology) => a.parent[Attributable]->isVariable
-        case o: Opt[_] if (!o.feature.isTautology) => true
-        case e: AST if (a.isRoot) => false
-        case e: AST => a.parent[Attributable]->isVariable
-        case _ => assert(false, "invalid element"); false
-      }
-  }
 
   val parentAST: Attributable ==> AST = attr {case a: Attributable => findParent(a)}
   private def findParent(a: Attributable): AST =

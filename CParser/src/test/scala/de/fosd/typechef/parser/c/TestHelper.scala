@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 import java.io.InputStream
+import scala.io.Source
 
 /**
  * common infrastructure for tests.
@@ -28,6 +29,8 @@ trait TestHelper extends EnforceTreeHelper {
         println("preparing AST...")
         prepareAST(ast)
     }
+
+    def getResult(file: String, dir: String) = Source.fromFile(dir + file).mkString
 
     def parseExpr(code: String): Expr = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
