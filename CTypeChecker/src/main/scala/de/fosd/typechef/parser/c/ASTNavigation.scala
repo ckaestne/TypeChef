@@ -1,11 +1,10 @@
-package de.fosd.typechef.typesystem
-
+package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
-import de.fosd.typechef.conditional._
 
 /**
  * Simplified navigation support
@@ -22,25 +21,14 @@ trait ASTNavigation {
 
   val DEBUG = true
 
-  val parentOpt: Attributable ==> Attributable = attr {case a: Attributable => findParentOpt(a)}
-  // return type is too generic; Opt and Choice preferable
-  private def findParentOpt(a: Attributable): Attributable = {
-    a.parent match {
-      case o: Opt[Attributable] if (!o.feature.isTautology()) => o
-      case c: Choice[Attributable] if (!c.feature.isTautology()) => c
-      case a: AST => findParentOpt(a)
-      case _ => null
-    }
-  }
-
-  val prevOpt: Attributable ==> Attributable = attr {
+  val prevOpt: Attributable ==> Opt[AST] = attr {
     case a =>
       a.prev[Attributable] match {
         case c: Conditional[_] => null
-        case o: Opt[_] if (o.feature.isTautology) => null
-        case o: Opt[_] if (!o.feature.isTautology) => {
+        case o: Opt[AST] if (o.feature.isTautology) => null
+        case o: Opt[AST] if (!o.feature.isTautology) => {
           a match {
-            case no: Opt[Attributable] if (o.feature.equals(no.feature)) => o
+            case no: Opt[AST] if (o.feature.equals(no.feature)) => o
             case _ => null
           }
         }
@@ -49,14 +37,14 @@ trait ASTNavigation {
       }
   }
 
-  val nextOpt: Attributable ==> Attributable = attr {
+  val nextOpt: Attributable ==> Opt[AST] = attr {
     case a =>
       a.next[Attributable] match {
         case c: Conditional[_] => null
-        case o: Opt[_] if (o.feature.isTautology) => null
-        case o: Opt[_] if (!o.feature.isTautology) => {
+        case o: Opt[AST] if (o.feature.isTautology) => null
+        case o: Opt[AST] if (!o.feature.isTautology) => {
           a match {
-            case po: Opt[_] if (o.feature.equals(po.feature)) => o
+            case po: Opt[AST] if (o.feature.equals(po.feature)) => o
             case _ => null
           }
         }

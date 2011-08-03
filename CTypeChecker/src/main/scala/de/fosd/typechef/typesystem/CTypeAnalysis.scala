@@ -1,5 +1,7 @@
 package de.fosd.typechef.typesystem
 
+import de.fosd.typechef.parser.c.ASTNavigation
+
 /**
  * bundle for easier import
  */

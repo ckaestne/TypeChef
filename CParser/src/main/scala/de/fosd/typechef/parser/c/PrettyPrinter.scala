@@ -1,10 +1,9 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.typesystem._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
-object PrettyPrinter {
+object PrettyPrinter extends FeatureExprLookup {
 
     //pretty printer combinators, stolen from http://www.scala-blogs.org/2009/04/combinators-for-pretty-printers-part-1.html
     sealed abstract class Doc {
@@ -50,12 +49,12 @@ object PrettyPrinter {
     private def ppConditional(e: Conditional[AST]): Doc = e match {
         case One(c: AST) => prettyPrint(c)
         case Choice(f, a: AST, b: AST) =>
-          Line ~ "#if" ~~ f.toTextExpr * prettyPrint(a, f) * "#else" * prettyPrint(b, f.not()) * "#endif" ~ Line
+          Line ~ "#if" ~~ f.toTextExpr * prettyPrint(a) * "#else" * prettyPrint(b) * "#endif" ~ Line
     }
 
     private def optConditional(e: Opt[AST]) : Doc = {
-        if (e.feature == FeatureExpr.base) e prettyPrint(e.entry, e.feature)
-        else Line ~ "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry, e.feature) * "#endif" ~ Line
+        if (e.feature == FeatureExpr.base || (e->featureExpr != null && e->featureExpr == e.feature)) prettyPrint(e.entry)
+        else Line ~ "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry) * "#endif" ~ Line
     }
 
     def prettyPrint(ast: AST): Doc = {

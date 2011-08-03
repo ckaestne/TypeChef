@@ -1,11 +1,10 @@
-package de.fosd.typechef.typesystem
+package de.fosd.typechef.conditional
 
-
-import de.fosd.typechef.conditional._
 import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.conditional._
 
 
 /**

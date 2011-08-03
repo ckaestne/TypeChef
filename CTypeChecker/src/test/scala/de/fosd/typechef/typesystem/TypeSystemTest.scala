@@ -6,6 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
 class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation with TestHelper {
