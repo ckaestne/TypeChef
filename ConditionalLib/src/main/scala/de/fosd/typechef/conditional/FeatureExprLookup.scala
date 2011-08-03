@@ -4,8 +4,6 @@ import org.kiama.attribution.Attribution._
 import org.kiama._
 import attribution.Attributable
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.conditional._
-
 
 /**
  * provides featureExpr lookup for *all* AST nodes
@@ -25,3 +23,4 @@ trait FeatureExprLookup {
     }
 
 }
+
