@@ -1,6 +1,7 @@
 package de.fosd.typechef.jcpp;
 
 import de.fosd.typechef.lexer.LexerException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -225,5 +226,15 @@ public class JcppFileTest extends AbstractCheckTests {
     @Test
     public void testExpandWithinExpand() throws LexerException, IOException {
         testFile("expandWithinExpand.c", false, true);
+    }
+
+    @Test
+    @Ignore //TODO fix
+    public void testLinebreaks() throws LexerException, IOException {
+        testFile("linebreaks.c", false, true);
+    }
+    @Test
+    public void testLinebreaks2() throws LexerException, IOException {
+        testFile("linebreaks2.c", false, true);
     }
 }
