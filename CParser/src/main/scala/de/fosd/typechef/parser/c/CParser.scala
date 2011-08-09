@@ -73,9 +73,11 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                 (textToken("typedef") ^^^ TypedefSpecifier()) |
                 functionStorageClassSpecifier
 
+    def staticSpecifier(): MultiParser[Specifier] =
+        specifier("static") ^^^ StaticSpecifier()
     def functionStorageClassSpecifier: MultiParser[Specifier] =
         (specifier("extern") ^^^ ExternSpecifier()) |
-                (specifier("static") ^^^ StaticSpecifier()) | inline
+            staticSpecifier | inline
 
     def typeQualifier: MultiParser[Specifier] =
         const | volatile | restrict
@@ -192,7 +194,11 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                 repOpt(
                     (LPAREN ~~> ((parameterDeclList ^^ {DeclParameterDeclList(_)})
                             | (idList0 ^^ {DeclIdentifierList(_)})) <~~ RPAREN)
-                            | (LBRACKET ~~> opt(constExpr) <~ RBRACKET ^^ {DeclArrayAccess(_)}))) ^^ {
+                            // XXX: See 6.7.5.2.3 (C99 standard) for the specs which apply
+                            // here. We should also accept '*'. Moreover, we
+                            // should _not_ discard all such specifiers.
+                            // 6.7.5.3.21 contains example declarators using restrict.
+                            | (LBRACKET ~~> ((opt(staticSpecifier) ~ repOpt(typeQualifier) ~ opt(staticSpecifier)) ~> opt(constExpr)) <~ RBRACKET ^^ {DeclArrayAccess(_)}))) ^^ {
             case pointers ~ (id: Id) ~ ext => AtomicNamedDeclarator(pointers, id, ext);
             case pointers ~ ((attr: Option[_ /*AttributeSpecifier*/ ]) ~ (decl: Declarator)) ~ ext =>
                 NestedNamedDeclarator(pointers, decl, ext)
