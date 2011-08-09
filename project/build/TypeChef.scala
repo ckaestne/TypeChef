@@ -30,6 +30,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
 
     class LinuxAnalysisProject(info: ProjectInfo) extends DefaultSubProject(info) {
         lazy val parse = runTask("de.fosd.typechef.linux.LinuxParser")
+        lazy val preprocess = runTask("de.fosd.typechef.linux.LinuxPreprocessorFrontend")
         lazy val typecheck = runTask("de.fosd.typechef.linux.LinuxTypeChecker")
         lazy val processFileList = runTask("de.fosd.typechef.linux.ProcessFileList")
         lazy val stats = runTask("de.fosd.typechef.linux.Stats")
