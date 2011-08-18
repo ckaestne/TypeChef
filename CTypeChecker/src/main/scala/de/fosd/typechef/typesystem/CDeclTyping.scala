@@ -147,7 +147,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             val returnType: TConditional[CType] = constructType(filterDeadSpecifiers(decl.declSpecs, decl -> featureExpr))
 
             for (Opt(f, init) <- decl.init)
-            yield (init.declarator.getName, init -> featureExpr, getDeclaratorType(init.declarator, returnType))
+            yield (init.declarator.getName, init -> featureExpr, getDeclaratorType(init.declarator, returnType).simplify(init -> featureExpr))
         }
     }
 
@@ -270,9 +270,14 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         else Seq()
     }
 
-    private val inDeclaration: AST ==> Boolean = attr {
+    val inDeclaration: AST ==> Boolean = attr {
         case e: Declaration => true
         case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclaration
+    }
+    val inDeclaratorOrSpecifier: AST ==> Boolean = attr {
+        case e: Declarator => true
+        case e: Specifier => true
+        case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclaratorOrSpecifier
     }
     //get the first parent node that is a declaration
     private val outerDeclaration: AST ==> Declaration = attr {

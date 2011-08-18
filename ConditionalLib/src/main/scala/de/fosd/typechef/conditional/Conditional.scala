@@ -19,6 +19,8 @@ abstract class TConditional[+T] {
 
     def forall(f: T => Boolean): Boolean
     def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
+    def toOptList: List[Opt[T]] = TConditional.flatten(List(Opt(FeatureExpr.base, this)))
+    def toList: List[(FeatureExpr, T)] = this.toOptList.map(o => (o.feature, o.entry))
 }
 
 case class TChoice[+T](feature: FeatureExpr, thenBranch: TConditional[T], elseBranch: TConditional[T]) extends TConditional[T] {
@@ -71,8 +73,7 @@ object TConditional {
         }
         result
     }
-    def toOptList[T](c: TConditional[T]): List[Opt[T]] = flatten(List(Opt(FeatureExpr.base, c)))
-
-    def toList[T](c: TConditional[T]): List[(FeatureExpr, T)] =
-        toOptList(c).map(o => (o.feature, o.entry))
+    //old, only for compatibility
+    def toOptList[T](c: TConditional[T]): List[Opt[T]] = c.toOptList
+    def toList[T](c: TConditional[T]): List[(FeatureExpr, T)] = c.toList
 }

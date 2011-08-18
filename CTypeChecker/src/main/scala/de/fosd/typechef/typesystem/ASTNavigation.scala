@@ -69,4 +69,15 @@ trait ASTNavigation {
         if (e -> prevOrParentAST != null) f(e -> prevOrParentAST)
         else
             init()
+
+
+    def visitAST(ast: Attributable, f: AST => Boolean): Unit = {
+        val visitChildren =
+            if (ast.isInstanceOf[AST])
+                f(ast.asInstanceOf[AST])
+            else true
+        if (visitChildren)
+            for (child <- ast.children)
+                visitAST(child, f)
+    }
 }
