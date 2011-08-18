@@ -63,22 +63,27 @@ trait CTypes {
 
     case class CChar() extends CBasicType {
         def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+        override def toString = "char"
     }
 
     case class CShort() extends CBasicType {
         def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+        override def toString = "short"
     }
 
     case class CInt() extends CBasicType {
         def <(that: CBasicType) = that == CLongLong() || that == CLong()
+        override def toString = "int"
     }
 
     case class CLong() extends CBasicType {
         def <(that: CBasicType) = that == CLongLong()
+        override def toString = "long"
     }
 
     case class CLongLong() extends CBasicType {
         def <(that: CBasicType) = false
+        override def toString = "long long"
     }
 
     implicit def toCType(x: CInt): CType = CSigned(x)
@@ -86,13 +91,16 @@ trait CTypes {
     implicit def toCType(x: CShort): CType = CSigned(x)
     implicit def toCType(x: CLong): CType = CSigned(x)
 
-    case class CVoid() extends CType
+    case class CVoid() extends CType {
+        override def toString = "void"
+    }
 
     case class CSigned(b: CBasicType) extends CType {
         override def <(that: CType) = that match {
             case CSigned(thatb) => b < thatb
             case _ => false
         }
+        override def toString = "signed " + b
     }
 
     case class CUnsigned(b: CBasicType) extends CType {
@@ -100,6 +108,7 @@ trait CTypes {
             case CUnsigned(thatb) => b < thatb
             case _ => false
         }
+        override def toString = "unsigned " + b
     }
 
     case class CSignUnspecified(b: CBasicType) extends CType {
@@ -107,33 +116,51 @@ trait CTypes {
             case CSignUnspecified(thatb) => b < thatb
             case _ => false
         }
+        override def toString = b.toString
     }
 
     //implementationspecific for Char
 
-    case class CFloat() extends CType
+    case class CFloat() extends CType {
+        override def toString = "float"
+    }
 
-    case class CDouble() extends CType
+    case class CDouble() extends CType {
+        override def toString = "double"
+    }
 
-    case class CLongDouble() extends CType
+    case class CLongDouble() extends CType {
+        override def toString = "long double"
+    }
 
-    case class CPointer(t: CType) extends CType
+    case class CPointer(t: CType) extends CType {
+        override def toString = "*" + t.toString
+    }
 
     //length is currently not analyzed. using always -1
-    case class CArray(t: CType, length: Int = -1) extends CType
+    case class CArray(t: CType, length: Int = -1) extends CType {
+        override def toString = t.toString + "[]"
+    }
 
     /**struct and union are handled in the same construct but distinguished with a flag */
-    case class CStruct(s: String, isUnion: Boolean = false) extends CType
+    case class CStruct(s: String, isUnion: Boolean = false) extends CType {
+        override def toString = (if (isUnion) "union " else "struct ") + s
+    }
 
-    case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType
+    case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType {
+        override def toString = (if (isUnion) "union " else "struct ") + "{" + fields + "}"
+    }
 
     case class CFunction(param: Seq[CType], ret: CType) extends CType {
         override def toObj = this
         override def isFunction: Boolean = true
+        override def toString = param.mkString("(", ", ", ")") + " => " + ret
     }
 
     //varargs should only occur in paramter lists
-    case class CVarArgs() extends CType
+    case class CVarArgs() extends CType {
+        override def toString = "..."
+    }
 
     /**objects in memory */
     case class CObj(t: CType) extends CType {
