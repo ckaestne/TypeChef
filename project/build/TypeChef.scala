@@ -19,7 +19,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     class DefaultSubProject(info: ProjectInfo) extends DefaultProject(info) with ScctProject with IdeaProject {
         val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test->default"
         override def testOptions = super.testOptions ++ Seq(TestArgument(TestFrameworks.JUnit, "-q", "-v"))
-        val scalacheck = "org.scala-tools.testing" % "scalacheck_2.8.1" % "1.8" % "test->default"
+        val scalacheck = "org.scala-tools.testing" % "scalacheck_2.9.0" % "1.9" % "test->default"
         def junitXmlListener: TestReportListener = new JUnitXmlTestsListener(outputPath.toString)
         override def testListeners: Seq[TestReportListener] = super.testListeners ++ Seq(junitXmlListener)
 
@@ -30,6 +30,7 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
 
     class LinuxAnalysisProject(info: ProjectInfo) extends DefaultSubProject(info) {
         lazy val parse = runTask("de.fosd.typechef.linux.LinuxParser")
+        lazy val preprocess = runTask("de.fosd.typechef.linux.LinuxPreprocessorFrontend")
         lazy val typecheck = runTask("de.fosd.typechef.linux.LinuxTypeChecker")
         lazy val processFileList = runTask("de.fosd.typechef.linux.ProcessFileList")
         lazy val stats = runTask("de.fosd.typechef.linux.Stats")
