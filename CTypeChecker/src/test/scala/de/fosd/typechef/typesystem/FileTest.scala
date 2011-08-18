@@ -31,6 +31,6 @@ class FileTest extends TestHelper {
     @Test def boa_boa_pi {assert(check("boa.pi"))}
     @Test def busybox_top_pi {assert(check("top.pi"))}
     @Test
-    @Ignore def linux_fork_pi {assert(check("fork.pi"))}
+     def linux_fork_pi {assert(check("fork_.pi"))}
 
 }

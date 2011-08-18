@@ -1954,7 +1954,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         public FeatureExpr assumeExpression(Token tok) throws LexerException {
             if (expr == null) {
 //                warning(tok, "interpreting value " + value + " as expression " + value.toFeatureExpr());
-                System.out.println("interpreting value " + value + " as expression " + FeatureExprLib.toFeatureExpr(value));
+//                System.out.println("interpreting value " + value + " as expression " + FeatureExprLib.toFeatureExpr(value));
                 return FeatureExprLib.toFeatureExpr(value);
             } else
                 return expr;
@@ -2441,8 +2441,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                         case IDENTIFIER:
                             break;
                         default:
-                            warning(tok, "Preprocessor directive not a word "
-                                    + tok.getText() + ", skipping line");
+                            //no warning, interpreted as comment
+//                            warning(tok, "Preprocessor directive not a word "
+//                                    + tok.getText() + ", skipping line");
                             return source_skipline(false);
                     }
                     // System.out.println(previousToken);
