@@ -16,12 +16,14 @@ import gnu.getopt.LongOpt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.lexer._
+import linker.CInferInterface
 
 object LinuxPreprocessorFrontend {
 
     //can be overriden with command line parameters p and t
     def PARSEAFTERPREPROCESSING = true
     def TYPECHECKAFTERPARSING = false
+    def CREATEINTERFACEAFTERPARSING = false
 
     ////////////////////////////////////////
     // General setup of built-in headers, should become more general and move
@@ -92,11 +94,12 @@ object LinuxPreprocessorFrontend {
         val OPEN_FEAT_OPT = 1
         val longOpts = Array(new LongOpt("include", LongOpt.REQUIRED_ARGUMENT, null, INCLUDE_OPT),
             new LongOpt("openFeat", LongOpt.REQUIRED_ARGUMENT, null, OPEN_FEAT_OPT))
-        val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:t" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
+        val g = new Getopt("PreprocessorFrontend", args, ":r:I:c:o:t:i" + optionsToForward.flatMap(x => Seq(x, ':')), longOpts)
         var loopFlag = true
         var preprocOutputPathOpt: Option[String] = None
         var parse = PARSEAFTERPREPROCESSING
         var typecheck = TYPECHECKAFTERPARSING
+        var createInterface = CREATEINTERFACEAFTERPARSING
         do {
             val c = g.getopt()
             if (c != -1) {
@@ -108,6 +111,7 @@ object LinuxPreprocessorFrontend {
                     case 'o' => preprocOutputPathOpt = Some(arg)
                     case 'p' => parse = true
                     case 't' => typecheck = true
+                    case 'i' => createInterface = true
 
                     case ':' => println("Missing required argument!"); sys.exit(1)
                     case '?' => println("Unexpected option!");
@@ -146,6 +150,12 @@ object LinuxPreprocessorFrontend {
                 val ast = parserMain.parserMain(in)
                 if (typecheck)
                     new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
+                if (createInterface) {
+                    val i = new CInferInterface {}
+                    val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
+                    i.writeInterface(interface, new File(path + ".interface"))
+                    i.debugInterface(interface, new File(path + ".dbginterface"))
+                }
             }
         }
     }
