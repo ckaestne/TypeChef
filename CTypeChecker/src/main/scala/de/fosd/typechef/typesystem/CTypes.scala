@@ -8,234 +8,327 @@ import de.fosd.typechef.conditional._
  *
  * extended by alternative types with variability: CChoice
  */
-trait CTypes {
 
+/**
+ * Missing from used formalization:
+ *
+ * We omit the following features of C's type system: enumeration types,
+ * the type qualifiers const and volatile, bit-elds, and union types. Furthermore
+ * we do not allow functions to take variable numbers of arguments,
+ * and we also gloss over the typedef construct, assuming that this last facility
+ * is compiled out in such a way that occurrences of type identifiers are
+ * replaced with the type that they abbreviate.
+ *
+ * Our treatment of functions and array types as function parameters is
+ * different from that in the standard. In the case of functions, the standard
+ * makes use of what it terms pointers to functions. These are essentially
+ * variables that can contain references to functions, where possible values
+ * are all of the program's dened functions. This is how we shall treat func
+ * tion references henceforth, stripping them of the confusing semantic baggage
+ * associated with pointers. (The language in the standard is continually
+ * having to make exceptions for pointers to functions in its description of
+ * operations on pointers. It is not possible to perform pointer arithmetic on
+ * function references, and dereferencing of function pointers is an idempotent
+ * operation.) This clarity of exposition will also be evident in the
+ * discussion of the dynamic semantics. We will discuss the nature of array
+ * types, and how our denition differs from that given in the standard in
+ * section 2.3 below.
+ */
+
+sealed abstract class CBasicType {
+    def <(that: CBasicType): Boolean
+    def toXML: xml.Elem
+}
+
+sealed abstract class CType {
+    def toObj: CType = CObj(this)
+    //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
+    def toValue: CType = this
+    def isObject: Boolean = false
+    def isFunction: Boolean = false
+
+
+    /* map over this type considering variability */
+    def mapV(f: FeatureExpr, op: (FeatureExpr, CType) => CType): CType = op(f, this)
+    def map(op: CType => CType): CType = op(this)
+
+    def isUnknown: Boolean = false
+
+    /**compares with of two types. if this<that, this type can be converted (widened) to that */
+    def <(that: CType): Boolean = false
+
+    def toXML: xml.Elem
+}
+
+//    /** type without variability */
+//    sealed abstract class CStaticType extends CType
+
+
+case class CChar() extends CBasicType {
+    def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+    override def toString = "char"
+    def toXML = <char/>
+}
+
+case class CShort() extends CBasicType {
+    def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+    override def toString = "short"
+    def toXML = <short/>
+}
+
+case class CInt() extends CBasicType {
+    def <(that: CBasicType) = that == CLongLong() || that == CLong()
+    override def toString = "int"
+    def toXML = <int/>
+}
+
+case class CLong() extends CBasicType {
+    def <(that: CBasicType) = that == CLongLong()
+    override def toString = "long"
+    def toXML = <long/>
+}
+
+case class CLongLong() extends CBasicType {
+    def <(that: CBasicType) = false
+    override def toString = "long long"
+    def toXML = <longlong/>
+}
+
+
+case class CVoid() extends CType {
+    override def toString = "void"
+    def toXML = <void/>
+}
+
+case class CSigned(b: CBasicType) extends CType {
+    override def <(that: CType) = that match {
+        case CSigned(thatb) => b < thatb
+        case _ => false
+    }
+    override def toString = "signed " + b
+    def toXML = <signed>
+        {b.toXML}
+    </signed>
+}
+
+case class CUnsigned(b: CBasicType) extends CType {
+    override def <(that: CType) = that match {
+        case CUnsigned(thatb) => b < thatb
+        case _ => false
+    }
+    override def toString = "unsigned " + b
+    def toXML = <unsigned>
+        {b.toXML}
+    </unsigned>
+}
+
+case class CSignUnspecified(b: CBasicType) extends CType {
+    override def <(that: CType) = that match {
+        case CSignUnspecified(thatb) => b < thatb
+        case _ => false
+    }
+    override def toString = b.toString
+    def toXML = <nosign>
+        {b.toXML}
+    </nosign>
+}
+
+//implementationspecific for Char
+
+case class CFloat() extends CType {
+    override def toString = "float"
+    def toXML = <float/>
+}
+
+case class CDouble() extends CType {
+    override def toString = "double"
+    def toXML = <double/>
+}
+
+case class CLongDouble() extends CType {
+    override def toString = "long double"
+    def toXML = <longdouble/>
+}
+
+case class CPointer(t: CType) extends CType {
+    override def toString = "*" + t.toString
+    def toXML = <pointer>
+        {t.toXML}
+    </pointer>
+}
+
+//length is currently not analyzed. using always -1
+case class CArray(t: CType, length: Int = -1) extends CType {
+    override def toString = t.toString + "[]"
+    def toXML = <array length={length.toString}>
+        {t.toXML}
+    </array>
+}
+
+/**struct and union are handled in the same construct but distinguished with a flag */
+case class CStruct(s: String, isUnion: Boolean = false) extends CType {
+    override def toString = (if (isUnion) "union " else "struct ") + s
+    def toXML = <struct isUnion={isUnion.toString}>
+        {s}
+    </struct>
+}
+
+case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType {
+    override def toString = (if (isUnion) "union " else "struct ") + "{" + fields + "}"
+    def toXML = <astruct isUnion={isUnion.toString}>
+        {}
+    </astruct>
+}
+
+case class CFunction(param: Seq[CType], ret: CType) extends CType {
+    override def toObj = this
+    override def isFunction: Boolean = true
+    override def toString = param.mkString("(", ", ", ")") + " => " + ret
+    def toXML = <function>
+        {param.map(x => <param>
+            {x.toXML}
+        </param>)}<ret>
+            {ret.toXML}
+        </ret>
+    </function>
+}
+
+//varargs should only occur in paramter lists
+case class CVarArgs() extends CType {
+    override def toString = "..."
+    def toXML = <vargs/>
+}
+
+/**objects in memory */
+case class CObj(t: CType) extends CType {
+    override def toObj = this
+    //no CObj(CObj(...))
+    override def toValue: CType = t match {
+        case CArray(t, _) => CPointer(t)
+        case _ => t
+    }
+    override def isObject = true
+    def toXML = <obj>
+        {t.toXML}
+    </obj>
+}
+
+/**
+ * CCompound is a workaround for initializers.
+ * This type is created by initializers with any structure.
+ * We currently don't care about internals.
+ * CCompound can be cast into any array or structure
+ */
+case class CCompound() extends CType {
+    def toXML = <compound/>
+}
+
+/**
+ * CIgnore is a type for stuff we currently do not want to check
+ * it can be cast to anything and is not considered an error
+ */
+case class CIgnore() extends CType {
+    def toXML = <ignore/>
+}
+
+
+/**errors */
+case class CUnknown(msg: String = "") extends CType {
+    override def toObj = this
+    override def equals(that: Any) = that match {
+        case CUnknown(_) => true
+        case _ => super.equals(that)
+    }
+    override def isUnknown: Boolean = true
+    def toXML = <unknown msg={msg}/>
+}
+
+/**not defined in environment, typically only used in CChoice types */
+case class CUndefined() extends CUnknown("undefined")
+
+
+/**
+ * xml reader
+ */
+object CType {
+    def fromXML(node: scala.xml.NodeSeq): CType = {
+        var result: CType = CUnknown("fromXML error: " + node.text)
+        (node \ "signed").map(x => result = CSigned(fromXMLBasicType(x)))
+        (node \ "unsigned").map(x => result = CUnsigned(fromXMLBasicType(x)))
+        (node \ "nosign").map(x => result = CSignUnspecified(fromXMLBasicType(x)))
+        (node \ "void").map(x => result = CVoid())
+        (node \ "float").map(x => result = CFloat())
+        (node \ "double").map(x => result = CDouble())
+        (node \ "longdouble").map(x => result = CLongDouble())
+        (node \ "vargs").map(x => result = CVarArgs())
+        (node \ "pointer").map(x => result = CPointer(fromXML(x)))
+        (node \ "array").map(x => result = CArray(fromXML(x), x.attribute("length").get.head.text.toInt))
+        (node \ "struct").map(x => result = CStruct(x.text.trim, x.attribute("isUnion").get.head.text.toBoolean))
+        (node \ "astruct").map(x => result = CAnonymousStruct(new ConditionalTypeMap(), x.attribute("isUnion").get.head.text.toBoolean)) //TODO
+        (node \ "function").map(x => result = CFunction(
+            (x \ "param").map(fromXML(_)),
+            fromXML((x \ "ret").head)
+        ))
+        (node \ "obc").map(x => result = CObj(fromXML(x)))
+        (node \ "compound").map(x => result = CCompound())
+        (node \ "ignore").map(x => result = CIgnore())
+        (node \ "unkown").map(x => result = CUnknown(x.attribute("msg").get.text))
+        result
+    }
+
+
+    def fromXMLBasicType(node: scala.xml.Node): CBasicType = {
+        var result: CBasicType = CInt()
+        (node \ "char").map(x => result = CChar())
+        (node \ "short").map(x => result = CShort())
+        (node \ "long").map(x => result = CLong())
+        (node \ "longlong").map(x => result = CLongLong())
+        result
+    }
+
+}
+
+//assumed well-formed pointer targets on structures
+
+
+/**
+ * maintains a map from names to types
+ * a name may be mapped to alternative types with different feature expressions
+ */
+class ConditionalTypeMap(private val m: ConditionalMap[String, TConditional[CType]]) {
+    def this() = this (new ConditionalMap())
     /**
-     * Missing from used formalization:
-     *
-     * We omit the following features of C's type system: enumeration types,
-     * the type qualifiers const and volatile, bit-elds, and union types. Furthermore
-     * we do not allow functions to take variable numbers of arguments,
-     * and we also gloss over the typedef construct, assuming that this last facility
-     * is compiled out in such a way that occurrences of type identifiers are
-     * replaced with the type that they abbreviate.
-     *
-     * Our treatment of functions and array types as function parameters is
-     * different from that in the standard. In the case of functions, the standard
-     * makes use of what it terms pointers to functions. These are essentially
-     * variables that can contain references to functions, where possible values
-     * are all of the program's dened functions. This is how we shall treat func
-     * tion references henceforth, stripping them of the confusing semantic baggage
-     * associated with pointers. (The language in the standard is continually
-     * having to make exceptions for pointers to functions in its description of
-     * operations on pointers. It is not possible to perform pointer arithmetic on
-     * function references, and dereferencing of function pointers is an idempotent
-     * operation.) This clarity of exposition will also be evident in the
-     * discussion of the dynamic semantics. We will discuss the nature of array
-     * types, and how our denition differs from that given in the standard in
-     * section 2.3 below.
+     * apply returns a type, possibly CUndefined or a
+     * choice type
      */
+    def apply(name: String): TConditional[CType] = getOrElse(name, CUnknown(name))
+    def getOrElse(name: String, errorType: CType): TConditional[CType] = TConditional.combine(m.getOrElse(name, TOne(errorType))) simplify
 
-    sealed abstract class CBasicType {
-        def <(that: CBasicType): Boolean
-    }
+    def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
+    def ++(l: Seq[(String, FeatureExpr, TConditional[CType])]) = new ConditionalTypeMap(m ++ l)
+    def +(name: String, f: FeatureExpr, t: TConditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+    def contains(name: String) = m.contains(name)
+    def isEmpty = m.isEmpty
+    def allTypes: Iterable[TConditional[CType]] = m.allEntriesFlat
 
-    sealed abstract class CType {
-        def toObj: CType = CObj(this)
-        //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
-        def toValue: CType = this
-        def isObject: Boolean = false
-        def isFunction: Boolean = false
+    override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
+    override def hashCode = m.hashCode
+    override def toString = m.toString
+}
 
 
-        /* map over this type considering variability */
-        def mapV(f: FeatureExpr, op: (FeatureExpr, CType) => CType): CType = op(f, this)
-        def map(op: CType => CType): CType = op(this)
+/**
+ * helper functions
+ */
+trait CTypes {
+    type PtrEnv = Set[String]
 
-        def isUnknown: Boolean = false
-
-        /**compares with of two types. if this<that, this type can be converted (widened) to that */
-        def <(that: CType): Boolean = false
-    }
-
-    //    /** type without variability */
-    //    sealed abstract class CStaticType extends CType
-
-    case class CChar() extends CBasicType {
-        def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
-        override def toString = "char"
-    }
-
-    case class CShort() extends CBasicType {
-        def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
-        override def toString = "short"
-    }
-
-    case class CInt() extends CBasicType {
-        def <(that: CBasicType) = that == CLongLong() || that == CLong()
-        override def toString = "int"
-    }
-
-    case class CLong() extends CBasicType {
-        def <(that: CBasicType) = that == CLongLong()
-        override def toString = "long"
-    }
-
-    case class CLongLong() extends CBasicType {
-        def <(that: CBasicType) = false
-        override def toString = "long long"
-    }
 
     implicit def toCType(x: CInt): CType = CSigned(x)
     implicit def toCType(x: CChar): CType = CSignUnspecified(x)
     implicit def toCType(x: CShort): CType = CSigned(x)
     implicit def toCType(x: CLong): CType = CSigned(x)
 
-    case class CVoid() extends CType {
-        override def toString = "void"
-    }
-
-    case class CSigned(b: CBasicType) extends CType {
-        override def <(that: CType) = that match {
-            case CSigned(thatb) => b < thatb
-            case _ => false
-        }
-        override def toString = "signed " + b
-    }
-
-    case class CUnsigned(b: CBasicType) extends CType {
-        override def <(that: CType) = that match {
-            case CUnsigned(thatb) => b < thatb
-            case _ => false
-        }
-        override def toString = "unsigned " + b
-    }
-
-    case class CSignUnspecified(b: CBasicType) extends CType {
-        override def <(that: CType) = that match {
-            case CSignUnspecified(thatb) => b < thatb
-            case _ => false
-        }
-        override def toString = b.toString
-    }
-
-    //implementationspecific for Char
-
-    case class CFloat() extends CType {
-        override def toString = "float"
-    }
-
-    case class CDouble() extends CType {
-        override def toString = "double"
-    }
-
-    case class CLongDouble() extends CType {
-        override def toString = "long double"
-    }
-
-    case class CPointer(t: CType) extends CType {
-        override def toString = "*" + t.toString
-    }
-
-    //length is currently not analyzed. using always -1
-    case class CArray(t: CType, length: Int = -1) extends CType {
-        override def toString = t.toString + "[]"
-    }
-
-    /**struct and union are handled in the same construct but distinguished with a flag */
-    case class CStruct(s: String, isUnion: Boolean = false) extends CType {
-        override def toString = (if (isUnion) "union " else "struct ") + s
-    }
-
-    case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType {
-        override def toString = (if (isUnion) "union " else "struct ") + "{" + fields + "}"
-    }
-
-    case class CFunction(param: Seq[CType], ret: CType) extends CType {
-        override def toObj = this
-        override def isFunction: Boolean = true
-        override def toString = param.mkString("(", ", ", ")") + " => " + ret
-    }
-
-    //varargs should only occur in paramter lists
-    case class CVarArgs() extends CType {
-        override def toString = "..."
-    }
-
-    /**objects in memory */
-    case class CObj(t: CType) extends CType {
-        override def toObj = this
-        //no CObj(CObj(...))
-        override def toValue: CType = t match {
-            case CArray(t, _) => CPointer(t)
-            case _ => t
-        }
-        override def isObject = true
-    }
-
-    /**
-     * CCompound is a workaround for initializers.
-     * This type is created by initializers with any structure.
-     * We currently don't care about internals.
-     * CCompound can be cast into any array or structure
-     */
-    case class CCompound() extends CType
-
-    /**
-     * CIgnore is a type for stuff we currently do not want to check
-     * it can be cast to anything and is not considered an error
-     */
-    case class CIgnore() extends CType
-
-
-    /**errors */
-    case class CUnknown(msg: String = "") extends CType {
-        override def toObj = this
-        override def equals(that: Any) = that match {
-            case CUnknown(_) => true
-            case _ => super.equals(that)
-        }
-        override def isUnknown: Boolean = true
-    }
-
-    /**not defined in environment, typically only used in CChoice types */
-    case class CUndefined() extends CUnknown("undefined")
-
-
-    type PtrEnv = Set[String]
-
-    //assumed well-formed pointer targets on structures
-
-
-    /**
-     * maintains a map from names to types
-     * a name may be mapped to alternative types with different feature expressions
-     */
-    class ConditionalTypeMap(private val m: ConditionalMap[String, TConditional[CType]]) {
-        def this() = this (new ConditionalMap())
-        /**
-         * apply returns a type, possibly CUndefined or a
-         * choice type
-         */
-        def apply(name: String): TConditional[CType] = getOrElse(name, CUnknown(name))
-        def getOrElse(name: String, errorType: CType): TConditional[CType] = TConditional.combine(m.getOrElse(name, TOne(errorType))) simplify
-
-        def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
-        def ++(l: Seq[(String, FeatureExpr, TConditional[CType])]) = new ConditionalTypeMap(m ++ l)
-        def +(name: String, f: FeatureExpr, t: TConditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
-        def contains(name: String) = m.contains(name)
-        def isEmpty = m.isEmpty
-        def allTypes: Iterable[TConditional[CType]] = m.allEntriesFlat
-
-        override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
-        override def hashCode = m.hashCode
-        override def toString = m.toString
-    }
-
-
-    /**
-     * helper functions
-     */
     def arrayType(t: CType): Boolean = t.toValue match {
         case CArray(_, _) => true
         case _ => false

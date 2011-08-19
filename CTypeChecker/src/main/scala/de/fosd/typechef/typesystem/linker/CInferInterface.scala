@@ -1,8 +1,6 @@
 package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.typesystem.CTypeAnalysis
-import de.fosd.typechef.parser.Position
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.{Opt, TConditional}
 import de.fosd.typechef.parser.c._
 
@@ -10,10 +8,12 @@ import de.fosd.typechef.parser.c._
  * first attempt to infer the interface of a C file for linker checks
  */
 
-trait CInferInterface extends CTypeAnalysis {
+//TODO structs need to become part of the interface, or we need to resolve all structs to anonymous structs
+
+trait CInferInterface extends CTypeAnalysis with Interfaces {
 
     def inferInterface(ast: TranslationUnit): CInterface =
-        new CInterface(getImports(ast), getExports(ast))
+        new CInterface(getImports(ast), getExports(ast)).pack
 
 
     /**
@@ -28,7 +28,7 @@ trait CInferInterface extends CTypeAnalysis {
                 case fun: FunctionDef =>
                     for (Opt(fexpr, ctype) <- TConditional.toOptList(fun -> funType).map(_.and(fun -> featureExpr)))
                         if (fexpr.isSatisfiable())
-                            exports = CSignature(fun.getName, ctype, fexpr, fun.getPositionFrom) :: exports
+                            exports = CSignature(fun.getName, ctype, fexpr, Seq(fun.getPositionFrom)) :: exports
                 case _ =>
             }
 
@@ -49,7 +49,7 @@ trait CInferInterface extends CTypeAnalysis {
                     val ctypes = identifier -> exprType
                     for ((fexpr, ctype) <- ctypes.toList)
                         if (ctype.isFunction && (fexpr and (identifier -> featureExpr) isSatisfiable))
-                            declarations = CSignature(identifier.name, ctype, fexpr and (identifier -> featureExpr), identifier.getPositionFrom) :: declarations
+                            declarations = CSignature(identifier.name, ctype, fexpr and (identifier -> featureExpr), Seq(identifier.getPositionFrom)) :: declarations
                 }
                 true
             case _ => true
@@ -72,14 +72,5 @@ trait CInferInterface extends CTypeAnalysis {
     }
 
 
-    case class CInterface(imports: Seq[CSignature], exports: Seq[CSignature]) {
-        override def toString =
-            "imports\n" + imports.map("\t" + _.toString).mkString("\n") +
-                    "\nexports\n" + exports.map("\t" + _.toString).mkString("\n") + "\n"
-    }
-    case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Position) {
-        override def toString =
-            name + ": " + ctype + "\t\tif " + fexpr + "\t\tat " + pos
-    }
 }
 

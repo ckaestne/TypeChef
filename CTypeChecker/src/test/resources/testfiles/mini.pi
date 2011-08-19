@@ -1,0 +1,45 @@
+int printf ( const char * format, ... );
+
+#ifdef VOID
+void bar();
+#elif defined INT
+int bar();
+#endif
+;
+void foo();
+
+void foobar() {}
+
+void partialA();
+void partialB();
+
+#ifdef PARTIAL
+void partialA() {}
+void partialB() {}
+#endif
+
+int a, b;
+
+int
+main()
+{
+#ifdef CALL
+ bar();
+#endif
+ ;
+ foobar();
+ partialA();
+#ifdef PARTIAL
+ partialB();
+#endif
+;
+ printf("Hello World!\n");
+ {
+    void local();
+    void unusedlocal();
+    void *x=&local;
+ }
+
+ return 0;
+}
+
