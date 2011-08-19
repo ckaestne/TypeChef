@@ -11,6 +11,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr.{base, dead}
  */
 case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], exports: Seq[CSignature]) {
 
+
     def this(imports: Seq[CSignature], exports: Seq[CSignature]) = this (base, imports, exports)
 
     override def toString =
@@ -29,7 +30,9 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
      * exports are not packed beyond removing dead exports.
      * duplicate exports are used for error detection
      */
-    def pack: CInterface = CInterface(featureModel, packImports, packExports)
+    def pack: CInterface = if (isPacked) this else CInterface(featureModel, packImports, packExports).setPacked
+    private var isPacked = false;
+    private def setPacked() = {isPacked = true; this}
     private def packImports: Seq[CSignature] = {
         var importMap = Map[(String, CType), (FeatureExpr, Seq[Position])]()
 
@@ -80,17 +83,37 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
     else {
         val pairs = for (a <- sigs.tails.take(sigs.size); b <- a.tail)
         yield (a.head.fexpr, b.fexpr)
-        val formula = featureModel and pairs.foldLeft(base)((a, b) => a and (b._1 mex b._2))
+        val formula = featureModel implies pairs.foldLeft(base)((a, b) => a and (b._1 mex b._2))
         formula.isTautology
     }
 
 
     def link(that: CInterface): CInterface =
         CInterface(
-            this.featureModel and that.featureModel,
+            this.featureModel and that.featureModel and inferConstraints(this.exports, that.exports),
             this.imports ++ that.imports,
             this.exports ++ that.exports
         ).pack
+
+    /**
+     * when there is an overlap in the exports, infer constraints which must be satisfied
+     * to not have a problem
+     */
+    private def inferConstraints(a: Seq[CSignature], b: Seq[CSignature]): FeatureExpr = {
+        val aa = a.groupBy(_.name)
+        val bb = b.groupBy(_.name)
+        var result = base
+
+        //two sets of signatures with the same name
+        //(a1 or a2 or a3) mex (b1 or b2 or b3)
+        def addConstraint(a: Seq[CSignature], b: Seq[CSignature]) =
+            a.foldLeft(dead)(_ or _.fexpr) mex b.foldLeft(dead)(_ or _.fexpr)
+
+        for (signame <- aa.keys)
+            if (bb.contains(signame))
+                result = result and addConstraint(aa(signame), bb(signame))
+        result
+    }
 
 
     def and(f: FeatureExpr): CInterface =
@@ -100,4 +123,25 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
             exports.map(_ and f)
         )
 
+    def andFM(f: FeatureExpr): CInterface = CInterface(featureModel and f, imports, exports)
+
+
+    /**
+     * linking two well-formed models always yields a wellformed module, but it makes
+     * only sense if the resulting feature model is not void.
+     * hence compatibility is checked by checking the resulting feature model
+     */
+    def isCompatibleTo(that: CInterface): Boolean = (this link that).featureModel.isSatisfiable()
+
+    /**
+     * A variability-aware module is complete if it has no remaining imports with
+     * satisfiable conditions and if the feature model is satisfiable (i.e., it allows to derive
+     * at least one variant). A complete and fully-configured module is the desired end
+     * result when configuring a product line for a specific use case.
+     */
+    def isComplete: Boolean = featureModel.isSatisfiable && pack.imports.isEmpty
+
+    def isFullyConfigured: Boolean =
+        pack.imports.forall(s => (featureModel implies s.fexpr).isTautology) &&
+                pack.exports.forall(s => (featureModel implies s.fexpr).isTautology)
 }

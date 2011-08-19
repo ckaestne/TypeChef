@@ -33,7 +33,7 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         val i3 = new CInterface(List(), List(ffoo, fbar))
 
         (i1 link i2) should be(i3)
-        (i1 link i1).isWellformed should be(false)
+        (i1 link i1).featureModel should be(dead)
 
         ((i1 and fa) link (i1 and fa.not)).isWellformed should be(true)
 
@@ -49,6 +49,18 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         (CInterface(fa, List(), List()) link CInterface(fa.not, List(), List())) should be(CInterface(dead, List(), List()))
         (CInterface(fa, List(ffoo), List()) link CInterface(fa.not, List(), List())) should be(CInterface(dead, List(), List()))
         (CInterface(fa, List(), List(ffoo)) link CInterface(fa.not, List(), List())) should be(CInterface(dead, List(), List()))
+
+        (new CInterface(List(), List(ffoo and fa)) link new CInterface(List(), List(ffoo and fb))).featureModel should be(fa mex fb)
+    }
+
+    test("complete and configured") {
+        val i1 = new CInterface(List(), List(ffoo))
+
+        i1.isComplete should be(true)
+
+        CInterface(base, List(), List(ffoo and fa)).isFullyConfigured should be(false)
+        CInterface(fa, List(), List(ffoo and fa)).isFullyConfigured should be(true)
+
     }
 
     test("packing") {
