@@ -10,7 +10,7 @@ import de.fosd.typechef.parser.c._
 
 //TODO structs need to become part of the interface, or we need to resolve all structs to anonymous structs
 
-trait CInferInterface extends CTypeAnalysis with Interfaces {
+trait CInferInterface extends CTypeAnalysis with InterfaceWriter {
 
     def inferInterface(ast: TranslationUnit): CInterface =
         new CInterface(getImports(ast), getExports(ast)).pack
