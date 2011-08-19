@@ -89,14 +89,17 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         override def toString = env.toString
     }
 
-    val structEnv: AST ==> StructEnv = attr {
-        case e@Declaration(decls, _) =>
-            decls.foldRight(outerStructEnv(e))({
-                case (Opt(_, a), b: StructEnv) =>
-                    val s = a -> struct
-                    if (s.isDefined) b.add(s.get._1, s.get._2, s.get._3, s.get._4) else b
-            })
-        case e: AST => outerStructEnv(e)
+    val structEnv: AST ==> StructEnv = {
+        def addDeclaration(e: Declaration, outer: AST) = e.declSpecs.foldRight(outerStructEnv(outer))({
+            case (Opt(_, a), b: StructEnv) =>
+                val s = a -> struct
+                if (s.isDefined) b.add(s.get._1, s.get._2, s.get._3, s.get._4) else b
+        })
+        attr {
+            case e@DeclarationStatement(d) => addDeclaration(d, e)
+            case e: Declaration => addDeclaration(e, e)
+            case e: AST => outerStructEnv(e)
+        }
     }
 
     val struct: AST ==> Option[(String, Boolean, FeatureExpr, ConditionalTypeMap)] = attr {

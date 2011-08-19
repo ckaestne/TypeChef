@@ -95,6 +95,13 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         declT("struct a foo;") should be(CStruct("a"))
         declT("struct a { double a;} foo;") should be(CStruct("a"))
         declTL("struct a;").size should be(0)
+
+        declT("""struct mtab_list {
+                    char *dir;
+                    char *device;
+                    struct mtab_list *next;
+                } *mtl;""") should be(CPointer(CStruct("mtab_list", false)))
+
     }
     test("union declarations") {
         declT("union { double a;} foo;").isInstanceOf[CAnonymousStruct] should be(true)
