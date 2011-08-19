@@ -228,7 +228,6 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             //for unnamed fields, if they are struct or union inline their fields
             //cf. http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
             if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList) match {
-                //TODO correctly deal with variability. "TOne" in the next line is a hack for the common case
                 case TOne(CAnonymousStruct(fields, _)) => result = result ++ fields
                 //                case CStruct(name, _) => //TODO inline as well
                 case _ => //don't care about other types

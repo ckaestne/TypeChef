@@ -38,6 +38,7 @@ import de.fosd.typechef.conditional._
 sealed abstract class CBasicType {
     def <(that: CBasicType): Boolean
     def toXML: xml.Elem
+    def toText: String //for debug purposes
 }
 
 sealed abstract class CType {
@@ -58,6 +59,7 @@ sealed abstract class CType {
     def <(that: CType): Boolean = false
 
     def toXML: xml.Elem
+    def toText: String = toString //for debug purposes
 }
 
 //    /** type without variability */
@@ -66,37 +68,37 @@ sealed abstract class CType {
 
 case class CChar() extends CBasicType {
     def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
-    override def toString = "char"
+    override def toText = "char"
     def toXML = <char/>
 }
 
 case class CShort() extends CBasicType {
     def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
-    override def toString = "short"
+    override def toText = "short"
     def toXML = <short/>
 }
 
 case class CInt() extends CBasicType {
     def <(that: CBasicType) = that == CLongLong() || that == CLong()
-    override def toString = "int"
+    override def toText = "int"
     def toXML = <int/>
 }
 
 case class CLong() extends CBasicType {
     def <(that: CBasicType) = that == CLongLong()
-    override def toString = "long"
+    override def toText = "long"
     def toXML = <long/>
 }
 
 case class CLongLong() extends CBasicType {
     def <(that: CBasicType) = false
-    override def toString = "long long"
+    override def toText = "long long"
     def toXML = <longlong/>
 }
 
 
 case class CVoid() extends CType {
-    override def toString = "void"
+    override def toText = "void"
     def toXML = <void/>
 }
 
@@ -105,7 +107,7 @@ case class CSigned(b: CBasicType) extends CType {
         case CSigned(thatb) => b < thatb
         case _ => false
     }
-    override def toString = "signed " + b
+    override def toText = "signed " + b
     def toXML = <signed>
         {b.toXML}
     </signed>
@@ -116,7 +118,7 @@ case class CUnsigned(b: CBasicType) extends CType {
         case CUnsigned(thatb) => b < thatb
         case _ => false
     }
-    override def toString = "unsigned " + b
+    override def toText = "unsigned " + b
     def toXML = <unsigned>
         {b.toXML}
     </unsigned>
@@ -127,7 +129,7 @@ case class CSignUnspecified(b: CBasicType) extends CType {
         case CSignUnspecified(thatb) => b < thatb
         case _ => false
     }
-    override def toString = b.toString
+    override def toText = b.toText
     def toXML = <nosign>
         {b.toXML}
     </nosign>
@@ -136,22 +138,22 @@ case class CSignUnspecified(b: CBasicType) extends CType {
 //implementationspecific for Char
 
 case class CFloat() extends CType {
-    override def toString = "float"
+    override def toText = "float"
     def toXML = <float/>
 }
 
 case class CDouble() extends CType {
-    override def toString = "double"
+    override def toText = "double"
     def toXML = <double/>
 }
 
 case class CLongDouble() extends CType {
-    override def toString = "long double"
+    override def toText = "long double"
     def toXML = <longdouble/>
 }
 
 case class CPointer(t: CType) extends CType {
-    override def toString = "*" + t.toString
+    override def toText = "*" + t.toText
     def toXML = <pointer>
         {t.toXML}
     </pointer>
@@ -159,7 +161,7 @@ case class CPointer(t: CType) extends CType {
 
 //length is currently not analyzed. using always -1
 case class CArray(t: CType, length: Int = -1) extends CType {
-    override def toString = t.toString + "[]"
+    override def toText = t.toText + "[]"
     def toXML = <array length={length.toString}>
         {t.toXML}
     </array>
@@ -167,14 +169,14 @@ case class CArray(t: CType, length: Int = -1) extends CType {
 
 /**struct and union are handled in the same construct but distinguished with a flag */
 case class CStruct(s: String, isUnion: Boolean = false) extends CType {
-    override def toString = (if (isUnion) "union " else "struct ") + s
+    override def toText = (if (isUnion) "union " else "struct ") + s
     def toXML = <struct isUnion={isUnion.toString}>
         {s}
     </struct>
 }
 
 case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType {
-    override def toString = (if (isUnion) "union " else "struct ") + "{" + fields + "}"
+    override def toText = (if (isUnion) "union " else "struct ") + "{" + fields + "}"
     def toXML = <astruct isUnion={isUnion.toString}>
         {}
     </astruct>
@@ -183,7 +185,7 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
 case class CFunction(param: Seq[CType], ret: CType) extends CType {
     override def toObj = this
     override def isFunction: Boolean = true
-    override def toString = param.mkString("(", ", ", ")") + " => " + ret
+    override def toText = param.mkString("(", ", ", ")") + " => " + ret
     def toXML = <function>
         {param.map(x => <param>
             {x.toXML}
@@ -195,7 +197,7 @@ case class CFunction(param: Seq[CType], ret: CType) extends CType {
 
 //varargs should only occur in paramter lists
 case class CVarArgs() extends CType {
-    override def toString = "..."
+    override def toText = "..."
     def toXML = <vargs/>
 }
 

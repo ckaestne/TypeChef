@@ -508,4 +508,51 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         et should be(TOne(CObj(CPointer(CSignUnspecified(CChar())))))
 
     }
+
+
+    test("nested structs") {
+        //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
+        //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+        val ast = getAST("""
+            struct volume_descriptor {
+	            struct descriptor_tag {
+		            float	id;
+		        } *tag;
+		        union {
+		            struct X {
+		                float x;
+		            } a;
+		            struct Y {
+		                float y;
+		            } b;
+		        } u;
+		    } *m;
+
+            void foo() {
+                m->tag->id;
+            }
+          """)
+        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+        val exprStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry.asInstanceOf[ExprStatement]
+
+        val env = exprStmt.expr -> varEnv
+        env("m") should be(TOne(CPointer(CStruct("volume_descriptor", false))))
+
+        val senv = exprStmt.expr -> structEnv
+        senv.get("volume_descriptor", false) should not be (null)
+        println(senv.get("volume_descriptor", false))
+        senv.get("descriptor_tag", false) should not be (null)
+        println(senv.get("descriptor_tag", false))
+        senv.get("X", false) should not be (null)
+        println(senv.get("X", false))
+        senv.get("Y", false) should not be (null)
+        println(senv.get("Y", false))
+
+        println(exprStmt)
+        val et = exprStmt.expr -> exprType
+        println(et)
+        et should be(TOne(CObj(CFloat())))
+
+    }
+    """"""
 }
