@@ -67,4 +67,30 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         CInterface(fa.not, List(ffoo and fa), List(ffoo and fa)).pack should be(CInterface(fa.not, List(), List()))
     }
 
+    test("conditional composition (db example)") {
+        val fwrite = CSignature("write", tfun, base, Seq())
+        val fread = CSignature("read", tfun, base, Seq())
+        val fselect = CSignature("select", tfun, base, Seq())
+        val fupdate = CSignature("update", tfun, base, Seq())
+        val idb = CInterface(base, List(fwrite, fread), List(fselect, fupdate))
+        val iinmem = CInterface(base, List(), List(fwrite, fread))
+        val iperist = iinmem //CInterface(base, List(),List(fwrite,fread))
+        val ifm = CInterface(fa xor fb, List(), List())
+
+        (idb isCompatibleTo iinmem) should be(true)
+        (iperist isCompatibleTo iinmem) should be(false)
+        println((iperist.conditional(fa) link iinmem))
+        ((iperist.conditional(fa) link iinmem).featureModel implies fa.not).isTautology should be(true)
+        (iperist.conditional(fa) isCompatibleTo iinmem.conditional(fb)) should be(true)
+        (idb link iinmem).isComplete should be(true)
+        (idb link iinmem).isFullyConfigured should be(true)
+        (idb link iperist.conditional(fa) link iinmem.conditional(fb)).isComplete should be(false)
+
+        val ifull = ifm link idb link iperist.conditional(fa) link iinmem.conditional(fb)
+
+        ifull.isComplete should be(true)
+        ifull.isFullyConfigured should be(false)
+        println(ifull)
+    }
+
 }

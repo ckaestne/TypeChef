@@ -1,9 +1,9 @@
 package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.typesystem.CType
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.FeatureExpr.{base, dead}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 
 /**
  * describes the linker interface for a file, i.e. all imported (and used)
@@ -123,7 +123,8 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
             exports.map(_ and f)
         )
 
-    def andFM(f: FeatureExpr): CInterface = CInterface(featureModel and f, imports, exports)
+    def andFM(feature: FeatureExpr): CInterface = mapFM(_ and feature)
+    def mapFM(f: FeatureExpr => FeatureExpr) = CInterface(f(featureModel), imports, exports)
 
 
     /**
@@ -144,4 +145,35 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
     def isFullyConfigured: Boolean =
         pack.imports.forall(s => (featureModel implies s.fexpr).isTautology) &&
                 pack.exports.forall(s => (featureModel implies s.fexpr).isTautology)
+
+    /**
+     * we can use a global feature model to ensure that composing modules
+     * reflects the intended dependencies. This way, we can detect that we do not
+     * accidentally restrict the product line more than intended by the domain expert
+     * who designed the global feature model. We simply compare the feature model of
+     * the linker result with a global model.
+     */
+    def compatibleWithGlobalFeatureModel(globalFM: FeatureExpr): Boolean =
+        (globalFM implies featureModel).isTautology
+    def compatibleWithGlobalFeatureModel(globalFM: FeatureModel): Boolean =
+        featureModel.isTautology(globalFM)
+
+    /**
+     * turns the interface into a conditional interface (to emulate conditional
+     * linking/composition of interfaces).
+     *
+     *
+     * a.conditional(f) link b.conditional(g)
+     *
+     * is conceptually equivalent to
+     *
+     * if (f and g) a link b
+     * else if (f and not g) a
+     * else if (not f and g) b
+     * else empty
+     *
+     * see text on conditional composition
+     */
+    def conditional(condition: FeatureExpr): CInterface =
+        this.and(condition).mapFM(condition implies _)
 }

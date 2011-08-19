@@ -127,6 +127,8 @@ sealed abstract class FeatureExpr {
     def orNot(that: FeatureExpr) = this or (that.not)
     def andNot(that: FeatureExpr) = this and (that.not)
     def implies(that: FeatureExpr) = this.not.or(that)
+    def mex(that: FeatureExpr): FeatureExpr = (this and that).not
+    def xor(that: FeatureExpr) = (this or that) and (this mex that)
 
     // According to advanced textbooks, this representation is not always efficient:
     // not (a equiv b) generates 4 clauses, of which 2 are tautologies.
@@ -134,7 +136,6 @@ sealed abstract class FeatureExpr {
     // (a and b) or (!a and !b). However, currently it seems that we never construct not (a equiv b).
     // Be careful if that changes, though.
     def equiv(that: FeatureExpr) = (this implies that) and (that implies this)
-    def mex(that: FeatureExpr): FeatureExpr = (this and that).not
 
     def isContradiction(): Boolean = isContradiction(NoFeatureModel)
     def isTautology(): Boolean = isTautology(NoFeatureModel)
@@ -569,11 +570,11 @@ private[featureexpr] object FExprBuilder {
                     case _ =>
                         def storeCache(e: FeatureExpr, neg: FeatureExpr) = {e.notCache = Some(new NotReference(neg)); e}
                         val res = canonical(e match {
-                        /* This transformation is expensive, so we need to store
-                         * a reference to e in the created expression. However,
-                         * this enables more occasions for simplification and
-                         * ensures that the result is in Negation Normal Form.
-                         */
+                            /* This transformation is expensive, so we need to store
+                            * a reference to e in the created expression. However,
+                            * this enables more occasions for simplification and
+                            * ensures that the result is in Negation Normal Form.
+                            */
                             case And(clauses) => createOr(clauses.map(_.not))
                             case Or(clauses) => createAnd(clauses.map(_.not))
                             case _ => new Not(e) //Triggered by leaves.
@@ -891,8 +892,8 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
                 for (child <- cnfchildren) {
                     child match {
                         case And(innerChildren) =>
-                        //conjuncts@(a_1 & a_2) | innerChildren@(b_1 & b_2)
-                        //becomes conjuncts'@(a_1 | b_1) & (a_1 | b_2) & (a_2 | b_1) & (a_2 | b_2).
+                            //conjuncts@(a_1 & a_2) | innerChildren@(b_1 & b_2)
+                            //becomes conjuncts'@(a_1 | b_1) & (a_1 | b_2) & (a_2 | b_1) & (a_2 | b_2).
                             conjuncts = conjuncts.flatMap(
                                 conjunct => innerChildren.map(
                                     _ or conjunct))
