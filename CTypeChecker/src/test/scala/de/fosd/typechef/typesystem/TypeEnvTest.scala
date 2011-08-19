@@ -477,4 +477,35 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         //TODO check local redefinition of parameter for validity
     }
 
+
+    test("recursive and local struct") {
+        //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
+        //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+        val ast = getAST("""
+            void foo() {
+                struct mtab_list {
+                    char *dir;
+                    char *device;
+                    struct mtab_list *next;
+                } *mtl, *m;
+                ;
+                m->next->dir;
+            }
+          """)
+        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+        val exprStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry.asInstanceOf[ExprStatement]
+
+        val env = exprStmt.expr -> varEnv
+        env("m") should be(TOne(CPointer(CStruct("mtab_list", false))))
+
+        val senv = exprStmt.expr -> structEnv
+        senv.get("mtab_list", false) should not be (null)
+        println(senv.get("mtab_list", false))
+
+        println(exprStmt)
+        val et = exprStmt.expr -> exprType
+        println(et)
+        et should be(TOne(CObj(CPointer(CSignUnspecified(CChar())))))
+
+    }
 }
