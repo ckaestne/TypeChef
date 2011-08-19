@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem.linker
 import de.fosd.typechef.typesystem.CTypeAnalysis
 import de.fosd.typechef.conditional.{Opt, TConditional}
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
  * first attempt to infer the interface of a C file for linker checks
@@ -12,8 +13,9 @@ import de.fosd.typechef.parser.c._
 
 trait CInferInterface extends CTypeAnalysis with InterfaceWriter {
 
-    def inferInterface(ast: TranslationUnit): CInterface =
-        new CInterface(getImports(ast), getExports(ast)).pack
+    def inferInterface(ast: TranslationUnit): CInterface = inferInterface(FeatureExpr.base, ast)
+    def inferInterface(fm: FeatureExpr, ast: TranslationUnit): CInterface =
+        new CInterface(fm, getImports(ast), getExports(ast)).pack
 
 
     /**

@@ -23,4 +23,6 @@ case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Seq[P
         case _ => false
     }
 
+    def and(f: FeatureExpr) = CSignature(name, ctype, fexpr and f, pos)
+
 }

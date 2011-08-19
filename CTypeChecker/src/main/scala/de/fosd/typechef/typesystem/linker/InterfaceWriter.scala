@@ -27,13 +27,16 @@ trait InterfaceWriter {
 
 
     def interfaceFromXML(node: scala.xml.Node): CInterface = new CInterface(
+        new FeatureExprParser().parse((node \ "featuremodel").text),
         (node \ "import").map(signatureFromXML(_)),
         (node \ "export").map(signatureFromXML(_))
     )
 
     def interfaceToXML(int: CInterface): xml.Elem =
         <interface>
-            {int.imports.map(x => <import>
+            <featuremodel>
+                {int.featureModel.toTextExpr}
+            </featuremodel>{int.imports.map(x => <import>
             {signatureToXML(x)}
         </import>)}{int.exports.map(x => <export>
             {signatureToXML(x)}
