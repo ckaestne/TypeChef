@@ -109,9 +109,9 @@ object LinuxPreprocessorFrontend {
                     case 'p' => parse = true
                     case 't' => typecheck = true
 
-                    case ':' => println("Missing required argument!"); exit(1)
+                    case ':' => println("Missing required argument!"); sys.exit(1)
                     case '?' => println("Unexpected option!");
-                    exit(1)
+                    sys.exit(1)
 
                     //Pass-through --include and --openFeat.
                     case INCLUDE_OPT => extraOpt ++= List("--include", arg)
