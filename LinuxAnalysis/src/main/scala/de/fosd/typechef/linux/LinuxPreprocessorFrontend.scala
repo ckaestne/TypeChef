@@ -153,8 +153,8 @@ object LinuxPreprocessorFrontend {
                 if (createInterface) {
                     val i = new CInferInterface {}
                     val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
-                    i.writeInterface(interface, new File(path + ".interface"))
-                    i.debugInterface(interface, new File(path + ".dbginterface"))
+                    i.writeInterface(interface, new File(filename + ".interface"))
+                    i.debugInterface(interface, new File(filename + ".dbginterface"))
                 }
             }
         }
