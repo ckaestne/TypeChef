@@ -2,12 +2,14 @@ package de.fosd.typechef.typesystem.linker
 
 
 import org.junit.runner.RunWith
+import org.junit.Test
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr.{base, dead}
 import de.fosd.typechef.typesystem.{CVoid, CFunction, CFloat}
+import java.io.File
 
 @RunWith(classOf[JUnitRunner])
 class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
@@ -92,5 +94,6 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         ifull.isFullyConfigured should be(false)
         println(ifull)
     }
+
 
 }

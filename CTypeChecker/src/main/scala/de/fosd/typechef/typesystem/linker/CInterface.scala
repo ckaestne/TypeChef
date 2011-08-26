@@ -16,8 +16,8 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
 
     override def toString =
         "fm " + featureModel + "\n" +
-                "imports\n" + imports.map("\t" + _.toString).mkString("\n") +
-                "\nexports\n" + exports.map("\t" + _.toString).mkString("\n") + "\n"
+                "imports ("+imports.size+")\n" + imports.map("\t" + _.toString).mkString("\n") +
+                "\nexports ("+exports.size+")\n" + exports.map("\t" + _.toString).mkString("\n") + "\n"
 
 
     /**
@@ -94,6 +94,14 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
             this.imports ++ that.imports,
             this.exports ++ that.exports
         ).pack
+
+    /** links without proper checks and packing. only for debugging purposes **/
+    def debug_join(that: CInterface): CInterface =
+        CInterface(
+            this.featureModel and that.featureModel,
+            this.imports ++ that.imports,
+            this.exports ++ that.exports
+        )
 
     /**
      * when there is an overlap in the exports, infer constraints which must be satisfied

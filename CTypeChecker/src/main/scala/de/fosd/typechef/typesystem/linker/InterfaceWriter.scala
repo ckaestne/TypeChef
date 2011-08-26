@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem.linker
 
-import de.fosd.typechef.featureexpr.FeatureExprParser
 import java.io._
 import de.fosd.typechef.typesystem.CType
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprParser}
 
 trait InterfaceWriter {
 
@@ -27,10 +27,16 @@ trait InterfaceWriter {
 
 
     def interfaceFromXML(node: scala.xml.Node): CInterface = new CInterface(
-        new FeatureExprParser().parse((node \ "featuremodel").text),
+        getFM(node),
         (node \ "import").map(signatureFromXML(_)),
         (node \ "export").map(signatureFromXML(_))
     )
+    private def getFM(node:scala.xml.Node)={
+        val txt=(node \ "featuremodel").text
+        if (txt.trim=="")
+            FeatureExpr.base
+        else new FeatureExprParser().parse(txt)
+    }
 
     def interfaceToXML(int: CInterface): xml.Elem =
         <interface>
