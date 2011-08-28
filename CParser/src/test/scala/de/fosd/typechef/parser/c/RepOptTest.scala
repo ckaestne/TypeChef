@@ -130,7 +130,7 @@ typedef long y;
 """)
         println(ast.mkString("\n"))
         println(next)
-        assertEquals(9, ast.size) //and one internal choice node
+        assertEquals(10, ast.size) //and one internal choice node
     }
 
     def testRepOptMultiFeatureOverlap6_linux() {
@@ -278,7 +278,7 @@ typedef long a;
         println(next)
         assert(ast.size == 3)
         println(next.context)
-        assert(next.context.knowsType("a", base))
+        assert(next.context.knowsType("a", FeatureExpr.createDefinedExternal("X")))
     }
 
 
