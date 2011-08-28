@@ -47,6 +47,8 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
         //-source 1.5 is required for standalone ecj - it defaults to 1.3!
         override def javaCompileOptions = super.javaCompileOptions ++ javaCompileOptions("-source", "1.5", "-Xlint:unchecked")
         val junit = "junit" % "junit" % "4.8.2" % "test->default"
+        def junitXmlListener: TestReportListener = new JUnitXmlTestsListener(outputPath.toString)
+        override def testListeners: Seq[TestReportListener] = super.testListeners ++ Seq(junitXmlListener)
     }
 
 }
