@@ -16,7 +16,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr.createDefinedExternal
 import de.fosd.typechef.featureexpr._
 
 
-class LinuxFeatureModelTest extends TestCase {
+class LinuxFeatureModelTest {
 
     val featureModel = LinuxFeatureModel.featureModel
 
