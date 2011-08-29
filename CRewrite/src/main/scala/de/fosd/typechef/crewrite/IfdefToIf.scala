@@ -1,7 +1,6 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr._
@@ -15,7 +14,7 @@ class IfdefToIf {
 
     val CONFIGPREFIX = "v_"
 
-    private val rewriteStrategy = everywhere(rule {
+    private val rewriteStrategy = everywherebu(rule {
         case Opt(f, stmt: Statement) if (!f.isTautology) =>
             Opt(base, IfStatement(featureToCExpr(f), stmt, List(), None))
         case Choice(f, One(a: Statement), One(b: Statement)) =>
