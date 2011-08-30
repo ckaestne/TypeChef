@@ -20,7 +20,7 @@ class RewriteTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     //strange rewrite bug. worked before. fix later, see Issue #6
-    ignore("eliminateVariabilityFunctionCall") {
+    test("eliminateVariabilityFunctionCall") {
         processTest(getAST("""
         volatile int k;
         int foo() {
@@ -39,7 +39,7 @@ class RewriteTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     //strange rewrite bug. worked before. fix later, see Issue #6
-    ignore("eliminateVariabilityIfStatement") {
+    test("eliminateVariabilityIfStatement") {
         processTest(getAST("""
       int foo() {
         #if defined(X)

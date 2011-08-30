@@ -16,9 +16,9 @@ class IfdefToIf {
 
     private val rewriteStrategy = everywherebu(rule {
         case Opt(f, stmt: Statement) if (!f.isTautology) =>
-            Opt(base, IfStatement(featureToCExpr(f), stmt, List(), None))
+            Opt(base, IfStatement(featureToCExpr(f), One(stmt), List(), None))
         case Choice(f, One(a: Statement), One(b: Statement)) =>
-            One(IfStatement(featureToCExpr(f), a, List(), Some(b)))
+            One(IfStatement(featureToCExpr(f), One(a), List(), Some(One(b))))
     })
 
     def rewrite(ast: AST): AST = {
