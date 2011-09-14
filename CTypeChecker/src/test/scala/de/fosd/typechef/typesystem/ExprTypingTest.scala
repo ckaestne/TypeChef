@@ -138,6 +138,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
     test("assignment") {
         expr("a=2") should be(CDouble())
         expr("a=s") should be(CUnknown())
+        expr("sp=0") should be(CPointer(CStruct("str")))
     }
     test("pre/post increment") {
         expr("a++") should be(CDouble())

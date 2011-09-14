@@ -372,21 +372,34 @@ trait CTypes {
     /**
      *  determines whether types are compatible in assignements etc
      */
-    def coerce(type1: CType, type2: CType) = {
+    def coerce(type1: CType, type2: CType): Boolean = {
         val t1 = normalize(type1)
         val t2 = normalize(type2)
-        (type1.toValue == CPointer(CVoid())) || (type2.toValue == CPointer(CVoid())) ||
-                (t1 == t2) || (t1 == CIgnore()) || (t2 == CIgnore()) ||
-                (isArithmetic(t1) && isArithmetic(t2)) ||
-                ((t1, t2) match {
-                    //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-                    case (CPointer(a), CPointer(b)) => a == CVoid() || b == CVoid()
-                    case _ => false
-                    //                    case (CPointer(CVoid()), CPointer(_)) => true
-                    //                    case (CPointer(CVoid()), CFunction(_, _)) => true
-                    //                    case (CPointer(_), CPointer(CVoid())) => true
-                    //                    case (CFunction(_, _), CPointer(CVoid())) => true
-                })
+        //either void pointer?
+        if ((type1.toValue == CPointer(CVoid())) || (type2.toValue == CPointer(CVoid()))) return true;
+        ((t1, t2) match {
+            //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
+            case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid()) return true
+            case _ =>
+            //                    case (CPointer(CVoid()), CPointer(_)) => true
+            //                    case (CPointer(CVoid()), CFunction(_, _)) => true
+            //                    case (CPointer(_), CPointer(CVoid())) => true
+            //                    case (CFunction(_, _), CPointer(CVoid())) => true
+        })
+
+        //same?
+        if (t1 == t2) return true;
+
+        //ignore?
+        if ((t1 == CIgnore()) || (t2 == CIgnore())) return true
+
+        //arithmetic operation?
+        if (isArithmetic(t1) && isArithmetic(t2)) return true
+
+        //assignment pointer = int (actually only correct if int is zero, otherwise should be a warning)
+        if (isPointer(t1) && isIntegral(t2)) return true
+
+        return false
     }
 
     /**
