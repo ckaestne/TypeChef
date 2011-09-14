@@ -23,7 +23,7 @@ object LinuxPreprocessorFrontend {
     //can be overriden with command line parameters p and t
     def PARSEAFTERPREPROCESSING = true
     def TYPECHECKAFTERPARSING = false
-    def CREATEINTERFACEAFTERPARSING = false
+    def CREATEINTERFACEAFTERPARSING = true
 
     ////////////////////////////////////////
     // General setup of built-in headers, should become more general and move
@@ -151,6 +151,7 @@ object LinuxPreprocessorFrontend {
                 if (typecheck)
                     new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
                 if (createInterface) {
+		    println("inferring interfaces.")
                     val i = new CInferInterface {}
                     val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
                     i.writeInterface(interface, new File(filename + ".interface"))

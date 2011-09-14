@@ -11,16 +11,19 @@
 
 
 /sysklogd/syslogd_and_logger.dbg
-	Parserfehler HABE AUFGEGEBEN
+	kein Parser Fehler mehr
 
 
 
 
 /archival/gzip.dbg
-	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_GZIP_LONG_OPTIONS)) failed: end of input expected at file cprojects/busybox/busybox-1.18.5/archival/gzip.c:74680:0 (List())
-
-
-	Fehler Ursache: "No Argument"
+	Parser Fehler:(def(CONFIG_FEATURE_GZIP_LONG_OPTIONS)&!def(CONFIG_FEATURE_MV_LONG_OPTIONS)&!def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)&!def(CONFIG_FEATURE_TAR_LONG_OPTIONS)&!def(CONFIG_FEATURE_ENV_LONG_OPTIONS)&!def(CONFIG_FEATURE_GETOPT_LONG)&!def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)&!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS))    failed: end of input expected at file cprojects/busybox/busybox-1.18.5/archival/gzip.c:74668:0 (List())
+	
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_GZIP_LONG_OPTIONS
+  #define CONFIG_GZIP
+  #define CONFIG_LONG_OPTS
+#endif
 
 
 
@@ -29,9 +32,7 @@
 /archival/dpkg.dbg
 	Typfehler:
 
-	
-
-	Fehler Ursache: ganze Datei ist nur viorhanden wenn gilt: !def(CONFIG_DPKG)&!def(CONFIG_DPKG_DEB)
+	Fehler Ursache: ganze Datei ist nur vorhanden wenn gilt: !def(CONFIG_DPKG)&!def(CONFIG_DPKG_DEB)
 
 	Abhängigkeit gefixt in *.pi.fm
 
@@ -48,29 +49,22 @@
 	in der config.h
 
 
+
 /findutils/grep.dbg
 
-	Parser Fehler: True    failed: found "[", but expected ")" at file /app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/regex.h:73230:25 (List())
+	Parser Fehler: def(CONFIG_EXTRA_COMPAT)        failed: found "RE_TRANSLATE_TYPE", but expected "}" at file cprojects/busybox/busybox-1.18.5/findutils/grep.c:73436:1 (List())
 
-	GRAMATIK FEHLER? -- AUFGEGEBEN
-
+		AUFGEGEBEN
 
 
 /findutils/find.dbg
 
+	Parser Fehler: def(CONFIG_FEATURE_FIND_CONTEXT)        failed: found "struct", but expected ";" at file cprojects/busybox/busybox-1.18.5/findutils/find.c:73595:32 (List())
 
-	Parser Fehler:
-	def(CONFIG_FEATURE_FIND_REGEX)  failed: end of input expected at file /app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/regex.h:73470:0 (List())
-	  GRAMATIK FEHLER? -- AUFGEGEBEN
- 
-
-	(!def(CONFIG_FEATURE_FIND_REGEX)&def(CONFIG_FEATURE_FIND_CONTEXT))      failed: found "struct", but expected ";" at file cprojects/busybox/busybox-1.18.5/findutils/find.c:73607:32 (List())
-	
-
-	VILLEICHT ABHÄNGIGKEIT -- AUFGEGEBEN 
+		AUFGEGEBEN 
 
 
-/runit/svlogd
+
 /printutils/lpd
 	Typfehler
 	requires gnuc extensions which are not activated: __USE_GNU
@@ -87,13 +81,236 @@
 
 
 /debianutils/run_parts
-	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS))    failed: end of input expected at file cprojects/busybox/busybox-1.18.5/debianutils/run_parts.c:72482:0 (List())
+	
+	Parser Fehler: (!def(CONFIG_FEATURE_GETOPT_LONG)&!def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_TAR_LONG_OPTIONS)&!def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)&!def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_ENV_LONG_OPTIONS)&!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_MV_LONG_OPTIONS)&!def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)&def(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS))       failed: end of input expected at file cprojects/busybox/busybox-1.18.5/debianutils/run_parts.c:72470:0 (List())
 
-	GRAMMATIK FEHLER? -- AUFGEGEBEN
+	
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS
+  #define CONFIG_RUN_PARTS
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
 
 
 
 /debianutils/start_stop_daemon
-	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS))    failed: end of input expected at file cprojects/busybox/busybox-1.18.5/debianutils/start_stop_daemon.c:72813:0 (List())
-	
+	Parser Fehler: (!def(CONFIG_FEATURE_MV_LONG_OPTIONS)&!def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)&def(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS)&!def(CONFIG_FEATURE_TAR_LONG_OPTIONS)&!def(CONFIG_FEATURE_GETOPT_LONG)&!def(CONFIG_FEATURE_ENV_LONG_OPTIONS)&!def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)&!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS))       failed: end of input expected at file cprojects/busybox/busybox-1.18.5/debianutils/start_stop_daemon.c:72801:0 (List())
+
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS
+  #define CONFIG_START_STOP_DAEMON
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+/editors/diff
+
+	Parser Fehler: (!def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_TAR_LONG_OPTIONS)&!def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)&!def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_ENV_LONG_OPTIONS)&def(CONFIG_FEATURE_DIFF_LONG_OPTIONS)&!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_MV_LONG_OPTIONS)&!def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)&!def(CONFIG_FEATURE_GETOPT_LONG))    failed: end of input expected at file cprojects/busybox/busybox-1.18.5/editors/diff.c:73256:0 (List())
+
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_DIFF_LONG_OPTIONS
+  #define CONFIG_DIFF
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+
+
+/archival/tar
+
+	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_TAR_LONG_OPTIONS))  failed: end of input expected at file cprojects/busybox/busybox-1.18.5/archival/tar.c:73729:0 (List())
+
+
 	Fehler Ursache No_Argument
+
+	Gefixt mit	 #ifdef CONFIG_FEATURE_TAR_LONG_OPTIONS
+			  #define CONFIG_TAR
+			  #define CONFIG_LONG_OPTS
+			 #endif
+
+
+/loginutils/addgroup
+
+	Parser Fehler: (!def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_GETOPT_LONG)&!def(CONFIG_FEATURE_TAR_LONG_OPTIONS)&!def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)&def(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS)&!def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_ENV_LONG_OPTIONS)&!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_MV_LONG_OPTIONS)&!def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS))        failed: end of input expected at file cprojects/busybox/busybox-1.18.5/loginutils/addgroup.c:72492:0 (List())
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS
+  #define CONFIG_ADDGROUP
+  #define CONFIG_LONGOPTS
+#endif
+
+
+
+
+
+
+/loginutils/adduser
+
+	Parser Fehler: (def(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS)&!def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)&!def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_TAR_LONG_OPTIONS)&!def(CONFIG_FEATURE_GETOPT_LONG)&!def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)&!def(CONFIG_FEATURE_ENV_LONG_OPTIONS)&!def(CONFIG_FEATURE_MV_LONG_OPTIONS)&!def(CONFIG_LONG_OPTS)) failed: end of input expected at file cprojects/busybox/busybox-1.18.5/loginutils/adduser.c:72479:0 (List())
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_ADDUSER_LONG_OPTIONS
+  #define CONFIG_ADDUSER
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+
+
+/libbb/appletlib
+
+	Parser Fehler: True    failed: found ")", but expected "..." at file /app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/applets.h:75157:108 (List())
+
+	AUFGEGEBEN
+
+
+
+/libbb/lineedit
+
+	Parser Fehler: def(CONFIG_FEATURE_EDITING)     failed: found "sighandler_t", but expected "}" at file cprojects/busybox/busybox-1.18.5/libbb/lineedit.c:76989:1 (List())
+
+	
+
+
+/libbb/selinux_common
+	
+	Parser Fehler: True    failed: found "cur_context", but expected ")" at file cprojects/busybox/busybox-1.18.5/libbb/selinux_common.c:72417:70 (List())
+
+	AUFGEGEBEN
+
+
+
+/libbb/unicode.dbg
+
+	Parser Fehler: Sonder Fall +   failed: end of input expected at file cprojects/busybox/busybox-1.18.5/libbb/unicode.c:77019:0 (List())
+
+
+	AUFGEGEBEN
+
+
+/libbb/die_if_bad_username
+
+	Parser Fehler: !def(CONFIG_FEATURE_CHECK_NAMES)        failed: end of input expected at file cprojects/busybox/busybox-1.18.5/libbb/die_if_bad_username.c:72374:0 (List())
+
+	AUFGEGEBEN
+
+
+
+/libbb/utmp
+
+	Parser Fehler: !def(CONFIG_FEATURE_UTMP)       failed: end of input expected at file cprojects/busybox/busybox-1.18.5/libbb/utmp.c:73676:0 (List())
+
+
+	AUFGEGEBEN
+
+
+
+/coreutils/install
+
+	Parser Fehler: ((def(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)|!def(CONFIG_SELINUX))&(!def(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)|(!def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_TAR_LONG_OPTIONS)&!def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)&!def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)&!def(CONFIG_FEATURE_GETOPT_LONG)&!def(CONFIG_FEATURE_ENV_LONG_OPTIONS)&!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_MV_LONG_OPTIONS)&!def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)))&((def(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)&(def(CONFIG_FEATURE_MV_LONG_OPTIONS)|def(CONFIG_FEATURE_TAR_LONG_OPTIONS)|def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)|def(CONFIG_LONG_OPTS)|def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)|def(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)|def(CONFIG_FEATURE_ENV_LONG_OPTIONS)|def(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)|def(CONFIG_FEATURE_GETOPT_LONG)))|(!def(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)&def(CONFIG_SELINUX))|def(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)))        failed: end of input expected at file cprojects/busybox/busybox-1.18.5/coreutils/install.c:72389:0 (List())
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_INSTALL_LONG_OPTIONS
+  #define CONFIG_INSTALL
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+
+
+/coreutils/mkdir
+
+	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_MKDIR_LONG_OPTIONS))        failed: end of input expected at file cprojects/busybox/busybox-1.18.5/coreutils/mkdir.c:72350:0 (List())
+
+
+	Fehler Ursache: No_Argument
+	
+
+	Gefixt mit: #ifdef CONFIG_FEATURE_MKDIR_LONG_OPTIONS
+			  #define CONFIG_MKDIR
+ 			  #define CONFIG_LONG_OPTS
+		    #endif
+
+
+
+/coreutils/expand
+
+	Parser Fehler: ....
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_EXPAND_LONG_OPTIONS
+  #define CONFIG_EXPAND
+  #define CONFIG_LONG_OPTS
+#endif
+
+#ifdef CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS
+  #define CONFIG_UNEXPEND
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+/coreutils/ls
+
+	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_LS_COLOR))  failed: found "static", but expected "}" at file cprojects/busybox/busybox-1.18.5/coreutils/ls.c:78094:1 (List())
+
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_LS_COLOR
+  #define CONFIG_LS
+  #define CONFIG_LONGOPTS
+#endif
+
+
+
+
+/coreutils/rmdir
+
+	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_RMDIR_LONG_OPTIONS))        failed: found "static", but expected "}" at file cprojects/busybox/busybox-1.18.5/coreutils/rmdir.c:72359:1 (List())
+
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_RMDIR_LONG_OPTIONS
+  #define CONFIG_RMDIR
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+
+/coreutils/env
+
+	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_ENV_LONG_OPTIONS))  failed: end of input expected at file cprojects/busybox/busybox-1.18.5/coreutils/env.c:72360:0 (List())
+
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_ENV_LONG_OPTIONS
+  #define CONFIG_ENV
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+/coreutils/mv
+
+	Parser Fehler: (!def(CONFIG_LONG_OPTS)&!def(CONFIG_FEATURE_GETOPT_LONG)&def(CONFIG_FEATURE_MV_LONG_OPTIONS))   failed: end of input expected at file cprojects/busybox/busybox-1.18.5/coreutils/mv.c:72377:0 (List())
+
+
+	Gefixt mit:
+#ifdef CONFIG_FEATURE_MV_LONG_OPTIONS
+  #define CONFIG_MV
+  #define CONFIG_LONG_OPTS
+#endif
+
+
+
+
