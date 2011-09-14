@@ -62,7 +62,7 @@ $basePath/CTypeChecker/target/scala_2.9.0/classes:\
 $basePath/LinuxAnalysis/target/scala_2.9.0/classes:\
 $basePath/PreprocessorFrontend/target/scala_2.9.0/classes:\
 $basePath/ParserFramework/lib_managed/scala_2.9.0/compile/kiama_2.9.0-1.1.0.jar\
-  $mainClass -t \
+  $mainClass -t -i \
   $(for arg in $partialPreprocFlags "$@"; do echo -n "\"$arg\" "; done) \
   '$inp' -o '$outPartialPreproc' 2> '$outErr' |tee '$outDbg'" \
   2> "$outTime" || true

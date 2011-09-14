@@ -23,7 +23,7 @@ object LinuxPreprocessorFrontend {
     //can be overriden with command line parameters p and t
     def PARSEAFTERPREPROCESSING = true
     def TYPECHECKAFTERPARSING = false
-    def CREATEINTERFACEAFTERPARSING = false
+    def CREATEINTERFACEAFTERPARSING = true
 
     ////////////////////////////////////////
     // General setup of built-in headers, should become more general and move
@@ -113,9 +113,9 @@ object LinuxPreprocessorFrontend {
                     case 't' => typecheck = true
                     case 'i' => createInterface = true
 
-                    case ':' => println("Missing required argument!"); exit(1)
+                    case ':' => println("Missing required argument!"); sys.exit(1)
                     case '?' => println("Unexpected option!");
-                    exit(1)
+                    sys.exit(1)
 
                     //Pass-through --include and --openFeat.
                     case INCLUDE_OPT => extraOpt ++= List("--include", arg)
@@ -151,6 +151,7 @@ object LinuxPreprocessorFrontend {
                 if (typecheck)
                     new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
                 if (createInterface) {
+		    println("inferring interfaces.")
                     val i = new CInferInterface {}
                     val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
                     i.writeInterface(interface, new File(filename + ".interface"))
