@@ -110,7 +110,13 @@ void *__alloc_percpu()
             check("int foo(){ return 1; }")
         }
         expect(false) {
-            check("int * foo(){ return 1; }")
+            check("int * foo(){ return \"abc\"; }")
+        }
+        expect(true) {
+            check("int * foo(){ return 0; }")
+        }
+        expect(true) {
+            check("int * foo(){ return 1; }") //corner case, is a warning in gcc. accepting here for now.
         }
         expect(false) {
             check("int foo(){ return; }")
