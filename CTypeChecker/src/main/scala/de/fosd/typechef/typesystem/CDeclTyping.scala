@@ -26,7 +26,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         case fun =>
             if (!fun.oldStyleParameters.isEmpty) TOne(CUnknown("alternative parameter notation not supported yet"))
             else if (isTypedef(fun.specifiers)) TOne(CUnknown("Invalid typedef specificer for function definition (?)"))
-            else declType(fun.specifiers, fun.declarator)
+            else declType(fun.specifiers, fun.declarator, List())
     }
 
     val surroundingFunType: Attributable ==> TConditional[CType] = {
@@ -57,12 +57,37 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     }
 
 
+    //TODO variability (not urgent)
+    private def hasTransparentUnionAttribute(specifiers: List[Specifier]): Boolean =
+        specifiers.exists(isTransparentUnionAttribute(_, FeatureExpr.base))
+    private def hasTransparentUnionAttributeOpt(specifiers: List[Opt[Specifier]]): Boolean =
+        specifiers.exists(o => isTransparentUnionAttribute(o.entry, o.feature))
+    private def isTransparentUnionAttribute(specifier: Specifier, featureContext: FeatureExpr): Boolean =
+        specifier match {
+            case GnuAttributeSpecifier(attrs) =>
+                (for (Opt(f1, attrSeq) <- attrs; Opt(f2, attr) <- attrSeq.attributes)
+                yield attr match {
+                        case AtomicAttribute(name) => (name == "transparent_union") || (name == "__transparent_union__")
+                        case _ => false
+                    }).exists((x: Boolean) => x)
+            case _ => false
+        }
+
+
     def constructTypeOne(specifiers: List[Specifier]): TConditional[CType] = {
         //type specifiers
         var types = List[TConditional[CType]]()
         for (specifier <- specifiers) specifier match {
-            case StructOrUnionSpecifier(isUnion, Some(id), _) => types = types :+ TOne(CStruct(id.name, isUnion))
-            case StructOrUnionSpecifier(isUnion, None, members) => types = types :+ TOne(CAnonymousStruct(parseStructMembers(members), isUnion))
+            case StructOrUnionSpecifier(isUnion, Some(id), _) =>
+                if (hasTransparentUnionAttribute(specifiers))
+                    types = types :+ TOne(CIgnore()) //ignore transparent union for now
+                else
+                    types = types :+ TOne(CStruct(id.name, isUnion))
+            case StructOrUnionSpecifier(isUnion, None, members) =>
+                if (hasTransparentUnionAttribute(specifiers))
+                    types = types :+ TOne(CIgnore()) //ignore transparent union for now
+                else
+                    types = types :+ TOne(CAnonymousStruct(parseStructMembers(members), isUnion))
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = e -> previousTypedefEnv
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
@@ -147,9 +172,23 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             val returnType: TConditional[CType] = constructType(filterDeadSpecifiers(decl.declSpecs, decl -> featureExpr))
 
             for (Opt(f, init) <- decl.init)
-            yield (init.declarator.getName, init -> featureExpr, getDeclaratorType(init.declarator, returnType).simplify(init -> featureExpr))
+            yield (init.declarator.getName, init -> featureExpr, filterTransparentUnion(getDeclaratorType(init.declarator, returnType), init.attributes).simplify(init -> featureExpr))
         }
     }
+
+    //replace union types by CIgnore if attribute transparent_union is set
+    private def filterTransparentUnion(t: TConditional[CType], attributes: List[Opt[AttributeSpecifier]]) =
+        t.map({
+            case x@CStruct(_, true) =>
+                if (hasTransparentUnionAttributeOpt(attributes))
+                    CIgnore()
+                else x
+            case x@CAnonymousStruct(_, true) =>
+                if (hasTransparentUnionAttributeOpt(attributes))
+                    CIgnore()
+                else x
+            case x => x
+        })
 
     /**define all fields from enum type specifiers as int values */
     private def enumDeclarations(specs: List[Opt[Specifier]]): List[(String, FeatureExpr, TConditional[CType])] = {
@@ -163,8 +202,8 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
     }
 
 
-    def declType(specs: List[Opt[Specifier]], decl: Declarator): TConditional[CType] =
-        getDeclaratorType(decl, constructType(specs))
+    def declType(specs: List[Opt[Specifier]], decl: Declarator, attributes: List[Opt[AttributeSpecifier]]): TConditional[CType] =
+        filterTransparentUnion(getDeclaratorType(decl, constructType(specs)), attributes)
 
     // assumptions: we expect that a typedef specifier is either always included or never
     def isTypedef(specs: List[Opt[Specifier]]) = specs.map(_.entry).contains(TypedefSpecifier())
@@ -222,7 +261,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         for (Opt(f, structDeclaration) <- members) {
             for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
                 structDeclarator match {
-                    case StructDeclarator(decl, _, _) => result = result + (decl.getName, f and g, declType(structDeclaration.qualifierList, decl))
+                    case StructDeclarator(decl, _, attr) => result = result + (decl.getName, f and g, declType(structDeclaration.qualifierList, decl, attr))
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }
             //for unnamed fields, if they are struct or union inline their fields
@@ -265,7 +304,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     private def recognizeTypedefs(decl: Declaration): Seq[(String, FeatureExpr, TConditional[CType])] = {
         if (isTypedef(decl.declSpecs))
-            (for (Opt(f, init) <- decl.init) yield (init.getName, init -> featureExpr, declType(decl.declSpecs, init.declarator)))
+            (for (Opt(f, init) <- decl.init) yield (init.getName, init -> featureExpr, declType(decl.declSpecs, init.declarator, init.attributes)))
         else Seq()
     }
 

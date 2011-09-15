@@ -23,10 +23,12 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
             typedef struct { double x; } mystr;
             typedef struct pair { double x,y; } mypair;
             typedef unsigned myunsign;
+            typedef union { double a;} transunion __attribute__ ((__transparent_union__));
             myint myintvar;
             mystr *mystrvar;
             mypair mypairvar;
             struct announcedStruct;
+            transunion _transunion;
 
             int foo;
             struct account {
@@ -127,6 +129,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         structenv.isDefined("pair", false) should be(base)
         structenv.isDefined("mystr", false) should be(dead)
 
+        typedefs("transunion") should be(TOne(CIgnore()))
     }
 
 

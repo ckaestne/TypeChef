@@ -36,5 +36,6 @@ class FileTest extends TestHelper {
     @Ignore("too slow")
     def linux_fork_pi {assert(check("fork_.pi"))}
     @Test def toybox_patch_pi {assert(check("patch.pi"))}
+    @Test def toybox_netcat_pi {assert(check("netcat.pi"))}
 
 }

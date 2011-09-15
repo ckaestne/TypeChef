@@ -108,6 +108,15 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
         declT("union a foo;") should be(CStruct("a", true))
         declT("union a { double a;} foo;") should be(CStruct("a", true))
         declTL("union a;").size should be(0)
+        //not checking __attribute__ ((__transparent_union__)), just ignoring those cases,
+        //cf. http://www.delorie.com/gnu/docs/gcc/gcc_63.html
+        declT("union a { double a;} foo __attribute__ ((__transparent_union__));") should be(CIgnore())
+    }
+
+    test("transparent union exception2") {
+        //not checking __attribute__ ((__transparent_union__)), just ignoring those cases,
+        //cf. http://www.delorie.com/gnu/docs/gcc/gcc_63.html
+        declT("union a  __attribute__ ((__transparent_union__)) { double a;} foo;") should be(CIgnore())
     }
 
     test("typeof declarations") {
