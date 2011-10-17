@@ -120,6 +120,10 @@ Fork the project, write bug reports, contact us, .... We are open for collaborat
 Publications
 ------------
 
+An indepth discussion of the parsing approach and our experience with parsing Linux was published at OOPSLA:
+
+> Christian Kaestner, Paolo G. Giarrusso, Tillmann Rendel, Sebastian Erdweg, Klaus Ostermann, and Thorsten Berger. [Variability-Aware Parsing in the Presence of Lexical Macros and Conditional Compilation](http://www.informatik.uni-marburg.de/~kaestner/oopsla11_typechef_submitted.pdf). In Proceedings of the 26th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA) (Portland, OR), New York, NY, October 2011. ACM Press.
+
 An early overview of the project with a very preliminary implementation was published at
 
 > Andy Kenner, Christian Kästner, Steffen Haase, and Thomas Leich. [TypeChef: Toward Type Checking #ifdef Variability in C](http://www.informatik.uni-marburg.de/~kaestner/FOSD10-typechef.pdf). In Proceedings of the Second Workshop on Feature-Oriented Software Development (FOSD) (Eindhoven, The Netherlands), pages 25-32, New York, NY, USA, October 2010. ACM Press.
