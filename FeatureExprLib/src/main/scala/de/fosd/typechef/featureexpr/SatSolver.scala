@@ -2,7 +2,7 @@ package de.fosd.typechef.featureexpr
 
 import org.sat4j.core.VecInt
 import collection.mutable.WeakHashMap
-import org.sat4j.tools.ConstrGroup;
+import org.sat4j.specs.IConstr;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 
@@ -105,7 +105,7 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
              * which is removed from the solver at the end
              */
 
-            val constraintGroup = new ConstrGroup();
+            var constraintGroup:Set[IConstr] = Set()
             try {
                 val assumptions = new VecInt();
                 try {
@@ -115,7 +115,7 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
                         else {
                             val constr = solver.addClause(getClauseVec(uniqueFlagIds, clause))
                             if (isReused && constr != null)
-                                constraintGroup.add(constr)
+                                constraintGroup = constraintGroup + constr
                         }
                     }
                 } catch {
@@ -131,7 +131,8 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
                 return result
             } finally {
                 if (isReused)
-                    constraintGroup.removeFrom(solver)
+                    for (constr<-constraintGroup)
+                        assert(solver.removeConstr(constr))
             }
         } finally {
             if (PROFILING)

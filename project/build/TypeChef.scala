@@ -5,7 +5,7 @@ import eu.henkelmann.sbt.JUnitXmlTestsListener
 class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
 
     lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_) {
-        val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.0"
+        val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.1"
     })
     lazy val conditionalLib = project("ConditionalLib","ConditionalLib", new DefaultSubProject(_) with Kiama, featureexpr)
     lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_) with Kiama, featureexpr, conditionalLib)
