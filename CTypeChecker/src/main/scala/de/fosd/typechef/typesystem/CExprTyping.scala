@@ -125,7 +125,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                     })
             //a++, a--
             case PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {
-                case CObj(t) if (isScalar(t)) => t
+                case CObj(t) if (isScalar(t) || isArray(t)) => t //apparently ++ also works on arrays
                 //TODO check?: not on function references
                 case e => CUnknown("incorrect post increment/decrement on type " + e)
             }

@@ -122,4 +122,21 @@ void *__alloc_percpu()
             check("int foo(){ return; }")
         }
     }
+
+    test("increment on array") {
+        expect(false) {
+            check("""
+                struct s {} x;
+                int foo() { if (x->a) {} }""")
+        }
+
+        expect(true) {
+            check("""
+            void xchdir(const char *path) ;
+            int foo(char *argv[]) {
+                if (*++argv)
+                    xchdir((*argv)++);
+            }""")
+        }
+    }
 }
