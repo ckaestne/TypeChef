@@ -37,11 +37,11 @@ object TypeChefBuild extends Build {
     lazy val linuxAnalysis = Project(id = "LinuxAnalysis", base = file("LinuxAnalysis"),
         settings = Project.defaultSettings ++ scalaSettings) dependsOn (featureexpr, jcpp, cparser, ctypechecker, conditionalLib)
     lazy val ctypechecker = Project(id = "CTypeChecker", base = file("CTypeChecker"),
-        settings = Project.defaultSettings ++ kiamaSettings ++ scalaSettings) dependsOn (cparser, conditionalLib)
+        settings = Project.defaultSettings ++ kiamaSettings ++ scalaSettings) dependsOn (cparser  % "test->test;compile->compile", conditionalLib)
     lazy val javaparser = Project(id = "JavaParser", base = file("JavaParser"),
         settings = Project.defaultSettings ++ scalaSettings) dependsOn (featureexpr, parserexp, conditionalLib)
     lazy val crewrite = Project(id = "CRewrite", base = file("CRewrite"),
-        settings = Project.defaultSettings ++ kiamaSettings ++ scalaSettings) dependsOn (cparser, ctypechecker, conditionalLib)
+        settings = Project.defaultSettings ++ kiamaSettings ++ scalaSettings) dependsOn (cparser  % "test->test;compile->compile", ctypechecker, conditionalLib)
 
 
     def kiamaSettings: Seq[Setting[_]] = Seq(
