@@ -135,7 +135,7 @@ void *__alloc_percpu()
             void xchdir(const char *path) ;
             int foo(char *argv[]) {
                 if (*++argv)
-                    xchdir((*argv)++);
+                    xchdir(*argv++);
             }""")
         }
     }
