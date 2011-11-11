@@ -65,7 +65,7 @@ class CParserTest {
                 //succeed
             }
             case p.NoSuccess(msg, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " " + inner)
+                fail(msg + " at " + unparsed + " [[" + unparsed.context + "]] " + inner)
                 None
         }
     }
@@ -974,6 +974,40 @@ void bar() {
     foo x;
 }
          """, p.translationUnit)
+    }
+
+    @Test def test_local_typedef {
+        assertParseableAST("""
+            void foo(){
+                typedef int B;
+                B a;
+                int b;
+            }
+  """, p.translationUnit)
+        assertParseableAST("""
+            void copyt(int n)
+            {
+                typedef int B[n];
+                n += 1;
+                B a;
+                int b[n];
+                for (i = 1; i < n; i++)
+                    a[i-1] = b[i];
+            }
+  """, p.translationUnit)
+    }
+
+    @Ignore("currently local typedefs are not scoped correctly")
+    @Test
+    def test_lexical_scope_of_typedef {
+        assertParseError("""
+            void foo(){
+                typedef int B;
+                B a;
+                int b;
+            }
+            B x;
+  """, p.translationUnit)
     }
 
     private def assertNoDeadNodes(ast: Attributable) {
