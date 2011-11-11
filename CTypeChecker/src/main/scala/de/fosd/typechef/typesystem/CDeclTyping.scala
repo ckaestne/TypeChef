@@ -100,7 +100,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = e -> previousTypedefEnv
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
-                else types = types :+ TOne(CUnknown("type not defined " + typedefname)) //should not occur, because the parser should reject this already
+                else types = types :+ TOne(CUnknown("type not defined " + typedefname)) //should not occur, because the parser should reject this already. exceptions could be caused by local type declarations
             }
             case EnumSpecifier(_, _) => types = types :+ TOne(CSigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case TypeOfSpecifierT(typename) => types = types :+ ctype(typename)
@@ -306,7 +306,8 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     val typedefEnv: AST ==> ConditionalTypeMap = attr {
         case e: Declaration => outerTypedefEnv(e) ++ recognizeTypedefs(e)
-        case e@DeclarationStatement(d) => outerTypedefEnv(e) ++ recognizeTypedefs(d)
+        case e@DeclarationStatement(d) =>
+            outerTypedefEnv(e) ++ recognizeTypedefs(d)
         case e: AST => outerTypedefEnv(e)
     }
     private def outerTypedefEnv(e: AST): ConditionalTypeMap =
@@ -318,14 +319,17 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         else Seq()
     }
 
+    val inDeclarationOrDeclStmt: AST ==> Boolean = attr {
+        case e: DeclarationStatement => true
+        case e: Declaration => true
+        case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclarationOrDeclStmt
+    }
     val inDeclaration: AST ==> Boolean = attr {
         case e: Declaration => true
-        case e: DeclarationStatement => true
         case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclaration
     }
     val inDeclaratorOrSpecifier: AST ==> Boolean = attr {
         case e: Declarator => true
-        case e: DeclarationStatement => true
         case e: Specifier => true
         case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclaratorOrSpecifier
     }
@@ -334,5 +338,6 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
         case e: Declaration => e
         case e: AST => if ((e -> parentAST) == null) null else e -> parentAST -> outerDeclaration
     }
+
 
 }
