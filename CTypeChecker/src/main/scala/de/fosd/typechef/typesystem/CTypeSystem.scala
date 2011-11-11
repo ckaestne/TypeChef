@@ -167,12 +167,13 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     private def checkExpr(expr: Expr, check: CType => Boolean, errorMsg: CType => String): Unit =
         checkExpr(expr -> featureExpr, expr, check, errorMsg)
 
-    private def checkExpr(context: FeatureExpr, expr: Expr, check: CType => Boolean, errorMsg: CType => String): Unit = {
-        val ct = ctype(expr).simplify(context)
-        ct.mapf(context, {
-            (f, c) => if (!check(c)) issueTypeError(f, errorMsg(c), expr, c)
-        })
-    }
+    private def checkExpr(context: FeatureExpr, expr: Expr, check: CType => Boolean, errorMsg: CType => String): Unit =
+        if (context.isSatisfiable()) {
+            val ct = ctype(expr).simplify(context)
+            ct.mapf(context, {
+                (f, c) => if (!check(c)) issueTypeError(f, errorMsg(c), expr, c)
+            })
+        }
 
     /**
      * enforce certain assumptions about the layout of the AST

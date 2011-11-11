@@ -139,4 +139,18 @@ void *__alloc_percpu()
             }""")
         }
     }
+
+    test("illtyped only under unsatisfiable configurations") {
+        expect(true) {
+            check("""
+            #if defined(X)
+            void foo() {
+            #if !defined(X)
+                if (idxx) {};
+            #endif
+            }
+            #endif
+            """)
+        }
+    }
 }
