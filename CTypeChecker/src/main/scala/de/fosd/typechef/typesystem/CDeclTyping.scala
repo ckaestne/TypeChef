@@ -17,6 +17,7 @@ import ConditionalLib._
 trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     def ctype(fun: FunctionDef) = fun -> funType
+    def ctype(nfun: NestedFunctionDef) = nfun -> nfunType
     def ctype(fun: TypeName) = fun -> typenameType
     def ctype(exp: Expr): TConditional[CType]
     //provided by CExprTyping
@@ -27,6 +28,14 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
             if (!fun.oldStyleParameters.isEmpty) TOne(CUnknown("alternative parameter notation not supported yet"))
             else if (isTypedef(fun.specifiers)) TOne(CUnknown("Invalid typedef specificer for function definition (?)"))
             else declType(fun.specifiers, fun.declarator, List())
+    }
+
+    val nfunType: NestedFunctionDef ==> TConditional[CType] = attr {
+        //copy paste, unify?
+        case nfun =>
+            if (!nfun.parameters.isEmpty) TOne(CUnknown("alternative parameter notation not supported yet"))
+            else if (isTypedef(nfun.specifiers)) TOne(CUnknown("Invalid typedef specificer for function definition (?)"))
+            else declType(nfun.specifiers, nfun.declarator, List())
     }
 
     val surroundingFunType: Attributable ==> TConditional[CType] = {

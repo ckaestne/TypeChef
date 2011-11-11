@@ -45,7 +45,12 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
             int bar;
             struct account *a;
             void main(double a);
-            int i(double param, void (*param2)(void)) { int inner; double foo=0; return foo; }
+            int i(double param, void (*param2)(void)) {
+                int inner;
+                double square (double z) { return z * z; } //nested function
+                double foo=0;
+                return foo;
+            }
             double inner;
             """))
 
@@ -106,7 +111,22 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeAnalysis with T
         //parameters should be in scope
         env("param") should be(TOne(CDouble()))
         env("param2") should be(TOne(CPointer(CFunction(Seq(CVoid()), CVoid()))))
+
+        //nested functions should be in scope
+        env("square") should be(TOne(CFunction(List(CDouble()), CDouble())))
     }
+
+    test("nested functions (lexical) scoping") {
+        //finding last statement in nested function in last functiondef
+        val fundef = ast.defs.takeRight(2).head.entry.asInstanceOf[FunctionDef]
+        val nestedFundef = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.tail.head.entry.asInstanceOf[NestedFunctionDef]
+        val stmt = nestedFundef.stmt.innerStatements.head.entry
+        val env = stmt -> varEnv
+
+        env("z") should be(TOne(CDouble()))
+        env("inner") should be(_i)
+    }
+
 
     test("typedef synonyms") {
         val env = ast.defs.last.entry -> varEnv

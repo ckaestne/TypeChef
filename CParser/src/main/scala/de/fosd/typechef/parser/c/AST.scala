@@ -147,8 +147,6 @@ abstract sealed class CompoundDeclaration extends Statement
 
 case class DeclarationStatement(decl: Declaration) extends CompoundDeclaration
 
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration
-
 case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends CompoundDeclaration
 
 abstract class Specifier() extends AST
@@ -307,6 +305,11 @@ case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef {
     def getName = declarator.getName
 }
+
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration {
+    def getName = declarator.getName
+}
+
 
 trait ExternalDef extends AST
 

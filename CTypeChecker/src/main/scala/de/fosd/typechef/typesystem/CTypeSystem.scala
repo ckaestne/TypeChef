@@ -182,7 +182,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
      * before type checking
      */
     def checkAssumptions(node: Attributable): Unit = node match {
-        case x: NestedFunctionDef => assert(false, "NestedFunctionDef not supported, yet")
+        //        case x: X => assert(false, "X not supported, yet")
         case _ =>
     }
 

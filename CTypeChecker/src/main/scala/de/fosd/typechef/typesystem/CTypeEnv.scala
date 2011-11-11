@@ -24,8 +24,10 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         //parameters in the body of functions
         case c@CompoundStatement(_) => c -> parentAST match {
             case FunctionDef(_, decl, _, _) => outerVarEnv(c) ++ parameterTypes(decl)
+            case NestedFunctionDef(_, _, decl, _, _) => outerVarEnv(c) ++ parameterTypes(decl)
             case _ => outerVarEnv(c)
         }
+        case nfun: NestedFunctionDef => outerVarEnv(nfun) + (nfun.getName, nfun -> featureExpr, ctype(nfun))
         case e: AST => outerVarEnv(e)
     }
     protected def outerVarEnv(e: AST): VarTypingContext =

@@ -153,4 +153,25 @@ void *__alloc_percpu()
             """)
         }
     }
+
+    test("nested functions") {
+        expect(true) {
+            check("""
+                int foo (double a, double b){
+                    double square (double z) { return z * z; }
+                    return square (a) + square (b);
+                }""")
+        }
+        expect(true) {
+            check("""
+                 int bar (int *array, int offset, int size)
+                     {
+                       int access (int *array, int index)
+                         { return array[index + offset]; }
+                       int i;
+                       for (i = 0; i < size; i++)
+                            access (array, i);
+                     }        """)
+        }
+    }
 }
