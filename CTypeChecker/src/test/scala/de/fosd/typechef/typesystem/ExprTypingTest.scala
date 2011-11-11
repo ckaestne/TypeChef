@@ -107,6 +107,7 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
     test("casts") {
         expr("(double)3") should be(CDouble())
         expr("(void*)foo") should be(CPointer(CVoid()))
+        expr("(int(*)())foo") should be(CPointer(CFunction(List(), CSigned(CInt()))))
     }
 
 

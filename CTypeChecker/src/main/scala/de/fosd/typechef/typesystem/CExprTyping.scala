@@ -90,7 +90,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 ConditionalLib.mapCombination(sourceTypes, targetTypes,
                     (sourceType: CType, targetType: CType) =>
                         if (targetType == CVoid() ||
-                                targetType == CPointer(CVoid()) ||
+                                isPointer(targetType) ||
                                 (isScalar(sourceType) && isScalar(targetType))) targetType
                         else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
                         else if (sourceType == CIgnore()) targetType
