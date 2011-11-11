@@ -306,6 +306,7 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     val typedefEnv: AST ==> ConditionalTypeMap = attr {
         case e: Declaration => outerTypedefEnv(e) ++ recognizeTypedefs(e)
+        case e@DeclarationStatement(d) => outerTypedefEnv(e) ++ recognizeTypedefs(d)
         case e: AST => outerTypedefEnv(e)
     }
     private def outerTypedefEnv(e: AST): ConditionalTypeMap =
@@ -319,10 +320,12 @@ trait CDeclTyping extends CTypes with ASTNavigation with FeatureExprLookup {
 
     val inDeclaration: AST ==> Boolean = attr {
         case e: Declaration => true
+        case e: DeclarationStatement => true
         case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclaration
     }
     val inDeclaratorOrSpecifier: AST ==> Boolean = attr {
         case e: Declarator => true
+        case e: DeclarationStatement => true
         case e: Specifier => true
         case e: AST => if (e -> parentAST == null) false else e -> parentAST -> inDeclaratorOrSpecifier
     }

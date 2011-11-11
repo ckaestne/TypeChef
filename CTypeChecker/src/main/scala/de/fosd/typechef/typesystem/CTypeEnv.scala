@@ -20,7 +20,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     val varEnv: AST ==> VarTypingContext = attr {
         case e: Declaration => outerVarEnv(e) ++ declType(e)
         case fun: FunctionDef => outerVarEnv(fun) + (fun.getName, fun -> featureExpr, ctype(fun))
-        case e@DeclarationStatement(decl) => assertNoTypedef(decl); outerVarEnv(e) ++ declType(decl)
+        case e@DeclarationStatement(decl) => outerVarEnv(e) ++ declType(decl)
         //parameters in the body of functions
         case c@CompoundStatement(_) => c -> parentAST match {
             case FunctionDef(_, decl, _, _) => outerVarEnv(c) ++ parameterTypes(decl)
@@ -32,9 +32,6 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     }
     protected def outerVarEnv(e: AST): VarTypingContext =
         outer[VarTypingContext](varEnv, () => new VarTypingContext() ++ initBuiltinVarEnv, e)
-
-
-    private def assertNoTypedef(decl: Declaration): Unit = assert(!isTypedef(decl.declSpecs))
 
 
     private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, TConditional[CType])] = {

@@ -10,7 +10,7 @@ import de.fosd.typechef.parser.c._
 @RunWith(classOf[JUnitRunner])
 class TypeSystemTest extends FunSuite with ShouldMatchers with ASTNavigation with TestHelper {
 
-    private def check(code: String): Boolean = {println("checking " + code); check(getAST(code));}
+    private def check(code: String, printAST: Boolean = false): Boolean = {println("checking " + code); if (printAST) println("AST: " + getAST(code)); check(getAST(code));}
     private def check(ast: TranslationUnit): Boolean = new CTypeSystem().checkAST(ast)
 
 
@@ -173,5 +173,47 @@ void *__alloc_percpu()
                             access (array, i);
                      }        """)
         }
+    }
+
+    test("local typedef") {
+        expect(true) {
+            check("""
+            void copyt(int n)
+            {
+                typedef int B[n]; // B is n ints, n evaluated now
+                n += 1;
+                B a; // ais n ints, n without += 1
+                int b[n]; // a and b are different sizes
+                int i;
+                for (i = 1; i < n; i++)
+                      a[i-1] = b[i];
+            }
+            """)
+        }
+        expect(true) {
+            check("""
+            int a() {
+            #ifdef X
+                typedef int xx;
+            #endif
+            }
+            """)
+        }
+        expect(true) {
+            check("""
+            int
+            #ifdef A
+            a()
+            #else
+            b()
+            #endif
+            {
+                typedef int xx __attribute__((__may_alias__));
+                xx c;
+            }
+            """, true)
+        }
+
+
     }
 }
