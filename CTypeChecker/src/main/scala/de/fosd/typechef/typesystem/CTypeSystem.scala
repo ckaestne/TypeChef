@@ -136,7 +136,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 (One(CVoid()), checkFunction(spec, decl, oldSP, stmt, featureExpr, env))
 
             case WhileStatement(expr, stmt) => expectScalar(expr); checkCStmt(stmt); nop //spec
-            case DoStatement(expr, smt) => expectScalar(expr); checkStmt(stmt); nop //spec
+            case DoStatement(expr, stmt) => expectScalar(expr); checkCStmt(stmt); nop //spec
             case ForStatement(expr1, expr2, expr3, stmt) =>
                 if (expr1.isDefined) checkExpr(expr1.get)
                 if (expr2.isDefined) expectScalar(expr2.get) //spec
