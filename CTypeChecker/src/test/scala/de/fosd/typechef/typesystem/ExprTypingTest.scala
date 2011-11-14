@@ -27,7 +27,8 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
 
     private def exprV(code: String): Conditional[CType] = {
         val ast = parseExpr(code)
-        val r = getExprType(varCtx, astructEnv, ast)
+        val env = new Env(base, varCtx, astructEnv, Map())
+        val r = getExprType(ast, env)._1
         println(ast + " --> " + r)
         r
     }

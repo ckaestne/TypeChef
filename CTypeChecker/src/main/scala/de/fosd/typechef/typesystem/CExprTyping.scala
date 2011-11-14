@@ -4,41 +4,22 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import org.kiama.attribution.Attribution._
-import org.kiama._
 
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
+trait CExprTyping extends CTypes with CEnv with CDeclTyping {
 
-    def ctype(expr: Expr): Conditional[CType] = expr -> exprType
 
-    def ctype(expr: Expr, context: AST): Conditional[CType] =
-        getExprType(outerVarEnv(context), outerStructEnv(context), expr)
+    /**
+     * types an expression in an environment, returns a new
+     * environment for all subsequent tokens (eg in a sequence)
+     */
+    def getExprType(expr: Expr, env: Env): (Conditional[CType], Env) = {
+        val et = getExprType(_: Expr, env)._1
+        //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
-    val exprType: Expr ==> Conditional[CType] = attr {
-        case expr => getExprType(expr -> varEnv, expr -> structEnv, expr)
-    }
-
-    def getStmtType(stmt: Statement): Conditional[CType]
-
-    //implemented by CStmtTyping
-
-    private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): Conditional[CType] = {
-        assert(strEnv.someDefinition(structName, isUnion), "struct/union " + structName + " unknown") //should not occur by construction. system won't build a struct type if its name is not in the struct table
-
-        val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
-        struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
-    }
-
-    //    private def anonymousStructLookup(fields: List[(String, CType)], fieldName:String):CType =
-    //        if (fie)
-
-    private[typesystem] def getExprType(varCtx: VarTypingContext, strEnv: StructEnv, expr: Expr): Conditional[CType] = {
-        val et = getExprType(varCtx, strEnv, _: Expr)
-        //TODO assert types in varCtx and funCtx are welltyped and non-void
-        expr match {
+        val resultType = expr match {
             /**
              * The standard provides for methods of
              * specifying constants in unsigned, long and oating point types; we omit
@@ -48,7 +29,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //TODO other constant types
             case Constant(v) => if (v.last.toLower == 'l') One(CSigned(CLong())) else One(CSigned(CInt()))
             //variable or function ref
-            case Id(name) => varCtx(name).map(_.toObj)
+            case Id(name) => env.varEnv(name).map(_.toObj)
             //&a: create pointer
             case PointerCreationExpr(expr) =>
                 et(expr).map({
@@ -71,8 +52,8 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 et(expr).mapr({
                     case CObj(CAnonymousStruct(fields, _)) => lookup(fields).map(_.toObj)
                     case CAnonymousStruct(fields, _) => lookup(fields)
-                    case CObj(CStruct(s, isUnion)) => structEnvLookup(strEnv, s, isUnion, id).map(_.toObj)
-                    case CStruct(s, isUnion) => structEnvLookup(strEnv, s, isUnion, id).map({
+                    case CObj(CStruct(s, isUnion)) => structEnvLookup(env.structEnv, s, isUnion, id).map(_.toObj)
+                    case CStruct(s, isUnion) => structEnvLookup(env.structEnv, s, isUnion, id).map({
                         case e if (arrayType(e)) => CUnknown("(" + e + ")." + id + " has array type")
                         case e => e
                     })
@@ -85,7 +66,7 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 et(newExpr)
             //(a)b
             case CastExpr(targetTypeName, expr) =>
-                val targetTypes = ctype(targetTypeName)
+                val targetTypes = getTypenameType(targetTypeName)
                 val sourceTypes = et(expr).map(_.toValue)
                 ConditionalLib.mapCombination(sourceTypes, targetTypes,
                     (sourceType: CType, targetType: CType) =>
@@ -168,12 +149,12 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
                 et(condition) mapr {
                     conditionType =>
                         if (isScalar(conditionType))
-                            getConditionalExprType(ctype(thenExpr.getOrElse(condition)), ctype(elseExpr))
+                            getConditionalExprType(et(thenExpr.getOrElse(condition)), et(elseExpr))
                         else One(CUnknown("invalid type of condition: " + conditionType))
                 }
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
-                getStmtType(compoundStatement)
+                getStmtType(compoundStatement, env)._1
             case ExprList(exprs) => //comma operator, evaluated left to right, last expr yields value and type; like compound statement expression
                 ConditionalLib.lastEntry(exprs).mapr({
                     case None => One(CVoid())
@@ -188,6 +169,8 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
             //TODO initializers 6.5.2.5
             case e => One(CUnknown("unknown expression " + e + " (TODO)"))
         }
+
+        (resultType, env)
     }
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType]) =
@@ -204,8 +187,10 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
     /**
      * defines types of various operations
      * TODO currently incomplete and possibly incorrect
+     *
+     * visible only for test cases
      */
-    def operationType(op: String, type1: CType, type2: CType): CType = {
+    private[typesystem] def operationType(op: String, type1: CType, type2: CType): CType = {
         def pointerArthOp(o: String) = Set("+", "-") contains o
         def pointerArthAssignOp(o: String) = Set("+=", "-=") contains o
         def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=", "^=") contains o
@@ -251,7 +236,6 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
 
     /**
      * returns the wider of two types for automatic widening
-     * TODO check correctness
      */
     def wider(t1: CType, t2: CType) =
         if (t1 < t2) t2 else t1
@@ -290,6 +274,18 @@ trait CExprTyping extends CTypes with CTypeEnv with CDeclTyping {
         (foundTypes zip expectedTypes) map {
             case (ft, et) => coerce(ft, et)
         }
+
+
+    private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String): Conditional[CType] = {
+        assert(strEnv.someDefinition(structName, isUnion), "struct/union " + structName + " unknown") //should not occur by construction. system won't build a struct type if its name is not in the struct table
+
+        val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
+        struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
+    }
+
+
+    //implemented by CStmtTyping
+    def getStmtType(stmt: Statement, env: Env): (Conditional[CType], Env)
 
 
 }
