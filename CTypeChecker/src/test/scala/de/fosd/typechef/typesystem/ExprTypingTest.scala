@@ -10,7 +10,7 @@ import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
-class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping with TestHelper {
+class ExprTypingTest extends FunSuite with ShouldMatchers with CTypeSystem with NoErrorReporting with TestHelper {
 
     val _i = One(CSigned(CInt()))
     val _l = One(CSigned(CLong()))
@@ -27,8 +27,8 @@ class ExprTypingTest extends FunSuite with ShouldMatchers with CTypes with CExpr
 
     private def exprV(code: String): Conditional[CType] = {
         val ast = parseExpr(code)
-        val env = new Env(base, varCtx, astructEnv, Map())
-        val r = getExprType(ast, env)._1
+        val env = new Env(new ConditionalTypeMap(), varCtx, astructEnv, Map(), None)
+        val r = getExprType(ast, base, env)
         println(ast + " --> " + r)
         r
     }

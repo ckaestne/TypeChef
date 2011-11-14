@@ -5,15 +5,15 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
-import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c.{Declaration, TestHelper}
 
 @RunWith(classOf[JUnitRunner])
-class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
+class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeSystem with NoErrorReporting with TestHelper {
 
 
     private def declTL(code: String) = {
-        val ast = parseDecl(code)
+        val ast: Declaration = parseDecl(code)
         val r = declType(ast).map(e => (e._1, e._3))
         println(r)
         r

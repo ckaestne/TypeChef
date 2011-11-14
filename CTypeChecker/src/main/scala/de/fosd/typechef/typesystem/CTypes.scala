@@ -306,8 +306,8 @@ class ConditionalTypeMap(private val m: ConditionalMap[String, Conditional[CType
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
 
-    def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
-    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = new ConditionalTypeMap(m ++ l)
+    def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
+    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
     def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty

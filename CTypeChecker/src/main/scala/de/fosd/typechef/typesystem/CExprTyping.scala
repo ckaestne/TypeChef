@@ -15,11 +15,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
      * types an expression in an environment, returns a new
      * environment for all subsequent tokens (eg in a sequence)
      */
-    def getExprType(expr: Expr, env: Env): (Conditional[CType], Env) = {
-        val et = getExprType(_: Expr, env)._1
+    def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+        val et = getExprType(_: Expr, featureExpr, env)
         //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
-        val resultType = expr match {
+        expr match {
             /**
              * The standard provides for methods of
              * specifying constants in unsigned, long and oating point types; we omit
@@ -66,7 +66,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
                 et(newExpr)
             //(a)b
             case CastExpr(targetTypeName, expr) =>
-                val targetTypes = getTypenameType(targetTypeName)
+                val targetTypes = getTypenameType(targetTypeName, featureExpr, env)
                 val sourceTypes = et(expr).map(_.toValue)
                 ConditionalLib.mapCombination(sourceTypes, targetTypes,
                     (sourceType: CType, targetType: CType) =>
@@ -154,7 +154,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
                 }
             //compound statement in expr. ({a;b;c;}), type is the type of the last statement
             case CompoundStatementExpr(compoundStatement) =>
-                getStmtType(compoundStatement, env)._1
+                getStmtType(compoundStatement, featureExpr, env)._1
             case ExprList(exprs) => //comma operator, evaluated left to right, last expr yields value and type; like compound statement expression
                 ConditionalLib.lastEntry(exprs).mapr({
                     case None => One(CVoid())
@@ -169,8 +169,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
             //TODO initializers 6.5.2.5
             case e => One(CUnknown("unknown expression " + e + " (TODO)"))
         }
-
-        (resultType, env)
     }
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType]) =
@@ -284,8 +282,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
     }
 
 
-    //implemented by CStmtTyping
-    def getStmtType(stmt: Statement, env: Env): (Conditional[CType], Env)
+    //implemented by CTypeSystem
+    def getStmtType(stmt: Statement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env)
 
 
 }
