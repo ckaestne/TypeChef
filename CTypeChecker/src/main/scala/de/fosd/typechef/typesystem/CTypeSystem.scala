@@ -17,8 +17,7 @@ import de.fosd.typechef.parser.Position
 trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping {
 
     def typecheckTranslationUnit(tunit: TranslationUnit): Unit = {
-        val env = new Env(null, null, new StructEnv(), Map(), None)
-        val finalEnv = checkTranslationUnit(tunit, FeatureExpr.base, env)
+        val finalEnv = checkTranslationUnit(tunit, FeatureExpr.base, InitialEnv)
         //        finalEnv.errorList
     }
 
@@ -55,7 +54,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
 
         //check body (add parameters to environment)
-        val innerEnv = env.addVars(parameterTypes(declarator, featureExpr, env))
+        val innerEnv = env.addVars(parameterTypes(declarator, featureExpr, env)).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
 
         //check actual return type against declared return type
@@ -146,7 +145,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
             //case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
             case r@ReturnStatement(mexpr) =>
-                assert(env.expectedReturnType.isDefined)
+                assert(env.expectedReturnType.isDefined, "return statement outside a function? " + mexpr)
                 val expectedReturnType = env.expectedReturnType.get
                 mexpr match {
 

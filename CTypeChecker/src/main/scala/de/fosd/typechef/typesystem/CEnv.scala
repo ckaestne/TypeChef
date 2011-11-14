@@ -10,6 +10,8 @@ import de.fosd.typechef.conditional.Conditional
 trait CEnv {
 
     object EmptyEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), None)
+    object InitialEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), None)
+    //TODO
 
     class Env(
                      val typedefEnv: ConditionalTypeMap,

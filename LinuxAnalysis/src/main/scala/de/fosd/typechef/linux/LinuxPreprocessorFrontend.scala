@@ -16,7 +16,6 @@ import gnu.getopt.LongOpt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.lexer._
-import linker.CInferInterface
 
 object LinuxPreprocessorFrontend {
 
@@ -151,7 +150,7 @@ object LinuxPreprocessorFrontend {
                 if (typecheck)
                     new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
                 if (createInterface) {
-		    println("inferring interfaces.")
+                    println("inferring interfaces.")
                     val i = new CInferInterface {}
                     val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
                     i.writeInterface(interface, new File(filename + ".interface"))
