@@ -16,7 +16,7 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) {
 }
 
 //Conditional is either Choice or One
-abstract class Conditional[+T] {
+abstract class Conditional[+T] extends Product {
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U
 
     //simplify rewrites Choice Types; requires reasoning about variability

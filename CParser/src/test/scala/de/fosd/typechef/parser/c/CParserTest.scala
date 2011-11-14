@@ -4,7 +4,6 @@ import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
-import org.kiama.attribution.Attributable
 import de.fosd.typechef.conditional._
 import org.junit.{Ignore, Test}
 
@@ -941,7 +940,6 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
          #endif
          ;"""
         val ast = assertParseableAST(c, p.translationUnit)
-        assertTree(ast.get)
         assertNoDeadNodes(ast.get, FeatureExpr.base, ast.get)
     }
 
@@ -1010,26 +1008,16 @@ void bar() {
   """, p.translationUnit)
     }
 
-    private def assertNoDeadNodes(ast: Attributable) {
+    private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExpr.base, ast)
     }
-    private def assertNoDeadNodes(ast: Attributable, f: FeatureExpr, orig: Attributable) {
+    private def assertNoDeadNodes(ast: Any, f: FeatureExpr, orig: Product) {
         assert(f.isSatisfiable(), "dead AST subtree: " + ast + " in " + orig)
         ast match {
-            case Opt(g, e: Attributable) => assertNoDeadNodes(e, f and g, orig)
-            case c: Choice[Attributable] => assertNoDeadNodes(c.thenBranch, f and c.feature, orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature, orig)
-            case e => for (c <- e.children) assertNoDeadNodes(c, f, orig)
-        }
-    }
-
-    /**
-     * for type checking we want a real AST not a DAG.
-     * check that each node points to exactly one parent
-     */
-    private def assertTree(ast: Attributable) {
-        for (c <- ast.children) {
-            assert(c.parent == ast, "Child " + c + " points to different parent:\n  " + c.parent + "\nshould be\n  " + ast)
-            assertTree(c)
+            case Opt(g, e: Object) => assertNoDeadNodes(e, f and g, orig)
+            case c: Choice[Object] => assertNoDeadNodes(c.thenBranch, f and c.feature, orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature, orig)
+            case e: Product => for (c <- e.productIterator) assertNoDeadNodes(c, f, orig)
+            case _ =>
         }
     }
 
