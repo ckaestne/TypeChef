@@ -7,6 +7,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c.{Declaration, TestHelper}
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
 class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeSystem with NoErrorReporting with TestHelper {
@@ -14,7 +15,7 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeSystem with 
 
     private def declTL(code: String) = {
         val ast: Declaration = parseDecl(code)
-        val r = declType(ast).map(e => (e._1, e._3))
+        val r = getDeclaredVariables(ast, FeatureExpr.base, EmptyEnv).map(e => (e._1, e._3))
         println(r)
         r
     }
