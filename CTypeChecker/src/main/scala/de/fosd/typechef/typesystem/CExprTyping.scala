@@ -11,6 +11,12 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 trait CExprTyping extends CTypes with CEnv with CDeclTyping {
 
 
+    //refined by CTypeCache if desired
+    def addExprType(expr: Expr, ctype: Conditional[CType]) {}
+    //mixed in from CEnvCache or CNoEnvCache
+    def addEnv(ast: AST, env: Env) {}
+
+
     /**
      * types an expression in an environment, returns a new
      * environment for all subsequent tokens (eg in a sequence)
@@ -19,7 +25,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
         val et = getExprType(_: Expr, featureExpr, env)
         //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
-        expr match {
+        val resultType = expr match {
             /**
              * The standard provides for methods of
              * specifying constants in unsigned, long and oating point types; we omit
@@ -169,6 +175,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
             //TODO initializers 6.5.2.5
             case e => One(CUnknown("unknown expression " + e + " (TODO)"))
         }
+
+        addExprType(expr, resultType)
+        addEnv(expr, env)
+        resultType
     }
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType]) =

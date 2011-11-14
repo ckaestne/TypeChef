@@ -25,6 +25,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
         var env = initialEnv
+        addEnv(tunit, env)
         for (Opt(f, e) <- tunit.defs) {
             env = checkExternalDef(e, featureExpr and f, env)
         }
@@ -32,6 +33,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     }
 
     private def checkExternalDef(externalDef: ExternalDef, featureExpr: FeatureExpr, env: Env): Env = {
+        addEnv(externalDef, env)
         debugCheckExternal(externalDef)
         externalDef match {
             case _: EmptyExternalDef => env
@@ -99,6 +101,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         def checkExprX(expr: Expr, check: CType => Boolean, errorMsg: CType => String, featureExpr: FeatureExpr) =
             performExprCheck(expr, check, errorMsg, featureExpr, env)
         def nop = (One(CUnknown("no type for " + stmt)), env)
+
+        addEnv(stmt, env)
 
         stmt match {
             case CompoundStatement(innerStmts) =>
