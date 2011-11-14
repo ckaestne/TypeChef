@@ -10,18 +10,18 @@ import de.fosd.typechef.featureexpr.FeatureExpr
  */
 trait CBuiltIn extends CTypes with CDeclTyping {
 
-    val initBuiltinVarEnv: Seq[(String, FeatureExpr, TConditional[CType])] =
+    val initBuiltinVarEnv: Seq[(String, FeatureExpr, Conditional[CType])] =
         (declare_builtin_functions() ++ Map(
-            "__builtin_expect" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_safe_p" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_warning" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_choose_expr" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_constant_p" -> TOne(CFunction(Seq(CVarArgs()), CInt()))
+            "__builtin_expect" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_safe_p" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_warning" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_choose_expr" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_constant_p" -> One(CFunction(Seq(CVarArgs()), CInt()))
         )).toList.map(x => (x._1, base, x._2))
 
 
     /**taken directly from sparse/lib.c */
-    private def declare_builtin_functions(): Map[String, TConditional[CType]] = {
+    private def declare_builtin_functions(): Map[String, Conditional[CType]] = {
         var buffer = "";
         def add_pre_buffer(str: String) {buffer = buffer + str}
         {

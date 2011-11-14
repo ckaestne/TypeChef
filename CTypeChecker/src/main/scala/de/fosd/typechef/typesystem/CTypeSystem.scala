@@ -46,8 +46,8 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
     class SimpleError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where -> positionRange)
     class TypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) extends ErrorMsg(condition, msg, where -> positionRange)
 
-    def prettyPrintType(ctype: TConditional[CType]): String =
-        TConditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
+    def prettyPrintType(ctype: Conditional[CType]): String =
+        Conditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
 
     private def indentAllLines(s: String): String =
         s.lines.map("\t\t" + _).foldLeft("")(_ + "\n" + _)
@@ -121,7 +121,7 @@ class CTypeSystem(featureModel: FeatureModel = null) extends CTypeAnalysis with 
             if (expr3.isDefined) checkExpr(expr3.get)
         //case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
         case r@ReturnStatement(expr) =>
-            val funTypes: TConditional[CType] = r -> surroundingFunType
+            val funTypes: Conditional[CType] = r -> surroundingFunType
             funTypes.simplify(r -> featureExpr).mapf(r -> featureExpr,
                 (fFeature, fType) => fType match {
                     case CFunction(_, returnType) =>

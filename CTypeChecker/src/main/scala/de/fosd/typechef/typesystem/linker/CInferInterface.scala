@@ -1,7 +1,7 @@
 package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.typesystem.CTypeAnalysis
-import de.fosd.typechef.conditional.{Opt, TConditional}
+import de.fosd.typechef.conditional.{Opt, Conditional}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
@@ -28,7 +28,7 @@ trait CInferInterface extends CTypeAnalysis with InterfaceWriter {
         for (Opt(_, extDecl) <- ast.defs)
             extDecl match {
                 case fun: FunctionDef =>
-                    for (Opt(fexpr, ctype) <- TConditional.toOptList(fun -> funType).map(_.and(fun -> featureExpr)))
+                    for (Opt(fexpr, ctype) <- Conditional.toOptList(fun -> funType).map(_.and(fun -> featureExpr)))
                         if (fexpr.isSatisfiable())
                             exports = CSignature(fun.getName, ctype, fexpr, Seq(fun.getPositionFrom)) :: exports
                 case _ =>
@@ -64,7 +64,7 @@ trait CInferInterface extends CTypeAnalysis with InterfaceWriter {
         //                case decl:Declaration =>
         //                    val typeInformation=declType(decl)
         //                    for ((name, fexpr, ctypes) <- typeInformation)
-        //                        for (Opt(newfexpr, ctype) <- TConditional.toOptList(ctypes).map(_.and(fexpr)))
+        //                        for (Opt(newfexpr, ctype) <- Conditional.toOptList(ctypes).map(_.and(fexpr)))
         //                            if (ctype.isFunction && newfexpr.isSatisfiable())
         //                                declarations=CSignature(name, ctype, fexpr, decl.getPositionFrom)::declarations
         //                case _=>

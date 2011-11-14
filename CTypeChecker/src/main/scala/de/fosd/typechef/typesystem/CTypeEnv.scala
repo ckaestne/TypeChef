@@ -34,7 +34,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
         outer[VarTypingContext](varEnv, () => new VarTypingContext() ++ initBuiltinVarEnv, e)
 
 
-    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, TConditional[CType])] = {
+    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, Conditional[CType])] = {
         //declarations with empty parameter lists
         if (decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclIdentifierList] && decl.extensions.head.entry.asInstanceOf[DeclIdentifierList].idList.isEmpty)
             List()
@@ -43,7 +43,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             assert(decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclParameterDeclList], "expect a single declarator extension for function parameters, not " + decl.extensions)
 
             val param: DeclParameterDeclList = decl.extensions.head.entry.asInstanceOf[DeclParameterDeclList]
-            var result = List[(String, FeatureExpr, TConditional[CType])]()
+            var result = List[(String, FeatureExpr, Conditional[CType])]()
             for (Opt(_, p) <- param.parameterDecls) p match {
                 case PlainParameterDeclaration(specifiers) => //having int foo(void) is Ok, but for everything else we expect named parameters
                     assert(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), "no name, old parameter style?") //TODO
@@ -121,7 +121,7 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     protected def outerStructEnv(e: AST): StructEnv =
         outer[StructEnv](structEnv, () => new StructEnv(), e)
 
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: TConditional[CType]): Boolean =
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean =
         ctype.simplify.forall(wellformed(structEnv, ptrEnv, _))
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
