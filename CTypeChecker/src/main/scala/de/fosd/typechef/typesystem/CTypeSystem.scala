@@ -14,7 +14,7 @@ import de.fosd.typechef.parser.Position
  *
  */
 
-trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping {
+trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
 
     def typecheckTranslationUnit(tunit: TranslationUnit): Unit = {
         val finalEnv = checkTranslationUnit(tunit, FeatureExpr.base, InitialEnv)
