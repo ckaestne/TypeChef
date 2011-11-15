@@ -1,7 +1,6 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import org.kiama.attribution.Attributable
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.junit.runner.RunWith
@@ -51,15 +50,16 @@ class RewriteTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
 
-    private def assertNotVariability(ast: Attributable) {
+    private def assertNotVariability(ast: Product) {
         ast match {
             case Opt(f, _) => assert(f.isTautology, "Optional children not expected: " + ast)
             case c: Choice[_] => assert(false, "Choice nodes not expected: " + ast)
             case _ =>
         }
 
-        for (c <- ast.children)
-            assertNotVariability(c)
+        for (c <- ast.productIterator)
+            if (c.isInstanceOf[Product])
+                assertNotVariability(c.asInstanceOf[Product])
     }
 
 }

@@ -147,14 +147,14 @@ object LinuxPreprocessorFrontend {
                 val in = CLexer.prepareTokens(tokens)
                 val parserMain = new ParserMain(new CParser(fm))
                 val ast = parserMain.parserMain(in)
+                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit])
                 if (typecheck)
-                    new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
+                    ts.checkAST
                 if (createInterface) {
                     println("inferring interfaces.")
-                    val i = new CInferInterface {}
-                    val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
-                    i.writeInterface(interface, new File(filename + ".interface"))
-                    i.debugInterface(interface, new File(filename + ".dbginterface"))
+                    val interface = ts.inferInterface(ast.asInstanceOf[TranslationUnit])
+                    ts.writeInterface(interface, new File(filename + ".interface"))
+                    ts.debugInterface(interface, new File(filename + ".dbginterface"))
                 }
             }
         }

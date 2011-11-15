@@ -56,7 +56,7 @@ LocalLabelDeclaration -- label names
  */
 
 //Expressions
-trait AST extends WithPosition
+trait AST extends Product with WithPosition
 
 abstract class Expr extends AST
 
