@@ -11,7 +11,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
-class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with NoErrorReporting with CEnvCache with CTypeCache with TestHelper {
+class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
 
     val _l = One(CSigned(CLong()))
     val _i = One(CSigned(CInt()))

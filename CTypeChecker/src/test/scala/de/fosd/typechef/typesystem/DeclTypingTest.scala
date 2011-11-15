@@ -10,7 +10,7 @@ import de.fosd.typechef.parser.c.{Declaration, TestHelper}
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
-class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeSystem with NoErrorReporting with TestHelper {
+class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with TestHelper {
 
 
     private def declTL(code: String) = {

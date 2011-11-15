@@ -9,7 +9,7 @@ import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
-class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with NoErrorReporting with CEnvCache with TestHelper {
+class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with TestHelper {
 
 
     test("alternatives in declarations") {t()}

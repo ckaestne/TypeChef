@@ -3,12 +3,13 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c.Expr
 import de.fosd.typechef.conditional.Conditional
 import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 
-trait CTypeCache extends CExprTyping {
+trait CTypeCache extends CTypeSystemInterface {
     private var cache: Map[Expr, Conditional[CType]] = Map()
 
-    override def addExprType(expr: Expr, ctype: Conditional[CType]) {
+    override def typedExpr(expr: Expr, ctype: Conditional[CType], featureExpr: FeatureExpr) {
         cache = cache + (expr -> ctype)
     }
 
@@ -16,7 +17,7 @@ trait CTypeCache extends CExprTyping {
 }
 
 
-trait CEnvCache extends CTypeSystem {
+trait CEnvCache extends CTypeSystemInterface {
     private var cache: Map[AST, Env] = Map()
 
     override def addEnv(ast: AST, env: Env) {

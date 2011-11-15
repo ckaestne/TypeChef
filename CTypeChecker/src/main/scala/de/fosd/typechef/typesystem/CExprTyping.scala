@@ -8,13 +8,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CEnv with CDeclTyping {
-
-
-    //refined by CTypeCache if desired
-    def addExprType(expr: Expr, ctype: Conditional[CType]) {}
-    //mixed in from CEnvCache or CNoEnvCache
-    def addEnv(ast: AST, env: Env) {}
+trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface {
 
 
     /**
@@ -176,7 +170,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping {
             case e => One(CUnknown("unknown expression " + e + " (TODO)"))
         }
 
-        addExprType(expr, resultType)
+        typedExpr(expr, resultType, featureExpr)
         addEnv(expr, env)
         resultType
     }

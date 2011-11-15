@@ -11,7 +11,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
-class CTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with NoErrorReporting {
+class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
 
     test("wellformed types") {
         val sEnv: StructEnv = new StructEnv(Map(

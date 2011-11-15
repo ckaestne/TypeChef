@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.Position
+import linker.CInferInterface
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -16,9 +17,9 @@ import de.fosd.typechef.parser.Position
 
 trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
 
-    def typecheckTranslationUnit(tunit: TranslationUnit): Unit = {
-        val finalEnv = checkTranslationUnit(tunit, FeatureExpr.base, InitialEnv)
-        //        finalEnv.errorList
+
+    def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExpr.base): Unit = {
+        checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
 
 
@@ -33,7 +34,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkExternalDef(externalDef: ExternalDef, featureExpr: FeatureExpr, env: Env): Env = {
         addEnv(externalDef, env)
-        debugCheckExternal(externalDef)
+        checkingExternal(externalDef)
         externalDef match {
             case _: EmptyExternalDef => env
             case _: Pragma => env //ignore
@@ -41,13 +42,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case e: TypelessDeclaration => assert(false, "will not occur " + e); env //ignore
             case d: Declaration =>
                 addDeclarationToEnvironment(d, featureExpr, env)
-            case FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
-                checkFunction(specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
+            case fun@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
+                val (funType, newEnv) = checkFunction(specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
+                typedFunction(fun, funType, featureExpr)
+                newEnv
         }
     }
 
 
-    private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): Env = {
+    private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         //TODO check function redefinitions
         val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
         funType.map(t => assert(t.isFunction))
@@ -62,7 +65,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //add type to environment for remaining code
         val newEnv = env.addVar(declarator.getName, featureExpr, funType)
 
-        newEnv
+        (funType, newEnv)
     }
 
     private def addDeclarationToEnvironment(d: Declaration, featureExpr: FeatureExpr, oldEnv: Env): Env = {
@@ -77,6 +80,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
         env
     }
+    //
+    //    private def checkInitializers(d:Declaration, featureExpr:FeatureExpr, env:Env) {
+    //        for (Opt(initFeature, init)<-d.init) init match {
+    //            case InitDeclaratorE(_,_,expr) =>
+    //        }
+    //
+    //    }
 
 
     /**
@@ -133,7 +143,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 (One(CVoid()), addDeclarationToEnvironment(d, featureExpr, env))
 
             case NestedFunctionDef(_, spec, decl, oldSP, stmt) =>
-                (One(CVoid()), checkFunction(spec, decl, oldSP, stmt, featureExpr, env))
+                (One(CVoid()), checkFunction(spec, decl, oldSP, stmt, featureExpr, env)._2)
 
             case WhileStatement(expr, stmt) => expectScalar(expr); checkCStmt(stmt); nop //spec
             case DoStatement(expr, stmt) => expectScalar(expr); checkCStmt(stmt); nop //spec
@@ -181,10 +191,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         }
     }
 
-
-    def debugCheckExternal(externalDef: ExternalDef)
-    def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null)
-    def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType)
 
     //
     //
@@ -281,15 +287,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 }
 
 
-// trait, mostly for test cases
-trait NoErrorReporting {
-    def debugCheckExternal(externalDef: ExternalDef) {}
-    def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) {}
-    def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) {}
-}
-
-
-class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = null) extends CTypeSystem {
+class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureExpr = FeatureExpr.base) extends CTypeSystem with CInferInterface {
 
 
     abstract class ErrorMsg(condition: FeatureExpr, msg: String, location: (Position, Position)) {
@@ -319,20 +317,20 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = nu
 
 
     var externalDefCounter: Int = 0
-    def debugCheckExternal(externalDef: ExternalDef) = {
+    override def checkingExternal(externalDef: ExternalDef) = {
         externalDefCounter = externalDefCounter + 1
         if (verbose)
             println("check " + externalDefCounter + "/" + iast.defs.size + ". line " + externalDef.getPositionFrom.getLine + ". err " + errors.size)
     }
-    def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) =
+    override def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) =
         errors = new SimpleError(condition, msg, where) :: errors
-    def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) =
+    override def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) =
         errors = new TypeError(condition, msg, where, ctype) :: errors
 
 
     def checkAST: Boolean = {
 
-        typecheckTranslationUnit(iast)
+        typecheckTranslationUnit(iast, featureModel)
 
 
         if (errors.isEmpty)
