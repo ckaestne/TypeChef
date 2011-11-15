@@ -23,23 +23,24 @@ int a, b;
 int
 main()
 {
-#ifdef CALL
- bar();
-#endif
- ;
- foobar();
- partialA();
-#ifdef PARTIAL
- partialB();
-#endif
-;
- printf("Hello World!\n");
- {
-    void local();
-    void unusedlocal();
-    void *x=&local;
- }
+    #ifdef CALL
+     bar();
+    #endif
+     ;
+     foobar();
+     partialA();
+    #ifdef PARTIAL
+     partialB();
+    #endif
+    ;
+     printf("Hello World!\n");
 
- return 0;
+     {
+            void local();
+            void unusedlocal();
+            void *x=&local;
+     }
+
+     return 0;
 }
 

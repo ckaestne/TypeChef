@@ -10,7 +10,7 @@ import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
-class ExprTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with TestHelper {
+class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatchers with TestHelper {
 
     val _i = One(CSigned(CInt()))
     val _l = One(CSigned(CLong()))

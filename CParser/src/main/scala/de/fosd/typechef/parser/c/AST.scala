@@ -211,11 +211,18 @@ case class CompoundAttribute(inner: List[Opt[AttributeSequence]]) extends Attrib
 case class Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) extends ExternalDef with OldParameterDeclaration
 
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {def getName = declarator.getName;}
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {
+    def getName = declarator.getName;
+    def getExpr: Option[Expr]
+}
 
-case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], i: Option[Initializer]) extends InitDeclarator(declarator, attributes)
+case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], i: Option[Initializer]) extends InitDeclarator(declarator, attributes) {
+    def getExpr = i map {_.expr}
+}
 
-case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], e: Expr) extends InitDeclarator(declarator, attributes)
+case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], e: Expr) extends InitDeclarator(declarator, attributes) {
+    def getExpr = Some(e)
+}
 
 
 /**

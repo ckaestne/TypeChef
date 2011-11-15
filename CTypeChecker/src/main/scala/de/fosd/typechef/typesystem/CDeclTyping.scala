@@ -1,10 +1,10 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
 import ConditionalLib._
+import de.fosd.typechef.parser.c._
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -147,13 +147,20 @@ trait CDeclTyping extends CTypes with CEnv {
             One(CUnknown("multiple types found " + types))
     }
 
-    def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, Conditional[CType])] = enumDeclarations(decl.declSpecs, featureExpr) ++ {
+    private def noInitCheck = (a: Expr, b: Conditional[CType], c: FeatureExpr, d: Env) => {}
+
+    def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
+                             checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
+                                    ): List[(String, FeatureExpr, Conditional[CType])] = enumDeclarations(decl.declSpecs, featureExpr) ++ {
         if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType: Conditional[CType] = constructType(filterDeadSpecifiers(decl.declSpecs, featureExpr), featureExpr, env)
 
-            for (Opt(f, init) <- decl.init)
-            yield (init.declarator.getName, featureExpr and f, filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, env), init.attributes).simplify(featureExpr and f))
+            for (Opt(f, init) <- decl.init) yield {
+                val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, env), init.attributes).simplify(featureExpr and f)
+                init.getExpr map {checkInitializer(_, ctype, featureExpr and f, env)}
+                (init.declarator.getName, featureExpr and f, ctype)
+            }
         }
     }
 

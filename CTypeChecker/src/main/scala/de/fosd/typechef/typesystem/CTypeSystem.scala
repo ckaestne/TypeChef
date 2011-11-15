@@ -68,10 +68,18 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         (funType, newEnv)
     }
 
+    private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Unit = {
+        val foundType = getExprType(initExpr, featureExpr, env)
+        ConditionalLib.zip(foundType, expectedType).mapf(featureExpr, {
+            (f, tp) => issueTypeError(f, "incorrect initializer type. expected " + tp._2 + " found " + tp._1, initExpr, tp._1)
+        })
+    }
+
     private def addDeclarationToEnvironment(d: Declaration, featureExpr: FeatureExpr, oldEnv: Env): Env = {
         var env = oldEnv
-        //add declared variables to variable typing environment
-        env = env.addVars(getDeclaredVariables(d, featureExpr, env))
+        //add declared variables to variable typing environment and check initializers
+        val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
+        env = env.addVars(vars)
         //declared struct?
         env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
         //declared enums?
@@ -80,13 +88,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
         env
     }
-    //
-    //    private def checkInitializers(d:Declaration, featureExpr:FeatureExpr, env:Env) {
-    //        for (Opt(initFeature, init)<-d.init) init match {
-    //            case InitDeclaratorE(_,_,expr) =>
-    //        }
-    //
-    //    }
+
+    private def checkInitializers(d: Declaration, featureExpr: FeatureExpr, env: Env) {
+        for (Opt(initFeature, init) <- d.init) init match {
+            case InitDeclaratorE(_, _, expr) =>
+        }
+
+    }
 
 
     /**
