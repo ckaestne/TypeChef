@@ -30,6 +30,24 @@ class ConditionalTest {
             conditionalFoldRight(List(Opt(fa, 2), Opt(base, 1), Opt(fb, 4)), One(0), (a: Int, b: Int) => a + b))
     }
 
+    @Test
+    def testFoldExplosion {
+        val ol = List.fill(100)(Opt(fa, 1))
+
+        assertEquals(
+            Choice(fa, One(100), One(0)),
+            conditionalFoldRight(ol, One(0), (a: Int, b: Int) => a + b))
+        assertEquals(
+            Choice(fa, One(100), One(1)),
+            conditionalFoldRight(ol, Choice(fa, One(0), One(1)), (a: Int, b: Int) => a + b))
+
+        val vt = Choice(fa, One("X"), One("U"))
+
+        assertEquals(
+            vt,
+            conditionalFoldRightR(ol, vt, (oentry: Int, v: String) => vt map (ot => if (v == ot) "X" else "U")))
+    }
+
 
     @Test
     def testExplode {
