@@ -148,11 +148,11 @@ object LinuxPreprocessorFrontend {
                 val parserMain = new ParserMain(new CParser(fm))
                 val ast = parserMain.parserMain(in)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit])
-                if (typecheck)
+                if (typecheck || createInterface)
                     ts.checkAST
                 if (createInterface) {
                     println("inferring interfaces.")
-                    val interface = ts.inferInterface(ast.asInstanceOf[TranslationUnit])
+                    val interface = ts.getInferredInterface()
                     ts.writeInterface(interface, new File(filename + ".interface"))
                     ts.debugInterface(interface, new File(filename + ".dbginterface"))
                 }
