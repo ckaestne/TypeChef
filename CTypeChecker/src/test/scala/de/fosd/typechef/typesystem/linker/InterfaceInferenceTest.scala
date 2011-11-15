@@ -31,6 +31,8 @@ class InterfaceInferenceTest extends TestHelper {
         //
         assert(i equals interface2)
         assert(!(i eq interface2))
+
+        f.delete()
     }
 
 
