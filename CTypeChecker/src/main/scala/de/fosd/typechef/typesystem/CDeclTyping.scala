@@ -47,9 +47,10 @@ trait CDeclTyping extends CTypes with CEnv {
 
 
     def constructType(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+        val specifiersFiltered = filterDeadSpecifiers(specifiers, featureExpr)
         //unwrap variability
-        val exploded: Conditional[List[Specifier]] = explodeOptList(specifiers)
-        Conditional.combine(exploded.mapf(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env))) simplify
+        val exploded: Conditional[List[Specifier]] = explodeOptList(specifiersFiltered)
+        Conditional.combine(exploded.mapf(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env))) simplify (featureExpr)
     }
 
 
@@ -149,7 +150,7 @@ trait CDeclTyping extends CTypes with CEnv {
                                     ): List[(String, FeatureExpr, Conditional[CType])] = enumDeclarations(decl.declSpecs, featureExpr) ++ {
         if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
-            val returnType: Conditional[CType] = constructType(filterDeadSpecifiers(decl.declSpecs, featureExpr), featureExpr, env)
+            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, env)
 
             for (Opt(f, init) <- decl.init) yield {
                 val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, env), init.attributes).simplify(featureExpr and f)

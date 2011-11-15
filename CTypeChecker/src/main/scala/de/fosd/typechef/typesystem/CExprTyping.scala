@@ -80,7 +80,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 else if (sourceType == CIgnore()) targetType
                                 else
                                     CUnknown("incorrect cast from " + sourceType + " to " + targetType)
-                        ).simplify
+                        )
                     //a()
                     case PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
                         val functionType: Conditional[CType] = et(expr)

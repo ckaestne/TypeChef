@@ -138,7 +138,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 val t: Conditional[CType] = lastType.mapr({
                     case None => One(CVoid())
                     case Some(ctype) => ctype
-                }) simplify;
+                }) simplify (featureExpr);
 
                 //return original environment, definitions don't leave this scope
                 (t, env)
