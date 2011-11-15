@@ -9727,13 +9727,13 @@
 
 
 
+/* Minimum and maximum values a `signed long long int' can hold.  */
 
 
 
 
 
-
-
+/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0).  */
 
 
 
@@ -9848,8 +9848,8 @@
  
 
 
-
-
+/* Number of descriptors that a process may examine with `pselect' or
+   `select'.  */
 
 
 /* Number of bytes in a pathname.  */
@@ -9897,14 +9897,14 @@
 
 
 
+/* Maximum number of connections that can be queued on a socket.  */
 
 
+/* Maximum number of bytes that can be buffered on a socket for send
+   or receive.  */
 
 
-
-
-
-
+/* Maximum number of elements in an `iovec' array.  */
 
 
 /* Maximum clock resolution in nanoseconds.  */
@@ -10142,7 +10142,180 @@
 #line 151 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
 
 
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/xopen_lim.h" 1
+/* Copyright (C) 1996, 1997, 1999, 2001 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+/*
+ * Never include this file directly; use <limits.h> instead.
+ */
+
+/* Additional definitions from X/Open Portability Guide, Issue 4, Version 2
+   System Interfaces and Headers, 4.16 <limits.h>
+
+   Please note only the values which are not greater than the minimum
+   stated in the standard document are listed.  The `sysconf' functions
+   should be used to obtain the actual value.  */
+
+
+
+
+
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/stdio_lim.h" 1
+/* Copyright (C) 1994, 1997, 1998, 1999, 2009 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 36 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/xopen_lim.h" 2
+
+/* We do not provide fixed values for
+
+   ARG_MAX	Maximum length of argument to the `exec' function
+		including environment data.
+
+   ATEXIT_MAX	Maximum number of functions that may be registered
+		with `atexit'.
+
+   CHILD_MAX	Maximum number of simultaneous processes per real
+		user ID.
+
+   OPEN_MAX	Maximum number of files that one process can have open
+		at anyone time.
+
+   PAGESIZE
+   PAGE_SIZE	Size of bytes of a page.
+
+   PASS_MAX	Maximum number of significant bytes in a password.
+
+   We only provide a fixed limit for
+
+   IOV_MAX	Maximum number of `iovec' structures that one process has
+		available for use with `readv' or writev'.
+
+   if this is indeed fixed by the underlying system.
+*/
+
+
+/* Maximum number of `iovec' structures that one process has available
+   for use with `readv' or writev'.  */
+
+
+
+/* Maximum value of `digit' in calls to the `printf' and `scanf'
+   functions.  We have no limit, so return a reasonable value.  */
+
+
+/* Maximum number of bytes in a `LANG' name.  We have no limit.  */
+
+
+/* Maximum message number.  We have no limit.  */
+
+
+/* Maximum number of bytes in N-to-1 collation mapping.  We have no
+   limit.  */
+
+
+/* Maximum set number.  We have no limit.  */
+
+
+/* Maximum number of bytes in a message.  We have no limit.  */
+
+
+/* Default process priority.  */
+
+
+
+/* Number of bits in a word of type `int'.  */
+
+
+
+ 
+
+ 
+
+
+
+ 
+
+ 
+
+ 
+
+
+
+ 
+
+/* Number of bits in a word of type `long int'.  */
+
+
+
+ /* Safe assumption.  */
+
+
+ 
+
+ 
+
+
+ 
+
+
+ 
+
+
+
+#line 155 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
 
 #line 155 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 2
 
@@ -13274,8 +13447,8 @@ extern int isblank (int) __attribute__ ((__nothrow__));
 
 
 
-
-
+/* Test C for a set of character classes according to MASK.  */
+extern int isctype (int __c, int __mask) __attribute__ ((__nothrow__));
 
 
 /* Return nonzero iff C is in the ASCII set
@@ -14059,13 +14232,13 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
-
+typedef __ino_t ino_t;
  
 
 
 
 
-
+typedef __ino64_t ino64_t;
 
 
 
@@ -14120,14 +14293,14 @@ struct dirent
   };
 
 
-
-  
-    
-    
-    
-    
-    
-  
+struct dirent64
+  {
+    __ino64_t d_ino;
+    __off64_t d_off;
+    unsigned short int d_reclen;
+    unsigned char d_type;
+    char d_name[256];		/* We must not include limits.h! */
+  };
 
 
 
@@ -14236,7 +14409,7 @@ extern struct dirent *readdir (DIR *__dirp) __attribute__ ((__nonnull__ (1)));
 
 
 
-
+extern struct dirent64 *readdir64 (DIR *__dirp) __attribute__ ((__nonnull__ (1)));
 
 
 /* Reentrant version of `readdir'.  Return in RESULT a pointer to the
@@ -14259,10 +14432,10 @@ extern int readdir_r (DIR *__restrict __dirp,
 
 
 
-
-			
-			
-     
+extern int readdir64_r (DIR *__restrict __dirp,
+			struct dirent64 *__restrict __entry,
+			struct dirent64 **__restrict __result)
+     __attribute__ ((__nonnull__ (1, 2, 3)));
 
 
 /* Rewind DIRP to the beginning of the directory.  */
@@ -15064,14 +15237,14 @@ extern int scandir (const char *__restrict __dir,
 
 
 
-
-
-
-		      
-		      
-		      
-				    
-     
+/* This function is like `scandir' but it uses the 64bit dirent structure.
+   Please note that the CMP function must now work with struct dirent64 **.  */
+extern int scandir64 (const char *__restrict __dir,
+		      struct dirent64 ***__restrict __namelist,
+		      int (*__selector) (const struct dirent64 *),
+		      int (*__cmp) (const struct dirent64 **,
+				    const struct dirent64 **))
+     __attribute__ ((__nonnull__ (1, 2)));
 
 /* Function to compare two `struct dirent's alphabetically.  */
 
@@ -15087,9 +15260,9 @@ extern int alphasort (const struct dirent **__e1,
 
 
 
-
-			
-     
+extern int alphasort64 (const struct dirent64 **__e1,
+			const struct dirent64 **__e2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
@@ -15112,18 +15285,18 @@ extern __ssize_t getdirentries (int __fd, char *__restrict __buf,
 
 
 
-
-				  
-				  
-     
-
-
+extern __ssize_t getdirentries64 (int __fd, char *__restrict __buf,
+				  size_t __nbytes,
+				  __off64_t *__restrict __basep)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
 
 
 
+/* Function to compare two `struct dirent's by name & version.  */
 
-			
-     
+extern int versionsort (const struct dirent **__e1,
+			const struct dirent **__e2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
  
 
 			   
@@ -15134,9 +15307,9 @@ extern __ssize_t getdirentries (int __fd, char *__restrict __buf,
 
 
 
-
-			  
-     
+extern int versionsort64 (const struct dirent64 **__e1,
+			  const struct dirent64 **__e2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
@@ -15747,10 +15920,10 @@ extern int *__errno_location (void) __attribute__ ((__nothrow__)) __attribute__ 
 
 
 
-
-
-
-
+/* The full and simple forms of the name with which the program was
+   invoked.  These variables are set up automatically at startup based on
+   the value of ARGV[0] (this works only if you use GNU ld).  */
+extern char *program_invocation_name, *program_invocation_short_name;
 
 
 
@@ -15762,7 +15935,7 @@ extern int *__errno_location (void) __attribute__ ((__nothrow__)) __attribute__ 
    before.  */
 
 
-
+typedef int error_t;
 
 
 
@@ -16736,7 +16909,7 @@ typedef __loff_t loff_t;
 
 
 
-typedef __ino_t ino_t;
+
  
 
 
@@ -16773,7 +16946,7 @@ typedef __off_t off_t;
 
 
 
-
+typedef __off64_t off64_t;
 
 
 
@@ -17953,11 +18126,11 @@ typedef __timer_t timer_t;
 
 
 
+typedef __useconds_t useconds_t;
 
 
 
-
-
+typedef __suseconds_t suseconds_t;
 
 
 
@@ -20108,7 +20281,7 @@ struct timeval
 #line 48 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 2
 
 
-typedef __suseconds_t suseconds_t;
+
 
 
 /* The fd_set member is required to be an array of longs.  */
@@ -20129,9 +20302,9 @@ typedef struct
     /* XPG4.2 requires this member name.  Otherwise avoid the name
        from the global namespace.  */
 
-    
+    __fd_mask fds_bits[1024 / (8 * (int) sizeof (__fd_mask))];
 
-     __fd_mask __fds_bits[1024 / (8 * (int) sizeof (__fd_mask))];
+     
 
 
   } fd_set;
@@ -20625,9 +20798,9 @@ typedef __fsfilcnt_t fsfilcnt_t; /* Type to count file system inodes.  */
 
 
 
-
-
-
+typedef __blkcnt64_t blkcnt64_t;     /* Type to count number of disk blocks. */
+typedef __fsblkcnt64_t fsblkcnt64_t; /* Type to count file system blocks.  */
+typedef __fsfilcnt64_t fsfilcnt64_t; /* Type to count file system inodes.  */
 
 /* Now add the thread types.  */
 
@@ -20868,7 +21041,299 @@ typedef union
 
 #line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/fcntl.h" 2
 
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/uio.h" 1
+/* Copyright (C) 1996, 1997, 2006 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+
+
+
+
+
+
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+/* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+/*
+ *	POSIX Standard: 2.6 Primitive System Data Types	<sys/types.h>
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+ 
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/uio.h" 2
+
+
+/* We should normally use the Linux kernel header file to define this
+   type and macros but this calls for trouble because of the header
+   includes other kernel headers.  */
+
+/* Size of object which can be written atomically.
+
+   This macro has different values in different kernel versions.  The
+   latest versions of the kernel use 1024 and this is good choice.  Since
+   the C library implementation of readv/writev is able to emulate the
+   functionality even if the currently running kernel does not support
+   this large value the readv/writev call will not fail because of this.  */
+
+
+
+/* Structure for scatter/gather I/O.  */
+struct iovec
+  {
+    void *iov_base;	/* Pointer to data.  */
+    size_t iov_len;	/* Length of data.  */
+  };
+
+
+#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/fcntl.h" 2
 
 /* open/fcntl - O_SYNC is only implemented on blocks devices and on files
    located on a few file systems.  */
@@ -20979,7 +21444,7 @@ typedef union
 
 
 
-
+/* Types of directory notifications that may be requested with F_NOTIFY.  */
 
 
 
@@ -21002,31 +21467,31 @@ struct flock
   };
 
 
-
-  
-    
-    
-    
-    
-    
-  
-
-
+struct flock64
+  {
+    short int l_type;	/* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.	*/
+    short int l_whence;	/* Where `l_start' is relative to (like `lseek').  */
+    __off64_t l_start;	/* Offset where the lock begins.  */
+    __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
+    __pid_t l_pid;	/* Process holding the lock.  */
+  };
 
 
-  
-    
-    
-    
-    
-  
+/* Owner types.  */
+enum __pid_type
+  {
+    F_OWNER_TID = 0,		/* Kernel thread.  */
+    F_OWNER_PID,		/* Process.  */
+    F_OWNER_PGRP,		/* Process group.  */
+    F_OWNER_GID = F_OWNER_PGRP	/* Alternative, obsolete name.  */
+  };
 
-
-
-  
-    
-    
-  
+/* Structure to use with F_GETOWN_EX and F_SETOWN_EX.  */
+struct f_owner_ex
+  {
+    enum __pid_type type;	/* Owner type of ID.  */
+    __pid_t pid;		/* ID of owner.  */
+  };
 
 /* Define some more compatibility macros to be backward compatible with
    BSD systems which did not managed to hide these kernel macros.  */
@@ -21047,6 +21512,12 @@ struct flock
 
 
 
+/* Flags for SYNC_FILE_RANGE.  */
+
+
+
+
+/* Flags for SPLICE and VMSPLICE.  */
 
 
 
@@ -21055,38 +21526,32 @@ struct flock
 
 
 
+/* Provide kernel hint to read ahead.  */
+extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
+    __attribute__ ((__nothrow__));
 
 
+/* Selective file content synch'ing.  */
+extern int sync_file_range (int __fd, __off64_t __offset, __off64_t __count,
+			    unsigned int __flags);
 
 
+/* Splice address range into a pipe.  */
+extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,
+			 size_t __count, unsigned int __flags);
 
+/* Splice two files together.  */
+extern ssize_t splice (int __fdin, __off64_t *__offin, int __fdout,
+		       __off64_t *__offout, size_t __len,
+		       unsigned int __flags);
 
+/* In-kernel implementation of tee for pipe buffers.  */
+extern ssize_t tee (int __fdin, int __fdout, size_t __len,
+		    unsigned int __flags);
 
+/* Reserve storage for the data of the file associated with FD.  */
 
-    
-
-
-
-
-			    
-
-
-
-
-			 
-
-
-
-		       
-		       
-
-
-
-		    
-
-
-
-
+extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
  
 
 				   
@@ -21095,8 +21560,8 @@ struct flock
 
 
 
-
-			
+extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
+			__off64_t __len);
 
 
 
@@ -21789,41 +22254,41 @@ struct stat
   };
 
 
+/* Note stat64 has the same shape as stat for x86-64.  */
+struct stat64
+  {
+    __dev_t st_dev;		/* Device.  */
 
-
-  
-    
-
-    
-    
-    
+    __ino64_t st_ino;		/* File serial number.  */
+    __nlink_t st_nlink;		/* Link count.  */
+    __mode_t st_mode;		/* File mode.  */
      
     
     
     
 
-    
-    
+    __uid_t st_uid;		/* User ID of the file's owner.	*/
+    __gid_t st_gid;		/* Group ID of the file's group.*/
 
-    
-    
-    
+    int __pad0;
+    __dev_t st_rdev;		/* Device number, if device.  */
+    __off_t st_size;		/* Size of file, in bytes.  */
      
     
     
 
-    
-    
+    __blksize_t st_blksize;	/* Optimal block size for I/O.  */
+    __blkcnt64_t st_blocks;	/* Nr. 512-byte blocks allocated.  */
 
-    
-
-
-
-
-
-    
-    
-    
+    /* Nanosecond resolution timestamps are stored in a format
+       equivalent to 'struct timespec'.  This is the type used
+       whenever possible but the Unix namespace rules do not allow the
+       identifier 'timespec' to appear in the <sys/stat.h> header.
+       Therefore we have to handle the use of this header in strictly
+       standard-compliant sources special.  */
+    struct timespec st_atim;		/* Time of last access.  */
+    struct timespec st_mtim;		/* Time of last modification.  */
+    struct timespec st_ctim;		/* Time of last status change.  */
 
 
 
@@ -21835,10 +22300,10 @@ struct stat
     
 
 
-    
+    long int __unused[3];
      
 
-  
+  };
 
 /* Tell code we have these members.  */
 
@@ -21967,7 +22432,7 @@ extern int open (const char *__file, int __oflag, ...) __attribute__ ((__nonnull
 
 
 
-
+extern int open64 (const char *__file, int __oflag, ...) __attribute__ ((__nonnull__ (1)));
 
 
 /* Similar to `open' but a relative path name is interpreted relative to
@@ -21989,8 +22454,8 @@ extern int openat (int __fd, const char *__file, int __oflag, ...)
 
 
 
-
-     
+extern int openat64 (int __fd, const char *__file, int __oflag, ...)
+     __attribute__ ((__nonnull__ (2)));
 
 
 /* Create and open FILE, with mode MODE.  This takes an `int' MODE
@@ -22007,7 +22472,7 @@ extern int creat (const char *__file, __mode_t __mode) __attribute__ ((__nonnull
 
 
 
-
+extern int creat64 (const char *__file, __mode_t __mode) __attribute__ ((__nonnull__ (1)));
 
 
 /* NOTE: These declarations also appear in <unistd.h>; be sure to keep both
@@ -22031,7 +22496,7 @@ extern int lockf (int __fd, int __cmd, __off_t __len);
 
 
 
-
+extern int lockf64 (int __fd, int __cmd, __off64_t __len);
 
 
 
@@ -22048,8 +22513,8 @@ extern int posix_fadvise (int __fd, __off_t __offset, __off_t __len,
 
 
 
-
-			    
+extern int posix_fadvise64 (int __fd, __off64_t __offset, __off64_t __len,
+			    int __advise) __attribute__ ((__nothrow__));
 
 /* Reserve storage for the data of the file associated with FD.
 
@@ -22065,7 +22530,7 @@ extern int posix_fallocate (int __fd, __off_t __offset, __off_t __len);
 
 
 
-
+extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 /* Define some inlines helping to catch common problems.  */
@@ -25112,28 +25577,10 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
-/* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
 
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
 
-/*
- *	POSIX Standard: 2.6 Primitive System Data Types	<sys/types.h>
- */
 
 
 
@@ -25149,234 +25596,10 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
- 
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/uio.h" 2
-
-
-/* We should normally use the Linux kernel header file to define this
-   type and macros but this calls for trouble because of the header
-   includes other kernel headers.  */
-
-/* Size of object which can be written atomically.
-
-   This macro has different values in different kernel versions.  The
-   latest versions of the kernel use 1024 and this is good choice.  Since
-   the C library implementation of readv/writev is able to emulate the
-   functionality even if the currently running kernel does not support
-   this large value the readv/writev call will not fail because of this.  */
-
-
-
-/* Structure for scatter/gather I/O.  */
-struct iovec
-  {
-    void *iov_base;	/* Pointer to data.  */
-    size_t iov_len;	/* Length of data.  */
-  };
+  
+    
+    
+  
 
 
 #line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/uio.h" 2
@@ -25442,29 +25665,29 @@ extern ssize_t pwritev (int __fd, const struct iovec *__iovec, int __count,
 
 
 
+/* Read data from file descriptor FD at the given position OFFSET
+   without change the file pointer, and put the result in the buffers
+   described by IOVEC, which is a vector of COUNT 'struct iovec's.
+   The buffers are filled in the order specified.  Operates just like
+   'pread' (see <unistd.h>) except that data are put in IOVEC instead
+   of a contiguous buffer.
 
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t preadv64 (int __fd, const struct iovec *__iovec, int __count,
+			 __off64_t __offset) ;
 
+/* Write data pointed by the buffers described by IOVEC, which is a
+   vector of COUNT 'struct iovec's, to file descriptor FD at the given
+   position OFFSET without change the file pointer.  The data is
+   written in the order specified.  Operates just like 'pwrite' (see
+   <unistd.h>) except that the data are taken from IOVEC instead of a
+   contiguous buffer.
 
-
-
-
-
-
-
-
-			 
-
-
-
-
-
-
-
-
-
-
-
-			  
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t pwritev64 (int __fd, const struct iovec *__iovec, int __count,
+			  __off64_t __offset) ;
 
 
 
@@ -25864,8 +26087,129 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 #line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 2
 
+/* Get the __sigset_t definition.  */
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigset.h" 1
+/* __sig_atomic_t, __sigset_t, and related definitions.  Linux version.
+   Copyright (C) 1991, 1992, 1994, 1996, 1997, 2007
+   Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 
+
+
+
+
+
+
+
+
+  
+    
+  
+
+
+/* We only want to define these functions if <signal.h> was actually
+   included; otherwise we were included just to define the types.  Since we
+   are namespace-clean, it wouldn't hurt to define extra macros.  But
+   trouble can be caused by functions being defined (e.g., any global
+   register vars declared later will cause compilation errors).  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 35 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 2
 
 /* This operating system-specific header file defines the SOCK_*, PF_*,
    AF_*, MSG_*, SOL_*, and SO_* constants, and the `struct sockaddr',
@@ -26746,8 +27090,8 @@ enum
     MSG_DONTROUTE	= 0x04,	/* Don't use local routing.  */
 
 
-    
-    
+    /* DECnet uses a different name.  */
+    MSG_TRYHARD		= MSG_DONTROUTE,
 
 
     MSG_CTRUNC		= 0x08,	/* Control data lost before delivery.  */
@@ -26806,12 +27150,12 @@ struct msghdr
   };
 
 
-
-
-  
-    
-    
-  
+/* For `recvmmsg'.  */
+struct mmsghdr
+  {
+    struct msghdr msg_hdr;	/* Actual message header.  */
+    unsigned int msg_len;	/* Number of received bytes for the entry.  */
+  };
 
 /* Structure used for storage of ancillary data object information.  */
 struct cmsghdr
@@ -26874,19 +27218,19 @@ enum
     SCM_RIGHTS = 0x01		/* Transfer file descriptors.  */
 
 
-    
+    , SCM_CREDENTIALS = 0x02	/* Credentials passing.  */
 
 
   };
 
 
-
-
-
-  
-  
-  
-
+/* User visible structure for SCM_CREDENTIALS message */
+struct ucred
+{
+  pid_t pid;			/* PID of sending process.  */
+  uid_t uid;			/* UID of sending process.  */
+  gid_t gid;			/* GID of sending process.  */
+};
 
 /* Ugly workaround for unclean kernel headers.  */
 
@@ -27084,7 +27428,8 @@ enum
 
 
 
- 
+ /* Add more `struct sockaddr_AF' types here as necessary.
+   These are all the ones I found on NetBSD and Linux.  */
 
 
 
@@ -27101,13 +27446,12 @@ enum
 
 
 
+typedef union { struct sockaddr *__restrict __sockaddr__; struct sockaddr_at *__restrict __sockaddr_at__; struct sockaddr_ax25 *__restrict __sockaddr_ax25__; struct sockaddr_dl *__restrict __sockaddr_dl__; struct sockaddr_eon *__restrict __sockaddr_eon__; struct sockaddr_in *__restrict __sockaddr_in__; struct sockaddr_in6 *__restrict __sockaddr_in6__; struct sockaddr_inarp *__restrict __sockaddr_inarp__; struct sockaddr_ipx *__restrict __sockaddr_ipx__; struct sockaddr_iso *__restrict __sockaddr_iso__; struct sockaddr_ns *__restrict __sockaddr_ns__; struct sockaddr_un *__restrict __sockaddr_un__; struct sockaddr_x25 *__restrict __sockaddr_x25__;
+	      } __SOCKADDR_ARG __attribute__ ((__transparent_union__));
 
 
-	      
-
-
-
-	      
+typedef union { const struct sockaddr *__restrict __sockaddr__; const struct sockaddr_at *__restrict __sockaddr_at__; const struct sockaddr_ax25 *__restrict __sockaddr_ax25__; const struct sockaddr_dl *__restrict __sockaddr_dl__; const struct sockaddr_eon *__restrict __sockaddr_eon__; const struct sockaddr_in *__restrict __sockaddr_in__; const struct sockaddr_in6 *__restrict __sockaddr_in6__; const struct sockaddr_inarp *__restrict __sockaddr_inarp__; const struct sockaddr_ipx *__restrict __sockaddr_ipx__; const struct sockaddr_iso *__restrict __sockaddr_iso__; const struct sockaddr_ns *__restrict __sockaddr_ns__; const struct sockaddr_un *__restrict __sockaddr_un__; const struct sockaddr_x25 *__restrict __sockaddr_x25__;
+	      } __CONST_SOCKADDR_ARG __attribute__ ((__transparent_union__));
 
 
 /* Create a new socket of type TYPE in domain DOMAIN, using
@@ -27123,11 +27467,11 @@ extern int socketpair (int __domain, int __type, int __protocol,
 		       int __fds[2]) __attribute__ ((__nothrow__));
 
 /* Give the socket FD the local address ADDR (which is LEN bytes long).  */
-extern int bind (int __fd, const struct sockaddr * __addr, socklen_t __len)
+extern int bind (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len)
      __attribute__ ((__nothrow__));
 
 /* Put the local address of FD into *ADDR and its length in *LEN.  */
-extern int getsockname (int __fd, struct sockaddr *__restrict __addr,
+extern int getsockname (int __fd, __SOCKADDR_ARG __addr,
 			socklen_t *__restrict __len) __attribute__ ((__nothrow__));
 
 /* Open a connection on socket FD to peer at ADDR (which LEN bytes long).
@@ -27137,11 +27481,11 @@ extern int getsockname (int __fd, struct sockaddr *__restrict __addr,
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int connect (int __fd, const struct sockaddr * __addr, socklen_t __len);
+extern int connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len);
 
 /* Put the address of the peer connected to socket FD into *ADDR
    (which is *LEN bytes long), and its actual length into *LEN.  */
-extern int getpeername (int __fd, struct sockaddr *__restrict __addr,
+extern int getpeername (int __fd, __SOCKADDR_ARG __addr,
 			socklen_t *__restrict __len) __attribute__ ((__nothrow__));
 
 
@@ -27164,7 +27508,7 @@ extern ssize_t recv (int __fd, void *__buf, size_t __n, int __flags);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t sendto (int __fd, const void *__buf, size_t __n,
-		       int __flags, const struct sockaddr * __addr,
+		       int __flags, __CONST_SOCKADDR_ARG __addr,
 		       socklen_t __addr_len);
 
 /* Read N bytes into BUF through socket FD.
@@ -27175,7 +27519,7 @@ extern ssize_t sendto (int __fd, const void *__buf, size_t __n,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
-			 int __flags, struct sockaddr *__restrict __addr,
+			 int __flags, __SOCKADDR_ARG __addr,
 			 socklen_t *__restrict __addr_len);
 
 
@@ -27222,16 +27566,16 @@ extern int listen (int __fd, int __n) __attribute__ ((__nothrow__));
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int accept (int __fd, struct sockaddr *__restrict __addr,
+extern int accept (int __fd, __SOCKADDR_ARG __addr,
 		   socklen_t *__restrict __addr_len);
 
 
+/* Similar to 'accept' but takes an additional parameter to specify flags.
 
-
-
-
-
-		    
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int accept4 (int __fd, __SOCKADDR_ARG __addr,
+		    socklen_t *__restrict __addr_len, int __flags);
 
 /* Shut down all or part of the connection open on socket FD.
    HOW determines what to shut down:
@@ -28283,99 +28627,99 @@ extern int bindresvport6 (int __sockfd, struct sockaddr_in6 *__sock_in)
 
 
 
+/* IPv6 packet information.  */
+struct in6_pktinfo
+  {
+    struct in6_addr ipi6_addr;	/* src/dst IPv6 address */
+    unsigned int ipi6_ifindex;	/* send/recv interface index */
+  };
+
+/* IPv6 MTU information.  */
+struct ip6_mtuinfo
+  {
+    struct sockaddr_in6 ip6m_addr; /* dst address including zone ID */
+    uint32_t ip6m_mtu;		   /* path MTU in host byte order */
+  };
 
 
-  
-    
-    
-  
+/* Obsolete hop-by-hop and Destination Options Processing (RFC 2292).  */
+extern int inet6_option_space (int __nbytes)
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+extern int inet6_option_init (void *__bp, struct cmsghdr **__cmsgp,
+			      int __type) __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+extern int inet6_option_append (struct cmsghdr *__cmsg,
+				const uint8_t *__typep, int __multx,
+				int __plusy) __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+extern uint8_t *inet6_option_alloc (struct cmsghdr *__cmsg, int __datalen,
+				    int __multx, int __plusy)
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+extern int inet6_option_next (const struct cmsghdr *__cmsg,
+			      uint8_t **__tptrp)
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+extern int inet6_option_find (const struct cmsghdr *__cmsg,
+			      uint8_t **__tptrp, int __type)
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 
 
-
-  
-    
-    
-  
-
-
-
-
-     
-
-			      
-
-				
-				
-
-				    
-     
-
-			      
-     
-
-			      
-     
+/* Hop-by-Hop and Destination Options Processing (RFC 3542).  */
+extern int inet6_opt_init (void *__extbuf, socklen_t __extlen) __attribute__ ((__nothrow__));
+extern int inet6_opt_append (void *__extbuf, socklen_t __extlen, int __offset,
+			     uint8_t __type, socklen_t __len, uint8_t __align,
+			     void **__databufp) __attribute__ ((__nothrow__));
+extern int inet6_opt_finish (void *__extbuf, socklen_t __extlen, int __offset)
+     __attribute__ ((__nothrow__));
+extern int inet6_opt_set_val (void *__databuf, int __offset, void *__val,
+			      socklen_t __vallen) __attribute__ ((__nothrow__));
+extern int inet6_opt_next (void *__extbuf, socklen_t __extlen, int __offset,
+			   uint8_t *__typep, socklen_t *__lenp,
+			   void **__databufp) __attribute__ ((__nothrow__));
+extern int inet6_opt_find (void *__extbuf, socklen_t __extlen, int __offset,
+			   uint8_t __type, socklen_t *__lenp,
+			   void **__databufp) __attribute__ ((__nothrow__));
+extern int inet6_opt_get_val (void *__databuf, int __offset, void *__val,
+			      socklen_t __vallen) __attribute__ ((__nothrow__));
 
 
+/* Routing Header Option (RFC 3542).  */
+extern socklen_t inet6_rth_space (int __type, int __segments) __attribute__ ((__nothrow__));
+extern void *inet6_rth_init (void *__bp, socklen_t __bp_len, int __type,
+			     int __segments) __attribute__ ((__nothrow__));
+extern int inet6_rth_add (void *__bp, const struct in6_addr *__addr) __attribute__ ((__nothrow__));
+extern int inet6_rth_reverse (const void *__in, void *__out) __attribute__ ((__nothrow__));
+extern int inet6_rth_segments (const void *__bp) __attribute__ ((__nothrow__));
+extern struct in6_addr *inet6_rth_getaddr (const void *__bp, int __index)
+     __attribute__ ((__nothrow__));
 
 
+/* Multicast source filter support.  */
 
-			     
-			     
+/* Get IPv4 source filter.  */
+extern int getipv4sourcefilter (int __s, struct in_addr __interface_addr,
+				struct in_addr __group, uint32_t *__fmode,
+				uint32_t *__numsrc, struct in_addr *__slist)
+     __attribute__ ((__nothrow__));
 
-     
-
-			      
-
-			   
-			   
-
-			   
-			   
-
-			      
-
+/* Set IPv4 source filter.  */
+extern int setipv4sourcefilter (int __s, struct in_addr __interface_addr,
+				struct in_addr __group, uint32_t __fmode,
+				uint32_t __numsrc,
+				const struct in_addr *__slist)
+     __attribute__ ((__nothrow__));
 
 
+/* Get source filter.  */
+extern int getsourcefilter (int __s, uint32_t __interface_addr,
+			    const struct sockaddr *__group,
+			    socklen_t __grouplen, uint32_t *__fmode,
+			    uint32_t *__numsrc,
+			    struct sockaddr_storage *__slist) __attribute__ ((__nothrow__));
 
-
-			     
-
-
-
-
-     
-
-
-
-
-
-
-				
-				
-     
-
-
-
-				
-				
-				
-     
-
-
-
-
-			    
-			    
-			    
-			    
-
-
-
-			    
-			    
-			    
-			    
+/* Set source filter.  */
+extern int setsourcefilter (int __s, uint32_t __interface_addr,
+			    const struct sockaddr *__group,
+			    socklen_t __grouplen, uint32_t __fmode,
+			    uint32_t __numsrc,
+			    const struct sockaddr_storage *__slist) __attribute__ ((__nothrow__));
 
 
 
@@ -29465,9 +29809,701 @@ extern int getrpcent_r (struct rpcent *__result_buf, char *__buffer,
 
 
 
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 1
+/* siginfo_t, sigevent and constants.  Linux version.
+   Copyright (C) 1997-2002, 2003 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 
 
+
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+/* Determine the wordsize from the preprocessor defines.  */
+
+
+
+
+ 
+
+#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 2
+
+
+
+
+/* Type for data associated with a signal.  */
+typedef union sigval
+  {
+    int sival_int;
+    void *sival_ptr;
+  } sigval_t;
+
+
+
+
+
+
+
+ 
+
+
+  
+    
+    
+    
+
+    
+      
+	
+
+	 
+	
+	  
+	    
+	    
+	  
+
+	
+	
+	  
+	    
+	    
+	    
+	  
+
+	
+	
+	  
+	    
+	    
+	    
+	  
+
+	
+	
+	  
+	    
+	    
+	    
+	    
+	    
+	  
+
+	
+	
+	  
+	    
+	  
+
+	
+	
+	  
+	    
+	    
+	  
+      
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+
+
+/* Structure to transport application-defined values with signals.  */
+
+
+
+ 
+
+typedef struct sigevent
+  {
+    sigval_t sigev_value;
+    int sigev_signo;
+    int sigev_notify;
+
+    union
+      {
+	int _pad[((64 / sizeof (int)) - 4)];
+
+	/* When SIGEV_SIGNAL and SIGEV_THREAD_ID set, LWP ID of the
+	   thread to receive the signal.  */
+	__pid_t _tid;
+
+	struct
+	  {
+	    void (*_function) (sigval_t);	/* Function to start.  */
+	    void *_attribute;			/* Really pthread_attr_t.  */
+	  } _sigev_thread;
+      } _sigev_un;
+  } sigevent_t;
+
+/* POSIX names to access some of the members.  */
+
+
+
+/* `sigev_notify' values.  */
+enum
+{
+  SIGEV_SIGNAL = 0,		/* Notify via signal.  */
+
+  SIGEV_NONE,			/* Other notification: meaningless.  */
+
+  SIGEV_THREAD,			/* Deliver via thread creation.  */
+
+
+  SIGEV_THREAD_ID = 4		/* Send signal to specific thread.  */
+
+};
+
+
+#line 40 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
+
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+/* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+/*
+ *	ISO C99 Standard: 7.23 Date and time	<time.h>
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+   
+  
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     
+
+
+
+
+
+
+
+
+
+			
+			
+
+
+
+
+
+
+		       
+     
+
+
+
+
+
+
+
+			  
+			  
+			  
+
+
+
+			 
+			 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			    
+
+
+
+
+			       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			
+
+
+
+		      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		      
+
+
+
+
+
+
+
+
+
+
+     
+
+
+
+
+
+
+
+			    
+			    
+
+
+
+
+
+
+			 
+			 
+
+
+
+
+
+
+			  
+			  
+
+
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		      
+
+
+
+
+
+#line 42 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
 
 #line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/netdb.h" 1
 /* Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
@@ -29539,7 +30575,7 @@ extern int *__h_errno_location (void) __attribute__ ((__nothrow__)) __attribute_
 
 
 
-
+/* Scope delimiter for getaddrinfo(), getnameinfo().  */
 
 
 
@@ -30022,19 +31058,19 @@ struct addrinfo
 };
 
 
+/* Structure used as control block for asynchronous lookup.  */
+struct gaicb
+{
+  const char *ar_name;		/* Name to look up.  */
+  const char *ar_service;	/* Service name.  */
+  const struct addrinfo *ar_request; /* Additional request specification.  */
+  struct addrinfo *ar_result;	/* Pointer to result.  */
+  /* The following are internal elements.  */
+  int __return;
+  int __unused[5];
+};
 
-
-
-  
-  
-  
-  
-  
-  
-  
-
-
-
+/* Lookup mode.  */
 
 
 
@@ -30114,33 +31150,33 @@ extern int getnameinfo (const struct sockaddr *__restrict __sa,
 			socklen_t __servlen, unsigned int __flags);
 
 
+/* Enqueue ENT requests from the LIST.  If MODE is GAI_WAIT wait until all
+   requests are handled.  If WAIT is GAI_NOWAIT return immediately after
+   queueing the requests and signal completion according to SIG.
 
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int getaddrinfo_a (int __mode, struct gaicb *__list[__restrict],
+			  int __ent, struct sigevent *__restrict __sig);
 
+/* Suspend execution of the thread until at least one of the ENT requests
+   in LIST is handled.  If TIMEOUT is not a null pointer it specifies the
+   longest time the function keeps waiting before returning with an error.
 
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int gai_suspend (const struct gaicb *const __list[], int __ent,
+			const struct timespec *__timeout);
 
+/* Get the error status of the request REQ.  */
+extern int gai_error (struct gaicb *__req) __attribute__ ((__nothrow__));
 
-
-
-
-
-			  
-
-
-
-
-
-
-
-
-
-
-			
-
-
-
-
-
-
+/* Cancel the requests associated with GAICBP.  */
+extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
@@ -31196,9 +32232,9 @@ extern void siglongjmp (sigjmp_buf __env, int __val)
 
 
 
-
-
-
+/* The POSIX does not specify for handling the whole signal set in one
+   command.  This is often wanted and so we define three more functions
+   here.  */
 
 
 
@@ -31979,12 +33015,12 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-/* Type for data associated with a signal.  */
-typedef union sigval
-  {
-    int sival_int;
-    void *sival_ptr;
-  } sigval_t;
+
+
+  
+    
+    
+  
 
 
 
@@ -32205,51 +33241,51 @@ enum
 
 
 
-/* Structure to transport application-defined values with signals.  */
+
 
 
 
  
 
-typedef struct sigevent
-  {
-    sigval_t sigev_value;
-    int sigev_signo;
-    int sigev_notify;
 
-    union
-      {
-	int _pad[((64 / sizeof (int)) - 4)];
+  
+    
+    
+    
 
-	/* When SIGEV_SIGNAL and SIGEV_THREAD_ID set, LWP ID of the
-	   thread to receive the signal.  */
-	__pid_t _tid;
+    
+      
+	
 
-	struct
-	  {
-	    void (*_function) (sigval_t);	/* Function to start.  */
-	    void *_attribute;			/* Really pthread_attr_t.  */
-	  } _sigev_thread;
-      } _sigev_un;
-  } sigevent_t;
+	
 
-/* POSIX names to access some of the members.  */
+	
+
+	
+	  
+	    
+	    
+	  
+      
+  
 
 
 
-/* `sigev_notify' values.  */
-enum
-{
-  SIGEV_SIGNAL = 0,		/* Notify via signal.  */
-
-  SIGEV_NONE,			/* Other notification: meaningless.  */
-
-  SIGEV_THREAD,			/* Deliver via thread creation.  */
 
 
-  SIGEV_THREAD_ID = 4		/* Send signal to specific thread.  */
 
-};
+
+
+  
+
+  
+
+  
+
+
+  
+
+
 
 
 #line 81 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
@@ -32263,8 +33299,8 @@ typedef void (*__sighandler_t) (int);
 extern __sighandler_t __sysv_signal (int __sig, __sighandler_t __handler)
      __attribute__ ((__nothrow__));
 
-
-     
+extern __sighandler_t sysv_signal (int __sig, __sighandler_t __handler)
+     __attribute__ ((__nothrow__));
 
 /* Set the handler for the signal SIG to HANDLER, returning the old
    handler, or SIG_ERR on error.
@@ -32284,10 +33320,10 @@ extern __sighandler_t signal (int __sig, __sighandler_t __handler)
 
 
 
-
-
-
-     
+/* The X/Open definition of `signal' conflicts with the BSD version.
+   So they defined another function `bsd_signal'.  */
+extern __sighandler_t bsd_signal (int __sig, __sighandler_t __handler)
+     __attribute__ ((__nothrow__));
 
 /* Send signal SIG to process number PID.  If PID is zero,
    send SIG to all processes in the current process's process group.
@@ -32336,7 +33372,7 @@ extern int __sigpause (int __sig_or_mask, int __is_sig);
 
  
 
-
+extern int sigpause (int __sig) __asm__ ("__xpg_sigpause");
  
 
 
@@ -32364,7 +33400,7 @@ extern int siggetmask (void) __attribute__ ((__nothrow__)) __attribute__ ((__dep
 
 
 
-
+typedef __sighandler_t sighandler_t;
 
 /* 4.4 BSD uses the name `sig_t' for this.  */
 
@@ -32388,16 +33424,16 @@ extern int sigismember (const sigset_t *__set, int __signo)
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
+/* Return non-empty value is SET is not empty.  */
+extern int sigisemptyset (const sigset_t *__set) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
+/* Build new signal set by combining the two inputs set using logical AND.  */
+extern int sigandset (sigset_t *__set, const sigset_t *__left,
+		      const sigset_t *__right) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3)));
 
-
-
-
-		      
-
-
-
-		     
+/* Build new signal set by combining the two inputs set using logical OR.  */
+extern int sigorset (sigset_t *__set, const sigset_t *__left,
+		     const sigset_t *__right) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3)));
 
 /* Get the system-specific definitions of `struct sigaction'
    and the `SA_*' and `SIG_*'. constants.  */
@@ -34093,56 +35129,56 @@ typedef long int greg_t;
 typedef greg_t gregset_t[23];
 
 
+/* Number of each register in the `gregset_t' array.  */
+enum
+{
+  REG_R8 = 0,
 
+  REG_R9,
 
+  REG_R10,
 
-  
+  REG_R11,
 
-  
+  REG_R12,
 
-  
+  REG_R13,
 
-  
+  REG_R14,
 
-  
+  REG_R15,
 
-  
+  REG_RDI,
 
-  
+  REG_RSI,
 
-  
+  REG_RBP,
 
-  
+  REG_RBX,
 
-  
+  REG_RDX,
 
-  
+  REG_RAX,
 
-  
+  REG_RCX,
 
-  
+  REG_RSP,
 
-  
+  REG_RIP,
 
-  
+  REG_EFL,
 
-  
+  REG_CSGSFS,		/* Actually short cs, gs, fs, __pad0.  */
 
-  
+  REG_ERR,
 
-  
+  REG_TRAPNO,
 
-  
+  REG_OLDMASK,
 
-  
+  REG_CR2
 
-  
-
-  
-
-  
-
-
+};
 
 struct _libc_fpxreg
 {
@@ -34310,19 +35346,19 @@ extern int sigaltstack (const struct sigaltstack *__restrict __ss,
 
 
 
+/* Simplified interface for signal management.  */
 
+/* Add SIG to the calling process' signal mask.  */
+extern int sighold (int __sig) __attribute__ ((__nothrow__));
 
+/* Remove SIG from the calling process' signal mask.  */
+extern int sigrelse (int __sig) __attribute__ ((__nothrow__));
 
+/* Set the disposition of SIG to SIG_IGN.  */
+extern int sigignore (int __sig) __attribute__ ((__nothrow__));
 
-
-
-
-
-
-
-
-
-
+/* Set the disposition of SIG.  */
+extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((__nothrow__));
 
 
 /* Some of the functions for handling signals in threaded programs must
@@ -34579,9 +35615,9 @@ extern int pthread_sigmask (int __how,
 extern int pthread_kill (pthread_t __threadid, int __signo) __attribute__ ((__nothrow__));
 
 
-
-
-			     
+/* Queue signal and data to a thread.  */
+extern int pthread_sigqueue (pthread_t __threadid, int __signo,
+			     const union sigval __value) __attribute__ ((__nothrow__));
 
 
 #line 397 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
@@ -37861,27 +38897,27 @@ typedef int __io_close_fn (void *__cookie);
 
 
 
+/* User-visible names for the above.  */
+typedef __io_read_fn cookie_read_function_t;
+typedef __io_write_fn cookie_write_function_t;
+typedef __io_seek_fn cookie_seek_function_t;
+typedef __io_close_fn cookie_close_function_t;
 
+/* The structure with the cookie function pointers.  */
+typedef struct
+{
+  __io_read_fn *read;		/* Read bytes.  */
+  __io_write_fn *write;		/* Write bytes.  */
+  __io_seek_fn *seek;		/* Seek/tell file position.  */
+  __io_close_fn *close;		/* Close file.  */
+} _IO_cookie_io_functions_t;
+typedef _IO_cookie_io_functions_t cookie_io_functions_t;
 
+struct _IO_cookie_file;
 
-
-
-
-
-
-
-  
-  
-  
-  
-
-
-
-
-
-
-
-			     
+/* Initialize one of those.  */
+extern void _IO_cookie_init (struct _IO_cookie_file *__cfile, int __read_write,
+			     void *__cookie, _IO_cookie_io_functions_t __fns);
 
 
 
@@ -38052,7 +39088,7 @@ typedef _G_fpos_t fpos_t;
 
 
 
-
+typedef _G_fpos64_t fpos64_t;
 
 /* The possibilities for the third argument to `setvbuf'.  */
 
@@ -38168,7 +39204,7 @@ extern FILE *tmpfile (void) ;
 
 
 
-
+extern FILE *tmpfile64 (void) ;
 
 /* Generate a temporary filename.  */
 extern char *tmpnam (char *__s) __attribute__ ((__nothrow__)) ;
@@ -38213,13 +39249,13 @@ extern int fflush (FILE *__stream);
 extern int fflush_unlocked (FILE *__stream);
 
 
+/* Close all streams.
 
-
-
-
-
-
-
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int fcloseall (void);
 
 
 
@@ -38250,22 +39286,22 @@ extern FILE *freopen (const char *__restrict __filename,
 
 
 
-
-		      
-
-			
-			
+extern FILE *fopen64 (const char *__restrict __filename,
+		      const char *__restrict __modes) ;
+extern FILE *freopen64 (const char *__restrict __filename,
+			const char *__restrict __modes,
+			FILE *__restrict __stream) ;
 
 
 /* Create a new stream that refers to an existing system file descriptor.  */
 extern FILE *fdopen (int __fd, const char *__modes) __attribute__ ((__nothrow__)) ;
 
 
-
-
-
-			  
-			  
+/* Create a new stream that refers to the given magic cookie,
+   and uses the given functions for input and output.  */
+extern FILE *fopencookie (void *__restrict __magic_cookie,
+			  const char *__restrict __modes,
+			  _IO_cookie_io_functions_t __io_funcs) __attribute__ ((__nothrow__)) ;
 
 
 /* Create a new stream that refers to a memory buffer.  */
@@ -38342,17 +39378,17 @@ extern int vsnprintf (char *__restrict __s, size_t __maxlen,
 
 
 
-
-
-
-		      
-     
-
-		       
-     
-
-		     
-     
+/* Write formatted output to a string dynamically allocated with `malloc'.
+   Store the address of the string in *PTR.  */
+extern int vasprintf (char **__restrict __ptr, const char *__restrict __f,
+		      __gnuc_va_list __arg)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 0))) ;
+extern int __asprintf (char **__restrict __ptr,
+		       const char *__restrict __fmt, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3))) ;
+extern int asprintf (char **__restrict __ptr,
+		     const char *__restrict __fmt, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3))) ;
 
 
 /* Write formatted output to a file descriptor.
@@ -38385,14 +39421,17 @@ extern int sscanf (const char *__restrict __s,
 
 
 
-/* For strict ISO C99 or POSIX compliance disallow %as, %aS and %a[
-   GNU extension which conflicts with valid %a followed by letter
-   s, S or [.  */
-extern int fscanf (FILE *__restrict __stream,
- const char *__restrict __format, ...) __asm__ ("" "__isoc99_fscanf") ;
-extern int scanf (const char *__restrict __format, ...) __asm__ ("" "__isoc99_scanf") ;
-extern int sscanf (const char *__restrict __s,
- const char *__restrict __format, ...) __asm__ ("" "__isoc99_sscanf") __attribute__ ((__nothrow__));
+
+
+
+
+				
+		       
+
+		       
+
+				    
+			   
  
 			    
 
@@ -38429,21 +39468,22 @@ extern int vsscanf (const char *__restrict __s,
 
 
 
-/* For strict ISO C99 or POSIX compliance disallow %as, %aS and %a[
-   GNU extension which conflicts with valid %a followed by letter
-   s, S or [.  */
-extern int vfscanf 
-(FILE *__restrict __s,
- const char *__restrict __format, __gnuc_va_list __arg) __asm__ ("" "__isoc99_vfscanf")
-     __attribute__ ((__format__ (__scanf__, 2, 0))) ;
-extern int vscanf (const char *__restrict __format,
- __gnuc_va_list __arg) __asm__ ("" "__isoc99_vscanf")
-     __attribute__ ((__format__ (__scanf__, 1, 0))) ;
-extern int vsscanf 
-(const char *__restrict __s,
- const char *__restrict __format,
- __gnuc_va_list __arg) __asm__ ("" "__isoc99_vsscanf") __attribute__ ((__nothrow__))
-     __attribute__ ((__format__ (__scanf__, 2, 0)));
+
+
+
+
+		       
+			
+		       
+     
+
+				
+     
+
+			   
+			    
+			    
+     
  
 			     
 			     
@@ -38558,14 +39598,14 @@ extern char *gets (char *__s) ;
 
 
 
+/* This function does the same as `fgets' but does not lock the stream.
 
-
-
-
-
-
-
-			     
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern char *fgets_unlocked (char *__restrict __s, int __n,
+			     FILE *__restrict __stream) ;
 
 
 /* Read up to (and including) a DELIMITER from STREAM into *LINEPTR
@@ -38631,14 +39671,14 @@ extern size_t fwrite (const void *__restrict __ptr, size_t __size,
 
 
 
+/* This function does the same as `fputs' but does not lock the stream.
 
-
-
-
-
-
-
-			   
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int fputs_unlocked (const char *__restrict __s,
+			   FILE *__restrict __stream);
 
 
 /* Faster versions when locking is not necessary.
@@ -38721,10 +39761,10 @@ extern int fsetpos (FILE *__stream, const fpos_t *__pos);
 
 
 
-
-
-
-
+extern int fseeko64 (FILE *__stream, __off64_t __off, int __whence);
+extern __off64_t ftello64 (FILE *__stream) ;
+extern int fgetpos64 (FILE *__restrict __stream, fpos64_t *__restrict __pos);
+extern int fsetpos64 (FILE *__stream, const fpos64_t *__pos);
 
 
 /* Clear the error and EOF indicators for STREAM.  */
@@ -38783,8 +39823,8 @@ extern int sys_nerr;
 extern const char *const sys_errlist[];
 
 
-
-
+extern int _sys_nerr;
+extern const char *const _sys_errlist[];
 
 #line 850 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 2
 
@@ -38815,20 +39855,20 @@ extern int pclose (FILE *__stream);
 extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
+/* Return the name of the current user.  */
+extern char *cuserid (char *__s);
 
 
+struct obstack;			/* See <obstack.h>.  */
 
-
-
-
-
-
-			   
-     
-
-			    
-			    
-     
+/* Write formatted output to an obstack.  */
+extern int obstack_printf (struct obstack *__restrict __obstack,
+			   const char *__restrict __format, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3)));
+extern int obstack_vprintf (struct obstack *__restrict __obstack,
+			    const char *__restrict __format,
+			    __gnuc_va_list __args)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 0)));
 
 
 /* These are defined in POSIX.1:1996.  */
@@ -40027,6 +41067,39 @@ extern unsigned long long int strtoull (const char *__restrict __nptr,
 
 
 
+/* The concept of one static locale per category is not very well
+   thought out.  Many applications will need to process its data using
+   information from several different locales.  Another problem is
+   the implementation of the internationalization handling in the
+   ISO C++ standard library.  To support this another set of
+   the functions using locale data exist which take an additional
+   argument.
+
+   Attention: even though several *_l interfaces are part of POSIX:2008,
+   these are not.  */
+
+/* Structure for reentrant locale using functions.  This is an
+   (almost) opaque type for the user level programs.  */
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/xlocale.h" 1
+/* Definition of locale datatype.
+   Copyright (C) 1997,2000,2002,2009,2010 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+   Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 
 
@@ -40037,46 +41110,59 @@ extern unsigned long long int strtoull (const char *__restrict __nptr,
 
 
 
+  
+  
+
+  
+  
+  
+  
+
+  
+  
 
 
 
 
 
 
+#line 238 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
 
+/* Special versions of the functions above which take the locale to
+   use as an additional parameter.  */
+extern long int strtol_l (const char *__restrict __nptr,
+			  char **__restrict __endptr, int __base,
+			  __locale_t __loc) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
-			  
-			  
+extern unsigned long int strtoul_l (const char *__restrict __nptr,
+				    char **__restrict __endptr,
+				    int __base, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
+__extension__
+extern long long int strtoll_l (const char *__restrict __nptr,
+				char **__restrict __endptr, int __base,
+				__locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
-				    
-				    
-     
+__extension__
+extern unsigned long long int strtoull_l (const char *__restrict __nptr,
+					  char **__restrict __endptr,
+					  int __base, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
+extern double strtod_l (const char *__restrict __nptr,
+			char **__restrict __endptr, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
 
+extern float strtof_l (const char *__restrict __nptr,
+		       char **__restrict __endptr, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
 
-				
-				
-     
-
-
-
-					  
-					  
-     
-
-
-			
-     
-
-
-		       
-     
-
-
-			      
-			      
-     
+extern long double strtold_l (const char *__restrict __nptr,
+			      char **__restrict __endptr,
+			      __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
 
 
 
@@ -41317,13 +42403,13 @@ extern void abort (void) __attribute__ ((__nothrow__)) __attribute__ ((__noretur
 extern int atexit (void (*__func) (void)) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
-
-
-
+// XXX There should be a macro to signal with C++ revision is used.
+// XXX This function is in the C++1x revision.
+/* Register a function to be called when `quick_exit' is called.  */
 
 
      
- 
+ extern int at_quick_exit (void (*__func) (void)) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -41341,12 +42427,12 @@ extern int on_exit (void (*__func) (int __status, void *__arg), void *__arg)
 extern void exit (int __status) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
-
-
-
-
-
-
+// XXX There should be a macro to signal with C++ revision is used.
+// XXX This function is in the C++1x revision.
+/* Call all functions registered with `at_quick_exit' in the reverse
+   of the order in which they were registered and terminate program
+   execution with STATUS.  */
+extern void quick_exit (int __status) __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 
@@ -41413,7 +42499,7 @@ extern int mkstemp (char *__template) __attribute__ ((__nonnull__ (1))) ;
 
 
 
-
+extern int mkstemp64 (char *__template) __attribute__ ((__nonnull__ (1))) ;
 
 
 
@@ -41432,8 +42518,8 @@ extern int mkstemps (char *__template, int __suffixlen) __attribute__ ((__nonnul
 
 
 
-
-     
+extern int mkstemps64 (char *__template, int __suffixlen)
+     __attribute__ ((__nonnull__ (1))) ;
 
 
 
@@ -41445,14 +42531,14 @@ extern int mkstemps (char *__template, int __suffixlen) __attribute__ ((__nonnul
 extern char *mkdtemp (char *__template) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
+/* Generate a unique temporary file name from TEMPLATE similar to
+   mkstemp.  But allow the caller to pass additional flags which are
+   used in the open call to create the file..
 
+   This function is a possible cancellation points and therefore not
+   marked with __THROW.  */
 
-
-
-
-
-
-
+extern int mkostemp (char *__template, int __flags) __attribute__ ((__nonnull__ (1))) ;
  
 
      
@@ -41460,17 +42546,17 @@ extern char *mkdtemp (char *__template) __attribute__ ((__nothrow__)) __attribut
 
 
 
+extern int mkostemp64 (char *__template, int __flags) __attribute__ ((__nonnull__ (1))) ;
 
+/* Similar to mkostemp, but the template can have a suffix after the
+   XXXXXX.  The length of the suffix is specified in the second
+   parameter.
 
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
 
-
-
-
-
-
-
-
-     
+extern int mkostemps (char *__template, int __suffixlen, int __flags)
+     __attribute__ ((__nonnull__ (1))) ;
  
 
 				   
@@ -41479,8 +42565,8 @@ extern char *mkdtemp (char *__template) __attribute__ ((__nothrow__)) __attribut
 
 
 
-
-     
+extern int mkostemps64 (char *__template, int __suffixlen, int __flags)
+     __attribute__ ((__nonnull__ (1))) ;
 
 
 
@@ -41493,10 +42579,10 @@ extern int system (const char *__command) ;
 
 
 
-
-
-
-     
+/* Return a malloc'd string containing the canonical absolute name of the
+   existing named file.  */
+extern char *canonicalize_file_name (const char *__name)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 /* Return the canonical absolute name of file NAME.  If RESOLVED is
@@ -41513,11 +42599,11 @@ extern char *realpath (const char *__restrict __name,
 typedef int (*__compar_fn_t) (const void *, const void *);
 
 
+typedef __compar_fn_t comparison_fn_t;
 
 
 
-
-
+typedef int (*__compar_d_fn_t) (const void *, const void *, void *);
 
 
 /* Do a binary search for KEY in BASE, which consists of NMEMB elements
@@ -41531,9 +42617,9 @@ extern void *bsearch (const void *__key, const void *__base,
 extern void qsort (void *__base, size_t __nmemb, size_t __size,
 		   __compar_fn_t __compar) __attribute__ ((__nonnull__ (1, 4)));
 
-
-		     
-  
+extern void qsort_r (void *__base, size_t __nmemb, size_t __size,
+		     __compar_d_fn_t __compar, void *__arg)
+  __attribute__ ((__nonnull__ (1, 4)));
 
 /* Return the absolute value of X.  */
 extern int abs (int __x) __attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
@@ -41658,40 +42744,40 @@ extern int getsubopt (char **__restrict __optionp,
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3))) ;
 
 
-
-
+/* Setup DES tables according KEY.  */
+extern void setkey (const char *__key) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* X/Open pseudo terminal handling.  */
 
 
+/* Return a master pseudo-terminal handle.  */
+extern int posix_openpt (int __oflag) ;
 
 
+/* The next four functions all take a master pseudo-tty fd and
+   perform an operation on the associated slave:  */
+
+/* Chown the slave to the calling user.  */
+extern int grantpt (int __fd) __attribute__ ((__nothrow__));
+
+/* Release an internal lock so the slave can be opened.
+   Call after grantpt().  */
+extern int unlockpt (int __fd) __attribute__ ((__nothrow__));
+
+/* Return the pathname of the pseudo terminal slave assoicated with
+   the master FD is open on, or NULL on errors.
+   The returned storage is good until the next call to this function.  */
+extern char *ptsname (int __fd) __attribute__ ((__nothrow__)) ;
 
 
+/* Store at most BUFLEN characters of the pathname of the slave pseudo
+   terminal associated with the master FD is open on in BUF.
+   Return 0 on success, otherwise an error number.  */
+extern int ptsname_r (int __fd, char *__buf, size_t __buflen)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     
-
-
-
+/* Open a master pseudo terminal and return its file descriptor.  */
+extern int getpt (void);
 
 
 /* Put the 1 minute, 5 minute and 15 minute load averages into the first
@@ -43049,24 +44135,24 @@ extern int memcmp (const void *__s1, const void *__s2, size_t __n)
 
 
 
-
-
+/* Search in S for C.  This is similar to `memchr' but there is no
+   length limit.  */
 
 
      
 
      
- 
-     
+ extern void *rawmemchr (const void *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
-
+/* Search N bytes of S for the final occurrence of C.  */
 
 
       
 
       
- 
-      
+ extern void *memrchr (const void *__s, int __c, size_t __n)
+      __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -43173,6 +44259,7 @@ extern char *strndup (const char *__string, size_t __n)
      __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__ (1)));
 
 
+/* Duplicate S, returning an identical alloca'd string.  */
 
 
 
@@ -43182,8 +44269,7 @@ extern char *strndup (const char *__string, size_t __n)
 
 
 
-
-
+/* Return an alloca'd copy of at most N bytes of string.  */
 
 
 
@@ -43250,15 +44336,15 @@ extern char *strndup (const char *__string, size_t __n)
 
 
 
-
-
+/* This function is similar to `strchr'.  But it returns a pointer to
+   the closing NUL byte in case C is not found in S.  */
 
 
      
 
      
- 
-     
+ extern char *strchrnul (const char *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -43340,33 +44426,33 @@ extern char *strtok_r (char *__restrict __s, const char *__restrict __delim,
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 
 
-
+/* Similar to `strstr' but this function ignores the case of both strings.  */
 
 
      
 
 				       
      
- 
-     
+ extern char *strcasestr (const char *__haystack, const char *__needle)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
+/* Find the first occurrence of NEEDLE in HAYSTACK.
+   NEEDLE is NEEDLELEN bytes long;
+   HAYSTACK is HAYSTACKLEN bytes long.  */
+extern void *memmem (const void *__haystack, size_t __haystacklen,
+		     const void *__needle, size_t __needlelen)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 3)));
 
-
-
-
-		     
-     
-
-
-
-
-			
-     
-
-		      
-     
+/* Copy N bytes of SRC to DEST, return pointer to bytes after the
+   last written byte.  */
+extern void *__mempcpy (void *__restrict __dest,
+			const void *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+extern void *mempcpy (void *__restrict __dest,
+		      const void *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Return the length of S.  */
@@ -43393,19 +44479,20 @@ extern char *strerror (int __errnum) __attribute__ ((__nothrow__));
    without -D_GNU_SOURCE is needed, otherwise the GNU version is
    preferred.  */
 
-/* Fill BUF with a string describing the meaning of the `errno' code in
-   ERRNUM.  */
 
-extern int strerror_r 
-(int __errnum, char *__buf, size_t __buflen) __asm__ ("" "__xpg_strerror_r") __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+
+
+
+			   
+			   
  
      
 
 
- 
-
-
-     
+ /* If a temporary buffer is required, at most BUFLEN bytes of BUF will be
+   used.  */
+extern char *strerror_r (int __errnum, char *__buf, size_t __buflen)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
@@ -43487,10 +44574,10 @@ extern int ffs (int __i) __attribute__ ((__nothrow__)) __attribute__ ((__const__
 /* The following two functions are non-standard but necessary for non-32 bit
    platforms.  */
 
+extern int ffsl (long int __l) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
-
-
-     
+__extension__ extern int ffsll (long long int __ll)
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 
 /* Compare S1 and S2, ignoring case.  */
@@ -43502,15 +44589,15 @@ extern int strncasecmp (const char *__s1, const char *__s2, size_t __n)
      __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
+/* Again versions of a few functions which use the given locale instead
+   of the global one.  */
+extern int strcasecmp_l (const char *__s1, const char *__s2,
+			 __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 3)));
 
-
-
-			 
-     
-
-
-			  
-     
+extern int strncasecmp_l (const char *__s1, const char *__s2,
+			  size_t __n, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 4)));
 
 
 /* Return the next DELIM-delimited token from *STRINGP,
@@ -43539,27 +44626,27 @@ extern char *stpncpy (char *__restrict __dest,
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
+/* Compare S1 and S2 as strings holding name & indices/version numbers.  */
+extern int strverscmp (const char *__s1, const char *__s2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+
+/* Sautee STRING briskly.  */
+extern char *strfry (char *__string) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+
+/* Frobnicate N bytes of S.  */
+extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+
+
+/* Return the file name within directory of FILENAME.  We don't
+   declare the function if the `basename' macro is available (defined
+   in <libgen.h>) which makes the XPG version of this function
+   available.  */
 
 
      
 
-
-
-
-
-
-
-
-
-
-
-
-
-
      
-
-     
- 
+ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -43997,7 +45084,7 @@ extern char *stpncpy (char *__restrict __dest,
 
 
 
-
+/* These are extensions for Linux.  */
 
 
 
@@ -44010,11 +45097,516 @@ extern char *stpncpy (char *__restrict __dest,
 
 #line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 2
 
+/* Get the __sigset_t definition.  */
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigset.h" 1
+/* __sig_atomic_t, __sigset_t, and related definitions.  Linux version.
+   Copyright (C) 1991, 1992, 1994, 1996, 1997, 2007
+   Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 
 
 
 
+
+
+
+
+
+  
+    
+  
+
+
+/* We only want to define these functions if <signal.h> was actually
+   included; otherwise we were included just to define the types.  Since we
+   are namespace-clean, it wouldn't hurt to define extra macros.  But
+   trouble can be caused by functions being defined (e.g., any global
+   register vars declared later will cause compilation errors).  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 2
+/* Get the timespec definition.  */
+
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+/* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+/*
+ *	ISO C99 Standard: 7.23 Date and time	<time.h>
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+   
+  
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     
+
+
+
+
+
+
+
+
+
+			
+			
+
+
+
+
+
+
+		       
+     
+
+
+
+
+
+
+
+			  
+			  
+			  
+
+
+
+			 
+			 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			    
+
+
+
+
+			       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			
+
+
+
+		      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		      
+
+
+
+
+
+
+
+
+
+
+     
+
+
+
+
+
+
+
+			    
+			    
+
+
+
+
+
+
+			 
+			 
+
+
+
+
+
+
+			  
+			  
+
+
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		      
+
+
+
+
+
+#line 34 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 2
 
 /* Type used for the number of file descriptors.  */
 typedef unsigned long int nfds_t;
@@ -44041,15 +45633,15 @@ struct pollfd
 extern int poll (struct pollfd *__fds, nfds_t __nfds, int __timeout);
 
 
+/* Like poll, but before waiting the threads signal mask is replaced
+   with that specified in the fourth parameter.  For better usability,
+   the timeout value is specified using a TIMESPEC object.
 
-
-
-
-
-
-
-		  
-		  
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
+		  const struct timespec *__timeout,
+		  const __sigset_t *__ss);
 
 
 
@@ -46131,8 +47723,8 @@ extern void *mmap (void *__addr, size_t __len, int __prot,
 
 
 
-
-		     
+extern void *mmap64 (void *__addr, size_t __len, int __prot,
+		     int __flags, int __fd, __off64_t __offset) __attribute__ ((__nothrow__));
 
 /* Deallocate any mapping for the region starting at ADDR and extending LEN
    bytes.  Returns 0 if successful, -1 for errors (and sets errno).  */
@@ -46186,18 +47778,18 @@ extern int mincore (void *__start, size_t __len, unsigned char *__vec)
      __attribute__ ((__nothrow__));
 
 
+/* Remap pages mapped by the range [ADDR,ADDR+OLD_LEN) to new length
+   NEW_LEN.  If MREMAP_MAYMOVE is set in FLAGS the returned address
+   may differ from ADDR.  If MREMAP_FIXED is set in FLAGS the function
+   takes another paramter which is a fixed address at which the block
+   resides after a successful call.  */
+extern void *mremap (void *__addr, size_t __old_len, size_t __new_len,
+		     int __flags, ...) __attribute__ ((__nothrow__));
 
-
-
-
-
-
-		     
-
-
-
-
-			     
+/* Remap arbitrary pages of a shared backing store within an existing
+   VMA.  */
+extern int remap_file_pages (void *__start, size_t __size, int __prot,
+			     size_t __pgoff, int __flags) __attribute__ ((__nothrow__));
 
 /* Open shared memory segment.  */
 extern int shm_open (const char *__name, int __oflag, mode_t __mode);
@@ -47764,9 +49356,9 @@ extern int fstat (int __fd, struct stat *__buf) __attribute__ ((__nothrow__)) __
 
 
 
-
-		   
-
+extern int stat64 (const char *__restrict __file,
+		   struct stat64 *__restrict __buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+extern int fstat64 (int __fd, struct stat64 *__buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 /* Similar to stat, get the attributes for FILE and put them in BUF.
@@ -47785,9 +49377,9 @@ extern int fstatat (int __fd, const char *__restrict __file,
 
 
 
-
-		      
-     
+extern int fstatat64 (int __fd, const char *__restrict __file,
+		      struct stat64 *__restrict __buf, int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 
 
 
@@ -47805,9 +49397,9 @@ extern int lstat (const char *__restrict __file,
 
 
 
-
-		    
-     
+extern int lstat64 (const char *__restrict __file,
+		    struct stat64 *__restrict __buf)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Set file access permissions for FILE to MODE.
@@ -47838,9 +49430,9 @@ extern int fchmodat (int __fd, const char *__file, __mode_t __mode,
 extern __mode_t umask (__mode_t __mask) __attribute__ ((__nothrow__));
 
 
-
-
-
+/* Get the current `umask' value without changing it.
+   This function is only available under the GNU Hurd.  */
+extern __mode_t getumask (void) __attribute__ ((__nothrow__));
 
 /* Create a new directory named PATH, with permission bits MODE.  */
 extern int mkdir (const char *__path, __mode_t __mode)
@@ -47946,15 +49538,15 @@ extern int __fxstatat (int __ver, int __fildes, const char *__filename,
 
 
 
-
-     
-
-		      
-
-		       
-
-			 
-     
+extern int __fxstat64 (int __ver, int __fildes, struct stat64 *__stat_buf)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3)));
+extern int __xstat64 (int __ver, const char *__filename,
+		      struct stat64 *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+extern int __lxstat64 (int __ver, const char *__filename,
+		       struct stat64 *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+extern int __fxstatat64 (int __ver, int __fildes, const char *__filename,
+			 struct stat64 *__stat_buf, int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4)));
 
 extern int __xmknod (int __ver, const char *__path, __mode_t __mode,
 		     __dev_t *__dev) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
@@ -49196,7 +50788,7 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
 
 
 
-
+/* Macros for converting between `struct timeval' and `struct timespec'.  */
 
 
 
@@ -49266,10 +50858,10 @@ struct itimerval
   };
 
 
-
-
-
- typedef int __itimer_which_t;
+/* Use the nicer parameter type only in GNU mode and not for C++ since the
+   strict C++ rules prevent the automatic promotion.  */
+typedef enum __itimer_which __itimer_which_t;
+ 
 
 /* Set *VALUE to the current setting of timer WHICH.
    Return 0 on success, -1 on errors.  */
@@ -49298,11 +50890,11 @@ extern int lutimes (const char *__file, const struct timeval __tvp[2])
 extern int futimes (int __fd, const struct timeval __tvp[2]) __attribute__ ((__nothrow__));
 
 
-
-
-
-
-		      
+/* Change the access time of FILE relative to FD to TVP[0] and the
+   modification time of FILE to TVP[1].  If TVP is a null pointer, use
+   the current time instead.  Returns 0 on success, -1 on errors.  */
+extern int futimesat (int __fd, const char *__file,
+		      const struct timeval __tvp[2]) __attribute__ ((__nothrow__));
 
 
 /* Convenience macros for operations on timevals.
@@ -50997,7 +52589,7 @@ typedef __rlim_t rlim_t;
  
 
 
-
+typedef __rlim64_t rlim64_t;
 
 struct rlimit
   {
@@ -51008,13 +52600,13 @@ struct rlimit
   };
 
 
-
-  
-    
-    
-    
-    
- 
+struct rlimit64
+  {
+    /* The current (soft) limit.  */
+    rlim64_t rlim_cur;
+    /* The hard limit.  */
+    rlim64_t rlim_max;
+ };
 
 /* Whose usage statistics do you want?  */
 enum __rusage_who
@@ -51028,11 +52620,11 @@ enum __rusage_who
 
 
 
-  
-  
-  
+  ,
+  /* The calling thread.  */
+  RUSAGE_THREAD = 1
 
-  
+  /* Name for the same functionality on Solaris.  */
 
 
 };
@@ -51190,12 +52782,12 @@ enum __priority_which
    GNU extensions we change this slightly to provide better error
    checking.  */
 
+typedef enum __rlimit_resource __rlimit_resource_t;
+typedef enum __rusage_who __rusage_who_t;
+typedef enum __priority_which __priority_which_t;
+ 
 
 
-
- typedef int __rlimit_resource_t;
-typedef int __rusage_who_t;
-typedef int __priority_which_t;
 
 /* Put the soft and hard limits for RESOURCE in *RLIMITS.
    Returns 0 if successful, -1 if not (and sets errno).  */
@@ -51209,8 +52801,8 @@ extern int getrlimit (__rlimit_resource_t __resource,
 
 
 
-
-			
+extern int getrlimit64 (__rlimit_resource_t __resource,
+			struct rlimit64 *__rlimits) __attribute__ ((__nothrow__));
 
 /* Set the soft and hard limits for RESOURCE to *RLIMITS.
    Only the super-user can increase hard limits.
@@ -51226,8 +52818,8 @@ extern int setrlimit (__rlimit_resource_t __resource,
 
 
 
-
-			
+extern int setrlimit64 (__rlimit_resource_t __resource,
+			const struct rlimit64 *__rlimits) __attribute__ ((__nothrow__));
 
 /* Return resource usage information on process indicated by WHO
    and put it in *USAGE.  Returns 0 for success, -1 for failure.  */
@@ -52525,8 +54117,8 @@ extern int tcflow (int __fd, int __action) __attribute__ ((__nothrow__));
 
 
 
-
-
+/* Get process group ID for session leader for controlling terminal FD.  */
+extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 #line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ttydefaults.h" 1
@@ -53625,11 +55217,11 @@ extern size_t strftime (char *__restrict __s, size_t __maxsize,
 
 
 
-
-
-
-		       
-     
+/* Parse S according to FORMAT and store binary time information in TP.
+   The return value is a pointer to the first unparsed character in S.  */
+extern char *strptime (const char *__restrict __s,
+		       const char *__restrict __fmt, struct tm *__tp)
+     __attribute__ ((__nothrow__));
 
 
 /* Similar to the two functions above but take the information from
@@ -53688,9 +55280,9 @@ extern size_t strftime_l (char *__restrict __s, size_t __maxsize,
 			  __locale_t __loc) __attribute__ ((__nothrow__));
 
 
-
-			 
-			 
+extern char *strptime_l (const char *__restrict __s,
+			 const char *__restrict __fmt, struct tm *__tp,
+			 __locale_t __loc) __attribute__ ((__nothrow__));
 
 
 /* Return the `struct tm' representation of *TIMER
@@ -53828,41 +55420,41 @@ extern int timer_gettime (timer_t __timerid, struct itimerspec *__value)
 extern int timer_getoverrun (timer_t __timerid) __attribute__ ((__nothrow__));
 
 
+/* Set to one of the following values to indicate an error.
+     1  the DATEMSK environment variable is null or undefined,
+     2  the template file cannot be opened for reading,
+     3  failed to get file status information,
+     4  the template file is not a regular file,
+     5  an error is encountered while reading the template file,
+     6  memory allication failed (not enough memory available),
+     7  there is no line in the template that matches the input,
+     8  invalid input specification Example: February 31 or a time is
+        specified that can not be represented in a time_t (representing
+	the time in seconds since 00:00:00 UTC, January 1, 1970) */
+extern int getdate_err;
+
+/* Parse the given string as a date specification and return a value
+   representing the value.  The templates from the file identified by
+   the environment variable DATEMSK are used.  In case of an error
+   `getdate_err' is set.
+
+   This function is a possible cancellation points and therefore not
+   marked with __THROW.  */
+extern struct tm *getdate (const char *__string);
 
 
+/* Since `getdate' is not reentrant because of the use of `getdate_err'
+   and the static buffer to return the result in, we provide a thread-safe
+   variant.  The functionality is the same.  The result is returned in
+   the buffer pointed to by RESBUFP and in case of an error the return
+   value is != 0 with the same values as given above for `getdate_err'.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		      
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int getdate_r (const char *__restrict __string,
+		      struct tm *__restrict __resbufp);
 
 
 
@@ -55318,7 +56910,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-typedef __useconds_t useconds_t;
+
 
 
 
@@ -55349,14 +56941,14 @@ typedef __useconds_t useconds_t;
 extern int access (const char *__name, int __type) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
+/* Test for access to NAME using the effective UID and GID
+   (as normal file operations use).  */
+extern int euidaccess (const char *__name, int __type)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
-
-
-     
-
-
-
-     
+/* An alias for `euidaccess', used by some other systems.  */
+extern int eaccess (const char *__name, int __type)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Test for access to FILE relative to the directory FD is open on.
@@ -55392,8 +56984,8 @@ extern __off_t lseek (int __fd, __off_t __offset, int __whence) __attribute__ ((
 
 
 
-
-     
+extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence)
+     __attribute__ ((__nothrow__));
 
 /* Close the file descriptor FD.
 
@@ -55444,15 +57036,15 @@ extern ssize_t pwrite (int __fd, const void *__buf, size_t __n,
 
 
 
-
-
-
-
-			
-
-
-
-			 
+/* Read NBYTES into BUF from FD at the given position OFFSET without
+   changing the file pointer.  Return the number read, -1 for errors
+   or 0 for EOF.  */
+extern ssize_t pread64 (int __fd, void *__buf, size_t __nbytes,
+			__off64_t __offset) ;
+/* Write N bytes of BUF to FD at the given position OFFSET without
+   changing the file pointer.  Return the number written, or -1.  */
+extern ssize_t pwrite64 (int __fd, const void *__buf, size_t __n,
+			 __off64_t __offset) ;
 
 
 /* Create a one-way communication channel (pipe).
@@ -55462,9 +57054,9 @@ extern ssize_t pwrite (int __fd, const void *__buf, size_t __n,
 extern int pipe (int __pipedes[2]) __attribute__ ((__nothrow__)) ;
 
 
-
-
-
+/* Same as pipe but apply flags passed in FLAGS to the new file
+   descriptors.  */
+extern int pipe2 (int __pipedes[2], int __flags) __attribute__ ((__nothrow__)) ;
 
 /* Schedule an alarm.  In SECONDS seconds, the process will get a SIGALRM.
    If SECONDS is zero, any currently scheduled alarm will be cancelled.
@@ -55549,10 +57141,10 @@ extern int fchdir (int __fd) __attribute__ ((__nothrow__)) ;
 extern char *getcwd (char *__buf, size_t __size) __attribute__ ((__nothrow__)) ;
 
 
-
-
-
-
+/* Return a malloc'd string containing the current directory name.
+   If the environment variable `PWD' is set, and its value is correct,
+   that value is used.  */
+extern char *get_current_dir_name (void) __attribute__ ((__nothrow__));
 
 
 /* Put the absolute pathname of the current working directory in BUF.
@@ -55568,14 +57160,14 @@ extern int dup (int __fd) __attribute__ ((__nothrow__)) ;
 extern int dup2 (int __fd, int __fd2) __attribute__ ((__nothrow__));
 
 
-
-
-
+/* Duplicate FD to FD2, closing FD2 and making it open on the same
+   file while setting flags according to FLAGS.  */
+extern int dup3 (int __fd, int __fd2, int __flags) __attribute__ ((__nothrow__));
 
 /* NULL-terminated array of "NAME=VALUE" environment variables.  */
 extern char **__environ;
 
-
+extern char **environ;
 
 /* Replace the current process, executing PATH with arguments ARGV and
    environment ENVP.  ARGV and ENVP are terminated by NULL pointers.  */
@@ -55614,11 +57206,11 @@ extern int execlp (const char *__file, const char *__arg, ...)
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
-
-
-
-		    
-     
+/* Execute FILE, searching in the `PATH' environment variable if it contains
+   no slashes, with arguments ARGV and environment from `environ'.  */
+extern int execvpe (const char *__file, char *const __argv[],
+		    char *const __envp[])
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Add INC to priority of the current process.  */
@@ -56399,8 +57991,8 @@ extern __gid_t getegid (void) __attribute__ ((__nothrow__));
 extern int getgroups (int __size, __gid_t __list[]) __attribute__ ((__nothrow__)) ;
 
 
-
-
+/* Return nonzero iff the calling process is in group GID.  */
+extern int group_member (__gid_t __gid) __attribute__ ((__nothrow__));
 
 /* Set the user ID of the calling process to UID.
    If the calling process is the super-user, set the real
@@ -56433,25 +58025,25 @@ extern int setregid (__gid_t __rgid, __gid_t __egid) __attribute__ ((__nothrow__
 extern int setegid (__gid_t __gid) __attribute__ ((__nothrow__));
 
 
+/* Fetch the real user ID, effective user ID, and saved-set user ID,
+   of the calling process.  */
+extern int getresuid (__uid_t *__ruid, __uid_t *__euid, __uid_t *__suid)
+     __attribute__ ((__nothrow__));
 
+/* Fetch the real group ID, effective group ID, and saved-set group ID,
+   of the calling process.  */
+extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
+     __attribute__ ((__nothrow__));
 
+/* Set the real user ID, effective user ID, and saved-set user ID,
+   of the calling process to RUID, EUID, and SUID, respectively.  */
+extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
+     __attribute__ ((__nothrow__));
 
-     
-
-
-
-
-     
-
-
-
-
-     
-
-
-
-
-     
+/* Set the real group ID, effective group ID, and saved-set group ID,
+   of the calling process to RGID, EGID, and SGID, respectively.  */
+extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
+     __attribute__ ((__nothrow__));
 
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
@@ -56850,8 +58442,8 @@ extern int truncate (const char *__file, __off_t __length)
 
 
 
-
-     
+extern int truncate64 (const char *__file, __off64_t __length)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 /* Truncate the file FD is open on to LENGTH bytes.  */
 
@@ -56863,7 +58455,7 @@ extern int ftruncate (int __fd, __off_t __length) __attribute__ ((__nothrow__)) 
 
 
 
-
+extern int ftruncate64 (int __fd, __off64_t __length) __attribute__ ((__nothrow__)) ;
 
 
 
@@ -56921,8 +58513,8 @@ extern long int syscall (long int __sysno, ...) __attribute__ ((__nothrow__));
 
 
 
-
-
+/* Evaluate EXPRESSION, and repeat as long as it returns -1 with `errno'
+   set to EINTR.  */
 
 
 
@@ -56939,21 +58531,21 @@ extern int fdatasync (int __fildes);
 /* XPG4.2 specifies that prototypes for the encryption functions must
    be defined here.  */
 
+/* Encrypt at most 8 characters from KEY using salt to perturb DES.  */
+extern char *crypt (const char *__key, const char *__salt)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+
+/* Encrypt data in BLOCK in place if EDFLAG is zero; otherwise decrypt
+   block in place.  */
+extern void encrypt (char *__block, int __edflag) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
-     
-
-
-
-
-
-
-
-
-
-
-
-		  
+/* Swab pairs bytes in the first N bytes of the area pointed to by
+   FROM and copy the result to TO.  The value of TO must not be in the
+   range [FROM - N + 1, FROM - 1].  If N is odd the first byte in FROM
+   is without partner.  */
+extern void swab (const void *__restrict __from, void *__restrict __to,
+		  ssize_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* The Single Unix specification demands this prototype to be here.
    It is also found in <stdio.h>.  */
@@ -57386,7 +58978,139 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 #line 151 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
 
 
+#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/xopen_lim.h" 1
+/* Copyright (C) 1996, 1997, 1999, 2001 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+/*
+ * Never include this file directly; use <limits.h> instead.
+ */
+
+/* Additional definitions from X/Open Portability Guide, Issue 4, Version 2
+   System Interfaces and Headers, 4.16 <limits.h>
+
+   Please note only the values which are not greater than the minimum
+   stated in the standard document are listed.  The `sysconf' functions
+   should be used to obtain the actual value.  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+ 
+
+
+
+ 
+
+ 
+
+ 
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+ 
+
+ 
+
+
+ 
+
+
+ 
+
+
+
+#line 155 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
 
 #line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/param.h" 2
 #line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/limits.h" 1
@@ -59692,20 +61416,20 @@ struct statfs
   };
 
 
-
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  
+struct statfs64
+  {
+    long int f_type;
+    long int f_bsize;
+    __fsblkcnt64_t f_blocks;
+    __fsblkcnt64_t f_bfree;
+    __fsblkcnt64_t f_bavail;
+    __fsfilcnt64_t f_files;
+    __fsfilcnt64_t f_ffree;
+    __fsid_t f_fsid;
+    long int f_namelen;
+    long int f_frsize;
+    long int f_spare[5];
+  };
 
 /* Tell code we have these members.  */
 
@@ -59726,8 +61450,8 @@ extern int statfs (const char *__file, struct statfs *__buf)
 
 
 
-
-     
+extern int statfs64 (const char *__file, struct statfs64 *__buf)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Return information about the filesystem containing the file FILDES
    refers to.  */
@@ -59741,8 +61465,8 @@ extern int fstatfs (int __fildes, struct statfs *__buf)
 
 
 
-
-     
+extern int fstatfs64 (int __fildes, struct statfs64 *__buf)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
@@ -64849,15 +66573,15 @@ extern int fgetpwent_r (FILE *__restrict __stream,
 
 
 
+/* Re-construct the password-file line for the given uid
+   in the given buffer.  This knows the format that the caller
+   will expect, but this need not be the format of the password file.
 
-
-
-
-
-
-
-
-
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
@@ -66711,14 +68435,14 @@ extern struct group *getgrent (void);
 extern struct group *fgetgrent (FILE *__stream);
 
 
+/* Write the given entry onto the given stream.
 
-
-
-
-
-
-
-		     
+   This function is not part of POSIX and therefore no official
+   cancellation point.  But due to similarity with an POSIX interface
+   or due to the implementation it is a cancellation point and
+   therefore not marked with __THROW.  */
+extern int putgrent (const struct group *__restrict __p,
+		     FILE *__restrict __f);
 
 /* Search for an entry with a matching group ID.
 
@@ -66752,9 +68476,9 @@ extern struct group *getgrnam (const char *__name);
    therefore not marked with __THROW.  */
 
 
-
-		       
-		       
+extern int getgrent_r (struct group *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result);
 
 /* Search for an entry with a matching group ID.
 
@@ -71395,7 +73119,7 @@ int sanitize_env_if_suid(void) ;
 char* single_argv(char **argv) ;
 extern const char *const bb_argv_dash[]; /* "-", NULL */
 extern const char *opt_complementary;
-#if (definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GETOPT_LONG) || definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_LONG_OPTS) || definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS))
+#if (definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GETOPT_LONG) || definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_LONG_OPTS) || definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS))
 
 
 
@@ -75128,8 +76852,8 @@ struct utsname
 
     /* Name of the domain of this node on the network.  */
 
-    
-     char __domainname[65];
+    char domainname[65];
+     
 
 
   };

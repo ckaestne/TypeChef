@@ -7,6 +7,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
 class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with TestHelper {
@@ -37,13 +38,29 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with
          ;
          int end;""")
         typecheckTranslationUnit(ast)
-        println(ast)
         val env = lookupEnv(ast.defs.last.entry).varEnv
-        println(env)
 
         env("a") should be(Choice(fx.not, One(CDouble()), One(CSigned(CInt()))))
         env("x") should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined()))))
         env("b") should be(Choice(fx, One(CDouble()), One(CUndefined())))
+    }
+
+
+    test("inlined functions") {
+        val ast = getAST("""static
+#if !defined(CONFIG_OPTIMIZE_INLINING)
+inline __attribute__((always_inline))
+#endif
+#if defined(CONFIG_OPTIMIZE_INLINING)
+inline
+#endif
+ void __rcu_read_lock_bh(void)
+{
+	local_bh_disable();
+}""")
+        val env = checkTranslationUnit(ast, FeatureExpr.base, EmptyEnv).varEnv
+        println(env)
+        env("__rcu_read_lock_bh") should be(One(CFunction(List(CVoid()), CVoid())))
     }
 
 
