@@ -29,8 +29,7 @@ object ConditionalLib {
                         if ((choiceFeature implies opt.feature).isTautology) op(opt.entry, x)
                         else if ((choiceFeature mex opt.feature).isTautology) One(x)
                         else Choice(opt.feature, op(opt.entry, x), One(x))
-
-                )
+                ) simplify
 
         )
 
@@ -75,6 +74,6 @@ object ConditionalLib {
      * convenience function, zip two conditional values and map the result
      */
     def mapCombination[A, B, C](a: Conditional[A], b: Conditional[B], f: (A, B) => C): Conditional[C] =
-        zip(a, b).map(x => f(x._1, x._2))
+        zip(a, b).simplify.map(x => f(x._1, x._2))
 }
 

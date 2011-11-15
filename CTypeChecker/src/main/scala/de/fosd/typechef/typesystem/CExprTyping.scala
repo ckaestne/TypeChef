@@ -174,7 +174,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
         typedExpr(expr, resultType, featureExpr)
         addEnv(expr, env)
-        resultType
+        resultType.simplify(featureExpr)
     }
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType]) =
