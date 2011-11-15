@@ -371,6 +371,8 @@ trait CTypes {
 
     /**
      *  determines whether types are compatible in assignements etc
+     *
+     *  for "a=b;" with a:type1 and b:type2
      */
     def coerce(type1: CType, type2: CType): Boolean = {
         val t1 = normalize(type1)
@@ -380,11 +382,11 @@ trait CTypes {
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid()) return true
+            //CCompound can be assigned to arrays and structs
+            case (CPointer(_) /*incl array*/ , CCompound()) => return true
+            case (CStruct(_, _), CCompound()) => return true
+            case (CAnonymousStruct(_, _), CCompound()) => return true
             case _ =>
-            //                    case (CPointer(CVoid()), CPointer(_)) => true
-            //                    case (CPointer(CVoid()), CFunction(_, _)) => true
-            //                    case (CPointer(_), CPointer(CVoid())) => true
-            //                    case (CFunction(_, _), CPointer(CVoid())) => true
         })
 
         //same?
@@ -392,6 +394,7 @@ trait CTypes {
 
         //ignore?
         if ((t1 == CIgnore()) || (t2 == CIgnore())) return true
+
 
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true

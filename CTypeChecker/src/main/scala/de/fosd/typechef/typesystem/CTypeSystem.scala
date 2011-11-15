@@ -71,7 +71,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Unit = {
         val foundType = getExprType(initExpr, featureExpr, env)
         ConditionalLib.zip(foundType, expectedType).mapf(featureExpr, {
-            (f, tp) => issueTypeError(f, "incorrect initializer type. expected " + tp._2 + " found " + tp._1, initExpr, tp._1)
+            (f, tp) => if (!coerce(tp._2, tp._1))
+                issueTypeError(f, "incorrect initializer type. expected " + tp._2 + " found " + tp._1, initExpr, tp._1)
         })
     }
 
@@ -200,20 +201,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     }
 
 
-    //
-    //
-    //    def performCheck(node: Attributable): Unit = node match {
-    //        case fun: FunctionDef =>
-    //            val priorDefs = fun -> priorDefinitions
-    //            for (priorFun <- priorDefs)
-    //                if (!mex(fun -> featureExpr, priorFun -> featureExpr))
-    //                    issueError(fun -> featureExpr, "function redefinition of " + fun.getName + " in context " + (fun -> featureExpr) + "; prior definition in context " + (priorFun -> featureExpr), fun, priorFun)
-    //        //case GotoStatement(expr) => checkExpr(expr)
-    //    }
-    //
-    //
-
-
     private def performExprCheck(expr: Expr, check: CType => Boolean, errorMsg: CType => String, context: FeatureExpr, env: Env): Conditional[CType] =
         if (context.isSatisfiable()) {
             val ct = getExprType(expr, context, env).simplify(context)
@@ -265,7 +252,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //    //        }
     //    //    }
     //    //
-    //    //    val checkFunctionCalls: Attributable ==> Unit = attr {
+    //    //    val checkFunctionCalls: AST ==> Unit = attr {
     //    //        case obj => {
     //    //            // Process the errors of the children of t
     //    //            for (child <- obj.children)
