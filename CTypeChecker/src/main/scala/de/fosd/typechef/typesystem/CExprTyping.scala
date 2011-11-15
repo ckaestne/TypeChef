@@ -61,8 +61,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                 })
             //e->n (by rewrite to &e.n)
             case p@PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
-                val newExpr = PostfixExpr(PointerDerefExpr(expr.clone), PointerPostfixSuffix(".", Id(id))) //deep cloning not necessary, because no properties affected by parent are changed here
-                newExpr.parent = p.parent //important clone entries and set parent to avoid rewrites of the original ast
+                val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id)))
                 et(newExpr)
             //(a)b
             case CastExpr(targetTypeName, expr) =>
@@ -119,15 +118,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             //a[e]
             case p@PostfixExpr(expr, ArrayAccess(idx)) =>
                 //syntactic sugar for *(a+i)
-                val newExpr = PointerDerefExpr(createSum(expr.clone, idx.clone)) //deep cloning not necessary, because no properties affected by parent are changed here
-                newExpr.parent = p.parent //important clone entries and set parent to avoid rewrites of the original ast
+                val newExpr = PointerDerefExpr(createSum(expr, idx))
                 et(newExpr)
             //"a"
             case StringLit(_) => One(CPointer(CSignUnspecified(CChar()))) //unspecified sign according to Paolo
             //++a, --a
             case p@UnaryExpr(_, expr) =>
-                val newExpr = AssignExpr(expr.clone, "+=", Constant("1")) //deep cloning not necessary, because no properties affected by parent are changed here
-                newExpr.parent = p.parent //important clone entries and set parent to avoid rewrites of the original ast
+                val newExpr = AssignExpr(expr, "+=", Constant("1"))
                 et(newExpr)
 
             case SizeOfExprT(_) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
