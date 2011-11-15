@@ -71,7 +71,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Unit = {
         val foundType = getExprType(initExpr, featureExpr, env)
         ConditionalLib.zip(foundType, expectedType).mapf(featureExpr, {
-            (f, tp) => if (!coerce(tp._2, tp._1))
+            (f, tp) => if (f.isSatisfiable() && !coerce(tp._2, tp._1))
                 issueTypeError(f, "incorrect initializer type. expected " + tp._2 + " found " + tp._1, initExpr, tp._1)
         })
     }
@@ -318,9 +318,11 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureExpr = Fea
             println("check " + externalDefCounter + "/" + iast.defs.size + ". line " + externalDef.getPositionFrom.getLine + ". err " + errors.size)
     }
     override def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) =
-        errors = new SimpleError(condition, msg, where) :: errors
+        if (condition.isSatisfiable())
+            errors = new SimpleError(condition, msg, where) :: errors
     override def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) =
-        errors = new TypeError(condition, msg, where, ctype) :: errors
+        if (condition.isSatisfiable())
+            errors = new TypeError(condition, msg, where, ctype) :: errors
 
 
     def checkAST: Boolean = {
