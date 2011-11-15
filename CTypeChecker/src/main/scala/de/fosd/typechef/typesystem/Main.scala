@@ -2,7 +2,6 @@ package de.fosd.typechef.typesystem
 
 import java.io.File
 import de.fosd.typechef.parser.c._
-import linker.CInferInterface
 
 object Main {
     def main(args: Array[String]): Unit = {
@@ -12,12 +11,12 @@ object Main {
 
             val ast = new ParserMain(new CParser).parserMain(path, folder)
             if (ast != null && ast.isInstanceOf[TranslationUnit]) {
-                new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
+                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit])
+                ts.checkAST
                 if (createInterface) {
-                    val i = new CInferInterface {}
-                    val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
-                    i.writeInterface(interface, new File(path + ".interface"))
-                    i.debugInterface(interface, new File(path + ".dbginterface"))
+                    val interface = ts.getInferredInterface()
+                    ts.writeInterface(interface, new File(path + ".interface"))
+                    ts.debugInterface(interface, new File(path + ".dbginterface"))
                 }
             }
         }

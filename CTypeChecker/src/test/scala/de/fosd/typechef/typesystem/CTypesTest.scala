@@ -11,16 +11,16 @@ import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
-class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping {
+class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
 
     test("wellformed types") {
         val sEnv: StructEnv = new StructEnv(Map(
-            (("wf1", false) -> (new ConditionalTypeMap() + ("a", base, TOne(CFloat())))),
-            (("wf2", true) -> (new ConditionalTypeMap() + ("a", base, TOne(CFloat())) + ("b", base, TOne(CDouble())))), //union
-            (("wf3", false) -> (new ConditionalTypeMap() + ("a", base, TOne(CPointer(CStruct("wf2")))) + ("b", base, TOne(CDouble())))),
-            (("wf4", false) -> (new ConditionalTypeMap() + ("a", base, TOne(CPointer(CStruct("wf2")))) + ("b", base, TOne(CPointer(CStruct("wf4")))))),
+            (("wf1", false) -> (new ConditionalTypeMap() + ("a", base, One(CFloat())))),
+            (("wf2", true) -> (new ConditionalTypeMap() + ("a", base, One(CFloat())) + ("b", base, One(CDouble())))), //union
+            (("wf3", false) -> (new ConditionalTypeMap() + ("a", base, One(CPointer(CStruct("wf2")))) + ("b", base, One(CDouble())))),
+            (("wf4", false) -> (new ConditionalTypeMap() + ("a", base, One(CPointer(CStruct("wf2")))) + ("b", base, One(CPointer(CStruct("wf4")))))),
             //            (("nwf1", false) -> new ConditionalTypeMap(Map("a" -> Seq((base, CFloat()), (base, CDouble()))))),
-            (("nwf2", false) -> (new ConditionalTypeMap() + ("a", base, TOne(CVoid())) + ("b", base, TOne(CDouble())))),
+            (("nwf2", false) -> (new ConditionalTypeMap() + ("a", base, One(CVoid())) + ("b", base, One(CDouble())))),
             (("nwf3", false) -> new ConditionalTypeMap())
         ).mapValues(x => (base, x)))
         val tEnv: PtrEnv = Set("Str", "wf2")
@@ -65,24 +65,24 @@ class CTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTypi
     }
 
     test("simple expression types") {
-        val et = getExprType(new VarTypingContext(), new StructEnv(), _: PrimaryExpr)
+        val et = getExprType(_: PrimaryExpr, base, EmptyEnv)
 
-        et(Constant("1")) should be(TOne(CSigned(CInt())))
+        et(Constant("1")) should be(One(CSigned(CInt())))
     }
 
     test("choice types and their operations") {
         val fx = FeatureExpr.createDefinedExternal("X")
-        val c = TChoice(fx, TOne(CDouble()), TOne(CFloat()))
-        val c2 = TChoice(fx, TOne(CDouble()), TChoice(fx.not, TOne(CFloat()), TOne(CUnknown(""))))
+        val c = Choice(fx, One(CDouble()), One(CFloat()))
+        val c2 = Choice(fx, One(CDouble()), Choice(fx.not, One(CFloat()), One(CUnknown(""))))
 
         c2.simplify should be(c)
-        c2.simplify(fx) should be(TOne(CDouble()))
+        c2.simplify(fx) should be(One(CDouble()))
         c2.simplify(fx) should be(c.simplify(fx))
 
         c2.map({
             case CDouble() => CUnsigned(CChar())
             case x => x
-        }) should be(TChoice(fx, TOne(CUnsigned(CChar())), TChoice(fx.not, TOne(CFloat()), TOne(CUnknown("")))))
+        }) should be(Choice(fx, One(CUnsigned(CChar())), Choice(fx.not, One(CFloat()), One(CUnknown("")))))
     }
 
     test("coersion") {

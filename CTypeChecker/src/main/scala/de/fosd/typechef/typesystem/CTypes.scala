@@ -297,21 +297,21 @@ object CType {
  * maintains a map from names to types
  * a name may be mapped to alternative types with different feature expressions
  */
-class ConditionalTypeMap(private val m: ConditionalMap[String, TConditional[CType]]) {
+class ConditionalTypeMap(private val m: ConditionalMap[String, Conditional[CType]]) {
     def this() = this (new ConditionalMap())
     /**
      * apply returns a type, possibly CUndefined or a
      * choice type
      */
-    def apply(name: String): TConditional[CType] = getOrElse(name, CUnknown(name))
-    def getOrElse(name: String, errorType: CType): TConditional[CType] = TConditional.combine(m.getOrElse(name, TOne(errorType))) simplify
+    def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
+    def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
 
-    def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
-    def ++(l: Seq[(String, FeatureExpr, TConditional[CType])]) = new ConditionalTypeMap(m ++ l)
-    def +(name: String, f: FeatureExpr, t: TConditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+    def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
+    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
+    def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
-    def allTypes: Iterable[TConditional[CType]] = m.allEntriesFlat
+    def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat
 
     override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
     override def hashCode = m.hashCode
@@ -371,6 +371,8 @@ trait CTypes {
 
     /**
      *  determines whether types are compatible in assignements etc
+     *
+     *  for "a=b;" with a:type1 and b:type2
      */
     def coerce(type1: CType, type2: CType): Boolean = {
         val t1 = normalize(type1)
@@ -380,11 +382,11 @@ trait CTypes {
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid()) return true
+            //CCompound can be assigned to arrays and structs
+            case (CPointer(_) /*incl array*/ , CCompound()) => return true
+            case (CStruct(_, _), CCompound()) => return true
+            case (CAnonymousStruct(_, _), CCompound()) => return true
             case _ =>
-            //                    case (CPointer(CVoid()), CPointer(_)) => true
-            //                    case (CPointer(CVoid()), CFunction(_, _)) => true
-            //                    case (CPointer(_), CPointer(CVoid())) => true
-            //                    case (CFunction(_, _), CPointer(CVoid())) => true
         })
 
         //same?
@@ -392,6 +394,7 @@ trait CTypes {
 
         //ignore?
         if ((t1 == CIgnore()) || (t2 == CIgnore())) return true
+
 
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true

@@ -22,7 +22,7 @@ class InterfaceInferenceTest extends TestHelper {
 
 
     private def checkSerialization(i: CInterface) {
-        val inf = new CInferInterface {}
+        val inf = new InterfaceWriter {}
         val f = new File("tmp.interface")
         inf.writeInterface(i, f)
         val interface2 = inf.readInterface(f)
@@ -31,6 +31,8 @@ class InterfaceInferenceTest extends TestHelper {
         //
         assert(i equals interface2)
         assert(!(i eq interface2))
+
+        f.delete()
     }
 
 

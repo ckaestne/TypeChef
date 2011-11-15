@@ -44846,7 +44846,7 @@ int backlog =
 250
 #endif
 #if definedEx(SO_MAXCONN)
-SO_MAXCONN
+50
 #endif
 ;
 time_t start_time;

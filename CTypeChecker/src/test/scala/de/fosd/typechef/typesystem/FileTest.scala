@@ -21,7 +21,7 @@ class FileTest extends TestHelper {
         println("done. (" + (System.currentTimeMillis - parsed) + ")")
         r
     }
-    private def check(ast: TranslationUnit): Boolean = new CTypeSystem().checkAST(ast)
+    private def check(ast: TranslationUnit): Boolean = new CTypeSystemFrontend(ast).checkAST
 
 
     //async.i
@@ -37,5 +37,7 @@ class FileTest extends TestHelper {
     def linux_fork_pi {assert(check("fork_.pi"))}
     @Test def toybox_patch_pi {assert(check("patch.pi"))}
     @Test def toybox_netcat_pi {assert(check("netcat.pi"))}
+    @Ignore("recursive lookup caused by local typedef")
+    @Test def busybox_modutils_pi {assert(check("modutils-24.pi"))}
 
 }

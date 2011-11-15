@@ -9,7 +9,7 @@ import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
-class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExprTyping with CStmtTyping with TestHelper {
+class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with TestHelper {
 
 
     test("alternatives in declarations") {t()}
@@ -34,13 +34,16 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypes with CExp
          #else
          c
          #endif
-         ;""")
+         ;
+         int end;""")
+        typecheckTranslationUnit(ast)
         println(ast)
-        val env = ast.defs.last.entry -> varEnv
+        val env = lookupEnv(ast.defs.last.entry).varEnv
+        println(env)
 
-        env("a") should be(TChoice(fx.not, TOne(CDouble()), TOne(CSigned(CInt()))))
-        env("x") should be(TChoice(fy, TOne(CDouble()), TChoice(fx, TOne(CSigned(CInt())), TOne(CUndefined()))))
-        env("b") should be(TChoice(fx, TOne(CDouble()), TOne(CUndefined())))
+        env("a") should be(Choice(fx.not, One(CDouble()), One(CSigned(CInt()))))
+        env("x") should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined()))))
+        env("b") should be(Choice(fx, One(CDouble()), One(CUndefined())))
     }
 
 

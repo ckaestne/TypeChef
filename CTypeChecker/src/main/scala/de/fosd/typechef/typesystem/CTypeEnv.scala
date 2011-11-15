@@ -3,38 +3,11 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import org.kiama.attribution.Attribution._
-import org.kiama._
 
-trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn {
-
-    //Variable-Typing Context: identifier to its non-void wellformed type
-    type VarTypingContext = ConditionalTypeMap
+trait CTypeEnv extends CTypes with CEnv with CDeclTyping /*with CBuiltIn*/ {
 
 
-    /*****
-     * Variable-Typing context (collects all top-level and local declarations)
-     * variables with local scope overwrite variables with global scope
-     */
-
-    val varEnv: AST ==> VarTypingContext = attr {
-        case e: Declaration => outerVarEnv(e) ++ declType(e)
-        case fun: FunctionDef => outerVarEnv(fun) + (fun.getName, fun -> featureExpr, ctype(fun))
-        case e@DeclarationStatement(decl) => outerVarEnv(e) ++ declType(decl)
-        //parameters in the body of functions
-        case c@CompoundStatement(_) => c -> parentAST match {
-            case FunctionDef(_, decl, _, _) => outerVarEnv(c) ++ parameterTypes(decl)
-            case NestedFunctionDef(_, _, decl, _, _) => outerVarEnv(c) ++ parameterTypes(decl)
-            case _ => outerVarEnv(c)
-        }
-        case nfun: NestedFunctionDef => outerVarEnv(nfun) + (nfun.getName, nfun -> featureExpr, ctype(nfun))
-        case e: AST => outerVarEnv(e)
-    }
-    protected def outerVarEnv(e: AST): VarTypingContext =
-        outer[VarTypingContext](varEnv, () => new VarTypingContext() ++ initBuiltinVarEnv, e)
-
-
-    private def parameterTypes(decl: Declarator): List[(String, FeatureExpr, TConditional[CType])] = {
+    protected def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, Conditional[CType])] = {
         //declarations with empty parameter lists
         if (decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclIdentifierList] && decl.extensions.head.entry.asInstanceOf[DeclIdentifierList].idList.isEmpty)
             List()
@@ -43,12 +16,15 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
             assert(decl.extensions.size == 1 && decl.extensions.head.entry.isInstanceOf[DeclParameterDeclList], "expect a single declarator extension for function parameters, not " + decl.extensions)
 
             val param: DeclParameterDeclList = decl.extensions.head.entry.asInstanceOf[DeclParameterDeclList]
-            var result = List[(String, FeatureExpr, TConditional[CType])]()
-            for (Opt(_, p) <- param.parameterDecls) p match {
-                case PlainParameterDeclaration(specifiers) => //having int foo(void) is Ok, but for everything else we expect named parameters
+            var result = List[(String, FeatureExpr, Conditional[CType])]()
+            for (Opt(paramFeature, p) <- param.parameterDecls) p match {
+                case PlainParameterDeclaration(specifiers) =>
+                    //having int foo(void) is Ok, but for everything else we expect named parameters
                     assert(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), "no name, old parameter style?") //TODO
-                case ParameterDeclarationD(specifiers, decl) => result = ((decl.getName, p -> featureExpr, getDeclaratorType(decl, constructType(specifiers)))) :: result
-                case ParameterDeclarationAD(specifiers, decl) => assert(false, "no name, old parameter style?") //TODO
+                case ParameterDeclarationD(specifiers, decl) =>
+                    result = ((decl.getName, featureExpr and paramFeature, getDeclaratorType(decl, constructType(specifiers, featureExpr and paramFeature, env), featureExpr and paramFeature, env))) :: result
+                case ParameterDeclarationAD(specifiers, decl) =>
+                    assert(false, "no name, old parameter style?") //TODO
                 case VarArgs() => //TODO not accessible as parameter?
             }
             result
@@ -58,70 +34,32 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     /***
      * Structs
      */
-
-    /**
-     * for struct and union
-     * ConditionalTypeMap represents for the fields of the struct
-     *
-     * we store whether a structure with this name is defined (FeatureExpr) whereas
-     * we do not distinguish between alternative structures. fields are merged in
-     * one ConditionalTypeMap entry, but by construction they cannot overlap if
-     * the structure declarations do not overlap variant-wise
-     */
-    class StructEnv(val env: Map[(String, Boolean), (FeatureExpr, ConditionalTypeMap)]) {
-        def this() = this (Map())
-        //returns the condition under which a structure is defined
-        def someDefinition(name: String, isUnion: Boolean): Boolean = env contains (name, isUnion)
-        def isDefined(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), (FeatureExpr.dead, null))._1
-        def isDefinedUnion(name: String) = isDefined(name, true)
-        def isDefinedStruct(name: String) = isDefined(name, false)
-        def add(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap) = {
-            //TODO check distinct attribute names in each variant
-            //TODO check that there is not both a struct and a union with the same name
-            val oldCondition = isDefined(name, isUnion)
-            val oldFields = env.getOrElse((name, isUnion), (null, new ConditionalTypeMap()))._2
-            val key = (name, isUnion)
-            val value = (oldCondition or condition, oldFields ++ fields)
-            new StructEnv(env + (key -> value))
-        }
-        def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion))._2
-        override def toString = env.toString
-    }
-
-    val structEnv: AST ==> StructEnv = {
-        def addDeclaration(e: Declaration, outer: AST) = e.declSpecs.foldRight(outerStructEnv(outer))({
-            case (Opt(_, a), b: StructEnv) =>
+    def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): StructEnv =
+        e.declSpecs.foldRight(env.structEnv)({
+            case (Opt(specFeature, specifier), b: StructEnv) =>
                 var r = b
-                for (s <- (a -> struct))
+                for (s <- (getStructFromSpecifier(specifier, featureExpr, env)))
                     r = r.add(s._1, s._2, s._3, s._4)
                 r
         })
-        attr {
-            case e@DeclarationStatement(d) => addDeclaration(d, e)
-            case e: Declaration => addDeclaration(e, e)
-            case e: AST => outerStructEnv(e)
-        }
-    }
 
     type StructData = (String, Boolean, FeatureExpr, ConditionalTypeMap)
 
-    val struct: AST ==> List[StructData] = attr {
+    def getStructFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env): List[StructData] = specifier match {
         case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), attributes) =>
-            List((name, isUnion, e -> featureExpr, parseStructMembers(attributes))) ++ innerStructs(attributes)
+            List((name, isUnion, featureExpr, parseStructMembers(attributes, featureExpr, env))) ++ innerStructs(attributes, featureExpr, env)
         case e@StructOrUnionSpecifier(_, None, attributes) =>
-            innerStructs(attributes)
+            innerStructs(attributes, featureExpr, env)
         case _ => Nil
     }
-    private def innerStructs(fields: List[Opt[StructDeclaration]]): List[StructData] =
+
+    private def innerStructs(fields: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, env: Env): List[StructData] =
         fields.flatMap(e =>
-            (for (Opt(_, spec) <- e.entry.qualifierList) yield spec -> struct).flatten
+            (for (Opt(f, spec) <- e.entry.qualifierList) yield getStructFromSpecifier(spec, featureExpr and f, env)).flatten
         )
 
 
-    protected def outerStructEnv(e: AST): StructEnv =
-        outer[StructEnv](structEnv, () => new StructEnv(), e)
-
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: TConditional[CType]): Boolean =
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean =
         ctype.simplify.forall(wellformed(structEnv, ptrEnv, _))
 
     def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
@@ -163,26 +101,13 @@ trait CTypeEnv extends CTypes with ASTNavigation with CDeclTyping with CBuiltIn 
     }
 
 
-    /**
-     * Enum Environment: Just a set of names that are valid enums.
-     * No need to remember fields etc, because they are integers anyway and no further checking is done in C
-     */
+    def addEnumDeclarationToEnv(d: Declaration, featureExpr: FeatureExpr, enumEnv: EnumEnv) =
+        d.declSpecs.foldRight(enumEnv)({
+            case (Opt(specFeature, typeSpec), b: EnumEnv) => typeSpec match {
+                case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) =>
+                    b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExpr.dead)))
+                case _ => b
+            }
+        })
 
-    type EnumEnv = Map[String, FeatureExpr]
-
-    val enumEnv: AST ==> EnumEnv = attr {
-        case e@Declaration(decls, _) =>
-            decls.foldRight(outerEnumEnv(e))({
-                case (Opt(_, typeSpec), b: EnumEnv) => typeSpec match {
-                    case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) =>
-                        b + (name -> ((typeSpec -> featureExpr) or b.getOrElse(name, FeatureExpr.dead)))
-                    case _ => b
-                }
-            })
-        case e: AST => outerEnumEnv(e)
-    }
-
-
-    private def outerEnumEnv(e: AST): EnumEnv =
-        outer[EnumEnv](enumEnv, () => Map(), e)
 }
