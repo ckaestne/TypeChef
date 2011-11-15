@@ -30,11 +30,6 @@ trait CDeclTyping extends CTypes with CEnv {
     }
 
 
-    //    val surroundingFunType: Attributable ==> Conditional[CType] = {
-    //        case f: FunctionDef => f -> funType
-    //        case x => if (x.parent == null) One(CUndefined()) else x.parent -> surroundingFunType
-    //    }
-    //
     def getTypenameType(typename: TypeName, featureExpr: FeatureExpr, env: Env): Conditional[CType] = typename match {
         case TypeName(specs, None) => constructType(specs, featureExpr, env)
         case TypeName(specs, Some(decl)) => getAbstractDeclaratorType(decl, constructType(specs, featureExpr, env), featureExpr, env)
