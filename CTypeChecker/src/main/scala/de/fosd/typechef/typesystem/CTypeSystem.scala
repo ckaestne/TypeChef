@@ -172,7 +172,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                         if (expectedReturnType map (_ == CVoid()) exists (!_))
                             issueError(featureExpr, "no return expression, expected type " + expectedReturnType, r)
                     case Some(expr) =>
-                        checkExprX(expr, et => expectedReturnType map {rt => coerce(rt, et)} forall (x => x), {c => "incorrect return type, expected " + expectedReturnType + ", found " + c}, featureExpr)
+                        val foundReturnType = getExprType(expr, featureExpr, env)
+                        ConditionalLib.mapCombinationF(expectedReturnType, foundReturnType, featureExpr,
+                            (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
+                                if (!coerce(etype, ftype))
+                                    issueTypeError(fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr, ftype))
                 }
                 nop
 

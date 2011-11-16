@@ -32,9 +32,7 @@ class FileTest extends TestHelper {
     @Test def busybox_top_pi {assert(check("top.pi"))}
     @Test def busybox_umount_pi {assert(check("umount.pi"))}
     @Test def busybox_udf_pi {assert(check("udf.pi"))}
-    @Test
-    @Ignore("too slow")
-    def linux_fork_pi {assert(check("fork_.pi"))}
+    @Test def linux_fork_pi {assert(check("fork_.pi"))}
     @Test def toybox_patch_pi {assert(check("patch.pi"))}
     @Test def toybox_netcat_pi {assert(check("netcat.pi"))}
     @Test def busybox_modutils_pi {assert(check("modutils-24.pi"))}

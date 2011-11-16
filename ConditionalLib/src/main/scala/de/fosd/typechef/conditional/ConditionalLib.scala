@@ -75,5 +75,10 @@ object ConditionalLib {
      */
     def mapCombination[A, B, C](a: Conditional[A], b: Conditional[B], f: (A, B) => C): Conditional[C] =
         zip(a, b).simplify.map(x => f(x._1, x._2))
+    /**
+     * convenience function, zip two conditional values and map the result
+     */
+    def mapCombinationF[A, B, C](a: Conditional[A], b: Conditional[B], featureExpr: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
+        zip(a, b).simplify(featureExpr).mapf(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
 }
 

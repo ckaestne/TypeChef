@@ -374,11 +374,11 @@ trait CTypes {
      *
      *  for "a=b;" with a:type1 and b:type2
      */
-    def coerce(type1: CType, type2: CType): Boolean = {
-        val t1 = normalize(type1)
-        val t2 = normalize(type2)
+    def coerce(targetType: CType, sourceType: CType): Boolean = {
+        val t1 = normalize(targetType)
+        val t2 = normalize(sourceType)
         //either void pointer?
-        if ((type1.toValue == CPointer(CVoid())) || (type2.toValue == CPointer(CVoid()))) return true;
+        if ((targetType.toValue == CPointer(CVoid())) || (sourceType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid()) return true

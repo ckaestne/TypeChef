@@ -16,7 +16,7 @@ object LinuxDependencyAnalysis {
 
     def main(args: Array[String]): Unit = {
         val featureNames = List(
-            "CONFIG_IRQSOFF_TRACER", "CONFIG_TRACE_IRQFLAGS"
+            "CONFIG_PARAVIRT", "CONFIG_X86_PAE"
         );
         val d: String => DefinedExternal = FeatureExpr.createDefinedExternal(_)
         val features = featureNames.map(d(_))
