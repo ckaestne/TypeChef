@@ -146,20 +146,24 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case SizeOfExprT(_) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
                     case SizeOfExprU(_) => One(CUnsigned(CInt()))
                     case ue@UnaryOpExpr(kind, expr) =>
-                        val exprType = et(expr).map(_.toValue)
-                        kind match {
-                            //TODO complete list: __real__ __imag__
-                            //TODO promotions
-                            case "+" => exprType.mapf(featureExpr,
-                                (fexpr, x) => if (isArithmetic(x)) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
-                            case "-" => exprType.mapf(featureExpr,
-                                (fexpr, x) => if (isArithmetic(x)) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
-                            case "~" => exprType.mapf(featureExpr,
-                                (fexpr, x) => if (isIntegral(x)) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected integer, was " + x, ue))
-                            case "!" => exprType.mapf(featureExpr,
-                                (fexpr, x) => if (isScalar(x)) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected scalar, was " + x, ue))
-                            case "&&" => One(CPointer(CVoid())) //label dereference
-                            case _ => One(reportTypeError(featureExpr, "unknown unary operator " + kind + " (TODO)", ue))
+                        if (kind == "&&")
+                        //label deref, TODO check that label is actually declared
+                            One(CPointer(CVoid())) //label dereference
+                        else {
+                            val exprType = et(expr).map(_.toValue)
+                            kind match {
+                                //TODO complete list: __real__ __imag__
+                                //TODO promotions
+                                case "+" => exprType.mapf(featureExpr,
+                                    (fexpr, x) => if (isArithmetic(x)) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
+                                case "-" => exprType.mapf(featureExpr,
+                                    (fexpr, x) => if (isArithmetic(x)) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
+                                case "~" => exprType.mapf(featureExpr,
+                                    (fexpr, x) => if (isIntegral(x)) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected integer, was " + x, ue))
+                                case "!" => exprType.mapf(featureExpr,
+                                    (fexpr, x) => if (isScalar(x)) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected scalar, was " + x, ue))
+                                case _ => One(reportTypeError(featureExpr, "unknown unary operator " + kind + " (TODO)", ue))
+                            }
                         }
                     //x?y:z  (gnuc: x?:z === x?x:z)
                     case ce@ConditionalExpr(condition, thenExpr, elseExpr) =>
