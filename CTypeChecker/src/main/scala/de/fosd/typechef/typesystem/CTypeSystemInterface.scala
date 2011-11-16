@@ -42,7 +42,7 @@ trait CTypeSystemInterface extends CEnv {
      * error reporting for type errors
      */
     protected def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) {}
-    protected def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) {}
+    protected def issueTypeError(condition: FeatureExpr, msg: String, where: AST) {}
 
 
 }

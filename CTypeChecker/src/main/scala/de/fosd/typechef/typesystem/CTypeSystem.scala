@@ -70,9 +70,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Unit = {
         val foundType = getExprType(initExpr, featureExpr, env)
-        ConditionalLib.zip(foundType, expectedType).mapf(featureExpr, {
-            (f, tp) => if (f.isSatisfiable() && !coerce(tp._2, tp._1))
-                issueTypeError(f, "incorrect initializer type. expected " + tp._2 + " found " + tp._1, initExpr, tp._1)
+        ConditionalLib.mapCombinationF(foundType, expectedType, featureExpr, {
+            (f, ft: CType, et: CType) => if (f.isSatisfiable() && !coerce(et, ft))
+                issueTypeError(f, "incorrect initializer type. expected " + et + " found " + ft, initExpr)
         })
     }
 
@@ -175,8 +175,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                         val foundReturnType = getExprType(expr, featureExpr, env)
                         ConditionalLib.mapCombinationF(expectedReturnType, foundReturnType, featureExpr,
                             (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
-                                if (!coerce(etype, ftype))
-                                    issueTypeError(fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr, ftype))
+                                if (!coerce(etype, ftype) && !ftype.isUnknown)
+                                    issueTypeError(fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr))
                 }
                 nop
 
@@ -209,9 +209,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         if (context.isSatisfiable()) {
             val ct = getExprType(expr, context, env).simplify(context)
             ct.mapf(context, {
-                (f, c) => if (!check(c)) issueTypeError(f, errorMsg(c), expr, c)
+                (f, c) => if (!check(c)) reportTypeError(f, errorMsg(c), expr) else c
             })
-            ct
         } else One(CUnknown("unsatisfiable condition for expression"))
 
 
@@ -295,7 +294,7 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureExpr = Fea
     }
 
     class SimpleError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where.rangeClean)
-    class TypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) extends ErrorMsg(condition, msg, where.rangeClean)
+    class TypeError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where.rangeClean)
 
     def prettyPrintType(ctype: Conditional[CType]): String =
         Conditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
@@ -324,9 +323,9 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureExpr = Fea
     override def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) =
         if (condition.isSatisfiable())
             errors = new SimpleError(condition, msg, where) :: errors
-    override def issueTypeError(condition: FeatureExpr, msg: String, where: AST, ctype: CType) =
+    override def issueTypeError(condition: FeatureExpr, msg: String, where: AST) =
         if (condition.isSatisfiable())
-            errors = new TypeError(condition, msg, where, ctype) :: errors
+            errors = new TypeError(condition, msg, where) :: errors
 
 
     def checkAST: Boolean = {
