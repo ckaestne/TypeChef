@@ -22,15 +22,17 @@ object ConditionalLib {
      * affects the result only partially
      */
     def conditionalFoldRightR[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => Conditional[B]): Conditional[B] =
+        conditionalFoldRightFR(list, init, FeatureExpr.base, (f, a: A, b: B) => op(a, b))
+
+    def conditionalFoldRightFR[A, B](list: List[Opt[A]], init: Conditional[B], featureExpr: FeatureExpr, op: (FeatureExpr, A, B) => Conditional[B]): Conditional[B] =
         list.foldRight(init)(
             (opt: Opt[A], b: Conditional[B]) =>
-                b.mapfr(FeatureExpr.base,
+                b.mapfr(featureExpr,
                     (choiceFeature, x) =>
-                        if ((choiceFeature implies opt.feature).isTautology) op(opt.entry, x)
+                        if ((choiceFeature implies opt.feature).isTautology) op(choiceFeature, opt.entry, x)
                         else if ((choiceFeature mex opt.feature).isTautology) One(x)
-                        else Choice(opt.feature, op(opt.entry, x), One(x))
-                ) simplify
-
+                        else Choice(opt.feature, op(choiceFeature, opt.entry, x), One(x))
+                ) simplify (featureExpr)
         )
 
     def equals[T](a: Conditional[T], b: Conditional[T]): Boolean =
