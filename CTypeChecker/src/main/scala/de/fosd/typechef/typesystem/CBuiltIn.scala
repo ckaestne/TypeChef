@@ -20,7 +20,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             "__builtin_constant_p" -> One(CFunction(Seq(CVarArgs()), CInt()))
         )).toList.map(x => (x._1, base, x._2))
 
-    object InitialEnv extends Env(new ConditionalTypeMap(), new VarTypingContext() ++ initBuiltinVarEnv, new StructEnv(), Map(), None)
+    object InitialEnv extends Env(new ConditionalTypeMap(), new VarTypingContext() ++ initBuiltinVarEnv, new StructEnv(), Map(), Map(), None)
 
     /**taken directly from sparse/lib.c */
     private def declare_builtin_functions(): Map[String, Conditional[CType]] = {
