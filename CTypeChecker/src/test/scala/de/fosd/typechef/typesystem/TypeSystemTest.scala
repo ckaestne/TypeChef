@@ -216,4 +216,17 @@ return 1;
 
 
     }
+
+    test("initializer scope") {
+        expect(false) {
+            check("""
+             int x=y;
+             """)
+        }
+        expect(true) {
+            check("""
+             int x=x;
+             """)
+        }
+    }
 }

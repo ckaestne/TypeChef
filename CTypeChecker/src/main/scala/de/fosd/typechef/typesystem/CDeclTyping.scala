@@ -154,7 +154,7 @@ trait CDeclTyping extends CTypes with CEnv {
 
             for (Opt(f, init) <- decl.init) yield {
                 val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, env), init.attributes).simplify(featureExpr and f)
-                init.getExpr map {checkInitializer(_, ctype, featureExpr and f, env)}
+                init.getExpr map {checkInitializer(_, ctype, featureExpr and f, env.addVar(init.getName, featureExpr and f, ctype))}
                 (init.declarator.getName, featureExpr and f, ctype)
             }
         }
