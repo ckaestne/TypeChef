@@ -200,6 +200,10 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     }
 
+    test("label deref") {
+        expr("&&foo") should be(CPointer(CVoid()))
+    }
+
     //    @Ignore
     //    test("array access") {
     //        expr("arr[3]") should be(CDouble())

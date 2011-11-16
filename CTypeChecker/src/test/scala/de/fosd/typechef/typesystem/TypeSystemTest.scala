@@ -11,7 +11,7 @@ import de.fosd.typechef.parser.c._
 class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelper {
 
     private def check(code: String, printAST: Boolean = false): Boolean = {println("checking " + code); if (printAST) println("AST: " + getAST(code)); check(getAST(code));}
-    private def check(ast: TranslationUnit): Boolean = {assert(ast!=null,"void ast"); new CTypeSystemFrontend(ast).checkAST}
+    private def check(ast: TranslationUnit): Boolean = {assert(ast != null, "void ast"); new CTypeSystemFrontend(ast).checkAST}
 
 
     test("typecheck simple translation unit") {
@@ -230,13 +230,21 @@ return 1;
         }
     }
 
-    test("local labels") {
+    ignore("check label environement") {
         //TODO check label environement
         expect(false) {
             check("""
-             void foo() {&&__lab;}
-             """)
+         void foo() {&&__lab;}
+         """)
         }
+        expect(false) {
+            check("""
+         void foo() {goto __lab;}
+         """)
+        }
+    }
+
+    test("local labels and label deref") {
         expect(true) {
             check("""
              void foo() {__label__ __lab; __lab: &&__lab;}
