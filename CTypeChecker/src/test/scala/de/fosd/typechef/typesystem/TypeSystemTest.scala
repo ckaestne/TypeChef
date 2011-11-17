@@ -251,4 +251,11 @@ return 1;
              """)
         }
     }
+    test("recursive function") {
+        expect(true) {
+            check("""
+             int foo(int i) {if (i==1) return 0; else return foo(i-1);}
+             """)
+        }
+    }
 }

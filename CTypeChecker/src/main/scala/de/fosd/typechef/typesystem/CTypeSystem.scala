@@ -56,14 +56,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         funType.map(t => assert(t.isFunction))
         val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
 
+        //add type to environment for remaining code
+        val newEnv = env.addVar(declarator.getName, featureExpr, funType)
+
         //check body (add parameters to environment)
-        val innerEnv = env.addVars(parameterTypes(declarator, featureExpr, env)).setExpectedReturnType(expectedReturnType)
+        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env)).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
 
         //check actual return type against declared return type
         //TODO check that something was returned at all
-        //add type to environment for remaining code
-        val newEnv = env.addVar(declarator.getName, featureExpr, funType)
 
         (funType, newEnv)
     }
