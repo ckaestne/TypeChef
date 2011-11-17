@@ -34,6 +34,7 @@ class FileTest extends TestHelper {
     @Test def busybox_top_pi {assert(check("top.pi"))} //,d("CONFIG_FEATURE_TOP_SMP_CPU") implies d("CONFIG_FEATURE_TOP_CPU_GLOBAL_PERCENTS")
     @Test def busybox_umount_pi {assert(check("umount.pi"))}
     @Test def busybox_udf_pi {assert(check("udf.pi"))}
+    @Ignore("not finished yet")
     @Test def linux_fork_pi {assert(check("fork_.pi"))}
     @Test def toybox_patch_pi {assert(check("patch.pi"))}
     @Test def toybox_netcat_pi {assert(check("netcat.pi"))}
