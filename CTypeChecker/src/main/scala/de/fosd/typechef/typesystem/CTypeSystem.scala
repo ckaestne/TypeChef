@@ -285,7 +285,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 }
 
 
-class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureExpr = FeatureExpr.base) extends CTypeSystem with CInferInterface {
+class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = NoFeatureModel) extends CTypeSystem with CInferInterface {
 
 
     abstract class ErrorMsg(condition: FeatureExpr, msg: String, location: (Position, Position)) {
@@ -321,16 +321,16 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureExpr = Fea
             println("check " + externalDefCounter + "/" + iast.defs.size + ". line " + externalDef.getPositionFrom.getLine + ". err " + errors.size)
     }
     override def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) =
-        if (condition.isSatisfiable())
+        if (condition.isSatisfiable(featureModel))
             errors = new SimpleError(condition, msg, where) :: errors
     override def issueTypeError(condition: FeatureExpr, msg: String, where: AST) =
-        if (condition.isSatisfiable())
+        if (condition.isSatisfiable(featureModel))
             errors = new TypeError(condition, msg, where) :: errors
 
 
     def checkAST: Boolean = {
 
-        typecheckTranslationUnit(iast, featureModel)
+        typecheckTranslationUnit(iast)
 
 
         if (errors.isEmpty)
