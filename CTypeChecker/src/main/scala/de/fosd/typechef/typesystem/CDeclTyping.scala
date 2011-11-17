@@ -192,6 +192,11 @@ trait CDeclTyping extends CTypes with CEnv {
     // assumptions: we expect that a typedef specifier is either always included or never
     def isTypedef(specs: List[Opt[Specifier]]) = specs.map(_.entry).contains(TypedefSpecifier())
 
+
+    //shorthand
+    protected def getDeclarationType(specifiers: List[Opt[Specifier]], decl: Declarator, featureExpr: FeatureExpr, env: Env) =
+        getDeclaratorType(decl, constructType(specifiers, featureExpr, env), featureExpr, env)
+
     protected def getDeclaratorType(decl: Declarator, returnType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
         val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions, featureExpr, env)
 
