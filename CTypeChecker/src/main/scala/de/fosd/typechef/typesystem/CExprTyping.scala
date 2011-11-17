@@ -97,7 +97,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         isPointer(targetType) ||
                                         (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
-                                else if (sourceType == CIgnore()) targetType
+                                else if (sourceType == CIgnore() || sourceType.isUnknown) targetType
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
                         )
@@ -113,6 +113,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 funType.toValue match {
                                     case CPointer(CFunction(parameterTypes, retType)) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr)
                                     case CFunction(parameterTypes, retType) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr)
+                                    case u: CUnknown => u
                                     case e =>
                                         reportTypeError(fexpr, expr + " is not a function, but has type " + e, pe)
                                 }
@@ -208,6 +209,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
                     case c: BuiltinVaArgs => One(CSigned(CInt()))
+                    case AlignOfExprT(typename) => getTypenameType(typename, featureExpr, env); One(CSigned(CInt()))
+                    case AlignOfExprU(expr) => et(expr); One(CSigned(CInt()))
 
                     //TODO initializers 6.5.2.5
                     case e => One(reportTypeError(featureExpr, "unknown expression " + e + " (TODO)", e))
@@ -269,7 +272,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt()) //spec
             case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2.toValue //TODO spec says return t1?
             case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1
-            case (o, t1, t2) => reportTypeError(featureExpr, "unknown operation or incompatible types " + type1 + " " + op + " " + type2, where)
+            case (o, t1, t2) =>
+                if (t1.isUnknown || t2.isUnknown)
+                    CUnknown(t1 + " " + op + " " + t2)
+                else
+                    reportTypeError(featureExpr, "unknown operation or incompatible types " + type1 + " " + op + " " + type2, where)
         }
     }
 
@@ -325,7 +332,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
     private def findIncompatibleParamter(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Seq[Boolean] =
         (foundTypes zip expectedTypes) map {
-            case (ft, et) => coerce(ft, et)
+            case (ft, et) => coerce(ft, et) || ft.isUnknown
         }
 
 
