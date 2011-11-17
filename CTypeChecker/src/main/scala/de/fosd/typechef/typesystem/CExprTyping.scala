@@ -22,8 +22,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
         val resultType: Conditional[CType] =
             if (!featureExpr.isSatisfiable()) {
-                assert(false, "checking dead expression " + expr)
-                One(CUnknown("dead expression " + expr + " with feature " + featureExpr))
+                One(CIgnore())
             } else
                 expr match {
                     /**
