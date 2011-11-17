@@ -65,15 +65,15 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         })
                     //e.n notation
                     case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
-                        def lookup(fields: ConditionalTypeMap): Conditional[CType] = {
+                        def lookup(fields: ConditionalTypeMap, fexpr: FeatureExpr): Conditional[CType] = {
                             val rt = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))
-                            rt.mapf(featureExpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(f, "unknown field " + id, i))
+                            rt.mapf(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(f, "unknown field " + id, i))
                             rt
                         }
 
                         et(expr).mapfr(featureExpr, {
-                            case (f, CObj(CAnonymousStruct(fields, _))) => lookup(fields).map(_.toObj)
-                            case (f, CAnonymousStruct(fields, _)) => lookup(fields)
+                            case (f, CObj(CAnonymousStruct(fields, _))) => lookup(fields, f).map(_.toObj)
+                            case (f, CAnonymousStruct(fields, _)) => lookup(fields, f)
                             case (f, CObj(CStruct(s, isUnion))) => structEnvLookup(env.structEnv, s, isUnion, id, p, f).map(_.toObj)
                             case (f, CStruct(s, isUnion)) => structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
                                 case (f, e) if (arrayType(e)) =>
