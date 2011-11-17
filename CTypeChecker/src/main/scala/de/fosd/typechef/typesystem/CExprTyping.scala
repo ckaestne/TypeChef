@@ -132,7 +132,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {prepareArray} map {
                         case CObj(t) if (isScalar(t)) => t //apparently ++ also works on arrays
                         //TODO check?: not on function references
-                        case e => reportTypeError(featureExpr, "incorrect post increment/decrement on type " + e, pe)
+                        case e => reportTypeError(featureExpr, "wrong type argument to increment " + e, pe)
                     }
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
