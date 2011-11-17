@@ -17,6 +17,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
      */
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
         val et = getExprType(_: Expr, featureExpr, env)
+        val etF = getExprType(_: Expr, _: FeatureExpr, env)
         //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
         val resultType: Conditional[CType] =
@@ -36,7 +37,15 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //variable or function ref
                     case Id(name) =>
                         val ctype = env.varEnv(name)
-                        ctype.mapf(featureExpr, {(f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(f, name + " undeclared", expr)})
+                        ctype.mapf(featureExpr, {
+                            (f, t) =>
+                                if (t.isUnknown && f.isSatisfiable()) {
+                                    val when = env.varEnv.whenDefined(name)
+                                    issueTypeError(f, name + " undeclared" +
+                                            (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
+                                        expr)
+                                }
+                        })
                         ctype.map(_.toObj)
                     //&a: create pointer
                     case pc@PointerCreationExpr(expr) =>
@@ -96,7 +105,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case pe@PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
                         val functionType: Conditional[CType] = et(expr)
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
-                            case Opt(f, e) => Opt(f, et(e))
+                            case Opt(f, e) => Opt(f, etF(e, featureExpr and f))
                         })
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
@@ -129,7 +138,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case ne@NAryExpr(expr, opList) =>
                         ConditionalLib.conditionalFoldRightFR(opList, et(expr), featureExpr,
                             (fexpr: FeatureExpr, subExpr: NArySubExpr, ctype: CType) =>
-                                et(subExpr.e) map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr))
+                                etF(subExpr.e, fexpr) map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr))
                         )
                     //a[e]
                     case p@PostfixExpr(expr, ArrayAccess(idx)) =>
@@ -170,17 +179,30 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         et(condition) mapfr (featureExpr, {
                             (fexpr, conditionType) =>
                                 if (isScalar(conditionType))
-                                    getConditionalExprType(et(thenExpr.getOrElse(condition)), et(elseExpr), fexpr, ce)
+                                    getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr), etF(elseExpr, fexpr), fexpr, ce)
                                 else One(reportTypeError(fexpr, "invalid type of condition: " + conditionType, ce))
                         })
                     //compound statement in expr. ({a;b;c;}), type is the type of the last statement
                     case CompoundStatementExpr(compoundStatement) =>
                         getStmtType(compoundStatement, featureExpr, env)._1
                     case ExprList(exprs) => //comma operator, evaluated left to right, last expr yields value and type; like compound statement expression
-                        ConditionalLib.lastEntry(exprs).mapr({
-                            case None => One(CVoid())
-                            case Some(expr) => et(expr)
-                        })
+                        //implemented like compound statement
+                        //get a type of every inner expression, collect OptList of types (with one type for every statement, under the same conditions)
+                        val typeOptList: List[Opt[Conditional[CType]]] =
+                            for (Opt(exprFeature, innerExpr) <- exprs) yield {
+                                Opt(exprFeature, etF(innerExpr, featureExpr and exprFeature))
+                            }
+
+                        //return last type
+                        val lastType: Conditional[Option[Conditional[CType]]] = ConditionalLib.lastEntry(typeOptList)
+                        val t: Conditional[CType] = lastType.mapr({
+                            case None => One(CVoid()) //TODO what is the type of an empty ExprList?
+                            case Some(ctype) => ctype
+                        }) simplify (featureExpr);
+
+                        //return original environment, definitions don't leave this scope
+                        t
+
                     case LcurlyInitializer(inits) => One(CCompound()) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
                     case GnuAsmExpr(_, _, _) => One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
