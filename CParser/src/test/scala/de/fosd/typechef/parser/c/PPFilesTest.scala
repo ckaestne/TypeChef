@@ -1,11 +1,10 @@
 package de.fosd.typechef.parser.c
 
-import junit.framework._
 import org.junit.{Ignore, Test}
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 
-class PPFilesTest extends TestCase {
+class PPFilesTest {
     def parseFile(fileName: String) {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
         assertNotNull("file not found " + fileName, inputStream)
@@ -36,8 +35,8 @@ class PPFilesTest extends TestCase {
         parseFile("boa/alias.pi")
     }
 
-    @Ignore("not checked?")
     @Test
+    @Ignore("not checked?")
     def testIpPi() {
         parseFile("boa/ip.pi")
     }
