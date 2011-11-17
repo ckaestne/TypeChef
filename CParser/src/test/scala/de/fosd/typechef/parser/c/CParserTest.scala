@@ -1008,6 +1008,26 @@ void bar() {
   """, p.translationUnit)
     }
 
+
+    @Test
+    def test_conditionalTypeDef {
+        assertParseableAST("""
+                    #if defined(A) && defined(B)
+                    void foo();
+                    #endif
+                    #if defined(A) && !defined(B)
+                    typedef int a;
+                    #endif
+                    int c;
+
+
+                    #if defined(A) && !defined(B)
+                    a x;
+                    #endif
+                    int x;
+                """, p.translationUnit)
+    }
+
     private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExpr.base, ast)
     }

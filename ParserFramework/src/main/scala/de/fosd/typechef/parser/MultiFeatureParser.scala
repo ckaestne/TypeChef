@@ -902,7 +902,7 @@ try {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
             parseResult.mapfr(context, {
                 case (feature, Success(resultPair, inNext)) =>
-                    if (p(resultPair._2, context, in.context)) {
+                    if (p(resultPair._2, feature, in.context)) {
                         //consumed one token
                         resultPair._2.countSuccess(feature)
                         Success(resultPair._2, inNext)
