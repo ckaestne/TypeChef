@@ -154,4 +154,13 @@ class ConditionalTest {
     }
 
 
+    @Test
+    def testFoldCondition {
+        val l = List(Opt(fa, 1), Opt(fa.not(), 2), Opt(fa.not(), 3))
+        val r = conditionalFoldRightFR(l, One("-"), base, (f: FeatureExpr, a: Int, b: String) => {assert(!f.isTautology()); println(f + ", " + a + ", " + b); One(a.toString + b)})
+        println(r)
+
+        assertEquals(Choice(fa.not, One("23-"), One("1-")), r)
+    }
+
 }
