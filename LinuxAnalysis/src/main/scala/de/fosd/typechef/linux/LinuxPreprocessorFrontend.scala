@@ -147,7 +147,7 @@ object LinuxPreprocessorFrontend {
                 val in = CLexer.prepareTokens(tokens)
                 val parserMain = new ParserMain(new CParser(fm))
                 val ast = parserMain.parserMain(in)
-                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit])
+                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
                 if (typecheck || createInterface)
                     ts.checkAST
                 if (createInterface) {
