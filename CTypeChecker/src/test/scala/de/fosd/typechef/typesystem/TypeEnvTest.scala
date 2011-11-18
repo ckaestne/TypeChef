@@ -15,7 +15,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
     val _l = One(CSigned(CLong()))
     val _i = One(CSigned(CInt()))
-    val x_i = Choice(fx, _i, One(CUndefined()))
+    val x_i = Choice(fx, _i, One(CUndefined))
 
     private def compileCode(code: String) = {
         val ast = getAST(code)
@@ -197,7 +197,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env("d") should be(_i)
         env("e") should be(_i)
         //        env("x").sometimesUnknown should be(One(true) TODO
-        env("Undef") should be(One(CUndefined()))
+        env("Undef") should be(One(CUndefined))
     }
 
     test("anonymous struct and typedef") {
@@ -345,12 +345,12 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         enumenv("Direction") should be(base)
         enumenv("Color") should be(fy or fx)
 
-        env("South") should be(Choice(fx, _i, One(CUndefined())))
+        env("South") should be(Choice(fx, _i, One(CUndefined)))
         env("North") should be(_i)
-        env("East") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined()))))
+        env("East") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined))))
         env("West") should be(_i)
-        env("Red") should be(Choice(fy, _i, One(CUndefined())))
-        env("Blue") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined()))))
+        env("Red") should be(Choice(fy, _i, One(CUndefined)))
+        env("Blue") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined))))
     }
 
 
@@ -419,19 +419,19 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         structS1("b") should be(_i)
         structS1("a") should be(x_i)
         structS1("c") should be(Choice(fx.not, _l, _i))
-        structS1("d") should be(Choice(fx.not and fy, _l, Choice(fx, _i, One(CUndefined()))))
+        structS1("d") should be(Choice(fx.not and fy, _l, Choice(fx, _i, One(CUndefined))))
 
         val structS2 = structenv.get("s2", false)
-        structS2("a") should be(Choice(fx, _i, One(CUndefined())))
-        structS2("b") should be(Choice(fx and fy, _i, One(CUndefined())))
+        structS2("a") should be(Choice(fx, _i, One(CUndefined)))
+        structS2("b") should be(Choice(fx and fy, _i, One(CUndefined)))
 
         val structS3 = structenv.get("s3", false)
         ConditionalLib.equals(
             structS3("a"),
-            Choice(fx, _l, One(CUndefined()))) should be(true)
+            Choice(fx, _l, One(CUndefined))) should be(true)
         ConditionalLib.equals(
             structS3("b"),
-            Choice(fx, _l, Choice(fy, _i, One(CUndefined())))) should be(true)
+            Choice(fx, _l, Choice(fy, _i, One(CUndefined)))) should be(true)
 
 
         val venv = lookupEnv(ast.defs.last.entry).varEnv
@@ -439,21 +439,21 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
         venv("vs1") should be(One(CStruct("s1", false)))
         venv("vvs1") should be(One(CStruct("s1", false)))
-        venv("vs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined())))
-        venv("vvs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined())))
+        venv("vs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined)))
+        venv("vvs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined)))
         ConditionalLib.equals(
             venv("vs3"),
-            Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined()))) should be(true)
+            Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined))) should be(true)
         ConditionalLib.equals(
             venv("vvs3"),
-            Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined()))) should be(true)
+            Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined))) should be(true)
 
 
         //anonymous struct
         venv("vs4") match {
             case One(CAnonymousStruct(fields, false)) =>
                 fields("a") should be(_i)
-                fields("b") should be(Choice(fy, _i, One(CUndefined())))
+                fields("b") should be(Choice(fy, _i, One(CUndefined)))
             case e => fail("vs4 illtyped: " + e)
         }
 

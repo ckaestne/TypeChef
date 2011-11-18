@@ -18,7 +18,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     val _oi = One(CObj(CSigned(CInt())))
     val _ol = One(CObj(CSigned(CLong())))
     val _od = One(CObj(CDouble()))
-    val _u = One(CUndefined())
+    val _u = One(CUndefined)
     val c_i_l = Choice(fx, _i, _l)
 
     protected def assertCondEquals(exp: Conditional[CType], act: Conditional[CType]) {
@@ -99,7 +99,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     test("conditional struct member access") {
         assertCondEquals(
             exprV("vstruct.a"),
-            Choice(fx and fy, _ol, Choice(fx.not, _oi, One(CUndefined())))
+            Choice(fx and fy, _ol, Choice(fx.not, _oi, One(CUndefined)))
         )
         assertCondEquals(exprV("vstruct2.a"), Choice(fx and fy, _ol, _u))
         assertCondEquals(exprV("vstruct.b.a"), Choice(fx, _od, _u))

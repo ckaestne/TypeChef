@@ -102,10 +102,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
 
     def addEnumDeclarationToEnv(d: Declaration, featureExpr: FeatureExpr, enumEnv: EnumEnv) =
         d.declSpecs.foldRight(enumEnv)({
-            case (Opt(specFeature, typeSpec), b: EnumEnv) => typeSpec match {
-                case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) =>
-                    b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExpr.dead)))
-                case _ => b
+            (opt, b) => {
+                val specFeature = opt.feature
+                val typeSpec = opt.entry
+                typeSpec match {
+                    case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) =>
+                        b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExpr.dead)))
+                    case _ => b
+                }
             }
         })
 

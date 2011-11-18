@@ -41,8 +41,8 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with
         val env = lookupEnv(ast.defs.last.entry).varEnv
 
         env("a") should be(Choice(fx.not, One(CDouble()), One(CSigned(CInt()))))
-        env("x") should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined()))))
-        env("b") should be(Choice(fx, One(CDouble()), One(CUndefined())))
+        env("x") should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined))))
+        env("b") should be(Choice(fx, One(CDouble()), One(CUndefined)))
     }
 
 

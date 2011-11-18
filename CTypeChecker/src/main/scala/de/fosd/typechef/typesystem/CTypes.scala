@@ -245,8 +245,7 @@ case class CUnknown(msg: String = "") extends CType {
     def toXML = <unknown msg={msg}/>
 }
 
-/**not defined in environment, typically only used in CChoice types */
-case class CUndefined() extends CUnknown("undefined")
+object CUndefined extends CUnknown("unknown")
 
 
 /**

@@ -47,5 +47,6 @@ class CRefactorings {
     def featureToCExpr(feature: FeatureExpr): Expr = feature match {
         case d: DefinedExternal => Id(d.feature)
         //TODO implement complex feature expressions
+        case _ => assert(false, "not implemented"); Id("void")
     }
 }
