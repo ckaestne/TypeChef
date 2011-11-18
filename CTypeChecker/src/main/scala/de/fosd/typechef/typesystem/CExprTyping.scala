@@ -34,6 +34,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case Constant(v) =>
                         if (v == "0") One(CZero())
                         else
+                        if (v.head == '\'') One(CUnsigned(CChar()))
+                        else
                         if (v.last.toLower == 'l') One(CSigned(CLong()))
                         else One(CSigned(CInt()))
                     //variable or function ref

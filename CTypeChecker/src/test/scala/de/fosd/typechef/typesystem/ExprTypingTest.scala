@@ -71,9 +71,12 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         )
 
     test("primitives and pointers") {
+        expr("0") should be(CZero())
         expr("1") should be(CSigned(CInt()))
         expr("blub") should be(CUnknown())
         expr("a") should be(CObj(CDouble()))
+        expr("\"a\"") should be(CUnsigned(CChar()))
+        expr("'0'") should be(CSignUnspecified(CChar()))
         expr("&a") should be(CPointer(CDouble()))
         expr("*(&a)") should be(CObj(CDouble()))
         expr("*a") should be(CUnknown())
