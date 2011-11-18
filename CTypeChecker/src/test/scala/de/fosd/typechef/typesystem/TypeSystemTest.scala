@@ -350,7 +350,7 @@ return 1;
     test("builtin") {
         expect(true) {
             check("""
-                foo(){int a[],b[];
+                void foo(){int a[],b[];
                     int x[];
                     x=a;
                     x=b;
@@ -359,8 +359,19 @@ return 1;
         }
         expect(true) {
             check("""
-                char x[]=__PRETTY_FUNCTION__;
-                """)
+                        char x[]=__PRETTY_FUNCTION__;
+                        """)
         }
+        expect(true) {
+            check("""
+                typedef __builtin_va_list __gnuc_va_list;
+                typedef __gnuc_va_list va_list;
+                void foo(const char *ctl, ...){
+                         va_list va;
+                         __builtin_va_start(va,ctl);
+                         __builtin_va_end(va);
+                }""")
+        }
+
     }
 }
