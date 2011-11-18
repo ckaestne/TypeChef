@@ -50,7 +50,7 @@ $basePath/project/boot/scala-2.9.0/lib/scala-library.jar:\
 $basePath/PartialPreprocessor/lib/gnu.getopt.jar:\
 $basePath/PartialPreprocessor/lib/junit.jar:\
 $basePath/lib/junit-4.8.1.jar:\
-$basePath/lib/org.sat4j.core-2.3.0.jar:\
+$basePath/FeatureExprLib/lib_managed/scala_2.9.0/compile/org.sat4j.core-2.3.1.jar:\
 $basePath/lib/scalacheck_2.8.1-1.8.jar:\
 $basePath/lib/scalatest-1.2.jar:\
 $basePath/FeatureExprLib/target/scala_2.9.0/classes:\

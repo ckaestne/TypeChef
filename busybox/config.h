@@ -5199,6 +5199,16 @@
    #define IF_NANDWRITE(...)
 #endif
 
+#ifdef CONFIG_NANDDUMP
+   #define ENABLE_NANDDUMP 1
+   #define IF_NANDDUMP(...) __VA_ARGS__
+   #define IF_NOT_NANDDUMP(...)
+#else
+   #define ENABLE_NANDDUMP 0
+   #define IF_NOT_NANDDUMP(...) __VA_ARGS__
+   #define IF_NANDDUMP(...)
+#endif
+
 #ifdef CONFIG_UBIATTACH
    #define ENABLE_UBIATTACH 1
    #define IF_UBIATTACH(...) __VA_ARGS__
