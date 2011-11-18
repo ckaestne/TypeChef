@@ -41,8 +41,26 @@ trait CTypeSystemInterface extends CEnv {
     /**
      * error reporting for type errors
      */
-    protected def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) {}
-    protected def issueTypeError(condition: FeatureExpr, msg: String, where: AST) {}
+    protected def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) {}
 
+
+    /**
+     * helper stuff
+     */
+    object Severity extends Enumeration {
+        type Severity = Value
+        val Crash = Value("Critical") //Type-System crashes (e.g. unimplemented parts)
+        val IdLookupError = Value("Id-Lookup Error") // severe errors during lookup of id
+        val FieldLookupError = Value("Field-Lookup Error") // severe errors during lookup of fields
+        val OtherError = Value("Error") // other severe type errors
+        val Warning = Value("Warning")
+    }
+
+
+    protected def assertTypeSystemConstraint(condition: Boolean, featureExpr: FeatureExpr, msg: String, where: AST): Boolean = {
+        if (!condition)
+            issueTypeError(Severity.Crash, featureExpr, msg, where)
+        condition
+    }
 
 }

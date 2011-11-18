@@ -3,8 +3,6 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.Position
-import linker.CInferInterface
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -39,7 +37,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case _: EmptyExternalDef => env
             case _: Pragma => env //ignore
             case _: AsmExpr => env //ignore
-            case e: TypelessDeclaration => assert(false, "will not occur " + e); env //ignore
+            case e: TypelessDeclaration => assertTypeSystemConstraint(false, featureExpr, "will not occur " + e, e); env //ignore
             case d: Declaration =>
                 addDeclarationToEnvironment(d, featureExpr, env)
             case fun@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
@@ -53,7 +51,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         //TODO check function redefinitions
         val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
-        funType.map(t => assert(t.isFunction))
+        funType.mapf(featureExpr, (f, t) => assertTypeSystemConstraint(t.isFunction, f, "not a function", declarator))
         val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
 
         //add type to environment for remaining code
@@ -73,7 +71,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val foundType = getExprType(initExpr, featureExpr, env)
         ConditionalLib.mapCombinationF(foundType, expectedType, featureExpr, {
             (f, ft: CType, et: CType) => if (f.isSatisfiable() && !coerce(et, ft) && !ft.isUnknown)
-                issueTypeError(f, "incorrect initializer type. expected " + et + " found " + ft, initExpr)
+                issueTypeError(Severity.OtherError, f, "incorrect initializer type. expected " + et + " found " + ft, initExpr)
         })
     }
 
@@ -165,19 +163,20 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
             //case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
             case r@ReturnStatement(mexpr) =>
-                assert(env.expectedReturnType.isDefined, "return statement outside a function? " + mexpr)
-                val expectedReturnType = env.expectedReturnType.get
-                mexpr match {
+                if (assertTypeSystemConstraint(env.expectedReturnType.isDefined, featureExpr, "return statement outside a function? " + mexpr, r)) {
+                    val expectedReturnType = env.expectedReturnType.get
+                    mexpr match {
 
-                    case None =>
-                        if (expectedReturnType map (_ == CVoid()) exists (!_))
-                            issueError(featureExpr, "no return expression, expected type " + expectedReturnType, r)
-                    case Some(expr) =>
-                        val foundReturnType = getExprType(expr, featureExpr, env)
-                        ConditionalLib.mapCombinationF(expectedReturnType, foundReturnType, featureExpr,
-                            (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
-                                if (!coerce(etype, ftype) && !ftype.isUnknown)
-                                    issueTypeError(fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr))
+                        case None =>
+                            if (expectedReturnType map (_ == CVoid()) exists (!_))
+                                issueTypeError(Severity.OtherError, featureExpr, "no return expression, expected type " + expectedReturnType, r)
+                        case Some(expr) =>
+                            val foundReturnType = getExprType(expr, featureExpr, env)
+                            ConditionalLib.mapCombinationF(expectedReturnType, foundReturnType, featureExpr,
+                                (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
+                                    if (!coerce(etype, ftype) && !ftype.isUnknown)
+                                        issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr))
+                    }
                 }
                 nop
 
@@ -287,63 +286,5 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 }
 
 
-class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = NoFeatureModel) extends CTypeSystem with CInferInterface {
 
-
-    abstract class ErrorMsg(condition: FeatureExpr, msg: String, location: (Position, Position)) {
-        override def toString =
-            "[" + condition + "] " + location._1 + "--" + location._2 + "\n\t" + msg
-    }
-
-    class SimpleError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where.rangeClean)
-    class TypeError(condition: FeatureExpr, msg: String, where: AST) extends ErrorMsg(condition, msg, where.rangeClean)
-
-    def prettyPrintType(ctype: Conditional[CType]): String =
-        Conditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
-
-    private def indentAllLines(s: String): String =
-        s.lines.map("\t\t" + _).foldLeft("")(_ + "\n" + _)
-
-    var errors: List[ErrorMsg] = List()
-
-
-    val DEBUG_PRINT = false
-
-    def dbgPrint(o: Any) = if (DEBUG_PRINT) print(o)
-
-    def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
-
-    val verbose = true
-
-
-    var externalDefCounter: Int = 0
-    override def checkingExternal(externalDef: ExternalDef) = {
-        externalDefCounter = externalDefCounter + 1
-        if (verbose)
-            println("check " + externalDefCounter + "/" + iast.defs.size + ". line " + externalDef.getPositionFrom.getLine + ". err " + errors.size)
-    }
-    override def issueError(condition: FeatureExpr, msg: String, where: AST, whereElse: AST = null) =
-        if (condition.isSatisfiable(featureModel))
-            errors = new SimpleError(condition, msg, where) :: errors
-    override def issueTypeError(condition: FeatureExpr, msg: String, where: AST) =
-        if (condition.isSatisfiable(featureModel))
-            errors = new TypeError(condition, msg, where) :: errors
-
-
-    def checkAST: Boolean = {
-
-        typecheckTranslationUnit(iast)
-
-
-        if (errors.isEmpty)
-            println("No type errors found.")
-        else {
-            println("Found " + errors.size + " type errors: ");
-            for (e <- errors.reverse)
-                println("  - " + e)
-        }
-        println("\n")
-        return errors.isEmpty
-    }
-}
 

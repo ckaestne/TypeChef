@@ -4,7 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
-trait CTypeEnv extends CTypes with CEnv with CDeclTyping /*with CBuiltIn*/ {
+trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping /*with CBuiltIn*/ {
 
 
     protected def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, Conditional[CType])] = {
@@ -15,15 +15,15 @@ trait CTypeEnv extends CTypes with CEnv with CDeclTyping /*with CBuiltIn*/ {
                 for (Opt(paramFeature, param) <- paramDecls) param match {
                     case PlainParameterDeclaration(specifiers) =>
                         //having int foo(void) is Ok, but for everything else we expect named parameters
-                        assert(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), "no name, old parameter style?") //TODO
+                        assertTypeSystemConstraint(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
                     case ParameterDeclarationD(specifiers, decl) =>
                         val f = featureExpr and extensionFeature and paramFeature
                         result = ((decl.getName, f, getDeclarationType(specifiers, decl, f, env))) :: result
                     case ParameterDeclarationAD(specifiers, decl) =>
-                        assert(false, "no name, old parameter style?") //TODO
+                        assertTypeSystemConstraint(false, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
                     case VarArgs() => //TODO not accessible as parameter?
                 }
-            case e => assert(false, "other extensions not supported yet: " + e)
+            case e => assertTypeSystemConstraint(false, featureExpr and extensionFeature, "other extensions not supported yet: " + e, e)
         }
         result
 

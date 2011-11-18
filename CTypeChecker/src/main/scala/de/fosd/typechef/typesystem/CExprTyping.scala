@@ -40,7 +40,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             (f, t) =>
                                 if (t.isUnknown && f.isSatisfiable()) {
                                     val when = env.varEnv.whenDefined(name)
-                                    issueTypeError(f, name + " undeclared" +
+                                    issueTypeError(Severity.IdLookupError, f, name + " undeclared" +
                                             (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
@@ -66,7 +66,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
                         def lookup(fields: ConditionalTypeMap, fexpr: FeatureExpr): Conditional[CType] = {
                             val rt = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))
-                            rt.mapf(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(f, "unknown field " + id, i))
+                            rt.mapf(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "unknown field " + id, i))
                             rt
                         }
 
@@ -321,7 +321,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     }
 
     protected final def reportTypeError(featureExpr: FeatureExpr, txt: String, where: AST): CUnknown = {
-        issueTypeError(featureExpr, txt, where)
+        issueTypeError(Severity.OtherError, featureExpr, txt, where)
         CUnknown(txt)
     }
 
@@ -341,7 +341,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
         val ctype = struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
 
-        ctype.mapf(featureExpr, {(f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(f, "field " + fieldName + " unknown in " + structName, astNode)})
+        ctype.mapf(featureExpr, {(f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "field " + fieldName + " unknown in " + structName, astNode)})
 
         ctype
     }
