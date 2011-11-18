@@ -310,4 +310,18 @@ return 1;
         }
     }
 
+    test("enum scope") {
+        expect(true) {
+            check("""
+             enum { A, B, C };
+              int x = A;
+             """)
+        }
+        expect(true) {
+            check("""
+             enum { A, B, C } x = A;
+             """)
+        }
+    }
+
 }

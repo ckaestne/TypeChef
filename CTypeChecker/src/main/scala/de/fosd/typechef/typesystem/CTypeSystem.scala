@@ -77,15 +77,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def addDeclarationToEnvironment(d: Declaration, featureExpr: FeatureExpr, oldEnv: Env): Env = {
         var env = oldEnv
-        //add declared variables to variable typing environment and check initializers
-        val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
-        env = env.addVars(vars)
         //declared struct?
         env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
         //declared enums?
         env = env.updateEnumEnv(addEnumDeclarationToEnv(d, featureExpr, env.enumEnv))
         //declared typedefs?
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
+        //add declared variables to variable typing environment and check initializers
+        val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
+        env = env.addVars(vars)
         env
     }
 

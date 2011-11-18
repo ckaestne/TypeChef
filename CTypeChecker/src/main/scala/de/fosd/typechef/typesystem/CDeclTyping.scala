@@ -147,17 +147,20 @@ trait CDeclTyping extends CTypes with CEnv {
 
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
-                                    ): List[(String, FeatureExpr, Conditional[CType])] = enumDeclarations(decl.declSpecs, featureExpr) ++ {
-        if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
+                                    ): List[(String, FeatureExpr, Conditional[CType])] = {
+        val enumDecl = enumDeclarations(decl.declSpecs, featureExpr)
+        val eenv = env.addVars(enumDecl)
+        val varDecl = if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
-            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, env)
+            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv)
 
             for (Opt(f, init) <- decl.init) yield {
-                val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, env), init.attributes).simplify(featureExpr and f)
-                init.getExpr map {checkInitializer(_, ctype, featureExpr and f, env.addVar(init.getName, featureExpr and f, ctype))}
+                val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
+                init.getExpr map {checkInitializer(_, ctype, featureExpr and f, eenv.addVar(init.getName, featureExpr and f, ctype))}
                 (init.declarator.getName, featureExpr and f, ctype)
             }
         }
+        enumDecl ++ varDecl
     }
 
     //replace union types by CIgnore if attribute transparent_union is set
