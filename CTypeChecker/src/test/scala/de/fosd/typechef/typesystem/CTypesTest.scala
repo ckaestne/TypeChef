@@ -97,6 +97,9 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
         coerce(CPointer(CFunction(Seq(), CVoid())), CFunction(Seq(), CVoid())) should be(true)
         coerce(CFunction(Seq(), CVoid()), CPointer(CFunction(Seq(), CVoid()))) should be(true)
         coerce(CPointer(CPointer(CPointer(CFunction(Seq(), CVoid())))), CFunction(Seq(), CVoid())) should be(true)
+
+        coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CIgnore()), CVoid())) should be(true)
+        coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CDouble()), CIgnore())) should be(true)
     }
 
 }
