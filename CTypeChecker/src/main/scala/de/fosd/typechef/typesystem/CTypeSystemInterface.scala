@@ -62,5 +62,8 @@ trait CTypeSystemInterface extends CEnv {
             issueTypeError(Severity.Crash, featureExpr, msg, where)
         condition
     }
-
+    protected final def reportTypeError(featureExpr: FeatureExpr, txt: String, where: AST, severity: Severity.Severity = Severity.OtherError): CUnknown = {
+        issueTypeError(severity, featureExpr, txt, where)
+        CUnknown(txt)
+    }
 }

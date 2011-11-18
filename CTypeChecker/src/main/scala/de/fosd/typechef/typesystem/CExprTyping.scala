@@ -329,10 +329,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         }
     }
 
-    protected final def reportTypeError(featureExpr: FeatureExpr, txt: String, where: AST): CUnknown = {
-        issueTypeError(Severity.OtherError, featureExpr, txt, where)
-        CUnknown(txt)
-    }
 
     private def areParameterCompatible(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Boolean =
         findIncompatibleParamter(foundTypes, expectedTypes) forall (x => x)

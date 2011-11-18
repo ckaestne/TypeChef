@@ -11,7 +11,7 @@ import de.fosd.typechef.parser.c._
  *
  * handling of typedef synonyms
  */
-trait CDeclTyping extends CTypes with CEnv {
+trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType]
 
@@ -88,7 +88,8 @@ trait CDeclTyping extends CTypes with CEnv {
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = env.typedefEnv
                 if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
-                else types = types :+ One(CUnknown("type not defined " + typedefname)) //should not occur, because the parser should reject this already. exceptions could be caused by local type declarations
+                else types = types :+
+                        One(reportTypeError(featureExpr, "type not defined " + typedefname, e, Severity.Crash)) //should not occur, because the parser should reject this already. exceptions could be caused by local type declarations
             }
             case EnumSpecifier(_, _) => types = types :+ One(CSigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case TypeOfSpecifierT(typename) => types = types :+ getTypenameType(typename, featureExpr, env)
@@ -105,7 +106,7 @@ trait CDeclTyping extends CTypes with CEnv {
         val isSigned = has(SignedSpecifier())
         val isUnsigned = has(UnsignedSpecifier())
         if (isSigned && isUnsigned)
-            return One(CUnknown("type both signed and unsigned"))
+            return One(reportTypeError(featureExpr, "type both signed and unsigned", specifiers.head))
 
         //for int, short, etc, always assume signed by default
         def sign(t: CBasicType): One[CType] = One(if (isUnsigned) CUnsigned(t) else CSigned(t))
@@ -138,9 +139,9 @@ trait CDeclTyping extends CTypes with CEnv {
         if (types.size == 1)
             types.head
         else if (types.size == 0)
-            One(CUnknown("no type specifier found"))
+            One(reportTypeError(featureExpr, "no type specifier found", null))
         else
-            One(CUnknown("multiple types found " + types))
+            One(reportTypeError(featureExpr, "multiple types found " + types, specifiers.head))
     }
 
     private def noInitCheck = (a: Expr, b: Conditional[CType], c: FeatureExpr, d: Env) => {}
@@ -224,12 +225,14 @@ trait CDeclTyping extends CTypes with CEnv {
     }
 
     private def decorateDeclaratorExt(t: Conditional[CType], extensions: List[Opt[DeclaratorExtension]], featureExpr: FeatureExpr, env: Env): Conditional[CType] =
-        conditionalFoldRightR(extensions.reverse, t,
-            (ext: DeclaratorExtension, rtype: CType) => ext match {
-                case DeclIdentifierList(idList) => One(if (idList.isEmpty) CFunction(List(), rtype) else CUnknown("cannot derive type of function in this style yet"))
+        conditionalFoldRightFR(extensions.reverse, t, featureExpr,
+            (fexpr: FeatureExpr, ext: DeclaratorExtension, rtype: CType) => ext match {
+                case o@DeclIdentifierList(idList) => One(
+                    if (idList.isEmpty) CFunction(List(), rtype)
+                    else {assertTypeSystemConstraint(false, fexpr, "cannot derive type of function in this style yet", o); CUnknown("unsupported")})
                 case DeclParameterDeclList(parameterDecls) =>
                     var paramLists: Conditional[List[CType]] =
-                        ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, featureExpr, env))
+                        ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, fexpr, env))
                     paramLists.map(CFunction(_, rtype))
                 case DeclArrayAccess(expr) => One(CArray(rtype))
             }

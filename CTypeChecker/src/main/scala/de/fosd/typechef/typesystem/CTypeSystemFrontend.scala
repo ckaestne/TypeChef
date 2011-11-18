@@ -19,7 +19,8 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = No
 
     class TypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) {
         override def toString =
-            severity.toString.take(1) + " [" + condition + "] " + where.getPositionFrom + "--" + where.getPositionTo + "\n\t" + msg
+            severity.toString.take(1) + " [" + condition + "] " +
+                    (if (where == null) "" else where.getPositionFrom + "--" + where.getPositionTo) + "\n\t" + msg
     }
 
 
