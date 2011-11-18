@@ -299,4 +299,15 @@ return 1;
         }
     }
 
+    test("function comparison") {
+        expect(true) {
+            check("""
+             void foo(int a) ;
+             void bar() {
+                if (foo==&foo);
+             }
+             """)
+        }
+    }
+
 }

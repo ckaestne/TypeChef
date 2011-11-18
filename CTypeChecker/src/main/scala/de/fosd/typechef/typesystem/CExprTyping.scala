@@ -249,7 +249,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         def bitwiseOp(o: String) = Set("&", "|", "^", "~") contains o
         def shiftOp(o: String) = Set("<<", ">>") contains o
 
-        (op, prepareArray(type1).toValue, prepareArray(type2).toValue) match {
+        (op, normalize(type1), normalize(type2)) match {
             //pointer arithmetic
             case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2) //spec
             case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1 //spec

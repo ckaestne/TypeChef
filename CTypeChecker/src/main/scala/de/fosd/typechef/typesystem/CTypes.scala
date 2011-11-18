@@ -455,7 +455,7 @@ trait CTypes {
      *
      * * regard arrays as pointers
      */
-    private def normalize(t: CType): CType =
+    protected def normalize(t: CType): CType =
         addFunctionPointers(normalizeA(t))
 
 

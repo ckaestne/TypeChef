@@ -58,7 +58,7 @@ LocalLabelDeclaration -- label names
 //Expressions
 trait AST extends Product with WithPosition
 
-abstract class Expr extends AST
+sealed abstract class Expr extends AST
 
 sealed abstract class PrimaryExpr extends Expr
 
