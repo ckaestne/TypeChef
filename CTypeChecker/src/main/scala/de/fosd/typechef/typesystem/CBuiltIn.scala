@@ -111,7 +111,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             add_pre_buffer("extern void __builtin_unreachable(void);\n");
 
             //__func__
-            add_pre_buffer("static const char __func__[] = \"function-name\";\n")
+            add_pre_buffer("static const char __func__[], __PRETTY_FUNCTION__[];\n")
         }
 
         val ast = getAST(buffer)
