@@ -12,16 +12,19 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         for (Opt(extensionFeature, extension) <- decl.extensions) extension match {
             case DeclIdentifierList(List()) => //declarations with empty parameter lists
             case DeclParameterDeclList(paramDecls) =>
-                for (Opt(paramFeature, param) <- paramDecls) param match {
-                    case PlainParameterDeclaration(specifiers) =>
-                        //having int foo(void) is Ok, but for everything else we expect named parameters
-                        assertTypeSystemConstraint(specifiers.isEmpty || (specifiers.size == 1 && specifiers.head.entry == VoidSpecifier()), featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
-                    case ParameterDeclarationD(specifiers, decl) =>
-                        val f = featureExpr and extensionFeature and paramFeature
-                        result = ((decl.getName, f, getDeclarationType(specifiers, decl, f, env))) :: result
-                    case ParameterDeclarationAD(specifiers, decl) =>
-                        assertTypeSystemConstraint(false, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
-                    case VarArgs() => //TODO not accessible as parameter?
+                for (Opt(paramFeature, param) <- paramDecls) {
+                    val f = featureExpr and extensionFeature and paramFeature
+                    param match {
+                        case PlainParameterDeclaration(specifiers) =>
+                            //having int foo(void) is Ok, but for everything else we expect named parameters
+                            val onlyVoid = !specifiers.exists(spec => (spec.feature and f).isSatisfiable() && spec.entry != VoidSpecifier())
+                            assertTypeSystemConstraint(onlyVoid, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
+                        case ParameterDeclarationD(specifiers, decl) =>
+                            result = ((decl.getName, f, getDeclarationType(specifiers, decl, f, env))) :: result
+                        case ParameterDeclarationAD(specifiers, decl) =>
+                            assertTypeSystemConstraint(false, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
+                        case VarArgs() => //TODO not accessible as parameter?
+                    }
                 }
             case e => assertTypeSystemConstraint(false, featureExpr and extensionFeature, "other extensions not supported yet: " + e, e)
         }

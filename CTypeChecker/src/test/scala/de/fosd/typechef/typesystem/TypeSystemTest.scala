@@ -258,4 +258,18 @@ return 1;
              """)
         }
     }
+    test("alternative parameter declaration") {
+        expect(true) {
+            check("""
+             int foo(
+             #ifdef X
+                int sock
+             #else
+                void
+             #endif
+             ) {}
+             """)
+        }
+    }
+
 }
