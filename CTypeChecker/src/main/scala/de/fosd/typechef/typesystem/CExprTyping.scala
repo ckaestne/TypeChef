@@ -309,14 +309,20 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
         //check parameter size and types
         if (expectedTypes.size != foundTypes.size)
-            reportTypeError(featureExpr, "parameter number mismatch in " + expr + " (expected: " + parameterTypes + ")", funCall)
+            reportTypeError(featureExpr, "parameter number mismatch: expected " + expectedTypes.size + " parameter but found " + foundTypes.size + " in " + expr + " (expected types: " + parameterTypes + ")", funCall)
         else
         if (areParameterCompatible(foundTypes, expectedTypes))
             retType
         else {
-            reportTypeError(featureExpr,
-                "parameter type mismatch: expected " + parameterTypes + " found " + foundTypes +
-                        " (matching: " + findIncompatibleParamter(foundTypes, expectedTypes).mkString(", ") + ")", funCall)
+            //better reporting
+            val nr = 1.to(foundTypes.size)
+            val problems = findIncompatibleParamter(foundTypes, expectedTypes).map(!_)
+            val data = nr zip problems zip foundTypes zip expectedTypes
+            for ((((nr, probl), foundType), expectedType) <- data)
+                if (probl)
+                    reportTypeError(featureExpr,
+                        "type mismatch for parameter " + nr + ": expected " + expectedType + " found " + foundType, funCall)
+            CUnknown("parameter mismatch in " + funCall)
         }
     }
 

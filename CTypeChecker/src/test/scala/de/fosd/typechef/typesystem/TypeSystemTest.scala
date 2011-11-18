@@ -271,5 +271,16 @@ return 1;
              """)
         }
     }
+    test("parameter checks (warnings)") {
+        expect(false) {
+            check("""
+             void foo(int a, int *b, int c) {}
+             void bar() {
+                int a,b,*c;
+                foo(a,b,c);
+             }
+             """)
+        }
+    }
 
 }
