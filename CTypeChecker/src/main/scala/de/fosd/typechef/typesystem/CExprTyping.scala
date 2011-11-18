@@ -252,11 +252,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         (op, normalize(type1), normalize(type2)) match {
             //pointer arithmetic
             case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2) //spec
-            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => t1 //spec
-            case ("+", t1, t2) if (isIntegral(t1) && isPointer(t2)) => t2 //spec
+            case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => type1.toValue //spec
+            case ("+", t1, t2) if (isIntegral(t1) && isPointer(t2)) => type2.toValue //spec
             case ("-", t1, t2) if (isPointer(t1) && (t1 == t2)) => CSigned(CInt()) //spec
-            case (o, t1, t2) if ((Set("+=", "-=") contains o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1 //spec
-            case ("+=", t1, t2) if (type1.isObject && isIntegral(t1) && isPointer(t2)) => t2 //spec
+            case (o, t1, t2) if ((Set("+=", "-=") contains o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => type1.toValue //spec
+            case ("+=", t1, t2) if (type1.isObject && isIntegral(t1) && isPointer(t2)) => type2.toValue //spec
             case ("-=", t1, t2) if (type1.isObject && isPointer(t1) && (t1 == t2)) => CSigned(CInt()) //spec
             //bitwise operations defined on isIntegral
             case (op, t1, t2) if (bitwiseOp(op) && isIntegral(t1) && isIntegral(t2)) => converse(t1, t2)
@@ -270,10 +270,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             case ("*", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2)
             case ("/", t1, t2) if (isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2)
             case ("%", t1, t2) if (isIntegral(t1) && isIntegral(t2) && coerce(t1, t2)) => converse(t1, t2)
-            case ("=", t1, t2) if (type1.isObject) => t2.toValue //TODO spec says return t1?
+            case ("=", t1, t2) if (type1.isObject) => type2.toValue //TODO spec says return t1?
             case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt()) //spec
-            case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => t2.toValue //TODO spec says return t1?
-            case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => t1
+            case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => type2.toValue //TODO spec says return t1?
+            case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => type1.toValue
             case (o, t1, t2) =>
                 if (t1.isUnknown || t2.isUnknown)
                     CUnknown(t1 + " " + op + " " + t2)
