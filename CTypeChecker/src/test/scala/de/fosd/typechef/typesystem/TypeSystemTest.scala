@@ -324,6 +324,15 @@ return 1;
         }
     }
 
+    test("decl scope") {
+        expect(true) {
+            check("""
+             struct { int a; } a[2], *b=a;
+             """)
+        }
+
+    }
+
     test("check array initialization") {
         expect(true) {
             check("""
