@@ -1,4 +1,4 @@
-#undef(NEEDS_ESCAPE_SHIFT)
+#undef NEEDS_ESCAPE_SHIFT
 #line 1 "host/platform-redhat.h" 1
 //Generated with:
 //echo -|gcc -dM - -E -std=gnu99 
