@@ -102,6 +102,15 @@ case class CVoid() extends CType {
     def toXML = <void/>
 }
 
+/**
+ * zero is a special type for the constant 0
+ * that is all: a function and an integer and a pointer
+ */
+case class CZero() extends CType {
+    override def toText = "void"
+    def toXML = <zero/>
+}
+
 case class CSigned(b: CBasicType) extends CType {
     override def <(that: CType) = that match {
         case CSigned(thatb) => b < thatb
@@ -257,6 +266,7 @@ object CType {
         (node \ "signed").map(x => result = CSigned(fromXMLBasicType(x)))
         (node \ "unsigned").map(x => result = CUnsigned(fromXMLBasicType(x)))
         (node \ "nosign").map(x => result = CSignUnspecified(fromXMLBasicType(x)))
+        (node \ "zero").map(x => result = CZero())
         (node \ "void").map(x => result = CVoid())
         (node \ "float").map(x => result = CFloat())
         (node \ "double").map(x => result = CDouble())
@@ -338,13 +348,20 @@ trait CTypes {
 
     def isScalar(t: CType): Boolean = isArithmetic(t) || isPointer(t)
 
+    def isZero(t: CType): Boolean = t.toValue match {
+        case CZero() => true
+        case _ => false
+    }
+
     def isPointer(t: CType): Boolean = t.toValue match {
         case CPointer(_) => true
+        case CZero() => true
         //case function references => true
         case _ => false
     }
 
     def isIntegral(t: CType): Boolean = t.toValue match {
+        case CZero() => true
         case CSigned(_) => true
         case CUnsigned(_) => true
         case CSignUnspecified(_) => true
@@ -374,11 +391,11 @@ trait CTypes {
      *
      *  for "a=b;" with a:type1 and b:type2
      */
-    def coerce(targetType: CType, sourceType: CType): Boolean = {
-        val t1 = normalize(targetType)
-        val t2 = normalize(sourceType)
+    def coerce(expectedType: CType, foundType: CType): Boolean = {
+        val t1 = normalize(expectedType)
+        val t2 = normalize(foundType)
         //either void pointer?
-        if ((targetType.toValue == CPointer(CVoid())) || (sourceType.toValue == CPointer(CVoid()))) return true;
+        if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid()) return true
@@ -399,8 +416,8 @@ trait CTypes {
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true
 
-        //assignment pointer = int (actually only correct if int is zero, otherwise should be a warning)
-        if (isPointer(t1) && isIntegral(t2)) return true
+        //assignment pointer = 0
+        if (isPointer(t1) && isZero(t2)) return true
 
         return false
     }

@@ -30,9 +30,12 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                      * specifying constants in unsigned, long and oating point types; we omit
                      * these for brevity's sake
                      */
-                    //TODO constant 0 is special, can be any pointer or function
                     //TODO other constant types
-                    case Constant(v) => if (v.last.toLower == 'l') One(CSigned(CLong())) else One(CSigned(CInt()))
+                    case Constant(v) =>
+                        if (v == "0") One(CZero())
+                        else
+                        if (v.last.toLower == 'l') One(CSigned(CLong()))
+                        else One(CSigned(CInt()))
                     //variable or function ref
                     case Id(name) =>
                         val ctype = env.varEnv(name)
@@ -337,7 +340,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
     private def findIncompatibleParamter(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Seq[Boolean] =
         (foundTypes zip expectedTypes) map {
-            case (ft, et) => coerce(ft, et) || ft.isUnknown
+            case (ft, et) => coerce(et, ft) || ft.isUnknown
         }
 
 

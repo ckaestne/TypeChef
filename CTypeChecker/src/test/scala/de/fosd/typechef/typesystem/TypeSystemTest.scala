@@ -115,8 +115,8 @@ return 1;
         expect(true) {
             check("int * foo(){ return 0; }")
         }
-        expect(true) {
-            check("int * foo(){ return 1; }") //corner case, is a warning in gcc. accepting here for now.
+        expect(false) {
+            check("int * foo(){ return 1; }") //warning
         }
         expect(false) {
             check("int foo(){ return; }")
@@ -278,6 +278,22 @@ return 1;
              void bar() {
                 int a,b,*c;
                 foo(a,b,c);
+             }
+             """)
+        }
+        expect(true) {
+            check("""
+             void foo(int *a) {}
+             void bar() {
+                foo(0);
+             }
+             """)
+        }
+        expect(false) {
+            check("""
+             void foo(int *a) {}
+             void bar() {
+                foo(1);
              }
              """)
         }
