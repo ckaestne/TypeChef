@@ -324,4 +324,17 @@ return 1;
         }
     }
 
+    test("check array initialization") {
+        expect(true) {
+            check("""
+                int a=3;
+                int b[a];
+                """)
+        }
+        expect(false) {
+            check("""
+                int b[a];
+                """)
+        }
+    }
 }

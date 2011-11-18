@@ -86,6 +86,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //add declared variables to variable typing environment and check initializers
         val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
         env = env.addVars(vars)
+
+        //check array initializers
+        checkArrayExpr(d, featureExpr, env: Env)
+
         env
     }
 
@@ -96,6 +100,16 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     }
 
+    private def checkArrayExpr(d: Declaration, featureExpr: FeatureExpr, env: Env) {
+        //environment correct? or must be interleaved with reading declared variables
+        for (Opt(initFeature, init) <- d.init)
+            for (Opt(extFeature, ext) <- init.declarator.extensions)
+                ext match {
+                    case DeclArrayAccess(Some(expr)) =>
+                        performExprCheck(expr, isScalar, {c => "expected scalar array size, found " + c}, featureExpr and initFeature and extFeature, env)
+                    case _ =>
+                }
+    }
 
     /**
      * returns a type and a changed environment for subsequent statements
