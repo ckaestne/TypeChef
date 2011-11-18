@@ -6,7 +6,8 @@ import java.io._
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
-object ParserBenchmark extends Application {
+
+object ParserBenchmark extends App {
 
     val p = new CParser()
     def parseFile(fileName: String) = {
