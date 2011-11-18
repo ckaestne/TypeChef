@@ -337,4 +337,21 @@ return 1;
                 """)
         }
     }
+
+    test("builtin") {
+        expect(true) {
+            check("""
+                foo(){int a[],b[];
+                    int x[];
+                    x=a;
+                    x=b;
+                }
+                """)
+        }
+        expect(true) {
+            check("""
+                char x[]=__PRETTY_FUNCTION__;
+                """)
+        }
+    }
 }
