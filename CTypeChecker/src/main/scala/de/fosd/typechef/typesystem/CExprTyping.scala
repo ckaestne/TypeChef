@@ -32,7 +32,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                      */
                     //TODO other constant types
                     case Constant(v) =>
-                        if (v == "0") One(CZero())
+                        if (v == "0" || v == "'\\0'") One(CZero())
                         else
                         if (v.head == '\'') One(CUnsigned(CChar()))
                         else
