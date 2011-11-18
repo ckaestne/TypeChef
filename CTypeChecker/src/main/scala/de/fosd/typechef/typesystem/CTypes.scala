@@ -406,6 +406,9 @@ trait CTypes {
             case _ =>
         })
 
+        //not same but compatible functions (e.g. ignored parameters)
+        if (funCompatible(t1, t2)) return true;
+
         //same?
         if (t1 == t2) return true;
 
@@ -420,6 +423,13 @@ trait CTypes {
         if (isPointer(t1) && isZero(t2)) return true
 
         return false
+    }
+
+    private def funCompatible(t1: CType, t2: CType): Boolean = (t1, t2) match {
+        case (CPointer(p1), CPointer(p2)) => funCompatible(p1, p2)
+        case (CFunction(plist1, ret1), CFunction(plist2, ret2)) =>
+            coerce(ret1, ret2) && (plist1.size == plist2.size) && (plist1 zip plist2).forall(x => coerce(x._1, x._2))
+        case _ => false
     }
 
     /**
