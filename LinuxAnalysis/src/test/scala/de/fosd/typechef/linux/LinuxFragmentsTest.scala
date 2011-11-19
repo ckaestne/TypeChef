@@ -10,17 +10,6 @@ import de.fosd.typechef.conditional.Opt
 class LinuxFragmentsTest {
     val p = new CParser(LinuxFeatureModel.featureModelApprox)
 
-    case class Alt(feature: FeatureExpr, thenBranch: AST, elseBranch: AST) extends Expr {
-        override def equals(x: Any) = x match {
-            case Alt(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
-            case _ => false
-        }
-    }
-
-    object Alt {
-        def join = (f: FeatureExpr, x: AST, y: AST) => if (x == y) x else Alt(f, x, y)
-    }
-
     def assertParseResult(expected: AST, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[AST]) {
         val actual = p.parse(code.stripMargin, mainProduction).expectOneResult
         System.out.println(actual)
