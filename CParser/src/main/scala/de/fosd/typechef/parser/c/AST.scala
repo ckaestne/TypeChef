@@ -338,7 +338,7 @@ case class AlignOfExprT(typeName: TypeName) extends Expr
 
 case class AlignOfExprU(expr: Expr) extends Expr
 
-case class GnuAsmExpr(isVolatile: Boolean, expr: StringLit, stuff: Any) extends Expr
+case class GnuAsmExpr(isVolatile: Boolean, isGoto: Boolean, expr: StringLit, stuff: Any) extends Expr
 
 case class RangeExpr(from: Expr, to: Expr) extends Expr
 

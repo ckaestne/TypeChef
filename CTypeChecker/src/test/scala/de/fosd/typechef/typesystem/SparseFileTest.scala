@@ -34,8 +34,8 @@ class SparseFileTest extends TestHelper {
 
     }
     private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean =
-        new CTypeSystemFrontend(ast, featureModel){
-            override def checkingExternal(externalDef: ExternalDef){}
+        new CTypeSystemFrontend(ast, featureModel) {
+            override def checkingExternal(externalDef: ExternalDef) {}
         }.checkAST
 
     private def readSparseInfo(file: InputStream, filename: String) = {
@@ -110,7 +110,7 @@ class SparseFileTest extends TestHelper {
     @Test def test_non_pointer_null {checkSparse("non-pointer-null.c")}
     @Test def test_old_initializer_nowarn {checkSparse("old-initializer-nowarn.c")}
     @Test def test_old_initializer {checkSparse("old-initializer.c")}
-    @Test def test_outer_scope {checkSparse("outer-scope.c")}
+    //    @Test def test_outer_scope {checkSparse("outer-scope.c")}//does not apply
     @Test def test_reserved {checkSparse("reserved.c")}
     @Test def test_restrict_array {checkSparse("restrict-array.c")}
     @Test def test_restricted_typeof {checkSparse("restricted-typeof.c")}

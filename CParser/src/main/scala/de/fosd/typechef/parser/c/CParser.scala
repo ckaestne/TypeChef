@@ -77,7 +77,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         specifier("static") ^^^ StaticSpecifier()
     def functionStorageClassSpecifier: MultiParser[Specifier] =
         (specifier("extern") ^^^ ExternSpecifier()) |
-            staticSpecifier | inline
+                staticSpecifier | inline
 
     def typeQualifier: MultiParser[Specifier] =
         const | volatile | restrict
@@ -544,15 +544,15 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
 
     def gnuAsmExpr: MultiParser[GnuAsmExpr] =
-        asm ~ opt(volatile) ~
+        asm ~ opt(volatile) ~ opt(textToken("goto")) ~
                 LPAREN ~ stringConst ~
                 opt(
-                    COLON ~> opt(strOptExprPair ~ repOpt(COMMA ~> strOptExprPair))
+                    COLON ~ opt(COLON /*only used with goto*/) ~> opt(strOptExprPair ~ repOpt(COMMA ~> strOptExprPair))
                             ~ opt(
                         COLON ~> opt(strOptExprPair ~ repOpt(COMMA ~> strOptExprPair)) ~
-                                opt(COLON ~> stringConst ~ repOpt(COMMA ~> stringConst)))) ~
+                                opt(COLON ~> rep1Sep(stringConst | ID, COMMA)))) ~
                 RPAREN ^^ {
-            case _ ~ v ~ _ ~ e ~ stuff ~ _ => GnuAsmExpr(v.isDefined, e, stuff)
+            case _ ~ v ~ gt ~ _ ~ e ~ stuff ~ _ => GnuAsmExpr(v.isDefined, gt.isDefined, e, stuff)
         }
 
     //GCC requires the PARENs
