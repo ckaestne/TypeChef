@@ -39,12 +39,11 @@ class SparseFileTest extends TestHelper {
 
         Assert.assertEquals(
             (if (isError) "expected error"
-            else if (isKnownToFail) "known to fail"
             else "should succeed") + ", but " +
                     (if (parsingError) "parsing error"
                     else if (typeError) "type error"
                     else "succeeded") + ".",
-            isError || isKnownToFail, parsingError || typeError)
+            isError, parsingError || typeError)
 
     }
     private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean =
@@ -94,24 +93,30 @@ class SparseFileTest extends TestHelper {
     @Test def test_comma {checkSparse("comma.c")}
     @Test def test_compare_null_to_int {checkSparse("compare-null-to-int.c")}
     @Test def test_cond_expr {checkSparse("cond_expr.c")}
+    @Ignore("corresponding warnings not yet supported")
     @Test def test_cond_expr2 {checkSparse("cond_expr2.c")}
     @Test def test_context {checkSparse("context.c")}
-    @Test def test_declaration_after_statement_ansi {checkSparse("declaration-after-statement-ansi.c")}
-    @Test def test_declaration_after_statement_c89 {checkSparse("declaration-after-statement-c89.c")}
-    @Test def test_declaration_after_statement_c99 {checkSparse("declaration-after-statement-c99.c")}
+    //    @Test def test_declaration_after_statement_ansi {checkSparse("declaration-after-statement-ansi.c")} //not relevant for other specifications
+    //    @Test def test_declaration_after_statement_c89 {checkSparse("declaration-after-statement-c89.c")}
+    //    @Test def test_declaration_after_statement_c99 {checkSparse("declaration-after-statement-c99.c")}
+    @Ignore("TODO not yet checked")
     @Test def test_declaration_after_statement_default {checkSparse("declaration-after-statement-default.c")}
     @Test def test_definitions {checkSparse("definitions.c")}
+    @Ignore("warning not checked (initializers)")
     @Test def test_designated_init {checkSparse("designated-init.c")}
     @Test def test_double_semicolon {checkSparse("double-semicolon.c")}
+    @Ignore("warning not checked (bitwise operations)")
     @Test def test_dubious_bitwise_with_not {checkSparse("dubious-bitwise-with-not.c")}
     @Test def test_enum_scope {checkSparse("enum_scope.c")}
     @Test def test_escapes {checkSparse("escapes.c")}
     @Test def test_extern_inline {checkSparse("extern-inline.c")}
     @Test def test_field_overlap {checkSparse("field-overlap.c")}
+    @Ignore("__attribute_ bitwise not enforced_")
     @Test def test_foul_bitwise {checkSparse("foul-bitwise.c")}
     @Test def test_function_pointer_modifier_inheritance {checkSparse("function-pointer-modifier-inheritance.c")}
     @Test def test_identifier_list {checkSparse("identifier_list.c")}
-    @Test def test_init_char_array {checkSparse("init_char-array.c")}
+    @Test def test_init_char_array {checkSparse("init-char-array.c")}
+    @Ignore("TODO warning not checked (initializer defined twice)")
     @Test def test_initializer_entry_defined_twice {checkSparse("initializer-entry-defined-twice.c")}
     @Test def test_inline_compound_literals {checkSparse("inline_compound_literals.c")}
     @Test def test_integer_promotions {checkSparse("integer-promotions.c")}
@@ -124,14 +129,18 @@ class SparseFileTest extends TestHelper {
     @Test def test_multi_typedef {checkSparse("multi_typedef.c")}
     @Test def test_nested_declarator {checkSparse("nested-declarator.c")}
     @Test def test_nested_declarator2 {checkSparse("nested-declarator2.c")}
+    @Ignore("warning not checked (void *p = 0)")
     @Test def test_non_pointer_null {checkSparse("non-pointer-null.c")}
     @Test def test_old_initializer_nowarn {checkSparse("old-initializer-nowarn.c")}
+    @Ignore("warning not checked (initializer conventions")
     @Test def test_old_initializer {checkSparse("old-initializer.c")}
     //    @Test def test_outer_scope {checkSparse("outer-scope.c")}//does not apply
     @Test def test_reserved {checkSparse("reserved.c")}
     @Test def test_restrict_array {checkSparse("restrict-array.c")}
     @Test def test_restricted_typeof {checkSparse("restricted-typeof.c")}
+    @Ignore("warning not checked (sizeof(_Bool))")
     @Test def test_sizeof_bool {checkSparse("sizeof-bool.c")}
+    @Ignore("TODO not supported sizeof usage on structs")
     @Test def test_sizeof_compound_postfix {checkSparse("sizeof-compound-postfix.c")}
     @Test def test_specifiers1 {checkSparse("specifiers1.c")}
     @Test def test_specifiers2 {checkSparse("specifiers2.c")}
@@ -139,7 +148,7 @@ class SparseFileTest extends TestHelper {
     @Test def test_struct_as {checkSparse("struct-as.c")}
     @Test def test_struct_attribute_placement {checkSparse("struct-attribute-placement.c")}
     @Test def test_struct_ns1 {checkSparse("struct-ns1.c")}
-    @Test def test_struct_ns2 {checkSparse("struct-ns2.c")}
+    //    @Test def test_struct_ns2 {checkSparse("struct-ns2.c")}//broken test case
     @Test def test_struct_size1 {checkSparse("struct-size1.c")}
     @Test def test_test_be {checkSparse("test-be.c")}
     @Test def test_type1 {checkSparse("type1.c")}

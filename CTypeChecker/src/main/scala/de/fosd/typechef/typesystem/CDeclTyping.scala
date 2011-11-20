@@ -87,9 +87,15 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                     types = types :+ One(CAnonymousStruct(parseStructMembers(members, featureExpr, env), isUnion))
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = env.typedefEnv
-                if (typedefEnvironment contains typedefname) types = types :+ typedefEnvironment(typedefname)
-                else types = types :+
-                        One(reportTypeError(featureExpr, "type not defined " + typedefname, e, Severity.Crash)) //should not occur, because the parser should reject this already. exceptions could be caused by local type declarations
+                //typedef name can be shadowed by variable
+                val shadow = env.varEnv(typedefname).simplify(featureExpr)
+                types = types :+ shadow.mapfr(featureExpr, {
+                    case (f, CUnknown(_)) => //normal case: there is no variable by that name
+                        if (typedefEnvironment contains typedefname) typedefEnvironment(typedefname)
+                        else One(reportTypeError(f, "type not defined " + typedefname, e, Severity.Crash)) //should not occur, because the parser should reject this already. exceptions could be caused by local type declarations
+                    case (f, t) =>
+                        One(reportTypeError(f, "type " + typedefname + " not defined (shadowed by variable with type " + t + ")", e))
+                })
             }
             case EnumSpecifier(_, _) => types = types :+ One(CSigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case TypeOfSpecifierT(typename) => types = types :+ getTypenameType(typename, featureExpr, env)
