@@ -444,7 +444,7 @@ trait CTypes {
     def converse(a: CType, b: CType): CType =
         if (isArithmetic(a) && isArithmetic(b)) {
             val priority = List[CType](
-                CLongDouble(), CLong(), CFloat(),
+                CLongDouble(), CDouble(), CFloat(),
                 CUnsigned(CLongLong()), CSigned(CLongLong()), CSignUnspecified(CLongLong()),
                 CUnsigned(CLong()), CSigned(CLong()), CSignUnspecified(CLong()),
                 CUnsigned(CInt()))

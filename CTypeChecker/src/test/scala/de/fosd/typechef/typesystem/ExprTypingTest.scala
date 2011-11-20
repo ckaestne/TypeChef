@@ -43,6 +43,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     val varCtx: VarTypingContext =
         new VarTypingContext() ++ (Seq(
             ("a", base, CDouble()),
+            ("i", base, CSigned(CInt())),
             ("ca", fa, CDouble()),
             ("v", base, CVoid()),
             ("s", base, CStruct("str")),
@@ -160,6 +161,14 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         expr("1l+2") should be(CSigned(CLong()))
         expr("1+2l") should be(CSigned(CLong()))
         expr("a+=2") should be(CDouble())
+    }
+    test("unary op") {
+        expr("~i") should be(CSigned(CInt()))
+        expr("~a").isUnknown should be(true)
+    }
+    test("conditional op") {
+        expr("i?i:i") should be(CSigned(CInt()))
+        expr("i?i:a") should be(CDouble())
     }
     test("conditional binary operation") {
         assertCondEquals(_i,
