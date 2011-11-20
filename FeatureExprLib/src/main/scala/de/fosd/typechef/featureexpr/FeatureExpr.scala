@@ -615,9 +615,9 @@ private[featureexpr] object FExprBuilder {
 
     private def propagateError[T](left: FeatureExprTree[T], right: FeatureExprTree[T]): Option[ErrorValue[T]] = {
         (left, right) match {
-            case (ErrorValue(msg1), ErrorValue(msg2)) => Some(ErrorValue(msg1 + ";" + msg2))
-            case (ErrorValue(msg), _) => Some(ErrorValue(msg))
-            case (_, ErrorValue(msg)) => Some(ErrorValue(msg))
+            case (msg1: ErrorValue[_], msg2: ErrorValue[_]) => Some(ErrorValue(msg1.msg + ";" + msg2.msg))
+            case (msg: ErrorValue[_], _) => Some(ErrorValue(msg.msg))
+            case (_, msg: ErrorValue[_]) => Some(ErrorValue(msg.msg))
             case _ => None
         }
     }
@@ -627,12 +627,13 @@ private[featureexpr] object FExprBuilder {
             case Some(ErrorValue(msg)) => return ErrorFeature(msg)
             case _ =>
                 (smaller, larger) match {
-                    case (Value(a), Value(b)) => if (relation(a, b)) True else False
-                    case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
-                        createIf(e2, evalRelation(a1, a2)(relation), evalRelation(a1, b2)(relation)),
-                        createIf(e2, evalRelation(b1, a2)(relation), evalRelation(b1, b2)(relation)))
-                    case (If(e, a, b), x) => createIf(e, evalRelation(a, x)(relation), evalRelation(b, x)(relation))
-                    case (x, If(e, a, b)) => createIf(e, evalRelation(x, a)(relation), evalRelation(x, b)(relation))
+                    case (a: Value[_], b: Value[_]) => if (relation(a.value.asInstanceOf[T], b.value.asInstanceOf[T])) True else False
+                    case (i1: If[_], i2: If[_]) =>
+                        createIf(i1.expr,
+                            createIf(i2.expr, evalRelation(i1.thenBr, i2.thenBr)(relation), evalRelation(i1.thenBr, i2.elseBr)(relation)),
+                            createIf(i2.expr, evalRelation(i1.elseBr, i2.thenBr)(relation), evalRelation(i1.elseBr, i2.elseBr)(relation)))
+                    case (i: If[_], x) => createIf(i.expr, evalRelation(i.thenBr, x)(relation), evalRelation(i.elseBr, x)(relation))
+                    case (x, i: If[_]) => createIf(i.expr, evalRelation(x, i.thenBr)(relation), evalRelation(x, i.elseBr)(relation))
                     case _ => throw new Exception("evalRelation: unexpected " + (smaller, larger))
                 }
         }
@@ -643,20 +644,21 @@ private[featureexpr] object FExprBuilder {
             case Some(err) => return err
             case _ =>
                 (left, right) match {
-                    case (Value(a), Value(b)) => operation(a, b)
-                    case (If(e1, a1, b1), If(e2, a2, b2)) => createIf(e1,
-                        createIf(e2, applyBinaryOperation(a1, a2)(operation), applyBinaryOperation(a1, b2)(operation)),
-                        createIf(e2, applyBinaryOperation(b1, a2)(operation), applyBinaryOperation(b1, b2)(operation)))
-                    case (If(e, a, b), x) => createIf(e, applyBinaryOperation(a, x)(operation), applyBinaryOperation(b, x)(operation))
-                    case (x, If(e, a, b)) => createIf(e, applyBinaryOperation(x, a)(operation), applyBinaryOperation(x, b)(operation))
+                    case (a: Value[_], b: Value[_]) => operation(a.value.asInstanceOf[T], b.value.asInstanceOf[T])
+                    case (i1: If[_], i2: If[_]) =>
+                        createIf(i1.expr,
+                            createIf(i2.expr, applyBinaryOperation(i1.thenBr, i2.thenBr)(operation), applyBinaryOperation(i1.thenBr, i2.elseBr)(operation)),
+                            createIf(i2.expr, applyBinaryOperation(i1.elseBr, i2.thenBr)(operation), applyBinaryOperation(i1.elseBr, i2.elseBr)(operation)))
+                    case (i: If[_], x) => createIf(i.expr, applyBinaryOperation(i.thenBr, x)(operation), applyBinaryOperation(i.elseBr, x)(operation))
+                    case (x, i: If[_]) => createIf(i.expr, applyBinaryOperation(x, i.thenBr)(operation), applyBinaryOperation(x, i.elseBr)(operation))
                     case _ => throw new Exception("applyBinaryOperation: unexpected " + (left, right))
                 }
         }
     }
 
     def applyUnaryOperation[T](expr: FeatureExprTree[T])(operation: T => T): FeatureExprTree[T] = expr match {
-        case Value(a) => createValue(operation(a))
-        case If(e, a, b) => createIf(e, applyUnaryOperation(a)(operation), applyUnaryOperation(b)(operation))
+        case a: Value[_] => createValue(operation(a.value.asInstanceOf[T]))
+        case i: If[_] => createIf(i.expr, applyUnaryOperation(i.thenBr)(operation), applyUnaryOperation(i.elseBr)(operation))
         case _ => throw new Exception("applyUnaryOperation: unexpected " + expr)
     }
 
