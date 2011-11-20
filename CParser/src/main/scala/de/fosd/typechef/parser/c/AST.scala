@@ -10,7 +10,8 @@ import de.fosd.typechef.parser.WithPosition
 
 /**
 Variability is supported in the following locations
-===================================================
+
+
 Core variability
 ----------------
 AltExternalDe..
