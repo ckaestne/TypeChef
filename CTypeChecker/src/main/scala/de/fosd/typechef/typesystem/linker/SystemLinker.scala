@@ -4,2360 +4,2360 @@ package de.fosd.typechef.typesystem.linker
 object SystemLinker {
 
     //symbols extracted from /usr/lib/libc.so and /lib/ld-linux.so.2 (probably neither accurate not complete)
-    lazy val libcSymbols:Array[String] =
-    """
-GCC_3.0
-GLIBC_2.0
-GLIBC_2.1
-GLIBC_2.1.1
-GLIBC_2.1.2
-GLIBC_2.1.3
-GLIBC_2.10
-GLIBC_2.11
-GLIBC_2.12
-GLIBC_2.13
-GLIBC_2.14
-GLIBC_2.2
-GLIBC_2.2.1
-GLIBC_2.2.2
-GLIBC_2.2.3
-GLIBC_2.2.4
-GLIBC_2.2.6
-GLIBC_2.3
-GLIBC_2.3.2
-GLIBC_2.3.3
-GLIBC_2.3.4
-GLIBC_2.4
-GLIBC_2.5
-GLIBC_2.6
-GLIBC_2.7
-GLIBC_2.8
-GLIBC_2.9
-GLIBC_PRIVATE
-_Exit
-_IO_2_1_stderr_
-_IO_2_1_stdin_
-_IO_2_1_stdout_
-_IO_adjust_column
-_IO_adjust_wcolumn
-_IO_default_doallocate
-_IO_default_finish
-_IO_default_pbackfail
-_IO_default_uflow
-_IO_default_xsgetn
-_IO_default_xsputn
-_IO_do_write@@GLIBC_2.1
-_IO_do_write@GLIBC_2.0
-_IO_doallocbuf
-_IO_fclose@@GLIBC_2.1
-_IO_fclose@GLIBC_2.0
-_IO_fdopen@@GLIBC_2.1
-_IO_fdopen@GLIBC_2.0
-_IO_feof
-_IO_ferror
-_IO_fflush
-_IO_fgetpos64@@GLIBC_2.2
-_IO_fgetpos64@GLIBC_2.1
-_IO_fgetpos@@GLIBC_2.2
-_IO_fgetpos@GLIBC_2.0
-_IO_fgets
-_IO_file_attach@@GLIBC_2.1
-_IO_file_attach@GLIBC_2.0
-_IO_file_close
-_IO_file_close_it@@GLIBC_2.1
-_IO_file_close_it@GLIBC_2.0
-_IO_file_doallocate
-_IO_file_finish@@GLIBC_2.1
-_IO_file_fopen@@GLIBC_2.1
-_IO_file_fopen@GLIBC_2.0
-_IO_file_init@@GLIBC_2.1
-_IO_file_init@GLIBC_2.0
-_IO_file_jumps
-_IO_file_open
-_IO_file_overflow@@GLIBC_2.1
-_IO_file_overflow@GLIBC_2.0
-_IO_file_read
-_IO_file_seek
-_IO_file_seekoff@@GLIBC_2.1
-_IO_file_seekoff@GLIBC_2.0
-_IO_file_setbuf@@GLIBC_2.1
-_IO_file_setbuf@GLIBC_2.0
-_IO_file_stat
-_IO_file_sync@@GLIBC_2.1
-_IO_file_sync@GLIBC_2.0
-_IO_file_underflow@@GLIBC_2.1
-_IO_file_underflow@GLIBC_2.0
-_IO_file_write@@GLIBC_2.1
-_IO_file_write@GLIBC_2.0
-_IO_file_xsputn@@GLIBC_2.1
-_IO_file_xsputn@GLIBC_2.0
-_IO_flockfile
-_IO_flush_all
-_IO_flush_all_linebuffered
-_IO_fopen@@GLIBC_2.1
-_IO_fopen@GLIBC_2.0
-_IO_fprintf
-_IO_fputs
-_IO_fread
-_IO_free_backup_area
-_IO_free_wbackup_area
-_IO_fsetpos64@@GLIBC_2.2
-_IO_fsetpos64@GLIBC_2.1
-_IO_fsetpos@@GLIBC_2.2
-_IO_fsetpos@GLIBC_2.0
-_IO_ftell
-_IO_ftrylockfile
-_IO_funlockfile
-_IO_fwrite
-_IO_getc
-_IO_getline
-_IO_getline_info
-_IO_gets
-_IO_init
-_IO_init_marker
-_IO_init_wmarker
-_IO_iter_begin
-_IO_iter_end
-_IO_iter_file
-_IO_iter_next
-_IO_least_wmarker
-_IO_link_in
-_IO_list_all
-_IO_list_lock
-_IO_list_resetlock
-_IO_list_unlock
-_IO_marker_delta
-_IO_marker_difference
-_IO_padn
-_IO_peekc_locked
-_IO_popen@@GLIBC_2.1
-_IO_popen@GLIBC_2.0
-_IO_printf
-_IO_proc_close@@GLIBC_2.1
-_IO_proc_close@GLIBC_2.0
-_IO_proc_open@@GLIBC_2.1
-_IO_proc_open@GLIBC_2.0
-_IO_putc
-_IO_puts
-_IO_remove_marker
-_IO_seekmark
-_IO_seekoff
-_IO_seekpos
-_IO_seekwmark
-_IO_setb
-_IO_setbuffer
-_IO_setvbuf
-_IO_sgetn
-_IO_sprintf
-_IO_sputbackc
-_IO_sputbackwc
-_IO_sscanf
-_IO_stderr_
-_IO_stdin_
-_IO_stdout_
-_IO_str_init_readonly
-_IO_str_init_static
-_IO_str_overflow
-_IO_str_pbackfail
-_IO_str_seekoff
-_IO_str_underflow
-_IO_sungetc
-_IO_sungetwc
-_IO_switch_to_get_mode
-_IO_switch_to_main_wget_area
-_IO_switch_to_wbackup_area
-_IO_switch_to_wget_mode
-_IO_un_link
-_IO_ungetc
-_IO_unsave_markers
-_IO_unsave_wmarkers
-_IO_vfprintf
-_IO_vfscanf
-_IO_vsprintf
-_IO_wdefault_doallocate
-_IO_wdefault_finish
-_IO_wdefault_pbackfail
-_IO_wdefault_uflow
-_IO_wdefault_xsgetn
-_IO_wdefault_xsputn
-_IO_wdo_write
-_IO_wdoallocbuf
-_IO_wfile_jumps
-_IO_wfile_overflow
-_IO_wfile_seekoff
-_IO_wfile_sync
-_IO_wfile_underflow
-_IO_wfile_xsputn
-_IO_wmarker_delta
-_IO_wsetb
-_Unwind_Find_FDE
-___brk_addr
-___tls_get_addr@@GLIBC_2.3
-__abort_msg
-__adjtimex
-__after_morecore_hook
-__argz_count
-__argz_next
-__argz_stringify
-__asprintf
-__asprintf_chk
-__assert
-__assert_fail
-__assert_perror_fail
-__backtrace
-__backtrace_symbols
-__backtrace_symbols_fd
-__bsd_getpgrp
-__check_rhosts_file
-__chk_fail
-__clone
-__close
-__cmsg_nxthdr
-__confstr_chk
-__connect
-__ctype32_b@GLIBC_2.0
-__ctype32_tolower@GLIBC_2.2
-__ctype32_toupper@GLIBC_2.2
-__ctype_b@GLIBC_2.0
-__ctype_b_loc
-__ctype_get_mb_cur_max
-__ctype_tolower@GLIBC_2.0
-__ctype_tolower_loc
-__ctype_toupper@GLIBC_2.0
-__ctype_toupper_loc
-__curbrk
-__cxa_at_quick_exit
-__cxa_atexit
-__cxa_finalize
-__cyg_profile_func_enter
-__cyg_profile_func_exit
-__daylight
-__dcgettext
-__default_morecore
-__deregister_frame
-__deregister_frame_info
-__deregister_frame_info_bases
-__dgettext
-__divdi3@GLIBC_2.0
-__dprintf_chk
-__dup2
-__duplocale
-__endmntent
-__environ
-__errno_location
-__fbufsize
-__fcntl
-__fentry__
-__ffs
-__fgets_chk
-__fgets_unlocked_chk
-__fgetws_chk
-__fgetws_unlocked_chk
-__finite
-__finitef
-__finitel
-__flbf
-__fork
-__fortify_fail
-__fpending
-__fprintf_chk
-__fpu_control
-__fpurge
-__frame_state_for
-__fread_chk
-__fread_unlocked_chk
-__freadable
-__freading
-__free_hook
-__freelocale
-__fsetlocking
-__fwprintf_chk
-__fwritable
-__fwriting
-__fxstat
-__fxstat64@@GLIBC_2.2
-__fxstat64@GLIBC_2.1
-__fxstatat
-__fxstatat64
-__gai_sigqueue
-__gconv_get_alias_db
-__gconv_get_cache
-__gconv_get_modules_db
-__get_cpu_features
-__getcwd_chk
-__getdelim
-__getdomainname_chk
-__getgroups_chk
-__gethostname_chk
-__getlogin_r_chk
-__getmntent_r
-__getpagesize
-__getpgid
-__getpid
-__getrlimit
-__gets_chk
-__gettimeofday
-__getwd_chk
-__gmtime_r
-__h_errno_location
-__internal_endnetgrent
-__internal_getnetgrent_r
-__internal_setnetgrent
-__isalnum_l
-__isalpha_l
-__isascii_l
-__isblank_l
-__iscntrl_l
-__isctype
-__isdigit_l
-__isgraph_l
-__isinf
-__isinff
-__isinfl
-__islower_l
-__isnan
-__isnanf
-__isnanl
-__isoc99_fscanf
-__isoc99_fwscanf
-__isoc99_scanf
-__isoc99_sscanf
-__isoc99_swscanf
-__isoc99_vfscanf
-__isoc99_vfwscanf
-__isoc99_vscanf
-__isoc99_vsscanf
-__isoc99_vswscanf
-__isoc99_vwscanf
-__isoc99_wscanf
-__isprint_l
-__ispunct_l
-__isspace_l
-__isupper_l
-__iswalnum_l
-__iswalpha_l
-__iswblank_l
-__iswcntrl_l
-__iswctype
-__iswctype_l
-__iswdigit_l
-__iswgraph_l
-__iswlower_l
-__iswprint_l
-__iswpunct_l
-__iswspace_l
-__iswupper_l
-__iswxdigit_l
-__isxdigit_l
-__ivaliduser
-__key_decryptsession_pk_LOCAL
-__key_encryptsession_pk_LOCAL
-__key_gendes_LOCAL
-__libc_alloca_cutoff
-__libc_allocate_rtsig
-__libc_allocate_rtsig_private
-__libc_calloc
-__libc_clntudp_bufcreate
-__libc_current_sigrtmax
-__libc_current_sigrtmax_private
-__libc_current_sigrtmin
-__libc_current_sigrtmin_private
-__libc_dl_error_tsd
-__libc_dlclose
-__libc_dlopen_mode
-__libc_dlsym
-__libc_enable_secure@@GLIBC_PRIVATE
-__libc_fatal
-__libc_fork
-__libc_free
-__libc_freeres
-__libc_init_first
-__libc_longjmp
-__libc_mallinfo
-__libc_malloc
-__libc_mallopt
-__libc_memalign
-__libc_msgrcv
-__libc_msgsnd
-__libc_pthread_init
-__libc_pvalloc
-__libc_pwrite
-__libc_realloc
-__libc_rpc_getport
-__libc_sa_len
-__libc_siglongjmp
-__libc_stack_end@@GLIBC_2.1
-__libc_start_main
-__libc_system
-__libc_thread_freeres
-__libc_valloc
-__longjmp_chk
-__lseek
-__lxstat
-__lxstat64@@GLIBC_2.2
-__lxstat64@GLIBC_2.1
-__malloc_hook
-__malloc_initialize_hook
-__mbrlen
-__mbrtowc
-__mbsnrtowcs_chk
-__mbsrtowcs_chk
-__mbstowcs_chk
-__memalign_hook
-__memcpy_by2
-__memcpy_by4
-__memcpy_c
-__memcpy_g
-__mempcpy_by2
-__mempcpy_by4
-__mempcpy_byn
-__mempcpy_small
-__memset_cc
-__memset_ccn_by2
-__memset_ccn_by4
-__memset_cg
-__memset_gcn_by2
-__memset_gcn_by4
-__memset_gg
-__moddi3@GLIBC_2.0
-__modify_ldt
-__monstartup
-__morecore
-__nanosleep
-__newlocale
-__nl_langinfo_l
-__nss_configure_lookup
-__nss_database_lookup
-__nss_disable_nscd
-__nss_group_lookup
-__nss_group_lookup2
-__nss_hostname_digits_dots
-__nss_hosts_lookup
-__nss_hosts_lookup2
-__nss_lookup_function
-__nss_next
-__nss_next2
-__nss_passwd_lookup
-__nss_passwd_lookup2
-__nss_services_lookup2
-__obstack_printf_chk
-__obstack_vprintf_chk
-__open
-__open64
-__open64_2
-__open_2
-__open_catalog
-__openat64_2
-__openat_2
-__overflow
-__pipe
-__poll
-__posix_getopt
-__pread64
-__pread64_chk
-__pread_chk
-__printf_chk
-__printf_fp
-__profile_frequency
-__progname
-__progname_full
-__ptsname_r_chk
-__pwrite64
-__rawmemchr
-__rcmd_errstr
-__read
-__read_chk
-__readlink_chk
-__readlinkat_chk
-__realloc_hook
-__realpath_chk
-__recv_chk
-__recvfrom_chk
-__register_atfork
-__register_frame
-__register_frame_info
-__register_frame_info_bases
-__register_frame_info_table
-__register_frame_info_table_bases
-__register_frame_table
-__res_iclose
-__res_init
-__res_maybe_init
-__res_nclose
-__res_ninit
-__res_randomid
-__res_state
-__resp
-__rpc_thread_createerr
-__rpc_thread_svc_fdset
-__rpc_thread_svc_max_pollfd
-__rpc_thread_svc_pollfd
-__sbrk
-__sched_cpualloc
-__sched_cpufree
-__sched_get_priority_max
-__sched_get_priority_min
-__sched_getparam
-__sched_getscheduler
-__sched_setscheduler
-__sched_yield
-__secure_getenv
-__select
-__send
-__setmntent
-__setpgid
-__sigaction
-__sigaddset
-__sigdelset
-__sigismember
-__signbit
-__signbitf
-__signbitl
-__sigpause
-__sigsetjmp
-__sigsuspend
-__snprintf_chk
-__sprintf_chk
-__stack_chk_fail
-__statfs
-__stpcpy
-__stpcpy_chk
-__stpcpy_g
-__stpcpy_small
-__stpncpy
-__stpncpy_chk
-__strcasecmp
-__strcasecmp_l
-__strcat_c
-__strcat_chk
-__strcat_g
-__strchr_c
-__strchr_g
-__strchrnul_c
-__strchrnul_g
-__strcmp_gg
-__strcoll_l
-__strcpy_chk
-__strcpy_g
-__strcpy_small
-__strcspn_c1
-__strcspn_c2
-__strcspn_c3
-__strcspn_cg
-__strcspn_g
-__strdup
-__strerror_r
-__strfmon_l
-__strftime_l
-__strlen_g
-__strncasecmp_l
-__strncat_chk
-__strncat_g
-__strncmp_g
-__strncpy_by2
-__strncpy_by4
-__strncpy_byn
-__strncpy_chk
-__strncpy_gg
-__strndup
-__strpbrk_c2
-__strpbrk_c3
-__strpbrk_cg
-__strpbrk_g
-__strrchr_c
-__strrchr_g
-__strsep_1c
-__strsep_2c
-__strsep_3c
-__strsep_g
-__strspn_c1
-__strspn_c2
-__strspn_c3
-__strspn_cg
-__strspn_g
-__strstr_cg
-__strstr_g
-__strtod_internal
-__strtod_l
-__strtof_internal
-__strtof_l
-__strtok_r
-__strtok_r_1c
-__strtol_internal
-__strtol_l
-__strtold_internal
-__strtold_l
-__strtoll_internal
-__strtoll_l
-__strtoq_internal@GLIBC_2.0
-__strtoul_internal
-__strtoul_l
-__strtoull_internal
-__strtoull_l
-__strtouq_internal@GLIBC_2.0
-__strverscmp
-__strxfrm_l
-__swprintf_chk
-__sysconf
-__sysctl
-__syslog_chk
-__sysv_signal
-__timezone
-__toascii_l
-__tolower_l
-__toupper_l
-__towctrans
-__towctrans_l
-__towlower_l
-__towupper_l
-__ttyname_r_chk
-__tzname
-__udivdi3@GLIBC_2.0
-__uflow
-__umoddi3@GLIBC_2.0
-__uname
-__underflow
-__uselocale
-__vasprintf_chk
-__vdprintf_chk
-__vfork
-__vfprintf_chk
-__vfscanf
-__vfwprintf_chk
-__vprintf_chk
-__vsnprintf
-__vsnprintf_chk
-__vsprintf_chk
-__vsscanf
-__vswprintf_chk
-__vsyslog_chk
-__vwprintf_chk
-__wait
-__waitpid
-__wcpcpy_chk
-__wcpncpy_chk
-__wcrtomb_chk
-__wcscasecmp_l
-__wcscat_chk
-__wcscoll_l
-__wcscpy_chk
-__wcsftime_l
-__wcsncasecmp_l
-__wcsncat_chk
-__wcsncpy_chk
-__wcsnrtombs_chk
-__wcsrtombs_chk
-__wcstod_internal
-__wcstod_l
-__wcstof_internal
-__wcstof_l
-__wcstol_internal
-__wcstol_l
-__wcstold_internal
-__wcstold_l
-__wcstoll_internal
-__wcstoll_l
-__wcstombs_chk
-__wcstoul_internal
-__wcstoul_l
-__wcstoull_internal
-__wcstoull_l
-__wcsxfrm_l
-__wctomb_chk
-__wctrans_l
-__wctype_l
-__wmemcpy_chk
-__wmemmove_chk
-__wmempcpy_chk
-__wmemset_chk
-__woverflow
-__wprintf_chk
-__write
-__wuflow
-__wunderflow
-__xmknod
-__xmknodat
-__xpg_basename
-__xpg_sigpause
-__xpg_strerror_r
-__xstat
-__xstat64@@GLIBC_2.2
-__xstat64@GLIBC_2.1
-_authenticate
-_dl_addr
-_dl_argv@@GLIBC_PRIVATE
-_dl_mcount_wrapper
-_dl_mcount_wrapper_check
-_dl_open_hook
-_dl_sym
-_dl_vsym
-_environ
-_exit
-_flushlbf
-_itoa_lower_digits
-_libc_intl_domainname
-_longjmp
-_mcleanup
-_mcount
-_nl_default_dirname
-_nl_domain_bindings
-_nl_msg_cat_cntr
-_nss_files_parse_grent
-_nss_files_parse_pwent
-_nss_files_parse_sgent
-_nss_files_parse_spent
-_null_auth
-_obstack@GLIBC_2.0
-_obstack_allocated_p
-_obstack_begin
-_obstack_begin_1
-_obstack_free
-_obstack_memory_used
-_obstack_newchunk
-_res@GLIBC_2.0
-_res_hconf
-_rpc_dtablesize
-_rtld_global@@GLIBC_PRIVATE
-_rtld_global_ro@@GLIBC_PRIVATE
-_seterr_reply
-_setjmp
-_sys_errlist@@GLIBC_2.12
-_sys_errlist@GLIBC_2.0
-_sys_errlist@GLIBC_2.1
-_sys_errlist@GLIBC_2.3
-_sys_errlist@GLIBC_2.4
-_sys_nerr@@GLIBC_2.12
-_sys_nerr@GLIBC_2.0
-_sys_nerr@GLIBC_2.1
-_sys_nerr@GLIBC_2.3
-_sys_nerr@GLIBC_2.4
-_sys_siglist@@GLIBC_2.3.3
-_sys_siglist@GLIBC_2.0
-_sys_siglist@GLIBC_2.1
-_tolower
-_toupper
-a64l
-abort
-abs
-accept
-accept4
-access
-acct
-addmntent
-addseverity
-adjtime
-adjtimex
-advance
-alarm
-alphasort
-alphasort64@@GLIBC_2.2
-alphasort64@GLIBC_2.1
-argp_err_exit_status
-argp_error
-argp_failure
-argp_help
-argp_parse
-argp_program_bug_address
-argp_program_version
-argp_program_version_hook
-argp_state_help
-argp_usage
-argz_add
-argz_add_sep
-argz_append
-argz_count
-argz_create
-argz_create_sep
-argz_delete
-argz_extract
-argz_insert
-argz_next
-argz_replace
-argz_stringify
-asctime
-asctime_r
-asprintf
-atexit@GLIBC_2.0
-atof
-atoi
-atol
-atoll
-authdes_create
-authdes_getucred
-authdes_pk_create
-authnone_create
-authunix_create
-authunix_create_default
-backtrace
-backtrace_symbols
-backtrace_symbols_fd
-basename
-bdflush
-bind
-bind_textdomain_codeset
-bindresvport
-bindtextdomain
-brk
-bsd_signal
-bsearch
-btowc
-calloc
-callrpc
-canonicalize_file_name
-capget
-capset
-catclose
-catgets
-catopen
-cbc_crypt
-cfgetispeed
-cfgetospeed
-cfmakeraw
-cfree
-cfsetispeed
-cfsetospeed
-cfsetspeed
-chdir
-chflags
-chmod
-chown@@GLIBC_2.1
-chown@GLIBC_2.0
-chroot
-clearenv
-clearerr
-clearerr_unlocked
-clnt_broadcast
-clnt_create
-clnt_pcreateerror
-clnt_perrno
-clnt_perror
-clnt_spcreateerror
-clnt_sperrno
-clnt_sperror
-clntraw_create
-clnttcp_create
-clntudp_bufcreate
-clntudp_create
-clntunix_create
-clock
-clock_adjtime
-clone
-close
-closedir
-closelog
-confstr
-connect
-copysign
-copysignf
-copysignl
-creat
-creat64
-create_module
-ctermid
-ctime
-ctime_r
-cuserid
-daemon
-daylight
-dcgettext
-dcngettext
-delete_module
-des_setparity
-dgettext
-difftime
-dirfd
-dirname
-div
-dl_iterate_phdr
-dngettext
-dprintf
-drand48
-drand48_r
-dup
-dup2
-dup3
-duplocale
-dysize
-eaccess
-ecb_crypt
-ecvt
-ecvt_r
-endaliasent
-endfsent
-endgrent
-endhostent
-endmntent
-endnetent
-endnetgrent
-endprotoent
-endpwent
-endrpcent
-endservent
-endsgent
-endspent
-endttyent
-endusershell
-endutent
-endutxent
-environ
-envz_add
-envz_entry
-envz_get
-envz_merge
-envz_remove
-envz_strip
-epoll_create
-epoll_create1
-epoll_ctl
-epoll_pwait
-epoll_wait
-erand48
-erand48_r
-err
-errno
-error
-error_at_line
-error_message_count
-error_one_per_line
-error_print_progname
-errx
-ether_aton
-ether_aton_r
-ether_hostton
-ether_line
-ether_ntoa
-ether_ntoa_r
-ether_ntohost
-euidaccess
-eventfd
-eventfd_read
-eventfd_write
-execl
-execle
-execlp
-execv
-execve
-execvp
-execvpe
-exit
-faccessat
-fallocate
-fallocate64
-fanotify_init
-fanotify_mark
-fattach
-fchdir
-fchflags
-fchmod
-fchmodat
-fchown
-fchownat
-fclose@@GLIBC_2.1
-fclose@GLIBC_2.0
-fcloseall
-fcntl
-fcvt
-fcvt_r
-fdatasync
-fdetach
-fdopen@@GLIBC_2.1
-fdopen@GLIBC_2.0
-fdopendir
-feof
-feof_unlocked
-ferror
-ferror_unlocked
-fexecve
-fflush
-fflush_unlocked
-ffs
-ffsl
-ffsll
-fgetc
-fgetc_unlocked
-fgetgrent
-fgetgrent_r
-fgetpos64@@GLIBC_2.2
-fgetpos64@GLIBC_2.1
-fgetpos@@GLIBC_2.2
-fgetpos@GLIBC_2.0
-fgetpwent
-fgetpwent_r
-fgets
-fgets_unlocked
-fgetsgent
-fgetsgent_r
-fgetspent
-fgetspent_r
-fgetwc
-fgetwc_unlocked
-fgetws
-fgetws_unlocked
-fgetxattr
-fileno
-fileno_unlocked
-finite
-finitef
-finitel
-flistxattr
-flock
-flockfile
-fmemopen
-fmtmsg
-fnmatch@@GLIBC_2.2.3
-fnmatch@GLIBC_2.0
-fopen64
-fopen@@GLIBC_2.1
-fopen@GLIBC_2.0
-fopencookie@@GLIBC_2.2
-fopencookie@GLIBC_2.0
-fork
-fpathconf
-fprintf
-fputc
-fputc_unlocked
-fputs
-fputs_unlocked
-fputwc
-fputwc_unlocked
-fputws
-fputws_unlocked
-fread
-fread_unlocked
-free
-freeaddrinfo
-freeifaddrs
-freelocale
-fremovexattr
-freopen
-freopen64
-frexp
-frexpf
-frexpl
-fscanf
-fseek
-fseeko
-fseeko64
-fsetpos64@@GLIBC_2.2
-fsetpos64@GLIBC_2.1
-fsetpos@@GLIBC_2.2
-fsetpos@GLIBC_2.0
-fsetxattr
-fstatfs
-fstatfs64
-fstatvfs
-fstatvfs64
-fsync
-ftell
-ftello
-ftello64
-ftime
-ftok
-ftruncate
-ftruncate64
-ftrylockfile
-fts_children
-fts_close
-fts_open
-fts_read
-fts_set
-ftw
-ftw64
-funlockfile
-futimens
-futimes
-futimesat
-fwide
-fwprintf
-fwrite
-fwrite_unlocked
-fwscanf
-gai_strerror
-gcvt
-get_avphys_pages
-get_current_dir_name
-get_kernel_syms
-get_myaddress
-get_nprocs
-get_nprocs_conf
-get_phys_pages
-getaddrinfo
-getaliasbyname
-getaliasbyname_r@@GLIBC_2.1.2
-getaliasbyname_r@GLIBC_2.0
-getaliasent
-getaliasent_r@@GLIBC_2.1.2
-getaliasent_r@GLIBC_2.0
-getc
-getc_unlocked
-getchar
-getchar_unlocked
-getcontext
-getcwd
-getdate
-getdate_err
-getdate_r
-getdelim
-getdirentries
-getdirentries64
-getdomainname
-getdtablesize
-getegid
-getenv
-geteuid
-getfsent
-getfsfile
-getfsspec
-getgid
-getgrent
-getgrent_r@@GLIBC_2.1.2
-getgrent_r@GLIBC_2.0
-getgrgid
-getgrgid_r@@GLIBC_2.1.2
-getgrgid_r@GLIBC_2.0
-getgrnam
-getgrnam_r@@GLIBC_2.1.2
-getgrnam_r@GLIBC_2.0
-getgrouplist
-getgroups
-gethostbyaddr
-gethostbyaddr_r@@GLIBC_2.1.2
-gethostbyaddr_r@GLIBC_2.0
-gethostbyname
-gethostbyname2
-gethostbyname2_r@@GLIBC_2.1.2
-gethostbyname2_r@GLIBC_2.0
-gethostbyname_r@@GLIBC_2.1.2
-gethostbyname_r@GLIBC_2.0
-gethostent
-gethostent_r@@GLIBC_2.1.2
-gethostent_r@GLIBC_2.0
-gethostid
-gethostname
-getifaddrs
-getipv4sourcefilter
-getitimer
-getline
-getloadavg
-getlogin
-getlogin_r
-getmntent
-getmntent_r
-getmsg
-getnameinfo
-getnetbyaddr
-getnetbyaddr_r@@GLIBC_2.1.2
-getnetbyaddr_r@GLIBC_2.0
-getnetbyname
-getnetbyname_r@@GLIBC_2.1.2
-getnetbyname_r@GLIBC_2.0
-getnetent
-getnetent_r@@GLIBC_2.1.2
-getnetent_r@GLIBC_2.0
-getnetgrent
-getnetgrent_r
-getnetname
-getopt
-getopt_long
-getopt_long_only
-getpagesize
-getpass
-getpeername
-getpgid
-getpgrp
-getpid
-getpmsg
-getppid
-getpriority
-getprotobyname
-getprotobyname_r@@GLIBC_2.1.2
-getprotobyname_r@GLIBC_2.0
-getprotobynumber
-getprotobynumber_r@@GLIBC_2.1.2
-getprotobynumber_r@GLIBC_2.0
-getprotoent
-getprotoent_r@@GLIBC_2.1.2
-getprotoent_r@GLIBC_2.0
-getpt
-getpublickey
-getpw
-getpwent
-getpwent_r@@GLIBC_2.1.2
-getpwent_r@GLIBC_2.0
-getpwnam
-getpwnam_r@@GLIBC_2.1.2
-getpwnam_r@GLIBC_2.0
-getpwuid
-getpwuid_r@@GLIBC_2.1.2
-getpwuid_r@GLIBC_2.0
-getresgid
-getresuid
-getrlimit64@@GLIBC_2.2
-getrlimit64@GLIBC_2.1
-getrlimit@@GLIBC_2.2
-getrlimit@GLIBC_2.0
-getrpcbyname
-getrpcbyname_r@@GLIBC_2.1.2
-getrpcbyname_r@GLIBC_2.0
-getrpcbynumber
-getrpcbynumber_r@@GLIBC_2.1.2
-getrpcbynumber_r@GLIBC_2.0
-getrpcent
-getrpcent_r@@GLIBC_2.1.2
-getrpcent_r@GLIBC_2.0
-getrpcport
-getrusage
-gets
-getsecretkey
-getservbyname
-getservbyname_r@@GLIBC_2.1.2
-getservbyname_r@GLIBC_2.0
-getservbyport
-getservbyport_r@@GLIBC_2.1.2
-getservbyport_r@GLIBC_2.0
-getservent
-getservent_r@@GLIBC_2.1.2
-getservent_r@GLIBC_2.0
-getsgent
-getsgent_r
-getsgnam
-getsgnam_r
-getsid
-getsockname
-getsockopt
-getsourcefilter
-getspent
-getspent_r@@GLIBC_2.1.2
-getspent_r@GLIBC_2.0
-getspnam
-getspnam_r@@GLIBC_2.1.2
-getspnam_r@GLIBC_2.0
-getsubopt
-gettext
-gettimeofday
-getttyent
-getttynam
-getuid
-getusershell
-getutent
-getutent_r
-getutid
-getutid_r
-getutline
-getutline_r
-getutmp
-getutmpx
-getutxent
-getutxid
-getutxline
-getw
-getwc
-getwc_unlocked
-getwchar
-getwchar_unlocked
-getwd
-getxattr
-glob
-glob64@@GLIBC_2.2
-glob64@GLIBC_2.1
-glob_pattern_p
-globfree
-globfree64
-gmtime
-gmtime_r
-gnu_dev_major
-gnu_dev_makedev
-gnu_dev_minor
-gnu_get_libc_release
-gnu_get_libc_version
-grantpt
-group_member
-gsignal
-gtty
-h_errlist
-h_errno
-h_nerr
-hasmntopt
-hcreate
-hcreate_r
-hdestroy
-hdestroy_r
-herror
-host2netname
-hsearch
-hsearch_r
-hstrerror
-htonl
-htons
-iconv
-iconv_close
-iconv_open
-if_freenameindex
-if_indextoname
-if_nameindex
-if_nametoindex
-imaxabs
-imaxdiv
-in6addr_any
-in6addr_loopback
-index
-inet6_opt_append
-inet6_opt_find
-inet6_opt_finish
-inet6_opt_get_val
-inet6_opt_init
-inet6_opt_next
-inet6_opt_set_val
-inet6_option_alloc
-inet6_option_append
-inet6_option_find
-inet6_option_init
-inet6_option_next
-inet6_option_space
-inet6_rth_add
-inet6_rth_getaddr
-inet6_rth_init
-inet6_rth_reverse
-inet6_rth_segments
-inet6_rth_space
-inet_addr
-inet_aton
-inet_lnaof
-inet_makeaddr
-inet_netof
-inet_network
-inet_nsap_addr
-inet_nsap_ntoa
-inet_ntoa
-inet_ntop
-inet_pton
-init_module
-initgroups
-initstate
-initstate_r
-innetgr
-inotify_add_watch
-inotify_init
-inotify_init1
-inotify_rm_watch
-insque
-ioctl
-ioperm
-iopl
-iruserok
-iruserok_af
-isalnum
-isalnum_l
-isalpha
-isalpha_l
-isascii
-isastream
-isatty
-isblank
-isblank_l
-iscntrl
-iscntrl_l
-isctype
-isdigit
-isdigit_l
-isfdtype
-isgraph
-isgraph_l
-isinf
-isinff
-isinfl
-islower
-islower_l
-isnan
-isnanf
-isnanl
-isprint
-isprint_l
-ispunct
-ispunct_l
-isspace
-isspace_l
-isupper
-isupper_l
-iswalnum
-iswalnum_l
-iswalpha
-iswalpha_l
-iswblank
-iswblank_l
-iswcntrl
-iswcntrl_l
-iswctype
-iswctype_l
-iswdigit
-iswdigit_l
-iswgraph
-iswgraph_l
-iswlower
-iswlower_l
-iswprint
-iswprint_l
-iswpunct
-iswpunct_l
-iswspace
-iswspace_l
-iswupper
-iswupper_l
-iswxdigit
-iswxdigit_l
-isxdigit
-isxdigit_l
-jrand48
-jrand48_r
-key_decryptsession
-key_decryptsession_pk
-key_encryptsession
-key_encryptsession_pk
-key_gendes
-key_get_conv
-key_secretkey_is_set
-key_setnet
-key_setsecret
-kill
-killpg
-klogctl
-l64a
-labs
-lchmod
-lchown
-lckpwdf
-lcong48
-lcong48_r
-ldexp
-ldexpf
-ldexpl
-ldiv
-lfind
-lgetxattr
-link
-linkat
-listen
-listxattr
-llabs
-lldiv
-llistxattr
-llseek
-loc1
-loc2
-localeconv@@GLIBC_2.2
-localeconv@GLIBC_2.0
-localtime
-localtime_r
-lockf
-lockf64
-locs
-longjmp
-lrand48
-lrand48_r
-lremovexattr
-lsearch
-lseek
-lseek64
-lsetxattr
-lutimes
-madvise
-makecontext
-mallinfo
-malloc
-malloc_get_state
-malloc_info
-malloc_set_state
-malloc_stats
-malloc_trim
-malloc_usable_size
-mallopt
-mallwatch
-mblen
-mbrlen
-mbrtowc
-mbsinit
-mbsnrtowcs
-mbsrtowcs
-mbstowcs
-mbtowc
-mcheck
-mcheck_check_all
-mcheck_pedantic
-mcount
-memalign
-memccpy
-memchr
-memfrob
-memmem
-memrchr
-mincore
-mkdir
-mkdirat
-mkdtemp
-mkfifo
-mkfifoat
-mkostemp
-mkostemp64
-mkostemps
-mkostemps64
-mkstemp
-mkstemp64
-mkstemps
-mkstemps64
-mktemp
-mktime
-mlock
-mlockall
-mmap
-mmap64
-modf
-modff
-modfl
-modify_ldt
-moncontrol
-monstartup
-mount
-mprobe
-mprotect
-mrand48
-mrand48_r
-mremap
-msgctl@@GLIBC_2.2
-msgctl@GLIBC_2.0
-msgget
-msgrcv
-msgsnd
-msync
-mtrace
-munlock
-munlockall
-munmap
-muntrace
-name_to_handle_at
-nanosleep
-netname2host
-netname2user
-newlocale
-nfsservctl
-nftw64@@GLIBC_2.3.3
-nftw64@GLIBC_2.1
-nftw@@GLIBC_2.3.3
-nftw@GLIBC_2.1
-ngettext
-nice
-nl_langinfo
-nl_langinfo_l
-nrand48
-nrand48_r
-ntohl
-ntohs
-ntp_adjtime
-ntp_gettime
-ntp_gettimex
-obstack_alloc_failed_handler
-obstack_exit_failure
-obstack_free
-obstack_printf
-obstack_vprintf
-on_exit
-open
-open64
-open_by_handle_at
-open_memstream
-open_wmemstream
-openat
-openat64
-opendir
-openlog
-optarg
-opterr
-optind
-optopt
-parse_printf_format
-passwd2des@GLIBC_2.1
-pathconf
-pause
-pclose@@GLIBC_2.1
-pclose@GLIBC_2.0
-perror
-personality
-pipe
-pipe2
-pivot_root
-pmap_getmaps
-pmap_getport
-pmap_rmtcall
-pmap_set
-pmap_unset
-poll
-popen@@GLIBC_2.1
-popen@GLIBC_2.0
-posix_fadvise
-posix_fadvise64@@GLIBC_2.3.3
-posix_fadvise64@GLIBC_2.2
-posix_fallocate
-posix_fallocate64@@GLIBC_2.3.3
-posix_fallocate64@GLIBC_2.2
-posix_madvise
-posix_memalign
-posix_openpt
-posix_spawn
-posix_spawn_file_actions_addclose
-posix_spawn_file_actions_adddup2
-posix_spawn_file_actions_addopen
-posix_spawn_file_actions_destroy
-posix_spawn_file_actions_init
-posix_spawnattr_destroy
-posix_spawnattr_getflags
-posix_spawnattr_getpgroup
-posix_spawnattr_getschedparam
-posix_spawnattr_getschedpolicy
-posix_spawnattr_getsigdefault
-posix_spawnattr_getsigmask
-posix_spawnattr_init
-posix_spawnattr_setflags
-posix_spawnattr_setpgroup
-posix_spawnattr_setschedparam
-posix_spawnattr_setschedpolicy
-posix_spawnattr_setsigdefault
-posix_spawnattr_setsigmask
-posix_spawnp
-ppoll
-prctl
-pread
-pread64
-preadv
-preadv64
-printf
-printf_size
-printf_size_info
-prlimit
-prlimit64
-profil
-program_invocation_name
-program_invocation_short_name
-pselect
-psiginfo
-psignal
-pthread_attr_destroy
-pthread_attr_getdetachstate
-pthread_attr_getinheritsched
-pthread_attr_getschedparam
-pthread_attr_getschedpolicy
-pthread_attr_getscope
-pthread_attr_init@@GLIBC_2.1
-pthread_attr_init@GLIBC_2.0
-pthread_attr_setdetachstate
-pthread_attr_setinheritsched
-pthread_attr_setschedparam
-pthread_attr_setschedpolicy
-pthread_attr_setscope
-pthread_cond_broadcast@@GLIBC_2.3.2
-pthread_cond_broadcast@GLIBC_2.0
-pthread_cond_destroy@@GLIBC_2.3.2
-pthread_cond_destroy@GLIBC_2.0
-pthread_cond_init@@GLIBC_2.3.2
-pthread_cond_init@GLIBC_2.0
-pthread_cond_signal@@GLIBC_2.3.2
-pthread_cond_signal@GLIBC_2.0
-pthread_cond_timedwait@@GLIBC_2.3.2
-pthread_cond_timedwait@GLIBC_2.0
-pthread_cond_wait@@GLIBC_2.3.2
-pthread_cond_wait@GLIBC_2.0
-pthread_condattr_destroy
-pthread_condattr_init
-pthread_equal
-pthread_exit
-pthread_getschedparam
-pthread_mutex_destroy
-pthread_mutex_init
-pthread_mutex_lock
-pthread_mutex_unlock
-pthread_self
-pthread_setcancelstate
-pthread_setcanceltype
-pthread_setschedparam
-ptrace
-ptsname
-ptsname_r
-putc
-putc_unlocked
-putchar
-putchar_unlocked
-putenv
-putgrent
-putmsg
-putpmsg
-putpwent
-puts
-putsgent
-putspent
-pututline
-pututxline
-putw
-putwc
-putwc_unlocked
-putwchar
-putwchar_unlocked
-pvalloc
-pwrite
-pwrite64
-pwritev
-pwritev64
-qecvt
-qecvt_r
-qfcvt
-qfcvt_r
-qgcvt
-qsort
-qsort_r
-query_module
-quick_exit
-quotactl
-raise
-rand
-rand_r
-random
-random_r
-rawmemchr
-rcmd
-rcmd_af
-re_comp
-re_compile_fastmap
-re_compile_pattern
-re_exec
-re_match
-re_match_2
-re_max_failures
-re_search
-re_search_2
-re_set_registers
-re_set_syntax
-re_syntax_options
-read
-readahead
-readdir
-readdir64@@GLIBC_2.2
-readdir64@GLIBC_2.1
-readdir64_r@@GLIBC_2.2
-readdir64_r@GLIBC_2.1
-readdir_r
-readlink
-readlinkat
-readv
-realloc
-realpath@@GLIBC_2.3
-realpath@GLIBC_2.0
-reboot
-recv
-recvfrom
-recvmmsg
-recvmsg
-regcomp
-regerror
-regexec@@GLIBC_2.3.4
-regexec@GLIBC_2.0
-regfree
-register_printf_function
-register_printf_modifier
-register_printf_specifier
-register_printf_type
-registerrpc@GLIBC_2.0
-remap_file_pages
-remove
-removexattr
-remque
-rename
-renameat
-res_init@GLIBC_2.0
-revoke
-rewind
-rewinddir
-rexec
-rexec_af
-rexecoptions
-rindex
-rmdir
-rpc_createerr
-rpmatch
-rresvport
-rresvport_af
-rtime
-ruserok
-ruserok_af
-ruserpass
-sbrk
-scalbln
-scalblnf
-scalblnl
-scalbn
-scalbnf
-scalbnl
-scandir
-scandir64@@GLIBC_2.2
-scandir64@GLIBC_2.1
-scanf
-sched_get_priority_max
-sched_get_priority_min
-sched_getaffinity@@GLIBC_2.3.4
-sched_getaffinity@GLIBC_2.3.3
-sched_getcpu
-sched_getparam
-sched_getscheduler
-sched_rr_get_interval
-sched_setaffinity@@GLIBC_2.3.4
-sched_setaffinity@GLIBC_2.3.3
-sched_setparam
-sched_setscheduler
-sched_yield
-seed48
-seed48_r
-seekdir
-select
-semctl@@GLIBC_2.2
-semctl@GLIBC_2.0
-semget
-semop
-semtimedop
-send
-sendfile
-sendfile64
-sendmmsg
-sendmsg
-sendto
-setaliasent
-setbuf
-setbuffer
-setcontext
-setdomainname
-setegid
-setenv
-seteuid
-setfsent
-setfsgid
-setfsuid
-setgid
-setgrent
-setgroups
-sethostent
-sethostid
-sethostname
-setipv4sourcefilter
-setitimer
-setjmp
-setlinebuf
-setlocale
-setlogin
-setlogmask
-setmntent
-setnetent
-setnetgrent
-setns
-setpgid
-setpgrp
-setpriority
-setprotoent
-setpwent
-setregid
-setresgid
-setresuid
-setreuid
-setrlimit64
-setrlimit@@GLIBC_2.2
-setrlimit@GLIBC_2.0
-setrpcent
-setservent
-setsgent
-setsid
-setsockopt
-setsourcefilter
-setspent
-setstate
-setstate_r
-settimeofday
-setttyent
-setuid
-setusershell
-setutent
-setutxent
-setvbuf
-setxattr
-sgetsgent
-sgetsgent_r
-sgetspent
-sgetspent_r
-shmat
-shmctl@@GLIBC_2.2
-shmctl@GLIBC_2.0
-shmdt
-shmget
-shutdown
-sigaction
-sigaddset
-sigaltstack
-sigandset
-sigblock
-sigdelset
-sigemptyset
-sigfillset
-siggetmask
-sighold
-sigignore
-siginterrupt
-sigisemptyset
-sigismember
-siglongjmp
-signal
-signalfd
-sigorset
-sigpause
-sigpending
-sigprocmask
-sigqueue
-sigrelse
-sigreturn
-sigset
-sigsetmask
-sigstack
-sigsuspend
-sigtimedwait
-sigvec
-sigwait
-sigwaitinfo
-sleep
-snprintf
-sockatmark
-socket
-socketpair
-splice
-sprintf
-sprofil
-srand
-srand48
-srand48_r
-srandom
-srandom_r
-sscanf
-ssignal
-sstk
-statfs
-statfs64
-statvfs
-statvfs64
-stderr
-stdin
-stdout
-step
-stime
-stpcpy
-stpncpy
-strcasecmp
-strcasecmp_l
-strcat
-strchr
-strchrnul
-strcoll
-strcoll_l
-strcpy
-strdup
-strerror
-strerror_l
-strerror_r
-strfmon
-strfmon_l
-strfry
-strftime
-strftime_l
-strncasecmp
-strncasecmp_l
-strncat
-strncpy
-strndup
-strnlen
-strptime
-strptime_l
-strrchr
-strsep
-strsignal
-strtod
-strtod_l
-strtof
-strtof_l
-strtoimax
-strtok
-strtok_r
-strtol
-strtol_l
-strtold
-strtold_l
-strtoll
-strtoll_l
-strtoq
-strtoul
-strtoul_l
-strtoull
-strtoull_l
-strtoumax
-strtouq
-strverscmp
-strxfrm
-strxfrm_l
-stty
-svc_exit
-svc_fdset
-svc_getreq
-svc_getreq_common
-svc_getreq_poll
-svc_getreqset
-svc_max_pollfd
-svc_pollfd
-svc_register
-svc_run
-svc_sendreply
-svc_unregister
-svcauthdes_stats
-svcerr_auth
-svcerr_decode
-svcerr_noproc
-svcerr_noprog
-svcerr_progvers
-svcerr_systemerr
-svcerr_weakauth
-svcfd_create
-svcraw_create
-svctcp_create
-svcudp_bufcreate
-svcudp_create
-svcudp_enablecache
-svcunix_create
-svcunixfd_create
-swab
-swapcontext
-swapoff
-swapon
-swprintf
-swscanf
-symlink
-symlinkat
-sync
-sync_file_range
-syncfs
-sys_errlist@@GLIBC_2.12
-sys_errlist@GLIBC_2.0
-sys_errlist@GLIBC_2.1
-sys_errlist@GLIBC_2.3
-sys_errlist@GLIBC_2.4
-sys_nerr@@GLIBC_2.12
-sys_nerr@GLIBC_2.0
-sys_nerr@GLIBC_2.1
-sys_nerr@GLIBC_2.3
-sys_nerr@GLIBC_2.4
-sys_sigabbrev@@GLIBC_2.3.3
-sys_sigabbrev@GLIBC_2.0
-sys_sigabbrev@GLIBC_2.1
-sys_siglist@@GLIBC_2.3.3
-sys_siglist@GLIBC_2.0
-sys_siglist@GLIBC_2.1
-syscall
-sysconf
-sysctl
-sysinfo
-syslog
-system
-sysv_signal
-tcdrain
-tcflow
-tcflush
-tcgetattr
-tcgetpgrp
-tcgetsid
-tcsendbreak
-tcsetattr
-tcsetpgrp
-tdelete
-tdestroy
-tee
-telldir
-tempnam
-textdomain
-tfind
-time
-timegm
-timelocal
-timerfd_create
-timerfd_gettime
-timerfd_settime
-times
-timezone
-tmpfile64
-tmpfile@@GLIBC_2.1
-tmpfile@GLIBC_2.0
-tmpnam
-tmpnam_r
-toascii
-tolower
-tolower_l
-toupper
-toupper_l
-towctrans
-towctrans_l
-towlower
-towlower_l
-towupper
-towupper_l
-tr_break
-truncate
-truncate64
-tsearch
-ttyname
-ttyname_r
-ttyslot
-twalk
-tzname
-tzset
-ualarm
-ulckpwdf
-ulimit
-umask
-umount
-umount2
-uname
-ungetc
-ungetwc
-unlink
-unlinkat
-unlockpt
-unsetenv
-unshare
-updwtmp
-updwtmpx
-uselib
-uselocale
-user2netname
-usleep
-ustat
-utime
-utimensat
-utimes
-utmpname
-utmpxname
-valloc
-vasprintf
-vdprintf
-verr
-verrx
-versionsort
-versionsort64@@GLIBC_2.2
-versionsort64@GLIBC_2.1
-vfork
-vfprintf
-vfscanf
-vfwprintf
-vfwscanf
-vhangup
-vlimit
-vm86@@GLIBC_2.3.4
-vm86@GLIBC_2.0
-vmsplice
-vprintf
-vscanf
-vsnprintf
-vsprintf
-vsscanf
-vswprintf
-vswscanf
-vsyslog
-vtimes
-vwarn
-vwarnx
-vwprintf
-vwscanf
-wait
-wait3
-wait4
-waitid
-waitpid
-warn
-warnx
-wcpcpy
-wcpncpy
-wcrtomb
-wcscasecmp
-wcscasecmp_l
-wcscat
-wcschr
-wcschrnul
-wcscmp
-wcscoll
-wcscoll_l
-wcscpy
-wcscspn
-wcsdup
-wcsftime
-wcsftime_l
-wcslen
-wcsncasecmp
-wcsncasecmp_l
-wcsncat
-wcsncmp
-wcsncpy
-wcsnlen
-wcsnrtombs
-wcspbrk
-wcsrchr
-wcsrtombs
-wcsspn
-wcsstr
-wcstod
-wcstod_l
-wcstof
-wcstof_l
-wcstoimax
-wcstok
-wcstol
-wcstol_l
-wcstold
-wcstold_l
-wcstoll
-wcstoll_l
-wcstombs
-wcstoq
-wcstoul
-wcstoul_l
-wcstoull
-wcstoull_l
-wcstoumax
-wcstouq
-wcswcs
-wcswidth
-wcsxfrm
-wcsxfrm_l
-wctob
-wctomb
-wctrans
-wctrans_l
-wctype
-wctype_l
-wcwidth
-wmemchr
-wmemcmp
-wmemcpy
-wmemmove
-wmempcpy
-wmemset
-wordexp
-wordfree
-wprintf
-write
-writev
-wscanf
-xdecrypt
-xdr_accepted_reply
-xdr_array
-xdr_authdes_cred
-xdr_authdes_verf
-xdr_authunix_parms
-xdr_bool
-xdr_bytes
-xdr_callhdr
-xdr_callmsg
-xdr_char
-xdr_cryptkeyarg
-xdr_cryptkeyarg2
-xdr_cryptkeyres
-xdr_des_block
-xdr_double
-xdr_enum
-xdr_float
-xdr_free
-xdr_getcredres
-xdr_hyper
-xdr_int
-xdr_int16_t
-xdr_int32_t
-xdr_int64_t
-xdr_int8_t
-xdr_key_netstarg
-xdr_key_netstres
-xdr_keybuf
-xdr_keystatus
-xdr_long
-xdr_longlong_t
-xdr_netnamestr
-xdr_netobj
-xdr_opaque
-xdr_opaque_auth
-xdr_pmap
-xdr_pmaplist
-xdr_pointer
-xdr_quad_t
-xdr_reference
-xdr_rejected_reply
-xdr_replymsg
-xdr_rmtcall_args
-xdr_rmtcallres
-xdr_short
-xdr_sizeof
-xdr_string
-xdr_u_char
-xdr_u_hyper
-xdr_u_int
-xdr_u_long
-xdr_u_longlong_t
-xdr_u_quad_t
-xdr_u_short
-xdr_uint16_t
-xdr_uint32_t
-xdr_uint64_t
-xdr_uint8_t
-xdr_union
-xdr_unixcred
-xdr_vector
-xdr_void
-xdr_wrapstring
-xdrmem_create
-xdrrec_create
-xdrrec_endofrecord
-xdrrec_eof
-xdrrec_skiprecord
-xdrstdio_create
-xencrypt
-xprt_register
-xprt_unregister
-GLIBC_2.0
-GLIBC_2.1
-GLIBC_2.3
-GLIBC_2.4
-GLIBC_PRIVATE
-___tls_get_addr
-__libc_enable_secure
-__libc_memalign
-__libc_stack_end
-__tls_get_addr
-_dl_allocate_tls
-_dl_allocate_tls_init
-_dl_argv
-_dl_deallocate_tls
-_dl_debug_state
-_dl_get_tls_static_info
-_dl_make_stack_executable
-_dl_mcount
-_dl_rtld_di_serinfo
-_dl_starting_up
-_dl_tls_setup
-_r_debug
-_rtld_global
-_rtld_global_ro
-calloc
-free
-malloc
-realloc
-    """.split('\n').map(_.trim)
+    lazy val libcSymbols: Array[String] =
+        """
+    GCC_3.0
+    GLIBC_2.0
+    GLIBC_2.1
+    GLIBC_2.1.1
+    GLIBC_2.1.2
+    GLIBC_2.1.3
+    GLIBC_2.10
+    GLIBC_2.11
+    GLIBC_2.12
+    GLIBC_2.13
+    GLIBC_2.14
+    GLIBC_2.2
+    GLIBC_2.2.1
+    GLIBC_2.2.2
+    GLIBC_2.2.3
+    GLIBC_2.2.4
+    GLIBC_2.2.6
+    GLIBC_2.3
+    GLIBC_2.3.2
+    GLIBC_2.3.3
+    GLIBC_2.3.4
+    GLIBC_2.4
+    GLIBC_2.5
+    GLIBC_2.6
+    GLIBC_2.7
+    GLIBC_2.8
+    GLIBC_2.9
+    GLIBC_PRIVATE
+    _Exit
+    _IO_2_1_stderr_
+    _IO_2_1_stdin_
+    _IO_2_1_stdout_
+    _IO_adjust_column
+    _IO_adjust_wcolumn
+    _IO_default_doallocate
+    _IO_default_finish
+    _IO_default_pbackfail
+    _IO_default_uflow
+    _IO_default_xsgetn
+    _IO_default_xsputn
+    _IO_do_write@@GLIBC_2.1
+    _IO_do_write@GLIBC_2.0
+    _IO_doallocbuf
+    _IO_fclose@@GLIBC_2.1
+    _IO_fclose@GLIBC_2.0
+    _IO_fdopen@@GLIBC_2.1
+    _IO_fdopen@GLIBC_2.0
+    _IO_feof
+    _IO_ferror
+    _IO_fflush
+    _IO_fgetpos64@@GLIBC_2.2
+    _IO_fgetpos64@GLIBC_2.1
+    _IO_fgetpos@@GLIBC_2.2
+    _IO_fgetpos@GLIBC_2.0
+    _IO_fgets
+    _IO_file_attach@@GLIBC_2.1
+    _IO_file_attach@GLIBC_2.0
+    _IO_file_close
+    _IO_file_close_it@@GLIBC_2.1
+    _IO_file_close_it@GLIBC_2.0
+    _IO_file_doallocate
+    _IO_file_finish@@GLIBC_2.1
+    _IO_file_fopen@@GLIBC_2.1
+    _IO_file_fopen@GLIBC_2.0
+    _IO_file_init@@GLIBC_2.1
+    _IO_file_init@GLIBC_2.0
+    _IO_file_jumps
+    _IO_file_open
+    _IO_file_overflow@@GLIBC_2.1
+    _IO_file_overflow@GLIBC_2.0
+    _IO_file_read
+    _IO_file_seek
+    _IO_file_seekoff@@GLIBC_2.1
+    _IO_file_seekoff@GLIBC_2.0
+    _IO_file_setbuf@@GLIBC_2.1
+    _IO_file_setbuf@GLIBC_2.0
+    _IO_file_stat
+    _IO_file_sync@@GLIBC_2.1
+    _IO_file_sync@GLIBC_2.0
+    _IO_file_underflow@@GLIBC_2.1
+    _IO_file_underflow@GLIBC_2.0
+    _IO_file_write@@GLIBC_2.1
+    _IO_file_write@GLIBC_2.0
+    _IO_file_xsputn@@GLIBC_2.1
+    _IO_file_xsputn@GLIBC_2.0
+    _IO_flockfile
+    _IO_flush_all
+    _IO_flush_all_linebuffered
+    _IO_fopen@@GLIBC_2.1
+    _IO_fopen@GLIBC_2.0
+    _IO_fprintf
+    _IO_fputs
+    _IO_fread
+    _IO_free_backup_area
+    _IO_free_wbackup_area
+    _IO_fsetpos64@@GLIBC_2.2
+    _IO_fsetpos64@GLIBC_2.1
+    _IO_fsetpos@@GLIBC_2.2
+    _IO_fsetpos@GLIBC_2.0
+    _IO_ftell
+    _IO_ftrylockfile
+    _IO_funlockfile
+    _IO_fwrite
+    _IO_getc
+    _IO_getline
+    _IO_getline_info
+    _IO_gets
+    _IO_init
+    _IO_init_marker
+    _IO_init_wmarker
+    _IO_iter_begin
+    _IO_iter_end
+    _IO_iter_file
+    _IO_iter_next
+    _IO_least_wmarker
+    _IO_link_in
+    _IO_list_all
+    _IO_list_lock
+    _IO_list_resetlock
+    _IO_list_unlock
+    _IO_marker_delta
+    _IO_marker_difference
+    _IO_padn
+    _IO_peekc_locked
+    _IO_popen@@GLIBC_2.1
+    _IO_popen@GLIBC_2.0
+    _IO_printf
+    _IO_proc_close@@GLIBC_2.1
+    _IO_proc_close@GLIBC_2.0
+    _IO_proc_open@@GLIBC_2.1
+    _IO_proc_open@GLIBC_2.0
+    _IO_putc
+    _IO_puts
+    _IO_remove_marker
+    _IO_seekmark
+    _IO_seekoff
+    _IO_seekpos
+    _IO_seekwmark
+    _IO_setb
+    _IO_setbuffer
+    _IO_setvbuf
+    _IO_sgetn
+    _IO_sprintf
+    _IO_sputbackc
+    _IO_sputbackwc
+    _IO_sscanf
+    _IO_stderr_
+    _IO_stdin_
+    _IO_stdout_
+    _IO_str_init_readonly
+    _IO_str_init_static
+    _IO_str_overflow
+    _IO_str_pbackfail
+    _IO_str_seekoff
+    _IO_str_underflow
+    _IO_sungetc
+    _IO_sungetwc
+    _IO_switch_to_get_mode
+    _IO_switch_to_main_wget_area
+    _IO_switch_to_wbackup_area
+    _IO_switch_to_wget_mode
+    _IO_un_link
+    _IO_ungetc
+    _IO_unsave_markers
+    _IO_unsave_wmarkers
+    _IO_vfprintf
+    _IO_vfscanf
+    _IO_vsprintf
+    _IO_wdefault_doallocate
+    _IO_wdefault_finish
+    _IO_wdefault_pbackfail
+    _IO_wdefault_uflow
+    _IO_wdefault_xsgetn
+    _IO_wdefault_xsputn
+    _IO_wdo_write
+    _IO_wdoallocbuf
+    _IO_wfile_jumps
+    _IO_wfile_overflow
+    _IO_wfile_seekoff
+    _IO_wfile_sync
+    _IO_wfile_underflow
+    _IO_wfile_xsputn
+    _IO_wmarker_delta
+    _IO_wsetb
+    _Unwind_Find_FDE
+    ___brk_addr
+    ___tls_get_addr@@GLIBC_2.3
+    __abort_msg
+    __adjtimex
+    __after_morecore_hook
+    __argz_count
+    __argz_next
+    __argz_stringify
+    __asprintf
+    __asprintf_chk
+    __assert
+    __assert_fail
+    __assert_perror_fail
+    __backtrace
+    __backtrace_symbols
+    __backtrace_symbols_fd
+    __bsd_getpgrp
+    __check_rhosts_file
+    __chk_fail
+    __clone
+    __close
+    __cmsg_nxthdr
+    __confstr_chk
+    __connect
+    __ctype32_b@GLIBC_2.0
+    __ctype32_tolower@GLIBC_2.2
+    __ctype32_toupper@GLIBC_2.2
+    __ctype_b@GLIBC_2.0
+    __ctype_b_loc
+    __ctype_get_mb_cur_max
+    __ctype_tolower@GLIBC_2.0
+    __ctype_tolower_loc
+    __ctype_toupper@GLIBC_2.0
+    __ctype_toupper_loc
+    __curbrk
+    __cxa_at_quick_exit
+    __cxa_atexit
+    __cxa_finalize
+    __cyg_profile_func_enter
+    __cyg_profile_func_exit
+    __daylight
+    __dcgettext
+    __default_morecore
+    __deregister_frame
+    __deregister_frame_info
+    __deregister_frame_info_bases
+    __dgettext
+    __divdi3@GLIBC_2.0
+    __dprintf_chk
+    __dup2
+    __duplocale
+    __endmntent
+    __environ
+    __errno_location
+    __fbufsize
+    __fcntl
+    __fentry__
+    __ffs
+    __fgets_chk
+    __fgets_unlocked_chk
+    __fgetws_chk
+    __fgetws_unlocked_chk
+    __finite
+    __finitef
+    __finitel
+    __flbf
+    __fork
+    __fortify_fail
+    __fpending
+    __fprintf_chk
+    __fpu_control
+    __fpurge
+    __frame_state_for
+    __fread_chk
+    __fread_unlocked_chk
+    __freadable
+    __freading
+    __free_hook
+    __freelocale
+    __fsetlocking
+    __fwprintf_chk
+    __fwritable
+    __fwriting
+    __fxstat
+    __fxstat64@@GLIBC_2.2
+    __fxstat64@GLIBC_2.1
+    __fxstatat
+    __fxstatat64
+    __gai_sigqueue
+    __gconv_get_alias_db
+    __gconv_get_cache
+    __gconv_get_modules_db
+    __get_cpu_features
+    __getcwd_chk
+    __getdelim
+    __getdomainname_chk
+    __getgroups_chk
+    __gethostname_chk
+    __getlogin_r_chk
+    __getmntent_r
+    __getpagesize
+    __getpgid
+    __getpid
+    __getrlimit
+    __gets_chk
+    __gettimeofday
+    __getwd_chk
+    __gmtime_r
+    __h_errno_location
+    __internal_endnetgrent
+    __internal_getnetgrent_r
+    __internal_setnetgrent
+    __isalnum_l
+    __isalpha_l
+    __isascii_l
+    __isblank_l
+    __iscntrl_l
+    __isctype
+    __isdigit_l
+    __isgraph_l
+    __isinf
+    __isinff
+    __isinfl
+    __islower_l
+    __isnan
+    __isnanf
+    __isnanl
+    __isoc99_fscanf
+    __isoc99_fwscanf
+    __isoc99_scanf
+    __isoc99_sscanf
+    __isoc99_swscanf
+    __isoc99_vfscanf
+    __isoc99_vfwscanf
+    __isoc99_vscanf
+    __isoc99_vsscanf
+    __isoc99_vswscanf
+    __isoc99_vwscanf
+    __isoc99_wscanf
+    __isprint_l
+    __ispunct_l
+    __isspace_l
+    __isupper_l
+    __iswalnum_l
+    __iswalpha_l
+    __iswblank_l
+    __iswcntrl_l
+    __iswctype
+    __iswctype_l
+    __iswdigit_l
+    __iswgraph_l
+    __iswlower_l
+    __iswprint_l
+    __iswpunct_l
+    __iswspace_l
+    __iswupper_l
+    __iswxdigit_l
+    __isxdigit_l
+    __ivaliduser
+    __key_decryptsession_pk_LOCAL
+    __key_encryptsession_pk_LOCAL
+    __key_gendes_LOCAL
+    __libc_alloca_cutoff
+    __libc_allocate_rtsig
+    __libc_allocate_rtsig_private
+    __libc_calloc
+    __libc_clntudp_bufcreate
+    __libc_current_sigrtmax
+    __libc_current_sigrtmax_private
+    __libc_current_sigrtmin
+    __libc_current_sigrtmin_private
+    __libc_dl_error_tsd
+    __libc_dlclose
+    __libc_dlopen_mode
+    __libc_dlsym
+    __libc_enable_secure@@GLIBC_PRIVATE
+    __libc_fatal
+    __libc_fork
+    __libc_free
+    __libc_freeres
+    __libc_init_first
+    __libc_longjmp
+    __libc_mallinfo
+    __libc_malloc
+    __libc_mallopt
+    __libc_memalign
+    __libc_msgrcv
+    __libc_msgsnd
+    __libc_pthread_init
+    __libc_pvalloc
+    __libc_pwrite
+    __libc_realloc
+    __libc_rpc_getport
+    __libc_sa_len
+    __libc_siglongjmp
+    __libc_stack_end@@GLIBC_2.1
+    __libc_start_main
+    __libc_system
+    __libc_thread_freeres
+    __libc_valloc
+    __longjmp_chk
+    __lseek
+    __lxstat
+    __lxstat64@@GLIBC_2.2
+    __lxstat64@GLIBC_2.1
+    __malloc_hook
+    __malloc_initialize_hook
+    __mbrlen
+    __mbrtowc
+    __mbsnrtowcs_chk
+    __mbsrtowcs_chk
+    __mbstowcs_chk
+    __memalign_hook
+    __memcpy_by2
+    __memcpy_by4
+    __memcpy_c
+    __memcpy_g
+    __mempcpy_by2
+    __mempcpy_by4
+    __mempcpy_byn
+    __mempcpy_small
+    __memset_cc
+    __memset_ccn_by2
+    __memset_ccn_by4
+    __memset_cg
+    __memset_gcn_by2
+    __memset_gcn_by4
+    __memset_gg
+    __moddi3@GLIBC_2.0
+    __modify_ldt
+    __monstartup
+    __morecore
+    __nanosleep
+    __newlocale
+    __nl_langinfo_l
+    __nss_configure_lookup
+    __nss_database_lookup
+    __nss_disable_nscd
+    __nss_group_lookup
+    __nss_group_lookup2
+    __nss_hostname_digits_dots
+    __nss_hosts_lookup
+    __nss_hosts_lookup2
+    __nss_lookup_function
+    __nss_next
+    __nss_next2
+    __nss_passwd_lookup
+    __nss_passwd_lookup2
+    __nss_services_lookup2
+    __obstack_printf_chk
+    __obstack_vprintf_chk
+    __open
+    __open64
+    __open64_2
+    __open_2
+    __open_catalog
+    __openat64_2
+    __openat_2
+    __overflow
+    __pipe
+    __poll
+    __posix_getopt
+    __pread64
+    __pread64_chk
+    __pread_chk
+    __printf_chk
+    __printf_fp
+    __profile_frequency
+    __progname
+    __progname_full
+    __ptsname_r_chk
+    __pwrite64
+    __rawmemchr
+    __rcmd_errstr
+    __read
+    __read_chk
+    __readlink_chk
+    __readlinkat_chk
+    __realloc_hook
+    __realpath_chk
+    __recv_chk
+    __recvfrom_chk
+    __register_atfork
+    __register_frame
+    __register_frame_info
+    __register_frame_info_bases
+    __register_frame_info_table
+    __register_frame_info_table_bases
+    __register_frame_table
+    __res_iclose
+    __res_init
+    __res_maybe_init
+    __res_nclose
+    __res_ninit
+    __res_randomid
+    __res_state
+    __resp
+    __rpc_thread_createerr
+    __rpc_thread_svc_fdset
+    __rpc_thread_svc_max_pollfd
+    __rpc_thread_svc_pollfd
+    __sbrk
+    __sched_cpualloc
+    __sched_cpufree
+    __sched_get_priority_max
+    __sched_get_priority_min
+    __sched_getparam
+    __sched_getscheduler
+    __sched_setscheduler
+    __sched_yield
+    __secure_getenv
+    __select
+    __send
+    __setmntent
+    __setpgid
+    __sigaction
+    __sigaddset
+    __sigdelset
+    __sigismember
+    __signbit
+    __signbitf
+    __signbitl
+    __sigpause
+    __sigsetjmp
+    __sigsuspend
+    __snprintf_chk
+    __sprintf_chk
+    __stack_chk_fail
+    __statfs
+    __stpcpy
+    __stpcpy_chk
+    __stpcpy_g
+    __stpcpy_small
+    __stpncpy
+    __stpncpy_chk
+    __strcasecmp
+    __strcasecmp_l
+    __strcat_c
+    __strcat_chk
+    __strcat_g
+    __strchr_c
+    __strchr_g
+    __strchrnul_c
+    __strchrnul_g
+    __strcmp_gg
+    __strcoll_l
+    __strcpy_chk
+    __strcpy_g
+    __strcpy_small
+    __strcspn_c1
+    __strcspn_c2
+    __strcspn_c3
+    __strcspn_cg
+    __strcspn_g
+    __strdup
+    __strerror_r
+    __strfmon_l
+    __strftime_l
+    __strlen_g
+    __strncasecmp_l
+    __strncat_chk
+    __strncat_g
+    __strncmp_g
+    __strncpy_by2
+    __strncpy_by4
+    __strncpy_byn
+    __strncpy_chk
+    __strncpy_gg
+    __strndup
+    __strpbrk_c2
+    __strpbrk_c3
+    __strpbrk_cg
+    __strpbrk_g
+    __strrchr_c
+    __strrchr_g
+    __strsep_1c
+    __strsep_2c
+    __strsep_3c
+    __strsep_g
+    __strspn_c1
+    __strspn_c2
+    __strspn_c3
+    __strspn_cg
+    __strspn_g
+    __strstr_cg
+    __strstr_g
+    __strtod_internal
+    __strtod_l
+    __strtof_internal
+    __strtof_l
+    __strtok_r
+    __strtok_r_1c
+    __strtol_internal
+    __strtol_l
+    __strtold_internal
+    __strtold_l
+    __strtoll_internal
+    __strtoll_l
+    __strtoq_internal@GLIBC_2.0
+    __strtoul_internal
+    __strtoul_l
+    __strtoull_internal
+    __strtoull_l
+    __strtouq_internal@GLIBC_2.0
+    __strverscmp
+    __strxfrm_l
+    __swprintf_chk
+    __sysconf
+    __sysctl
+    __syslog_chk
+    __sysv_signal
+    __timezone
+    __toascii_l
+    __tolower_l
+    __toupper_l
+    __towctrans
+    __towctrans_l
+    __towlower_l
+    __towupper_l
+    __ttyname_r_chk
+    __tzname
+    __udivdi3@GLIBC_2.0
+    __uflow
+    __umoddi3@GLIBC_2.0
+    __uname
+    __underflow
+    __uselocale
+    __vasprintf_chk
+    __vdprintf_chk
+    __vfork
+    __vfprintf_chk
+    __vfscanf
+    __vfwprintf_chk
+    __vprintf_chk
+    __vsnprintf
+    __vsnprintf_chk
+    __vsprintf_chk
+    __vsscanf
+    __vswprintf_chk
+    __vsyslog_chk
+    __vwprintf_chk
+    __wait
+    __waitpid
+    __wcpcpy_chk
+    __wcpncpy_chk
+    __wcrtomb_chk
+    __wcscasecmp_l
+    __wcscat_chk
+    __wcscoll_l
+    __wcscpy_chk
+    __wcsftime_l
+    __wcsncasecmp_l
+    __wcsncat_chk
+    __wcsncpy_chk
+    __wcsnrtombs_chk
+    __wcsrtombs_chk
+    __wcstod_internal
+    __wcstod_l
+    __wcstof_internal
+    __wcstof_l
+    __wcstol_internal
+    __wcstol_l
+    __wcstold_internal
+    __wcstold_l
+    __wcstoll_internal
+    __wcstoll_l
+    __wcstombs_chk
+    __wcstoul_internal
+    __wcstoul_l
+    __wcstoull_internal
+    __wcstoull_l
+    __wcsxfrm_l
+    __wctomb_chk
+    __wctrans_l
+    __wctype_l
+    __wmemcpy_chk
+    __wmemmove_chk
+    __wmempcpy_chk
+    __wmemset_chk
+    __woverflow
+    __wprintf_chk
+    __write
+    __wuflow
+    __wunderflow
+    __xmknod
+    __xmknodat
+    __xpg_basename
+    __xpg_sigpause
+    __xpg_strerror_r
+    __xstat
+    __xstat64@@GLIBC_2.2
+    __xstat64@GLIBC_2.1
+    _authenticate
+    _dl_addr
+    _dl_argv@@GLIBC_PRIVATE
+    _dl_mcount_wrapper
+    _dl_mcount_wrapper_check
+    _dl_open_hook
+    _dl_sym
+    _dl_vsym
+    _environ
+    _exit
+    _flushlbf
+    _itoa_lower_digits
+    _libc_intl_domainname
+    _longjmp
+    _mcleanup
+    _mcount
+    _nl_default_dirname
+    _nl_domain_bindings
+    _nl_msg_cat_cntr
+    _nss_files_parse_grent
+    _nss_files_parse_pwent
+    _nss_files_parse_sgent
+    _nss_files_parse_spent
+    _null_auth
+    _obstack@GLIBC_2.0
+    _obstack_allocated_p
+    _obstack_begin
+    _obstack_begin_1
+    _obstack_free
+    _obstack_memory_used
+    _obstack_newchunk
+    _res@GLIBC_2.0
+    _res_hconf
+    _rpc_dtablesize
+    _rtld_global@@GLIBC_PRIVATE
+    _rtld_global_ro@@GLIBC_PRIVATE
+    _seterr_reply
+    _setjmp
+    _sys_errlist@@GLIBC_2.12
+    _sys_errlist@GLIBC_2.0
+    _sys_errlist@GLIBC_2.1
+    _sys_errlist@GLIBC_2.3
+    _sys_errlist@GLIBC_2.4
+    _sys_nerr@@GLIBC_2.12
+    _sys_nerr@GLIBC_2.0
+    _sys_nerr@GLIBC_2.1
+    _sys_nerr@GLIBC_2.3
+    _sys_nerr@GLIBC_2.4
+    _sys_siglist@@GLIBC_2.3.3
+    _sys_siglist@GLIBC_2.0
+    _sys_siglist@GLIBC_2.1
+    _tolower
+    _toupper
+    a64l
+    abort
+    abs
+    accept
+    accept4
+    access
+    acct
+    addmntent
+    addseverity
+    adjtime
+    adjtimex
+    advance
+    alarm
+    alphasort
+    alphasort64@@GLIBC_2.2
+    alphasort64@GLIBC_2.1
+    argp_err_exit_status
+    argp_error
+    argp_failure
+    argp_help
+    argp_parse
+    argp_program_bug_address
+    argp_program_version
+    argp_program_version_hook
+    argp_state_help
+    argp_usage
+    argz_add
+    argz_add_sep
+    argz_append
+    argz_count
+    argz_create
+    argz_create_sep
+    argz_delete
+    argz_extract
+    argz_insert
+    argz_next
+    argz_replace
+    argz_stringify
+    asctime
+    asctime_r
+    asprintf
+    atexit@GLIBC_2.0
+    atof
+    atoi
+    atol
+    atoll
+    authdes_create
+    authdes_getucred
+    authdes_pk_create
+    authnone_create
+    authunix_create
+    authunix_create_default
+    backtrace
+    backtrace_symbols
+    backtrace_symbols_fd
+    basename
+    bdflush
+    bind
+    bind_textdomain_codeset
+    bindresvport
+    bindtextdomain
+    brk
+    bsd_signal
+    bsearch
+    btowc
+    calloc
+    callrpc
+    canonicalize_file_name
+    capget
+    capset
+    catclose
+    catgets
+    catopen
+    cbc_crypt
+    cfgetispeed
+    cfgetospeed
+    cfmakeraw
+    cfree
+    cfsetispeed
+    cfsetospeed
+    cfsetspeed
+    chdir
+    chflags
+    chmod
+    chown@@GLIBC_2.1
+    chown@GLIBC_2.0
+    chroot
+    clearenv
+    clearerr
+    clearerr_unlocked
+    clnt_broadcast
+    clnt_create
+    clnt_pcreateerror
+    clnt_perrno
+    clnt_perror
+    clnt_spcreateerror
+    clnt_sperrno
+    clnt_sperror
+    clntraw_create
+    clnttcp_create
+    clntudp_bufcreate
+    clntudp_create
+    clntunix_create
+    clock
+    clock_adjtime
+    clone
+    close
+    closedir
+    closelog
+    confstr
+    connect
+    copysign
+    copysignf
+    copysignl
+    creat
+    creat64
+    create_module
+    ctermid
+    ctime
+    ctime_r
+    cuserid
+    daemon
+    daylight
+    dcgettext
+    dcngettext
+    delete_module
+    des_setparity
+    dgettext
+    difftime
+    dirfd
+    dirname
+    div
+    dl_iterate_phdr
+    dngettext
+    dprintf
+    drand48
+    drand48_r
+    dup
+    dup2
+    dup3
+    duplocale
+    dysize
+    eaccess
+    ecb_crypt
+    ecvt
+    ecvt_r
+    endaliasent
+    endfsent
+    endgrent
+    endhostent
+    endmntent
+    endnetent
+    endnetgrent
+    endprotoent
+    endpwent
+    endrpcent
+    endservent
+    endsgent
+    endspent
+    endttyent
+    endusershell
+    endutent
+    endutxent
+    environ
+    envz_add
+    envz_entry
+    envz_get
+    envz_merge
+    envz_remove
+    envz_strip
+    epoll_create
+    epoll_create1
+    epoll_ctl
+    epoll_pwait
+    epoll_wait
+    erand48
+    erand48_r
+    err
+    errno
+    error
+    error_at_line
+    error_message_count
+    error_one_per_line
+    error_print_progname
+    errx
+    ether_aton
+    ether_aton_r
+    ether_hostton
+    ether_line
+    ether_ntoa
+    ether_ntoa_r
+    ether_ntohost
+    euidaccess
+    eventfd
+    eventfd_read
+    eventfd_write
+    execl
+    execle
+    execlp
+    execv
+    execve
+    execvp
+    execvpe
+    exit
+    faccessat
+    fallocate
+    fallocate64
+    fanotify_init
+    fanotify_mark
+    fattach
+    fchdir
+    fchflags
+    fchmod
+    fchmodat
+    fchown
+    fchownat
+    fclose@@GLIBC_2.1
+    fclose@GLIBC_2.0
+    fcloseall
+    fcntl
+    fcvt
+    fcvt_r
+    fdatasync
+    fdetach
+    fdopen@@GLIBC_2.1
+    fdopen@GLIBC_2.0
+    fdopendir
+    feof
+    feof_unlocked
+    ferror
+    ferror_unlocked
+    fexecve
+    fflush
+    fflush_unlocked
+    ffs
+    ffsl
+    ffsll
+    fgetc
+    fgetc_unlocked
+    fgetgrent
+    fgetgrent_r
+    fgetpos64@@GLIBC_2.2
+    fgetpos64@GLIBC_2.1
+    fgetpos@@GLIBC_2.2
+    fgetpos@GLIBC_2.0
+    fgetpwent
+    fgetpwent_r
+    fgets
+    fgets_unlocked
+    fgetsgent
+    fgetsgent_r
+    fgetspent
+    fgetspent_r
+    fgetwc
+    fgetwc_unlocked
+    fgetws
+    fgetws_unlocked
+    fgetxattr
+    fileno
+    fileno_unlocked
+    finite
+    finitef
+    finitel
+    flistxattr
+    flock
+    flockfile
+    fmemopen
+    fmtmsg
+    fnmatch@@GLIBC_2.2.3
+    fnmatch@GLIBC_2.0
+    fopen64
+    fopen@@GLIBC_2.1
+    fopen@GLIBC_2.0
+    fopencookie@@GLIBC_2.2
+    fopencookie@GLIBC_2.0
+    fork
+    fpathconf
+    fprintf
+    fputc
+    fputc_unlocked
+    fputs
+    fputs_unlocked
+    fputwc
+    fputwc_unlocked
+    fputws
+    fputws_unlocked
+    fread
+    fread_unlocked
+    free
+    freeaddrinfo
+    freeifaddrs
+    freelocale
+    fremovexattr
+    freopen
+    freopen64
+    frexp
+    frexpf
+    frexpl
+    fscanf
+    fseek
+    fseeko
+    fseeko64
+    fsetpos64@@GLIBC_2.2
+    fsetpos64@GLIBC_2.1
+    fsetpos@@GLIBC_2.2
+    fsetpos@GLIBC_2.0
+    fsetxattr
+    fstatfs
+    fstatfs64
+    fstatvfs
+    fstatvfs64
+    fsync
+    ftell
+    ftello
+    ftello64
+    ftime
+    ftok
+    ftruncate
+    ftruncate64
+    ftrylockfile
+    fts_children
+    fts_close
+    fts_open
+    fts_read
+    fts_set
+    ftw
+    ftw64
+    funlockfile
+    futimens
+    futimes
+    futimesat
+    fwide
+    fwprintf
+    fwrite
+    fwrite_unlocked
+    fwscanf
+    gai_strerror
+    gcvt
+    get_avphys_pages
+    get_current_dir_name
+    get_kernel_syms
+    get_myaddress
+    get_nprocs
+    get_nprocs_conf
+    get_phys_pages
+    getaddrinfo
+    getaliasbyname
+    getaliasbyname_r@@GLIBC_2.1.2
+    getaliasbyname_r@GLIBC_2.0
+    getaliasent
+    getaliasent_r@@GLIBC_2.1.2
+    getaliasent_r@GLIBC_2.0
+    getc
+    getc_unlocked
+    getchar
+    getchar_unlocked
+    getcontext
+    getcwd
+    getdate
+    getdate_err
+    getdate_r
+    getdelim
+    getdirentries
+    getdirentries64
+    getdomainname
+    getdtablesize
+    getegid
+    getenv
+    geteuid
+    getfsent
+    getfsfile
+    getfsspec
+    getgid
+    getgrent
+    getgrent_r@@GLIBC_2.1.2
+    getgrent_r@GLIBC_2.0
+    getgrgid
+    getgrgid_r@@GLIBC_2.1.2
+    getgrgid_r@GLIBC_2.0
+    getgrnam
+    getgrnam_r@@GLIBC_2.1.2
+    getgrnam_r@GLIBC_2.0
+    getgrouplist
+    getgroups
+    gethostbyaddr
+    gethostbyaddr_r@@GLIBC_2.1.2
+    gethostbyaddr_r@GLIBC_2.0
+    gethostbyname
+    gethostbyname2
+    gethostbyname2_r@@GLIBC_2.1.2
+    gethostbyname2_r@GLIBC_2.0
+    gethostbyname_r@@GLIBC_2.1.2
+    gethostbyname_r@GLIBC_2.0
+    gethostent
+    gethostent_r@@GLIBC_2.1.2
+    gethostent_r@GLIBC_2.0
+    gethostid
+    gethostname
+    getifaddrs
+    getipv4sourcefilter
+    getitimer
+    getline
+    getloadavg
+    getlogin
+    getlogin_r
+    getmntent
+    getmntent_r
+    getmsg
+    getnameinfo
+    getnetbyaddr
+    getnetbyaddr_r@@GLIBC_2.1.2
+    getnetbyaddr_r@GLIBC_2.0
+    getnetbyname
+    getnetbyname_r@@GLIBC_2.1.2
+    getnetbyname_r@GLIBC_2.0
+    getnetent
+    getnetent_r@@GLIBC_2.1.2
+    getnetent_r@GLIBC_2.0
+    getnetgrent
+    getnetgrent_r
+    getnetname
+    getopt
+    getopt_long
+    getopt_long_only
+    getpagesize
+    getpass
+    getpeername
+    getpgid
+    getpgrp
+    getpid
+    getpmsg
+    getppid
+    getpriority
+    getprotobyname
+    getprotobyname_r@@GLIBC_2.1.2
+    getprotobyname_r@GLIBC_2.0
+    getprotobynumber
+    getprotobynumber_r@@GLIBC_2.1.2
+    getprotobynumber_r@GLIBC_2.0
+    getprotoent
+    getprotoent_r@@GLIBC_2.1.2
+    getprotoent_r@GLIBC_2.0
+    getpt
+    getpublickey
+    getpw
+    getpwent
+    getpwent_r@@GLIBC_2.1.2
+    getpwent_r@GLIBC_2.0
+    getpwnam
+    getpwnam_r@@GLIBC_2.1.2
+    getpwnam_r@GLIBC_2.0
+    getpwuid
+    getpwuid_r@@GLIBC_2.1.2
+    getpwuid_r@GLIBC_2.0
+    getresgid
+    getresuid
+    getrlimit64@@GLIBC_2.2
+    getrlimit64@GLIBC_2.1
+    getrlimit@@GLIBC_2.2
+    getrlimit@GLIBC_2.0
+    getrpcbyname
+    getrpcbyname_r@@GLIBC_2.1.2
+    getrpcbyname_r@GLIBC_2.0
+    getrpcbynumber
+    getrpcbynumber_r@@GLIBC_2.1.2
+    getrpcbynumber_r@GLIBC_2.0
+    getrpcent
+    getrpcent_r@@GLIBC_2.1.2
+    getrpcent_r@GLIBC_2.0
+    getrpcport
+    getrusage
+    gets
+    getsecretkey
+    getservbyname
+    getservbyname_r@@GLIBC_2.1.2
+    getservbyname_r@GLIBC_2.0
+    getservbyport
+    getservbyport_r@@GLIBC_2.1.2
+    getservbyport_r@GLIBC_2.0
+    getservent
+    getservent_r@@GLIBC_2.1.2
+    getservent_r@GLIBC_2.0
+    getsgent
+    getsgent_r
+    getsgnam
+    getsgnam_r
+    getsid
+    getsockname
+    getsockopt
+    getsourcefilter
+    getspent
+    getspent_r@@GLIBC_2.1.2
+    getspent_r@GLIBC_2.0
+    getspnam
+    getspnam_r@@GLIBC_2.1.2
+    getspnam_r@GLIBC_2.0
+    getsubopt
+    gettext
+    gettimeofday
+    getttyent
+    getttynam
+    getuid
+    getusershell
+    getutent
+    getutent_r
+    getutid
+    getutid_r
+    getutline
+    getutline_r
+    getutmp
+    getutmpx
+    getutxent
+    getutxid
+    getutxline
+    getw
+    getwc
+    getwc_unlocked
+    getwchar
+    getwchar_unlocked
+    getwd
+    getxattr
+    glob
+    glob64@@GLIBC_2.2
+    glob64@GLIBC_2.1
+    glob_pattern_p
+    globfree
+    globfree64
+    gmtime
+    gmtime_r
+    gnu_dev_major
+    gnu_dev_makedev
+    gnu_dev_minor
+    gnu_get_libc_release
+    gnu_get_libc_version
+    grantpt
+    group_member
+    gsignal
+    gtty
+    h_errlist
+    h_errno
+    h_nerr
+    hasmntopt
+    hcreate
+    hcreate_r
+    hdestroy
+    hdestroy_r
+    herror
+    host2netname
+    hsearch
+    hsearch_r
+    hstrerror
+    htonl
+    htons
+    iconv
+    iconv_close
+    iconv_open
+    if_freenameindex
+    if_indextoname
+    if_nameindex
+    if_nametoindex
+    imaxabs
+    imaxdiv
+    in6addr_any
+    in6addr_loopback
+    index
+    inet6_opt_append
+    inet6_opt_find
+    inet6_opt_finish
+    inet6_opt_get_val
+    inet6_opt_init
+    inet6_opt_next
+    inet6_opt_set_val
+    inet6_option_alloc
+    inet6_option_append
+    inet6_option_find
+    inet6_option_init
+    inet6_option_next
+    inet6_option_space
+    inet6_rth_add
+    inet6_rth_getaddr
+    inet6_rth_init
+    inet6_rth_reverse
+    inet6_rth_segments
+    inet6_rth_space
+    inet_addr
+    inet_aton
+    inet_lnaof
+    inet_makeaddr
+    inet_netof
+    inet_network
+    inet_nsap_addr
+    inet_nsap_ntoa
+    inet_ntoa
+    inet_ntop
+    inet_pton
+    init_module
+    initgroups
+    initstate
+    initstate_r
+    innetgr
+    inotify_add_watch
+    inotify_init
+    inotify_init1
+    inotify_rm_watch
+    insque
+    ioctl
+    ioperm
+    iopl
+    iruserok
+    iruserok_af
+    isalnum
+    isalnum_l
+    isalpha
+    isalpha_l
+    isascii
+    isastream
+    isatty
+    isblank
+    isblank_l
+    iscntrl
+    iscntrl_l
+    isctype
+    isdigit
+    isdigit_l
+    isfdtype
+    isgraph
+    isgraph_l
+    isinf
+    isinff
+    isinfl
+    islower
+    islower_l
+    isnan
+    isnanf
+    isnanl
+    isprint
+    isprint_l
+    ispunct
+    ispunct_l
+    isspace
+    isspace_l
+    isupper
+    isupper_l
+    iswalnum
+    iswalnum_l
+    iswalpha
+    iswalpha_l
+    iswblank
+    iswblank_l
+    iswcntrl
+    iswcntrl_l
+    iswctype
+    iswctype_l
+    iswdigit
+    iswdigit_l
+    iswgraph
+    iswgraph_l
+    iswlower
+    iswlower_l
+    iswprint
+    iswprint_l
+    iswpunct
+    iswpunct_l
+    iswspace
+    iswspace_l
+    iswupper
+    iswupper_l
+    iswxdigit
+    iswxdigit_l
+    isxdigit
+    isxdigit_l
+    jrand48
+    jrand48_r
+    key_decryptsession
+    key_decryptsession_pk
+    key_encryptsession
+    key_encryptsession_pk
+    key_gendes
+    key_get_conv
+    key_secretkey_is_set
+    key_setnet
+    key_setsecret
+    kill
+    killpg
+    klogctl
+    l64a
+    labs
+    lchmod
+    lchown
+    lckpwdf
+    lcong48
+    lcong48_r
+    ldexp
+    ldexpf
+    ldexpl
+    ldiv
+    lfind
+    lgetxattr
+    link
+    linkat
+    listen
+    listxattr
+    llabs
+    lldiv
+    llistxattr
+    llseek
+    loc1
+    loc2
+    localeconv@@GLIBC_2.2
+    localeconv@GLIBC_2.0
+    localtime
+    localtime_r
+    lockf
+    lockf64
+    locs
+    longjmp
+    lrand48
+    lrand48_r
+    lremovexattr
+    lsearch
+    lseek
+    lseek64
+    lsetxattr
+    lutimes
+    madvise
+    makecontext
+    mallinfo
+    malloc
+    malloc_get_state
+    malloc_info
+    malloc_set_state
+    malloc_stats
+    malloc_trim
+    malloc_usable_size
+    mallopt
+    mallwatch
+    mblen
+    mbrlen
+    mbrtowc
+    mbsinit
+    mbsnrtowcs
+    mbsrtowcs
+    mbstowcs
+    mbtowc
+    mcheck
+    mcheck_check_all
+    mcheck_pedantic
+    mcount
+    memalign
+    memccpy
+    memchr
+    memfrob
+    memmem
+    memrchr
+    mincore
+    mkdir
+    mkdirat
+    mkdtemp
+    mkfifo
+    mkfifoat
+    mkostemp
+    mkostemp64
+    mkostemps
+    mkostemps64
+    mkstemp
+    mkstemp64
+    mkstemps
+    mkstemps64
+    mktemp
+    mktime
+    mlock
+    mlockall
+    mmap
+    mmap64
+    modf
+    modff
+    modfl
+    modify_ldt
+    moncontrol
+    monstartup
+    mount
+    mprobe
+    mprotect
+    mrand48
+    mrand48_r
+    mremap
+    msgctl@@GLIBC_2.2
+    msgctl@GLIBC_2.0
+    msgget
+    msgrcv
+    msgsnd
+    msync
+    mtrace
+    munlock
+    munlockall
+    munmap
+    muntrace
+    name_to_handle_at
+    nanosleep
+    netname2host
+    netname2user
+    newlocale
+    nfsservctl
+    nftw64@@GLIBC_2.3.3
+    nftw64@GLIBC_2.1
+    nftw@@GLIBC_2.3.3
+    nftw@GLIBC_2.1
+    ngettext
+    nice
+    nl_langinfo
+    nl_langinfo_l
+    nrand48
+    nrand48_r
+    ntohl
+    ntohs
+    ntp_adjtime
+    ntp_gettime
+    ntp_gettimex
+    obstack_alloc_failed_handler
+    obstack_exit_failure
+    obstack_free
+    obstack_printf
+    obstack_vprintf
+    on_exit
+    open
+    open64
+    open_by_handle_at
+    open_memstream
+    open_wmemstream
+    openat
+    openat64
+    opendir
+    openlog
+    optarg
+    opterr
+    optind
+    optopt
+    parse_printf_format
+    passwd2des@GLIBC_2.1
+    pathconf
+    pause
+    pclose@@GLIBC_2.1
+    pclose@GLIBC_2.0
+    perror
+    personality
+    pipe
+    pipe2
+    pivot_root
+    pmap_getmaps
+    pmap_getport
+    pmap_rmtcall
+    pmap_set
+    pmap_unset
+    poll
+    popen@@GLIBC_2.1
+    popen@GLIBC_2.0
+    posix_fadvise
+    posix_fadvise64@@GLIBC_2.3.3
+    posix_fadvise64@GLIBC_2.2
+    posix_fallocate
+    posix_fallocate64@@GLIBC_2.3.3
+    posix_fallocate64@GLIBC_2.2
+    posix_madvise
+    posix_memalign
+    posix_openpt
+    posix_spawn
+    posix_spawn_file_actions_addclose
+    posix_spawn_file_actions_adddup2
+    posix_spawn_file_actions_addopen
+    posix_spawn_file_actions_destroy
+    posix_spawn_file_actions_init
+    posix_spawnattr_destroy
+    posix_spawnattr_getflags
+    posix_spawnattr_getpgroup
+    posix_spawnattr_getschedparam
+    posix_spawnattr_getschedpolicy
+    posix_spawnattr_getsigdefault
+    posix_spawnattr_getsigmask
+    posix_spawnattr_init
+    posix_spawnattr_setflags
+    posix_spawnattr_setpgroup
+    posix_spawnattr_setschedparam
+    posix_spawnattr_setschedpolicy
+    posix_spawnattr_setsigdefault
+    posix_spawnattr_setsigmask
+    posix_spawnp
+    ppoll
+    prctl
+    pread
+    pread64
+    preadv
+    preadv64
+    printf
+    printf_size
+    printf_size_info
+    prlimit
+    prlimit64
+    profil
+    program_invocation_name
+    program_invocation_short_name
+    pselect
+    psiginfo
+    psignal
+    pthread_attr_destroy
+    pthread_attr_getdetachstate
+    pthread_attr_getinheritsched
+    pthread_attr_getschedparam
+    pthread_attr_getschedpolicy
+    pthread_attr_getscope
+    pthread_attr_init@@GLIBC_2.1
+    pthread_attr_init@GLIBC_2.0
+    pthread_attr_setdetachstate
+    pthread_attr_setinheritsched
+    pthread_attr_setschedparam
+    pthread_attr_setschedpolicy
+    pthread_attr_setscope
+    pthread_cond_broadcast@@GLIBC_2.3.2
+    pthread_cond_broadcast@GLIBC_2.0
+    pthread_cond_destroy@@GLIBC_2.3.2
+    pthread_cond_destroy@GLIBC_2.0
+    pthread_cond_init@@GLIBC_2.3.2
+    pthread_cond_init@GLIBC_2.0
+    pthread_cond_signal@@GLIBC_2.3.2
+    pthread_cond_signal@GLIBC_2.0
+    pthread_cond_timedwait@@GLIBC_2.3.2
+    pthread_cond_timedwait@GLIBC_2.0
+    pthread_cond_wait@@GLIBC_2.3.2
+    pthread_cond_wait@GLIBC_2.0
+    pthread_condattr_destroy
+    pthread_condattr_init
+    pthread_equal
+    pthread_exit
+    pthread_getschedparam
+    pthread_mutex_destroy
+    pthread_mutex_init
+    pthread_mutex_lock
+    pthread_mutex_unlock
+    pthread_self
+    pthread_setcancelstate
+    pthread_setcanceltype
+    pthread_setschedparam
+    ptrace
+    ptsname
+    ptsname_r
+    putc
+    putc_unlocked
+    putchar
+    putchar_unlocked
+    putenv
+    putgrent
+    putmsg
+    putpmsg
+    putpwent
+    puts
+    putsgent
+    putspent
+    pututline
+    pututxline
+    putw
+    putwc
+    putwc_unlocked
+    putwchar
+    putwchar_unlocked
+    pvalloc
+    pwrite
+    pwrite64
+    pwritev
+    pwritev64
+    qecvt
+    qecvt_r
+    qfcvt
+    qfcvt_r
+    qgcvt
+    qsort
+    qsort_r
+    query_module
+    quick_exit
+    quotactl
+    raise
+    rand
+    rand_r
+    random
+    random_r
+    rawmemchr
+    rcmd
+    rcmd_af
+    re_comp
+    re_compile_fastmap
+    re_compile_pattern
+    re_exec
+    re_match
+    re_match_2
+    re_max_failures
+    re_search
+    re_search_2
+    re_set_registers
+    re_set_syntax
+    re_syntax_options
+    read
+    readahead
+    readdir
+    readdir64@@GLIBC_2.2
+    readdir64@GLIBC_2.1
+    readdir64_r@@GLIBC_2.2
+    readdir64_r@GLIBC_2.1
+    readdir_r
+    readlink
+    readlinkat
+    readv
+    realloc
+    realpath@@GLIBC_2.3
+    realpath@GLIBC_2.0
+    reboot
+    recv
+    recvfrom
+    recvmmsg
+    recvmsg
+    regcomp
+    regerror
+    regexec@@GLIBC_2.3.4
+    regexec@GLIBC_2.0
+    regfree
+    register_printf_function
+    register_printf_modifier
+    register_printf_specifier
+    register_printf_type
+    registerrpc@GLIBC_2.0
+    remap_file_pages
+    remove
+    removexattr
+    remque
+    rename
+    renameat
+    res_init@GLIBC_2.0
+    revoke
+    rewind
+    rewinddir
+    rexec
+    rexec_af
+    rexecoptions
+    rindex
+    rmdir
+    rpc_createerr
+    rpmatch
+    rresvport
+    rresvport_af
+    rtime
+    ruserok
+    ruserok_af
+    ruserpass
+    sbrk
+    scalbln
+    scalblnf
+    scalblnl
+    scalbn
+    scalbnf
+    scalbnl
+    scandir
+    scandir64@@GLIBC_2.2
+    scandir64@GLIBC_2.1
+    scanf
+    sched_get_priority_max
+    sched_get_priority_min
+    sched_getaffinity@@GLIBC_2.3.4
+    sched_getaffinity@GLIBC_2.3.3
+    sched_getcpu
+    sched_getparam
+    sched_getscheduler
+    sched_rr_get_interval
+    sched_setaffinity@@GLIBC_2.3.4
+    sched_setaffinity@GLIBC_2.3.3
+    sched_setparam
+    sched_setscheduler
+    sched_yield
+    seed48
+    seed48_r
+    seekdir
+    select
+    semctl@@GLIBC_2.2
+    semctl@GLIBC_2.0
+    semget
+    semop
+    semtimedop
+    send
+    sendfile
+    sendfile64
+    sendmmsg
+    sendmsg
+    sendto
+    setaliasent
+    setbuf
+    setbuffer
+    setcontext
+    setdomainname
+    setegid
+    setenv
+    seteuid
+    setfsent
+    setfsgid
+    setfsuid
+    setgid
+    setgrent
+    setgroups
+    sethostent
+    sethostid
+    sethostname
+    setipv4sourcefilter
+    setitimer
+    setjmp
+    setlinebuf
+    setlocale
+    setlogin
+    setlogmask
+    setmntent
+    setnetent
+    setnetgrent
+    setns
+    setpgid
+    setpgrp
+    setpriority
+    setprotoent
+    setpwent
+    setregid
+    setresgid
+    setresuid
+    setreuid
+    setrlimit64
+    setrlimit@@GLIBC_2.2
+    setrlimit@GLIBC_2.0
+    setrpcent
+    setservent
+    setsgent
+    setsid
+    setsockopt
+    setsourcefilter
+    setspent
+    setstate
+    setstate_r
+    settimeofday
+    setttyent
+    setuid
+    setusershell
+    setutent
+    setutxent
+    setvbuf
+    setxattr
+    sgetsgent
+    sgetsgent_r
+    sgetspent
+    sgetspent_r
+    shmat
+    shmctl@@GLIBC_2.2
+    shmctl@GLIBC_2.0
+    shmdt
+    shmget
+    shutdown
+    sigaction
+    sigaddset
+    sigaltstack
+    sigandset
+    sigblock
+    sigdelset
+    sigemptyset
+    sigfillset
+    siggetmask
+    sighold
+    sigignore
+    siginterrupt
+    sigisemptyset
+    sigismember
+    siglongjmp
+    signal
+    signalfd
+    sigorset
+    sigpause
+    sigpending
+    sigprocmask
+    sigqueue
+    sigrelse
+    sigreturn
+    sigset
+    sigsetmask
+    sigstack
+    sigsuspend
+    sigtimedwait
+    sigvec
+    sigwait
+    sigwaitinfo
+    sleep
+    snprintf
+    sockatmark
+    socket
+    socketpair
+    splice
+    sprintf
+    sprofil
+    srand
+    srand48
+    srand48_r
+    srandom
+    srandom_r
+    sscanf
+    ssignal
+    sstk
+    statfs
+    statfs64
+    statvfs
+    statvfs64
+    stderr
+    stdin
+    stdout
+    step
+    stime
+    stpcpy
+    stpncpy
+    strcasecmp
+    strcasecmp_l
+    strcat
+    strchr
+    strchrnul
+    strcoll
+    strcoll_l
+    strcpy
+    strdup
+    strerror
+    strerror_l
+    strerror_r
+    strfmon
+    strfmon_l
+    strfry
+    strftime
+    strftime_l
+    strncasecmp
+    strncasecmp_l
+    strncat
+    strncpy
+    strndup
+    strnlen
+    strptime
+    strptime_l
+    strrchr
+    strsep
+    strsignal
+    strtod
+    strtod_l
+    strtof
+    strtof_l
+    strtoimax
+    strtok
+    strtok_r
+    strtol
+    strtol_l
+    strtold
+    strtold_l
+    strtoll
+    strtoll_l
+    strtoq
+    strtoul
+    strtoul_l
+    strtoull
+    strtoull_l
+    strtoumax
+    strtouq
+    strverscmp
+    strxfrm
+    strxfrm_l
+    stty
+    svc_exit
+    svc_fdset
+    svc_getreq
+    svc_getreq_common
+    svc_getreq_poll
+    svc_getreqset
+    svc_max_pollfd
+    svc_pollfd
+    svc_register
+    svc_run
+    svc_sendreply
+    svc_unregister
+    svcauthdes_stats
+    svcerr_auth
+    svcerr_decode
+    svcerr_noproc
+    svcerr_noprog
+    svcerr_progvers
+    svcerr_systemerr
+    svcerr_weakauth
+    svcfd_create
+    svcraw_create
+    svctcp_create
+    svcudp_bufcreate
+    svcudp_create
+    svcudp_enablecache
+    svcunix_create
+    svcunixfd_create
+    swab
+    swapcontext
+    swapoff
+    swapon
+    swprintf
+    swscanf
+    symlink
+    symlinkat
+    sync
+    sync_file_range
+    syncfs
+    sys_errlist@@GLIBC_2.12
+    sys_errlist@GLIBC_2.0
+    sys_errlist@GLIBC_2.1
+    sys_errlist@GLIBC_2.3
+    sys_errlist@GLIBC_2.4
+    sys_nerr@@GLIBC_2.12
+    sys_nerr@GLIBC_2.0
+    sys_nerr@GLIBC_2.1
+    sys_nerr@GLIBC_2.3
+    sys_nerr@GLIBC_2.4
+    sys_sigabbrev@@GLIBC_2.3.3
+    sys_sigabbrev@GLIBC_2.0
+    sys_sigabbrev@GLIBC_2.1
+    sys_siglist@@GLIBC_2.3.3
+    sys_siglist@GLIBC_2.0
+    sys_siglist@GLIBC_2.1
+    syscall
+    sysconf
+    sysctl
+    sysinfo
+    syslog
+    system
+    sysv_signal
+    tcdrain
+    tcflow
+    tcflush
+    tcgetattr
+    tcgetpgrp
+    tcgetsid
+    tcsendbreak
+    tcsetattr
+    tcsetpgrp
+    tdelete
+    tdestroy
+    tee
+    telldir
+    tempnam
+    textdomain
+    tfind
+    time
+    timegm
+    timelocal
+    timerfd_create
+    timerfd_gettime
+    timerfd_settime
+    times
+    timezone
+    tmpfile64
+    tmpfile@@GLIBC_2.1
+    tmpfile@GLIBC_2.0
+    tmpnam
+    tmpnam_r
+    toascii
+    tolower
+    tolower_l
+    toupper
+    toupper_l
+    towctrans
+    towctrans_l
+    towlower
+    towlower_l
+    towupper
+    towupper_l
+    tr_break
+    truncate
+    truncate64
+    tsearch
+    ttyname
+    ttyname_r
+    ttyslot
+    twalk
+    tzname
+    tzset
+    ualarm
+    ulckpwdf
+    ulimit
+    umask
+    umount
+    umount2
+    uname
+    ungetc
+    ungetwc
+    unlink
+    unlinkat
+    unlockpt
+    unsetenv
+    unshare
+    updwtmp
+    updwtmpx
+    uselib
+    uselocale
+    user2netname
+    usleep
+    ustat
+    utime
+    utimensat
+    utimes
+    utmpname
+    utmpxname
+    valloc
+    vasprintf
+    vdprintf
+    verr
+    verrx
+    versionsort
+    versionsort64@@GLIBC_2.2
+    versionsort64@GLIBC_2.1
+    vfork
+    vfprintf
+    vfscanf
+    vfwprintf
+    vfwscanf
+    vhangup
+    vlimit
+    vm86@@GLIBC_2.3.4
+    vm86@GLIBC_2.0
+    vmsplice
+    vprintf
+    vscanf
+    vsnprintf
+    vsprintf
+    vsscanf
+    vswprintf
+    vswscanf
+    vsyslog
+    vtimes
+    vwarn
+    vwarnx
+    vwprintf
+    vwscanf
+    wait
+    wait3
+    wait4
+    waitid
+    waitpid
+    warn
+    warnx
+    wcpcpy
+    wcpncpy
+    wcrtomb
+    wcscasecmp
+    wcscasecmp_l
+    wcscat
+    wcschr
+    wcschrnul
+    wcscmp
+    wcscoll
+    wcscoll_l
+    wcscpy
+    wcscspn
+    wcsdup
+    wcsftime
+    wcsftime_l
+    wcslen
+    wcsncasecmp
+    wcsncasecmp_l
+    wcsncat
+    wcsncmp
+    wcsncpy
+    wcsnlen
+    wcsnrtombs
+    wcspbrk
+    wcsrchr
+    wcsrtombs
+    wcsspn
+    wcsstr
+    wcstod
+    wcstod_l
+    wcstof
+    wcstof_l
+    wcstoimax
+    wcstok
+    wcstol
+    wcstol_l
+    wcstold
+    wcstold_l
+    wcstoll
+    wcstoll_l
+    wcstombs
+    wcstoq
+    wcstoul
+    wcstoul_l
+    wcstoull
+    wcstoull_l
+    wcstoumax
+    wcstouq
+    wcswcs
+    wcswidth
+    wcsxfrm
+    wcsxfrm_l
+    wctob
+    wctomb
+    wctrans
+    wctrans_l
+    wctype
+    wctype_l
+    wcwidth
+    wmemchr
+    wmemcmp
+    wmemcpy
+    wmemmove
+    wmempcpy
+    wmemset
+    wordexp
+    wordfree
+    wprintf
+    write
+    writev
+    wscanf
+    xdecrypt
+    xdr_accepted_reply
+    xdr_array
+    xdr_authdes_cred
+    xdr_authdes_verf
+    xdr_authunix_parms
+    xdr_bool
+    xdr_bytes
+    xdr_callhdr
+    xdr_callmsg
+    xdr_char
+    xdr_cryptkeyarg
+    xdr_cryptkeyarg2
+    xdr_cryptkeyres
+    xdr_des_block
+    xdr_double
+    xdr_enum
+    xdr_float
+    xdr_free
+    xdr_getcredres
+    xdr_hyper
+    xdr_int
+    xdr_int16_t
+    xdr_int32_t
+    xdr_int64_t
+    xdr_int8_t
+    xdr_key_netstarg
+    xdr_key_netstres
+    xdr_keybuf
+    xdr_keystatus
+    xdr_long
+    xdr_longlong_t
+    xdr_netnamestr
+    xdr_netobj
+    xdr_opaque
+    xdr_opaque_auth
+    xdr_pmap
+    xdr_pmaplist
+    xdr_pointer
+    xdr_quad_t
+    xdr_reference
+    xdr_rejected_reply
+    xdr_replymsg
+    xdr_rmtcall_args
+    xdr_rmtcallres
+    xdr_short
+    xdr_sizeof
+    xdr_string
+    xdr_u_char
+    xdr_u_hyper
+    xdr_u_int
+    xdr_u_long
+    xdr_u_longlong_t
+    xdr_u_quad_t
+    xdr_u_short
+    xdr_uint16_t
+    xdr_uint32_t
+    xdr_uint64_t
+    xdr_uint8_t
+    xdr_union
+    xdr_unixcred
+    xdr_vector
+    xdr_void
+    xdr_wrapstring
+    xdrmem_create
+    xdrrec_create
+    xdrrec_endofrecord
+    xdrrec_eof
+    xdrrec_skiprecord
+    xdrstdio_create
+    xencrypt
+    xprt_register
+    xprt_unregister
+    GLIBC_2.0
+    GLIBC_2.1
+    GLIBC_2.3
+    GLIBC_2.4
+    GLIBC_PRIVATE
+    ___tls_get_addr
+    __libc_enable_secure
+    __libc_memalign
+    __libc_stack_end
+    __tls_get_addr
+    _dl_allocate_tls
+    _dl_allocate_tls_init
+    _dl_argv
+    _dl_deallocate_tls
+    _dl_debug_state
+    _dl_get_tls_static_info
+    _dl_make_stack_executable
+    _dl_mcount
+    _dl_rtld_di_serinfo
+    _dl_starting_up
+    _dl_tls_setup
+    _r_debug
+    _rtld_global
+    _rtld_global_ro
+    calloc
+    free
+    malloc
+    realloc
+        """.split('\n').map(_.trim)
 
-    def linkStdLib(interface:CInterface):CInterface =
+    def linkStdLib(interface: CInterface): CInterface =
         CInterface(
             interface.featureModel,
-            interface.imports.filter(x=> !(libcSymbols contains x.name)),
+            interface.imports.filter(x => !(libcSymbols contains x.name)).filter(!_.name.startsWith("__builtin_")),
             interface.exports
         )
 
