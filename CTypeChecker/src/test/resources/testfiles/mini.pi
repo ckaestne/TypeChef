@@ -44,3 +44,13 @@ main()
      return 0;
 }
 
+
+static void staticfun(void) {}
+#ifdef COND
+static void staticfunconditional(void) {}
+#endif
+
+#ifdef STAT
+static
+#endif
+void partialstatic(void){}

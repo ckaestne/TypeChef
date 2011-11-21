@@ -16,8 +16,8 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
 
     override def toString =
         "fm " + featureModel + "\n" +
-                "imports ("+imports.size+")\n" + imports.map("\t" + _.toString).mkString("\n") +
-                "\nexports ("+exports.size+")\n" + exports.map("\t" + _.toString).mkString("\n") + "\n"
+                "imports (" + imports.size + ")\n" + imports.map("\t" + _.toString).mkString("\n") +
+                "\nexports (" + exports.size + ")\n" + exports.map("\t" + _.toString).mkString("\n") + "\n"
 
 
     /**
@@ -95,7 +95,7 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
             this.exports ++ that.exports
         ).pack
 
-    /** links without proper checks and packing. only for debugging purposes **/
+    /**links without proper checks and packing. only for debugging purposes **/
     def debug_join(that: CInterface): CInterface =
         CInterface(
             this.featureModel and that.featureModel,
@@ -123,6 +123,29 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
         result
     }
 
+    /**
+     * debugging information, underlying inferConstraints
+     *
+     * describes which method is exported twice under which constraints
+     */
+    def getConflicts(that: CInterface): Map[String, FeatureExpr] = {
+        val aa = this.exports.groupBy(_.name)
+        val bb = that.exports.groupBy(_.name)
+        var result = Map[String, FeatureExpr]()
+
+        //two sets of signatures with the same name
+        //(a1 or a2 or a3) mex (b1 or b2 or b3)
+        def addConstraint(a: Seq[CSignature], b: Seq[CSignature]) =
+            a.foldLeft(dead)(_ or _.fexpr) mex b.foldLeft(dead)(_ or _.fexpr)
+
+        for (signame <- aa.keys)
+            if (bb.contains(signame)) {
+                val c = addConstraint(aa(signame), bb(signame))
+                if (c.isSatisfiable())
+                    result = result + (signame -> c)
+            }
+        result
+    }
 
     def and(f: FeatureExpr): CInterface =
         CInterface(
@@ -185,3 +208,5 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
     def conditional(condition: FeatureExpr): CInterface =
         this.and(condition).mapFM(condition implies _)
 }
+
+object EmptyInterface extends CInterface(FeatureExpr.base, Seq(), Seq())

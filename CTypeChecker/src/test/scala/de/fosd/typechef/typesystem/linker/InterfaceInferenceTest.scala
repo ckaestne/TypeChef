@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem.linker
 import org.junit._
 import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
 import java.io.{File, InputStream, FileNotFoundException}
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 class InterfaceInferenceTest extends TestHelper {
 
@@ -64,6 +65,12 @@ class InterfaceInferenceTest extends TestHelper {
         assert(interface.imports.exists(_.name == "partialA"))
         //local variables should not be exported
         assert(!interface.exports.exists(_.name == "a"))
+
+        //static functions should not be exported
+        assert(!interface.exports.exists(_.name == "staticfun"))
+        assert(!interface.exports.exists(_.name == "staticfunconditional"))
+        assert(interface.exports.exists(x => x.name == "partialstatic" && x.fexpr == FeatureExpr.createDefinedExternal("STAT").not))
+
     }
 
     @Test

@@ -34,10 +34,18 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     override def typedFunction(fun: FunctionDef, funType: Conditional[CType], featureExpr: FeatureExpr) {
         super.typedFunction(fun, funType, featureExpr)
 
-        for (Opt(fexpr, ctype) <- Conditional.toOptList(funType).map(_.and(featureExpr)))
-            if (fexpr.isSatisfiable())
-                exports = CSignature(fun.getName, ctype, fexpr, Seq(fun.getPositionFrom)) :: exports
+        val staticCondition = FeatureExpr.base andNot getStaticCondition(fun.specifiers)
+
+        funType.simplify(featureExpr and staticCondition).mapf(featureExpr and staticCondition, {
+            (fexpr, ctype) =>
+                if (fexpr.isSatisfiable())
+                    exports = CSignature(fun.getName, ctype, fexpr, Seq(fun.getPositionFrom)) :: exports
+        })
     }
+
+    private def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr =
+        specifiers.filter(_.entry == StaticSpecifier()).foldLeft(FeatureExpr.dead)((f, o) => f or o.feature)
+
 
     /**
      * all function declarations without definitions are imports
