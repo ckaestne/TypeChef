@@ -141,7 +141,7 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
         for (signame <- aa.keys)
             if (bb.contains(signame)) {
                 val c = addConstraint(aa(signame), bb(signame))
-                if (c.isSatisfiable())
+                if (!c.isSatisfiable())
                     result = result + (signame -> c)
             }
         result
