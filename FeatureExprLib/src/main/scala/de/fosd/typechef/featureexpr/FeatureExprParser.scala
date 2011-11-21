@@ -38,4 +38,14 @@ class FeatureExprParser extends RegexParsers {
         case NoSuccess(msg, _) => throw new Exception("error parsing " + msg)
     }
 
+
+    def parseFile(cfilename: String): FeatureExpr = {
+        val featureModelFile = new File(cfilename)
+        if (featureModelFile.exists) parseFile(featureModelFile) else FeatureExpr.base
+    }
+
+    def parseFile(file: File): FeatureExpr =
+        new FeatureExprParser().parse(new FileReader(file))
+
+
 }
