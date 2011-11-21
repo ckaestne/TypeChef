@@ -128,10 +128,10 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
      *
      * describes which method is exported twice under which constraints
      */
-    def getConflicts(that: CInterface): Map[String, FeatureExpr] = {
+    def getConflicts(that: CInterface): Map[String, Seq[CSignature]] = {
         val aa = this.exports.groupBy(_.name)
         val bb = that.exports.groupBy(_.name)
-        var result = Map[String, FeatureExpr]()
+        var result = Map[String, Seq[CSignature]]()
 
         //two sets of signatures with the same name
         //(a1 or a2 or a3) mex (b1 or b2 or b3)
@@ -142,7 +142,7 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
             if (bb.contains(signame)) {
                 val c = addConstraint(aa(signame), bb(signame))
                 if (!c.isSatisfiable())
-                    result = result + (signame -> c)
+                    result = result + (signame -> (aa(signame) ++ bb(signame)))
             }
         result
     }
@@ -207,6 +207,7 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
      */
     def conditional(condition: FeatureExpr): CInterface =
         this.and(condition).mapFM(condition implies _)
+
 }
 
 object EmptyInterface extends CInterface(FeatureExpr.base, Seq(), Seq())

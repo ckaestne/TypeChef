@@ -10,6 +10,8 @@ void foo();
 
 void foobar() {}
 
+void partiallyCalled();
+
 void partialA();
 void partialB();
 
@@ -32,6 +34,11 @@ main()
     #ifdef PARTIAL
      partialB();
     #endif
+
+    #ifdef PARTIAL
+    partiallyCalled();
+    #endif
+    ;
     ;
      printf("Hello World!\n");
 
@@ -40,6 +47,9 @@ main()
             void unusedlocal();
             void *x=&local;
      }
+    #ifdef P2
+    partiallyCalled();
+    #endif
 
      return 0;
 }

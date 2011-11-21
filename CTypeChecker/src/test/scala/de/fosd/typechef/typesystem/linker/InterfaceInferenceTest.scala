@@ -37,6 +37,7 @@ class InterfaceInferenceTest extends TestHelper {
     }
 
 
+    def d(x: String) = FeatureExpr.createDefinedExternal(x)
     @Test
     def testMini {
         val ast = parse("mini.pi")
@@ -53,6 +54,8 @@ class InterfaceInferenceTest extends TestHelper {
         assert(!interface.imports.exists(_.name == "unusedlocal"))
         //local variables should not show up in interfaces
         assert(!interface.imports.exists(_.name == "a"))
+        //conditionally called->conditionally imported
+        assert(interface.imports.exists(x => x.name == "partiallyCalled" && (x.fexpr equivalentTo (d("PARTIAL") or d("P2")))))
         //main should be exported
         assert(interface.exports.exists(_.name == "main"))
         assert(interface.exports.exists(_.name == "foobar"))
@@ -69,7 +72,7 @@ class InterfaceInferenceTest extends TestHelper {
         //static functions should not be exported
         assert(!interface.exports.exists(_.name == "staticfun"))
         assert(!interface.exports.exists(_.name == "staticfunconditional"))
-        assert(interface.exports.exists(x => x.name == "partialstatic" && x.fexpr == FeatureExpr.createDefinedExternal("STAT").not))
+        assert(interface.exports.exists(x => x.name == "partialstatic" && (x.fexpr equivalentTo (d("STAT").not))))
 
     }
 

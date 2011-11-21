@@ -19,7 +19,7 @@ case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Seq[P
 
     override def hashCode = name.hashCode + ctype.hashCode()
     override def equals(that: Any) = that match {
-        case CSignature(thatName, thatCType, thatFexpr, _) => name == thatName && ctype == thatCType && fexpr.equivalentTo(thatFexpr)
+        case CSignature(thatName, thatCType, thatFexpr, thatPos) => name == thatName && ctype == thatCType && fexpr.equivalentTo(thatFexpr) && pos == thatPos
         case _ => false
     }
 
