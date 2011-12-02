@@ -29,7 +29,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             "__builtin_choose_expr" -> One(CFunction(Seq(CVarArgs()), CInt())),
             "__builtin_constant_p" -> One(CFunction(Seq(CVarArgs()), CInt())),
             "__builtin_va_start" -> One(CFunction(Seq(CIgnore(), CVarArgs()), CVoid())), //ignore most of these...
-            "__builtin_va_arg" -> One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),
+            //            "__builtin_va_arg" -> One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
             "__builtin_va_end" -> One(CFunction(Seq(CIgnore()), CVoid())),
             "__builtin_va_copy" -> One(CFunction(Seq(CIgnore(), CIgnore()), CVoid()))
         )).toList.map(x => (x._1, base, x._2))

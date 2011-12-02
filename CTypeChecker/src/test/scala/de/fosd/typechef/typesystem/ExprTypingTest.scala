@@ -131,6 +131,8 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         expr("(****funparam)()") should be(CDouble())
         expr("funparamptr()") should be(CUnknown())
         expr("(*funparamptr)()") should be(CDouble())
+        expr(" __builtin_va_arg()") should be(CUnknown())
+        expr(" __builtin_va_arg(a, int*)") should be(CIgnore())
     }
 
     test("conditional function calls") {

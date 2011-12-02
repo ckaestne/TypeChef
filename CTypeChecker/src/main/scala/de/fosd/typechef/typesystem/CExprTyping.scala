@@ -212,7 +212,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
-                    case c: BuiltinVaArgs => One(CSigned(CInt()))
+                    case c: BuiltinVaArgs => One(CIgnore())
                     case AlignOfExprT(typename) => getTypenameType(typename, featureExpr, env); One(CSigned(CInt()))
                     case AlignOfExprU(expr) => et(expr); One(CSigned(CInt()))
 
