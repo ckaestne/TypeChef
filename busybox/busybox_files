@@ -392,7 +392,6 @@ networking/ping
 networking/pscan
 networking/route
 networking/slattach
-networking/tc
 networking/tcpudp
 networking/tcpudp_perhost
 networking/telnet
