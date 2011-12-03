@@ -589,4 +589,15 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         et should be(One(CObj(CFloat())))
 
     }
+
+    test("test __mode__ attribute") {
+        //for now, no support for __mode__ and set to ignore to avoid false negatives
+        val ast = compileCode("""
+                typedef unsigned int a __attribute__ ((__mode__ (__QI__)));
+                a b;
+            """)
+        val env = lookupEnv(ast.defs.last.entry).typedefEnv
+        env("a") should be(One(CIgnore()))
+    }
+
 }

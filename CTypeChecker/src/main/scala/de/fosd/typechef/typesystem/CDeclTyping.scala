@@ -62,13 +62,18 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     private def isTransparentUnionAttribute(specifier: Specifier, featureContext: FeatureExpr): Boolean =
         specifier match {
             case GnuAttributeSpecifier(attrs) =>
-                (for (Opt(f1, attrSeq) <- attrs; Opt(f2, attr) <- attrSeq.attributes)
-                yield attr match {
-                        case AtomicAttribute(name) => (name == "transparent_union") || (name == "__transparent_union__")
-                        case _ => false
-                    }).exists((x: Boolean) => x)
+                containsAtomicAttribute(name => (name == "transparent_union") || (name == "__transparent_union__"), attrs)
             case _ => false
         }
+
+
+    /**variability ignored for now*/
+    private def containsAtomicAttribute(f: String => Boolean, attrs: List[Opt[AttributeSequence]]): Boolean =
+        (for (Opt(f1, attrSeq) <- attrs; Opt(f2, attr) <- attrSeq.attributes)
+        yield attr match {
+                case AtomicAttribute(name) => f(name)
+                case _ => false
+            }).exists((x: Boolean) => x)
 
 
     private def constructTypeOne(specifiers: List[Specifier], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
@@ -197,8 +202,31 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     }
 
 
-    def declType(specs: List[Opt[Specifier]], decl: Declarator, attributes: List[Opt[AttributeSpecifier]], featureExpr: FeatureExpr, env: Env): Conditional[CType] =
-        filterTransparentUnion(getDeclaratorType(decl, constructType(specs, featureExpr, env), featureExpr, env), attributes)
+    def declType(specs: List[Opt[Specifier]], decl: Declarator, attributes: List[Opt[AttributeSpecifier]], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+        var ctype = getDeclaratorType(decl, constructType(specs, featureExpr, env), featureExpr, env)
+        //postprocessing filters for __attribute__
+        ctype = filterTransparentUnion(ctype, attributes)
+        if (contains__mode__attribute(attributes))
+            ctype = One(CIgnore())
+        ctype
+    }
+
+
+    /**
+     * checks whether there is any __mode__ attribute
+     *
+     * workaround for currently not supported __mode__ attribute in typedefs,
+     * see http://www.delorie.com/gnu/docs/gcc/gcc_80.html
+     *
+     * ignores variability right now, very conservative
+     */
+    private def contains__mode__attribute(attrs: List[Opt[AttributeSpecifier]]): Boolean =
+        attrs.exists(
+            oattr => oattr.entry match {
+                case GnuAttributeSpecifier(attrSeqList) => containsAtomicAttribute(_ == "__mode__", attrSeqList)
+                case _ => false
+            }
+        )
 
     // assumptions: we expect that a typedef specifier is either always included or never
     def isTypedef(specs: List[Opt[Specifier]]) = specs.map(_.entry).contains(TypedefSpecifier())
