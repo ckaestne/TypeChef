@@ -190,12 +190,19 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             case x => x
         })
 
-    /**define all fields from enum type specifiers as int values */
+    /**define all fields from enum type specifiers as int values
+     *
+     * important: this recurses into structures!
+     **/
     private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType])] = {
         var result = List[(String, FeatureExpr, Conditional[CType])]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
                 result = (enum.id.name, featureExpr and f and f2, One(CSigned(CInt()))) :: result
+            //recurse into structs
+            case StructOrUnionSpecifier(_, _, fields) =>
+                for (Opt(f2, structDeclaration) <- fields)
+                    result = result ++ enumDeclarations(structDeclaration.qualifierList, featureExpr and f and f2)
             case _ =>
         }
         result

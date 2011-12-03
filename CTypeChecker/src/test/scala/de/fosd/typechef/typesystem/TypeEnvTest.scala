@@ -9,6 +9,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr.base
 import de.fosd.typechef.featureexpr.FeatureExpr.dead
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
 class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
@@ -598,6 +599,27 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
             """)
         val env = lookupEnv(ast.defs.last.entry).typedefEnv
         env("a") should be(One(CIgnore()))
+    }
+
+    test("scope of enum in struct") {
+        //did not find a proper specification, but cf
+        //http://forums.whirlpool.net.au/archive/1689677
+        val ast = compileCode("""
+            struct lzma2_dec {
+                enum lzma2_seq {
+                        SEQ_CONTROL,
+                        SEQ_COPY
+                } sequence;
+                enum lzma2_seq next_sequence;
+                int uncompressed;
+            };
+            int a=SEQ_COPY;
+            """)
+        val last = lookupEnv(ast.defs.last.entry)
+        last.varEnv("uncompressed") should be(One(CUnknown()))
+        last.varEnv("SEQ_COPY") should be(_i)
+
+        last.enumEnv("lzma2_seq") should be(FeatureExpr.base)
     }
 
 }

@@ -17,6 +17,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExpr.base): Unit = {
+        assert(tunit != null, "cannot type check Translation Unit, tunit is null")
         checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
 
@@ -80,7 +81,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //declared struct?
         env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
         //declared enums?
-        env = env.updateEnumEnv(addEnumDeclarationToEnv(d, featureExpr, env.enumEnv))
+        env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv))
         //declared typedefs?
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
         //add declared variables to variable typing environment and check initializers
