@@ -20,11 +20,13 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     //if not already type checked, to the check now
     def inferInterface(ast: TranslationUnit, fm: FeatureExpr = FeatureExpr.base): CInterface = {
         typecheckTranslationUnit(ast, fm)
-        cleanImports()
         getInferredInterface(fm)
     }
 
-    def getInferredInterface(fm: FeatureExpr = FeatureExpr.base) = new CInterface(fm, imports, exports).pack
+    def getInferredInterface(fm: FeatureExpr = FeatureExpr.base) = {
+        cleanImports()
+        new CInterface(fm, imports, exports).pack
+    }
 
 
     var exports = List[CSignature]()
