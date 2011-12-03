@@ -71,8 +71,11 @@ class InterfaceInferenceTest extends TestHelper {
 
         //static functions should not be exported
         assert(!interface.exports.exists(_.name == "staticfun"))
+        assert(!interface.imports.exists(_.name == "staticfun"))
         assert(!interface.exports.exists(_.name == "staticfunconditional"))
+        assert(!interface.imports.exists(_.name == "staticfunconditional"))
         assert(interface.exports.exists(x => x.name == "partialstatic" && (x.fexpr equivalentTo (d("STAT").not))))
+        assert(!interface.imports.exists(_.name == "partialstatic"))
 
     }
 

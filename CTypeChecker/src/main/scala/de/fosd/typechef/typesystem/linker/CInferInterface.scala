@@ -4,6 +4,7 @@ import de.fosd.typechef.conditional.{Opt, Conditional}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.typesystem.{CType, CTypeSystem}
+import de.fosd.typechef.parser.Position
 
 /**
  * first attempt to infer the interface of a C file for linker checks
@@ -19,6 +20,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     //if not already type checked, to the check now
     def inferInterface(ast: TranslationUnit, fm: FeatureExpr = FeatureExpr.base): CInterface = {
         typecheckTranslationUnit(ast, fm)
+        cleanImports()
         getInferredInterface(fm)
     }
 
@@ -26,7 +28,40 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
 
 
     var exports = List[CSignature]()
+    var staticFunctions = List[CSignature]()
     var imports = List[CSignature]()
+
+
+    /**
+     * remove imports that are covered by exports or static functions
+     */
+    private def cleanImports() {
+        var importMap = Map[(String, CType), (FeatureExpr, Seq[Position])]()
+
+        //eliminate duplicates with a map
+        for (imp <- imports) {
+            val key = (imp.name, imp.ctype)
+            val old = importMap.getOrElse(key, (FeatureExpr.dead, Seq()))
+            importMap = importMap + (key -> (old._1 or imp.fexpr, old._2 ++ imp.pos))
+        }
+        //eliminate imports that have corresponding exports
+        for (exp <- (exports ++ staticFunctions)) {
+            val key = (exp.name, exp.ctype)
+            if (importMap.contains(key)) {
+                val (oldFexpr, oldPos) = importMap(key)
+                val newFexpr = oldFexpr andNot exp.fexpr
+                if (newFexpr.isSatisfiable())
+                    importMap = importMap + (key -> (newFexpr, oldPos))
+                else
+                    importMap = importMap - key
+            }
+        }
+
+
+        val r = for ((k, v) <- importMap.iterator)
+        yield CSignature(k._1, k._2, v._1, v._2)
+        imports = r.toList
+    }
 
     /**
      * all function definitions are considered as exports
@@ -36,10 +71,12 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
 
         val staticCondition = FeatureExpr.base andNot getStaticCondition(fun.specifiers)
 
-        funType.simplify(featureExpr and staticCondition).mapf(featureExpr and staticCondition, {
+        funType.simplify(featureExpr).mapf(featureExpr, {
             (fexpr, ctype) =>
-                if (fexpr.isSatisfiable())
-                    exports = CSignature(fun.getName, ctype, fexpr, Seq(fun.getPositionFrom)) :: exports
+                if ((fexpr and staticCondition).isSatisfiable())
+                    exports = CSignature(fun.getName, ctype, fexpr and staticCondition, Seq(fun.getPositionFrom)) :: exports
+                if ((fexpr andNot staticCondition).isSatisfiable())
+                    staticFunctions = CSignature(fun.getName, ctype, fexpr andNot staticCondition, Seq(fun.getPositionFrom)) :: staticFunctions
         })
     }
 
