@@ -64,3 +64,13 @@ static void staticfunconditional(void) {}
 static
 #endif
 void partialstatic(void){}
+
+
+static void callStatic1() {
+    staticfun();
+}
+
+void callStatic2() {
+    staticfun();
+    main();
+}
