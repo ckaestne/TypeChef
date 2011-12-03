@@ -398,7 +398,7 @@ trait CTypes {
         if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid()) return true
+            case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
             case (CStruct(_, _), CCompound()) => return true
@@ -464,6 +464,8 @@ trait CTypes {
      * * remove any CObj within the type
      *
      * * regard arrays as pointers
+     *
+     * * pointer to ignore equals ignore
      */
     protected def normalize(t: CType): CType =
         addFunctionPointers(normalizeA(t))
@@ -474,9 +476,10 @@ trait CTypes {
         case CPointer(x: CType) =>
             normalizeA(x) match {
                 case c: CFunction => c
+                case i: CIgnore => i
                 case e => CPointer(e)
             }
-        case CArray(t, _) => CPointer(normalizeA(t)) //TODO do this recursively for all occurences of Array
+        case CArray(t, _) => normalizeA(CPointer(t)) //TODO do this recursively for all occurences of Array
         case CFunction(p, rt) => CFunction(p.map(normalizeA), normalizeA(rt))
         case c => c
     }
