@@ -64,19 +64,29 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
 
 
     /**
-     * a module is illformed if it exports the same signature twice
+     * ensures a couple of invariants.
+     *
+     * a module is illformed if
+     * (a) it exports the same signature twice in the same configuration
+     * (b) it imports the same signature twice in the same configuration
+     * (c) if it exports and imports a name in the same configuration
      *
      * by construction, this should not occur in inferred and linked interfaces
      */
     def isWellformed: Boolean = {
         val exportsByName = exports.groupBy(_.name)
+        val importsByName = imports.groupBy(_.name)
 
         var wellformed = true
-        for (ex <- exportsByName.values)
-            if (wellformed && !mutuallyExclusive(ex)) {
+        for (funName <- (exportsByName.keySet ++ importsByName.keySet)) {
+            val sigs = exportsByName.getOrElse(funName, Seq()) ++ importsByName.getOrElse(funName, Seq())
+
+            if (wellformed && !mutuallyExclusive(sigs)) {
                 wellformed = false
-                println(ex.head.name + " exported multiple times: \n" + ex.mkString("\n"))
+                println(funName + " imported/exported multiple times in the same configuration: \n" + sigs.mkString("\t", "\n\t", "\n"))
             }
+        }
+
         wellformed
     }
     private def mutuallyExclusive(sigs: Seq[CSignature]): Boolean = if (sigs.size <= 1) true

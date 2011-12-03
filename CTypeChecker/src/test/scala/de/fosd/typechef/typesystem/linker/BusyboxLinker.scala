@@ -18,25 +18,38 @@ object BusyboxLinker extends App {
         interfaces map {i => assert(i.isWellformed, "illformed interface " + i)}
 
         val result = (ifiles zip interfaces).foldLeft[CInterface](EmptyInterface)((composedInterface, newFile) => {
-            println("linking " + newFile._1)
+            //            println("linking " + newFile._1)
             if (!(composedInterface isCompatibleTo newFile._2))
                 println((composedInterface getConflicts newFile._2).mapValues(_.map(_.pos)))
             composedInterface link newFile._2
         })
-        println(result)
         result
     }
 
     val path = "S:\\ARCHIVE\\kos\\share\\TypeChef\\cprojects\\busybox\\busybox-1.18.5\\"
 
-    //    val dirList=new File(path).listFiles().filter(_.isDirectory).toList
-    val dirList = List(new File(path + "miscutils"))
+    val dirList = new File(path).listFiles().filter(_.isDirectory).toList
+    //    val dirList = List(new File(path + "miscutils"))
 
-    for (dir <- dirList) {
+    //modutils
+
+    var finalInterface: CInterface = EmptyInterface
+
+    val dirInterfaces = for (dir <- dirList) yield {
         val i = getLinkFolder(dir.getAbsolutePath)
-        println(i)
-        println(dir + " i: " + i.imports.size + " e: " + i.exports.size)
-        println("done.")
+        if (i.featureModel.isContradiction())
+            println(i)
+        println(dir + "; imported functions: " + i.imports.size + "; exported functions: " + i.exports.size + "; feature model: " + i.featureModel)
+        finalInterface = finalInterface link i
+        println("imported functions: " + finalInterface.imports.size + "; exported functions: " + finalInterface.exports.size + "; feature model: " + finalInterface.featureModel)
+        i
     }
+
+
+    val reader = new InterfaceWriter() {}
+    reader.writeInterface(finalInterface, new File("busyboxfinal.interface"))
+    reader.debugInterface(finalInterface, new File("busyboxfinal.dbginterface"))
+
+    //    println(finalInterface)
 
 }
