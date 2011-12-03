@@ -20,7 +20,7 @@ object BusyboxLinker extends App {
         val result = (ifiles zip interfaces).foldLeft[CInterface](EmptyInterface)((composedInterface, newFile) => {
             //            println("linking " + newFile._1)
             if (!(composedInterface isCompatibleTo newFile._2))
-                println((composedInterface getConflicts newFile._2).mapValues(_.map(_.pos)))
+                println(composedInterface getConflicts newFile._2)
             composedInterface link newFile._2
         })
         result

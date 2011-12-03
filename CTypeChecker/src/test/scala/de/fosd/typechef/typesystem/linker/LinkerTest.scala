@@ -16,6 +16,7 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
     val tfun2 = CFunction(Seq(CFloat()), CVoid())
 
     val ffoo = CSignature("foo", tfun, base, Seq())
+    val ffoo2 = CSignature("foo", tfun2, base, Seq())
     val fbar = CSignature("bar", tfun, base, Seq())
 
     test("wellformed interfaces") {
@@ -96,5 +97,23 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         println(ifull)
     }
 
+    test("module compatibility") {
+
+        //exports must not overlap (independent of type)
+        (new CInterface(List(), List(ffoo)) isCompatibleTo new CInterface(List(), List(ffoo2))) should be(false)
+        (new CInterface(List(), List(ffoo)) isCompatibleTo new CInterface(List(), List(ffoo))) should be(false)
+        (new CInterface(List(), List(ffoo)) isCompatibleTo new CInterface(List(), List(ffoo.and(fa)))) should be(true)
+
+        //import export must match
+        (new CInterface(List(ffoo), List()) isCompatibleTo new CInterface(List(), List(ffoo))) should be(true)
+        (new CInterface(List(ffoo), List()) isCompatibleTo new CInterface(List(), List(ffoo2))) should be(false)
+        (new CInterface(List(ffoo), List()) isCompatibleTo new CInterface(List(), List(ffoo2.and(fa)))) should be(true)
+        (new CInterface(List(), List(ffoo2)) isCompatibleTo new CInterface(List(ffoo), List())) should be(false)
+
+        //imports must match
+        (new CInterface(List(ffoo), List()) isCompatibleTo new CInterface(List(ffoo), List())) should be(true)
+        (new CInterface(List(ffoo), List()) isCompatibleTo new CInterface(List(ffoo2), List())) should be(false)
+        (new CInterface(List(ffoo), List()) isCompatibleTo new CInterface(List(ffoo2.and(fa)), List())) should be(true)
+    }
 
 }
