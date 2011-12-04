@@ -29,6 +29,8 @@ trait InterfaceWriter {
 
     def interfaceFromXML(node: scala.xml.Node): CInterface = new CInterface(
         getFM(node),
+        (node \ "feature").map(_.text.trim).toSet,
+        (node \ "newfeature").map(_.text.trim).toSet,
         (node \ "import").map(signatureFromXML(_)),
         (node \ "export").map(signatureFromXML(_))
     )
@@ -43,7 +45,11 @@ trait InterfaceWriter {
         <interface>
             <featuremodel>
                 {int.featureModel.toTextExpr}
-            </featuremodel>{int.imports.map(x => <import>
+            </featuremodel>{int.importedFeatures.map(x => <feature>
+            {x}
+        </feature>)}{int.declaredFeatures.map(x => <newfeature>
+            {x}
+        </newfeature>)}{int.imports.map(x => <import>
             {signatureToXML(x)}
         </import>)}{int.exports.map(x => <export>
             {signatureToXML(x)}

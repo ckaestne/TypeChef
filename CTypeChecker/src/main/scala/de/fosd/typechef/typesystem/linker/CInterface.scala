@@ -9,19 +9,40 @@ import de.fosd.typechef.typesystem.CType
  * describes the linker interface for a file, i.e. all imported (and used)
  * signatures and all exported signatures.
  */
-case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], exports: Seq[CSignature]) {
+case class CInterface(
+                             featureModel: FeatureExpr,
+                             importedFeatures: Set[String],
+                             declaredFeatures: Set[String], //not inferred
+                             imports: Seq[CSignature],
+                             exports: Seq[CSignature]) {
 
 
-    def this(imports: Seq[CSignature], exports: Seq[CSignature]) = this (base, imports, exports)
+    def this(imports: Seq[CSignature], exports: Seq[CSignature]) = this (base, Set(), Set(), imports, exports)
 
     override def toString =
         "fm " + featureModel + "\n" +
-                "imports (" + imports.size + ")\n" + imports.map("\t" + _.toString).mkString("\n") +
-                "\nexports (" + exports.size + ")\n" + exports.map("\t" + _.toString).mkString("\n") + "\n"
+                "features (" + importedFeatures.size + ")\n\t" + importedFeatures.toList.sorted.mkString(", ") +
+                (if (declaredFeatures.isEmpty) "" else "declared features (" + declaredFeatures.size + ")\n\t" + declaredFeatures.toList.sorted.mkString(", ")) +
+                "\nimports (" + imports.size + ")\n" + imports.map("\t" + _.toString).sorted.mkString("\n") +
+                "\nexports (" + exports.size + ")\n" + exports.map("\t" + _.toString).sorted.mkString("\n") + "\n"
 
     lazy val importsByName = imports.groupBy(_.name)
     lazy val exportsByName = exports.groupBy(_.name)
 
+
+    lazy val getInterfaceFeatures: Set[String] = {
+        var result: Set[String] = Set()
+
+        def addFeatures(featureExpr: FeatureExpr) {
+            result = result ++ featureExpr.collectDistinctFeatures.map(_.feature)
+        }
+
+        addFeatures(featureModel)
+        imports.map(s => addFeatures(s.fexpr))
+        exports.map(s => addFeatures(s.fexpr))
+
+        result
+    }
 
     /**
      * removes duplicates by joining the corresponding conditions
@@ -33,7 +54,11 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
      * exports are not packed beyond removing dead exports.
      * duplicate exports are used for error detection
      */
-    def pack: CInterface = if (isPacked) this else CInterface(featureModel, packImports, packExports).setPacked
+    def pack: CInterface = if (isPacked) this
+    else
+        CInterface(featureModel, importedFeatures -- declaredFeatures, declaredFeatures,
+            packImports, packExports).setPacked
+
     private var isPacked = false;
     private def setPacked() = {isPacked = true; this}
     private def packImports: Seq[CSignature] = {
@@ -97,6 +122,8 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
     def link(that: CInterface): CInterface =
         CInterface(
             this.featureModel and that.featureModel and inferConstraintsWith(that),
+            this.importedFeatures ++ that.importedFeatures,
+            this.declaredFeatures ++ that.declaredFeatures,
             this.imports ++ that.imports,
             this.exports ++ that.exports
         ).pack
@@ -105,6 +132,8 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
     def debug_join(that: CInterface): CInterface =
         CInterface(
             this.featureModel and that.featureModel,
+            this.importedFeatures ++ that.importedFeatures,
+            this.declaredFeatures ++ that.declaredFeatures,
             this.imports ++ that.imports,
             this.exports ++ that.exports
         )
@@ -139,12 +168,14 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
     def and(f: FeatureExpr): CInterface =
         CInterface(
             featureModel,
+            importedFeatures,
+            declaredFeatures,
             imports.map(_ and f),
             exports.map(_ and f)
         )
 
     def andFM(feature: FeatureExpr): CInterface = mapFM(_ and feature)
-    def mapFM(f: FeatureExpr => FeatureExpr) = CInterface(f(featureModel), imports, exports)
+    def mapFM(f: FeatureExpr => FeatureExpr) = CInterface(f(featureModel), importedFeatures, declaredFeatures, imports, exports)
 
 
     /**
@@ -209,6 +240,8 @@ case class CInterface(featureModel: FeatureExpr, imports: Seq[CSignature], expor
 
 object CInterface {
 
+    private[linker] def apply(fm: FeatureExpr, imp: Seq[CSignature], exp: Seq[CSignature]): CInterface =
+        CInterface(fm, Set(), Set(), imp, exp)
 
     /**
      * signatures from a and b must not share a presence condition
@@ -275,4 +308,4 @@ object CInterface {
 
 }
 
-object EmptyInterface extends CInterface(FeatureExpr.base, Seq(), Seq())
+object EmptyInterface extends CInterface(FeatureExpr.base, Set(), Set(), Seq(), Seq())

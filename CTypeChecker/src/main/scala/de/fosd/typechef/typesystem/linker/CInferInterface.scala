@@ -25,13 +25,14 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
 
     def getInferredInterface(fm: FeatureExpr = FeatureExpr.base) = {
         cleanImports()
-        new CInterface(fm, imports, exports).pack
+        new CInterface(fm, featureNames, Set(), imports, exports).pack
     }
 
 
     var exports = List[CSignature]()
     var staticFunctions = List[CSignature]()
     var imports = List[CSignature]()
+    var featureNames = Set[String]()
 
 
     /**

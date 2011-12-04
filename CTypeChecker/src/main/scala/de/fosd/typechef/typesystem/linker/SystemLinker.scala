@@ -2356,7 +2356,7 @@ object SystemLinker {
 
     def linkStdLib(interface: CInterface): CInterface =
         CInterface(
-            interface.featureModel,
+            interface.featureModel, Set(), Set(),
             interface.imports.filter(x => !(libcSymbols contains x.name)).filter(!_.name.startsWith("__builtin_")),
             interface.exports
         )
