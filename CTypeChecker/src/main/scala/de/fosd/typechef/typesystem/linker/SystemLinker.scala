@@ -3,6 +3,168 @@ package de.fosd.typechef.typesystem.linker
 
 object SystemLinker {
 
+    //taken from http://www.acm.uiuc.edu/webmonkeys/book/c_guide/
+    lazy val stdLibFunctions :Array[String]="""
+            assert
+            errno
+
+            localeconv
+            setlocale
+
+            isalnum
+            isalpha
+            iscntrl
+            isdigit
+            isgraph
+            islower
+            isprint
+            ispunct
+            isspace
+            isupper
+            isxdigit
+            tolower
+            toupper
+
+            acos
+            asin
+            atan
+            atan2
+            ceil
+            cos
+            cosh
+            exp
+            fabs
+            floor
+            fmod
+            frexp
+            ldexp
+            log
+            log10
+            modf
+            pow
+            sin
+            sinh
+            sqrt
+            tan
+            tanh
+
+            setjmp
+            longjmp
+
+            signal
+            raise
+
+            va_start
+            va_end
+            va_arg
+
+            clearerr
+            fclose
+            feof
+            ferror
+            fflush
+            fgetpos
+            fopen
+            fread
+            freopen
+            fseek
+            fsetpos
+            ftell
+            fwrite
+            remove
+            rename
+            rewind
+            setbuf
+            setvbuf
+            tmpfile
+            tmpnam
+            fprintf
+            fscanf
+            printf
+            scanf
+            sprintf
+            sscanf
+            vfprintf
+            vprintf
+            vsprintf
+            fgetc
+            fgets
+            fputc
+            fputs
+            getc
+            getchar
+            gets
+            putc
+            putchar
+            puts
+            ungetc
+            perror
+
+            abort
+            abs
+            atexit
+            atof
+            atoi
+            atol
+            bsearch
+            calloc
+            div
+            exit
+            free
+            getenv
+            labs
+            ldiv
+            malloc
+            mblen
+            mbstowcs
+            mbtowc
+            qsort
+            rand
+            realloc
+            srand
+            strtod
+            strtol
+            strtoul
+            system
+            wcstombs
+            wctomb
+
+            memchr
+            memcmp
+            memcpy
+            memmove
+            memset
+            strcat
+            strncat
+            strchr
+            strcmp
+            strncmp
+            strcoll
+            strcpy
+            strncpy
+            strcspn
+            strerror
+            strlen
+            strpbrk
+            strrchr
+            strspn
+            strstr
+            strtok
+            strxfrm
+
+            asctime
+            clock
+            ctime
+            difftime
+            gmtime
+            localtime
+            mktime
+            strftime
+            time
+    """.trim.split('\n').map(_.trim).filter(_=="")
+
+
+
     //symbols extracted from /usr/lib/libc.so and /lib/ld-linux.so.2 (probably neither accurate not complete)
     lazy val libcSymbols: Array[String] =
         """
@@ -2352,12 +2514,14 @@ object SystemLinker {
     free
     malloc
     realloc
-        """.split('\n').map(_.trim)
+        """.trim.split('\n').map(_.trim)
+
+    lazy val allLibs=(libcSymbols ++ stdLibFunctions).toSet
 
     def linkStdLib(interface: CInterface): CInterface =
         CInterface(
             interface.featureModel, Set(), Set(),
-            interface.imports.filter(x => !(libcSymbols contains x.name)).filter(!_.name.startsWith("__builtin_")),
+            interface.imports.filter(x => !(allLibs contains x.name)).filter(!_.name.startsWith("__builtin_")),
             interface.exports
         )
 
