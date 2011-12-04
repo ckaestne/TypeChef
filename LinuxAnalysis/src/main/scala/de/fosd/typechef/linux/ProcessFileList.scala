@@ -16,14 +16,14 @@ object ProcessFileList extends RegexParsers {
 
     def toFeature(name: String, isModule: Boolean) =
     //ChK: deactivate modules for now. not interested and messes with the sat solver
-	if (isModule) False
-	else
-        FeatureExpr.createDefinedExternal("CONFIG_" +
-                (if (isModule)
-                //name + "_2" // This is not SAT-solving, use the Linux names!
-                    name + "_MODULE"
-                else
-                    name))
+        if (isModule) False
+        else
+            FeatureExpr.createDefinedExternal("CONFIG_" +
+                    (if (isModule)
+                    //name + "_2" // This is not SAT-solving, use the Linux names!
+                        name + "_MODULE"
+                    else
+                        name))
 
     def expr: Parser[FeatureExpr] =
         ("(" ~> (expr ~ "||" ~ expr) <~ ")") ^^ {case (a ~ _ ~ b) => a or b} |
@@ -94,11 +94,11 @@ object ProcessFileList extends RegexParsers {
                         //file should be parsed
                         println(fullFilename + " " + cond)
 
-			if (!cond.isTautology()){
-	                        val pcFile = new PrintWriter(new File(fullFilenameNoExt + ".pi.pc"))
-        	                cond.print(pcFile)
-                	        pcFile.close
-			}
+                        if (!cond.isTautology()) {
+                            val pcFile = new PrintWriter(new File(fullFilenameNoExt + ".pi.pc"))
+                            cond.print(pcFile)
+                            pcFile.close
+                        }
 
                     case NoSuccess(msg, _) =>
                         stderr.println(fullFilename + " " + pcExpr)
