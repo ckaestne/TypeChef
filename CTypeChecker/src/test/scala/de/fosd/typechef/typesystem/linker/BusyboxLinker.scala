@@ -1,7 +1,7 @@
 package de.fosd.typechef.typesystem.linker
 
 import java.io.File
-import de.fosd.typechef.featureexpr.FeatureExprParser
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprParser}
 
 object BusyboxLinker extends App {
 
@@ -51,5 +51,39 @@ object BusyboxLinker extends App {
     reader.debugInterface(finalInterface, new File("busyboxfinal.dbginterface"))
 
     //    println(finalInterface)
+
+}
+
+object TmpLinkerStuff extends App {
+    val reader = new InterfaceWriter() {}
+    val i = SystemLinker.linkStdLib(reader.readInterface(new File("busyboxfinal.interface")))
+
+    var fm = FeatureExpr.base
+    for (l: String <- io.Source.fromFile("S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\featureModel").getLines())
+        if (l != "") {
+            val f = new FeatureExprParser().parse(l)
+            fm = fm and f
+        }
+
+    println(fm.isSatisfiable())
+    println((fm implies i.featureModel).isTautology())
+
+    val ii = i.andFM(fm).pack
+
+    println("packed")
+
+    def excludeSymbol(sym: String) =
+        sym.startsWith("BUG_") /*depends on compiler optimizations*/ ||
+                sym == "alloc_action" || /*nested function, not inferred correctly right now*/
+                sym == "x2x_utoa" || //inference bug, function parameter
+                sym == "adjust_width_and_validate_wc" || //requires static analysis
+                false
+
+    for (imp <- ii.imports.sortBy(_.name))
+        if (imp.fexpr.isSatisfiable() && !excludeSymbol(imp.name))
+            println(imp)
+
+
+    println(ii.imports.size)
 
 }
