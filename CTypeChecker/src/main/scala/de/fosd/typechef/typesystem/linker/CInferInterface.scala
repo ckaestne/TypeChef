@@ -13,6 +13,7 @@ import de.fosd.typechef.parser.Position
  */
 
 //TODO structs need to become part of the interface, or we need to resolve all structs to anonymous structs
+//TODO nested functions behave like static functions (do not lead to imports)
 
 trait CInferInterface extends CTypeSystem with InterfaceWriter {
 
