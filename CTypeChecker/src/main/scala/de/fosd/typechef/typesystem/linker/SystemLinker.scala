@@ -207,65 +207,65 @@ object SystemLinker {
     _IO_default_uflow
     _IO_default_xsgetn
     _IO_default_xsputn
-    _IO_do_write@@GLIBC_2.1
-    _IO_do_write@GLIBC_2.0
+    _IO_do_write
+    _IO_do_write
     _IO_doallocbuf
-    _IO_fclose@@GLIBC_2.1
-    _IO_fclose@GLIBC_2.0
-    _IO_fdopen@@GLIBC_2.1
-    _IO_fdopen@GLIBC_2.0
+    _IO_fclose
+    _IO_fclose
+    _IO_fdopen
+    _IO_fdopen
     _IO_feof
     _IO_ferror
     _IO_fflush
-    _IO_fgetpos64@@GLIBC_2.2
-    _IO_fgetpos64@GLIBC_2.1
-    _IO_fgetpos@@GLIBC_2.2
-    _IO_fgetpos@GLIBC_2.0
+    _IO_fgetpos64
+    _IO_fgetpos64
+    _IO_fgetpos
+    _IO_fgetpos
     _IO_fgets
-    _IO_file_attach@@GLIBC_2.1
-    _IO_file_attach@GLIBC_2.0
+    _IO_file_attach
+    _IO_file_attach
     _IO_file_close
-    _IO_file_close_it@@GLIBC_2.1
-    _IO_file_close_it@GLIBC_2.0
+    _IO_file_close_it
+    _IO_file_close_it
     _IO_file_doallocate
-    _IO_file_finish@@GLIBC_2.1
-    _IO_file_fopen@@GLIBC_2.1
-    _IO_file_fopen@GLIBC_2.0
-    _IO_file_init@@GLIBC_2.1
-    _IO_file_init@GLIBC_2.0
+    _IO_file_finish
+    _IO_file_fopen
+    _IO_file_fopen
+    _IO_file_init
+    _IO_file_init
     _IO_file_jumps
     _IO_file_open
-    _IO_file_overflow@@GLIBC_2.1
-    _IO_file_overflow@GLIBC_2.0
+    _IO_file_overflow
+    _IO_file_overflow
     _IO_file_read
     _IO_file_seek
-    _IO_file_seekoff@@GLIBC_2.1
-    _IO_file_seekoff@GLIBC_2.0
-    _IO_file_setbuf@@GLIBC_2.1
-    _IO_file_setbuf@GLIBC_2.0
+    _IO_file_seekoff
+    _IO_file_seekoff
+    _IO_file_setbuf
+    _IO_file_setbuf
     _IO_file_stat
-    _IO_file_sync@@GLIBC_2.1
-    _IO_file_sync@GLIBC_2.0
-    _IO_file_underflow@@GLIBC_2.1
-    _IO_file_underflow@GLIBC_2.0
-    _IO_file_write@@GLIBC_2.1
-    _IO_file_write@GLIBC_2.0
-    _IO_file_xsputn@@GLIBC_2.1
-    _IO_file_xsputn@GLIBC_2.0
+    _IO_file_sync
+    _IO_file_sync
+    _IO_file_underflow
+    _IO_file_underflow
+    _IO_file_write
+    _IO_file_write
+    _IO_file_xsputn
+    _IO_file_xsputn
     _IO_flockfile
     _IO_flush_all
     _IO_flush_all_linebuffered
-    _IO_fopen@@GLIBC_2.1
-    _IO_fopen@GLIBC_2.0
+    _IO_fopen
+    _IO_fopen
     _IO_fprintf
     _IO_fputs
     _IO_fread
     _IO_free_backup_area
     _IO_free_wbackup_area
-    _IO_fsetpos64@@GLIBC_2.2
-    _IO_fsetpos64@GLIBC_2.1
-    _IO_fsetpos@@GLIBC_2.2
-    _IO_fsetpos@GLIBC_2.0
+    _IO_fsetpos64
+    _IO_fsetpos64
+    _IO_fsetpos
+    _IO_fsetpos
     _IO_ftell
     _IO_ftrylockfile
     _IO_funlockfile
@@ -291,13 +291,13 @@ object SystemLinker {
     _IO_marker_difference
     _IO_padn
     _IO_peekc_locked
-    _IO_popen@@GLIBC_2.1
-    _IO_popen@GLIBC_2.0
+    _IO_popen
+    _IO_popen
     _IO_printf
-    _IO_proc_close@@GLIBC_2.1
-    _IO_proc_close@GLIBC_2.0
-    _IO_proc_open@@GLIBC_2.1
-    _IO_proc_open@GLIBC_2.0
+    _IO_proc_close
+    _IO_proc_close
+    _IO_proc_open
+    _IO_proc_open
     _IO_putc
     _IO_puts
     _IO_remove_marker
@@ -353,7 +353,7 @@ object SystemLinker {
     _IO_wsetb
     _Unwind_Find_FDE
     ___brk_addr
-    ___tls_get_addr@@GLIBC_2.3
+    ___tls_get_addr
     __abort_msg
     __adjtimex
     __after_morecore_hook
@@ -376,15 +376,15 @@ object SystemLinker {
     __cmsg_nxthdr
     __confstr_chk
     __connect
-    __ctype32_b@GLIBC_2.0
-    __ctype32_tolower@GLIBC_2.2
-    __ctype32_toupper@GLIBC_2.2
-    __ctype_b@GLIBC_2.0
+    __ctype32_b
+    __ctype32_tolower
+    __ctype32_toupper
+    __ctype_b
     __ctype_b_loc
     __ctype_get_mb_cur_max
-    __ctype_tolower@GLIBC_2.0
+    __ctype_tolower
     __ctype_tolower_loc
-    __ctype_toupper@GLIBC_2.0
+    __ctype_toupper
     __ctype_toupper_loc
     __curbrk
     __cxa_at_quick_exit
@@ -399,7 +399,7 @@ object SystemLinker {
     __deregister_frame_info
     __deregister_frame_info_bases
     __dgettext
-    __divdi3@GLIBC_2.0
+    __divdi3
     __dprintf_chk
     __dup2
     __duplocale
@@ -436,8 +436,8 @@ object SystemLinker {
     __fwritable
     __fwriting
     __fxstat
-    __fxstat64@@GLIBC_2.2
-    __fxstat64@GLIBC_2.1
+    __fxstat64
+    __fxstat64
     __fxstatat
     __fxstatat64
     __gai_sigqueue
@@ -527,7 +527,7 @@ object SystemLinker {
     __libc_dlclose
     __libc_dlopen_mode
     __libc_dlsym
-    __libc_enable_secure@@GLIBC_PRIVATE
+    __libc_enable_secure
     __libc_fatal
     __libc_fork
     __libc_free
@@ -547,7 +547,7 @@ object SystemLinker {
     __libc_rpc_getport
     __libc_sa_len
     __libc_siglongjmp
-    __libc_stack_end@@GLIBC_2.1
+    __libc_stack_end
     __libc_start_main
     __libc_system
     __libc_thread_freeres
@@ -555,8 +555,8 @@ object SystemLinker {
     __longjmp_chk
     __lseek
     __lxstat
-    __lxstat64@@GLIBC_2.2
-    __lxstat64@GLIBC_2.1
+    __lxstat64
+    __lxstat64
     __malloc_hook
     __malloc_initialize_hook
     __mbrlen
@@ -580,7 +580,7 @@ object SystemLinker {
     __memset_gcn_by2
     __memset_gcn_by4
     __memset_gg
-    __moddi3@GLIBC_2.0
+    __moddi3
     __modify_ldt
     __monstartup
     __morecore
@@ -750,12 +750,12 @@ object SystemLinker {
     __strtold_l
     __strtoll_internal
     __strtoll_l
-    __strtoq_internal@GLIBC_2.0
+    __strtoq_internal
     __strtoul_internal
     __strtoul_l
     __strtoull_internal
     __strtoull_l
-    __strtouq_internal@GLIBC_2.0
+    __strtouq_internal
     __strverscmp
     __strxfrm_l
     __swprintf_chk
@@ -773,9 +773,9 @@ object SystemLinker {
     __towupper_l
     __ttyname_r_chk
     __tzname
-    __udivdi3@GLIBC_2.0
+    __udivdi3
     __uflow
-    __umoddi3@GLIBC_2.0
+    __umoddi3
     __uname
     __underflow
     __uselocale
@@ -842,11 +842,11 @@ object SystemLinker {
     __xpg_sigpause
     __xpg_strerror_r
     __xstat
-    __xstat64@@GLIBC_2.2
-    __xstat64@GLIBC_2.1
+    __xstat64
+    __xstat64
     _authenticate
     _dl_addr
-    _dl_argv@@GLIBC_PRIVATE
+    _dl_argv
     _dl_mcount_wrapper
     _dl_mcount_wrapper_check
     _dl_open_hook
@@ -868,33 +868,33 @@ object SystemLinker {
     _nss_files_parse_sgent
     _nss_files_parse_spent
     _null_auth
-    _obstack@GLIBC_2.0
+    _obstack
     _obstack_allocated_p
     _obstack_begin
     _obstack_begin_1
     _obstack_free
     _obstack_memory_used
     _obstack_newchunk
-    _res@GLIBC_2.0
+    _res
     _res_hconf
     _rpc_dtablesize
-    _rtld_global@@GLIBC_PRIVATE
-    _rtld_global_ro@@GLIBC_PRIVATE
+    _rtld_global
+    _rtld_global_ro
     _seterr_reply
     _setjmp
-    _sys_errlist@@GLIBC_2.12
-    _sys_errlist@GLIBC_2.0
-    _sys_errlist@GLIBC_2.1
-    _sys_errlist@GLIBC_2.3
-    _sys_errlist@GLIBC_2.4
-    _sys_nerr@@GLIBC_2.12
-    _sys_nerr@GLIBC_2.0
-    _sys_nerr@GLIBC_2.1
-    _sys_nerr@GLIBC_2.3
-    _sys_nerr@GLIBC_2.4
-    _sys_siglist@@GLIBC_2.3.3
-    _sys_siglist@GLIBC_2.0
-    _sys_siglist@GLIBC_2.1
+    _sys_errlist
+    _sys_errlist
+    _sys_errlist
+    _sys_errlist
+    _sys_errlist
+    _sys_nerr
+    _sys_nerr
+    _sys_nerr
+    _sys_nerr
+    _sys_nerr
+    _sys_siglist
+    _sys_siglist
+    _sys_siglist
     _tolower
     _toupper
     a64l
@@ -911,8 +911,8 @@ object SystemLinker {
     advance
     alarm
     alphasort
-    alphasort64@@GLIBC_2.2
-    alphasort64@GLIBC_2.1
+    alphasort64
+    alphasort64
     argp_err_exit_status
     argp_error
     argp_failure
@@ -938,7 +938,7 @@ object SystemLinker {
     asctime
     asctime_r
     asprintf
-    atexit@GLIBC_2.0
+    atexit
     atof
     atoi
     atol
@@ -981,8 +981,8 @@ object SystemLinker {
     chdir
     chflags
     chmod
-    chown@@GLIBC_2.1
-    chown@GLIBC_2.0
+    chown
+    chown
     chroot
     clearenv
     clearerr
@@ -1113,16 +1113,16 @@ object SystemLinker {
     fchmodat
     fchown
     fchownat
-    fclose@@GLIBC_2.1
-    fclose@GLIBC_2.0
+    fclose
+    fclose
     fcloseall
     fcntl
     fcvt
     fcvt_r
     fdatasync
     fdetach
-    fdopen@@GLIBC_2.1
-    fdopen@GLIBC_2.0
+    fdopen
+    fdopen
     fdopendir
     feof
     feof_unlocked
@@ -1138,10 +1138,10 @@ object SystemLinker {
     fgetc_unlocked
     fgetgrent
     fgetgrent_r
-    fgetpos64@@GLIBC_2.2
-    fgetpos64@GLIBC_2.1
-    fgetpos@@GLIBC_2.2
-    fgetpos@GLIBC_2.0
+    fgetpos64
+    fgetpos64
+    fgetpos
+    fgetpos
     fgetpwent
     fgetpwent_r
     fgets
@@ -1165,13 +1165,13 @@ object SystemLinker {
     flockfile
     fmemopen
     fmtmsg
-    fnmatch@@GLIBC_2.2.3
-    fnmatch@GLIBC_2.0
+    fnmatch
+    fnmatch
     fopen64
-    fopen@@GLIBC_2.1
-    fopen@GLIBC_2.0
-    fopencookie@@GLIBC_2.2
-    fopencookie@GLIBC_2.0
+    fopen
+    fopen
+    fopencookie
+    fopencookie
     fork
     fpathconf
     fprintf
@@ -1199,10 +1199,10 @@ object SystemLinker {
     fseek
     fseeko
     fseeko64
-    fsetpos64@@GLIBC_2.2
-    fsetpos64@GLIBC_2.1
-    fsetpos@@GLIBC_2.2
-    fsetpos@GLIBC_2.0
+    fsetpos64
+    fsetpos64
+    fsetpos
+    fsetpos
     fsetxattr
     fstatfs
     fstatfs64
@@ -1244,11 +1244,11 @@ object SystemLinker {
     get_phys_pages
     getaddrinfo
     getaliasbyname
-    getaliasbyname_r@@GLIBC_2.1.2
-    getaliasbyname_r@GLIBC_2.0
+    getaliasbyname_r
+    getaliasbyname_r
     getaliasent
-    getaliasent_r@@GLIBC_2.1.2
-    getaliasent_r@GLIBC_2.0
+    getaliasent_r
+    getaliasent_r
     getc
     getc_unlocked
     getchar
@@ -1271,28 +1271,28 @@ object SystemLinker {
     getfsspec
     getgid
     getgrent
-    getgrent_r@@GLIBC_2.1.2
-    getgrent_r@GLIBC_2.0
+    getgrent_r
+    getgrent_r
     getgrgid
-    getgrgid_r@@GLIBC_2.1.2
-    getgrgid_r@GLIBC_2.0
+    getgrgid_r
+    getgrgid_r
     getgrnam
-    getgrnam_r@@GLIBC_2.1.2
-    getgrnam_r@GLIBC_2.0
+    getgrnam_r
+    getgrnam_r
     getgrouplist
     getgroups
     gethostbyaddr
-    gethostbyaddr_r@@GLIBC_2.1.2
-    gethostbyaddr_r@GLIBC_2.0
+    gethostbyaddr_r
+    gethostbyaddr_r
     gethostbyname
     gethostbyname2
-    gethostbyname2_r@@GLIBC_2.1.2
-    gethostbyname2_r@GLIBC_2.0
-    gethostbyname_r@@GLIBC_2.1.2
-    gethostbyname_r@GLIBC_2.0
+    gethostbyname2_r
+    gethostbyname2_r
+    gethostbyname_r
+    gethostbyname_r
     gethostent
-    gethostent_r@@GLIBC_2.1.2
-    gethostent_r@GLIBC_2.0
+    gethostent_r
+    gethostent_r
     gethostid
     gethostname
     getifaddrs
@@ -1307,14 +1307,14 @@ object SystemLinker {
     getmsg
     getnameinfo
     getnetbyaddr
-    getnetbyaddr_r@@GLIBC_2.1.2
-    getnetbyaddr_r@GLIBC_2.0
+    getnetbyaddr_r
+    getnetbyaddr_r
     getnetbyname
-    getnetbyname_r@@GLIBC_2.1.2
-    getnetbyname_r@GLIBC_2.0
+    getnetbyname_r
+    getnetbyname_r
     getnetent
-    getnetent_r@@GLIBC_2.1.2
-    getnetent_r@GLIBC_2.0
+    getnetent_r
+    getnetent_r
     getnetgrent
     getnetgrent_r
     getnetname
@@ -1331,54 +1331,54 @@ object SystemLinker {
     getppid
     getpriority
     getprotobyname
-    getprotobyname_r@@GLIBC_2.1.2
-    getprotobyname_r@GLIBC_2.0
+    getprotobyname_r
+    getprotobyname_r
     getprotobynumber
-    getprotobynumber_r@@GLIBC_2.1.2
-    getprotobynumber_r@GLIBC_2.0
+    getprotobynumber_r
+    getprotobynumber_r
     getprotoent
-    getprotoent_r@@GLIBC_2.1.2
-    getprotoent_r@GLIBC_2.0
+    getprotoent_r
+    getprotoent_r
     getpt
     getpublickey
     getpw
     getpwent
-    getpwent_r@@GLIBC_2.1.2
-    getpwent_r@GLIBC_2.0
+    getpwent_r
+    getpwent_r
     getpwnam
-    getpwnam_r@@GLIBC_2.1.2
-    getpwnam_r@GLIBC_2.0
+    getpwnam_r
+    getpwnam_r
     getpwuid
-    getpwuid_r@@GLIBC_2.1.2
-    getpwuid_r@GLIBC_2.0
+    getpwuid_r
+    getpwuid_r
     getresgid
     getresuid
-    getrlimit64@@GLIBC_2.2
-    getrlimit64@GLIBC_2.1
-    getrlimit@@GLIBC_2.2
-    getrlimit@GLIBC_2.0
+    getrlimit64
+    getrlimit64
+    getrlimit
+    getrlimit
     getrpcbyname
-    getrpcbyname_r@@GLIBC_2.1.2
-    getrpcbyname_r@GLIBC_2.0
+    getrpcbyname_r
+    getrpcbyname_r
     getrpcbynumber
-    getrpcbynumber_r@@GLIBC_2.1.2
-    getrpcbynumber_r@GLIBC_2.0
+    getrpcbynumber_r
+    getrpcbynumber_r
     getrpcent
-    getrpcent_r@@GLIBC_2.1.2
-    getrpcent_r@GLIBC_2.0
+    getrpcent_r
+    getrpcent_r
     getrpcport
     getrusage
     gets
     getsecretkey
     getservbyname
-    getservbyname_r@@GLIBC_2.1.2
-    getservbyname_r@GLIBC_2.0
+    getservbyname_r
+    getservbyname_r
     getservbyport
-    getservbyport_r@@GLIBC_2.1.2
-    getservbyport_r@GLIBC_2.0
+    getservbyport_r
+    getservbyport_r
     getservent
-    getservent_r@@GLIBC_2.1.2
-    getservent_r@GLIBC_2.0
+    getservent_r
+    getservent_r
     getsgent
     getsgent_r
     getsgnam
@@ -1388,11 +1388,11 @@ object SystemLinker {
     getsockopt
     getsourcefilter
     getspent
-    getspent_r@@GLIBC_2.1.2
-    getspent_r@GLIBC_2.0
+    getspent_r
+    getspent_r
     getspnam
-    getspnam_r@@GLIBC_2.1.2
-    getspnam_r@GLIBC_2.0
+    getspnam_r
+    getspnam_r
     getsubopt
     gettext
     gettimeofday
@@ -1419,8 +1419,8 @@ object SystemLinker {
     getwd
     getxattr
     glob
-    glob64@@GLIBC_2.2
-    glob64@GLIBC_2.1
+    glob64
+    glob64
     glob_pattern_p
     globfree
     globfree64
@@ -1605,8 +1605,8 @@ object SystemLinker {
     llseek
     loc1
     loc2
-    localeconv@@GLIBC_2.2
-    localeconv@GLIBC_2.0
+    localeconv
+    localeconv
     localtime
     localtime_r
     lockf
@@ -1683,8 +1683,8 @@ object SystemLinker {
     mrand48
     mrand48_r
     mremap
-    msgctl@@GLIBC_2.2
-    msgctl@GLIBC_2.0
+    msgctl
+    msgctl
     msgget
     msgrcv
     msgsnd
@@ -1700,10 +1700,10 @@ object SystemLinker {
     netname2user
     newlocale
     nfsservctl
-    nftw64@@GLIBC_2.3.3
-    nftw64@GLIBC_2.1
-    nftw@@GLIBC_2.3.3
-    nftw@GLIBC_2.1
+    nftw64
+    nftw64
+    nftw
+    nftw
     ngettext
     nice
     nl_langinfo
@@ -1735,11 +1735,11 @@ object SystemLinker {
     optind
     optopt
     parse_printf_format
-    passwd2des@GLIBC_2.1
+    passwd2des
     pathconf
     pause
-    pclose@@GLIBC_2.1
-    pclose@GLIBC_2.0
+    pclose
+    pclose
     perror
     personality
     pipe
@@ -1751,14 +1751,14 @@ object SystemLinker {
     pmap_set
     pmap_unset
     poll
-    popen@@GLIBC_2.1
-    popen@GLIBC_2.0
+    popen
+    popen
     posix_fadvise
-    posix_fadvise64@@GLIBC_2.3.3
-    posix_fadvise64@GLIBC_2.2
+    posix_fadvise64
+    posix_fadvise64
     posix_fallocate
-    posix_fallocate64@@GLIBC_2.3.3
-    posix_fallocate64@GLIBC_2.2
+    posix_fallocate64
+    posix_fallocate64
     posix_madvise
     posix_memalign
     posix_openpt
@@ -1806,25 +1806,25 @@ object SystemLinker {
     pthread_attr_getschedparam
     pthread_attr_getschedpolicy
     pthread_attr_getscope
-    pthread_attr_init@@GLIBC_2.1
-    pthread_attr_init@GLIBC_2.0
+    pthread_attr_init
+    pthread_attr_init
     pthread_attr_setdetachstate
     pthread_attr_setinheritsched
     pthread_attr_setschedparam
     pthread_attr_setschedpolicy
     pthread_attr_setscope
-    pthread_cond_broadcast@@GLIBC_2.3.2
-    pthread_cond_broadcast@GLIBC_2.0
-    pthread_cond_destroy@@GLIBC_2.3.2
-    pthread_cond_destroy@GLIBC_2.0
-    pthread_cond_init@@GLIBC_2.3.2
-    pthread_cond_init@GLIBC_2.0
-    pthread_cond_signal@@GLIBC_2.3.2
-    pthread_cond_signal@GLIBC_2.0
-    pthread_cond_timedwait@@GLIBC_2.3.2
-    pthread_cond_timedwait@GLIBC_2.0
-    pthread_cond_wait@@GLIBC_2.3.2
-    pthread_cond_wait@GLIBC_2.0
+    pthread_cond_broadcast
+    pthread_cond_broadcast
+    pthread_cond_destroy
+    pthread_cond_destroy
+    pthread_cond_init
+    pthread_cond_init
+    pthread_cond_signal
+    pthread_cond_signal
+    pthread_cond_timedwait
+    pthread_cond_timedwait
+    pthread_cond_wait
+    pthread_cond_wait
     pthread_condattr_destroy
     pthread_condattr_init
     pthread_equal
@@ -1898,17 +1898,17 @@ object SystemLinker {
     read
     readahead
     readdir
-    readdir64@@GLIBC_2.2
-    readdir64@GLIBC_2.1
-    readdir64_r@@GLIBC_2.2
-    readdir64_r@GLIBC_2.1
+    readdir64
+    readdir64
+    readdir64_r
+    readdir64_r
     readdir_r
     readlink
     readlinkat
     readv
     realloc
-    realpath@@GLIBC_2.3
-    realpath@GLIBC_2.0
+    realpath
+    realpath
     reboot
     recv
     recvfrom
@@ -1916,21 +1916,21 @@ object SystemLinker {
     recvmsg
     regcomp
     regerror
-    regexec@@GLIBC_2.3.4
-    regexec@GLIBC_2.0
+    regexec
+    regexec
     regfree
     register_printf_function
     register_printf_modifier
     register_printf_specifier
     register_printf_type
-    registerrpc@GLIBC_2.0
+    registerrpc
     remap_file_pages
     remove
     removexattr
     remque
     rename
     renameat
-    res_init@GLIBC_2.0
+    res_init
     revoke
     rewind
     rewinddir
@@ -1955,19 +1955,19 @@ object SystemLinker {
     scalbnf
     scalbnl
     scandir
-    scandir64@@GLIBC_2.2
-    scandir64@GLIBC_2.1
+    scandir64
+    scandir64
     scanf
     sched_get_priority_max
     sched_get_priority_min
-    sched_getaffinity@@GLIBC_2.3.4
-    sched_getaffinity@GLIBC_2.3.3
+    sched_getaffinity
+    sched_getaffinity
     sched_getcpu
     sched_getparam
     sched_getscheduler
     sched_rr_get_interval
-    sched_setaffinity@@GLIBC_2.3.4
-    sched_setaffinity@GLIBC_2.3.3
+    sched_setaffinity
+    sched_setaffinity
     sched_setparam
     sched_setscheduler
     sched_yield
@@ -1975,8 +1975,8 @@ object SystemLinker {
     seed48_r
     seekdir
     select
-    semctl@@GLIBC_2.2
-    semctl@GLIBC_2.0
+    semctl
+    semctl
     semget
     semop
     semtimedop
@@ -2024,8 +2024,8 @@ object SystemLinker {
     setresuid
     setreuid
     setrlimit64
-    setrlimit@@GLIBC_2.2
-    setrlimit@GLIBC_2.0
+    setrlimit
+    setrlimit
     setrpcent
     setservent
     setsgent
@@ -2048,8 +2048,8 @@ object SystemLinker {
     sgetspent
     sgetspent_r
     shmat
-    shmctl@@GLIBC_2.2
-    shmctl@GLIBC_2.0
+    shmctl
+    shmctl
     shmdt
     shmget
     shutdown
@@ -2203,22 +2203,22 @@ object SystemLinker {
     sync
     sync_file_range
     syncfs
-    sys_errlist@@GLIBC_2.12
-    sys_errlist@GLIBC_2.0
-    sys_errlist@GLIBC_2.1
-    sys_errlist@GLIBC_2.3
-    sys_errlist@GLIBC_2.4
-    sys_nerr@@GLIBC_2.12
-    sys_nerr@GLIBC_2.0
-    sys_nerr@GLIBC_2.1
-    sys_nerr@GLIBC_2.3
-    sys_nerr@GLIBC_2.4
-    sys_sigabbrev@@GLIBC_2.3.3
-    sys_sigabbrev@GLIBC_2.0
-    sys_sigabbrev@GLIBC_2.1
-    sys_siglist@@GLIBC_2.3.3
-    sys_siglist@GLIBC_2.0
-    sys_siglist@GLIBC_2.1
+    sys_errlist
+    sys_errlist
+    sys_errlist
+    sys_errlist
+    sys_errlist
+    sys_nerr
+    sys_nerr
+    sys_nerr
+    sys_nerr
+    sys_nerr
+    sys_sigabbrev
+    sys_sigabbrev
+    sys_sigabbrev
+    sys_siglist
+    sys_siglist
+    sys_siglist
     syscall
     sysconf
     sysctl
@@ -2251,8 +2251,8 @@ object SystemLinker {
     times
     timezone
     tmpfile64
-    tmpfile@@GLIBC_2.1
-    tmpfile@GLIBC_2.0
+    tmpfile
+    tmpfile
     tmpnam
     tmpnam_r
     toascii
@@ -2308,8 +2308,8 @@ object SystemLinker {
     verr
     verrx
     versionsort
-    versionsort64@@GLIBC_2.2
-    versionsort64@GLIBC_2.1
+    versionsort64
+    versionsort64
     vfork
     vfprintf
     vfscanf
@@ -2317,8 +2317,8 @@ object SystemLinker {
     vfwscanf
     vhangup
     vlimit
-    vm86@@GLIBC_2.3.4
-    vm86@GLIBC_2.0
+    vm86
+    vm86
     vmsplice
     vprintf
     vscanf
