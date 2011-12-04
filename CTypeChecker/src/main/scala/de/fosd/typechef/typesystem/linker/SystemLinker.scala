@@ -4,7 +4,7 @@ package de.fosd.typechef.typesystem.linker
 object SystemLinker {
 
     //taken from http://www.acm.uiuc.edu/webmonkeys/book/c_guide/
-    lazy val stdLibFunctions :Array[String]="""
+    lazy val stdLibFunctions: Array[String] = """
             assert
             errno
 
@@ -161,8 +161,7 @@ object SystemLinker {
             mktime
             strftime
             time
-    """.trim.split('\n').map(_.trim).filter(_=="")
-
+    """.trim.split('\n').map(_.trim).filter(_ != "")
 
 
     //symbols extracted from /usr/lib/libc.so and /lib/ld-linux.so.2 (probably neither accurate not complete)
@@ -2516,11 +2515,11 @@ object SystemLinker {
     realloc
         """.trim.split('\n').map(_.trim)
 
-    lazy val allLibs=(libcSymbols ++ stdLibFunctions).toSet
+    lazy val allLibs = (libcSymbols ++ stdLibFunctions).toSet
 
     def linkStdLib(interface: CInterface): CInterface =
         CInterface(
-            interface.featureModel, Set(), Set(),
+            interface.featureModel, interface.importedFeatures, interface.declaredFeatures,
             interface.imports.filter(x => !(allLibs contains x.name)).filter(!_.name.startsWith("__builtin_")),
             interface.exports
         )
