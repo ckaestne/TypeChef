@@ -2515,7 +2515,22 @@ object SystemLinker {
     realloc
         """.trim.split('\n').map(_.trim)
 
-    lazy val allLibs = (libcSymbols ++ stdLibFunctions).toSet
+    //from other libraries, ignored for now (sys/String.h, sys/stat.h)
+    lazy val otherLibFunctions: Array[String] = """
+            strcasestr
+
+            chmod
+            fchmod
+            fstat
+            lstat
+            mkdir
+            mkfifo
+            mknod
+            stat
+            umask
+        """.trim.split('\n').map(_.trim)
+
+    lazy val allLibs = (libcSymbols ++ stdLibFunctions ++ otherLibFunctions).toSet
 
     def linkStdLib(interface: CInterface): CInterface =
         CInterface(
