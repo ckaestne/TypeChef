@@ -141,7 +141,8 @@ object LinuxPreprocessorFrontend {
             val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
 
-            val fm = getFeatureModel(preprocOutputPath)
+            val filePresenceCondition = getFilePresenceCondition(preprocOutputPath)
+            val fm = getFeatureModel(preprocOutputPath).and(filePresenceCondition)
             val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, parse, fm)
             if (parse) {
                 val in = CLexer.prepareTokens(tokens)
@@ -152,13 +153,15 @@ object LinuxPreprocessorFrontend {
                     ts.checkAST
                 if (createInterface) {
                     println("inferring interfaces.")
-                    val interface = ts.getInferredInterface()
+                    val interface = ts.getInferredInterface().and(filePresenceCondition)
                     ts.writeInterface(interface, new File(filename + ".interface"))
                     ts.debugInterface(interface, new File(filename + ".dbginterface"))
                 }
             }
         }
     }
+    def getFilePresenceCondition(cfilename: String): FeatureExpr =
+        new FeatureExprParser().parseFile(cfilename + ".pc")
 
 
     def getFeatureModel(cfilename: String): FeatureModel = {
