@@ -116,7 +116,7 @@ case class CSigned(b: CBasicType) extends CType {
         case CSigned(thatb) => b < thatb
         case _ => false
     }
-    override def toText = "signed " + b
+    override def toText = "signed " + b.toText
     def toXML = <signed>
         {b.toXML}
     </signed>
@@ -127,7 +127,7 @@ case class CUnsigned(b: CBasicType) extends CType {
         case CUnsigned(thatb) => b < thatb
         case _ => false
     }
-    override def toText = "unsigned " + b
+    override def toText = "unsigned " + b.toText
     def toXML = <unsigned>
         {b.toXML}
     </unsigned>
@@ -194,7 +194,7 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
 case class CFunction(param: Seq[CType], ret: CType) extends CType {
     override def toObj = this
     override def isFunction: Boolean = true
-    override def toText = param.mkString("(", ", ", ")") + " => " + ret
+    override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
     def toXML = <function>
         {param.map(x => <param>
             {x.toXML}
