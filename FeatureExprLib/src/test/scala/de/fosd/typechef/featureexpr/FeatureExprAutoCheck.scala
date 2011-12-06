@@ -77,7 +77,8 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     property("creating (a and b) twice creates the same object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) eq (a and b))
     property("creating (a or b) twice creates the same object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) eq (a or b))
     property("creating (not a) twice creates the same object") = Prop.forAll((a: FeatureExpr) => (a.not) eq (a.not))
-    property("applying not twice yields the same object") = Prop.forAll((a: FeatureExpr) => a eq (a.not.not))
+    //    property("applying not twice yields the same object") = Prop.forAll((a: FeatureExpr) => a eq (a.not.not)) //does not necessarily hold any more; they are only equivalent
+    property("applying not twice yields an equivalent formula") = Prop.forAll((a: FeatureExpr) => a equivalentTo (a.not.not)) //does not necessarily hold any more; they are only equivalent
 
     property("Commutativity wrt. object identity: (a and b) produces the same object as (b and a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) eq (b and a))
     property("Commutativity wrt. object identity: (a or b) produces the same object as (b or a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) eq (b or a))
