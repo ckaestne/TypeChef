@@ -143,21 +143,34 @@ object LinuxPreprocessorFrontend {
 
             val filePresenceCondition = getFilePresenceCondition(preprocOutputPath)
             val fm = getFeatureModel(preprocOutputPath).and(filePresenceCondition)
+
+            val t1 = System.currentTimeMillis()
             val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, parse, fm)
+            val t2 = System.currentTimeMillis()
+            var t3 = t2; var t4 = t2; var t5 = t2;
             if (parse) {
                 val in = CLexer.prepareTokens(tokens)
                 val parserMain = new ParserMain(new CParser(fm))
                 val ast = parserMain.parserMain(in)
+                t3 = System.currentTimeMillis();
+                t5 = t3;
+                t4 = t3
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
-                if (typecheck || createInterface)
+                if (typecheck || createInterface) {
                     ts.checkAST
+                    t4 = System.currentTimeMillis();
+                    t5 = t4
+                }
                 if (createInterface) {
                     println("inferring interfaces.")
                     val interface = ts.getInferredInterface().and(filePresenceCondition)
+                    t5 = System.currentTimeMillis()
                     ts.writeInterface(interface, new File(filename + ".interface"))
                     ts.debugInterface(interface, new File(filename + ".dbginterface"))
                 }
+
             }
+            println("timing (lexer, parser, type system, interface inference)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4))
         }
     }
     def getFilePresenceCondition(cfilename: String): FeatureExpr =
