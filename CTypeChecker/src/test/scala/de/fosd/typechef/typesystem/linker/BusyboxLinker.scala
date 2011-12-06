@@ -6,45 +6,33 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprParser}
 object BusyboxLinker extends App {
 
 
-    def getLinkFolder(folderPath: String): CInterface = {
-
-        val ifiles = new File(folderPath).listFiles().filter(f => f.isFile && f.getName.endsWith(".c.interface")).toList
-
-        val reader = new InterfaceWriter() {}
-        var interfaces = ifiles.map(reader.readInterface(_)).map(SystemLinker.linkStdLib(_))
-        val localFeatureConstraints = ifiles.map(f => new FeatureExprParser().parseFile(f.getAbsolutePath.dropRight(11) + "pi.fm"))
-        interfaces = (interfaces zip localFeatureConstraints).map(x => x._1.and(x._2))
-
-        interfaces map {i => assert(i.isWellformed, "illformed interface " + i)}
-
-        val result = (ifiles zip interfaces).foldLeft[CInterface](EmptyInterface)((composedInterface, newFile) => {
-            //            println("linking " + newFile._1)
-            if (!(composedInterface isCompatibleTo newFile._2))
-                println(composedInterface getConflicts newFile._2)
-            composedInterface link newFile._2
-        })
-        result
-    }
-
     val path = "S:\\ARCHIVE\\kos\\share\\TypeChef\\cprojects\\busybox\\busybox-1.18.5\\"
+    val filesfile = "S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\busybox_files"
 
-    val dirList = new File(path).listFiles().filter(_.isDirectory).toList
-    //    val dirList = List(new File(path + "miscutils"))
 
-    //modutils
+    println("parsing")
+
+
+    val fileList = io.Source.fromFile(filesfile).getLines().toList
+    var interfaces = fileList.map(f => reader.readInterface(new File(f + ".c.interface"))).map(SystemLinker.linkStdLib(_))
+
+
+    println("composing")
 
     var finalInterface: CInterface = EmptyInterface
 
-    val dirInterfaces = for (dir <- dirList) yield {
-        val i = getLinkFolder(dir.getAbsolutePath)
-        if (i.featureModel.isContradiction())
-            println(i)
-        println(dir + "; imported functions: " + i.imports.size + "; exported functions: " + i.exports.size + "; feature model: " + i.featureModel)
+    val t1 = System.currentTimeMillis()
+    for (i <- interfaces) {
+        if (!(finalInterface isCompatibleTo i))
+            println(finalInterface getConflicts i)
         finalInterface = finalInterface link i
-        println("imported functions: " + finalInterface.imports.size + "; exported functions: " + finalInterface.exports.size + "; feature model: " + finalInterface.featureModel)
-        i
+
+
     }
 
+    val t2 = System.currentTimeMillis()
+
+    println("total composition time: " + (t2 - t1))
 
     val reader = new InterfaceWriter() {}
     reader.writeInterface(finalInterface, new File("busyboxfinal.interface"))
@@ -85,5 +73,36 @@ object TmpLinkerStuff extends App {
 
 
     println(ii.imports.size)
+
+}
+
+
+object BusyboxStatistics extends App {
+
+    val path = "S:\\ARCHIVE\\kos\\share\\TypeChef\\cprojects\\busybox\\busybox-1.18.5\\"
+    val filesfile = "S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\busybox_files"
+
+    val fileList = io.Source.fromFile(filesfile).getLines().toList
+
+    println("number of files: " + fileList.size)
+
+    val featureList = List[String]()
+
+    var filesPerFeature: Map[String /*Feature*/ , Set[String /*File*/ ]] = featureList.map(f => (f, Set[String]())).toMap
+
+    for (file <- fileList) {
+        val dbg = io.Source.fromFile(path + file + ".dbg").getLines().toList
+        val packg = file.take(file.lastIndexOf("/"))
+
+        var featureLine = dbg.filter(_ startsWith "  Distinct Features:").head
+        var features = featureLine.drop(21).split(";").toList
+
+        for (f <- features)
+            filesPerFeature += (f -> (filesPerFeature.getOrElse(f, Set()) + file))
+
+
+    }
+    println(filesPerFeature.mapValues(_.size).toList.sortBy(_._2).mkString("\n"))
+
 
 }
