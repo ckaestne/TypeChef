@@ -253,6 +253,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
         (op, normalize(type1), normalize(type2)) match {
             //pointer arithmetic
+            case (_, CIgnore(), _) => CIgnore()
+            case (_, _, CIgnore()) => CIgnore()
             case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2) //spec
             case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => type1.toValue //spec
             case ("+", t1, t2) if (isIntegral(t1) && isPointer(t2)) => type2.toValue //spec
