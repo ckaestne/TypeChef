@@ -21,7 +21,7 @@ object KConfigReader extends App {
     def processConfig() {
         if (flag == "") return;
         if (flagType == "bool") {
-            println(flag + " => " + flagDep)
+            println(dir + "/" + flag /*+ " => " + flagDep*/)
             features = flag :: features
         }
         flag = ""
@@ -29,6 +29,8 @@ object KConfigReader extends App {
         flagType = ""
         flagDep = ""
     }
+
+    var dir = ""
 
     while (!config.isEmpty) {
         val line = config.head
@@ -52,7 +54,9 @@ object KConfigReader extends App {
         }
 
         if (!skip && line.startsWith("source")) {
+            processConfig()
             val file = path + line.drop(7)
+            dir = line.drop(7).take(line.drop(7).lastIndexOf("/"))
             config =
                     io.Source.fromFile(file).getLines().toList ++ config
 
