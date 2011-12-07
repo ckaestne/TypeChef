@@ -225,7 +225,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             val ct = getExprType(expr, context, env).simplify(context)
             ct.mapf(context, {
                 (f, c) =>
-                    if (!check(c) && !c.isUnknown) reportTypeError(f, errorMsg(c), expr) else c
+                    if (!check(c) && !c.isUnknown && c != CIgnore()) reportTypeError(f, errorMsg(c), expr) else c
             })
         } else One(CUnknown("unsatisfiable condition for expression"))
 
