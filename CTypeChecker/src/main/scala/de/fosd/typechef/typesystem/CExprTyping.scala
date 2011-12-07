@@ -101,7 +101,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         isPointer(targetType) ||
                                         (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
-                                else if (sourceType == CIgnore() || targetType == CIgnore() || sourceType.isUnknown) targetType
+                                else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown) targetType
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
                         )
@@ -169,13 +169,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 //TODO complete list: __real__ __imag__
                                 //TODO promotions
                                 case "+" => exprType.mapf(featureExpr,
-                                    (fexpr, x) => if (isArithmetic(x) || x == CIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
+                                    (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
                                 case "-" => exprType.mapf(featureExpr,
-                                    (fexpr, x) => if (isArithmetic(x) || x == CIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
+                                    (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
                                 case "~" => exprType.mapf(featureExpr,
-                                    (fexpr, x) => if (isIntegral(x) || x == CIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected integer, was " + x, ue))
+                                    (fexpr, x) => if (isIntegral(x) || x.isIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected integer, was " + x, ue))
                                 case "!" => exprType.mapf(featureExpr,
-                                    (fexpr, x) => if (isScalar(x) || x == CIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected scalar, was " + x, ue))
+                                    (fexpr, x) => if (isScalar(x) || x.isIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected scalar, was " + x, ue))
                                 case _ => One(reportTypeError(featureExpr, "unknown unary operator " + kind + " (TODO)", ue))
                             }
                         }
@@ -185,6 +185,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             (fexpr, conditionType) =>
                                 if (isScalar(conditionType))
                                     getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr), etF(elseExpr, fexpr), fexpr, ce)
+                                else if (conditionType.isIgnore) One(conditionType)
                                 else One(reportTypeError(fexpr, "invalid type of condition: " + conditionType, ce))
                         })
                     //compound statement in expr. ({a;b;c;}), type is the type of the last statement

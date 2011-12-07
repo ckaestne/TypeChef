@@ -54,6 +54,7 @@ sealed abstract class CType {
     def map(op: CType => CType): CType = op(this)
 
     def isUnknown: Boolean = false
+    def isIgnore: Boolean = false
 
     /**compares with of two types. if this<that, this type can be converted (widened) to that */
     def <(that: CType): Boolean = false
@@ -219,6 +220,9 @@ case class CObj(t: CType) extends CType {
         case _ => t
     }
     override def isObject = true
+    override def isFunction = t.isFunction
+    override def isUnknown = t.isUnknown
+    override def isIgnore = t.isIgnore
     def toXML = <obj>
         {t.toXML}
     </obj>
@@ -240,6 +244,7 @@ case class CCompound() extends CType {
  */
 case class CIgnore() extends CType {
     def toXML = <ignore/>
+    override def isIgnore() = true
 }
 
 
