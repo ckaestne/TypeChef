@@ -126,8 +126,7 @@ case class CInterface(
             this.declaredFeatures ++ that.declaredFeatures,
             this.imports ++ that.imports,
             this.exports ++ that.exports
-        )
-    //                .pack
+        ).pack
 
     /**links without proper checks and packing. only for debugging purposes **/
     def debug_join(that: CInterface): CInterface =

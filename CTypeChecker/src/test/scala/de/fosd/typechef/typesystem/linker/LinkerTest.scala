@@ -42,17 +42,17 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         ((i1 and fa) link (i1 and fa.not)).isWellformed should be(true)
 
         val ii = new CInterface(List(ffoo), List())
-        (ii link ii) should be(ii)
-        ((ii and fa) link ii) should be(ii)
-        (ii link ii).isWellformed should be(true)
-        (ii link new CInterface(List(fbar), List())) should be(new CInterface(List(ffoo, fbar), List()))
+        (ii link ii).pack should be(ii)
+        ((ii and fa) link ii).pack should be(ii)
+        (ii link ii).pack.isWellformed should be(true)
+        (ii link new CInterface(List(fbar), List())).pack should be(new CInterface(List(ffoo, fbar), List()))
 
-        (ii link i1) should be(i1)
+        (ii link i1).pack should be(i1)
 
-        (CInterface(fa, List(), List()) link CInterface(fb, List(), List())) should be(CInterface(fa and fb, List(), List()))
-        (CInterface(fa, List(), List()) link CInterface(fa.not, List(), List())) should be(CInterface(dead, List(), List()))
-        (CInterface(fa, List(ffoo), List()) link CInterface(fa.not, List(), List())) should be(CInterface(dead, List(), List()))
-        (CInterface(fa, List(), List(ffoo)) link CInterface(fa.not, List(), List())) should be(CInterface(dead, List(), List()))
+        (CInterface(fa, List(), List()) link CInterface(fb, List(), List())).pack should be(CInterface(fa and fb, List(), List()))
+        (CInterface(fa, List(), List()) link CInterface(fa.not, List(), List())).pack should be(CInterface(dead, List(), List()))
+        (CInterface(fa, List(ffoo), List()) link CInterface(fa.not, List(), List())).pack should be(CInterface(dead, List(), List()))
+        (CInterface(fa, List(), List(ffoo)) link CInterface(fa.not, List(), List())).pack should be(CInterface(dead, List(), List()))
 
         (new CInterface(List(), List(ffoo and fa)) link new CInterface(List(), List(ffoo and fb))).featureModel should be(fa mex fb)
     }
