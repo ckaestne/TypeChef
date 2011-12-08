@@ -22,6 +22,17 @@ object KConfigReader extends App {
         if (flag == "") return;
         if (flagType == "bool") {
             println(dir + "/" + flag /*+ " => " + flagDep*/)
+
+            //            println("#ifdef CONFIG_"+flag+"\n" +
+            //                    "   #define ENABLE_"+flag+" 1\n" +
+            //                    "   #define IF_"+flag+"(...) __VA_ARGS__\n" +
+            //                    "   #define IF_NOT_"+flag+"(...)\n" +
+            //                    "#else\n" +
+            //                    "   #define ENABLE_"+flag+" 0\n" +
+            //                    "   #define IF_NOT_"+flag+"(...) __VA_ARGS__\n" +
+            //                    "   #define IF_"+flag+"(...)\n" +
+            //                    "#endif")
+
             features = flag :: features
         }
         flag = ""

@@ -1,5 +1,7 @@
 package de.fosd.typechef.typesystem.linker
 
+import de.fosd.typechef.featureexpr.FeatureExpr
+
 
 object SystemLinker {
 
@@ -569,7 +571,7 @@ object SystemLinker {
     __memcpy_by4
     __memcpy_c
     __memcpy_g
-    __mempcpy_by2
+    mempcpy
     __mempcpy_by4
     __mempcpy_byn
     __mempcpy_small
@@ -2528,6 +2530,10 @@ object SystemLinker {
             mknod
             stat
             umask
+
+            crypt
+            encrypt
+            swab
         """.trim.split('\n').map(_.trim)
 
     lazy val allLibs = (libcSymbols ++ stdLibFunctions ++ otherLibFunctions).toSet
@@ -2540,4 +2546,287 @@ object SystemLinker {
         )
 
 
+    lazy val selinuxLibFunctions: Array[String] = """
+            __bss_start
+            _edata
+            _end
+            _fini
+            _init
+            avc_add_callback
+            avc_audit
+            avc_av_stats
+            avc_cache_stats
+            avc_cleanup
+            avc_compute_create
+            avc_compute_member
+            avc_context_to_sid
+            avc_context_to_sid_raw
+            avc_destroy
+            avc_get_initial_sid
+            avc_has_perm
+            avc_has_perm_noaudit
+            avc_init
+            avc_netlink_acquire_fd
+            avc_netlink_check_nb
+            avc_netlink_close
+            avc_netlink_loop
+            avc_netlink_open
+            avc_netlink_release_fd
+            avc_open
+            avc_reset
+            avc_sid_stats
+            avc_sid_to_context
+            avc_sid_to_context_raw
+            checkPasswdAccess
+            context_free
+            context_new
+            context_range_get
+            context_range_set
+            context_role_get
+            context_role_set
+            context_str
+            context_type_get
+            context_type_set
+            context_user_get
+            context_user_set
+            fgetfilecon
+            fgetfilecon_raw
+            fini_selinuxmnt
+            flush_class_cache
+            freecon
+            freeconary
+            fsetfilecon
+            fsetfilecon_raw
+            get_default_context
+            get_default_context_with_level
+            get_default_context_with_role
+            get_default_context_with_rolelevel
+            get_default_type
+            get_ordered_context_list
+            get_ordered_context_list_with_level
+            getcon
+            getcon_raw
+            getexeccon
+            getexeccon_raw
+            getfilecon
+            getfilecon_raw
+            getfscreatecon
+            getfscreatecon_raw
+            getkeycreatecon
+            getkeycreatecon_raw
+            getpeercon
+            getpeercon_raw
+            getpidcon
+            getpidcon_raw
+            getprevcon
+            getprevcon_raw
+            getseuser
+            getseuserbyname
+            getsockcreatecon
+            getsockcreatecon_raw
+            is_context_customizable
+            is_selinux_enabled
+            is_selinux_mls_enabled
+            lgetfilecon
+            lgetfilecon_raw
+            lsetfilecon
+            lsetfilecon_raw
+            manual_user_enter_context
+            map_class
+            map_decision
+            map_perm
+            matchmediacon
+            matchpathcon
+            matchpathcon_checkmatches
+            matchpathcon_filespec_add
+            matchpathcon_filespec_destroy
+            matchpathcon_filespec_eval
+            matchpathcon_fini
+            matchpathcon_index
+            matchpathcon_init
+            matchpathcon_init_prefix
+            myprintf
+            myprintf_compat
+            obj_class_compat
+            print_access_vector
+            query_user_context
+            rpm_execcon
+            security_av_perm_to_string
+            security_av_string
+            security_canonicalize_context
+            security_canonicalize_context_raw
+            security_check_context
+            security_check_context_raw
+            security_class_to_string
+            security_commit_booleans
+            security_compute_av
+            security_compute_av_flags
+            security_compute_av_flags_raw
+            security_compute_av_raw
+            security_compute_create
+            security_compute_create_raw
+            security_compute_member
+            security_compute_member_raw
+            security_compute_relabel
+            security_compute_relabel_raw
+            security_compute_user
+            security_compute_user_raw
+            security_deny_unknown
+            security_disable
+            security_get_boolean_active
+            security_get_boolean_names
+            security_get_boolean_pending
+            security_get_initial_context
+            security_get_initial_context_raw
+            security_getenforce
+            security_load_booleans
+            security_load_policy
+            security_policyvers
+            security_set_boolean
+            security_set_boolean_list
+            security_setenforce
+            selabel_close
+            selabel_lookup
+            selabel_lookup_raw
+            selabel_open
+            selabel_stats
+            selinux_binary_policy_path
+            selinux_booleans_path
+            selinux_check_passwd_access
+            selinux_check_securetty_context
+            selinux_colors_path
+            selinux_contexts_path
+            selinux_customizable_types_path
+            selinux_default_context_path
+            selinux_default_type_path
+            selinux_failsafe_context_path
+            selinux_file_context_cmp
+            selinux_file_context_homedir_path
+            selinux_file_context_local_path
+            selinux_file_context_path
+            selinux_file_context_subs_path
+            selinux_file_context_verify
+            selinux_get_callback
+            selinux_getenforcemode
+            selinux_getpolicytype
+            selinux_homedir_context_path
+            selinux_init_load_policy
+            selinux_lsetfilecon_default
+            selinux_media_context_path
+            selinux_mkload_policy
+            selinux_mnt
+            selinux_netfilter_context_path
+            selinux_path
+            selinux_policy_root
+            selinux_raw_context_to_color
+            selinux_raw_to_trans_context
+            selinux_removable_context_path
+            selinux_reset_config
+            selinux_securetty_types_path
+            selinux_sepgsql_context_path
+            selinux_set_callback
+            selinux_set_mapping
+            selinux_status_close
+            selinux_status_deny_unknown
+            selinux_status_getenforce
+            selinux_status_open
+            selinux_status_policyload
+            selinux_status_updated
+            selinux_trans_to_raw_context
+            selinux_translations_path
+            selinux_user_contexts_path
+            selinux_users_path
+            selinux_usersconf_path
+            selinux_virtual_domain_context_path
+            selinux_virtual_image_context_path
+            selinux_x_context_path
+            set_matchpathcon_canoncon
+            set_matchpathcon_flags
+            set_matchpathcon_invalidcon
+            set_matchpathcon_printf
+            set_selinuxmnt
+            setcon
+            setcon_raw
+            setexeccon
+            setexeccon_raw
+            setfilecon
+            setfilecon_raw
+            setfscreatecon
+            setfscreatecon_raw
+            setkeycreatecon
+            setkeycreatecon_raw
+            setsockcreatecon
+            setsockcreatecon_raw
+            sidget
+            sidput
+            string_to_av_perm
+            string_to_security_class
+            unmap_class
+            unmap_perm
+        """.trim.split('\n').map(_.trim)
+
+    lazy val pamLibFunctions: Array[String] = """
+pam_acct_mgmt
+pam_authenticate
+pam_setcred
+pam_set_data
+pam_get_data
+pam_fail_delay
+pam_end
+pam_putenv
+pam_getenv
+pam_getenvlist
+pam_get_authtok
+pam_get_authtok_noverify
+pam_get_authtok_verify
+pam_set_item
+pam_get_item
+pam_get_user
+pam_chauthtok
+pam_open_session
+pam_close_session
+pam_start
+pam_strerror
+pam_vprompt
+pam_prompt
+pam_vsyslog
+pam_syslog
+pam_modutil_audit_write
+pam_modutil_getpwnam
+pam_modutil_read
+pam_modutil_write
+pam_modutil_getgrgid
+pam_modutil_getpwuid
+pam_modutil_getgrnam
+pam_modutil_getspnam
+pam_modutil_getlogin
+pam_modutil_user_in_group_nam_nam
+pam_modutil_user_in_group_nam_gid
+pam_modutil_user_in_group_uid_nam
+pam_modutil_user_in_group_uid_gid
+pam_modutil_drop_priv
+pam_modutil_regain_priv
+
+pam_misc_drop_env
+pam_misc_paste_env
+pam_misc_setenv
+misc_conv
+pam_binary_handler_free
+pam_misc_conv_die_line
+pam_misc_conv_warn_line
+pam_binary_handler_fn
+pam_misc_conv_died
+pam_misc_conv_die_time
+pam_misc_conv_warn_tim
+     """.trim.split('\n').map(_.trim)
+
+    def conditionalLinkSelinux(interface: CInterface, condition: FeatureExpr): CInterface = conditionalLinkSymbols(interface, selinuxLibFunctions, condition)
+    def conditionalLinkPam(interface: CInterface, condition: FeatureExpr): CInterface = conditionalLinkSymbols(interface, pamLibFunctions, condition)
+    def conditionalLinkSymbols(interface: CInterface, symbols: Array[String], condition: FeatureExpr): CInterface =
+        CInterface(
+            interface.featureModel, interface.importedFeatures, interface.declaredFeatures,
+            interface.imports.map(x =>
+                if (symbols contains x.name) x.and(condition.not) else x),
+            interface.exports
+        )
 }

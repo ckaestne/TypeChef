@@ -1,19 +1,39 @@
 package de.fosd.typechef.typesystem.linker
 
 import java.io.File
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprParser}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr, FeatureExprParser}
 
-object BusyboxLinker extends App {
 
+object BusyboxHelp {
+    def getBusyboxVM(): FeatureExpr = {
+        var fm = FeatureExpr.base
+        for (l: String <- io.Source.fromFile("S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\featureModel").getLines())
+            if (l != "") {
+                val f = new FeatureExprParser().parse(l)
+                fm = fm and f
+            }
+        fm
+    }
 
     val path = "S:\\ARCHIVE\\kos\\share\\TypeChef\\cprojects\\busybox\\busybox-1.18.5\\"
     val filesfile = "S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\busybox_files"
+    val featuresfile = path + "features"
+
+    val fileList = io.Source.fromFile(filesfile).getLines().toList
+    val featureList = io.Source.fromFile(featuresfile).getLines().toList
+}
+
+object BusyboxLinker extends App {
+
+    import BusyboxHelp._
+
+
+    val vm = FeatureModel.create(getBusyboxVM())
 
     println("parsing")
 
     val reader = new InterfaceWriter() {}
 
-    val fileList = io.Source.fromFile(filesfile).getLines().toList
     println(fileList.size + " files")
     //    println(fileList.map(f => reader.readInterface(new File(path+f + ".c.interface"))))
     var interfaces = fileList.map(f => reader.readInterface(new File(path + f + ".c.interface"))).map(SystemLinker.linkStdLib(_))
@@ -34,6 +54,12 @@ object BusyboxLinker extends App {
         else if (l.size == 2) {
             val left = l(0)
             val right = l(1)
+
+            //            print(".")
+            //            val conflicts = (left getConflicts right).filter(_._2.not.isSatisfiable(vm))
+            //            if (!conflicts.isEmpty)
+            //                println(conflicts)
+
             if (!(left isCompatibleTo right))
                 println(left getConflicts right)
             left link right
@@ -61,60 +87,62 @@ object BusyboxLinker extends App {
 
     finalInterface = finalInterface.pack
 
-    println("total composition time: " + (t2 - t1))
-
     reader.writeInterface(finalInterface, new File("busyboxfinal.interface"))
     reader.debugInterface(finalInterface, new File("busyboxfinal.dbginterface"))
 
-    println(finalInterface)
-
     //    println(finalInterface)
-
 }
 
-object TmpLinkerStuff extends App {
-    val reader = new InterfaceWriter() {}
-    val i = SystemLinker.linkStdLib(reader.readInterface(new File("busyboxfinal.interface")))
 
-    var fm = FeatureExpr.base
-    for (l: String <- io.Source.fromFile("S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\featureModel").getLines())
-        if (l != "") {
-            val f = new FeatureExprParser().parse(l)
-            fm = fm and f
-        }
+object TmpLinkerStuff extends App {
+
+    import BusyboxHelp._
+
+    val reader = new InterfaceWriter() {}
+    var i = SystemLinker.linkStdLib(reader.readInterface(new File("busyboxfinal.interface")))
+
+    val fm = getBusyboxVM()
+
+    def d(s: String) = FeatureExpr.createDefinedExternal(s)
 
     println(fm.isSatisfiable())
     println((fm implies i.featureModel).isTautology())
 
-    val ii = i.andFM(fm).pack
+    i = SystemLinker.conditionalLinkSelinux(i, d("CONFIG_SELINUX"))
+    i = SystemLinker.conditionalLinkPam(i, d("CONFIG_PAM"))
+    i = i.andFM(fm)
+    i = i.pack
 
     println("packed")
 
     def excludeSymbol(sym: String) =
         sym.startsWith("BUG_") /*depends on compiler optimizations*/ ||
-                sym == "alloc_action" || /*nested function, not inferred correctly right now*/
-                sym == "x2x_utoa" || //inference bug, function parameter
-                sym == "adjust_width_and_validate_wc" || //requires static analysis
-                false
+                (List("alloc_action", /*nested function, not inferred correctly right now*/
+                    "x2x_utoa", //inference bug, function parameter
+                    "adjust_width_and_validate_wc", //requires dead-code detection
+                    "add_sun_partition", "bsd_select", "check2", "check_root2",
+                    "create_sgiinfo", "get_prefix_", "data_extract_to_command", "del_loop",
+                    "delete_block_backed_filesystems", "delete_eth_table", "erase_mtab",
+                    "get_header_tar", "get_header_tar_bz2", "get_header_tar_gz", "get_header_tar_lzma",
+                    "gpt_list_table", "nfsmount", "make_bad_inode2", "make_root_inode2" //if (0) dead-code detection
+                    , "evaltreenr" //weired __attribute__
+                ) contains sym)
+    false
 
-    for (imp <- ii.imports.sortBy(_.name))
+    for (imp <- i.imports.sortBy(_.name))
         if (imp.fexpr.isSatisfiable() && !excludeSymbol(imp.name))
             println(imp)
 
 
-    println(ii.imports.size)
+    println(i.imports.size)
 
 }
 
 
 object BusyboxStatistics extends App {
 
-    val path = "S:\\ARCHIVE\\kos\\share\\TypeChef\\cprojects\\busybox\\busybox-1.18.5\\"
-    val filesfile = "S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\busybox_files"
-    val featuresfile = path + "features"
+    import de.fosd.typechef.typesystem.linker.BusyboxHelp._
 
-    val fileList = io.Source.fromFile(filesfile).getLines().toList
-    val featureList = io.Source.fromFile(featuresfile).getLines().toList
     val configFlagList = featureList.map(f => ("CONFIG_" + f.drop(f.lastIndexOf("/") + 1)))
 
     println("number of files: " + fileList.size + "; number of features: " + configFlagList.size)
