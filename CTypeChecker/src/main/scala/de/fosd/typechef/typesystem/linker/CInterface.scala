@@ -147,7 +147,8 @@ case class CInterface(
      * (b) both modules import the same name with different types in the same configuration
      * (c) one module imports a name the other modules exports in the same configuration but with a different type
      *
-     * returns any conflict (does not call a sat solver), even if the conditions are mutually exclusive
+     * returns any conflict (does not call a sat solver), even if the conditions are mutually exclusive.
+     * the condition is true if there is NO conflict (it describes configurations without conflict)
      *
      * public only for debugging purposes
      */
