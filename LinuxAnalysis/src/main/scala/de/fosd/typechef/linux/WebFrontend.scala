@@ -4,7 +4,8 @@ import java.io.File
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.lexer.Main
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.typesystem.{CTypeSystemFrontend, CTypeSystem}
+import de.fosd.typechef.typesystem.CTypeSystemFrontend
+import de.fosd.typechef.typesystem.linker.CInferInterface
 
 /**
  * Created by IntelliJ IDEA.
@@ -53,8 +54,12 @@ object WebFrontend {
         println("</div>")
 
         if (ast != null) {
-            println("<h2>Type checking (incomplete!)</h2><pre name='tsoutput'>")
-            new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit]).checkAST
+            val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit]) with CInferInterface
+            println("<h2>Type checking</h2><pre name='tsoutput'>")
+            ts.checkAST
+            println("</pre>")
+            println("<h2>Module interface</h2><pre name='interface'>")
+            println(ts.getInferredInterface().toString)
             println("</pre>")
         }
     }
