@@ -39,7 +39,7 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = No
 
     def dbgPrintln(o: Any) = if (DEBUG_PRINT) println(o)
 
-    val verbose = true
+    val verbose = false
 
 
     var externalDefCounter: Int = 0
