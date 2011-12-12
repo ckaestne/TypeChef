@@ -19,7 +19,7 @@ object BusyboxHelp {
     val filesfile = "S:\\ARCHIVE\\kos\\share\\TypeChef\\busybox\\busybox_files"
     val featuresfile = path + "features"
 
-    val fileList = io.Source.fromFile(filesfile).getLines().toList
+    var fileList = io.Source.fromFile(filesfile).getLines().toList
     val featureList = io.Source.fromFile(featuresfile).getLines().toList
 }
 
@@ -145,6 +145,8 @@ object BusyboxStatistics extends App {
 
     val configFlagList = featureList.map(f => ("CONFIG_" + f.drop(f.lastIndexOf("/") + 1)))
 
+    //    fileList=List("editors/diff")
+
     println("number of files: " + fileList.size + "; number of features: " + configFlagList.size)
 
     var filesPerFeature: Map[String /*Feature*/ , Set[String /*File*/ ]] = configFlagList.map(f => (f -> Set[String]())).toMap //token stream variability
@@ -155,6 +157,7 @@ object BusyboxStatistics extends App {
     var interfaces = List[CInterface]()
 
     for (file <- fileList) {
+        println(file)
         val dbg = io.Source.fromFile(path + file + ".dbg").getLines().toList
         val packg = file.take(file.lastIndexOf("/"))
 
@@ -165,21 +168,23 @@ object BusyboxStatistics extends App {
         val pc = if (pcFile.exists())
             new FeatureExprParser().parseFile(pcFile)
         else FeatureExpr.base
-        features = features ++ pc.collectDistinctFeatures.map(_.feature)
         pcs = pcs :+ pc
 
         //interface variability
-        val i = new InterfaceWriter() {}.readInterface(new File(path + file + ".c.interface")).and(pc)
+        val i = new InterfaceWriter() {}.readInterface(new File(path + file + ".c.interface")) //.and(pc)
         interfaces = interfaces :+ SystemLinker.linkStdLib(i)
 
-        val ifeatures = (i.exports ++ i.imports).flatMap(_.fexpr.collectDistinctFeatures).map(_.feature).toSet
+        var ifeatures = (i.exports ++ i.imports).flatMap(_.fexpr.collectDistinctFeatures).map(_.feature).toSet
+
+        if (features.isEmpty)
+            println(file + "  no variability!")
 
         featuresPerFile += (file -> features)
         featuresPerFileI += (file -> ifeatures)
 
-        for (f <- features)
+        for (f <- features if (f != ""))
             filesPerFeature += (f -> (filesPerFeature.getOrElse(f, Set()) + file))
-        for (f <- ifeatures)
+        for (f <- ifeatures if (f != ""))
             filesPerFeatureI += (f -> (filesPerFeatureI.getOrElse(f, Set()) + file))
     }
 
@@ -192,26 +197,37 @@ object BusyboxStatistics extends App {
             featureList(idx)
     }
 
-    println(
-        filesPerFeature.map(x => (flagToFeature(x._1), x._2)).map(x => {
-            val folder = x._1.take(x._1.lastIndexOf("/"))
-            (x._1, (x._2.forall(_ startsWith folder), x._2))
-        })
-    )
+    //    println(
+    //        filesPerFeature.map(x => (flagToFeature(x._1), x._2)).map(x => {
+    //            val folder = x._1.take(x._1.lastIndexOf("/"))
+    //            (x._1, (x._2.forall(_ startsWith folder), x._2))
+    //        })
+    //    )
 
     //    println(featuresPerFile)
     //    println(featuresPerFileI)
 
-    //number of files per feature
-    //    println(filesPerFeatureI.mapValues(_.size).values.mkString(","))
-    //    println(featuresPerSizeI.mapValues(_.keys.size).toList.sorted.mkString("\n"))
-    //    println(featuresPerSizeI.mapValues(_.keys))
+    //    number of files per feature
+    //            println(filesPerFeatureI.mapValues(_.size).values.mkString(","))
+    //            println(featuresPerSizeI.mapValues(_.keys.size).toList.sorted.mkString("\n"))
+    //            println(featuresPerSizeI.mapValues(_.keys))
 
     //files per feature
     //    println(filesPerFeature.mapValues(_.size).toList.sortBy(_._2).mkString("\n"))
 
 
     //unique features per file
-    //      println(filesPerFeature.filter(_._2.size==1).mapValues(_.head).toList.groupBy(_.2))
+    //          println(filesPerFeature.filter(_._2.size==1).mapValues(_.head).toList.groupBy( _._2 ).mapValues(_.size) )
+
+
+    //features exclusive to interfaces and inner implementations
+    //    def printlnStat(a: Set[_]) {println(a.size + ": " + a.toString())}
+    //    val pcFeatures = pcs.flatMap(_.collectDistinctFeatures.map(_.feature)).toSet
+    //    val innerFeatures=filesPerFeature.filter(_._2.size>0).keys.toSet
+    //    printlnStat(pcFeatures) //features in file presence conditions
+    //    printlnStat(innerFeatures) //features inside any modules
+    //    printlnStat(innerFeatures -- pcFeatures) // features exclusively inside modules
+    //    printlnStat(pcFeatures -- innerFeatures) // features exclusively in presence conditions
+
 
 }
