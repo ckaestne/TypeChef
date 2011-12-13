@@ -31,11 +31,11 @@ object WebFrontend {
 
     def parse(file: File) {
 
-        println("<h2>Input after macro expansion</h2><div name='output'><pre name='partiallypreprocessed'>")
+        println("<h2>Input after macro expansion</h2><div class='output'><pre name='partiallypreprocessed'>")
         val tokenStream = new Main().run(Array(file.getAbsolutePath), true, true, null)
         println("</pre></div>")
 
-        println("<h2>Conditional Token Stream</h2><div name='output'><div name='tokenstream'>")
+        println("<h2>Conditional Token Stream</h2><div class='output'><div name='tokenstream'>")
         val in = CLexer.prepareTokens(tokenStream)
         for (tok <- in.tokens) {
             print('"' + tok.getText + '"')
@@ -49,7 +49,7 @@ object WebFrontend {
         val parserMain = new ParserMain(new CParser(null, false))
         val ast = parserMain.parserMain(in)
         println("</pre>")
-        println("<h2>AST</h2><div name='output'><div name='ast'>")
+        println("<h2>AST</h2><div class='output'><div name='ast'>")
         println(ast)
         println("</div></div>")
 
@@ -58,7 +58,7 @@ object WebFrontend {
             println("<h2>Type checking</h2><pre name='tsoutput'>")
             ts.checkAST
             println("</pre>")
-            println("<h2>Module interface</h2><div name='output'><pre name='interface'>")
+            println("<h2>Module interface</h2><div class='output'><pre name='interface'>")
             println(ts.getInferredInterface().toString)
             println("</pre></div>")
         }
