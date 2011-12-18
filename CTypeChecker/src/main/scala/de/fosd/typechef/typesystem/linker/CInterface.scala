@@ -184,7 +184,19 @@ case class CInterface(
      * only sense if the resulting feature model is not void.
      * hence compatibility is checked by checking the resulting feature model
      */
-    def isCompatibleTo(that: CInterface): Boolean = (this link that).featureModel.isSatisfiable()
+    def isCompatibleTo(that: CInterface): Boolean =
+        (this link that).featureModel.isSatisfiable() &&
+                this.declaredFeatures.intersect(that.declaredFeatures).isEmpty
+
+    def isCompatibleTo(thatSeq: Seq[CInterface]): Boolean = {
+        var m = this
+        for (that <- thatSeq) {
+            if (!(m isCompatibleTo that)) return false
+            m = m link that
+        }
+        return true
+    }
+
 
     /**
      * A variability-aware module is complete if it has no remaining imports with
