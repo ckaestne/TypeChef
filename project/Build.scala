@@ -65,20 +65,7 @@ object ShellPrompt {
 
 }
 
-//
-//object Resolvers {
-//    val sunrepo    = "Sun Maven2 Repo" at "http://download.java.net/maven/2"
-//    val sunrepoGF  = "Sun GF Maven2 Repo" at "http://download.java.net/maven/glassfish"
-//    val oraclerepo = "Oracle Maven2 Repo" at "http://download.oracle.com/maven"
-//
-//    val oracleResolvers = Seq (sunrepo, sunrepoGF, oraclerepo)
-//}
-
 object Dependencies {
-  val kiama = "com.googlecode" % "kiama_2.9.0" % "1.1.0"
-
-  val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.1"
-
   val junit = "junit" % "junit" % "4.8.2" % "test"
   val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test"
   val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test"
@@ -86,15 +73,12 @@ object Dependencies {
 }
 
 object TypeChef extends Build {
-  //    import Resolvers._
 
-  import Dependencies._
   import BuildSettings._
-
 
   lazy val typechef = Project(
     "TypeChef",
-    file("."),
+    file("Frontend"),
     settings = buildSettings
   ) aggregate(
     featureexpr,
@@ -111,7 +95,7 @@ object TypeChef extends Build {
   lazy val featureexpr = Project(
     "FeatureExprLib",
     file("FeatureExprLib"),
-    settings = buildSettings ++ Seq(libraryDependencies ++= Seq(sat4j))
+    settings = buildSettings
   )
 
   lazy val conditionallib = Project(
@@ -159,7 +143,7 @@ object TypeChef extends Build {
   lazy val crewrite = Project(
     "CRewrite",
     file("CRewrite"),
-    settings = buildSettings ++ Seq(libraryDependencies ++= Seq(kiama))
+    settings = buildSettings
   ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib)
 }
 
