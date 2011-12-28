@@ -2,6 +2,8 @@
 
 import sbt._
 import Keys._
+import sbtassembly.Plugin._
+import AssemblyKeys._
 
 object BuildSettings {
 
@@ -13,13 +15,15 @@ object BuildSettings {
 
   val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
-  val buildSettings = Defaults.defaultSettings ++ Seq(
+  val buildSettings = Defaults.defaultSettings ++ assemblySettings ++ Seq(
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
     shellPrompt := ShellPrompt.buildShellPrompt,
     testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
     javacOptions ++= Seq("-source", "1.5", "-Xlint:unchecked"),
+    scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
+    //    scalacOptions <+= scalaSource in Compile map { "-P:sxr:base-directory:" + _.getAbsolutePath },
     libraryDependencies ++= testEnvironment
   )
 }
@@ -121,7 +125,7 @@ object TypeChef extends Build {
   lazy val cparser = Project(
     "CParser",
     file("CParser"),
-    settings = buildSettings
+    settings = buildSettings ++ Seq(parallelExecution in Test := false)
   ) dependsOn(featureexpr, jcpp, parserexp, conditionallib)
 
   lazy val linuxanalysis = Project(
