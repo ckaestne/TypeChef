@@ -9,6 +9,11 @@ trait Position {
     def getColumn: Int
     def <(that: Position) = (this.getLine < that.getLine) || ((this.getLine == that.getLine) && (this.getColumn < that.getColumn))
     override def toString = getFile + ":" + getLine + ":" + getColumn
+    override def equals(that: Any) = that match {
+        case p: Position => getLine == p.getLine && getColumn == p.getColumn && getFile == p.getFile
+        case _ => false
+    }
+    override def hashCode = getLine * 127 + getColumn
 }
 
 object NoPosition extends Position {
@@ -34,7 +39,8 @@ trait WithPosition {
         this
     }
     def hasPosition: Boolean = range.isDefined
-    def getPositionFrom: Position = range.get._1
-    def getPositionTo: Position = range.get._1
+    def getPositionFrom: Position = rangeClean._1
+    def getPositionTo: Position = rangeClean._2
+    def rangeClean = if (hasPosition) range.get else (NoPosition, NoPosition)
 }
 

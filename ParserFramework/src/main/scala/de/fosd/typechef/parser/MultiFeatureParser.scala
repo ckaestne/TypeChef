@@ -902,7 +902,7 @@ try {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
             parseResult.mapfr(context, {
                 case (feature, Success(resultPair, inNext)) =>
-                    if (p(resultPair._2, context, in.context)) {
+                    if (p(resultPair._2, feature, in.context)) {
                         //consumed one token
                         resultPair._2.countSuccess(feature)
                         Success(resultPair._2, inNext)
@@ -1056,9 +1056,9 @@ try {
          */
         def joinCrosstree(parserContext: FeatureExpr): MultiParseResult[Conditional[T]] = {
             def performJoin(featureA: FeatureExpr, a: ParseResult[Conditional[T]], b: ParseResult[Conditional[T]]): Option[ParseResult[Conditional[T]]] = (a, b) match {
-                case (sA@Success(rA: Conditional[T], inA), sB@Success(rB: Conditional[T], inB)) => {
+                case (sA@Success(rA: Conditional[_], inA), sB@Success(rB: Conditional[_], inB)) => {
                     if (isSamePosition(parserContext, inA, inB)) {
-                        val r = createChoiceC(featureA, rA, rB)
+                        val r = createChoiceC(featureA, rA.asInstanceOf[Conditional[T]], rB.asInstanceOf[Conditional[T]])
                         val pos = firstOf(inA, inB)
                         Some(Success(r, pos))
                     } else

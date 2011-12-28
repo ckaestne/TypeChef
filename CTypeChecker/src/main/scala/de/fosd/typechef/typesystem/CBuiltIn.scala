@@ -8,20 +8,35 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 /**
  * all compiler-specific built-in stuff
  */
-trait CBuiltIn extends CTypes with CDeclTyping {
+trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
 
-    val initBuiltinVarEnv: Seq[(String, FeatureExpr, TConditional[CType])] =
+    object InitialEnv extends Env(
+        new ConditionalTypeMap() ++ initBuiltinTypedevEnv,
+        new VarTypingContext() ++ initBuiltinVarEnv,
+        new StructEnv(), Map(), Map(), None)
+
+    val initBuiltinTypedevEnv: Seq[(String, FeatureExpr, Conditional[CType])] =
+        Map(
+            "__builtin_va_list" -> CIgnore()
+        ).toList.map(x => (x._1, base, One(x._2)))
+
+
+    val initBuiltinVarEnv: Seq[(String, FeatureExpr, Conditional[CType])] =
         (declare_builtin_functions() ++ Map(
-            "__builtin_expect" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_safe_p" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_warning" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_choose_expr" -> TOne(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_constant_p" -> TOne(CFunction(Seq(CVarArgs()), CInt()))
+            "__builtin_expect" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_safe_p" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_warning" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_choose_expr" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_constant_p" -> One(CFunction(Seq(CVarArgs()), CInt())),
+            "__builtin_va_start" -> One(CFunction(Seq(CIgnore(), CVarArgs()), CVoid())), //ignore most of these...
+            //            "__builtin_va_arg" -> One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
+            "__builtin_va_end" -> One(CFunction(Seq(CIgnore()), CVoid())),
+            "__builtin_va_copy" -> One(CFunction(Seq(CIgnore(), CIgnore()), CVoid()))
         )).toList.map(x => (x._1, base, x._2))
 
 
     /**taken directly from sparse/lib.c */
-    private def declare_builtin_functions(): Map[String, TConditional[CType]] = {
+    private def declare_builtin_functions(): Map[String, Conditional[CType]] = {
         var buffer = "";
         def add_pre_buffer(str: String) {buffer = buffer + str}
         {
@@ -107,12 +122,17 @@ trait CBuiltIn extends CTypes with CDeclTyping {
             add_pre_buffer("extern int __builtin___vsprintf_chk(char *, int, __SIZE_TYPE__, const char *, __builtin_va_list);\n");
             add_pre_buffer("extern int __builtin___vsnprintf_chk(char *, __SIZE_TYPE__, int, __SIZE_TYPE__, const char *, __builtin_va_list ap);\n");
             add_pre_buffer("extern void __builtin_unreachable(void);\n");
+
+            //__func__
+            add_pre_buffer("static const char __func__[];\n")
+            add_pre_buffer("static const char __PRETTY_FUNCTION__[];\n")
         }
 
         val ast = getAST(buffer)
+        val env = EmptyEnv.addTypedef("__builtin_va_list", base, One(CIgnore()))
         Map() ++ (for (Opt(_, decl: Declaration) <- ast.defs) yield {
             val init = decl.init.head.entry
-            (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs)))
+            (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs, FeatureExpr.base, EmptyEnv), FeatureExpr.base, env))
         })
     }
 

@@ -9,7 +9,7 @@ entire source code containing all variability in a variability-aware fashion wit
 The resulting abstract syntax tree contains the variability in form of choice nodes. Eventually, a
 variability-aware type system performs type checking on these trees.
 
-TypeChef detects syntax and type errors in all possible feature combinations.
+TypeChef detects syntax and type errors in all possible feature combinations. TypeChef was originally short for *Type* *Ch*ecking Ifd*ef* Variability.
 
 
 Architecture and Subprojects
@@ -72,7 +72,7 @@ IntelliJ Idea users may run `sbt idea` to create corresponding project and class
 Evaluation
 ----------
 
-Details on our Linux analysis are currently under review for publication.
+Details on our Linux analysis have been published in an OOPSLA paper (see below).
 You find additional information on that evaluation at [http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/)
 
 
@@ -87,6 +87,8 @@ The project was only possible with fruitful collaboration of many researchers.
 * [Sebastian Erdweg](http://www.informatik.uni-marburg.de/~seba/) (Philipps University Marburg)
 * [Klaus Ostermann](http://www.informatik.uni-marburg.de/~kos/) (Philipps University Marburg)
 * [Thorsten Berger](http://bis.uni-leipzig.de/ThorstenBerger) (University of Leipzig)
+* Alex Eifler (Philipps University Marburg)
+* David Kraus (Philipps University Marburg)
 * Andy Kenner (Metop Research Institute, Magdeburg)
 * Steffen Haase (Metop Research Institute, Magdeburg)
 
@@ -132,7 +134,6 @@ A more detailed discussion of the variability-aware lexer (or partial preprocess
 
 > Christian Kästner, Paolo G. Giarrusso, and Klaus Ostermann. [Partial Preprocessing C Code for Variability Analysis](http://www.informatik.uni-marburg.de/~kaestner/vamos11.pdf). In Proceedings of the Fifth International Workshop on Variability Modelling of Software-intensive Systems (VaMoS) (Namur, Belgium), pages 137-140, New York, NY, USA, January 2011. ACM Press.
 
-An article about the variability-aware parser framework and our evaluation with Linux is currently under review.
 
 
 License

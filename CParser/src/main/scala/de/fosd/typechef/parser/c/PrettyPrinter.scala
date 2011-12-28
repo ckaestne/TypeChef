@@ -96,37 +96,37 @@ object PrettyPrinter {
             case PointerCreationExpr(castExpr) => "(&" ~ castExpr ~ ")"
 
             case UnaryOpExpr(kind, castExpr) => "(" ~ kind ~~ castExpr ~ ")"
-            case NAryExpr(e: Expr, others: List[Opt[NArySubExpr]]) => "(" ~ e ~~ sep(others, _ ~~ _) ~ ")"
+            case NAryExpr(e, others) => "(" ~ e ~~ sep(others, _ ~~ _) ~ ")"
             case NArySubExpr(op: String, e: Expr) => op ~~ e
             case ConditionalExpr(condition: Expr, thenExpr, elseExpr: Expr) => "(" ~ condition ~~ "?" ~~ opt(thenExpr) ~~ ":" ~~ elseExpr ~ ")"
             case AssignExpr(target: Expr, operation: String, source: Expr) => "(" ~ target ~~ operation ~~ source ~ ")"
-            case ExprList(exprs: List[Opt[Expr]]) => sep(exprs, _ ~~ "," ~~ _)
+            case ExprList(exprs) => sep(exprs, _ ~~ "," ~~ _)
 
-            case CompoundStatement(innerStatements: List[Opt[Statement]]) =>
+            case CompoundStatement(innerStatements) =>
                 println(innerStatements)
                 block(sep(innerStatements, _ * _))
             case EmptyStatement() => ";"
             case ExprStatement(expr: Expr) => expr ~ ";"
-            case WhileStatement(expr: Expr, s: Conditional[Statement]) => "while (" ~ expr ~ ")" ~~ s
-            case DoStatement(expr: Expr, s: Conditional[Statement]) => "do" ~~ s ~~ "while (" ~ expr ~ ")"
-            case ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Conditional[Statement]) =>
+            case WhileStatement(expr: Expr, s) => "while (" ~ expr ~ ")" ~~ s
+            case DoStatement(expr: Expr, s) => "do" ~~ s ~~ "while (" ~ expr ~ ")"
+            case ForStatement(expr1, expr2, expr3, s) =>
                 "for (" ~ opt(expr1) ~ ";" ~~ opt(expr2) ~ ";" ~~ opt(expr3) ~ ")" ~~ s
-            case GotoStatement(target: Expr) => "goto" ~~ target ~ ";"
+            case GotoStatement(target) => "goto" ~~ target ~ ";"
             case ContinueStatement() => "continue;"
             case BreakStatement() => "break;"
             case ReturnStatement(None) => "return;"
             case ReturnStatement(Some(e)) => "return" ~~ e ~ ";"
             case LabelStatement(id: Id, _) => id ~ ":"
-            case CaseStatement(c: Expr, s: Option[Conditional[Statement]]) => "case" ~~ c ~ ":" ~~ optCond(s)
-            case DefaultStatement(s: Option[Conditional[Statement]]) => "default:" ~~ optCond(s)
-            case IfStatement(condition: Expr, thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) =>
+            case CaseStatement(c: Expr, s) => "case" ~~ c ~ ":" ~~ optCond(s)
+            case DefaultStatement(s) => "default:" ~~ optCond(s)
+            case IfStatement(condition, thenBranch, elifs, elseBranch) =>
                 "if (" ~ condition ~ ")" ~~ thenBranch ~~ sep(elifs, _ * _) ~~ optCondExt(elseBranch, line ~ "else" ~~ _)
-            case ElifStatement(condition: Expr, thenBranch: Conditional[Statement]) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch
-            case SwitchStatement(expr: Expr, s: Conditional[Statement]) => "switch (" ~ expr ~ ")" ~~ s
+            case ElifStatement(condition, thenBranch) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch
+            case SwitchStatement(expr, s) => "switch (" ~ expr ~ ")" ~~ s
             case DeclarationStatement(decl: Declaration) => decl
-            case NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) =>
+            case NestedFunctionDef(isAuto, specifiers, declarator, parameters, stmt) =>
                 (if (isAuto) "auto" ~~ Empty else Empty) ~ sep(specifiers, _ ~~ _) ~~ declarator ~~ sep(parameters, _ ~~ _) ~~ stmt
-            case LocalLabelDeclaration(ids: List[Opt[Id]]) => "__label__" ~~ sep(ids, _ ~ "," ~~ _) ~ ";"
+            case LocalLabelDeclaration(ids) => "__label__" ~~ sep(ids, _ ~ "," ~~ _) ~ ";"
             case OtherPrimitiveTypeSpecifier(typeName: String) => typeName
             case VoidSpecifier() => "void"
             case ShortSpecifier() => "short"
@@ -151,55 +151,55 @@ object PrettyPrinter {
             case StaticSpecifier() => "static"
 
             case AtomicAttribute(n: String) => n
-            case AttributeSequence(attributes: List[Opt[Attribute]]) => sep(attributes, _ ~~ _)
-            case CompoundAttribute(inner: List[Opt[AttributeSequence]]) => "(" ~ sep(inner, _ ~ "," ~~ _) ~ ")"
+            case AttributeSequence(attributes) => sep(attributes, _ ~~ _)
+            case CompoundAttribute(inner) => "(" ~ sep(inner, _ ~ "," ~~ _) ~ ")"
 
-            case Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) =>
+            case Declaration(declSpecs, init) =>
                 sep(declSpecs, _ ~~ _) ~~ commaSep(init) ~ ";"
 
             case InitDeclaratorI(declarator, _, Some(i)) => declarator ~~ "=" ~~ i
             case InitDeclaratorI(declarator, _, None) => declarator
             case InitDeclaratorE(declarator, _, e: Expr) => declarator ~ ":" ~~ e
 
-            case AtomicNamedDeclarator(pointers: List[Opt[Pointer]], id: Id, extensions: List[Opt[DeclaratorExtension]]) =>
+            case AtomicNamedDeclarator(pointers, id, extensions) =>
                 sep(pointers, _ ~ _) ~ id ~ sep(extensions, _ ~ _)
-            case NestedNamedDeclarator(pointers: List[Opt[Pointer]], nestedDecl: Declarator, extensions: List[Opt[DeclaratorExtension]]) =>
+            case NestedNamedDeclarator(pointers, nestedDecl, extensions) =>
                 sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
-            case AtomicAbstractDeclarator(pointers: List[Opt[Pointer]], extensions: List[Opt[DeclaratorAbstrExtension]]) =>
+            case AtomicAbstractDeclarator(pointers, extensions) =>
                 sep(pointers, _ ~ _) ~ sep(extensions, _ ~ _)
-            case NestedAbstractDeclarator(pointers: List[Opt[Pointer]], nestedDecl: AbstractDeclarator, extensions: List[Opt[DeclaratorAbstrExtension]]) =>
+            case NestedAbstractDeclarator(pointers, nestedDecl, extensions) =>
                 sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
 
-            case DeclIdentifierList(idList: List[Opt[Id]]) => "(" ~ commaSep(idList) ~ ")"
-            case DeclParameterDeclList(parameterDecls: List[Opt[ParameterDeclaration]]) => "(" ~ commaSep(parameterDecls) ~ ")"
-            case DeclArrayAccess(expr: Option[Expr]) => "[" ~ opt(expr) ~ "]"
+            case DeclIdentifierList(idList) => "(" ~ commaSep(idList) ~ ")"
+            case DeclParameterDeclList(parameterDecls) => "(" ~ commaSep(parameterDecls) ~ ")"
+            case DeclArrayAccess(expr) => "[" ~ opt(expr) ~ "]"
             case Initializer(initializerElementLabel, expr: Expr) => opt(initializerElementLabel) ~~ expr
-            case Pointer(specifier: List[Opt[Specifier]]) => "*" ~ spaceSep(specifier)
-            case PlainParameterDeclaration(specifiers: List[Opt[Specifier]]) => spaceSep(specifiers)
-            case ParameterDeclarationD(specifiers: List[Opt[Specifier]], decl: Declarator) => spaceSep(specifiers) ~~ decl
+            case Pointer(specifier) => "*" ~ spaceSep(specifier)
+            case PlainParameterDeclaration(specifiers) => spaceSep(specifiers)
+            case ParameterDeclarationD(specifiers, decl) => spaceSep(specifiers) ~~ decl
             case ParameterDeclarationAD(specifiers, decl) => spaceSep(specifiers) ~~ decl
             case VarArgs() => "..."
             case EnumSpecifier(id, Some(enums)) => "enum" ~~ opt(id) ~~ block(sep(enums, _ ~ "," * _))
             case EnumSpecifier(Some(id), None) => "enum" ~~ id
             case Enumerator(id, Some(init)) => id ~~ "=" ~~ init
             case Enumerator(id, None) => id
-            case StructOrUnionSpecifier(isUnion: Boolean, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) => (if (isUnion) "union" else "struct") ~~ opt(id) ~~ block(sep(enumerators, _ * _))
-            case StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDecl]]) => spaceSep(qualifierList) ~~ commaSep(declaratorList) ~ ";"
-            case StructDeclarator(decl: Declarator, initializer: Option[Expr], _) => decl ~ optExt(initializer, ":" ~~ _)
-            case StructInitializer(expr: Expr, _) => ":" ~~ expr
-            case AsmExpr(isVolatile: Boolean, expr: Expr) => "asm" ~~ (if (isVolatile) "volatile " else "") ~ "{" ~ expr ~ "}" ~ ";"
-            case FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) =>
+            case StructOrUnionSpecifier(isUnion, id, enumerators) => (if (isUnion) "union" else "struct") ~~ opt(id) ~~ block(sep(enumerators, _ * _))
+            case StructDeclaration(qualifierList, declaratorList) => spaceSep(qualifierList) ~~ commaSep(declaratorList) ~ ";"
+            case StructDeclarator(decl, initializer, _) => decl ~ optExt(initializer, ":" ~~ _)
+            case StructInitializer(expr, _) => ":" ~~ expr
+            case AsmExpr(isVolatile, expr) => "asm" ~~ (if (isVolatile) "volatile " else "") ~ "{" ~ expr ~ "}" ~ ";"
+            case FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
                 spaceSep(specifiers) ~~ declarator ~~ spaceSep(oldStyleParameters) ~~ stmt
             case EmptyExternalDef() => ";"
-            case TypelessDeclaration(declList: List[Opt[InitDeclarator]]) => commaSep(declList) ~ ";"
-            case TypeName(specifiers: List[Opt[Specifier]], decl: Option[AbstractDeclarator]) => spaceSep(specifiers) ~~ opt(decl)
+            case TypelessDeclaration(declList) => commaSep(declList) ~ ";"
+            case TypeName(specifiers, decl) => spaceSep(specifiers) ~~ opt(decl)
 
-            case GnuAttributeSpecifier(attributeList: List[Opt[AttributeSequence]]) => "__attribute__((" ~ commaSep(attributeList) ~ "))"
-            case AsmAttributeSpecifier(stringConst: StringLit) => stringConst
-            case LcurlyInitializer(inits: List[Opt[Initializer]]) => "{" ~ commaSep(inits) ~ "}"
+            case GnuAttributeSpecifier(attributeList) => "__attribute__((" ~ commaSep(attributeList) ~ "))"
+            case AsmAttributeSpecifier(stringConst) => stringConst
+            case LcurlyInitializer(inits) => "{" ~ commaSep(inits) ~ "}"
             case AlignOfExprT(typeName: TypeName) => "__alignof__(" ~ typeName ~ ")"
             case AlignOfExprU(expr: Expr) => "__alignof__" ~~ expr
-            case GnuAsmExpr(isVolatile: Boolean, expr: StringLit, stuff: Any) => assert(false, "todo"); ""
+            case GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) => assert(false, "todo"); ""
             case RangeExpr(from: Expr, to: Expr) => from ~~ "..." ~~ to
             case TypeOfSpecifierT(typeName: TypeName) => "typeof(" ~ typeName ~ ")"
             case TypeOfSpecifierU(e: Expr) => "typeof(" ~ e ~ ")"
@@ -207,14 +207,15 @@ object PrettyPrinter {
             case InitializerDesignatorD(id: Id) => "." ~ id
             case InitializerDesignatorC(id: Id) => id ~ ":"
             case InitializerAssigment(desgs) => spaceSep(desgs) ~~ "="
-            case BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[OffsetofMemberDesignator]]) => "__builtin_offsetof(" ~ typeName ~ "," ~~ spaceSep(offsetofMemberDesignator) ~ ")"
+            case BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator) => "__builtin_offsetof(" ~ typeName ~ "," ~~ spaceSep(offsetofMemberDesignator) ~ ")"
             case OffsetofMemberDesignatorID(id: Id) => "." ~ id
             case OffsetofMemberDesignatorExpr(expr: Expr) => "[" ~ expr ~ "]"
             case BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) => "__builtin_types_compatible_p(" ~ typeName1 ~ "," ~~ typeName2 ~ ")"
-            case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ exit ~ "," ~~ typeName ~ ")"
+            case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ expr ~ "," ~~ typeName ~ ")"
             case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
             case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
 
+            case e => assert(false, "match not exhaustive: " + e); ""
         }
     }
 

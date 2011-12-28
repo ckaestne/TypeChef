@@ -10,7 +10,7 @@ object Main {
 
             val ast = new ParserMain(new CParser).parserMain(path, folder)
             if (ast != null && ast.isInstanceOf[TranslationUnit]) {
-                val interface = new CInferInterface() {}.inferInterface(ast.asInstanceOf[TranslationUnit])
+                val interface = new CInferInterface {}.inferInterface(ast.asInstanceOf[TranslationUnit])
                 println(interface)
             }
         }

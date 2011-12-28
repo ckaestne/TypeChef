@@ -10,6 +10,8 @@ void foo();
 
 void foobar() {}
 
+void partiallyCalled();
+
 void partialA();
 void partialB();
 
@@ -23,23 +25,52 @@ int a, b;
 int
 main()
 {
-#ifdef CALL
- bar();
-#endif
- ;
- foobar();
- partialA();
-#ifdef PARTIAL
- partialB();
-#endif
-;
- printf("Hello World!\n");
- {
-    void local();
-    void unusedlocal();
-    void *x=&local;
- }
+    #ifdef CALL
+     bar();
+    #endif
+     ;
+     foobar();
+     partialA();
+    #ifdef PARTIAL
+     partialB();
+    #endif
 
- return 0;
+    #ifdef PARTIAL
+    partiallyCalled();
+    #endif
+    ;
+    ;
+     printf("Hello World!\n");
+
+     {
+            void local();
+            void unusedlocal();
+            void *x=&local;
+     }
+    #ifdef P2
+    partiallyCalled();
+    #endif
+
+     return 0;
 }
 
+
+static void staticfun(void) {}
+#ifdef COND
+static void staticfunconditional(void) {}
+#endif
+
+#ifdef STAT
+static
+#endif
+void partialstatic(void){}
+
+
+static void callStatic1() {
+    staticfun();
+}
+
+void callStatic2() {
+    staticfun();
+    main();
+}

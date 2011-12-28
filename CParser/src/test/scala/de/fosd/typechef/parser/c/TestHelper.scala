@@ -8,7 +8,7 @@ import java.io.InputStream
  * mainly for parsing
  */
 
-trait TestHelper extends EnforceTreeHelper {
+trait TestHelper {
 
     val fa = FeatureExpr.createDefinedExternal("A")
     val fb = FeatureExpr.createDefinedExternal("B")
@@ -19,14 +19,13 @@ trait TestHelper extends EnforceTreeHelper {
     def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
             () => CLexer.lex(code, null), new CTypeContext, false)
-        prepareAST(ast)
+        ast.asInstanceOf[TranslationUnit]
     }
 
     def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
             () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, false)
-        println("preparing AST...")
-        prepareAST(ast)
+        ast.asInstanceOf[TranslationUnit]
     }
 
     def parseExpr(code: String): Expr = {

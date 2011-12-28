@@ -54,6 +54,7 @@ sealed abstract class CType {
     def map(op: CType => CType): CType = op(this)
 
     def isUnknown: Boolean = false
+    def isIgnore: Boolean = false
 
     /**compares with of two types. if this<that, this type can be converted (widened) to that */
     def <(that: CType): Boolean = false
@@ -102,12 +103,21 @@ case class CVoid() extends CType {
     def toXML = <void/>
 }
 
+/**
+ * zero is a special type for the constant 0
+ * that is all: a function and an integer and a pointer
+ */
+case class CZero() extends CType {
+    override def toText = "void"
+    def toXML = <zero/>
+}
+
 case class CSigned(b: CBasicType) extends CType {
     override def <(that: CType) = that match {
         case CSigned(thatb) => b < thatb
         case _ => false
     }
-    override def toText = "signed " + b
+    override def toText = "signed " + b.toText
     def toXML = <signed>
         {b.toXML}
     </signed>
@@ -118,7 +128,7 @@ case class CUnsigned(b: CBasicType) extends CType {
         case CUnsigned(thatb) => b < thatb
         case _ => false
     }
-    override def toText = "unsigned " + b
+    override def toText = "unsigned " + b.toText
     def toXML = <unsigned>
         {b.toXML}
     </unsigned>
@@ -185,7 +195,7 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
 case class CFunction(param: Seq[CType], ret: CType) extends CType {
     override def toObj = this
     override def isFunction: Boolean = true
-    override def toText = param.mkString("(", ", ", ")") + " => " + ret
+    override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
     def toXML = <function>
         {param.map(x => <param>
             {x.toXML}
@@ -210,6 +220,9 @@ case class CObj(t: CType) extends CType {
         case _ => t
     }
     override def isObject = true
+    override def isFunction = t.isFunction
+    override def isUnknown = t.isUnknown
+    override def isIgnore = t.isIgnore
     def toXML = <obj>
         {t.toXML}
     </obj>
@@ -231,6 +244,7 @@ case class CCompound() extends CType {
  */
 case class CIgnore() extends CType {
     def toXML = <ignore/>
+    override def isIgnore() = true
 }
 
 
@@ -245,8 +259,7 @@ case class CUnknown(msg: String = "") extends CType {
     def toXML = <unknown msg={msg}/>
 }
 
-/**not defined in environment, typically only used in CChoice types */
-case class CUndefined() extends CUnknown("undefined")
+object CUndefined extends CUnknown("unknown")
 
 
 /**
@@ -258,6 +271,7 @@ object CType {
         (node \ "signed").map(x => result = CSigned(fromXMLBasicType(x)))
         (node \ "unsigned").map(x => result = CUnsigned(fromXMLBasicType(x)))
         (node \ "nosign").map(x => result = CSignUnspecified(fromXMLBasicType(x)))
+        (node \ "zero").map(x => result = CZero())
         (node \ "void").map(x => result = CVoid())
         (node \ "float").map(x => result = CFloat())
         (node \ "double").map(x => result = CDouble())
@@ -297,21 +311,22 @@ object CType {
  * maintains a map from names to types
  * a name may be mapped to alternative types with different feature expressions
  */
-class ConditionalTypeMap(private val m: ConditionalMap[String, TConditional[CType]]) {
+class ConditionalTypeMap(private val m: ConditionalMap[String, Conditional[CType]]) {
     def this() = this (new ConditionalMap())
     /**
      * apply returns a type, possibly CUndefined or a
      * choice type
      */
-    def apply(name: String): TConditional[CType] = getOrElse(name, CUnknown(name))
-    def getOrElse(name: String, errorType: CType): TConditional[CType] = TConditional.combine(m.getOrElse(name, TOne(errorType))) simplify
+    def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
+    def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
 
-    def ++(that: ConditionalTypeMap) = new ConditionalTypeMap(this.m ++ that.m)
-    def ++(l: Seq[(String, FeatureExpr, TConditional[CType])]) = new ConditionalTypeMap(m ++ l)
-    def +(name: String, f: FeatureExpr, t: TConditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+    def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
+    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
+    def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
-    def allTypes: Iterable[TConditional[CType]] = m.allEntriesFlat
+    def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat
+    def whenDefined(name: String): FeatureExpr = m.whenDefined(name)
 
     override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
     override def hashCode = m.hashCode
@@ -338,13 +353,20 @@ trait CTypes {
 
     def isScalar(t: CType): Boolean = isArithmetic(t) || isPointer(t)
 
+    def isZero(t: CType): Boolean = t.toValue match {
+        case CZero() => true
+        case _ => false
+    }
+
     def isPointer(t: CType): Boolean = t.toValue match {
         case CPointer(_) => true
+        case CZero() => true
         //case function references => true
         case _ => false
     }
 
     def isIntegral(t: CType): Boolean = t.toValue match {
+        case CZero() => true
         case CSigned(_) => true
         case CUnsigned(_) => true
         case CSignUnspecified(_) => true
@@ -371,21 +393,26 @@ trait CTypes {
 
     /**
      *  determines whether types are compatible in assignements etc
+     *
+     *  for "a=b;" with a:type1 and b:type2
      */
-    def coerce(type1: CType, type2: CType): Boolean = {
-        val t1 = normalize(type1)
-        val t2 = normalize(type2)
+    def coerce(expectedType: CType, foundType: CType): Boolean = {
+        val t1 = normalize(expectedType)
+        val t2 = normalize(foundType)
         //either void pointer?
-        if ((type1.toValue == CPointer(CVoid())) || (type2.toValue == CPointer(CVoid()))) return true;
+        if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid()) return true
+            case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) return true
+            //CCompound can be assigned to arrays and structs
+            case (CPointer(_) /*incl array*/ , CCompound()) => return true
+            case (CStruct(_, _), CCompound()) => return true
+            case (CAnonymousStruct(_, _), CCompound()) => return true
             case _ =>
-            //                    case (CPointer(CVoid()), CPointer(_)) => true
-            //                    case (CPointer(CVoid()), CFunction(_, _)) => true
-            //                    case (CPointer(_), CPointer(CVoid())) => true
-            //                    case (CFunction(_, _), CPointer(CVoid())) => true
         })
+
+        //not same but compatible functions (e.g. ignored parameters)
+        if (funCompatible(t1, t2)) return true;
 
         //same?
         if (t1 == t2) return true;
@@ -393,13 +420,21 @@ trait CTypes {
         //ignore?
         if ((t1 == CIgnore()) || (t2 == CIgnore())) return true
 
+
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true
 
-        //assignment pointer = int (actually only correct if int is zero, otherwise should be a warning)
-        if (isPointer(t1) && isIntegral(t2)) return true
+        //assignment pointer = 0
+        if (isPointer(t1) && isZero(t2)) return true
 
         return false
+    }
+
+    private def funCompatible(t1: CType, t2: CType): Boolean = (t1, t2) match {
+        case (CPointer(p1), CPointer(p2)) => funCompatible(p1, p2)
+        case (CFunction(plist1, ret1), CFunction(plist2, ret2)) =>
+            coerce(ret1, ret2) && (plist1.size == plist2.size) && (plist1 zip plist2).forall(x => coerce(x._1, x._2))
+        case _ => false
     }
 
     /**
@@ -414,7 +449,7 @@ trait CTypes {
     def converse(a: CType, b: CType): CType =
         if (isArithmetic(a) && isArithmetic(b)) {
             val priority = List[CType](
-                CLongDouble(), CLong(), CFloat(),
+                CLongDouble(), CDouble(), CFloat(),
                 CUnsigned(CLongLong()), CSigned(CLongLong()), CSignUnspecified(CLongLong()),
                 CUnsigned(CLong()), CSigned(CLong()), CSignUnspecified(CLong()),
                 CUnsigned(CInt()))
@@ -434,8 +469,10 @@ trait CTypes {
      * * remove any CObj within the type
      *
      * * regard arrays as pointers
+     *
+     * * pointer to ignore equals ignore
      */
-    private def normalize(t: CType): CType =
+    protected def normalize(t: CType): CType =
         addFunctionPointers(normalizeA(t))
 
 
@@ -444,9 +481,10 @@ trait CTypes {
         case CPointer(x: CType) =>
             normalizeA(x) match {
                 case c: CFunction => c
+                case i: CIgnore => i
                 case e => CPointer(e)
             }
-        case CArray(t, _) => CPointer(normalizeA(t)) //TODO do this recursively for all occurences of Array
+        case CArray(t, _) => normalizeA(CPointer(t)) //TODO do this recursively for all occurences of Array
         case CFunction(p, rt) => CFunction(p.map(normalizeA), normalizeA(rt))
         case c => c
     }

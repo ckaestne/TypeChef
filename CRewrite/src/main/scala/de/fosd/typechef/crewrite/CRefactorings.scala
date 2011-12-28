@@ -1,21 +1,18 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser._
-import de.fosd.typechef.typesystem._
 import de.fosd.typechef.featureexpr.{FeatureExpr, DefinedExternal}
 import org.kiama.rewriting.Rewriter._
 import org.kiama._
-import attribution.Attributable
 import org.kiama.attribution.DynamicAttribution._
 import de.fosd.typechef.conditional._
 
-class CRefactorings extends ASTNavigation {
+class CRefactorings {
 
-    val hvars: Attributable ==> List[Id] = attr {
+    val hvars: AST ==> List[Id] = attr {
         case Id(name) => List(Id(name))
-        case AssignExpr(id, _, _) => id -> hvars
-        case ExprStatement(s) => s -> hvars
+        case AssignExpr(id, _, _) => hvars(id)
+        case ExprStatement(s) => hvars(s)
         case PostfixExpr(id, FunctionCall(_)) => List()
     }
 
@@ -49,6 +46,7 @@ class CRefactorings extends ASTNavigation {
 
     def featureToCExpr(feature: FeatureExpr): Expr = feature match {
         case d: DefinedExternal => Id(d.feature)
-    //TODO implement complex feature expressions
+        //TODO implement complex feature expressions
+        case _ => assert(false, "not implemented"); Id("void")
     }
 }

@@ -15,11 +15,11 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
         in get, they simply overwrite each other in order of addition
     */
     //       def apply(key: A): Conditional[B]= getOrElse(key, {throw new NoSuchElementException})
-    def getOrElse(key: A, other: B): TConditional[B] = {
-        if (!contains(key)) TOne(other)
+    def getOrElse(key: A, other: B): Conditional[B] = {
+        if (!contains(key)) One(other)
         else {
             val types = entries(key)
-            if (types.size == 1 && types.head._1 == FeatureExpr.base) TOne(types.head._2)
+            if (types.size == 1 && types.head._1 == FeatureExpr.base) One(types.head._2)
             else createChoice(types, other)
         }
     }
@@ -48,9 +48,10 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
     def contains(name: A) = (entries contains name) && !entries(name).isEmpty
     def isEmpty = entries.isEmpty
     def allEntriesFlat: Iterable[B] = entries.values.flatten.map(_._2)
+    def whenDefined(name: A): FeatureExpr = entries.getOrElse(name, Seq()).foldLeft(FeatureExpr.dead)(_ or _._1)
 
     private def createChoice(entries: Seq[(FeatureExpr, B)], other: B) =
-        entries.foldRight[TConditional[B]](TOne(other))((p, t) => TChoice(p._1, TOne(p._2), t)) simplify
+        entries.foldRight[Conditional[B]](One(other))((p, t) => Choice(p._1, One(p._2), t)) simplify
 
 
     override def equals(that: Any) = that match {case c: ConditionalMap[_, _] => entries equals c.entries; case _ => false}

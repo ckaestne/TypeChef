@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem.linker
 import org.junit._
 import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
 import java.io.{File, InputStream, FileNotFoundException}
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 class InterfaceInferenceTest extends TestHelper {
 
@@ -22,7 +23,7 @@ class InterfaceInferenceTest extends TestHelper {
 
 
     private def checkSerialization(i: CInterface) {
-        val inf = new CInferInterface {}
+        val inf = new InterfaceWriter {}
         val f = new File("tmp.interface")
         inf.writeInterface(i, f)
         val interface2 = inf.readInterface(f)
@@ -31,9 +32,12 @@ class InterfaceInferenceTest extends TestHelper {
         //
         assert(i equals interface2)
         assert(!(i eq interface2))
+
+        f.delete()
     }
 
 
+    def d(x: String) = FeatureExpr.createDefinedExternal(x)
     @Test
     def testMini {
         val ast = parse("mini.pi")
@@ -50,6 +54,8 @@ class InterfaceInferenceTest extends TestHelper {
         assert(!interface.imports.exists(_.name == "unusedlocal"))
         //local variables should not show up in interfaces
         assert(!interface.imports.exists(_.name == "a"))
+        //conditionally called->conditionally imported
+        assert(interface.imports.exists(x => x.name == "partiallyCalled" && (x.fexpr equivalentTo (d("PARTIAL") or d("P2")))))
         //main should be exported
         assert(interface.exports.exists(_.name == "main"))
         assert(interface.exports.exists(_.name == "foobar"))
@@ -62,6 +68,15 @@ class InterfaceInferenceTest extends TestHelper {
         assert(interface.imports.exists(_.name == "partialA"))
         //local variables should not be exported
         assert(!interface.exports.exists(_.name == "a"))
+
+        //static functions should not be exported
+        assert(!interface.exports.exists(_.name == "staticfun"))
+        assert(!interface.imports.exists(_.name == "staticfun"))
+        assert(!interface.exports.exists(_.name == "staticfunconditional"))
+        assert(!interface.imports.exists(_.name == "staticfunconditional"))
+        assert(interface.exports.exists(x => x.name == "partialstatic" && (x.fexpr equivalentTo (d("STAT").not))))
+        assert(!interface.imports.exists(_.name == "partialstatic"))
+
     }
 
     @Test

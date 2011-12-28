@@ -13,74 +13,97 @@ class ConditionalTest {
 
     @Test
     def testMap {
-        assertEquals(TOne(1), TOne("a").map(_.length))
-        assertEquals(TChoice(fa, TOne(2), TOne(1)), TChoice(fa, TOne("bb"), TOne("a")).map(_.length))
-        assertEquals(TChoice(fa, TOne(2), TOne(1)), TChoice(fa, TOne("bb"), TOne("a")).mapfr(base, (f, x) => TOne(x.length)))
-        assertEquals(TChoice(fa, TOne(2), TChoice(fb, TOne(3), TOne(5))), TChoice(fa, TOne("bb"), TOne("a")).mapfr(base, (f, x) => if (f == fa) TOne(x.length) else TChoice(fb, TOne(3), TOne(5))))
+        assertEquals(One(1), One("a").map(_.length))
+        assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).map(_.length))
+        assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).mapfr(base, (f, x) => One(x.length)))
+        assertEquals(Choice(fa, One(2), Choice(fb, One(3), One(5))), Choice(fa, One("bb"), One("a")).mapfr(base, (f, x) => if (f == fa) One(x.length) else Choice(fb, One(3), One(5))))
 
     }
 
     @Test
     def testFold {
         assertEquals(
-            TChoice(fa, TOne("ab"), TOne("b")),
-            conditionalFoldRight(List(Opt(fa, "a"), Opt(base, "b")), TOne(""), (a: String, b: String) => a + b))
+            Choice(fa, One("ab"), One("b")),
+            conditionalFoldRight(List(Opt(fa, "a"), Opt(base, "b")), One(""), (a: String, b: String) => a + b))
         assertEquals(
-            TChoice(fb, TChoice(fa, TOne(7), TOne(5)), TChoice(fa, TOne(3), TOne(1))),
-            conditionalFoldRight(List(Opt(fa, 2), Opt(base, 1), Opt(fb, 4)), TOne(0), (a: Int, b: Int) => a + b))
+            Choice(fb, Choice(fa, One(7), One(5)), Choice(fa, One(3), One(1))),
+            conditionalFoldRight(List(Opt(fa, 2), Opt(base, 1), Opt(fb, 4)), One(0), (a: Int, b: Int) => a + b))
+    }
+
+    @Test
+    def testFoldExplosion {
+        val ol = List.fill(1000)(Opt(fa, 1))
+
+        assertEquals(
+            Choice(fa, One(1000), One(0)),
+            conditionalFoldRight(ol, One(0), (a: Int, b: Int) => a + b))
+        assertEquals(
+            Choice(fa, One(1000), One(1)),
+            conditionalFoldRight(ol, Choice(fa, One(0), One(1)), (a: Int, b: Int) => a + b))
+
+        val vt = Choice(fa, One("X"), One("U"))
+
+        assertEquals(
+            vt,
+            conditionalFoldRightR(ol, vt, (oentry: Int, v: String) => vt map (ot => if (v == ot) "X" else "U")))
+
+
+        assertEquals(
+            Choice(fa, One(List.fill(1000)(1)), One(List())),
+            ConditionalLib.explodeOptList(ol))
     }
 
 
     @Test
     def testExplode {
         assertEquals(
-            TChoice(fa, TOne(List("a", "b")), TOne(List("b"))),
+            Choice(fa, One(List("a", "b")), One(List("b"))),
             explodeOptList(List(Opt(fa, "a"), Opt(base, "b"))))
         assertEquals(
-            TChoice(fa, TOne(List("a")), TOne(List("b"))),
+            Choice(fa, One(List("a")), One(List("b"))),
             explodeOptList(List(Opt(fa.not, "b"), Opt(fa, "a"))))
         assertEquals(
-            TChoice(fa, TChoice(fb, TOne(List("b", "a")), TOne(List("a"))), TChoice(fb, TOne(List("b")), TOne(List()))),
+            Choice(fa, Choice(fb, One(List("b", "a")), One(List("a"))), Choice(fb, One(List("b")), One(List()))),
             explodeOptList(List(Opt(fb, "b"), Opt(fa, "a"))))
     }
 
     @Test
     def testFindSubtree {
-        assertEquals(TOne(1), findSubtree(fa, TChoice(fa, TOne(1), TOne(2))))
-        assertEquals(TOne(2), findSubtree(fa.not, TChoice(fa, TOne(1), TOne(2))))
-        assertEquals(TChoice(fa, TOne(1), TOne(2)), findSubtree(fb, TChoice(fa, TOne(1), TOne(2))))
+        assertEquals(One(1), findSubtree(fa, Choice(fa, One(1), One(2))))
+        assertEquals(One(2), findSubtree(fa.not, Choice(fa, One(1), One(2))))
+        assertEquals(Choice(fa, One(1), One(2)), findSubtree(fb, Choice(fa, One(1), One(2))))
     }
 
     @Test
     def testEquals {
-        assert(ConditionalLib.equals(TOne(1), TOne(1)))
-        assert(ConditionalLib.equals(TChoice(fa, TOne(1), TOne(2)), TChoice(fa.not, TOne(2), TOne(1))))
+        assert(ConditionalLib.equals(One(1), One(1)))
+        assert(ConditionalLib.equals(Choice(fa, One(1), One(2)), Choice(fa.not, One(2), One(1))))
         assert(ConditionalLib.equals(
-            TChoice(fa, TChoice(fb, TOne(1), TOne(2)), TOne(3)),
-            TChoice(fb.not, TChoice(fa, TOne(2), TOne(3)), TChoice(fa, TOne(1), TOne(3)))))
+            Choice(fa, Choice(fb, One(1), One(2)), One(3)),
+            Choice(fb.not, Choice(fa, One(2), One(3)), Choice(fa, One(1), One(3)))))
     }
 
     @Test
     def testCompare {
         assertEquals(
-            TChoice(fa, TOne(true), TOne(false)),
+            Choice(fa, One(true), One(false)),
             compare(
-                TChoice(fa, TOne(1), TOne(2)),
-                TChoice(fa, TOne(1), TOne(3)),
+                Choice(fa, One(1), One(2)),
+                Choice(fa, One(1), One(3)),
                 (x: Int, y: Int) => x equals y
             ))
         assertEquals(
-            TOne(true),
+            One(true),
             compare(
-                TChoice(fa, TChoice(fb, TOne(1), TOne(2)), TOne(3)),
-                TChoice(fb.not, TChoice(fa, TOne(2), TOne(3)), TChoice(fa, TOne(1), TOne(3))),
+                Choice(fa, Choice(fb, One(1), One(2)), One(3)),
+                Choice(fb.not, Choice(fa, One(2), One(3)), Choice(fa, One(1), One(3))),
                 (x: Int, y: Int) => x equals y
             ).simplify)
         assertEquals(
-            TChoice(fa, TOne(true), TChoice(fb.not, TOne(false), TOne(true))),
+            Choice(fa, One(true), Choice(fb.not, One(false), One(true))),
             compare(
-                TChoice(fa, TChoice(fb, TOne(1), TOne(2)), TOne(3)),
-                TChoice(fb.not, TChoice(fa, TOne(2), TOne(5)), TChoice(fa, TOne(1), TOne(3))),
+                Choice(fa, Choice(fb, One(1), One(2)), One(3)),
+                Choice(fb.not, Choice(fa, One(2), One(5)), Choice(fa, One(1), One(3))),
                 (x: Int, y: Int) => x equals y
             ).simplify)
 
@@ -88,14 +111,14 @@ class ConditionalTest {
 
     @Test
     def testLast {
-        assertEquals(TOne(None), lastEntry(List()))
-        assertEquals(TOne(Some(2)), lastEntry(List(Opt(fa, 1), Opt(base, 2))))
-        assertEquals(TChoice(fa, TOne(Some(2)), TOne(None)), lastEntry(List(Opt(fa, 2))))
+        assertEquals(One(None), lastEntry(List()))
+        assertEquals(One(Some(2)), lastEntry(List(Opt(fa, 1), Opt(base, 2))))
+        assertEquals(Choice(fa, One(Some(2)), One(None)), lastEntry(List(Opt(fa, 2))))
         assertEquals(
-            TChoice(fa, TOne(Some(2)), TOne(Some(1))),
+            Choice(fa, One(Some(2)), One(Some(1))),
             lastEntry(List(Opt(base, 1), Opt(fa, 2))))
         assertEquals(
-            TChoice(fa, TOne(Some(2)), TChoice(fb, TOne(Some(1)), TOne(None))),
+            Choice(fa, One(Some(2)), Choice(fb, One(Some(1)), One(None))),
             lastEntry(List(Opt(fb, 1), Opt(fa, 2))))
 
     }
@@ -103,32 +126,41 @@ class ConditionalTest {
     @Test
     def testZip {
         assertEquals(
-            TOne((1, "a")),
-            zip(TOne(1), TOne("a"))
+            One((1, "a")),
+            zip(One(1), One("a"))
         )
         assertEquals(
-            TChoice(fa, TOne((1, "a")), TOne((2, "a"))),
-            zip(TChoice(fa, TOne(1), TOne(2)), TOne("a"))
+            Choice(fa, One((1, "a")), One((2, "a"))),
+            zip(Choice(fa, One(1), One(2)), One("a"))
         )
         assertEquals(
-            TChoice(fa, TOne((1, "a")), TOne((1, "b"))),
-            zip(TOne(1), TChoice(fa, TOne("a"), TOne("b")))
+            Choice(fa, One((1, "a")), One((1, "b"))),
+            zip(One(1), Choice(fa, One("a"), One("b")))
         )
         assertEquals(
-            TChoice(fa, TOne((1, "a")), TOne((2, "b"))),
-            zip(TChoice(fa, TOne(1), TOne(2)), TChoice(fa, TOne("a"), TOne("b")))
+            Choice(fa, One((1, "a")), One((2, "b"))),
+            zip(Choice(fa, One(1), One(2)), Choice(fa, One("a"), One("b")))
         )
         assertEquals(
-            TChoice(fa, TChoice(fb, TOne((1, "a")), TOne((1, "b"))), TChoice(fb, TOne((2, "a")), TOne((2, "b")))),
-            zip(TChoice(fa, TOne(1), TOne(2)), TChoice(fb, TOne("a"), TOne("b")))
+            Choice(fa, Choice(fb, One((1, "a")), One((1, "b"))), Choice(fb, One((2, "a")), One((2, "b")))),
+            zip(Choice(fa, One(1), One(2)), Choice(fb, One("a"), One("b")))
         )
         assertEquals(
-            TChoice(fa, TOne((1, "a")), TChoice(fa or fb, TOne((2, "a")), TOne((2, "b")))),
-            zip(TChoice(fa, TOne(1), TOne(2)), TChoice(fa or fb, TOne("a"), TOne("b")))
+            Choice(fa, One((1, "a")), Choice(fa or fb, One((2, "a")), One((2, "b")))),
+            zip(Choice(fa, One(1), One(2)), Choice(fa or fb, One("a"), One("b")))
         )
 
 
     }
 
+
+    @Test
+    def testFoldCondition {
+        val l = List(Opt(fa, 1), Opt(fa.not(), 2), Opt(fa.not(), 3))
+        val r = conditionalFoldRightFR(l, One("-"), base, (f: FeatureExpr, a: Int, b: String) => {assert(!f.isTautology()); println(f + ", " + a + ", " + b); One(a.toString + b)})
+        println(r)
+
+        assertEquals(Choice(fa.not, One("23-"), One("1-")), r)
+    }
 
 }

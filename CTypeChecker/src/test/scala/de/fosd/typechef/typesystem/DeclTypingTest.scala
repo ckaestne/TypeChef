@@ -5,22 +5,23 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
-import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c.{Declaration, TestHelper}
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
-class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis with TestHelper {
+class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with TestHelper {
 
 
     private def declTL(code: String) = {
-        val ast = parseDecl(code)
-        val r = declType(ast).map(e => (e._1, e._3))
+        val ast: Declaration = parseDecl(code)
+        val r = getDeclaredVariables(ast, FeatureExpr.base, EmptyEnv).map(e => (e._1, e._3))
         println(r)
         r
     }
-    private def declCT(code: String): TConditional[CType] = declTL(code)(0)._2
+    private def declCT(code: String): Conditional[CType] = declTL(code)(0)._2
     private def declT(code: String): CType = declCT(code) match {
-        case TOne(e) => e
+        case One(e) => e
         case e => CUnknown("Multiple types not expected " + e)
     }
 
@@ -63,7 +64,7 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
 
     test("variable declarations") {
         declT("double a;") should be(CDouble())
-        declTL("double a,b;") should be(List(("a", TOne(CDouble())), ("b", TOne(CDouble()))))
+        declTL("double a,b;") should be(List(("a", One(CDouble())), ("b", One(CDouble()))))
         declT("double a[];") should be(CArray(CDouble()))
         declT("double **a;") should be(CPointer(CPointer(CDouble())))
         declT("double *a[];") should be(CArray(CPointer(CDouble())))
@@ -125,13 +126,13 @@ class DeclTypingTest extends FunSuite with ShouldMatchers with CTypeAnalysis wit
     }
 
     test("conditional declarations") {
-        declCT("int a;") should be(TOne(CSigned(CInt())))
-        declCT("#ifdef X\nint\n#else\nlong\n#endif\n a;") should be(TChoice(fx.not, TOne(CSigned(CLong())), TOne(CSigned(CInt()))))
-        declCT("#ifdef X\nlong\n#endif\nlong a;") should be(TChoice(fx, TOne(CSigned(CLongLong())), TOne(CSigned(CLong()))))
-        declCT("long \n#ifdef X\n*\n#endif\n a;") should be(TChoice(fx, TOne(CPointer(CSigned(CLong()))), TOne(CSigned(CLong()))))
+        declCT("int a;") should be(One(CSigned(CInt())))
+        declCT("#ifdef X\nint\n#else\nlong\n#endif\n a;") should be(Choice(fx.not, One(CSigned(CLong())), One(CSigned(CInt()))))
+        declCT("#ifdef X\nlong\n#endif\nlong a;") should be(Choice(fx, One(CSigned(CLongLong())), One(CSigned(CLong()))))
+        declCT("long \n#ifdef X\n*\n#endif\n a;") should be(Choice(fx, One(CPointer(CSigned(CLong()))), One(CSigned(CLong()))))
         declCT("long \n#ifdef X\n*\n#endif\n#ifdef Y\n*\n#endif\n a;") should be(
-            TChoice(fy, TChoice(fx, TOne(CPointer(CPointer(CSigned(CLong())))), TOne(CPointer(CSigned(CLong())))),
-                TChoice(fx, TOne(CPointer(CSigned(CLong()))), TOne(CSigned(CLong())))))
+            Choice(fy, Choice(fx, One(CPointer(CPointer(CSigned(CLong())))), One(CPointer(CSigned(CLong())))),
+                Choice(fx, One(CPointer(CSigned(CLong()))), One(CSigned(CLong())))))
     }
 
 }

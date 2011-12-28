@@ -2,29 +2,21 @@ package de.fosd.typechef.linux
 
 import scala.util.parsing.combinator._
 import scala.util.control.Breaks
-import de.fosd.typechef.featureexpr._
 import java.io._
-import scala.collection.mutable.Map
-import io.Source
+import de.fosd.typechef.featureexpr.{False, True, FeatureExpr}
 
 /**
- * processes thorstens file list (passed as parameter)
+ * processes thorstens file list (passed as parameter) and creates corresponding .pi.pc files
  *
- * produces
- *  a) a list of all relevant files linux_file.lst
- *  b) a list of all ignored files linux_file_ignored.lst (excluded by feature model and partial configuration)
- *  c) a .cW file for every .c file, wrapping the .c file with the corresponding condition
- *  d) a .piW file for every .pi file, wrapping the .pi file with the corresponding condition
+ * (presence conditions for files, in contrast to .pi.fm which represents a local feature model for dependencies)
+ *
+ * call with file created by thorsten as parameter
  */
 object ProcessFileList extends RegexParsers {
-
-    val openFeatures = Source.fromFile(LinuxSettings.openFeatureList).getLines.toList
 
     def toFeature(name: String, isModule: Boolean) =
     //ChK: deactivate modules for now. not interested and messes with the sat solver
         if (isModule) False
-        else
-        if (!(openFeatures contains ("CONFIG_" + name))) False //currently only interested in open features (and not in features that may not be in the feature model in the first place)
         else
             FeatureExpr.createDefinedExternal("CONFIG_" +
                     (if (isModule)
@@ -71,21 +63,18 @@ object ProcessFileList extends RegexParsers {
     def featVal = ("\"" ~> "(y|m)".r <~ "\"") ^^ (_ == "m")
 
     def main(args: Array[String]) {
+        if (args.isEmpty) {
+            println("expected parameter: file with presence conditions\nsecond parameter for working directory (optional)")
+            sys.exit()
+        }
+
         val pcList = args(0)
+        val workingDir = if (args.size >= 2) args(1) else ""
 
         val lines = io.Source.fromFile(pcList).getLines
-        val ignoredFiles = io.Source.fromFile("generatedFiles.lst").getLines.toList
         val mybreaks = new Breaks
         val stderr = new PrintWriter(System.err, true)
 
-        val fm = LinuxFeatureModel.featureModelExcludingDead
-
-        assert(FeatureExpr.base.isSatisfiable(fm))
-
-        val fileListWriter = new PrintWriter(new File("linux_files.lst"))
-        val ignoredFileListWriter = new PrintWriter(new File("linux_file_ignored.lst"))
-
-        val knownConditions: Map[FeatureExpr, Boolean] = Map()
 
         import mybreaks.{break, breakable}
         breakable {
@@ -96,52 +85,26 @@ object ProcessFileList extends RegexParsers {
                         case _ => false
                     }
                     )) {
-                val fullFilenameNoExt = fullFilename.dropRight(2)
+                val fullFilenameNoExt = workingDir + fullFilename.dropRight(2)
                 val filename = fullFilename.substring(fullFilename.lastIndexOf("/") + 1).dropRight(2)
 
                 val pcExpr = parseAll(expr, fields(1))
                 pcExpr match {
                     case Success(cond, _) =>
-                        if (
-                            (!ignoredFiles.contains(fullFilenameNoExt)) && knownConditions.getOrElseUpdate(cond, cond.isSatisfiable(fm))
-                        ) {
-                            //file should be parsed
-                            println(fullFilename + " " + cond)
+                        //file should be parsed
+                        println(fullFilename + " " + cond)
 
-                            fileListWriter.write(fullFilenameNoExt + "\n")
-                            fileListWriter.flush
-
-                            //create .cW and .piW file
-                            val wrapperSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilename + "W"))
-                            val wrapperPiSrc = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilenameNoExt + ".piW"))
-                            wrapperSrc.print("#if ")
-                            wrapperPiSrc.print("#if ")
-                            cond.print(wrapperSrc)
-                            cond.print(wrapperPiSrc)
-                            wrapperSrc.println("\n#include \"" + filename + ".c" + "\"\n#endif")
-                            wrapperPiSrc.println("\n#include \"" + filename + ".pi" + "\"\n#endif")
-                            wrapperSrc.close
-                            wrapperPiSrc.close
-
-                            val fmFile = new PrintWriter(new File(LinuxSettings.pathToLinuxSource + "/" + fullFilenameNoExt + ".pi.fm"))
-                            cond.print(fmFile)
-                            fmFile.close
+                        if (!cond.isTautology()) {
+                            val pcFile = new PrintWriter(new File(fullFilenameNoExt + ".pi.pc"))
+                            cond.print(pcFile)
+                            pcFile.close
                         }
-                        else {
-                            stderr.println(fullFilename + " has unsatisfiable condition " + cond + ", parsed from: " + fields(1))
-                            ignoredFileListWriter.write(fullFilename + ": " + fields(1) + "\n")
-                            ignoredFileListWriter.flush
-                        }
+
                     case NoSuccess(msg, _) =>
                         stderr.println(fullFilename + " " + pcExpr)
                         break
                 }
             }
         }
-        fileListWriter.close
-        ignoredFileListWriter.close
-
     }
 }
-
-// vim: set ts=4 sw=4 et:

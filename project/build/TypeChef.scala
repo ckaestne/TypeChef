@@ -7,12 +7,12 @@ class TypeChef(info: ProjectInfo) extends ParentProject(info) with IdeaProject {
     lazy val featureexpr = project("FeatureExprLib", "FeatureExprLib", new DefaultSubProject(_) {
         val sat4j = "org.sat4j" % "org.sat4j.core" % "2.3.1"
     })
-    lazy val conditionalLib = project("ConditionalLib","ConditionalLib", new DefaultSubProject(_) with Kiama, featureexpr)
-    lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_) with Kiama, featureexpr, conditionalLib)
+    lazy val conditionalLib = project("ConditionalLib", "ConditionalLib", new DefaultSubProject(_), featureexpr)
+    lazy val parserexp = project("ParserFramework", "ParserFramework", new DefaultSubProject(_), featureexpr, conditionalLib)
     lazy val jcpp = project("PartialPreprocessor", "PartialPreprocessor", new JavaSubProject(_), featureexpr)
     lazy val cparser = project("CParser", "CParser", new DefaultSubProject(_) with Kiama, featureexpr, jcpp, parserexp, conditionalLib)
     lazy val linuxAnalysis = project("LinuxAnalysis", "LinuxAnalysis", new LinuxAnalysisProject(_), featureexpr, jcpp, cparser, ctypechecker, conditionalLib)
-    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_) with Kiama, cparser, conditionalLib)
+    lazy val ctypechecker = project("CTypeChecker", "CTypeChecker", new DefaultSubProject(_), cparser, conditionalLib)
     lazy val javaparser = project("JavaParser", "JavaParser", new DefaultSubProject(_), featureexpr, parserexp, conditionalLib)
     lazy val crewrite = project("CRewrite", "CRewrite", new DefaultSubProject(_) with Kiama, cparser, ctypechecker, conditionalLib)
 

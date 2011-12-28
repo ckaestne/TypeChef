@@ -2,7 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
-import java.io.File
+import java.io.{FileWriter, File}
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -72,10 +72,10 @@ class ParserMain(p: CParser) {
                     "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
                     //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
                     "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
-                    "  Distinct Features: " + countFeatures(in.tokens) + "\n" +
+                    "  Distinct Features#: " + countFeatures(in.tokens) + "\n" +
+                    "  Distinct Features: " + getDistinctFeatures(in.tokens).toList.sorted.mkString(";") + "\n" +
                     "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
                     "  Choice Nodes: " + countChoiceNodes(result) + "\n")
-
         }
 
         //        checkParseResult(result, FeatureExpr.base)
@@ -130,12 +130,19 @@ class ParserMain(p: CParser) {
 
     def countConditionalTokens(tokens: List[TokenWrapper]): Int =
         tokens.count(_.getFeature != FeatureExpr.base)
-    def countFeatures(tokens: List[TokenWrapper]): Int = {
+    def getDistinctFeatures(tokens: List[TokenWrapper]): Set[String] = {
         var features: Set[String] = Set()
         for (t <- tokens)
             features ++= t.getFeature.resolveToExternal.collectDistinctFeatures.map(_.feature)
-        features.size
+        features
     }
+    def countFeatures(tokens: List[TokenWrapper]): Int = getDistinctFeatures(tokens).size
+    def printDistinctFeatures(tokens: List[TokenWrapper], filename: String) {
+        val w = new FileWriter(new File(filename))
+        w.write(getDistinctFeatures(tokens).toList.sorted.mkString("\n"))
+        w.close()
+    }
+
     def countFeatureExpr(tokens: List[TokenWrapper]): Int =
         tokens.foldLeft[Set[FeatureExpr]](Set())(_ + _.getFeature).size
 

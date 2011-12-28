@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem.linker
 import java.io._
 import de.fosd.typechef.typesystem.CType
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprParser}
+import de.fosd.typechef.parser.Position
 
 trait InterfaceWriter {
 
@@ -28,12 +29,14 @@ trait InterfaceWriter {
 
     def interfaceFromXML(node: scala.xml.Node): CInterface = new CInterface(
         getFM(node),
+        (node \ "feature").map(_.text.trim).toSet,
+        (node \ "newfeature").map(_.text.trim).toSet,
         (node \ "import").map(signatureFromXML(_)),
         (node \ "export").map(signatureFromXML(_))
     )
-    private def getFM(node:scala.xml.Node)={
-        val txt=(node \ "featuremodel").text
-        if (txt.trim=="")
+    private def getFM(node: scala.xml.Node) = {
+        val txt = (node \ "featuremodel").text
+        if (txt.trim == "")
             FeatureExpr.base
         else new FeatureExprParser().parse(txt)
     }
@@ -42,7 +45,11 @@ trait InterfaceWriter {
         <interface>
             <featuremodel>
                 {int.featureModel.toTextExpr}
-            </featuremodel>{int.imports.map(x => <import>
+            </featuremodel>{int.importedFeatures.map(x => <feature>
+            {x}
+        </feature>)}{int.declaredFeatures.map(x => <newfeature>
+            {x}
+        </newfeature>)}{int.imports.map(x => <import>
             {signatureToXML(x)}
         </import>)}{int.exports.map(x => <export>
             {signatureToXML(x)}
@@ -60,22 +67,41 @@ trait InterfaceWriter {
             </type>
             <featureexpr>
                 {sig.fexpr.toTextExpr}
-            </featureexpr>
-            <pos>
-                {sig.pos.toString}
-            </pos>
+            </featureexpr>{sig.pos.map(posToXML(_))}
         </sig>
 
 
-    def signatureFromXML(node: scala.xml.Node): CSignature = {
+    private def signatureFromXML(node: scala.xml.Node): CSignature = {
         val sig = node \ "sig"
         new CSignature(
             (sig \ "name").text.trim,
             CType.fromXML((sig \ "type")),
             new FeatureExprParser().parse((sig \ "featureexpr").text),
-            Seq()
+            (sig \ "pos").map(positionFromXML(_))
         )
     }
+    private def positionFromXML(node: scala.xml.Node): Position = {
+        val col = (node \ "col").text.trim.toInt
+        val line = (node \ "line").text.trim.toInt
+        val file = (node \ "file").text.trim
+        new Position() {
+            def getColumn: Int = col
+            def getLine: Int = line
+            def getFile: String = file
+        }
+    }
+    private def posToXML(p: Position) =
+        <pos>
+            <file>
+                {p.getFile}
+            </file>
+            <line>
+                {p.getLine}
+            </line>
+            <col>
+                {p.getColumn}
+            </col>
+        </pos>
 
 
 }

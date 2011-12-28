@@ -16,7 +16,6 @@ import gnu.getopt.LongOpt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.lexer._
-import linker.CInferInterface
 
 object LinuxPreprocessorFrontend {
 
@@ -142,34 +141,46 @@ object LinuxPreprocessorFrontend {
             val parserInput = preprocOutputPath
             val folderPath = new File(preprocOutputPath).getParent
 
-            val fm = getFeatureModel(preprocOutputPath)
+            val filePresenceCondition = getFilePresenceCondition(preprocOutputPath)
+            val fm = getFeatureModel(preprocOutputPath).and(filePresenceCondition)
+
+            val t1 = System.currentTimeMillis()
             val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, parse, fm)
+            val t2 = System.currentTimeMillis()
+            var t3 = t2; var t4 = t2; var t5 = t2;
             if (parse) {
                 val in = CLexer.prepareTokens(tokens)
                 val parserMain = new ParserMain(new CParser(fm))
                 val ast = parserMain.parserMain(in)
-                if (typecheck)
-                    new CTypeSystem().checkAST(ast.asInstanceOf[TranslationUnit])
-                if (createInterface) {
-		    println("inferring interfaces.")
-                    val i = new CInferInterface {}
-                    val interface = i.inferInterface(ast.asInstanceOf[TranslationUnit])
-                    i.writeInterface(interface, new File(filename + ".interface"))
-                    i.debugInterface(interface, new File(filename + ".dbginterface"))
+                t3 = System.currentTimeMillis();
+                t5 = t3;
+                t4 = t3
+                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
+                if (typecheck || createInterface) {
+                    ts.checkAST
+                    t4 = System.currentTimeMillis();
+                    t5 = t4
                 }
+                if (createInterface) {
+                    println("inferring interfaces.")
+                    val interface = ts.getInferredInterface().and(filePresenceCondition)
+                    t5 = System.currentTimeMillis()
+                    ts.writeInterface(interface, new File(filename + ".interface"))
+                    ts.debugInterface(interface, new File(filename + ".dbginterface"))
+                }
+
             }
+            println("timing (lexer, parser, type system, interface inference)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4))
         }
     }
+    def getFilePresenceCondition(cfilename: String): FeatureExpr =
+        new FeatureExprParser().parseFile(cfilename + ".pc")
 
 
     def getFeatureModel(cfilename: String): FeatureModel = {
-        val featureModelFile = new File(cfilename + ".fm")
-        val featureExpr = if (featureModelFile.exists) loadFeatureModel(featureModelFile) else FeatureExpr.base
+        val featureExpr = new FeatureExprParser().parseFile(cfilename + ".fm")
         println(cfilename + " FM " + featureExpr)
         LinuxFeatureModel.featureModelApprox.and(featureExpr)
     }
-
-    private def loadFeatureModel(filename: File): FeatureExpr =
-        new FeatureExprParser().parse(new FileReader(filename))
 
 }

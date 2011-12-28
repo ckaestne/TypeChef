@@ -33,11 +33,20 @@
 #define CONFIG_FEATURE_SYSLOGD_READ_BUFFER_SIZE 256
 #define CONFIG_FEATURE_IPC_SYSLOG_BUFFER_SIZE 16
 #define __USE_GNU
+
+
+#define CONFIG_FEATURE_EDITING "y"
+
 #ifdef CONFIG_FEATURE_TOP_SMP_CPU
   #define CONFIG_FEATURE_TOP_CPU_USAGE_PERCENTAGE
 #endif
 #ifdef CONFIG_FEATURE_TOP_CPU_GLOBAL_PERCENTS
   #define CONFIG_FEATURE_TOP_CPU_USAGE_PERCENTAGE
+#endif
+
+#ifdef CONFIG_FEATURE_FIND_CONTEXT
+  #define CONFIG_FIND
+  #define CONFIG_SELINUX
 #endif
 
 #ifdef CONFIG_FEATURE_MKDIR_LONG_OPTIONS
@@ -3620,6 +3629,26 @@
    #define IF_MESG(...)
 #endif
 
+#ifdef CONFIG_ADD_SHELL
+   #define ENABLE_ADD_SHELL 1
+   #define IF_ADD_SHELL(...) __VA_ARGS__
+   #define IF_NOT_ADD_SHELL(...)
+#else
+   #define ENABLE_ADD_SHELL 0
+   #define IF_NOT_ADD_SHELL(...) __VA_ARGS__
+   #define IF_ADD_SHELL(...)
+#endif
+
+#ifdef CONFIG_REMOVE_SHELL
+   #define ENABLE_REMOVE_SHELL 1
+   #define IF_REMOVE_SHELL(...) __VA_ARGS__
+   #define IF_NOT_REMOVE_SHELL(...)
+#else
+   #define ENABLE_REMOVE_SHELL 0
+   #define IF_NOT_REMOVE_SHELL(...) __VA_ARGS__
+   #define IF_REMOVE_SHELL(...)
+#endif
+
 #ifdef CONFIG_FEATURE_SHADOWPASSWDS
    #define ENABLE_FEATURE_SHADOWPASSWDS 1
    #define IF_FEATURE_SHADOWPASSWDS(...) __VA_ARGS__
@@ -5168,6 +5197,16 @@
    #define ENABLE_NANDWRITE 0
    #define IF_NOT_NANDWRITE(...) __VA_ARGS__
    #define IF_NANDWRITE(...)
+#endif
+
+#ifdef CONFIG_NANDDUMP
+   #define ENABLE_NANDDUMP 1
+   #define IF_NANDDUMP(...) __VA_ARGS__
+   #define IF_NOT_NANDDUMP(...)
+#else
+   #define ENABLE_NANDDUMP 0
+   #define IF_NOT_NANDDUMP(...) __VA_ARGS__
+   #define IF_NANDDUMP(...)
 #endif
 
 #ifdef CONFIG_UBIATTACH
@@ -8510,4 +8549,12 @@
    #define IF_LOGGER(...)
 #endif
 
-
+#ifdef CONFIG_POWERTOP
+   #define ENABLE_POWERTOP 1
+   #define IF_POWERTOP(...) __VA_ARGS__
+   #define IF_NOT_POWERTOP(...)
+#else
+   #define ENABLE_POWERTOP 0
+   #define IF_NOT_POWERTOP(...) __VA_ARGS__
+   #define IF_POWERTOP(...)
+#endif

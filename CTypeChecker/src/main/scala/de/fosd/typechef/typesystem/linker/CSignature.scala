@@ -15,11 +15,11 @@ import de.fosd.typechef.parser.Position
  */
 case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Seq[Position]) {
     override def toString =
-        name + ": " + ctype + "\t\tif " + fexpr + "\t\tat " + pos.mkString(", ")
+        name + ": " + ctype.toText + "\t\tif " + fexpr + "\t\tat " + pos.mkString(", ")
 
     override def hashCode = name.hashCode + ctype.hashCode()
     override def equals(that: Any) = that match {
-        case CSignature(thatName, thatCType, thatFexpr, _) => name == thatName && ctype == thatCType && fexpr.equivalentTo(thatFexpr)
+        case CSignature(thatName, thatCType, thatFexpr, thatPos) => name == thatName && ctype == thatCType && fexpr.equivalentTo(thatFexpr) && pos == thatPos
         case _ => false
     }
 
