@@ -24,7 +24,8 @@ object BuildSettings {
     javacOptions ++= Seq("-source", "1.5", "-Xlint:unchecked"),
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
     //    scalacOptions <+= scalaSource in Compile map { "-P:sxr:base-directory:" + _.getAbsolutePath },
-    libraryDependencies ++= testEnvironment
+    libraryDependencies ++= testEnvironment  ,
+    parallelExecution := false //run into memory problems on hudson otherwise
   )
 }
 
