@@ -1,11 +1,9 @@
 package de.fosd.typechef.linux
 
-import java.io.{File, FileReader}
-import sun.java2d.SunGraphicsEnvironment.T1Filter
-import de.fosd.typechef.lexer.{PartialPPLexer, Token, FileLexerSource}
+import java.io.File
+import de.fosd.typechef.lexer.{PartialPPLexer, Token}
 import scala.collection.JavaConversions._
-import org.junit.internal.runners.statements.Fail
-import de.fosd.typechef.featureexpr.{FeatureExpr, Value, NoFeatureModel}
+import de.fosd.typechef.featureexpr.{FeatureExpr, NoFeatureModel}
 
 /**
  * compares two parially preprocessed files if they have equivalent token streams.
