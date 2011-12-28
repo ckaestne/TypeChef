@@ -1,10 +1,11 @@
+package de.fosd.typechef
+
 /*
  * Created by IntelliJ IDEA.
  * User: kaestner
  * Date: 17.03.11
  * Time: 16:09
  */
-package de.fosd.typechef.linux
 
 import de.fosd.typechef.parser.c._
 import java.io.{FileReader, File}

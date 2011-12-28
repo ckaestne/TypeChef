@@ -1,7 +1,8 @@
+package de.fosd.typechef
+
 /*
  * temporarily copied from PreprocessorFrontend due to technical problems
  */
-package de.fosd.typechef.linux
 
 import java.io._
 import de.fosd.typechef.featureexpr.{FeatureExprParser, FeatureExpr}

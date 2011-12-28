@@ -78,7 +78,7 @@ object TypeChef extends Build {
 
   lazy val typechef = Project(
     "TypeChef",
-    file("Frontend"),
+    file("."),
     settings = buildSettings
   ) aggregate(
     featureexpr,
@@ -86,7 +86,6 @@ object TypeChef extends Build {
     parserexp,
     jcpp,
     cparser,
-    linuxanalysis,
     ctypechecker,
     javaparser,
     crewrite
@@ -122,9 +121,9 @@ object TypeChef extends Build {
     settings = buildSettings ++ Seq(parallelExecution in Test := false)
   ) dependsOn(featureexpr, jcpp, parserexp, conditionallib)
 
-  lazy val linuxanalysis = Project(
-    "LinuxAnalysis",
-    file("LinuxAnalysis"),
+  lazy val frontend = Project(
+    "Frontend",
+    file("Frontend"),
     settings = buildSettings
   ) dependsOn(featureexpr, jcpp, cparser, ctypechecker, conditionallib)
 
