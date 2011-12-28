@@ -9,7 +9,7 @@ entire source code containing all variability in a variability-aware fashion wit
 The resulting abstract syntax tree contains the variability in form of choice nodes. Eventually, a
 variability-aware type system performs type checking on these trees.
 
-TypeChef detects syntax and type errors in all possible feature combinations. TypeChef was originally short for *Type* *Ch*ecking Ifd*ef* Variability.
+TypeChef detects syntax and type errors in all possible feature combinations. TypeChef was originally short for *Type Checking Ifdef Variability*.
 
 
 Architecture and Subprojects

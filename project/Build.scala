@@ -20,12 +20,21 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := buildScalaVersion,
     shellPrompt := ShellPrompt.buildShellPrompt,
+
     testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
+
     javacOptions ++= Seq("-source", "1.5", "-Xlint:unchecked"),
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
     //    scalacOptions <+= scalaSource in Compile map { "-P:sxr:base-directory:" + _.getAbsolutePath },
+
     libraryDependencies ++= testEnvironment,
-    parallelExecution := false //run into memory problems on hudson otherwise
+
+    parallelExecution := false, //run into memory problems on hudson otherwise
+
+    test in assembly := {},
+    jarName in assembly := "TypeChef.jar",
+    assembleArtifact in packageScala := false,
+    assembleArtifact in packageSrc := false
   )
 }
 
