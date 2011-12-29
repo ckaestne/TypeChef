@@ -13,8 +13,6 @@ import java.util.List;
 
 
 public class FrontendOptions extends LexerOptions {
-    protected FeatureModel featureModel = null;
-
     boolean parse = true,
             typecheck = true,
             writeInterface = true,
@@ -24,10 +22,6 @@ public class FrontendOptions extends LexerOptions {
     String outputStem = "";
     private String filePresenceConditionFile = "";
 
-    @Override
-    public FeatureModel getFeatureModel() {
-        return featureModel;
-    }
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -106,6 +100,7 @@ public class FrontendOptions extends LexerOptions {
     }
 
     protected void afterParsing() throws OptionException {
+        super.afterParsing();
         if (getFiles().size() <= 0)
             throw new OptionException("No file specified.");
         if (getFiles().size() > 1)

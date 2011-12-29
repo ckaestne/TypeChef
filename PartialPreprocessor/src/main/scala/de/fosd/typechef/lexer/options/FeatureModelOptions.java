@@ -3,6 +3,7 @@ package de.fosd.typechef.lexer.options;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
+import de.fosd.typechef.featureexpr.NoFeatureModel$;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
@@ -21,6 +22,8 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
 
     @Override
     public FeatureModel getFeatureModel() {
+        if (featureModel == null)
+            return NoFeatureModel$.MODULE$;
         return featureModel;
     }
 

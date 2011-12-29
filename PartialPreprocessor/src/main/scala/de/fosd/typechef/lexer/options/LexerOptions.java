@@ -269,10 +269,6 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
         return printVersion;
     }
 
-    @Override
-    public FeatureModel getFeatureModel() {
-        return null;
-    }
 
     @Override
     public Set<Warning> getWarnings() {

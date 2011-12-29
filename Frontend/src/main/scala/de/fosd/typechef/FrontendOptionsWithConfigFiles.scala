@@ -114,7 +114,8 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
     }
 
     protected override def afterParsing: Unit = {
+        super.afterParsing()
         if (!isPrintVersion && (predefMacroDef.length() == 0 || !new File(predefMacroDef).exists()))
-            println("Warning: Not platform header specified")
+            println("Warning: No platform header specified")
     }
 }
