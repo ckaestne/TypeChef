@@ -123,7 +123,8 @@ object TypeChef extends Build {
         cparser,
         ctypechecker,
         javaparser,
-        crewrite
+        crewrite,
+        frontend
         )
 
     lazy val featureexpr = Project(
