@@ -78,43 +78,21 @@
     syntax tree. This will be supported by variability-aware linker checks.</p></li>
     <li><p>All tasks are supported by a library for feature expressions and reasoning about feature expressions
     (subproject <em>FeatureExprLib</em>). Internally the library uses the SAT solver <em>sat4j</em>.</p></li>
-    <li><p>Evaluation specific parts, mostly for Linux are provided in the frontend subproject <em>LinuxAnalysis</em>.</p></li>
+    <li><p>Evaluation specific parts are provided in <a href="https://github.com/ckaestne">separate repositories</a>.</p></li>
     </ul><h2>Installation and Usage</h2>
 
     <p>For simple experimentation, try our online version at <a href="http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/">http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/</a></p>
 
-    <p>To install TypeChef, build it from scratch using <a href="http://code.google.com/p/simple-build-tool/">sbt</a>. Install
-    <em>sbt</em> and <em>git</em> and download and compile the code as follows</p>
+    <p>A single jar file including all dependencies is available here: <a href="http://ckaestne.github.com/TypeChef/deploy/">TypeChef.jar</a> (ca. 13mb)<br />
+	
+	<pre><code>java -jar TypeChef.jar --help</code></pre>
+	</p>
+	
+	<p>
+	To build TypeChef from the source code (recommended), follow the instructions in the <a href="https://github.com/ckaestne/TypeChef">github repository</a>.</p>
 
-    <pre><code>git clone git://github.com/ckaestne/TypeChef.git
-cd TypeChef
-sbt compile
-</code></pre>
-
-    <p>TypeChef can be run normally in the Java VM (use <code>sbt package</code> to build jar files) or from within <code>sbt</code> which
-    simplifies path management significantly. Example:</p>
-
-    <pre><code>sbt
-&gt; project CParser
-&gt; run filename
-    </code></pre>
-
-    <p>Useful frontend classes are:</p>
-    <blockquote>
-    <p>org.anarres.cpp.Main                  -- the variability-aware lexer (or partial preprocessor)<br>
-    de.fosd.typechef.parser.c.ParserMain  -- the GNU C parser (calls the lexer internally)<br>
-    de.fosd.typechef.typesystem.Main      -- type system for C (calls the parser internally)<br>
-    de.fosd.typechef.linux.WebFrontend    -- output of our online version</p>
-    </blockquote>
-    <p>or the specific ones for the Linux evaluation:</p>
-    <blockquote>
-    <p>de.fosd.typechef.linux.LinuxParser<br>
-    de.fosd.typechef.linux.LinuxPreprocessorFrontend</p>
-    </blockquote>
-    <h2>Evaluation</h2>
-
-    <p>Details on our Linux analysis are currently under review for publication.
-    You find additional information on that evaluation at <a href="http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/">http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/</a></p>
+	<p>To run TypeChef on a C project, it is necessary to provide several platform parameters configuring include paths and preset macros of the used compiler. See the github repository  for further information and have a look at the examples.</p>
+	
 
     <h2>Credits</h2>
 
