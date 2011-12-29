@@ -1,6 +1,6 @@
 libraryDependencies += "gnu.getopt" % "java-getopt" % "1.0.13"
 
-mainClass := Some("de.fosd.typechef.Frontend")
+mainClass in Runtime := Some("de.fosd.typechef.Frontend")
 
 TaskKey[File]("mkrun") <<= (baseDirectory, fullClasspath in Runtime, mainClass in Runtime) map { (base, cp, main) =>
   val template = """#!/bin/sh
