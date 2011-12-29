@@ -58,9 +58,6 @@ public class Main {
         }
 
 
-        String outputName = null;
-
-
         Preprocessor pp = new Preprocessor(options.getFeatureModel());
 
         pp.setListener(new PreprocessorListener(pp));
@@ -68,8 +65,8 @@ public class Main {
 
         PrintWriter output = null;
         if (options.getLexOutputFile().length() > 0) {
-            output = new PrintWriter(new BufferedWriter(new FileWriter(outputName)));
-            pp.openDebugFiles(outputName);
+            output = new PrintWriter(new BufferedWriter(new FileWriter(options.getLexOutputFile())));
+            pp.openDebugFiles(options.getLexOutputFile());
         } else if (options.isLexPrintToStdout())
             output = new PrintWriter(new OutputStreamWriter(System.out));
 
