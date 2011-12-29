@@ -6,7 +6,6 @@ import de.fosd.typechef.featureexpr.FeatureModel;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,8 +25,8 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
     }
 
     @Override
-    protected List<OptionGroup> getOptionGroups() {
-        List<OptionGroup> r = super.getOptionGroups();
+    protected List<Options.OptionGroup> getOptionGroups() {
+        List<Options.OptionGroup> r = super.getOptionGroups();
 
         r.add(new OptionGroup("Feature models", 100,
                 new Option("featureModelDimacs", LongOpt.REQUIRED_ARGUMENT, 8, "file",
@@ -48,9 +47,11 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             case 8:       //--featureModelDimacs
                 if (featureModel != null)
                     throw new OptionException("cannot load feature model from dimacs file. feature model already exists.");
+                checkFileExists(g.getOptarg());
                 featureModel = FeatureModel.createFromDimacsFile(g.getOptarg());
                 return true;
             case 9:     //--featureModelFExpr
+                checkFileExists(g.getOptarg());
                 FeatureExpr f = new FeatureExprParser().parseFile(g.getOptarg());
                 if (featureModel == null)
                     featureModel = de.fosd.typechef.featureexpr.FeatureModel.create(f);

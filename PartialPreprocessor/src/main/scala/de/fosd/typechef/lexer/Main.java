@@ -67,10 +67,10 @@ public class Main {
         pp.addMacro("__JCPP__", FeatureExprLib.base());
 
         PrintWriter output = null;
-        if (options.getOutputName().length() > 0) {
+        if (options.getLexOutputFile().length() > 0) {
             output = new PrintWriter(new BufferedWriter(new FileWriter(outputName)));
             pp.openDebugFiles(outputName);
-        } else if (options.isPrintToStdout())
+        } else if (options.isLexPrintToStdout())
             output = new PrintWriter(new OutputStreamWriter(System.out));
 
         for (Map.Entry<String, String> macro : options.getDefinedMacros().entrySet())
@@ -78,7 +78,7 @@ public class Main {
         for (String undef : options.getUndefMacros())
             pp.removeMacro(undef, FeatureExprLib.base());
 
-        pp.getSystemIncludePath().addAll(options.getSystemIncludePath());
+        pp.getSystemIncludePath().addAll(options.getIncludePaths());
         pp.getQuoteIncludePath().addAll(options.getQuoteIncludePath());
 
         for (String filter : options.getMacroFilter())
@@ -161,7 +161,7 @@ public class Main {
             pp.debugPreprocessorDone();
             if (output != null)
                 output.flush();
-            if (output != null && !options.isPrintToStdout())
+            if (output != null && !options.isLexPrintToStdout())
                 output.close();
         }
         return resultTokenList;

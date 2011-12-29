@@ -9,9 +9,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-abstract class Options {
+public abstract class Options {
 
-    protected static class OptionGroup implements Comparable {
+    public static class OptionGroup implements Comparable {
         private int priority;
         private String name;
         private List<Option> options;
@@ -31,7 +31,7 @@ abstract class Options {
         }
     }
 
-    protected static class Option extends LongOpt {
+    public static class Option extends LongOpt {
         private String eg;
         private String help;
 
@@ -42,7 +42,7 @@ abstract class Options {
         }
     }
 
-    protected List<OptionGroup> getOptionGroups(){
+    protected List<OptionGroup> getOptionGroups() {
         return new ArrayList<OptionGroup>();
     }
 
@@ -69,9 +69,14 @@ abstract class Options {
                 throw new OptionException("File not found " + f);
             files.add(f);
         }
+
+        afterParsing();
     }
 
-    protected  boolean interpretOption(int c, Getopt g) throws OptionException{
+    protected void afterParsing() throws OptionException {
+    }
+
+    protected boolean interpretOption(int c, Getopt g) throws OptionException {
         return false;
     }
 
@@ -84,7 +89,7 @@ abstract class Options {
                 continue;
             for (int j = 0; j < buf.length(); j++)
                 if (buf.charAt(j) == c)
-                    throw new OptionException("Duplicate short option " + c);
+                    throw new OptionException("Duplicate short option " + c + " with " + opts[i].getName());
             buf.append(c);
             switch (opts[i].getHasArg()) {
                 case LongOpt.NO_ARGUMENT:
@@ -101,7 +106,8 @@ abstract class Options {
     }
 
 
-    protected void printUsage() {
+    @SuppressWarnings("unchecked")
+    void printUsage() {
         StringBuilder text = new StringBuilder("Parameters: \n");
         List<OptionGroup> og = getOptionGroups();
         Collections.sort(og);
@@ -146,4 +152,18 @@ abstract class Options {
     public List<String> getFiles() {
         return files;
     }
+
+    protected void checkFileExists(String file) throws OptionException {
+        File f = new File(file);
+        if (!(f.exists() && f.isFile()))
+            throw new OptionException("Expected a file, found " + file);
+    }
+
+    protected void checkDirectoryExists(String file) throws OptionException {
+        File f = new File(file);
+        if (!(f.exists() && f.isDirectory()))
+            throw new OptionException("Expected a directory, found " + file);
+    }
+
+
 }

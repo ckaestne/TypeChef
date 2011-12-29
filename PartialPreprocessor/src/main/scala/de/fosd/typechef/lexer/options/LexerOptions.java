@@ -1,7 +1,5 @@
 package de.fosd.typechef.lexer.options;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
@@ -19,10 +17,10 @@ import java.util.*;
  * Time: 22:13
  * To change this template use File | Settings | File Templates.
  */
-public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
+public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
 
     @Override
-    protected List<OptionGroup> getOptionGroups() {
+    protected List<Options.OptionGroup> getOptionGroups() {
         List<OptionGroup> r = super.getOptionGroups();
 
         r.add(new OptionGroup("Preprocessor configuration", 50,
@@ -36,8 +34,8 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
                         "Adds the directory dir to the list of directories to be searched for header files."),
                 new Option("iquote", LongOpt.REQUIRED_ARGUMENT, 0, "dir",
                         "Adds the directory dir to the list of directories to be searched for header files included using \"\"."),
-                new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
-                        "Output file.")
+                new Option("lexOutput", LongOpt.REQUIRED_ARGUMENT, 18, "file",
+                        "Output file (typically .pi).")
         ));
 
         r.add(new OptionGroup("Preprocessor flag filter", 60,
@@ -49,7 +47,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
                         "Analysis includes only flags beginning with this prefix."),
                 new Option("openFeat", LongOpt.REQUIRED_ARGUMENT, 4, "text",
                         "List of flags with an unspecified value; other flags are considered undefined.")
-                ));
+        ));
         r.add(new OptionGroup("Preprocessor warnings and debugging", 70,
                 new Option("warning", LongOpt.REQUIRED_ARGUMENT, 'W', "type",
                         "Enables the named warning class (" + getWarningLabels() + ")."),
@@ -69,9 +67,9 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
         r.add(new OptionGroup("Misc", 1000,
                 new Option("version", LongOpt.NO_ARGUMENT, 2, null,
                         "Prints version number"),
-                new Option("help", LongOpt.NO_ARGUMENT, 'h', null,
+                new Option("help", LongOpt.NO_ARGUMENT, 22, null,
                         "Displays help and usage information.")
-                ));
+        ));
         return r;
 
     }
@@ -120,9 +118,9 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
     protected List<String> includedHeaders = new ArrayList<String>();
     protected Set<Warning> warnings = new HashSet<Warning>();
     protected Set<Feature> features = getDefaultFeatures();
-    protected String outputName = "";
+    protected String lexOutputFile = "";
     protected boolean printVersion = false;
-    protected boolean printToStdout = true;
+    protected boolean lexPrintToStdout = true;
 
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {
@@ -149,6 +147,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
             case 'I':
                 // Paths need to be canonicalized, because include_next
                 // processing needs to compare paths!
+                checkDirectoryExists(g.getOptarg());
                 try {
                     systemIncludePath.add(new File(g.getOptarg()).getCanonicalPath());
                 } catch (IOException e) {
@@ -168,6 +167,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
                 macroFilter.add("4:" + g.getOptarg());
                 return true;
             case 0: // --iquote=
+                checkDirectoryExists(g.getOptarg());
                 try {
                     quoteIncludePath.add(new File(g.getOptarg()).getCanonicalPath());
                 } catch (IOException e) {
@@ -185,12 +185,11 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
             case 'w':
                 warnings.clear();
                 return true;
-            case 'o':
-                outputName = g.getOptarg();
-//                pp.openDebugFiles(outputName);
-//                output = new PrintWriter(new BufferedWriter(new FileWriter(outputName)));
+            case 18:   //--lexOutput (previously -o)
+                lexOutputFile = g.getOptarg();
                 return true;
             case 1: // --include=
+                checkFileExists(g.getOptarg());
                 try {
                     includedHeaders.add(new File(g.getOptarg()).getCanonicalPath());
                 } catch (IOException e) {
@@ -217,15 +216,15 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
                 arg = arg.replace('-', '_');
                 features.remove(Enum.valueOf(Feature.class, arg));
             case 7://--lexNoStdout
-                printToStdout = false;
+                lexPrintToStdout = false;
                 return true;
 
-            case 'h':
+            case 22://--help
                 printUsage();
                 printVersion = true;
                 return true;
             default:
-                return super.interpretOption(c,g);
+                return super.interpretOption(c, g);
         }
 
     }
@@ -241,8 +240,8 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
     }
 
     @Override
-    public List<String> getSystemIncludePath() {
-        return systemIncludePath;
+    public List<String> getIncludePaths() {
+        return new ArrayList<String>(systemIncludePath);
     }
 
     @Override
@@ -261,8 +260,8 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
     }
 
     @Override
-    public String getOutputName() {
-        return outputName;
+    public String getLexOutputFile() {
+        return lexOutputFile;
     }
 
     @Override
@@ -286,12 +285,12 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
     }
 
     @Override
-    public boolean isPrintToStdout() {
-        return printToStdout;
+    public boolean isLexPrintToStdout() {
+        return lexPrintToStdout;
     }
 
 
     public void setPrintToStdOutput(boolean printToStdOutput) {
-        this.printToStdout = printToStdOutput;
+        this.lexPrintToStdout = printToStdOutput;
     }
 }

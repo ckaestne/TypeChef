@@ -1,6 +1,5 @@
 package de.fosd.typechef.lexer.options;
 
-import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
 
@@ -8,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface ILexerOptions extends IFeatureModelOptions{
+public interface ILexerOptions extends IFeatureModelOptions {
 
     Map<String, String> getDefinedMacros();
 
     Set<String> getUndefMacros();
 
-    List<String> getSystemIncludePath();
+    List<String> getIncludePaths();
 
     List<String> getQuoteIncludePath();
 
@@ -22,7 +21,7 @@ public interface ILexerOptions extends IFeatureModelOptions{
 
     List<String> getIncludedHeaders();
 
-    String getOutputName();
+    String getLexOutputFile();
 
     boolean isPrintVersion();
 
@@ -33,5 +32,5 @@ public interface ILexerOptions extends IFeatureModelOptions{
 
     List<String> getFiles();
 
-    boolean isPrintToStdout();
+    boolean isLexPrintToStdout();
 }
