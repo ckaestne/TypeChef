@@ -31,12 +31,10 @@ import java.util.Collection;
  */
 public enum Warning {
     TRIGRAPHS,
-    // TRADITIONAL,
-    IMPORT, UNDEF, UNUSED_MACROS, ENDIF_LABELS, ERROR;
-    // SYSTEM_HEADERS
+     UNDEF, UNUSED_MACROS, ENDIF_LABELS, ERROR;
 
     public static Collection<Warning> allWarnings() {
-        return Arrays.asList(new Warning[]{TRIGRAPHS, IMPORT, UNDEF,
+        return Arrays.asList(new Warning[]{TRIGRAPHS, UNDEF,
                 UNUSED_MACROS, ENDIF_LABELS});
 
     }

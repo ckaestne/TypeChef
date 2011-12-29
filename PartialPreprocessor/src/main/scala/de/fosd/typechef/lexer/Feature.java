@@ -51,13 +51,12 @@ public enum Feature {
      * Preserves comments in the lexed output, even when inactive.
      */
     KEEPALLCOMMENTS,
-    VERBOSE,
-    DEBUG,
 
-    /**
-     * Supports lexing of objective-C.
-     */
-    OBJCSYNTAX,
     INCLUDENEXT,
-    GNUCEXTENSIONS
+    GNUCEXTENSIONS,
+
+
+    DEBUG_INCLUDEPATH,
+    DEBUG_VERBOSE,
+    DEBUGFILE_LOG, DEBUGFILE_SOURCES, DEBUGFILE_MACROTABLE, DEBUGFILE_TOKENSTREAM
 }

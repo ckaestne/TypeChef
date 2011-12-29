@@ -13,18 +13,11 @@ import java.util.logging.Logger;
 
 public abstract class DebuggingPreprocessor {
     public static Logger logger = Logger.getLogger("de.ovgu.jcpp");
-    public static boolean DEBUG_TOKENSTREAM = false;
+
+    protected abstract boolean getFeature(Feature f);
 
     static {
         logger.setLevel(Level.WARNING);
-        try {
-            Handler fh;
-            fh = new FileHandler("jcpp.log");
-            logger.addHandler(fh);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-        }
     }
 
     int max_nesting = 0;
@@ -46,13 +39,25 @@ public abstract class DebuggingPreprocessor {
     }
 
     public void openDebugFiles(String outputName) {
+        if (getFeature(Feature.DEBUGFILE_LOG))
+            try {
+                Handler fh;
+                fh = new FileHandler("jcpp.log");
+                logger.addHandler(fh);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+            }
+
         this.outputName = outputName;
+
         try {
-            if (DEBUG_TOKENSTREAM)
+            if (getFeature(Feature.DEBUGFILE_TOKENSTREAM))
                 debugFile = new BufferedWriter(new FileWriter(new File(
                         baseOutName() + ".tokStr")));
-            debugSourceFile = new BufferedWriter(new FileWriter(new File(
-                    baseOutName() + ".dbgSrc")));
+            if (getFeature(Feature.DEBUGFILE_SOURCES))
+                debugSourceFile = new BufferedWriter(new FileWriter(new File(
+                        baseOutName() + ".dbgSrc")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,31 +65,32 @@ public abstract class DebuggingPreprocessor {
 
     protected abstract MacroContext<MacroData> getMacros();
 
-    public void debugWriteMacros() {
+    public void debugPreprocessorDone() {
         try {
             String outName = baseOutName();
             if (outName == null) {
                 logger.info("macro dump skipped");
                 return;
             }
-            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
-                    outName + ".macroDbg")));
-            getMacros().debugPrint(writer);
-            writer.close();
-            // Confusing - it advances some debug files but not others.
-            // debugNextTokens();
+            if (getFeature(Feature.DEBUGFILE_MACROTABLE)) {
+                PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
+                        outName + ".macroDbg")));
+                getMacros().debugPrint(writer);
+                writer.close();
+            }
 
             // also add statistics to debugSourceFile
-            if (debugSourceFile != null) {
-                debugSourceFile
-                        .append("\n\n\nStatistics (max_nesting,header_count,distinct files):\n"
-                                + max_nesting
-                                + ";"
-                                + header_count
-                                + ";"
-                                + distinctHeaders.size() + "\n");
-                debugSourceFile.flush();
-            }
+            if (getFeature(Feature.DEBUGFILE_SOURCES))
+                if (debugSourceFile != null) {
+                    debugSourceFile
+                            .append("\n\n\nStatistics (max_nesting,header_count,distinct files):\n"
+                                    + max_nesting
+                                    + ";"
+                                    + header_count
+                                    + ";"
+                                    + distinctHeaders.size() + "\n");
+                    debugSourceFile.flush();
+                }
 
             logger.info("macro dump written");
         } catch (IOException e) {
@@ -106,7 +112,7 @@ public abstract class DebuggingPreprocessor {
 //	}
 
     public void debug_receivedToken(Source source, Token tok) {
-        if (DEBUG_TOKENSTREAM && tok != null && debugFile != null)
+        if (getFeature(Feature.DEBUGFILE_TOKENSTREAM) && tok != null && debugFile != null)
             try {
                 Source tmpSrc = source.getParent();
                 while (tmpSrc != null) {
@@ -124,52 +130,54 @@ public abstract class DebuggingPreprocessor {
     int debugSourceIdx = 0;
 
     public void debugSourceBegin(Source source, State state) {
-        if (source instanceof FileLexerSource) {
-            debugSourceIdx++;
-            try {
-                StringBuffer b = new StringBuffer();
-                max_nesting = Math.max(max_nesting, debugSourceIdx);
-                distinctHeaders.add(source.toString());
-                header_count++;
-                for (int i = 1; i < debugSourceIdx; i++)
-                    b.append("\t");
-                b
-                        .append("push "
-                                + source.toString()
-                                + " -- "
-                                + (state == null ? "null" : state
-                                .getLocalFeatureExpr()
-                                + " ("
-                                + state.getFullPresenceCondition()
-                                + ")") + "\n");
+        if (getFeature(Feature.DEBUGFILE_SOURCES))
+            if (source instanceof FileLexerSource) {
+                debugSourceIdx++;
+                try {
+                    StringBuffer b = new StringBuffer();
+                    max_nesting = Math.max(max_nesting, debugSourceIdx);
+                    distinctHeaders.add(source.toString());
+                    header_count++;
+                    for (int i = 1; i < debugSourceIdx; i++)
+                        b.append("\t");
+                    b
+                            .append("push "
+                                    + source.toString()
+                                    + " -- "
+                                    + (state == null ? "null" : state
+                                    .getLocalFeatureExpr()
+                                    + " ("
+                                    + state.getFullPresenceCondition()
+                                    + ")") + "\n");
 //				 System.out.println(b.toString());
-                if (debugSourceFile != null) {
-                    debugSourceFile.write(b.toString());
-                    debugSourceFile.flush();
+                    if (debugSourceFile != null) {
+                        debugSourceFile.write(b.toString());
+                        debugSourceFile.flush();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        }
     }
 
     public void debugSourceEnd(Source source) {
-        if (source instanceof FileLexerSource) {
-            debugSourceIdx--;
-            try {
-                StringBuffer b = new StringBuffer();
-                for (int i = 0; i < debugSourceIdx; i++)
-                    b.append("\t");
-                b.append("pop " + source.toString() + "\n");
+        if (getFeature(Feature.DEBUGFILE_SOURCES))
+            if (source instanceof FileLexerSource) {
+                debugSourceIdx--;
+                try {
+                    StringBuffer b = new StringBuffer();
+                    for (int i = 0; i < debugSourceIdx; i++)
+                        b.append("\t");
+                    b.append("pop " + source.toString() + "\n");
 //				 System.out.println(b.toString());
-                if (debugSourceFile != null) {
-                    debugSourceFile.write(b.toString());
-                    debugSourceFile.flush();
+                    if (debugSourceFile != null) {
+                        debugSourceFile.write(b.toString());
+                        debugSourceFile.flush();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        }
     }
 
 }

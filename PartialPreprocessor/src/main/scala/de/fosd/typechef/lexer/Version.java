@@ -32,7 +32,7 @@ public class Version {
     private Version() {
     }
 
-    private static final String VERSION = "0.2.0";
+    private static final String VERSION = "0.3.0";
 
     private static final int major;
     private static final int minor;
