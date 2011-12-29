@@ -21,10 +21,20 @@ object Frontend {
             opt.parseOptions(args)
 
             if (opt.isPrintVersion) {
-                println("TypeChef 0.3")
+                var version = "development build"
+                try {
+                    val cl = Class.forName("de.fosd.typechef.Version")
+                    version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
+                } catch {
+                    case e: ClassNotFoundException =>
+                }
+
+                println("TypeChef " + version)
                 return;
             }
-        } catch {
+        }
+
+        catch {
             case o: OptionException =>
                 println("Invocation error: " + o.getMessage);
                 println("use parameter --help for more information.")

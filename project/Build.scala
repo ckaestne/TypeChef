@@ -1,5 +1,7 @@
 // https://github.com/harrah/xsbt/wiki/Full-Configuration-Example
 
+import java.text.SimpleDateFormat
+import java.util.Date
 import sbt._
 import Keys._
 import sbtassembly.Plugin._
@@ -10,7 +12,7 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3"
+    val buildVersion = "0.3.1"
     val buildScalaVersion = "2.9.1"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
@@ -95,9 +97,8 @@ object VersionGen {
                         if (vgp != null && vgp.nonEmpty) "package " + vgp + "\n"
                         else ""
                         ) +
-                        "object " + vgc + " {\n" +
-                        "  val name\t= \"" + vgc + "\"\n" +
-                        "  val version\t= \"" + version + "\"\n" +
+                        "class " + vgc + " extends VersionInfo {\n" +
+                        "  def getVersion:String = \"" + version + "_" + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "\"\n" +
                         "}\n"
                 IO write(file, code)
                 Seq(file)
