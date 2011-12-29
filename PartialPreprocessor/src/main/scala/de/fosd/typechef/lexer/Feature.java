@@ -54,10 +54,6 @@ public enum Feature {
     VERBOSE,
     DEBUG,
 
-    /**
-     * Supports lexing of objective-C.
-     */
-    OBJCSYNTAX,
     INCLUDENEXT,
     GNUCEXTENSIONS
 }

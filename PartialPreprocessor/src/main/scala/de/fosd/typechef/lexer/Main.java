@@ -25,6 +25,8 @@ package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.macrotable.MacroContext$;
+import de.fosd.typechef.lexer.options.ILexerOptions;
+import de.fosd.typechef.lexer.options.LexerOptions;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
@@ -32,98 +34,39 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Currently a simple test class).
  */
 public class Main {
 
-    private static class Option extends LongOpt {
-        private String eg;
-        private String help;
 
-        public Option(String word, int arg, int ch, String eg, String help) {
-            super(word, arg, null, ch);
-            this.eg = eg;
-            this.help = help;
-        }
-    }
 
-    private static final int OPT_OPEN_FEAT = 4;
-    private static final Option[] OPTS = new Option[]{
-            new Option("help", LongOpt.NO_ARGUMENT, 'h', null,
-                    "Displays help and usage information."),
-            new Option("define", LongOpt.REQUIRED_ARGUMENT, 'D',
-                    "name=definition", "Defines the given macro (may currently not be used to define parametric macros)."),
-            new Option("undefine", LongOpt.REQUIRED_ARGUMENT, 'U', "name",
-                    "Undefines the given macro, previously either builtin or defined using -D."),
-            new Option(
-                    "include",
-                    LongOpt.REQUIRED_ARGUMENT,
-                    1,
-                    "file",
-                    "Process file as if \"#"
-                            + "include \"file\"\" appeared as the first line of the primary source file."),
-            new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
-                    "Output file."),
-            new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
-                    "Analysis excludes all flags beginning with this prefix."),
-            new Option("postfixfilter", LongOpt.REQUIRED_ARGUMENT, 'P', "text",
-                    "Analysis excludes all flags ending with this postfix."),
-            new Option("prefixonly", LongOpt.REQUIRED_ARGUMENT, 'x', "text",
-                    "Analysis includes only flags beginning with this prefix."),
-            new Option("openFeat", LongOpt.REQUIRED_ARGUMENT, OPT_OPEN_FEAT, "text",
-                    "List of flags with an unspecified value; other flags are considered undefined."),
-            new Option(
-                    "incdir",
-                    LongOpt.REQUIRED_ARGUMENT,
-                    'I',
-                    "dir",
-                    "Adds the directory dir to the list of directories to be searched for header files."),
-            new Option(
-                    "iquote",
-                    LongOpt.REQUIRED_ARGUMENT,
-                    0,
-                    "dir",
-                    "Adds the directory dir to the list of directories to be searched for header files included using \"\"."),
-            new Option("warning", LongOpt.REQUIRED_ARGUMENT, 'W', "type",
-                    "Enables the named warning class (" + getWarnings() + ")."),
-            new Option("no-warnings", LongOpt.NO_ARGUMENT, 'w', null,
-                    "Disables ALL warnings."),
-            new Option("verbose", LongOpt.NO_ARGUMENT, 'v', null,
-                    "Operates incredibly verbosely."),
-            new Option("debug", LongOpt.NO_ARGUMENT, 3, null,
-                    "Operates incredibly verbosely."),
-            new Option("version", LongOpt.NO_ARGUMENT, 2, null,
-                    "Prints jcpp's version number (" + Version.getVersion()
-                            + ")"),};
-
-    private static CharSequence getWarnings() {
-        StringBuilder buf = new StringBuilder();
-        for (Warning w : Warning.values()) {
-            if (buf.length() > 0)
-                buf.append(", ");
-            String name = w.name().toLowerCase();
-            buf.append(name.replace('_', '-'));
-        }
-        return buf;
-    }
 
     public static void main(String[] args) throws Exception {
         (new Main()).run(args, false, true, null);
     }
 
     public List<Token> run(String[] args, boolean returnTokenList, boolean printToStdOutput, FeatureModel featureModel) throws Exception {
-        Option[] opts = OPTS;
-        String sopts = getShortOpts(opts);
-        Getopt g = new Getopt("jcpp", args, sopts, opts);
-        int c;
-        String arg;
-        int idx;
+        LexerOptions options = new LexerOptions();
+        options.parseOptions(args);
+        return run(options);
+    }
+
+    public List<Token> run(ILexerOptions options) throws Exception {
+        if (options.isPrintVersion()) {
+                    version(System.out);
+                    return new ArrayList<Token>();
+        }
+
+
 
         String outputName = null;
-        PrintWriter output = printToStdOutput ? new PrintWriter(new OutputStreamWriter(System.out)) : null;
-        Preprocessor pp = new Preprocessor(featureModel);
+
+
+
+        Preprocessor pp = new Preprocessor(options.getFeatureModel());
         // No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
         // written with ASCII available!
         //pp.addFeature(Feature.DIGRAPHS);
@@ -131,101 +74,59 @@ public class Main {
         pp.addFeature(Feature.LINEMARKERS);
         pp.addFeature(Feature.INCLUDENEXT);
         pp.addFeature(Feature.GNUCEXTENSIONS);
-        pp.addWarning(Warning.IMPORT);
-        // This warns about trigraphs which do not get expanded. Absolutely useless since trigraphs are hardly
-        // ever enabled.
-        //pp.addWarning(Warning.TRIGRAPHS);
-        //XXX too annoying during debugging, there are too many false positives
-        //pp.addWarning(Warning.UNDEF);
+
         pp.setListener(new PreprocessorListener(pp));
         pp.addMacro("__JCPP__", FeatureExprLib.base());
-        // pp.getSystemIncludePath().add("/usr/local/include");
-        // pp.getSystemIncludePath().add("/usr/include");
-        // pp.getFrameworksPath().add("/System/Library/Frameworks");
-        // pp.getFrameworksPath().add("/Library/Frameworks");
-        // pp.getFrameworksPath().add("/Local/Library/Frameworks");
 
-        GETOPT:
-        while ((c = g.getopt()) != -1) {
-            switch (c) {
-                case 'D':
-                    //XXX may not be used to define parametric macros
-                    arg = g.getOptarg();
-                    idx = arg.indexOf('=');
-                    if (idx == -1)
-                        pp.addMacro(arg, FeatureExprLib.base());
-                    else
-                        pp.addMacro(arg.substring(0, idx), FeatureExprLib.base(),
-                                arg.substring(idx + 1));
-                    break;
-                case 'U':
-                    pp.removeMacro(g.getOptarg(), FeatureExprLib.base());
-                    break;
-                case 'I':
-                    // Paths need to be canonicalized, because include_next
-                    // processing needs to compare paths!
-                    pp.getSystemIncludePath().add(
-                            new File(g.getOptarg()).getCanonicalPath());
-                    break;
-                case 'p':
-                    MacroContext$.MODULE$.setPrefixFilter(g.getOptarg());
+        PrintWriter output = null;
+                if (options.getOutputName().equals("$$stdout"))
+                    output = new PrintWriter(new OutputStreamWriter(System.out));
+                else if (options.getOutputName().length() > 0)  {
+                    output = new PrintWriter(new BufferedWriter(new FileWriter(outputName)));
+                    pp.openDebugFiles(outputName);
+                }
+
+        for (Map.Entry<String,String> macro:options.getDefinedMacros().entrySet())
+            pp.addMacro(macro.getKey(), FeatureExprLib.base(),macro.getValue());
+        for (String undef:options.getUndefMacros())
+                    pp.removeMacro(undef, FeatureExprLib.base());
+
+                    pp.getSystemIncludePath().addAll(options.getSystemIncludePath());
+        pp.getQuoteIncludePath().addAll(options.getQuoteIncludePath());
+        
+        for (String filter:options.getMacroFilter())
+        switch (filter.charAt(0)){
+            case 'p':
+                    MacroContext$.MODULE$.setPrefixFilter(filter.substring(2));
                     break;
                 case 'P':
-                    MacroContext$.MODULE$.setPostfixFilter(g.getOptarg());
+                    MacroContext$.MODULE$.setPostfixFilter(filter.substring(2));
                     break;
                 case 'x':
-                    MacroContext$.MODULE$.setPrefixOnlyFilter(g.getOptarg());
+                    MacroContext$.MODULE$.setPrefixOnlyFilter(filter.substring(2));
                     break;
-                case OPT_OPEN_FEAT:
-                    MacroContext$.MODULE$.setListFilter(g.getOptarg());
+                case '4':
+                    MacroContext$.MODULE$.setListFilter(filter.substring(2));
                     break;
-                case 0: // --iquote=
-                    pp.getQuoteIncludePath().add(g.getOptarg());
-                    break;
-                case 'W':
-                    arg = g.getOptarg().toUpperCase();
-                    arg = arg.replace('-', '_');
-                    if (arg.equals("ALL"))
-                        pp.addWarnings(EnumSet.allOf(Warning.class));
-                    else
-                        pp.addWarning(Enum.valueOf(Warning.class, arg));
-                    break;
-                case 'w':
-                    pp.getWarnings().clear();
-                    break;
-                case 'o':
-                    outputName = g.getOptarg();
-                    pp.openDebugFiles(outputName);
-                    output = new PrintWriter(new BufferedWriter(new FileWriter(outputName)));
-                    break;
-                case 1: // --include=
-                    pp.addInput(new File(g.getOptarg()));
-                    // Comply exactly with spec.
-                    // pp.addInput(new StringLexerSource("#" + "include \""
-                    // + g.getOptarg() + "\"\n", true));
-                    break;
-                case 2: // --version
-                    version(System.out);
-                    return new ArrayList<Token>();
-                case 'v':
-                    pp.addFeature(Feature.VERBOSE);
-                    break;
-                case 3:
-                    pp.addFeature(Feature.DEBUG);
-                    break;
-                case 'h':
-                    usage(getClass().getName(), opts);
-                    return new ArrayList<Token>();
-                default:
-                    throw new Exception("Illegal option " + (char) c);
-                case '?':
-                    continue; /* Make failure-proof. */
-            }
-        }
+    }
 
-        for (int i = g.getOptind(); i < args.length; i++)
-            pp.addInput(new FileLexerSource(new File(args[i])));
-        if (g.getOptind() == args.length)
+        pp.getWarnings().clear();
+        pp.addWarnings(options.getWarnings());
+
+
+        for (String include:options.getIncludedHeaders())
+            pp.addInput(new File(include));
+
+//                case 'v':
+//                    pp.addFeature(Feature.VERBOSE);
+//                    break;
+//                case 3:
+//                    pp.addFeature(Feature.DEBUG);
+//                    break;
+
+        for (String file:options.getFiles())
+            pp.addInput(new FileLexerSource(new File(file)));
+        if (options.getFiles().isEmpty())
             pp.addInput(new InputLexerSource(System.in));
 
         if (pp.getFeature(Feature.VERBOSE)) {
@@ -242,7 +143,7 @@ public class Main {
         int outputLine = 1;
         try {
             // TokenFilter tokenFilter = new TokenFilter();
-            for (; ;) {
+            for (; ; ) {
                 Token tok = pp.getNextToken();
                 if (tok == null)
                     break;
