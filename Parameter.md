@@ -1,0 +1,52 @@
+Parameters: 
+
+  System configuration
+    --systemRoot=dir (-r)          Path to system root. Default: '/'.
+    --platfromHeader=file (-h)     Header files with platform macros (create with 'cpp -dM -std=gnu99 -'). Default: 'platform.h'.
+    --systemIncludes=dir           System include directory. Default: '$systemRoot/usr/include'.
+    --settingsFile=dir (-c)        Property file specifying system root, platform headers, and system include directories.
+
+  General processing options (lexing, parsing, type checking, interfaces; select only highest)
+    --lex (-E)                     Stop after lexing; no parsing.
+    --parse                        Lex and parse the file; no type checking.
+    --typecheck (-t)               Lex, parse, and type check; but do not create interfaces.
+    --interface                    Lex, parse, type check, and create interfaces (default).
+    --output=file (-o)             Path to output files (no extension, creates .pi, .macrodbg etc files).
+    --writePI                      Write lexer output into .pi file
+    --debugInterface               Write interface in human readable format (requires --interface)
+    --serializeAST                 Write ast to .ast file after parsing.
+    --recordTiming                 Report times for all phases.
+    --filePC=file                  Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'.
+
+  Preprocessor configuration
+    --define=name[=definition] (-D)
+                                   Defines the given macro (may currently not be used to define parametric macros).
+    --undefine=name (-U)           Undefines the given macro, previously either builtin or defined using -D.
+    --include=file                 Process file as if "#include "file"" appeared as the first line of the primary source file.
+    --incdir=dir (-I)              Adds the directory dir to the list of directories to be searched for header files.
+    --iquote=dir                   Adds the directory dir to the list of directories to be searched for header files included using "".
+    --lexOutput=file               Output file (typically .pi).
+
+  Preprocessor flag filter
+    --prefixfilter=text (-p)       Analysis excludes all flags beginning with this prefix.
+    --postfixfilter=text (-P)      Analysis excludes all flags ending with this postfix.
+    --prefixonly=text (-x)         Analysis includes only flags beginning with this prefix.
+    --openFeat=text                List of flags with an unspecified value; other flags are considered undefined.
+
+  Preprocessor warnings and debugging
+    --warning=type (-W)            Enables the named warning class (trigraphs, undef, unused-macros, endif-labels, error).
+    --no-warnings (-w)             Disables ALL warnings.
+    --verbose (-v)                 Operates incredibly verbosely.
+    --lexdebug                     Create debug files for macros and sources (enables debugfile-sources and debugfile-macrotable).
+    --lexEnable=type               Enables a specific lexer feature (digraphs, trigraphs, linemarkers*, csyntax, keepcomments, keepallcomments, includenext*, gnucextensions*, debug-includepath, debug-verbose, debugfile-log, debugfile-sources, debugfile-macrotable, debugfile-tokenstream) Features with * are activated by default.
+    --lexDisable=type              Disable a specific lexer feature.
+    --lexNoStdout                  Do not print to stdout.
+
+  Feature models
+    --featureModelDimacs=file      Dimacs file describing a feature model.
+    --featureModelFExpr=file       File in FExpr format describing a feature model.
+    --featureModelClass=classname  Class describing a feature model.
+
+  Misc
+    --version                      Prints version number
+    --help                         Displays help and usage information.
