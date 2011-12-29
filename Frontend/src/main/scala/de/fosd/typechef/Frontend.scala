@@ -4,12 +4,11 @@ package de.fosd.typechef
 * temporarily copied from PreprocessorFrontend due to technical problems
 */
 
-import java.io.File
-
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import lexer.options.OptionException
+import java.io.{FileWriter, File}
 
 object Frontend {
 
@@ -65,20 +64,25 @@ object Frontend {
             t3 = System.currentTimeMillis();
             t5 = t3;
             t4 = t3
-            val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
-            if (opt.typecheck || opt.writeInterface) {
-                println("type checking.")
-                ts.checkAST
-                t4 = System.currentTimeMillis();
-                t5 = t4
-            }
-            if (opt.writeInterface) {
-                println("inferring interfaces.")
-                val interface = ts.getInferredInterface().and(opt.getFilePresenceCondition)
-                t5 = System.currentTimeMillis()
-                ts.writeInterface(interface, new File(opt.getInterfaceFilename))
-                if (opt.writeDebugInterface)
-                    ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
+            if (ast != null && opt.serializeAST)
+                serializeAST(ast, opt.getSerializedASTFilename)
+
+            if (ast != null) {
+                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
+                if (opt.typecheck || opt.writeInterface) {
+                    println("type checking.")
+                    ts.checkAST
+                    t4 = System.currentTimeMillis();
+                    t5 = t4
+                }
+                if (opt.writeInterface) {
+                    println("inferring interfaces.")
+                    val interface = ts.getInferredInterface().and(opt.getFilePresenceCondition)
+                    t5 = System.currentTimeMillis()
+                    ts.writeInterface(interface, new File(opt.getInterfaceFilename))
+                    if (opt.writeDebugInterface)
+                        ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
+                }
             }
 
         }
@@ -88,4 +92,9 @@ object Frontend {
     }
 
 
+    def serializeAST(ast: AST, filename: String) {
+        val fw = new FileWriter(filename)
+        fw.write(ast.toString)
+        fw.close()
+    }
 }
