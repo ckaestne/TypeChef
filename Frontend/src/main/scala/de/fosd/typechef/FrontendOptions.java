@@ -108,7 +108,7 @@ public class FrontendOptions extends LexerOptions {
 
         if (outputStem.length() == 0)
             outputStem = getFile().replace(".c", "");
-        if (lexOutputFile.length() == 0)
+        if (lexOutputFile == null || lexOutputFile.length() == 0)
             lexOutputFile = outputStem + ".pi";
     }
 
@@ -151,4 +151,7 @@ public class FrontendOptions extends LexerOptions {
         return localFM;
     }
 
+    String getSerializedASTFilename() {
+        return outputStem + ".ast";
+    }
 }
