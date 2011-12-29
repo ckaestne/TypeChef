@@ -89,7 +89,7 @@ public class PreprocessorListener {
         errors++;
         print(source.getName() + ":" + line + ":" + column + ": error: " + msg
                 + "; condition: " + featureExpr, Level.SEVERE);
-        pp.debugWriteMacros();
+        pp.debugPreprocessorDone();
         throw new LexerException(msg);
     }
 

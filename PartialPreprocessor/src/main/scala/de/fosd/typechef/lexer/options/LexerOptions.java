@@ -1,6 +1,9 @@
 package de.fosd.typechef.lexer.options;
 
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
+import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -16,69 +19,98 @@ import java.util.*;
  * Time: 22:13
  * To change this template use File | Settings | File Templates.
  */
-public class LexerOptions extends Options implements  ILexerOptions{
-    @Override
-    protected List<Option> getOptions() {
+public class LexerOptions extends FeatureModelOptions implements ILexerOptions{
 
-        return Arrays.asList(
-                new Option[]{
-                        new Option("help", LongOpt.NO_ARGUMENT, 'h', null,
-                                "Displays help and usage information."),
-                        new Option("define", LongOpt.REQUIRED_ARGUMENT, 'D',
-                                "name=definition", "Defines the given macro (may currently not be used to define parametric macros)."),
-                        new Option("undefine", LongOpt.REQUIRED_ARGUMENT, 'U', "name",
-                                "Undefines the given macro, previously either builtin or defined using -D."),
-                        new Option(
-                                "include",
-                                LongOpt.REQUIRED_ARGUMENT,
-                                1,
-                                "file",
-                                "Process file as if \"#"
-                                        + "include \"file\"\" appeared as the first line of the primary source file."),
-                        new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
-                                "Output file."),
-                        new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
-                                "Analysis excludes all flags beginning with this prefix."),
-                        new Option("postfixfilter", LongOpt.REQUIRED_ARGUMENT, 'P', "text",
-                                "Analysis excludes all flags ending with this postfix."),
-                        new Option("prefixonly", LongOpt.REQUIRED_ARGUMENT, 'x', "text",
-                                "Analysis includes only flags beginning with this prefix."),
-                        new Option("openFeat", LongOpt.REQUIRED_ARGUMENT, 4, "text",
-                                "List of flags with an unspecified value; other flags are considered undefined."),
-                        new Option(
-                                "incdir",
-                                LongOpt.REQUIRED_ARGUMENT,
-                                'I',
-                                "dir",
-                                "Adds the directory dir to the list of directories to be searched for header files."),
-                        new Option(
-                                "iquote",
-                                LongOpt.REQUIRED_ARGUMENT,
-                                0,
-                                "dir",
-                                "Adds the directory dir to the list of directories to be searched for header files included using \"\"."),
+    @Override
+    protected List<OptionGroup> getOptionGroups() {
+        List<OptionGroup> r = super.getOptionGroups();
+
+        r.add(new OptionGroup("Preprocessor configuration", 50,
+                new Option("define", LongOpt.REQUIRED_ARGUMENT, 'D', "name[=definition]",
+                        "Defines the given macro (may currently not be used to define parametric macros)."),
+                new Option("undefine", LongOpt.REQUIRED_ARGUMENT, 'U', "name",
+                        "Undefines the given macro, previously either builtin or defined using -D."),
+                new Option("include", LongOpt.REQUIRED_ARGUMENT, 1, "file",
+                        "Process file as if \"#" + "include \"file\"\" appeared as the first line of the primary source file."),
+                new Option("incdir", LongOpt.REQUIRED_ARGUMENT, 'I', "dir",
+                        "Adds the directory dir to the list of directories to be searched for header files."),
+                new Option("iquote", LongOpt.REQUIRED_ARGUMENT, 0, "dir",
+                        "Adds the directory dir to the list of directories to be searched for header files included using \"\"."),
+                new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
+                        "Output file.")
+        ));
+
+        r.add(new OptionGroup("Preprocessor flag filter", 60,
+                new Option("prefixfilter", LongOpt.REQUIRED_ARGUMENT, 'p', "text",
+                        "Analysis excludes all flags beginning with this prefix."),
+                new Option("postfixfilter", LongOpt.REQUIRED_ARGUMENT, 'P', "text",
+                        "Analysis excludes all flags ending with this postfix."),
+                new Option("prefixonly", LongOpt.REQUIRED_ARGUMENT, 'x', "text",
+                        "Analysis includes only flags beginning with this prefix."),
+                new Option("openFeat", LongOpt.REQUIRED_ARGUMENT, 4, "text",
+                        "List of flags with an unspecified value; other flags are considered undefined.")
+                ));
+        r.add(new OptionGroup("Preprocessor warnings and debugging", 70,
                 new Option("warning", LongOpt.REQUIRED_ARGUMENT, 'W', "type",
                         "Enables the named warning class (" + getWarningLabels() + ")."),
                 new Option("no-warnings", LongOpt.NO_ARGUMENT, 'w', null,
                         "Disables ALL warnings."),
-//                new Option("verbose", LongOpt.NO_ARGUMENT, 'v', null,
-//                        "Operates incredibly verbosely."),
-//                new Option("debug", LongOpt.NO_ARGUMENT, 3, null,
-//                        "Operates incredibly verbosely."),
-                        new Option("version", LongOpt.NO_ARGUMENT, 2, null,
-                                "Prints version number"),});
+                new Option("verbose", LongOpt.NO_ARGUMENT, 'v', null,
+                        "Operates incredibly verbosely."),
+                new Option("lexdebug", LongOpt.NO_ARGUMENT, 3, null,
+                        "Create debug files for macros and sources (enables debugfile-sources and debugfile-macrotable)."),
+                new Option("lexEnable", LongOpt.REQUIRED_ARGUMENT, 5, "type",
+                        "Enables a specific lexer feature (" + getFeatureLabels() + ") Features with * are activated by default."),
+                new Option("lexDisable", LongOpt.REQUIRED_ARGUMENT, 6, "type",
+                        "Disable a specific lexer feature."),
+                new Option("lexNoStdout", LongOpt.NO_ARGUMENT, 7, null,
+                        "Do not print to stdout.")
+        ));
+        r.add(new OptionGroup("Misc", 1000,
+                new Option("version", LongOpt.NO_ARGUMENT, 2, null,
+                        "Prints version number"),
+                new Option("help", LongOpt.NO_ARGUMENT, 'h', null,
+                        "Displays help and usage information.")
+                ));
+        return r;
+
     }
 
     private static CharSequence getWarningLabels() {
-            StringBuilder buf = new StringBuilder();
-            for (Warning w : Warning.values()) {
-                if (buf.length() > 0)
-                    buf.append(", ");
-                String name = w.name().toLowerCase();
-                buf.append(name.replace('_', '-'));
-            }
-            return buf;
+        StringBuilder buf = new StringBuilder();
+        for (Warning w : Warning.values()) {
+            if (buf.length() > 0)
+                buf.append(", ");
+            String name = w.name().toLowerCase();
+            buf.append(name.replace('_', '-'));
         }
+        return buf;
+    }
+
+    private static CharSequence getFeatureLabels() {
+        StringBuilder buf = new StringBuilder();
+        for (Feature w : Feature.values()) {
+            if (buf.length() > 0)
+                buf.append(", ");
+            String name = w.name().toLowerCase();
+            buf.append(name.replace('_', '-'));
+            if (getDefaultFeatures().contains(w))
+                buf.append("*");
+        }
+        return buf;
+    }
+
+    private static Set<Feature> getDefaultFeatures() {
+        Set<Feature> r = new HashSet<Feature>();
+        // No sane code uses TRIGRAPHS or DIGRAPHS - at least, no code
+        // written with ASCII available!
+        //pp.addFeature(Feature.DIGRAPHS);
+        //pp.addFeature(Feature.TRIGRAPHS);
+        r.add(Feature.LINEMARKERS);
+        r.add(Feature.INCLUDENEXT);
+        r.add(Feature.GNUCEXTENSIONS);
+        return r;
+    }
 
     protected Map<String, String> definedMacros = new HashMap<String, String>();
     protected Set<String> undefMacros = new HashSet<String>();
@@ -87,8 +119,10 @@ public class LexerOptions extends Options implements  ILexerOptions{
     protected List<String> macroFilter = new ArrayList<String>();
     protected List<String> includedHeaders = new ArrayList<String>();
     protected Set<Warning> warnings = new HashSet<Warning>();
+    protected Set<Feature> features = getDefaultFeatures();
     protected String outputName = "";
     protected boolean printVersion = false;
+    protected boolean printToStdout = true;
 
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {
@@ -165,18 +199,33 @@ public class LexerOptions extends Options implements  ILexerOptions{
                 return true;
             case 2: // --version
                 printVersion = true;
-                return new ArrayList<Token>();
-//            case 'v':
-//                pp.addFeature(Feature.VERBOSE);
-//                return true;
-//            case 3:
-//                pp.addFeature(Feature.DEBUG);
-//                return true;
+                return true;
+            case 'v':
+                features.add(Feature.DEBUG_VERBOSE);
+                features.add(Feature.DEBUG_INCLUDEPATH);
+                return true;
+            case 3:
+                features.add(Feature.DEBUGFILE_MACROTABLE);
+                features.add(Feature.DEBUGFILE_SOURCES);
+                return true;
+            case 5://--lexEnable
+                arg = g.getOptarg().toUpperCase();
+                arg = arg.replace('-', '_');
+                features.add(Enum.valueOf(Feature.class, arg));
+            case 6://--lexDisable
+                arg = g.getOptarg().toUpperCase();
+                arg = arg.replace('-', '_');
+                features.remove(Enum.valueOf(Feature.class, arg));
+            case 7://--lexNoStdout
+                printToStdout = false;
+                return true;
+
             case 'h':
-                usage(getClass().getName(), opts);
-                return new ArrayList<Token>();
+                printUsage();
+                printVersion = true;
+                return true;
             default:
-                return false;
+                return super.interpretOption(c,g);
         }
 
     }
@@ -229,5 +278,20 @@ public class LexerOptions extends Options implements  ILexerOptions{
     @Override
     public Set<Warning> getWarnings() {
         return warnings;
+    }
+
+    @Override
+    public Set<Feature> getFeatures() {
+        return features;
+    }
+
+    @Override
+    public boolean isPrintToStdout() {
+        return printToStdout;
+    }
+
+
+    public void setPrintToStdOutput(boolean printToStdOutput) {
+        this.printToStdout = printToStdOutput;
     }
 }

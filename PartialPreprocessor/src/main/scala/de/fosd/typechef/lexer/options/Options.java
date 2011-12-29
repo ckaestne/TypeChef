@@ -1,15 +1,35 @@
 package de.fosd.typechef.lexer.options;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import de.fosd.typechef.lexer.Version;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 abstract class Options {
+
+    protected static class OptionGroup implements Comparable {
+        private int priority;
+        private String name;
+        private List<Option> options;
+
+        public OptionGroup(String name, int priority, Option... options) {
+            this.name = name;
+            this.options = Arrays.asList(options);
+            this.priority = priority;
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            if (o instanceof OptionGroup)
+                if (((OptionGroup) o).priority < this.priority) return 1;
+                else return -1;
+            return 0;
+        }
+    }
 
     protected static class Option extends LongOpt {
         private String eg;
@@ -22,10 +42,19 @@ abstract class Options {
         }
     }
 
-    protected abstract List<Option> getOptions();
+    protected List<OptionGroup> getOptionGroups(){
+        return new ArrayList<OptionGroup>();
+    }
+
+    private Option[] getOptions(List<OptionGroup> og) {
+        ArrayList<Option> r = new ArrayList<Option>();
+        for (OptionGroup g : og)
+            r.addAll(g.options);
+        return r.toArray(new Option[0]);
+    }
 
     public void parseOptions(String[] args) throws OptionException {
-        Option[] opts = getOptions().toArray(new Option[]{});
+        Option[] opts = getOptions(getOptionGroups());
         String sopts = getShortOpts(opts);
         Getopt g = new Getopt("TypeChef", args, sopts, opts);
         int c;
@@ -42,7 +71,9 @@ abstract class Options {
         }
     }
 
-    protected abstract boolean interpretOption(int c, Getopt g) throws OptionException;
+    protected  boolean interpretOption(int c, Getopt g) throws OptionException{
+        return false;
+    }
 
 
     private String getShortOpts(Option[] opts) throws OptionException {
@@ -72,43 +103,41 @@ abstract class Options {
 
     protected void printUsage() {
         StringBuilder text = new StringBuilder("Parameters: \n");
-        List<Option> options = getOptions();
-        for (Option opt : options) {
-            StringBuilder line = new StringBuilder();
-            line.append("    --").append(opt.getName());
-            switch (opt.getHasArg()) {
-                case LongOpt.NO_ARGUMENT:
-                    break;
-                case LongOpt.OPTIONAL_ARGUMENT:
-                    line.append("[=").append(opt.eg).append(']');
-                    break;
-                case LongOpt.REQUIRED_ARGUMENT:
-                    line.append('=').append(opt.eg);
-                    break;
-            }
-            if (Character.isLetterOrDigit(opt.getVal()))
-                line.append(" (-").append((char) opt.getVal()).append(")");
-            if (line.length() < 30) {
-                while (line.length() < 30)
-                    line.append(' ');
-            } else {
+        List<OptionGroup> og = getOptionGroups();
+        Collections.sort(og);
+        for (OptionGroup g : og) {
+            text.append("\n  ").append(g.name).append("\n");
+            for (Option opt : g.options) {
+                StringBuilder line = new StringBuilder();
+                line.append("    --").append(opt.getName());
+                switch (opt.getHasArg()) {
+                    case LongOpt.NO_ARGUMENT:
+                        break;
+                    case LongOpt.OPTIONAL_ARGUMENT:
+                        line.append("[=").append(opt.eg).append(']');
+                        break;
+                    case LongOpt.REQUIRED_ARGUMENT:
+                        line.append('=').append(opt.eg);
+                        break;
+                }
+                if (Character.isLetterOrDigit(opt.getVal()))
+                    line.append(" (-").append((char) opt.getVal()).append(")");
+                if (line.length() < 35) {
+                    while (line.length() < 35)
+                        line.append(' ');
+                } else {
+                    line.append('\n');
+                    for (int j = 0; j < 35; j++)
+                        line.append(' ');
+                }
+                /* This should use wrap. */
+                line.append(opt.help);
                 line.append('\n');
-                for (int j = 0; j < 30; j++)
-                    line.append(' ');
+                text.append(line);
             }
-            /* This should use wrap. */
-            line.append(opt.help);
-            line.append('\n');
-            text.append(line);
         }
 
         System.out.println(text);
-    }
-
-
-    private void version(PrintStream out) {
-        out.println("TypeChef "
-                + Version.getVersion());
     }
 
 

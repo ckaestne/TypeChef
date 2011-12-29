@@ -131,7 +131,7 @@ public class SourceManager {
     }
 
     public Token getNextToken() throws IOException, LexerException {
-        for (; ;) {
+        for (; ; ) {
             Source s = getSource();
             if (s == null) {
                 if (inputs.isEmpty())
@@ -159,7 +159,7 @@ public class SourceManager {
                 }
                 continue;
             }
-            if (pp.getFeature(Feature.DEBUG))
+            if (pp.getFeature(Feature.DEBUG_VERBOSE))
                 System.err.println("Returning fresh token " + tok);
             pp.debug_receivedToken(source, tok);
             return tok;
