@@ -26,7 +26,7 @@ seq(assemblySettings: _*)
 
 test in assembly := {}
 
-defaultJarName in assembly <<= version { v => "TypeChef-" + v + ".jar" }
+defaultJarName in assembly <<= version { v => "../../TypeChef-" + v + ".jar" }
 
 
 //assembleArtifact in packageScala := false
