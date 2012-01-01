@@ -82,7 +82,7 @@ Alternatively, call `sbt mkrun` to create a script
 `typechef.sh` that sets a correct classpath. 
 
 Most functionality of TypeChef is accessible through parameters of
-the main `Frontend` class. Call TypeChef with `--help` to see a 
+the main `de.fosd.typechef.Frontend` class. Call TypeChef with `--help` to see a 
 list of configuration parameters. See also 
 [Parameter.txt]( https://github.com/ckaestne/TypeChef/blob/master/Parameter.txt).
 You will need to set up system include paths with `-I` and
