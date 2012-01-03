@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import sbt._
 import Keys._
-import sbtassembly.Plugin._
-import AssemblyKeys._
 
 object BuildSettings {
 
@@ -17,7 +15,7 @@ object BuildSettings {
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
-    val buildSettings = Defaults.defaultSettings ++ assemblySettings ++ Seq(
+    val buildSettings = Defaults.defaultSettings ++ Seq(
         organization := buildOrganization,
         version := buildVersion,
         scalaVersion := buildScalaVersion,
@@ -31,12 +29,7 @@ object BuildSettings {
 
         libraryDependencies ++= testEnvironment,
 
-        parallelExecution := false, //run into memory problems on hudson otherwise
-
-        test in assembly := {},
-        jarName in assembly := "TypeChef.jar",
-        assembleArtifact in packageScala := false,
-        assembleArtifact in packageSrc := false
+        parallelExecution := false //run into memory problems on hudson otherwise
     )
 }
 
