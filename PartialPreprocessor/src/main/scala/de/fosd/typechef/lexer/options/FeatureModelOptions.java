@@ -3,6 +3,7 @@ package de.fosd.typechef.lexer.options;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
+import de.fosd.typechef.featureexpr.FeatureModelFactory;
 import de.fosd.typechef.featureexpr.NoFeatureModel$;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -62,7 +63,8 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
                 return true;
             case 10://--featureModelClass
                 try {
-                    featureModel = (FeatureModel) Class.forName(g.getOptarg()).newInstance();
+                    FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
+                    featureModel = factory.createFeatureModel();
                 } catch (Exception e) {
                     throw new OptionException("cannot instantiate feature model: " + e.getMessage());
                 }
