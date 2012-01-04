@@ -12,8 +12,11 @@ class CParserTest {
 
 
     def assertParseResult(expected: AST, code: String, mainProduction: p.MultiParser[AST]) {
-        assertParseResult(One(expected), code, mainProduction ^^ {One(_)})
+        assertParseResult(One(expected), code, mainProduction ^^ {
+            One(_)
+        })
     }
+
     def assertParseResult(expected: Conditional[AST], code: String, mainProduction: p.MultiParser[Conditional[AST]]) {
         val actual = p.parse(code.stripMargin, mainProduction).expectOneResult
         System.out.println(actual)
@@ -29,9 +32,13 @@ class CParserTest {
                 fail(msg + " at " + unparsed + " " + inner)
         }
     }
+
     def assertParseResultL(expected: AST, code: String, productions: List[p.MultiParser[AST]]) {
-        assertParseResultL(One(expected), code, productions.map(_ ^^ {One(_)}))
+        assertParseResultL(One(expected), code, productions.map(_ ^^ {
+            One(_)
+        }))
     }
+
     def assertParseResultL(expected: Conditional[AST], code: String, productions: List[p.MultiParser[Conditional[AST]]]) {
         for (production <- productions)
             assertParseResult(expected, code, production)
@@ -54,6 +61,7 @@ class CParserTest {
                 fail(msg + " at " + unparsed + " " + inner)
         }
     }
+
     def assertParseableAST[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
         val actual = p.parse(code.stripMargin, mainProduction)
         System.out.println(actual)
@@ -81,6 +89,7 @@ class CParserTest {
                 fail(msg + " at " + unparsed + " " + inner)
         }
     }
+
     def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
@@ -92,20 +101,30 @@ class CParserTest {
             case p.NoSuccess(msg, unparsed, inner) =>;
         }
     }
+
     def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
         for (production <- productions)
             assertParseError(code, production)
     }
 
     def a = Id("a");
+
     def b = Id("b");
+
     def c = Id("c");
+
     def d = Id("d");
+
     def x = Id("x");
+
     def intType = TypeName(lo(IntSpecifier()), None)
+
     def o[T](x: T) = Opt(FeatureExpr.base, x)
+
     def lo[T](x: T) = List(o(x))
+
     def lo[T](x: T, y: T) = List(o(x), o(y))
+
     def lo[T](x: T, y: T, z: T) = List(o(x), o(y), o(z))
 
     def fa = FeatureExpr.createDefinedExternal("a")
@@ -178,12 +197,14 @@ class CParserTest {
         					|2
         					|#endif""", List(p.primaryExpr !, p.numConst !))
     }
+
     @Test def testDots() {
         assertParseable(".", p.DOT)
         assertParseable("...", p.VARARGS)
         assertParseError("...", p.DOT)
         assertParseError(".", p.VARARGS)
     }
+
     @Test def testPostfixSuffix {
         assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a"))), "->a", p.postfixSuffix)
         assertParseAnyResult(List(PointerPostfixSuffix("->", Id("a"))), "->    a", p.postfixSuffix)
@@ -192,6 +213,7 @@ class CParserTest {
         assertParseAnyResult(List(SimplePostfixSuffix("++")), "++", p.postfixSuffix)
         assertParseAnyResult(List(SimplePostfixSuffix("++"), SimplePostfixSuffix("--")), "++ --", p.postfixSuffix)
     }
+
     @Test def testPostfixExpr {
         assertParseResult(Choice(fa, PostfixExpr(Id("b"), SimplePostfixSuffix("++")), Id("b")),
             """|b
@@ -237,6 +259,7 @@ class CParserTest {
         assertParseable("__real__ c", p.unaryOperator ~ p.castExpr)
         assertParseable("__real__ c", p.unaryExpr)
     }
+
     @Test def testUnaryExpr {
         assertParseResult(Id("b"), "b", p.unaryExpr)
         assertParseResult(UnaryExpr("++", Id("b")), "++b", p.unaryExpr)
@@ -260,6 +283,7 @@ class CParserTest {
         assertParseResult(NAryExpr(a, List(o(NArySubExpr("*", b)))), "a*b", p.multExpr)
         assertParseResult(NAryExpr(a, List(o(NArySubExpr("*", b)), o(NArySubExpr("*", b)))), "a*b*b", p.multExpr)
     }
+
     @Test def testExprs {
         assertParseResult(NAryExpr(NAryExpr(a, List(o(NArySubExpr("*", b)))), List(o(NArySubExpr("+", c)))), "a*b+c", p.expr)
         assertParseResult(NAryExpr(c, List(o(NArySubExpr("+", NAryExpr(a, List(o(NArySubExpr("*", b)))))))), "c+a*b", p.expr)
@@ -269,6 +293,7 @@ class CParserTest {
         assertParseResult(ConditionalExpr(a, Some(b), c), "a?b:c", p.expr)
         assertParseResult(ExprList(List(o(a), o(b), o(NAryExpr(NAryExpr(c, List(o(NArySubExpr("+", NAryExpr(c, List(o(NArySubExpr("/", d)))))))), List(o(NArySubExpr("|", x))))))), "a,b,c+c/d|x", p.expr)
     }
+
     @Test def testAltExpr {
         assertParseResult(Choice(fa, a, b),
             """|#ifdef a
@@ -372,6 +397,7 @@ class CParserTest {
         assertParseable("void ****(void, int)", p.parameterDeclaration)
         assertParseable("void ****a", p.parameterDeclaration)
     }
+
     @Test def testDeclarator {
         assertParseResult(AtomicNamedDeclarator(List(), a, List()), "a", p.declarator)
         assertParseResult(NestedNamedDeclarator(List(), AtomicNamedDeclarator(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
@@ -383,6 +409,7 @@ class CParserTest {
         //    	assertParseResult(AtomicNamedDeclarator(List(),a,List(DeclIdentifierList(List(a,b)))), "a(a,b)", p.declarator(false))
         //    	assertParseResult(AtomicNamedDeclarator(List(),a,List(DeclParameterTypeList(List()))), "a()", p.declarator(false))
     }
+
     @Test def testEnumerator {
         assertParseable("enum e", p.enumSpecifier)
         assertParseable("enum e { a }", p.enumSpecifier)
@@ -516,33 +543,46 @@ class CParserTest {
         assertParseable("char                        hgfretty[99 ];", p.structDeclaration)
         assertParseable(" struct  pojeqsd {    char                        hgfretty[99 ];}", p.structOrUnionSpecifier)
     }
+
     @Test def testMisc1a = assertParseable("""typedef struct  pojeqsd {
     			char                        hgfretty[99 ];
     		} pojeqsd_t;""", p.translationUnit)
+
     @Test def testMisc1b = assertParseable("""typedef int hgfretty;
 				typedef struct  pojeqsd {
 				char                        hgfretty[99 ];
     		} pojeqsd_t;""", p.translationUnit)
 
     @Test def testMisc2 = assertParseable("( checkme )->j76g", p.expr)
+
     @Test def testMisc2b = assertParseable("if ((( checkme )->j76g) ) { }", p.statement)
+
     @Test def testMisc3a = assertParseable("(int)q23w3", p.expr)
+
     @Test def testMisc3b = assertParseable("void *", p.typeName)
+
     @Test def testMisc3f = assertParseable("__builtin_type *", p.typeName)
+
     @Test def testMisc3c = assertParseable("++(int)q23w3", p.unaryExpr)
+
     @Test def testMisc3d = assertParseable("(++(int)q23w3->ll881ss[3])", p.primaryExpr)
+
     @Test def testMisc3e = assertParseable("(void *) (++(int)q23w3->ll881ss[3])", p.expr)
+
     @Test def testMisc4 = assertParseable("""if (x3 && x4) {
         char gh554j[19];
         gh554j[0]='\n';
     }""", p.statement)
 
     @Test def testBoa1 = assertParseable("__attribute__((__cdecl__))", p.attributeDecl)
+
     @Test def testBoa2 = assertParseable("int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);", p.structDeclaration)
+
     @Test def testBoa3 = assertParseable("""typedef int FILE;
 typedef __builtin_va_list __gnuc_va_list;
 int	__attribute__((__cdecl__)) vfprintf (FILE *, const char *, __gnuc_va_list)
  __attribute__ ((__format__(__printf__, 2, 0)));""", p.translationUnit)
+
     @Test def testBoa4 = assertParseable("""struct alias {
     char *fakename;             /* URI path to file */
     char *realname;             /* Actual path to file */
@@ -553,6 +593,7 @@ int	__attribute__((__cdecl__)) vfprintf (FILE *, const char *, __gnuc_va_list)
 };
 
 typedef struct alias alias;""", p.translationUnit)
+
     @Test def testBoa5 = assertParseable("""char *fakename;             /* URI path to file */
     char *realname;             /* Actual path to file */
     int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
@@ -820,12 +861,23 @@ typedef struct spinlock {} spinlock_t;
             typedef int b;
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
-        assertParseError("""
-            #ifdef X
-            typedef int a;
-            #endif
-            __expectType[:a:]
-            """, p.phrase(p.translationUnit))
+        //TODO currently this is not checked! check at type system level! any type is known as type if it was defined in a satisfiable context
+        //        assertParseError("""
+        //            #ifdef X
+        //            typedef int a;
+        //            #endif
+        //            __expectType[:a:]
+        //            """, p.phrase(p.translationUnit))
+        //        assertParseError("""
+        //            #ifdef X
+        //            typedef int a;
+        //            #endif
+        //            #ifdef Z
+        //            typedef int b;
+        //            #endif
+        //            __expectType[:a:]
+        //            __expectType[:b:]
+        //            """, p.phrase(p.translationUnit))
         assertParseable("""
             #ifdef X
             typedef int a;
@@ -837,16 +889,7 @@ typedef struct spinlock {} spinlock_t;
             __expectNotType[:a:]
             #endif
             """, p.phrase(p.translationUnit))
-        assertParseError("""
-            #ifdef X
-            typedef int a;
-            #endif
-            #ifdef Z
-            typedef int b;
-            #endif
-            __expectType[:a:]
-            __expectType[:b:]
-            """, p.phrase(p.translationUnit))
+
         assertParseable("""
             #ifdef X
             typedef int a;
@@ -1031,6 +1074,7 @@ void bar() {
     private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExpr.base, ast)
     }
+
     private def assertNoDeadNodes(ast: Any, f: FeatureExpr, orig: Product) {
         assert(f.isSatisfiable(), "dead AST subtree: " + ast + " in " + orig)
         ast match {

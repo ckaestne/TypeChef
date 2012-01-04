@@ -10,9 +10,12 @@ import FeatureExpr._
  */
 case class CTypeContext(val types: Map[String, FeatureExpr] = Map()) {
     def addType(newtype: String, condition: FeatureExpr) = new CTypeContext(types + (newtype -> (types.getOrElse(newtype, dead) or condition)))
+
     def knowsType(typename: String, condition: FeatureExpr): Boolean = knowsType(typename, condition, NoFeatureModel)
+
     def knowsType(typename: String, condition: FeatureExpr, fm: FeatureModel): Boolean =
-        (types contains typename) && (condition implies types.getOrElse(typename, dead)).isTautology(fm)
+        (types contains typename) && (condition and types.getOrElse(typename, dead)).isSatisfiable(fm)
+
     def join(that: CTypeContext) =
         new CTypeContext(mergeMap(List(this.types, that.types))(_ or _))
 
