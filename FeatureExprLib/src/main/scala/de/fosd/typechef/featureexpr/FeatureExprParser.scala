@@ -18,27 +18,34 @@ class FeatureExprParser extends RegexParsers {
     def expr: Parser[FeatureExpr] =
         "oneOf" ~ "(" ~> rep1sep(expr, ",") <~ ")" ^^ {
             e => oneOf(e)
+        } | "atLeastOne" ~ "(" ~> rep1sep(expr, ",") <~ ")" ^^ {
+            e => atLeastOne(e)
         } | aterm
 
     def aterm: Parser[FeatureExpr] =
-        bterm ~ opt("=>" ~> expr) ^^ {
+        bterm ~ opt(("=>" | "implies") ~> expr) ^^ {
             case a ~ b => if (b.isDefined) a implies b.get else a
         }
 
-    //mutually exclusion
     def bterm: Parser[FeatureExpr] =
-        cterm ~ opt("<!>" ~> expr) ^^ {
+        cterm ~ opt(("<=>" | "equiv") ~> expr) ^^ {
+            case a ~ b => if (b.isDefined) a equiv b.get else a
+        }
+
+    //mutually exclusion
+    def cterm: Parser[FeatureExpr] =
+        dterm ~ opt(("<!>" | "mex") ~> expr) ^^ {
             case a ~ b => if (b.isDefined) a mex b.get else a
         }
 
     //||
-    def cterm: Parser[FeatureExpr] =
-        term ~ rep("||" ~> expr) ^^ {
+    def dterm: Parser[FeatureExpr] =
+        term ~ rep(("||" | "or") ~> expr) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ or _)
         }
 
     def term: Parser[FeatureExpr] =
-        bool ~ rep("&&" ~> expr) ^^ {
+        bool ~ rep(("&&" | "and") ~> expr) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ and _)
         }
 
@@ -68,11 +75,17 @@ class FeatureExprParser extends RegexParsers {
         case NoSuccess(msg, _) => throw new Exception("error parsing " + msg)
     }
 
+    private def trimComment(l: String): String = {
+        if (l.indexOf("//") >= 0)
+            l.take(l.indexOf("//"))
+        else l
+    }
+
 
     def parseFile(cfilename: String): FeatureExpr = {
         val featureModelFile = new File(cfilename)
         if (featureModelFile.exists) {
-            scala.io.Source.fromFile(featureModelFile).getLines().map(line =>
+            scala.io.Source.fromFile(featureModelFile).getLines().map(trimComment(_)).map(line =>
                 if (line.trim.isEmpty) FeatureExpr.base
                 else parse(line)
             ).fold(FeatureExpr.base)(_ and _)
@@ -88,4 +101,8 @@ class FeatureExprParser extends RegexParsers {
             foldLeft(features.foldLeft(FeatureExpr.dead)(_ or _))(_ and _)
 
     }
+
+    def atLeastOne(featuresNames: List[FeatureExpr]): FeatureExpr =
+        featuresNames.foldLeft(FeatureExpr.dead)(_ or _)
+
 }
