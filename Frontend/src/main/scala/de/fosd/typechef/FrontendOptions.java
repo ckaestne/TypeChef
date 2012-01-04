@@ -19,7 +19,8 @@ public class FrontendOptions extends LexerOptions {
             serializeAST = false,
             writeDebugInterface = false,
             recordTiming = false,
-            parserStatistics = false;
+            parserStatistics = false,
+            writePI = false;
     String outputStem = "";
     private String filePresenceConditionFile = "";
 
@@ -98,6 +99,8 @@ public class FrontendOptions extends LexerOptions {
             filePresenceConditionFile = g.getOptarg();
         } else if (c == F_PARSERSTATS) {
             parserStatistics = true;
+        } else if (c == F_WRITEPI) {
+            writePI = true;
         } else
             return super.interpretOption(c, g);
 
@@ -114,7 +117,7 @@ public class FrontendOptions extends LexerOptions {
 
         if (outputStem.length() == 0)
             outputStem = getFile().replace(".c", "");
-        if (lexOutputFile == null || lexOutputFile.length() == 0)
+        if (writePI && (lexOutputFile == null || lexOutputFile.length() == 0))
             lexOutputFile = outputStem + ".pi";
     }
 
