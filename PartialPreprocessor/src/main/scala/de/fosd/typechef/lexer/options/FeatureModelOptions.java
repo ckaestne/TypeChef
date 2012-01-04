@@ -28,16 +28,20 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
         return featureModel;
     }
 
+    private static final char FM_DIMACS = Options.genOptionId();
+    private static final char FM_FEXPR = Options.genOptionId();
+    private static final char FM_CLASS = Options.genOptionId();
+
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
         List<Options.OptionGroup> r = super.getOptionGroups();
 
         r.add(new OptionGroup("Feature models", 100,
-                new Option("featureModelDimacs", LongOpt.REQUIRED_ARGUMENT, 8, "file",
+                new Option("featureModelDimacs", LongOpt.REQUIRED_ARGUMENT, FM_DIMACS, "file",
                         "Dimacs file describing a feature model."),
-                new Option("featureModelFExpr", LongOpt.REQUIRED_ARGUMENT, 9, "file",
+                new Option("featureModelFExpr", LongOpt.REQUIRED_ARGUMENT, FM_FEXPR, "file",
                         "File in FExpr format describing a feature model."),
-                new Option("featureModelClass", LongOpt.REQUIRED_ARGUMENT, 10, "classname",
+                new Option("featureModelClass", LongOpt.REQUIRED_ARGUMENT, FM_CLASS, "classname",
                         "Class describing a feature model.")
         ));
 
@@ -47,31 +51,29 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
 
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {
-        switch (c) {
-            case 8:       //--featureModelDimacs
-                if (featureModel != null)
-                    throw new OptionException("cannot load feature model from dimacs file. feature model already exists.");
-                checkFileExists(g.getOptarg());
-                featureModel = FeatureModel.createFromDimacsFile(g.getOptarg());
-                return true;
-            case 9:     //--featureModelFExpr
-                checkFileExists(g.getOptarg());
-                FeatureExpr f = new FeatureExprParser().parseFile(g.getOptarg());
-                if (featureModel == null)
-                    featureModel = de.fosd.typechef.featureexpr.FeatureModel.create(f);
-                else featureModel = featureModel.and(f);
-                return true;
-            case 10://--featureModelClass
-                try {
-                    FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
-                    featureModel = factory.createFeatureModel();
-                } catch (Exception e) {
-                    throw new OptionException("cannot instantiate feature model: " + e.getMessage());
-                }
-                return true;
-            default:
-                return super.interpretOption(c, g);
-        }
+        if (c == FM_DIMACS) {       //--featureModelDimacs
+            if (featureModel != null)
+                throw new OptionException("cannot load feature model from dimacs file. feature model already exists.");
+            checkFileExists(g.getOptarg());
+            featureModel = FeatureModel.createFromDimacsFile(g.getOptarg());
+            return true;
+        } else if (c == FM_FEXPR) {     //--featureModelFExpr
+            checkFileExists(g.getOptarg());
+            FeatureExpr f = new FeatureExprParser().parseFile(g.getOptarg());
+            if (featureModel == null)
+                featureModel = de.fosd.typechef.featureexpr.FeatureModel.create(f);
+            else featureModel = featureModel.and(f);
+            return true;
+        } else if (c == FM_CLASS) {//--featureModelClass
+            try {
+                FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
+                featureModel = factory.createFeatureModel();
+            } catch (Exception e) {
+                throw new OptionException("cannot instantiate feature model: " + e.getMessage());
+            }
+            return true;
+        } else
+            return super.interpretOption(c, g);
 
 
     }

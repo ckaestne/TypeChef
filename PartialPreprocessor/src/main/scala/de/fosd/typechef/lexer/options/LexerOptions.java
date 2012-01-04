@@ -19,6 +19,17 @@ import java.util.*;
  */
 public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
 
+    private static final char PP_INCLUDE = Options.genOptionId();
+    private static final char PP_IQUOTE = Options.genOptionId();
+    private static final char PP_LEXOUT = Options.genOptionId();
+    private static final char PP_OPENFEAT = Options.genOptionId();
+    private static final char PP_LEXDEBUG = Options.genOptionId();
+    private static final char PP_LEXENABLE = Options.genOptionId();
+    private static final char PP_LEXDISABLE = Options.genOptionId();
+    private static final char PP_NOSTDOUT = Options.genOptionId();
+    private static final char TY_VERSION = Options.genOptionId();
+    private static final char TY_HELP = Options.genOptionId();
+
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
         List<OptionGroup> r = super.getOptionGroups();
@@ -28,13 +39,13 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
                         "Defines the given macro (may currently not be used to define parametric macros)."),
                 new Option("undefine", LongOpt.REQUIRED_ARGUMENT, 'U', "name",
                         "Undefines the given macro, previously either builtin or defined using -D."),
-                new Option("include", LongOpt.REQUIRED_ARGUMENT, 1, "file",
+                new Option("include", LongOpt.REQUIRED_ARGUMENT, PP_INCLUDE, "file",
                         "Process file as if \"#" + "include \"file\"\" appeared as the first line of the primary source file."),
                 new Option("incdir", LongOpt.REQUIRED_ARGUMENT, 'I', "dir",
                         "Adds the directory dir to the list of directories to be searched for header files."),
-                new Option("iquote", LongOpt.REQUIRED_ARGUMENT, 0, "dir",
+                new Option("iquote", LongOpt.REQUIRED_ARGUMENT, PP_IQUOTE, "dir",
                         "Adds the directory dir to the list of directories to be searched for header files included using \"\"."),
-                new Option("lexOutput", LongOpt.REQUIRED_ARGUMENT, 18, "file",
+                new Option("lexOutput", LongOpt.REQUIRED_ARGUMENT, PP_LEXOUT, "file",
                         "Output file (typically .pi).")
         ));
 
@@ -45,7 +56,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
                         "Analysis excludes all flags ending with this postfix."),
                 new Option("prefixonly", LongOpt.REQUIRED_ARGUMENT, 'x', "text",
                         "Analysis includes only flags beginning with this prefix."),
-                new Option("openFeat", LongOpt.REQUIRED_ARGUMENT, 4, "text",
+                new Option("openFeat", LongOpt.REQUIRED_ARGUMENT, PP_OPENFEAT, "text",
                         "List of flags with an unspecified value; other flags are considered undefined.")
         ));
         r.add(new OptionGroup("Preprocessor warnings and debugging", 70,
@@ -55,19 +66,19 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
                         "Disables ALL warnings."),
                 new Option("verbose", LongOpt.NO_ARGUMENT, 'v', null,
                         "Operates incredibly verbosely."),
-                new Option("lexdebug", LongOpt.NO_ARGUMENT, 3, null,
+                new Option("lexdebug", LongOpt.NO_ARGUMENT, PP_LEXDEBUG, null,
                         "Create debug files for macros and sources (enables debugfile-sources and debugfile-macrotable)."),
-                new Option("lexEnable", LongOpt.REQUIRED_ARGUMENT, 5, "type",
+                new Option("lexEnable", LongOpt.REQUIRED_ARGUMENT, PP_LEXENABLE, "type",
                         "Enables a specific lexer feature (" + getFeatureLabels() + ") Features with * are activated by default."),
-                new Option("lexDisable", LongOpt.REQUIRED_ARGUMENT, 6, "type",
+                new Option("lexDisable", LongOpt.REQUIRED_ARGUMENT, PP_LEXDISABLE, "type",
                         "Disable a specific lexer feature."),
-                new Option("lexNoStdout", LongOpt.NO_ARGUMENT, 7, null,
+                new Option("lexNoStdout", LongOpt.NO_ARGUMENT, PP_NOSTDOUT, null,
                         "Do not print to stdout.")
         ));
         r.add(new OptionGroup("Misc", 1000,
-                new Option("version", LongOpt.NO_ARGUMENT, 2, null,
+                new Option("version", LongOpt.NO_ARGUMENT, TY_VERSION, null,
                         "Prints version number"),
-                new Option("help", LongOpt.NO_ARGUMENT, 22, null,
+                new Option("help", LongOpt.NO_ARGUMENT, TY_HELP, null,
                         "Displays help and usage information.")
         ));
         return r;
@@ -124,109 +135,90 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
 
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {
-        switch (c) {
-            case 'D':
-                //XXX may not be used to define parametric macros
-                String arg = g.getOptarg();
-                int idx = arg.indexOf('=');
-                String name, value;
-                if (idx == -1) {
-                    name = arg;
-                    value = "1";
-                } else {
-                    name = arg.substring(0, idx);
-                    value = arg.substring(idx + 1);
-                }
-                definedMacros.put(name, value);
-                undefMacros.remove(name);
-                return true;
-            case 'U':
-                definedMacros.remove(g.getOptarg());
-                undefMacros.add(g.getOptarg());
-                return true;
-            case 'I':
-                // Paths need to be canonicalized, because include_next
-                // processing needs to compare paths!
-                checkDirectoryExists(g.getOptarg());
-                try {
-                    systemIncludePath.add(new File(g.getOptarg()).getCanonicalPath());
-                } catch (IOException e) {
-                    throw new OptionException("path not found " + g.getOptarg());
-                }
-                return true;
-            case 'p':
-                macroFilter.add("p:" + g.getOptarg());
-                return true;
-            case 'P':
-                macroFilter.add("P:" + g.getOptarg());
-                return true;
-            case 'x':
-                macroFilter.add("x:" + g.getOptarg());
-                return true;
-            case 4:   //--openFeat
-                macroFilter.add("4:" + g.getOptarg());
-                return true;
-            case 0: // --iquote=
-                checkDirectoryExists(g.getOptarg());
-                try {
-                    quoteIncludePath.add(new File(g.getOptarg()).getCanonicalPath());
-                } catch (IOException e) {
-                    throw new OptionException("path not found " + g.getOptarg());
-                }
-                return true;
-            case 'W':
-                arg = g.getOptarg().toUpperCase();
-                arg = arg.replace('-', '_');
-                if (arg.equals("ALL"))
-                    warnings.addAll(EnumSet.allOf(Warning.class));
-                else
-                    warnings.add(Enum.valueOf(Warning.class, arg));
-                return true;
-            case 'w':
-                warnings.clear();
-                return true;
-            case 18:   //--lexOutput (previously -o)
-                lexOutputFile = g.getOptarg();
-                return true;
-            case 1: // --include=
-                checkFileExists(g.getOptarg());
-                try {
-                    includedHeaders.add(new File(g.getOptarg()).getCanonicalPath());
-                } catch (IOException e) {
-                    throw new OptionException("file not found " + g.getOptarg());
-                }
-                return true;
-            case 2: // --version
-                printVersion = true;
-                return true;
-            case 'v':
-                features.add(Feature.DEBUG_VERBOSE);
-                features.add(Feature.DEBUG_INCLUDEPATH);
-                return true;
-            case 3:
-                features.add(Feature.DEBUGFILE_MACROTABLE);
-                features.add(Feature.DEBUGFILE_SOURCES);
-                return true;
-            case 5://--lexEnable
-                arg = g.getOptarg().toUpperCase();
-                arg = arg.replace('-', '_');
-                features.add(Enum.valueOf(Feature.class, arg));
-            case 6://--lexDisable
-                arg = g.getOptarg().toUpperCase();
-                arg = arg.replace('-', '_');
-                features.remove(Enum.valueOf(Feature.class, arg));
-            case 7://--lexNoStdout
-                lexPrintToStdout = false;
-                return true;
-
-            case 22://--help
-                printUsage();
-                printVersion = true;
-                return true;
-            default:
-                return super.interpretOption(c, g);
+        if (c == 'D') {
+            //XXX may not be used to define parametric macros
+            String arg = g.getOptarg();
+            int idx = arg.indexOf('=');
+            String name, value;
+            if (idx == -1) {
+                name = arg;
+                value = "1";
+            } else {
+                name = arg.substring(0, idx);
+                value = arg.substring(idx + 1);
+            }
+            definedMacros.put(name, value);
+            undefMacros.remove(name);
+        } else if (c == 'U') {
+            definedMacros.remove(g.getOptarg());
+            undefMacros.add(g.getOptarg());
+        } else if (c == 'I') {
+            // Paths need to be canonicalized, because include_next
+            // processing needs to compare paths!
+            checkDirectoryExists(g.getOptarg());
+            try {
+                systemIncludePath.add(new File(g.getOptarg()).getCanonicalPath());
+            } catch (IOException e) {
+                throw new OptionException("path not found " + g.getOptarg());
+            }
+        } else if (c == 'p') {
+            macroFilter.add("p:" + g.getOptarg());
+        } else if (c == 'P') {
+            macroFilter.add("P:" + g.getOptarg());
+        } else if (c == 'x') {
+            macroFilter.add("x:" + g.getOptarg());
+        } else if (c == PP_OPENFEAT) {   //--openFeat
+            macroFilter.add("4:" + g.getOptarg());
+        } else if (c == PP_IQUOTE) { // --iquote=
+            checkDirectoryExists(g.getOptarg());
+            try {
+                quoteIncludePath.add(new File(g.getOptarg()).getCanonicalPath());
+            } catch (IOException e) {
+                throw new OptionException("path not found " + g.getOptarg());
+            }
+        } else if (c == 'W') {
+            String arg = g.getOptarg().toUpperCase();
+            arg = arg.replace('-', '_');
+            if (arg.equals("ALL"))
+                warnings.addAll(EnumSet.allOf(Warning.class));
+            else
+                warnings.add(Enum.valueOf(Warning.class, arg));
+        } else if (c == 'w') {
+            warnings.clear();
+        } else if (c == PP_LEXOUT) {   //--lexOutput (previously -o)
+            lexOutputFile = g.getOptarg();
+        } else if (c == PP_INCLUDE) { // --include=
+            checkFileExists(g.getOptarg());
+            try {
+                includedHeaders.add(new File(g.getOptarg()).getCanonicalPath());
+            } catch (IOException e) {
+                throw new OptionException("file not found " + g.getOptarg());
+            }
+        } else if (c == TY_VERSION) { // --version
+            printVersion = true;
+        } else if (c == 'v') {
+            features.add(Feature.DEBUG_VERBOSE);
+            features.add(Feature.DEBUG_INCLUDEPATH);
+        } else if (c == PP_LEXDEBUG) {
+            features.add(Feature.DEBUGFILE_MACROTABLE);
+            features.add(Feature.DEBUGFILE_SOURCES);
+        } else if (c == PP_LEXENABLE) {//--lexEnable
+            String arg = g.getOptarg().toUpperCase();
+            arg = arg.replace('-', '_');
+            features.add(Enum.valueOf(Feature.class, arg));
+        } else if (c == PP_LEXDISABLE) {//--lexDisable
+            String arg = g.getOptarg().toUpperCase();
+            arg = arg.replace('-', '_');
+            features.remove(Enum.valueOf(Feature.class, arg));
+        } else if (c == PP_NOSTDOUT) {//--lexNoStdout
+            lexPrintToStdout = false;
+        } else if (c == TY_HELP) {//--help
+            printUsage();
+            printVersion = true;
+        } else {
+            return super.interpretOption(c, g);
         }
-
+        return true;
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.fosd.typechef
 import java.io.{FileInputStream, File}
 import gnu.getopt.{Getopt, LongOpt}
 import java.util.{ArrayList, Properties}
+import lexer.options.Options
 
 
 class FrontendOptionsWithConfigFiles extends FrontendOptions {
@@ -51,6 +52,8 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
     }
 
 
+    private final val SYSINCL: Char = Options.genOptionId()
+
     protected override def getOptionGroups() = {
         import lexer.options.Options.OptionGroup
         import lexer.options.Options.Option
@@ -62,7 +65,7 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
                 "Path to system root. Default: '/'."),
             new Option("platfromHeader", LongOpt.REQUIRED_ARGUMENT, 'h', "file",
                 "Header files with platform macros (create with 'cpp -dM -std=gnu99 -'). Default: 'platform.h'."),
-            new Option("systemIncludes", LongOpt.REQUIRED_ARGUMENT, 20, "dir",
+            new Option("systemIncludes", LongOpt.REQUIRED_ARGUMENT, SYSINCL, "dir",
                 "System include directory. Default: '$systemRoot/usr/include'."),
             new Option("settingsFile", LongOpt.REQUIRED_ARGUMENT, 'c', "dir",
                 "Property file specifying system root, platform headers, and system include directories.")
@@ -83,7 +86,7 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
             checkFileExists(g.getOptarg)
             loadSettings(g.getOptarg)
             true
-        } else if (c == 20) {
+        } else if (c == SYSINCL) {
             checkDirectoryExists(g.getOptarg)
             setSystemIncludes(g.getOptarg)
             true

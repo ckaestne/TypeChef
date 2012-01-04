@@ -32,16 +32,16 @@ object ParserMain {
 
 class ParserMain(p: CParser) {
 
-    def parserMain(filePath: String, parentPath: String): AST = {
+    def parserMain(filePath: String, parentPath: String, printStatistics: Boolean = true): AST = {
         val lexer = (() => CLexer.lexFile(filePath, parentPath, p.featureModel))
-        parserMain(lexer, new CTypeContext())
+        parserMain(lexer, new CTypeContext(), printStatistics)
     }
 
-    def parserMain(tokenstream: TokenReader[TokenWrapper, CTypeContext]): AST = {
-        parserMain((() => tokenstream), new CTypeContext())
+    def parserMain(tokenstream: TokenReader[TokenWrapper, CTypeContext], printStatistics: Boolean): AST = {
+        parserMain((() => tokenstream), new CTypeContext(), printStatistics)
     }
 
-    def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext, printStatistics: Boolean = true): AST = {
+    def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext, printStatistics: Boolean): AST = {
         //        val logStats = MyUtil.runnable(() => {
         //            if (TokenWrapper.profiling) {
         //                val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
@@ -64,18 +64,18 @@ class ParserMain(p: CParser) {
             println(printParseResult(result, FeatureExpr.base))
 
             println("Parsing statistics: \n" +
-                    //                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
-                    "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
-                    "  Tokens: " + in.tokens.size + "\n" +
-                    "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
-                    "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
-                    "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
-                    //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
-                    "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
-                    "  Distinct Features#: " + countFeatures(in.tokens) + "\n" +
-                    "  Distinct Features: " + getDistinctFeatures(in.tokens).toList.sorted.mkString(";") + "\n" +
-                    "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
-                    "  Choice Nodes: " + countChoiceNodes(result) + "\n")
+                //                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
+                "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
+                "  Tokens: " + in.tokens.size + "\n" +
+                "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
+                "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
+                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
+                //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
+                "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
+                "  Distinct Features#: " + countFeatures(in.tokens) + "\n" +
+                "  Distinct Features: " + getDistinctFeatures(in.tokens).toList.sorted.mkString(";") + "\n" +
+                "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
+                "  Choice Nodes: " + countChoiceNodes(result) + "\n")
         }
 
         //        checkParseResult(result, FeatureExpr.base)
@@ -106,7 +106,7 @@ class ParserMain(p: CParser) {
                 (feature.toString + "\tfailed: " + msg + " at " + unparsed.pos + " (" + inner + ")\n")
             case p.SplittedParseResult(f, left, right) => {
                 printParseResult(left, feature.and(f)) + "\n" +
-                        printParseResult(right, feature.and(f.not))
+                    printParseResult(right, feature.and(f.not))
             }
         }
     }
@@ -130,13 +130,16 @@ class ParserMain(p: CParser) {
 
     def countConditionalTokens(tokens: List[TokenWrapper]): Int =
         tokens.count(_.getFeature != FeatureExpr.base)
+
     def getDistinctFeatures(tokens: List[TokenWrapper]): Set[String] = {
         var features: Set[String] = Set()
         for (t <- tokens)
             features ++= t.getFeature.resolveToExternal.collectDistinctFeatures.map(_.feature)
         features
     }
+
     def countFeatures(tokens: List[TokenWrapper]): Int = getDistinctFeatures(tokens).size
+
     def printDistinctFeatures(tokens: List[TokenWrapper], filename: String) {
         val w = new FileWriter(new File(filename))
         w.write(getDistinctFeatures(tokens).toList.sorted.mkString("\n"))

@@ -60,7 +60,7 @@ object Frontend {
             println("parsing.")
             val in = CLexer.prepareTokens(tokens)
             val parserMain = new ParserMain(new CParser(fm))
-            val ast = parserMain.parserMain(in)
+            val ast = parserMain.parserMain(in, opt.parserStatistics)
             t3 = System.currentTimeMillis();
             t5 = t3;
             t4 = t3

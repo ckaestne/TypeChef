@@ -11,6 +11,13 @@ import java.util.List;
 
 public abstract class Options {
 
+    private static char maxOptionId = 0;
+
+    public static char genOptionId() {
+        maxOptionId++;
+        return maxOptionId;
+    }
+
     public static class OptionGroup implements Comparable {
         private int priority;
         private String name;
