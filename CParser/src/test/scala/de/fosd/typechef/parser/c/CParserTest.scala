@@ -861,7 +861,7 @@ typedef struct spinlock {} spinlock_t;
             typedef int b;
             __expectType[:a:]
             """, p.phrase(p.translationUnit))
-        //TODO currently this is not checked! check at type system level! any type is known as type if it was defined in a satisfiable context
+        // currently this is not checked here! check at type system level!
         //        assertParseError("""
         //            #ifdef X
         //            typedef int a;
