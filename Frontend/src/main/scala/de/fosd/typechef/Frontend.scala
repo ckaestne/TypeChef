@@ -17,7 +17,11 @@ object Frontend {
         // load options
         val opt = new FrontendOptionsWithConfigFiles()
         try {
-            opt.parseOptions(args)
+            try {
+                opt.parseOptions(args)
+            } catch {
+                case o: OptionException => if (!opt.isPrintVersion) throw o;
+            }
 
             if (opt.isPrintVersion) {
                 var version = "development build"
