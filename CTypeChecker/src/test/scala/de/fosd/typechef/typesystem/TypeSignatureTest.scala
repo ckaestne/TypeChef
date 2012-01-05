@@ -67,6 +67,28 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
         }
     }
 
+    test("recursive structures") {
+        expect(true) {
+            check("""
+                     struct mtab_list {
+                		char *dir;
+                		char *device;
+                		struct mtab_list *next;
+                	} *mtl, *m;
+                 """)
+        }
+        expect(true) {
+            check("""
+         void foo(){
+             struct mtab_list {
+        		char *dir;
+        		char *device;
+        		struct mtab_list *next;
+        	} *mtl, *m;
+         }""")
+        }
+    }
+
     //    test("enum declaration") {
     //        expect(true) {
     //            check("enum s;") //forward declaration

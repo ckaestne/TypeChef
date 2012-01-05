@@ -176,8 +176,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 (checkExpr(expr), env)
 
             case DeclarationStatement(d) =>
-                checkTypeDeclaration(d, featureExpr, env)
-                (One(CVoid()), addDeclarationToEnvironment(d, featureExpr, env))
+                val newEnv = addDeclarationToEnvironment(d, featureExpr, env)
+                checkTypeDeclaration(d, featureExpr, newEnv)
+                (One(CVoid()), newEnv)
 
             case NestedFunctionDef(_, spec, decl, oldSP, stmt) =>
                 (One(CVoid()), checkFunction(spec, decl, oldSP, stmt, featureExpr, env)._2)
