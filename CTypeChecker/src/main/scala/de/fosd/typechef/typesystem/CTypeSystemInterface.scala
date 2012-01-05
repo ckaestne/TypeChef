@@ -52,6 +52,7 @@ trait CTypeSystemInterface extends CEnv {
         val Crash = Value("Critical") //Type-System crashes (e.g. unimplemented parts)
         val IdLookupError = Value("Id-Lookup Error") // severe errors during lookup of id
         val FieldLookupError = Value("Field-Lookup Error") // severe errors during lookup of fields
+        val TypeLookupError = Value("Type-Lookup Error") // severe errors during lookup of id
         val OtherError = Value("Error") // other severe type errors
         val Warning = Value("Warning")
     }
@@ -62,6 +63,7 @@ trait CTypeSystemInterface extends CEnv {
             issueTypeError(Severity.Crash, featureExpr, msg, where)
         condition
     }
+
     protected final def reportTypeError(featureExpr: FeatureExpr, txt: String, where: AST, severity: Severity.Severity = Severity.OtherError): CUnknown = {
         issueTypeError(severity, featureExpr, txt, where)
         CUnknown(txt)
