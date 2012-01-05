@@ -84,9 +84,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CPointer(t) => wf(t)
             case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
             case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                    param.forall(p => !arrayType(p) && p != CVoid())) &&
-                    param.dropRight(1).forall(wf(_)) &&
-                    lastParam(param.lastOption) //last param may be varargs
+                param.forall(p => !arrayType(p) && p != CVoid())) &&
+                param.dropRight(1).forall(wf(_)) &&
+                lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
                 true
@@ -104,18 +104,18 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     }
 
 
-    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, enumEnv: EnumEnv): EnumEnv =
+    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, enumEnv: EnumEnv, isHeadless: Boolean): EnumEnv =
         specifiers.foldRight(enumEnv)({
             (opt, b) => {
                 val specFeature = opt.feature
                 val typeSpec = opt.entry
                 typeSpec match {
-                    case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) =>
+                    case EnumSpecifier(Some(Id(name)), l) if (isHeadless || !l.isEmpty) =>
                         b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExpr.dead)))
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields) =>
                         fields.foldRight(b)(
-                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b)
+                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b, optField.entry.declaratorList.isEmpty)
                         )
 
                     case _ => b

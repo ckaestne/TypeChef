@@ -107,7 +107,10 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env("inner") should be(One(CDouble()))
     }
 
-    test("variable scoping") {t()}
+    test("variable scoping") {
+        t()
+    }
+
     def t() {
         //finding but last statement in last functiondef
         val fundef = ast.defs.takeRight(3).head.entry.asInstanceOf[FunctionDef]
@@ -144,7 +147,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         val typedefs = lookupEnv(lastDecl).typedefEnv
 
         typedefs("myint") should be(_i)
-        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, One(CDouble())))))
+        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() +("x", base, One(CDouble())))))
         typedefs("myunsign") should be(One(CUnsigned(CInt())))
 
         //typedef is not a declaration
@@ -152,7 +155,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env.contains("mystr") should be(false)
 
         env("myintvar") should be(_i)
-        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() + ("x", base, One(CDouble()))))))
+        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", base, One(CDouble()))))))
         env("mypairvar") should be(One(CStruct("pair")))
 
         //structure definitons should be recognized despite typedefs
@@ -352,6 +355,16 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env("West") should be(_i)
         env("Red") should be(Choice(fy, _i, One(CUndefined)))
         env("Blue") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined))))
+    }
+
+    test("enum forward declaration") {
+        val ast = (compileCode("""
+                    enum Direction;
+                    int end;
+                    """))
+        val enumenv = lookupEnv(ast.defs.last.entry).enumEnv
+
+        enumenv should contain key ("Direction")
     }
 
 

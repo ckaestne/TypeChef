@@ -69,7 +69,10 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
 
     test("enum declaration") {
         expect(true) {
-            check("enum s;", true) //forward declaration
+            check("enum s;") //forward declaration
+        }
+        expect(false) {
+            check("enum s x;") //not a forward declaration
         }
         expect(true) {
             check("enum s {a,b};\n" +

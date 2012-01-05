@@ -83,7 +83,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //declared struct?
         env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
         //declared enums?
-        env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv))
+        env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
         //declared typedefs?
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
         //add declared variables to variable typing environment and check initializers
@@ -336,7 +336,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 if ((expr andNot declExpr).isSatisfiable)
                     reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
-            case EnumSpecifier(Some(id), _) =>
+            case EnumSpecifier(Some(id), None) =>
                 val declExpr = env.enumEnv.getOrElse(id.name, FeatureExpr.dead)
                 if ((expr andNot declExpr).isSatisfiable)
                     reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
