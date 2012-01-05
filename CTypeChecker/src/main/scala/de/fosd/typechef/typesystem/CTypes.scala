@@ -325,10 +325,14 @@ class ConditionalTypeMap(private val m: ConditionalMap[String, Conditional[CType
     def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
-    def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat
+    def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat //warning: do not use, probably not what desired
+    def keys = m.keys
     def whenDefined(name: String): FeatureExpr = m.whenDefined(name)
 
-    override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
+    override def equals(that: Any) = that match {
+        case c: ConditionalTypeMap => m equals c.m;
+        case _ => false
+    }
     override def hashCode = m.hashCode
     override def toString = m.toString
 }

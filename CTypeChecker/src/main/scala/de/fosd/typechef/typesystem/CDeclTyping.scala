@@ -161,7 +161,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
 
     protected def checkStructsC(ctype: Conditional[CType], expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype mapf(expr, {
-        (f, t) => checkStructs(t, expr and f, env, where, checkedStructs)
+        (f, t) => checkStructs(t, f, env, where, checkedStructs)
     })
 
     /**
@@ -178,10 +178,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             //check also fields
             if (!checkedStructs.contains(name) && env.structEnv.someDefinition(name, isUnion)) {
                 val fields = env.structEnv.get(name, isUnion)
-                fields.allTypes.map(ct => checkStructsC(ct, expr, env, where, name :: checkedStructs))
+                val fieldTypes = fields.keys.map(k => fields.getOrElse(k, CUnknown()))
+                fieldTypes.map(ct => checkStructsC(ct, expr, env, where, name :: checkedStructs))
             }
         case CAnonymousStruct(fields, _) => //check fields
-            fields.allTypes.map(ct => checkStructsC(ct, expr, env, where, checkedStructs))
+            val fieldTypes = fields.keys.map(k => fields.getOrElse(k, CUnknown()))
+            fieldTypes.map(ct => checkStructsC(ct, expr, env, where, checkedStructs))
         case _ =>
     }
 

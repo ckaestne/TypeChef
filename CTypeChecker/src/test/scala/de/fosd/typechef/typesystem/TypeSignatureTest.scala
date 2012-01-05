@@ -130,6 +130,21 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
         	} *mtl, *m;
          }""")
         }
+        expect(true) {
+            check("""
+            #ifdef X
+                 struct x { int b;};
+            #endif
+                 struct y {
+                    int a;
+            #ifdef X
+                    struct x d;
+            #endif
+                    int e;
+                 };
+                 struct y test(){}
+                 """)
+        }
     }
 
     //    test("enum declaration") {

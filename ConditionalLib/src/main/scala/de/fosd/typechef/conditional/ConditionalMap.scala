@@ -49,12 +49,16 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
     def isEmpty = entries.isEmpty
     def allEntriesFlat: Iterable[B] = entries.values.flatten.map(_._2)
     def whenDefined(name: A): FeatureExpr = entries.getOrElse(name, Seq()).foldLeft(FeatureExpr.dead)(_ or _._1)
+    def keys = entries.keys
 
     private def createChoice(entries: Seq[(FeatureExpr, B)], other: B) =
         entries.foldRight[Conditional[B]](One(other))((p, t) => Choice(p._1, One(p._2), t)) simplify
 
 
-    override def equals(that: Any) = that match {case c: ConditionalMap[_, _] => entries equals c.entries; case _ => false}
+    override def equals(that: Any) = that match {
+        case c: ConditionalMap[_, _] => entries equals c.entries;
+        case _ => false
+    }
     override def hashCode = entries.hashCode
     override def toString = entries.toString
 }
