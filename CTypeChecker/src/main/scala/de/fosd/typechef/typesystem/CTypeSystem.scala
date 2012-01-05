@@ -337,9 +337,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                     reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case EnumSpecifier(Some(id), None) =>
-                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExpr.dead)
-                if ((expr andNot declExpr).isSatisfiable)
-                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
+            //                Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
+            //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExpr.dead)
+            //                if ((expr andNot declExpr).isSatisfiable)
+            //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
                 for (Opt(f, enumerator) <- enumerators)

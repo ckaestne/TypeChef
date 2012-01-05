@@ -67,29 +67,29 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
         }
     }
 
-    test("enum declaration") {
-        expect(true) {
-            check("enum s;") //forward declaration
-        }
-        expect(false) {
-            check("enum s x;") //not a forward declaration
-        }
-        expect(true) {
-            check("enum s {a,b};\n" +
-                "void foo(){enum s x;}")
-        }
-        expect(false) {
-            check("#ifdef X\n" +
-                "enum s {a, b};\n" +
-                "#endif\n" +
-                "void foo(){enum s x;}")
-        }
-        expect(false) {
-            check("#ifdef X\n" +
-                "enum s {a, b};\n" +
-                "#endif\n" +
-                "enum s foo();")
-        }
-    }
+    //    test("enum declaration") {
+    //        expect(true) {
+    //            check("enum s;") //forward declaration
+    //        }
+    //        expect(false) {
+    //            check("enum s x;") //not a forward declaration
+    //        }
+    //        expect(true) {
+    //            check("enum s {a,b};\n" +
+    //                "void foo(){enum s x;}")
+    //        }
+    //        expect(false) {
+    //            check("#ifdef X\n" +
+    //                "enum s {a, b};\n" +
+    //                "#endif\n" +
+    //                "void foo(){enum s x;}")
+    //        }
+    //        expect(false) {
+    //            check("#ifdef X\n" +
+    //                "enum s {a, b};\n" +
+    //                "#endif\n" +
+    //                "enum s foo();")
+    //        }
+    //    }
 
 }
