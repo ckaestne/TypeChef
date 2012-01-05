@@ -19,7 +19,9 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
         println(r)
         r
     }
+
     private def declCT(code: String): Conditional[CType] = declTL(code)(0)._2
+
     private def declT(code: String): CType = declCT(code) match {
         case One(e) => e
         case e => CUnknown("Multiple types not expected " + e)

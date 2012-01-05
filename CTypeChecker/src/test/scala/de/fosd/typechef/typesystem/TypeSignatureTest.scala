@@ -39,25 +39,53 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
         }
     }
 
-    test("structure types") {
+    test("structure types without variability") {
         expect(true) {
             check("struct s;") //forward declaration
+        }
+        expect(false) {
+            check("struct s x;") //no forward declaration
         }
         expect(true) {
             check("struct s {int a;};\n" +
                 "void foo(){struct s b;}")
         }
+        expect(true) {
+            check("struct s foo();")
+        }
+        expect(true) {
+            check("struct s {int a;};\n" +
+                "void foo(){struct c {struct s x;} b;}")
+        }
+        expect(false) {
+            check("struct s foo(){}\n" +
+                "void bar() { foo(); }")
+        }
+        expect(false) {
+            check("struct s bar() { }")
+        }
+        expect(false) {
+            check("void bar(struct c x) { }")
+        }
+        expect(true) {
+            check("struct s {int a;};\n" +
+                "struct s foo(){}\n" +
+                "void bar() { foo(); }")
+        }
+        expect(false) {
+            check("void foo(){struct {int a; struct x b;} b;}")
+        }
+        expect(false) {
+            check("struct s {int a; struct x b;};\n" +
+                "void foo(){struct s b;}")
+        }
+    }
+    test("structure types with variability") {
         expect(false) {
             check("#ifdef X\n" +
                 "struct s {int a;};\n" +
                 "#endif\n" +
                 "void foo(){struct s b;}")
-        }
-        expect(false) {
-            check("#ifdef X\n" +
-                "struct s {int a;};\n" +
-                "#endif\n" +
-                "struct s foo(){}")
         }
         expect(false) {
             check("#ifdef X\n" +
@@ -65,6 +93,14 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
                 "#endif\n" +
                 "void foo(){struct c {struct s x;} b;}")
         }
+        expect(false) {
+            check("#ifdef X\n" +
+                "struct s {int a;};\n" +
+                "#endif\n" +
+                "struct s foo(){}\n" +
+                "void bar() { foo(); }")
+        }
+
     }
 
     test("recursive structures") {

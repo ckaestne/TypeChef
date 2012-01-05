@@ -52,7 +52,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         //TODO check function redefinitions
         val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
-        funType.mapf(featureExpr, (f, t) => assertTypeSystemConstraint(t.isFunction, f, "not a function", declarator))
+        funType.mapf(featureExpr, (f, t) => t.toValue match {
+            case CFunction(params, ret) =>
+                checkStructs(ret, f, env, declarator)
+                params.map(checkStructs(_, f, env, declarator))
+            case _ =>
+                issueTypeError(Severity.Crash, f, "not a function", declarator)
+        })
         val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
 
         //add type to environment for remaining code
@@ -316,6 +322,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     /**
      * check type specifiers in signatures   and declarators
+     *
+     *
+     * currently only checks that TypeDefNames are in scope
+     *
      */
 
     private def checkTypeSpecifiers(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env) =
@@ -328,35 +338,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkTypeSpecifiers(declaration.qualifierList, expr, env)
         for (Opt(f, StructDeclarator(decl, _, _)) <- declaration.declaratorList)
             checkTypeDeclarator(decl, expr and f, env)
-    }
-
-    private def checkTypeSpecifier(specifier: Specifier, expr: FeatureExpr, env: Env) {
-        specifier match {
-            case TypeDefTypeSpecifier(name) =>
-                val declExpr = env.typedefEnv.whenDefined(name.name)
-                if ((expr andNot declExpr).isSatisfiable)
-                    reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
-
-            case EnumSpecifier(Some(id), None) =>
-            //                Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
-            //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExpr.dead)
-            //                if ((expr andNot declExpr).isSatisfiable)
-            //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
-
-            case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
-                for (Opt(f, enumerator) <- enumerators)
-                    checkTypeStructDeclaration(enumerator, expr and f, env)
-                val declExpr = env.structEnv.isDefined(id.name, isUnion)
-                if ((expr andNot declExpr).isSatisfiable)
-                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
-
-            case StructOrUnionSpecifier(_, None, enumerators) =>
-                for (Opt(f, enumerator) <- enumerators)
-                    checkTypeStructDeclaration(enumerator, expr and f, env)
-
-            case _ =>
-        }
-
     }
 
 
@@ -424,8 +405,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             checkTypeDeclarator(init.declarator, featureExpr and f, env)
     }
 
-    private def checkTypeOldStyleParam(declaration: OldParameterDeclaration, expr: FeatureExpr, env: Env) {
-        //not supported so far
+    private def checkTypeOldStyleParam(declaration: OldParameterDeclaration, expr: FeatureExpr, env: Env) = declaration match {
+        case d: Declaration => checkTypeDeclaration(d, expr, env)
+        case VarArgs() =>
     }
 
 
@@ -434,6 +416,37 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkTypeDeclarator(declarator, expr, env)
         for (Opt(f, osp) <- oldStyleParam)
             checkTypeOldStyleParam(osp, expr and f, env)
+
+    }
+
+
+    private def checkTypeSpecifier(specifier: Specifier, expr: FeatureExpr, env: Env) {
+        specifier match {
+            case TypeDefTypeSpecifier(name) =>
+                val declExpr = env.typedefEnv.whenDefined(name.name)
+                if ((expr andNot declExpr).isSatisfiable)
+                    reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
+
+            case EnumSpecifier(Some(id), None) =>
+            // Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
+            //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExpr.dead)
+            //                if ((expr andNot declExpr).isSatisfiable)
+            //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
+
+            case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
+                for (Opt(f, enumerator) <- enumerators)
+                    checkTypeStructDeclaration(enumerator, expr and f, env)
+            // checked at call site (when declaring a variable or calling a function)
+            //                val declExpr = env.structEnv.isDefined(id.name, isUnion)
+            //                if ((expr andNot declExpr).isSatisfiable)
+            //                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
+
+            case StructOrUnionSpecifier(_, None, enumerators) =>
+                for (Opt(f, enumerator) <- enumerators)
+                    checkTypeStructDeclaration(enumerator, expr and f, env)
+
+            case _ =>
+        }
 
     }
 
