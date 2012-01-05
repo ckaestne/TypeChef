@@ -1183,7 +1183,7 @@ enum
 
 
 
-
+struct mmsghdr;
 
 struct linger
   {

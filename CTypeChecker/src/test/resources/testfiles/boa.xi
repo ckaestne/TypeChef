@@ -1861,6 +1861,8 @@ struct linger
     int l_linger;
   };
 
+struct mmsghdr;
+
 extern int recvmmsg (int __fd, struct mmsghdr *__vmessages,
        unsigned int __vlen, int __flags,
        __const struct timespec *__tmo);
