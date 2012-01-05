@@ -198,14 +198,14 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                                 ): List[(String, FeatureExpr, Conditional[CType])] = {
         val enumDecl = enumDeclarations(decl.declSpecs, featureExpr)
         val isExtern = getIsExtern(decl.declSpecs)
-        var eenv = env.addVars(enumDecl)
+        var eenv = env.addVars(enumDecl, false, env.scope)
         val varDecl = if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv)
 
             for (Opt(f, init) <- decl.init) yield {
                 val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
-                eenv = eenv.addVar(init.getName, featureExpr and f, ctype)
+                eenv = eenv.addVar(init.getName, featureExpr and f, ctype, false, env.scope)
                 init.getExpr map {
                     checkInitializer(_, ctype, featureExpr and f, eenv)
                 }

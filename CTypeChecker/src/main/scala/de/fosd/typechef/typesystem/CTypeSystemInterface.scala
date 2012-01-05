@@ -53,6 +53,7 @@ trait CTypeSystemInterface extends CEnv {
         val IdLookupError = Value("Id-Lookup Error") // severe errors during lookup of id
         val FieldLookupError = Value("Field-Lookup Error") // severe errors during lookup of fields
         val TypeLookupError = Value("Type-Lookup Error") // severe errors during lookup of id
+        val RedeclarationError = Value("Redeclaration Error") // severe errors during lookup of id
         val OtherError = Value("Error") // other severe type errors
         val Warning = Value("Warning")
     }

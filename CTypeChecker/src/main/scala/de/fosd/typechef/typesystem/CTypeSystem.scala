@@ -50,8 +50,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
     private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
-        //TODO check function redefinitions
         val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
+        //structs in signature defined?
         funType.mapf(featureExpr, (f, t) => t.toValue match {
             case CFunction(params, ret) =>
                 checkStructs(ret, f, env, declarator)
@@ -59,13 +59,17 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case _ =>
                 issueTypeError(Severity.Crash, f, "not a function", declarator)
         })
+
         val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
 
+        //redeclaration?
+        checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, true)
+
         //add type to environment for remaining code
-        val newEnv = env.addVar(declarator.getName, featureExpr, funType)
+        val newEnv = env.addVar(declarator.getName, featureExpr, funType, true, env.scope)
 
         //check body (add parameters to environment)
-        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env)).setExpectedReturnType(expectedReturnType)
+        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), false, env.scope + 1).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
 
@@ -74,6 +78,52 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         (funType, newEnv)
     }
+
+
+    private def checkRedeclaration(name: String, ctype: Conditional[CType], fexpr: FeatureExpr, env: Env, where: AST, isFunctionDef: Boolean) {
+
+        val prevTypes: Conditional[(CType, Boolean, Int)] = env.varEnv.lookup(name)
+
+        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, Boolean, Int)) => {
+            if (!isValidRedeclaration(normalize(newType), isFunctionDef, env.scope, normalize(prev._1), prev._2, prev._3))
+                reportTypeError(f, "Invalid redeclaration of " + name + " (was: " + prev._1 + ", now: " + newType + ")", where, Severity.RedeclarationError)
+        })
+    }
+
+    /**
+     *
+     */
+    private def isValidRedeclaration(newType: CType, isFunctionDef: Boolean, newScope: Int, prevType: CType, wasFunctionDef: Boolean, prevScope: Int): Boolean = {
+        if (prevType.isUnknown) return true; //not previously defined => everything's fine
+
+        //scopes
+        if (newScope > prevScope) return true; //always fine
+
+        (newType, prevType) match {
+            //two prototypes
+            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (!isFunctionDef && !wasFunctionDef) =>
+                //must have same return type and same parameters (for common parameters)
+                return (newRet == prevRet) && (newParam.zip(prevParam).forall(x => x._1 == x._2))
+
+            //function overriding a prototype or vice versa
+            case (CPointer(CFunction(_, _)), CPointer(CFunction(_, _))) if (isFunctionDef != wasFunctionDef) =>
+                //must have the exact same type
+                return newType == prevType
+            case _ =>
+        }
+
+
+        //global variables
+        if (newScope == 0 && prevScope == 0 && !isFunctionDef && !wasFunctionDef) {
+            //valid if exact same type
+            return newType.toValue == prevType.toValue
+        }
+
+        //local variables (scope>0) may never be redeclared
+        //function definitions may never be redeclared
+        false
+    }
+
 
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Unit = {
         val foundType = getExprType(initExpr, featureExpr, env)
@@ -92,9 +142,17 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
         //declared typedefs?
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
-        //add declared variables to variable typing environment and check initializers
+
         val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
-        env = env.addVars(vars)
+
+        //check redeclaration
+        for (v <- vars)
+            checkRedeclaration(v._1, v._3, v._2, env, d, false)
+
+        //add declared variables to variable typing environment and check initializers
+        env = env.addVars(vars, false, env.scope)
+
+
 
         //check array initializers
         checkArrayExpr(d, featureExpr, env: Env)
@@ -158,7 +216,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         stmt match {
             case CompoundStatement(innerStmts) =>
                 //get a type of every inner feature, propagate environments between siblings, collect OptList of types (with one type for every statement, under the same conditions)
-                var innerEnv = env
+                var innerEnv = env.incScope()
                 val typeOptList: List[Opt[Conditional[CType]]] =
                     for (Opt(stmtFeature, innerStmt) <- innerStmts) yield {
                         val (stmtType, newEnv) = getStmtType(innerStmt, featureExpr and stmtFeature, innerEnv)

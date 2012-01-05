@@ -27,7 +27,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     private def exprV(code: String): Conditional[CType] = {
         val ast = parseExpr(code)
-        val env = EmptyEnv.addVars(varCtx).updateStructEnv(astructEnv)
+        val env = EmptyEnv.updateVarEnv(varCtx).updateStructEnv(astructEnv)
         val r = getExprType(ast, base, env)
         println(ast + " --> " + r)
         r
@@ -55,20 +55,20 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
             ("funparam", base, CPointer(CFunction(Seq(), CDouble()))),
             ("funparamptr", base, CPointer(CPointer(CFunction(Seq(), CDouble())))),
             ("argv", base, CArray(CPointer(CSignUnspecified(CChar())), -1))
-        ).map(x => (x._1, x._2, One(x._3))) ++ Seq(
-            ("c", base, c_i_l),
-            ("vstruct", base, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB")))),
-            ("vstruct2", base, Choice(fx, One(CStruct("vstrA")), _u)),
+        ).map(x => (x._1, x._2, One(x._3), false, 0)) ++ Seq(
+            ("c", base, c_i_l, false, 0),
+            ("vstruct", base, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), false, 0),
+            ("vstruct2", base, Choice(fx, One(CStruct("vstrA")), _u), false, 0),
             ("cfun", base, Choice(fx,
                 One(CFunction(Seq(CSigned(CInt())), CSigned(CInt()))),
-                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong()))))) //i->i or i,i->l
+                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), false, 0) //i->i or i,i->l
         ))
 
     val astructEnv: StructEnv =
         new StructEnv().add(
-            "str", false, base, new ConditionalTypeMap() + ("a", base, One(CDouble())) + ("b", base, One(CStruct("str")))).add(
-            "vstrA", false, fx, new ConditionalTypeMap() + ("a", fx and fy, _l) + ("b", fx, One(CStruct("str")))).add(
-            "vstrB", false, base, new ConditionalTypeMap() + ("a", base, _i) + ("b", base, _i) + ("c", fx.not, _i)
+            "str", false, base, new ConditionalTypeMap() +("a", base, One(CDouble())) +("b", base, One(CStruct("str")))).add(
+            "vstrA", false, fx, new ConditionalTypeMap() +("a", fx and fy, _l) +("b", fx, One(CStruct("str")))).add(
+            "vstrB", false, base, new ConditionalTypeMap() +("a", base, _i) +("b", base, _i) +("c", fx.not, _i)
         )
 
     test("primitives and pointers") {
