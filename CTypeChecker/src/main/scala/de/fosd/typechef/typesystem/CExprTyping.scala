@@ -39,7 +39,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         if (v.last.toLower == 'l') One(CSigned(CLong()))
                         else One(CSigned(CInt()))
                     //variable or function ref
-                    case Id(name) =>
+                    case id@Id(name) =>
                         val ctype = env.varEnv(name)
                         ctype.mapf(featureExpr, {
                             (f, t) =>
@@ -49,6 +49,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
+                                checkStructs(t, f, env, id)
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer

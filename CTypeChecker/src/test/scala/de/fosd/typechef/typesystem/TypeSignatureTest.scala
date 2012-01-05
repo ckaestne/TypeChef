@@ -79,6 +79,13 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
             check("struct s {int a; struct x b;};\n" +
                 "void foo(){struct s b;}")
         }
+        expect(true) {
+            check("extern struct s b;")
+        }
+        expect(false) {
+            check("extern struct s b;\n" +
+                "void foo() { b; }")
+        }
     }
     test("structure types with variability") {
         expect(false) {

@@ -160,35 +160,42 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     private def noInitCheck = (a: Expr, b: Conditional[CType], c: FeatureExpr, d: Env) => {}
 
 
-    protected def checkStructs(ctype: Conditional[CType], expr: FeatureExpr, env: Env, where: AST): Unit = ctype mapf(expr, {
-        (f, t) => checkStructs(t, expr and f, env, where)
+    protected def checkStructsC(ctype: Conditional[CType], expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype mapf(expr, {
+        (f, t) => checkStructs(t, expr and f, env, where, checkedStructs)
     })
 
     /**
      *       if we declare a variable or array (not pointer or function)
      *       ensure that structs are resolvable
      */
-    protected def checkStructs(ctype: CType, expr: FeatureExpr, env: Env, where: AST): Unit = ctype match {
-        case CObj(t) => checkStructs(t, expr, env, where)
-        case CArray(t, _) => checkStructs(t, expr, env, where)
+    protected def checkStructs(ctype: CType, expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype match {
+        case CObj(t) => checkStructs(t, expr, env, where, checkedStructs)
+        case CArray(t, _) => checkStructs(t, expr, env, where, checkedStructs)
         case CStruct(name, isUnion) =>
             val declExpr = env.structEnv.isDefined(name, isUnion)
             if ((expr andNot declExpr).isSatisfiable)
                 reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + name + " not defined. (defined only in context " + declExpr + ")", where, Severity.TypeLookupError)
             //check also fields
-            if (env.structEnv.someDefinition(name, isUnion)) {
+            if (!checkedStructs.contains(name) && env.structEnv.someDefinition(name, isUnion)) {
                 val fields = env.structEnv.get(name, isUnion)
-                fields.allTypes.map(ct => checkStructs(ct, expr, env, where))
+                fields.allTypes.map(ct => checkStructsC(ct, expr, env, where, name :: checkedStructs))
             }
         case CAnonymousStruct(fields, _) => //check fields
-            fields.allTypes.map(ct => checkStructs(ct, expr, env, where))
+            fields.allTypes.map(ct => checkStructsC(ct, expr, env, where, checkedStructs))
         case _ =>
     }
+
+    /**
+     * under which condition is modifier extern defined?
+     */
+    def getIsExtern(list: List[Opt[Specifier]]): FeatureExpr =
+        list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExpr.dead)(_ or _)
 
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
                                 ): List[(String, FeatureExpr, Conditional[CType])] = {
         val enumDecl = enumDeclarations(decl.declSpecs, featureExpr)
+        val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl)
         val varDecl = if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
@@ -203,7 +210,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
                 //if we declare a variable or array (not pointer or function)
                 //ensure that structs are resolvable
-                checkStructs(ctype, featureExpr and f, env, decl)
+                checkStructsC(ctype, featureExpr and f andNot isExtern, env, decl)
 
 
                 (init.declarator.getName, featureExpr and f, ctype)
