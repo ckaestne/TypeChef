@@ -40,15 +40,15 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         e.declSpecs.foldRight(env.structEnv)({
             case (Opt(specFeature, specifier), b: StructEnv) =>
                 var r = b
-                for (s <- (getStructFromSpecifier(specifier, featureExpr, env)))
+                for (s <- (getStructFromSpecifier(specifier, featureExpr, env, e.init.isEmpty)))
                     r = r.add(s._1, s._2, s._3, s._4)
                 r
         })
 
     type StructData = (String, Boolean, FeatureExpr, ConditionalTypeMap)
 
-    def getStructFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env): List[StructData] = specifier match {
-        case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), attributes) =>
+    def getStructFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env, includeEmptyDecl: Boolean): List[StructData] = specifier match {
+        case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) =>
             List((name, isUnion, featureExpr, parseStructMembers(attributes, featureExpr, env))) ++ innerStructs(attributes, featureExpr, env)
         case e@StructOrUnionSpecifier(_, None, attributes) =>
             innerStructs(attributes, featureExpr, env)
@@ -57,7 +57,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
 
     private def innerStructs(fields: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, env: Env): List[StructData] =
         fields.flatMap(e =>
-            (for (Opt(f, spec) <- e.entry.qualifierList) yield getStructFromSpecifier(spec, featureExpr and f, env)).flatten
+            (for (Opt(f, spec) <- e.entry.qualifierList) yield getStructFromSpecifier(spec, featureExpr and f, env, e.entry.declaratorList.isEmpty)).flatten
         )
 
 
@@ -84,9 +84,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CPointer(t) => wf(t)
             case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
             case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                    param.forall(p => !arrayType(p) && p != CVoid())) &&
-                    param.dropRight(1).forall(wf(_)) &&
-                    lastParam(param.lastOption) //last param may be varargs
+                param.forall(p => !arrayType(p) && p != CVoid())) &&
+                param.dropRight(1).forall(wf(_)) &&
+                lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
                 true
@@ -104,18 +104,18 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     }
 
 
-    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, enumEnv: EnumEnv): EnumEnv =
+    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, enumEnv: EnumEnv, isHeadless: Boolean): EnumEnv =
         specifiers.foldRight(enumEnv)({
             (opt, b) => {
                 val specFeature = opt.feature
                 val typeSpec = opt.entry
                 typeSpec match {
-                    case EnumSpecifier(Some(Id(name)), l) if (!l.isEmpty) =>
+                    case EnumSpecifier(Some(Id(name)), l) if (isHeadless || !l.isEmpty) =>
                         b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExpr.dead)))
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields) =>
                         fields.foldRight(b)(
-                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b)
+                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b, optField.entry.declaratorList.isEmpty)
                         )
 
                     case _ => b

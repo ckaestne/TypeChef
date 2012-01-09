@@ -13,7 +13,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
     object InitialEnv extends Env(
         new ConditionalTypeMap() ++ initBuiltinTypedevEnv,
         new VarTypingContext() ++ initBuiltinVarEnv,
-        new StructEnv(), Map(), Map(), None)
+        new StructEnv(), Map(), Map(), None, 0)
 
     val initBuiltinTypedevEnv: Seq[(String, FeatureExpr, Conditional[CType])] =
         Map(
@@ -21,7 +21,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
         ).toList.map(x => (x._1, base, One(x._2)))
 
 
-    val initBuiltinVarEnv: Seq[(String, FeatureExpr, Conditional[CType])] =
+    val initBuiltinVarEnv: Seq[(String, FeatureExpr, Conditional[CType], Boolean, Int)] =
         (declare_builtin_functions() ++ Map(
             "__builtin_expect" -> One(CFunction(Seq(CVarArgs()), CInt())),
             "__builtin_safe_p" -> One(CFunction(Seq(CVarArgs()), CInt())),
@@ -32,13 +32,15 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             //            "__builtin_va_arg" -> One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
             "__builtin_va_end" -> One(CFunction(Seq(CIgnore()), CVoid())),
             "__builtin_va_copy" -> One(CFunction(Seq(CIgnore(), CIgnore()), CVoid()))
-        )).toList.map(x => (x._1, base, x._2))
+        )).toList.map(x => (x._1, base, x._2, false, 0))
 
 
     /**taken directly from sparse/lib.c */
     private def declare_builtin_functions(): Map[String, Conditional[CType]] = {
         var buffer = "";
-        def add_pre_buffer(str: String) {buffer = buffer + str}
+        def add_pre_buffer(str: String) {
+            buffer = buffer + str
+        }
         {
             buffer = "#define __SIZE_TYPE__ long unsigned int\n"
 

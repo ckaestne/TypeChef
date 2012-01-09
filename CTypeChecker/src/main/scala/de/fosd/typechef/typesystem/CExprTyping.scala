@@ -39,16 +39,17 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         if (v.last.toLower == 'l') One(CSigned(CLong()))
                         else One(CSigned(CInt()))
                     //variable or function ref
-                    case Id(name) =>
+                    case id@Id(name) =>
                         val ctype = env.varEnv(name)
                         ctype.mapf(featureExpr, {
                             (f, t) =>
                                 if (t.isUnknown && f.isSatisfiable()) {
                                     val when = env.varEnv.whenDefined(name)
                                     issueTypeError(Severity.IdLookupError, f, name + " undeclared" +
-                                            (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
+                                        (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
+                                checkStructs(t, f, env, id)
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer
@@ -98,8 +99,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
                             (fexpr: FeatureExpr, sourceType: CType, targetType: CType) =>
                                 if (targetType == CVoid() ||
-                                        isPointer(targetType) ||
-                                        (isScalar(sourceType) && isScalar(targetType))) targetType
+                                    isPointer(targetType) ||
+                                    (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown) targetType
                                 else
@@ -115,8 +116,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
                             (fexpr: FeatureExpr, funType: CType, paramTypes: List[CType]) =>
                                 funType.toValue match {
-                                    case CPointer(CFunction(parameterTypes, retType)) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr)
-                                    case CFunction(parameterTypes, retType) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr)
+                                    case CPointer(CFunction(parameterTypes, retType)) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr, env)
+                                    case CFunction(parameterTypes, retType) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr, env)
                                     case u: CUnknown => u
                                     case e =>
                                         reportTypeError(fexpr, expr + " is not a function, but has type " + e, pe)
@@ -134,7 +135,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 }
                             })
                     //a++, a--
-                    case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {prepareArray} map {
+                    case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {
+                        prepareArray
+                    } map {
                         case CObj(t) if (isScalar(t)) => t //apparently ++ also works on arrays
                         //TODO check?: not on function references
                         case e => reportTypeError(featureExpr, "wrong type argument to increment " + e, pe)
@@ -181,7 +184,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         }
                     //x?y:z  (gnuc: x?:z === x?x:z)
                     case ce@ConditionalExpr(condition, thenExpr, elseExpr) =>
-                        et(condition) mapfr (featureExpr, {
+                        et(condition) mapfr(featureExpr, {
                             (fexpr, conditionType) =>
                                 if (isScalar(conditionType))
                                     getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr), etF(elseExpr, fexpr), fexpr, ce)
@@ -304,7 +307,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         NAryExpr(a, List(Opt(FeatureExpr.base, NArySubExpr("+", b))))
 
 
-    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType], funCall: PostfixExpr, featureExpr: FeatureExpr): CType = {
+    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType], funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
+        checkStructs(retType, featureExpr, env, expr)
+        parameterTypes.map(checkStructs(_, featureExpr, env, expr))
+
         var expectedTypes = parameterTypes
         var foundTypes = _foundTypes
         //variadic macros
@@ -351,7 +357,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
         val ctype = struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
 
-        ctype.mapf(featureExpr, {(f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "field " + fieldName + " unknown in " + structName, astNode)})
+        ctype.mapf(featureExpr, {
+            (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "field " + fieldName + " unknown in " + structName, astNode)
+        })
 
         ctype
     }

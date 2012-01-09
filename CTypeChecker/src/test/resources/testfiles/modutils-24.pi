@@ -1,4 +1,4 @@
-#line 1 "host/platform-redhat.h" 1
+#line 1 "platform-redhat.h" 1
 //Generated with:
 //echo -|gcc -dM - -E -std=gnu99 
 
@@ -136,7 +136,7 @@
 
 
 
-#line 1 "busybox/config.h" 1
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox/config.h" 1
 
 
 
@@ -485,12 +485,12 @@
    
    
 #endif
-#if (definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_LONG_OPTS) || definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS))
+#if (definedEx(CONFIG_LONG_OPTS) || definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS))
    
    
    
 #endif
-#if (!definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) && !definedEx(CONFIG_LONG_OPTS) && !definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS))
+#if (!definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) && !definedEx(CONFIG_LONG_OPTS) && !definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS))
    
    
    
@@ -5275,6 +5275,16 @@
    
    
 #endif
+#if definedEx(CONFIG_NANDDUMP)
+   
+   
+   
+#endif
+#if !definedEx(CONFIG_NANDDUMP)
+   
+   
+   
+#endif
 #if definedEx(CONFIG_UBIATTACH)
    
    
@@ -8595,7 +8605,7 @@
    
    
 #endif
-#line 1 "cprojects/busybox/busybox-1.18.5/modutils/modutils-24.c" 1
+#line 1 "busybox-1.18.5/modutils/modutils-24.c" 1
 /* vi: set sw=4 ts=4: */
 /*
  * Mini insmod implementation for busybox
@@ -8656,7 +8666,7 @@
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
  */
 
-#line 1 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 1
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 1
 /* vi: set sw=4 ts=4: */
 /*
  * Busybox main internal header file
@@ -8669,7 +8679,7 @@
 
 
 
-#line 1 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 1
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/platform.h" 1
 /* vi: set sw=4 ts=4: */
 /*
  * Copyright 2006, Bernhard Reutner-Fischer
@@ -8801,7 +8811,7 @@
 
 /* ---- Endian Detection ------------------------------------ */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 1
+#line 1 "systems/redhat/usr/include/limits.h" 1
 /* Copyright (C) 1991, 1992, 1996, 1997, 1998, 1999, 2000, 2005
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -8828,7 +8838,7 @@
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -9143,7 +9153,7 @@
 /* This is here only because every header file already includes this one.  */
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/cdefs.h" 1
+#line 1 "systems/redhat/usr/include/sys/cdefs.h" 1
 /* Copyright (C) 1992-2001, 2002, 2004, 2005, 2006, 2007, 2009
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -9439,7 +9449,7 @@
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -9447,7 +9457,7 @@
 
  
 
-#line 367 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/cdefs.h" 2
+#line 367 "systems/redhat/usr/include/sys/cdefs.h" 2
 
 
 
@@ -9481,7 +9491,7 @@
 
 
 
-#line 363 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 2
+#line 363 "systems/redhat/usr/include/features.h" 2
 
 /* If we don't have __REDIRECT, prototypes will be missing if
    __USE_FILE_OFFSET64 but not __USE_LARGEFILE[64]. */
@@ -9498,11 +9508,11 @@
    Get the definitions of all the appropriate `__stub_FUNCTION' symbols.
    <gnu/stubs.h> contains `#define __stub_FUNCTION' when FUNCTION is a stub
    that will always return failure (and set errno to ENOSYS).  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/gnu/stubs.h" 1
+#line 1 "systems/redhat/usr/include/gnu/stubs.h" 1
 /* This file selects the right generated file of `__stub_FUNCTION' macros
    based on the architecture being compiled for.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -9510,11 +9520,11 @@
 
  
 
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/gnu/stubs.h" 2
+#line 6 "systems/redhat/usr/include/gnu/stubs.h" 2
 
 
 
- #line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/gnu/stubs-64.h" 1
+ #line 1 "systems/redhat/usr/include/gnu/stubs-64.h" 1
 /* This file is automatically generated.
    It defines a symbol `__stub_FUNCTION' for each function
    in the C library which is a stub, meaning it will fail
@@ -9537,14 +9547,14 @@
 
 
 
-#line 11 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/gnu/stubs.h" 2
+#line 11 "systems/redhat/usr/include/gnu/stubs.h" 2
  
 
-#line 387 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 2
+#line 387 "systems/redhat/usr/include/features.h" 2
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 29 "systems/redhat/usr/include/limits.h" 2
 
 
 /* Maximum length of any multibyte character in any locale.
@@ -9632,7 +9642,7 @@
     the definitions from gcc's header.  */
 
 /* `_GCC_LIMITS_H_' is what GCC's file defines.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/limits.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/limits.h" 1
 /* This administrivia gets added to the beginning of limits.h
    if the system has its own version of limits.h.  */
 
@@ -9745,7 +9755,7 @@
 
 
 
-#line 127 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 127 "systems/redhat/usr/include/limits.h" 2
 
 /* The <limits.h> files in some gcc versions don't define LLONG_MIN,
    LLONG_MAX, and ULLONG_MAX.  Instead only the values gcc defined for
@@ -9763,7 +9773,7 @@
 
 
 /* POSIX adds things to <limits.h>.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/posix1_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/posix1_lim.h" 1
 /* Copyright (C) 1991-1993,96,98,2000-2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -9912,7 +9922,7 @@
 
 
 /* Get the implementation-specific values for the above.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/local_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/local_lim.h" 1
 /* Minimum guaranteed maximum values for system limits.  Linux version.
    Copyright (C) 1993-1998,2000,2002-2004,2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -9950,7 +9960,7 @@
 
 
 /* The kernel sources contain a file with all the needed information.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/limits.h" 1
+#line 1 "systems/redhat/usr/include/linux/limits.h" 1
 
 
 
@@ -9971,7 +9981,7 @@
 
 
 
-#line 41 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/local_lim.h" 2
+#line 41 "systems/redhat/usr/include/bits/local_lim.h" 2
 
 /* Have to remove NR_OPEN?  */
 
@@ -10032,7 +10042,7 @@
 
 /* Maximum value the semaphore can have.  */
 
-#line 159 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/posix1_lim.h" 2
+#line 159 "systems/redhat/usr/include/bits/posix1_lim.h" 2
 
 
 
@@ -10045,10 +10055,10 @@
 
 
 
-#line 147 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 147 "systems/redhat/usr/include/limits.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/posix2_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/posix2_lim.h" 1
 /* Copyright (C) 1991, 1996, 1999, 2000, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -10139,10 +10149,10 @@
 
 
 
-#line 151 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 151 "systems/redhat/usr/include/limits.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/xopen_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/xopen_lim.h" 1
 /* Copyright (C) 1996, 1997, 1999, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -10176,7 +10186,7 @@
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/stdio_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/stdio_lim.h" 1
 /* Copyright (C) 1994, 1997, 1998, 1999, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -10217,7 +10227,7 @@
 
 
 
-#line 36 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/xopen_lim.h" 2
+#line 36 "systems/redhat/usr/include/bits/xopen_lim.h" 2
 
 /* We do not provide fixed values for
 
@@ -10315,9 +10325,9 @@
 
 
 
-#line 155 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 155 "systems/redhat/usr/include/limits.h" 2
 
-#line 155 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 2
+#line 155 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/platform.h" 2
 
 
  
@@ -10325,7 +10335,7 @@
 
 
 
- #line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/byteswap.h" 1
+ #line 1 "systems/redhat/usr/include/byteswap.h" 1
 /* Copyright (C) 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -10348,7 +10358,7 @@
 
 
 /* Get the machine specific, optimized definitions.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/byteswap.h" 1
+#line 1 "systems/redhat/usr/include/bits/byteswap.h" 1
 /* Macros to swap the order of bytes in integer values.
    Copyright (C) 1997, 1998, 2000, 2002, 2003, 2007, 2008
    Free Software Foundation, Inc.
@@ -10375,7 +10385,7 @@
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -10383,7 +10393,7 @@
 
  
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/byteswap.h" 2
+#line 30 "systems/redhat/usr/include/bits/byteswap.h" 2
 
 /* Swap bytes in 16 bit value.  */
 
@@ -10478,7 +10488,7 @@
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/byteswap.h" 2
+#line 25 "systems/redhat/usr/include/byteswap.h" 2
 
 
 /* The following definitions must all be macros since otherwise some
@@ -10495,8 +10505,8 @@
 
 
 
-#line 166 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 1
+#line 166 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/platform.h" 2
+#line 1 "systems/redhat/usr/include/endian.h" 1
 /* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -10518,7 +10528,7 @@
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -10854,7 +10864,7 @@
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 2
+#line 24 "systems/redhat/usr/include/endian.h" 2
 
 /* Definitions for byte order, according to significance of bytes,
    from low addresses to high addresses.  The value is what you get by
@@ -10869,14 +10879,14 @@
 
 
 /* This file defines `__BYTE_ORDER' for the particular machine.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/endian.h" 1
+#line 1 "systems/redhat/usr/include/bits/endian.h" 1
 /* x86_64 is little-endian.  */
 
 
 
 
 
-#line 39 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 2
+#line 39 "systems/redhat/usr/include/endian.h" 2
 
 /* Some machines may need to use a different endianness for floating point
    values.  */
@@ -10895,7 +10905,7 @@
 
 
 /* Conversion interfaces.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/byteswap.h" 1
+#line 1 "systems/redhat/usr/include/bits/byteswap.h" 1
 /* Macros to swap the order of bytes in integer values.
    Copyright (C) 1997, 1998, 2000, 2002, 2003, 2007, 2008
    Free Software Foundation, Inc.
@@ -11017,7 +11027,7 @@
 
 
 
-#line 63 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 2
+#line 63 "systems/redhat/usr/include/endian.h" 2
 
 
 
@@ -11051,7 +11061,7 @@
 
 
 
-#line 167 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 2
+#line 167 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/platform.h" 2
 
 
 
@@ -11098,7 +11108,7 @@
  * a lvalue. This makes it more likely to not swap them by mistake
  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 1
+#line 1 "systems/redhat/usr/include/stdint.h" 1
 /* Copyright (C) 1997,1998,1999,2000,2001,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -11124,7 +11134,7 @@
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -11460,8 +11470,8 @@
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wchar.h" 1
+#line 28 "systems/redhat/usr/include/stdint.h" 2
+#line 1 "systems/redhat/usr/include/bits/wchar.h" 1
 /* wchar_t type related definitions.
    Copyright (C) 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -11488,8 +11498,8 @@
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 29 "systems/redhat/usr/include/stdint.h" 2
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -11497,7 +11507,7 @@
 
  
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 2
+#line 30 "systems/redhat/usr/include/stdint.h" 2
 
 /* Exact integral types.  */
 
@@ -11745,7 +11755,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-#line 226 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 2
+#line 226 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/platform.h" 2
 typedef int      bb__aliased_int      __attribute__((__may_alias__));
 typedef uint16_t bb__aliased_uint16_t __attribute__((__may_alias__));
 typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
@@ -11783,7 +11793,7 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 /* ---- Miscellaneous --------------------------------------- */
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -12119,7 +12129,7 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 
 
 
-#line 271 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 2
+#line 271 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/platform.h" 2
 
 /* Size-saving "small" ints (arch-dependent) */
 
@@ -12135,7 +12145,7 @@ typedef unsigned char smalluint;
 
 
  /* modern system, so use it */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdbool.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdbool.h" 1
 /* Copyright (C) 1998, 1999, 2000, 2009 Free Software Foundation, Inc.
 
 This file is part of GCC.
@@ -12182,7 +12192,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 291 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/platform.h" 2
+#line 291 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/platform.h" 2
 
 /* Try to defeat gcc's alignment of "char message[]"-like data */
 
@@ -12289,9 +12299,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 15 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 15 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/ctype.h" 1
+#line 1 "systems/redhat/usr/include/ctype.h" 1
 /* Copyright (C) 1991,92,93,95,96,97,98,99,2001,2002,2004,2007,2008,2009
    	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -12318,7 +12328,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -12654,8 +12664,8 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/ctype.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 29 "systems/redhat/usr/include/ctype.h" 2
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -12682,7 +12692,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -13018,8 +13028,8 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 29 "systems/redhat/usr/include/bits/types.h" 2
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -13027,7 +13037,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
  
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 2
+#line 30 "systems/redhat/usr/include/bits/types.h" 2
 
 /* Convenience types.  */
 typedef unsigned char __u_char;
@@ -13122,7 +13132,7 @@ typedef unsigned long int __u_quad_t;
 
  
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/typesizes.h" 1
+#line 1 "systems/redhat/usr/include/bits/typesizes.h" 1
 /* bits/typesizes.h -- underlying types for *_t.  Generic version.
    Copyright (C) 2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -13188,7 +13198,7 @@ typedef unsigned long int __u_quad_t;
 
 
 
-#line 133 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 2
+#line 133 "systems/redhat/usr/include/bits/types.h" 2
 
 
 typedef unsigned long int __dev_t;	/* Type of device numbers.  */
@@ -13255,7 +13265,7 @@ typedef unsigned int __socklen_t;
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/ctype.h" 2
+#line 30 "systems/redhat/usr/include/ctype.h" 2
 
 
 
@@ -13268,7 +13278,7 @@ typedef unsigned int __socklen_t;
    endian).  We define the bit value interpretations here dependent on the
    machine's byte order.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 1
+#line 1 "systems/redhat/usr/include/endian.h" 1
 /* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -13358,7 +13368,7 @@ typedef unsigned int __socklen_t;
 
 
 
-#line 43 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/ctype.h" 2
+#line 43 "systems/redhat/usr/include/ctype.h" 2
 
 
  
@@ -13537,7 +13547,7 @@ extern int _tolower (int) __attribute__ ((__nothrow__));
 
 /* Structure for reentrant locale using functions.  This is an
    (almost) opaque type for the user level programs.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/xlocale.h" 1
+#line 1 "systems/redhat/usr/include/xlocale.h" 1
 /* Definition of locale datatype.
    Copyright (C) 1997,2000,2002,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -13583,7 +13593,7 @@ typedef struct __locale_struct
 typedef __locale_t locale_t;
 
 
-#line 235 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/ctype.h" 2
+#line 235 "systems/redhat/usr/include/ctype.h" 2
 
 /* These definitions are similar to the ones above but all functions
    take as an argument a handle for the locale which shall be used.  */
@@ -13670,8 +13680,8 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
-#line 17 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/dirent.h" 1
+#line 17 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/dirent.h" 1
 /* Copyright (C) 1991-2000,2003-2005,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -13697,7 +13707,7 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -14033,11 +14043,11 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/dirent.h" 2
+#line 28 "systems/redhat/usr/include/dirent.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -14227,7 +14237,7 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/dirent.h" 2
+#line 32 "systems/redhat/usr/include/dirent.h" 2
 
 
 
@@ -14257,7 +14267,7 @@ typedef __ino64_t ino64_t;
    member that gives the type of the file.
  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/dirent.h" 1
+#line 1 "systems/redhat/usr/include/bits/dirent.h" 1
 /* Copyright (C) 1996, 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -14308,7 +14318,7 @@ struct dirent64
 
 
 
-#line 64 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/dirent.h" 2
+#line 64 "systems/redhat/usr/include/dirent.h" 2
 
 
 
@@ -14442,7 +14452,7 @@ extern int readdir64_r (DIR *__restrict __dirp,
 extern void rewinddir (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -14632,7 +14642,7 @@ extern void rewinddir (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ 
 
 
 
-#line 214 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/dirent.h" 2
+#line 214 "systems/redhat/usr/include/dirent.h" 2
 
 /* Seek to position POS on DIRP.  */
 extern void seekdir (DIR *__dirp, long int __pos) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
@@ -14650,7 +14660,7 @@ extern int dirfd (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ ((__n
 
 
 /* Get the definitions of the POSIX.1 limits.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/posix1_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/posix1_lim.h" 1
 /* Copyright (C) 1991-1993,96,98,2000-2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -14812,7 +14822,7 @@ extern int dirfd (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ ((__n
 
 
 
-#line 235 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/dirent.h" 2
+#line 235 "systems/redhat/usr/include/dirent.h" 2
 
 /* `MAXNAMLEN' is the BSD name for what POSIX calls `NAME_MAX'.  */
 
@@ -14822,7 +14832,7 @@ extern int dirfd (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ ((__n
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -15212,7 +15222,7 @@ typedef long unsigned int size_t;
 
 
 
-#line 247 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/dirent.h" 2
+#line 247 "systems/redhat/usr/include/dirent.h" 2
 
 /* Scan the directory DIR, calling SELECTOR on each directory entry.
    Entries for which SELECT returns nonzero are individually malloc'd,
@@ -15315,8 +15325,8 @@ extern int versionsort64 (const struct dirent64 **__e1,
 
 
 
-#line 18 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/errno.h" 1
+#line 18 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/errno.h" 1
 /* Copyright (C) 1991,92,93,94,95,96,97,2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -15344,7 +15354,7 @@ extern int versionsort64 (const struct dirent64 **__e1,
    of EDOM and ERANGE, and not everything else.  */
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -15680,13 +15690,13 @@ extern int versionsort64 (const struct dirent64 **__e1,
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/errno.h" 2
+#line 31 "systems/redhat/usr/include/errno.h" 2
 
 
 
 /* Get the error number constants from the system-specific file.
    This file will test __need_Emath and _ERRNO_H.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/errno.h" 1
+#line 1 "systems/redhat/usr/include/bits/errno.h" 1
 /* Error constants.  Linux specific version.
    Copyright (C) 1996-1999, 2005, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -15710,20 +15720,16 @@ extern int versionsort64 (const struct dirent64 **__e1,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/errno.h" 1
+#line 1 "systems/redhat/usr/include/linux/errno.h" 1
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/errno.h" 1
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/errno.h" 1
+#line 1 "systems/redhat/usr/include/asm/errno.h" 1
+#line 1 "systems/redhat/usr/include/asm-generic/errno.h" 1
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/errno-base.h" 1
-
-
-
-
+#line 1 "systems/redhat/usr/include/asm-generic/errno-base.h" 1
 
 
 
@@ -15759,7 +15765,11 @@ extern int versionsort64 (const struct dirent64 **__e1,
 
 
 
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/errno.h" 2
+
+
+
+
+#line 6 "systems/redhat/usr/include/asm-generic/errno.h" 2
 
 
 
@@ -15867,12 +15877,12 @@ extern int versionsort64 (const struct dirent64 **__e1,
 
 
 
-#line 3 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/errno.h" 2
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/errno.h" 2
+#line 3 "systems/redhat/usr/include/asm/errno.h" 2
+#line 6 "systems/redhat/usr/include/linux/errno.h" 2
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/errno.h" 2
+#line 27 "systems/redhat/usr/include/bits/errno.h" 2
 
 /* Linux has no ENOTSUP error code.  */
 
@@ -15907,7 +15917,7 @@ extern int *__errno_location (void) __attribute__ ((__nothrow__)) __attribute__ 
 
 
 
-#line 38 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/errno.h" 2
+#line 38 "systems/redhat/usr/include/errno.h" 2
 
 
 
@@ -15940,8 +15950,8 @@ typedef int error_t;
 
 
 
-#line 19 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/fcntl.h" 1
+#line 19 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/fcntl.h" 1
 /* Copyright (C) 1991,1992,1994-2001,2003,2004,2005,2006,2007,2009,2010
 	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -15968,7 +15978,7 @@ typedef int error_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -16304,14 +16314,14 @@ typedef int error_t;
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/fcntl.h" 2
+#line 29 "systems/redhat/usr/include/fcntl.h" 2
 
 /* This must be early so <bits/fcntl.h> can define types winningly.  */
 
 
 /* Get the definitions of O_*, F_*, FD_*: all the
    numbers and flag bits for `open', `fcntl', et al.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/fcntl.h" 1
+#line 1 "systems/redhat/usr/include/bits/fcntl.h" 1
 /* O_*, F_*, FD_* bit values for Linux/x86-64.
    Copyright (C) 2001,2002,2004,2006,2007,2009,2010
    Free Software Foundation, Inc.
@@ -16335,7 +16345,7 @@ typedef int error_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -16361,7 +16371,7 @@ typedef int error_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -16697,11 +16707,11 @@ typedef int error_t;
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 28 "systems/redhat/usr/include/sys/types.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -16891,7 +16901,7 @@ typedef int error_t;
 
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 32 "systems/redhat/usr/include/sys/types.h" 2
 
 
 
@@ -16978,7 +16988,7 @@ typedef __key_t key_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -17029,7 +17039,7 @@ typedef __key_t key_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -17219,7 +17229,7 @@ typedef __key_t key_t;
 
 
 
-#line 58 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 58 "systems/redhat/usr/include/time.h" 2
 
 
 /* Returned by `clock'.  */
@@ -17234,7 +17244,7 @@ typedef __clock_t clock_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -17424,7 +17434,7 @@ typedef __clock_t clock_t;
 
 
 
-#line 74 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 74 "systems/redhat/usr/include/time.h" 2
 
 
 /* Returned by `time'.  */
@@ -17439,7 +17449,7 @@ typedef __time_t time_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -17629,7 +17639,7 @@ typedef __time_t time_t;
 
 
 
-#line 91 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 91 "systems/redhat/usr/include/time.h" 2
 
 /* Clock ID used in clock and timer functions.  */
 typedef __clockid_t clockid_t;
@@ -17640,7 +17650,7 @@ typedef __clockid_t clockid_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -17830,7 +17840,7 @@ typedef __clockid_t clockid_t;
 
 
 
-#line 103 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 103 "systems/redhat/usr/include/time.h" 2
 
 /* Timer ID returned by `timer_create'.  */
 typedef __timer_t timer_t;
@@ -18122,7 +18132,7 @@ typedef __timer_t timer_t;
 
 
 
-#line 135 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 135 "systems/redhat/usr/include/sys/types.h" 2
 
 
 
@@ -18135,7 +18145,7 @@ typedef __suseconds_t suseconds_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -18525,7 +18535,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 149 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 149 "systems/redhat/usr/include/sys/types.h" 2
 
 
 /* Old compatibility names for C types.  */
@@ -18586,7 +18596,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 /* In BSD <sys/types.h> is expected to define BYTE_ORDER.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 1
+#line 1 "systems/redhat/usr/include/endian.h" 1
 /* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -18676,10 +18686,10 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-#line 219 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 219 "systems/redhat/usr/include/sys/types.h" 2
 
 /* It also defines `fd_set' and the FD_* macros for `select'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 1
+#line 1 "systems/redhat/usr/include/sys/select.h" 1
 /* `fd_set' type and related macros, and `select'/`pselect' declarations.
    Copyright (C) 1996-2003, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -18704,7 +18714,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -19040,10 +19050,10 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 2
+#line 27 "systems/redhat/usr/include/sys/select.h" 2
 
 /* Get definition of needed basic types.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -19233,10 +19243,10 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 2
+#line 30 "systems/redhat/usr/include/sys/select.h" 2
 
 /* Get __FD_* definitions.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/select.h" 1
+#line 1 "systems/redhat/usr/include/bits/select.h" 1
 /* Copyright (C) 1997,1998,1999,2001,2008,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -19258,7 +19268,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -19266,7 +19276,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
  
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/select.h" 2
+#line 25 "systems/redhat/usr/include/bits/select.h" 2
 
 
 
@@ -19300,10 +19310,10 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-#line 33 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 2
+#line 33 "systems/redhat/usr/include/sys/select.h" 2
 
 /* Get __sigset_t.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigset.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigset.h" 1
 /* __sig_atomic_t, __sigset_t, and related definitions.  Linux version.
    Copyright (C) 1991, 1992, 1994, 1996, 1997, 2007
    Free Software Foundation, Inc.
@@ -19424,7 +19434,7 @@ typedef struct
 
 
 
-#line 36 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 2
+#line 36 "systems/redhat/usr/include/sys/select.h" 2
 
 
 
@@ -19433,7 +19443,7 @@ typedef __sigset_t sigset_t;
 /* Get definition of timer specification structures.  */
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -19537,7 +19547,7 @@ typedef __sigset_t sigset_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -19727,7 +19737,7 @@ typedef __sigset_t sigset_t;
 
 
 
-#line 118 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 118 "systems/redhat/usr/include/time.h" 2
 
 /* POSIX.1b structure for a time value.  This is like a `struct timeval' but
    has nanoseconds instead of microseconds.  */
@@ -20007,9 +20017,9 @@ struct timespec
 
 
 
-#line 46 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 2
+#line 46 "systems/redhat/usr/include/sys/select.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/time.h" 1
+#line 1 "systems/redhat/usr/include/bits/time.h" 1
 /* System-dependent timing definitions.  Generic version.
    Copyright (C) 1996,1997,1999-2002,2003,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -20077,7 +20087,7 @@ struct timespec
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -20267,7 +20277,7 @@ struct timespec
 
 
 
-#line 73 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/time.h" 2
+#line 73 "systems/redhat/usr/include/bits/time.h" 2
 
 /* A time value that is accurate to the nearest
    microsecond but also has a range of years.  */
@@ -20278,7 +20288,7 @@ struct timeval
   };
 
 
-#line 48 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 2
+#line 48 "systems/redhat/usr/include/sys/select.h" 2
 
 
 
@@ -20357,10 +20367,10 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 
 
-#line 222 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 222 "systems/redhat/usr/include/sys/types.h" 2
 
 /* BSD defines these symbols, so we follow.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/sysmacros.h" 1
+#line 1 "systems/redhat/usr/include/sys/sysmacros.h" 1
 /* Definitions of macros to access `dev_t' values.
    Copyright (C) 1996, 1997, 1999, 2003, 2004, 2007
    Free Software Foundation, Inc.
@@ -20384,7 +20394,7 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -20720,7 +20730,7 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/sysmacros.h" 2
+#line 26 "systems/redhat/usr/include/sys/sysmacros.h" 2
 
 /* If the compiler does not know long long it is out of luck.  We are
    not going to hack weird hacks to support the dev_t representation
@@ -20764,7 +20774,7 @@ extern unsigned long long int gnu_dev_makedev (unsigned int __major,
 
 
 
-#line 225 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 225 "systems/redhat/usr/include/sys/types.h" 2
 
 
 typedef __blksize_t blksize_t;
@@ -20804,7 +20814,7 @@ typedef __fsfilcnt64_t fsfilcnt64_t; /* Type to count file system inodes.  */
 
 /* Now add the thread types.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/pthreadtypes.h" 1
+#line 1 "systems/redhat/usr/include/bits/pthreadtypes.h" 1
 /* Copyright (C) 2002,2003,2004,2005,2006,2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
@@ -20827,7 +20837,7 @@ typedef __fsfilcnt64_t fsfilcnt64_t; /* Type to count file system inodes.  */
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -20835,7 +20845,7 @@ typedef __fsfilcnt64_t fsfilcnt64_t; /* Type to count file system inodes.  */
 
  
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/pthreadtypes.h" 2
+#line 25 "systems/redhat/usr/include/bits/pthreadtypes.h" 2
 
 
 
@@ -21025,13 +21035,13 @@ typedef union
 
 
 
-#line 273 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 2
+#line 273 "systems/redhat/usr/include/sys/types.h" 2
 
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/fcntl.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 27 "systems/redhat/usr/include/bits/fcntl.h" 2
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -21039,9 +21049,9 @@ typedef union
 
  
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/fcntl.h" 2
+#line 28 "systems/redhat/usr/include/bits/fcntl.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/uio.h" 1
+#line 1 "systems/redhat/usr/include/bits/uio.h" 1
 /* Copyright (C) 1996, 1997, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -21066,7 +21076,7 @@ typedef union
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -21308,7 +21318,7 @@ typedef union
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/uio.h" 2
+#line 28 "systems/redhat/usr/include/bits/uio.h" 2
 
 
 /* We should normally use the Linux kernel header file to define this
@@ -21333,7 +21343,7 @@ struct iovec
   };
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/fcntl.h" 2
+#line 30 "systems/redhat/usr/include/bits/fcntl.h" 2
 
 /* open/fcntl - O_SYNC is only implemented on blocks devices and on files
    located on a few file systems.  */
@@ -21565,11 +21575,11 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
-#line 36 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/fcntl.h" 2
+#line 36 "systems/redhat/usr/include/fcntl.h" 2
 
 /* For XPG all symbols from <sys/stat.h> should also be available.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -21759,9 +21769,9 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
-#line 40 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/fcntl.h" 2
+#line 40 "systems/redhat/usr/include/fcntl.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -22145,8 +22155,8 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
-#line 42 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/fcntl.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/stat.h" 1
+#line 42 "systems/redhat/usr/include/fcntl.h" 2
+#line 1 "systems/redhat/usr/include/bits/stat.h" 1
 /* Copyright (C) 1999-2003,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -22344,7 +22354,7 @@ struct stat64
 
 
 
-#line 43 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/fcntl.h" 2
+#line 43 "systems/redhat/usr/include/fcntl.h" 2
 
 
 
@@ -22540,8 +22550,8 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
-#line 20 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/inttypes.h" 1
+#line 20 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/inttypes.h" 1
 /* Copyright (C) 1997-2001, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -22567,7 +22577,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -22903,9 +22913,9 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/inttypes.h" 2
+#line 28 "systems/redhat/usr/include/inttypes.h" 2
 /* Get the type definitions.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 1
+#line 1 "systems/redhat/usr/include/stdint.h" 1
 /* Copyright (C) 1997,1998,1999,2000,2001,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -23181,7 +23191,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/inttypes.h" 2
+#line 30 "systems/redhat/usr/include/inttypes.h" 2
 
 /* Get a definition for wchar_t.  But we must not define wchar_t itself.  */
 
@@ -23579,8 +23589,8 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 21 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 1
+#line 21 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/netdb.h" 1
   /* Copyright (C) 1996-2004, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -23606,7 +23616,7 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -23942,9 +23952,9 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
+#line 28 "systems/redhat/usr/include/netdb.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 1
+#line 1 "systems/redhat/usr/include/netinet/in.h" 1
 /* Copyright (C) 1991-2001, 2003, 2004, 2006, 2007, 2008
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -23967,7 +23977,7 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -24303,8 +24313,8 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 1
+#line 25 "systems/redhat/usr/include/netinet/in.h" 2
+#line 1 "systems/redhat/usr/include/stdint.h" 1
 /* Copyright (C) 1997,1998,1999,2000,2001,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -24580,8 +24590,8 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 1
+#line 26 "systems/redhat/usr/include/netinet/in.h" 2
+#line 1 "systems/redhat/usr/include/sys/socket.h" 1
 /* Declarations of socket constants, types, and functions.
    Copyright (C) 1991,92,1994-2001,2003,2005,2007,2008
    Free Software Foundation, Inc.
@@ -24605,7 +24615,7 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -24941,11 +24951,11 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 2
+#line 26 "systems/redhat/usr/include/sys/socket.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/uio.h" 1
+#line 1 "systems/redhat/usr/include/sys/uio.h" 1
 /* Copyright (C) 1991,1992,1996-1999,2003,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -24967,7 +24977,7 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -25303,9 +25313,9 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/uio.h" 2
+#line 24 "systems/redhat/usr/include/sys/uio.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -25547,12 +25557,12 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/uio.h" 2
+#line 26 "systems/redhat/usr/include/sys/uio.h" 2
 
 
 
 /* This file defines `struct iovec'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/uio.h" 1
+#line 1 "systems/redhat/usr/include/bits/uio.h" 1
 /* Copyright (C) 1996, 1997, 2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -25602,7 +25612,7 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
   
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/uio.h" 2
+#line 31 "systems/redhat/usr/include/sys/uio.h" 2
 
 
 /* Read data from file descriptor FD, and put the result in the
@@ -25693,9 +25703,9 @@ extern ssize_t pwritev64 (int __fd, const struct iovec *__iovec, int __count,
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 2
+#line 30 "systems/redhat/usr/include/sys/socket.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -26085,10 +26095,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 2
+#line 32 "systems/redhat/usr/include/sys/socket.h" 2
 
 /* Get the __sigset_t definition.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigset.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigset.h" 1
 /* __sig_atomic_t, __sigset_t, and related definitions.  Linux version.
    Copyright (C) 1991, 1992, 1994, 1996, 1997, 2007
    Free Software Foundation, Inc.
@@ -26209,12 +26219,12 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 35 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 2
+#line 35 "systems/redhat/usr/include/sys/socket.h" 2
 
 /* This operating system-specific header file defines the SOCK_*, PF_*,
    AF_*, MSG_*, SOL_*, and SO_* constants, and the `struct sockaddr',
    `struct msghdr', and `struct linger' types.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/socket.h" 1
+#line 1 "systems/redhat/usr/include/bits/socket.h" 1
 /* System-specific socket constants and types.  Linux version.
    Copyright (C) 1991, 1992, 1994-2001, 2004, 2006, 2007, 2008, 2009, 2010
    Free Software Foundation, Inc.
@@ -26242,7 +26252,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -26632,9 +26642,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/socket.h" 2
+#line 31 "systems/redhat/usr/include/bits/socket.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -26876,7 +26886,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 33 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/socket.h" 2
+#line 33 "systems/redhat/usr/include/bits/socket.h" 2
 
 /* Type for length arguments in socket calls.  */
 
@@ -27015,7 +27025,7 @@ enum __socket_type
 
 
 /* Get the definition of the macro to define the common sockaddr members.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sockaddr.h" 1
+#line 1 "systems/redhat/usr/include/bits/sockaddr.h" 1
 /* Definition of `struct sockaddr_*' common members.  Generic/4.2 BSD version.
    Copyright (C) 1995,1996,1997,1998,2000,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -27056,7 +27066,7 @@ typedef unsigned short int sa_family_t;
 
 
 
-#line 173 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/socket.h" 2
+#line 173 "systems/redhat/usr/include/bits/socket.h" 2
 
 /* Structure describing a generic socket address.  */
 struct sockaddr
@@ -27257,13 +27267,13 @@ struct ucred
 
 
 /* Get socket manipulation related informations from kernel headers.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/socket.h" 1
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/socket.h" 1
+#line 1 "systems/redhat/usr/include/asm/socket.h" 1
+#line 1 "systems/redhat/usr/include/asm-generic/socket.h" 1
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/sockios.h" 1
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/sockios.h" 1
+#line 1 "systems/redhat/usr/include/asm/sockios.h" 1
+#line 1 "systems/redhat/usr/include/asm-generic/sockios.h" 1
 
 
 
@@ -27277,8 +27287,8 @@ struct ucred
 
 
 
-#line 3 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/sockios.h" 2
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/socket.h" 2
+#line 3 "systems/redhat/usr/include/asm/sockios.h" 2
+#line 6 "systems/redhat/usr/include/asm-generic/socket.h" 2
 
 /* For setsockopt(2) */
 
@@ -27341,8 +27351,8 @@ struct ucred
 
 
 
-#line 3 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/socket.h" 2
-#line 379 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/socket.h" 2
+#line 3 "systems/redhat/usr/include/asm/socket.h" 2
+#line 379 "systems/redhat/usr/include/bits/socket.h" 2
 
 
 
@@ -27396,7 +27406,7 @@ extern int recvmmsg (int __fd, struct mmsghdr *__vmessages,
 
 
 
-#line 42 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 2
+#line 42 "systems/redhat/usr/include/sys/socket.h" 2
 
 
 /* This is the 4.3 BSD `struct sockaddr' format, which is used as wire
@@ -27603,8 +27613,8 @@ extern int isfdtype (int __fd, int __fdtype) __attribute__ ((__nothrow__));
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 27 "systems/redhat/usr/include/netinet/in.h" 2
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -27794,7 +27804,7 @@ extern int isfdtype (int __fd, int __fdtype) __attribute__ ((__nothrow__));
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 2
+#line 28 "systems/redhat/usr/include/netinet/in.h" 2
 
 
 
@@ -28119,7 +28129,7 @@ struct group_filter
 
 
 /* Get system-specific definitions.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/in.h" 1
+#line 1 "systems/redhat/usr/include/bits/in.h" 1
 /* Copyright (C) 1991-1999, 2000, 2004, 2008, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -28305,7 +28315,7 @@ struct in_pktinfo
 
 
 
-#line 358 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 2
+#line 358 "systems/redhat/usr/include/netinet/in.h" 2
 
 /* Functions to convert between host and network byte order.
 
@@ -28322,7 +28332,7 @@ extern uint32_t htonl (uint32_t __hostlong)
 extern uint16_t htons (uint16_t __hostshort)
      __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 1
+#line 1 "systems/redhat/usr/include/endian.h" 1
 /* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -28412,10 +28422,10 @@ extern uint16_t htons (uint16_t __hostshort)
 
 
 
-#line 375 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 2
+#line 375 "systems/redhat/usr/include/netinet/in.h" 2
 
 /* Get machine dependent optimized versions of byte swapping functions.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/byteswap.h" 1
+#line 1 "systems/redhat/usr/include/bits/byteswap.h" 1
 /* Macros to swap the order of bytes in integer values.
    Copyright (C) 1997, 1998, 2000, 2002, 2003, 2007, 2008
    Free Software Foundation, Inc.
@@ -28537,7 +28547,7 @@ extern uint16_t htons (uint16_t __hostshort)
 
 
 
-#line 378 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 2
+#line 378 "systems/redhat/usr/include/netinet/in.h" 2
 
 
 
@@ -28724,8 +28734,8 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 1
+#line 30 "systems/redhat/usr/include/netdb.h" 2
+#line 1 "systems/redhat/usr/include/stdint.h" 1
 /* Copyright (C) 1997,1998,1999,2000,2001,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -29001,11 +29011,11 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
+#line 31 "systems/redhat/usr/include/netdb.h" 2
 
 /* This is necessary to make this include file properly replace the
    Sun version.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/rpc/netdb.h" 1
+#line 1 "systems/redhat/usr/include/rpc/netdb.h" 1
 /* @(#)netdb.h	2.1 88/07/29 3.9 RPCSRC */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -29044,7 +29054,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -29380,10 +29390,10 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
-#line 41 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/rpc/netdb.h" 2
+#line 41 "systems/redhat/usr/include/rpc/netdb.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -29773,7 +29783,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 44 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/rpc/netdb.h" 2
+#line 44 "systems/redhat/usr/include/rpc/netdb.h" 2
 
 
 
@@ -29805,11 +29815,11 @@ extern int getrpcent_r (struct rpcent *__result_buf, char *__buffer,
 
 
 
-#line 35 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
+#line 35 "systems/redhat/usr/include/netdb.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 1
+#line 1 "systems/redhat/usr/include/bits/siginfo.h" 1
 /* siginfo_t, sigevent and constants.  Linux version.
    Copyright (C) 1997-2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -29832,7 +29842,7 @@ extern int getrpcent_r (struct rpcent *__result_buf, char *__buffer,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -29840,7 +29850,7 @@ extern int getrpcent_r (struct rpcent *__result_buf, char *__buffer,
 
  
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 2
+#line 27 "systems/redhat/usr/include/bits/siginfo.h" 2
 
 
 
@@ -30117,9 +30127,9 @@ enum
 };
 
 
-#line 40 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
+#line 40 "systems/redhat/usr/include/netdb.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -30503,9 +30513,9 @@ enum
 
 
 
-#line 42 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
+#line 42 "systems/redhat/usr/include/netdb.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/netdb.h" 1
+#line 1 "systems/redhat/usr/include/bits/netdb.h" 1
 /* Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -30537,7 +30547,7 @@ struct netent
   int n_addrtype;		/* Net address type.  */
   uint32_t n_net;		/* Network number.  */
 };
-#line 45 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netdb.h" 2
+#line 45 "systems/redhat/usr/include/netdb.h" 2
 
 /* Absolute file name for network data base files.  */
 
@@ -31181,8 +31191,8 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
-#line 22 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/setjmp.h" 1
+#line 22 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/setjmp.h" 1
 /* Copyright (C) 1991-1999,2001,2002,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -31208,7 +31218,7 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -31544,11 +31554,11 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/setjmp.h" 2
+#line 28 "systems/redhat/usr/include/setjmp.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/setjmp.h" 1
+#line 1 "systems/redhat/usr/include/bits/setjmp.h" 1
 /* Copyright (C) 2001,2002,2003,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -31574,7 +31584,7 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -31582,7 +31592,7 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
  
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/setjmp.h" 2
+#line 29 "systems/redhat/usr/include/bits/setjmp.h" 2
 
 
 
@@ -31591,8 +31601,8 @@ typedef long int __jmp_buf[8];
 
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/setjmp.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigset.h" 1
+#line 32 "systems/redhat/usr/include/setjmp.h" 2
+#line 1 "systems/redhat/usr/include/bits/sigset.h" 1
 /* __sig_atomic_t, __sigset_t, and related definitions.  Linux version.
    Copyright (C) 1991, 1992, 1994, 1996, 1997, 2007
    Free Software Foundation, Inc.
@@ -31713,7 +31723,7 @@ typedef long int __jmp_buf[8];
 
 
 
-#line 33 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/setjmp.h" 2
+#line 33 "systems/redhat/usr/include/setjmp.h" 2
 
 
 /* Calling environment, plus possibly a saved signal mask.  */
@@ -31797,8 +31807,8 @@ extern void siglongjmp (sigjmp_buf __env, int __val)
 
 
 
-#line 23 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 1
+#line 23 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/signal.h" 1
 /* Copyright (C) 1991-2004, 2007, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -31825,7 +31835,7 @@ extern void siglongjmp (sigjmp_buf __env, int __val)
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -32161,11 +32171,11 @@ extern void siglongjmp (sigjmp_buf __env, int __val)
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 31 "systems/redhat/usr/include/signal.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigset.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigset.h" 1
 /* __sig_atomic_t, __sigset_t, and related definitions.  Linux version.
    Copyright (C) 1991, 1992, 1994, 1996, 1997, 2007
    Free Software Foundation, Inc.
@@ -32286,7 +32296,7 @@ extern int __sigdelset (__sigset_t *, int);
 
 
 
-#line 35 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 35 "systems/redhat/usr/include/signal.h" 2
 
 /* An integral type that can be modified atomically, without the
    possibility of a signal arriving in the middle of the operation.  */
@@ -32307,7 +32317,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -32497,8 +32507,8 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-#line 59 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/signum.h" 1
+#line 59 "systems/redhat/usr/include/signal.h" 2
+#line 1 "systems/redhat/usr/include/bits/signum.h" 1
 /* Signal number definitions.  Linux version.
    Copyright (C) 1995,1996,1997,1998,1999,2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -32575,7 +32585,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-#line 60 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 60 "systems/redhat/usr/include/signal.h" 2
 
 
 
@@ -32592,7 +32602,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 /* We need `struct timespec' later on.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -32976,10 +32986,10 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-#line 78 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 78 "systems/redhat/usr/include/signal.h" 2
 
 /* Get the `siginfo_t' type plus the needed symbols.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 1
+#line 1 "systems/redhat/usr/include/bits/siginfo.h" 1
 /* siginfo_t, sigevent and constants.  Linux version.
    Copyright (C) 1997-2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -33002,7 +33012,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -33010,7 +33020,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
  
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 2
+#line 27 "systems/redhat/usr/include/bits/siginfo.h" 2
 
 
 
@@ -33288,7 +33298,7 @@ enum
 
 
 
-#line 81 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 81 "systems/redhat/usr/include/signal.h" 2
 
 /* Type of a signal handler.  */
 typedef void (*__sighandler_t) (int);
@@ -33437,7 +33447,7 @@ extern int sigorset (sigset_t *__set, const sigset_t *__left,
 
 /* Get the system-specific definitions of `struct sigaction'
    and the `SA_*' and `SIG_*'. constants.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigaction.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigaction.h" 1
 /* The proper definitions for Linux's sigaction.
    Copyright (C) 1993-1999, 2000, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -33511,7 +33521,7 @@ struct sigaction
 
 
 
-#line 254 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 254 "systems/redhat/usr/include/signal.h" 2
 
 /* Get and/or change the set of blocked signals.  */
 extern int sigprocmask (int __how, const sigset_t *__restrict __set,
@@ -33595,7 +33605,7 @@ extern int sigvec (int __sig, const struct sigvec *__vec,
 
 
 /* Get machine-dependent `struct sigcontext' and signal subcodes.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigcontext.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigcontext.h" 1
 /* Copyright (C) 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -33620,7 +33630,7 @@ extern int sigvec (int __sig, const struct sigvec *__vec,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -33628,7 +33638,7 @@ extern int sigvec (int __sig, const struct sigvec *__vec,
 
  
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigcontext.h" 2
+#line 28 "systems/redhat/usr/include/bits/sigcontext.h" 2
 
 struct _fpreg
 {
@@ -33757,7 +33767,7 @@ struct sigcontext
 
 
 
-#line 341 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 341 "systems/redhat/usr/include/signal.h" 2
 
 /* Restore the state saved in SCP.  */
 extern int sigreturn (struct sigcontext *__scp) __attribute__ ((__nothrow__));
@@ -33765,7 +33775,7 @@ extern int sigreturn (struct sigcontext *__scp) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -34155,14 +34165,14 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 351 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 351 "systems/redhat/usr/include/signal.h" 2
 
 /* If INTERRUPT is nonzero, make signal SIG interrupt system calls
    (causing them to fail with EINTR); if INTERRUPT is zero, make system
    calls be restarted after signal SIG.  */
 extern int siginterrupt (int __sig, int __interrupt) __attribute__ ((__nothrow__));
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigstack.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigstack.h" 1
 /* sigstack, sigaltstack definitions.
    Copyright (C) 1998, 1999 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -34216,10 +34226,10 @@ typedef struct sigaltstack
     int ss_flags;
     size_t ss_size;
   } stack_t;
-#line 358 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 358 "systems/redhat/usr/include/signal.h" 2
 
 /* This will define `ucontext_t' and `mcontext_t'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ucontext.h" 1
+#line 1 "systems/redhat/usr/include/sys/ucontext.h" 1
 /* Copyright (C) 2001, 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -34241,7 +34251,7 @@ typedef struct sigaltstack
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -34577,8 +34587,8 @@ typedef struct sigaltstack
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ucontext.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 1
+#line 24 "systems/redhat/usr/include/sys/ucontext.h" 2
+#line 1 "systems/redhat/usr/include/signal.h" 1
 /* Copyright (C) 1991-2004, 2007, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -34949,8 +34959,8 @@ typedef struct sigaltstack
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ucontext.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 25 "systems/redhat/usr/include/sys/ucontext.h" 2
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -34958,11 +34968,11 @@ typedef struct sigaltstack
 
  
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ucontext.h" 2
+#line 26 "systems/redhat/usr/include/sys/ucontext.h" 2
 
 /* We need the signal context definitions even if they are not used
    included in <signal.h>.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigcontext.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigcontext.h" 1
 /* Copyright (C) 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -35116,7 +35126,7 @@ typedef struct sigaltstack
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ucontext.h" 2
+#line 30 "systems/redhat/usr/include/sys/ucontext.h" 2
 
 
 /* Type for general register.  */
@@ -35331,7 +35341,7 @@ typedef struct ucontext
 
 
 
-#line 361 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 361 "systems/redhat/usr/include/signal.h" 2
 
 /* Run signals handlers on the stack specified by SS (if not NULL).
    If OSS is not NULL, it is filled in with the old signal stack status.
@@ -35363,7 +35373,7 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 
 /* Some of the functions for handling signals in threaded programs must
    be defined here.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/pthreadtypes.h" 1
+#line 1 "systems/redhat/usr/include/bits/pthreadtypes.h" 1
 /* Copyright (C) 2002,2003,2004,2005,2006,2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
@@ -35576,8 +35586,8 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 
 
 
-#line 396 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigthread.h" 1
+#line 396 "systems/redhat/usr/include/signal.h" 2
+#line 1 "systems/redhat/usr/include/bits/sigthread.h" 1
 /* Signal handling function for threaded programs.
    Copyright (C) 1998, 1999, 2000, 2002, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -35620,7 +35630,7 @@ extern int pthread_sigqueue (pthread_t __threadid, int __signo,
 			     const union sigval __value) __attribute__ ((__nothrow__));
 
 
-#line 397 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 2
+#line 397 "systems/redhat/usr/include/signal.h" 2
 
 /* The following functions are used internally in the C library and in
    other code which need deep insights.  */
@@ -35634,8 +35644,8 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
-#line 24 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 1
+#line 24 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/stdint.h" 1
 /* Copyright (C) 1997,1998,1999,2000,2001,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -35911,8 +35921,8 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
-#line 25 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 1
+#line 25 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/stdio.h" 1
 /* Define ISO C stdio on top of C++ iostreams.
    Copyright (C) 1991, 1994-2008, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -35939,7 +35949,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -36275,13 +36285,13 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 2
+#line 30 "systems/redhat/usr/include/stdio.h" 2
 
 
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -36671,9 +36681,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 36 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 2
+#line 36 "systems/redhat/usr/include/stdio.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -36863,7 +36873,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 38 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 2
+#line 38 "systems/redhat/usr/include/stdio.h" 2
 
 
 
@@ -36895,7 +36905,7 @@ typedef struct _IO_FILE __FILE;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/libio.h" 1
+#line 1 "systems/redhat/usr/include/libio.h" 1
 /* Copyright (C) 1991-1995,1997-2006,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Per Bothner <bothner@cygnus.com>.
@@ -36927,7 +36937,7 @@ typedef struct _IO_FILE __FILE;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/_G_config.h" 1
+#line 1 "systems/redhat/usr/include/_G_config.h" 1
 /* This file is needed by libio to define various configuration parameters.
    These are always the same in the GNU C library.  */
 
@@ -36936,7 +36946,7 @@ typedef struct _IO_FILE __FILE;
 
 /* Define types for libio in terms of the standard internal type names.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -37126,13 +37136,13 @@ typedef struct _IO_FILE __FILE;
 
 
 
-#line 11 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/_G_config.h" 2
+#line 11 "systems/redhat/usr/include/_G_config.h" 2
 
 
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -37522,12 +37532,12 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 17 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/_G_config.h" 2
+#line 17 "systems/redhat/usr/include/_G_config.h" 2
 
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/wchar.h" 1
+#line 1 "systems/redhat/usr/include/wchar.h" 1
 /* Copyright (C) 1995-2008, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -38364,7 +38374,7 @@ typedef struct
    constants but the whole file was already read.  */
 
 
-#line 22 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/_G_config.h" 2
+#line 22 "systems/redhat/usr/include/_G_config.h" 2
 
 typedef struct
 {
@@ -38443,7 +38453,7 @@ typedef unsigned int _G_uint32_t __attribute__ ((__mode__ (__SI__)));
  
 
 
-#line 34 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/libio.h" 2
+#line 34 "systems/redhat/usr/include/libio.h" 2
 /* ALL of these should be defined in _G_config.h */
 
 
@@ -38464,7 +38474,7 @@ typedef unsigned int _G_uint32_t __attribute__ ((__mode__ (__SI__)));
 
 /* This define avoids name pollution if we're using GNU stdarg.h */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdarg.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdarg.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2009 Free Software Foundation, Inc.
 
 This file is part of GCC.
@@ -38585,7 +38595,7 @@ typedef __builtin_va_list __gnuc_va_list;
 
 
 
-#line 55 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/libio.h" 2
+#line 55 "systems/redhat/usr/include/libio.h" 2
 
 
 
@@ -39052,7 +39062,7 @@ extern void _IO_free_backup_area (_IO_FILE *) __attribute__ ((__nothrow__));
 
 
 
-#line 77 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 2
+#line 77 "systems/redhat/usr/include/stdio.h" 2
 
 
 
@@ -39125,7 +39135,7 @@ typedef _G_fpos64_t fpos64_t;
    L_cuserid	How long an array to pass to `cuserid'.
    FOPEN_MAX	Minimum number of files that can be open at once.
    FILENAME_MAX	Maximum length of a filename.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/stdio_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/stdio_lim.h" 1
 /* Copyright (C) 1994, 1997, 1998, 1999, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -39166,7 +39176,7 @@ typedef _G_fpos64_t fpos64_t;
 
 
 
-#line 163 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 2
+#line 163 "systems/redhat/usr/include/stdio.h" 2
 
 
 /* Standard streams.  */
@@ -39793,7 +39803,7 @@ extern void perror (const char *__s);
    are available on this system.  Even if available, these variables
    should not be used directly.  The `strerror' function provides
    all the necessary functionality.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sys_errlist.h" 1
+#line 1 "systems/redhat/usr/include/bits/sys_errlist.h" 1
 /* Declare sys_errlist and sys_nerr, or don't.  Compatibility (do) version.
    Copyright (C) 2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -39826,7 +39836,7 @@ extern const char *const sys_errlist[];
 extern int _sys_nerr;
 extern const char *const _sys_errlist[];
 
-#line 850 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 2
+#line 850 "systems/redhat/usr/include/stdio.h" 2
 
 
 
@@ -39905,8 +39915,8 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
 
 
 
-#line 26 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 1
+#line 26 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/stdlib.h" 1
 /* Copyright (C) 1991-2007, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -39930,7 +39940,7 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
  */
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -40266,7 +40276,7 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
+#line 27 "systems/redhat/usr/include/stdlib.h" 2
 
 /* Get size_t, wchar_t and NULL from <stddef.h>.  */
 
@@ -40274,7 +40284,7 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -40664,7 +40674,7 @@ typedef int wchar_t;
 
 
 
-#line 35 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
+#line 35 "systems/redhat/usr/include/stdlib.h" 2
 
 
 
@@ -40673,7 +40683,7 @@ typedef int wchar_t;
 
 
 /* XPG requires a few symbols from <sys/wait.h> being defined.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/waitflags.h" 1
+#line 1 "systems/redhat/usr/include/bits/waitflags.h" 1
 /* Definitions of flag bits for `waitpid' et al.
    Copyright (C) 1992,1996,1997,2000,2004,2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -40709,8 +40719,8 @@ typedef int wchar_t;
 
 
 
-#line 44 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/waitstatus.h" 1
+#line 44 "systems/redhat/usr/include/stdlib.h" 2
+#line 1 "systems/redhat/usr/include/bits/waitstatus.h" 1
 /* Definitions of status bits for `wait' et al.
    Copyright (C) 1992,1994,1996,1997,2000,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -40771,7 +40781,7 @@ typedef int wchar_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 1
+#line 1 "systems/redhat/usr/include/endian.h" 1
 /* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -40861,7 +40871,7 @@ typedef int wchar_t;
 
 
 
-#line 67 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/waitstatus.h" 2
+#line 67 "systems/redhat/usr/include/bits/waitstatus.h" 2
 
 union wait
   {
@@ -40903,7 +40913,7 @@ union wait
 
 
 
-#line 45 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
+#line 45 "systems/redhat/usr/include/stdlib.h" 2
 
 
 /* Lots of hair to allow traditional BSD use of `union wait'
@@ -41080,7 +41090,7 @@ extern unsigned long long int strtoull (const char *__restrict __nptr,
 
 /* Structure for reentrant locale using functions.  This is an
    (almost) opaque type for the user level programs.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/xlocale.h" 1
+#line 1 "systems/redhat/usr/include/xlocale.h" 1
 /* Definition of locale datatype.
    Copyright (C) 1997,2000,2002,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -41126,7 +41136,7 @@ extern unsigned long long int strtoull (const char *__restrict __nptr,
 
 
 
-#line 238 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
+#line 238 "systems/redhat/usr/include/stdlib.h" 2
 
 /* Special versions of the functions above which take the locale to
    use as an additional parameter.  */
@@ -41205,7 +41215,7 @@ extern long int a64l (const char *__s)
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -41447,7 +41457,7 @@ extern long int a64l (const char *__s)
 
 
 
-#line 322 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
+#line 322 "systems/redhat/usr/include/stdlib.h" 2
 
 /* These are the functions that actually do things.  The `random', `srandom',
    `initstate' and `setstate' functions are those from BSD Unices.
@@ -41616,7 +41626,7 @@ extern void free (void *__ptr) __attribute__ ((__nothrow__));
 extern void cfree (void *__ptr) __attribute__ ((__nothrow__));
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/alloca.h" 1
+#line 1 "systems/redhat/usr/include/alloca.h" 1
 /* Copyright (C) 1992, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -41638,7 +41648,7 @@ extern void cfree (void *__ptr) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -41974,10 +41984,10 @@ extern void cfree (void *__ptr) __attribute__ ((__nothrow__));
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/alloca.h" 2
+#line 24 "systems/redhat/usr/include/alloca.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -42367,7 +42377,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/alloca.h" 2
+#line 27 "systems/redhat/usr/include/alloca.h" 2
 
 
 
@@ -42383,7 +42393,7 @@ extern void *alloca (size_t __size) __attribute__ ((__nothrow__));
 
 
 
-#line 499 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdlib.h" 2
+#line 499 "systems/redhat/usr/include/stdlib.h" 2
 
 
 /* Allocate SIZE bytes on a page boundary.  The storage cannot be freed.  */
@@ -42799,8 +42809,8 @@ extern int getloadavg (double __loadavg[], int __nelem)
 
 
 
-#line 27 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdarg.h" 1
+#line 27 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdarg.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2009 Free Software Foundation, Inc.
 
 This file is part of GCC.
@@ -42921,8 +42931,8 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 28 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 28 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -43312,8 +43322,8 @@ typedef long int ptrdiff_t;
 
 
 
-#line 29 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/string.h" 1
+#line 29 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/string.h" 1
 /* Copyright (C) 1991-1993,1995-2004,2007,2009,2010
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -43340,7 +43350,7 @@ typedef long int ptrdiff_t;
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -43676,14 +43686,14 @@ typedef long int ptrdiff_t;
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/string.h" 2
+#line 29 "systems/redhat/usr/include/string.h" 2
 
 
 
 /* Get size_t and NULL from <stddef.h>.  */
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -44073,7 +44083,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 36 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/string.h" 2
+#line 36 "systems/redhat/usr/include/string.h" 2
 
 /* Tell the caller that we provide correct C++ prototypes.  */
 
@@ -44191,7 +44201,7 @@ extern size_t strxfrm (char *__restrict __dest,
 /* The following functions are equivalent to the both above but they
    take the locale they use for the collation as an extra argument.
    This is not standardsized but something like will come.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/xlocale.h" 1
+#line 1 "systems/redhat/usr/include/xlocale.h" 1
 /* Definition of locale datatype.
    Copyright (C) 1997,2000,2002,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -44237,7 +44247,7 @@ extern size_t strxfrm (char *__restrict __dest,
 
 
 
-#line 164 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/string.h" 2
+#line 164 "systems/redhat/usr/include/string.h" 2
 
 /* Compare the collated forms of S1 and S2 using rules from L.  */
 extern int strcoll_l (const char *__s1, const char *__s2, __locale_t __l)
@@ -44684,8 +44694,8 @@ extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __att
 
 
 
-#line 30 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 1
+#line 30 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/poll.h" 1
 /* Compatibility definitions for System V `poll' interface.
    Copyright (C) 1994,1996-2001,2004,2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -44708,7 +44718,7 @@ extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __att
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -45044,10 +45054,10 @@ extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __att
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 2
+#line 25 "systems/redhat/usr/include/sys/poll.h" 2
 
 /* Get the platform dependent bits of `poll'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/poll.h" 1
+#line 1 "systems/redhat/usr/include/bits/poll.h" 1
 /* Copyright (C) 1997, 2001, 2006, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -45095,10 +45105,10 @@ extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __att
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 2
+#line 28 "systems/redhat/usr/include/sys/poll.h" 2
 
 /* Get the __sigset_t definition.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/sigset.h" 1
+#line 1 "systems/redhat/usr/include/bits/sigset.h" 1
 /* __sig_atomic_t, __sigset_t, and related definitions.  Linux version.
    Copyright (C) 1991, 1992, 1994, 1996, 1997, 2007
    Free Software Foundation, Inc.
@@ -45219,10 +45229,10 @@ extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __att
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 2
+#line 31 "systems/redhat/usr/include/sys/poll.h" 2
 /* Get the timespec definition.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -45606,7 +45616,7 @@ extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __att
 
 
 
-#line 34 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/poll.h" 2
+#line 34 "systems/redhat/usr/include/sys/poll.h" 2
 
 /* Type used for the number of file descriptors.  */
 typedef unsigned long int nfds_t;
@@ -45646,8 +45656,8 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
-#line 31 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ioctl.h" 1
+#line 31 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/ioctl.h" 1
 /* Copyright (C) 1991, 92, 93, 94, 96, 98, 99 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -45669,7 +45679,7 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -46005,12 +46015,12 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ioctl.h" 2
+#line 24 "systems/redhat/usr/include/sys/ioctl.h" 2
 
 
 
 /* Get the list of `ioctl' requests and related constants.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/ioctls.h" 1
+#line 1 "systems/redhat/usr/include/bits/ioctls.h" 1
 /* Copyright (C) 1996, 1997, 1998, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -46033,17 +46043,17 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 /* Use the definitions from the kernel header files.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/ioctls.h" 1
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/ioctls.h" 1
+#line 1 "systems/redhat/usr/include/asm/ioctls.h" 1
+#line 1 "systems/redhat/usr/include/asm-generic/ioctls.h" 1
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/ioctl.h" 1
+#line 1 "systems/redhat/usr/include/linux/ioctl.h" 1
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/ioctl.h" 1
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/ioctl.h" 1
+#line 1 "systems/redhat/usr/include/asm/ioctl.h" 1
+#line 1 "systems/redhat/usr/include/asm-generic/ioctl.h" 1
 
 
 
@@ -46135,11 +46145,11 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
-#line 3 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/ioctl.h" 2
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/ioctl.h" 2
+#line 3 "systems/redhat/usr/include/asm/ioctl.h" 2
+#line 6 "systems/redhat/usr/include/linux/ioctl.h" 2
 
 
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/ioctls.h" 2
+#line 6 "systems/redhat/usr/include/asm-generic/ioctls.h" 2
 
 /*
  * These are the most common definitions for tty ioctl numbers.
@@ -46245,8 +46255,8 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
-#line 3 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/ioctls.h" 2
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/ioctls.h" 2
+#line 3 "systems/redhat/usr/include/asm/ioctls.h" 2
+#line 26 "systems/redhat/usr/include/bits/ioctls.h" 2
 
 /* Routing table calls.  */
 
@@ -46332,10 +46342,10 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
  */
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ioctl.h" 2
+#line 29 "systems/redhat/usr/include/sys/ioctl.h" 2
 
 /* Define some types used by `ioctl' requests.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/ioctl-types.h" 1
+#line 1 "systems/redhat/usr/include/bits/ioctl-types.h" 1
 /* Structure types for pre-termios terminal ioctls.  Linux version.
    Copyright (C) 1996, 1997, 1999, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -46359,8 +46369,8 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 /* Get definition of constants for use with `ioctl'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/ioctls.h" 1
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/ioctls.h" 1
+#line 1 "systems/redhat/usr/include/asm/ioctls.h" 1
+#line 1 "systems/redhat/usr/include/asm-generic/ioctls.h" 1
 
 
 
@@ -46470,8 +46480,8 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
-#line 3 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/ioctls.h" 2
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/ioctl-types.h" 2
+#line 3 "systems/redhat/usr/include/asm/ioctls.h" 2
+#line 27 "systems/redhat/usr/include/bits/ioctl-types.h" 2
 
 
 struct winsize
@@ -46525,14 +46535,14 @@ struct termio
 
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ioctl.h" 2
+#line 32 "systems/redhat/usr/include/sys/ioctl.h" 2
 
 /* On a Unix system, the system <sys/ioctl.h> probably defines some of
    the symbols we define in <sys/ttydefaults.h> (usually with the same
    values).  The code to generate <bits/ioctls.h> has omitted these
    symbols to avoid the conflict, but a Unix program expects <sys/ioctl.h>
    to define them, so we must include <sys/ttydefaults.h> here.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ttydefaults.h" 1
+#line 1 "systems/redhat/usr/include/sys/ttydefaults.h" 1
 /*-
  * Copyright (c) 1982, 1986, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -46630,7 +46640,7 @@ struct termio
 
 
 
-#line 39 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ioctl.h" 2
+#line 39 "systems/redhat/usr/include/sys/ioctl.h" 2
 
 /* Perform the I/O control operation specified by REQUEST on FD.
    One argument may follow; its presence and type depend on REQUEST.
@@ -46640,8 +46650,8 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
-#line 32 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/mman.h" 1
+#line 32 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/mman.h" 1
 /* Definitions for BSD-style memory management.
    Copyright (C) 1994-2000, 2003, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -46664,7 +46674,7 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -47000,8 +47010,8 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/mman.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 25 "systems/redhat/usr/include/sys/mman.h" 2
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -47191,9 +47201,9 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/mman.h" 2
+#line 26 "systems/redhat/usr/include/sys/mman.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -47583,7 +47593,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/mman.h" 2
+#line 28 "systems/redhat/usr/include/sys/mman.h" 2
 
 
 
@@ -47596,7 +47606,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/mman.h" 1
+#line 1 "systems/redhat/usr/include/bits/mman.h" 1
 /* Definitions for POSIX memory map interface.  Linux/x86_64 version.
    Copyright (C) 2001, 2003, 2005, 2006, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -47696,7 +47706,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 44 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/mman.h" 2
+#line 44 "systems/redhat/usr/include/sys/mman.h" 2
 
 /* Return value of `mmap' in case of an error.  */
 
@@ -47800,8 +47810,8 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 33 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/socket.h" 1
+#line 33 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/socket.h" 1
 /* Declarations of socket constants, types, and functions.
    Copyright (C) 1991,92,1994-2001,2003,2005,2007,2008
    Free Software Foundation, Inc.
@@ -48046,8 +48056,8 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 34 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/stat.h" 1
+#line 34 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/stat.h" 1
 /* Copyright (C) 1991, 1992, 1995-2004, 2005, 2006, 2007, 2009, 2010
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -48074,7 +48084,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -48410,9 +48420,9 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/stat.h" 2
+#line 29 "systems/redhat/usr/include/sys/stat.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -48602,7 +48612,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/stat.h" 2
+#line 31 "systems/redhat/usr/include/sys/stat.h" 2
 
 
 
@@ -48611,7 +48621,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -48995,7 +49005,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 41 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/stat.h" 2
+#line 41 "systems/redhat/usr/include/sys/stat.h" 2
 
 
 /* The Single Unix specification says that some more types are
@@ -49050,7 +49060,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/stat.h" 1
+#line 1 "systems/redhat/usr/include/bits/stat.h" 1
 /* Copyright (C) 1999-2003,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -49248,7 +49258,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-#line 109 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/stat.h" 2
+#line 109 "systems/redhat/usr/include/sys/stat.h" 2
 
 
 
@@ -49634,8 +49644,8 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
 
 
 
-#line 35 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/time.h" 1
+#line 35 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/time.h" 1
 /* Copyright (C) 1991-1994,1996-2003,2005,2006,2009
 	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -49658,7 +49668,7 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -49994,9 +50004,9 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/time.h" 2
+#line 25 "systems/redhat/usr/include/sys/time.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -50186,9 +50196,9 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/time.h" 2
+#line 27 "systems/redhat/usr/include/sys/time.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -50572,9 +50582,9 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/time.h" 2
+#line 29 "systems/redhat/usr/include/sys/time.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/time.h" 1
+#line 1 "systems/redhat/usr/include/bits/time.h" 1
 /* System-dependent timing definitions.  Generic version.
    Copyright (C) 1996,1997,1999-2002,2003,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -50653,9 +50663,9 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
   
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/time.h" 2
+#line 31 "systems/redhat/usr/include/sys/time.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/select.h" 1
+#line 1 "systems/redhat/usr/include/sys/select.h" 1
 /* `fd_set' type and related macros, and `select'/`pselect' declarations.
    Copyright (C) 1996-2003, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -50779,7 +50789,7 @@ extern int __xmknodat (int __ver, int __fd, const char *__path,
 
 
 
-#line 33 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/time.h" 2
+#line 33 "systems/redhat/usr/include/sys/time.h" 2
 
 
 
@@ -50928,8 +50938,8 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 36 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 36 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -51171,8 +51181,8 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 37 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/wait.h" 1
+#line 37 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/wait.h" 1
 /* Copyright (C) 1991-1994,1996-2001,2003,2004,2005,2007,2009,2010
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -51199,7 +51209,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -51535,11 +51545,11 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/wait.h" 2
+#line 29 "systems/redhat/usr/include/sys/wait.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/signal.h" 1
+#line 1 "systems/redhat/usr/include/signal.h" 1
 /* Copyright (C) 1991-2004, 2007, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -51910,8 +51920,8 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 33 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/wait.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/resource.h" 1
+#line 33 "systems/redhat/usr/include/sys/wait.h" 2
+#line 1 "systems/redhat/usr/include/sys/resource.h" 1
 /* Copyright (C) 1992,94,1996-2000,2002,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -51933,7 +51943,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -52269,10 +52279,10 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/resource.h" 2
+#line 24 "systems/redhat/usr/include/sys/resource.h" 2
 
 /* Get the system-dependent definitions of structures and bit values.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/resource.h" 1
+#line 1 "systems/redhat/usr/include/bits/resource.h" 1
 /* Bit values & structures for resource limits.  Linux version.
    Copyright (C) 1994, 1996, 1997, 1998, 1999, 2000, 2004, 2005, 2008, 2009
    Free Software Foundation, Inc.
@@ -52296,7 +52306,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -52486,7 +52496,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/resource.h" 2
+#line 27 "systems/redhat/usr/include/bits/resource.h" 2
 
 /* Transmute defines to enumerations.  The macro re-definitions are
    necessary because some programs want to test for operating system
@@ -52630,7 +52640,7 @@ enum __rusage_who
 };
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/time.h" 1
+#line 1 "systems/redhat/usr/include/bits/time.h" 1
 /* System-dependent timing definitions.  Generic version.
    Copyright (C) 1996,1997,1999-2002,2003,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -52709,7 +52719,7 @@ enum __rusage_who
   
 
 
-#line 177 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/resource.h" 2
+#line 177 "systems/redhat/usr/include/bits/resource.h" 2
 
 /* Structure which says how much of each resource has been used.  */
 struct rusage
@@ -52769,7 +52779,7 @@ enum __priority_which
   PRIO_USER = 2			/* WHO is a user ID.  */
 
 };
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/resource.h" 2
+#line 27 "systems/redhat/usr/include/sys/resource.h" 2
 
 
 
@@ -52839,7 +52849,7 @@ extern int setpriority (__priority_which_t __which, id_t __who, int __prio)
 
 
 
-#line 34 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/wait.h" 2
+#line 34 "systems/redhat/usr/include/sys/wait.h" 2
 
 /* These macros could also be defined in <stdlib.h>.  */
 
@@ -52937,7 +52947,7 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 1
+#line 1 "systems/redhat/usr/include/bits/siginfo.h" 1
 /* siginfo_t, sigevent and constants.  Linux version.
    Copyright (C) 1997-2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -52960,7 +52970,7 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -52968,7 +52978,7 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
  
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/siginfo.h" 2
+#line 27 "systems/redhat/usr/include/bits/siginfo.h" 2
 
 
 
@@ -53245,7 +53255,7 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
-#line 145 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/wait.h" 2
+#line 145 "systems/redhat/usr/include/sys/wait.h" 2
 /* Wait for a childing matching IDTYPE and ID to change the status and
    place appropriate information in *INFOP.
    If IDTYPE is P_PID, match any process whose process ID is ID.
@@ -53281,8 +53291,8 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
-#line 38 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/termios.h" 1
+#line 38 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/termios.h" 1
 /* Copyright (C) 1991-1994,1996-1999,2003,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -53308,7 +53318,7 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -53644,10 +53654,10 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/termios.h" 2
+#line 28 "systems/redhat/usr/include/termios.h" 2
 
 /* We need `pid_t'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -53837,7 +53847,7 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/termios.h" 2
+#line 31 "systems/redhat/usr/include/termios.h" 2
 
 
 
@@ -53847,7 +53857,7 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 /* Get the system-dependent definitions of `struct termios', `tcflag_t',
    `cc_t', `speed_t', and all the macros specifying the flag bits.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/termios.h" 1
+#line 1 "systems/redhat/usr/include/bits/termios.h" 1
 /* termios type and macro definitions.  Linux version.
    Copyright (C) 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2003, 2005
 	Free Software Foundation, Inc.
@@ -54062,7 +54072,7 @@ struct termios
 
 
 
-#line 42 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/termios.h" 2
+#line 42 "systems/redhat/usr/include/termios.h" 2
 
 
 /* Compare a character C to a value VAL from the `c_cc' array in a
@@ -54121,7 +54131,7 @@ extern int tcflow (int __fd, int __action) __attribute__ ((__nothrow__));
 extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/ttydefaults.h" 1
+#line 1 "systems/redhat/usr/include/sys/ttydefaults.h" 1
 /*-
  * Copyright (c) 1982, 1986, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -54219,13 +54229,13 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
-#line 107 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/termios.h" 2
+#line 107 "systems/redhat/usr/include/termios.h" 2
 
 
 
 
-#line 39 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 1
+#line 39 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/time.h" 1
 /* Copyright (C) 1991-2003,2006,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -54251,7 +54261,7 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -54587,7 +54597,7 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 30 "systems/redhat/usr/include/time.h" 2
 
 
 
@@ -54596,7 +54606,7 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 /* Get size_t and NULL from <stddef.h>.  */
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -54986,11 +54996,11 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 40 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 40 "systems/redhat/usr/include/time.h" 2
 
 /* This defines CLOCKS_PER_SEC, which is the number of processor clock
    ticks per second.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/time.h" 1
+#line 1 "systems/redhat/usr/include/bits/time.h" 1
 /* System-dependent timing definitions.  Generic version.
    Copyright (C) 1996,1997,1999-2002,2003,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -55069,7 +55079,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
   
 
 
-#line 44 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 44 "systems/redhat/usr/include/time.h" 2
 
 /* This is the obsolete POSIX.1-1988 name for the same constant.  */
 
@@ -55226,7 +55236,7 @@ extern char *strptime (const char *__restrict __s,
 
 /* Similar to the two functions above but take the information from
    the provided locale and not the global locale.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/xlocale.h" 1
+#line 1 "systems/redhat/usr/include/xlocale.h" 1
 /* Definition of locale datatype.
    Copyright (C) 1997,2000,2002,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -55272,7 +55282,7 @@ extern char *strptime (const char *__restrict __s,
 
 
 
-#line 217 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/time.h" 2
+#line 217 "systems/redhat/usr/include/time.h" 2
 
 extern size_t strftime_l (char *__restrict __s, size_t __maxsize,
 			  const char *__restrict __format,
@@ -55460,8 +55470,8 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 40 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 1
+#line 40 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/unistd.h" 1
 /* Copyright (C) 1991-2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -55487,7 +55497,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -55823,7 +55833,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 2
+#line 28 "systems/redhat/usr/include/unistd.h" 2
 
 
 
@@ -55987,7 +55997,7 @@ extern int getdate_r (const char *__restrict __string,
    _LFS64_STDIO			Standard I/O supports large files.
    */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/posix_opt.h" 1
+#line 1 "systems/redhat/usr/include/bits/posix_opt.h" 1
 /* Define POSIX options for Linux.
    Copyright (C) 1996-2004, 2006, 2008, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -56182,11 +56192,11 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 205 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 2
+#line 205 "systems/redhat/usr/include/unistd.h" 2
 
 /* Get the environment definitions from Unix98.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/environments.h" 1
+#line 1 "systems/redhat/usr/include/bits/environments.h" 1
 /* Copyright (C) 1999, 2001, 2004, 2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -56208,7 +56218,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/wordsize.h" 1
+#line 1 "systems/redhat/usr/include/bits/wordsize.h" 1
 /* Determine the wordsize from the preprocessor defines.  */
 
 
@@ -56216,7 +56226,7 @@ extern int getdate_r (const char *__restrict __string,
 
  
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/environments.h" 2
+#line 25 "systems/redhat/usr/include/bits/environments.h" 2
 
 /* This header should define the following symbols under the described
    situations.  A value `1' means that the model is always supported,
@@ -56287,7 +56297,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 209 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 2
+#line 209 "systems/redhat/usr/include/unistd.h" 2
 
 /* Standard file descriptors.  */
 
@@ -56297,7 +56307,7 @@ extern int getdate_r (const char *__restrict __string,
 
 /* All functions that are not declared anywhere else.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -56487,7 +56497,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 220 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 2
+#line 220 "systems/redhat/usr/include/unistd.h" 2
 
 
 
@@ -56495,7 +56505,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -56885,7 +56895,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 229 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 2
+#line 229 "systems/redhat/usr/include/unistd.h" 2
 
 
 /* The Single Unix specification says that some more types are
@@ -57223,7 +57233,7 @@ extern void _exit (int __status) __attribute__ ((__noreturn__));
 /* Get the `_PC_*' symbols for the NAME argument to `pathconf' and `fpathconf';
    the `_SC_*' symbols for the NAME argument to `sysconf';
    and the `_CS_*' symbols for the NAME argument to `confstr'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/confname.h" 1
+#line 1 "systems/redhat/usr/include/bits/confname.h" 1
 /* `sysconf', `pathconf', and `confstr' NAME values.  Generic version.
    Copyright (C) 1993,1995-1998,2000,2001,2003,2004,2007,2009,2010
    Free Software Foundation, Inc.
@@ -57900,7 +57910,7 @@ enum
     _CS_V7_ENV
 
   };
-#line 608 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 2
+#line 608 "systems/redhat/usr/include/unistd.h" 2
 
 /* Get file-specific configuration information about PATH.  */
 extern long int pathconf (const char *__path, int __name)
@@ -58150,7 +58160,7 @@ extern int setlogin (const char *__name) __attribute__ ((__nothrow__)) __attribu
    arguments in ARGV (ARGC of them, minus the program name) for
    options given in OPTS.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/getopt.h" 1
+#line 1 "systems/redhat/usr/include/getopt.h" 1
 /* Declarations for getopt.
    Copyright (C) 1989-1994,1996-1999,2001,2003,2004,2009,2010
    Free Software Foundation, Inc.
@@ -58330,7 +58340,7 @@ extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
 
 
 
-#line 892 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/unistd.h" 2
+#line 892 "systems/redhat/usr/include/unistd.h" 2
 
 
 /* Put the name of the current host in no more than LEN bytes of NAME.
@@ -58560,8 +58570,8 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 41 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/param.h" 1
+#line 41 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/sys/param.h" 1
 /* Copyright (C) 1995-1997,2000,2001,2003,2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -58586,7 +58596,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 1
+#line 1 "systems/redhat/usr/include/limits.h" 1
 /* Copyright (C) 1991, 1992, 1996, 1997, 1998, 1999, 2000, 2005
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -58719,7 +58729,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 /* POSIX adds things to <limits.h>.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/posix1_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/posix1_lim.h" 1
 /* Copyright (C) 1991-1993,96,98,2000-2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -58881,10 +58891,10 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 147 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 147 "systems/redhat/usr/include/limits.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/posix2_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/posix2_lim.h" 1
 /* Copyright (C) 1991, 1996, 1999, 2000, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -58975,10 +58985,10 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 151 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 151 "systems/redhat/usr/include/limits.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/xopen_lim.h" 1
+#line 1 "systems/redhat/usr/include/bits/xopen_lim.h" 1
 /* Copyright (C) 1996, 1997, 1999, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -59110,12 +59120,10 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 155 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/limits.h" 2
+#line 155 "systems/redhat/usr/include/limits.h" 2
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/param.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/limits.h" 1
-
-
+#line 28 "systems/redhat/usr/include/sys/param.h" 2
+#line 1 "systems/redhat/usr/include/linux/limits.h" 1
 
 
 
@@ -59134,19 +59142,15 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/param.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/param.h" 1
+
+
+#line 29 "systems/redhat/usr/include/sys/param.h" 2
+#line 1 "systems/redhat/usr/include/linux/param.h" 1
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/param.h" 1
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm-generic/param.h" 1
-
-
-
-
-
-
+#line 1 "systems/redhat/usr/include/asm/param.h" 1
+#line 1 "systems/redhat/usr/include/asm-generic/param.h" 1
 
 
 
@@ -59157,11 +59161,17 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 3 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/asm/param.h" 2
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/linux/param.h" 2
 
 
-#line 30 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/param.h" 2
+
+
+
+
+#line 3 "systems/redhat/usr/include/asm/param.h" 2
+#line 6 "systems/redhat/usr/include/linux/param.h" 2
+
+
+#line 30 "systems/redhat/usr/include/sys/param.h" 2
 
 /* The kernel headers defines ARG_MAX.  The value is wrong, though.  */
 
@@ -59184,7 +59194,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -59426,7 +59436,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 54 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/param.h" 2
+#line 54 "systems/redhat/usr/include/sys/param.h" 2
 
 /* Bit map related macros.  */
 
@@ -59456,9 +59466,9 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 42 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 42 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/mntent.h" 1
+#line 1 "systems/redhat/usr/include/mntent.h" 1
 /* Utilities for reading/writing fstab, mtab, etc.
    Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -59481,7 +59491,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -59817,9 +59827,9 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/mntent.h" 2
+#line 25 "systems/redhat/usr/include/mntent.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 1
+#line 1 "systems/redhat/usr/include/stdio.h" 1
 /* Define ISO C stdio on top of C++ iostreams.
    Copyright (C) 1991, 1994-2008, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -60665,8 +60675,8 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 27 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/mntent.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/paths.h" 1
+#line 27 "systems/redhat/usr/include/mntent.h" 2
+#line 1 "systems/redhat/usr/include/paths.h" 1
 /*
  * Copyright (c) 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -60742,7 +60752,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/mntent.h" 2
+#line 28 "systems/redhat/usr/include/mntent.h" 2
 
 
 /* File listing canonical interesting mount points.  */
@@ -60814,10 +60824,10 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
-#line 44 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 44 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/statfs.h" 1
+#line 1 "systems/redhat/usr/include/sys/statfs.h" 1
 /* Definitions for getting information about a filesystem.
    Copyright (C) 1996, 1997, 1998, 1999, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -60840,7 +60850,7 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -61176,10 +61186,10 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/statfs.h" 2
+#line 25 "systems/redhat/usr/include/sys/statfs.h" 2
 
 /* Get the system-specific definition of `struct statfs'.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/statfs.h" 1
+#line 1 "systems/redhat/usr/include/bits/statfs.h" 1
 /* Copyright (C) 1997, 1998, 2000, 2002, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -61201,7 +61211,7 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -61391,7 +61401,7 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/statfs.h" 2
+#line 25 "systems/redhat/usr/include/bits/statfs.h" 2
 
 struct statfs
   {
@@ -61434,7 +61444,7 @@ struct statfs64
 /* Tell code we have these members.  */
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/statfs.h" 2
+#line 28 "systems/redhat/usr/include/sys/statfs.h" 2
 
 
 
@@ -61471,14 +61481,14 @@ extern int fstatfs64 (int __fildes, struct statfs64 *__buf)
 
 
 
-#line 47 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 47 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 
 #if (definedEx(CONFIG_FEATURE_FIND_CONTEXT) || definedEx(CONFIG_SELINUX))
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/selinux/selinux.h" 1
+#line 1 "systems/redhat/usr/include/selinux/selinux.h" 1
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/types.h" 1
+#line 1 "systems/redhat/usr/include/sys/types.h" 1
 /* Copyright (C) 1991,1992,1994-2002,2006,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -61720,8 +61730,8 @@ extern int fstatfs64 (int __fildes, struct statfs64 *__buf)
 
 
 
-#line 6 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/selinux/selinux.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdarg.h" 1
+#line 6 "systems/redhat/usr/include/selinux/selinux.h" 2
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdarg.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2009 Free Software Foundation, Inc.
 
 This file is part of GCC.
@@ -61842,7 +61852,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 7 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/selinux/selinux.h" 2
+#line 7 "systems/redhat/usr/include/selinux/selinux.h" 2
 
 
 
@@ -62419,8 +62429,8 @@ extern void selinux_reset_config(void);
 
 
 
-#line 50 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/selinux/context.h" 1
+#line 50 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/selinux/context.h" 1
 
 
 
@@ -62470,8 +62480,8 @@ extern void selinux_reset_config(void);
 
 
 
-#line 51 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/selinux/flask.h" 1
+#line 51 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/selinux/flask.h" 1
 /* This file is automatically generated.  Do not edit. */
 
 
@@ -62587,8 +62597,8 @@ extern void selinux_reset_config(void);
 
 
 
-#line 52 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/selinux/av_permissions.h" 1
+#line 52 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/selinux/av_permissions.h" 1
 /* This file is automatically generated.  Do not edit. */
 
 
@@ -63615,10 +63625,10 @@ extern void selinux_reset_config(void);
 
 
 
-#line 53 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 53 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 #endif
 #if definedEx(CONFIG_LOCALE_SUPPORT)
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/locale.h" 1
+#line 1 "systems/redhat/usr/include/locale.h" 1
 /* Copyright (C) 1991,1992,1995-2002,2007,2009 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -63644,7 +63654,7 @@ extern void selinux_reset_config(void);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -63980,10 +63990,10 @@ extern void selinux_reset_config(void);
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/locale.h" 2
+#line 28 "systems/redhat/usr/include/locale.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -64373,8 +64383,8 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/locale.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/locale.h" 1
+#line 31 "systems/redhat/usr/include/locale.h" 2
+#line 1 "systems/redhat/usr/include/bits/locale.h" 1
 /* Definition of locale category symbol values.
    Copyright (C) 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -64418,7 +64428,7 @@ enum
 };
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/locale.h" 2
+#line 32 "systems/redhat/usr/include/locale.h" 2
 
 
 
@@ -64533,7 +64543,7 @@ extern struct lconv *localeconv (void) __attribute__ ((__nothrow__));
    This is a proof-of-concept implementation.  */
 
 /* Get locale datatype definition.  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/xlocale.h" 1
+#line 1 "systems/redhat/usr/include/xlocale.h" 1
 /* Definition of locale datatype.
    Copyright (C) 1997,2000,2002,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -64579,7 +64589,7 @@ extern struct lconv *localeconv (void) __attribute__ ((__nothrow__));
 
 
 
-#line 148 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/locale.h" 2
+#line 148 "systems/redhat/usr/include/locale.h" 2
 
 /* Return a reference to a data structure representing a set of locale
    datasets.  Unlike for the CATEGORY parameter for `setlocale' the
@@ -64641,7 +64651,7 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
-#line 56 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 56 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 #endif
 #if !definedEx(CONFIG_LOCALE_SUPPORT)
 
@@ -64649,7 +64659,7 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/pwd.h" 1
+#line 1 "systems/redhat/usr/include/pwd.h" 1
 /* Copyright (C) 1991,1992,1995-2001,2003,2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -64675,7 +64685,7 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -65011,11 +65021,11 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/pwd.h" 2
+#line 28 "systems/redhat/usr/include/pwd.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -65205,10 +65215,10 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/pwd.h" 2
+#line 32 "systems/redhat/usr/include/pwd.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -65598,7 +65608,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 35 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/pwd.h" 2
+#line 35 "systems/redhat/usr/include/pwd.h" 2
 
 
 /* The Single Unix specification says that some more types are
@@ -65627,7 +65637,7 @@ struct passwd
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 1
+#line 1 "systems/redhat/usr/include/stdio.h" 1
 /* Define ISO C stdio on top of C++ iostreams.
    Copyright (C) 1991, 1994-2008, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -66473,7 +66483,7 @@ struct passwd
 
 
 
-#line 66 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/pwd.h" 2
+#line 66 "systems/redhat/usr/include/pwd.h" 2
 
 
 /* Rewind the password-file stream.
@@ -66586,8 +66596,8 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
-#line 63 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/grp.h" 1
+#line 63 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "systems/redhat/usr/include/grp.h" 1
 /* Copyright (C) 1991,1992,1995-2001,2003,2004,2010
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -66614,7 +66624,7 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -66950,11 +66960,11 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
-#line 29 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/grp.h" 2
+#line 29 "systems/redhat/usr/include/grp.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/types.h" 1
+#line 1 "systems/redhat/usr/include/bits/types.h" 1
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
    Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -67144,10 +67154,10 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
-#line 33 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/grp.h" 2
+#line 33 "systems/redhat/usr/include/grp.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -67537,7 +67547,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 36 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/grp.h" 2
+#line 36 "systems/redhat/usr/include/grp.h" 2
 
 
 /* For the Single Unix specification we must define this type here.  */
@@ -67557,7 +67567,7 @@ struct group
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 1
+#line 1 "systems/redhat/usr/include/stdio.h" 1
 /* Define ISO C stdio on top of C++ iostreams.
    Copyright (C) 1991, 1994-2008, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -68403,7 +68413,7 @@ struct group
 
 
 
-#line 57 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/grp.h" 2
+#line 57 "systems/redhat/usr/include/grp.h" 2
 
 
 /* Rewind the group-file stream.
@@ -68513,7 +68523,7 @@ extern int fgetgrent_r (FILE *__restrict __stream,
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -68903,7 +68913,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 181 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/grp.h" 2
+#line 181 "systems/redhat/usr/include/grp.h" 2
 
 /* Set the group set for the current user to GROUPS (N of them).  */
 extern int setgroups (size_t __n, const __gid_t *__groups) __attribute__ ((__nothrow__));
@@ -68933,13 +68943,13 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
-#line 64 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 64 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 #if definedEx(CONFIG_FEATURE_SHADOWPASSWDS)
 #if !definedEx(CONFIG_USE_BB_SHADOW)
 /* If using busybox's shadow implementation, do not include the shadow.h
  * header as the toolchain may not provide it at all.
  */
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/shadow.h" 1
+#line 1 "systems/redhat/usr/include/shadow.h" 1
 /* Copyright (C) 1996, 1997, 1998, 1999, 2003 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -68963,7 +68973,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -69299,9 +69309,9 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/shadow.h" 2
+#line 26 "systems/redhat/usr/include/shadow.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/paths.h" 1
+#line 1 "systems/redhat/usr/include/paths.h" 1
 /*
  * Copyright (c) 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -69377,10 +69387,10 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/shadow.h" 2
+#line 28 "systems/redhat/usr/include/shadow.h" 2
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdio.h" 1
+#line 1 "systems/redhat/usr/include/stdio.h" 1
 /* Define ISO C stdio on top of C++ iostreams.
    Copyright (C) 1991, 1994-2008, 2009, 2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -70226,9 +70236,9 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
-#line 31 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/shadow.h" 2
+#line 31 "systems/redhat/usr/include/shadow.h" 2
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
+#line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 1
 /* Copyright (C) 1989, 1997, 1998, 1999, 2000, 2002, 2004, 2009
    Free Software Foundation, Inc.
 
@@ -70618,7 +70628,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-#line 33 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/shadow.h" 2
+#line 33 "systems/redhat/usr/include/shadow.h" 2
 
 /* Paths to the user database files.  */
 
@@ -70735,14 +70745,14 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
-#line 70 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 70 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 #endif
 #endif
 
 
 
  
- #line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/arpa/inet.h" 1
+ #line 1 "systems/redhat/usr/include/arpa/inet.h" 1
 /* Copyright (C) 1997, 1999, 2000, 2001, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -70764,7 +70774,7 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -71100,8 +71110,8 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/arpa/inet.h" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/netinet/in.h" 1
+#line 24 "systems/redhat/usr/include/arpa/inet.h" 2
+#line 1 "systems/redhat/usr/include/netinet/in.h" 1
 /* Copyright (C) 1991-2001, 2003, 2004, 2006, 2007, 2008
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -71659,7 +71669,7 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
-#line 25 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/arpa/inet.h" 2
+#line 25 "systems/redhat/usr/include/arpa/inet.h" 2
 
 /* Type for length arguments in socket calls.  */
 
@@ -71741,7 +71751,7 @@ extern char *inet_nsap_ntoa (int __len, const unsigned char *__cp,
 
 
 
-#line 79 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 79 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 
 
 
@@ -71796,7 +71806,7 @@ _Pragma("GCC visibility push(hidden)")
 
 
 #if definedEx(CONFIG_USE_BB_PWD_GRP)
-#line 1 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/pwd_.h" 1
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/pwd_.h" 1
 /* vi: set sw=4 ts=4: */
 /* Copyright (C) 1991,92,95,96,97,98,99,2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -71902,8 +71912,8 @@ extern int bb_internal_fgetpwent_r(FILE *__restrict __stream,
 _Pragma("GCC visibility pop")
 
 
-#line 138 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
-#line 1 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/grp_.h" 1
+#line 138 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/grp_.h" 1
 /* vi: set sw=4 ts=4: */
 /* Copyright (C) 1991,92,95,96,97,98,99,2000,01 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -72022,11 +72032,11 @@ extern int bb_internal_initgroups(const char *__user, gid_t __group);
 _Pragma("GCC visibility pop")
 
 
-#line 139 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 139 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 #endif
 #if definedEx(CONFIG_FEATURE_SHADOWPASSWDS)
 #if definedEx(CONFIG_USE_BB_SHADOW)
-#line 1 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/shadow_.h" 1
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/shadow_.h" 1
 /* vi: set sw=4 ts=4: */
 /* Copyright (C) 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -72135,7 +72145,7 @@ extern int bb_internal_getspnam_r(const char *__name, struct spwd *__result_buf,
 _Pragma("GCC visibility pop")
 
 
-#line 143 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 143 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 #endif
 #endif
 /* Tested to work correctly with all int types (IIRC :]) */
@@ -72762,7 +72772,7 @@ struct suffix_mult {
 	char suffix[4];
 	unsigned mult;
 };
-#line 1 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/xatonum.h" 1
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/xatonum.h" 1
 /* vi: set sw=4 ts=4: */
 /*
  * ascii-to-numbers implementations for busybox
@@ -72929,7 +72939,7 @@ uint32_t bb_strtou32(const char *arg, char **endp, int base)
 double bb_strtod(const char *arg, char **endp) ;
 
 _Pragma("GCC visibility pop")
-#line 775 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 2
+#line 775 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 2
 /* Specialized: */
 
 /* Using xatoi() instead of naive atoi() is not always convenient -
@@ -73119,7 +73129,7 @@ int sanitize_env_if_suid(void) ;
 char* single_argv(char **argv) ;
 extern const char *const bb_argv_dash[]; /* "-", NULL */
 extern const char *opt_complementary;
-#if (definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GETOPT_LONG) || definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_LONG_OPTS) || definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS))
+#if (definedEx(CONFIG_LONG_OPTS) || definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_GETOPT_LONG) || definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS))
 
 
 
@@ -74197,8 +74207,8 @@ static __inline__ unsigned char bb_ascii_tolower(unsigned char a)
 _Pragma("GCC visibility pop")
 
 
-#line 63 "cprojects/busybox/busybox-1.18.5/modutils/modutils-24.c" 2
-#line 1 "cprojects/busybox/busybox-1.18.5/modutils/modutils.h" 1
+#line 63 "busybox-1.18.5/modutils/modutils-24.c" 2
+#line 1 "busybox-1.18.5/modutils/modutils.h" 1
 /*
  * Common modutils related functions for busybox
  *
@@ -74210,7 +74220,7 @@ _Pragma("GCC visibility pop")
 
 
 
-#line 1 "/app/archive/kos/share/TypeChef/cprojects/busybox/busybox-1.18.5/include/libbb.h" 1
+#line 1 "/app/archive/kos/share/TypeChef/busybox/busybox-1.18.5/include/libbb.h" 1
 /* vi: set sw=4 ts=4: */
 /*
  * Busybox main internal header file
@@ -75943,7 +75953,7 @@ _Pragma("GCC visibility pop")
 
 
 
-#line 14 "cprojects/busybox/busybox-1.18.5/modutils/modutils.h" 2
+#line 14 "busybox-1.18.5/modutils/modutils.h" 2
 
 _Pragma("GCC visibility push(hidden)")
 
@@ -76041,8 +76051,8 @@ int  bb_init_module_24(const char *module, const char *options);
 _Pragma("GCC visibility pop")
 
 
-#line 64 "cprojects/busybox/busybox-1.18.5/modutils/modutils-24.c" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/libgen.h" 1
+#line 64 "busybox-1.18.5/modutils/modutils-24.c" 2
+#line 1 "systems/redhat/usr/include/libgen.h" 1
 /* Copyright (C) 1996, 1997, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -76064,7 +76074,7 @@ _Pragma("GCC visibility pop")
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -76400,7 +76410,7 @@ _Pragma("GCC visibility pop")
 
 
 
-#line 24 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/libgen.h" 2
+#line 24 "systems/redhat/usr/include/libgen.h" 2
 
 
 
@@ -76419,8 +76429,8 @@ extern char *__xpg_basename (char *__path) __attribute__ ((__nothrow__));
 
 
 
-#line 65 "cprojects/busybox/busybox-1.18.5/modutils/modutils-24.c" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/utsname.h" 1
+#line 65 "busybox-1.18.5/modutils/modutils-24.c" 2
+#line 1 "systems/redhat/usr/include/sys/utsname.h" 1
 /* Copyright (C) 1991,92,94,96,97,99,2002 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -76446,7 +76456,7 @@ extern char *__xpg_basename (char *__path) __attribute__ ((__nothrow__));
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -76782,11 +76792,11 @@ extern char *__xpg_basename (char *__path) __attribute__ ((__nothrow__));
 
 
 
-#line 28 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/utsname.h" 2
+#line 28 "systems/redhat/usr/include/sys/utsname.h" 2
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/bits/utsname.h" 1
+#line 1 "systems/redhat/usr/include/bits/utsname.h" 1
 /* Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -76815,7 +76825,7 @@ extern char *__xpg_basename (char *__path) __attribute__ ((__nothrow__));
    the name of the current domain.  Define _UTSNAME_DOMAIN_LENGTH
    to a value != 0 to activate this entry.  */
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/sys/utsname.h" 2
+#line 32 "systems/redhat/usr/include/sys/utsname.h" 2
 
 
 
@@ -76869,7 +76879,7 @@ extern int uname (struct utsname *__name) __attribute__ ((__nothrow__));
 
 
 
-#line 66 "cprojects/busybox/busybox-1.18.5/modutils/modutils-24.c" 2
+#line 66 "busybox-1.18.5/modutils/modutils-24.c" 2
 
 #if definedEx(CONFIG_FEATURE_INSMOD_LOADINKMEM)
 
@@ -77278,7 +77288,7 @@ int delete_module(const char *module, unsigned int flags);
 
 /* The relocatable object is manipulated using elfin types.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/elf.h" 1
+#line 1 "systems/redhat/usr/include/elf.h" 1
 /* This file defines standard ELF types, structures, and macros.
    Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010
 	Free Software Foundation, Inc.
@@ -77302,7 +77312,7 @@ int delete_module(const char *module, unsigned int flags);
 
 
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/features.h" 1
+#line 1 "systems/redhat/usr/include/features.h" 1
 /* Copyright (C) 1991-1993,1995-2007,2009,2010 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -77638,13 +77648,13 @@ int delete_module(const char *module, unsigned int flags);
 
 
 
-#line 26 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/elf.h" 2
+#line 26 "systems/redhat/usr/include/elf.h" 2
 
 
 
 /* Standard ELF types.  */
 
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/stdint.h" 1
+#line 1 "systems/redhat/usr/include/stdint.h" 1
 /* Copyright (C) 1997,1998,1999,2000,2001,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -77920,7 +77930,7 @@ int delete_module(const char *module, unsigned int flags);
 
 
 
-#line 32 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/elf.h" 2
+#line 32 "systems/redhat/usr/include/elf.h" 2
 
 /* Type for a 16-bit quantity.  */
 typedef uint16_t Elf32_Half;
@@ -80607,8 +80617,8 @@ typedef Elf32_Addr Elf32_Conflict;
 
 
 
-#line 506 "cprojects/busybox/busybox-1.18.5/modutils/modutils-24.c" 2
-#line 1 "/app/home/pgiarrusso/TypeChef/systems/redhat/usr/include/endian.h" 1
+#line 506 "busybox-1.18.5/modutils/modutils-24.c" 2
+#line 1 "systems/redhat/usr/include/endian.h" 1
 /* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -80698,7 +80708,7 @@ typedef Elf32_Addr Elf32_Conflict;
 
 
 
-#line 507 "cprojects/busybox/busybox-1.18.5/modutils/modutils-24.c" 2
+#line 507 "busybox-1.18.5/modutils/modutils-24.c" 2
 
 
 

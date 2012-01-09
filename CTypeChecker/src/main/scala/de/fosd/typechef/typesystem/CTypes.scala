@@ -205,6 +205,7 @@ case class CFunction(param: Seq[CType], ret: CType) extends CType {
     </function>
 }
 
+
 //varargs should only occur in paramter lists
 case class CVarArgs() extends CType {
     override def toText = "..."
@@ -310,25 +311,43 @@ object CType {
 /**
  * maintains a map from names to types
  * a name may be mapped to alternative types with different feature expressions
+ *
+ * internally storing Type, wheather its a function definition, and the current scope idx
  */
-class ConditionalTypeMap(private val m: ConditionalMap[String, Conditional[CType]]) {
+class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends ConditionalCMap[CType](m) {
     def this() = this (new ConditionalMap())
+    def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
+    def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
+    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
+    def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+}
+
+class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(CType, Boolean, Int)]]) extends ConditionalCMap[(CType, Boolean, Int)](m) {
+    def this() = this (new ConditionalMap())
+    def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
+    def lookup(name: String): Conditional[(CType, Boolean, Int)] = getOrElse(name, (CUnknown(name), false, -1))
+    def +(name: String, f: FeatureExpr, t: Conditional[CType], isFunctionDef: Boolean, scope: Int) = new ConditionalVarEnv(m.+(name, f, t.map(x => (x, isFunctionDef, scope))))
+    def ++(v: Seq[(String, FeatureExpr, Conditional[CType], Boolean, Int)]) =
+        v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5))
+}
+
+abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, Conditional[T]]) {
     /**
      * apply returns a type, possibly CUndefined or a
      * choice type
      */
-    def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
-    def getOrElse(name: String, errorType: CType): Conditional[CType] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
+    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
 
-    def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
-    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
-    def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
-    def allTypes: Iterable[Conditional[CType]] = m.allEntriesFlat
+    def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat //warning: do not use, probably not what desired
+    def keys = m.keys
     def whenDefined(name: String): FeatureExpr = m.whenDefined(name)
 
-    override def equals(that: Any) = that match {case c: ConditionalTypeMap => m equals c.m; case _ => false}
+    override def equals(that: Any) = that match {
+        case c: ConditionalTypeMap => m equals c.m;
+        case _ => false
+    }
     override def hashCode = m.hashCode
     override def toString = m.toString
 }
@@ -471,6 +490,8 @@ trait CTypes {
      * * regard arrays as pointers
      *
      * * pointer to ignore equals ignore
+     *
+     * * CVoid in function parameters is removed
      */
     protected def normalize(t: CType): CType =
         addFunctionPointers(normalizeA(t))
@@ -485,7 +506,7 @@ trait CTypes {
                 case e => CPointer(e)
             }
         case CArray(t, _) => normalizeA(CPointer(t)) //TODO do this recursively for all occurences of Array
-        case CFunction(p, rt) => CFunction(p.map(normalizeA), normalizeA(rt))
+        case CFunction(p, rt) => CFunction(p.map(normalizeA).filter(_ != CVoid()), normalizeA(rt))
         case c => c
     }
 

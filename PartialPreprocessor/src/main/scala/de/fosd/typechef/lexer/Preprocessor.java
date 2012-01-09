@@ -23,7 +23,9 @@
 
 package de.fosd.typechef.lexer;
 
-import de.fosd.typechef.featureexpr.*;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprTree;
+import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
 import de.fosd.typechef.lexer.macrotable.MacroExpansion;
@@ -175,6 +177,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     public Preprocessor() {
         this(null);
     }
+
     public Preprocessor(Source initial, FeatureModel fm) {
         this(fm);
         addInput(initial);
@@ -396,7 +399,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         try {
             MacroData m = new MacroData(null);
             StringLexerSource s = new StringLexerSource(value);
-            for (; ;) {
+            for (; ; ) {
                 Token tok = s.token();
                 if (tok.getType() == EOF)
                     break;
@@ -916,7 +919,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         // the same parameters)
         if (firstMacro.isFunctionLike()) {
             OPEN:
-            for (; ;) {
+            for (; ; ) {
                 tok = retrieveTokenFromSource();
                 originalTokens.add(tok);
                 // System.out.println("pp: open: token is " + tok);
@@ -957,7 +960,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 boolean space = false;
 
                 ARGS:
-                for (; ;) {
+                for (; ; ) {
                     // System.out.println("pp: arg: token is " + tok);
                     switch (tok.getType()) {
                         case EOF:
@@ -1254,7 +1257,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         sourceManager.push_source(new FixedTokenSource(arg), false);
 
         EXPANSION:
-        for (; ;) {
+        for (; ; ) {
             Token tok = expanded_token(inlineCppExpression, true);
             switch (tok.getType()) {
                 case EOF:
@@ -1305,7 +1308,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             if (tok.getType() != ')') {
                 args = new ArrayList<String>();
                 ARGS:
-                for (; ;) {
+                for (; ; ) {
                     switch (tok.getType()) {
                         case IDENTIFIER:
                             args.add(tok.getText());
@@ -1394,7 +1397,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         /* Ensure no space at start. */
         tok = source_token_nonwhite();
         EXPANSION:
-        for (; ;) {
+        for (; ; ) {
             switch (tok.getType()) {
                 case EOF:
                     break EXPANSION;
@@ -1494,7 +1497,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         // System.out.println("Try to include " + file);
         if (!file.isFile())
             return false;
-        if (getFeature(Feature.DEBUG))
+        if (getFeature(Feature.DEBUG_VERBOSE))
             System.err.println("pp: including " + file);
         sourceManager.push_source(file.getSource(), true);
         return true;
@@ -1581,7 +1584,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                      */
                 buf.append((String) tok.getValue());
                 HEADER:
-                for (; ;) {
+                for (; ; ) {
                     tok = getNextToken();
                     switch (tok.getType()) {
                         case STRING:
@@ -1609,7 +1612,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             } else if (tok.getType() == '<') {
                 quoted = false;
                 HEADER:
-                for (; ;) {
+                for (; ; ) {
                     tok = getNextToken();
                     switch (tok.getType()) {
                         case '>':
@@ -1675,7 +1678,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         Token name;
 
         NAME:
-        for (; ;) {
+        for (; ; ) {
             Token tok = getNextToken();
             switch (tok.getType()) {
                 case EOF:
@@ -1705,7 +1708,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         Token tok;
         List<Token> value = new ArrayList<Token>();
         VALUE:
-        for (; ;) {
+        for (; ; ) {
             tok = getNextToken();
             switch (tok.getType()) {
                 case EOF:
@@ -1769,7 +1772,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         /* Peculiar construction to ditch first whitespace. */
         Token tok = source_token_nonwhite();
         ERROR:
-        for (; ;) {
+        for (; ; ) {
             switch (tok.getType()) {
                 case NL:
                 case EOF:
@@ -1812,7 +1815,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
       */
     private Token expanded_token(boolean inlineCppExpression,
                                  boolean hack_definedActivated) throws IOException, LexerException {
-        for (; ;) {
+        for (; ; ) {
             Token tok = retrieveTokenFromSource();
             // System.out.println("Source token is " + tok);
             if ("defined".equals(getTextOrDefault(tok, ""))
@@ -2037,7 +2040,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         }
 
         EXPR:
-        for (; ;) {
+        for (; ; ) {
             // System.out.println("expr: lhs is " + lhs + ", pri = " +
             // priority);
             Token op = expr_token(true);
@@ -2293,7 +2296,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     protected final Token parse_main() throws IOException, LexerException {
 
-        for (; ;) {
+        for (; ; ) {
             Token tok;
             if (!isActive()) {
                 try {
@@ -2671,7 +2674,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             Token tok = parse_main();
             tok = tok.clone();
             tok.setFeature(state.getFullPresenceCondition());
-            if (getFeature(Feature.DEBUG))
+            if (getFeature(Feature.DEBUG_VERBOSE))
                 System.err.println("pp: Returning " + tok);
             return tok;
         } catch (de.fosd.typechef.featureexpr.FeatureException e) {
@@ -2738,7 +2741,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         if (source_token != null) {
             Token tok = source_token;
             source_token = null;
-            if (getFeature(Feature.DEBUG))
+            if (getFeature(Feature.DEBUG_VERBOSE))
                 System.err.println("Returning unget token " + tok);
             return tok;
         }

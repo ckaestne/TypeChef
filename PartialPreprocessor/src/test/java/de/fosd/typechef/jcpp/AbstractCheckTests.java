@@ -34,6 +34,7 @@ public class AbstractCheckTests {
     protected void testFile(String filename, boolean debug) throws LexerException, IOException {
         testFile(filename, debug, false);
     }
+
     protected void testFile(String filename, boolean debug, boolean ignoreWarning)
             throws LexerException, IOException {
         String folder = "tc_data/";
@@ -157,7 +158,7 @@ public class AbstractCheckTests {
                 System.out.println(cleanedOutput);
             }
             if (line.trim().equals("macrooutput")) {
-                pp.debugWriteMacros();
+                pp.debugPreprocessorDone();
             }
         }
         return containsErrorCheck;
@@ -178,7 +179,7 @@ public class AbstractCheckTests {
     private void failOutput(String output) {
         System.err.println(output);
         if (pp != null)
-            pp.debugWriteMacros();
+            pp.debugPreprocessorDone();
     }
 
     private List<Token> parse(Source source, boolean debug, String folder, final boolean ignoreWarnings)
@@ -211,7 +212,7 @@ public class AbstractCheckTests {
         pp.addInput(source);
 
         List<Token> output = new ArrayList<Token>();
-        for (; ;) {
+        for (; ; ) {
             Token tok = pp.getNextToken();
             if (tok == null)
                 break;
