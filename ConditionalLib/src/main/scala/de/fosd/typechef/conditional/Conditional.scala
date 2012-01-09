@@ -12,7 +12,8 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) {
     //helper function
     def and(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f), entry)
     def andNot(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f.not), entry)
-    override def toString = if (feature == FeatureExpr.base) entry.toString else "Opt(" + feature + "," + entry + ")"
+    // jl: overriding Opt always causes trouble when looking at the output of AST directly should not be here!
+    //override def toString = if (feature == FeatureExpr.base) entry.toString else "Opt(" + feature + "," + entry + ")"
 }
 
 //Conditional is either Choice or One
