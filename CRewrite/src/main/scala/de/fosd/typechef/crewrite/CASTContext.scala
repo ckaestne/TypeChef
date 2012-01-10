@@ -2,9 +2,8 @@ package de.fosd.typechef.crewrite
 
 import java.util.IdentityHashMap
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.c.AST
 
-trait CASTEnv extends AST {
+trait CASTEnv {
 
   type ASTContext = (List[FeatureExpr], Any, Any, Any, List[Any])
 

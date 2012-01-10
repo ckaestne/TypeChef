@@ -14,17 +14,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
-  def createASTEnv(tunit: TranslationUnit, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
-    assert(tunit != null, "tunit is null!")
-    addTranslationUnit(tunit, lfexp, EmptyASTEnv)
+  // create ast-neighborhood context for a given translationunit
+  def createASTEnv(a: AST, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
+    assert(a != null, "ast elem is null!")
+    handleASTElems(a, null, lfexp, EmptyASTEnv)
   }
 
-  // create ast-neighborhood context for conditional control flow
-  private def addTranslationUnit(tunit: TranslationUnit, lfexp: List[FeatureExpr] = List(FeatureExpr.base), initialEnv: ASTEnv): ASTEnv = {
-    var env = initialEnv
-    handleASTElems(tunit, null, lfexp, env)
-  }
-
+  // handle single ast elems
+  // handling is generic because we can use the product-iterator interface of case classes, which makes
+  // neighborhood settings straight forward
   private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
       case l:List[Opt[AST]] => handleOptLists(l, parent, lfexp, env)
@@ -39,6 +37,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // handle list of Opt nodes
+  // sets prev-next connections for elements and recursively calls handleASTElems
   private def handleOptLists[T](l: List[Opt[T]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     var curenv = env
 

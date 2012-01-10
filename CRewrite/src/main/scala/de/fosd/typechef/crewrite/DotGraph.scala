@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
 
 object DotGraph extends IOUtilities with CASTEnv {
-    import java.io.File
+  import java.io.File
 
   private def getTmpFileName() = File.createTempFile("/tmp", ".dot")
   def map2file(m: List[(AST, List[AST])], env: ASTEnv) = {
@@ -14,7 +14,7 @@ object DotGraph extends IOUtilities with CASTEnv {
     dotstring += "node [shape=record];\n"
     for ((o, succs) <- m) {
       val op = esc(PrettyPrinter.print(o))
-      dotstring += "\"" + System.identityHashCode(o) + "\" [label=\"{{" + op + "}|" + esc(env.astc.get(o)._1.toString()) + "}\"];\n"
+      dotstring += "\"" + System.identityHashCode(o) + "\" [label=\"{{" + op + "}|" + esc(env.astc.get(o)._1.reduce(_ and _).toString()) + "}\"];\n"
       for (succ <- succs) dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\"\n"
     }
     dotstring = dotstring + "}\n"
