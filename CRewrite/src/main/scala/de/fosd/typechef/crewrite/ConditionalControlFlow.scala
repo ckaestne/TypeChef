@@ -9,7 +9,7 @@ abstract sealed class CFCompleteness
 case class CFComplete(s: List[AST]) extends CFCompleteness
 case class CFIncomplete(s: List[AST]) extends CFCompleteness
 
-trait ConditionalControlFlow extends CASTEnv {
+trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
@@ -68,13 +68,6 @@ trait ConditionalControlFlow extends CASTEnv {
     val n = nl ++ (None :: None :: Nil)
 
     (p,e,n).zipped.toList
-  }
-
-  // get prev ast elems
-  private def prevASTElems(e: Any): List[AST] = {
-    e match {
-      case
-    }
   }
 
   def succ(a: AnyRef, env: ASTEnv): List[AST] = {
@@ -253,7 +246,7 @@ trait ConditionalControlFlow extends CASTEnv {
       val as = env.astc.get(a)._1.toSet
       val bs = env.astc.get(b)._1.toSet
       val cs = as.intersect(bs)
-      as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not).isTautology()
+      as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not()).isTautology()
     }
     pack[List[AST]]({ (x,y) => checkImplication(x.head, y.head)})(l.reverse).reverse
   }
@@ -270,7 +263,7 @@ trait ConditionalControlFlow extends CASTEnv {
           f = env.astc.get(e.head)._1.reduce(_ and _) :: f
         }
         if (f.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedOptLists(t, env)
-        else if (f.map(_.not).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedOptLists(t, env)
+        else if (f.map(_.not()).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedOptLists(t, env)
              else (1, h)::determineTypeOfGroupedOptLists(t, env)
       }
       case Nil => List()
@@ -279,7 +272,7 @@ trait ConditionalControlFlow extends CASTEnv {
 
   // returns a list of previous and next AST elems grouped according to feature expressions
   private def getFeatureGroupedASTElems(s: AST, env: ASTEnv) = {
-    val l = prevASTElems(s) ++ nextASTElems(s).drop(1)
+    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
     val d = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env), env), env)
     getSuccTailList(s, d)
   }
