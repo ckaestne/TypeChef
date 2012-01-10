@@ -2,24 +2,23 @@ package de.fosd.typechef.crewrite
 
 import java.util.IdentityHashMap
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.c.{TranslationUnit, AST}
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.AST
 
-trait CASTEnv {
+trait CASTEnv extends AST {
 
-  type ASTContext = (FeatureExpr, Any, Any, Any, List[Any])
+  type ASTContext = (List[FeatureExpr], Any, Any, Any, List[Any])
 
   object EmptyASTEnv extends ASTEnv (new IdentityHashMap[Any, ASTContext]())
 
   // store context of an AST entry
-  // e: AST => (feature-expr: FeatureExpr, parent: AST, prev: AST, next: AST, children: List[AST])
+  // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
   protected class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
     def add(elem: Any, newelemc: ASTContext) = {
       var curastc = astc
       var curelemc = curastc.get(elem)
       if (curelemc == null) { curelemc = (null, null, null, null, null)}
 
-      // feature-expr; parent; prev; next; children
+      // fexp; lfexp; parent; prev; next; children
       if (curelemc._1 != newelemc._1 && newelemc._1 != null) { curelemc = curelemc.copy(_1 = newelemc._1)}
       if (curelemc._2 != newelemc._2 && newelemc._2 != null) { curelemc = curelemc.copy(_2 = newelemc._2)}
       if (curelemc._3 != newelemc._3 && newelemc._3 != null) { curelemc = curelemc.copy(_3 = newelemc._3)}

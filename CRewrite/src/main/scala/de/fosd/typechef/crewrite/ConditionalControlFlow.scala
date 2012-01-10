@@ -14,24 +14,24 @@ trait ConditionalControlFlow extends CASTEnv {
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
-  def createASTEnv(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExpr.base): ASTEnv = {
+  def createASTEnv(tunit: TranslationUnit, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
     assert(tunit != null, "tunit is null!")
-    addTranslationUnit(tunit, featureModel, EmptyASTEnv)
+    addTranslationUnit(tunit, lfexp, EmptyASTEnv)
   }
 
   // create ast-neighborhood context for conditional control flow
-  private def addTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr = FeatureExpr.base, initialEnv: ASTEnv): ASTEnv = {
+  private def addTranslationUnit(tunit: TranslationUnit, lfexp: List[FeatureExpr] = List(FeatureExpr.base), initialEnv: ASTEnv): ASTEnv = {
     var env = initialEnv
-    handleASTElems(tunit, null, featureExpr, env)
+    handleASTElems(tunit, null, lfexp, env)
   }
 
-  private def handleASTElems[T, U](e: T, parent: U, fexp: FeatureExpr, env: ASTEnv): ASTEnv = {
+  private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
-      case l:List[Opt[AST]] => handleOptLists(l, parent, fexp, env)
+      case l:List[Opt[AST]] => handleOptLists(l, parent, lfexp, env)
       case x:AST => {
-        var curenv = env.add(e, (fexp, e, null, null, x.productIterator.toList))
+        var curenv = env.add(e, (lfexp, e, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
-          curenv = handleASTElems(elem, e, fexp, curenv)
+          curenv = handleASTElems(elem, e, lfexp, curenv)
         }
         curenv
       }
@@ -39,7 +39,7 @@ trait ConditionalControlFlow extends CASTEnv {
     }
   }
 
-  private def handleOptLists[T](l: List[Opt[T]], parent: T, fexp: FeatureExpr, env: ASTEnv): ASTEnv = {
+  private def handleOptLists[T](l: List[Opt[T]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     var curenv = env
 
     // set prev and next and children
@@ -54,7 +54,7 @@ trait ConditionalControlFlow extends CASTEnv {
 
     // recursive call
     for (o@Opt(f, e) <- l) {
-      curenv = handleASTElems(e, o, fexp and f, curenv)
+      curenv = handleASTElems(e, o, f::lfexp, curenv)
     }
     curenv
   }
@@ -68,6 +68,13 @@ trait ConditionalControlFlow extends CASTEnv {
     val n = nl ++ (None :: None :: Nil)
 
     (p,e,n).zipped.toList
+  }
+
+  // get prev ast elems
+  private def prevASTElems(e: Any): List[AST] = {
+    e match {
+      case
+    }
   }
 
   def succ(a: AnyRef, env: ASTEnv): List[AST] = {
@@ -103,26 +110,26 @@ trait ConditionalControlFlow extends CASTEnv {
           case _ => List() // TODO
         } else getSuccSameLevel(w, env)
       }
-      case w@GotoStatement(Id(l)) => {
-        val f = findPriorFuncDefinition(w, env)
-        if (f == null) getSuccSameLevel(w, env)
-        else labelLookup(f, l, env)
-      }
+//      case w@GotoStatement(Id(l)) => {
+//        val f = findPriorFuncDefinition(w, env)
+//        if (f == null) getSuccSameLevel(w, env)
+//        else labelLookup(f, l, env)
+//      }
       case s: Statement => getSuccSameLevel(s, env)
       case t => following(t, env)
     }
   }
-  private val findPriorFuncDefinition(a: AnyRef, env: ASTEnv): FunctionDef = {
-    a match {
-      case f: FunctionDef => f
-//      case o: AnyRef => {
-//        val oparent = env.astc.get(o)._2
-//        if (oparent != null) findPriorFuncDefinition(oparent, env)
-//        else null
-//      }
-      case _ => null
-    }
-  }
+//  private val findPriorFuncDefinition(a: AnyRef, env: ASTEnv): FunctionDef = {
+//    a match {
+//      case f: FunctionDef => f
+////      case o: AnyRef => {
+////        val oparent = env.astc.get(o)._2
+////        if (oparent != null) findPriorFuncDefinition(oparent, env)
+////        else null
+////      }
+//      case _ => null
+//    }
+//  }
 
   private def labelLookup(a: AST, l: String, env: ASTEnv): List[AST] = {
     def iterateChildren(a: AST): List[AST] = {
@@ -195,13 +202,13 @@ trait ConditionalControlFlow extends CASTEnv {
   //    if yes stop; if not goto 3.
   // 3. get the parent of our node and determine successor nodes of it
   private def getSuccSameLevel(s: AST, env: ASTEnv) = {
-    val sandf = getFeatureGroupedASTElems(s)
+    val sandf = getFeatureGroupedASTElems(s, env)
     val sos = getNextEqualAnnotatedSucc(s, sandf)
     sos match {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val sfexp = env.astc.get(s)._1
+        val sfexp = env.astc.get(s)._1.reduce(_ and _)
         val succel = getSuccFromList(sfexp, sandf.drop(1), env)
         succel match {
           case CFComplete(r) => r // 2.
@@ -214,9 +221,9 @@ trait ConditionalControlFlow extends CASTEnv {
   private def getSuccNestedLevel(l: List[AST], env: ASTEnv) = {
     if (l.isEmpty) List()
     else {
-      val wsandf = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env)).reverse).reverse
+      val wsandf = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env), env).reverse, env).reverse
       val lparent = env.astc.get(l.head)._2
-      val lpfexp = env.astc.get(lparent)._1
+      val lpfexp = env.astc.get(lparent)._1.reduce(_ and _)
       val succel = getSuccFromList(lpfexp, wsandf, env)
 
       succel match {
@@ -236,15 +243,15 @@ trait ConditionalControlFlow extends CASTEnv {
   // e.g.:
   // List(Opt(true, Id1), Opt(fa, Id2), Opt(fa, Id3)) => List(List(Opt(true, Id1)), List(Opt(fa, Id2), Opt(Id3)))
   private def groupOptBlocksEquivalence(l: List[AST], env: ASTEnv) = {
-    pack[AST](env.astc.get(_)._1 equivalentTo env.astc.get(_)._1)(l)
+    pack[AST](env.astc.get(_)._1.reduce(_ and _) equivalentTo env.astc.get(_)._1.reduce(_ and _))(l)
   }
 
   // group List[Opt[_]] according to implication
   // later one should imply the not of previous ones; therefore using l.reverse
-  private def groupOptListsImplication(l: List[List[AST]]) = {
+  private def groupOptListsImplication(l: List[List[AST]], env: ASTEnv) = {
     def checkImplication(a: AST, b: AST) = {
-      val as = featureExprSet(a)
-      val bs = featureExprSet(b)
+      val as = env.astc.get(a)._1.toSet
+      val bs = env.astc.get(b)._1.toSet
       val cs = as.intersect(bs)
       as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not).isTautology()
     }
@@ -260,7 +267,7 @@ trait ConditionalControlFlow extends CASTEnv {
       case (h::t) => {
         var f: List[FeatureExpr] = List()
         for (e <- h) {
-          f = env.astc.get(e.head)._1 :: f
+          f = env.astc.get(e.head)._1.reduce(_ and _) :: f
         }
         if (f.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedOptLists(t, env)
         else if (f.map(_.not).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedOptLists(t, env)
@@ -271,9 +278,9 @@ trait ConditionalControlFlow extends CASTEnv {
   }
 
   // returns a list of previous and next AST elems grouped according to feature expressions
-  private def getFeatureGroupedASTElems(s: AST) = {
+  private def getFeatureGroupedASTElems(s: AST, env: ASTEnv) = {
     val l = prevASTElems(s) ++ nextASTElems(s).drop(1)
-    val d = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l)))
+    val d = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env), env), env)
     getSuccTailList(s, d)
   }
 
@@ -309,7 +316,7 @@ trait ConditionalControlFlow extends CASTEnv {
       }
 
       if (e._1 == 2 || e._1 == 0) return CFComplete(r)
-      val efexp = env.astc.get(e._2.head.head)._1
+      val efexp = env.astc.get(e._2.head.head)._1.reduce(_ and _)
       if (efexp.equivalentTo(c) && e._1 == 1) return CFComplete(r)
     }
     CFIncomplete(r)
