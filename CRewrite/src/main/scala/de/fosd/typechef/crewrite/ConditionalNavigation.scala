@@ -17,8 +17,7 @@ trait ConditionalNavigation extends CASTEnv {
   def prevOpt(e: Opt[_], env: ASTEnv): Opt[_] = {
     val eprev = env.astc.get(e)._3
     eprev match {
-      case o@Opt(_, _) if (e.feature.equivalentTo(o.feature)) => o
-      case o@Opt(_, _) if (!e.feature.equivalentTo(o.feature)) => prevOpt(o, env)
+      case o: Opt[_] => o
       case _ => null
     }
   }
@@ -26,8 +25,7 @@ trait ConditionalNavigation extends CASTEnv {
   def nextOpt(e: Opt[_], env: ASTEnv): Opt[_] = {
     val enext = env.astc.get(e)._4
     enext match {
-      case o@Opt(_, _) if (e.feature.equivalentTo(o.feature)) => o
-      case o@Opt(_, _) if (!e.feature.equivalentTo(o.feature)) => nextOpt(o, env)
+      case o: Opt[_] => o
       case _ => null
     }
   }

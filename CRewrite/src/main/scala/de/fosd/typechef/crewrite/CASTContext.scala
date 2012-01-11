@@ -1,9 +1,9 @@
 package de.fosd.typechef.crewrite
 
-import java.util.IdentityHashMap
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional.Opt
+import java.util.IdentityHashMap
 
 trait CASTEnv {
 
@@ -15,9 +15,9 @@ trait CASTEnv {
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
   class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
     def add(elem: Any, newelemc: ASTContext) = {
-      var curastc = astc
       var curelemc: ASTContext = null
-      if (astc.containsKey(elem)) curelemc = astc.get(elem)
+      var curastc = new IdentityHashMap[Any, ASTContext](astc)
+      if (curastc.containsKey(elem)) curelemc = curastc.get(elem)
       else curelemc = (null, null, null, null, null)
 
       // lfexp; parent; prev; next; children
