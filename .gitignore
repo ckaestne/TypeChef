@@ -25,6 +25,11 @@ tokenstream.txt
 *.time
 *.dbg
 *.diffs
+*.macroDbg
+*.dbgSrc
+*.interface
+*.dbginterface
+*.pi
 .idea
 linux-2.6.33.3
 busybox
