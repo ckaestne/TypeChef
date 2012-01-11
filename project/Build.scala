@@ -65,6 +65,7 @@ object Dependencies {
     val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test"
     val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test"
     val scalatest = "org.scalatest" %% "scalatest" % "1.6.1" % "test"
+    val kiama = "com.googlecode" %% "kiama" % "1.1.0" % "test"
 }
 
 object VersionGen {

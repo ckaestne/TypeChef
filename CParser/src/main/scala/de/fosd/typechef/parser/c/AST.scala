@@ -57,7 +57,9 @@ LocalLabelDeclaration -- label names
  */
 
 //Expressions
-trait AST extends Product with WithPosition
+trait AST extends Product with Cloneable with WithPosition {
+  override def clone(): AST.this.type = super.clone().asInstanceOf[AST.this.type]
+}
 
 sealed abstract class Expr extends AST
 
