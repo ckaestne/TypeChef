@@ -14,60 +14,17 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
-  // create ast-neighborhood context for a given translationunit
-  def createASTEnv(a: AST, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
-    assert(a != null, "ast elem is null!")
-    handleASTElems(a, null, lfexp, EmptyASTEnv)
-  }
-
-  // handle single ast elems
-  // handling is generic because we can use the product-iterator interface of case classes, which makes
-  // neighborhood settings straight forward
-  private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
-    e match {
-      case l:List[Opt[AST]] => handleOptLists(l, parent, lfexp, env)
-      case x:AST => {
-        var curenv = env.add(e, (lfexp, e, null, null, x.productIterator.toList))
-        for (elem <- x.productIterator.toList) {
-          curenv = handleASTElems(elem, e, lfexp, curenv)
-        }
-        curenv
-      }
-      case _ => env
-    }
-  }
-
-  // handle list of Opt nodes
-  // sets prev-next connections for elements and recursively calls handleASTElems
-  private def handleOptLists[T](l: List[Opt[T]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
-    var curenv = env
-
-    // set prev and next and children
-    for (e <- createPrevElemNextTuples(l)) {
-      e match {
-        case (prev, Some(elem), next) => {
-          curenv = curenv.add(elem, (null, null, prev.getOrElse(null), next.getOrElse(null), null))
-        }
-        case _ => ;
-      }
+  def succ2(a: AnyRef, alt: List[AST] = List(), env: ASTEnv = EmptyASTEnv): List[AST] = {
+    var falt: List[FeatureExpr] = List()
+    for (ealt <- alt) {
+      falt = env.astc.get(ealt)._1.reduce(_ and _) :: falt
     }
 
-    // recursive call
-    for (o@Opt(f, e) <- l) {
-      curenv = handleASTElems(e, o, f::lfexp, curenv)
-    }
-    curenv
-  }
+    //
+    if (falt.foldLeft(FeatureExpr.dead)(_ or _).isTautology())
+      return alt
 
-  // since we do not have an neutral element that does not have any effect on ast
-  // we use null and Any to represent values of no reference
-  private def createPrevElemNextTuples[T](l: List[T]): List[(Option[T],Option[T],Option[T])] = {
-    val nl = l.map(Some(_))
-    val p = None :: None :: nl
-    val e = (None :: Nil) ++ (nl ++ (None :: Nil))
-    val n = nl ++ (None :: None :: Nil)
-
-    (p,e,n).zipped.toList
+    List()
   }
 
   def succ(a: AnyRef, env: ASTEnv): List[AST] = {

@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.AST
-import de.fosd.typechef.conditional.{One, Choice, Conditional, Opt}
+import de.fosd.typechef.conditional._
 
 // simplified navigation support
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes
