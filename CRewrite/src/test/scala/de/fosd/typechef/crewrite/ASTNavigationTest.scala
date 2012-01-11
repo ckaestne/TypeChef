@@ -12,7 +12,7 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
-class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation with ConditionalNavigation with TestHelper {
+class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper {
 
     private def functionDef(functionName: String): AST ==> List[FunctionDef] =
         attr {

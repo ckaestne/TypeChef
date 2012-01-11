@@ -30,7 +30,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   def succ(a: AnyRef, env: ASTEnv): List[AST] = {
     a match {
       case f@FunctionDef(_, _, _, stmt) => succ(stmt, env)
-      case o: Opt[AST] => succ(o.entry, env)
+      case o: Opt[_] => succ(o.entry.asInstanceOf[AST], env)
       case t@ForStatement(init, break, inc, b) => {
         if (init.isDefined) List(init.get)
         else if (break.isDefined) List(break.get)
@@ -87,7 +87,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       achildren.map(
         x => x match {
           case e: AST => labelLookup(e, l, env)
-          case e: Opt[AST] => labelLookup(e.entry, l, env)
+          case e: Opt[_] => labelLookup(e.entry.asInstanceOf[AST], l, env)
         }).foldLeft(List[AST]())(_ ++ _)
     }
     a match {
