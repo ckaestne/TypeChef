@@ -2,6 +2,7 @@
 .settings
 bin
 *.class
+*.orig
 *~
 .metadata/
 .scala_dependencies
@@ -14,6 +15,8 @@ project/boot/
 project/plugins/project/
 debugsource.txt
 tokenstream.txt
+*.log
+*.dbg
 *.i
 *.pi.ast
 *.o
@@ -22,6 +25,11 @@ tokenstream.txt
 *.time
 *.dbg
 *.diffs
+*.macroDbg
+*.dbgSrc
+*.interface
+*.dbginterface
+*.pi
 .idea
 linux-2.6.33.3
 busybox
@@ -40,3 +48,4 @@ superc
 linux-2.6.33.3-old
 typechef.sh
 TypeChef-*.jar
+casestudies

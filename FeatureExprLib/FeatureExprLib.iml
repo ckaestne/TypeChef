@@ -43,10 +43,11 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.9.0/compile/org.sat4j.core-2.3.1.jar!/" />
+          <root url="file://$MODULE_DIR$/lib_managed/scala_2.9.0/compile" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/lib_managed/scala_2.9.0/compile" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="" scope="TEST">
