@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import org.junit.{Ignore, Test}
+import org.junit.Test
 import de.fosd.typechef.featureexpr.True
 import de.fosd.typechef.conditional.{Opt, One}
 
