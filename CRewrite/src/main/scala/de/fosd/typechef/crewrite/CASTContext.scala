@@ -58,7 +58,7 @@ trait CASTEnv {
   private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
       case l:List[Opt[AST]] => handleOptLists(l, parent, lfexp, env)
-      case x:AST => {
+      case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
           curenv = handleASTElems(elem, x, lfexp, curenv)

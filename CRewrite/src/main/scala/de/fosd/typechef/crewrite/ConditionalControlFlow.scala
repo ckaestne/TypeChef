@@ -17,7 +17,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   def succ2(a: AnyRef, alt: List[AST] = List(), env: ASTEnv = EmptyASTEnv): List[AST] = {
     var falt: List[FeatureExpr] = List()
     for (ealt <- alt) {
-      falt = env.astc.get(ealt)._1.reduce(_ and _) :: falt
+      falt = env.astc.get(ealt)._1.foldLeft(FeatureExpr.base)(_ and _) :: falt
     }
 
     //
@@ -158,7 +158,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val sfexp = env.astc.get(s)._1.reduce(_ and _)
+        val sfexp = env.astc.get(s)._1.foldLeft(FeatureExpr.base)(_ and _)
         val succel = getSuccFromList(sfexp, sandf.drop(1), env)
         succel match {
           case CFComplete(r) => r // 2.
@@ -173,7 +173,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     else {
       val wsandf = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env), env).reverse, env).reverse
       val lparent = env.astc.get(l.head)._2
-      val lpfexp = env.astc.get(lparent)._1.reduce(_ and _)
+      val lpfexp = env.astc.get(lparent)._1.foldLeft(FeatureExpr.base)(_ and _)
       val succel = getSuccFromList(lpfexp, wsandf, env)
 
       succel match {
@@ -193,7 +193,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // e.g.:
   // List(Opt(true, Id1), Opt(fa, Id2), Opt(fa, Id3)) => List(List(Opt(true, Id1)), List(Opt(fa, Id2), Opt(Id3)))
   private def groupOptBlocksEquivalence(l: List[AST], env: ASTEnv) = {
-    pack[AST](env.astc.get(_)._1.reduce(_ and _) equivalentTo env.astc.get(_)._1.reduce(_ and _))(l)
+    pack[AST](env.astc.get(_)._1.foldLeft(FeatureExpr.base)(_ and _) equivalentTo env.astc.get(_)._1.foldLeft(FeatureExpr.base)(_ and _))(l)
   }
 
   // group List[Opt[_]] according to implication
@@ -216,8 +216,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     l match {
       case (h::t) => {
         var f: List[FeatureExpr] = List()
-        for (e <- h) {
-          f = env.astc.get(e.head)._1.reduce(_ and _) :: f
+        for (e :: _ <- h) {
+          val efexp = env.astc.get(e)
+          f = efexp._1.foldLeft(FeatureExpr.base)(_ and _) :: f
         }
         if (f.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedOptLists(t, env)
         else if (f.map(_.not()).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedOptLists(t, env)
@@ -266,7 +267,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
 
       if (e._1 == 2 || e._1 == 0) return CFComplete(r)
-      val efexp = env.astc.get(e._2.head.head)._1.reduce(_ and _)
+      val efexp = env.astc.get(e._2.head.head)._1.foldLeft(FeatureExpr.base)(_ and _)
       if (efexp.equivalentTo(c) && e._1 == 1) return CFComplete(r)
     }
     CFIncomplete(r)

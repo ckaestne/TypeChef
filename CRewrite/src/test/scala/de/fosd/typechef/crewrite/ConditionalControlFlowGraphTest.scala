@@ -51,8 +51,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_nested_loop() {
+  @Test def test_nested_loop() {
     val a = parseCompoundStmt("""
     {
       for(;;) {
@@ -96,13 +95,11 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_while_loop() {
+  @Test def test_while_loop() {
     val a = parseCompoundStmt("""
     {
       while (k) {
-        int l;
-        int m;
+        k--;
       }
     }
     """)
@@ -111,8 +108,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_if_the_else_chain() {
+  @Test def test_if_the_else_chain() {
     val a = parseCompoundStmt("""
     {
       int k = 3;
@@ -214,8 +210,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_conditional_while_statement() {
+  @Test def test_conditional_while_statement() {
     val e0 = Opt(True, LabelStatement(Id("e0"), None))
     val e11 = Opt(True, LabelStatement(Id("e11"), None))
     val e12 = Opt(fy, LabelStatement(Id("e12"), None))
@@ -231,8 +226,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_conditional_for_loop() {
+  @Test def test_conditional_for_loop() {
     val a = parseCompoundStmt("""
     {
       int k = 2;
@@ -250,8 +244,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_conditional_if_statement() {
+  @Test def test_conditional_if_statement() {
     val a = parseCompoundStmt("""
     {
       int k = 3;
@@ -291,8 +284,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_conditional_for_loop_elems() {
+  @Test def test_conditional_for_loop_elems() {
     val e0 = Opt(True, LabelStatement(Id("e0"), None))
     val e1 = Opt(fx, ForStatement(
       Some(AssignExpr(Id("i"),"=",Constant("0"))),
@@ -306,8 +298,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_conditional_for_loop_alternative() {
+  @Test def test_conditional_for_loop_alternative() {
     val a = parseCompoundStmt("""
     {
       int i;
@@ -340,8 +331,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  // NullPointerException
-  @Ignore def test_conditional_for_loop_infinite_single_statement() {
+  @Test def test_conditional_for_loop_infinite_single_statement() {
     val a = parseCompoundStmt("""
     {
       int i = 0;
@@ -383,8 +373,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
 //    DotGraph.map2file(getAllSucc(childAST(a.children.next)))
 //  }
 
-  // NullPointerException
-  @Ignore def test_conditional_statements() {
+  @Test def test_conditional_statements() {
     val a = parseCompoundStmt("""
     {
       int a = 2;
@@ -534,8 +523,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
 //
 //  }
 
-  // NullPointerException
-  @Ignore def test_boa_hash() {
+  @Test def test_boa_hash() {
     val a = parseCompoundStmt("""
     {
           int i;

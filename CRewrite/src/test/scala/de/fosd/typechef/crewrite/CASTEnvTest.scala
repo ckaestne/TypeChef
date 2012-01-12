@@ -1,24 +1,20 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.junit.JUnitRunner
 import de.fosd.typechef.parser.c._
+import org.junit.Test
 
-@RunWith(classOf[JUnitRunner])
-class CASTEnvTest extends ConditionalControlFlow with FunSuite with ShouldMatchers with TestHelper {
+class CASTEnvTest extends ConditionalControlFlow with TestHelper {
 
-
-  test("simpletest") {
-    val a = getAST("""
-      int k;
+  @Test def test_simple_test() {
+    val a = parseCompoundStmt("""
+    {
+      while (k) {
+        k--;
+      }
+    }
     """)
 
-    val id = createASTEnv(a)
-    for (e <- id.astc.keySet().toArray)
-      println(e + "(" + System.identityHashCode(e) + ")")
+    val env = createASTEnv(a)
+    println(env)
   }
-
-
 }
