@@ -47,7 +47,7 @@ trait CASTEnv {
   }
 
     // create ast-neighborhood context for a given translation-unit
-  def createASTEnv(a: AST, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
+  def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
     assert(a != null, "ast elem is null!")
     handleASTElems(a, null, lfexp, EmptyASTEnv)
   }
@@ -57,7 +57,7 @@ trait CASTEnv {
   // neighborhood settings is straight forward
   private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
-      case l:List[Opt[AST]] => handleOptLists(l, parent, lfexp, env)
+      case l:List[Opt[_]] => handleOptLists(l, parent, lfexp, env)
       case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
