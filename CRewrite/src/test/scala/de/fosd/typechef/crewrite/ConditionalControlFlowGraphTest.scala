@@ -475,7 +475,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
   }
 
   // stack overflow
-  @Test def test_liveness() {
+  @Ignore def test_liveness() {
     val a = parseCompoundStmt("""
     {
       int y = v;       // s1
