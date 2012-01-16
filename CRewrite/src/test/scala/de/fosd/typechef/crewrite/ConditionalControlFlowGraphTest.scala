@@ -2,11 +2,11 @@ package de.fosd.typechef.crewrite
 
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import org.junit.Test
-import de.fosd.typechef.featureexpr.True
 import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.featureexpr.{FeatureExpr, True}
+import org.junit.{Ignore, Test}
 
-class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with CASTEnv {
+class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with LivenessImpl with VariablesImpl with CASTEnv {
 
   @Test def test_if_the_else() {
     val a = parseCompoundStmt("""
@@ -360,18 +360,20 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-//  test("conditional label and jump statements", totest) {
-//    val a = parseCompoundStmt("""
-//    {
-//      label1:
-//      int k;
-//      int l;
-//      if (l != 0)
-//        goto label1;
-//    }
-//    """, p.compoundStatement)
-//    DotGraph.map2file(getAllSucc(childAST(a.children.next)))
-//  }
+  @Test def test_conditional_label_and_goto_statements() {
+    val a = parseCompoundStmt("""
+    {
+      label1:
+      int k;
+      int l;
+      if (l != 0)
+        goto label1;
+    }
+    """)
+
+    val env = createASTEnv(a)
+    DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
+  }
 
   @Test def test_conditional_statements() {
     val a = parseCompoundStmt("""
@@ -406,39 +408,43 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-//  test("conditional label and goto statements", totest) {
-//    val a = parseCompoundStmt("""
-//    {
-//      goto label1;
-//      #ifdef A
-//      label1:
-//        int a;
-//      #else
-//      label1:
-//        int b;
-//      #endif
-//      label2:
-//    }
-//    """, p.compoundStatement)
-//    DotGraph.map2file(getAllSucc(childAST(a.children.next)))
-//  }
+  @Test def test_conditional_label_and_goto_statements2() {
+    val a = parseCompoundStmt("""
+    {
+      goto label1;
+      #ifdef A
+      label1:
+        int a;
+      #else
+      label1:
+        int b;
+      #endif
+      label2:
+    }
+    """)
+
+    val env = createASTEnv(a)
+    DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
+  }
 
 
-//  test("conditional label and goto statements - constructed", totest) {
-//    val e0 = Opt(FeatureExpr.base, GotoStatement(Id("label1")))
-//    val e1 = Opt(fx, LabelStatement(Id("label1"), None))
-//    val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
-//    val e3 = Opt(fx.not, LabelStatement(Id("label1"), None))
-//    val e4 = Opt(fx.not, DeclarationStatement(Declaration(List(Opt(fx.not, IntSpecifier())), List(Opt(fx.not, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("b"), List()), List(), None))))))
-//    val e5 = Opt(FeatureExpr.base, LabelStatement(Id("label2"), None))
-//    val f = FunctionDef(List(Opt(FeatureExpr.base, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
-//    succ(e0) should be (List(e1.entry, e3.entry))
-//    succ(e1) should be (List(e2.entry))
-//    succ(e2) should be (List(e5.entry))
-//    succ(e3) should be (List(e4.entry))
-//    succ(e4) should be (List(e5.entry))
-//    DotGraph.map2file(getAllSucc(childAST(e0)))
-//  }
+  @Ignore def test_conditional_label_and_goto_statements_constructed() {
+    val e0 = Opt(FeatureExpr.base, GotoStatement(Id("label1")))
+    val e1 = Opt(fx, LabelStatement(Id("label1"), None))
+    val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
+    val e3 = Opt(fx.not(), LabelStatement(Id("label1"), None))
+    val e4 = Opt(fx.not(), DeclarationStatement(Declaration(List(Opt(fx.not(), IntSpecifier())), List(Opt(fx.not(), InitDeclaratorI(AtomicNamedDeclarator(List(), Id("b"), List()), List(), None))))))
+    val e5 = Opt(FeatureExpr.base, LabelStatement(Id("label2"), None))
+    val f = FunctionDef(List(Opt(FeatureExpr.base, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
+
+    val env = createASTEnv(f)
+    succ(e0, env) should be (List(e1.entry, e3.entry))
+    succ(e1, env) should be (List(e2.entry))
+    succ(e2, env) should be (List(e5.entry))
+    succ(e3, env) should be (List(e4.entry))
+    succ(e4, env) should be (List(e5.entry))
+    DotGraph.map2file(getAllSucc(f, env), env.asInstanceOf[DotGraph.ASTEnv])
+  }
 
   @Test def test_simpel_function() {
     val a = parseFunctionDef("""
@@ -455,73 +461,75 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-//  test("testLiveness") {
-//    val a = parseCompoundStmt("""
-//    {
-//      int y = v;       // s1
-//      int z = y;       // s2
-//      int x = v;       // s3
-//      while (x) {      // s4
-//        x = w;         // s41
-//        x = v;         // s42
-//      }
-//      return x;        // s5
-//    }
-//    """, p.compoundStatement)
-//    println("in: " + in(childAST(a.children.next)))
-//    println("out: " + out(childAST(a.children.next)))
-//    println("defines: " + defines(childAST(a.children.next)))
-//    println("uses: " + uses(childAST(a.children.next)))
-//  }
+  // stack overflow
+  @Ignore def test_liveness() {
+    val a = parseCompoundStmt("""
+    {
+      int y = v;       // s1
+      int z = y;       // s2
+      int x = v;       // s3
+      while (x) {      // s4
+        x = w;         // s41
+        x = v;         // s42
+      }
+      return x;        // s5
+    }
+    """)
 
-//  test("testLiveness - constructed") {
-//    val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("y"), List()), List(), Some(Initializer(None, Id("v")))))))))
-//    val s2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("z"), List()), List(), Some(Initializer(None, Id("y")))))))))
-//    val s3 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("x"), List()), List(), Some(Initializer(None, Id("v")))))))))
-//    val s41 = Opt(fy, ExprStatement(AssignExpr(Id("x"), "=", Id("w"))))
-//    val s42 = Opt(True, ExprStatement(AssignExpr(Id("x"), "=", Id("v"))))
-//    val s4 = Opt(True, WhileStatement(Id("x"), One(CompoundStatement(List(s41, s42)))))
-//    val s5 = Opt(True, ReturnStatement(Some(Id("x"))))
-//    val c = One(CompoundStatement(List(s1, s2, s3, s4, s5)))
-//
-//    println("in      (s1): " + in(childAST(s1)))
-//    println("out     (s1): " + out(childAST(s1)))
-//    println("defines (s1): " + defines(childAST(s1)))
-//    println("uses    (s1): " + uses(childAST(s1)))
-//    println("#"*80)
-//    println("in      (s2): " + in(childAST(s2)))
-//    println("out     (s2): " + out(childAST(s2)))
-//    println("defines (s2): " + defines(childAST(s2)))
-//    println("uses    (s2): " + uses(childAST(s2)))
-//    println("#"*80)
-//    println("in      (s3): " + in(childAST(s3)))
-//    println("out     (s3): " + out(childAST(s3)))
-//    println("defines (s3): " + defines(childAST(s3)))
-//    println("uses    (s3): " + uses(childAST(s3)))
-//    println("#"*80)
-//    println("in      (s4): " + in(childAST(s4)))
-//    println("out     (s4): " + out(childAST(s4)))
-//    println("defines (s4): " + defines(childAST(s4)))
-//    println("uses    (s4): " + uses(childAST(s4)))
-//    println("#"*80)
-//    println("in      (s41): " + in(childAST(s41)))
-//    println("out     (s41): " + out(childAST(s41)))
-//    println("defines (s41): " + defines(childAST(s41)))
-//    println("uses    (s41): " + uses(childAST(s41)))
-//    println("#"*80)
-//    println("in      (s42): " + in(childAST(s42)))
-//    println("out     (s42): " + out(childAST(s42)))
-//    println("defines (s42): " + defines(childAST(s42)))
-//    println("uses    (s42): " + uses(childAST(s42)))
-//    println("#"*80)
-//    println("in      (s5): " + in(childAST(s5)))
-//    println("out     (s5): " + out(childAST(s5)))
-//    println("defines (s5): " + defines(childAST(s5)))
-//    println("uses    (s5): " + uses(childAST(s5)))
-//
-//
-//
-//  }
+    val env = createASTEnv(a)
+    println("in: " + in((a, env)))
+    println("out: " + out((a, env)))
+    println("defines: " + defines(a))
+    println("uses: " + uses(a))
+  }
+
+  // stack overflow
+  @Ignore def test_liveness_constructed() {
+    val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("y"), List()), List(), Some(Initializer(None, Id("v")))))))))
+    val s2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("z"), List()), List(), Some(Initializer(None, Id("y")))))))))
+    val s3 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("x"), List()), List(), Some(Initializer(None, Id("v")))))))))
+    val s41 = Opt(fy, ExprStatement(AssignExpr(Id("x"), "=", Id("w"))))
+    val s42 = Opt(True, ExprStatement(AssignExpr(Id("x"), "=", Id("v"))))
+    val s4 = Opt(True, WhileStatement(Id("x"), One(CompoundStatement(List(s41, s42)))))
+    val s5 = Opt(True, ReturnStatement(Some(Id("x"))))
+    val c = One(CompoundStatement(List(s1, s2, s3, s4, s5)))
+
+    val env = createASTEnv(c)
+    println("in      (s1): " + in((s1, env)))
+    println("out     (s1): " + out((s1, env)))
+    println("defines (s1): " + defines(s1))
+    println("uses    (s1): " + uses(s1))
+    println("#"*80)
+    println("in      (s2): " + in((s2, env)))
+    println("out     (s2): " + out((s2, env)))
+    println("defines (s2): " + defines(s2))
+    println("uses    (s2): " + uses(s2))
+    println("#"*80)
+    println("in      (s3): " + in((s3, env)))
+    println("out     (s3): " + out((s3, env)))
+    println("defines (s3): " + defines(s3))
+    println("uses    (s3): " + uses(s3))
+    println("#"*80)
+    println("in      (s4): " + in((s4, env)))
+    println("out     (s4): " + out((s4, env)))
+    println("defines (s4): " + defines(s4))
+    println("uses    (s4): " + uses(s4))
+    println("#"*80)
+    println("in      (s41): " + in((s41, env)))
+    println("out     (s41): " + out((s41, env)))
+    println("defines (s41): " + defines(s41))
+    println("uses    (s41): " + uses(s41))
+    println("#"*80)
+    println("in      (s42): " + in((s42, env)))
+    println("out     (s42): " + out((s42, env)))
+    println("defines (s42): " + defines(s42))
+    println("uses    (s42): " + uses(s42))
+    println("#"*80)
+    println("in      (s5): " + in((s5, env)))
+    println("out     (s5): " + out((s5, env)))
+    println("defines (s5): " + defines(s5))
+    println("uses    (s5): " + uses(s5))
+  }
 
   @Test def test_boa_hash() {
     val a = parseCompoundStmt("""

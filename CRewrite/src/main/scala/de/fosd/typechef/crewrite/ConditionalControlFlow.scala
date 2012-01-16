@@ -4,11 +4,18 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
+import org.kiama.attribution.AttributionBase
 
 abstract sealed class CFCompleteness
 case class CFComplete(s: List[AST]) extends CFCompleteness
 case class CFIncomplete(s: List[AST]) extends CFCompleteness
 
+// implements conditional control flow (cfg) on top of the typechef
+// infrastructure
+// at first sight the implementation of succ with a lot of private
+// function seems overly complicated; however the structure allows
+// also to implement pred (although I'm not sure, we need to have
+// this), so we could exchange this implementation for another one.
 trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
@@ -27,7 +34,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     List()
   }
 
-  def succ(a: AnyRef, env: ASTEnv): List[AST] = {
+  def succ(a: Any, env: ASTEnv): List[AST] = {
     a match {
       case f@FunctionDef(_, _, _, stmt) => succ(stmt, env)
       case o: Opt[_] => succ(o.entry.asInstanceOf[AST], env)
@@ -60,26 +67,27 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case _ => List() // TODO
         } else getSuccSameLevel(w, env)
       }
-//      case w@GotoStatement(Id(l)) => {
-//        val f = findPriorFuncDefinition(w, env)
-//        if (f == null) getSuccSameLevel(w, env)
-//        else labelLookup(f, l, env)
-//      }
+      case w@GotoStatement(Id(l)) => {
+        val f = findPriorFuncDefinition(w, env)
+        if (f == null) getSuccSameLevel(w, env)
+        else labelLookup(f, l, env)
+      }
       case s: Statement => getSuccSameLevel(s, env)
       case t => following(t, env)
     }
   }
-//  private val findPriorFuncDefinition(a: AnyRef, env: ASTEnv): FunctionDef = {
-//    a match {
-//      case f: FunctionDef => f
-////      case o: AnyRef => {
-////        val oparent = env.astc.get(o)._2
-////        if (oparent != null) findPriorFuncDefinition(oparent, env)
-////        else null
-////      }
-//      case _ => null
-//    }
-//  }
+
+  private def findPriorFuncDefinition(a: Any, env: ASTEnv): FunctionDef = {
+    a match {
+      case f: FunctionDef => f
+      case o: Any => {
+        val oparent = env.astc.get(o)._2
+        if (oparent != null) findPriorFuncDefinition(oparent, env)
+        else null
+      }
+      case _ => null
+    }
+  }
 
   private def labelLookup(a: AST, l: String, env: ASTEnv): List[AST] = {
     def iterateChildren(a: AST): List[AST] = {
@@ -105,26 +113,26 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // handling of successor determination of nested structures, such as for, while, ... and next element in a list
   // of statements
-  private def following(a: AnyRef, env: ASTEnv): List[AST] = {
+  private def following(a: Any, env: ASTEnv): List[AST] = {
     val aparent = env.astc.get(a)._2
     aparent match {
-      case t@ForStatement(Some(e), c, _, b) if e.eq(a) => if (c.isDefined) List(c.get) else simpleOrCompoundStatement(t, b, env)
-      case t@ForStatement(_, Some(e), _, b) if e.eq(a) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatement (t, b, env)
-      case t@ForStatement(_, c, Some(e), b) if e.eq(a) => if (c.isDefined) List(c.get) else simpleOrCompoundStatement(t, b, env)
-      case t@ForStatement(_, c, i, e) if e.eq(a)=> {
+      case t@ForStatement(Some(e), c, _, b) if e.eq(a.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatement(t, b, env)
+      case t@ForStatement(_, Some(e), _, b) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatement (t, b, env)
+      case t@ForStatement(_, c, Some(e), b) if e.eq(a.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatement(t, b, env)
+      case t@ForStatement(_, c, i, e) if e.eq(a.asInstanceOf[AnyRef])=> {
         if (i.isDefined) List(i.get)
         else if (c.isDefined) List(c.get)
         else simpleOrCompoundStatement(t, e, env)
       }
-      case t@WhileStatement(e, b) if e.eq(a) => simpleOrCompoundStatement(t, b, env) ++ getSuccSameLevel(t, env)
-      case t@DoStatement(e, b) if e.eq(a) => simpleOrCompoundStatement(t, b, env) ++ getSuccSameLevel(t, env)
-      case t@IfStatement(e, tb, elif, el) if e.eq(a) => {
+      case t@WhileStatement(e, b) if e.eq(a.asInstanceOf[AnyRef]) => simpleOrCompoundStatement(t, b, env) ++ getSuccSameLevel(t, env)
+      case t@DoStatement(e, b) if e.eq(a.asInstanceOf[AnyRef]) => simpleOrCompoundStatement(t, b, env) ++ getSuccSameLevel(t, env)
+      case t@IfStatement(e, tb, elif, el) if e.eq(a.asInstanceOf[AnyRef]) => {
         var res = simpleOrCompoundStatement(t, tb, env)
         if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)  // call getSuccNestedLevel on elif does not seem right
         if (el.isDefined) res = res ++ simpleOrCompoundStatement(t, el.get, env)
         res
       }
-      case t@ElifStatement(e, One(CompoundStatement(l))) if e.eq(a) => getSuccNestedLevel(l, env) ++ getSuccSameLevel(t, env)
+      case t@ElifStatement(e, One(CompoundStatement(l))) if e.eq(a.asInstanceOf[AnyRef]) => getSuccNestedLevel(l, env) ++ getSuccSameLevel(t, env)
       case _ => List()
     }
   }
@@ -238,7 +246,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // get all succ nodes of o
   private def getNextEqualAnnotatedSucc(o: AST, l: List[(Int, List[List[AST]])]): Option[AST] = {
     if (l.isEmpty) return None
-    var el = l.head
+    val el = l.head
 
     // take tuple with o and examine it
     // _.map(_.eq(o)).max compares object identity and not structural identity as list.contains does
@@ -292,4 +300,119 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
     r
   }
+}
+
+// defines and uses we can jump to using succ
+trait Variables {
+  val uses: PartialFunction[AnyRef, Set[Id]]
+  val defines: PartialFunction[AnyRef, Set[Id]]
+}
+
+trait VariablesImpl extends Variables with ASTNavigation {
+  val uses: PartialFunction[AnyRef, Set[Id]] = {case a: AnyRef => findUses(a)}
+
+  private def findUses(e: AnyRef): Set[Id] = {
+    e match {
+      case ForStatement(expr1, expr2, expr3, _) => {
+        var res = Set[Id]()
+        if (expr1.isDefined) res = res ++ uses(expr1.get)
+        if (expr2.isDefined) res = res ++ uses(expr2.get)
+        if (expr3.isDefined) res = res ++ uses(expr3.get)
+        res
+      }
+      case ReturnStatement(Some(x)) => uses(x)
+      case WhileStatement(expr, _) => uses(expr)
+      case DeclarationStatement(d) => uses(d)
+      case Declaration(_, init) => init.flatMap(uses).toSet
+      case InitDeclaratorI(_, _, Some(i)) => uses(i)
+      case AtomicNamedDeclarator(_, id, _) => Set(id)
+      case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
+      case Initializer(_, expr) => uses(expr)
+      case Id(name) => Set(Id(name))
+      case Constant(_) => Set()
+      case StringLit(_) => Set()
+      case SimplePostfixSuffix(_) => Set()
+      case PointerPostfixSuffix(kind, id) => Set(id)
+      case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
+      case ArrayAccess(expr) => uses(expr)
+      case PostfixExpr(p, s) => uses(p) ++ uses(s)
+      case UnaryExpr(_, e) => uses(e)
+      case SizeOfExprT(_) => Set()
+      case SizeOfExprU(expr) => uses(expr)
+      case CastExpr(_, expr) => uses(expr)
+      case PointerDerefExpr(castExpr) => uses(castExpr)
+      case PointerCreationExpr(castExpr) => uses(castExpr)
+      case UnaryOpExpr(kind, castExpr) => uses(castExpr)
+      case NAryExpr(e, others) => uses(e) ++ others.flatMap(uses).toSet
+      case NArySubExpr(_, e) => uses(e)
+      case ConditionalExpr(condition, _, _) => uses(condition)
+      case ExprStatement(expr) => uses(expr)
+      case AssignExpr(target, _, source) => uses(target) ++ uses(source)
+      case ExprList(_) => Set()
+      case o@Opt(_, entry) => uses(o.entry.asInstanceOf[AnyRef])
+      case _ => Set()
+    }
+  }
+
+  val defines: PartialFunction[AnyRef, Set[Id]] = {
+    case DeclarationStatement(d) => defines(d)
+    case Declaration(_, init) => init.flatMap(defines).toSet
+    case InitDeclaratorI(a, _, _) => defines(a)
+    case AtomicNamedDeclarator(_, i, _) => Set(i)
+    case o@Opt(_, entry) => defines(entry.asInstanceOf[AnyRef])
+    case _ => Set()
+  }
+}
+
+trait Liveness extends CASTEnv {
+  val in: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]]
+  val out: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]]
+}
+
+trait LivenessImpl extends Liveness with AttributionBase with Variables with ConditionalControlFlow {
+
+  private def insertIntoList[T](l: List[T], e: T, f: (T, T) => Boolean, j: (T, T) => T): List[T] = {
+    l match {
+      case Nil => e::Nil
+      case x::xs => {
+        if (f(e,x)) j(e,x)::xs
+        else x::insertIntoList(xs, e, f, j)
+      }
+    }
+  }
+
+  // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
+  // page 5
+  //  in(n) = uses(n) + (out(n) - defines(n))
+  // out(n) = for s in succ(n) r = r + in(s); r
+  val in: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]] = {
+    circular[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]](List((FeatureExpr.base, Set[Id]()))) {
+      case (e, env) => {
+        val u = uses(e.asInstanceOf[AnyRef])
+        val d = defines(e.asInstanceOf[AnyRef])
+        var res = out((e.asInstanceOf[AnyRef], env.asInstanceOf[LivenessImpl.this.ASTEnv]))
+        if (!d.isEmpty) {
+          val dhfexp = env.astc.get(d.head)._1.foldLeft(FeatureExpr.base)(_ and _)
+          res = insertIntoList[(FeatureExpr, Set[Id])](res, (dhfexp, d), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2--b._2)})
+        }
+        if (!u.isEmpty) {
+          val uhfexp = env.astc.get(u.head)._1.foldLeft(FeatureExpr.base)(_ and _)
+          res = insertIntoList[(FeatureExpr, Set[Id])](res, (uhfexp, u), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
+        }
+        res
+      }
+    }
+  }
+
+  val out: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]] =
+    circular[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]] (List((FeatureExpr.base, Set[Id]()))) {
+      case (e, env) => {
+        val sl = succ(e, env.asInstanceOf[LivenessImpl.this.ASTEnv])
+        var res = List[(FeatureExpr, Set[Id])]()
+        for (a: AST <- sl)
+          for ((f: FeatureExpr, e: Set[_]) <- in((a, env.asInstanceOf[LivenessImpl.this.ASTEnv])))
+            res = insertIntoList[(FeatureExpr, Set[Id])](res, (f, e.asInstanceOf[Set[Id]]), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
+        res
+      }
+    }
 }
