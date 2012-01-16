@@ -461,8 +461,21 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
+  @Test def test_liveness_simple() {
+    val a = parseCompoundStmt("""
+    {
+      int y = 1;
+      int z = y;
+    }
+    """)
+
+    val env = createASTEnv(a)
+    println("defines: " + defines(a))
+    println("uses: " + uses(a))
+  }
+
   // stack overflow
-  @Ignore def test_liveness() {
+  @Test def test_liveness() {
     val a = parseCompoundStmt("""
     {
       int y = v;       // s1

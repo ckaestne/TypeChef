@@ -329,27 +329,23 @@ trait VariablesImpl extends Variables with ASTNavigation {
       case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
       case Initializer(_, expr) => uses(expr)
       case Id(name) => Set(Id(name))
-      case Constant(_) => Set()
-      case StringLit(_) => Set()
-      case SimplePostfixSuffix(_) => Set()
       case PointerPostfixSuffix(kind, id) => Set(id)
       case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
       case ArrayAccess(expr) => uses(expr)
       case PostfixExpr(p, s) => uses(p) ++ uses(s)
-      case UnaryExpr(_, e) => uses(e)
-      case SizeOfExprT(_) => Set()
+      case UnaryExpr(_, ex) => uses(ex)
       case SizeOfExprU(expr) => uses(expr)
       case CastExpr(_, expr) => uses(expr)
       case PointerDerefExpr(castExpr) => uses(castExpr)
       case PointerCreationExpr(castExpr) => uses(castExpr)
       case UnaryOpExpr(kind, castExpr) => uses(castExpr)
-      case NAryExpr(e, others) => uses(e) ++ others.flatMap(uses).toSet
-      case NArySubExpr(_, e) => uses(e)
+      case NAryExpr(ex, others) => uses(ex) ++ others.flatMap(uses).toSet
+      case NArySubExpr(_, ex) => uses(ex)
       case ConditionalExpr(condition, _, _) => uses(condition)
       case ExprStatement(expr) => uses(expr)
       case AssignExpr(target, _, source) => uses(target) ++ uses(source)
-      case ExprList(_) => Set()
       case o@Opt(_, entry) => uses(o.entry.asInstanceOf[AnyRef])
+      case CompoundStatement(innerStatements) => innerStatements.flatMap(uses).toSet
       case _ => Set()
     }
   }
@@ -360,6 +356,7 @@ trait VariablesImpl extends Variables with ASTNavigation {
     case InitDeclaratorI(a, _, _) => defines(a)
     case AtomicNamedDeclarator(_, i, _) => Set(i)
     case o@Opt(_, entry) => defines(entry.asInstanceOf[AnyRef])
+    case CompoundStatement(innerStatements) => innerStatements.flatMap(defines).toSet
     case _ => Set()
   }
 }
@@ -409,7 +406,7 @@ trait LivenessImpl extends Liveness with AttributionBase with Variables with Con
       case (e, env) => {
         val sl = succ(e, env.asInstanceOf[LivenessImpl.this.ASTEnv])
         var res = List[(FeatureExpr, Set[Id])]()
-        for (a: AST <- sl)
+        for (a <- sl)
           for ((f: FeatureExpr, e: Set[_]) <- in((a, env.asInstanceOf[LivenessImpl.this.ASTEnv])))
             res = insertIntoList[(FeatureExpr, Set[Id])](res, (f, e.asInstanceOf[Set[Id]]), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
         res
