@@ -8,11 +8,12 @@ trait CASTEnv {
 
   type ASTContext = (List[FeatureExpr], Any, Any, Any, List[Any])
 
-  object EmptyASTEnv extends ASTEnv (new IdentityHashMap[Any, ASTContext]())
-
   // store context of an AST entry
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
-  class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
+  class ASTEnv (private val astc: IdentityHashMap[Any, ASTContext]) {
+
+    def get(elem: Any): ASTContext = astc.get(elem)
+
     def add(elem: Any, newelemc: ASTContext) = {
       var curelemc: ASTContext = null
       var curastc = new IdentityHashMap[Any, ASTContext](astc)
@@ -33,7 +34,7 @@ trait CASTEnv {
     override def toString() = {
       var res = "########################################### \n"
       for (k <- astc.keySet().toArray) {
-        res = res + k + " (" + k.hashCode() + ")" +
+        res = res + k + " (" + System.identityHashCode(k) + ")" +
           "\n\t" + astc.get(k)._1 +
           "\n\t" + astc.get(k)._2 +
           "\n\t" + astc.get(k)._3 +
@@ -46,12 +47,16 @@ trait CASTEnv {
   }
 
   // create a feature expression from an ASTEnv
-  def lfexp2Fexp(e: Any, env: ASTEnv) = env.astc.get(e)._1.foldLeft(FeatureExpr.base)(_ and _)
+  def lfexp2Fexp(e: Any, env: ASTEnv) = {
+    println("elem: ", e, System.identityHashCode(e))
+    println(env.get(e))
+    env.get(e)._1.foldLeft(FeatureExpr.base)(_ and _)
+  }
 
   // create ast-neighborhood context for a given translation-unit
   def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
     assert(a != null, "ast elem is null!")
-    handleASTElems(a, null, lfexp, EmptyASTEnv)
+    handleASTElems(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, ASTContext]()))
   }
 
   // handle single ast elements

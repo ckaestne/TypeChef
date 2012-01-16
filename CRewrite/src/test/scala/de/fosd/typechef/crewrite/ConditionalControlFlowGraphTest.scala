@@ -464,8 +464,8 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
   @Ignore def test_liveness_simple() {
     val a = parseCompoundStmt("""
     {
-      int y = 1;
-      int z = y;
+      int a = 1;
+      int b = c;
     }
     """)
 
@@ -474,17 +474,19 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("uses: " + uses(a))
   }
 
-  @Ignore def test_liveness_simple_constructed() {
-    val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("y"), List()), List(), Some(Initializer(None, Id("v")))))))))
-    val s2 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("z"), List()), List(), Some(Initializer(None, Id("y")))))))))
+  @Test def test_liveness_simple_constructed() {
+    val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), Some(Initializer(None, Id("b")))))))))
+    val s2 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("c"), List()), List(), Some(Initializer(None, Id("d")))))))))
     val c = One(CompoundStatement(List(s1, s2)))
 
     val env = createASTEnv(c)
-    println(env)
+    println(env.get(s1))
+    println(env.get(s1))
+    println(env.get(s1))
     println("in   (s1): " + in((s1, env)))
-    println("out  (s1): " + out((s1, env)))
-    println("in   (s2): " + in((s2, env)))
-    println("out  (s2): " + out((s2, env)))
+//    println("out  (s1): " + out((s1, env)))
+//    println("in   (s2): " + in((s2, env)))
+//    println("out  (s2): " + out((s2, env)))
   }
 
   // stack overflow

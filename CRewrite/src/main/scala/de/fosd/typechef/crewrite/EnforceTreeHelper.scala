@@ -19,7 +19,7 @@ trait EnforceTreeHelper extends CASTEnv {
       c match {
         case l: List[Opt[_]] => l.map(assertTree(_, env))
         case _: AST => {
-          val cparent = env.astc.get(c)._2
+          val cparent = env.get(c)._2
           assert(cparent == ast, "Child " + c + " points to different parent:\n  " + cparent + "\nshould be\n  " + ast)
           assertTree(c.asInstanceOf[Product], env)
         }

@@ -21,19 +21,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
-  def succ2(a: AnyRef, alt: List[AST] = List(), env: ASTEnv = EmptyASTEnv): List[AST] = {
-    var falt: List[FeatureExpr] = List()
-    for (ealt <- alt) {
-      falt = env.astc.get(ealt)._1.foldLeft(FeatureExpr.base)(_ and _) :: falt
-    }
-
-    //
-    if (falt.foldLeft(FeatureExpr.dead)(_ or _).isTautology())
-      return alt
-
-    List()
-  }
-
   def succ(a: Any, env: ASTEnv): List[AST] = {
     a match {
       case f@FunctionDef(_, _, _, stmt) => succ(stmt, env)
@@ -81,7 +68,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     a match {
       case f: FunctionDef => f
       case o: Any => {
-        val oparent = env.astc.get(o)._2
+        val oparent = env.get(o)._2
         if (oparent != null) findPriorFuncDefinition(oparent, env)
         else null
       }
@@ -91,7 +78,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private def labelLookup(a: AST, l: String, env: ASTEnv): List[AST] = {
     def iterateChildren(a: AST): List[AST] = {
-      val achildren = env.astc.get(a)._5
+      val achildren = env.get(a)._5
       achildren.map(
         x => x match {
           case e: AST => labelLookup(e, l, env)
@@ -114,7 +101,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // handling of successor determination of nested structures, such as for, while, ... and next element in a list
   // of statements
   private def following(a: Any, env: ASTEnv): List[AST] = {
-    val aparent = env.astc.get(a)._2
+    val aparent = env.get(a)._2
     aparent match {
       case t@ForStatement(Some(e), c, _, b) if e.eq(a.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatement(t, b, env)
       case t@ForStatement(_, Some(e), _, b) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatement (t, b, env)
@@ -139,7 +126,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
   private def followUp(n: AnyRef, env: ASTEnv): Option[List[AST]] = {
-    val nparent = env.astc.get(n)._2
+    val nparent = env.get(n)._2
     nparent match {
       case c: CompoundStatement => followUp(c, env)
       case w @ WhileStatement(e, _) => Some(List(e))
@@ -166,7 +153,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val sfexp = env.astc.get(s)._1.foldLeft(FeatureExpr.base)(_ and _)
+        val sfexp = env.get(s)._1.foldLeft(FeatureExpr.base)(_ and _)
         val succel = getSuccFromList(sfexp, sandf.drop(1), env)
         succel match {
           case CFComplete(r) => r // 2.
@@ -180,8 +167,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     if (l.isEmpty) List()
     else {
       val wsandf = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env), env).reverse, env).reverse
-      val lparent = env.astc.get(l.head)._2
-      val lpfexp = env.astc.get(lparent)._1.foldLeft(FeatureExpr.base)(_ and _)
+      val lparent = env.get(l.head)._2
+      val lpfexp = env.get(lparent)._1.foldLeft(FeatureExpr.base)(_ and _)
       val succel = getSuccFromList(lpfexp, wsandf, env)
 
       succel match {
@@ -201,15 +188,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // e.g.:
   // List(Opt(true, Id1), Opt(fa, Id2), Opt(fa, Id3)) => List(List(Opt(true, Id1)), List(Opt(fa, Id2), Opt(Id3)))
   private def groupOptBlocksEquivalence(l: List[AST], env: ASTEnv) = {
-    pack[AST](env.astc.get(_)._1.foldLeft(FeatureExpr.base)(_ and _) equivalentTo env.astc.get(_)._1.foldLeft(FeatureExpr.base)(_ and _))(l)
+    pack[AST](env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _) equivalentTo env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _))(l)
   }
 
   // group List[Opt[_]] according to implication
   // later one should imply the not of previous ones; therefore using l.reverse
   private def groupOptListsImplication(l: List[List[AST]], env: ASTEnv) = {
     def checkImplication(a: AST, b: AST) = {
-      val as = env.astc.get(a)._1.toSet
-      val bs = env.astc.get(b)._1.toSet
+      val as = env.get(a)._1.toSet
+      val bs = env.get(b)._1.toSet
       val cs = as.intersect(bs)
       as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not()).isTautology()
     }
@@ -225,7 +212,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case (h::t) => {
         var f: List[FeatureExpr] = List()
         for (e :: _ <- h) {
-          val efexp = env.astc.get(e)
+          val efexp = env.get(e)
           f = efexp._1.foldLeft(FeatureExpr.base)(_ and _) :: f
         }
         if (f.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedOptLists(t, env)
@@ -275,7 +262,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
 
       if (e._1 == 2 || e._1 == 0) return CFComplete(r)
-      val efexp = env.astc.get(e._2.head.head)._1.foldLeft(FeatureExpr.base)(_ and _)
+      val efexp = env.get(e._2.head.head)._1.foldLeft(FeatureExpr.base)(_ and _)
       if (efexp.equivalentTo(c) && e._1 == 1) return CFComplete(r)
     }
     CFIncomplete(r)
@@ -323,7 +310,7 @@ trait Variables extends ASTNavigation {
       case AtomicNamedDeclarator(_, id, _) => Set(id)
       case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
       case Initializer(_, expr) => uses(expr)
-      case Id(name) => Set(Id(name))
+      case i@Id(name) => Set(i)
       case PointerPostfixSuffix(kind, id) => Set(id)
       case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
       case ArrayAccess(expr) => uses(expr)
@@ -356,13 +343,11 @@ trait Variables extends ASTNavigation {
 
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
-  private def insertIntoList[T](l: List[T], e: T, f: (T, T) => Boolean, j: (T, T) => T): List[T] = {
-    l match {
-      case Nil => e::Nil
-      case x::xs => {
-        if (f(e,x)) j(e,x)::xs
-        else x::insertIntoList(xs, e, f, j)
-      }
+  private def updateMap(m: Map[FeatureExpr, Set[Id]], e: (FeatureExpr, Set[Id]), op: (Set[Id], Set[Id]) => Set[Id]): Map[FeatureExpr, Set[Id]] = {
+    val key = m.find(_._1.equivalentTo(e._1))
+    key match {
+      case None => m.+(e)
+      case Some((k, v)) => m.+((k, op(e._2, v)))
     }
   }
 
@@ -370,33 +355,34 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // page 5
   //  in(n) = uses(n) + (out(n) - defines(n))
   // out(n) = for s in succ(n) r = r + in(s); r
-  val in: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]] = {
-    circular[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]](List((FeatureExpr.base, Set[Id]()))) {
+  val in: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case (e, env) => {
         val u = uses(e)
         val d = defines(e)
         var res = out((e, env))
         if (!d.isEmpty) {
           val dhfexp = lfexp2Fexp(d.head, env)
-          res = insertIntoList[(FeatureExpr, Set[Id])](res, (dhfexp, d), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2--b._2)})
+          res = updateMap(res, (dhfexp, d), {_ -- _})
         }
         if (!u.isEmpty) {
+          println(env)
           val uhfexp = lfexp2Fexp(u.head, env)
-          res = insertIntoList[(FeatureExpr, Set[Id])](res, (uhfexp, u), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
+          res = updateMap(res, (uhfexp, u), {_ ++ _})
         }
         res
       }
     }
   }
 
-  val out: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]] =
-    circular[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]] (List((FeatureExpr.base, Set[Id]()))) {
+  val out: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] =
+    circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] (Map()) {
       case (e, env) => {
         val sl = succ(e, env)
-        var res = List[(FeatureExpr, Set[Id])]()
+        var res = Map[FeatureExpr, Set[Id]]()
         for (a <- sl)
           for ((f: FeatureExpr, e: Set[Id]) <- in((a, env)))
-            res = insertIntoList[(FeatureExpr, Set[Id])](res, (f, e), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
+            res = updateMap(res, (f, e), {_ ++ _})
         res
       }
     }
