@@ -303,12 +303,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 }
 
 // defines and uses we can jump to using succ
-trait Variables {
-  val uses: PartialFunction[Any, Set[Id]]
-  val defines: PartialFunction[Any, Set[Id]]
-}
-
-trait VariablesImpl extends Variables with ASTNavigation {
+trait Variables extends ASTNavigation {
   val uses: PartialFunction[Any, Set[Id]] = {case a: Any => findUses(a)}
 
   private def findUses(e: Any): Set[Id] = {
@@ -359,12 +354,7 @@ trait VariablesImpl extends Variables with ASTNavigation {
   }
 }
 
-trait Liveness extends CASTEnv {
-  val in: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]]
-  val out: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]]
-}
-
-trait LivenessImpl extends Liveness with AttributionBase with Variables with ConditionalControlFlow {
+trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
   private def insertIntoList[T](l: List[T], e: T, f: (T, T) => Boolean, j: (T, T) => T): List[T] = {
     l match {
@@ -383,19 +373,16 @@ trait LivenessImpl extends Liveness with AttributionBase with Variables with Con
   val in: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]] = {
     circular[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]](List((FeatureExpr.base, Set[Id]()))) {
       case (e, env) => {
-        println(e.hashCode(), e)
         val u = uses(e)
         val d = defines(e)
         var res = out((e, env))
         if (!d.isEmpty) {
-          val dhfexp = env.astc.get(d.head)._1.foldLeft(FeatureExpr.base)(_ and _)
+          val dhfexp = lfexp2Fexp(d.head, env)
           res = insertIntoList[(FeatureExpr, Set[Id])](res, (dhfexp, d), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2--b._2)})
         }
         if (!u.isEmpty) {
-          if (env.astc.containsKey(u.head)) {
-            val uhfexp = env.astc.get(u.head)._1.foldLeft(FeatureExpr.base)(_ and _)
-            res = insertIntoList[(FeatureExpr, Set[Id])](res, (uhfexp, u), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
-          }
+          val uhfexp = lfexp2Fexp(u.head, env)
+          res = insertIntoList[(FeatureExpr, Set[Id])](res, (uhfexp, u), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
         }
         res
       }
@@ -408,8 +395,8 @@ trait LivenessImpl extends Liveness with AttributionBase with Variables with Con
         val sl = succ(e, env)
         var res = List[(FeatureExpr, Set[Id])]()
         for (a <- sl)
-          for ((f: FeatureExpr, e: Set[_]) <- in((a, env)))
-            res = insertIntoList[(FeatureExpr, Set[Id])](res, (f, e.asInstanceOf[Set[Id]]), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
+          for ((f: FeatureExpr, e: Set[Id]) <- in((a, env)))
+            res = insertIntoList[(FeatureExpr, Set[Id])](res, (f, e), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
         res
       }
     }

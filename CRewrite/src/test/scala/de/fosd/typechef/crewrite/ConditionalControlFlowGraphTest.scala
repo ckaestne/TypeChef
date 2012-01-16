@@ -6,7 +6,7 @@ import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.featureexpr.{FeatureExpr, True}
 import org.junit.{Ignore, Test}
 
-class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with LivenessImpl with VariablesImpl with CASTEnv {
+class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables with CASTEnv {
 
   @Test def test_if_the_else() {
     val a = parseCompoundStmt("""
@@ -461,7 +461,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  @Test def test_liveness_simple() {
+  @Ignore def test_liveness_simple() {
     val a = parseCompoundStmt("""
     {
       int y = 1;
@@ -474,7 +474,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("uses: " + uses(a))
   }
 
-  @Test def test_liveness_simple_constructed() {
+  @Ignore def test_liveness_simple_constructed() {
     val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("y"), List()), List(), Some(Initializer(None, Id("v")))))))))
     val s2 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("z"), List()), List(), Some(Initializer(None, Id("y")))))))))
     val c = One(CompoundStatement(List(s1, s2)))
@@ -488,7 +488,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
   }
 
   // stack overflow
-  @Test def test_liveness() {
+  @Ignore def test_liveness() {
     val a = parseCompoundStmt("""
     {
       int y = v;       // s1

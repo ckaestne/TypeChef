@@ -45,7 +45,10 @@ trait CASTEnv {
     }
   }
 
-    // create ast-neighborhood context for a given translation-unit
+  // create a feature expression from an ASTEnv
+  def lfexp2Fexp(e: Any, env: ASTEnv) = env.astc.get(e)._1.foldLeft(FeatureExpr.base)(_ and _)
+
+  // create ast-neighborhood context for a given translation-unit
   def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
     assert(a != null, "ast elem is null!")
     handleASTElems(a, null, lfexp, EmptyASTEnv)
