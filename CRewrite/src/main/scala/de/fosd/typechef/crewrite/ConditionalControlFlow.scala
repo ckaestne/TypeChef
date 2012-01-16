@@ -304,14 +304,14 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
 // defines and uses we can jump to using succ
 trait Variables {
-  val uses: PartialFunction[AnyRef, Set[Id]]
-  val defines: PartialFunction[AnyRef, Set[Id]]
+  val uses: PartialFunction[Any, Set[Id]]
+  val defines: PartialFunction[Any, Set[Id]]
 }
 
 trait VariablesImpl extends Variables with ASTNavigation {
-  val uses: PartialFunction[AnyRef, Set[Id]] = {case a: AnyRef => findUses(a)}
+  val uses: PartialFunction[Any, Set[Id]] = {case a: Any => findUses(a)}
 
-  private def findUses(e: AnyRef): Set[Id] = {
+  private def findUses(e: Any): Set[Id] = {
     e match {
       case ForStatement(expr1, expr2, expr3, _) => {
         var res = Set[Id]()
@@ -344,26 +344,24 @@ trait VariablesImpl extends Variables with ASTNavigation {
       case ConditionalExpr(condition, _, _) => uses(condition)
       case ExprStatement(expr) => uses(expr)
       case AssignExpr(target, _, source) => uses(target) ++ uses(source)
-      case o@Opt(_, entry) => uses(o.entry.asInstanceOf[AnyRef])
-      case CompoundStatement(innerStatements) => innerStatements.flatMap(uses).toSet
+      case o@Opt(_, entry) => uses(o.entry)
       case _ => Set()
     }
   }
 
-  val defines: PartialFunction[AnyRef, Set[Id]] = {
+  val defines: PartialFunction[Any, Set[Id]] = {
     case DeclarationStatement(d) => defines(d)
     case Declaration(_, init) => init.flatMap(defines).toSet
     case InitDeclaratorI(a, _, _) => defines(a)
     case AtomicNamedDeclarator(_, i, _) => Set(i)
-    case o@Opt(_, entry) => defines(entry.asInstanceOf[AnyRef])
-    case CompoundStatement(innerStatements) => innerStatements.flatMap(defines).toSet
+    case o@Opt(_, entry) => defines(entry)
     case _ => Set()
   }
 }
 
 trait Liveness extends CASTEnv {
-  val in: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]]
-  val out: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]]
+  val in: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]]
+  val out: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]]
 }
 
 trait LivenessImpl extends Liveness with AttributionBase with Variables with ConditionalControlFlow {
@@ -382,32 +380,35 @@ trait LivenessImpl extends Liveness with AttributionBase with Variables with Con
   // page 5
   //  in(n) = uses(n) + (out(n) - defines(n))
   // out(n) = for s in succ(n) r = r + in(s); r
-  val in: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]] = {
-    circular[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]](List((FeatureExpr.base, Set[Id]()))) {
+  val in: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]] = {
+    circular[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]](List((FeatureExpr.base, Set[Id]()))) {
       case (e, env) => {
-        val u = uses(e.asInstanceOf[AnyRef])
-        val d = defines(e.asInstanceOf[AnyRef])
-        var res = out((e.asInstanceOf[AnyRef], env.asInstanceOf[LivenessImpl.this.ASTEnv]))
+        println(e.hashCode(), e)
+        val u = uses(e)
+        val d = defines(e)
+        var res = out((e, env))
         if (!d.isEmpty) {
           val dhfexp = env.astc.get(d.head)._1.foldLeft(FeatureExpr.base)(_ and _)
           res = insertIntoList[(FeatureExpr, Set[Id])](res, (dhfexp, d), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2--b._2)})
         }
         if (!u.isEmpty) {
-          val uhfexp = env.astc.get(u.head)._1.foldLeft(FeatureExpr.base)(_ and _)
-          res = insertIntoList[(FeatureExpr, Set[Id])](res, (uhfexp, u), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
+          if (env.astc.containsKey(u.head)) {
+            val uhfexp = env.astc.get(u.head)._1.foldLeft(FeatureExpr.base)(_ and _)
+            res = insertIntoList[(FeatureExpr, Set[Id])](res, (uhfexp, u), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
+          }
         }
         res
       }
     }
   }
 
-  val out: PartialFunction[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]] =
-    circular[(AnyRef, ASTEnv), List[(FeatureExpr, Set[Id])]] (List((FeatureExpr.base, Set[Id]()))) {
+  val out: PartialFunction[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]] =
+    circular[(Any, ASTEnv), List[(FeatureExpr, Set[Id])]] (List((FeatureExpr.base, Set[Id]()))) {
       case (e, env) => {
-        val sl = succ(e, env.asInstanceOf[LivenessImpl.this.ASTEnv])
+        val sl = succ(e, env)
         var res = List[(FeatureExpr, Set[Id])]()
         for (a <- sl)
-          for ((f: FeatureExpr, e: Set[_]) <- in((a, env.asInstanceOf[LivenessImpl.this.ASTEnv])))
+          for ((f: FeatureExpr, e: Set[_]) <- in((a, env)))
             res = insertIntoList[(FeatureExpr, Set[Id])](res, (f, e.asInstanceOf[Set[Id]]), {(a,b)=>a._1.equivalentTo(b._1)}, {(a,b)=>(a._1, a._2++b._2)})
         res
       }

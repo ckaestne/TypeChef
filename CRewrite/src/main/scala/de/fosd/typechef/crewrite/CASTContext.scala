@@ -1,7 +1,6 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional.Opt
 import java.util.IdentityHashMap
 
@@ -32,7 +31,7 @@ trait CASTEnv {
     }
 
     override def toString() = {
-      var res = ""
+      var res = "########################################### \n"
       for (k <- astc.keySet().toArray) {
         res = res + k + " (" + k.hashCode() + ")" +
           "\n\t" + astc.get(k)._1 +
@@ -58,6 +57,7 @@ trait CASTEnv {
   private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
       case l:List[_] => handleOptLists(l, parent, lfexp, env)
+      case Some(o) => handleASTElems(o, parent, lfexp, env)
       case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
