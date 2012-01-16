@@ -57,7 +57,7 @@ trait CASTEnv {
   // neighborhood settings is straight forward
   private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
-      case l:List[Opt[_]] => handleOptLists(l, parent, lfexp, env)
+      case l:List[_] => handleOptLists(l, parent, lfexp, env)
       case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
@@ -71,14 +71,14 @@ trait CASTEnv {
 
   // handle list of Opt nodes
   // sets prev-next connections for elements and recursively calls handleASTElems
-  private def handleOptLists[T](l: List[Opt[T]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
+  private def handleOptLists[T](l: List[_], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     var curenv = env
 
     // set prev and next and children
-    for (e <- createPrevElemNextTuples[Opt[_]](l)) {
+    for (e <- createPrevElemNextTuples(l)) {
       e match {
         case (prev, Some(elem), next) => {
-          curenv = curenv.add(elem, (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), List(elem.entry)))
+          curenv = curenv.add(elem, (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), elem.asInstanceOf[Product].productIterator.toList))
         }
         case _ => ;
       }

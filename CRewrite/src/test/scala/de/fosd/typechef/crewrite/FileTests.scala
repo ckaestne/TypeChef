@@ -6,7 +6,7 @@ import java.io.{FileNotFoundException, InputStream}
 import org.junit.Test
 
 class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv {
-  val folder = "/testfiles"
+  val folder = "testfiles/"
 
   private def check(filename: String, featureExpr: FeatureModel = NoFeatureModel) = {
     println("analysis " + filename)
