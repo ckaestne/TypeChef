@@ -428,7 +428,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
   }
 
 
-  @Ignore def test_conditional_label_and_goto_statements_constructed() {
+  @Test def test_conditional_label_and_goto_statements_constructed() {
     val e0 = Opt(FeatureExpr.base, GotoStatement(Id("label1")))
     val e1 = Opt(fx, LabelStatement(Id("label1"), None))
     val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
@@ -461,7 +461,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  @Ignore def test_liveness_simple() {
+  @Test def test_liveness_simple() {
     val a = parseCompoundStmt("""
     {
       int a = 1;
@@ -480,17 +480,14 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     val c = One(CompoundStatement(List(s1, s2)))
 
     val env = createASTEnv(c)
-    println(env.get(s1))
-    println(env.get(s1))
-    println(env.get(s1))
     println("in   (s1): " + in((s1, env)))
-//    println("out  (s1): " + out((s1, env)))
-//    println("in   (s2): " + in((s2, env)))
-//    println("out  (s2): " + out((s2, env)))
+    println("out  (s1): " + out((s1, env)))
+    println("in   (s2): " + in((s2, env)))
+    println("out  (s2): " + out((s2, env)))
   }
 
   // stack overflow
-  @Ignore def test_liveness() {
+  @Test def test_liveness() {
     val a = parseCompoundStmt("""
     {
       int y = v;       // s1
@@ -512,7 +509,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
   }
 
   // stack overflow
-  @Ignore def test_liveness_constructed() {
+  @Test def test_liveness_constructed() {
     val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("y"), List()), List(), Some(Initializer(None, Id("v")))))))))
     val s2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("z"), List()), List(), Some(Initializer(None, Id("y")))))))))
     val s3 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("x"), List()), List(), Some(Initializer(None, Id("v")))))))))

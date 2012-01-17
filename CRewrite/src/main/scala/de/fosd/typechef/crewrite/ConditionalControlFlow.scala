@@ -85,6 +85,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case e: Opt[_] => labelLookup(e.entry.asInstanceOf[AST], l, env)
         }).foldLeft(List[AST]())(_ ++ _)
     }
+
     a match {
       case e @ LabelStatement(Id(n), _) if (n == l) => List(e) ++ iterateChildren(e)
       case e : AST => iterateChildren(e)
@@ -357,16 +358,15 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // out(n) = for s in succ(n) r = r + in(s); r
   val in: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
-      case (e, env) => {
+      case t@(e, env) => {
         val u = uses(e)
         val d = defines(e)
-        var res = out((e, env))
+        var res = out(t)
         if (!d.isEmpty) {
           val dhfexp = lfexp2Fexp(d.head, env)
           res = updateMap(res, (dhfexp, d), {_ -- _})
         }
         if (!u.isEmpty) {
-          println(env)
           val uhfexp = lfexp2Fexp(u.head, env)
           res = updateMap(res, (uhfexp, u), {_ ++ _})
         }
@@ -377,11 +377,11 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
 
   val out: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] =
     circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] (Map()) {
-      case (e, env) => {
+      case t@(e, env) => {
         val sl = succ(e, env)
         var res = Map[FeatureExpr, Set[Id]]()
         for (a <- sl)
-          for ((f: FeatureExpr, e: Set[Id]) <- in((a, env)))
+          for ((f: FeatureExpr, e: Set[Id]) <- in(t))
             res = updateMap(res, (f, e), {_ ++ _})
         res
       }

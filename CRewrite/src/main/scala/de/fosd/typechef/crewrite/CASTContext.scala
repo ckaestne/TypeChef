@@ -32,24 +32,23 @@ trait CASTEnv {
     }
 
     override def toString() = {
-      var res = "########################################### \n"
-      for (k <- astc.keySet().toArray) {
-        res = res + k + " (" + System.identityHashCode(k) + ")" +
-          "\n\t" + astc.get(k)._1 +
-          "\n\t" + astc.get(k)._2 +
-          "\n\t" + astc.get(k)._3 +
-          "\n\t" + astc.get(k)._4 +
-          "\n\t" + astc.get(k)._5 +
-          "\n ########################################### \n"
-      }
-      res
+//      var res = "########################################### \n"
+//      for (k <- astc.keySet().toArray) {
+//        res = res + k + " (" + System.identityHashCode(k) + ")" +
+//          "\n\t" + astc.get(k)._1 +
+//          "\n\t" + astc.get(k)._2 +
+//          "\n\t" + astc.get(k)._3 +
+//          "\n\t" + astc.get(k)._4 +
+//          "\n\t" + astc.get(k)._5 +
+//          "\n ########################################### \n"
+//      }
+//      res
+      ""
     }
   }
 
   // create a feature expression from an ASTEnv
   def lfexp2Fexp(e: Any, env: ASTEnv) = {
-    println("elem: ", e, System.identityHashCode(e))
-    println(env.get(e))
     env.get(e)._1.foldLeft(FeatureExpr.base)(_ and _)
   }
 
