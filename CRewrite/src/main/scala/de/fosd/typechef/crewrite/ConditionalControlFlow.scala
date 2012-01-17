@@ -57,7 +57,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case w@GotoStatement(Id(l)) => {
         val f = findPriorFuncDefinition(w, env)
         if (f == null) getSuccSameLevel(w, env)
-        else labelLookup(f, l, env)
+        else labelLookup(f, l, env).asInstanceOf[List[AST]]
       }
       case s: Statement => getSuccSameLevel(s, env)
       case t => following(t, env)
@@ -76,19 +76,22 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def labelLookup(a: AST, l: String, env: ASTEnv): List[AST] = {
-    def iterateChildren(a: AST): List[AST] = {
+  private def labelLookup(a: Any, l: String, env: ASTEnv): List[Any] = {
+    def iterateChildren(a: Any): List[Any] = {
       val achildren = env.get(a)._5
       achildren.map(
         x => x match {
           case e: AST => labelLookup(e, l, env)
-          case e: Opt[_] => labelLookup(e.entry.asInstanceOf[AST], l, env)
-        }).foldLeft(List[AST]())(_ ++ _)
+          case Opt(_, entry) => labelLookup(entry.asInstanceOf[AST], l, env)
+          case ls: List[_] => ls.flatMap(labelLookup(_, l, env))
+          case _ => List()
+        }).foldLeft(List[Any]())(_ ++ _)
     }
 
     a match {
       case e @ LabelStatement(Id(n), _) if (n == l) => List(e) ++ iterateChildren(e)
       case e : AST => iterateChildren(e)
+      case o : Opt[_] => iterateChildren(o)
     }
   }
 
