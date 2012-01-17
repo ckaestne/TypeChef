@@ -5,6 +5,7 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
+import java.util.IdentityHashMap
 
 abstract sealed class CFCompleteness
 case class CFComplete(s: List[AST]) extends CFCompleteness
@@ -355,6 +356,11 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
+  // cache for in; we have to store all tuples of (a, env) their because using
+  // (a, env) always creates a new one!!! and circular internally uses another
+  // IdentityHashMap and uses (a, env) as a key there.
+  private val astIdenEnvHM = new IdentityHashMap[AST, (AST, ASTEnv)]()
+
   // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
   // page 5
   //  in(n) = uses(n) + (out(n) - defines(n))
@@ -383,9 +389,12 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       case t@(e, env) => {
         val sl = succ(e, env)
         var res = Map[FeatureExpr, Set[Id]]()
-        for (a <- sl)
-          for ((f: FeatureExpr, e: Set[Id]) <- in(t))
-            res = updateMap(res, (f, e), {_ ++ _})
+        for (a <- sl) {
+          if (! astIdenEnvHM.containsKey(a))
+            astIdenEnvHM.put(a, (a, env))
+          for (el <- in(astIdenEnvHM.get(a)))
+            res = updateMap(res, el, {_ ++ _})
+        }
         res
       }
     }
