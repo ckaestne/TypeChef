@@ -4,7 +4,6 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.Opt
 import java.util.IdentityHashMap
 
-// TODO change Any to AnyRef
 trait CASTEnv {
 
   type ASTContext = (List[FeatureExpr], Any, Any, Any, List[Any])
@@ -39,7 +38,7 @@ trait CASTEnv {
   }
 
   // create a feature expression from an ASTEnv
-  def lfexp2Fexp(e: Any, env: ASTEnv) = {
+  def lfexp2Fexp(e: AnyRef, env: ASTEnv) = {
     env.get(e)._1.foldLeft(FeatureExpr.base)(_ and _)
   }
 

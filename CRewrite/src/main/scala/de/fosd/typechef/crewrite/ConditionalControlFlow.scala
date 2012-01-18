@@ -119,7 +119,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def simpleOrCompoundStatement(p: Statement, c: Conditional[_], env: ASTEnv) = {
+  private def simpleOrCompoundStatement(p: AST, c: Conditional[_], env: ASTEnv) = {
     c.asInstanceOf[One[_]].value match {
       case CompoundStatement(l) => if (l.isEmpty) List(p) else getSuccNestedLevel(l, env)
       case s: Statement => List(s)
@@ -147,23 +147,43 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatement(t, el.get, env)
         res
       }
-      case t@ElifStatement(e, One(CompoundStatement(l))) if e.eq(a.asInstanceOf[AnyRef]) => getSuccNestedLevel(l, env) ++ getSuccSameLevel(t, env)
+      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env)
       case _ => List()
     }
   }
 
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
-  private def followUp(n: AnyRef, env: ASTEnv): Option[List[AST]] = {
-    val nparent = env.get(n)._2
-    nparent match {
+  private def followUp(e: AnyRef, env: ASTEnv): Option[List[AST]] = {
+
+    def getNextElemFromList(e: AnyRef, l: List[Opt[ElifStatement]]): Option[ElifStatement] = {
+      val taillist = l.dropWhile(!_.entry.eq(e)).drop(1)
+      if (taillist.isEmpty) None
+      else Some(taillist.head.entry)
+    }
+
+    val eparent = env.parent(e)
+    eparent match {
       case o: Opt[_] => followUp(o, env)
       case c: Conditional[_] => followUp(c, env)
       case c: CompoundStatement => followUp(c, env)
       case w : ForStatement => Some(List(w))
       case w @ WhileStatement(e, _) => Some(List(e))
-      case w @ DoStatement(e, One(CompoundStatement(l))) => Some(List(e))
-      case w @ IfStatement(_, _, _, _) => Some(getSuccSameLevel(w, env))
-      case w @ ElifStatement(_, _) => {
+      case w @ DoStatement(e, One(CompoundStatement(l))) => Some(List(e))   // TODO fix; same as ElifStatement in succ
+      case w @ IfStatement(_, thenBranch, elifs, elseBranch) => {
+        if (thenBranch.eq(e)) {
+          if (! elifs.isEmpty) Some(List(elifs.head))
+          else if (elseBranch.isDefined) Some(List(childAST(elseBranch)))
+          else Some(getSuccSameLevel(w, env))
+        } else if (elseBranch.eq(e)) {
+          Some(getSuccSameLevel(w, env))
+        } else {
+          getNextElemFromList(e, elifs) match {
+            case None => if (elseBranch.isDefined) Some(List(childAST(elseBranch))) else Some(getSuccSameLevel(w, env))
+            case Some(elifstmt) => Some(List(elifstmt))
+          }
+        }
+      }
+      case w @ ElifStatement(_, _) => { // TODO fix
         val nw = env.next(w)
         Some(succ(nw, env))
       }
