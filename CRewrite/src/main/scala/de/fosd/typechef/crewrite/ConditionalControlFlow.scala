@@ -20,14 +20,19 @@ case class CFIncomplete(s: List[AST]) extends CFCompleteness
 
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
+// TODO change Any to AnyRef
 trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
+  type IfdefBlock = List[List[AST]]
+
   def pred(a: Any, env: ASTEnv): List[AST] = {
     a match {
       case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
+      case _: FunctionDef => List()
+      case s: Statement => getPredSameLevel(s, env)
     }
   }
 
@@ -35,24 +40,24 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     a match {
       case f@FunctionDef(_, _, _, stmt) => succ(stmt, env)
       case o: Opt[_] => succ(o.entry.asInstanceOf[AST], env)
-      case t@ForStatement(init, break, inc, b) => {
-        if (init.isDefined) List(init.get)
-        else if (break.isDefined) List(break.get)
-        else simpleOrCompoundStatement(t, b, env)
+      case t@ForStatement(expr1, expr2, expr3, s) => {
+        if (expr1.isDefined) List(expr1.get)
+        else if (expr2.isDefined) List(expr2.get)
+        else simpleOrCompoundStatement(t, s, env)
       }
-      case WhileStatement(e, _) => List(e)
-      case t@DoStatement(_, b) => simpleOrCompoundStatement(t, b, env)
-      case t@IfStatement(c, _, _, _) => List(c)
+      case WhileStatement(expr, _) => List(expr)
+      case t@DoStatement(_, s) => simpleOrCompoundStatement(t, s, env)
+      case t@IfStatement(condition, _, _, _) => List(condition)
       case t@ElifStatement(c, _) => List(c)
       case SwitchStatement(c, _) => List(c)
-      case w@ReturnStatement(_) => getSuccSameLevel(w, env)
-      case w@CompoundStatement(l) => getSuccSameLevel(w, env) ++ getSuccNestedLevel(l, env)
-      case w@BreakStatement() => {
-        val f = followUp(w, env)
-        if (f.isDefined) getSuccSameLevel(f.get.head, env) else getSuccSameLevel(w, env)
+      case t@ReturnStatement(_) => getSuccSameLevel(t, env)
+      case t@CompoundStatement(l) => getSuccSameLevel(t, env) ++ getSuccNestedLevel(l, env)
+      case t@BreakStatement() => {
+        val f = followUp(t, env)
+        if (f.isDefined) getSuccSameLevel(f.get.head, env) else getSuccSameLevel(t, env)
       }
-      case w@ContinueStatement() => {
-        val f = followUp(w, env)
+      case t@ContinueStatement() => {
+        val f = followUp(t, env)
         if (f.isDefined) f.get.head match {
           case t@ForStatement(_, break, inc, b) => {
             if (inc.isDefined) List(inc.get)
@@ -62,14 +67,14 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case WhileStatement(c, _) => List(c)
           case DoStatement(c, _) => List(c)
           case _ => List() // TODO
-        } else getSuccSameLevel(w, env)
+        } else getSuccSameLevel(t, env)
       }
-      case w@GotoStatement(Id(l)) => {
-        val f = findPriorFuncDefinition(w, env)
-        if (f == null) getSuccSameLevel(w, env)
+      case t@GotoStatement(Id(l)) => {
+        val f = findPriorFuncDefinition(t, env)
+        if (f == null) getSuccSameLevel(t, env)
         else labelLookup(f, l, env).asInstanceOf[List[AST]]
       }
-      case s: Statement => getSuccSameLevel(s, env)
+      case t: Statement => getSuccSameLevel(t, env)
       case t => following(t, env)
     }
   }
@@ -93,6 +98,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case e: AST => op(e, l, env)
         case Opt(_, entry) => op(entry, l, env)
         case ls: List[_] => ls.flatMap(op(_, l, env))
+        case _ => List()
       }
     ).foldLeft(List[AST]())(_ ++ _)
   }
@@ -138,7 +144,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@IfStatement(e, tb, elif, el) if e.eq(a.asInstanceOf[AnyRef]) => {
         var res = simpleOrCompoundStatement(t, tb, env)
         if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)  // call getSuccNestedLevel on elif does not seem right
-        if (el.isDefined) res = res ++ simpleOrCompoundStatement(t, el.get, env)
+        if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatement(t, el.get, env)
         res
       }
       case t@ElifStatement(e, One(CompoundStatement(l))) if e.eq(a.asInstanceOf[AnyRef]) => getSuccNestedLevel(l, env) ++ getSuccSameLevel(t, env)
@@ -150,14 +156,17 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private def followUp(n: AnyRef, env: ASTEnv): Option[List[AST]] = {
     val nparent = env.get(n)._2
     nparent match {
-      case c: CompoundStatement => followUp(c, env)
-      case w @ WhileStatement(e, _) => Some(List(e))
-      case w : ForStatement => Some(List(w))
-      case w @ DoStatement(e, One(CompoundStatement(l))) => Some(List(e))
-      case w @ IfStatement(_, _, _, _) => Some(getSuccSameLevel(w, env))
-      case w @ ElifStatement(_, _) => followUp(w, env)
       case o: Opt[_] => followUp(o, env)
       case c: Conditional[_] => followUp(c, env)
+      case c: CompoundStatement => followUp(c, env)
+      case w : ForStatement => Some(List(w))
+      case w @ WhileStatement(e, _) => Some(List(e))
+      case w @ DoStatement(e, One(CompoundStatement(l))) => Some(List(e))
+      case w @ IfStatement(_, _, _, _) => Some(getSuccSameLevel(w, env))
+      case w @ ElifStatement(_, _) => {
+        val nw = env.next(w)
+        Some(succ(nw, env))
+      }
       case s: Statement => followUp(s, env)
       case _ => None
     }
@@ -169,7 +178,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   //    if yes stop; if not goto 3.
   // 3. get the parent of our node and determine successor nodes of it
   private def getSuccSameLevel(s: AST, env: ASTEnv) = {
-    val sandf = getFeatureGroupedASTElems(s, env)
+    val sandf = getNextIfdefBlocks(s, env)
     val sos = getNextEqualAnnotatedSucc(s, sandf)
     sos match {
       // 1.
@@ -185,10 +194,29 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // we have to check possible predecessor nodes in at max three steps:
+  // 1. get direct predecessor with same annotation; if yes top; if not goto 2.
+  // 2. get all annotated elements at the same level and check whether we find a definite set of predecessor nodes
+  //    if yes stop; if not goto 3.
+  // 3. get the parent of our node and determine predecessor nodes of it
+  private def getPredSameLevel(s: AST, env: ASTEnv): List[AST] = {
+//    val sandf = getNextIfdefBlocks(s, env)
+//    val sos = getNextEqualAnnotatedPred(s, sandf)
+//    sos match {
+//      // 1.
+//      case Some(x) => List(x)
+//      case None => {
+//        val sfexp = env.lfeature(s).foldLeft(FeatureExpr.base)(_ and _)
+//        val predel = getPredFromList(sfexp, sandf.)
+//      }
+//    }
+    List()
+  }
+
   private def getSuccNestedLevel(l: List[AST], env: ASTEnv) = {
     if (l.isEmpty) List()
     else {
-      val wsandf = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env), env).reverse, env).reverse
+      val wsandf = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env).reverse, env).reverse
       val lparent = env.get(l.head)._2
       val lpfexp = env.get(lparent)._1.foldLeft(FeatureExpr.base)(_ and _)
       val succel = getSuccFromList(lpfexp, wsandf, env)
@@ -200,60 +228,23 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  // pack similar elements into sublists
-  private def pack[T](f: (T, T) => Boolean)(l: List[T]): List[List[T]] = {
-    if (l.isEmpty) List()
-    else (l.head::l.tail.takeWhile(f(l.head, _)))::pack(f)(l.tail.dropWhile(f(l.head, _)))
-  }
 
-  // group consecutive Opts in a list and return a list of list containing consecutive (feature equivalent) opts
-  // e.g.:
-  // List(Opt(true, Id1), Opt(fa, Id2), Opt(fa, Id3)) => List(List(Opt(true, Id1)), List(Opt(fa, Id2), Opt(Id3)))
-  private def groupOptBlocksEquivalence(l: List[AST], env: ASTEnv) = {
-    pack[AST](env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _) equivalentTo env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _))(l)
-  }
 
-  // group List[Opt[_]] according to implication
-  // later one should imply the not of previous ones; therefore using l.reverse
-  private def groupOptListsImplication(l: List[List[AST]], env: ASTEnv) = {
-    def checkImplication(a: AST, b: AST) = {
-      val as = env.get(a)._1.toSet
-      val bs = env.get(b)._1.toSet
-      val cs = as.intersect(bs)
-      as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not()).isTautology()
-    }
-    pack[List[AST]]({ (x,y) => checkImplication(x.head, y.head)})(l.reverse).reverse
-  }
-
-  // get type of List[List[AST]:
-  // 0 -> only true values
-  // 1 -> #if-(#elif)* block
-  // 2 -> #if-(#elif)*-#else block
-  private def determineTypeOfGroupedOptLists(l: List[List[List[AST]]], env: ASTEnv): List[(Int, List[List[AST]])] = {
-    l match {
-      case (h::t) => {
-        var f: List[FeatureExpr] = List()
-        for (e :: _ <- h) {
-          val efexp = env.get(e)
-          f = efexp._1.foldLeft(FeatureExpr.base)(_ and _) :: f
-        }
-        if (f.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedOptLists(t, env)
-        else if (f.map(_.not()).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedOptLists(t, env)
-             else (1, h)::determineTypeOfGroupedOptLists(t, env)
-      }
-      case Nil => List()
-    }
-  }
-
-  // returns a list of previous and next AST elems grouped according to feature expressions
-  private def getFeatureGroupedASTElems(s: AST, env: ASTEnv) = {
+  // returns a list next AST elems grouped according to feature expressions
+  private def getNextIfdefBlocks(s: AST, env: ASTEnv) = {
     val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-    val d = determineTypeOfGroupedOptLists(groupOptListsImplication(groupOptBlocksEquivalence(l, env), env), env)
-    getSuccTailList(s, d)
+    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
+    getTailList(s, d)
+  }
+
+  private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
+    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
+    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
+    getTailList(s, d.reverse).reverse
   }
 
   // get all succ nodes of o
-  private def getNextEqualAnnotatedSucc(o: AST, l: List[(Int, List[List[AST]])]): Option[AST] = {
+  private def getNextEqualAnnotatedSucc(o: AST, l: List[(Int, IfdefBlock)]): Option[AST] = {
     if (l.isEmpty) return None
     val el = l.head
 
@@ -266,7 +257,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // get list with o and all following lists
-  private def getSuccTailList(o: AST, l: List[(Int, List[List[AST]])]): List[(Int, List[List[AST]])] = {
+  private def getTailList(o: AST, l: List[(Int, IfdefBlock)]): List[(Int, IfdefBlock)] = {
     // get the list with o and all following lists
     // iterate each sublist of the incoming tuples (Int, List[List[Opt[_]]] combine equality check
     // with foldLeft and drop tuples in which o does not occur
@@ -275,19 +266,20 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // get all succ nodes of an unknown input node; useful for cases in which successor nodes occur
   // in a different block
-  private def getSuccFromList(c: FeatureExpr, l: List[(Int, List[List[AST]])], env: ASTEnv): CFCompleteness = {
-    var r = List[AST]()
+  private def getSuccFromList(f: FeatureExpr, l: List[(Int, IfdefBlock)], env: ASTEnv): CFCompleteness = {
+    var res = List[AST]()
     for (e <- l) {
       e match {
-        case (0, opts) => r = r ++ List(opts.head.head)
-        case (_, opts) => r = r ++ opts.flatMap({ x=> List(x.head)})
+        case (0, opts) => return CFComplete(res ++ List(opts.head.head))
+        case (1, opts) => {
+          res = res ++ opts.flatMap({ x=> List(x.head)})
+          val efexp = env.get(e._2.head.head)._1.foldLeft(FeatureExpr.base)(_ and _)
+          if (efexp.equivalentTo(f) && e._1 == 1) return CFComplete(res)
+        }
+        case (2, opts) => return CFComplete(res ++ opts.flatMap({ x=> List(x.head)}))
       }
-
-      if (e._1 == 2 || e._1 == 0) return CFComplete(r)
-      val efexp = env.get(e._2.head.head)._1.foldLeft(FeatureExpr.base)(_ and _)
-      if (efexp.equivalentTo(c) && e._1 == 1) return CFComplete(r)
     }
-    CFIncomplete(r)
+    CFIncomplete(res)
   }
 
   // determine recursively all succs
@@ -308,6 +300,52 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
     }
     r
+  }
+
+  // the following functions belong to detection and type cateorization of ifdef blocks
+  // pack similar elements into sublists
+  private def pack[T](f: (T, T) => Boolean)(l: List[T]): List[List[T]] = {
+    if (l.isEmpty) List()
+    else (l.head::l.tail.takeWhile(f(l.head, _)))::pack(f)(l.tail.dropWhile(f(l.head, _)))
+  }
+
+  // group consecutive Opts in a list and return a list of list containing consecutive (feature equivalent) opts
+  // e.g.:
+  // List(Opt(true, Id1), Opt(fa, Id2), Opt(fa, Id3)) => List(List(Opt(true, Id1)), List(Opt(fa, Id2), Opt(fa, Id3)))
+  private def determineIfdefBlocks(l: List[AST], env: ASTEnv) = {
+    pack[AST](env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _) equivalentTo env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _))(l)
+  }
+
+  // group List[Opt[_]] according to implication
+  // later one should imply the not of previous ones; therefore using l.reverse
+  private def groupIfdefBlocks(l: IfdefBlock, env: ASTEnv) = {
+    def checkImplication(a: AST, b: AST) = {
+      val as = env.get(a)._1.toSet
+      val bs = env.get(b)._1.toSet
+      val cs = as.intersect(bs)
+      as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not()).isTautology()
+    }
+    pack[List[AST]]({ (x,y) => checkImplication(x.head, y.head)})(l.reverse).reverse
+  }
+
+  // get type of IfdefBlock:
+  // 0 -> only true values
+  // 1 -> #if-(#elif)* block
+  // 2 -> #if-(#elif)*-#else block
+  private def determineTypeOfGroupedIfdefBlocks(l: List[IfdefBlock], env: ASTEnv): List[(Int, IfdefBlock)] = {
+    l match {
+      case (h::t) => {
+        var f: List[FeatureExpr] = List()
+        for (e :: _ <- h) {
+          val efexp = env.get(e)
+          f = efexp._1.foldLeft(FeatureExpr.base)(_ and _) :: f
+        }
+        if (f.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedIfdefBlocks(t, env)
+        else if (f.map(_.not()).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedIfdefBlocks(t, env)
+        else (1, h)::determineTypeOfGroupedIfdefBlocks(t, env)
+      }
+      case Nil => List()
+    }
   }
 }
 

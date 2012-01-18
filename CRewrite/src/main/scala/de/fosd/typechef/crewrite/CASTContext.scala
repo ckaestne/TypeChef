@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.Opt
 import java.util.IdentityHashMap
 
+// TODO change Any to AnyRef
 trait CASTEnv {
 
   type ASTContext = (List[FeatureExpr], Any, Any, Any, List[Any])
