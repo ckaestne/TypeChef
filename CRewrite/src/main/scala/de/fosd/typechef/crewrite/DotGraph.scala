@@ -14,7 +14,7 @@ object DotGraph extends IOUtilities with CASTEnv {
     dotstring += "node [shape=record];\n"
     for ((o, succs) <- m) {
       val op = esc(PrettyPrinter.print(o))
-      dotstring += "\"" + System.identityHashCode(o) + "\" [label=\"{{" + op + "}|" + esc(env.astc.get(o)._1.reduce(_ and _).toString()) + "}\"];\n"
+      dotstring += "\"" + System.identityHashCode(o) + "\" [label=\"{{" + op + "}|" + esc(env.get(o)._1.reduce(_ and _).toString()) + "}\"];\n"
       for (succ <- succs) dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\"\n"
     }
     dotstring = dotstring + "}\n"

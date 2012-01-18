@@ -1,23 +1,23 @@
 package de.fosd.typechef.crewrite
 
-import java.util.IdentityHashMap
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional.Opt
+import java.util.IdentityHashMap
 
 trait CASTEnv {
 
   type ASTContext = (List[FeatureExpr], Any, Any, Any, List[Any])
 
-  object EmptyASTEnv extends ASTEnv (new IdentityHashMap[Any, ASTContext]())
-
   // store context of an AST entry
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
-  class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
+  class ASTEnv (private val astc: IdentityHashMap[Any, ASTContext]) {
+
+    def get(elem: Any): ASTContext = astc.get(elem)
+
     def add(elem: Any, newelemc: ASTContext) = {
-      var curastc = astc
       var curelemc: ASTContext = null
-      if (astc.containsKey(elem)) curelemc = astc.get(elem)
+      var curastc = new IdentityHashMap[Any, ASTContext](astc)
+      if (curastc.containsKey(elem)) curelemc = curastc.get(elem)
       else curelemc = (null, null, null, null, null)
 
       // lfexp; parent; prev; next; children
@@ -32,24 +32,30 @@ trait CASTEnv {
     }
 
     override def toString() = {
-      var res = ""
-      for (k <- astc.keySet().toArray) {
-        res = res + k + " (" + k.hashCode() + ")" +
-          "\n\t" + astc.get(k)._1 +
-          "\n\t" + astc.get(k)._2 +
-          "\n\t" + astc.get(k)._3 +
-          "\n\t" + astc.get(k)._4 +
-          "\n\t" + astc.get(k)._5 +
-          "\n ########################################### \n"
-      }
-      res
+//      var res = "########################################### \n"
+//      for (k <- astc.keySet().toArray) {
+//        res = res + k + " (" + System.identityHashCode(k) + ")" +
+//          "\n\t" + astc.get(k)._1 +
+//          "\n\t" + astc.get(k)._2 +
+//          "\n\t" + astc.get(k)._3 +
+//          "\n\t" + astc.get(k)._4 +
+//          "\n\t" + astc.get(k)._5 +
+//          "\n ########################################### \n"
+//      }
+//      res
+      ""
     }
   }
 
-    // create ast-neighborhood context for a given translation-unit
-  def createASTEnv(a: AST, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
+  // create a feature expression from an ASTEnv
+  def lfexp2Fexp(e: Any, env: ASTEnv) = {
+    env.get(e)._1.foldLeft(FeatureExpr.base)(_ and _)
+  }
+
+  // create ast-neighborhood context for a given translation-unit
+  def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
     assert(a != null, "ast elem is null!")
-    handleASTElems(a, null, lfexp, EmptyASTEnv)
+    handleASTElems(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, ASTContext]()))
   }
 
   // handle single ast elements
@@ -57,8 +63,9 @@ trait CASTEnv {
   // neighborhood settings is straight forward
   private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
-      case l:List[Opt[AST]] => handleOptLists(l, parent, lfexp, env)
-      case x:AST => {
+      case l:List[_] => handleOptLists(l, parent, lfexp, env)
+      case Some(o) => handleASTElems(o, parent, lfexp, env)
+      case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
           curenv = handleASTElems(elem, x, lfexp, curenv)
@@ -71,14 +78,14 @@ trait CASTEnv {
 
   // handle list of Opt nodes
   // sets prev-next connections for elements and recursively calls handleASTElems
-  private def handleOptLists[T](l: List[Opt[T]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
+  private def handleOptLists[T](l: List[_], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     var curenv = env
 
     // set prev and next and children
-    for (e <- createPrevElemNextTuples[Opt[_]](l)) {
+    for (e <- createPrevElemNextTuples(l)) {
       e match {
         case (prev, Some(elem), next) => {
-          curenv = curenv.add(elem, (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), List(elem.entry)))
+          curenv = curenv.add(elem, (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), elem.asInstanceOf[Product].productIterator.toList))
         }
         case _ => ;
       }
