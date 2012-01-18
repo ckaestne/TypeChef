@@ -109,7 +109,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     a match {
       case e @ GotoStatement(Id(n)) if (n == l) => List(e)
       case e : AST => iterateChildren(e, l, env, gotoLookup)
-      case o : Opt => iterateChildren(o, l, env, gotoLookup)
+      case o : Opt[_] => iterateChildren(o, l, env, gotoLookup)
     }
   }
 
