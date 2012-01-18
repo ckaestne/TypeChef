@@ -17,10 +17,19 @@ case class CFIncomplete(s: List[AST]) extends CFCompleteness
 // function seems overly complicated; however the structure allows
 // also to implement pred (although I'm not sure, we need to have
 // this), so we could exchange this implementation for another one.
+
+// one usage for pred is for instance the determination of
+// reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
 trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
+
+  def pred(a: Any, env: ASTEnv): List[AST] = {
+    a match {
+      case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
+    }
+  }
 
   def succ(a: Any, env: ASTEnv): List[AST] = {
     a match {
@@ -77,22 +86,30 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def labelLookup(a: Any, l: String, env: ASTEnv): List[Any] = {
-    def iterateChildren(a: Any): List[Any] = {
-      val achildren = env.get(a)._5
-      achildren.map(
-        x => x match {
-          case e: AST => labelLookup(e, l, env)
-          case Opt(_, entry) => labelLookup(entry.asInstanceOf[AST], l, env)
-          case ls: List[_] => ls.flatMap(labelLookup(_, l, env))
-          case _ => List()
-        }).foldLeft(List[Any]())(_ ++ _)
-    }
+  private def iterateChildren(a: Any, l: String, env: ASTEnv, op: (Any, String, ASTEnv) => List[AST]): List[AST] = {
+    val achildren = env.get(a)._5
+    achildren.map(
+      x => x match {
+        case e: AST => op(e, l, env)
+        case Opt(_, entry) => op(entry, l, env)
+        case ls: List[_] => ls.flatMap(op(_, l, env))
+      }
+    ).foldLeft(List[AST]())(_ ++ _)
+  }
 
+  private def labelLookup(a: Any, l: String, env: ASTEnv): List[AST] = {
     a match {
-      case e @ LabelStatement(Id(n), _) if (n == l) => List(e) ++ iterateChildren(e)
-      case e : AST => iterateChildren(e)
-      case o : Opt[_] => iterateChildren(o)
+      case e @ LabelStatement(Id(n), _) if (n == l) => List(e) ++ iterateChildren(e, l, env, labelLookup)
+      case e : AST => iterateChildren(e, l, env, labelLookup)
+      case o : Opt[_] => iterateChildren(o, l, env, labelLookup)
+    }
+  }
+
+  private def gotoLookup(a: Any, l: String, env: ASTEnv): List[AST] = {
+    a match {
+      case e @ GotoStatement(Id(n)) if (n == l) => List(e)
+      case e : AST => iterateChildren(e, l, env, gotoLookup)
+      case o : Opt => iterateChildren(o, l, env, gotoLookup)
     }
   }
 

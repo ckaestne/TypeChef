@@ -469,7 +469,6 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
     println("defines: " + defines(a))
     println("uses: " + uses(a))
   }
