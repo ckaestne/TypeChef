@@ -13,6 +13,11 @@ trait CASTEnv {
   class ASTEnv (private val astc: IdentityHashMap[Any, ASTContext]) {
 
     def get(elem: Any): ASTContext = astc.get(elem)
+    def lfeature(elem: Any) = astc.get(elem)._1
+    def parent(elem: Any) = astc.get(elem)._2
+    def previous(elem: Any) = astc.get(elem)._3
+    def next(elem: Any) = astc.get(elem)._4
+    def children(elem: Any) = astc.get(elem)._5
 
     def add(elem: Any, newelemc: ASTContext) = {
       var curelemc: ASTContext = null
@@ -29,21 +34,6 @@ trait CASTEnv {
 
       curastc.put(elem, curelemc)
       new ASTEnv(curastc)
-    }
-
-    override def toString() = {
-//      var res = "########################################### \n"
-//      for (k <- astc.keySet().toArray) {
-//        res = res + k + " (" + System.identityHashCode(k) + ")" +
-//          "\n\t" + astc.get(k)._1 +
-//          "\n\t" + astc.get(k)._2 +
-//          "\n\t" + astc.get(k)._3 +
-//          "\n\t" + astc.get(k)._4 +
-//          "\n\t" + astc.get(k)._5 +
-//          "\n ########################################### \n"
-//      }
-//      res
-      ""
     }
   }
 
