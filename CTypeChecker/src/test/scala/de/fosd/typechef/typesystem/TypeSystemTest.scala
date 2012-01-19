@@ -10,73 +10,84 @@ import de.fosd.typechef.parser.c._
 @RunWith(classOf[JUnitRunner])
 class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelper {
 
-    private def check(code: String, printAST: Boolean = false): Boolean = {println("checking " + code); if (printAST) println("AST: " + getAST(code)); check(getAST(code));}
-    private def check(ast: TranslationUnit): Boolean = {assert(ast != null, "void ast"); new CTypeSystemFrontend(ast).checkAST}
+    private def check(code: String, printAST: Boolean = false): Boolean = {
+        println("checking " + code);
+        if (printAST) println("AST: " + getAST(code));
+        check(getAST(code));
+    }
+    private def check(ast: TranslationUnit): Boolean = {
+        assert(ast != null, "void ast");
+        new CTypeSystemFrontend(ast).checkAST
+    }
 
 
     test("typecheck simple translation unit") {
         expect(true) {
             check("void foo() {};" +
-                    "void bar(){foo();}")
+                "void bar(){foo();}")
         }
-        expect(false) {check("void bar(){foo();}")}
+        expect(false) {
+            check("void bar(){foo();}")
+        }
     }
     ignore("detect redefinitions") {
-        expect(false) {check("void foo(){} void foo(){}")}
+        expect(false) {
+            check("void foo(){} void foo(){}")
+        }
         expect(false) {
             check("void foo(){} \n" +
-                    "#ifdef A\n" +
-                    "void foo(){}\n" +
-                    "#endif\n")
+                "#ifdef A\n" +
+                "void foo(){}\n" +
+                "#endif\n")
         }
         expect(true) {
             check("#ifndef A\n" +
-                    "void foo(){} \n" +
-                    "#endif\n" +
-                    "#ifdef A\n" +
-                    "void foo(){}\n" +
-                    "#endif\n")
+                "void foo(){} \n" +
+                "#endif\n" +
+                "#ifdef A\n" +
+                "void foo(){}\n" +
+                "#endif\n")
         }
     }
     test("typecheck function calls in translation unit with features") {
         expect(true) {
             check("void foo(){} \n" +
-                    "#ifdef A\n" +
-                    "void bar(){foo();}\n" +
-                    "#endif\n")
+                "#ifdef A\n" +
+                "void bar(){foo();}\n" +
+                "#endif\n")
         }
         expect(false) {
             check(
                 "#ifdef A\n" +
-                        "void foo2(){} \n" +
-                        "#endif\n" +
-                        "void bar(){foo2();}\n")
+                    "void foo2(){} \n" +
+                    "#endif\n" +
+                    "void bar(){foo2();}\n")
         }
         expect(true) {
             check(
                 "#ifdef A\n" +
-                        "void foo3(){} \n" +
-                        "#endif\n" +
-                        "#ifndef A\n" +
-                        "void foo3(){} \n" +
-                        "#endif\n" +
-                        "void bar(){foo3();}\n")
+                    "void foo3(){} \n" +
+                    "#endif\n" +
+                    "#ifndef A\n" +
+                    "void foo3(){} \n" +
+                    "#endif\n" +
+                    "void bar(){foo3();}\n")
         }
         expect(true) {
             check(
                 "#ifdef A\n" +
-                        "int foo4(){} \n" +
-                        "#endif\n" +
-                        "#ifndef A\n" +
-                        "double foo4(){}\n" +
-                        "#endif\n" +
-                        "void bar(){foo4();}\n")
+                    "int foo4(){} \n" +
+                    "#endif\n" +
+                    "#ifndef A\n" +
+                    "double foo4(){}\n" +
+                    "#endif\n" +
+                    "void bar(){foo4();}\n")
         }
         expect(true) {
             check("#ifdef A\n" +
-                    "void foo(){} \n" +
-                    "void bar(){foo();}\n" +
-                    "#endif\n")
+                "void foo(){} \n" +
+                "void bar(){foo();}\n" +
+                "#endif\n")
         }
 
     }
@@ -373,5 +384,49 @@ return 1;
                 }""")
         }
 
+    }
+
+
+    test("multiple conditional structs") {
+        expect(true) {
+            check("""
+            #ifdef X
+            struct s { char x; };
+
+            #ifdef Y
+            struct t { struct s y[3]; };
+
+            void foo() { struct t x; }
+            #endif
+            #endif
+                """)
+        }
+        expect(false) {
+            check("""
+            #ifdef Y
+            struct s { char x; };
+            #endif
+
+            struct t {
+                struct s y[3];
+            };
+            void foo() { struct t x; }
+                       """)
+        }
+        expect(true) {
+            check("""
+            #ifdef Y
+            struct s { char x; };
+            #endif
+
+            struct t {
+            #ifdef Y
+                struct s y[3];
+            #endif
+            };
+
+            void foo() { struct t x; }
+                        """)
+        }
     }
 }

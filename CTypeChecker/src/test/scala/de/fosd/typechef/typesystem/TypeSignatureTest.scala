@@ -50,8 +50,17 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
             check("struct s {int a;};\n" +
                 "void foo(){struct s b;}")
         }
+        expect(false) {
+            check("struct s { struct t x; };") // t is not a struct, check x like variable declaration
+        }
         expect(true) {
             check("struct s foo();")
+        }
+        expect(true) {
+            check("struct s { char x;} a[3];")
+        }
+        expect(true) {
+            check("struct r{ struct s { char x;} a[3]; };")
         }
         expect(true) {
             check("struct s {int a;};\n" +
