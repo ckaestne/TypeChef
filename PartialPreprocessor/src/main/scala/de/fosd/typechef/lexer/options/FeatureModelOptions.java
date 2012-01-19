@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class FeatureModelOptions extends Options implements IFeatureModelOptions {
     protected FeatureModel featureModel = null;
+    protected FeatureModel featureModel_typeSystem = null;
 
 
     @Override
@@ -28,9 +29,19 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
         return featureModel;
     }
 
+    @Override
+    public FeatureModel getFeatureModelTypeSystem() {
+        if (featureModel_typeSystem != null)
+            return featureModel_typeSystem;
+        if (featureModel == null)
+            return NoFeatureModel$.MODULE$;
+        return featureModel;
+    }
+
     private static final char FM_DIMACS = Options.genOptionId();
     private static final char FM_FEXPR = Options.genOptionId();
     private static final char FM_CLASS = Options.genOptionId();
+    private static final char FM_TSDIMACS = Options.genOptionId();
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -42,7 +53,9 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
                 new Option("featureModelFExpr", LongOpt.REQUIRED_ARGUMENT, FM_FEXPR, "file",
                         "File in FExpr format describing a feature model."),
                 new Option("featureModelClass", LongOpt.REQUIRED_ARGUMENT, FM_CLASS, "classname",
-                        "Class describing a feature model.")
+                        "Class describing a feature model."),
+                new Option("typeSystemFeatureModelDimacs", LongOpt.REQUIRED_ARGUMENT, FM_TSDIMACS, "file",
+                        "Distinct feature model for the type system.")
         ));
 
         return r;
@@ -55,15 +68,13 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             if (featureModel != null)
                 throw new OptionException("cannot load feature model from dimacs file. feature model already exists.");
             checkFileExists(g.getOptarg());
-            featureModel = FeatureModel.createFromDimacsFile(g.getOptarg());
-            return true;
+            featureModel = FeatureModel.createFromDimacsFile_2Var(g.getOptarg());
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
             checkFileExists(g.getOptarg());
             FeatureExpr f = new FeatureExprParser().parseFile(g.getOptarg());
             if (featureModel == null)
                 featureModel = de.fosd.typechef.featureexpr.FeatureModel.create(f);
             else featureModel = featureModel.and(f);
-            return true;
         } else if (c == FM_CLASS) {//--featureModelClass
             try {
                 FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
@@ -71,11 +82,12 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             } catch (Exception e) {
                 throw new OptionException("cannot instantiate feature model: " + e.getMessage());
             }
-            return true;
+        } else if (c == FM_TSDIMACS) {
+            checkFileExists(g.getOptarg());
+            featureModel_typeSystem = FeatureModel.createFromDimacsFile_2Var(g.getOptarg());
         } else
             return super.interpretOption(c, g);
-
-
+        return true;
     }
 
     public void setFeatureModel(FeatureModel fm) {

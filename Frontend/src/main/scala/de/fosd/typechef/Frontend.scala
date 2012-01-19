@@ -72,7 +72,8 @@ object Frontend {
                 serializeAST(ast, opt.getSerializedASTFilename)
 
             if (ast != null) {
-                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
+                val fm_ts = opt.getFeatureModelTypeSystem().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 if (opt.typecheck || opt.writeInterface) {
                     println("type checking.")
                     ts.checkAST
