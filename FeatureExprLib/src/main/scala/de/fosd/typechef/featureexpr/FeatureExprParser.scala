@@ -40,12 +40,12 @@ class FeatureExprParser extends RegexParsers {
 
     //||
     def dterm: Parser[FeatureExpr] =
-        term ~ rep(("||" | "or") ~> expr) ^^ {
+        term ~ rep(("||" | "|" | "or") ~> expr) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ or _)
         }
 
     def term: Parser[FeatureExpr] =
-        bool ~ rep(("&&" | "and") ~> expr) ^^ {
+        bool ~ rep(("&&" | "&" | "and") ~> expr) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ and _)
         }
 
@@ -53,7 +53,7 @@ class FeatureExprParser extends RegexParsers {
         "!" ~> bool ^^ (_ not) |
             ("(" ~> expr <~ ")") |
             "InvalidExpression()" ^^ (_ => False) |
-            (("definedEx" | "defined") ~ "(" ~> ID <~ ")") ^^ {
+            (("definedEx" | "defined" | "def") ~ "(" ~> ID <~ ")") ^^ {
                 toFeature(_)
             } |
             "1" ^^ {

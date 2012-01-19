@@ -20,7 +20,7 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = No
     class TypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) {
         override def toString =
             severity.toString.take(1) + " [" + condition + "] " +
-                    (if (where == null) "" else where.getPositionFrom + "--" + where.getPositionTo) + "\n\t" + msg
+                (if (where == null) "" else where.getPositionFrom + "--" + where.getPositionTo) + "\n\t" + msg
     }
 
 
@@ -49,8 +49,11 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = No
             println("check " + externalDefCounter + "/" + iast.defs.size + ". line " + externalDef.getPositionFrom.getLine + ". err " + errors.size)
     }
     override def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) =
-        if (condition.isSatisfiable(featureModel))
-            errors = new TypeError(severity, condition, msg, where) :: errors
+        if (condition.isSatisfiable(featureModel)) {
+            val e = new TypeError(severity, condition, msg, where)
+            errors = e :: errors
+            println("  - " + e)
+        }
 
 
     def checkAST: Boolean = {
@@ -62,8 +65,6 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = No
             println("No type errors found.")
         else {
             println("Found " + errors.size + " type errors: ");
-            for (e <- errors.reverse)
-                println("  - " + e)
         }
         println("\n")
         return errors.isEmpty

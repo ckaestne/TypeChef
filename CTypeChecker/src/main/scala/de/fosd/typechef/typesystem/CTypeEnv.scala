@@ -44,6 +44,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                     r = r.add(s._1, s._2, s._3, s._4)
                 r
         })
+    def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): StructEnv =
+        e.qualifierList.foldRight(env.structEnv)({
+            case (Opt(specFeature, specifier), b: StructEnv) =>
+                var r = b
+                for (s <- (getStructFromSpecifier(specifier, featureExpr, env, e.declaratorList.isEmpty)))
+                    r = r.add(s._1, s._2, s._3, s._4)
+                r
+        })
 
     type StructData = (String, Boolean, FeatureExpr, ConditionalTypeMap)
 
@@ -56,8 +64,8 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     }
 
     private def innerStructs(fields: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, env: Env): List[StructData] =
-        fields.flatMap(e =>
-            (for (Opt(f, spec) <- e.entry.qualifierList) yield getStructFromSpecifier(spec, featureExpr and f, env, e.entry.declaratorList.isEmpty)).flatten
+        fields.flatMap(field =>
+            (for (Opt(f, spec) <- field.entry.qualifierList) yield getStructFromSpecifier(spec, featureExpr and field.feature and f, env, field.entry.declaratorList.isEmpty)).flatten
         )
 
 

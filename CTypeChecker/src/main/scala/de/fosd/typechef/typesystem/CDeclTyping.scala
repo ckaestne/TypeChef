@@ -175,12 +175,6 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             val declExpr = env.structEnv.isDefined(name, isUnion)
             if ((expr andNot declExpr).isSatisfiable)
                 reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + name + " not defined. (defined only in context " + declExpr + ")", where, Severity.TypeLookupError)
-            //check also fields
-            if (!checkedStructs.contains(name) && env.structEnv.someDefinition(name, isUnion)) {
-                val fields = env.structEnv.get(name, isUnion)
-                val fieldTypes = fields.keys.map(k => fields.getOrElse(k, CUnknown()))
-                fieldTypes.map(ct => checkStructsC(ct, expr, env, where, name :: checkedStructs))
-            }
         case CAnonymousStruct(fields, _) => //check fields
             val fieldTypes = fields.keys.map(k => fields.getOrElse(k, CUnknown()))
             fieldTypes.map(ct => checkStructsC(ct, expr, env, where, checkedStructs))
@@ -341,12 +335,19 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         Conditional.flatten(r)
     }
 
+    def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): StructEnv;
+
     def parseStructMembers(members: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, env: Env): ConditionalTypeMap = {
         var result = new ConditionalTypeMap()
         for (Opt(f, structDeclaration) <- members) {
             for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
                 structDeclarator match {
-                    case StructDeclarator(decl, _, attr) => result = result +(decl.getName, f and g, declType(structDeclaration.qualifierList, decl, attr, featureExpr and f and g, env))
+                    case StructDeclarator(decl, _, attr) =>
+                        val ctype = declType(structDeclaration.qualifierList, decl, attr, featureExpr and f and g, env)
+                        //for nested structs, we need to add the inner structs to the environment
+                        val env2 = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))
+                        checkStructsC(ctype, featureExpr and f and g, env2, structDeclaration)
+                        result = result +(decl.getName, f and g, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }
             //for unnamed fields, if they are struct or union inline their fields
