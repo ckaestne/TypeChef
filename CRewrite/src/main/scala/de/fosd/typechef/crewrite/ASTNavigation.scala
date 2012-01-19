@@ -73,13 +73,15 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
-  private def childAST(e: Any): AST = {
+  def childAST(e: Any): AST = {
     e match {
       case Opt(_, v: AST) => v
       case Opt(_, v: One[_]) => v.value.asInstanceOf[AST]
       case Opt(_, v: Choice[_]) => firstChoice(v)
       case x: One[_] => x.value.asInstanceOf[AST]
       case a: AST => a
+      case Some(a) => childAST(a)
+      case _ => null
     }
   }
 

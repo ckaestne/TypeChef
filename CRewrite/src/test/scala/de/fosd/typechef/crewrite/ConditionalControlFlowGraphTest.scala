@@ -469,7 +469,6 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
     println("defines: " + defines(a))
     println("uses: " + uses(a))
   }
@@ -554,6 +553,39 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("out     (s5): " + out((s5, env)))
     println("defines (s5): " + defines(s5))
     println("uses    (s5): " + uses(s5))
+  }
+
+  @Test def test_binary_search() {
+    val a = parseFunctionDef("""
+     int binarySearch(int sortedArray[], int first, int last, int key) {
+       // function:
+       //   Searches sortedArray[first]..sortedArray[last] for key.
+       // returns: index of the matching element if it finds key,
+       //         otherwise  -(index where it could be inserted)-1.
+       // parameters:
+       //   sortedArray in  array of sorted (ascending) values.
+       //   first, last in  lower and upper subscript bounds
+       //   key         in  value to search for.
+       // returns:
+       //   index of key, or -insertion_position -1 if key is not
+       //                 in the array. This value can easily be
+       //                 transformed into the position to insert it.
+
+       while (first <= last) {
+         int mid = (first + last) / 2;  // compute mid point.
+         if (key > sortedArray[mid])
+           first = mid + 1;  // repeat search in top half.
+         else if (key < sortedArray[mid])
+           last = mid - 1; // repeat search in bottom half.
+         else
+           return mid;     // found it. return position /////
+       }
+       return -(first + 1);    // failed to find key
+     }
+    """)
+
+    val env = createASTEnv(a)
+    DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
   @Test def test_boa_hash() {
