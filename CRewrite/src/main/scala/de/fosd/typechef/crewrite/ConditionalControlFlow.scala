@@ -7,10 +7,6 @@ import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
 import java.util.IdentityHashMap
 
-abstract sealed class CFCompleteness
-case class CFComplete(s: List[AST]) extends CFCompleteness
-case class CFIncomplete(s: List[AST]) extends CFCompleteness
-
 // implements conditional control flow (cfg) on top of the typechef
 // infrastructure
 // at first sight the implementation of succ with a lot of private
@@ -222,7 +218,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // 2. get all annotated elements at the same level and check whether we find a definite set of successor nodes
   //    if yes stop; if not goto 3.
   // 3. get the parent of our node and determine successor nodes of it
-  private def getSuccSameLevel(s: AST, env: ASTEnv) = {
+  private def getSuccSameLevel(s: AST, env: ASTEnv): List[AST] = {
     val nextifdefblocks = getNextIfdefBlocks(s, env)
     val sos = getNextEqualAnnotatedSucc(s, nextifdefblocks)
     sos match {
@@ -232,8 +228,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val sfexp = env.featureExp(s)
         val succel = getSuccFromList(sfexp, nextifdefblocks.drop(1), env)
         succel match {
-          case CFComplete(r) => r // 2.
-          case CFIncomplete(r) => r ++ followUp(s, env).getOrElse(List()) // 3.
+          case Left(r) => r // 2.
+          case Right(r) => r ++ followUp(s, env).getOrElse(List()) // 3.
         }
       }
     }
@@ -267,8 +263,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       val succel = getSuccFromList(lpfexp, wsandf, env)
 
       succel match {
-        case CFComplete(r) => r
-        case CFIncomplete(r) => r ++ followUp(l.head, env).getOrElse(List())
+        case Left(r) => r
+        case Right(r) => r ++ followUp(l.head, env).getOrElse(List())
       }
     }
   }
@@ -311,20 +307,20 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // get all succ nodes of an unknown input node; useful for cases in which successor nodes occur
   // in a different block
-  private def getSuccFromList(f: FeatureExpr, l: List[(Int, IfdefBlock)], env: ASTEnv): CFCompleteness = {
+  private def getSuccFromList(f: FeatureExpr, l: List[(Int, IfdefBlock)], env: ASTEnv): Either[List[AST], List[AST]] = {
     var res = List[AST]()
     for (e <- l) {
       e match {
-        case (0, opts) => return CFComplete(res ++ List(opts.head.head))
+        case (0, opts) => return Left(res ++ List(opts.head.head))
         case (1, opts) => {
           res = res ++ opts.flatMap({ x=> List(x.head)})
           val efexp = env.get(e._2.head.head)._1.foldLeft(FeatureExpr.base)(_ and _)
-          if (efexp.equivalentTo(f) && e._1 == 1) return CFComplete(res)
+          if (efexp.equivalentTo(f) && e._1 == 1) return Left(res)
         }
-        case (2, opts) => return CFComplete(res ++ opts.flatMap({ x=> List(x.head)}))
+        case (2, opts) => return Left(res ++ opts.flatMap({ x=> List(x.head)}))
       }
     }
-    CFIncomplete(res)
+    Right(res)
   }
 
   // determine recursively all succs
