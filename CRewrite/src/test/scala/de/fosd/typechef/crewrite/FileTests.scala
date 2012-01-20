@@ -5,6 +5,8 @@ import de.fosd.typechef.featureexpr.{FeatureModel, NoFeatureModel}
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.Test
 
+// using llvm and clang, one can compute non-variability-aware cfgs with
+// clang -cc1 -analyze -cfg-dump <testfile>
 class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv {
   val folder = "testfiles/"
 

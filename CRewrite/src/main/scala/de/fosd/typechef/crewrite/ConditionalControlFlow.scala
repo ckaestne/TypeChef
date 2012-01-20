@@ -35,9 +35,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  def succ2(a: Any, env: ASTEnv): List[AST] = {
+  def succ(a: Any, env: ASTEnv): List[AST] = {
     var oldres: List[AST] = List()
-    var newres: List[AST] = succ(a, env)
+    var newres: List[AST] = succHelper(a, env)
     var changed = true
 
     while (changed) {
@@ -47,11 +47,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       for (oldelem <- oldres) {
         var add2newres: List[AST] = List()
         oldelem match {
-          case _: ForStatement => changed = true; add2newres = succ(oldelem, env)
-          case _: WhileStatement => changed = true; add2newres = succ(oldelem, env)
-          case _: DoStatement => changed = true; add2newres = succ(oldelem, env)
-          case _: IfStatement => changed = true; add2newres = succ(oldelem, env)
-          case _: ElifStatement => changed = true; add2newres = succ(oldelem, env)
+          case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
+          case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
           case _ => add2newres = List(oldelem)
         }
         newres = newres ++ add2newres
@@ -60,10 +57,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     newres
   }
 
-  def succ(a: Any, env: ASTEnv): List[AST] = {
+  private def succHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
-      case f@FunctionDef(_, _, _, stmt) => succ(stmt, env)
-      case o: Opt[_] => succ(o.entry.asInstanceOf[AST], env)
+      case f@FunctionDef(_, _, _, stmt) => succHelper(stmt, env)
+      case o: Opt[_] => succHelper(o.entry.asInstanceOf[AST], env)
       case t@ForStatement(expr1, expr2, expr3, s) => {
         if (expr1.isDefined) List(expr1.get)
         else if (expr2.isDefined) List(expr2.get)
@@ -342,7 +339,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       s = s.drop(1)
 
       if (d.filter(_.eq(c)).isEmpty) {
-        r = (c, succ2(c, env)) :: r
+        r = (c, succ(c, env)) :: r
         s = s ++ r.head._2
         d = d ++ List(c)
       }
