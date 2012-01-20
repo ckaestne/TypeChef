@@ -60,8 +60,13 @@ public class Main {
 
         Preprocessor pp = new Preprocessor(options.getFeatureModel());
 
+        pp.getWarnings().clear();
+        pp.addWarnings(options.getWarnings());
+        pp.getFeatures().clear();
+        pp.addFeatures(options.getFeatures());
+
         pp.setListener(new PreprocessorListener(pp));
-        pp.addMacro("__JCPP__", FeatureExprLib.base());
+        pp.addMacro("__TYPECHEF__", FeatureExprLib.base());
 
         PrintWriter output = null;
         if (options.getLexOutputFile().length() > 0) {
@@ -93,12 +98,6 @@ public class Main {
                     MacroContext$.MODULE$.setListFilter(filter.substring(2));
                     break;
             }
-
-        pp.getWarnings().clear();
-        pp.addWarnings(options.getWarnings());
-        pp.getFeatures().clear();
-        pp.addFeatures(options.getFeatures());
-
 
         for (String include : options.getIncludedHeaders())
             pp.addInput(new File(include));
