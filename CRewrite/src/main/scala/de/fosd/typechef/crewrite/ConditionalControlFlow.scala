@@ -20,7 +20,6 @@ case class CFIncomplete(s: List[AST]) extends CFCompleteness
 
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
-// TODO change Any to AnyRef
 trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
@@ -143,11 +142,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@DoStatement(e, b) if e.eq(a.asInstanceOf[AnyRef]) => simpleOrCompoundStatement(t, b, env) ++ getSuccSameLevel(t, env)
       case t@IfStatement(e, tb, elif, el) if e.eq(a.asInstanceOf[AnyRef]) => {
         var res = simpleOrCompoundStatement(t, tb, env)
-        if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)  // call getSuccNestedLevel on elif does not seem right
+        if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)  // TODO call getSuccNestedLevel on elif does not seem right
         if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatement(t, el.get, env)
         res
       }
-      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env)
+      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ succ(thenBranch, env)
       case _ => List()
     }
   }
@@ -183,10 +182,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           }
         }
       }
-      case w @ ElifStatement(_, _) => { // TODO fix
-        val nw = env.next(w)
-        Some(succ(nw, env))
-      }
+      case w @ ElifStatement(_, _) => Some(succ(env.next(w), env) ++ getSuccSameLevel(w, env))
       case s: Statement => followUp(s, env)
       case _ => None
     }
