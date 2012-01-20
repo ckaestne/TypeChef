@@ -171,7 +171,19 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatement(t, el.get, env)
         res
       }
-      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatement(t, thenBranch, env)
+
+      // either go to next ElifStatement, ElseBranch, or next statement of the surrounding IfStatement
+      // filtering is necessary, as else branches are not considered by getSuccSameLevel
+      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => {
+        var res = getSuccSameLevel(t, env)
+        if (res.filter(_.isInstanceOf[ElifStatement]).isEmpty) {
+          env.parent(env.parent(t)) match {
+            case tp@IfStatement(_, _, _, None) => res = getSuccSameLevel(tp, env)
+            case IfStatement(_, _, _, Some(elseBranch)) => res = List(childAST(elseBranch))
+          }
+        }
+        res ++ simpleOrCompoundStatement(t, thenBranch, env)
+      }
       case _ => List()
     }
   }
@@ -179,26 +191,32 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
   private def followUp(nestedastelem: AnyRef, env: ASTEnv): Option[List[AST]] = {
 
-    val surroundingparent = env.parent(nestedastelem)
-    surroundingparent match {
-      // handling of #ifdef-conditional elements
-      case o: Opt[_] => followUp(o, env)
-      case c: Conditional[_] => followUp(c, env)
+    nestedastelem match {
+      case _: ReturnStatement => None
+      case _ => {
+        val surroundingparent = env.parent(nestedastelem)
+        surroundingparent match {
+          // handling of #ifdef-conditional elements
+          case o: Opt[_] => followUp(o, env)
+          case c: Conditional[_] => followUp(c, env)
 
-      // skip over CompoundStatement; wo do not consider it in ast-succ evaluation anyway
-      case c: CompoundStatement => followUp(c, env)
+          // skip over CompoundStatement; wo do not consider it in ast-succ evaluation anyway
+          case c: CompoundStatement => followUp(c, env)
 
-      // in all loop statements go back to the statement itself
-      case t: ForStatement => Some(List(t))
-      case t: WhileStatement => Some(List(t))
-      case t: DoStatement => Some(List(t))
+          // in all loop statements go back to the statement itself
+          case t: ForStatement => Some(List(t))
+          case t: WhileStatement => Some(List(t))
+          case t: DoStatement => Some(List(t))
 
-      // after control flow comes out of a branch from an IfStatement,
-      // so we go for the next element in the row
-      case t: IfStatement => Some(getSuccSameLevel(t, env))
-      case t: ElifStatement => followUp(t, env)
-      case t: Statement => followUp(t, env)
-      case _ => None
+          // after control flow comes out of a branch from an IfStatement,
+          // so we go for the next element in the row
+          case t: IfStatement => Some(getSuccSameLevel(t, env))
+          case t: ElifStatement => followUp(t, env)
+
+          case t: Statement => followUp(t, env)
+          case _ => None
+        }
+      }
     }
   }
 
@@ -267,11 +285,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     getTailList(s, d)
   }
 
-  private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
-    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
-    getTailList(s, d.reverse).reverse
-  }
+//  private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
+//    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
+//    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
+//    getTailList(s, d.reverse).reverse
+//  }
 
   // get all succ nodes of o
   private def getNextEqualAnnotatedSucc(o: AST, l: List[(Int, IfdefBlock)]): Option[AST] = {
