@@ -35,6 +35,31 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  def succ2(a: Any, env: ASTEnv): List[AST] = {
+    var oldres: List[AST] = List()
+    var newres: List[AST] = succ(a, env)
+    var changed = true
+
+    while (changed) {
+      changed = false
+      oldres = newres
+      newres = List()
+      for (oldelem <- oldres) {
+        var add2newres: List[AST] = List()
+        oldelem match {
+          case _: ForStatement => changed = true; add2newres = succ(oldelem, env)
+          case _: WhileStatement => changed = true; add2newres = succ(oldelem, env)
+          case _: DoStatement => changed = true; add2newres = succ(oldelem, env)
+          case _: IfStatement => changed = true; add2newres = succ(oldelem, env)
+          case _: ElifStatement => changed = true; add2newres = succ(oldelem, env)
+          case _ => add2newres = List(oldelem)
+        }
+        newres = newres ++ add2newres
+      }
+    }
+    newres
+  }
+
   def succ(a: Any, env: ASTEnv): List[AST] = {
     a match {
       case f@FunctionDef(_, _, _, stmt) => succ(stmt, env)
@@ -47,7 +72,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case WhileStatement(expr, _) => List(expr)
       case t@DoStatement(_, s) => simpleOrCompoundStatement(t, s, env)
       case t@IfStatement(condition, _, _, _) => List(condition)
-      case t@ElifStatement(c, _) => List(c)
+      case t@ElifStatement(c, _) => List(c) ++ getSuccSameLevel(t, env)
       case SwitchStatement(c, _) => List(c)
       case t@ReturnStatement(_) => getSuccSameLevel(t, env)
       case t@CompoundStatement(l) => getSuccSameLevel(t, env) ++ getSuccNestedLevel(l, env)
@@ -146,44 +171,33 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatement(t, el.get, env)
         res
       }
-      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ succ(thenBranch, env)
+      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatement(t, thenBranch, env)
       case _ => List()
     }
   }
 
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
-  private def followUp(e: AnyRef, env: ASTEnv): Option[List[AST]] = {
+  private def followUp(nestedastelem: AnyRef, env: ASTEnv): Option[List[AST]] = {
 
-    def getNextElemFromList(e: AnyRef, l: List[Opt[ElifStatement]]): Option[ElifStatement] = {
-      val taillist = l.dropWhile(!_.entry.eq(e)).drop(1)
-      if (taillist.isEmpty) None
-      else Some(taillist.head.entry)
-    }
-
-    val eparent = env.parent(e)
-    eparent match {
+    val surroundingparent = env.parent(nestedastelem)
+    surroundingparent match {
+      // handling of #ifdef-conditional elements
       case o: Opt[_] => followUp(o, env)
       case c: Conditional[_] => followUp(c, env)
+
+      // skip over CompoundStatement; wo do not consider it in ast-succ evaluation anyway
       case c: CompoundStatement => followUp(c, env)
-      case w : ForStatement => Some(List(w))
-      case w @ WhileStatement(e, _) => Some(List(e))
-      case w @ DoStatement(e, One(CompoundStatement(l))) => Some(List(e))   // TODO fix; same as ElifStatement in succ
-      case w @ IfStatement(_, thenBranch, elifs, elseBranch) => {
-        if (thenBranch.eq(e)) {
-          if (! elifs.isEmpty) Some(List(elifs.head))
-          else if (elseBranch.isDefined) Some(List(childAST(elseBranch)))
-          else Some(getSuccSameLevel(w, env))
-        } else if (elseBranch.eq(e)) {
-          Some(getSuccSameLevel(w, env))
-        } else {
-          getNextElemFromList(e, elifs) match {
-            case None => if (elseBranch.isDefined) Some(List(childAST(elseBranch))) else Some(getSuccSameLevel(w, env))
-            case Some(elifstmt) => Some(List(elifstmt))
-          }
-        }
-      }
-      case w @ ElifStatement(_, _) => Some(succ(env.next(w), env) ++ getSuccSameLevel(w, env))
-      case s: Statement => followUp(s, env)
+
+      // in all loop statements go back to the statement itself
+      case t: ForStatement => Some(List(t))
+      case t: WhileStatement => Some(List(t))
+      case t: DoStatement => Some(List(t))
+
+      // after control flow comes out of a branch from an IfStatement,
+      // so we go for the next element in the row
+      case t: IfStatement => Some(getSuccSameLevel(t, env))
+      case t: ElifStatement => followUp(t, env)
+      case t: Statement => followUp(t, env)
       case _ => None
     }
   }
@@ -194,14 +208,14 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   //    if yes stop; if not goto 3.
   // 3. get the parent of our node and determine successor nodes of it
   private def getSuccSameLevel(s: AST, env: ASTEnv) = {
-    val sandf = getNextIfdefBlocks(s, env)
-    val sos = getNextEqualAnnotatedSucc(s, sandf)
+    val nextifdefblocks = getNextIfdefBlocks(s, env)
+    val sos = getNextEqualAnnotatedSucc(s, nextifdefblocks)
     sos match {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val sfexp = env.get(s)._1.foldLeft(FeatureExpr.base)(_ and _)
-        val succel = getSuccFromList(sfexp, sandf.drop(1), env)
+        val sfexp = env.featureExp(s)
+        val succel = getSuccFromList(sfexp, nextifdefblocks.drop(1), env)
         succel match {
           case CFComplete(r) => r // 2.
           case CFIncomplete(r) => r ++ followUp(s, env).getOrElse(List()) // 3.
@@ -310,7 +324,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       s = s.drop(1)
 
       if (d.filter(_.eq(c)).isEmpty) {
-        r = (c, succ(c, env)) :: r
+        r = (c, succ2(c, env)) :: r
         s = s ++ r.head._2
         d = d ++ List(c)
       }

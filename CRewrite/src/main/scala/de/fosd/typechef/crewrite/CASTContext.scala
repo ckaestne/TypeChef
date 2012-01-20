@@ -14,6 +14,7 @@ trait CASTEnv {
 
     def get(elem: Any): ASTContext = astc.get(elem)
     def lfeature(elem: Any) = astc.get(elem)._1
+    def featureExp(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
     def parent(elem: Any) = astc.get(elem)._2
     def previous(elem: Any) = astc.get(elem)._3
     def next(elem: Any) = astc.get(elem)._4
@@ -45,20 +46,20 @@ trait CASTEnv {
   // create ast-neighborhood context for a given translation-unit
   def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
     assert(a != null, "ast elem is null!")
-    handleASTElems(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, ASTContext]()))
+    handleASTElem(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, ASTContext]()))
   }
 
   // handle single ast elements
   // handling is generic because we can use the product-iterator interface of case classes, which makes
   // neighborhood settings is straight forward
-  private def handleASTElems[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
+  private def handleASTElem[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
-      case l:List[_] => handleOptLists(l, parent, lfexp, env)
-      case Some(o) => handleASTElems(o, parent, lfexp, env)
+      case l:List[Opt[_]] => handleOptList(l, parent, lfexp, env)
+      case Some(o) => handleASTElem(o, parent, lfexp, env)
       case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
-          curenv = handleASTElems(elem, x, lfexp, curenv)
+          curenv = handleASTElem(elem, x, lfexp, curenv)
         }
         curenv
       }
@@ -68,7 +69,7 @@ trait CASTEnv {
 
   // handle list of Opt nodes
   // sets prev-next connections for elements and recursively calls handleASTElems
-  private def handleOptLists[T](l: List[_], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
+  private def handleOptList[T](l: List[Opt[_]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     var curenv = env
 
     // set prev and next and children
@@ -83,7 +84,7 @@ trait CASTEnv {
 
     // recursive call
     for (o@Opt(f, e) <- l) {
-      curenv = handleASTElems(e, o, f::lfexp, curenv)
+      curenv = handleASTElem(e, o, f::lfexp, curenv)
     }
     curenv
   }
