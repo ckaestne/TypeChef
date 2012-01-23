@@ -7,7 +7,6 @@ object DotGraph extends IOUtilities with CASTEnv {
 
   private def getTmpFileName() = File.createTempFile("/tmp", ".dot")
   def map2file(m: List[(AST, List[AST])], env: ASTEnv) = {
-    println(m)
     var dotstring = ""
     val fname = getTmpFileName()
     dotstring += "digraph \"" + fname.getName + "\" {" + "\n"
@@ -18,7 +17,7 @@ object DotGraph extends IOUtilities with CASTEnv {
       for (succ <- succs) dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\"\n"
     }
     dotstring = dotstring + "}\n"
-    println(dotstring)
+    println("dot filename: " + fname)
     writeToFile(fname.getAbsolutePath, dotstring)
   }
 

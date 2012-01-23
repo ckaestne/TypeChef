@@ -45,6 +45,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         oldelem match {
           case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
           case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
+          case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
           case _ => add2newres = List(oldelem)
         }
         newres = newres ++ add2newres
