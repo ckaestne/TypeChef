@@ -21,7 +21,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
-  type IfdefBlock = List[List[AST]]
+  type IfdefBlocks = List[List[AST]]
 
   def pred(a: Any, env: ASTEnv): List[AST] = {
     a match {
@@ -255,7 +255,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     List()
   }
 
-  private def getSuccNestedLevel(l: List[AST], env: ASTEnv) = {
+  private def getSuccNestedLevel(l: List[AST], env: ASTEnv): List[AST] = {
     if (l.isEmpty) List()
     else {
       val wsandf = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env).reverse, env).reverse
@@ -273,7 +273,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
 
   // returns a list next AST elems grouped according to feature expressions
-  private def getNextIfdefBlocks(s: AST, env: ASTEnv) = {
+  private def getNextIfdefBlocks(s: AST, env: ASTEnv): List[(Int, IfdefBlocks)] = {
     val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
     val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
     getTailList(s, d)
@@ -286,7 +286,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 //  }
 
   // get all succ nodes of o
-  private def getNextEqualAnnotatedSucc(o: AST, l: List[(Int, IfdefBlock)]): Option[AST] = {
+  private def getNextEqualAnnotatedSucc(o: AST, l: List[(Int, IfdefBlocks)]): Option[AST] = {
     if (l.isEmpty) return None
     val el = l.head
 
@@ -299,7 +299,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // get list with o and all following lists
-  private def getTailList(o: AST, l: List[(Int, IfdefBlock)]): List[(Int, IfdefBlock)] = {
+  private def getTailList(o: AST, l: List[(Int, IfdefBlocks)]): List[(Int, IfdefBlocks)] = {
     // get the list with o and all following lists
     // iterate each sublist of the incoming tuples (Int, List[List[Opt[_]]] combine equality check
     // with foldLeft and drop tuples in which o does not occur
@@ -308,7 +308,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // get all succ nodes of an unknown input node; useful for cases in which successor nodes occur
   // in a different block
-  private def getSuccFromList(f: FeatureExpr, l: List[(Int, IfdefBlock)], env: ASTEnv): Either[List[AST], List[AST]] = {
+  private def getSuccFromList(f: FeatureExpr, l: List[(Int, IfdefBlocks)], env: ASTEnv): Either[List[AST], List[AST]] = {
     var res = List[AST]()
     for (e <- l) {
       e match {
@@ -354,13 +354,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // group consecutive Opts in a list and return a list of list containing consecutive (feature equivalent) opts
   // e.g.:
   // List(Opt(true, Id1), Opt(fa, Id2), Opt(fa, Id3)) => List(List(Opt(true, Id1)), List(Opt(fa, Id2), Opt(fa, Id3)))
-  private def determineIfdefBlocks(l: List[AST], env: ASTEnv) = {
+  private def determineIfdefBlocks(l: List[AST], env: ASTEnv): List[List[AST]] = {
     pack[AST](env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _) equivalentTo env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _))(l)
   }
 
   // group List[Opt[_]] according to implication
   // later one should imply the not of previous ones; therefore using l.reverse
-  private def groupIfdefBlocks(l: IfdefBlock, env: ASTEnv) = {
+  private def groupIfdefBlocks(l: IfdefBlocks, env: ASTEnv) = {
     def checkImplication(a: AST, b: AST) = {
       val as = env.get(a)._1.toSet
       val bs = env.get(b)._1.toSet
@@ -374,7 +374,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // 0 -> only true values
   // 1 -> #if-(#elif)* block
   // 2 -> #if-(#elif)*-#else block
-  private def determineTypeOfGroupedIfdefBlocks(l: List[IfdefBlock], env: ASTEnv): List[(Int, IfdefBlock)] = {
+  private def determineTypeOfGroupedIfdefBlocks(l: List[IfdefBlocks], env: ASTEnv): List[(Int, IfdefBlocks)] = {
     l match {
       case (h::t) => {
         var f: List[FeatureExpr] = List()
