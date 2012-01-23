@@ -19,6 +19,7 @@ trait CASTEnv {
     def previous(elem: Any) = astc.get(elem)._3
     def next(elem: Any) = astc.get(elem)._4
     def children(elem: Any) = astc.get(elem)._5
+    def keys() = astc.keySet().toArray
 
     def add(elem: Any, newelemc: ASTContext) = {
       var curelemc: ASTContext = null
