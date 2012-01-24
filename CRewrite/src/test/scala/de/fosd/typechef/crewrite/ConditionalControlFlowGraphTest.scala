@@ -130,6 +130,21 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
+  @Test def test_simple_conditional_label_statements() {
+    val e1 = Opt(True, LabelStatement(Id("e1"), None))
+    val e2 = Opt(True, LabelStatement(Id("e2"), None))
+    val e3 = Opt(True, LabelStatement(Id("e3"), None))
+    val e4 = Opt(True, LabelStatement(Id("e4"), None))
+    val e5 = Opt(True, LabelStatement(Id("e5"), None))
+    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
+
+    val env = createASTEnv(c.value)
+    succ(e1, env) should be (List(e2.entry))
+    succ(e2, env) should be (List(e3.entry))
+    succ(e3, env) should be (List(e4.entry))
+    succ(e4, env) should be (List(e5.entry))
+  }
+
   @Test def test_conditional_labelstatements_if_elif_else() {
     val e1 = Opt(True, LabelStatement(Id("e1"), None))
     val e2 = Opt(fx, LabelStatement(Id("e2"), None))
@@ -187,6 +202,48 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     succ(e8, env) should be(List(e9.entry))
     DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
+
+  @Test def test_conditional_declaration_statement_pred() {
+    val e1 = Opt(True,
+      DeclarationStatement(
+        Declaration(
+          List(Opt(True,IntSpecifier())),
+          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e1"),List()),List(),None))))))
+    val e2 = Opt(True,
+      DeclarationStatement(
+        Declaration(
+          List(Opt(True,IntSpecifier())),
+          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e2"),List()),List(),None))))))
+    val e3 = Opt(True,
+      DeclarationStatement(
+        Declaration(
+          List(Opt(True,IntSpecifier())),
+          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e3"),List()),List(),None))))))
+    val e4 = Opt(True,
+      DeclarationStatement(
+        Declaration(
+          List(Opt(True,IntSpecifier())),
+          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e4"),List()),List(),None))))))
+    val e5 = Opt(True,
+      DeclarationStatement(
+        Declaration(
+          List(Opt(True,IntSpecifier())),
+          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e5"),List()),List(),None))))))
+
+    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
+
+    val env = createASTEnv(c.value)
+    succ(e1, env) should be (List(e2.entry))
+    succ(e2, env) should be (List(e3.entry))
+    succ(e3, env) should be (List(e4.entry))
+    succ(e4, env) should be (List(e5.entry))
+
+    pred(e5, env) should be (List(e4.entry))
+    pred(e4, env) should be (List(e3.entry))
+    pred(e3, env) should be (List(e2.entry))
+    pred(e2, env) should be (List(e1.entry))
+  }
+
 
   @Test def test_conditional_declaration_statement() {
     val e0 = Opt(True, LabelStatement(Id("e0"), None))
