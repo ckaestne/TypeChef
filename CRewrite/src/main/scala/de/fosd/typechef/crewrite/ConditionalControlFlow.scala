@@ -384,7 +384,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
     val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l.reverse, env), env), env)
+    val l1 = l.reverse
+    val m = determineIfdefBlocks(l1, env)
+    val n = groupIfdefBlocks(m, env)
+    val d = determineTypeOfGroupedIfdefBlocks(n, env)
     getTailList(s, d)
   }
 
