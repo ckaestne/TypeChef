@@ -48,7 +48,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
           case _ => add2newres = List(oldelem)
         }
-        newres = newres ++ add2newres
+
+        // only add elements that are not in newres so far
+        for (addnew <- add2newres)
+          if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = addnew :: newres
       }
     }
     newres
@@ -215,19 +218,19 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // we have to check possible successor nodes in at max three steps:
-  // 1. get direct successors with same annotation; if yes stop; if not goto 2.
+  // 1. get direct successors with same annotation; if yes stop; if not go to step 2.
   // 2. get all annotated elements at the same level and check whether we find a definite set of successor nodes
-  //    if yes stop; if not goto 3.
+  //    if yes stop; if not go to step 3.
   // 3. get the parent of our node and determine successor nodes of it
   private def getSuccSameLevel(s: AST, env: ASTEnv): List[AST] = {
     val nextifdefblocks = getNextIfdefBlocks(s, env)
-    val sos = getNextEqualAnnotatedSucc(s, nextifdefblocks)
-    sos match {
+    val neqannoastelem = getNextEqualAnnotatedASTElem(s, nextifdefblocks)
+    neqannoastelem match {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val sfexp = env.featureExp(s)
-        val succel = getSuccFromList(sfexp, nextifdefblocks.drop(1), env)
+        val fexprstmt = env.featureExpr(s)
+        val succel = getSuccFromList(fexprstmt, nextifdefblocks.drop(1), env)
         succel match {
           case Left(r) => r // 2.
           case Right(r) => r ++ followUp(s, env).getOrElse(List()) // 3.
@@ -237,21 +240,21 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // we have to check possible predecessor nodes in at max three steps:
-  // 1. get direct predecessor with same annotation; if yes top; if not goto 2.
+  // 1. get direct predecessor with same annotation; if yes stop; if not go to step 2.
   // 2. get all annotated elements at the same level and check whether we find a definite set of predecessor nodes
-  //    if yes stop; if not goto 3.
+  //    if yes stop; if not go to step 3.
   // 3. get the parent of our node and determine predecessor nodes of it
   private def getPredSameLevel(s: AST, env: ASTEnv): List[AST] = {
-//    val sandf = getNextIfdefBlocks(s, env)
-//    val sos = getNextEqualAnnotatedPred(s, sandf)
-//    sos match {
-//      // 1.
-//      case Some(x) => List(x)
-//      case None => {
-//        val sfexp = env.lfeature(s).foldLeft(FeatureExpr.base)(_ and _)
-//        val predel = getPredFromList(sfexp, sandf.)
-//      }
-//    }
+    val previfdefblocks = getPreviousIfdefBlocks(s, env)
+    val peqannoastelem = getNextEqualAnnotatedASTElem(s, previfdefblocks)
+    peqannoastelem match {
+      // 1.
+      case Some(x) => List(x)
+      case None => {
+        val sfexp = env.featureExpr(s)
+        //val predel = getPredFromList(sfexp, previfdefblocks.drop(1), env)
+      }
+    }
     List()
   }
 
@@ -270,8 +273,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-
-
   // returns a list next AST elems grouped according to feature expressions
   private def getNextIfdefBlocks(s: AST, env: ASTEnv): List[(Int, IfdefBlocks)] = {
     val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
@@ -279,14 +280,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     getTailList(s, d)
   }
 
-//  private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
-//    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-//    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
-//    getTailList(s, d.reverse).reverse
-//  }
+  private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
+    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
+    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
+    getTailList(s, d.reverse).reverse
+  }
 
-  // get all succ nodes of o
-  private def getNextEqualAnnotatedSucc(o: AST, l: List[(Int, IfdefBlocks)]): Option[AST] = {
+  private def getNextEqualAnnotatedASTElem(o: AST, l: List[(Int, IfdefBlocks)]): Option[AST] = {
     if (l.isEmpty) return None
     val el = l.head
 
@@ -354,7 +354,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // group consecutive Opts in a list and return a list of list containing consecutive (feature equivalent) opts
   // e.g.:
   // List(Opt(true, Id1), Opt(fa, Id2), Opt(fa, Id3)) => List(List(Opt(true, Id1)), List(Opt(fa, Id2), Opt(fa, Id3)))
-  private def determineIfdefBlocks(l: List[AST], env: ASTEnv): List[List[AST]] = {
+  private[crewrite] def determineIfdefBlocks(l: List[AST], env: ASTEnv): IfdefBlocks = {
     pack[AST](env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _) equivalentTo env.get(_)._1.foldLeft(FeatureExpr.base)(_ and _))(l)
   }
 
@@ -392,18 +392,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 }
 
 // defines and uses we can jump to using succ
+// beware of List[Opt[_]]!! all list elements can possibly have a different annotation
 trait Variables extends ASTNavigation {
   val uses: PartialFunction[Any, Set[Id]] = {case a: Any => findUses(a)}
 
   private def findUses(e: Any): Set[Id] = {
     e match {
-      case ForStatement(expr1, expr2, expr3, _) => {
-        var res = Set[Id]()
-        if (expr1.isDefined) res = res ++ uses(expr1.get)
-        if (expr2.isDefined) res = res ++ uses(expr2.get)
-        if (expr3.isDefined) res = res ++ uses(expr3.get)
-        res
-      }
+      case ForStatement(expr1, expr2, expr3, _) => uses(expr1) ++ uses(expr2) ++ uses(expr3)
       case ReturnStatement(Some(x)) => uses(x)
       case WhileStatement(expr, _) => uses(expr)
       case DeclarationStatement(d) => uses(d)

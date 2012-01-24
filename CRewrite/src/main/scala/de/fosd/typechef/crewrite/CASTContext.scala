@@ -14,7 +14,7 @@ trait CASTEnv {
 
     def get(elem: Any): ASTContext = astc.get(elem)
     def lfeature(elem: Any) = astc.get(elem)._1
-    def featureExp(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
+    def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
     def parent(elem: Any) = astc.get(elem)._2
     def previous(elem: Any) = astc.get(elem)._3
     def next(elem: Any) = astc.get(elem)._4
