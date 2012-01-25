@@ -390,8 +390,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     val m = determineIfdefBlocks(l1, env)
     val n = groupIfdefBlocks(m, env)
     val d = determineTypeOfGroupedIfdefBlocks(n, env)
-    val e = getTailList(s, d)
-    e
+    getTailList(s, d)
   }
 
   // o occurs somewhere in l
@@ -443,13 +442,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     var res = List[AST]()
     for (e <- l) {
       e match {
-        case (0, opts) => return Left(res ++ List(opts.head.head))
-        case (1, opts) => {
-          res = res ++ opts.flatMap({ x => List(x.reverse.head)})
-          val e_feature_expr = env.featureExpr(opts.head.head)
+        case (0, ifdef_blocks) => return Left(res ++ List(ifdef_blocks.head.head))
+        case (1, ifdef_blocks) => {
+          res = res ++ ifdef_blocks.flatMap({ x => List(x.reverse.head)})
+          val e_feature_expr = env.featureExpr(ifdef_blocks.head.head)
           if (e_feature_expr.equivalentTo(f) && e._1 == 1) return Left(res)
         }
-        case (2, opts) => return Left(res ++ opts.flatMap({ x=> List(x.head)}))
+        case (2, ifdef_blocks) => return Left(res ++ ifdef_blocks.flatMap({ x=> List(x.head)}))
       }
     }
     Right(res)
