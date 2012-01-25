@@ -21,6 +21,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
+  type IfdefBlock = List[AST]
   type IfdefBlocks = List[List[AST]]
 
   def pred(a: Any, env: ASTEnv): List[AST] = {
@@ -337,7 +338,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case Some(x) => List(x)
       case None => {
         val feature_expr_s_statement = env.featureExpr(s)
-        val predecessor_list = getPredFromList(feature_expr_s_statement, previous_ifdef_blocks, env)
+        val predecessor_list = getPredFromList(feature_expr_s_statement, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
           case Left(p_list) => p_list // 2.
           case Right(p_list) => p_list ++ followUpPred(s, env).getOrElse(List()) // 3.
@@ -371,14 +372,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case Left(p_list) => p_list
         case Right(p_list) => p_list ++ followUpPred(l.reverse.head, env).getOrElse(List())
       }
-      List()
     }
   }
 
   // returns a list next AST elems grouped according to feature expressions
   private def getNextIfdefBlocks(s: AST, env: ASTEnv): List[(Int, IfdefBlocks)] = {
     val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-    val d = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env), env)
+    val m = determineIfdefBlocks(l, env)
+    val n = groupIfdefBlocks(m, env)
+    val d = determineTypeOfGroupedIfdefBlocks(n, env)
     getTailList(s, d)
   }
 
@@ -388,27 +390,50 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     val m = determineIfdefBlocks(l1, env)
     val n = groupIfdefBlocks(m, env)
     val d = determineTypeOfGroupedIfdefBlocks(n, env)
-    getTailList(s, d)
+    val e = getTailList(s, d)
+    e
   }
 
+  // o occurs somewhere in l
+  // determine where using getElementAfterO and return the result
+  // if o does not have a next element return None
+  // otherwise return Some of the next element
   private def getNextEqualAnnotatedASTElem(o: AST, l: List[(Int, IfdefBlocks)]): Option[AST] = {
     if (l.isEmpty) return None
-    val el = l.head
+    val l_with_eq_annotated_elems_as_o = l.head._2
 
-    // take tuple with o and examine it
-    // _.map(_.eq(o)).max compares object identity and not structural identity as list.contains does
-    val il = el._2.filter(_.map(_.eq(o)).max)
-    val jl = il.head.span(_.ne(o))._2.drop(1)
-    if (! jl.isEmpty) Some(jl.head)
-    else None
+    // using eq to determine o in IfdefBlocks
+    // if found get the next element in the list and return it
+    def getElementAfterO(ls: IfdefBlocks): Option[AST] = {
+      var found_o = false
+      for (ifdef_block <- ls) {
+        found_o = false
+        for (stmt <- ifdef_block) {
+          if (found_o) return Some(stmt)
+          if (stmt.eq(o)) found_o = true
+        }
+      }
+      None
+    }
+
+    getElementAfterO(l_with_eq_annotated_elems_as_o)
   }
 
   // get list with o and all following lists
-  private def getTailList(o: AST, l: List[(Int, IfdefBlocks)]): List[(Int, IfdefBlocks)] = {
-    // get the list with o and all following lists
+  private def getTailList(s: AST, l: List[(Int, IfdefBlocks)]): List[(Int, IfdefBlocks)] = {
     // iterate each sublist of the incoming tuples (Int, List[List[Opt[_]]] combine equality check
-    // with foldLeft and drop tuples in which o does not occur
-    l.dropWhile(_._2.map(_.map(_.eq(o)).max).max.unary_!)
+    // and drop elements in which s occurs
+
+    def contains(ls: (Int, IfdefBlocks)): Boolean = {
+      for (ifdef_block <- ls._2) {
+        for (stmt <- ifdef_block) {
+          if (stmt.eq(s)) return true
+        }
+      }
+      false
+    }
+
+    l.dropWhile(contains(_).unary_!)
   }
 
   // get all succ nodes of an unknown input node; useful for cases in which successor nodes occur
@@ -435,13 +460,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     var res = List[AST]()
     for (e <- l) {
       e match {
-        case (0, opts) => return Left(res ++ List(opts.reverse.head.reverse.head))
+        case (0, opts) => return Left(res ++ List(opts.head.head))
         case (1, opts) => {
           res = res ++ opts.flatMap({ x => List(x.reverse.head)})
-          val e_feature_expr = env.featureExpr(opts.reverse.head.reverse.head)
+          val e_feature_expr = env.featureExpr(opts.head.head)
           if (e_feature_expr.equivalentTo(f) && e._1 == 1) return Left(res)
         }
-        case (2, opts) => return Left(res ++ opts.reverse.flatMap({ x=> List(x.reverse.head)}))
+        case (2, opts) => return Left(res ++ opts.flatMap({ x=> List(x.head)}))
       }
     }
     Right(res)
@@ -481,7 +506,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     pack[AST](env.featureExpr(_) equivalentTo env.featureExpr(_))(l)
   }
 
-  // group List[Opt[_]] according to implication
+  // group List[List[AST]] according their feature expressions
   // later one should imply the not of previous ones; therefore using l.reverse
   private def groupIfdefBlocks(l: IfdefBlocks, env: ASTEnv) = {
     def checkImplication(a: AST, b: AST) = {
@@ -498,12 +523,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // 1 -> #if-(#elif)* block
   // 2 -> #if-(#elif)*-#else block
   private def determineTypeOfGroupedIfdefBlocks(l: List[IfdefBlocks], env: ASTEnv): List[(Int, IfdefBlocks)] = {
+
     l match {
       case (h::t) => {
-        val f = h.map({ e => env.featureExpr(e.head) })
+        val feature_expr_over_ifdef_blocks = h.map({ e => env.featureExpr(e.head) })
 
-        if (f.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedIfdefBlocks(t, env)
-        else if (f.map(_.not()).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedIfdefBlocks(t, env)
+        if (feature_expr_over_ifdef_blocks.foldLeft(FeatureExpr.base)(_ and _).isTautology()) (0, h)::determineTypeOfGroupedIfdefBlocks(t, env)
+        else if (feature_expr_over_ifdef_blocks.map(_.not()).foldLeft(FeatureExpr.base)(_ and _).isContradiction()) (2, h.reverse)::determineTypeOfGroupedIfdefBlocks(t, env)
         else (1, h)::determineTypeOfGroupedIfdefBlocks(t, env)
       }
       case Nil => List()

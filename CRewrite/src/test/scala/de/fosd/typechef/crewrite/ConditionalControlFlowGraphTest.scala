@@ -279,7 +279,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     succ(e3, env) should be (List(e5.entry))
     succ(e4, env) should be (List(e5.entry))
 
-    pred(e5, env) should be (List(e4.entry, e3.entry, e2.entry))
+    pred(e5, env) should be (List(e4.entry, e3.entry))
     pred(e4, env) should be (List(e2.entry))
     pred(e3, env) should be (List(e2.entry))
     pred(e2, env) should be (List(e1.entry))
