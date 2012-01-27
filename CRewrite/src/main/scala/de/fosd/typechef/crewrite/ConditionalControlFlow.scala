@@ -43,6 +43,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
           case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
           case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
+          // case _: ReturnStatement => changed = true; add2newres = List()    // return is never a pred of any AST elem
           case _ => add2newres = List(oldelem)
         }
 
@@ -65,6 +66,17 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@WhileStatement(expr, _) => List(expr)
       case t@DoStatement(expr, _) => List(expr)
       case t@ForStatement(_, Some(expr2), _, _) => List(expr2) // TODO if Some(expr2) is not avail, the for contains a break
+      case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
+        var res = List[AST]()
+        if (elseBranch.isDefined) res = res ++ simpleOrCompoundStatementPred(t, elseBranch.get, env)
+        if (! elifs.isEmpty) {
+          for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
+            res = res ++ simpleOrCompoundStatementPred(elif, thenBranch, env)
+          }
+        }
+        res = res ++ simpleOrCompoundStatementPred(t, thenBranch, env)
+        res
+      }
       case s: Statement => getPredSameLevel(s, env)
       case _ => nestedPred(a, env)
     }
@@ -99,8 +111,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private def succHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
+      // ENTRY element
       case f@FunctionDef(_, _, _, stmt) => succHelper(stmt, env)
+
       case o: Opt[_] => succHelper(o.entry, env)
+
+      // loop statements
       case t@ForStatement(expr1, expr2, expr3, s) => {
         if (expr1.isDefined) List(expr1.get)
         else if (expr2.isDefined) List(expr2.get)
@@ -108,6 +124,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
       case WhileStatement(expr, _) => List(expr)
       case t@DoStatement(_, s) => simpleOrCompoundStatementSucc(t, s, env)
+
+      // conditional statements
       case t@IfStatement(condition, _, _, _) => List(condition)
       case t@ElifStatement(c, _) => List(c) ++ getSuccSameLevel(t, env)
       case SwitchStatement(c, _) => List(c)
@@ -231,12 +249,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  // handling off predecessor determination of nested structures, such as for, while, ... and previous element in a list
+  // handling of predecessor determination of nested structures, such as for, while, ... and previous element in a list
   // of statements
-  private def nestedPred(a: Any, env: ASTEnv): List[AST] = {
-    env.parent(a) match {
-      case t@ForStatement(Some(e), _, _, _) if e.eq(a.asInstanceOf[AnyRef]) => List(t)
-      case t@ForStatement(e, Some(c), i, b) if e.eq(a.asInstanceOf[AnyRef]) => {
+  private def nestedPred(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
+    env.parent(nested_ast_elem) match {
+      // loop statements
+      case t@ForStatement(Some(e), _, _, _) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => List(t)
+      case t@ForStatement(e, Some(c), i, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
         var res = List[AST]()
         if (e.isDefined) res = e.get :: res
         else res = res ++ getPredSameLevel (t, env)
@@ -244,7 +263,24 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         else res = res ++ simpleOrCompoundStatementPred(t, b, env)
         res
       }
-      case t@WhileStatement(expr, s) if expr.eq(a.asInstanceOf[AnyRef]) => getPredSameLevel(t, env) ++ simpleOrCompoundStatementPred(t, s, env)
+      case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getPredSameLevel(t, env) ++ simpleOrCompoundStatementPred(t, s, env)
+
+      // conditional statements
+      // we are in condition, so pred(IfStatement) is the result
+      // we are in thenBranch, so condition is the result
+      // we are in elseBranch, so either elifs + condition or condition only is the result
+      // otherwise
+      case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
+        var res = List[AST]()
+        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) List(t)
+        else if (thenBranch.eq(nested_ast_elem.asInstanceOf[AnyRef])) List(condition)
+        else if (elseBranch.isDefined && elseBranch.get.eq(nested_ast_elem.asInstanceOf[AnyRef])) {
+          if (elifs.isEmpty) List(condition)
+          else getPredNestedLevel(elifs, env)
+        } else {
+          predHelper(nested_ast_elem, env)
+        }
+      }
       case _ => List()
     }
   }
@@ -301,7 +337,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // we go for the previous element of the ElifStatement
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
         if (nested_ast_elem.eq(thenBranch)) Some(List(condition))
-        else if (nested_ast_elem.eq(elseBranch)) {
+        else if (elseBranch.isDefined && nested_ast_elem.eq(elseBranch.get)) {
           Some(getPredNestedLevel(elifs.reverse, env))
         }
         else {
