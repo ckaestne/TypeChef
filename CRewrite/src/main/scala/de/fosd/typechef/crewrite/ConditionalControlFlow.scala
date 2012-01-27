@@ -85,7 +85,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res = res ++ simpleOrCompoundStatementPred(t, thenBranch, env)
         res
       }
-      case t@ElifStatement(condition, _) => List(condition) ++ getPredSameLevel(t, env)
+      case t@ElifStatement(condition, _) => List(condition)
 
       case s: Statement => getPredSameLevel(s, env)
       case _ => nestedPred(a, env)
@@ -354,9 +354,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case c: CompoundStatement => followUpPred(c, env)
 
       // in all loop statements go to the statement itself
-      case t: ForStatement => followUpPred(t, env)
-      case t: WhileStatement => followUpPred(t, env)
-      case t: DoStatement => followUpPred(t, env)
+      case t: ForStatement => Some(List(t))
+      case t: WhileStatement => Some(List(t))
+      case t: DoStatement => Some(List(t))
 
       // control flow comes either out of:
       // elseBranch: elifs + condition is the result
@@ -366,7 +366,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (nested_ast_elem.eq(condition)) Some(getPredSameLevel(t, env))
         else if (nested_ast_elem.eq(childAST(thenBranch))) Some(List(condition))
         else if (elseBranch.isDefined && nested_ast_elem.eq(childAST(elseBranch.get))) {
-          Some(getPredNestedLevel(elifs, env))
+          val r = getPredNestedLevel(elifs, env)
+          Some(r)
         } else {
           var res: List[AST] = List(condition)
           val prev_elifs = elifs.reverse.dropWhile(_.entry.eq(nested_ast_elem.asInstanceOf[AnyRef]).unary_!).drop(1)

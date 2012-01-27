@@ -8,7 +8,7 @@ import de.fosd.typechef.conditional._
 // see old version: https://github.com/ckaestne/TypeChef/blob/ConditionalControlFlow/CParser/src/main/scala/de/fosd/typechef/parser/c/ASTNavigation.scala
 trait ASTNavigation extends CASTEnv {
   def parentAST(e: Any, env: ASTEnv): AST = {
-    val eparent = env.get(e)._2
+    val eparent = env.parent(e)
     eparent match {
       case o: Opt[_] => parentAST(o, env)
       case c: Conditional[_] => parentAST(c, env)
@@ -18,7 +18,7 @@ trait ASTNavigation extends CASTEnv {
   }
 
   def prevAST(e: Any, env: ASTEnv): AST = {
-    val eprev = env.get(e)._3
+    val eprev = env.previous(e)
     eprev match {
       case c: Choice[_] => lastChoice(c)
       case o: One[_] => o.value.asInstanceOf[AST]
@@ -39,7 +39,7 @@ trait ASTNavigation extends CASTEnv {
   }
 
   def nextAST(e: Any, env: ASTEnv): AST = {
-    val enext = env.get(e)._4
+    val enext = env.next(e)
     enext match {
       case c: Choice[_] => firstChoice(c)
       case o: One[_] => o.value.asInstanceOf[AST]
