@@ -16,6 +16,9 @@ import java.util.IdentityHashMap
 
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
+// TODO support for break und continue statements
+// TODO check non-variable cfg against output of llvm (clang -cc1 -analyze -cfg-dump <file>)
+// TODO finish pred implementation
 trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
@@ -44,6 +47,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         }
 
         // add only elements that are not in newres so far
+        // add them add the end to keep the order of the elements
         for (addnew <- add2newres)
           if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
       }
@@ -56,6 +60,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
       case _: FunctionDef => List()
       case o: Opt[_] => predHelper(o.entry, env)
+
+      // loop statements
+      case t@WhileStatement(expr, _) => List(expr)
+      case t@DoStatement(expr, _) => List(expr)
+      case t@ForStatement(_, Some(expr2), _, _) => List(expr2) // TODO if Some(expr2) is not avail, the for contains a break
       case s: Statement => getPredSameLevel(s, env)
       case _ => nestedPred(a, env)
     }
@@ -80,6 +89,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         }
 
         // add only elements that are not in newres so far
+        // add them add the end to keep the order of the elements
         for (addnew <- add2newres)
           if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
       }
@@ -234,6 +244,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         else res = res ++ simpleOrCompoundStatementPred(t, b, env)
         res
       }
+      case t@WhileStatement(expr, s) if expr.eq(a.asInstanceOf[AnyRef]) => getPredSameLevel(t, env) ++ simpleOrCompoundStatementPred(t, s, env)
       case _ => List()
     }
   }
@@ -347,10 +358,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // given a list of AST elements, determine successor AST elements based on feature expressions
   private def getSuccNestedLevel(l: List[AST], env: ASTEnv): List[AST] = {
     if (l.isEmpty) List()
     else {
-      val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env).reverse, env).reverse
+      val ifdef_blocks = determineIfdefBlocks(l, env)
+      val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env).reverse
+      val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env).reverse
       val list_parent_feature_expr = env.featureExpr(env.parent(l.head))
       val successor_list = determineFollowingElements(list_parent_feature_expr, typed_grouped_ifdef_blocks, env)
 
@@ -361,10 +375,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // given a list of AST elements, determine predecessor AST elements based on feature expressions
   private def getPredNestedLevel(l: List[AST], env: ASTEnv): List[AST] = {
     if (l.isEmpty) List()
     else {
-      val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(groupIfdefBlocks(determineIfdefBlocks(l, env), env).reverse, env).reverse
+      val ifdef_blocks = determineIfdefBlocks(l.reverse, env)
+      val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
+      val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
       val list_parent_feature_expr = env.featureExpr(env.parent(l.reverse.head))
       val predecessor_list = determineFollowingElements(list_parent_feature_expr, typed_grouped_ifdef_blocks, env)
 
@@ -377,20 +394,20 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // returns a list next AST elems grouped according to feature expressions
   private def getNextIfdefBlocks(s: AST, env: ASTEnv): List[(Int, IfdefBlocks)] = {
-    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-    val m = determineIfdefBlocks(l, env)
-    val n = groupIfdefBlocks(m, env)
-    val d = determineTypeOfGroupedIfdefBlocks(n, env)
-    getTailList(s, d)
+    val preve_and_next_ast_elems = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
+    val ifdef_blocks = determineIfdefBlocks(preve_and_next_ast_elems, env)
+    val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
+    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
+    getTailList(s, typed_grouped_ifdef_blocks)
   }
 
   private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
-    val l = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-    val l1 = l.reverse
-    val m = determineIfdefBlocks(l1, env)
-    val n = groupIfdefBlocks(m, env)
-    val d = determineTypeOfGroupedIfdefBlocks(n, env)
-    getTailList(s, d)
+    val prev_and_next_ast_elems = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
+    val prev_and_next_ast_elems_reversed = prev_and_next_ast_elems.reverse
+    val ifdef_blocks = determineIfdefBlocks(prev_and_next_ast_elems_reversed, env)
+    val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
+    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
+    getTailList(s, typed_grouped_ifdef_blocks)
   }
 
   // o occurs somewhere in l
@@ -467,6 +484,26 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
       if (d.filter(_.eq(c)).isEmpty) {
         r = (c, succ(c, env)) :: r
+        s = s ++ r.head._2
+        d = d ++ List(c)
+      }
+    }
+    r
+  }
+
+  // determine recursively all pred
+  def getAllPred(i: AST, env: ASTEnv) = {
+    var r = List[(AST, List[AST])]()
+    var s = List(i)
+    var d = List[AST]()
+    var c: AST = null
+
+    while (! s.isEmpty) {
+      c = s.head
+      s = s.drop(1)
+
+      if (d.filter(_.eq(c)).isEmpty) {
+        r = (c, pred(c, env)) :: r
         s = s ++ r.head._2
         d = d ++ List(c)
       }

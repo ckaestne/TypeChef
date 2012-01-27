@@ -684,6 +684,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
 
     val env = createASTEnv(a)
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
+    DotGraph.map2file(getAllPred(a.stmt.innerStatements.last.entry, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
   @Test def test_boa_hash() {
