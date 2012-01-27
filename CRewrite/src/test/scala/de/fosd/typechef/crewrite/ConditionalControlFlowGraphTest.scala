@@ -203,7 +203,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
-  @Test def test_conditional_declaration_statement_pred() {
+  @Ignore def test_conditional_declaration_statement_pred() {
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
@@ -244,7 +244,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     pred(e2, env) should be (List(e1.entry))
   }
 
-  @Test def test_conditional_declaration_statement_pred2() {
+  @Ignore def test_conditional_declaration_statement_pred2() {
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
