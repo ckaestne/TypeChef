@@ -28,44 +28,52 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   type IfdefBlocks = List[List[AST]]
 
   def pred(a: Any, env: ASTEnv): List[AST] = {
-    var oldres: List[AST] = List()
-    var newres: List[AST] = predHelper(a, env)
-    var changed = true
+    a match {
+      case f: FunctionDef => filterASTElems[ReturnStatement](f)
+      case _ => {
+        var oldres: List[AST] = List()
+        var newres: List[AST] = predHelper(a, env)
+        var changed = true
 
-    while (changed) {
-      changed = false
-      oldres = newres
-      newres = List()
+        while (changed) {
+          changed = false
+          oldres = newres
+          newres = List()
 
-      for (oldelem <- oldres) {
-        var add2newres = List[AST]()
-        oldelem match {
-          case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
-          case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
-          case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
-          // case _: ReturnStatement => changed = true; add2newres = List()    // return is never a pred of any AST elem
-          case _ => add2newres = List(oldelem)
+          for (oldelem <- oldres) {
+            var add2newres = List[AST]()
+            oldelem match {
+              case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
+
+              // return is never a pred of any other ast elem
+              case _: ReturnStatement => changed = true; add2newres = List()
+              case _ => add2newres = List(oldelem)
+            }
+
+            // add only elements that are not in newres so far
+            // add them add the end to keep the order of the elements
+            for (addnew <- add2newres)
+              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+          }
         }
-
-        // add only elements that are not in newres so far
-        // add them add the end to keep the order of the elements
-        for (addnew <- add2newres)
-          if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+        newres
       }
     }
-    newres
   }
 
   def predHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
       case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
-      case _: FunctionDef => List()
-      case o: Opt[_] => predHelper(o.entry, env)
+      case o: Opt[_] => predHelper(env.parent(o), env)
 
       // loop statements
       case t@WhileStatement(expr, _) => List(expr)
       case t@DoStatement(expr, _) => List(expr)
       case t@ForStatement(_, Some(expr2), _, _) => List(expr2) // TODO if Some(expr2) is not avail, the for contains a break
+
+      // conditional statements
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
         var res = List[AST]()
         if (elseBranch.isDefined) res = res ++ simpleOrCompoundStatementPred(t, elseBranch.get, env)
@@ -77,6 +85,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res = res ++ simpleOrCompoundStatementPred(t, thenBranch, env)
         res
       }
+      case t@ElifStatement(condition, _) => List(condition) ++ getPredSameLevel(t, env)
+
       case s: Statement => getPredSameLevel(s, env)
       case _ => nestedPred(a, env)
     }
@@ -170,6 +180,16 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // http://goo.gl/QcUOy
+  private def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[AST] = {
+    a match {
+      case x if (m.erasure.isInstance(x)) => List(x.asInstanceOf[T])
+      case l: List[_] => l.flatMap(filterASTElems[T](_))
+      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T](_))
+      case _ => List()
+    }
+  }
+
   private def iterateChildren(a: Any, l: String, env: ASTEnv, op: (Any, String, ASTEnv) => List[AST]): List[AST] = {
     env.children(a).map(
       x => x match {
@@ -213,20 +233,20 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // handling of successor determination of nested structures, such as for, while, ... and next element in a list
   // of statements
-  private def nestedSucc(a: Any, env: ASTEnv): List[AST] = {
-    val aparent = env.parent(a)
-    aparent match {
-      case t@ForStatement(Some(e), c, _, b) if e.eq(a.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatementSucc(t, b, env)
-      case t@ForStatement(_, Some(e), _, b) if e.eq(a.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatementSucc (t, b, env)
-      case t@ForStatement(_, c, Some(e), b) if e.eq(a.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatementSucc(t, b, env)
-      case t@ForStatement(_, c, i, e) if e.eq(a.asInstanceOf[AnyRef])=> {
+  private def nestedSucc(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
+    val surrounding_parent = parentAST(nested_ast_elem, env)
+    surrounding_parent match {
+      case t@ForStatement(Some(e), c, _, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatementSucc(t, b, env)
+      case t@ForStatement(_, Some(e), _, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatementSucc (t, b, env)
+      case t@ForStatement(_, c, Some(e), b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatementSucc(t, b, env)
+      case t@ForStatement(_, c, i, e) if e.eq(nested_ast_elem.asInstanceOf[AnyRef])=> {
         if (i.isDefined) List(i.get)
         else if (c.isDefined) List(c.get)
         else simpleOrCompoundStatementSucc(t, e, env)
       }
-      case t@WhileStatement(e, b) if e.eq(a.asInstanceOf[AnyRef]) => simpleOrCompoundStatementSucc(t, b, env) ++ getSuccSameLevel(t, env)
-      case t@DoStatement(e, b) if e.eq(a.asInstanceOf[AnyRef]) => simpleOrCompoundStatementSucc(t, b, env) ++ getSuccSameLevel(t, env)
-      case t@IfStatement(e, tb, elif, el) if e.eq(a.asInstanceOf[AnyRef]) => {
+      case t@WhileStatement(e, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementSucc(t, b, env) ++ getSuccSameLevel(t, env)
+      case t@DoStatement(e, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementSucc(t, b, env) ++ getSuccSameLevel(t, env)
+      case t@IfStatement(e, tb, elif, el) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
         var res = simpleOrCompoundStatementSucc(t, tb, env)
         if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)  // TODO call getSuccNestedLevel on elif does not seem right
         if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatementSucc(t, el.get, env)
@@ -235,7 +255,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
       // either go to next ElifStatement, ElseBranch, or next statement of the surrounding IfStatement
       // filtering is necessary, as else branches are not considered by getSuccSameLevel
-      case t@ElifStatement(e, thenBranch) if e.eq(a.asInstanceOf[AnyRef]) => {
+      case t@ElifStatement(e, thenBranch) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
         var res = getSuccSameLevel(t, env)
         if (res.filter(_.isInstanceOf[ElifStatement]).isEmpty) {
           env.parent(env.parent(t)) match {
@@ -252,7 +272,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // handling of predecessor determination of nested structures, such as for, while, ... and previous element in a list
   // of statements
   private def nestedPred(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
-    env.parent(nested_ast_elem) match {
+    val surrounding_parent = parentAST(nested_ast_elem, env)
+    surrounding_parent match {
       // loop statements
       case t@ForStatement(Some(e), _, _, _) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => List(t)
       case t@ForStatement(e, Some(c), i, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
@@ -264,6 +285,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res
       }
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getPredSameLevel(t, env) ++ simpleOrCompoundStatementPred(t, s, env)
+      case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementPred(t, s, env)
 
       // conditional statements
       // we are in condition, so pred(IfStatement) is the result
@@ -271,23 +293,26 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // we are in elseBranch, so either elifs + condition or condition only is the result
       // otherwise
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-        var res = List[AST]()
-        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) List(t)
-        else if (thenBranch.eq(nested_ast_elem.asInstanceOf[AnyRef])) List(condition)
-        else if (elseBranch.isDefined && elseBranch.get.eq(nested_ast_elem.asInstanceOf[AnyRef])) {
+        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) getPredSameLevel(t, env)
+        else if (childAST(thenBranch).eq(nested_ast_elem.asInstanceOf[AnyRef])) List(condition)
+        else if (elseBranch.isDefined && childAST(elseBranch.get).eq(nested_ast_elem.asInstanceOf[AnyRef])) {
           if (elifs.isEmpty) List(condition)
           else getPredNestedLevel(elifs, env)
         } else {
-          predHelper(nested_ast_elem, env)
+          getPredSameLevel(nested_ast_elem.asInstanceOf[AST], env)
         }
       }
+      case t@ElifStatement(condition, thenBranch) => {
+        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) getPredSameLevel(t, env)
+        else List(condition)
+      }
+
       case _ => List()
     }
   }
 
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
   private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
-
     nested_ast_elem match {
       case _: ReturnStatement => None
       case _ => {
@@ -319,7 +344,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // method to catch surrounding ast element, which precedes the given nested_ast_element
   private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
-    val surrounding_parent = env.parent(nested_ast_elem)
+    val surrounding_parent = parentAST(nested_ast_elem, env)
     surrounding_parent match {
       // handling of #ifdef-conditional ast elements
       case o: Opt[_] => followUpPred(o, env)
@@ -333,15 +358,24 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: WhileStatement => followUpPred(t, env)
       case t: DoStatement => followUpPred(t, env)
 
-      // after control flow comes out of a branch from an ElifStatement
-      // we go for the previous element of the ElifStatement
+      // control flow comes either out of:
+      // elseBranch: elifs + condition is the result
+      // elifs: rest of elifs + condition
+      // thenBranch: condition
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-        if (nested_ast_elem.eq(thenBranch)) Some(List(condition))
-        else if (elseBranch.isDefined && nested_ast_elem.eq(elseBranch.get)) {
-          Some(getPredNestedLevel(elifs.reverse, env))
-        }
-        else {
-          Some(getPredSameLevel(nested_ast_elem.asInstanceOf[AST], env))
+        if (nested_ast_elem.eq(condition)) Some(getPredSameLevel(t, env))
+        else if (nested_ast_elem.eq(childAST(thenBranch))) Some(List(condition))
+        else if (elseBranch.isDefined && nested_ast_elem.eq(childAST(elseBranch.get))) {
+          Some(getPredNestedLevel(elifs, env))
+        } else {
+          var res: List[AST] = List(condition)
+          val prev_elifs = elifs.reverse.dropWhile(_.entry.eq(nested_ast_elem.asInstanceOf[AnyRef]).unary_!).drop(1)
+          val elif_feature_expr = env.featureExpr(nested_ast_elem)
+          val ifdef_blocks = determineIfdefBlocks(prev_elifs, env)
+          val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
+          val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
+          res = res ++ determineFollowingElements(elif_feature_expr, typed_grouped_ifdef_blocks, env).merge
+          Some(res)
         }
       }
 
@@ -430,8 +464,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // returns a list next AST elems grouped according to feature expressions
   private def getNextIfdefBlocks(s: AST, env: ASTEnv): List[(Int, IfdefBlocks)] = {
-    val preve_and_next_ast_elems = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
-    val ifdef_blocks = determineIfdefBlocks(preve_and_next_ast_elems, env)
+    val prev_and_next_ast_elems = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
+    val ifdef_blocks = determineIfdefBlocks(prev_and_next_ast_elems, env)
     val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
     val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
     getTailList(s, typed_grouped_ifdef_blocks)

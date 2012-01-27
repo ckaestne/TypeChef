@@ -668,7 +668,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
        //   index of key, or -insertion_position -1 if key is not
        //                 in the array. This value can easily be
        //                 transformed into the position to insert it.
-
+       int a;
        while (first <= last) {
          int mid = (first + last) / 2;  // compute mid point.
          if (key > sortedArray[mid])
@@ -684,7 +684,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
 
     val env = createASTEnv(a)
     DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
-    DotGraph.map2file(getAllPred(a.stmt.innerStatements.last.entry, env), env.asInstanceOf[DotGraph.ASTEnv])
+    DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 
   @Test def test_boa_hash() {
