@@ -189,16 +189,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  // http://goo.gl/QcUOy
-  private def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[AST] = {
-    a match {
-      case x if (m.erasure.isInstance(x)) => List(x.asInstanceOf[T])
-      case l: List[_] => l.flatMap(filterASTElems[T](_))
-      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T](_))
-      case _ => List()
-    }
-  }
-
   private def iterateChildren(a: Any, l: String, env: ASTEnv, op: (Any, String, ASTEnv) => List[AST]): List[AST] = {
     env.children(a).map(
       x => x match {
@@ -415,6 +405,29 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // this method filters BreakStatements
+  // a break belongs to next outer loop (for, while, do-while)
+  // so we recursively go over the structure of the ast elems
+  // in case we find a break, we add it to the result list
+  // in case we hit another loop, we return the result list
+  private def filterBreakStatements(a: Any, env: ASTEnv) = {
+    def filterBreakStatementsHelper(a: Any, env: ASTEnv, firstloop: Boolean): List[BreakStatement] = {
+      a match {
+        case x if (x.isInstanceOf[BreakStatement]) => List(a.asInstanceOf[BreakStatement])
+        case ForStatement if (! firstloop) => List()
+        case WhileStatement if (! firstloop) => List()
+        case DoStatement if (! firstloop) => List()
+        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_, env, firstloop))
+        case x: Product => {
+          val isloop = x.isInstanceOf[ForStatement] || x.isInstanceOf[WhileStatement] || x.isInstanceOf[DoStatement]
+          x.productIterator.toList.flatMap(filterBreakStatementsHelper(_, env, isloop.unary_! && firstloop))
+        }
+      }
+    }
+
+    filterBreakStatementsHelper(a, env, true)
+  }
+
   // in predecessor determination we have to dig in into elements at certains points
   // we dig into ast that have an Conditional part, such as for, while, ...
   private def rollUp(a: AST, env: ASTEnv): List[AST] = {
@@ -432,9 +445,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
       case ElifStatement(condition, _) => List(condition)
 
-      case WhileStatement(expr, _) => List(expr)
-      case DoStatement(expr, _) => List(expr)
-      case ForStatement(_, Some(expr2), _, _) => List(expr2) // TODO if Some(expr2) is not avail, the for contains a break
+      case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
+      case t@DoStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
+      case t@ForStatement(_, Some(expr2), _, _) => List(expr2) ++ filterBreakStatements(t, env)
+      case t@ForStatement(_, _, _, _) => filterBreakStatements(t, env)
 
       case CompoundStatement(innerStatements) => getPredNestedLevel(innerStatements, env).flatMap(rollUp(_, env))
 

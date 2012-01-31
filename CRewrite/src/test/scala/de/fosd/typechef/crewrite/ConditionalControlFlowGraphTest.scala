@@ -757,6 +757,10 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     """)
 
     val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val s = getAllSucc(a, env)
+    val p = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(p, env.asInstanceOf[DotGraph.ASTEnv]))
+    compareSuccWithPred(s, env)
   }
 }
