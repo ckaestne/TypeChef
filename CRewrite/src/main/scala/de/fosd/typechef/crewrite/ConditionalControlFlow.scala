@@ -19,7 +19,6 @@ import java.util.IdentityHashMap
 // TODO support for break und continue statements
 // TODO check non-variable cfg against output of llvm (clang -cc1 -analyze -cfg-dump <file>)
 // TODO finish pred implementation
-
 class CCFGCache {
   private var cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
 
@@ -92,7 +91,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case c: Conditional[_] => predHelper(childAST(c), env)
 
       // loop statements
-      case t@WhileStatement(expr, _) => List(expr)
       case t@DoStatement(expr, _) => List(expr)
       case t@ForStatement(_, Some(expr2), _, _) => List(expr2) // TODO if Some(expr2) is not avail, the for contains a break
 
@@ -313,7 +311,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         else res = res ++ simpleOrCompoundStatementPred(t, b, env)
         res
       }
-      case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getPredSameLevel(t, env) ++ simpleOrCompoundStatementPred(t, s, env)
+      case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) => List(t) ++ simpleOrCompoundStatementPred(t, s, env)
       case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementPred(t, s, env)
 
       // conditional statements
@@ -361,7 +359,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           // after control flow comes out of a branch from an IfStatement,
           // we go for the next element in the row
           case t: IfStatement => Some(getSuccSameLevel(t, env))
-          case t@ElifStatement(condition, _) => Some(List(condition))
+          case t: ElifStatement => followUpSucc(t, env)
 
           case t: Statement => followUpSucc(t, env)
           case _ => None
@@ -377,9 +375,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // skip over CompoundStatement: we do not consider it in ast-pred evaluation anyway
       case c: CompoundStatement => followUpPred(c, env)
 
-      // in all loop statements go to the statement itself
+      //
       case t: ForStatement => Some(List(t))
-      case t: WhileStatement => Some(List(t))
+      case t@WhileStatement(expr, _) => {
+        if (nested_ast_elem.eq(expr)) Some(List(t))
+        else Some(List(expr))
+      }
       case t: DoStatement => Some(List(t))
 
       // control flow comes either out of:
@@ -567,7 +568,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     Right(res)
   }
 
-  // determine recursively all succs
+  // determine recursively all succs check
   def getAllSucc(i: AST, env: ASTEnv) = {
     var r = List[(AST, List[AST])]()
     var s = List(i)
