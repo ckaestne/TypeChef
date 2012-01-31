@@ -103,7 +103,6 @@ object PrettyPrinter {
             case ExprList(exprs) => sep(exprs, _ ~~ "," ~~ _)
 
             case CompoundStatement(innerStatements) =>
-                println(innerStatements)
                 block(sep(innerStatements, _ * _))
             case EmptyStatement() => ";"
             case ExprStatement(expr: Expr) => expr ~ ";"
