@@ -422,6 +422,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           val isloop = x.isInstanceOf[ForStatement] || x.isInstanceOf[WhileStatement] || x.isInstanceOf[DoStatement]
           x.productIterator.toList.flatMap(filterBreakStatementsHelper(_, env, isloop.unary_! && firstloop))
         }
+        case _ => List()
       }
     }
 
