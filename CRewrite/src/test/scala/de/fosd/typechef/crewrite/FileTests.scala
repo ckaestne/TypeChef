@@ -3,11 +3,25 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr.{FeatureModel, NoFeatureModel}
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.{Ignore, Test}
-import de.fosd.typechef.parser.c.{FunctionDef, TestHelper}
+import de.fosd.typechef.parser.c.{AST, FunctionDef, TestHelper}
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with ConditionalControlFlow {
   val folder = "testfiles/"
+
+  // given an ast element x and its successors lx: x should be in pred(lx)
+  def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
+    var res = true
+    for ((ast_elem, succs) <- l) {
+      val s = succs.flatMap(pred(_, env))
+      if (!s.isEmpty)
+        if (s.map(_.eq(ast_elem)).max.unary_!) {
+          println(ast_elem + " is not in the predecessor list of its own successors!")
+          res = false
+        }
+    }
+    res
+  }
 
   private def check(filename: String, featureExpr: FeatureModel = NoFeatureModel) = {
     println("analysis " + filename)
@@ -51,7 +65,11 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   }
 
   private def intraCfgFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    DotGraph.map2file(getAllSucc(f, env), env.asInstanceOf[DotGraph.ASTEnv])
+    val s = getAllSucc(f, env)
+    val p = getAllPred(f, env)
+    println("succs: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
+    compareSuccWithPred(s, env)
   }
 
   // own testsuite
