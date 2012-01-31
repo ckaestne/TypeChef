@@ -235,13 +235,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private def nestedSucc(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
     val surrounding_parent = parentAST(nested_ast_elem, env)
     surrounding_parent match {
-      case t@ForStatement(Some(e), c, _, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatementSucc(t, b, env)
-      case t@ForStatement(_, Some(e), _, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatementSucc (t, b, env)
-      case t@ForStatement(_, c, Some(e), b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => if (c.isDefined) List(c.get) else simpleOrCompoundStatementSucc(t, b, env)
-      case t@ForStatement(_, c, i, e) if e.eq(nested_ast_elem.asInstanceOf[AnyRef])=> {
-        if (i.isDefined) List(i.get)
-        else if (c.isDefined) List(c.get)
-        else simpleOrCompoundStatementSucc(t, e, env)
+      case t@ForStatement(Some(expr1), expr2, _, s) if expr1.eq(nested_ast_elem.asInstanceOf[AnyRef]) => if (expr2.isDefined) List(expr2.get) else simpleOrCompoundStatementSucc(t, s, env)
+      case t@ForStatement(_, Some(expr2), _, s) if expr2.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getSuccSameLevel(t, env) ++ simpleOrCompoundStatementSucc (t, s, env)
+      case t@ForStatement(_, expr2, Some(expr3), s) if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) => if (expr2.isDefined) List(expr2.get) else simpleOrCompoundStatementSucc(t, s, env)
+      case t@ForStatement(_, expr2, expr3, s) if childAST(s).eq(nested_ast_elem.asInstanceOf[AnyRef])=> {
+        if (expr3.isDefined) List(expr3.get)
+        else if (expr2.isDefined) List(expr2.get)
+        else simpleOrCompoundStatementSucc(t, s, env)
       }
       case t@WhileStatement(e, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementSucc(t, b, env) ++ getSuccSameLevel(t, env)
       case t@DoStatement(e, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementSucc(t, b, env) ++ getSuccSameLevel(t, env)
@@ -275,7 +275,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     surrounding_parent match {
       // loop statements
       case t@ForStatement(Some(e), _, _, _) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => List(t)
-      case t@ForStatement(e, Some(c), i, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
+      case t@ForStatement(_, _, Some(expr3), s) if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementPred(t, s, env)
+      case t@ForStatement(e, Some(c), i, b) => {
         var res = List[AST]()
         if (e.isDefined) res = e.get :: res
         else res = res ++ getPredSameLevel(t, env)
@@ -323,8 +324,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           // skip over CompoundStatement; we do not consider it in ast-succ evaluation anyway
           case c: CompoundStatement => followUpSucc(c, env)
 
-          // in all loop statements go back to the statement itself
-          case t: ForStatement => Some(List(t)) // TODO expr2 or look for
+          // in all loop statements go back to the condition that controls staying or leaving the loop
+          case t@ForStatement(_, expr2, expr3, s) => {
+            if (expr3.isDefined) Some(List(expr3.get))
+            else if (expr2.isDefined) Some(List(expr2.get))
+            else Some(simpleOrCompoundStatementPred(t, s, env))
+          }
           case WhileStatement(expr, s) => Some(List(expr))
           case DoStatement(expr, s) => Some(List(expr))
 
