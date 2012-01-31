@@ -149,8 +149,12 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
         r match {
             case p.Success(r, rest) =>
                 assertEquals("not at end " + rest, rest.tokens.size, expectUnparsedTokens)
-                assertEquals(
-                    expectedEntries.map(o => Opt(o.feature and baseFeature, o.entry)), r
+                val exp: List[Opt[Lit]] = expectedEntries.map(o => Opt(o.feature and baseFeature, o.entry))
+                val act: List[Opt[Lit]] = r.asInstanceOf[List[Opt[Lit]]]
+                assert(
+                    exp.size == act.size &&
+                        (exp zip act).forall(p => (p._1.feature equivalentTo p._2.feature) && p._1.entry == p._2.entry),
+                    "expected: " + exp + "\nactual   : " + act
                 )
             case _ => fail("unsuccessful result " + r)
         }

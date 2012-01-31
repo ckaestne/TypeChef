@@ -515,7 +515,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         fenv("l") should be(_i)
         fenv("a") should be(_i)
         fenv("b") should be(x_i)
-        fenv("c") should be(Choice(fx.not, _l, _i))
+        fenv("c") should be(Choice(fx, _i, _l))
         venv("x") should be(_i)
         fenv("x") should be(Choice(fx, _l, _i))
         fenv("q") should be(x_i)

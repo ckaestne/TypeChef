@@ -64,12 +64,35 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                 "int a;}")
         }
     }
+
     test("function redefinition") {
         expect(false) {
             check("int foo() {}" +
                 "int foo() {}")
         }
+        expect(true) {
+            check("""
+                #ifdef X
+                int foo() {}
+                #else
+                int foo() {}
+                #endif
+            """)
+        }
+        expect(true) {
+            check("""
+                #ifdef X
+                int foo() {}
+                #endif
+                int a;
+                #if !defined(X) && !defined(Y)
+                int foo() {}
+                #endif
+            """)
+        }
     }
+
+
     test("function declaration/definition") {
         expect(true) {
             check("int foo();" +
@@ -174,4 +197,22 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
     //
     //    }
 
+    test("function declaration redeclaration - reparsing?") {
+        expect(true) {
+            check("""int x(){}
+            #ifdef OUTER
+            static
+            #ifdef INLINE
+            inline __attribute__((always_inline))
+            #endif
+            #ifndef INLINE
+            inline
+            #endif
+            int foo() {}
+            int bar() {}
+            #endif
+            int end() {}
+            """)
+        }
+    }
 }
