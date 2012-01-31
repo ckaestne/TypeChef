@@ -682,7 +682,13 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     """)
 
     val env = createASTEnv(a)
-    DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv])
+    val s1 = System.currentTimeMillis()
+    val succs = getAllSucc(a, env)
+    val s2 = System.currentTimeMillis()
+    val succ2 = getAllSucc(a, env)
+    val s3 = System.currentTimeMillis()
+    println("uncached: ", (s2-s1), " vs. cached: ", (s3-s2))
+    DotGraph.map2file(succs, env.asInstanceOf[DotGraph.ASTEnv])
     DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv])
   }
 

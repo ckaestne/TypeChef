@@ -19,47 +19,67 @@ import java.util.IdentityHashMap
 // TODO support for break und continue statements
 // TODO check non-variable cfg against output of llvm (clang -cc1 -analyze -cfg-dump <file>)
 // TODO finish pred implementation
+
+class CCFGCache {
+  private var cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
+
+  def update(k: Any, v: List[AST]) { cache.put(k, v) }
+  def lookup(k: Any): Option[List[AST]] = {
+    val v = cache.get(k)
+    if (v != null) Some(v)
+    else None
+  }
+}
+
 trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
+  private val predCCFGCache = new CCFGCache()
+  private val succCCFGCache = new CCFGCache()
 
   type IfdefBlock = List[AST]
   type IfdefBlocks = List[List[AST]]
 
   def pred(a: Any, env: ASTEnv): List[AST] = {
-    a match {
-      case f: FunctionDef => filterASTElems[ReturnStatement](f)
-      case _ => {
-        var oldres: List[AST] = List()
-        var newres: List[AST] = predHelper(a, env)
-        var changed = true
+    predCCFGCache.lookup(a) match {
+      case Some(v) => v
+      case None => {
+        a match {
+        case f: FunctionDef => filterASTElems[ReturnStatement](f)
+        case _ => {
+          var oldres: List[AST] = List()
+          var newres: List[AST] = predHelper(a, env)
+          var changed = true
 
-        while (changed) {
-          changed = false
-          oldres = newres
-          newres = List()
+          while (changed) {
+            changed = false
+            oldres = newres
+            newres = List()
 
-          for (oldelem <- oldres) {
-            var add2newres = List[AST]()
-            oldelem match {
-              case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
+            for (oldelem <- oldres) {
+              var add2newres = List[AST]()
+              oldelem match {
+                case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
+                case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
+                case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
 
-              // return is never a pred of any other ast elem
-              case _: ReturnStatement => changed = true; add2newres = List()
-              case _ => add2newres = List(oldelem)
+                // return is never a pred of any other ast elem
+                case _: ReturnStatement => changed = true; add2newres = List()
+                case _ => add2newres = List(oldelem)
+              }
+
+              // add only elements that are not in newres so far
+              // add them add the end to keep the order of the elements
+              for (addnew <- add2newres)
+                if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
             }
-
-            // add only elements that are not in newres so far
-            // add them add the end to keep the order of the elements
-            for (addnew <- add2newres)
-              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
           }
+          predCCFGCache.update(a, newres)
+          newres
         }
-        newres
       }
+     }
     }
   }
 
@@ -94,30 +114,36 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   def succ(a: Any, env: ASTEnv): List[AST] = {
-    var oldres: List[AST] = List()
-    var newres: List[AST] = succHelper(a, env)
-    var changed = true
+    succCCFGCache.lookup(a) match {
+      case Some(v) => v
+      case None => {
+        var oldres: List[AST] = List()
+        var newres: List[AST] = succHelper(a, env)
+        var changed = true
 
-    while (changed) {
-      changed = false
-      oldres = newres
-      newres = List()
-      for (oldelem <- oldres) {
-        var add2newres: List[AST] = List()
-        oldelem match {
-          case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
-          case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
-          case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
-          case _ => add2newres = List(oldelem)
+        while (changed) {
+          changed = false
+          oldres = newres
+          newres = List()
+          for (oldelem <- oldres) {
+            var add2newres: List[AST] = List()
+            oldelem match {
+              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _ => add2newres = List(oldelem)
+            }
+
+            // add only elements that are not in newres so far
+            // add them add the end to keep the order of the elements
+            for (addnew <- add2newres)
+              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+          }
         }
-
-        // add only elements that are not in newres so far
-        // add them add the end to keep the order of the elements
-        for (addnew <- add2newres)
-          if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+        succCCFGCache.update(a, newres)
+        newres
       }
     }
-    newres
   }
 
   private def succHelper(a: Any, env: ASTEnv): List[AST] = {
