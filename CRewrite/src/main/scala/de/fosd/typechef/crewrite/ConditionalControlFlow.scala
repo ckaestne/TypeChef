@@ -41,6 +41,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   type IfdefBlock = List[AST]
   type IfdefBlocks = List[List[AST]]
 
+  // determines predecessor of a given element
+  // results are cached for secondary evaluation
   def pred(a: Any, env: ASTEnv): List[AST] = {
     predCCFGCache.lookup(a) match {
       case Some(v) => v
