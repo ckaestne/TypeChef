@@ -334,9 +334,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case c: CompoundStatement => followUpSucc(c, env)
 
           // in all loop statements go back to the statement itself
-          case t: ForStatement => Some(List(t))
-          case t: WhileStatement => Some(List(t))
-          case t: DoStatement => Some(List(t))
+          case t: ForStatement => Some(List(t)) // TODO expr2 or look for
+          case WhileStatement(expr, s) => Some(List(expr))
+          case DoStatement(expr, s) => Some(List(expr))
 
           // after control flow comes out of a branch from an IfStatement,
           // we go for the next element in the row
@@ -430,6 +430,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res = res ++ simpleOrCompoundStatementPred(t, thenBranch, env)
         res
       }
+      case ElifStatement(condition, _) => List(condition)
 
       case WhileStatement(expr, _) => List(expr)
       case DoStatement(expr, _) => List(expr)

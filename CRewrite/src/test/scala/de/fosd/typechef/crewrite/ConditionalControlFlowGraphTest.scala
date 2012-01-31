@@ -8,17 +8,18 @@ import org.junit.{Ignore, Test}
 
 class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables with CASTEnv {
 
-  // given an ast element x: x should be in pred(succ(x))
-  def comparePredAndSucc(l: List[(AST, List[AST])], env: ASTEnv) = {
+  // given an ast element x and its successors lx: x should be in pred(lx)
+  def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
+    var res = true
     for ((ast_elem, succs) <- l) {
-      for (se <- succs) {
-        val s = pred(se, env)
-
-        if (!s.isEmpty)
-          if (s.map(_.eq(ast_elem)).max.unary_!)
-            println("pred/succ does not match for: " + ast_elem)
-      }
+      val s = succs.flatMap(pred(_, env))
+      if (!s.isEmpty)
+        if (s.map(_.eq(ast_elem)).max.unary_!) {
+          println(ast_elem + " is not in the predecessor list of its own successors!")
+          res = false
+        }
     }
+    res
   }
 
   @Test def test_if_the_else() {
@@ -698,7 +699,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     val succs = getAllSucc(a, env)
     println("succs: " + DotGraph.map2file(succs, env.asInstanceOf[DotGraph.ASTEnv]))
     println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    comparePredAndSucc(getAllSucc(a, env), env)
+    compareSuccWithPred(getAllSucc(a, env), env)
   }
 
   @Test def test_boa_hash() {
