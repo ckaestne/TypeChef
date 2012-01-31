@@ -66,7 +66,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   def predHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
       case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
-      case o: Opt[_] => predHelper(env.parent(o), env)
+      case o: Opt[_] => predHelper(childAST(o), env)
+      case c: Conditional[_] => predHelper(childAST(c), env)
 
       // loop statements
       case t@WhileStatement(expr, _) => List(expr)
@@ -302,6 +303,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           getPredSameLevel(nested_ast_elem.asInstanceOf[AST], env)
         }
       }
+      // pred of thenBranch is the condition itself
+      // and if we are in condition, we strike for a previous elifstatement or the if itself using
+      // getPredSameLevel
       case t@ElifStatement(condition, thenBranch) => {
         if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) getPredSameLevel(t, env)
         else List(condition)
@@ -316,12 +320,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     nested_ast_elem match {
       case _: ReturnStatement => None
       case _ => {
-        val surrounding_parent = env.parent(nested_ast_elem)
+        val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
-          // handling of #ifdef-conditional elements
-          case o: Opt[_] => followUpSucc(o, env)
-          case c: Conditional[_] => followUpSucc(c, env)
-
           // skip over CompoundStatement; we do not consider it in ast-succ evaluation anyway
           case c: CompoundStatement => followUpSucc(c, env)
 
@@ -333,7 +333,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           // after control flow comes out of a branch from an IfStatement,
           // we go for the next element in the row
           case t: IfStatement => Some(getSuccSameLevel(t, env))
-          case t: ElifStatement => followUpSucc(t, env)
+          case t@ElifStatement(condition, _) => Some(List(condition))
 
           case t: Statement => followUpSucc(t, env)
           case _ => None
@@ -346,10 +346,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
     val surrounding_parent = parentAST(nested_ast_elem, env)
     surrounding_parent match {
-      // handling of #ifdef-conditional ast elements
-      case o: Opt[_] => followUpPred(o, env)
-      case c: Conditional[_] => followUpPred(c, env)
-
       // skip over CompoundStatement: we do not consider it in ast-pred evaluation anyway
       case c: CompoundStatement => followUpPred(c, env)
 
@@ -379,6 +375,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           Some(res)
         }
       }
+      case t@ElifStatement(condition, _) => Some(List(condition))
 
       case t: Statement => followUpPred(t, env)
       case _ => None
