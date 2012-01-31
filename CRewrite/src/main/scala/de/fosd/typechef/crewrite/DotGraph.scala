@@ -21,8 +21,8 @@ object DotGraph extends IOUtilities with CASTEnv {
       for (succ <- succs) dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\"\n"
     }
     dotstring = dotstring + "}\n"
-    println("dot filename: " + fname)
     writeToFile(fname.getAbsolutePath, dotstring)
+    fname
   }
 
   private def esc(i: String) = {
