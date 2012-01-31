@@ -350,8 +350,9 @@ class CParserTest {
         					|#endif""", p.statement)
         assertParseAnyResult(One(CompoundStatement(List(
             Opt(fa, IfStatement(a, ExprStatement(b), List(), None)),
-            Opt(fa, ExprStatement(c)),
-            Opt(fa.not, IfStatement(a, ExprStatement(c), List(), None))))),
+            Opt(fa.not, IfStatement(a, ExprStatement(c), List(), None)),
+            Opt(fa, ExprStatement(c))
+        ))),
             """|{
         		|if (a)
     			  			|#ifdef a

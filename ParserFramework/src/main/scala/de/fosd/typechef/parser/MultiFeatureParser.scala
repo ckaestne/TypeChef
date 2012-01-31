@@ -52,6 +52,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] =
             thisParser(in, feature).map(f)
     }
+
     class MapWithPositionParser[T, U](thisParser: => MultiParser[T], f: T => U) extends MultiParser[U] {
         name = "map"
         def a = thisParser
@@ -462,8 +463,33 @@ try {
      *
      * XXX check whether there can be problems due to comparing two AST nodes. if a list produces
      * several equal AST nodes, can joinLists swallow some of them?
+     *
+     * nonprivate only for test cases
      */
-    private def joinOptLists[T](inA: List[Opt[T]], inB: List[Opt[T]], feature: FeatureExpr = null): List[Opt[T]] = {
+    protected def joinOptLists[T](a: List[Opt[T]], b: List[Opt[T]], feature: FeatureExpr = null): List[Opt[T]] = {
+        if (!a.isEmpty && !b.isEmpty && a.head.entry == b.head.entry) {
+            //== needed because the ASTs were constructed independently
+            val lastEntry = Opt(a.head.feature or b.head.feature, a.head.entry)
+            lastEntry :: _joinOptLists(a.tail, b.tail, feature)
+        } else
+            _joinOptLists(a, b, feature)
+    }
+    //@tailrec
+    private def _joinOptLists[T](a: List[Opt[T]], b: List[Opt[T]], feature: FeatureExpr): List[Opt[T]] = {
+        if (a eq b)
+            a
+        else if (a.isEmpty && b.isEmpty)
+            a
+        else if (!a.isEmpty && !b.isEmpty && a.head.entry == b.head.entry)
+            Opt(a.head.feature or b.head.feature, a.head.entry) :: _joinOptLists(a.tail, b.tail, feature)
+        else if (a.size > b.size)
+            a.head.and(feature) :: _joinOptLists(a.tail, b, feature)
+        else
+            b.head.andNot(feature) :: _joinOptLists(a, b.tail, feature)
+    }
+
+
+    protected def joinOptLists_old[T](inA: List[Opt[T]], inB: List[Opt[T]], feature: FeatureExpr = null): List[Opt[T]] = {
         var a = inA;
         var b = inB
         var lastEntry: Opt[T] = null;
@@ -518,7 +544,7 @@ try {
 
         //join anything, data does not matter, only position in tokenstream
         private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]): MultiParseResult[Sealable] =
-            res.join(ctx).map(_.flatten((f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList))))
+            res.join(ctx).map(_.flatten((f, a: Sealable, b: Sealable) => Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList, f))))
 
         private def anyUnsealed(parseResult: MultiParseResult[Sealable]) =
             parseResult.exists(!_.isSealed)
@@ -656,7 +682,9 @@ try {
             case None => List()
         }
         val jr: MultiParser[Conditional[List[Opt[T]]]] = r.join
-        jr ^^ {_.flatten[List[Opt[T]]]((f, a, b) => joinOptLists(a, b, f))}
+        jr ^^ {
+            _.flatten[List[Opt[T]]]((f, a, b) => joinOptLists(a, b, f))
+        }
     }
 
     /**see repSepOptIntern, consumes tailing separator(!) **/
@@ -696,7 +724,7 @@ try {
             res.join(ctx).map(_.flatten(joinSealable))
 
         private def joinSealable(f: FeatureExpr, a: Sealable, b: Sealable) =
-            Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList), (a.freeSeparator) and (b.freeSeparator))
+            Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList, f), (a.freeSeparator) and (b.freeSeparator))
 
         //        private def flattenConditionalSealable(r:Co)
         //XXX a.freesep OR a.freesep is incorrect. is AND sufficient?
