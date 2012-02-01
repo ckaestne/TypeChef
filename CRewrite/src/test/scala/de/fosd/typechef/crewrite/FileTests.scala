@@ -630,4 +630,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_widechar_1() {assert(checkCfg("widechar-1.c"))}
   @Test def test_zero_strct_1() {assert(checkCfg("zero-strct-1.c"))}
   @Test def test_zero_strct_2() {assert(checkCfg("zero-strct-2.c"))}
+
+  // bugfinding
+  @Test def test_bug01() {assert(checkCfg("bug01.c"))}
 }

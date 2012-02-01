@@ -434,7 +434,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     filterBreakStatementsHelper(a, env, true)
   }
 
-  // in predecessor determination we have to dig in into elements at certains points
+  // in predecessor determination we have to dig in into elements at certain points
   // we dig into ast that have an Conditional part, such as for, while, ...
   private def rollUp(a: AST, env: ASTEnv): List[AST] = {
     a match {
@@ -587,7 +587,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       e match {
         case (0, ifdef_blocks) => return Left(res ++ List(ifdef_blocks.head.head))
         case (1, ifdef_blocks) => {
-          res = res ++ ifdef_blocks.flatMap({ x => List(x.reverse.head)})
+          res = res ++ ifdef_blocks.flatMap({ x => List(x.head)})
           val e_feature_expr = env.featureExpr(ifdef_blocks.head.head)
           if (e_feature_expr.equivalentTo(f) && e._1 == 1) return Left(res)
         }
