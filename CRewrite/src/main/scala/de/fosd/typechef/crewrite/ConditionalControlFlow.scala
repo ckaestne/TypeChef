@@ -11,8 +11,12 @@ import java.util.IdentityHashMap
 // infrastructure
 // at first sight the implementation of succ with a lot of private
 // function seems overly complicated; however the structure allows
-// also to implement pred (although I'm not sure, we need to have
-// this), so we could exchange this implementation for another one.
+// also to implement pred
+// the function definition an ast belongs to serves as the entry
+// and exit node of the cfg, because we do not have special ast
+// nodes for that, or we store everything in a ccfg itself with
+// special nodes for entry and exit such as
+// http://soot.googlecode.com/svn/DUA_Forensis/src/dua/method/CFG.java
 
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
@@ -317,7 +321,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
   private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
     nested_ast_elem match {
-      case _: ReturnStatement => None
+      case _: ReturnStatement => Some(List(findPriorFuncDefinition(nested_ast_elem, env)))
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
@@ -339,6 +343,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case t: ElifStatement => followUpSucc(t, env)
 
           case t: Statement => followUpSucc(t, env)
+
+//          case t: FunctionDef => Some(List(t))
           case _ => None
         }
       }
@@ -352,7 +358,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // skip over CompoundStatement: we do not consider it in ast-pred evaluation anyway
       case c: CompoundStatement => followUpPred(c, env)
 
-      //
       case t: ForStatement => Some(List(t))
       case t@WhileStatement(expr, _) => {
         if (nested_ast_elem.eq(expr)) Some(List(t))
@@ -384,6 +389,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@ElifStatement(condition, _) => Some(List(condition))
 
       case t: Statement => followUpPred(t, env)
+      case t: FunctionDef => Some(List(t))
       case _ => None
     }
   }
