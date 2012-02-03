@@ -10,9 +10,23 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   val folder = "testfiles/"
 
   // given an ast element x and its successors lx: x should be in pred(lx)
-  def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
+  def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): Boolean = {
+    // check that number of nodes match
+    if (lsuccs.size != lpreds.size) {
+      println("number of nodes in ccfg does not match")
+      return false
+    }
+
+    // check that number of edges match
+    val number_of_lsuccs_edges = lsuccs.map(_._2.size).sum
+    val number_of_lpreds_edges = lpreds.map(_._2.size).sum
+    if (number_of_lsuccs_edges != number_of_lpreds_edges) {
+      println("number of edges in ccfg does not match")
+      return false
+    }
+
     var res = true
-    for ((ast_elem, succs) <- l) {
+    for ((ast_elem, succs) <- lsuccs) {
       val s = succs.flatMap(pred(_, env))
       if (!s.isEmpty)
         if (s.map(_.eq(ast_elem)).max.unary_!) {
@@ -57,7 +71,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     val p = getAllPred(f, env)
     println("succs: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
     println("preds: " + DotGraph.map2file(p, env.asInstanceOf[DotGraph.ASTEnv]))
-    compareSuccWithPred(s, env)
+    compareSuccWithPred(s, p, env)
   }
 
   // own testsuite
@@ -633,4 +647,5 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
 
   // bugfinding
   @Test def test_bug01() {assert(checkCfg("bug01.c"))}
+  @Test def test_bug02() {assert(checkCfg("bug02.c"))}
 }

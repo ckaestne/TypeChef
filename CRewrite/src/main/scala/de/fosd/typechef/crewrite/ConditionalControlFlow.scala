@@ -50,41 +50,36 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     predCCFGCache.lookup(a) match {
       case Some(v) => v
       case None => {
-        a match {
-        case f: FunctionDef => filterASTElems[ReturnStatement](f)
-        case _ => {
-          var oldres: List[AST] = List()
-          var newres: List[AST] = predHelper(a, env)
-          var changed = true
+        var oldres: List[AST] = List()
+        var newres: List[AST] = predHelper(a, env)
+        var changed = true
 
-          while (changed) {
-            changed = false
-            oldres = newres
-            newres = List()
+        while (changed) {
+          changed = false
+          oldres = newres
+          newres = List()
 
-            for (oldelem <- oldres) {
-              var add2newres = List[AST]()
-              oldelem match {
-                case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
-                case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
-                case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
+          for (oldelem <- oldres) {
+            var add2newres = List[AST]()
+            oldelem match {
+              case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
 
-                // return is never a pred of any other ast elem
-                case _: ReturnStatement => changed = true; add2newres = List()
-                case _ => add2newres = List(oldelem)
-              }
-
-              // add only elements that are not in newres so far
-              // add them add the end to keep the order of the elements
-              for (addnew <- add2newres)
-                if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+              // return is never a pred of any other ast elem
+              case _: ReturnStatement => changed = true; add2newres = List()
+              case _ => add2newres = List(oldelem)
             }
+
+            // add only elements that are not in newres so far
+            // add them add the end to keep the order of the elements
+            for (addnew <- add2newres)
+              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
           }
-          predCCFGCache.update(a, newres)
-          newres
         }
+        predCCFGCache.update(a, newres)
+        newres
       }
-     }
     }
   }
 
@@ -93,6 +88,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
       case o: Opt[_] => predHelper(childAST(o), env)
       case c: Conditional[_] => predHelper(childAST(c), env)
+
+      case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), env) ++ filterASTElems[ReturnStatement](f)
+      case CompoundStatement(innerStatements) => getPredNestedLevel(innerStatements, env)
 
       case s: Statement => getPredSameLevel(s, env)
       case _ => nestedPred(a, env)
@@ -117,7 +115,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _ => add2newres = List(oldelem)
+              case _ if (! oldelem.eq(a.asInstanceOf[AnyRef])) => add2newres = List(oldelem)
+              case _ =>
             }
 
             // add only elements that are not in newres so far
@@ -253,6 +252,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         var res = simpleOrCompoundStatementSucc(t, tb, env)
         if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)  // TODO call getSuccNestedLevel on elif does not seem right
         if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatementSucc(t, el.get, env)
+        if (elif.isEmpty && ! el.isDefined) res = res ++ getSuccSameLevel(t, env)
         res
       }
 
@@ -344,7 +344,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
           case t: Statement => followUpSucc(t, env)
 
-//          case t: FunctionDef => Some(List(t))
+          case t: FunctionDef => Some(List(t))
           case _ => None
         }
       }
@@ -444,7 +444,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // we dig into ast that have an Conditional part, such as for, while, ...
   private def rollUp(a: AST, env: ASTEnv): List[AST] = {
     a match {
-      case t@IfStatement(_, thenBranch, elifs, elseBranch) => {
+      case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
         var res = List[AST]()
         if (elseBranch.isDefined) res = res ++ simpleOrCompoundStatementPred(t, elseBranch.get, env)
         if (! elifs.isEmpty) {
@@ -453,6 +453,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           }
         }
         res = res ++ simpleOrCompoundStatementPred(t, thenBranch, env)
+        res = res ++ List(condition)
         res
       }
       case ElifStatement(condition, _) => List(condition)
