@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr.{FeatureModel, NoFeatureModel}
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.{Ignore, Test}
-import de.fosd.typechef.parser.c.{AST, FunctionDef, TestHelper}
+import de.fosd.typechef.parser.c.{PrettyPrinter, AST, FunctionDef, TestHelper}
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with ConditionalControlFlow {
@@ -19,21 +19,56 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
 
     // check that number of edges match
     var res = true
-    val number_of_lsuccs_edges = lsuccs.map(_._2.size).sum
-    val number_of_lpreds_edges = lpreds.map(_._2.size).sum
-    if (number_of_lsuccs_edges != number_of_lpreds_edges) {
-      println("number of edges in ccfg does not match")
-      res = false
+    var succ_edges: List[(AST, AST)] = List()
+    for ((ast_elem, succs) <- lsuccs) {
+      for (succ <- succs) {
+        succ_edges = (ast_elem, succ) :: succ_edges
+      }
     }
 
-    for ((ast_elem, succs) <- lsuccs) {
-      val s = succs.flatMap(pred(_, env))
-      if (!s.isEmpty)
-        if (s.map(_.eq(ast_elem)).max.unary_!) {
-          println(ast_elem + " is not in the predecessor list of its own successors!")
-          res = false
-        }
+    var pred_edges: List[(AST, AST)] = List()
+    for ((ast_elem, preds) <- lpreds) {
+      for (pred <- preds) {
+        pred_edges = (ast_elem, pred) :: pred_edges
+      }
     }
+
+    // check succ/pred connection and print out missing connections
+    // given two ast elems:
+    //   a
+    //   b
+    // we check (a1, b1) successor
+    // against  (b2, a2) predecessor
+    for ((a1, b1) <- succ_edges) {
+      var isin = false
+      for ((b2, a2) <- pred_edges) {
+        if (a1.eq(a2) && b1.eq(b2))
+          isin = true
+      }
+      if (! isin) {
+        System.err.println(PrettyPrinter.print(b1), " -> ", PrettyPrinter.print(a1), " is missing in preds")
+        res = false
+      }
+    }
+
+    // check pred/succ connection and print out missing connections
+    // given two ast elems:
+    //  a
+    //  b
+    // we check (b1, a1) predecessor
+    // against  (a2, b2) successor
+    for ((b1, a1) <- pred_edges) {
+      var isin = false
+      for ((a2, b2) <- succ_edges) {
+        if (a1.eq(a2) && b1.eq(b2))
+          isin = true
+      }
+      if (! isin) {
+        System.err.println(PrettyPrinter.print(a1), " -> ", PrettyPrinter.print(b1), " is missing in succs")
+        res = false
+      }
+    }
+
     res
   }
 

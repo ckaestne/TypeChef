@@ -20,9 +20,8 @@ import java.util.IdentityHashMap
 
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
-// TODO support for break und continue statements
-// TODO check non-variable cfg against output of llvm (clang -cc1 -analyze -cfg-dump <file>)
-// TODO finish pred implementation
+// TODO return statement handling
+// TODO label and goto handling
 class CCFGCache {
   private var cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
 
@@ -65,9 +64,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
               case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
               case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
-
-              // return is never a pred of any other ast elem
-              case _: ReturnStatement => changed = true; add2newres = List()
               case _ => add2newres = List(oldelem)
             }
 
@@ -321,13 +317,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
   private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
     nested_ast_elem match {
-      case _: ReturnStatement => Some(List(findPriorFuncDefinition(nested_ast_elem, env)))
+      case _: ReturnStatement => Some(getSuccSameLevel(parentAST(nested_ast_elem, env), env) ++ List(findPriorFuncDefinition(nested_ast_elem, env)))
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
-          // skip over CompoundStatement; we do not consider it in ast-succ evaluation anyway
-          // case c: CompoundStatement => followUpSucc(c, env)
-
           // in all loop statements go back to the condition that controls staying or leaving the loop
           case t@ForStatement(_, expr2, expr3, s) => {
             if (expr3.isDefined) Some(List(expr3.get))
@@ -373,8 +366,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (nested_ast_elem.eq(condition)) Some(getPredSameLevel(t, env))
         else if (nested_ast_elem.eq(childAST(thenBranch))) Some(List(condition))
         else if (elseBranch.isDefined && nested_ast_elem.eq(childAST(elseBranch.get))) {
-          val r = getPredNestedLevel(elifs, env)
-          Some(r)
+          if (! elifs.isEmpty)
+            Some(getPredNestedLevel(elifs, env))
+          else
+            Some(List(condition))
         } else {
           var res: List[AST] = List(condition)
           val prev_elifs = elifs.reverse.dropWhile(_.entry.eq(nested_ast_elem.asInstanceOf[AnyRef]).unary_!).drop(1)
@@ -453,7 +448,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           }
         }
         res = res ++ simpleOrCompoundStatementPred(t, thenBranch, env)
-        res = res ++ List(condition)
+
+        if (elifs.isEmpty && ! elseBranch.isDefined)
+          res = res ++ List(condition)
         res
       }
       case ElifStatement(condition, _) => List(condition)
