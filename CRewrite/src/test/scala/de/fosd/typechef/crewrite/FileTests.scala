@@ -18,14 +18,14 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     }
 
     // check that number of edges match
+    var res = true
     val number_of_lsuccs_edges = lsuccs.map(_._2.size).sum
     val number_of_lpreds_edges = lpreds.map(_._2.size).sum
     if (number_of_lsuccs_edges != number_of_lpreds_edges) {
       println("number of edges in ccfg does not match")
-      return false
+      res = false
     }
 
-    var res = true
     for ((ast_elem, succs) <- lsuccs) {
       val s = succs.flatMap(pred(_, env))
       if (!s.isEmpty)
