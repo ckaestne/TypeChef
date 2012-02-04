@@ -123,8 +123,9 @@ object FeatureModel {
                 else
                     entries(0).toInt
                 maxId = scala.math.max(id, maxId)
-                //only interested in variables with _1
-                val varname = "CONFIG_" + (if (entries(1).endsWith("_1")) entries(1).substring(0, entries(1).length - 2) else entries(1))
+                val varname = "CONFIG_" + (/*if (entries(1).endsWith("_m")) entries(1).substring(0, entries(1).length - 2)+"_MODULE" else*/ entries(1))
+                if (variables contains varname)
+                    assert(false, "variable " + varname + " declared twice")
                 variables = variables.updated(varname, id)
             } else if ((line startsWith "p ") || (line.trim.size == 0)) {
                 //comment, do nothing

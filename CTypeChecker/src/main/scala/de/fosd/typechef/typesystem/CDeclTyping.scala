@@ -31,8 +31,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
 
     def getTypenameType(typename: TypeName, featureExpr: FeatureExpr, env: Env): Conditional[CType] = typename match {
-        case TypeName(specs, None) => constructType(specs, featureExpr, env)
-        case TypeName(specs, Some(decl)) => getAbstractDeclaratorType(decl, constructType(specs, featureExpr, env), featureExpr, env)
+        case TypeName(specs, None) => constructType(specs, featureExpr, env, typename)
+        case TypeName(specs, Some(decl)) => getAbstractDeclaratorType(decl, constructType(specs, featureExpr, env, typename), featureExpr, env)
     }
 
 
@@ -46,11 +46,11 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         l.filter(o => ((o.feature) and ctx).isSatisfiable)
 
 
-    def constructType(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+    def constructType(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env, locationForErrorMsg: AST): Conditional[CType] = {
         val specifiersFiltered = filterDeadSpecifiers(specifiers, featureExpr)
         //unwrap variability
         val exploded: Conditional[List[Specifier]] = explodeOptList(specifiersFiltered)
-        Conditional.combine(exploded.mapf(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env))) simplify (featureExpr)
+        Conditional.combine(exploded.mapf(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env, locationForErrorMsg))) simplify (featureExpr)
     }
 
 
@@ -78,7 +78,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             }).exists((x: Boolean) => x)
 
 
-    private def constructTypeOne(specifiers: List[Specifier], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+    private def constructTypeOne(specifiers: List[Specifier], featureExpr: FeatureExpr, env: Env, locationForErrorMsg: AST): Conditional[CType] = {
         //type specifiers
         var types = List[Conditional[CType]]()
         for (specifier <- specifiers) specifier match {
@@ -195,7 +195,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         var eenv = env.addVars(enumDecl, false, env.scope)
         val varDecl = if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
-            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv)
+            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
 
             for (Opt(f, init) <- decl.init) yield {
                 val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
@@ -249,7 +249,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
 
     def declType(specs: List[Opt[Specifier]], decl: Declarator, attributes: List[Opt[AttributeSpecifier]], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
-        var ctype = getDeclaratorType(decl, constructType(specs, featureExpr, env), featureExpr, env)
+        var ctype = getDeclaratorType(decl, constructType(specs, featureExpr, env, decl), featureExpr, env)
         //postprocessing filters for __attribute__
         ctype = filterTransparentUnion(ctype, attributes)
         if (contains__mode__attribute(attributes))
@@ -280,7 +280,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     //shorthand
     protected def getDeclarationType(specifiers: List[Opt[Specifier]], decl: Declarator, featureExpr: FeatureExpr, env: Env) =
-        getDeclaratorType(decl, constructType(specifiers, featureExpr, env), featureExpr, env)
+        getDeclaratorType(decl, constructType(specifiers, featureExpr, env, decl), featureExpr, env)
 
     protected def getDeclaratorType(decl: Declarator, returnType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
         val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions, featureExpr, env)
@@ -327,9 +327,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     private def getParameterTypes(parameterDecls: List[Opt[ParameterDeclaration]], featureExpr: FeatureExpr, env: Env): List[Opt[CType]] = {
         val r: List[Opt[Conditional[CType]]] = for (Opt(f, param) <- parameterDecls) yield param match {
-            case PlainParameterDeclaration(specifiers) => Opt(f, constructType(specifiers, featureExpr and f, env))
-            case ParameterDeclarationD(specifiers, decl) => Opt(f, getDeclaratorType(decl, constructType(specifiers, featureExpr and f, env), featureExpr and f, env))
-            case ParameterDeclarationAD(specifiers, decl) => Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers, featureExpr and f, env), featureExpr and f, env))
+            case p@PlainParameterDeclaration(specifiers) => Opt(f, constructType(specifiers, featureExpr and f, env, p))
+            case p@ParameterDeclarationD(specifiers, decl) => Opt(f, getDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
+            case p@ParameterDeclarationAD(specifiers, decl) => Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
             case VarArgs() => Opt(f, One(CVarArgs()))
         }
         Conditional.flatten(r)
@@ -352,7 +352,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 }
             //for unnamed fields, if they are struct or union inline their fields
             //cf. http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
-            if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList, featureExpr and f, env) match {
+            if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList, featureExpr and f, env, structDeclaration) match {
                 case One(CAnonymousStruct(fields, _)) => result = result ++ fields
                 //                case CStruct(name, _) => //TODO inline as well
                 case _ => //don't care about other types

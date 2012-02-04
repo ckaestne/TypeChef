@@ -49,7 +49,8 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = No
             println("check " + externalDefCounter + "/" + iast.defs.size + ". line " + externalDef.getPositionFrom.getLine + ". err " + errors.size)
     }
     override def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) =
-        if (condition.isSatisfiable(featureModel)) {
+    //first check without feature model for performance reasons
+        if (condition.isSatisfiable() && condition.isSatisfiable(featureModel)) {
             val e = new TypeError(severity, condition, msg, where)
             errors = e :: errors
             println("  - " + e)
