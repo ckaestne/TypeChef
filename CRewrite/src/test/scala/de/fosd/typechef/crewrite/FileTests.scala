@@ -95,7 +95,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     val ast = parseFile(inputStream, filename, folder)
     val new_ast = prepareAST(ast)
     val env = createASTEnv(new_ast)
-    println(new_ast)
 
     // filter function definitions and run cfg determination on it
     val function_defs = filterASTElems[FunctionDef](new_ast)
