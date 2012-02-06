@@ -174,6 +174,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (f == null) getSuccSameLevel(t, env)
         else labelLookup(f, l, env).asInstanceOf[List[AST]]
       }
+      // in case we have an indirect goto dispatch all goto statements
+      // within the function (this is our invariant) are possible targets of this goto
+      // so fetch the function statement and filter for all label statements
+      case t@GotoStatement(PointerDerefExpr(_)) => filterASTElems[LabelStatement](findPriorFuncDefinition(t, env), env)
 
       case t: Statement => getSuccSameLevel(t, env)
       case t => nestedSucc(t, env)
