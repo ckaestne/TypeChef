@@ -18,6 +18,9 @@ import java.util.IdentityHashMap
 // special nodes for entry and exit such as
 // http://soot.googlecode.com/svn/DUA_Forensis/src/dua/method/CFG.java
 
+// iso/iec 9899 standard; committee draft
+// http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1124.pdf
+
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
 // TODO return statement handling
@@ -171,6 +174,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (f == null) getSuccSameLevel(t, env)
         else labelLookup(f, l, env).asInstanceOf[List[AST]]
       }
+
       case t: Statement => getSuccSameLevel(t, env)
       case t => nestedSucc(t, env)
     }
@@ -419,7 +423,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private def filterBreakStatements(a: Any, env: ASTEnv) = {
     def filterBreakStatementsHelper(a: Any, env: ASTEnv, firstloop: Boolean): List[BreakStatement] = {
       a match {
-        case x if (x.isInstanceOf[BreakStatement]) => List(a.asInstanceOf[BreakStatement])
+        case t: BreakStatement => List(t)
         case ForStatement if (! firstloop) => List()
         case WhileStatement if (! firstloop) => List()
         case DoStatement if (! firstloop) => List()
@@ -433,6 +437,18 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
 
     filterBreakStatementsHelper(a, env, true)
+  }
+
+  // although the standard says that a case statement only has one default statement
+  // we may have optional default statements
+  private def filterDefaultStatements(a: Any, env: ASTEnv): List[DefaultStatement] = {
+    a match {
+      case SwitchStatement => List()
+      case t: DefaultStatement => List(t)
+      case l: List[_] => l.flatMap(filterDefaultStatements(_, env))
+      case x: Product => x.productIterator.toList.flatMap(filterDefaultStatements(_, env))
+      case _ => List()
+    }
   }
 
   // in predecessor determination we have to dig in into elements at certain points
@@ -454,6 +470,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res
       }
       case ElifStatement(condition, _) => List(condition)
+      case t@SwitchStatement(expr, s) => filterBreakStatements(t, env) ++ filterDefaultStatements(s, env).flatMap(rollUp(_, env))
+      case DefaultStatement(s) if (s.isDefined) => simpleOrCompoundStatementPred(parentAST(a, env), s.get, env)
 
       case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@DoStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
