@@ -67,6 +67,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
               case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
               case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case _: ReturnStatement if (! a.isInstanceOf[FunctionDef]) => changed = true; add2newres = List()
               case _ => add2newres = List(oldelem)
             }
 
@@ -84,7 +85,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   def predHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
-      case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
+      case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env) ++ getPredSameLevel(w, env)
 
       case o: Opt[_] => predHelper(childAST(o), env)
       case c: Conditional[_] => predHelper(childAST(c), env)

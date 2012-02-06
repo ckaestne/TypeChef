@@ -1072,6 +1072,13 @@ void bar() {
                 """, p.translationUnit)
     }
 
+    @Test
+    def test_bug03 {
+      assertParseableAST("""
+      a(){int**b[]={&&c};c:;}
+      """, p.translationUnit)
+    }
+
     private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExpr.base, ast)
     }
