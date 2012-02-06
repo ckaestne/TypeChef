@@ -85,6 +85,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   def predHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
       case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env)
+
       case o: Opt[_] => predHelper(childAST(o), env)
       case c: Conditional[_] => predHelper(childAST(c), env)
 
@@ -215,11 +216,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // lookup all goto with matching ids or those using indirect goto dispatch
+  // indirect goto dispatch are possible candidates for this label because
+  // evaluating the expression of the goto might lead to the given label
   private def gotoLookup(a: Any, l: String, env: ASTEnv): List[AST] = {
     a match {
-      case e @ GotoStatement(Id(n)) if (n == l) => List(e)
-      case e : AST => iterateChildren(e, l, env, gotoLookup)
-      case o : Opt[_] => iterateChildren(o, l, env, gotoLookup)
+      case e@GotoStatement(Id(n)) if (n == l) => List(e)
+      case e@GotoStatement(PointerDerefExpr(_)) => List(e)
+      case e: AST => iterateChildren(e, l, env, gotoLookup)
+      case o: Opt[_] => iterateChildren(o, l, env, gotoLookup)
     }
   }
 
