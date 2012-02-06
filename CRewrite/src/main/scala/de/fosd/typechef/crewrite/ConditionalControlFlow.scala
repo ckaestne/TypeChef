@@ -151,7 +151,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@IfStatement(condition, _, _, _) => List(condition)
       case t@ElifStatement(c, _) => List(c) ++ getSuccSameLevel(t, env)
       case SwitchStatement(c, _) => List(c)
-      case t@ReturnStatement(_) => getSuccSameLevel(t, env)
+      case t@ReturnStatement(_) => List(findPriorFuncDefinition(t, env))
       case t@CompoundStatement(l) => getSuccNestedLevel(l, env)
       case t@BreakStatement() => {
         val f = followUpSucc(t, env)
