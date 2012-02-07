@@ -109,14 +109,10 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     compareSuccWithPred(s, p, env)
   }
 
-  // own testsuite
-  @Test def test_else_if_chains() {
-    assert(checkCfg("test_else_if_chains.c"))
-  }
-
   // gcc testsuite
   // using llvm and clang, one can compute non-variability-aware cfgs with
   // clang -cc1 -analyze -cfg-dump <test file>
+  // clang does not support nested function definitions; here we ignore tests with nested function definitions
   @Test def test_20000105_1() {assert(checkCfg("20000105-1.c"))}
   @Test def test_20000105_2() {assert(checkCfg("20000105-2.c"))}
   @Test def test_20000120_1() {assert(checkCfg("20000120-1.c"))}
@@ -689,4 +685,5 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug01() {assert(checkCfg("bug01.c"))}
   @Test def test_bug02() {assert(checkCfg("bug02.c"))}
   @Test def test_bug03() {assert(checkCfg("bug03.c"))}
+  @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
 }
