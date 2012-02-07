@@ -387,7 +387,9 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_920410_2() {assert(checkCfg("920410-2.c"))}
   @Test def test_920411_2() {assert(checkCfg("920411-2.c"))}
   @Test def test_920413_1() {assert(checkCfg("920413-1.c"))}
-  @Test def test_920415_1() {assert(checkCfg("920415-1.c"))}
+
+  // this test makes use of nested functions, which we do omit for now
+  @Ignore def test_920415_1() {assert(checkCfg("920415-1.c"))}
   @Test def test_920428_1() {assert(checkCfg("920428-1.c"))}
   @Test def test_920428_2() {assert(checkCfg("920428-2.c"))}
   @Test def test_920428_3() {assert(checkCfg("920428-3.c"))}
@@ -654,8 +656,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_inline_1() {assert(checkCfg("inline-1.c"))}
 
   // both tests fail because both contain dead code
-  @Ignore def test_labels_1() {assert(checkCfg("labels-1.c"))}
-  @Ignore def test_labels_2() {assert(checkCfg("labels-2.c"))}
+  @Test def test_labels_1() {assert(!checkCfg("labels-1.c"))}
+  @Test def test_labels_2() {assert(!checkCfg("labels-2.c"))}
 
   @Test def test_labels_3() {assert(checkCfg("labels-3.c"))}
   @Test def test_libcall_1() {assert(checkCfg("libcall-1.c"))}
