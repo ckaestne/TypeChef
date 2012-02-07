@@ -47,12 +47,12 @@ object PrettyPrinter {
 
 
     private def ppConditional(e: Conditional[AST], list_feature_expr: List[FeatureExpr]): Doc = e match {
-        case One(c: AST) => prettyPrint(c)
+        case One(c: AST) => prettyPrint(c, list_feature_expr)
         case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a, list_feature_expr) * "#else" * prettyPrint(b, list_feature_expr) * "#endif"
     }
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
-        if (e.feature == FeatureExpr.base || list_feature_expr.contains(e.feature)) prettyPrint(e.entry)
+        if (e.feature == FeatureExpr.base || list_feature_expr.contains(e.feature)) prettyPrint(e.entry, list_feature_expr)
         else "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry, e.feature::list_feature_expr) * "#endif"
     }
 
