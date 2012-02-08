@@ -218,7 +218,9 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20010518_1() {assert(checkCfg("20010518-1.c"))}
   @Ignore def test_20010518_2() {assert(checkCfg("20010518-2.c"))}
   @Test def test_20010525_1() {assert(checkCfg("20010525-1.c"))}
-  @Test def test_20010605_1() {assert(checkCfg("20010605-1.c"))}
+
+  // nested function definition
+  @Ignore def test_20010605_1() {assert(checkCfg("20010605-1.c"))}
   @Test def test_20010605_2() {assert(checkCfg("20010605-2.c"))}
 
   // uses gnu assember; prettyprinter fails
