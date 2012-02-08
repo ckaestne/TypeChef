@@ -95,6 +95,14 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  def findPriorASTElem[T <: AST](a: Any, env: ASTEnv)(implicit m: ClassManifest[T]): Option[T] = {
+    a match {
+      case x if (m.erasure.isInstance(x)) => Some(x.asInstanceOf[T])
+      case x: Product => findPriorASTElem[T](parentAST(x, env), env)
+      case null => None
+    }
+  }
+
   private def lastChoice(x: Choice[_]): AST = {
     x.elseBranch match {
       case c: Choice[_] => lastChoice(c)

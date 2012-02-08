@@ -23,8 +23,6 @@ import java.util.IdentityHashMap
 
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
-// TODO return statement handling
-// TODO label and goto handling
 class CCFGCache {
   private var cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
 
@@ -40,6 +38,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry
+
   private val predCCFGCache = new CCFGCache()
   private val succCCFGCache = new CCFGCache()
 
@@ -64,10 +63,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           for (oldelem <- oldres) {
             var add2newres = List[AST]()
             oldelem match {
-              case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: ReturnStatement if (! a.isInstanceOf[FunctionDef]) => changed = true; add2newres = List()
+              case IfStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case SwitchStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
+              case ReturnStatement if (! a.isInstanceOf[FunctionDef]) => changed = true; add2newres = List()
               case _ => add2newres = List(oldelem)
             }
 
@@ -85,7 +85,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   def predHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
-      case w@LabelStatement(Id(n), _) => gotoLookup(findPriorFuncDefinition(w, env), n, env) ++ getPredSameLevel(w, env)
+      case w@LabelStatement(Id(n), _) => {
+        findPriorASTElem[FunctionDef](w, env) match {
+          case None => assert(false, "label statements should always occur within a function definition"); List()
+          case Some(f) => gotoLookup(f, n, env) ++ getPredSameLevel(w, env)
+        }
+      }
 
       case o: Opt[_] => predHelper(childAST(o), env)
       case c: Conditional[_] => predHelper(childAST(c), env)
@@ -113,9 +118,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           for (oldelem <- oldres) {
             var add2newres: List[AST] = List()
             oldelem match {
-              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case IfStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case SwitchStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _ if (! oldelem.eq(a.asInstanceOf[AnyRef])) => add2newres = List(oldelem)
               case _ =>
             }
@@ -152,7 +158,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@IfStatement(condition, _, _, _) => List(condition)
       case t@ElifStatement(c, _) => List(c)
       case SwitchStatement(c, _) => List(c)
-      case t@ReturnStatement(_) => List(findPriorFuncDefinition(t, env))
+      case t@ReturnStatement(_) => {
+        findPriorASTElem[FunctionDef](t, env) match {
+          case None => assert(false, "return statement should always occur within a function statement"); List()
+          case Some(f) => List(f)
+        }
+      }
       case t@CompoundStatement(l) => getSuccNestedLevel(l, env)
       case t@BreakStatement() => {
         val f = followUpSucc(t, env)
@@ -168,33 +179,27 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           }
           case WhileStatement(c, _) => List(c)
           case DoStatement(c, _) => List(c)
-          case _ => List() // TODO
+          case _ => List()
         } else getSuccSameLevel(t, env)
       }
       case t@GotoStatement(Id(l)) => {
-        val f = findPriorFuncDefinition(t, env)
-        if (f == null) getSuccSameLevel(t, env)
-        else labelLookup(f, l, env).asInstanceOf[List[AST]]
+        findPriorASTElem[FunctionDef](t, env) match {
+          case None => assert(false, "goto statement should always occur within a function definition"); List()
+          case Some(f) => labelLookup(f, l, env)
+        }
       }
       // in case we have an indirect goto dispatch all goto statements
       // within the function (this is our invariant) are possible targets of this goto
       // so fetch the function statement and filter for all label statements
-      case t@GotoStatement(PointerDerefExpr(_)) => filterASTElems[LabelStatement](findPriorFuncDefinition(t, env), env)
+      case t@GotoStatement(PointerDerefExpr(_)) => {
+        findPriorASTElem[FunctionDef](t, env) match {
+          case None => assert(false, "goto statement should always occur within a function definition"); List()
+          case Some(f) => filterASTElems[LabelStatement](f)
+        }
+      }
 
       case t: Statement => getSuccSameLevel(t, env)
       case t => nestedSucc(t, env)
-    }
-  }
-
-  private def findPriorFuncDefinition(a: Any, env: ASTEnv): FunctionDef = {
-    a match {
-      case f: FunctionDef => f
-      case o: Any => {
-        val oparent = env.parent(o)
-        if (oparent != null) findPriorFuncDefinition(oparent, env)
-        else null
-      }
-      case _ => null
     }
   }
 
@@ -236,9 +241,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def simpleOrCompoundStatementPred(p: AST, c: Conditional[_], env: ASTEnv) = {
+  private def simpleOrCompoundStatementPred(a: AST, c: Conditional[_], env: ASTEnv) = {
     c.asInstanceOf[One[_]].value match {
-      case CompoundStatement(l) => if (l.isEmpty) List(p) else getPredNestedLevel(l, env)
+      case CompoundStatement(l) => getPredNestedLevel(l, env)
       case s: Statement => List(s)
     }
   }
@@ -260,7 +265,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@DoStatement(e, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => simpleOrCompoundStatementSucc(t, b, env) ++ getSuccSameLevel(t, env)
       case t@IfStatement(e, tb, elif, el) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
         var res = simpleOrCompoundStatementSucc(t, tb, env)
-        if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)  // TODO call getSuccNestedLevel on elif does not seem right
+        if (! elif.isEmpty) res = res ++ getSuccNestedLevel(elif, env)
         if (elif.isEmpty && el.isDefined) res = res ++ simpleOrCompoundStatementSucc(t, el.get, env)
         if (elif.isEmpty && ! el.isDefined) res = res ++ getSuccSameLevel(t, env)
         res
@@ -277,6 +282,22 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           }
         }
         res ++ simpleOrCompoundStatementSucc(t, thenBranch, env)
+      }
+
+      // the switch statement behaves like a dynamic goto statement;
+      // based on the expression we jump to one of the case statements or default statements
+      // after the jump the case/default statements do not matter anymore
+      // when hitting a break statement, we jump to the end of the switch
+      case t@SwitchStatement(expr, s) => {
+        var res: List[AST] = List()
+        if (expr.eq(nested_ast_elem.asInstanceOf[AnyRef])) {
+          res = filterCaseStatements(s, env)
+          val dcase = filterDefaultStatements(s,  env)
+
+          if (dcase.isEmpty) res = res ++ getSuccSameLevel(t, env)
+          else res = res ++ dcase
+        }
+        res
       }
       case _ => List()
     }
@@ -360,7 +381,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
   private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
     nested_ast_elem match {
-      case _: ReturnStatement => Some(getSuccSameLevel(parentAST(nested_ast_elem, env), env) ++ List(findPriorFuncDefinition(nested_ast_elem, env)))
+      case _: ReturnStatement => {
+        findPriorASTElem[FunctionDef](nested_ast_elem, env) match {
+          case None => assert(false, "return statement should always occur within a function statement"); Some(List())
+          case Some(f) => Some(List(f))
+        }
+      }
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
@@ -387,51 +413,67 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // method returns a prior
+  private def findSurroundingASTElemForBreak(a: Any, env: ASTEnv): Option[AST] = {
+    a match {
+      case t: ForStatement => Some(t)
+      case t: DoStatement => Some(t)
+      case t: WhileStatement => Some(t)
+      case t: SwitchStatement => Some(t)
+      case x: Product => {
+        val aparent = parentAST(a, env)
+        assert(aparent != null, "break statement does not appear in context of a switch/for/do-while/while")
+        findSurroundingASTElemForBreak(aparent, env)
+      }
+      case null => None
+    }
+  }
+
   // method to catch surrounding ast element, which precedes the given nested_ast_element
   private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
-    val surrounding_parent = parentAST(nested_ast_elem, env)
-    surrounding_parent match {
-      // skip over CompoundStatement: we do not consider it in ast-pred evaluation anyway
-      case c: CompoundStatement => followUpPred(c, env)
+    nested_ast_elem match {
 
-      case t: ForStatement => Some(List(t))
-      case t@WhileStatement(expr, _) => {
-        if (nested_ast_elem.eq(expr)) Some(List(t))
-        else Some(List(expr))
+      // default statements belong only to switch statements
+      case DefaultStatement => {
+        val prior_switch = findPriorASTElem[SwitchStatement](nested_ast_elem, env)
+        assert(prior_switch.isDefined, "default statement without surrounding switch")
+        Some(getPredSameLevel(prior_switch.get, env))
       }
-      case t: DoStatement => Some(List(t))
 
-      // control flow comes either out of:
-      // elseBranch: elifs + condition is the result
-      // elifs: rest of elifs + condition
-      // thenBranch: condition
-      case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-        if (nested_ast_elem.eq(condition)) Some(getPredSameLevel(t, env))
-        else if (nested_ast_elem.eq(childAST(thenBranch))) Some(List(condition))
-        else if (elseBranch.isDefined && nested_ast_elem.eq(childAST(elseBranch.get))) {
-          if (! elifs.isEmpty)
-            Some(getPredNestedLevel(elifs, env))
-          else
-            Some(List(condition))
-        } else {
-          var res: List[AST] = List()
-          val prev_elifs = elifs.reverse.dropWhile(_.entry.eq(nested_ast_elem.asInstanceOf[AnyRef]).unary_!).drop(1)
-          val elif_feature_expr = env.featureExpr(nested_ast_elem)
-          val ifdef_blocks = determineIfdefBlocks(prev_elifs, env)
-          val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
-          val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
-          res = res ++ determineFollowingElements(elif_feature_expr, typed_grouped_ifdef_blocks, env).merge
+      // break statements belong to switch statements but also appear in loops
+      case BreakStatement => { None }
 
-          // if no previous elif statement is found the result is condition
-          if (! res.isEmpty) Some(res)
-          else Some(List(condition))
+      case _ => {
+        val surrounding_parent = parentAST(nested_ast_elem, env)
+        surrounding_parent match {
+          case t: ForStatement => Some(List(t))
+          case t@WhileStatement(expr, _) => {
+            if (nested_ast_elem.eq(expr)) Some(List(t))
+            else Some(List(expr))
+          }
+          case t: DoStatement => Some(List(t))
+
+          // control flow comes either out of:
+          // elseBranch: elifs + condition is the result
+          // elifs: rest of elifs + condition
+          // thenBranch: condition
+          case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
+            if (nested_ast_elem.eq(condition)) Some(getPredSameLevel(t, env))
+            else if (nested_ast_elem.eq(childAST(thenBranch))) Some(List(condition))
+            else if (elseBranch.isDefined && nested_ast_elem.eq(childAST(elseBranch.get))) {
+              if (! elifs.isEmpty) Some(getPredNestedLevel(elifs, env))
+              else Some(List(condition))
+            } else {
+              Some(predElifStatement(nested_ast_elem.asInstanceOf[ElifStatement], env))
+            }
+          }
+          case t@ElifStatement(condition, _) => Some(List(condition))
+
+          case t: Statement => Some(getPredSameLevel(t, env))
+          case t: FunctionDef => Some(List(t))
+          case _ => None
         }
       }
-      case t@ElifStatement(condition, _) => Some(List(condition))
-
-      case t: Statement => Some(getPredSameLevel(t, env))
-      case t: FunctionDef => Some(List(t))
-      case _ => None
     }
   }
 
@@ -479,6 +521,17 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
 
     filterBreakStatementsHelper(a, env, true)
+  }
+
+  // this method filters all CaseStatements
+  private def filterCaseStatements(a: Any, env: ASTEnv): List[CaseStatement] = {
+    a match {
+      case t: CaseStatement => List(t)
+      case SwitchStatement => List()
+      case l: List[_] => l.flatMap(filterCaseStatements(_, env))
+      case x: Product => x.productIterator.toList.flatMap(filterCaseStatements(_, env))
+      case _ => List()
+    }
   }
 
   // although the standard says that a case statement only has one default statement
