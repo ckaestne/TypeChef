@@ -414,7 +414,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
-          // in all loop statements go back to the condition that controls staying or leaving the loop
+          // depending on in which part of the loop we are, do the next
+          // expr3 -> expr2
+          // expr2 -> s or t
+          // s -> expr3 or expr2 or s
+          case t@ForStatement(_, expr2, Some(expr3), s) if (nested_ast_elem.eq(expr3.asInstanceOf[AnyRef])) =>
+            if (expr2.isDefined) Some(simpleOrCompoundStatementExprSucc(expr2.get, env))
+            else Some(simpleOrCompoundStatementSucc(t, s, env))
+          case t@ForStatement(_, Some(expr2), _, s) if (nested_ast_elem.eq(expr2.asInstanceOf[AnyRef])) =>
+            Some(simpleOrCompoundStatementSucc(t, s, env) ++ getSuccSameLevel(t, env))
           case t@ForStatement(_, expr2, expr3, s) => {
             if (expr3.isDefined) Some(simpleOrCompoundStatementExprSucc(expr3.get, env))
             else if (expr2.isDefined) Some(simpleOrCompoundStatementExprSucc(expr2.get, env))
