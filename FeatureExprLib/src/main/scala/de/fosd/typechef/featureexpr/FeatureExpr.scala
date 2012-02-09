@@ -7,6 +7,7 @@ import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
 import scala.ref.WeakReference
 import java.io.Writer
+import net.sf.javabdd._;
 
 /**
  * External interface for construction of non-boolean feature expressions
@@ -42,7 +43,7 @@ object FeatureExpr extends FeatureExprValueOps {
     def createValue[T](v: T): FeatureExprTree[T] = FExprBuilder.createValue(v)
 
 
-    def createDefinedExternal(name: String): DefinedExternal = FExprBuilder.definedExternal(name)
+    def createDefinedExternal(name: String): FeatureExpr = FExprBuilder.definedExternal(name)
     def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = FExprBuilder.definedMacro(name, macroTable)
 
 
@@ -69,15 +70,13 @@ object FeatureExpr extends FeatureExprValueOps {
 }
 
 object FeatureExprHelper {
-    def resolveDefined(macro: DefinedMacro, macroTable: FeatureProvider): FeatureExpr =
-        macroTable.getMacroCondition(macro.feature)
-
-    private var freshFeatureNameCounter = 0
+     private var freshFeatureNameCounter = 0
     def calcFreshFeatureName(): String = {
         freshFeatureNameCounter = freshFeatureNameCounter + 1;
         "__fresh" + freshFeatureNameCounter;
     }
 }
+
 
 /**
  * Propositional (or boolean) feature expressions.
@@ -115,7 +114,8 @@ object FeatureExprHelper {
  *
  * It would be interesting to see what happens for toEquiCNF.
  */
-sealed abstract class FeatureExpr {
+class FeatureExpr(private[featureexpr] val bdd:BDD) {
+
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, that)
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, that)
     def not(): FeatureExpr = FExprBuilder.not(this)
@@ -126,16 +126,16 @@ sealed abstract class FeatureExpr {
 
     def orNot(that: FeatureExpr) = this or (that.not)
     def andNot(that: FeatureExpr) = this and (that.not)
-    def implies(that: FeatureExpr) = this.not.or(that)
+    def implies(that: FeatureExpr) = FExprBuilder.imp(this, that)
     def mex(that: FeatureExpr): FeatureExpr = (this and that).not
-    def xor(that: FeatureExpr) = (this or that) and (this mex that)
+    def xor(that: FeatureExpr) =  FExprBuilder.xor(this, that)
 
     // According to advanced textbooks, this representation is not always efficient:
     // not (a equiv b) generates 4 clauses, of which 2 are tautologies.
     // In positions of negative polarity (i.e. contravariant?), a equiv b is best transformed to
     // (a and b) or (!a and !b). However, currently it seems that we never construct not (a equiv b).
     // Be careful if that changes, though.
-    def equiv(that: FeatureExpr) = (this implies that) and (that implies this)
+    def equiv(that: FeatureExpr) = FExprBuilder.biimp(this, that)
 
     def isContradiction(): Boolean = isContradiction(NoFeatureModel)
     def isTautology(): Boolean = isTautology(NoFeatureModel)
@@ -153,7 +153,8 @@ sealed abstract class FeatureExpr {
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
      * but is faster because FM is cached
      */
-    def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm, new SatSolver().isSatisfiable(toCnfEquiSat, fm))
+    def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm,
+        bdd.satOne()!=FExprBuilder.FALSE   )
 
     /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.
@@ -203,26 +204,12 @@ sealed abstract class FeatureExpr {
      * checks whether there is some unresolved macro (DefinedMacro) somewhere
      * in the expression tree
      */
-    lazy val isResolved: Boolean = calcIsResolved
-    private def calcIsResolved: Boolean = {
-        //exception used to stop at the first found Macro
-        //map used for caching (to not look twice at the same subtree)
-        class FoundUnresolvedException extends Exception
-        try {
-            this.mapDefinedExpr({
-                case e: DefinedMacro => {throw new FoundUnresolvedException(); e}
-                case e => e
-            }, Map())
-            return true
-        } catch {
-            case e: FoundUnresolvedException => return false
-        }
-    }
+    lazy val isResolved: Boolean = true
 
-    /**
-     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
-     */
-    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
+//    /**
+//     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
+//     */
+//    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
 
     /**
      * Converts this formula to a textual expression.
@@ -350,6 +337,18 @@ abstract class HashCachingFeatureExpr extends FeatureExpr {
  * and for extensive caching.
  */
 private[featureexpr] object FExprBuilder {
+
+
+    val bddCacheSize=1000
+    var bddValNum=1000
+    var maxFeatureId = -1
+    val bddFactory= BDDFactory.init(bddValNum,bddCacheSize)
+
+    val TRUE: BDD=bddFactory.one()
+    val FALSE: BDD=bddFactory.zero()
+
+    
+    private val featureIds: Map[String, Int] = Map()
     private val ifCache: HashMap[(FeatureExpr, FeatureExprTree[_], FeatureExprTree[_]), WeakReference[FeatureExprTree[_]]] = new HashMap()
     private val featureCache: Map[String, WeakReference[DefinedExternal]] = Map()
     private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
@@ -414,202 +413,35 @@ private[featureexpr] object FExprBuilder {
     // below with "XXX: O(N) set rebuild". Note however that to make them O(1) one needs to write a O(1) hash calculator
     // for them as well - very simple, just some work to do. See specialized constructors in AndOrUnExtractor.
 
-    // Optimized representation of e and (o: Or)
-    private def andOr(e: FeatureExpr, o: Or) =
-        if (o.clauses contains e) //o = (e || o'), then e || o == e && (e || o') == e
-            e
-        else if (o.clauses contains (e.not))
-            fastAnd(e, createOr(o.clauses - e.not)) //XXX: O(N) set rebuild
-        else
-            And(Set(e, o))
-
-    private def andOrOr(o1: Or, o2: Or) =
-        if (o1.clauses contains o2) //o = (e || o'), then e || o == e && (e || o') == e
-            o2
-        else if (o2.clauses contains o1) //o = (e || o'), then e || o == e && (e || o') == e
-            o1
-        else if (o1.clauses contains (o2.not))
-            fastAnd(o2, createOr(o1.clauses - o2.not)) //XXX: O(N) set rebuild
-        else if (o2.clauses contains (o1.not))
-            fastAnd(o1, createOr(o2.clauses - o1.not)) //XXX: O(N) set rebuild
-        else if ((o1.clauses.size == 2) && (o2.clauses.size == 2)) {
-            //simple but common pattern ((a or b) and (a or !b)) == a
-            val i1 = o1.clauses.iterator
-            val o11 = i1.next
-            val o12 = i1.next
-            val i2 = o2.clauses.iterator
-            val o21 = i2.next
-            val o22 = i2.next
-            if (o11 == o21 && o12 == o22.not) o11
-            else if (o12 == o21 && o11 == o22.not) o12
-            else if (o11 == o22 && o12 == o21.not) o11
-            else if (o12 == o22 && o11 == o21.not) o12
-            else And(Set(o1, o2))
-        }
-        else
-            And(Set(o1, o2))
-
-    //Optimized representation of e and (a: And)
-    private def andAnd(e: FeatureExpr, a: And) =
-        if (a.clauses contains e)
-            a
-        else if (a.clauses contains (e.not))
-            False
-        else
-            And(a.clauses + e, a, e)
-
-    //Do not canonicalize the function at each step, do it only in the public wrappers.
-    private def fastAnd(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
-        (a, b) match {
-            case (e1, e2) if (e1 == e2) => e1
-            case (_, False) => False
-            case (False, _) => False
-            case (True, e) => e
-            case (e, True) => e
-            case (e1, e2) if ((e1.retrieveMemoizedNot == e2) || (e1 == e2.retrieveMemoizedNot)) => False
-            case other =>
-                binOpCacheGetOrElseUpdate(a, b, _.andCache,
-                    other match {
-                        case (a1: And, a2: And) =>
-                            a2.clauses.foldLeft[FeatureExpr](a1)(fastAnd(_, _)) //XXX: O(N) set rebuild
-                        case (a: And, e) => andAnd(e, a)
-                        case (e, a: And) => andAnd(e, a)
-                        case (o: Or, e: Or) => andOrOr(e, o)
-                        case (o: Or, e) => andOr(e, o)
-                        case (e, o: Or) => andOr(e, o)
-                        case (e1, e2) => And(Set(e1, e2))
-                    })
-        }
-
-    def createAnd(clauses: Traversable[FeatureExpr]) =
-        canonical(clauses.foldLeft[FeatureExpr](True)(fastAnd(_, _)))
-
-    //Optimized representation of e or (a: And)
-    private def orAnd(e: FeatureExpr, a: And) =
-        if (a.clauses contains e) //a == (e && a'), then e || a == e || (e && a') == e
-            e
-        else if (a.clauses contains (e.not))
-            fastOr(e, createAnd(a.clauses - e.not)) //XXX: O(N) set rebuild
-        else
-            Or(Set(e, a))
-
-    private def orAndAnd(a1: And, a2: And) =
-        if (a2.clauses contains a1) //a == (e && a'), then e || a == e || (e && a') == e
-            a1
-        else if (a1.clauses contains a2) //a == (e && a'), then e || a == e || (e && a') == e
-            a2
-        else if (a2.clauses contains (a1.not))
-            fastOr(a1, createAnd(a2.clauses - a1.not)) //XXX: O(N) set rebuild
-        else if (a1.clauses contains (a2.not))
-            fastOr(a2, createAnd(a1.clauses - a2.not)) //XXX: O(N) set rebuild
-        else if ((a1.clauses.size == 2) && (a2.clauses.size == 2)) {
-            //simple but common pattern ((a and b) or (a and !b)) == a
-            val i1 = a1.clauses.iterator
-            val a11 = i1.next
-            val a12 = i1.next
-            val i2 = a2.clauses.iterator
-            val a21 = i2.next
-            val a22 = i2.next
-            if (a11 == a21 && a12 == a22.not) a11
-            else if (a12 == a21 && a11 == a22.not) a12
-            else if (a11 == a22 && a12 == a21.not) a11
-            else if (a12 == a22 && a11 == a21.not) a12
-            else Or(Set(a1, a2))
-        }
-        else
-            Or(Set(a1, a2))
-
-    private def orOr(e: FeatureExpr, o: Or) =
-        if (o.clauses contains e)
-            o
-        else if (o.clauses contains (e.not))
-            True
-        else
-            Or(o.clauses + e, o, e)
-
-    def fastOr(a: FeatureExpr, b: FeatureExpr): FeatureExpr =
-    //simple cases without caching
-        (a, b) match {
-            case (e1, e2) if (e1 == e2) => e1
-            case (_, True) => True
-            case (True, _) => True
-            case (False, e) => e
-            case (e, False) => e
-            case (e1, e2) if ((e1.retrieveMemoizedNot == e2) || (e1 == e2.retrieveMemoizedNot)) => True
-            case other =>
-                binOpCacheGetOrElseUpdate(a, b, _.orCache,
-                    other match {
-                        case (o1: Or, o2: Or) =>
-                            o2.clauses.foldLeft[FeatureExpr](o1)(fastOr(_, _)) //XXX: O(N) set rebuild
-                        case (o: Or, e) => orOr(e, o)
-                        case (e, o: Or) => orOr(e, o)
-                        case (e: And, a: And) => orAndAnd(e, a)
-                        case (e, a: And) => orAnd(e, a)
-                        case (a: And, e) => orAnd(e, a)
-                        case (e1, e2) => Or(Set(e1, e2))
-                    })
-        }
-
-    def createOr(clauses: Traversable[FeatureExpr]) =
-        canonical(clauses.foldLeft[FeatureExpr](False)(fastOr(_, _)))
-
-    //End of dualized code.
 
 
-    def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr = canonical(fastAnd(a, b))
-    def or(a: FeatureExpr, b: FeatureExpr): FeatureExpr = canonical(fastOr(a, b))
+    def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd and b.bdd)
+    def or(a: FeatureExpr, b: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd or b.bdd)
+    def imp(a: FeatureExpr, b: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd imp b.bdd)
+    def biimp(a: FeatureExpr, b: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd biimp b.bdd)
+    def xor(a: FeatureExpr, b: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd xor b.bdd)
 
-    def not(a: FeatureExpr): FeatureExpr =
-        a match {
-            case True => False
-            case False => True
-            case n: Not => n.expr
-            case e => {
-                e.notCache match {
-                    case Some(NotRef(res)) => res
-                    case _ =>
-                        def storeCache(e: FeatureExpr, neg: FeatureExpr) = {e.notCache = Some(new NotReference(neg)); e}
-                        val res = canonical(e match {
-                            /* This transformation is expensive, so we need to store
-                            * a reference to e in the created expression. However,
-                            * this enables more occasions for simplification and
-                            * ensures that the result is in Negation Normal Form.
-                            */
-                            case And(clauses) => createOr(clauses.map(_.not))
-                            case Or(clauses) => createAnd(clauses.map(_.not))
-                            case _ => new Not(e) //Triggered by leaves.
-                        })
-                        storeCache(res, e)
-                        //Store in the old expression a reference to the new one.
-                        storeCache(e, res)
-                        res
+    def not(a: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd.not())
+
+    def definedExternal(name: String) :FeatureExpr = {
+        val id:Int=        featureIds.get(name) match {
+            case Some(id) => id
+            case _ =>
+                maxFeatureId = maxFeatureId + 1
+                if (maxFeatureId > bddValNum) {
+                    bddValNum=bddValNum*2
+                    bddFactory.setVarNum(bddValNum)
                 }
-            }
+                featureIds.put(name,maxFeatureId)
+                 maxFeatureId
         }
-
-    def definedExternal(name: String) = cacheGetOrElseUpdate(featureCache, name, new DefinedExternal(name))
-
+      new BDDFeatureExpr(  bddFactory.ithVar(id))
+    }
+        
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
     def definedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = {
-        val macroCondition = macroTable.getMacroCondition(name)
-        if (macroCondition.isSmall) {
-            macroCondition
-        } else {
-            val (conditionName, conditionDef) = macroTable.getMacroConditionCNF(name)
-
-            /**
-             * definedMacros are equal if they have the same Name and the same expansion! (otherwise they refer to
-             * the macro at different points in time and should not be considered equal)
-             * actually, we only check the expansion name which is unique for each DefinedMacro anyway
-             */
-            cacheGetOrElseUpdate(macroCache, conditionName,
-                new DefinedMacro(
-                    name,
-                    macroTable.getMacroCondition(name),
-                    conditionName,
-                    conditionDef))
-        }
+        macroTable.getMacroCondition(name)
     }
 
 
@@ -708,14 +540,14 @@ private[featureexpr] object FExprBuilder {
  * apply methods of the And and Or companion objects, which convert any empty set of
  * clauses into the canonical True or False object.
  */
-object True extends And(Set()) with DefaultPrint {
+object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint {
     override def toString = "True"
     override def toTextExpr = "1"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
 }
 
-object False extends Or(Set()) with DefaultPrint {
+object False extends BDDFeatureExpr(FExprBuilder.FALSE)  with DefaultPrint {
     override def toString = "False"
     override def toTextExpr = "0"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
@@ -830,228 +662,4 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
         else
             this
     })
-}
-
-//private[featureexpr]
-class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
-    //Use this constructor when adding newF to old, because it reuses the old hash.
-    def this(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = {
-        this (clauses)
-        presetHash(old, newF)
-    }
-
-    override def primeHashMult = 37
-    override def operName = "&"
-    override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createAnd(clauses)
-
-    override protected def calcCNF: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
-    override protected def calcCNFEquiSat: FeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
-}
-
-//private[featureexpr]
-class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
-    //Use this constructor when adding newF to old, because it reuses the old hash.
-    def this(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = {
-        this (clauses)
-        presetHash(old, newF)
-    }
-
-    override def primeHashMult = 97
-    override def operName = "|"
-    override def create(clauses: Traversable[FeatureExpr]) = FExprBuilder.createOr(clauses)
-
-    override protected def calcCNF: FeatureExpr =
-        combineCNF(clauses.map(_.toCNF))
-    override protected def calcCNFEquiSat: FeatureExpr = {
-        val cnfchildren = clauses.map(_.toCnfEquiSat)
-        //XXX: There is no need to estimate the size this way, we could maybe
-        //use the more precise size method. However, possibly this is the
-        //correct calculation of the number of generated clauses. The name
-        //predictedCNFClauses is maybe misleading, but I introduced it, and it
-        //would be my fault then. PG
-        //
-        //heuristic: up to a medium size do not introduce new variables but use normal toCNF mechanism
-        //rationale: we might actually simplify the formula by transforming it into CNF and in such cases it's not very expensive
-        def size(child: FeatureExpr) = child match {case And(inner) => inner.size; case _ => 1}
-        val predictedCNFClauses = cnfchildren.foldRight(1)((x, y) => if (y <= 16) size(x) * y else y)
-        if (predictedCNFClauses <= 16)
-            combineCNF(cnfchildren)
-        else
-            combineEquiCNF(cnfchildren)
-    }
-
-
-    /**
-     * multiplies all clauses
-     *
-     * for n CNF expressions with e1, e2, .., en clauses
-     * this mechanism produces e1*e2*...*en clauses
-     */
-    private def combineCNF(cnfchildren: Set[FeatureExpr]) =
-        FExprBuilder.createAnd(
-            if (cnfchildren.exists(_.isInstanceOf[And])) {
-                var conjuncts = Set[FeatureExpr](False)
-                for (child <- cnfchildren) {
-                    child match {
-                        case And(innerChildren) =>
-                            //conjuncts@(a_1 & a_2) | innerChildren@(b_1 & b_2)
-                            //becomes conjuncts'@(a_1 | b_1) & (a_1 | b_2) & (a_2 | b_1) & (a_2 | b_2).
-                            conjuncts = conjuncts.flatMap(
-                                conjunct => innerChildren.map(
-                                    _ or conjunct))
-                        case _ =>
-                            conjuncts = conjuncts.map(_ or child)
-                    }
-                }
-                assert(conjuncts.forall(c => CNFHelper.isClause(c) || c == True || c == False))
-                conjuncts
-            } else {
-                /* The context adds an extra And, because a canonical CNF is an conjunction of disjunctions.
-                 * Currently this extra And is optimized away, but here I do not want to rely on this detail. */
-                List(FExprBuilder.createOr(cnfchildren))
-            })
-
-    /**
-     * Produce a CNF formula equiSatisfiable to the disjunction of @param cnfchildren.
-     * Introduces new variables to avoid exponential behavior
-     *
-     * for n CNF expressions with e1, e2, .., en clauses
-     * this mechanism produces n new variables and results
-     * in e1+e2+..+en+1 clauses
-     *
-     * Algorithm: we need to represent Or(X_i, i=i..n), where X_i are subformulas in CNF. Each of them is a conjunction
-     * (or a literal, as a degenerate case).
-     * We produce a clause Or(Z_i) and clauses such that Z_i implies X_i, conjuncted together. For literals we just
-     * reuse the literal; if X_i = And(Y_ij, j=1..e_i), we produce clauses (Z_i implies Y_ij) for j=1..e_i.
-     */
-    private def combineEquiCNF(cnfchildren: Set[FeatureExpr]) =
-        if (cnfchildren.exists(_.isInstanceOf[And])) {
-            var orClauses = ArrayBuffer[FeatureExpr]() //list of Or expressions
-            var renamedDisjunction = ArrayBuffer[FeatureExpr]()
-            for (child <- cnfchildren) {
-                child match {
-                    case And(innerChildren) =>
-                        val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
-                        orClauses ++= innerChildren.map(freshFeature implies _)
-                        renamedDisjunction += freshFeature
-                    case e =>
-                        renamedDisjunction += e
-                }
-            }
-            orClauses += FExprBuilder.createOr(renamedDisjunction)
-            FExprBuilder.createAnd(orClauses)
-            /*val (orClauses, renamedDisjunction) = cnfchildren.map({
-                case And(innerChildren) =>
-                    val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
-                    (innerChildren.map(freshFeature implies _), freshFeature)
-                case e =>
-                    (Set.empty, e)
-            }).unzip
-            FExprBuilder.createAnd(orClauses.flatten[FeatureExpr] + FExprBuilder.createOr(renamedDisjunction))*/
-        } else FExprBuilder.createOr(cnfchildren)
-
-}
-
-//private[featureexpr]
-class Not(val expr: FeatureExpr) extends HashCachingFeatureExpr {
-    override def calcHashCode = 701 * expr.hashCode
-    override def equal1Level(that: FeatureExpr) = that match {
-        case Not(expr2) => expr eq expr2
-        case _ => false
-    }
-
-    override def toString = "!" + expr.toString
-    override def toTextExpr = "!" + expr.toTextExpr
-    override def print(p: Writer) = {
-        p.write("!")
-        expr.print(p)
-    }
-    override def debug_print(ind: Int) = indent(ind) + "!\n" + expr.debug_print(ind + 1)
-
-    override def calcSize = expr.size
-    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, {
-        val newExpr = expr.mapDefinedExpr(f, cache)
-        if (newExpr != expr) FExprBuilder.not(newExpr) else this
-    })
-    override protected def calcCNF: FeatureExpr = expr match {
-        case And(children) => FExprBuilder.createOr(children.map(_.not.toCNF)).toCNF
-        case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCNF))
-        case e => this
-    }
-
-    override protected def calcCNFEquiSat: FeatureExpr = expr match {
-        case And(children) => FExprBuilder.createOr(children.map(_.not.toCnfEquiSat())).toCnfEquiSat()
-        case Or(children) => FExprBuilder.createAnd(children.map(_.not.toCnfEquiSat()))
-        case e => this
-    }
-
-    private[featureexpr] override def retrieveMemoizedNot = expr
-}
-
-object Not {
-    def unapply(x: Not) = Some(x.expr)
-}
-
-/**
- * Leaf nodes of propositional feature expressions, either an external
- * feature defined by the user or another feature expression from a macro.
- */
-abstract class DefinedExpr extends FeatureExpr {
-    /*
-     * This method is overriden by children case classes to return the name.
-     * It would be nice to have an actual field here, but that doesn't play nicely with case classes;
-     * avoiding case classes and open-coding everything would take too much code.
-     */
-    def feature: String
-    def debug_print(level: Int): String = indent(level) + feature + "\n";
-    def accept(f: FeatureExpr => Unit): Unit = f(this)
-    def satName = feature
-    //used for sat solver only to distinguish extern and macro
-    def isExternal: Boolean
-    override def calcSize = 1
-    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr = cache.getOrElseUpdate(this, f(this))
-    override def calcCNF = this
-    override def calcCNFEquiSat = this
-}
-
-object DefinedExpr {
-    def unapply(f: DefinedExpr): Option[DefinedExpr] = f match {
-        case x: DefinedExternal => Some(x)
-        case x: DefinedMacro => Some(x)
-        case _ => None
-    }
-    def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "")
-}
-
-/**
- * external definition of a feature (cannot be decided to Base or Dead inside this file)
- */
-class DefinedExternal(name: String) extends DefinedExpr {
-    DefinedExpr.checkFeatureName(name)
-
-    def feature = name
-    override def toTextExpr = "definedEx(" + name + ")";
-    override def toString = "def(" + name + ")"
-    def countSize() = 1
-    def isExternal = true
-}
-
-/**
- * definition based on a macro, still to be resolved using the macro table
- * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
- * assumption: expandedName is unique and may be used for comparison
- */
-class DefinedMacro(val name: String, val presenceCondition: FeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[FeatureExpr /*CNF*/ ]) extends DefinedExpr {
-    DefinedExpr.checkFeatureName(name)
-
-    def feature = name
-    override def toTextExpr = "defined(" + name + ")"
-    override def toString = "macro(" + name + ")"
-    override def satName = expandedName
-    def countSize() = 1
-    def isExternal = false
-}
-
-object DefinedMacro {
-    def unapply(x: DefinedMacro) = Some((x.name, x.presenceCondition, x.expandedName, x.presenceConditionCNF))
 }
