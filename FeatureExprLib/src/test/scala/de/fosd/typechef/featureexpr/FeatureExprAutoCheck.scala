@@ -74,9 +74,9 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     //    property("simplify does not change equality") = Prop.forAll((a: FeatureExpr) => a equals (a.simplify))
     //    property("simplify does not change equivalence") = Prop.forAll((a: FeatureExpr) => a equivalentTo (a.simplify))
 
-    property("creating (a and b) twice creates the same object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) eq (a and b))
-    property("creating (a or b) twice creates the same object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) eq (a or b))
-    property("creating (not a) twice creates the same object") = Prop.forAll((a: FeatureExpr) => (a.not) eq (a.not))
+    property("creating (a and b) twice creates equal object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) == (a and b))
+    property("creating (a or b) twice creates equal object") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) == (a or b))
+    property("creating (not a) twice creates equal object") = Prop.forAll((a: FeatureExpr) => (a.not) == (a.not))
     //    property("applying not twice yields the same object") = Prop.forAll((a: FeatureExpr) => a eq (a.not.not)) //does not necessarily hold any more; they are only equivalent
     property("applying not twice yields an equivalent formula") = Prop.forAll((a: FeatureExpr) => a equivalentTo (a.not.not)) //does not necessarily hold any more; they are only equivalent
 
