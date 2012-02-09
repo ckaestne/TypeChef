@@ -1,6 +1,5 @@
 package de.fosd.typechef.featureexpr
 
-import LazyLib._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
@@ -70,7 +69,7 @@ object FeatureExpr extends FeatureExprValueOps {
 }
 
 object FeatureExprHelper {
-     private var freshFeatureNameCounter = 0
+    private var freshFeatureNameCounter = 0
     def calcFreshFeatureName(): String = {
         freshFeatureNameCounter = freshFeatureNameCounter + 1;
         "__fresh" + freshFeatureNameCounter;
@@ -114,7 +113,7 @@ object FeatureExprHelper {
  *
  * It would be interesting to see what happens for toEquiCNF.
  */
-class FeatureExpr(private[featureexpr] val bdd:BDD) {
+class FeatureExpr(private[featureexpr] val bdd: BDD) {
 
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, that)
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, that)
@@ -128,7 +127,7 @@ class FeatureExpr(private[featureexpr] val bdd:BDD) {
     def andNot(that: FeatureExpr) = this and (that.not)
     def implies(that: FeatureExpr) = FExprBuilder.imp(this, that)
     def mex(that: FeatureExpr): FeatureExpr = (this and that).not
-    def xor(that: FeatureExpr) =  FExprBuilder.xor(this, that)
+    def xor(that: FeatureExpr) = FExprBuilder.xor(this, that)
 
     // According to advanced textbooks, this representation is not always efficient:
     // not (a equiv b) generates 4 clauses, of which 2 are tautologies.
@@ -154,7 +153,7 @@ class FeatureExpr(private[featureexpr] val bdd:BDD) {
      * but is faster because FM is cached
      */
     def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm,
-        bdd.satOne()!=FExprBuilder.FALSE   )
+        bdd.satOne() != FExprBuilder.FALSE)
 
     /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.
@@ -206,15 +205,32 @@ class FeatureExpr(private[featureexpr] val bdd:BDD) {
      */
     lazy val isResolved: Boolean = true
 
-//    /**
-//     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
-//     */
-//    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
+    //    /**
+    //     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
+    //     */
+    //    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
 
     /**
      * Converts this formula to a textual expression.
      */
-    def toTextExpr: String
+    def toTextExpr: String = printbdd(bdd)
+
+    private def printbdd(bdd: BDD): String =
+        if (bdd.isOne()) "1"
+        else if (bdd.isZero()) "0"
+        else {
+            def lookupName(v: Int): String = FExprBuilder.lookupFeatureName(v)
+            def clause(d: Array[Byte]): String = d.zip(0 to (d.length - 1)).filter(_._1 >= 0).map(
+                x => (if (x._1 == 0) "!" else "") + lookupName(x._2)
+            ).mkString(" && ")
+
+            return bddAllSat.map(clause(_)).mkString(" || ")
+        }
+
+    private def bddAllSat: Iterator[Array[Byte]] = {
+        val allsat = bdd.allsat().asInstanceOf[java.util.List[Array[Byte]]];
+        scala.collection.JavaConversions.asScalaIterator(allsat.iterator())
+    }
 
     /**
      * Prints the textual representation of this formula on a Writer. The result shall be equivalent to
@@ -222,41 +238,10 @@ class FeatureExpr(private[featureexpr] val bdd:BDD) {
      * @param p the output Writer
      */
     def print(p: Writer) = p.write(toTextExpr)
-    def debug_print(indent: Int): String
+    def debug_print(indent: Int): String = toTextExpr
 
     private var cache_cnf: FeatureExpr = null
     private var cache_cnfEquiSat: FeatureExpr = null
-
-    /**
-     * creates an equivalent feature expression in CNF
-     *
-     * be aware of exponential explosion. consider using toCnfEquiSat instead if possible
-     */
-    def toCNF(): FeatureExpr = {
-        if (cache_cnf == null) {cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf}
-        assert(CNFHelper.isCNF(cache_cnf))
-        //XXX: add and test!
-        //cache_cnfEquiSat.cache_cnf = cache_cnf
-        //cache_cnfEquiSat.cache_cnfEquiSat = cache_cnf
-        cache_cnf
-    }
-    /**
-     * creates an equisatisfiable feature expression in CNF
-     *
-     * the result is not equivalent but will yield the same result
-     * in satisifiability tests with SAT solvers
-     *
-     * the algorithm introduces new variables and is faster than toCNF
-     */
-    def toCnfEquiSat(): FeatureExpr = {
-        if (cache_cnfEquiSat == null) cache_cnfEquiSat = calcCNFEquiSat
-        assert(CNFHelper.isCNF(cache_cnfEquiSat))
-        //XXX: add and test!
-        //cache_cnfEquiSat.cache_cnfEquiSat = cache_cnfEquiSat
-        cache_cnfEquiSat
-    }
-    protected def calcCNF: FeatureExpr
-    protected def calcCNFEquiSat: FeatureExpr
 
     private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
     //only access these caches from FExprBuilder
@@ -282,7 +267,7 @@ class FeatureExpr(private[featureexpr] val bdd:BDD) {
      * (creates IF(expr, 1, 0))
      */
     def toFeatureExprValue: FeatureExprValue =
-        FExprBuilder.createIf(this, FExprBuilder.createValue(1), FExprBuilder.createValue(0))
+        FExprBuilder.createIf(this, FExprBuilder.createValue(1l), FExprBuilder.createValue(0l))
 
     // This field keeps the wrapper referenced in a reference cycle, so that the lifecycle of this object and the wrapper match.
     // This is crucial to use the wrapper in a WeakHashMap!
@@ -292,19 +277,18 @@ class FeatureExpr(private[featureexpr] val bdd:BDD) {
      * helper function for statistics and such that determines which
      * features are involved in this feature expression
      */
-    def collectDistinctFeatures: Set[DefinedExternal] = {
-        var result: Set[DefinedExternal] = Set()
-        this.mapDefinedExpr(_ match {
-            case e: DefinedExternal => result += e; e
-            case e => e
-        }, Map())
-        result
-    }
+    private def collectDistinctFeatureIds: Set[Int] =
+        bddAllSat.flatMap(clause => clause.zip(0 to (clause.length - 1)).filter(_._1 >= 0).map(_._2)).toSet
+
+    def collectDistinctFeatures: Set[String] =
+        collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
+
+
     /**
      * counts the number of features in this expression for statistic
      * purposes
      */
-    def countDistinctFeatures: Int = collectDistinctFeatures.size
+    def countDistinctFeatures: Int = collectDistinctFeatureIds.size
 }
 
 class FeatureException(msg: String) extends RuntimeException(msg)
@@ -339,16 +323,17 @@ abstract class HashCachingFeatureExpr extends FeatureExpr {
 private[featureexpr] object FExprBuilder {
 
 
-    val bddCacheSize=1000
-    var bddValNum=1000
+    val bddCacheSize = 1000
+    var bddValNum = 1000
     var maxFeatureId = -1
-    val bddFactory= BDDFactory.init(bddValNum,bddCacheSize)
+    val bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
 
-    val TRUE: BDD=bddFactory.one()
-    val FALSE: BDD=bddFactory.zero()
+    val TRUE: BDD = bddFactory.one()
+    val FALSE: BDD = bddFactory.zero()
 
-    
+
     private val featureIds: Map[String, Int] = Map()
+    private val featureNames: Map[Int, String] = Map()
     private val ifCache: HashMap[(FeatureExpr, FeatureExprTree[_], FeatureExprTree[_]), WeakReference[FeatureExprTree[_]]] = new HashMap()
     private val featureCache: Map[String, WeakReference[DefinedExternal]] = Map()
     private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
@@ -357,7 +342,11 @@ private[featureexpr] object FExprBuilder {
     private val hashConsingCache: WeakHashMap[FeatureExpr.StructuralEqualityWrapper, WeakReference[FeatureExpr.StructuralEqualityWrapper]] = WeakHashMap()
 
     private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
-        def update() = {val d = op; map(key) = new WeakReference[B](d); d}
+        def update() = {
+            val d = op;
+            map(key) = new WeakReference[B](d);
+            d
+        }
         map.get(key) match {
             case Some(WeakRef(value)) => value
             case _ => update()
@@ -388,31 +377,31 @@ private[featureexpr] object FExprBuilder {
         result.get
     }
 
+
     private def canonical(f: FeatureExpr) = cacheGetOrElseUpdate(hashConsingCache, f.wrap, f.wrap).unwrap
 
     /*
-     * It seems that with the four patterns to optimize and/or, it's more difficult to
-     * produce a formula with duplicated literals - you need two levels of nesting for that to happen.
-     * Duplications is removed in variations of:
-     * a && (b || !a), where a and b can be any formula, and && and || can be replaced by any connective.
-     * Examples where duplication appears:
-     * a && !(a || b) - fixable by implementing DeMorgan laws in Not.
-     * (a || b) && (b || c)
-     * a && (b || (c && a)) - note the two levels of nesting. The inner a could
-     * be removed in this particular case using shortcircuiting, but there does
-     * not seem to be an easy way of implementing this.
-     *
-     *
-     * Please note that due to duality, the code below is essentially
-     * duplicated (andOr() is dual to orAnd(), and() to or(), and so on).
-     * Remember that to dualize this code, one must swap or with and, and False with True.
-     * Please check that it does not go out of sync.
-     */
+    * It seems that with the four patterns to optimize and/or, it's more difficult to
+    * produce a formula with duplicated literals - you need two levels of nesting for that to happen.
+    * Duplications is removed in variations of:
+    * a && (b || !a), where a and b can be any formula, and && and || can be replaced by any connective.
+    * Examples where duplication appears:
+    * a && !(a || b) - fixable by implementing DeMorgan laws in Not.
+    * (a || b) && (b || c)
+    * a && (b || (c && a)) - note the two levels of nesting. The inner a could
+    * be removed in this particular case using shortcircuiting, but there does
+    * not seem to be an easy way of implementing this.
+    *
+    *
+    * Please note that due to duality, the code below is essentially
+    * duplicated (andOr() is dual to orAnd(), and() to or(), and so on).
+    * Remember that to dualize this code, one must swap or with and, and False with True.
+    * Please check that it does not go out of sync.
+    */
     // XXX: in various places, we merge sets with an O(N) reduction. It allows looking up the memoized results, but now
     // that we later canonicalize everything, it is not clear whether we should still do it. Such occurrences are marked
     // below with "XXX: O(N) set rebuild". Note however that to make them O(1) one needs to write a O(1) hash calculator
     // for them as well - very simple, just some work to do. See specialized constructors in AndOrUnExtractor.
-
 
 
     def and(a: FeatureExpr, b: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd and b.bdd)
@@ -423,21 +412,24 @@ private[featureexpr] object FExprBuilder {
 
     def not(a: FeatureExpr): FeatureExpr = new BDDFeatureExpr(a.bdd.not())
 
-    def definedExternal(name: String) :FeatureExpr = {
-        val id:Int=        featureIds.get(name) match {
+    def definedExternal(name: String): FeatureExpr = {
+        val id: Int = featureIds.get(name) match {
             case Some(id) => id
             case _ =>
                 maxFeatureId = maxFeatureId + 1
                 if (maxFeatureId > bddValNum) {
-                    bddValNum=bddValNum*2
+                    bddValNum = bddValNum * 2
                     bddFactory.setVarNum(bddValNum)
                 }
-                featureIds.put(name,maxFeatureId)
-                 maxFeatureId
+                featureIds.put(name, maxFeatureId)
+                featureNames.put(maxFeatureId, name)
+                maxFeatureId
         }
-      new BDDFeatureExpr(  bddFactory.ithVar(id))
+        new BDDFeatureExpr(bddFactory.ithVar(id))
     }
-        
+
+    def lookupFeatureName(id: Int): String = featureNames(id)
+
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
     def definedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = {
@@ -466,7 +458,7 @@ private[featureexpr] object FExprBuilder {
                             createIf(i2.expr, evalRelation(i1.elseBr, i2.thenBr)(relation), evalRelation(i1.elseBr, i2.elseBr)(relation)))
                     case (i: If[_], x) => createIf(i.expr, evalRelation(i.thenBr, x)(relation), evalRelation(i.elseBr, x)(relation))
                     case (x, i: If[_]) => createIf(i.expr, evalRelation(x, i.thenBr)(relation), evalRelation(x, i.elseBr)(relation))
-                    case _ => throw new Exception("evalRelation: unexpected " + (smaller, larger))
+                    case _ => throw new Exception("evalRelation: unexpected " +(smaller, larger))
                 }
         }
     }
@@ -483,7 +475,7 @@ private[featureexpr] object FExprBuilder {
                             createIf(i2.expr, applyBinaryOperation(i1.elseBr, i2.thenBr)(operation), applyBinaryOperation(i1.elseBr, i2.elseBr)(operation)))
                     case (i: If[_], x) => createIf(i.expr, applyBinaryOperation(i.thenBr, x)(operation), applyBinaryOperation(i.elseBr, x)(operation))
                     case (x, i: If[_]) => createIf(i.expr, applyBinaryOperation(x, i.thenBr)(operation), applyBinaryOperation(x, i.elseBr)(operation))
-                    case _ => throw new Exception("applyBinaryOperation: unexpected " + (left, right))
+                    case _ => throw new Exception("applyBinaryOperation: unexpected " +(left, right))
                 }
         }
     }
@@ -547,14 +539,16 @@ object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint {
     override def isSatisfiable(fm: FeatureModel) = true
 }
 
-object False extends BDDFeatureExpr(FExprBuilder.FALSE)  with DefaultPrint {
+object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint {
     override def toString = "False"
     override def toTextExpr = "0"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
 }
 
-trait DefaultPrint extends FeatureExpr {override def print(p: Writer) = p.write(toTextExpr)}
+trait DefaultPrint extends FeatureExpr {
+    override def print(p: Writer) = p.write(toTextExpr)
+}
 
 //The class name means And/Or (Un)Extractor.
 abstract class AndOrUnExtractor[This <: BinaryLogicConnective[This]] {
@@ -564,7 +558,7 @@ abstract class AndOrUnExtractor[This <: BinaryLogicConnective[This]] {
         clauses.size match {
             case 0 => identity
             /* The case below seems to not occur, but better include it
-             * for extra robustness, to ensure the weak canonicalization property. */
+  * for extra robustness, to ensure the weak canonicalization property. */
             case 1 => clauses.head
             case _ => defaultRes
         }
@@ -603,8 +597,8 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
     override def equal1Level(that: FeatureExpr) = that match {
         case e: BinaryLogicConnective[_] =>
             e.primeHashMult == primeHashMult && //check this as a class tag
-                    e.clauses.subsetOf(clauses) &&
-                    e.clauses.size == clauses.size
+                e.clauses.subsetOf(clauses) &&
+                e.clauses.size == clauses.size
         case _ => false
     }
 
@@ -642,8 +636,15 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
         case class ToPrint[T](x: T) extends PrintValue
         p write "("
         clauses.map(x => ToPrint(x)).foldLeft[PrintValue](NoPrint)({
-            case (NoPrint, ToPrint(c)) => {c.print(p); Printed}
-            case (Printed, ToPrint(c)) => {p.write(" " + operName + operName + " "); c.print(p); Printed}
+            case (NoPrint, ToPrint(c)) => {
+                c.print(p);
+                Printed
+            }
+            case (Printed, ToPrint(c)) => {
+                p.write(" " + operName + operName + " ");
+                c.print(p);
+                Printed
+            }
         })
         p write ")"
     }

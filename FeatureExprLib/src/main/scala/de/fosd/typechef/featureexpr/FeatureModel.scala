@@ -19,18 +19,19 @@ class FeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], 
     /**
      * make the feature model stricter by a formula
      */
-    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExpr.base) this
-    else {
-        val cnf = expr.toCNF
-        try {
-            assert(!expr.isContradiction(null))
-            val (newVariables, newLastVarId) = FeatureModel.getVariables(cnf, lastVarId, variables)
-            val newClauses = FeatureModel.addClauses(cnf, newVariables, clauses)
-            new FeatureModel(newVariables, newClauses, newLastVarId)
-        } catch {
-            case e: Exception => println("FeatureModel.and: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
-        }
-    }
+    def and(expr: FeatureExpr /*CNF*/) = this
+    //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExpr.base) this
+    //    else {
+    //        val cnf = expr.toCNF
+    //        try {
+    //            assert(!expr.isContradiction(null))
+    //            val (newVariables, newLastVarId) = FeatureModel.getVariables(cnf, lastVarId, variables)
+    //            val newClauses = FeatureModel.addClauses(cnf, newVariables, clauses)
+    //            new FeatureModel(newVariables, newClauses, newLastVarId)
+    //        } catch {
+    //            case e: Exception => println("FeatureModel.and: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
+    //        }
+    //    }
 }
 
 /**
