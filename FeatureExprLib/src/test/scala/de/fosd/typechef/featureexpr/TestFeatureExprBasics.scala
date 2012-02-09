@@ -77,8 +77,4 @@ class TestFeatureExprBasics extends TestCase {
         check(FeatureExpr.base and (FeatureExpr.base not), c)
     }
 
-    @Test
-    def testToCnf {
-        println(FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).toCNF)
-    }
 }

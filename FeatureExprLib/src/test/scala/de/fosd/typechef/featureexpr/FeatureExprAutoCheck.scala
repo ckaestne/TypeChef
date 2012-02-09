@@ -96,27 +96,6 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     //    property("Associativity + commutativity wrt. object identity for and") = Prop.forAll((a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a and b) and c) eq ((c and b) and a))
     //    property("Associativity + commutativity wrt. object identity for or") = Prop.forAll((a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a or b) or c) eq ((c or b) or a))
 
-    property("toCNF produces CNF") = Prop.forAll((a: FeatureExpr) => CNFHelper.isCNF(a.toCNF))
-    property("toEquiCNF produces CNF") = Prop.forAll((a: FeatureExpr) => CNFHelper.isCNF(a.toCnfEquiSat))
-    property("SAT(toCNF) == SAT(toEquiCNF)") = Prop.forAll((a: FeatureExpr) => new SatSolver().isSatisfiable(a.toCnfEquiSat) == new SatSolver().isSatisfiable(a.toCNF))
-
-    property("cnf does not change satisifiability") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) =>
-        ((a and b).isSatisfiable == (a.toCNF and (b.toCNF)).isSatisfiable) &&
-                ((a or b).isSatisfiable == (a.toCNF or (b.toCNF)).isSatisfiable) &&
-                ((a not).isSatisfiable == (a.toCNF.not).isSatisfiable)
-    )
-
-    def equiCNFIdentityAnd = (a: FeatureExpr, b: FeatureExpr) =>
-        ((a and b).isSatisfiable == (a.toCnfEquiSat and (b.toCnfEquiSat)).isSatisfiable)
-
-    def equiCNFIdentityOr = (a: FeatureExpr, b: FeatureExpr) =>
-        ((a or b).isSatisfiable == (a.toCnfEquiSat or (b.toCnfEquiSat)).isSatisfiable)
-
-    /* This property is _not_ true for an equisatisfiable transformation.
-    def equiCNFIdentityNot = (a: FeatureExpr) =>
-        ((a not).isSatisfiable == (a.toCnfEquiSat.not).isSatisfiable)*/
-    property("equiCnf does not change satisifiability, even relative to and") = Prop.forAll(equiCNFIdentityAnd)
-    property("equiCnf does not change satisifiability, even relative to or") = Prop.forAll(equiCNFIdentityOr)
 
     property("taut(a=>b) == contr(a and !b)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => a.implies(b).isTautology() == a.and(b.not).isContradiction)
 
@@ -130,14 +109,15 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
         b.isSatisfiable(fm) == a.and(b).isSatisfiable
     })
 
-    property("trueSat") = True.isSatisfiable
-    property("falseSat") = !(False.isSatisfiable())
+    property("trueSat") = FeatureExpr.base.isSatisfiable
+    property("falseSat") = !(FeatureExpr.dead.isSatisfiable())
 
-    property("trueCNFSat") = True.toCNF.isSatisfiable
-    property("falseCNFSat") = !(False.toCNF.isSatisfiable())
-
-    property("can_print") = Prop.forAll((a: FeatureExpr) => {a.toTextExpr; a.debug_print(0); true})
-    property("can_calcSize") = Prop.forAll((a: FeatureExpr) => {a.size; true})
+    property("can_print") = Prop.forAll((a: FeatureExpr) => {
+        a.toTextExpr; a.debug_print(0); true
+    })
+    property("can_calcSize") = Prop.forAll((a: FeatureExpr) => {
+        a.size; true
+    })
 
 
     //
