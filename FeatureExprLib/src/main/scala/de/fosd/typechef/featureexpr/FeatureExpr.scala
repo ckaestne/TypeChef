@@ -293,19 +293,20 @@ class FeatureExpr(private[featureexpr] val bdd: BDD) {
     /**
      * Converts this formula to a textual expression.
      */
-    def toTextExpr: String = printbdd(bdd)
-    override def toString: String = toTextExpr
+    def toTextExpr: String =
+        printbdd(bdd, "1", "0", " && ", " || ", i => "definedEx(" + FExprBuilder.lookupFeatureName(i) + ")")
+    override def toString: String =
+        printbdd(bdd, "True", "False", " & ", " | ", FExprBuilder.lookupFeatureName(_))
 
-    private def printbdd(bdd: BDD): String =
-        if (bdd.isOne()) "1"
-        else if (bdd.isZero()) "0"
+    private def printbdd(bdd: BDD, one: String, zero: String, and: String, or: String, toName: (Int) => String): String =
+        if (bdd.isOne()) one
+        else if (bdd.isZero()) zero
         else {
-            def lookupName(v: Int): String = FExprBuilder.lookupFeatureName(v)
             def clause(d: Array[Byte]): String = d.zip(0 to (d.length - 1)).filter(_._1 >= 0).map(
-                x => (if (x._1 == 0) "!" else "") + lookupName(x._2)
-            ).mkString(" && ")
+                x => (if (x._1 == 0) "!" else "") + toName(x._2)
+            ).mkString(and)
 
-            return bddAllSat.map(clause(_)).mkString(" || ")
+            return bddAllSat.map(clause(_)).mkString(or)
         }
 
     private def bddAllSat: Iterator[Array[Byte]] = {
