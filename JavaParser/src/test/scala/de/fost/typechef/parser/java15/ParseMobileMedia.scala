@@ -132,18 +132,7 @@ object ParseMobileMedia {
 
         result
     }
-    def findFeatures(feature: FeatureExpr): Set[String] = {
-        (feature: @unchecked) match {
-            case And(clauses) => clauses.foldLeft(Set[String]())(_ ++ findFeatures(_))
-            case Or(clauses) => clauses.foldLeft(Set[String]())(_ ++ findFeatures(_))
-            case Not(clause) => findFeatures(clause)
-            case d: DefinedExternal => Set(d.feature)
-            case _: DefinedMacro | _: ErrorFeature =>
-                Console.err.println("ParseMobileMedia.findFeatures: feature " + feature + " of unexpected type. Stack trace:")
-                (new Exception).printStackTrace()
-                Set()
-        }
-    }
+    def findFeatures(feature: FeatureExpr): Set[String] = feature.collectDistinctFeatures
 
     var sumParsingTime: Long = 0
     var sumTokens: Int = 0
