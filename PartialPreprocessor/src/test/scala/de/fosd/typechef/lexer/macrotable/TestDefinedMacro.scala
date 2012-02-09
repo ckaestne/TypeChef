@@ -39,7 +39,7 @@ class TestDefinedMacro extends TestCase {
 
         //        expectFail(macroTable.define("Y", createDefinedMacro("X"), "1"))
 
-        assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable).resolveToExternal, "1").getMacroCondition("Y"))
+        assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable), "1").getMacroCondition("Y"))
         assertEquiv(b or y, macroTable.define("Y", createDefinedMacro("X", macroTable), "1").getMacroCondition("Y"))
 
     }
@@ -62,18 +62,7 @@ class TestDefinedMacro extends TestCase {
         macroTable
     }
 
-    @Test
-    def testDebugCNF() {
-        val x = (a.not and b)
-        val y = (a.not and b.not and c)
-        y.toCNF
-        val dd = y.not
-        d.toCNF
-        val z = x and (y.not)
-        println(z)
-        assertFalse(z.isBase())
-        assertFalse(z.isContradiction())
-    }
+
 
     //    @Test
     //    def testNFMacro() {
@@ -104,12 +93,8 @@ class TestDefinedMacro extends TestCase {
         //        macroTable = macroTable.define("GLOBAL", createDefinedMacro("Y"), "")
 
         val u = macroTable.getMacroCondition("GLOBAL")
-        val x = u.resolveToExternal
-        val y = x.toCNF
 
         assertFalse(u.isTautology())
-        assertFalse(x.isTautology())
-        assertFalse(y.isTautology())
 
         assertFalse(createDefinedMacro("GLOBAL", macroTable).isTautology())
         assertFalse(createDefinedMacro("GLOBAL", macroTable).isTautology())

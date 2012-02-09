@@ -34,7 +34,7 @@ case class CInterface(
         var result: Set[String] = Set()
 
         def addFeatures(featureExpr: FeatureExpr) {
-            result = result ++ featureExpr.collectDistinctFeatures.map(_.feature)
+            result = result ++ featureExpr.collectDistinctFeatures
         }
 
         addFeatures(featureModel)

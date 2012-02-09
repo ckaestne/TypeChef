@@ -134,7 +134,7 @@ class ParserMain(p: CParser) {
     def getDistinctFeatures(tokens: List[TokenWrapper]): Set[String] = {
         var features: Set[String] = Set()
         for (t <- tokens)
-            features ++= t.getFeature.resolveToExternal.collectDistinctFeatures.map(_.feature)
+            features ++= t.getFeature.collectDistinctFeatures
         features
     }
 

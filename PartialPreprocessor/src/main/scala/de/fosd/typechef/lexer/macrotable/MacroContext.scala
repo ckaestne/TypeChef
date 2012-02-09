@@ -1,7 +1,6 @@
 package de.fosd.typechef.lexer.macrotable
 
 import java.io.PrintWriter
-import de.fosd.typechef.featureexpr.LazyLib.Susp
 import de.fosd.typechef.featureexpr._
 
 
@@ -44,8 +43,8 @@ import FeatureExpr.createDefinedExternal
  *
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
  */
-class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[String, (String, Susp[FeatureExpr])], featureModel: FeatureModel) extends FeatureProvider {
-    def this(fm: FeatureModel) = {this (Map(), Map(), fm)}
+class MacroContext[T](knownMacros: Map[String, Macro[T]], featureModel: FeatureModel) extends FeatureProvider {
+    def this(fm: FeatureModel) = {this (Map(), fm)}
     def this() = {this (null)}
     def define(name: String, infeature: FeatureExpr, other: T): MacroContext[T] = {
         val feature = infeature //.resolveToExternal()
@@ -62,7 +61,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                         feature
                     knownMacros + ((name, new Macro[T](name, initialFeatureExpr, List(new MacroExpansion[T](feature, other)))))
                 }
-            }, cnfCache - name, featureModel)
+            }, featureModel)
         //        println("#define " + name)
         newMC
     }
@@ -75,7 +74,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                 //XXX: why is flagFilter() not checked? The condition associated
                 //with the definition would become false.
                 case None => knownMacros + ((name, new Macro[T](name, feature.not().and(createDefinedExternal(name)), List())))
-            }, cnfCache - name, featureModel)
+            }, featureModel)
     }
 
     def getMacroCondition(feature: String): FeatureExpr = {
@@ -89,40 +88,6 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
         }
     }
 
-    /**
-     * this returns a condition for the SAT solver in CNF in the following
-     * form
-     *
-     * (newMacroName, DefinedExternal(newMacroName) <=> getMacroCondition)
-     *
-     * This means that the MacroCondition appears twice in the output.
-     * [Probably wrong:]
-     * //on nested macro definitions, this could cause a blowup exponential in the
-     * //nesting depth of macro definitions (if each new definition is small).
-     * [Real explanation:]
-     * there is no reason to duplicate the new clauses if the
-     * definition is used twice, or the formula is renamed!
-     *
-     * It could be safe to create just one implication, solving this problem, as we do in the
-     * equisatisfiable transformation. However, that depends on whether the macro is used in a covariant or
-     * contravariant position, i.e. if there is respectively an even or an odd number of Not above the formula
-     * when represented as a parse tree. If a macro is used both ways (as it often happens), we need both implications.
-     *
-     * The result is cached. $$ is later replaced by a name for the SAT solver
-     */
-    def getMacroConditionCNF(name: String): (String, Susp[FeatureExpr]) = {
-        if (cnfCache.contains(name))
-            return cnfCache(name)
-
-        val newMacroName = name + "$$" + MacroIdGenerator.nextMacroId
-        val c = getMacroCondition(name)
-        val d = FeatureExpr.createDefinedExternal(newMacroName)
-        val condition = c equiv d
-        val cnf = LazyLib.delay(condition.toCnfEquiSat)
-        val result = (newMacroName, cnf)
-        cnfCache = cnfCache + (name -> result)
-        result
-    }
 
     def isFeatureDead(feature: String): Boolean = getMacroCondition(feature).isContradiction(featureModel)
 
