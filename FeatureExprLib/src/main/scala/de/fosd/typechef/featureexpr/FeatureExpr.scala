@@ -331,7 +331,7 @@ class FeatureExpr(private[featureexpr] val bdd: BDD) {
         def clause(d: Array[Byte]): Seq[Int] = d.zip(0 to (d.length - 1)).filter(_._1 >= 0).map(
             x => (if (x._1 == 0) -1 else 1) * x._2
         )
-        bddAllSat.map(clause(_))
+        allsat.map(clause(_))
     }
 
     /**

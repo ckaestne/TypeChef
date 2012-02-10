@@ -29,8 +29,6 @@ object SatSolver {
         //        solver.setTimeoutMs(1000);
         solver.setTimeoutOnConflicts(100000)
 
-        solver.addAllClauses(featureModel.clauses)
-        var uniqueFlagIds: Map[String, Int] = featureModel.variables
 
         val startTime = System.currentTimeMillis();
 
@@ -39,6 +37,9 @@ object SatSolver {
 
         val startTimeSAT = System.currentTimeMillis();
         try {
+            solver.addAllClauses(featureModel.clauses)
+            var uniqueFlagIds: Map[String, Int] = featureModel.variables
+
 
             def bddId2fmId(id: Int) = {
                 val featureName = lookupName(id)
@@ -50,19 +51,25 @@ object SatSolver {
                 }
             }
 
-            for (clause <- dnf) {
+            val dfnl = dnf.toList
 
-                val clauseArray: Array[Int] = new Array(clause.size)
-                var i = 0
-                for (literal <- clause) {
-                    //look up real ids. negate values in the process (dnf to cnf)
-                    if (literal < 0)
-                        clauseArray(i) = bddId2fmId(-literal)
-                    else
-                        clauseArray(i) = -bddId2fmId(literal)
-                    i = i + 1;
+            try {
+                for (clause <- dfnl) {
+
+                    val clauseArray: Array[Int] = new Array(clause.size)
+                    var i = 0
+                    for (literal <- clause) {
+                        //look up real ids. negate values in the process (dnf to cnf)
+                        if (literal < 0)
+                            clauseArray(i) = bddId2fmId(-literal)
+                        else
+                            clauseArray(i) = -bddId2fmId(literal)
+                        i = i + 1;
+                    }
+                    solver.addClause(new VecInt(clauseArray))
                 }
-                solver.addClause(new VecInt(clauseArray))
+            } catch {
+                case e: ContradictionException => return false;
             }
 
             //update max size (nothing happens if smaller than previous setting)
