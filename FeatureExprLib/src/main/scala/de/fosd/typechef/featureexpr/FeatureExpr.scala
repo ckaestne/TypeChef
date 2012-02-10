@@ -411,7 +411,7 @@ case class ErrorFeature(msg: String) extends FeatureExpr(FExprBuilder.FALSE) {
 private[featureexpr] object FExprBuilder {
 
 
-    val bddCacheSize = 100000
+    val bddCacheSize = 1000000
     var bddValNum = 100000
     var bddVarNum = 100
     var maxFeatureId = 0 //start with one, so we can distinguish -x and x for sat solving and tostring
