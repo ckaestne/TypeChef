@@ -63,6 +63,7 @@ class ParserMain(p: CParser) {
         if (printStatistics) {
             println(printParseResult(result, FeatureExpr.base))
 
+            val distinctFeatures = getDistinctFeatures(in.tokens) //expensive to calculate with bdds (at least the current implementation)
             println("Parsing statistics: \n" +
                 //                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
                 "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
@@ -72,8 +73,8 @@ class ParserMain(p: CParser) {
                 "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
                 //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
                 "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
-                "  Distinct Features#: " + countFeatures(in.tokens) + "\n" +
-                "  Distinct Features: " + getDistinctFeatures(in.tokens).toList.sorted.mkString(";") + "\n" +
+                "  Distinct Features#: " + distinctFeatures.size + "\n" +
+                "  Distinct Features: " + distinctFeatures.toList.sorted.mkString(";") + "\n" +
                 "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
                 "  Choice Nodes: " + countChoiceNodes(result) + "\n")
         }
@@ -138,7 +139,6 @@ class ParserMain(p: CParser) {
         features
     }
 
-    def countFeatures(tokens: List[TokenWrapper]): Int = getDistinctFeatures(tokens).size
 
     def printDistinctFeatures(tokens: List[TokenWrapper], filename: String) {
         val w = new FileWriter(new File(filename))
