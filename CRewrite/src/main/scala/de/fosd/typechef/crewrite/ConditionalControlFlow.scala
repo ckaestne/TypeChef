@@ -23,6 +23,9 @@ import java.util.IdentityHashMap
 
 // one usage for pred is for instance the determination of
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
+
+// TODO support for (expr) ? (expr) : (expr);
+// TODO analysis static gotos should always have a label (if more labels must be unique according to feature expresssions)
 class CCFGCache {
   private val cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
 
@@ -191,7 +194,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@GotoStatement(Id(l)) => {
         findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(false, "goto statement should always occur within a function definition"); List()
-          case Some(f) => labelLookup(f, l, env)
+          case Some(f) => {
+            val l_list = labelLookup(f, l, env)
+            if (l_list.isEmpty) getSuccSameLevel(t, env)
+            else l_list
+          }
         }
       }
       // in case we have an indirect goto dispatch all goto statements
@@ -200,7 +207,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@GotoStatement(PointerDerefExpr(_)) => {
         findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(false, "goto statement should always occur within a function definition"); List()
-          case Some(f) => filterASTElems[LabelStatement](f)
+          case Some(f) => {
+            val l_list = filterASTElems[LabelStatement](f)
+            if (l_list.isEmpty) getSuccSameLevel(t, env)
+            else l_list
+          }
         }
       }
 
