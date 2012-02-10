@@ -23,29 +23,29 @@ class FeatureExprParser extends RegexParsers {
         } | aterm
 
     def aterm: Parser[FeatureExpr] =
-        bterm ~ opt(("=>" | "implies") ~> expr) ^^ {
+        bterm ~ opt(("=>" | "implies") ~> aterm) ^^ {
             case a ~ b => if (b.isDefined) a implies b.get else a
         }
 
     def bterm: Parser[FeatureExpr] =
-        cterm ~ opt(("<=>" | "equiv") ~> expr) ^^ {
+        cterm ~ opt(("<=>" | "equiv") ~> bterm) ^^ {
             case a ~ b => if (b.isDefined) a equiv b.get else a
         }
 
     //mutually exclusion
     def cterm: Parser[FeatureExpr] =
-        dterm ~ opt(("<!>" | "mex") ~> expr) ^^ {
+        dterm ~ opt(("<!>" | "mex") ~> cterm) ^^ {
             case a ~ b => if (b.isDefined) a mex b.get else a
         }
 
     //||
     def dterm: Parser[FeatureExpr] =
-        term ~ rep(("||" | "|" | "or") ~> expr) ^^ {
+        term ~ rep(("||" | "|" | "or") ~> dterm) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ or _)
         }
 
     def term: Parser[FeatureExpr] =
-        bool ~ rep(("&&" | "&" | "and") ~> expr) ^^ {
+        bool ~ rep(("&&" | "&" | "and") ~> term) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ and _)
         }
 

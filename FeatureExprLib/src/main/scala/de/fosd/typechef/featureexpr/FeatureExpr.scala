@@ -235,7 +235,7 @@ class FeatureExpr(private[featureexpr] val bdd: BDD) {
     def isSatisfiable(): Boolean = isSatisfiable(NoFeatureModel)
     /**
      * FM -> X is tautology if FM.implies(X).isTautology or
-     * !FM.and.(x.not).isSatisfiable
+     * FM.and.(x.not).isSatisfiable
      *
      **/
     def isTautology(fm: FeatureModel): Boolean = !this.not.isSatisfiable(fm)
@@ -244,8 +244,16 @@ class FeatureExpr(private[featureexpr] val bdd: BDD) {
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
      * but is faster because FM is cached
      */
-    def isSatisfiable(fm: FeatureModel): Boolean = cacheIsSatisfiable.getOrElseUpdate(fm,
-        bdd.satOne() != FExprBuilder.FALSE)
+    def isSatisfiable(fm: FeatureModel): Boolean =
+        if (bdd.isOne) true //assuming a valid feature model
+        else if (bdd.isZero) false
+        else if (fm == NoFeatureModel) bdd.satOne() != FExprBuilder.FALSE
+        //combination with a small FeatureExpr feature model
+        else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd).satOne() != FExprBuilder.FALSE
+        //combination with SAT
+        else cacheIsSatisfiable.getOrElseUpdate(fm,
+            SatSolver.isSatisfiable(fm, toDnfClauses(toScalaAllSat(bdd.not().allsat())), FExprBuilder.lookupFeatureName)
+        )
 
     /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.
@@ -309,9 +317,21 @@ class FeatureExpr(private[featureexpr] val bdd: BDD) {
             return bddAllSat.map(clause(_)).mkString(or)
         }
 
-    private def bddAllSat: Iterator[Array[Byte]] = {
-        val allsat = bdd.allsat().asInstanceOf[java.util.List[Array[Byte]]];
-        scala.collection.JavaConversions.asScalaIterator(allsat.iterator())
+    private def bddAllSat: Iterator[Array[Byte]] = toScalaAllSat(bdd.allsat())
+
+    private def toScalaAllSat(allsat: java.util.List[_]): Iterator[Array[Byte]] =
+        scala.collection.JavaConversions.asScalaIterator(allsat.asInstanceOf[java.util.List[Array[Byte]]].iterator())
+
+    /**
+     * input allsat format
+     *
+     * output clausel format with sets of variable ids (negative means negated)
+     */
+    private def toDnfClauses(allsat: Iterator[Array[Byte]]): Iterator[Seq[Int]] = {
+        def clause(d: Array[Byte]): Seq[Int] = d.zip(0 to (d.length - 1)).filter(_._1 >= 0).map(
+            x => (if (x._1 == 0) -1 else 1) * x._2
+        )
+        bddAllSat.map(clause(_))
     }
 
     /**
@@ -394,7 +414,7 @@ private[featureexpr] object FExprBuilder {
     val bddCacheSize = 100000
     var bddValNum = 100000
     var bddVarNum = 100
-    var maxFeatureId = -1
+    var maxFeatureId = 0 //start with one, so we can distinguish -x and x for sat solving and tostring
     val bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
     bddFactory.setVarNum(bddVarNum)
 

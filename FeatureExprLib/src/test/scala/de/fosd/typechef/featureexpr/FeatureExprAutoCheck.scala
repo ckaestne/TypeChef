@@ -80,8 +80,8 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     //    property("applying not twice yields the same object") = Prop.forAll((a: FeatureExpr) => a eq (a.not.not)) //does not necessarily hold any more; they are only equivalent
     property("applying not twice yields an equivalent formula") = Prop.forAll((a: FeatureExpr) => a equivalentTo (a.not.not)) //does not necessarily hold any more; they are only equivalent
 
-    property("Commutativity wrt. object identity: (a and b) produces the same object as (b and a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) eq (b and a))
-    property("Commutativity wrt. object identity: (a or b) produces the same object as (b or a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) eq (b or a))
+    property("Commutativity wrt. equivalence: (a and b) produces the same object as (b and a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a and b) equivalentTo (b and a))
+    property("Commutativity wrt. equivalence: (a or b) produces the same object as (b or a)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (a or b) equivalentTo (b or a))
 
     //    def associativeAnd = (a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a and b) and c) eq (a and (b and c))
     //    def associativeOr = (a: FeatureExpr, b: FeatureExpr, c: FeatureExpr) => ((a or b) or c) eq (a or (b or c))
@@ -113,10 +113,13 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     property("falseSat") = !(FeatureExpr.dead.isSatisfiable())
 
     property("can_print") = Prop.forAll((a: FeatureExpr) => {
-        a.toTextExpr; a.debug_print(0); true
+        a.toTextExpr;
+        a.debug_print(0);
+        true
     })
     property("can_calcSize") = Prop.forAll((a: FeatureExpr) => {
-        a.size; true
+        a.size;
+        true
     })
 
 
