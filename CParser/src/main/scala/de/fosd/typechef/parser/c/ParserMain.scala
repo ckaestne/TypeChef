@@ -32,16 +32,17 @@ object ParserMain {
 
 class ParserMain(p: CParser) {
 
-    def parserMain(filePath: String, parentPath: String, printStatistics: Boolean = true): AST = {
+    def parserMain(filePath: String, parentPath: String, parserOptions: ParserOptions = DefaultParserOptions): AST = {
         val lexer = (() => CLexer.lexFile(filePath, parentPath, p.featureModel))
-        parserMain(lexer, new CTypeContext(), printStatistics)
+        parserMain(lexer, new CTypeContext(), parserOptions)
     }
 
-    def parserMain(tokenstream: TokenReader[TokenWrapper, CTypeContext], printStatistics: Boolean): AST = {
-        parserMain((() => tokenstream), new CTypeContext(), printStatistics)
+    def parserMain(tokenstream: TokenReader[TokenWrapper, CTypeContext], parserOptions: ParserOptions): AST = {
+        parserMain((() => tokenstream), new CTypeContext(), parserOptions)
     }
 
-    def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext, printStatistics: Boolean): AST = {
+    def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): AST = {
+        assert(parserOptions != null)
         //        val logStats = MyUtil.runnable(() => {
         //            if (TokenWrapper.profiling) {
         //                val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
@@ -60,12 +61,12 @@ class ParserMain(p: CParser) {
         //        val result = p.translationUnit(in, FeatureExpr.base)
         val endTime = System.currentTimeMillis
 
-        if (printStatistics) {
+        if (parserOptions.printParserResult)
             println(printParseResult(result, FeatureExpr.base))
 
+        if (parserOptions.printParserStatistics) {
             val distinctFeatures = getDistinctFeatures(in.tokens) //expensive to calculate with bdds (at least the current implementation)
             println("Parsing statistics: \n" +
-                //                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
                 "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
                 "  Tokens: " + in.tokens.size + "\n" +
                 "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +

@@ -140,7 +140,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
 
     private def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
-            () => CLexer.lex(code, null), new CTypeContext, false)
+            () => CLexer.lex(code, null), new CTypeContext, SilentParserOptions)
         assert(ast != null)
         ast.asInstanceOf[TranslationUnit]
     }

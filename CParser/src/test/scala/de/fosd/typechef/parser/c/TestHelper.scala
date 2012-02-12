@@ -18,13 +18,13 @@ trait TestHelper {
 
     def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
-            () => CLexer.lex(code, null), new CTypeContext, false)
+            () => CLexer.lex(code, null), new CTypeContext, SilentParserOptions)
         ast.asInstanceOf[TranslationUnit]
     }
 
     def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
-            () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, false)
+            () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, SilentParserOptions)
         ast.asInstanceOf[TranslationUnit]
     }
 
