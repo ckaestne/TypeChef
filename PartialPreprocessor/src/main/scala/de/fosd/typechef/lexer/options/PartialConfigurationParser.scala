@@ -9,11 +9,11 @@ object PartialConfigurationParser {
         val DEF = "#define"
         val UNDEF = "#undef"
 
-        val directives = Source.fromFile(file).getLines().filter(_.startsWith("#"))
+        val directives = Source.fromFile(file).getLines().filter(_.startsWith("#")).toList
 
         def findMacroName(directive: String) = directive.split(' ')(1)
 
-        val booleanDefs = directives.filter(directive => directive.startsWith(DEF) && directive.endsWith(" 1")).map(findMacroName)
+        val booleanDefs = directives.filter(_.startsWith(DEF)).map(findMacroName)
         val undefs = directives.filter(_.startsWith(UNDEF)).map(findMacroName)
 
         val featureExpr =
