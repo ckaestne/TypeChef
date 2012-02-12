@@ -114,7 +114,7 @@ class SatSolverImpl(featureModel: FeatureModel) {
                 print(result + ";")
             return result
         } finally {
-            for (constr <- constraintGroup)
+            for (constr <- constraintGroup.filter(_ != null))
                 assert(solver.removeConstr(constr))
 
             if (PROFILING)
