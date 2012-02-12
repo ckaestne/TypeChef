@@ -8,4 +8,6 @@ public interface IFeatureModelOptions {
     FeatureModel getFeatureModel();
 
     FeatureModel getFeatureModelTypeSystem();
+
+    PartialConfiguration getPartialConfiguration();
 }

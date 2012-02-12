@@ -75,6 +75,12 @@ public class Main {
         } else if (options.isLexPrintToStdout())
             output = new PrintWriter(new OutputStreamWriter(System.out));
 
+        if (options.getPartialConfiguration() != null) {
+            for (String def : options.getPartialConfiguration().getDefinedFeatures())
+                pp.addMacro(def, FeatureExprLib.base(), "1");
+            for (String undef : options.getPartialConfiguration().getUndefinedFeatures())
+                pp.removeMacro(undef, FeatureExprLib.base());
+        }
         for (Map.Entry<String, String> macro : options.getDefinedMacros().entrySet())
             pp.addMacro(macro.getKey(), FeatureExprLib.base(), macro.getValue());
         for (String undef : options.getUndefMacros())

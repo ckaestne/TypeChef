@@ -20,6 +20,7 @@ import java.util.List;
 public class FeatureModelOptions extends Options implements IFeatureModelOptions {
     protected FeatureModel featureModel = null;
     protected FeatureModel featureModel_typeSystem = null;
+    protected PartialConfiguration partialConfig = null;
 
 
     @Override
@@ -42,6 +43,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
     private static final char FM_FEXPR = Options.genOptionId();
     private static final char FM_CLASS = Options.genOptionId();
     private static final char FM_TSDIMACS = Options.genOptionId();
+    private static final char FM_PARTIALCONFIG = Options.genOptionId();
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -55,7 +57,9 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
                 new Option("featureModelClass", LongOpt.REQUIRED_ARGUMENT, FM_CLASS, "classname",
                         "Class describing a feature model."),
                 new Option("typeSystemFeatureModelDimacs", LongOpt.REQUIRED_ARGUMENT, FM_TSDIMACS, "file",
-                        "Distinct feature model for the type system.")
+                        "Distinct feature model for the type system."),
+                new Option("partialConfiguration", LongOpt.REQUIRED_ARGUMENT, FM_PARTIALCONFIG, "file",
+                        "Loads a partial configuration to the feature model (file with #define and #undef lines).")
         ));
 
         return r;
@@ -85,12 +89,28 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
         } else if (c == FM_TSDIMACS) {
             checkFileExists(g.getOptarg());
             featureModel_typeSystem = FeatureModel.createFromDimacsFile_2Var(g.getOptarg());
+        } else if (c == FM_PARTIALCONFIG) {
+            checkFileExists(g.getOptarg());
+            if (partialConfig != null)
+                throw new OptionException("cannot load a second partial configuration");
+            partialConfig = PartialConfigurationParser$.MODULE$.load(g.getOptarg());
+            FeatureExpr f = partialConfig.getFeatureExpr();
+            if (featureModel == null)
+                featureModel = de.fosd.typechef.featureexpr.FeatureModel.create(f);
+            else featureModel = featureModel.and(f);
+            if (featureModel_typeSystem != null)
+                featureModel_typeSystem = featureModel_typeSystem.and(partialConfig.getFeatureExpr());
         } else
             return super.interpretOption(c, g);
         return true;
     }
 
+
     public void setFeatureModel(FeatureModel fm) {
         featureModel = fm;
+    }
+
+    public PartialConfiguration getPartialConfiguration() {
+        return partialConfig;
     }
 }
