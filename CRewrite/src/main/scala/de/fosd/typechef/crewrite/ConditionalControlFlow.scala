@@ -25,7 +25,8 @@ import java.util.IdentityHashMap
 // reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
 
 // TODO support for (expr) ? (expr) : (expr);
-// TODO analysis static gotos should always have a label (if more labels must be unique according to feature expresssions)
+// TODO analysis static gotos should have a label (if more labels must be unique according to feature expresssions)
+// TODO analysis dynamic gotos should have a label
 class CCFGCache {
   private val cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
 
@@ -97,7 +98,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case w@LabelStatement(Id(n), _) => {
         findPriorASTElem[FunctionDef](w, env) match {
           case None => assert(false, "label statements should always occur within a function definition"); List()
-          case Some(f) => gotoLookup(f, n, env) ++ getPredSameLevel(w, env)
+          case Some(f) => {
+            val l_gotos = gotoLookup(f, n, env)
+            val l_preds = getPredSameLevel(w, env)
+            l_gotos ++ l_preds
+          }
         }
       }
 
@@ -445,7 +450,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case t@ForStatement(_, expr2, expr3, s) => {
             if (expr3.isDefined) Some(simpleOrCompoundStatementExprSucc(expr3.get, env))
             else if (expr2.isDefined) Some(simpleOrCompoundStatementExprSucc(expr2.get, env))
-            else Some(simpleOrCompoundStatementPred(t, childAST(s), env))
+            else Some(simpleOrCompoundStatementSucc(t, childAST(s), env))
           }
           case WhileStatement(expr, s) => Some(List(expr))
           case DoStatement(expr, s) => Some(List(expr))
@@ -486,10 +491,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     nested_ast_elem match {
 
       // default statements belong only to switch statements
-      case DefaultStatement => {
-        val prior_switch = findPriorASTElem[SwitchStatement](nested_ast_elem, env)
+      case t: DefaultStatement => {
+        val prior_switch = findPriorASTElem[SwitchStatement](t, env)
         assert(prior_switch.isDefined, "default statement without surrounding switch")
-        Some(getPredSameLevel(prior_switch.get, env))
+        prior_switch.get match {
+          case SwitchStatement(expr, _) => Some(simpleOrCompoundStatementExprPred(expr, env))
+          case _ => Some(getPredSameLevel(prior_switch.get, env))
+        }
       }
 
       // break statements belong to switch statements but also appear in loops
@@ -649,7 +657,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@DoStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@ForStatement(_, Some(expr2), _, _) => List(expr2) ++ filterBreakStatements(t, env)
-      case t@ForStatement(_, _, _, _) => filterBreakStatements(t, env)
+      case t@ForStatement(_, _, _, s) => filterBreakStatements(t, env) ++ simpleOrCompoundStatementPred(t, s, env)
 
       case CompoundStatement(innerStatements) => getPredNestedLevel(innerStatements, env).flatMap(rollUp(_, env))
 
