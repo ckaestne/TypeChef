@@ -26,6 +26,6 @@ object DotGraph extends IOUtilities with CASTEnv {
   }
 
   private def esc(i: String) = {
-    i.replace("\n", "\\n").replace("{", "\\{").replace("}", "\\}").replace("<", "\\<").replace(">", "\\>").replace("\"", "\\\"")
+    i.replace("\n", "\\l").replace("{", "\\{").replace("}", "\\}").replace("<", "\\<").replace(">", "\\>").replace("\"", "\\\"")
   }
 }

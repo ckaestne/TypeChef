@@ -85,6 +85,24 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // http://goo.gl/QcUOy
+  def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case x if (m.erasure.isInstance(x)) => List(x.asInstanceOf[T])
+      case l: List[_] => l.flatMap(filterASTElems[T](_))
+      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T](_))
+      case _ => List()
+    }
+  }
+
+  def findPriorASTElem[T <: AST](a: Any, env: ASTEnv)(implicit m: ClassManifest[T]): Option[T] = {
+    a match {
+      case x if (m.erasure.isInstance(x)) => Some(x.asInstanceOf[T])
+      case x: Product => findPriorASTElem[T](parentAST(x, env), env)
+      case null => None
+    }
+  }
+
   private def lastChoice(x: Choice[_]): AST = {
     x.elseBranch match {
       case c: Choice[_] => lastChoice(c)
