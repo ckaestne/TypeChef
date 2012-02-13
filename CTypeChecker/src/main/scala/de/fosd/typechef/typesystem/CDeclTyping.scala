@@ -347,7 +347,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         //for nested structs, we need to add the inner structs to the environment
                         val env2 = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))
                         checkStructsC(ctype, featureExpr and f and g, env2, structDeclaration)
-                        result = result +(decl.getName, f and g, ctype)
+                        result = result +(decl.getName, featureExpr and f and g, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }
             //for unnamed fields, if they are struct or union inline their fields
