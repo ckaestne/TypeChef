@@ -247,7 +247,7 @@ class FeatureExpr(private[featureexpr] val bdd: BDD) {
     def isSatisfiable(fm: FeatureModel): Boolean =
         if (bdd.isOne) true //assuming a valid feature model
         else if (bdd.isZero) false
-        else if (fm == NoFeatureModel) bdd.satOne() != FExprBuilder.FALSE
+        else if (fm == NoFeatureModel || fm == null) bdd.satOne() != FExprBuilder.FALSE
         //combination with a small FeatureExpr feature model
         else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd).satOne() != FExprBuilder.FALSE
         //combination with SAT
@@ -415,7 +415,14 @@ private[featureexpr] object FExprBuilder {
     var bddValNum = 4194304
     var bddVarNum = 100
     var maxFeatureId = 0 //start with one, so we can distinguish -x and x for sat solving and tostring
-    val bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
+    var bddFactory: BDDFactory = null
+    try {
+        bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
+    } catch {
+        case e: OutOfMemoryError =>
+            var bddValNum = 524288
+            bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
+    }
     bddFactory.setVarNum(bddVarNum)
 
     val TRUE: BDD = bddFactory.one()
