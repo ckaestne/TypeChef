@@ -420,9 +420,12 @@ private[featureexpr] object FExprBuilder {
         bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
     } catch {
         case e: OutOfMemoryError =>
+            println("running with low memory. consider increasing heap size.")
             var bddValNum = 524288
             bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
     }
+    bddFactory.setIncreaseFactor(.5) //50% increase each time
+    bddFactory.setMaxIncrease(0) //no upper limit on increase size
     bddFactory.setVarNum(bddVarNum)
 
     val TRUE: BDD = bddFactory.one()
