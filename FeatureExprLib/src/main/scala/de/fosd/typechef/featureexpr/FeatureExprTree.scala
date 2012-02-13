@@ -33,7 +33,7 @@ private[featureexpr] class If[T](val expr: FeatureExpr, val thenBr: FeatureExprT
     override def toString = "(" + expr + "?" + thenBr + ":" + elseBr + ")"
     override def hashCode = expr.hashCode()
     override def equals(that: Any) = that match {
-        case that: If[T] => expr == that.expr && thenBr == that.thenBr && elseBr == that.elseBr
+        case that: If[_] => expr == that.expr && thenBr == that.asInstanceOf[If[T]].thenBr && elseBr == that.asInstanceOf[If[T]].elseBr
         case _ => super.equals(that)
     }
 }
@@ -46,7 +46,7 @@ private[featureexpr] class Value[T](val value: T) extends FeatureExprTree[T] {
     override def toString = value.toString
     override def hashCode = value.hashCode()
     override def equals(that: Any) = that match {
-        case that: Value[T] => value == that.value
+        case that: Value[_] => value == that.asInstanceOf[Value[T]].value
         case _ => super.equals(that)
     }
 }
