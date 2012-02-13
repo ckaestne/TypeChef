@@ -486,6 +486,21 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // method to find prior element to a break statement
+  private def findPriorASTElem2BreakStatement(a: AnyRef, env: ASTEnv): Option[AST] = {
+    val aparent = env.parent(a)
+    aparent match {
+      case t: ForStatement => Some(t)
+      case t: WhileStatement => Some(t)
+      case t: DoStatement => Some(t)
+      case t: SwitchStatement => Some(t)
+      case t: AST => findPriorASTElem2BreakStatement(t, env)
+      case t: Opt[_] => findPriorASTElem2BreakStatement(t, env)
+      case t: Conditional[_] => findPriorASTElem2BreakStatement(t, env)
+      case null => None
+    }
+  }
+
   // method to catch surrounding ast element, which precedes the given nested_ast_element
   private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
     nested_ast_elem match {
@@ -494,16 +509,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: DefaultStatement => {
         val prior_switch = findPriorASTElem[SwitchStatement](t, env)
         assert(prior_switch.isDefined, "default statement without surrounding switch")
-        prior_switch.get match {
-          case SwitchStatement(expr, _) => Some(simpleOrCompoundStatementExprPred(expr, env))
-          case _ => Some(getPredSameLevel(prior_switch.get, env))
-        }
+        Some(getPredSameLevel(prior_switch.get, env))
       }
 
-      // break statements belong to switch statements but also appear in loops
-      case BreakStatement => {
-        None
-      } // TODO fixing break statement
+      // break statements belong to switch statements but also appear in loops (for, do-while, while)
+      case t: BreakStatement => {
+        val prior2break = findPriorASTElem2BreakStatement(t, env)
+        assert(prior2break.isDefined, "break statement without surrounding switch/for/do-while/while")
+        Some(getPredSameLevel(prior2break.get, env))
+      }
 
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
