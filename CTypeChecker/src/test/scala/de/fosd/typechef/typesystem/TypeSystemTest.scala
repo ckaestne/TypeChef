@@ -429,4 +429,20 @@ return 1;
                         """)
         }
     }
+
+
+    test("mostly optional declaration") {
+        //the following case is problematic
+        //a declaration that is always there, but where all specifiers and initializers have the same condition
+        //Opt(true,Declaration(List(Opt(X,...
+        expect(true) {
+            check("""
+             #ifdef X
+             int a
+             #endif
+             ;
+             """)
+        }
+
+    }
 }

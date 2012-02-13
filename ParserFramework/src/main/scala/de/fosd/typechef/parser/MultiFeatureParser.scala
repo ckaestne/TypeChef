@@ -660,6 +660,27 @@ try {
     }.named("nonEmpty")
 
     /**
+     * returns failure when list is empty
+     * considers all elements of an optList and returns failure for all conditions where the optList is empty
+     */
+    def alwaysNonEmpty[T](p: => MultiParser[List[Opt[T]]]): MultiParser[List[Opt[T]]] = new OtherParser[List[Opt[T]]](p) {
+        def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[Opt[T]]] = {
+            val t = p(in, feature)
+            t.seqAllSuccessful(feature,
+                (fs: FeatureExpr, x: Success[List[Opt[T]]]) => {
+                    val nonEmptyCondition = x.result.map(_.feature).foldLeft(FeatureExpr.dead)(_ or _)
+                    def error = Failure("empty list", x.nextInput, List())
+                    if ((fs implies nonEmptyCondition).isTautology())
+                        x
+                    else if ((fs and nonEmptyCondition).isContradiction())
+                        error
+                    else
+                        SplittedParseResult(nonEmptyCondition, x, error)
+                })
+        }
+    }.named("nonEmpty")
+
+    /**
      * repetitions 1..n with separator
      *
      * for the pattern
