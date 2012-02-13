@@ -152,9 +152,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         if (types.size == 1)
             types.head
         else if (types.size == 0)
-            One(reportTypeError(featureExpr, "no type specifier found", null))
+            One(reportTypeError(featureExpr, "no type specifier found", locationForErrorMsg))
         else
-            One(reportTypeError(featureExpr, "multiple types found " + types, specifiers.head))
+            One(reportTypeError(featureExpr, "multiple types found " + types, locationForErrorMsg))
     }
 
     private def noInitCheck = (a: Expr, b: Conditional[CType], c: FeatureExpr, d: Env) => {}
