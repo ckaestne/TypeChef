@@ -157,10 +157,32 @@ class ConditionalTest {
     @Test
     def testFoldCondition {
         val l = List(Opt(fa, 1), Opt(fa.not(), 2), Opt(fa.not(), 3))
-        val r = conditionalFoldRightFR(l, One("-"), base, (f: FeatureExpr, a: Int, b: String) => {assert(!f.isTautology()); println(f + ", " + a + ", " + b); One(a.toString + b)})
+        val r = conditionalFoldRightFR(l, One("-"), base, (f: FeatureExpr, a: Int, b: String) => {
+            assert(!f.isTautology());
+            println(f + ", " + a + ", " + b);
+            One(a.toString + b)
+        })
         println(r)
 
         assertEquals(Choice(fa.not, One("23-"), One("1-")), r)
+    }
+
+    @Test
+    def testConditionalMap {
+        var a = new ConditionalMap[String, Int]()
+
+        a = a.+("a", fa, 3)
+        assertEquals(Choice(fa, One(3), One(-1)), a.getOrElse("a", -1))
+
+        a = a +("a", fa.not(), 2)
+        assertEquals(Choice(fa.not, One(2), One(3)), a.getOrElse("a", -1))
+
+        a = a.+("a", fa, 4)
+        val v2 = Choice(fa, One(4), One(2))
+        assertEquals(v2, a.getOrElse("a", -1))
+
+        a = a.+("a", fb, 5)
+        assertEquals(Choice(fb, One(5), v2), a.getOrElse("a", -1))
     }
 
 }
