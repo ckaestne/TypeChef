@@ -11,14 +11,18 @@ object DotGraph extends IOUtilities with CASTEnv {
     val fname = getTmpFileName()
     dotstring += "digraph \"" + fname.getName + "\" {" + "\n"
     dotstring += "node [shape=record];\n"
+
+    // iterate ast elements and its successors and add nodes in for each ast element
     for ((o, succs) <- m) {
       val op = esc(PrettyPrinter.print(o))
       dotstring += "\"" + System.identityHashCode(o) + "\" [label=\"{{" + op + "}|" + esc(env.get(o)._1.reduce(_ and _).toString()) + "}\"];\n"
+
+      // iterate successors and add edges
       for (succ <- succs) dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\"\n"
     }
     dotstring = dotstring + "}\n"
-    println("dot filename: " + fname)
     writeToFile(fname.getAbsolutePath, dotstring)
+    fname
   }
 
   private def esc(i: String) = {
