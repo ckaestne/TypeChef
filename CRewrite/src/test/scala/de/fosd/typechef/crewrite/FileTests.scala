@@ -166,16 +166,12 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Ignore def test_20000728_1() {assert(checkCfg("20000728-1.c"))}
   @Test def test_20000802_1() {assert(checkCfg("20000802-1.c"))}
   @Test def test_20000803_1() {assert(checkCfg("20000803-1.c"))}
-
-  // uses gnu assember; prettyprinter fails
-  @Ignore def test_20000804_1() {assert(checkCfg("20000804-1.c"))}
+  @Test def test_20000804_1() {assert(checkCfg("20000804-1.c"))}
   @Test def test_20000818_1() {assert(checkCfg("20000818-1.c"))}
   @Test def test_20000825_1() {assert(checkCfg("20000825-1.c"))}
-
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20000827_1() {assert(checkCfg("20000827-1.c"))}
-  @Ignore def test_20000922_1() {assert(checkCfg("20000922-1.c"))}
-  @Ignore def test_20000923_1() {assert(checkCfg("20000923-1.c"))}
+  @Test def test_20000827_1() {assert(checkCfg("20000827-1.c"))}
+  @Test def test_20000922_1() {assert(checkCfg("20000922-1.c"))}
+  @Test def test_20000923_1() {assert(checkCfg("20000923-1.c"))}
 
   @Test def test_20001018_1() {assert(checkCfg("20001018-1.c"))}
   @Ignore def test_20001024_1() {assert(checkCfg("20001024-1.c"))}
@@ -185,9 +181,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20001121_1() {assert(checkCfg("20001121-1.c"))}
   @Test def test_20001123_1() {assert(checkCfg("20001123-1.c"))}
   @Test def test_20001123_2() {assert(checkCfg("20001123-2.c"))}
-
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20001205_1() {assert(checkCfg("20001205-1.c"))}
+  @Test def test_20001205_1() {assert(checkCfg("20001205-1.c"))}
 
   @Test def test_20001212_1() {assert(checkCfg("20001212-1.c"))}
   @Test def test_20001221_1() {assert(checkCfg("20001221-1.c"))}
@@ -225,9 +219,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20010426_1() {assert(checkCfg("20010426-1.c"))}
   @Test def test_20010503_1() {assert(checkCfg("20010503-1.c"))}
   @Test def test_20010510_1() {assert(checkCfg("20010510-1.c"))}
-
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20010516_1() {assert(checkCfg("20010516-1.c"))}
+  @Test def test_20010516_1() {assert(checkCfg("20010516-1.c"))}
 
   @Test def test_20010518_1() {assert(checkCfg("20010518-1.c"))}
   @Ignore def test_20010518_2() {assert(checkCfg("20010518-2.c"))}
@@ -236,9 +228,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   // nested function definition
   @Ignore def test_20010605_1() {assert(checkCfg("20010605-1.c"))}
   @Test def test_20010605_2() {assert(checkCfg("20010605-2.c"))}
-
-  // uses gnu assember; prettyprinter fails
-  @Ignore def test_20010605_3() {assert(checkCfg("20010605-3.c"))}
+  @Test def test_20010605_3() {assert(checkCfg("20010605-3.c"))}
 
   @Ignore def test_20010610_1() {assert(checkCfg("20010610-1.c"))}
   @Test def test_20010611_1() {assert(checkCfg("20010611-1.c"))}
@@ -248,13 +238,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20010711_2() {assert(checkCfg("20010711-2.c"))}
   @Ignore def test_20010714_1() {assert(checkCfg("20010714-1.c"))}
   @Test def test_20010824_1() {assert(checkCfg("20010824-1.c"))}
-
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20010903_1() {assert(checkCfg("20010903-1.c"))}
-
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20010903_2() {assert(checkCfg("20010903-2.c"))}
-
+  @Test def test_20010903_1() {assert(checkCfg("20010903-1.c"))}
+  @Test def test_20010903_2() {assert(checkCfg("20010903-2.c"))}
   @Test def test_20010911_1() {assert(checkCfg("20010911-1.c"))}
   @Test def test_20011010_1() {assert(checkCfg("20011010-1.c"))}
   @Test def test_20011023_1() {assert(checkCfg("20011023-1.c"))}
@@ -277,8 +262,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20011130_1() {assert(checkCfg("20011130-1.c"))}
   @Test def test_20011130_2() {assert(checkCfg("20011130-2.c"))}
 
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20011205_1() {assert(checkCfg("20011205-1.c"))}
+  @Test def test_20011205_1() {assert(checkCfg("20011205-1.c"))}
 
   @Test def test_20011217_1() {assert(checkCfg("20011217-1.c"))}
   @Test def test_20011217_2() {assert(checkCfg("20011217-2.c"))}
@@ -311,9 +295,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
 
   // test fails
   @Ignore def test_20020309_2() {assert(checkCfg("20020309-2.c"))}
-
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20020312_1() {assert(checkCfg("20020312-1.c"))}
+  @Test def test_20020312_1() {assert(checkCfg("20020312-1.c"))}
 
   // test fails
   @Ignore def test_20020314_1() {assert(checkCfg("20020314-1.c"))}
@@ -441,8 +423,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   // test fails
   @Ignore def test_20031231_1() {assert(checkCfg("20031231-1.c"))}
 
-  // uses gnu assembler; prettyprinter fails
-  @Ignore def test_20040101_1() {assert(checkCfg("20040101-1.c"))}
+  @Test def test_20040101_1() {assert(checkCfg("20040101-1.c"))}
 
   // test fails
   @Ignore def test_20040109_1() {assert(checkCfg("20040109-1.c"))}
@@ -518,9 +499,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_920502_1() {assert(checkCfg("920502-1.c"))}
   @Test def test_920502_2() {assert(checkCfg("920502-2.c"))}
 
-  // uses gnu assembler prettyprinter fails
-  @Ignore def test_920520_1() {assert(checkCfg("920520-1.c"))}
-  @Ignore def test_920521_1() {assert(checkCfg("920521-1.c"))}
+  @Test def test_920520_1() {assert(checkCfg("920520-1.c"))}
+  @Test def test_920521_1() {assert(checkCfg("920521-1.c"))}
 
   @Test def test_920529_1() {assert(checkCfg("920529-1.c"))}
   @Test def test_920608_1() {assert(checkCfg("920608-1.c"))}
@@ -875,4 +855,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug03() {assert(checkCfg("bug03.c"))}
   @Test def test_bug04() {assert(checkCfg("bug04.c"))}
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
+
+  // performance testing
+  @Ignore def test_gzip() {assert(checkCfg("gzip.c"))}
 }

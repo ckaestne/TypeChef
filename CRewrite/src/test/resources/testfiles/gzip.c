@@ -1,6 +1,6 @@
 #line 1 "platform-redhat.h" 1
 //Generated with:
-//echo -|gcc -dM - -E -std=gnu99
+//echo -|gcc -dM - -E -std=gnu99 
 
 
 
@@ -177,74 +177,74 @@
 
 
 #if definedEx(CONFIG_FEATURE_TOP_SMP_CPU)
-
+  
 #endif
 #if definedEx(CONFIG_FEATURE_TOP_CPU_GLOBAL_PERCENTS)
-
+  
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_CONTEXT)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_LS_COLOR)
-
-
+  
+  
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS)
-
-
+  
+  
 #endif
 
 
@@ -252,8358 +252,8358 @@
 
 
 #if definedEx(CONFIG_HAVE_DOT_CONFIG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HAVE_DOT_CONFIG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DESKTOP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DESKTOP)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_INCLUDE_SUSv2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INCLUDE_SUSv2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_USE_PORTABLE_CODE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_USE_PORTABLE_CODE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PLATFORM_LINUX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PLATFORM_LINUX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BUFFERS_USE_MALLOC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BUFFERS_USE_MALLOC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BUFFERS_GO_ON_STACK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BUFFERS_GO_ON_STACK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BUFFERS_GO_IN_BSS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BUFFERS_GO_IN_BSS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SHOW_USAGE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SHOW_USAGE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VERBOSE_USAGE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VERBOSE_USAGE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_COMPRESS_USAGE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_COMPRESS_USAGE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSTALLER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSTALLER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOCALE_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOCALE_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNICODE_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNICODE_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNICODE_USING_LOCALE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNICODE_USING_LOCALE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHECK_UNICODE_IN_ENV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHECK_UNICODE_IN_ENV)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_UNICODE_COMBINING_WCHARS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNICODE_COMBINING_WCHARS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNICODE_WIDE_WCHARS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNICODE_WIDE_WCHARS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNICODE_BIDI_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNICODE_BIDI_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNICODE_NEUTRAL_TABLE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNICODE_NEUTRAL_TABLE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNICODE_PRESERVE_BROKEN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNICODE_PRESERVE_BROKEN)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_LONG_OPTS) || definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) && !definedEx(CONFIG_LONG_OPTS) && !definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) && !definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DEVPTS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DEVPTS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CLEAN_UP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CLEAN_UP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_UTMP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UTMP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_WTMP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_WTMP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PIDFILE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PIDFILE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SUID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SUID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SUID_CONFIG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SUID_CONFIG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SUID_CONFIG_QUIET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SUID_CONFIG_QUIET)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_FIND_CONTEXT) || definedEx(CONFIG_SELINUX))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_FIND_CONTEXT) && !definedEx(CONFIG_SELINUX))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PREFER_APPLETS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PREFER_APPLETS)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HAVE_RPC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HAVE_RPC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_STATIC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_STATIC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PIE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PIE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NOMMU)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NOMMU)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BUILD_LIBBUSYBOX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BUILD_LIBBUSYBOX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INDIVIDUAL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SHARED_BUSYBOX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SHARED_BUSYBOX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LFS)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_DEBUG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEBUG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEBUG_PESSIMIZE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEBUG_PESSIMIZE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WERROR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WERROR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NO_DEBUG_LIB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NO_DEBUG_LIB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DMALLOC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DMALLOC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_EFENCE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_EFENCE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_NO_USR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_NO_USR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_APPLET_SYMLINKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_APPLET_SYMLINKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_APPLET_HARDLINKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_APPLET_HARDLINKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_APPLET_SCRIPT_WRAPPERS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_APPLET_SCRIPT_WRAPPERS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_APPLET_DONT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_APPLET_DONT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_SH_APPLET_SYMLINK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_SH_APPLET_SYMLINK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_SH_APPLET_HARDLINK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_SH_APPLET_HARDLINK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSTALL_SH_APPLET_SCRIPT_WRAPPER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSTALL_SH_APPLET_SCRIPT_WRAPPER)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_FAST_TOP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FAST_TOP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ETC_NETWORKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ETC_NETWORKS)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_EDITING_VI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_EDITING_VI)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_EDITING_SAVEHISTORY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_EDITING_SAVEHISTORY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAB_COMPLETION)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAB_COMPLETION)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_USERNAME_COMPLETION)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_USERNAME_COMPLETION)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_EDITING_FANCY_PROMPT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_EDITING_FANCY_PROMPT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_EDITING_ASK_TERMINAL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_EDITING_ASK_TERMINAL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_NON_POSIX_CP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_NON_POSIX_CP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VERBOSE_CP_MESSAGE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VERBOSE_CP_MESSAGE)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_MONOTONIC_SYSCALL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MONOTONIC_SYSCALL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IOCTL_HEX2STR_ERROR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IOCTL_HEX2STR_ERROR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HWIB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HWIB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SEAMLESS_XZ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SEAMLESS_XZ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SEAMLESS_LZMA)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SEAMLESS_LZMA)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SEAMLESS_BZ2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SEAMLESS_BZ2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SEAMLESS_GZ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SEAMLESS_GZ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SEAMLESS_Z)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SEAMLESS_Z)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_AR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_AR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_AR_LONG_FILENAMES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_AR_LONG_FILENAMES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_AR_CREATE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_AR_CREATE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BUNZIP2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BUNZIP2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BZIP2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BZIP2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CPIO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CPIO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CPIO_O)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CPIO_O)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CPIO_P)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CPIO_P)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DPKG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DPKG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DPKG_DEB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DPKG_DEB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DPKG_DEB_EXTRACT_ONLY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DPKG_DEB_EXTRACT_ONLY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_GUNZIP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_GUNZIP)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) || definedEx(CONFIG_GZIP))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS) && !definedEx(CONFIG_GZIP))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LZOP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LZOP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LZOP_COMPR_HIGH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LZOP_COMPR_HIGH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RPM2CPIO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RPM2CPIO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RPM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RPM)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_TAR))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) && !definedEx(CONFIG_TAR))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_CREATE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_CREATE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_AUTODETECT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_AUTODETECT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_FROM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_FROM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_OLDGNU_COMPATIBILITY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_OLDGNU_COMPATIBILITY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_OLDSUN_COMPATIBILITY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_OLDSUN_COMPATIBILITY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_GNU_EXTENSIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_GNU_EXTENSIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_TO_COMMAND)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_TO_COMMAND)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_UNAME_GNAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_UNAME_GNAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_NOPRESERVE_TIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_NOPRESERVE_TIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_SELINUX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TAR_SELINUX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNCOMPRESS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNCOMPRESS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNLZMA)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNLZMA)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LZMA_FAST)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LZMA_FAST)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LZMA)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LZMA)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNXZ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNXZ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_XZ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_XZ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNZIP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNZIP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BASENAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BASENAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DATE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DATE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DATE_ISOFMT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DATE_ISOFMT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DATE_NANO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DATE_NANO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DATE_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DATE_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TEST)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TEST)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TEST_64)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TEST_64)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TR_CLASSES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TR_CLASSES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TR_EQUIV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TR_EQUIV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BASE64)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BASE64)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CAL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CAL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CATV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CATV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHGRP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHGRP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHMOD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHMOD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHOWN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHOWN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHOWN_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHOWN_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHROOT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHROOT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CKSUM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CKSUM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_COMM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_COMM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CP_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CP_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CUT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CUT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DD_SIGNAL_HANDLING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DD_SIGNAL_HANDLING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DD_THIRD_STATUS_LINE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DD_THIRD_STATUS_LINE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DD_IBS_OBS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DD_IBS_OBS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DF_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DF_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DIRNAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DIRNAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DOS2UNIX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DOS2UNIX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNIX2DOS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNIX2DOS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DU)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DU)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DU_DEFAULT_BLOCKSIZE_1K)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DU_DEFAULT_BLOCKSIZE_1K)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FANCY_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FANCY_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) || definedEx(CONFIG_ENV))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS) && !definedEx(CONFIG_ENV))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ENV_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) || definedEx(CONFIG_EXPAND))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS) && !definedEx(CONFIG_EXPAND))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_EXPAND_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_EXPR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_EXPR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_EXPR_MATH_SUPPORT_64)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_EXPR_MATH_SUPPORT_64)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FALSE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FALSE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FOLD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FOLD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FSYNC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FSYNC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HEAD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HEAD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FANCY_HEAD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FANCY_HEAD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HOSTID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HOSTID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ID)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) || definedEx(CONFIG_INSTALL))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS) && !definedEx(CONFIG_INSTALL))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSTALL_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LENGTH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LENGTH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOGNAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOGNAME)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_LS_COLOR) || definedEx(CONFIG_LS))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_LS_COLOR) && !definedEx(CONFIG_LS))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_FILETYPES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_FILETYPES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_FOLLOWLINKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_FOLLOWLINKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_RECURSIVE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_RECURSIVE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_SORTFILES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_SORTFILES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_TIMESTAMPS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_TIMESTAMPS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_USERNAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_USERNAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_COLOR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_COLOR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LS_COLOR_IS_DEFAULT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LS_COLOR_IS_DEFAULT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MD5SUM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MD5SUM)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) || definedEx(CONFIG_MKDIR))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS) && !definedEx(CONFIG_MKDIR))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MKDIR_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKFIFO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKFIFO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKNOD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKNOD)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) || definedEx(CONFIG_MV))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS) && !definedEx(CONFIG_MV))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MV_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NICE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NICE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NOHUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NOHUP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_OD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_OD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PRINTENV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PRINTENV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PRINTF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PRINTF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PWD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PWD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_READLINK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_READLINK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_READLINK_FOLLOW)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_READLINK_FOLLOW)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_REALPATH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_REALPATH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RM)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) || definedEx(CONFIG_RMDIR))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS) && !definedEx(CONFIG_RMDIR))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_RMDIR_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SEQ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SEQ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SHA1SUM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SHA1SUM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SHA256SUM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SHA256SUM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SHA512SUM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SHA512SUM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SLEEP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SLEEP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FANCY_SLEEP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FANCY_SLEEP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FLOAT_SLEEP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FLOAT_SLEEP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SORT_BIG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SORT_BIG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SPLIT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SPLIT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SPLIT_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SPLIT_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_STAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_STAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_STAT_FORMAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_STAT_FORMAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_STTY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_STTY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SUM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SUM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SYNC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SYNC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TAC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TAC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TAIL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TAIL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FANCY_TAIL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FANCY_TAIL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TEE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TEE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TEE_USE_BLOCK_IO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TEE_USE_BLOCK_IO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TOUCH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TOUCH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TRUE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TRUE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TTY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TTY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNEXPAND)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNEXPAND)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UNEXPAND_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UNIQ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UNIQ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_USLEEP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_USLEEP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UUDECODE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UUDECODE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UUENCODE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UUENCODE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_WC_LARGE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_WC_LARGE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WHO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WHO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WHOAMI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WHOAMI)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_YES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_YES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PRESERVE_HARDLINKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PRESERVE_HARDLINKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_AUTOWIDTH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_AUTOWIDTH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HUMAN_READABLE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HUMAN_READABLE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MD5_SHA1_SUM_CHECK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MD5_SHA1_SUM_CHECK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHVT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHVT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FGCONSOLE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FGCONSOLE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CLEAR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CLEAR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEALLOCVT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEALLOCVT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DUMPKMAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DUMPKMAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_KBD_MODE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_KBD_MODE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOADFONT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOADFONT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOADKMAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOADKMAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_OPENVT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_OPENVT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RESET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RESET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RESIZE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RESIZE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_RESIZE_PRINT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_RESIZE_PRINT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETCONSOLE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETCONSOLE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SETCONSOLE_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SETCONSOLE_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETFONT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETFONT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SETFONT_TEXTUAL_MAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SETFONT_TEXTUAL_MAP)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_SETKEYCODES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETKEYCODES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETLOGCONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETLOGCONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SHOWKEY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SHOWKEY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LOADFONT_PSF2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LOADFONT_PSF2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LOADFONT_RAW)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LOADFONT_RAW)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKTEMP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKTEMP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PIPE_PROGRESS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PIPE_PROGRESS)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) || definedEx(CONFIG_RUN_PARTS))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS) && !definedEx(CONFIG_RUN_PARTS))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_RUN_PARTS_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_RUN_PARTS_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_RUN_PARTS_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) || definedEx(CONFIG_START_STOP_DAEMON))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS) && !definedEx(CONFIG_START_STOP_DAEMON))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_START_STOP_DAEMON_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_START_STOP_DAEMON_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_START_STOP_DAEMON_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WHICH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WHICH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_AWK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_AWK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_AWK_LIBM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_AWK_LIBM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CMP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CMP)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) || definedEx(CONFIG_DIFF))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS) && !definedEx(CONFIG_DIFF))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DIFF_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DIFF_DIR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DIFF_DIR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ED)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ED)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PATCH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PATCH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SED)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SED)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_VI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_VI)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_VI_8BIT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_8BIT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_COLON)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_COLON)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_YANKMARK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_YANKMARK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_SEARCH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_SEARCH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_USE_SIGNALS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_USE_SIGNALS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_DOT_CMD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_DOT_CMD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_READONLY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_READONLY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_SETOPTS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_SETOPTS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_SET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_SET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_WIN_RESIZE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_WIN_RESIZE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_ASK_TERMINAL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_ASK_TERMINAL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VI_OPTIMIZE_CURSOR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VI_OPTIMIZE_CURSOR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ALLOW_EXEC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ALLOW_EXEC)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_FIND_PRINT0)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_PRINT0)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_MTIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_MTIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_MMIN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_MMIN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_PERM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_PERM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_TYPE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_TYPE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_XDEV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_XDEV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_MAXDEPTH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_MAXDEPTH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_NEWER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_NEWER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_INUM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_INUM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_EXEC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_EXEC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_USER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_USER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_GROUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_GROUP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_NOT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_NOT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_DEPTH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_DEPTH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_PAREN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_PAREN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_SIZE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_SIZE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_PRUNE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_PRUNE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_DELETE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_DELETE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_PATH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_PATH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_REGEX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_REGEX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_CONTEXT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_CONTEXT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FIND_LINKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FIND_LINKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_GREP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_GREP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_GREP_EGREP_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_GREP_FGREP_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_GREP_FGREP_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_GREP_CONTEXT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_GREP_CONTEXT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_XARGS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_XARGS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_XARGS_SUPPORT_CONFIRMATION)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_XARGS_SUPPORT_CONFIRMATION)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_XARGS_SUPPORT_QUOTES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_XARGS_SUPPORT_QUOTES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_XARGS_SUPPORT_TERMOPT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_XARGS_SUPPORT_TERMOPT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_XARGS_SUPPORT_ZERO_TERM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_XARGS_SUPPORT_ZERO_TERM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BOOTCHARTD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BOOTCHARTD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BOOTCHARTD_BLOATED_HEADER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BOOTCHARTD_BLOATED_HEADER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BOOTCHARTD_CONFIG_FILE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BOOTCHARTD_CONFIG_FILE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INIT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INIT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_USE_INITTAB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_USE_INITTAB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_KILL_REMOVED)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_KILL_REMOVED)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_INIT_SCTTY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INIT_SCTTY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INIT_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INIT_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_EXTRA_QUIET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_EXTRA_QUIET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INIT_COREDUMPS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INIT_COREDUMPS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INITRD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INITRD)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_HALT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HALT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CALL_TELINIT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CALL_TELINIT)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_MESG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MESG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ADD_SHELL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ADD_SHELL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_REMOVE_SHELL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_REMOVE_SHELL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SHADOWPASSWDS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SHADOWPASSWDS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_USE_BB_PWD_GRP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_USE_BB_PWD_GRP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_USE_BB_SHADOW)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_USE_BB_SHADOW)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_USE_BB_CRYPT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_USE_BB_CRYPT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_USE_BB_CRYPT_SHA)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_USE_BB_CRYPT_SHA)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) || definedEx(CONFIG_ADDUSER))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS) && !definedEx(CONFIG_ADDUSER))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ADDUSER_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHECK_NAMES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHECK_NAMES)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if (definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) || definedEx(CONFIG_ADDGROUP))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS) && !definedEx(CONFIG_ADDGROUP))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ADDGROUP_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ADDUSER_TO_GROUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ADDUSER_TO_GROUP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DELUSER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DELUSER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DELGROUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DELGROUP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DEL_USER_FROM_GROUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DEL_USER_FROM_GROUP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_GETTY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_GETTY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOGIN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOGIN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PAM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PAM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOGIN_SCRIPTS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOGIN_SCRIPTS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_NOLOGIN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_NOLOGIN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SECURETTY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SECURETTY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PASSWD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PASSWD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PASSWD_WEAK_CHECK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PASSWD_WEAK_CHECK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CRYPTPW)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CRYPTPW)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHPASSWD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHPASSWD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SU)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SU)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SU_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SU_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SU_CHECKS_SHELLS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SU_CHECKS_SHELLS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SULOGIN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SULOGIN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_VLOCK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_VLOCK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHATTR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHATTR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FSCK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FSCK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LSATTR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LSATTR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TUNE2FS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TUNE2FS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MODINFO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MODINFO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MODPROBE_SMALL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MODPROBE_SMALL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MODPROBE_SMALL_OPTIONS_ON_CMDLINE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MODPROBE_SMALL_OPTIONS_ON_CMDLINE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MODPROBE_SMALL_CHECK_ALREADY_LOADED)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MODPROBE_SMALL_CHECK_ALREADY_LOADED)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INSMOD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INSMOD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RMMOD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RMMOD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LSMOD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LSMOD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LSMOD_PRETTY_2_6_OUTPUT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LSMOD_PRETTY_2_6_OUTPUT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MODPROBE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MODPROBE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MODPROBE_BLACKLIST)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MODPROBE_BLACKLIST)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEPMOD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEPMOD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_2_4_MODULES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_2_4_MODULES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSMOD_TRY_MMAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSMOD_TRY_MMAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSMOD_VERSION_CHECKING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSMOD_VERSION_CHECKING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSMOD_KSYMOOPS_SYMBOLS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSMOD_KSYMOOPS_SYMBOLS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSMOD_LOADINKMEM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSMOD_LOADINKMEM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSMOD_LOAD_MAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSMOD_LOAD_MAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INSMOD_LOAD_MAP_FULL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INSMOD_LOAD_MAP_FULL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHECK_TAINTED_MODULE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHECK_TAINTED_MODULE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MODUTILS_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MODUTILS_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MODUTILS_SYMBOLS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MODUTILS_SYMBOLS)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_BLOCKDEV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BLOCKDEV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_REV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_REV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ACPID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ACPID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ACPID_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ACPID_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BLKID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BLKID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DMESG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DMESG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DMESG_PRETTY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DMESG_PRETTY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FBSET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FBSET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FBSET_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FBSET_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FBSET_READMODE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FBSET_READMODE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FDFLUSH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FDFLUSH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FDFORMAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FDFORMAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FDISK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FDISK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FDISK_SUPPORT_LARGE_DISKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FDISK_SUPPORT_LARGE_DISKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FDISK_WRITABLE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FDISK_WRITABLE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_AIX_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_AIX_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SGI_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SGI_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SUN_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SUN_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_OSF_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_OSF_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FDISK_ADVANCED)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FDISK_ADVANCED)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FINDFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FINDFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FLOCK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FLOCK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FREERAMDISK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FREERAMDISK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FSCK_MINIX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FSCK_MINIX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKFS_EXT2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKFS_EXT2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKFS_MINIX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKFS_MINIX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MINIX2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MINIX2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKFS_REISER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKFS_REISER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKFS_VFAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKFS_VFAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_GETOPT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_GETOPT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_GETOPT_LONG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_GETOPT_LONG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HEXDUMP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HEXDUMP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HEXDUMP_REVERSE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HEXDUMP_REVERSE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HWCLOCK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HWCLOCK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HWCLOCK_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HWCLOCK_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HWCLOCK_ADJTIME_FHS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HWCLOCK_ADJTIME_FHS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPCRM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPCRM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPCS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPCS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOSETUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOSETUP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LSPCI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LSPCI)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LSUSB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LSUSB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MDEV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MDEV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MDEV_CONF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MDEV_CONF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MDEV_RENAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MDEV_RENAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MDEV_RENAME_REGEXP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MDEV_RENAME_REGEXP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MDEV_EXEC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MDEV_EXEC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MDEV_LOAD_FIRMWARE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MDEV_LOAD_FIRMWARE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MKSWAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MKSWAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MKSWAP_UUID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MKSWAP_UUID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MORE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MORE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_USE_TERMIOS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_USE_TERMIOS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MOUNT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MOUNT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_FAKE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_FAKE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_VERBOSE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_VERBOSE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_HELPERS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_HELPERS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_LABEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_NFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_NFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_CIFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_CIFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_FLAGS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_FLAGS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_FSTAB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_FSTAB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PIVOT_ROOT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PIVOT_ROOT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RDATE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RDATE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RDEV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RDEV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_READPROFILE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_READPROFILE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RTCWAKE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RTCWAKE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SCRIPT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SCRIPT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SCRIPTREPLAY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SCRIPTREPLAY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETARCH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETARCH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SWAPONOFF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SWAPONOFF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SWAPON_PRI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SWAPON_PRI)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SWITCH_ROOT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SWITCH_ROOT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UMOUNT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UMOUNT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_UMOUNT_ALL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UMOUNT_ALL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_LOOP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_LOOP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MOUNT_LOOP_CREATE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MOUNT_LOOP_CREATE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MTAB_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MTAB_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_VOLUMEID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_VOLUMEID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_EXT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_EXT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_BTRFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_BTRFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_REISERFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_REISERFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_FAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_FAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_HFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_HFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_JFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_JFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_XFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_XFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_NTFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_NTFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_ISO9660)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_ISO9660)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_UDF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_UDF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_LUKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_LUKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_LINUXSWAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_LINUXSWAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_CRAMFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_CRAMFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_ROMFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_ROMFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_SYSV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_SYSV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_OCFS2)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_OCFS2)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_VOLUMEID_LINUXRAID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_VOLUMEID_LINUXRAID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CONSPY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CONSPY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NANDWRITE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NANDWRITE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NANDDUMP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NANDDUMP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UBIATTACH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UBIATTACH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UBIDETACH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UBIDETACH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ADJTIMEX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ADJTIMEX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BBCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BBCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_COMPRESS_BBCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_COMPRESS_BBCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BEEP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BEEP)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_CHAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHAT_NOFAIL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHAT_NOFAIL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHAT_TTY_HIFI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHAT_TTY_HIFI)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHAT_IMPLICIT_CR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHAT_IMPLICIT_CR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHAT_SWALLOW_OPTS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHAT_SWALLOW_OPTS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHAT_SEND_ESCAPES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHAT_SEND_ESCAPES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHAT_VAR_ABORT_LEN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHAT_VAR_ABORT_LEN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHAT_CLR_ABORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHAT_CLR_ABORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHRT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHRT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CROND)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CROND)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CROND_D)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CROND_D)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CROND_CALL_SENDMAIL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CROND_CALL_SENDMAIL)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_CRONTAB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CRONTAB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DC_LIBM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DC_LIBM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEVFSD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEVFSD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEVFSD_MODLOAD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEVFSD_MODLOAD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEVFSD_FG_NP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEVFSD_FG_NP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEVFSD_VERBOSE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEVFSD_VERBOSE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_DEVFS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_DEVFS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DEVMEM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DEVMEM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_EJECT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_EJECT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_EJECT_SCSI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_EJECT_SCSI)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FBSPLASH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FBSPLASH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FLASHCP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FLASHCP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FLASH_LOCK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FLASH_LOCK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FLASH_UNLOCK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FLASH_UNLOCK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FLASH_ERASEALL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FLASH_ERASEALL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IONICE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IONICE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INOTIFYD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INOTIFYD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LAST)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LAST)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LAST_SMALL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LAST_SMALL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LAST_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LAST_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LESS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LESS)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_LESS_BRACKETS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LESS_BRACKETS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LESS_FLAGS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LESS_FLAGS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LESS_MARKS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LESS_MARKS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LESS_REGEXP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LESS_REGEXP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LESS_WINCH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LESS_WINCH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LESS_DASHCMD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LESS_DASHCMD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LESS_LINENUMS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LESS_LINENUMS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HDPARM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HDPARM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HDPARM_GET_IDENTITY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HDPARM_GET_IDENTITY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HDPARM_HDIO_SCAN_HWIF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HDPARM_HDIO_UNREGISTER_HWIF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HDPARM_HDIO_DRIVE_RESET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HDPARM_HDIO_DRIVE_RESET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HDPARM_HDIO_TRISTATE_HWIF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HDPARM_HDIO_TRISTATE_HWIF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HDPARM_HDIO_GETSET_DMA)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HDPARM_HDIO_GETSET_DMA)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MAKEDEVS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MAKEDEVS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MAKEDEVS_LEAF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MAKEDEVS_LEAF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_MAKEDEVS_TABLE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_MAKEDEVS_TABLE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MAN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MAN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MICROCOM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MICROCOM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MOUNTPOINT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MOUNTPOINT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RAIDAUTORUN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RAIDAUTORUN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_READAHEAD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_READAHEAD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RFKILL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RFKILL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RUNLEVEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RUNLEVEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RX)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RX)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETSID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETSID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_STRINGS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_STRINGS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TASKSET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TASKSET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TASKSET_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TASKSET_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TIMEOUT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TIMEOUT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TTYSIZE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TTYSIZE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_VOLNAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_VOLNAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WALL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WALL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WATCHDOG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WATCHDOG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NBDCLIENT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NBDCLIENT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NC_SERVER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NC_SERVER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NC_EXTRA)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NC_EXTRA)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NC_110_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NC_110_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IPV6)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IPV6)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_UNIX_LOCAL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UNIX_LOCAL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PREFER_IPV4_ADDRESS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PREFER_IPV4_ADDRESS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_VERBOSE_RESOLUTION_ERRORS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_VERBOSE_RESOLUTION_ERRORS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ARP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ARP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ARPING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ARPING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BRCTL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BRCTL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BRCTL_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BRCTL_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BRCTL_SHOW)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BRCTL_SHOW)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DNSD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DNSD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ETHER_WAKE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ETHER_WAKE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FAKEIDENTD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FAKEIDENTD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FTPD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FTPD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FTP_WRITE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FTP_WRITE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FTPD_ACCEPT_BROKEN_LIST)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FTPD_ACCEPT_BROKEN_LIST)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FTPGET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FTPGET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FTPPUT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FTPPUT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FTPGETPUT_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FTPGETPUT_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HOSTNAME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HOSTNAME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HTTPD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HTTPD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_RANGES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_RANGES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_USE_SENDFILE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_USE_SENDFILE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_SETUID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_SETUID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_BASIC_AUTH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_BASIC_AUTH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_AUTH_MD5)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_AUTH_MD5)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_CGI)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_CGI)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_CONFIG_WITH_SCRIPT_INTERPR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_CONFIG_WITH_SCRIPT_INTERPR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_SET_REMOTE_PORT_TO_ENV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_SET_REMOTE_PORT_TO_ENV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_ENCODE_URL_STR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_ENCODE_URL_STR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_ERROR_PAGES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_ERROR_PAGES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_PROXY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_PROXY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_HTTPD_GZIP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_HTTPD_GZIP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IFCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IFCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFCONFIG_STATUS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFCONFIG_STATUS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFCONFIG_SLIP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFCONFIG_SLIP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFCONFIG_MEMSTART_IOADDR_IRQ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFCONFIG_MEMSTART_IOADDR_IRQ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFCONFIG_HW)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFCONFIG_HW)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFCONFIG_BROADCAST_PLUS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFCONFIG_BROADCAST_PLUS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IFENSLAVE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IFENSLAVE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IFPLUGD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IFPLUGD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IFUPDOWN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IFUPDOWN)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_IFUPDOWN_IP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFUPDOWN_IP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFUPDOWN_IP_BUILTIN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFUPDOWN_IP_BUILTIN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFUPDOWN_IFCONFIG_BUILTIN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFUPDOWN_IFCONFIG_BUILTIN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFUPDOWN_IPV4)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFUPDOWN_IPV4)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFUPDOWN_IPV6)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFUPDOWN_IPV6)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFUPDOWN_MAPPING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFUPDOWN_MAPPING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IFUPDOWN_EXTERNAL_DHCP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IFUPDOWN_EXTERNAL_DHCP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_INETD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_INETD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_DISCARD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_DISCARD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_TIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_TIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_DAYTIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_DAYTIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_CHARGEN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INETD_SUPPORT_BUILTIN_CHARGEN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_INETD_RPC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_INETD_RPC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IP_ADDRESS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IP_ADDRESS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IP_LINK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IP_LINK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IP_ROUTE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IP_ROUTE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IP_TUNNEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IP_TUNNEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IP_RULE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IP_RULE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IP_SHORT_FORMS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IP_SHORT_FORMS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IP_RARE_PROTOCOLS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IP_RARE_PROTOCOLS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPADDR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPADDR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPLINK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPLINK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPROUTE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPROUTE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPTUNNEL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPTUNNEL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPRULE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPRULE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IPCALC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IPCALC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IPCALC_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IPCALC_FANCY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_IPCALC_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IPCALC_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NAMEIF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NAMEIF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_NAMEIF_EXTENDED)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_NAMEIF_EXTENDED)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NETSTAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NETSTAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_NETSTAT_WIDE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_NETSTAT_WIDE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_NETSTAT_PRG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_NETSTAT_PRG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NSLOOKUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NSLOOKUP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NTPD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NTPD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_NTPD_SERVER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_NTPD_SERVER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PING6)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PING6)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_FANCY_PING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_FANCY_PING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PSCAN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PSCAN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ROUTE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ROUTE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SLATTACH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SLATTACH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TCPSVD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TCPSVD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TELNET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TELNET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TELNET_TTYPE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TELNET_TTYPE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TELNET_AUTOLOGIN)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TELNET_AUTOLOGIN)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TELNETD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TELNETD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TELNETD_STANDALONE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TELNETD_STANDALONE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TELNETD_INETD_WAIT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TELNETD_INETD_WAIT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TFTP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TFTP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TFTPD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TFTPD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TFTP_GET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TFTP_GET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TFTP_PUT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TFTP_PUT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TFTP_BLOCKSIZE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TFTP_BLOCKSIZE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TFTP_PROGRESS_BAR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TFTP_PROGRESS_BAR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TFTP_DEBUG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TFTP_DEBUG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TRACEROUTE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TRACEROUTE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TRACEROUTE6)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TRACEROUTE6)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TRACEROUTE_VERBOSE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TRACEROUTE_VERBOSE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TRACEROUTE_SOURCE_ROUTE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TRACEROUTE_SOURCE_ROUTE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TRACEROUTE_USE_ICMP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TRACEROUTE_USE_ICMP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TUNCTL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TUNCTL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TUNCTL_UG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TUNCTL_UG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UDHCPD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UDHCPD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DHCPRELAY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DHCPRELAY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_DUMPLEASES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_DUMPLEASES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_UDHCPD_WRITE_LEASES_EARLY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UDHCPD_WRITE_LEASES_EARLY)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_UDHCPC)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UDHCPC)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_UDHCPC_ARPING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UDHCPC_ARPING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_UDHCP_PORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UDHCP_PORT)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_UDHCP_RFC3397)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_UDHCP_RFC3397)
-
-
-
+   
+   
+   
 #endif
 
+   
+   
+   
+    
+   
+   
 
 
+   
+   
+   
+    
+   
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_UDPSVD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UDPSVD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_VCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_VCONFIG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WGET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WGET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_WGET_STATUSBAR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_WGET_STATUSBAR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_WGET_AUTHENTICATION)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_WGET_AUTHENTICATION)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_WGET_TIMEOUT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_WGET_TIMEOUT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ZCIP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ZCIP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LPD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LPD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LPR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LPR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LPQ)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LPQ)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MAKEMIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MAKEMIME)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_POPMAILDIR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_POPMAILDIR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_POPMAILDIR_DELIVERY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_POPMAILDIR_DELIVERY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_REFORMIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_REFORMIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_REFORMIME_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_REFORMIME_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SENDMAIL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SENDMAIL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_IOSTAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_IOSTAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MPSTAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MPSTAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PMAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PMAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SMEMCAP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SMEMCAP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FREE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FREE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FUSER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FUSER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_KILL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_KILL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_KILLALL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_KILLALL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_KILLALL5)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_KILLALL5)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_NMETER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_NMETER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PGREP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PGREP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PIDOF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PIDOF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PIDOF_SINGLE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PIDOF_SINGLE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PIDOF_OMIT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PIDOF_OMIT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PKILL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PKILL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_PS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_PS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PS_WIDE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PS_WIDE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PS_TIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PS_TIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_PS_UNUSUAL_SYSTEMS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_PS_UNUSUAL_SYSTEMS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RENICE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RENICE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_BB_SYSCTL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_BB_SYSCTL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_TOP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_TOP)
-
-
-
+   
+   
+   
 #endif
 #if (definedEx(CONFIG_FEATURE_TOP_SMP_CPU) || definedEx(CONFIG_FEATURE_TOP_CPU_USAGE_PERCENTAGE) || definedEx(CONFIG_FEATURE_TOP_CPU_GLOBAL_PERCENTS))
-
-
-
+   
+   
+   
 #endif
 #if (!definedEx(CONFIG_FEATURE_TOP_SMP_CPU) && !definedEx(CONFIG_FEATURE_TOP_CPU_USAGE_PERCENTAGE) && !definedEx(CONFIG_FEATURE_TOP_CPU_GLOBAL_PERCENTS))
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TOP_CPU_GLOBAL_PERCENTS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TOP_CPU_GLOBAL_PERCENTS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TOP_SMP_CPU)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TOP_SMP_CPU)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TOP_DECIMALS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TOP_DECIMALS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TOP_SMP_PROCESS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TOP_SMP_PROCESS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_TOPMEM)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_TOPMEM)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SHOW_THREADS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SHOW_THREADS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_UPTIME)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_UPTIME)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_WATCH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_WATCH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RUNSV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RUNSV)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RUNSVDIR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RUNSVDIR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_RUNSVDIR_LOG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_RUNSVDIR_LOG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SV)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SV)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_SVLOGD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SVLOGD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHPST)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHPST)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETUIDGID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETUIDGID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ENVUIDGID)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ENVUIDGID)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ENVDIR)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ENVDIR)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SOFTLIMIT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SOFTLIMIT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CHCON)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CHCON)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_CHCON_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_CHCON_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_GETENFORCE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_GETENFORCE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_GETSEBOOL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_GETSEBOOL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOAD_POLICY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOAD_POLICY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MATCHPATHCON)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MATCHPATHCON)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RESTORECON)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RESTORECON)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_RUNCON)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_RUNCON)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_RUNCON_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_RUNCON_LONG_OPTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SELINUXENABLED)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SELINUXENABLED)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETENFORCE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETENFORCE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETFILES)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETFILES)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SETFILES_CHECK_OPTION)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SETFILES_CHECK_OPTION)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SETSEBOOL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SETSEBOOL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SESTATUS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SESTATUS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_BASH_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_BASH_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_JOB_CONTROL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_JOB_CONTROL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_ALIAS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_GETOPTS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_GETOPTS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_BUILTIN_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_BUILTIN_ECHO)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_BUILTIN_PRINTF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_BUILTIN_PRINTF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_BUILTIN_TEST)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_BUILTIN_TEST)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_CMDCMD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_CMDCMD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_MAIL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_MAIL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_OPTIMIZE_FOR_SIZE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_OPTIMIZE_FOR_SIZE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_RANDOM_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_RANDOM_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_ASH_EXPAND_PRMT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_ASH_EXPAND_PRMT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_CTTYHACK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_CTTYHACK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_BASH_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_BASH_COMPAT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_HELP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_HELP)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_INTERACTIVE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_INTERACTIVE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_SAVEHISTORY)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_SAVEHISTORY)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_JOB)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_JOB)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_TICK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_TICK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_IF)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_IF)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_LOOPS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_LOOPS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_CASE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_CASE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_FUNCTIONS)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_FUNCTIONS)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_LOCAL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_LOCAL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_RANDOM_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_RANDOM_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_EXPORT_N)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_EXPORT_N)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_HUSH_MODE_X)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_HUSH_MODE_X)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_MSH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_MSH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SH_IS_ASH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SH_IS_ASH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SH_IS_HUSH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SH_IS_HUSH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SH_IS_NONE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SH_IS_NONE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BASH_IS_ASH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BASH_IS_ASH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BASH_IS_HUSH)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BASH_IS_HUSH)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_BASH_IS_NONE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_BASH_IS_NONE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SH_MATH_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SH_MATH_SUPPORT)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SH_MATH_SUPPORT_64)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SH_MATH_SUPPORT_64)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SH_EXTRA_QUIET)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SH_EXTRA_QUIET)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SH_STANDALONE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SH_STANDALONE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SH_NOFORK)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SH_NOFORK)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_SYSLOGD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_SYSLOGD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_ROTATE_LOGFILE)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_ROTATE_LOGFILE)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_REMOTE_LOG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_REMOTE_LOG)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_SYSLOGD_DUP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_SYSLOGD_DUP)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_FEATURE_IPC_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_IPC_SYSLOG)
-
-
-
+   
+   
+   
 #endif
 
-
-
-
-
-
-
+   
+   
+   
+    
+   
+   
 
 #if definedEx(CONFIG_LOGREAD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOGREAD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_LOGREAD_REDUCED_LOCKING)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_LOGREAD_REDUCED_LOCKING)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_KLOGD)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_KLOGD)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_FEATURE_KLOGD_KLOGCTL)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_FEATURE_KLOGD_KLOGCTL)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_LOGGER)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_LOGGER)
-
-
-
+   
+   
+   
 #endif
 #if definedEx(CONFIG_POWERTOP)
-
-
-
+   
+   
+   
 #endif
 #if !definedEx(CONFIG_POWERTOP)
-
-
-
+   
+   
+   
 #endif
 #line 1 "gitbusybox/archival/gzip.c" 1
 /* vi: set sw=4 ts=4: */
@@ -8688,7 +8688,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 /* __restrict is known in EGCS 1.2 and above. */
 
@@ -8708,8 +8708,8 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
-
+ 
+ 
 
 
 
@@ -8736,10 +8736,10 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
-
-
+ 
 
 
 
@@ -8749,12 +8749,12 @@ aa:      85.1% -- replaced with aa.gz
 
 
 //__attribute__ ((__externally_visible__))
-
+ 
 
 /* At 4.4 gcc become much more anal about this, need to use "aliased" types */
 
 
-
+ 
 
 /* We use __extension__ in some places to suppress -pedantic warnings
    about GCC extensions.  This feature didn't work properly before
@@ -8780,14 +8780,14 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 /* Make all declarations hidden (-fvisibility flag only affects definitions) */
 /* (don't include system headers after this until corresponding pop!) */
 
 
 
-
+ 
 
 
 /* ---- Endian Detection ------------------------------------ */
@@ -8959,7 +8959,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 /* If _BSD_SOURCE was defined by the user, favor BSD over POSIX.  */
 
@@ -9011,6 +9011,9 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+ 
+ 
 
 
 
@@ -9057,6 +9060,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
 
@@ -9094,14 +9098,10 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
+ 
 
 /* We do support the IEC 559 math functionality, real and complex.  */
 
@@ -9180,14 +9180,14 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+
+
+ 
 
 
 
-
-
-
-
-
+ 
 
 
 
@@ -9217,7 +9217,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 /* The standard library needs the functions from the ISO C90 standard
@@ -9232,9 +9232,9 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-/* For compatibility we do not add the declarations into any
-  namespace.  They will end up in the global namespace which is what
-  old code expects.  */
+ /* For compatibility we do not add the declarations into any
+   namespace.  They will end up in the global namespace which is what
+   old code expects.  */
 
 
 
@@ -9258,7 +9258,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 
@@ -9266,11 +9266,11 @@ aa:      85.1% -- replaced with aa.gz
 
 /* GCC 2.97 supports C99 flexible array members.  */
 
+ 
 
+ 
 
-
-
-
+ 
 
 
 
@@ -9290,7 +9290,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 
@@ -9314,14 +9314,14 @@ aa:      85.1% -- replaced with aa.gz
    (although this would be possible) since it generates warnings.  */
 
 
-
+ 
 
 /* At some point during the gcc 2.96 development the `pure' attribute
    for functions was introduced.  We don't want to use it unconditionally
    (although this would be possible) since it generates warnings.  */
 
 
-
+ 
 
 /* At some point during the gcc 3.1 development the `used' attribute
    for functions was introduced.  We don't want to use it unconditionally
@@ -9329,13 +9329,13 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 /* gcc allows marking deprecated functions.  */
 
 
-
+ 
 
 /* At some point during the gcc 2.8 development the `format_arg' attribute
    for functions was introduced.  We don't want to use it unconditionally
@@ -9345,7 +9345,7 @@ aa:      85.1% -- replaced with aa.gz
    all designated arguments are considered.  */
 
 
-
+ 
 
 /* At some point during the gcc 2.97 development the `strfmon' format
    attribute for functions was introduced.  We don't want to use it
@@ -9354,13 +9354,13 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 /* The nonull function attribute allows to mark pointer parameters which
    must not be NULL.  */
 
 
-
+ 
 
 /* If fortification mode, we warn about unused results of certain
    function calls which can lead to problems.  */
@@ -9370,7 +9370,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 
@@ -9378,7 +9378,7 @@ aa:      85.1% -- replaced with aa.gz
 /* Forces a function to be always inlined.  */
 
 
-
+ 
 
 /* GCC 4.3 and above with -std=c99 or -std=gnu99 implements ISO C99
    inline semantics, unless -fgnu89-inline is used.  */
@@ -9388,14 +9388,14 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+
+
+ 
 
 
 
-
-
-
-
-
+ 
 
 
 
@@ -9421,11 +9421,11 @@ aa:      85.1% -- replaced with aa.gz
    GCC 3.1 supports this.  */
 
 
+ 
 
+ 
 
-
-
-
+ 
 
 
 
@@ -9436,7 +9436,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 #line 367 "systems/redhat/usr/include/sys/cdefs.h" 2
 
@@ -9499,20 +9499,20 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 #line 6 "systems/redhat/usr/include/gnu/stubs.h" 2
 
 
 
-#line 1 "systems/redhat/usr/include/gnu/stubs-64.h" 1
+ #line 1 "systems/redhat/usr/include/gnu/stubs-64.h" 1
 /* This file is automatically generated.
    It defines a symbol `__stub_FUNCTION' for each function
    in the C library which is a stub, meaning it will fail
    every time called, usually setting errno to ENOSYS.  */
 
 
-
+ 
 
 
 
@@ -9529,7 +9529,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 #line 11 "systems/redhat/usr/include/gnu/stubs.h" 2
-
+ 
 
 #line 387 "systems/redhat/usr/include/features.h" 2
 
@@ -9575,6 +9575,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
 
@@ -9594,6 +9595,14 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+
+
+
+
+
+
+ 
 
 
 
@@ -9607,20 +9616,11 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ /* Get the compiler's limits.h, which defines almost all the ISO constants.
 
-
-
-
-
-
-
-
-
-/* Get the compiler's limits.h, which defines almost all the ISO constants.
-
-   We put this #include_next outside the double inclusion check because
-   it should be possible to include this file more than once and still get
-   the definitions from gcc's header.  */
+    We put this #include_next outside the double inclusion check because
+    it should be possible to include this file more than once and still get
+    the definitions from gcc's header.  */
 
 /* `_GCC_LIMITS_H_' is what GCC's file defines.  */
 #line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/limits.h" 1
@@ -9657,18 +9657,18 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 /* Minimum and maximum values a `char' can hold.  */
 
 
 
 
+ 
 
 
 
-
-
+ 
 
 
 
@@ -9683,7 +9683,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 /* Minimum and maximum values a `signed int' can hold.  */
 
@@ -9732,7 +9732,7 @@ aa:      85.1% -- replaced with aa.gz
 /* This administrivia gets added to the end of limits.h
    if the system has its own version of limits.h.  */
 
-
+ 
 
 
 
@@ -9797,7 +9797,7 @@ aa:      85.1% -- replaced with aa.gz
 /* Maximum simultaneous processes per real user ID.  */
 
 
-
+ 
 
 /* Minimal number of timer expiration overruns.  */
 
@@ -9831,12 +9831,12 @@ aa:      85.1% -- replaced with aa.gz
 /* Number of simultaneous supplementary group IDs per process.  */
 
 
-
+ 
 
 /* Number of files one process can have open at once.  */
 
 
-
+ 
 
 
 /* Number of descriptors that a process may examine with `pselect' or
@@ -10271,38 +10271,38 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+
+ 
 
 
 
+ 
+
+ 
+
+ 
 
 
 
-
-
-
-
-
-
-
-
-
+ 
 
 /* Number of bits in a word of type `long int'.  */
 
 
 
-/* Safe assumption.  */
+ /* Safe assumption.  */
 
 
+ 
+
+ 
 
 
+ 
 
 
-
-
-
-
-
+ 
 
 
 
@@ -10311,12 +10311,12 @@ aa:      85.1% -- replaced with aa.gz
 #line 155 "/work/joliebig/workspace/TypeChef-BusyboxAnalysis/gitbusybox/include/platform.h" 2
 
 
+ 
 
 
 
 
-
-#line 1 "systems/redhat/usr/include/byteswap.h" 1
+ #line 1 "systems/redhat/usr/include/byteswap.h" 1
 /* Copyright (C) 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -10372,7 +10372,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 #line 30 "systems/redhat/usr/include/bits/byteswap.h" 2
 
@@ -10392,7 +10392,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 
@@ -10414,6 +10414,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
 
@@ -10427,8 +10428,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
-
+ 
 
 
 
@@ -10453,7 +10453,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 
@@ -10649,6 +10649,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
 
@@ -10700,6 +10701,9 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+ 
+ 
 
 
 
@@ -10746,6 +10750,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
 
@@ -10783,15 +10788,10 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -10882,7 +10882,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 /* Conversion interfaces.  */
@@ -10931,6 +10931,43 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 
@@ -10955,44 +10992,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -11025,7 +11025,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 
@@ -11047,19 +11047,19 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
+ 
 
+ 
 
+ 
 
+ 
 
+ 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -11074,7 +11074,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 
 
@@ -11255,6 +11255,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
 
@@ -11306,6 +11307,9 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+ 
+ 
 
 
 
@@ -11352,6 +11356,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
 
 
 
@@ -11389,15 +11394,10 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -11486,7 +11486,7 @@ aa:      85.1% -- replaced with aa.gz
 
 
 
-
+ 
 
 #line 30 "systems/redhat/usr/include/stdint.h" 2
 
@@ -11502,7 +11502,7 @@ typedef short int		int16_t;
 typedef int			int32_t;
 
 typedef long int		int64_t;
-
+ 
 
 
 
@@ -11515,7 +11515,7 @@ typedef unsigned int		uint32_t;
 
 
 typedef unsigned long int	uint64_t;
-
+ 
 
 
 /* Small types.  */
@@ -11526,7 +11526,7 @@ typedef short int		int_least16_t;
 typedef int			int_least32_t;
 
 typedef long int		int_least64_t;
-
+ 
 
 
 /* Unsigned.  */
@@ -11535,7 +11535,7 @@ typedef unsigned short int	uint_least16_t;
 typedef unsigned int		uint_least32_t;
 
 typedef unsigned long int	uint_least64_t;
-
+ 
 
 
 /* Fast types.  */
@@ -11546,7 +11546,7 @@ typedef signed char		int_fast8_t;
 typedef long int		int_fast16_t;
 typedef long int		int_fast32_t;
 typedef long int		int_fast64_t;
-
+ 
 
 
 
@@ -11557,7 +11557,7 @@ typedef unsigned char		uint_fast8_t;
 typedef unsigned long int	uint_fast16_t;
 typedef unsigned long int	uint_fast32_t;
 typedef unsigned long int	uint_fast64_t;
-
+ 
 
 
 
@@ -11569,7 +11569,7 @@ typedef long int		intptr_t;
 
 
 typedef unsigned long int	uintptr_t;
-
+ 
 
 
 
@@ -11579,7 +11579,7 @@ typedef unsigned long int	uintptr_t;
 
 typedef long int		intmax_t;
 typedef unsigned long int	uintmax_t;
-
+ 
 
 
 
@@ -11590,7 +11590,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 
 /* Limits of integral types.  */
@@ -11636,7 +11636,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 
 
@@ -11645,7 +11645,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 
 
@@ -11655,7 +11655,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 
 
@@ -11666,7 +11666,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 
 
@@ -11685,7 +11685,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 
 /* Limits of `sig_atomic_t'.  */
@@ -11695,7 +11695,7 @@ typedef unsigned long int	uintmax_t;
 /* Limit of `size_t' type.  */
 
 
-
+ 
 
 /* Limits of `wchar_t'.  */
 
@@ -11717,7 +11717,7 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 /* Unsigned.  */
 
@@ -11725,13 +11725,13 @@ typedef unsigned long int	uintmax_t;
 
 
 
-
+ 
 
 /* Maximal type.  */
 
 
 
-
+ 
 
 
 
@@ -11746,7 +11746,7 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 
 
 /* #elif ... - add your favorite arch today! */
-
+ 
 
 
 
@@ -11764,7 +11764,7 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 
 
 
-
+ 
 
 
 /*----- Kernel versioning ------------------------------------*/
@@ -11914,6 +11914,7 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 
 
 
+ 
 
 
 
@@ -11965,6 +11966,9 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -12011,6 +12015,7 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 
 
 
+ 
 
 
 
@@ -12048,15 +12053,10 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -12117,7 +12117,7 @@ typedef uint32_t bb__aliased_uint32_t __attribute__((__may_alias__));
 /* add other arches which benefit from this... */
 typedef signed char smallint;
 typedef unsigned char smalluint;
-
+ 
 
 
 
@@ -12125,7 +12125,7 @@ typedef unsigned char smalluint;
 
 
 
-/* modern system, so use it */
+ /* modern system, so use it */
 #line 1 "systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stdbool.h" 1
 /* Copyright (C) 1998, 1999, 2000, 2009 Free Software Foundation, Inc.
 
@@ -12162,7 +12162,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -12180,7 +12180,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -12222,7 +12222,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -12449,6 +12449,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -12500,6 +12501,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
+ 
+ 
 
 
 
@@ -12546,6 +12550,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -12583,15 +12588,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -12813,6 +12813,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -12864,6 +12865,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
+ 
+ 
 
 
 
@@ -12910,6 +12914,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -12947,15 +12952,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -13016,7 +13016,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 #line 30 "systems/redhat/usr/include/bits/types.h" 2
 
@@ -13036,22 +13036,22 @@ typedef unsigned int __uint32_t;
 
 typedef signed long int __int64_t;
 typedef unsigned long int __uint64_t;
-
+ 
 
 
 /* quad_t is also 64 bits.  */
 
 typedef long int __quad_t;
 typedef unsigned long int __u_quad_t;
+ 
+
+ 
+
+  
 
 
 
-
-
-
-
-
-
+  
 
 
 /* The machine-dependent file <bits/typesizes.h> defines __*_T_TYPE
@@ -13101,7 +13101,7 @@ typedef unsigned long int __u_quad_t;
 
 
 
-
+ 
 
 
 
@@ -13111,7 +13111,7 @@ typedef unsigned long int __u_quad_t;
 
 /* No need to mark the typedef with __extension__.   */
 
-
+ 
 
 #line 1 "systems/redhat/usr/include/bits/typesizes.h" 1
 /* bits/typesizes.h -- underlying types for *_t.  Generic version.
@@ -13192,9 +13192,7 @@ typedef unsigned long int __nlink_t;	/* Type of file link counts.  */
 typedef long int __off_t;	/* Type of file sizes and offsets.  */
 typedef long int __off64_t;	/* Type of file sizes and offsets (LFS).  */
 typedef int __pid_t;	/* Type of process identifications.  */
-typedef struct {
-    int __val[2];
-} __fsid_t;	/* Type of file system IDs.  */
+typedef struct { int __val[2]; } __fsid_t;	/* Type of file system IDs.  */
 typedef long int __clock_t;	/* Type of CPU usage counts.  */
 typedef unsigned long int __rlim_t;	/* Type for resource measurement.  */
 typedef unsigned long int __rlim64_t;	/* Type for resource measurement (LFS).  */
@@ -13313,6 +13311,7 @@ typedef unsigned int __socklen_t;
 
 
 
+ 
 
 
 
@@ -13333,8 +13332,7 @@ typedef unsigned int __socklen_t;
 
 
 
-
-
+ 
 
 
 
@@ -13354,22 +13352,22 @@ typedef unsigned int __socklen_t;
 #line 43 "systems/redhat/usr/include/ctype.h" 2
 
 
-
+ 
 
 enum
 {
-    _ISupper = ((0) < 8 ? ((1 << (0)) << 8) : ((1 << (0)) >> 8)),	/* UPPERCASE.  */
-    _ISlower = ((1) < 8 ? ((1 << (1)) << 8) : ((1 << (1)) >> 8)),	/* lowercase.  */
-    _ISalpha = ((2) < 8 ? ((1 << (2)) << 8) : ((1 << (2)) >> 8)),	/* Alphabetic.  */
-    _ISdigit = ((3) < 8 ? ((1 << (3)) << 8) : ((1 << (3)) >> 8)),	/* Numeric.  */
-    _ISxdigit = ((4) < 8 ? ((1 << (4)) << 8) : ((1 << (4)) >> 8)),	/* Hexadecimal numeric.  */
-    _ISspace = ((5) < 8 ? ((1 << (5)) << 8) : ((1 << (5)) >> 8)),	/* Whitespace.  */
-    _ISprint = ((6) < 8 ? ((1 << (6)) << 8) : ((1 << (6)) >> 8)),	/* Printing.  */
-    _ISgraph = ((7) < 8 ? ((1 << (7)) << 8) : ((1 << (7)) >> 8)),	/* Graphical.  */
-    _ISblank = ((8) < 8 ? ((1 << (8)) << 8) : ((1 << (8)) >> 8)),	/* Blank (usually SPC and TAB).  */
-    _IScntrl = ((9) < 8 ? ((1 << (9)) << 8) : ((1 << (9)) >> 8)),	/* Control character.  */
-    _ISpunct = ((10) < 8 ? ((1 << (10)) << 8) : ((1 << (10)) >> 8)),	/* Punctuation.  */
-    _ISalnum = ((11) < 8 ? ((1 << (11)) << 8) : ((1 << (11)) >> 8))	/* Alphanumeric.  */
+  _ISupper = ((0) < 8 ? ((1 << (0)) << 8) : ((1 << (0)) >> 8)),	/* UPPERCASE.  */
+  _ISlower = ((1) < 8 ? ((1 << (1)) << 8) : ((1 << (1)) >> 8)),	/* lowercase.  */
+  _ISalpha = ((2) < 8 ? ((1 << (2)) << 8) : ((1 << (2)) >> 8)),	/* Alphabetic.  */
+  _ISdigit = ((3) < 8 ? ((1 << (3)) << 8) : ((1 << (3)) >> 8)),	/* Numeric.  */
+  _ISxdigit = ((4) < 8 ? ((1 << (4)) << 8) : ((1 << (4)) >> 8)),	/* Hexadecimal numeric.  */
+  _ISspace = ((5) < 8 ? ((1 << (5)) << 8) : ((1 << (5)) >> 8)),	/* Whitespace.  */
+  _ISprint = ((6) < 8 ? ((1 << (6)) << 8) : ((1 << (6)) >> 8)),	/* Printing.  */
+  _ISgraph = ((7) < 8 ? ((1 << (7)) << 8) : ((1 << (7)) >> 8)),	/* Graphical.  */
+  _ISblank = ((8) < 8 ? ((1 << (8)) << 8) : ((1 << (8)) >> 8)),	/* Blank (usually SPC and TAB).  */
+  _IScntrl = ((9) < 8 ? ((1 << (9)) << 8) : ((1 << (9)) >> 8)),	/* Control character.  */
+  _ISpunct = ((10) < 8 ? ((1 << (10)) << 8) : ((1 << (10)) >> 8)),	/* Punctuation.  */
+  _ISalnum = ((11) < 8 ? ((1 << (11)) << 8) : ((1 << (11)) >> 8))	/* Alphanumeric.  */
 };
 
 /* These are defined in ctype-info.c.
@@ -13389,11 +13387,11 @@ enum
    doesn't fit into an `unsigned char'.  But today more important is that
    the arrays are also used for multi-byte character sets.  */
 extern const unsigned short int **__ctype_b_loc (void)
-__attribute__ ((__nothrow__)) __attribute__ ((const));
+     __attribute__ ((__nothrow__)) __attribute__ ((const));
 extern const __int32_t **__ctype_tolower_loc (void)
-__attribute__ ((__nothrow__)) __attribute__ ((const));
+     __attribute__ ((__nothrow__)) __attribute__ ((const));
 extern const __int32_t **__ctype_toupper_loc (void)
-__attribute__ ((__nothrow__)) __attribute__ ((const));
+     __attribute__ ((__nothrow__)) __attribute__ ((const));
 
 
 
@@ -13495,13 +13493,13 @@ extern int _tolower (int) __attribute__ ((__nothrow__));
 
 
 
+  
 
 
 
 
 
-
-
+  
 
 
 
@@ -13560,16 +13558,16 @@ extern int _tolower (int) __attribute__ ((__nothrow__));
    go away without warning.  */
 typedef struct __locale_struct
 {
-    /* Note: LC_ALL is not a valid index into this array.  */
-    struct __locale_data *__locales[13]; /* 13 = __LC_LAST. */
-    
-    /* To increase the speed of this solution we add some special members.  */
-    const unsigned short int *__ctype_b;
-    const int *__ctype_tolower;
-    const int *__ctype_toupper;
-    
-    /* Note: LC_ALL is not a valid index into this array.  */
-    const char *__names[13];
+  /* Note: LC_ALL is not a valid index into this array.  */
+  struct __locale_data *__locales[13]; /* 13 = __LC_LAST. */
+
+  /* To increase the speed of this solution we add some special members.  */
+  const unsigned short int *__ctype_b;
+  const int *__ctype_tolower;
+  const int *__ctype_toupper;
+
+  /* Note: LC_ALL is not a valid index into this array.  */
+  const char *__names[13];
 } *__locale_t;
 
 /* POSIX 2008 makes locale_t official.  */
@@ -13830,6 +13828,7 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -13881,6 +13880,9 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -13927,6 +13929,7 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -13964,15 +13967,10 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -14076,17 +14074,22 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -14136,6 +14139,7 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -14145,13 +14149,7 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -14226,7 +14224,7 @@ extern int toupper_l (int __c, __locale_t __l) __attribute__ ((__nothrow__));
 
 
 typedef __ino_t ino_t;
-
+ 
 
 
 
@@ -14273,27 +14271,27 @@ typedef __ino64_t ino64_t;
 
 
 struct dirent
-{
+  {
 
     __ino_t d_ino;
     __off_t d_off;
+     
     
-    
-    
+
     unsigned short int d_reclen;
     unsigned char d_type;
     char d_name[256];		/* We must not include limits.h! */
-};
+  };
 
 
 struct dirent64
-{
+  {
     __ino64_t d_ino;
     __off64_t d_off;
     unsigned short int d_reclen;
     unsigned char d_type;
     char d_name[256];		/* We must not include limits.h! */
-};
+  };
 
 
 
@@ -14323,36 +14321,36 @@ struct dirent64
 
 
 
+ 
 
 
-
-
+ 
 
 
 
 
 /* File types for `d_type'.  */
 enum
-{
+  {
     DT_UNKNOWN = 0,
-    
+
     DT_FIFO = 1,
-    
+
     DT_CHR = 2,
-    
+
     DT_DIR = 4,
-    
+
     DT_BLK = 6,
-    
+
     DT_REG = 8,
-    
+
     DT_LNK = 10,
-    
+
     DT_SOCK = 12,
-    
+
     DT_WHT = 14
-    
-};
+
+  };
 
 /* Convert between stat structure types and directory types.  */
 
@@ -14395,10 +14393,10 @@ extern int closedir (DIR *__dirp) __attribute__ ((__nonnull__ (1)));
    marked with __THROW.  */
 
 extern struct dirent *readdir (DIR *__dirp) __attribute__ ((__nonnull__ (1)));
+ 
 
-
-
-
+     
+ 
 
 
 
@@ -14412,23 +14410,23 @@ extern struct dirent64 *readdir64 (DIR *__dirp) __attribute__ ((__nonnull__ (1))
    marked with __THROW.  */
 
 extern int readdir_r (DIR *__restrict __dirp,
-                      struct dirent *__restrict __entry,
-                      struct dirent **__restrict __result)
-__attribute__ ((__nonnull__ (1, 2, 3)));
+		      struct dirent *__restrict __entry,
+		      struct dirent **__restrict __result)
+     __attribute__ ((__nonnull__ (1, 2, 3)));
+ 
 
-
-
-
-
-
-
+		       
+			
+			
+		       
+ 
 
 
 
 extern int readdir64_r (DIR *__restrict __dirp,
-                        struct dirent64 *__restrict __entry,
-                        struct dirent64 **__restrict __result)
-__attribute__ ((__nonnull__ (1, 2, 3)));
+			struct dirent64 *__restrict __entry,
+			struct dirent64 **__restrict __result)
+     __attribute__ ((__nonnull__ (1, 2, 3)));
 
 
 /* Rewind DIRP to the beginning of the directory.  */
@@ -14481,17 +14479,22 @@ extern void rewinddir (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ 
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -14541,6 +14544,7 @@ extern void rewinddir (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ 
 
 
 
+ 
 
 
 
@@ -14550,13 +14554,7 @@ extern void rewinddir (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ 
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -14686,6 +14684,7 @@ extern int dirfd (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ ((__n
 
 
 
+ 
 
 
 
@@ -14719,13 +14718,12 @@ extern int dirfd (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ ((__n
 
 
 
+ 
 
 
 
 
-
-
-
+ 
 
 
 
@@ -14810,7 +14808,7 @@ extern int dirfd (DIR *__dirp) __attribute__ ((__nothrow__)) __attribute__ ((__n
 /* `MAXNAMLEN' is the BSD name for what POSIX calls `NAME_MAX'.  */
 
 
-
+ 
 
 
 
@@ -15005,7 +15003,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -15191,9 +15189,9 @@ typedef long unsigned int size_t;
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -15213,49 +15211,49 @@ typedef long unsigned int size_t;
    *NAMELIST.  Returns the number of entries selected, or -1 on error.  */
 
 extern int scandir (const char *__restrict __dir,
-                    struct dirent ***__restrict __namelist,
-                    int (*__selector) (const struct dirent *),
-                    int (*__cmp) (const struct dirent **,
-                                  const struct dirent **))
-__attribute__ ((__nonnull__ (1, 2)));
+		    struct dirent ***__restrict __namelist,
+		    int (*__selector) (const struct dirent *),
+		    int (*__cmp) (const struct dirent **,
+				  const struct dirent **))
+     __attribute__ ((__nonnull__ (1, 2)));
+ 
 
-
-
-
-
-
-
-
-
+		       
+			
+			
+			
+				      
+		       
+ 
 
 
 
 /* This function is like `scandir' but it uses the 64bit dirent structure.
    Please note that the CMP function must now work with struct dirent64 **.  */
 extern int scandir64 (const char *__restrict __dir,
-                      struct dirent64 ***__restrict __namelist,
-                      int (*__selector) (const struct dirent64 *),
-                      int (*__cmp) (const struct dirent64 **,
-                                    const struct dirent64 **))
-__attribute__ ((__nonnull__ (1, 2)));
+		      struct dirent64 ***__restrict __namelist,
+		      int (*__selector) (const struct dirent64 *),
+		      int (*__cmp) (const struct dirent64 **,
+				    const struct dirent64 **))
+     __attribute__ ((__nonnull__ (1, 2)));
 
 /* Function to compare two `struct dirent's alphabetically.  */
 
 extern int alphasort (const struct dirent **__e1,
-                      const struct dirent **__e2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+		      const struct dirent **__e2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+ 
 
-
-
-
-
-
+			   
+			    
+			   
+ 
 
 
 
 extern int alphasort64 (const struct dirent64 **__e1,
-                        const struct dirent64 **__e2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+			const struct dirent64 **__e2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
@@ -15265,44 +15263,44 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
    end of directory; or -1 for errors.  */
 
 extern __ssize_t getdirentries (int __fd, char *__restrict __buf,
-                                size_t __nbytes,
-                                __off_t *__restrict __basep)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
+				size_t __nbytes,
+				__off_t *__restrict __basep)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
+ 
 
-
-
-
-
-
-
+				 
+				  
+				  
+				 
+ 
 
 
 
 extern __ssize_t getdirentries64 (int __fd, char *__restrict __buf,
-                                  size_t __nbytes,
-                                  __off64_t *__restrict __basep)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
+				  size_t __nbytes,
+				  __off64_t *__restrict __basep)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
 
 
 
 /* Function to compare two `struct dirent's by name & version.  */
 
 extern int versionsort (const struct dirent **__e1,
-                        const struct dirent **__e2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+			const struct dirent **__e2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+ 
 
-
-
-
-
-
-
+			   
+			    
+			   
+     
+ 
 
 
 
 extern int versionsort64 (const struct dirent64 **__e1,
-                          const struct dirent64 **__e2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+			  const struct dirent64 **__e2)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
@@ -15477,6 +15475,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
 
 
 
@@ -15528,6 +15527,9 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
+ 
+ 
 
 
 
@@ -15574,6 +15576,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
 
 
 
@@ -15611,15 +15614,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -16101,6 +16099,7 @@ typedef int error_t;
 
 
 
+ 
 
 
 
@@ -16152,6 +16151,9 @@ typedef int error_t;
 
 
 
+ 
+ 
+ 
 
 
 
@@ -16198,6 +16200,7 @@ typedef int error_t;
 
 
 
+ 
 
 
 
@@ -16235,15 +16238,10 @@ typedef int error_t;
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -16494,6 +16492,7 @@ typedef int error_t;
 
 
 
+ 
 
 
 
@@ -16545,6 +16544,9 @@ typedef int error_t;
 
 
 
+ 
+ 
+ 
 
 
 
@@ -16591,6 +16593,7 @@ typedef int error_t;
 
 
 
+ 
 
 
 
@@ -16628,15 +16631,10 @@ typedef int error_t;
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -16740,17 +16738,22 @@ typedef int error_t;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -16800,6 +16803,7 @@ typedef int error_t;
 
 
 
+ 
 
 
 
@@ -16809,13 +16813,7 @@ typedef int error_t;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -16903,7 +16901,7 @@ typedef __loff_t loff_t;
 
 
 
-
+ 
 
 
 
@@ -16934,7 +16932,7 @@ typedef __uid_t uid_t;
 
 
 typedef __off_t off_t;
-
+ 
 
 
 
@@ -17068,17 +17066,22 @@ typedef __key_t key_t;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -17128,6 +17131,7 @@ typedef __key_t key_t;
 
 
 
+ 
 
 
 
@@ -17137,13 +17141,7 @@ typedef __key_t key_t;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -17273,17 +17271,22 @@ typedef __clock_t clock_t;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -17333,6 +17336,7 @@ typedef __clock_t clock_t;
 
 
 
+ 
 
 
 
@@ -17342,13 +17346,7 @@ typedef __clock_t clock_t;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -17478,17 +17476,22 @@ typedef __time_t time_t;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -17538,6 +17541,7 @@ typedef __time_t time_t;
 
 
 
+ 
 
 
 
@@ -17547,13 +17551,7 @@ typedef __time_t time_t;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -17679,17 +17677,22 @@ typedef __clockid_t clockid_t;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -17739,6 +17742,7 @@ typedef __clockid_t clockid_t;
 
 
 
+ 
 
 
 
@@ -17748,13 +17752,7 @@ typedef __clockid_t clockid_t;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -17840,6 +17838,10 @@ typedef __timer_t timer_t;
 
 
 
+  
+    
+    
+  
 
 
 
@@ -17850,8 +17852,21 @@ typedef __timer_t timer_t;
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -17861,6 +17876,10 @@ typedef __timer_t timer_t;
 
 
 
+  
+    
+    
+  
 
 
 
@@ -17882,6 +17901,7 @@ typedef __timer_t timer_t;
 
 
 
+     
 
 
 
@@ -17891,12 +17911,16 @@ typedef __timer_t timer_t;
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -17904,9 +17928,14 @@ typedef __timer_t timer_t;
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -17922,10 +17951,12 @@ typedef __timer_t timer_t;
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -17942,9 +17973,11 @@ typedef __timer_t timer_t;
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -17994,6 +18027,7 @@ typedef __timer_t timer_t;
 
 
 
+		      
 
 
 
@@ -18004,6 +18038,7 @@ typedef __timer_t timer_t;
 
 
 
+     
 
 
 
@@ -18011,21 +18046,28 @@ typedef __timer_t timer_t;
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -18065,51 +18107,7 @@ typedef __timer_t timer_t;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -18318,7 +18316,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -18504,9 +18502,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -18537,6 +18535,7 @@ typedef unsigned int uint;
 
 
 
+ 
 
 
 
@@ -18545,12 +18544,11 @@ typedef unsigned int uint;
 
 
 
+ 
 
 
 
-
-
-/* For GCC 2.7 and later, we can use specific type-size attributes.  */
+ /* For GCC 2.7 and later, we can use specific type-size attributes.  */
 
 
 
@@ -18631,6 +18629,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
 
 
 
@@ -18651,8 +18650,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-
-
+ 
 
 
 
@@ -18837,6 +18835,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
 
 
 
@@ -18888,6 +18887,9 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -18934,6 +18936,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
 
 
 
@@ -18971,15 +18974,10 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -19082,17 +19080,22 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -19142,6 +19145,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
 
 
 
@@ -19151,13 +19155,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -19257,7 +19255,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-
+ 
 
 #line 25 "systems/redhat/usr/include/bits/select.h" 2
 
@@ -19265,6 +19263,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
+ 
 
 
 
@@ -19277,8 +19276,7 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 
 
 
-
-
+ 
 
 
 
@@ -19326,9 +19324,9 @@ typedef int __sig_atomic_t;
 
 
 typedef struct
-{
+  {
     unsigned long int __val[(1024 / (8 * sizeof (unsigned long int)))];
-} __sigset_t;
+  } __sigset_t;
 
 
 /* We only want to define these functions if <signal.h> was actually
@@ -19576,17 +19574,22 @@ typedef __sigset_t sigset_t;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -19636,6 +19639,7 @@ typedef __sigset_t sigset_t;
 
 
 
+ 
 
 
 
@@ -19645,13 +19649,7 @@ typedef __sigset_t sigset_t;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -19725,10 +19723,10 @@ typedef __sigset_t sigset_t;
 /* POSIX.1b structure for a time value.  This is like a `struct timeval' but
    has nanoseconds instead of microseconds.  */
 struct timespec
-{
+  {
     __time_t tv_sec;		/* Seconds.  */
     long int tv_nsec;		/* Nanoseconds.  */
-};
+  };
 
 
 
@@ -19739,8 +19737,21 @@ struct timespec
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -19750,6 +19761,10 @@ struct timespec
 
 
 
+  
+    
+    
+  
 
 
 
@@ -19771,6 +19786,7 @@ struct timespec
 
 
 
+     
 
 
 
@@ -19780,12 +19796,16 @@ struct timespec
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -19793,9 +19813,14 @@ struct timespec
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -19811,10 +19836,12 @@ struct timespec
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -19831,9 +19858,11 @@ struct timespec
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -19883,6 +19912,7 @@ struct timespec
 
 
 
+		      
 
 
 
@@ -19893,6 +19923,7 @@ struct timespec
 
 
 
+     
 
 
 
@@ -19900,21 +19931,28 @@ struct timespec
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -19954,47 +19992,7 @@ struct timespec
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -20116,17 +20114,22 @@ struct timespec
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -20176,6 +20179,7 @@ struct timespec
 
 
 
+ 
 
 
 
@@ -20185,13 +20189,7 @@ struct timespec
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -20265,10 +20263,10 @@ struct timespec
 /* A time value that is accurate to the nearest
    microsecond but also has a range of years.  */
 struct timeval
-{
+  {
     __time_t tv_sec;		/* Seconds.  */
     __suseconds_t tv_usec;	/* Microseconds.  */
-};
+  };
 
 
 #line 48 "systems/redhat/usr/include/sys/select.h" 2
@@ -20291,16 +20289,16 @@ typedef long int __fd_mask;
 
 /* fd_set for select and pselect.  */
 typedef struct
-{
+  {
     /* XPG4.2 requires this member name.  Otherwise avoid the name
        from the global namespace.  */
-    
+
     __fd_mask fds_bits[1024 / (8 * (int) sizeof (__fd_mask))];
-    
-    
-    
-    
-} fd_set;
+
+     
+
+
+  } fd_set;
 
 /* Maximum number of file descriptors in `fd_set'.  */
 
@@ -20330,9 +20328,9 @@ typedef __fd_mask fd_mask;
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int select (int __nfds, fd_set *__restrict __readfds,
-                   fd_set *__restrict __writefds,
-                   fd_set *__restrict __exceptfds,
-                   struct timeval *__restrict __timeout);
+		   fd_set *__restrict __writefds,
+		   fd_set *__restrict __exceptfds,
+		   struct timeval *__restrict __timeout);
 
 
 /* Same as above only that the TIMEOUT value is given with higher
@@ -20342,10 +20340,10 @@ extern int select (int __nfds, fd_set *__restrict __readfds,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int pselect (int __nfds, fd_set *__restrict __readfds,
-                    fd_set *__restrict __writefds,
-                    fd_set *__restrict __exceptfds,
-                    const struct timespec *__restrict __timeout,
-                    const __sigset_t *__restrict __sigmask);
+		    fd_set *__restrict __writefds,
+		    fd_set *__restrict __exceptfds,
+		    const struct timespec *__restrict __timeout,
+		    const __sigset_t *__restrict __sigmask);
 
 
 
@@ -20517,6 +20515,7 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 
 
+ 
 
 
 
@@ -20568,6 +20567,9 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -20614,6 +20616,7 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 
 
+ 
 
 
 
@@ -20651,15 +20654,10 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -20721,34 +20719,34 @@ extern int pselect (int __nfds, fd_set *__restrict __readfds,
 
 __extension__
 extern unsigned int gnu_dev_major (unsigned long long int __dev)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 __extension__
 extern unsigned int gnu_dev_minor (unsigned long long int __dev)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 __extension__
 extern unsigned long long int gnu_dev_makedev (unsigned int __major,
-        unsigned int __minor)
-__attribute__ ((__nothrow__));
+					       unsigned int __minor)
+     __attribute__ ((__nothrow__));
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
 
 
-
-
-
-
-
+  
+	  
+	  
 
 
 /* Access the functions with their traditional names.  */
@@ -20777,7 +20775,7 @@ typedef __fsblkcnt_t fsblkcnt_t; /* Type to count file system blocks.  */
 typedef __fsfilcnt_t fsfilcnt_t; /* Type to count file system inodes.  */
 
 
-
+ 
 
 
 
@@ -20826,7 +20824,7 @@ typedef __fsfilcnt64_t fsfilcnt64_t; /* Type to count file system inodes.  */
 
 
 
-
+ 
 
 #line 25 "systems/redhat/usr/include/bits/pthreadtypes.h" 2
 
@@ -20840,7 +20838,7 @@ typedef __fsfilcnt64_t fsfilcnt64_t; /* Type to count file system inodes.  */
 
 
 
-
+ 
 
 
 
@@ -20857,57 +20855,57 @@ typedef unsigned long int pthread_t;
 
 typedef union
 {
-    char __size[56];
-    long int __align;
+  char __size[56];
+  long int __align;
 } pthread_attr_t;
 
 
 
 typedef struct __pthread_internal_list
 {
-    struct __pthread_internal_list *__prev;
-    struct __pthread_internal_list *__next;
+  struct __pthread_internal_list *__prev;
+  struct __pthread_internal_list *__next;
 } __pthread_list_t;
+ 
 
-
-
+  
 
 
 /* Data structures for mutex handling.  The structure of the attribute
    type is not exposed on purpose.  */
 typedef union
 {
-    struct __pthread_mutex_s
-    {
-        int __lock;
-        unsigned int __count;
-        int __owner;
-        
-        unsigned int __nusers;
-        
-        /* KIND must stay at this position in the structure to maintain
-           binary compatibility.  */
-        int __kind;
-        
-        int __spins;
-        __pthread_list_t __list;
-        
-        
-        
-        
-        
-        
-        
-        
-    } __data;
-    char __size[40];
-    long int __align;
+  struct __pthread_mutex_s
+  {
+    int __lock;
+    unsigned int __count;
+    int __owner;
+
+    unsigned int __nusers;
+
+    /* KIND must stay at this position in the structure to maintain
+       binary compatibility.  */
+    int __kind;
+
+    int __spins;
+    __pthread_list_t __list;
+
+     
+    
+    
+      
+      
+    
+
+  } __data;
+  char __size[40];
+  long int __align;
 } pthread_mutex_t;
 
 typedef union
 {
-    char __size[4];
-    int __align;
+  char __size[4];
+  int __align;
 } pthread_mutexattr_t;
 
 
@@ -20915,25 +20913,25 @@ typedef union
    the attribute type is not exposed on purpose.  */
 typedef union
 {
-    struct
-    {
-        int __lock;
-        unsigned int __futex;
-        __extension__ unsigned long long int __total_seq;
-        __extension__ unsigned long long int __wakeup_seq;
-        __extension__ unsigned long long int __woken_seq;
-        void *__mutex;
-        unsigned int __nwaiters;
-        unsigned int __broadcast_seq;
-    } __data;
-    char __size[48];
-    __extension__ long long int __align;
+  struct
+  {
+    int __lock;
+    unsigned int __futex;
+    __extension__ unsigned long long int __total_seq;
+    __extension__ unsigned long long int __wakeup_seq;
+    __extension__ unsigned long long int __woken_seq;
+    void *__mutex;
+    unsigned int __nwaiters;
+    unsigned int __broadcast_seq;
+  } __data;
+  char __size[48];
+  __extension__ long long int __align;
 } pthread_cond_t;
 
 typedef union
 {
-    char __size[4];
-    int __align;
+  char __size[4];
+  int __align;
 } pthread_condattr_t;
 
 
@@ -20951,22 +20949,24 @@ typedef int pthread_once_t;
 typedef union
 {
 
-    struct
-    {
-        int __lock;
-        unsigned int __nr_readers;
-        unsigned int __readers_wakeup;
-        unsigned int __writer_wakeup;
-        unsigned int __nr_readers_queued;
-        unsigned int __nr_writers_queued;
-        int __writer;
-        int __shared;
-        unsigned long int __pad1;
-        unsigned long int __pad2;
-        /* FLAGS must stay at this position in the structure to maintain
-           binary compatibility.  */
-        unsigned int __flags;
-    } __data;
+  struct
+  {
+    int __lock;
+    unsigned int __nr_readers;
+    unsigned int __readers_wakeup;
+    unsigned int __writer_wakeup;
+    unsigned int __nr_readers_queued;
+    unsigned int __nr_writers_queued;
+    int __writer;
+    int __shared;
+    unsigned long int __pad1;
+    unsigned long int __pad2;
+    /* FLAGS must stay at this position in the structure to maintain
+       binary compatibility.  */
+    unsigned int __flags;
+  } __data;
+   
+  
     
     
     
@@ -20974,24 +20974,22 @@ typedef union
     
     
     
+
     
     
     
     
     
-    
-    
-    
-    
-    
-    char __size[56];
-    long int __align;
+  
+
+  char __size[56];
+  long int __align;
 } pthread_rwlock_t;
 
 typedef union
 {
-    char __size[8];
-    long int __align;
+  char __size[8];
+  long int __align;
 } pthread_rwlockattr_t;
 
 
@@ -21003,14 +21001,14 @@ typedef volatile int pthread_spinlock_t;
    deliberately not exposed.  */
 typedef union
 {
-    char __size[32];
-    long int __align;
+  char __size[32];
+  long int __align;
 } pthread_barrier_t;
 
 typedef union
 {
-    char __size[4];
-    int __align;
+  char __size[4];
+  int __align;
 } pthread_barrierattr_t;
 
 
@@ -21030,7 +21028,7 @@ typedef union
 
 
 
-
+ 
 
 #line 28 "systems/redhat/usr/include/bits/fcntl.h" 2
 
@@ -21108,6 +21106,7 @@ typedef union
 
 
 
+ 
 
 
 
@@ -21138,6 +21137,7 @@ typedef union
 
 
 
+ 
 
 
 
@@ -21206,6 +21206,7 @@ typedef union
 
 
 
+ 
 
 
 
@@ -21214,9 +21215,11 @@ typedef union
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -21271,12 +21274,7 @@ typedef union
 
 
 
-
-
-
-
-
-
+ 
 
 
 
@@ -21320,10 +21318,10 @@ typedef union
 
 /* Structure for scatter/gather I/O.  */
 struct iovec
-{
+  {
     void *iov_base;	/* Pointer to data.  */
     size_t iov_len;	/* Length of data.  */
-};
+  };
 
 
 #line 30 "systems/redhat/usr/include/bits/fcntl.h" 2
@@ -21364,7 +21362,7 @@ struct iovec
 
 
 
-
+ 
 
 
 /* Values for the second argument to `fcntl'.  */
@@ -21381,11 +21379,11 @@ struct iovec
 
 
 
+ 
 
 
 
-
-
+ 
 
 
 
@@ -21447,44 +21445,44 @@ struct iovec
 
 
 struct flock
-{
+  {
     short int l_type;	/* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.	*/
     short int l_whence;	/* Where `l_start' is relative to (like `lseek').  */
-    
+
     __off_t l_start;	/* Offset where the lock begins.  */
     __off_t l_len;	/* Size of the locked area; zero means until EOF.  */
+     
     
-    
-    
+
     __pid_t l_pid;	/* Process holding the lock.  */
-};
+  };
 
 
 struct flock64
-{
+  {
     short int l_type;	/* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.	*/
     short int l_whence;	/* Where `l_start' is relative to (like `lseek').  */
     __off64_t l_start;	/* Offset where the lock begins.  */
     __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
     __pid_t l_pid;	/* Process holding the lock.  */
-};
+  };
 
 
 /* Owner types.  */
 enum __pid_type
-{
+  {
     F_OWNER_TID = 0,		/* Kernel thread.  */
     F_OWNER_PID,		/* Process.  */
     F_OWNER_PGRP,		/* Process group.  */
     F_OWNER_GID = F_OWNER_PGRP	/* Alternative, obsolete name.  */
-};
+  };
 
 /* Structure to use with F_GETOWN_EX and F_SETOWN_EX.  */
 struct f_owner_ex
-{
+  {
     enum __pid_type type;	/* Owner type of ID.  */
     __pid_t pid;		/* ID of owner.  */
-};
+  };
 
 /* Define some more compatibility macros to be backward compatible with
    BSD systems which did not managed to hide these kernel macros.  */
@@ -21521,40 +21519,40 @@ struct f_owner_ex
 
 /* Provide kernel hint to read ahead.  */
 extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
-__attribute__ ((__nothrow__));
+    __attribute__ ((__nothrow__));
 
 
 /* Selective file content synch'ing.  */
 extern int sync_file_range (int __fd, __off64_t __offset, __off64_t __count,
-                            unsigned int __flags);
+			    unsigned int __flags);
 
 
 /* Splice address range into a pipe.  */
 extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,
-                         size_t __count, unsigned int __flags);
+			 size_t __count, unsigned int __flags);
 
 /* Splice two files together.  */
 extern ssize_t splice (int __fdin, __off64_t *__offin, int __fdout,
-                       __off64_t *__offout, size_t __len,
-                       unsigned int __flags);
+		       __off64_t *__offout, size_t __len,
+		       unsigned int __flags);
 
 /* In-kernel implementation of tee for pipe buffers.  */
 extern ssize_t tee (int __fdin, int __fdout, size_t __len,
-                    unsigned int __flags);
+		    unsigned int __flags);
 
 /* Reserve storage for the data of the file associated with FD.  */
 
 extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+ 
 
-
-
-
-
+				   
+		       
+ 
 
 
 
 extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
-                        __off64_t __len);
+			__off64_t __len);
 
 
 
@@ -21608,17 +21606,22 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -21668,6 +21671,7 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+ 
 
 
 
@@ -21677,13 +21681,7 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -21863,6 +21861,10 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+  
+    
+    
+  
 
 
 
@@ -21873,8 +21875,21 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -21884,6 +21899,10 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+  
+    
+    
+  
 
 
 
@@ -21905,6 +21924,7 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+     
 
 
 
@@ -21914,12 +21934,16 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -21927,9 +21951,14 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -21945,10 +21974,12 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -21965,9 +21996,11 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -22017,6 +22050,7 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+		      
 
 
 
@@ -22027,6 +22061,7 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+     
 
 
 
@@ -22034,21 +22069,28 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -22088,51 +22130,7 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -22175,7 +22173,7 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 
-
+ 
 
 /* x86-64 versions of the `xmknod' interface.  */
 
@@ -22183,40 +22181,40 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 
 struct stat
-{
+  {
     __dev_t st_dev;		/* Device.  */
+
     
-    
-    
-    
+
+
     __ino_t st_ino;		/* File serial number.	*/
+     
+
+
     
     
-    
-    
-    
-    __nlink_t st_nlink;		/* Link count.  */
+     __nlink_t st_nlink;		/* Link count.  */
     __mode_t st_mode;		/* File mode.  */
-    
+
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
-    
+
     int __pad0;
-    
+
     __dev_t st_rdev;		/* Device number, if device.  */
+
     
-    
-    
-    
+
+
     __off_t st_size;			/* Size of file, in bytes.  */
-    
-    
+     
+
     __blksize_t st_blksize;	/* Optimal block size for I/O.  */
-    
+
     __blkcnt_t st_blocks;		/* Number 512-byte blocks allocated. */
-    
-    
-    
+     
+
+
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -22226,53 +22224,53 @@ struct stat
     struct timespec st_atim;		/* Time of last access.  */
     struct timespec st_mtim;		/* Time of last modification.  */
     struct timespec st_ctim;		/* Time of last status change.  */
+
+
+
+     
     
     
     
     
     
-    
-    
-    
-    
-    
-    
+
+
     long int __unused[3];
+ 
     
     
-    
-    
-    
-    
-};
+     
+
+
+  };
 
 
 /* Note stat64 has the same shape as stat for x86-64.  */
 struct stat64
-{
+  {
     __dev_t st_dev;		/* Device.  */
-    
+
     __ino64_t st_ino;		/* File serial number.  */
     __nlink_t st_nlink;		/* Link count.  */
     __mode_t st_mode;		/* File mode.  */
+     
     
     
     
-    
-    
+
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
-    
+
     int __pad0;
     __dev_t st_rdev;		/* Device number, if device.  */
     __off_t st_size;		/* Size of file, in bytes.  */
+     
     
     
-    
-    
+
     __blksize_t st_blksize;	/* Optimal block size for I/O.  */
     __blkcnt64_t st_blocks;	/* Nr. 512-byte blocks allocated.  */
-    
+
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -22282,21 +22280,21 @@ struct stat64
     struct timespec st_atim;		/* Time of last access.  */
     struct timespec st_mtim;		/* Time of last modification.  */
     struct timespec st_ctim;		/* Time of last status change.  */
+
+
+
+     
     
     
     
     
     
-    
-    
-    
-    
-    
-    
+
+
     long int __unused[3];
-    
-    
-};
+     
+
+  };
 
 /* Tell code we have these members.  */
 
@@ -22418,10 +22416,10 @@ extern int fcntl (int __fd, int __cmd, ...);
    __THROW.  */
 
 extern int open (const char *__file, int __oflag, ...) __attribute__ ((__nonnull__ (1)));
+ 
 
-
-
-
+     
+ 
 
 
 
@@ -22439,16 +22437,16 @@ extern int open64 (const char *__file, int __oflag, ...) __attribute__ ((__nonnu
    __THROW.  */
 
 extern int openat (int __fd, const char *__file, int __oflag, ...)
-__attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nonnull__ (2)));
+ 
 
-
-
-
+				
+ 
 
 
 
 extern int openat64 (int __fd, const char *__file, int __oflag, ...)
-__attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nonnull__ (2)));
 
 
 /* Create and open FILE, with mode MODE.  This takes an `int' MODE
@@ -22458,10 +22456,10 @@ __attribute__ ((__nonnull__ (2)));
    __THROW.  */
 
 extern int creat (const char *__file, __mode_t __mode) __attribute__ ((__nonnull__ (1)));
+ 
 
-
-
-
+		       
+ 
 
 
 
@@ -22483,9 +22481,9 @@ extern int creat64 (const char *__file, __mode_t __mode) __attribute__ ((__nonnu
 
 
 extern int lockf (int __fd, int __cmd, __off_t __len);
+ 
 
-
-
+ 
 
 
 
@@ -22497,17 +22495,17 @@ extern int lockf64 (int __fd, int __cmd, __off64_t __len);
    respect to the file associated with FD.  */
 
 extern int posix_fadvise (int __fd, __off_t __offset, __off_t __len,
-                          int __advise) __attribute__ ((__nothrow__));
+			  int __advise) __attribute__ ((__nothrow__));
+  
 
-
-
-
-
+					   
+			   
+ 
 
 
 
 extern int posix_fadvise64 (int __fd, __off64_t __offset, __off64_t __len,
-                            int __advise) __attribute__ ((__nothrow__));
+			    int __advise) __attribute__ ((__nothrow__));
 
 /* Reserve storage for the data of the file associated with FD.
 
@@ -22515,11 +22513,11 @@ extern int posix_fadvise64 (int __fd, __off64_t __offset, __off64_t __len,
    marked with __THROW.  */
 
 extern int posix_fallocate (int __fd, __off_t __offset, __off_t __len);
+  
 
-
-
-
-
+					 
+		       
+ 
 
 
 
@@ -22700,6 +22698,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -22751,6 +22750,9 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
+ 
+ 
 
 
 
@@ -22797,6 +22799,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -22834,15 +22837,10 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -22940,6 +22938,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -22952,6 +22951,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -22962,6 +22962,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -22970,6 +22971,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -22980,6 +22982,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -22990,6 +22993,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23001,6 +23005,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23010,6 +23015,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23020,6 +23026,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23065,6 +23072,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23073,6 +23081,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23082,6 +23091,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23092,6 +23102,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23110,6 +23121,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23119,6 +23131,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23140,6 +23153,7 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
@@ -23147,29 +23161,13 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
+ 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -23180,8 +23178,8 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 
 
 
-typedef int __gwchar_t;
-
+ typedef int __gwchar_t;
+ 
 
 
 
@@ -23193,7 +23191,7 @@ typedef int __gwchar_t;
 
 
 
-
+ 
 
 
 /* Macros for printing format specifiers.  */
@@ -23416,17 +23414,17 @@ typedef int __gwchar_t;
 
 /* We have to define the `uintmax_t' type using `ldiv_t'.  */
 typedef struct
-{
+  {
     long int quot;		/* Quotient.  */
     long int rem;		/* Remainder.  */
-} imaxdiv_t;
+  } imaxdiv_t;
 
+ 
 
-
-
-
-
-
+  
+    
+    
+  
 
 
 /* Compute absolute value of N.  */
@@ -23434,137 +23432,137 @@ extern intmax_t imaxabs (intmax_t __n) __attribute__ ((__nothrow__)) __attribute
 
 /* Return the `imaxdiv_t' representation of the value of NUMER over DENOM. */
 extern imaxdiv_t imaxdiv (intmax_t __numer, intmax_t __denom)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__));
+      __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 /* Like `strtol' but convert to `intmax_t'.  */
 extern intmax_t strtoimax (const char *__restrict __nptr,
-                           char **__restrict __endptr, int __base) __attribute__ ((__nothrow__));
+			   char **__restrict __endptr, int __base) __attribute__ ((__nothrow__));
 
 /* Like `strtoul' but convert to `uintmax_t'.  */
 extern uintmax_t strtoumax (const char *__restrict __nptr,
-                            char ** __restrict __endptr, int __base) __attribute__ ((__nothrow__));
+			    char ** __restrict __endptr, int __base) __attribute__ ((__nothrow__));
 
 /* Like `wcstol' but convert to `intmax_t'.  */
 extern intmax_t wcstoimax (const __gwchar_t *__restrict __nptr,
-                           __gwchar_t **__restrict __endptr, int __base)
-__attribute__ ((__nothrow__));
+			   __gwchar_t **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__));
 
 /* Like `wcstoul' but convert to `uintmax_t'.  */
 extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
-                            __gwchar_t ** __restrict __endptr, int __base)
-__attribute__ ((__nothrow__));
+			    __gwchar_t ** __restrict __endptr, int __base)
+     __attribute__ ((__nothrow__));
 
 
 
 
+				   
+				   
+  
 
 
 
+		  
 
+  
 
 
 
+					     
+					     
+					     
+  
 
 
 
+		  
 
+  
 
 
 
+				   
+				   
+  
 
 
 
+		  
 
+  
 
 
 
+					     
+					     
+					     
+					     
+  
 
 
 
+		  
 
+  
 
 
+ 
 
+					 
+					 
+  
 
 
 
+		  
 
+  
 
 
 
 
+						   
+						   
+						   
+						   
+						   
+  
 
 
 
+		  
 
+  
 
 
 
 
+					 
+					 
+					 
+  
 
 
 
+		  
 
+  
 
 
 
 
 
+						   
+						   
+						   
+						   
+						   
+  
 
 
 
+		  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -23574,23 +23572,23 @@ __attribute__ ((__nothrow__));
 
 #line 21 "/work/joliebig/workspace/TypeChef-BusyboxAnalysis/gitbusybox/include/libbb.h" 2
 #line 1 "systems/redhat/usr/include/netdb.h" 1
-/* Copyright (C) 1996-2004, 2009, 2010 Free Software Foundation, Inc.
- This file is part of the GNU C Library.
+  /* Copyright (C) 1996-2004, 2009, 2010 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
- The GNU C Library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
- The GNU C Library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
- You should have received a copy of the GNU Lesser General Public
- License along with the GNU C Library; if not, write to the Free
- Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- 02111-1307 USA.  */
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
 
 /* All data returned by the network data base library are supplied in
    host order and returned in network order (suitable for use in
@@ -23739,6 +23737,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -23790,6 +23789,9 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -23836,6 +23838,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -23873,15 +23876,10 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -24100,6 +24098,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24151,6 +24150,9 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -24197,6 +24199,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24234,15 +24237,10 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -24339,6 +24337,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24351,6 +24350,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24361,6 +24361,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24369,6 +24370,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24379,6 +24381,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24389,6 +24392,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24400,6 +24404,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24409,6 +24414,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24419,6 +24425,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24464,6 +24471,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24472,6 +24480,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24481,6 +24490,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24491,6 +24501,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24509,6 +24520,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24518,6 +24530,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24539,6 +24552,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24546,29 +24560,13 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -24738,6 +24736,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24789,6 +24788,9 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -24835,6 +24837,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -24872,15 +24875,10 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -25100,6 +25098,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -25151,6 +25150,9 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -25197,6 +25199,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -25234,15 +25237,10 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -25347,6 +25345,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -25377,6 +25376,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -25445,6 +25445,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -25453,9 +25454,11 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -25510,12 +25513,7 @@ __attribute__ ((__nothrow__));
 
 
 
-
-
-
-
-
-
+ 
 
 
 
@@ -25589,10 +25587,10 @@ __attribute__ ((__nothrow__));
 
 
 
-
-
-
-
+  
+    
+    
+  
 
 
 #line 31 "systems/redhat/usr/include/sys/uio.h" 2
@@ -25607,7 +25605,7 @@ __attribute__ ((__nothrow__));
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
-;
+  ;
 
 /* Write data pointed by the buffers described by IOVEC, which
    is a vector of COUNT 'struct iovec's, to file descriptor FD.
@@ -25618,7 +25616,7 @@ extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count)
-;
+  ;
 
 
 
@@ -25633,7 +25631,7 @@ extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count)
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t preadv (int __fd, const struct iovec *__iovec, int __count,
-                       __off_t __offset) ;
+		       __off_t __offset) ;
 
 /* Write data pointed by the buffers described by IOVEC, which is a
    vector of COUNT 'struct iovec's, to file descriptor FD at the given
@@ -25645,15 +25643,15 @@ extern ssize_t preadv (int __fd, const struct iovec *__iovec, int __count,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t pwritev (int __fd, const struct iovec *__iovec, int __count,
-                        __off_t __offset) ;
+			__off_t __offset) ;
+ 
 
+				    
+			   
 
-
-
-
-
-
-
+				     
+			   
+ 
 
 
 
@@ -25668,7 +25666,7 @@ extern ssize_t pwritev (int __fd, const struct iovec *__iovec, int __count,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t preadv64 (int __fd, const struct iovec *__iovec, int __count,
-                         __off64_t __offset) ;
+			 __off64_t __offset) ;
 
 /* Write data pointed by the buffers described by IOVEC, which is a
    vector of COUNT 'struct iovec's, to file descriptor FD at the given
@@ -25680,7 +25678,7 @@ extern ssize_t preadv64 (int __fd, const struct iovec *__iovec, int __count,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t pwritev64 (int __fd, const struct iovec *__iovec, int __count,
-                          __off64_t __offset) ;
+			  __off64_t __offset) ;
 
 
 
@@ -25878,7 +25876,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -26064,9 +26062,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -26111,9 +26109,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
-
-
+  
+    
+  
 
 
 /* We only want to define these functions if <signal.h> was actually
@@ -26425,7 +26423,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -26611,9 +26609,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -26676,6 +26674,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -26706,6 +26705,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -26774,6 +26774,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -26782,9 +26783,11 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -26839,12 +26842,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
-
-
-
-
-
+ 
 
 
 
@@ -26879,33 +26877,33 @@ typedef __socklen_t socklen_t;
 /* Types of sockets.  */
 enum __socket_type
 {
-    SOCK_STREAM = 1,		/* Sequenced, reliable, connection-based
+  SOCK_STREAM = 1,		/* Sequenced, reliable, connection-based
 				   byte streams.  */
 
-    SOCK_DGRAM = 2,		/* Connectionless, unreliable datagrams
+  SOCK_DGRAM = 2,		/* Connectionless, unreliable datagrams
 				   of fixed maximum length.  */
 
-    SOCK_RAW = 3,			/* Raw protocol interface.  */
-    
-    SOCK_RDM = 4,			/* Reliably-delivered messages.  */
-    
-    SOCK_SEQPACKET = 5,		/* Sequenced, reliable, connection-based,
+  SOCK_RAW = 3,			/* Raw protocol interface.  */
+
+  SOCK_RDM = 4,			/* Reliably-delivered messages.  */
+
+  SOCK_SEQPACKET = 5,		/* Sequenced, reliable, connection-based,
 				   datagrams of fixed maximum length.  */
 
-    SOCK_DCCP = 6,		/* Datagram Congestion Control Protocol.  */
-    
-    SOCK_PACKET = 10,		/* Linux specific way of getting packets
+  SOCK_DCCP = 6,		/* Datagram Congestion Control Protocol.  */
+
+  SOCK_PACKET = 10,		/* Linux specific way of getting packets
 				   at the dev level.  For writing rarp and
 				   other similar things on the user level. */
 
 
-    /* Flags to be ORed into the type parameter of socket and socketpair and
-       used for the flags parameter of paccept.  */
-    
-    SOCK_CLOEXEC = 02000000,	/* Atomically set close-on-exec flag for the
+  /* Flags to be ORed into the type parameter of socket and socketpair and
+     used for the flags parameter of paccept.  */
+
+  SOCK_CLOEXEC = 02000000,	/* Atomically set close-on-exec flag for the
 				   new descriptor(s).  */
 
-    SOCK_NONBLOCK = 04000		/* Atomically mark descriptor(s) as
+  SOCK_NONBLOCK = 04000		/* Atomically mark descriptor(s) as
 				   non-blocking.  */
 
 };
@@ -27053,10 +27051,10 @@ typedef unsigned short int sa_family_t;
 
 /* Structure describing a generic socket address.  */
 struct sockaddr
-{
+  {
     sa_family_t sa_family;	/* Common data: address family and length.  */
     char sa_data[14];		/* Address data.  */
-};
+  };
 
 
 /* Structure large enough to hold any socket address (with the historical
@@ -27066,73 +27064,73 @@ struct sockaddr
 
 
 struct sockaddr_storage
-{
+  {
     sa_family_t ss_family;	/* Address family, etc.  */
     unsigned long int __ss_align;	/* Force desired alignment.  */
     char __ss_padding[(128 - (2 * sizeof (unsigned long int)))];
-};
+  };
 
 
 /* Bits in the FLAGS argument to `send', `recv', et al.  */
 enum
-{
+  {
     MSG_OOB		= 0x01,	/* Process out-of-band data.  */
-    
+
     MSG_PEEK		= 0x02,	/* Peek at incoming messages.  */
-    
+
     MSG_DONTROUTE	= 0x04,	/* Don't use local routing.  */
-    
-    
+
+
     /* DECnet uses a different name.  */
     MSG_TRYHARD		= MSG_DONTROUTE,
-    
-    
+
+
     MSG_CTRUNC		= 0x08,	/* Control data lost before delivery.  */
-    
+
     MSG_PROXY		= 0x10,	/* Supply or ask second address.  */
-    
+
     MSG_TRUNC		= 0x20,
-    
+
     MSG_DONTWAIT	= 0x40, /* Nonblocking IO.  */
-    
+
     MSG_EOR		= 0x80, /* End of record.  */
-    
+
     MSG_WAITALL		= 0x100, /* Wait for a full request.  */
-    
+
     MSG_FIN		= 0x200,
-    
+
     MSG_SYN		= 0x400,
-    
+
     MSG_CONFIRM		= 0x800, /* Confirm path validity.  */
-    
+
     MSG_RST		= 0x1000,
-    
+
     MSG_ERRQUEUE	= 0x2000, /* Fetch message from error queue.  */
-    
+
     MSG_NOSIGNAL	= 0x4000, /* Do not generate SIGPIPE.  */
-    
+
     MSG_MORE		= 0x8000,  /* Sender will send more.  */
-    
+
     MSG_WAITFORONE	= 0x10000, /* Wait for at least one packet to return.*/
-    
-    
+
+
     MSG_CMSG_CLOEXEC	= 0x40000000	/* Set close_on_exit for file
 					   descriptor received through
 					   SCM_RIGHTS.  */
 
-};
+  };
 
 
 /* Structure describing messages sent by
    `sendmsg' and received by `recvmsg'.  */
 struct msghdr
-{
+  {
     void *msg_name;		/* Address to send to/receive from.  */
     socklen_t msg_namelen;	/* Length of address data.  */
-    
+
     struct iovec *msg_iov;	/* Vector of data to send/receive into.  */
     size_t msg_iovlen;		/* Number of elements in the vector.  */
-    
+
     void *msg_control;		/* Ancillary data (eg BSD filedesc passing). */
     size_t msg_controllen;	/* Ancillary data buffer length.
 				   !! The type should be socklen_t but the
@@ -27140,19 +27138,19 @@ struct msghdr
 				   with this.  */
 
     int msg_flags;		/* Flags on received message.  */
-};
+  };
 
 
 /* For `recvmmsg'.  */
 struct mmsghdr
-{
+  {
     struct msghdr msg_hdr;	/* Actual message header.  */
     unsigned int msg_len;	/* Number of received bytes for the entry.  */
-};
+  };
 
 /* Structure used for storage of ancillary data object information.  */
 struct cmsghdr
-{
+  {
     size_t cmsg_len;		/* Length of data in cmsg_data plus length
 				   of cmsghdr structure.
 				   !! The type should be socklen_t but the
@@ -27160,15 +27158,15 @@ struct cmsghdr
 				   with this.  */
     int cmsg_level;		/* Originating protocol.  */
     int cmsg_type;		/* Protocol specific type.  */
-    
+
     __extension__ unsigned char __cmsg_data []; /* Ancillary data.  */
-    
-};
+
+  };
 
 /* Ancillary data object manipulation macros.  */
 
 
-
+ 
 
 
 
@@ -27181,7 +27179,7 @@ struct cmsghdr
 
 
 extern struct cmsghdr *__cmsg_nxthdr (struct msghdr *__mhdr,
-                                      struct cmsghdr *__cmsg) __attribute__ ((__nothrow__));
+				      struct cmsghdr *__cmsg) __attribute__ ((__nothrow__));
 
 
 
@@ -27189,40 +27187,40 @@ extern struct cmsghdr *__cmsg_nxthdr (struct msghdr *__mhdr,
 
 
 
+  
+    
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
+  
+			       
+  
+					
+      
+	  
+    
+    
+  
 
 
 /* Socket level message types.  This must match the definitions in
    <linux/socket.h>.  */
 enum
-{
+  {
     SCM_RIGHTS = 0x01		/* Transfer file descriptors.  */
-    
-    
+
+
     , SCM_CREDENTIALS = 0x02	/* Credentials passing.  */
-    
-    
-};
+
+
+  };
 
 
 /* User visible structure for SCM_CREDENTIALS message */
 struct ucred
 {
-    pid_t pid;			/* PID of sending process.  */
-    uid_t uid;			/* UID of sending process.  */
-    gid_t gid;			/* GID of sending process.  */
+  pid_t pid;			/* PID of sending process.  */
+  uid_t uid;			/* UID of sending process.  */
+  gid_t gid;			/* GID of sending process.  */
 };
 
 /* Ugly workaround for unclean kernel headers.  */
@@ -27369,10 +27367,10 @@ struct ucred
 
 /* Structure used to manipulate the SO_LINGER option.  */
 struct linger
-{
+  {
     int l_onoff;		/* Nonzero to linger on close.  */
     int l_linger;		/* Time to linger.  */
-};
+  };
 
 
 
@@ -27383,8 +27381,8 @@ struct linger
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int recvmmsg (int __fd, struct mmsghdr *__vmessages,
-                     unsigned int __vlen, int __flags,
-                     const struct timespec *__tmo);
+		     unsigned int __vlen, int __flags,
+		     const struct timespec *__tmo);
 
 
 
@@ -27395,21 +27393,21 @@ extern int recvmmsg (int __fd, struct mmsghdr *__vmessages,
 /* This is the 4.3 BSD `struct sockaddr' format, which is used as wire
    format in the grotty old 4.3 `talk' protocol.  */
 struct osockaddr
-{
+  {
     unsigned short int sa_family;
     unsigned char sa_data[14];
-};
+  };
 
 /* The following constants should be used for the second parameter of
    `shutdown'.  */
 enum
 {
-    SHUT_RD = 0,		/* No more receptions.  */
-    
-    SHUT_WR,		/* No more transmissions.  */
-    
-    SHUT_RDWR		/* No more receptions or transmissions.  */
-    
+  SHUT_RD = 0,		/* No more receptions.  */
+
+  SHUT_WR,		/* No more transmissions.  */
+
+  SHUT_RDWR		/* No more receptions or transmissions.  */
+
 };
 
 /* This is the type we use for generic socket address arguments.
@@ -27421,8 +27419,8 @@ enum
 
 
 
-/* Add more `struct sockaddr_AF' types here as necessary.
-  These are all the ones I found on NetBSD and Linux.  */
+ /* Add more `struct sockaddr_AF' types here as necessary.
+   These are all the ones I found on NetBSD and Linux.  */
 
 
 
@@ -27439,38 +27437,12 @@ enum
 
 
 
-typedef union {
-    struct sockaddr *__restrict __sockaddr__;
-    struct sockaddr_at *__restrict __sockaddr_at__;
-    struct sockaddr_ax25 *__restrict __sockaddr_ax25__;
-    struct sockaddr_dl *__restrict __sockaddr_dl__;
-    struct sockaddr_eon *__restrict __sockaddr_eon__;
-    struct sockaddr_in *__restrict __sockaddr_in__;
-    struct sockaddr_in6 *__restrict __sockaddr_in6__;
-    struct sockaddr_inarp *__restrict __sockaddr_inarp__;
-    struct sockaddr_ipx *__restrict __sockaddr_ipx__;
-    struct sockaddr_iso *__restrict __sockaddr_iso__;
-    struct sockaddr_ns *__restrict __sockaddr_ns__;
-    struct sockaddr_un *__restrict __sockaddr_un__;
-    struct sockaddr_x25 *__restrict __sockaddr_x25__;
-} __SOCKADDR_ARG __attribute__ ((__transparent_union__));
+typedef union { struct sockaddr *__restrict __sockaddr__; struct sockaddr_at *__restrict __sockaddr_at__; struct sockaddr_ax25 *__restrict __sockaddr_ax25__; struct sockaddr_dl *__restrict __sockaddr_dl__; struct sockaddr_eon *__restrict __sockaddr_eon__; struct sockaddr_in *__restrict __sockaddr_in__; struct sockaddr_in6 *__restrict __sockaddr_in6__; struct sockaddr_inarp *__restrict __sockaddr_inarp__; struct sockaddr_ipx *__restrict __sockaddr_ipx__; struct sockaddr_iso *__restrict __sockaddr_iso__; struct sockaddr_ns *__restrict __sockaddr_ns__; struct sockaddr_un *__restrict __sockaddr_un__; struct sockaddr_x25 *__restrict __sockaddr_x25__;
+	      } __SOCKADDR_ARG __attribute__ ((__transparent_union__));
 
 
-typedef union {
-    const struct sockaddr *__restrict __sockaddr__;
-    const struct sockaddr_at *__restrict __sockaddr_at__;
-    const struct sockaddr_ax25 *__restrict __sockaddr_ax25__;
-    const struct sockaddr_dl *__restrict __sockaddr_dl__;
-    const struct sockaddr_eon *__restrict __sockaddr_eon__;
-    const struct sockaddr_in *__restrict __sockaddr_in__;
-    const struct sockaddr_in6 *__restrict __sockaddr_in6__;
-    const struct sockaddr_inarp *__restrict __sockaddr_inarp__;
-    const struct sockaddr_ipx *__restrict __sockaddr_ipx__;
-    const struct sockaddr_iso *__restrict __sockaddr_iso__;
-    const struct sockaddr_ns *__restrict __sockaddr_ns__;
-    const struct sockaddr_un *__restrict __sockaddr_un__;
-    const struct sockaddr_x25 *__restrict __sockaddr_x25__;
-} __CONST_SOCKADDR_ARG __attribute__ ((__transparent_union__));
+typedef union { const struct sockaddr *__restrict __sockaddr__; const struct sockaddr_at *__restrict __sockaddr_at__; const struct sockaddr_ax25 *__restrict __sockaddr_ax25__; const struct sockaddr_dl *__restrict __sockaddr_dl__; const struct sockaddr_eon *__restrict __sockaddr_eon__; const struct sockaddr_in *__restrict __sockaddr_in__; const struct sockaddr_in6 *__restrict __sockaddr_in6__; const struct sockaddr_inarp *__restrict __sockaddr_inarp__; const struct sockaddr_ipx *__restrict __sockaddr_ipx__; const struct sockaddr_iso *__restrict __sockaddr_iso__; const struct sockaddr_ns *__restrict __sockaddr_ns__; const struct sockaddr_un *__restrict __sockaddr_un__; const struct sockaddr_x25 *__restrict __sockaddr_x25__;
+	      } __CONST_SOCKADDR_ARG __attribute__ ((__transparent_union__));
 
 
 /* Create a new socket of type TYPE in domain DOMAIN, using
@@ -27483,15 +27455,15 @@ extern int socket (int __domain, int __type, int __protocol) __attribute__ ((__n
    descriptors for them in FDS[0] and FDS[1].  If PROTOCOL is zero,
    one will be chosen automatically.  Returns 0 on success, -1 for errors.  */
 extern int socketpair (int __domain, int __type, int __protocol,
-                       int __fds[2]) __attribute__ ((__nothrow__));
+		       int __fds[2]) __attribute__ ((__nothrow__));
 
 /* Give the socket FD the local address ADDR (which is LEN bytes long).  */
 extern int bind (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Put the local address of FD into *ADDR and its length in *LEN.  */
 extern int getsockname (int __fd, __SOCKADDR_ARG __addr,
-                        socklen_t *__restrict __len) __attribute__ ((__nothrow__));
+			socklen_t *__restrict __len) __attribute__ ((__nothrow__));
 
 /* Open a connection on socket FD to peer at ADDR (which LEN bytes long).
    For connectionless socket types, just set the default address to send to
@@ -27505,7 +27477,7 @@ extern int connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len);
 /* Put the address of the peer connected to socket FD into *ADDR
    (which is *LEN bytes long), and its actual length into *LEN.  */
 extern int getpeername (int __fd, __SOCKADDR_ARG __addr,
-                        socklen_t *__restrict __len) __attribute__ ((__nothrow__));
+			socklen_t *__restrict __len) __attribute__ ((__nothrow__));
 
 
 /* Send N bytes of BUF to socket FD.  Returns the number sent or -1.
@@ -27527,8 +27499,8 @@ extern ssize_t recv (int __fd, void *__buf, size_t __n, int __flags);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t sendto (int __fd, const void *__buf, size_t __n,
-                       int __flags, __CONST_SOCKADDR_ARG __addr,
-                       socklen_t __addr_len);
+		       int __flags, __CONST_SOCKADDR_ARG __addr,
+		       socklen_t __addr_len);
 
 /* Read N bytes into BUF through socket FD.
    If ADDR is not NULL, fill in *ADDR_LEN bytes of it with tha address of
@@ -27538,8 +27510,8 @@ extern ssize_t sendto (int __fd, const void *__buf, size_t __n,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
-                         int __flags, __SOCKADDR_ARG __addr,
-                         socklen_t *__restrict __addr_len);
+			 int __flags, __SOCKADDR_ARG __addr,
+			 socklen_t *__restrict __addr_len);
 
 
 /* Send a message described MESSAGE on socket FD.
@@ -27548,7 +27520,7 @@ extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t sendmsg (int __fd, const struct msghdr *__message,
-                        int __flags);
+			int __flags);
 
 /* Receive a message as described by MESSAGE from socket FD.
    Returns the number of bytes read or -1 for errors.
@@ -27562,14 +27534,14 @@ extern ssize_t recvmsg (int __fd, struct msghdr *__message, int __flags);
    into OPTVAL (which is *OPTLEN bytes long), and set *OPTLEN to the value's
    actual length.  Returns 0 on success, -1 for errors.  */
 extern int getsockopt (int __fd, int __level, int __optname,
-                       void *__restrict __optval,
-                       socklen_t *__restrict __optlen) __attribute__ ((__nothrow__));
+		       void *__restrict __optval,
+		       socklen_t *__restrict __optlen) __attribute__ ((__nothrow__));
 
 /* Set socket FD's option OPTNAME at protocol level LEVEL
    to *OPTVAL (which is OPTLEN bytes long).
    Returns 0 on success, -1 for errors.  */
 extern int setsockopt (int __fd, int __level, int __optname,
-                       const void *__optval, socklen_t __optlen) __attribute__ ((__nothrow__));
+		       const void *__optval, socklen_t __optlen) __attribute__ ((__nothrow__));
 
 
 /* Prepare to accept connections on socket FD.
@@ -27586,7 +27558,7 @@ extern int listen (int __fd, int __n) __attribute__ ((__nothrow__));
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int accept (int __fd, __SOCKADDR_ARG __addr,
-                   socklen_t *__restrict __addr_len);
+		   socklen_t *__restrict __addr_len);
 
 
 /* Similar to 'accept' but takes an additional parameter to specify flags.
@@ -27594,7 +27566,7 @@ extern int accept (int __fd, __SOCKADDR_ARG __addr,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int accept4 (int __fd, __SOCKADDR_ARG __addr,
-                    socklen_t *__restrict __addr_len, int __flags);
+		    socklen_t *__restrict __addr_len, int __flags);
 
 /* Shut down all or part of the connection open on socket FD.
    HOW determines what to shut down:
@@ -27669,17 +27641,22 @@ extern int isfdtype (int __fd, int __fdtype) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -27729,6 +27706,7 @@ extern int isfdtype (int __fd, int __fdtype) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -27738,13 +27716,7 @@ extern int isfdtype (int __fd, int __fdtype) __attribute__ ((__nothrow__));
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -27820,67 +27792,67 @@ extern int isfdtype (int __fd, int __fdtype) __attribute__ ((__nothrow__));
 
 /* Standard well-defined IP protocols.  */
 enum
-{
+  {
     IPPROTO_IP = 0,	   /* Dummy protocol for TCP.  */
-    
+
     IPPROTO_HOPOPTS = 0,   /* IPv6 Hop-by-Hop options.  */
-    
+
     IPPROTO_ICMP = 1,	   /* Internet Control Message Protocol.  */
-    
+
     IPPROTO_IGMP = 2,	   /* Internet Group Management Protocol. */
-    
+
     IPPROTO_IPIP = 4,	   /* IPIP tunnels (older KA9Q tunnels use 94).  */
-    
+
     IPPROTO_TCP = 6,	   /* Transmission Control Protocol.  */
-    
+
     IPPROTO_EGP = 8,	   /* Exterior Gateway Protocol.  */
-    
+
     IPPROTO_PUP = 12,	   /* PUP protocol.  */
-    
+
     IPPROTO_UDP = 17,	   /* User Datagram Protocol.  */
-    
+
     IPPROTO_IDP = 22,	   /* XNS IDP protocol.  */
-    
+
     IPPROTO_TP = 29,	   /* SO Transport Protocol Class 4.  */
-    
+
     IPPROTO_DCCP = 33,	   /* Datagram Congestion Control Protocol.  */
-    
+
     IPPROTO_IPV6 = 41,     /* IPv6 header.  */
-    
+
     IPPROTO_ROUTING = 43,  /* IPv6 routing header.  */
-    
+
     IPPROTO_FRAGMENT = 44, /* IPv6 fragmentation header.  */
-    
+
     IPPROTO_RSVP = 46,	   /* Reservation Protocol.  */
-    
+
     IPPROTO_GRE = 47,	   /* General Routing Encapsulation.  */
-    
+
     IPPROTO_ESP = 50,      /* encapsulating security payload.  */
-    
+
     IPPROTO_AH = 51,       /* authentication header.  */
-    
+
     IPPROTO_ICMPV6 = 58,   /* ICMPv6.  */
-    
+
     IPPROTO_NONE = 59,     /* IPv6 no next header.  */
-    
+
     IPPROTO_DSTOPTS = 60,  /* IPv6 destination options.  */
-    
+
     IPPROTO_MTP = 92,	   /* Multicast Transport Protocol.  */
-    
+
     IPPROTO_ENCAP = 98,	   /* Encapsulation Header.  */
-    
+
     IPPROTO_PIM = 103,	   /* Protocol Independent Multicast.  */
-    
+
     IPPROTO_COMP = 108,	   /* Compression Header Protocol.  */
-    
+
     IPPROTO_SCTP = 132,	   /* Stream Control Transmission Protocol.  */
-    
+
     IPPROTO_UDPLITE = 136, /* UDP-Lite protocol.  */
-    
+
     IPPROTO_RAW = 255,	   /* Raw IP packets.  */
-    
+
     IPPROTO_MAX
-};
+  };
 
 
 /* Type to represent a port.  */
@@ -27888,7 +27860,7 @@ typedef uint16_t in_port_t;
 
 /* Standard well-known ports.  */
 enum
-{
+  {
     IPPORT_ECHO = 7,		/* Echo service.  */
     IPPORT_DISCARD = 9,		/* Discard transmissions service.  */
     IPPORT_SYSTAT = 11,		/* System status service.  */
@@ -27901,38 +27873,38 @@ enum
     IPPORT_NAMESERVER = 42,	/* Domain Name Service.  */
     IPPORT_WHOIS = 43,		/* Internet Whois service.  */
     IPPORT_MTP = 57,
-    
+
     IPPORT_TFTP = 69,		/* Trivial File Transfer Protocol.  */
     IPPORT_RJE = 77,
     IPPORT_FINGER = 79,		/* Finger service.  */
     IPPORT_TTYLINK = 87,
     IPPORT_SUPDUP = 95,		/* SUPDUP protocol.  */
-    
-    
+
+
     IPPORT_EXECSERVER = 512,	/* execd service.  */
     IPPORT_LOGINSERVER = 513,	/* rlogind service.  */
     IPPORT_CMDSERVER = 514,
     IPPORT_EFSSERVER = 520,
-    
+
     /* UDP ports.  */
     IPPORT_BIFFUDP = 512,
     IPPORT_WHOSERVER = 513,
     IPPORT_ROUTESERVER = 520,
-    
+
     /* Ports less than this value are reserved for privileged processes.  */
     IPPORT_RESERVED = 1024,
-    
+
     /* Ports greater this value are reserved for (non-privileged) servers.  */
     IPPORT_USERRESERVED = 5000
-};
+  };
 
 
 /* Internet address.  */
 typedef uint32_t in_addr_t;
 struct in_addr
-{
+  {
     in_addr_t s_addr;
-};
+  };
 
 
 /* Definitions of the bits in an Internet address integer.
@@ -27985,21 +27957,21 @@ struct in_addr
 
 /* IPv6 address */
 struct in6_addr
-{
+  {
     union
-    {
-        uint8_t	__u6_addr8[16];
-        
-        uint16_t __u6_addr16[8];
-        uint32_t __u6_addr32[4];
-        
-    } __in6_u;
-    
-    
-    
-    
-    
-};
+      {
+	uint8_t	__u6_addr8[16];
+
+	uint16_t __u6_addr16[8];
+	uint32_t __u6_addr32[4];
+
+      } __in6_u;
+
+
+
+
+
+  };
 
 extern const struct in6_addr in6addr_any;        /* :: */
 extern const struct in6_addr in6addr_loopback;   /* ::1 */
@@ -28012,120 +27984,120 @@ extern const struct in6_addr in6addr_loopback;   /* ::1 */
 
 /* Structure describing an Internet socket address.  */
 struct sockaddr_in
-{
+  {
     sa_family_t sin_family;
     in_port_t sin_port;			/* Port number.  */
     struct in_addr sin_addr;		/* Internet address.  */
-    
+
     /* Pad to size of `struct sockaddr'.  */
     unsigned char sin_zero[sizeof (struct sockaddr) -
-                           (sizeof (unsigned short int)) -
-                           sizeof (in_port_t) -
-                           sizeof (struct in_addr)];
-};
+			   (sizeof (unsigned short int)) -
+			   sizeof (in_port_t) -
+			   sizeof (struct in_addr)];
+  };
 
 /* Ditto, for IPv6.  */
 struct sockaddr_in6
-{
+  {
     sa_family_t sin6_family;
     in_port_t sin6_port;	/* Transport layer port # */
     uint32_t sin6_flowinfo;	/* IPv6 flow information */
     struct in6_addr sin6_addr;	/* IPv6 address */
     uint32_t sin6_scope_id;	/* IPv6 scope-id */
-};
+  };
 
 
 
 /* IPv4 multicast request.  */
 struct ip_mreq
-{
+  {
     /* IP multicast address of group.  */
     struct in_addr imr_multiaddr;
-    
+
     /* Local IP address of interface.  */
     struct in_addr imr_interface;
-};
+  };
 
 struct ip_mreq_source
-{
+  {
     /* IP multicast address of group.  */
     struct in_addr imr_multiaddr;
-    
+
     /* IP address of source.  */
     struct in_addr imr_interface;
-    
+
     /* IP address of interface.  */
     struct in_addr imr_sourceaddr;
-};
+  };
 
 /* Likewise, for IPv6.  */
 struct ipv6_mreq
-{
+  {
     /* IPv6 multicast address of group */
     struct in6_addr ipv6mr_multiaddr;
-    
+
     /* local interface */
     unsigned int ipv6mr_interface;
-};
+  };
 
 
 
 /* Multicast group request.  */
 struct group_req
-{
+  {
     /* Interface index.  */
     uint32_t gr_interface;
-    
+
     /* Group address.  */
     struct sockaddr_storage gr_group;
-};
+  };
 
 struct group_source_req
-{
+  {
     /* Interface index.  */
     uint32_t gsr_interface;
-    
+
     /* Group address.  */
     struct sockaddr_storage gsr_group;
-    
+
     /* Source address.  */
     struct sockaddr_storage gsr_source;
-};
+  };
 
 
 /* Full-state filter operations.  */
 struct ip_msfilter
-{
+  {
     /* IP multicast address of group.  */
     struct in_addr imsf_multiaddr;
-    
+
     /* Local IP address of interface.  */
     struct in_addr imsf_interface;
-    
+
     /* Filter mode.  */
     uint32_t imsf_fmode;
-    
+
     /* Number of source addresses.  */
     uint32_t imsf_numsrc;
     /* Source addresses.  */
     struct in_addr imsf_slist[1];
-};
+  };
 
 
 
 
 
 struct group_filter
-{
+  {
     /* Interface index.  */
     uint32_t gf_interface;
-    
+
     /* Group address.  */
     struct sockaddr_storage gf_group;
-    
+
     /* Filter mode.  */
     uint32_t gf_fmode;
-    
+
     /* Number of source addresses.  */
     uint32_t gf_numsrc;
     /* Source addresses.  */
@@ -28235,26 +28207,26 @@ struct group_filter
    The `ip_dst' field is used for the first-hop gateway when using a
    source route (this gets put into the header proper).  */
 struct ip_opts
-{
+  {
     struct in_addr ip_dst;	/* First hop; zero without source route.  */
     char ip_opts[40];		/* Actually variable in size.  */
-};
+  };
 
 /* Like `struct ip_mreq' but including interface specification by index.  */
 struct ip_mreqn
-{
+  {
     struct in_addr imr_multiaddr;	/* IP multicast address of group */
     struct in_addr imr_address;		/* local IP address of interface */
     int	imr_ifindex;			/* Interface index */
-};
+  };
 
 /* Structure used for IP_PKTINFO.  */
 struct in_pktinfo
-{
+  {
     int ipi_ifindex;			/* Interface index  */
     struct in_addr ipi_spec_dst;	/* Routing destination address  */
     struct in_addr ipi_addr;		/* Header destination address  */
-};
+  };
 
 /* Options for use with `getsockopt' and `setsockopt' at the IPv6 level.
    The first word in the comment at the right is the data type used;
@@ -28335,11 +28307,11 @@ struct in_pktinfo
 
 extern uint32_t ntohl (uint32_t __netlong) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 extern uint16_t ntohs (uint16_t __netshort)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 extern uint32_t htonl (uint32_t __hostlong)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 extern uint16_t htons (uint16_t __hostshort)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 #line 1 "systems/redhat/usr/include/endian.h" 1
 /* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
@@ -28393,6 +28365,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 
 
+ 
 
 
 
@@ -28413,8 +28386,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 
 
-
-
+ 
 
 
 
@@ -28479,6 +28451,43 @@ __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 
 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 
@@ -28503,44 +28512,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -28569,7 +28541,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 
 
-
+ 
 
 
 
@@ -28622,7 +28594,7 @@ extern int bindresvport (int __sockfd, struct sockaddr_in *__sock_in) __attribut
 
 /* The IPv6 version of this function.  */
 extern int bindresvport6 (int __sockfd, struct sockaddr_in6 *__sock_in)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 
 
@@ -28648,97 +28620,97 @@ __attribute__ ((__nothrow__));
 
 /* IPv6 packet information.  */
 struct in6_pktinfo
-{
+  {
     struct in6_addr ipi6_addr;	/* src/dst IPv6 address */
     unsigned int ipi6_ifindex;	/* send/recv interface index */
-};
+  };
 
 /* IPv6 MTU information.  */
 struct ip6_mtuinfo
-{
+  {
     struct sockaddr_in6 ip6m_addr; /* dst address including zone ID */
     uint32_t ip6m_mtu;		   /* path MTU in host byte order */
-};
+  };
 
 
 /* Obsolete hop-by-hop and Destination Options Processing (RFC 2292).  */
 extern int inet6_option_space (int __nbytes)
-__attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 extern int inet6_option_init (void *__bp, struct cmsghdr **__cmsgp,
-                              int __type) __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+			      int __type) __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 extern int inet6_option_append (struct cmsghdr *__cmsg,
-                                const uint8_t *__typep, int __multx,
-                                int __plusy) __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+				const uint8_t *__typep, int __multx,
+				int __plusy) __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 extern uint8_t *inet6_option_alloc (struct cmsghdr *__cmsg, int __datalen,
-                                    int __multx, int __plusy)
-__attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+				    int __multx, int __plusy)
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 extern int inet6_option_next (const struct cmsghdr *__cmsg,
-                              uint8_t **__tptrp)
-__attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+			      uint8_t **__tptrp)
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 extern int inet6_option_find (const struct cmsghdr *__cmsg,
-                              uint8_t **__tptrp, int __type)
-__attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+			      uint8_t **__tptrp, int __type)
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 
 
 /* Hop-by-Hop and Destination Options Processing (RFC 3542).  */
 extern int inet6_opt_init (void *__extbuf, socklen_t __extlen) __attribute__ ((__nothrow__));
 extern int inet6_opt_append (void *__extbuf, socklen_t __extlen, int __offset,
-                             uint8_t __type, socklen_t __len, uint8_t __align,
-                             void **__databufp) __attribute__ ((__nothrow__));
+			     uint8_t __type, socklen_t __len, uint8_t __align,
+			     void **__databufp) __attribute__ ((__nothrow__));
 extern int inet6_opt_finish (void *__extbuf, socklen_t __extlen, int __offset)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 extern int inet6_opt_set_val (void *__databuf, int __offset, void *__val,
-                              socklen_t __vallen) __attribute__ ((__nothrow__));
+			      socklen_t __vallen) __attribute__ ((__nothrow__));
 extern int inet6_opt_next (void *__extbuf, socklen_t __extlen, int __offset,
-                           uint8_t *__typep, socklen_t *__lenp,
-                           void **__databufp) __attribute__ ((__nothrow__));
+			   uint8_t *__typep, socklen_t *__lenp,
+			   void **__databufp) __attribute__ ((__nothrow__));
 extern int inet6_opt_find (void *__extbuf, socklen_t __extlen, int __offset,
-                           uint8_t __type, socklen_t *__lenp,
-                           void **__databufp) __attribute__ ((__nothrow__));
+			   uint8_t __type, socklen_t *__lenp,
+			   void **__databufp) __attribute__ ((__nothrow__));
 extern int inet6_opt_get_val (void *__databuf, int __offset, void *__val,
-                              socklen_t __vallen) __attribute__ ((__nothrow__));
+			      socklen_t __vallen) __attribute__ ((__nothrow__));
 
 
 /* Routing Header Option (RFC 3542).  */
 extern socklen_t inet6_rth_space (int __type, int __segments) __attribute__ ((__nothrow__));
 extern void *inet6_rth_init (void *__bp, socklen_t __bp_len, int __type,
-                             int __segments) __attribute__ ((__nothrow__));
+			     int __segments) __attribute__ ((__nothrow__));
 extern int inet6_rth_add (void *__bp, const struct in6_addr *__addr) __attribute__ ((__nothrow__));
 extern int inet6_rth_reverse (const void *__in, void *__out) __attribute__ ((__nothrow__));
 extern int inet6_rth_segments (const void *__bp) __attribute__ ((__nothrow__));
 extern struct in6_addr *inet6_rth_getaddr (const void *__bp, int __index)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 
 /* Multicast source filter support.  */
 
 /* Get IPv4 source filter.  */
 extern int getipv4sourcefilter (int __s, struct in_addr __interface_addr,
-                                struct in_addr __group, uint32_t *__fmode,
-                                uint32_t *__numsrc, struct in_addr *__slist)
-__attribute__ ((__nothrow__));
+				struct in_addr __group, uint32_t *__fmode,
+				uint32_t *__numsrc, struct in_addr *__slist)
+     __attribute__ ((__nothrow__));
 
 /* Set IPv4 source filter.  */
 extern int setipv4sourcefilter (int __s, struct in_addr __interface_addr,
-                                struct in_addr __group, uint32_t __fmode,
-                                uint32_t __numsrc,
-                                const struct in_addr *__slist)
-__attribute__ ((__nothrow__));
+				struct in_addr __group, uint32_t __fmode,
+				uint32_t __numsrc,
+				const struct in_addr *__slist)
+     __attribute__ ((__nothrow__));
 
 
 /* Get source filter.  */
 extern int getsourcefilter (int __s, uint32_t __interface_addr,
-                            const struct sockaddr *__group,
-                            socklen_t __grouplen, uint32_t *__fmode,
-                            uint32_t *__numsrc,
-                            struct sockaddr_storage *__slist) __attribute__ ((__nothrow__));
+			    const struct sockaddr *__group,
+			    socklen_t __grouplen, uint32_t *__fmode,
+			    uint32_t *__numsrc,
+			    struct sockaddr_storage *__slist) __attribute__ ((__nothrow__));
 
 /* Set source filter.  */
 extern int setsourcefilter (int __s, uint32_t __interface_addr,
-                            const struct sockaddr *__group,
-                            socklen_t __grouplen, uint32_t __fmode,
-                            uint32_t __numsrc,
-                            const struct sockaddr_storage *__slist) __attribute__ ((__nothrow__));
+			    const struct sockaddr *__group,
+			    socklen_t __grouplen, uint32_t __fmode,
+			    uint32_t __numsrc,
+			    const struct sockaddr_storage *__slist) __attribute__ ((__nothrow__));
 
 
 
@@ -28786,6 +28758,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28798,6 +28771,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28808,6 +28782,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28816,6 +28791,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28826,6 +28802,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28836,6 +28813,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28847,6 +28825,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28856,6 +28835,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28866,6 +28846,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28911,6 +28892,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28919,6 +28901,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28928,6 +28911,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28938,6 +28922,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28956,6 +28941,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28965,6 +28951,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28986,6 +28973,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -28993,29 +28981,13 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -29203,6 +29175,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -29254,6 +29227,9 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -29300,6 +29276,7 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
 
 
 
@@ -29337,15 +29314,10 @@ extern int setsourcefilter (int __s, uint32_t __interface_addr,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -29592,7 +29564,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -29778,9 +29750,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -29798,9 +29770,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 struct rpcent
 {
-    char *r_name;		/* Name of server for this rpc program.  */
-    char **r_aliases;	/* Alias list.  */
-    int r_number;		/* RPC program number.  */
+  char *r_name;		/* Name of server for this rpc program.  */
+  char **r_aliases;	/* Alias list.  */
+  int r_number;		/* RPC program number.  */
 };
 
 extern void setrpcent (int __stayopen) __attribute__ ((__nothrow__));
@@ -29811,15 +29783,15 @@ extern struct rpcent *getrpcent (void) __attribute__ ((__nothrow__));
 
 
 extern int getrpcbyname_r (const char *__name, struct rpcent *__result_buf,
-                           char *__buffer, size_t __buflen,
-                           struct rpcent **__result) __attribute__ ((__nothrow__));
+			   char *__buffer, size_t __buflen,
+			   struct rpcent **__result) __attribute__ ((__nothrow__));
 
 extern int getrpcbynumber_r (int __number, struct rpcent *__result_buf,
-                             char *__buffer, size_t __buflen,
-                             struct rpcent **__result) __attribute__ ((__nothrow__));
+			     char *__buffer, size_t __buflen,
+			     struct rpcent **__result) __attribute__ ((__nothrow__));
 
 extern int getrpcent_r (struct rpcent *__result_buf, char *__buffer,
-                        size_t __buflen, struct rpcent **__result) __attribute__ ((__nothrow__));
+			size_t __buflen, struct rpcent **__result) __attribute__ ((__nothrow__));
 
 
 
@@ -29857,7 +29829,7 @@ extern int getrpcent_r (struct rpcent *__result_buf, char *__buffer,
 
 
 
-
+ 
 
 #line 27 "systems/redhat/usr/include/bits/siginfo.h" 2
 
@@ -29866,10 +29838,10 @@ extern int getrpcent_r (struct rpcent *__result_buf, char *__buffer,
 
 /* Type for data associated with a signal.  */
 typedef union sigval
-{
+  {
     int sival_int;
     void *sival_ptr;
-} sigval_t;
+  } sigval_t;
 
 
 
@@ -29877,15 +29849,65 @@ typedef union sigval
 
 
 
+ 
 
 
+  
+    
+    
+    
 
+    
+      
+	
 
+	 
+	
+	  
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	    
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	  
+      
+  
 
 
 
@@ -29908,14 +29930,23 @@ typedef union sigval
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
@@ -29923,164 +29954,105 @@ typedef union sigval
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -30093,29 +30065,29 @@ typedef union sigval
 
 
 
-
+ 
 
 typedef struct sigevent
-{
+  {
     sigval_t sigev_value;
     int sigev_signo;
     int sigev_notify;
-    
+
     union
-    {
-        int _pad[((64 / sizeof (int)) - 4)];
-        
-        /* When SIGEV_SIGNAL and SIGEV_THREAD_ID set, LWP ID of the
-           thread to receive the signal.  */
-        __pid_t _tid;
-        
-        struct
-        {
-            void (*_function) (sigval_t);	/* Function to start.  */
-            void *_attribute;			/* Really pthread_attr_t.  */
-        } _sigev_thread;
-    } _sigev_un;
-} sigevent_t;
+      {
+	int _pad[((64 / sizeof (int)) - 4)];
+
+	/* When SIGEV_SIGNAL and SIGEV_THREAD_ID set, LWP ID of the
+	   thread to receive the signal.  */
+	__pid_t _tid;
+
+	struct
+	  {
+	    void (*_function) (sigval_t);	/* Function to start.  */
+	    void *_attribute;			/* Really pthread_attr_t.  */
+	  } _sigev_thread;
+      } _sigev_un;
+  } sigevent_t;
 
 /* POSIX names to access some of the members.  */
 
@@ -30124,15 +30096,15 @@ typedef struct sigevent
 /* `sigev_notify' values.  */
 enum
 {
-    SIGEV_SIGNAL = 0,		/* Notify via signal.  */
-    
-    SIGEV_NONE,			/* Other notification: meaningless.  */
-    
-    SIGEV_THREAD,			/* Deliver via thread creation.  */
-    
-    
-    SIGEV_THREAD_ID = 4		/* Send signal to specific thread.  */
-    
+  SIGEV_SIGNAL = 0,		/* Notify via signal.  */
+
+  SIGEV_NONE,			/* Other notification: meaningless.  */
+
+  SIGEV_THREAD,			/* Deliver via thread creation.  */
+
+
+  SIGEV_THREAD_ID = 4		/* Send signal to specific thread.  */
+
 };
 
 
@@ -30247,6 +30219,10 @@ enum
 
 
 
+  
+    
+    
+  
 
 
 
@@ -30257,8 +30233,21 @@ enum
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -30268,6 +30257,10 @@ enum
 
 
 
+  
+    
+    
+  
 
 
 
@@ -30289,6 +30282,7 @@ enum
 
 
 
+     
 
 
 
@@ -30298,12 +30292,16 @@ enum
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -30311,9 +30309,14 @@ enum
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -30329,10 +30332,12 @@ enum
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -30349,9 +30354,11 @@ enum
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -30401,6 +30408,7 @@ enum
 
 
 
+		      
 
 
 
@@ -30411,6 +30419,7 @@ enum
 
 
 
+     
 
 
 
@@ -30418,21 +30427,28 @@ enum
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -30472,51 +30488,7 @@ enum
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -30551,10 +30523,10 @@ enum
    into an unsigned long int variable.  */
 struct netent
 {
-    char *n_name;			/* Official name of network.  */
-    char **n_aliases;		/* Alias list.  */
-    int n_addrtype;		/* Net address type.  */
-    uint32_t n_net;		/* Network number.  */
+  char *n_name;			/* Official name of network.  */
+  char **n_aliases;		/* Alias list.  */
+  int n_addrtype;		/* Net address type.  */
+  uint32_t n_net;		/* Network number.  */
 };
 #line 45 "systems/redhat/usr/include/netdb.h" 2
 
@@ -30608,14 +30580,14 @@ extern const char *hstrerror (int __err_num) __attribute__ ((__nothrow__));
 /* Description of data base entry for a single host.  */
 struct hostent
 {
-    char *h_name;			/* Official name of host.  */
-    char **h_aliases;		/* Alias list.  */
-    int h_addrtype;		/* Host address type.  */
-    int h_length;			/* Length of address.  */
-    char **h_addr_list;		/* List of addresses from name server.  */
-    
-    
-    
+  char *h_name;			/* Official name of host.  */
+  char **h_aliases;		/* Alias list.  */
+  int h_addrtype;		/* Host address type.  */
+  int h_length;			/* Length of address.  */
+  char **h_addr_list;		/* List of addresses from name server.  */
+
+
+
 };
 
 /* Open host data base files and mark them as staying open even after
@@ -30644,7 +30616,7 @@ extern struct hostent *gethostent (void);
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern struct hostent *gethostbyaddr (const void *__addr, __socklen_t __len,
-                                      int __type);
+				      int __type);
 
 /* Return entry from host data base for host with NAME.
 
@@ -30674,28 +30646,28 @@ extern struct hostent *gethostbyname2 (const char *__name, int __af);
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern int gethostent_r (struct hostent *__restrict __result_buf,
-                         char *__restrict __buf, size_t __buflen,
-                         struct hostent **__restrict __result,
-                         int *__restrict __h_errnop);
+			 char *__restrict __buf, size_t __buflen,
+			 struct hostent **__restrict __result,
+			 int *__restrict __h_errnop);
 
 extern int gethostbyaddr_r (const void *__restrict __addr, __socklen_t __len,
-                            int __type,
-                            struct hostent *__restrict __result_buf,
-                            char *__restrict __buf, size_t __buflen,
-                            struct hostent **__restrict __result,
-                            int *__restrict __h_errnop);
+			    int __type,
+			    struct hostent *__restrict __result_buf,
+			    char *__restrict __buf, size_t __buflen,
+			    struct hostent **__restrict __result,
+			    int *__restrict __h_errnop);
 
 extern int gethostbyname_r (const char *__restrict __name,
-                            struct hostent *__restrict __result_buf,
-                            char *__restrict __buf, size_t __buflen,
-                            struct hostent **__restrict __result,
-                            int *__restrict __h_errnop);
+			    struct hostent *__restrict __result_buf,
+			    char *__restrict __buf, size_t __buflen,
+			    struct hostent **__restrict __result,
+			    int *__restrict __h_errnop);
 
 extern int gethostbyname2_r (const char *__restrict __name, int __af,
-                             struct hostent *__restrict __result_buf,
-                             char *__restrict __buf, size_t __buflen,
-                             struct hostent **__restrict __result,
-                             int *__restrict __h_errnop);
+			     struct hostent *__restrict __result_buf,
+			     char *__restrict __buf, size_t __buflen,
+			     struct hostent **__restrict __result,
+			     int *__restrict __h_errnop);
 
 /* Open network data base files and mark them as staying open even
    after a later search if STAY_OPEN is non-zero.
@@ -30742,29 +30714,29 @@ extern struct netent *getnetbyname (const char *__name);
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern int getnetent_r (struct netent *__restrict __result_buf,
-                        char *__restrict __buf, size_t __buflen,
-                        struct netent **__restrict __result,
-                        int *__restrict __h_errnop);
+			char *__restrict __buf, size_t __buflen,
+			struct netent **__restrict __result,
+			int *__restrict __h_errnop);
 
 extern int getnetbyaddr_r (uint32_t __net, int __type,
-                           struct netent *__restrict __result_buf,
-                           char *__restrict __buf, size_t __buflen,
-                           struct netent **__restrict __result,
-                           int *__restrict __h_errnop);
+			   struct netent *__restrict __result_buf,
+			   char *__restrict __buf, size_t __buflen,
+			   struct netent **__restrict __result,
+			   int *__restrict __h_errnop);
 
 extern int getnetbyname_r (const char *__restrict __name,
-                           struct netent *__restrict __result_buf,
-                           char *__restrict __buf, size_t __buflen,
-                           struct netent **__restrict __result,
-                           int *__restrict __h_errnop);
+			   struct netent *__restrict __result_buf,
+			   char *__restrict __buf, size_t __buflen,
+			   struct netent **__restrict __result,
+			   int *__restrict __h_errnop);
 
 /* Description of data base entry for a single service.  */
 struct servent
 {
-    char *s_name;			/* Official service name.  */
-    char **s_aliases;		/* Alias list.  */
-    int s_port;			/* Port number.  */
-    char *s_proto;		/* Protocol to use.  */
+  char *s_name;			/* Official service name.  */
+  char **s_aliases;		/* Alias list.  */
+  int s_port;			/* Port number.  */
+  char *s_proto;		/* Protocol to use.  */
 };
 
 /* Open service data base files and mark them as staying open even
@@ -30793,7 +30765,7 @@ extern struct servent *getservent (void);
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern struct servent *getservbyname (const char *__name,
-                                      const char *__proto);
+				      const char *__proto);
 
 /* Return entry from service data base which matches port PORT and
    protocol PROTO.
@@ -30812,26 +30784,26 @@ extern struct servent *getservbyport (int __port, const char *__proto);
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern int getservent_r (struct servent *__restrict __result_buf,
-                         char *__restrict __buf, size_t __buflen,
-                         struct servent **__restrict __result);
+			 char *__restrict __buf, size_t __buflen,
+			 struct servent **__restrict __result);
 
 extern int getservbyname_r (const char *__restrict __name,
-                            const char *__restrict __proto,
-                            struct servent *__restrict __result_buf,
-                            char *__restrict __buf, size_t __buflen,
-                            struct servent **__restrict __result);
+			    const char *__restrict __proto,
+			    struct servent *__restrict __result_buf,
+			    char *__restrict __buf, size_t __buflen,
+			    struct servent **__restrict __result);
 
 extern int getservbyport_r (int __port, const char *__restrict __proto,
-                            struct servent *__restrict __result_buf,
-                            char *__restrict __buf, size_t __buflen,
-                            struct servent **__restrict __result);
+			    struct servent *__restrict __result_buf,
+			    char *__restrict __buf, size_t __buflen,
+			    struct servent **__restrict __result);
 
 /* Description of data base entry for a single service.  */
 struct protoent
 {
-    char *p_name;			/* Official protocol name.  */
-    char **p_aliases;		/* Alias list.  */
-    int p_proto;			/* Protocol number.  */
+  char *p_name;			/* Official protocol name.  */
+  char **p_aliases;		/* Alias list.  */
+  int p_proto;			/* Protocol number.  */
 };
 
 /* Open protocol data base files and mark them as staying open even
@@ -30876,18 +30848,18 @@ extern struct protoent *getprotobynumber (int __proto);
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern int getprotoent_r (struct protoent *__restrict __result_buf,
-                          char *__restrict __buf, size_t __buflen,
-                          struct protoent **__restrict __result);
+			  char *__restrict __buf, size_t __buflen,
+			  struct protoent **__restrict __result);
 
 extern int getprotobyname_r (const char *__restrict __name,
-                             struct protoent *__restrict __result_buf,
-                             char *__restrict __buf, size_t __buflen,
-                             struct protoent **__restrict __result);
+			     struct protoent *__restrict __result_buf,
+			     char *__restrict __buf, size_t __buflen,
+			     struct protoent **__restrict __result);
 
 extern int getprotobynumber_r (int __proto,
-                               struct protoent *__restrict __result_buf,
-                               char *__restrict __buf, size_t __buflen,
-                               struct protoent **__restrict __result);
+			       struct protoent *__restrict __result_buf,
+			       char *__restrict __buf, size_t __buflen,
+			       struct protoent **__restrict __result);
 
 
 /* Establish network group NETGROUP for enumeration.
@@ -30914,8 +30886,8 @@ extern void endnetgrent (void);
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int getnetgrent (char **__restrict __hostp,
-                        char **__restrict __userp,
-                        char **__restrict __domainp);
+			char **__restrict __userp,
+			char **__restrict __domainp);
 
 
 /* Test whether NETGROUP contains the triple (HOST,USER,DOMAIN).
@@ -30925,7 +30897,7 @@ extern int getnetgrent (char **__restrict __hostp,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int innetgr (const char *__netgroup, const char *__host,
-                    const char *__user, const char *__domain);
+		    const char *__user, const char *__domain);
 
 /* Reentrant version of `getnetgrent' where result is placed in BUFFER.
 
@@ -30934,9 +30906,9 @@ extern int innetgr (const char *__netgroup, const char *__host,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int getnetgrent_r (char **__restrict __hostp,
-                          char **__restrict __userp,
-                          char **__restrict __domainp,
-                          char *__restrict __buffer, size_t __buflen);
+			  char **__restrict __userp,
+			  char **__restrict __domainp,
+			  char *__restrict __buffer, size_t __buflen);
 
 
 /* Call `rshd' at port RPORT on remote machine *AHOST to execute CMD.
@@ -30951,9 +30923,9 @@ extern int getnetgrent_r (char **__restrict __hostp,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int rcmd (char **__restrict __ahost, unsigned short int __rport,
-                 const char *__restrict __locuser,
-                 const char *__restrict __remuser,
-                 const char *__restrict __cmd, int *__restrict __fd2p);
+		 const char *__restrict __locuser,
+		 const char *__restrict __remuser,
+		 const char *__restrict __cmd, int *__restrict __fd2p);
 
 /* This is the equivalent function where the protocol can be selected
    and which therefore can be used for IPv6.
@@ -30963,10 +30935,10 @@ extern int rcmd (char **__restrict __ahost, unsigned short int __rport,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int rcmd_af (char **__restrict __ahost, unsigned short int __rport,
-                    const char *__restrict __locuser,
-                    const char *__restrict __remuser,
-                    const char *__restrict __cmd, int *__restrict __fd2p,
-                    sa_family_t __af);
+		    const char *__restrict __locuser,
+		    const char *__restrict __remuser,
+		    const char *__restrict __cmd, int *__restrict __fd2p,
+		    sa_family_t __af);
 
 /* Call `rexecd' at port RPORT on remote machine *AHOST to execute
    CMD.  The process runs at the remote machine using the ID of user
@@ -30979,9 +30951,9 @@ extern int rcmd_af (char **__restrict __ahost, unsigned short int __rport,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int rexec (char **__restrict __ahost, int __rport,
-                  const char *__restrict __name,
-                  const char *__restrict __pass,
-                  const char *__restrict __cmd, int *__restrict __fd2p);
+		  const char *__restrict __name,
+		  const char *__restrict __pass,
+		  const char *__restrict __cmd, int *__restrict __fd2p);
 
 /* This is the equivalent function where the protocol can be selected
    and which therefore can be used for IPv6.
@@ -30991,10 +30963,10 @@ extern int rexec (char **__restrict __ahost, int __rport,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int rexec_af (char **__restrict __ahost, int __rport,
-                     const char *__restrict __name,
-                     const char *__restrict __pass,
-                     const char *__restrict __cmd, int *__restrict __fd2p,
-                     sa_family_t __af);
+		     const char *__restrict __name,
+		     const char *__restrict __pass,
+		     const char *__restrict __cmd, int *__restrict __fd2p,
+		     sa_family_t __af);
 
 /* Check whether user REMUSER on system RHOST is allowed to login as LOCUSER.
    If SUSER is not zero the user tries to become superuser.  Return 0 if
@@ -31005,7 +30977,7 @@ extern int rexec_af (char **__restrict __ahost, int __rport,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int ruserok (const char *__rhost, int __suser,
-                    const char *__remuser, const char *__locuser);
+		    const char *__remuser, const char *__locuser);
 
 /* This is the equivalent function where the protocol can be selected
    and which therefore can be used for IPv6.
@@ -31015,8 +30987,8 @@ extern int ruserok (const char *__rhost, int __suser,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int ruserok_af (const char *__rhost, int __suser,
-                       const char *__remuser, const char *__locuser,
-                       sa_family_t __af);
+		       const char *__remuser, const char *__locuser,
+		       sa_family_t __af);
 
 /* Check whether user REMUSER on system indicated by IPv4 address
    RADDR is allowed to login as LOCUSER.  Non-IPv4 (e.g., IPv6) are
@@ -31028,7 +31000,7 @@ extern int ruserok_af (const char *__rhost, int __suser,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int iruserok (uint32_t __raddr, int __suser,
-                     const char *__remuser, const char *__locuser);
+		     const char *__remuser, const char *__locuser);
 
 /* This is the equivalent function where the pfamiliy if the address
    pointed to by RADDR is determined by the value of AF.  It therefore
@@ -31039,8 +31011,8 @@ extern int iruserok (uint32_t __raddr, int __suser,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int iruserok_af (const void *__raddr, int __suser,
-                        const char *__remuser, const char *__locuser,
-                        sa_family_t __af);
+			const char *__remuser, const char *__locuser,
+			sa_family_t __af);
 
 /* Try to allocate reserved port, returning a descriptor for a socket opened
    at this port or -1 if unsuccessful.  The search for an available port
@@ -31066,27 +31038,27 @@ extern int rresvport_af (int *__alport, sa_family_t __af);
 /* Structure to contain information about address of a service provider.  */
 struct addrinfo
 {
-    int ai_flags;			/* Input flags.  */
-    int ai_family;		/* Protocol family for socket.  */
-    int ai_socktype;		/* Socket type.  */
-    int ai_protocol;		/* Protocol for socket.  */
-    socklen_t ai_addrlen;		/* Length of socket address.  */
-    struct sockaddr *ai_addr;	/* Socket address for socket.  */
-    char *ai_canonname;		/* Canonical name for service location.  */
-    struct addrinfo *ai_next;	/* Pointer to next in list.  */
+  int ai_flags;			/* Input flags.  */
+  int ai_family;		/* Protocol family for socket.  */
+  int ai_socktype;		/* Socket type.  */
+  int ai_protocol;		/* Protocol for socket.  */
+  socklen_t ai_addrlen;		/* Length of socket address.  */
+  struct sockaddr *ai_addr;	/* Socket address for socket.  */
+  char *ai_canonname;		/* Canonical name for service location.  */
+  struct addrinfo *ai_next;	/* Pointer to next in list.  */
 };
 
 
 /* Structure used as control block for asynchronous lookup.  */
 struct gaicb
 {
-    const char *ar_name;		/* Name to look up.  */
-    const char *ar_service;	/* Service name.  */
-    const struct addrinfo *ar_request; /* Additional request specification.  */
-    struct addrinfo *ar_result;	/* Pointer to result.  */
-    /* The following are internal elements.  */
-    int __return;
-    int __unused[5];
+  const char *ar_name;		/* Name to look up.  */
+  const char *ar_service;	/* Service name.  */
+  const struct addrinfo *ar_request; /* Additional request specification.  */
+  struct addrinfo *ar_result;	/* Pointer to result.  */
+  /* The following are internal elements.  */
+  int __return;
+  int __unused[5];
 };
 
 /* Lookup mode.  */
@@ -31149,9 +31121,9 @@ struct gaicb
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int getaddrinfo (const char *__restrict __name,
-                        const char *__restrict __service,
-                        const struct addrinfo *__restrict __req,
-                        struct addrinfo **__restrict __pai);
+			const char *__restrict __service,
+			const struct addrinfo *__restrict __req,
+			struct addrinfo **__restrict __pai);
 
 /* Free `addrinfo' structure AI including associated storage.  */
 extern void freeaddrinfo (struct addrinfo *__ai) __attribute__ ((__nothrow__));
@@ -31164,9 +31136,9 @@ extern const char *gai_strerror (int __ecode) __attribute__ ((__nothrow__));
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int getnameinfo (const struct sockaddr *__restrict __sa,
-                        socklen_t __salen, char *__restrict __host,
-                        socklen_t __hostlen, char *__restrict __serv,
-                        socklen_t __servlen, unsigned int __flags);
+			socklen_t __salen, char *__restrict __host,
+			socklen_t __hostlen, char *__restrict __serv,
+			socklen_t __servlen, unsigned int __flags);
 
 
 /* Enqueue ENT requests from the LIST.  If MODE is GAI_WAIT wait until all
@@ -31178,7 +31150,7 @@ extern int getnameinfo (const struct sockaddr *__restrict __sa,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int getaddrinfo_a (int __mode, struct gaicb *__list[__restrict],
-                          int __ent, struct sigevent *__restrict __sig);
+			  int __ent, struct sigevent *__restrict __sig);
 
 /* Suspend execution of the thread until at least one of the ENT requests
    in LIST is handled.  If TIMEOUT is not a null pointer it specifies the
@@ -31189,7 +31161,7 @@ extern int getaddrinfo_a (int __mode, struct gaicb *__list[__restrict],
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int gai_suspend (const struct gaicb *const __list[], int __ent,
-                        const struct timespec *__timeout);
+			const struct timespec *__timeout);
 
 /* Get the error status of the request REQ.  */
 extern int gai_error (struct gaicb *__req) __attribute__ ((__nothrow__));
@@ -31367,6 +31339,7 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -31418,6 +31391,9 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -31464,6 +31440,7 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -31501,15 +31478,10 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -31599,14 +31571,14 @@ extern int gai_cancel (struct gaicb *__gaicbp) __attribute__ ((__nothrow__));
 
 
 
-
+ 
 
 #line 29 "systems/redhat/usr/include/bits/setjmp.h" 2
 
 
 
 typedef long int __jmp_buf[8];
-
+ 
 
 
 
@@ -31641,9 +31613,9 @@ typedef long int __jmp_buf[8];
 
 
 
-
-
-
+  
+    
+  
 
 
 /* We only want to define these functions if <signal.h> was actually
@@ -31737,7 +31709,7 @@ typedef long int __jmp_buf[8];
 
 /* Calling environment, plus possibly a saved signal mask.  */
 struct __jmp_buf_tag
-{
+  {
     /* NOTE: The machine-dependent definitions of `__sigsetjmp'
        assume that a `jmp_buf' begins with a `__jmp_buf' and that
        `__mask_was_saved' follows it.  Do not move these members
@@ -31745,7 +31717,7 @@ struct __jmp_buf_tag
     __jmp_buf __jmpbuf;		/* Calling environment.  */
     int __mask_was_saved;	/* Saved the signal mask?  */
     __sigset_t __saved_mask;	/* Saved signal mask.  */
-};
+  };
 
 
 
@@ -31771,7 +31743,7 @@ extern int _setjmp (struct __jmp_buf_tag __env[1]) __attribute__ ((__nothrow__))
 /* Do not save the signal mask.  This is equivalent to the `_setjmp'
    BSD function.  */
 
-
+ 
 
 
 
@@ -31781,7 +31753,7 @@ extern int _setjmp (struct __jmp_buf_tag __env[1]) __attribute__ ((__nothrow__))
 /* Jump to the environment saved in ENV, making the
    `setjmp' call there return VAL, or 1 if VAL is 0.  */
 extern void longjmp (struct __jmp_buf_tag __env[1], int __val)
-__attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 
@@ -31790,7 +31762,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
    the signal mask.  But it is how ENV was saved that determines whether
    `longjmp' restores the mask; `_longjmp' is just an alias.  */
 extern void _longjmp (struct __jmp_buf_tag __env[1], int __val)
-__attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 /* Use the same type for `jmp_buf' and `sigjmp_buf'.
@@ -31807,7 +31779,7 @@ typedef struct __jmp_buf_tag sigjmp_buf[1];
    Restore the signal mask if that sigsetjmp call saved it.
    This is just an alias `longjmp'.  */
 extern void siglongjmp (sigjmp_buf __env, int __val)
-__attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 /* Define helper functions to catch unsafe code.  */
 
@@ -31984,6 +31956,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 
+ 
 
 
 
@@ -32035,6 +32008,9 @@ __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -32081,6 +32057,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 
+ 
 
 
 
@@ -32118,15 +32095,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -32214,9 +32186,9 @@ __attribute__ ((__nothrow__)) __attribute__ ((__noreturn__));
 
 
 
-
-
-
+  
+    
+  
 
 
 /* We only want to define these functions if <signal.h> was actually
@@ -32372,17 +32344,22 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -32432,6 +32409,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+ 
 
 
 
@@ -32441,13 +32419,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -32720,6 +32692,10 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+  
+    
+    
+  
 
 
 
@@ -32730,8 +32706,21 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -32741,6 +32730,10 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+  
+    
+    
+  
 
 
 
@@ -32762,6 +32755,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+     
 
 
 
@@ -32771,12 +32765,16 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -32784,9 +32782,14 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -32802,10 +32805,12 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -32822,9 +32827,11 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -32874,6 +32881,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+		      
 
 
 
@@ -32884,6 +32892,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+     
 
 
 
@@ -32891,21 +32900,28 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -32945,51 +32961,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -33027,7 +32999,7 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-
+ 
 
 #line 27 "systems/redhat/usr/include/bits/siginfo.h" 2
 
@@ -33036,6 +33008,10 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
+  
+    
+    
+  
 
 
 
@@ -33043,70 +33019,66 @@ typedef __sig_atomic_t sig_atomic_t;
 
 
 
-
-
-
-
-
+ 
 
 typedef struct siginfo
-{
+  {
     int si_signo;		/* Signal number.  */
     int si_errno;		/* If non-zero, an errno value associated with
 				   this signal, as defined in <errno.h>.  */
     int si_code;		/* Signal code.  */
-    
+
     union
-    {
-        int _pad[((128 / sizeof (int)) - 4)];
-        
-        /* kill().  */
-        struct
-        {
-            __pid_t si_pid;	/* Sending process ID.  */
-            __uid_t si_uid;	/* Real user ID of sending process.  */
-        } _kill;
-        
-        /* POSIX.1b timers.  */
-        struct
-        {
-            int si_tid;		/* Timer ID.  */
-            int si_overrun;	/* Overrun count.  */
-            sigval_t si_sigval;	/* Signal value.  */
-        } _timer;
-        
-        /* POSIX.1b signals.  */
-        struct
-        {
-            __pid_t si_pid;	/* Sending process ID.  */
-            __uid_t si_uid;	/* Real user ID of sending process.  */
-            sigval_t si_sigval;	/* Signal value.  */
-        } _rt;
-        
-        /* SIGCHLD.  */
-        struct
-        {
-            __pid_t si_pid;	/* Which child.  */
-            __uid_t si_uid;	/* Real user ID of sending process.  */
-            int si_status;	/* Exit value or signal.  */
-            __clock_t si_utime;
-            __clock_t si_stime;
-        } _sigchld;
-        
-        /* SIGILL, SIGFPE, SIGSEGV, SIGBUS.  */
-        struct
-        {
-            void *si_addr;	/* Faulting insn/memory ref.  */
-        } _sigfault;
-        
-        /* SIGPOLL.  */
-        struct
-        {
-            long int si_band;	/* Band event for SIGPOLL.  */
-            int si_fd;
-        } _sigpoll;
-    } _sifields;
-} siginfo_t;
+      {
+	int _pad[((128 / sizeof (int)) - 4)];
+
+	 /* kill().  */
+	struct
+	  {
+	    __pid_t si_pid;	/* Sending process ID.  */
+	    __uid_t si_uid;	/* Real user ID of sending process.  */
+	  } _kill;
+
+	/* POSIX.1b timers.  */
+	struct
+	  {
+	    int si_tid;		/* Timer ID.  */
+	    int si_overrun;	/* Overrun count.  */
+	    sigval_t si_sigval;	/* Signal value.  */
+	  } _timer;
+
+	/* POSIX.1b signals.  */
+	struct
+	  {
+	    __pid_t si_pid;	/* Sending process ID.  */
+	    __uid_t si_uid;	/* Real user ID of sending process.  */
+	    sigval_t si_sigval;	/* Signal value.  */
+	  } _rt;
+
+	/* SIGCHLD.  */
+	struct
+	  {
+	    __pid_t si_pid;	/* Which child.  */
+	    __uid_t si_uid;	/* Real user ID of sending process.  */
+	    int si_status;	/* Exit value or signal.  */
+	    __clock_t si_utime;
+	    __clock_t si_stime;
+	  } _sigchld;
+
+	/* SIGILL, SIGFPE, SIGSEGV, SIGBUS.  */
+	struct
+	  {
+	    void *si_addr;	/* Faulting insn/memory ref.  */
+	  } _sigfault;
+
+	/* SIGPOLL.  */
+	struct
+	  {
+	    long int si_band;	/* Band event for SIGPOLL.  */
+	    int si_fd;
+	  } _sigpoll;
+      } _sifields;
+  } siginfo_t;
 
 
 /* X/Open requires some more fields with fixed names.  */
@@ -33129,130 +33101,130 @@ typedef struct siginfo
    signals.  */
 enum
 {
-    SI_ASYNCNL = -60,		/* Sent by asynch name lookup completion.  */
-    
-    SI_TKILL = -6,		/* Sent by tkill.  */
-    
-    SI_SIGIO,			/* Sent by queued SIGIO. */
-    
-    SI_ASYNCIO,			/* Sent by AIO completion.  */
-    
-    SI_MESGQ,			/* Sent by real time mesq state change.  */
-    
-    SI_TIMER,			/* Sent by timer expiration.  */
-    
-    SI_QUEUE,			/* Sent by sigqueue.  */
-    
-    SI_USER,			/* Sent by kill, sigsend, raise.  */
-    
-    SI_KERNEL = 0x80		/* Send by kernel.  */
-    
+  SI_ASYNCNL = -60,		/* Sent by asynch name lookup completion.  */
+
+  SI_TKILL = -6,		/* Sent by tkill.  */
+
+  SI_SIGIO,			/* Sent by queued SIGIO. */
+
+  SI_ASYNCIO,			/* Sent by AIO completion.  */
+
+  SI_MESGQ,			/* Sent by real time mesq state change.  */
+
+  SI_TIMER,			/* Sent by timer expiration.  */
+
+  SI_QUEUE,			/* Sent by sigqueue.  */
+
+  SI_USER,			/* Sent by kill, sigsend, raise.  */
+
+  SI_KERNEL = 0x80		/* Send by kernel.  */
+
 };
 
 
 /* `si_code' values for SIGILL signal.  */
 enum
 {
-    ILL_ILLOPC = 1,		/* Illegal opcode.  */
-    
-    ILL_ILLOPN,			/* Illegal operand.  */
-    
-    ILL_ILLADR,			/* Illegal addressing mode.  */
-    
-    ILL_ILLTRP,			/* Illegal trap. */
-    
-    ILL_PRVOPC,			/* Privileged opcode.  */
-    
-    ILL_PRVREG,			/* Privileged register.  */
-    
-    ILL_COPROC,			/* Coprocessor error.  */
-    
-    ILL_BADSTK			/* Internal stack error.  */
-    
+  ILL_ILLOPC = 1,		/* Illegal opcode.  */
+
+  ILL_ILLOPN,			/* Illegal operand.  */
+
+  ILL_ILLADR,			/* Illegal addressing mode.  */
+
+  ILL_ILLTRP,			/* Illegal trap. */
+
+  ILL_PRVOPC,			/* Privileged opcode.  */
+
+  ILL_PRVREG,			/* Privileged register.  */
+
+  ILL_COPROC,			/* Coprocessor error.  */
+
+  ILL_BADSTK			/* Internal stack error.  */
+
 };
 
 /* `si_code' values for SIGFPE signal.  */
 enum
 {
-    FPE_INTDIV = 1,		/* Integer divide by zero.  */
-    
-    FPE_INTOVF,			/* Integer overflow.  */
-    
-    FPE_FLTDIV,			/* Floating point divide by zero.  */
-    
-    FPE_FLTOVF,			/* Floating point overflow.  */
-    
-    FPE_FLTUND,			/* Floating point underflow.  */
-    
-    FPE_FLTRES,			/* Floating point inexact result.  */
-    
-    FPE_FLTINV,			/* Floating point invalid operation.  */
-    
-    FPE_FLTSUB			/* Subscript out of range.  */
-    
+  FPE_INTDIV = 1,		/* Integer divide by zero.  */
+
+  FPE_INTOVF,			/* Integer overflow.  */
+
+  FPE_FLTDIV,			/* Floating point divide by zero.  */
+
+  FPE_FLTOVF,			/* Floating point overflow.  */
+
+  FPE_FLTUND,			/* Floating point underflow.  */
+
+  FPE_FLTRES,			/* Floating point inexact result.  */
+
+  FPE_FLTINV,			/* Floating point invalid operation.  */
+
+  FPE_FLTSUB			/* Subscript out of range.  */
+
 };
 
 /* `si_code' values for SIGSEGV signal.  */
 enum
 {
-    SEGV_MAPERR = 1,		/* Address not mapped to object.  */
-    
-    SEGV_ACCERR			/* Invalid permissions for mapped object.  */
-    
+  SEGV_MAPERR = 1,		/* Address not mapped to object.  */
+
+  SEGV_ACCERR			/* Invalid permissions for mapped object.  */
+
 };
 
 /* `si_code' values for SIGBUS signal.  */
 enum
 {
-    BUS_ADRALN = 1,		/* Invalid address alignment.  */
-    
-    BUS_ADRERR,			/* Non-existant physical address.  */
-    
-    BUS_OBJERR			/* Object specific hardware error.  */
-    
+  BUS_ADRALN = 1,		/* Invalid address alignment.  */
+
+  BUS_ADRERR,			/* Non-existant physical address.  */
+
+  BUS_OBJERR			/* Object specific hardware error.  */
+
 };
 
 /* `si_code' values for SIGTRAP signal.  */
 enum
 {
-    TRAP_BRKPT = 1,		/* Process breakpoint.  */
-    
-    TRAP_TRACE			/* Process trace trap.  */
-    
+  TRAP_BRKPT = 1,		/* Process breakpoint.  */
+
+  TRAP_TRACE			/* Process trace trap.  */
+
 };
 
 /* `si_code' values for SIGCHLD signal.  */
 enum
 {
-    CLD_EXITED = 1,		/* Child has exited.  */
-    
-    CLD_KILLED,			/* Child was killed.  */
-    
-    CLD_DUMPED,			/* Child terminated abnormally.  */
-    
-    CLD_TRAPPED,			/* Traced child has trapped.  */
-    
-    CLD_STOPPED,			/* Child has stopped.  */
-    
-    CLD_CONTINUED			/* Stopped child has continued.  */
-    
+  CLD_EXITED = 1,		/* Child has exited.  */
+
+  CLD_KILLED,			/* Child was killed.  */
+
+  CLD_DUMPED,			/* Child terminated abnormally.  */
+
+  CLD_TRAPPED,			/* Traced child has trapped.  */
+
+  CLD_STOPPED,			/* Child has stopped.  */
+
+  CLD_CONTINUED			/* Stopped child has continued.  */
+
 };
 
 /* `si_code' values for SIGPOLL signal.  */
 enum
 {
-    POLL_IN = 1,			/* Data input available.  */
-    
-    POLL_OUT,			/* Output buffers available.  */
-    
-    POLL_MSG,			/* Input message available.   */
-    
-    POLL_ERR,			/* I/O error.  */
-    
-    POLL_PRI,			/* High priority input available.  */
-    
-    POLL_HUP			/* Device disconnected.  */
-    
+  POLL_IN = 1,			/* Data input available.  */
+
+  POLL_OUT,			/* Output buffers available.  */
+
+  POLL_MSG,			/* Input message available.   */
+
+  POLL_ERR,			/* I/O error.  */
+
+  POLL_PRI,			/* High priority input available.  */
+
+  POLL_HUP			/* Device disconnected.  */
+
 };
 
 
@@ -33264,6 +33236,29 @@ enum
 
 
 
+ 
+
+
+  
+    
+    
+    
+
+    
+      
+	
+
+	
+
+	
+
+	
+	  
+	    
+	    
+	  
+      
+  
 
 
 
@@ -33272,37 +33267,14 @@ enum
 
 
 
+  
+
+  
+
+  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -33316,10 +33288,10 @@ typedef void (*__sighandler_t) (int);
    the additional function `sysv_signal' when X/Open compatibility is
    requested.  */
 extern __sighandler_t __sysv_signal (int __sig, __sighandler_t __handler)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 extern __sighandler_t sysv_signal (int __sig, __sighandler_t __handler)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Set the handler for the signal SIG to HANDLER, returning the old
    handler, or SIG_ERR on error.
@@ -33327,13 +33299,13 @@ __attribute__ ((__nothrow__));
 
 
 extern __sighandler_t signal (int __sig, __sighandler_t __handler)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
+ 
 
 
-
-
-
-
+				      
+				      
+ 
 
 
 
@@ -33342,7 +33314,7 @@ __attribute__ ((__nothrow__));
 /* The X/Open definition of `signal' conflicts with the BSD version.
    So they defined another function `bsd_signal'.  */
 extern __sighandler_t bsd_signal (int __sig, __sighandler_t __handler)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Send signal SIG to process number PID.  If PID is zero,
    send SIG to all processes in the current process's process group.
@@ -33364,7 +33336,7 @@ extern int raise (int __sig) __attribute__ ((__nothrow__));
 
 /* SVID names for the same things.  */
 extern __sighandler_t ssignal (int __sig, __sighandler_t __handler)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 extern int gsignal (int __sig) __attribute__ ((__nothrow__));
 
 
@@ -33389,10 +33361,10 @@ extern int __sigpause (int __sig_or_mask, int __is_sig);
 
 
 
-
+ 
 
 extern int sigpause (int __sig) __asm__ ("__xpg_sigpause");
-
+ 
 
 
 
@@ -33440,7 +33412,7 @@ extern int sigdelset (sigset_t *__set, int __signo) __attribute__ ((__nothrow__)
 
 /* Return 1 if SIGNO is in SET, 0 if not.  */
 extern int sigismember (const sigset_t *__set, int __signo)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Return non-empty value is SET is not empty.  */
@@ -33448,11 +33420,11 @@ extern int sigisemptyset (const sigset_t *__set) __attribute__ ((__nothrow__)) _
 
 /* Build new signal set by combining the two inputs set using logical AND.  */
 extern int sigandset (sigset_t *__set, const sigset_t *__left,
-                      const sigset_t *__right) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3)));
+		      const sigset_t *__right) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3)));
 
 /* Build new signal set by combining the two inputs set using logical OR.  */
 extern int sigorset (sigset_t *__set, const sigset_t *__left,
-                     const sigset_t *__right) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3)));
+		     const sigset_t *__right) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3)));
 
 /* Get the system-specific definitions of `struct sigaction'
    and the `SA_*' and `SIG_*'. constants.  */
@@ -33481,30 +33453,30 @@ extern int sigorset (sigset_t *__set, const sigset_t *__left,
 
 /* Structure describing the action to be taken when a signal arrives.  */
 struct sigaction
-{
+  {
     /* Signal handler.  */
-    
+
     union
-    {
-        /* Used if SA_SIGINFO is not set.  */
-        __sighandler_t sa_handler;
-        /* Used if SA_SIGINFO is set.  */
-        void (*sa_sigaction) (int, siginfo_t *, void *);
-    }
+      {
+	/* Used if SA_SIGINFO is not set.  */
+	__sighandler_t sa_handler;
+	/* Used if SA_SIGINFO is set.  */
+	void (*sa_sigaction) (int, siginfo_t *, void *);
+      }
     __sigaction_handler;
-    
-    
-    
-    
+
+
+     
+
     /* Additional set of signals to be blocked.  */
     __sigset_t sa_mask;
-    
+
     /* Special flags.  */
     int sa_flags;
-    
+
     /* Restore handler.  */
     void (*sa_restorer) (void);
-};
+  };
 
 /* Bits in `sa_flags'.  */
 
@@ -33534,7 +33506,7 @@ struct sigaction
 
 /* Get and/or change the set of blocked signals.  */
 extern int sigprocmask (int __how, const sigset_t *__restrict __set,
-                        sigset_t *__restrict __oset) __attribute__ ((__nothrow__));
+			sigset_t *__restrict __oset) __attribute__ ((__nothrow__));
 
 /* Change the set of blocked signals to SET,
    wait until a signal arrives, and restore the set of blocked signals.
@@ -33545,7 +33517,7 @@ extern int sigsuspend (const sigset_t *__set) __attribute__ ((__nonnull__ (1)));
 
 /* Get and/or set the action for signal SIG.  */
 extern int sigaction (int __sig, const struct sigaction *__restrict __act,
-                      struct sigaction *__restrict __oact) __attribute__ ((__nothrow__));
+		      struct sigaction *__restrict __oact) __attribute__ ((__nothrow__));
 
 /* Put in SET all signals that are blocked and waiting to be delivered.  */
 extern int sigpending (sigset_t *__set) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
@@ -33556,7 +33528,7 @@ extern int sigpending (sigset_t *__set) __attribute__ ((__nothrow__)) __attribut
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int sigwait (const sigset_t *__restrict __set, int *__restrict __sig)
-__attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Select any of pending signals from SET and place information in INFO.
@@ -33564,7 +33536,7 @@ __attribute__ ((__nonnull__ (1, 2)));
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int sigwaitinfo (const sigset_t *__restrict __set,
-                        siginfo_t *__restrict __info) __attribute__ ((__nonnull__ (1)));
+			siginfo_t *__restrict __info) __attribute__ ((__nonnull__ (1)));
 
 /* Select any of pending signals from SET and place information in INFO.
    Wait the time specified by TIMEOUT if no signal is pending.
@@ -33572,14 +33544,14 @@ extern int sigwaitinfo (const sigset_t *__restrict __set,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int sigtimedwait (const sigset_t *__restrict __set,
-                         siginfo_t *__restrict __info,
-                         const struct timespec *__restrict __timeout)
-__attribute__ ((__nonnull__ (1)));
+			 siginfo_t *__restrict __info,
+			 const struct timespec *__restrict __timeout)
+     __attribute__ ((__nonnull__ (1)));
 
 /* Send signal SIG to the process PID.  Associate data in VAL with the
    signal.  */
 extern int sigqueue (__pid_t __pid, int __sig, const union sigval __val)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 
 
@@ -33590,13 +33562,13 @@ extern const char *const sys_siglist[65];
 
 /* Structure passed to `sigvec'.  */
 struct sigvec
-{
+  {
     __sighandler_t sv_handler;	/* Signal handler.  */
     int sv_mask;		/* Mask of signals to be blocked.  */
-    
+
     int sv_flags;		/* Flags (see below).  */
-    
-};
+
+  };
 
 /* Bits in `sv_flags'.  */
 
@@ -33610,7 +33582,7 @@ struct sigvec
    reset to SIG_DFL before `sv_handler' is entered.  If OVEC is non-NULL,
    it is filled in with the old information for SIG.  */
 extern int sigvec (int __sig, const struct sigvec *__vec,
-                   struct sigvec *__ovec) __attribute__ ((__nothrow__));
+		   struct sigvec *__ovec) __attribute__ ((__nothrow__));
 
 
 /* Get machine-dependent `struct sigcontext' and signal subcodes.  */
@@ -33645,26 +33617,26 @@ extern int sigvec (int __sig, const struct sigvec *__vec,
 
 
 
-
+ 
 
 #line 28 "systems/redhat/usr/include/bits/sigcontext.h" 2
 
 struct _fpreg
 {
-    unsigned short significand[4];
-    unsigned short exponent;
+  unsigned short significand[4];
+  unsigned short exponent;
 };
 
 struct _fpxreg
 {
-    unsigned short significand[4];
-    unsigned short exponent;
-    unsigned short padding[3];
+  unsigned short significand[4];
+  unsigned short exponent;
+  unsigned short padding[3];
 };
 
 struct _xmmreg
 {
-    __uint32_t	element[4];
+  __uint32_t	element[4];
 };
 
 
@@ -33672,6 +33644,25 @@ struct _xmmreg
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
 
 
 
@@ -33683,95 +33674,76 @@ struct _xmmreg
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-struct _fpstate
+ struct _fpstate
 {
-    /* FPU environment matching the 64-bit FXSAVE layout.  */
-    __uint16_t		cwd;
-    __uint16_t		swd;
-    __uint16_t		ftw;
-    __uint16_t		fop;
-    __uint64_t		rip;
-    __uint64_t		rdp;
-    __uint32_t		mxcsr;
-    __uint32_t		mxcr_mask;
-    struct _fpxreg	_st[8];
-    struct _xmmreg	_xmm[16];
-    __uint32_t		padding[24];
+  /* FPU environment matching the 64-bit FXSAVE layout.  */
+  __uint16_t		cwd;
+  __uint16_t		swd;
+  __uint16_t		ftw;
+  __uint16_t		fop;
+  __uint64_t		rip;
+  __uint64_t		rdp;
+  __uint32_t		mxcsr;
+  __uint32_t		mxcr_mask;
+  struct _fpxreg	_st[8];
+  struct _xmmreg	_xmm[16];
+  __uint32_t		padding[24];
 };
 
 struct sigcontext
 {
-    unsigned long r8;
-    unsigned long r9;
-    unsigned long r10;
-    unsigned long r11;
-    unsigned long r12;
-    unsigned long r13;
-    unsigned long r14;
-    unsigned long r15;
-    unsigned long rdi;
-    unsigned long rsi;
-    unsigned long rbp;
-    unsigned long rbx;
-    unsigned long rdx;
-    unsigned long rax;
-    unsigned long rcx;
-    unsigned long rsp;
-    unsigned long rip;
-    unsigned long eflags;
-    unsigned short cs;
-    unsigned short gs;
-    unsigned short fs;
-    unsigned short __pad0;
-    unsigned long err;
-    unsigned long trapno;
-    unsigned long oldmask;
-    unsigned long cr2;
-    struct _fpstate * fpstate;
-    unsigned long __reserved1 [8];
+  unsigned long r8;
+  unsigned long r9;
+  unsigned long r10;
+  unsigned long r11;
+  unsigned long r12;
+  unsigned long r13;
+  unsigned long r14;
+  unsigned long r15;
+  unsigned long rdi;
+  unsigned long rsi;
+  unsigned long rbp;
+  unsigned long rbx;
+  unsigned long rdx;
+  unsigned long rax;
+  unsigned long rcx;
+  unsigned long rsp;
+  unsigned long rip;
+  unsigned long eflags;
+  unsigned short cs;
+  unsigned short gs;
+  unsigned short fs;
+  unsigned short __pad0;
+  unsigned long err;
+  unsigned long trapno;
+  unsigned long oldmask;
+  unsigned long cr2;
+  struct _fpstate * fpstate;
+  unsigned long __reserved1 [8];
 };
 
 
@@ -33974,7 +33946,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -34160,9 +34132,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -34206,19 +34178,19 @@ extern int siginterrupt (int __sig, int __interrupt) __attribute__ ((__nothrow__
 
 /* Structure describing a signal stack (obsolete).  */
 struct sigstack
-{
+  {
     void *ss_sp;		/* Signal stack pointer.  */
     int ss_onstack;		/* Nonzero if executing on this stack.  */
-};
+  };
 
 
 /* Possible values for `ss_flags.'.  */
 enum
 {
-    SS_ONSTACK = 1,
-    
-    SS_DISABLE
-    
+  SS_ONSTACK = 1,
+
+  SS_DISABLE
+
 };
 
 /* Minimum stack size for a signal handler.  */
@@ -34230,11 +34202,11 @@ enum
 
 /* Alternate, preferred interface.  */
 typedef struct sigaltstack
-{
+  {
     void *ss_sp;
     int ss_flags;
     size_t ss_size;
-} stack_t;
+  } stack_t;
 #line 358 "systems/redhat/usr/include/signal.h" 2
 
 /* This will define `ucontext_t' and `mcontext_t'.  */
@@ -34400,6 +34372,7 @@ typedef struct sigaltstack
 
 
 
+ 
 
 
 
@@ -34451,6 +34424,9 @@ typedef struct sigaltstack
 
 
 
+ 
+ 
+ 
 
 
 
@@ -34497,6 +34473,7 @@ typedef struct sigaltstack
 
 
 
+ 
 
 
 
@@ -34534,15 +34511,10 @@ typedef struct sigaltstack
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -34679,8 +34651,10 @@ typedef struct sigaltstack
 
 
 
+     
 
 
+     
 
 
 
@@ -34688,8 +34662,13 @@ typedef struct sigaltstack
 
 
 
+     
+ 
 
 
+				      
+				      
+ 
 
 
 
@@ -34698,6 +34677,7 @@ typedef struct sigaltstack
 
 
 
+     
 
 
 
@@ -34719,6 +34699,7 @@ typedef struct sigaltstack
 
 
 
+     
 
 
 
@@ -34743,8 +34724,10 @@ typedef struct sigaltstack
 
 
 
+ 
 
 
+ 
 
 
 
@@ -34792,6 +34775,7 @@ typedef struct sigaltstack
 
 
 
+     
 
 
 
@@ -34799,9 +34783,11 @@ typedef struct sigaltstack
 
 
 
+		      
 
 
 
+		     
 
 
 
@@ -34809,6 +34795,7 @@ typedef struct sigaltstack
 
 
 
+			
 
 
 
@@ -34819,6 +34806,7 @@ typedef struct sigaltstack
 
 
 
+		      
 
 
 
@@ -34829,6 +34817,7 @@ typedef struct sigaltstack
 
 
 
+     
 
 
 
@@ -34836,6 +34825,7 @@ typedef struct sigaltstack
 
 
 
+			
 
 
 
@@ -34843,10 +34833,14 @@ typedef struct sigaltstack
 
 
 
+			 
+			 
+     
 
 
 
 
+     
 
 
 
@@ -34857,8 +34851,13 @@ typedef struct sigaltstack
 
 
 
+  
+    
+    
 
+    
 
+  
 
 
 
@@ -34872,6 +34871,7 @@ typedef struct sigaltstack
 
 
 
+		   
 
 
 
@@ -34899,40 +34899,12 @@ typedef struct sigaltstack
 
 
 
+     
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			
 
 
 
@@ -34975,7 +34947,7 @@ typedef struct sigaltstack
 
 
 
-
+ 
 
 #line 26 "systems/redhat/usr/include/sys/ucontext.h" 2
 
@@ -35010,14 +34982,20 @@ typedef struct sigaltstack
 
 
 
+  
+  
 
 
 
 
+  
+  
+  
 
 
 
 
+  
 
 
 
@@ -35025,7 +35003,25 @@ typedef struct sigaltstack
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
+  
+  
+  
+  
+  
+  
+  
 
 
 
@@ -35037,100 +35033,76 @@ typedef struct sigaltstack
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+ 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 
@@ -35151,80 +35123,80 @@ typedef greg_t gregset_t[23];
 /* Number of each register in the `gregset_t' array.  */
 enum
 {
-    REG_R8 = 0,
-    
-    REG_R9,
-    
-    REG_R10,
-    
-    REG_R11,
-    
-    REG_R12,
-    
-    REG_R13,
-    
-    REG_R14,
-    
-    REG_R15,
-    
-    REG_RDI,
-    
-    REG_RSI,
-    
-    REG_RBP,
-    
-    REG_RBX,
-    
-    REG_RDX,
-    
-    REG_RAX,
-    
-    REG_RCX,
-    
-    REG_RSP,
-    
-    REG_RIP,
-    
-    REG_EFL,
-    
-    REG_CSGSFS,		/* Actually short cs, gs, fs, __pad0.  */
-    
-    REG_ERR,
-    
-    REG_TRAPNO,
-    
-    REG_OLDMASK,
-    
-    REG_CR2
-    
+  REG_R8 = 0,
+
+  REG_R9,
+
+  REG_R10,
+
+  REG_R11,
+
+  REG_R12,
+
+  REG_R13,
+
+  REG_R14,
+
+  REG_R15,
+
+  REG_RDI,
+
+  REG_RSI,
+
+  REG_RBP,
+
+  REG_RBX,
+
+  REG_RDX,
+
+  REG_RAX,
+
+  REG_RCX,
+
+  REG_RSP,
+
+  REG_RIP,
+
+  REG_EFL,
+
+  REG_CSGSFS,		/* Actually short cs, gs, fs, __pad0.  */
+
+  REG_ERR,
+
+  REG_TRAPNO,
+
+  REG_OLDMASK,
+
+  REG_CR2
+
 };
 
 struct _libc_fpxreg
 {
-    unsigned short int significand[4];
-    unsigned short int exponent;
-    unsigned short int padding[3];
+  unsigned short int significand[4];
+  unsigned short int exponent;
+  unsigned short int padding[3];
 };
 
 struct _libc_xmmreg
 {
-    __uint32_t	element[4];
+  __uint32_t	element[4];
 };
 
 struct _libc_fpstate
 {
-    /* 64-bit FXSAVE format.  */
-    __uint16_t		cwd;
-    __uint16_t		swd;
-    __uint16_t		ftw;
-    __uint16_t		fop;
-    __uint64_t		rip;
-    __uint64_t		rdp;
-    __uint32_t		mxcsr;
-    __uint32_t		mxcr_mask;
-    struct _libc_fpxreg	_st[8];
-    struct _libc_xmmreg	_xmm[16];
-    __uint32_t		padding[24];
+  /* 64-bit FXSAVE format.  */
+  __uint16_t		cwd;
+  __uint16_t		swd;
+  __uint16_t		ftw;
+  __uint16_t		fop;
+  __uint64_t		rip;
+  __uint64_t		rdp;
+  __uint32_t		mxcsr;
+  __uint32_t		mxcr_mask;
+  struct _libc_fpxreg	_st[8];
+  struct _libc_xmmreg	_xmm[16];
+  __uint32_t		padding[24];
 };
 
 /* Structure to describe FPU registers.  */
@@ -35232,7 +35204,7 @@ typedef struct _libc_fpstate *fpregset_t;
 
 /* Context to describe whole processor state.  */
 typedef struct
-{
+  {
     gregset_t gregs;
     /* Note that fpregs is a pointer.  */
     fpregset_t fpregs;
@@ -35241,15 +35213,16 @@ typedef struct
 
 /* Userlevel context.  */
 typedef struct ucontext
-{
+  {
     unsigned long int uc_flags;
     struct ucontext *uc_link;
     stack_t uc_stack;
     mcontext_t uc_mcontext;
     __sigset_t uc_sigmask;
     struct _libc_fpstate __fpregs_mem;
-} ucontext_t;
+  } ucontext_t;
 
+ 
 
 
 
@@ -35262,34 +35235,64 @@ typedef struct ucontext
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
+  
 
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 
@@ -35297,56 +35300,25 @@ typedef struct ucontext
 
 
 
+  
+    
+    
 
+    
+    
+    
+  
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+    
+    
+    
+  
 
 
 
@@ -35356,12 +35328,12 @@ typedef struct ucontext
    If OSS is not NULL, it is filled in with the old signal stack status.
    This interface is obsolete and on many platform not implemented.  */
 extern int sigstack (struct sigstack *__ss, struct sigstack *__oss)
-__attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__deprecated__));
 
 /* Alternate signal handler stack interface.
    This interface should always be preferred over `sigstack'.  */
 extern int sigaltstack (const struct sigaltstack *__restrict __ss,
-                        struct sigaltstack *__restrict __oss) __attribute__ ((__nothrow__));
+			struct sigaltstack *__restrict __oss) __attribute__ ((__nothrow__));
 
 
 
@@ -35417,6 +35389,7 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 
 
 
+ 
 
 
 
@@ -35433,30 +35406,57 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 
 
 
+  
+  
 
 
 
 
 
 
+  
+  
 
+ 
 
+  
 
 
 
 
 
 
+  
+  
+    
+    
+    
 
+    
 
+    
 
+    
 
+    
+    
 
+     
+    
+    
+      
+      
+    
 
+  
+  
+  
 
 
 
 
+  
+  
 
 
 
@@ -35464,10 +35464,25 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 
 
 
+  
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+  
+  
 
 
 
 
+  
+  
 
 
 
@@ -35485,13 +35500,47 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 
 
 
+  
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
+    
+  
+   
+  
+    
+    
+    
+    
+    
+    
+    
 
+    
+    
+    
+    
+    
+  
 
+  
+  
 
 
 
 
+  
+  
 
 
 
@@ -35503,91 +35552,14 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 
 
 
+  
+  
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
 
 
 
@@ -35627,8 +35599,8 @@ extern __sighandler_t sigset (int __sig, __sighandler_t __disp) __attribute__ ((
 /* Modify the signal mask for the calling thread.  The arguments have
    the same meaning as for sigprocmask(2). */
 extern int pthread_sigmask (int __how,
-                            const __sigset_t *__restrict __newmask,
-                            __sigset_t *__restrict __oldmask)__attribute__ ((__nothrow__));
+			    const __sigset_t *__restrict __newmask,
+			    __sigset_t *__restrict __oldmask)__attribute__ ((__nothrow__));
 
 /* Send signal SIGNO to the given thread. */
 extern int pthread_kill (pthread_t __threadid, int __signo) __attribute__ ((__nothrow__));
@@ -35636,7 +35608,7 @@ extern int pthread_kill (pthread_t __threadid, int __signo) __attribute__ ((__no
 
 /* Queue signal and data to a thread.  */
 extern int pthread_sigqueue (pthread_t __threadid, int __signo,
-                             const union sigval __value) __attribute__ ((__nothrow__));
+			     const union sigval __value) __attribute__ ((__nothrow__));
 
 
 #line 397 "systems/redhat/usr/include/signal.h" 2
@@ -35696,6 +35668,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35708,6 +35681,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35718,6 +35692,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35726,6 +35701,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35736,6 +35712,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35746,6 +35723,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35757,6 +35735,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35766,6 +35745,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35776,6 +35756,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35821,6 +35802,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35829,6 +35811,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35838,6 +35821,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35848,6 +35832,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35866,6 +35851,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35875,6 +35861,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35896,6 +35883,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -35903,29 +35891,13 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -36098,6 +36070,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -36149,6 +36122,9 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -36195,6 +36171,7 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -36232,15 +36209,10 @@ extern int __libc_current_sigrtmax (void) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -36490,7 +36462,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -36676,9 +36648,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -36738,17 +36710,22 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -36798,6 +36775,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
 
 
@@ -36807,13 +36785,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -37001,17 +36973,22 @@ typedef struct _IO_FILE __FILE;
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -37061,6 +37038,7 @@ typedef struct _IO_FILE __FILE;
 
 
 
+ 
 
 
 
@@ -37070,13 +37048,7 @@ typedef struct _IO_FILE __FILE;
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -37341,7 +37313,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -37527,9 +37499,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -37607,7 +37579,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -37625,15 +37597,15 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 /* Conversion state information.  */
 typedef struct
 {
-    int __count;
-    union
-    {
-    
-        unsigned int __wch;
-        
-        
-        char __wchb[4];
-    } __value;		/* Value so far.  */
+  int __count;
+  union
+  {
+
+    unsigned int __wch;
+     
+
+    char __wchb[4];
+  } __value;		/* Value so far.  */
 } __mbstate_t;
 
 
@@ -37678,18 +37650,26 @@ typedef struct
 
 
 
+			
 
 
+			 
+     
 
 
 
+			
 
 
+			 
+     
 
 
 
+     
 
 
+     
 
 
 
@@ -37698,14 +37678,17 @@ typedef struct
 
 
 
+			
 
 
 
 
 
 
+			 
 
 
+			  
 
 
 
@@ -37715,6 +37698,7 @@ typedef struct
 
 
 
+		       
 
 
 
@@ -37724,11 +37708,13 @@ typedef struct
 
 
 
+		      
 
 
 
 
 
+			 
 
 
 
@@ -37737,12 +37723,20 @@ typedef struct
 
 
 
+     
 
+     
+ 
+     
 
 
 
 
+     
 
+     
+ 
+     
 
 
 
@@ -37750,26 +37744,41 @@ typedef struct
 
 
 
+     
 
 
 
 
 
+     
 
 
 
+     
 
 
 
+     
 
+				       
+     
+ 
+     
 
 
 
 
+     
 
+				      
+     
+ 
+     
 
 
 
+			
+			
 
 
 
@@ -37779,28 +37788,43 @@ typedef struct
 
 
 
+     
 
+				      
+     
+ 
+     
 
 
 
 
 
+     
 
 
 
 
 
+     
 
+				       
+     
+ 
+     
 
 
 
+		    
+     
 
 
 
+			 
 
 
 
 
+     
 
 
 
@@ -37810,6 +37834,8 @@ typedef struct
 
 
 
+			  
+     
 
 
 
@@ -37827,13 +37853,18 @@ typedef struct
 
 
 
+		       
+		       
 
 
 
+		       
 
 
 
+			
 
+		      
 
 
 
@@ -37846,24 +37877,32 @@ typedef struct
 
 
 
+	  
 
 
 
 
 
+	  
 
 
 
+	       
 
+	  
 
 
 
 
 
+			 
+			 
 
 
 
 
+			 
+			 
 
 
 
@@ -37871,10 +37910,15 @@ typedef struct
 
 
 
+			  
+			  
 
 
 
 
+			  
+			  
+			  
 
 
 
@@ -37889,23 +37933,29 @@ typedef struct
 
 
 
+		      
 
 
 
 
 
 
+		     
 
+			    
 
 
 
 
 
 
+			
 
 
 
 
+				  
+     
 
 
 
@@ -37914,11 +37964,15 @@ typedef struct
 
 
 
+			      
+     
 
 
 
 
 
+					
+					
 
 
 
@@ -37926,11 +37980,15 @@ typedef struct
 
 
 
+			     
+     
 
 
 
 
 
+				       
+				       
 
 
 
@@ -37951,20 +38009,35 @@ typedef struct
 
 
 
+			  
+			  
 
 
+				    
+				    
 
 
 
+				
+				
 
 
 
+					  
+					  
+     
 
 
+			
+     
 
 
+		       
+     
 
 
+			      
+			      
 
 
 
@@ -37974,6 +38047,7 @@ typedef struct
 
 
 
+     
 
 
 
@@ -37994,27 +38068,40 @@ typedef struct
 
 
 
+		     
+     
 
 
 
 
 
+     
 
 
+		     
+     
 
 
 
 
 
 
+		      
+		      
+     
 
 
 
 
 
+		     
+     
 
 
 
+		      
+		      
+     
 
 
 
@@ -38022,13 +38109,18 @@ typedef struct
 
 
 
+		    
+     
 
 
 
 
 
+     
 
 
+		    
+     
 
 
 
@@ -38036,10 +38128,22 @@ typedef struct
 
 
 
+				 
+		       
+     
 
+		       
+     
 
+				     
+				     
+     
+ 
+			     
 
 
+			     
+     
 
 
 
@@ -38054,21 +38158,43 @@ typedef struct
 
 
 
+		     
+		     
+     
 
 
 
 
 
+		    
+     
 
 
+		     
+		     
+     
 
 
 
 
+				  
+				  
+     
 
+				 
+     
 
+				      
+				      
+     
+ 
+			      
+			      
 
+			     
 
+			      
+			      
 
 
 
@@ -38111,12 +38237,14 @@ typedef struct
 
 
 
+			
 
 
 
 
 
 
+		   
 
 
 
@@ -38172,6 +38300,7 @@ typedef struct
 
 
 
+				 
 
 
 
@@ -38180,12 +38309,15 @@ typedef struct
 
 
 
+			    
 
 
 
 
 
 
+			
+			
 
 
 
@@ -38194,169 +38326,9 @@ typedef struct
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			  
+			  
+			  
 
 
 
@@ -38387,13 +38359,13 @@ typedef struct
 
 typedef struct
 {
-    __off_t __pos;
-    __mbstate_t __state;
+  __off_t __pos;
+  __mbstate_t __state;
 } _G_fpos_t;
 typedef struct
 {
-    __off64_t __pos;
-    __mbstate_t __state;
+  __off64_t __pos;
+  __mbstate_t __state;
 } _G_fpos64_t;
 
 
@@ -38407,12 +38379,12 @@ typedef struct
 
 
 
-
-
-
-
-
-
+  
+  
+  
+    
+    
+  
 
 
 typedef int _G_int16_t __attribute__ ((__mode__ (__HI__)));
@@ -38459,7 +38431,7 @@ typedef unsigned int _G_uint32_t __attribute__ ((__mode__ (__SI__)));
 
 
 
-
+ 
 
 
 #line 34 "systems/redhat/usr/include/libio.h" 2
@@ -38566,7 +38538,7 @@ typedef __builtin_va_list __gnuc_va_list;
 
 
 
-
+ 
 
 
 
@@ -38613,10 +38585,10 @@ typedef __builtin_va_list __gnuc_va_list;
 
 
 
+ 
 
 
-
-
+ 
 
 
 
@@ -38640,9 +38612,9 @@ typedef __builtin_va_list __gnuc_va_list;
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -38710,45 +38682,44 @@ typedef __builtin_va_list __gnuc_va_list;
 
 
 
-struct _IO_jump_t;
-struct _IO_FILE;
+struct _IO_jump_t;  struct _IO_FILE;
 
 /* Handle lock.  */
 
 
 
+ 
 
-
-typedef void _IO_lock_t;
+ typedef void _IO_lock_t;
 
 /* A streammarker remembers a position in a buffer. */
 
 struct _IO_marker {
-    struct _IO_marker *_next;
-    struct _IO_FILE *_sbuf;
-    /* If _pos >= 0
-     it points to _buf->Gbase()+_pos. FIXME comment */
-    /* if _pos < 0, it points to _buf->eBptr()+_pos. FIXME comment */
-    int _pos;
+  struct _IO_marker *_next;
+  struct _IO_FILE *_sbuf;
+  /* If _pos >= 0
+ it points to _buf->Gbase()+_pos. FIXME comment */
+  /* if _pos < 0, it points to _buf->eBptr()+_pos. FIXME comment */
+  int _pos;
+
+    
+    
+  
     
     
     
     
     
-    
-    
-    
-    
-    
+
 };
 
 /* This is the structure from the libstdc++ codecvt class.  */
 enum __codecvt_result
 {
-    __codecvt_ok,
-    __codecvt_partial,
-    __codecvt_error,
-    __codecvt_noconv
+  __codecvt_ok,
+  __codecvt_partial,
+  __codecvt_error,
+  __codecvt_noconv
 };
 
 
@@ -38756,121 +38727,121 @@ enum __codecvt_result
 
 
 
+  
+  
+					     
+					     
+					     
+					     
+					     
+  
+						 
+						 
+  
+					    
+					    
+					    
+					    
+  
+  
+  
+			      
+  
+
+  
+  
 
 
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
+  
+  
+  
 
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 struct _IO_FILE {
-    int _flags;		/* High-order word is _IO_MAGIC; rest is flags. */
-    
-    
-    /* The following pointers correspond to the C++ streambuf protocol. */
-    /* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */
-    char* _IO_read_ptr;	/* Current read pointer */
-    char* _IO_read_end;	/* End of get area. */
-    char* _IO_read_base;	/* Start of putback+get area. */
-    char* _IO_write_base;	/* Start of put area. */
-    char* _IO_write_ptr;	/* Current put pointer. */
-    char* _IO_write_end;	/* End of put area. */
-    char* _IO_buf_base;	/* Start of reserve area. */
-    char* _IO_buf_end;	/* End of reserve area. */
-    /* The following fields are used to support backing up and undo. */
-    char *_IO_save_base; /* Pointer to start of non-current get area. */
-    char *_IO_backup_base;  /* Pointer to first valid character of backup area */
-    char *_IO_save_end; /* Pointer to end of non-current get area. */
-    
-    struct _IO_marker *_markers;
-    
-    struct _IO_FILE *_chain;
-    
-    int _fileno;
-    
-    
-    int _flags2;
-    
-    __off_t _old_offset; /* This used to be _offset but it's too small.  */
-    
-    
-    /* 1+column number of pbase(); 0 is unknown. */
-    unsigned short _cur_column;
-    signed char _vtable_offset;
-    char _shortbuf[1];
-    
-    /*  char* _save_gptr;  char* _save_egptr; */
-    
-    _IO_lock_t *_lock;
-    
-    
-    
-    
-    
-    
-    
-    
-    __off64_t _offset;
-    
-    
-    
-    
-    
-    
-    
-    void *__pad1;
-    void *__pad2;
-    void *__pad3;
-    void *__pad4;
-    size_t __pad5;
-    
-    int _mode;
-    /* Make sure we don't get into trouble again.  */
-    char _unused2[15 * sizeof (int) - 4 * sizeof (void *) - sizeof (size_t)];
-    
+  int _flags;		/* High-order word is _IO_MAGIC; rest is flags. */
+
+
+  /* The following pointers correspond to the C++ streambuf protocol. */
+  /* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */
+  char* _IO_read_ptr;	/* Current read pointer */
+  char* _IO_read_end;	/* End of get area. */
+  char* _IO_read_base;	/* Start of putback+get area. */
+  char* _IO_write_base;	/* Start of put area. */
+  char* _IO_write_ptr;	/* Current put pointer. */
+  char* _IO_write_end;	/* End of put area. */
+  char* _IO_buf_base;	/* Start of reserve area. */
+  char* _IO_buf_end;	/* End of reserve area. */
+  /* The following fields are used to support backing up and undo. */
+  char *_IO_save_base; /* Pointer to start of non-current get area. */
+  char *_IO_backup_base;  /* Pointer to first valid character of backup area */
+  char *_IO_save_end; /* Pointer to end of non-current get area. */
+
+  struct _IO_marker *_markers;
+
+  struct _IO_FILE *_chain;
+
+  int _fileno;
+
+  
+   int _flags2;
+
+  __off_t _old_offset; /* This used to be _offset but it's too small.  */
+
+
+  /* 1+column number of pbase(); 0 is unknown. */
+  unsigned short _cur_column;
+  signed char _vtable_offset;
+  char _shortbuf[1];
+
+  /*  char* _save_gptr;  char* _save_egptr; */
+
+  _IO_lock_t *_lock;
+
+
+
+
+
+  
+
+
+  __off64_t _offset;
+
+  
+  
+  
+  
+  
+  
+   void *__pad1;
+  void *__pad2;
+  void *__pad3;
+  void *__pad4;
+  size_t __pad5;
+
+  int _mode;
+  /* Make sure we don't get into trouble again.  */
+  char _unused2[15 * sizeof (int) - 4 * sizeof (void *) - sizeof (size_t)];
+
 };
 
 
@@ -38885,7 +38856,7 @@ extern struct _IO_FILE_plus _IO_2_1_stderr_;
 
 
 
-
+ 
 
 
 
@@ -38902,7 +38873,7 @@ typedef __ssize_t __io_read_fn (void *__cookie, char *__buf, size_t __nbytes);
    to the end of the file and then do the write; if not, just write at
    the current file pointer.  */
 typedef __ssize_t __io_write_fn (void *__cookie, const char *__buf,
-                                 size_t __n);
+				 size_t __n);
 
 /* Move COOKIE's file position to *POS bytes from the
    beginning of the file (if W is SEEK_SET),
@@ -38926,10 +38897,10 @@ typedef __io_close_fn cookie_close_function_t;
 /* The structure with the cookie function pointers.  */
 typedef struct
 {
-    __io_read_fn *read;		/* Read bytes.  */
-    __io_write_fn *write;		/* Write bytes.  */
-    __io_seek_fn *seek;		/* Seek/tell file position.  */
-    __io_close_fn *close;		/* Close file.  */
+  __io_read_fn *read;		/* Read bytes.  */
+  __io_write_fn *write;		/* Write bytes.  */
+  __io_seek_fn *seek;		/* Seek/tell file position.  */
+  __io_close_fn *close;		/* Close file.  */
 } _IO_cookie_io_functions_t;
 typedef _IO_cookie_io_functions_t cookie_io_functions_t;
 
@@ -38937,7 +38908,7 @@ struct _IO_cookie_file;
 
 /* Initialize one of those.  */
 extern void _IO_cookie_init (struct _IO_cookie_file *__cfile, int __read_write,
-                             void *__cookie, _IO_cookie_io_functions_t __fns);
+			     void *__cookie, _IO_cookie_io_functions_t __fns);
 
 
 
@@ -38952,7 +38923,7 @@ extern int __overflow (_IO_FILE *, int);
 
 
 
-
+ 
 
 
 
@@ -39003,7 +38974,7 @@ extern int _IO_ftrylockfile (_IO_FILE *) __attribute__ ((__nothrow__));
 
 
 
-
+ 
 
 
 
@@ -39011,9 +38982,9 @@ extern int _IO_ftrylockfile (_IO_FILE *) __attribute__ ((__nothrow__));
 
 
 extern int _IO_vfscanf (_IO_FILE * __restrict, const char * __restrict,
-                        __gnuc_va_list, int *__restrict);
+			__gnuc_va_list, int *__restrict);
 extern int _IO_vfprintf (_IO_FILE *__restrict, const char *__restrict,
-                         __gnuc_va_list);
+			 __gnuc_va_list);
 extern __ssize_t _IO_padn (_IO_FILE *, int, __ssize_t);
 extern size_t _IO_sgetn (_IO_FILE *, void *, size_t);
 
@@ -39059,9 +39030,9 @@ extern void _IO_free_backup_area (_IO_FILE *) __attribute__ ((__nothrow__));
 
 
 
+			 
 
-
-
+			  
 
 
 
@@ -39080,14 +39051,14 @@ extern void _IO_free_backup_area (_IO_FILE *) __attribute__ ((__nothrow__));
 typedef __gnuc_va_list va_list;
 
 
+ 
 
 
 
 
 
 
-
-
+ 
 
 
 
@@ -39104,7 +39075,7 @@ typedef __gnuc_va_list va_list;
 
 
 typedef _G_fpos_t fpos_t;
-
+ 
 
 
 
@@ -39209,7 +39180,7 @@ extern int rename (const char *__old, const char *__new) __attribute__ ((__nothr
 
 /* Rename file OLD relative to OLDFD to NEW relative to NEWFD.  */
 extern int renameat (int __oldfd, const char *__old, int __newfd,
-                     const char *__new) __attribute__ ((__nothrow__));
+		     const char *__new) __attribute__ ((__nothrow__));
 
 
 /* Create a temporary file and open it read/write.
@@ -39218,9 +39189,9 @@ extern int renameat (int __oldfd, const char *__old, int __newfd,
    marked with __THROW.  */
 
 extern FILE *tmpfile (void) ;
+ 
 
-
-
+ 
 
 
 
@@ -39244,7 +39215,7 @@ extern char *tmpnam_r (char *__s) __attribute__ ((__nothrow__)) ;
    P_tmpdir is tried and finally "/tmp".  The storage for the filename
    is allocated by `malloc'.  */
 extern char *tempnam (const char *__dir, const char *__pfx)
-__attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) ;
 
 
 /* Close STREAM.
@@ -39284,33 +39255,33 @@ extern int fcloseall (void);
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern FILE *fopen (const char *__restrict __filename,
-                    const char *__restrict __modes) ;
+		    const char *__restrict __modes) ;
 /* Open a file, replacing an existing stream with it.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern FILE *freopen (const char *__restrict __filename,
-                      const char *__restrict __modes,
-                      FILE *__restrict __stream) ;
+		      const char *__restrict __modes,
+		      FILE *__restrict __stream) ;
+ 
 
+				 
+  
 
-
-
-
-
-
-
-
+				   
+				   
+  
+ 
 
 
 
 
 
 extern FILE *fopen64 (const char *__restrict __filename,
-                      const char *__restrict __modes) ;
+		      const char *__restrict __modes) ;
 extern FILE *freopen64 (const char *__restrict __filename,
-                        const char *__restrict __modes,
-                        FILE *__restrict __stream) ;
+			const char *__restrict __modes,
+			FILE *__restrict __stream) ;
 
 
 /* Create a new stream that refers to an existing system file descriptor.  */
@@ -39320,13 +39291,13 @@ extern FILE *fdopen (int __fd, const char *__modes) __attribute__ ((__nothrow__)
 /* Create a new stream that refers to the given magic cookie,
    and uses the given functions for input and output.  */
 extern FILE *fopencookie (void *__restrict __magic_cookie,
-                          const char *__restrict __modes,
-                          _IO_cookie_io_functions_t __io_funcs) __attribute__ ((__nothrow__)) ;
+			  const char *__restrict __modes,
+			  _IO_cookie_io_functions_t __io_funcs) __attribute__ ((__nothrow__)) ;
 
 
 /* Create a new stream that refers to a memory buffer.  */
 extern FILE *fmemopen (void *__s, size_t __len, const char *__modes)
-__attribute__ ((__nothrow__)) ;
+  __attribute__ ((__nothrow__)) ;
 
 /* Open a stream that writes into a malloc'd buffer that is expanded as
    necessary.  *BUFLOC and *SIZELOC are updated with the buffer's location
@@ -39341,14 +39312,14 @@ extern void setbuf (FILE *__restrict __stream, char *__restrict __buf) __attribu
    If BUF is not NULL, use N bytes of it for buffering;
    else allocate an internal buffer N bytes long.  */
 extern int setvbuf (FILE *__restrict __stream, char *__restrict __buf,
-                    int __modes, size_t __n) __attribute__ ((__nothrow__));
+		    int __modes, size_t __n) __attribute__ ((__nothrow__));
 
 
 
 /* If BUF is NULL, make STREAM unbuffered.
    Else make it use SIZE bytes of BUF for buffering.  */
 extern void setbuffer (FILE *__restrict __stream, char *__restrict __buf,
-                       size_t __size) __attribute__ ((__nothrow__));
+		       size_t __size) __attribute__ ((__nothrow__));
 
 /* Make STREAM line-buffered.  */
 extern void setlinebuf (FILE *__stream) __attribute__ ((__nothrow__));
@@ -39359,7 +39330,7 @@ extern void setlinebuf (FILE *__stream) __attribute__ ((__nothrow__));
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int fprintf (FILE *__restrict __stream,
-                    const char *__restrict __format, ...);
+		    const char *__restrict __format, ...);
 /* Write formatted output to stdout.
 
    This function is a possible cancellation point and therefore not
@@ -39367,14 +39338,14 @@ extern int fprintf (FILE *__restrict __stream,
 extern int printf (const char *__restrict __format, ...);
 /* Write formatted output to S.  */
 extern int sprintf (char *__restrict __s,
-                    const char *__restrict __format, ...) __attribute__ ((__nothrow__));
+		    const char *__restrict __format, ...) __attribute__ ((__nothrow__));
 
 /* Write formatted output to S from argument list ARG.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int vfprintf (FILE *__restrict __s, const char *__restrict __format,
-                     __gnuc_va_list __arg);
+		     __gnuc_va_list __arg);
 /* Write formatted output to stdout from argument list ARG.
 
    This function is a possible cancellation point and therefore not
@@ -39382,33 +39353,33 @@ extern int vfprintf (FILE *__restrict __s, const char *__restrict __format,
 extern int vprintf (const char *__restrict __format, __gnuc_va_list __arg);
 /* Write formatted output to S from argument list ARG.  */
 extern int vsprintf (char *__restrict __s, const char *__restrict __format,
-                     __gnuc_va_list __arg) __attribute__ ((__nothrow__));
+		     __gnuc_va_list __arg) __attribute__ ((__nothrow__));
 
 
 
 
 /* Maximum chars of output to write in MAXLEN.  */
 extern int snprintf (char *__restrict __s, size_t __maxlen,
-                     const char *__restrict __format, ...)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 4)));
+		     const char *__restrict __format, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 4)));
 
 extern int vsnprintf (char *__restrict __s, size_t __maxlen,
-                      const char *__restrict __format, __gnuc_va_list __arg)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 0)));
+		      const char *__restrict __format, __gnuc_va_list __arg)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 0)));
 
 
 
 /* Write formatted output to a string dynamically allocated with `malloc'.
    Store the address of the string in *PTR.  */
 extern int vasprintf (char **__restrict __ptr, const char *__restrict __f,
-                      __gnuc_va_list __arg)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 0))) ;
+		      __gnuc_va_list __arg)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 0))) ;
 extern int __asprintf (char **__restrict __ptr,
-                       const char *__restrict __fmt, ...)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3))) ;
+		       const char *__restrict __fmt, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3))) ;
 extern int asprintf (char **__restrict __ptr,
-                     const char *__restrict __fmt, ...)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3))) ;
+		     const char *__restrict __fmt, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3))) ;
 
 
 /* Write formatted output to a file descriptor.
@@ -39418,10 +39389,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3))) ;
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern int vdprintf (int __fd, const char *__restrict __fmt,
-                     __gnuc_va_list __arg)
-__attribute__ ((__format__ (__printf__, 2, 0)));
+		     __gnuc_va_list __arg)
+     __attribute__ ((__format__ (__printf__, 2, 0)));
 extern int dprintf (int __fd, const char *__restrict __fmt, ...)
-__attribute__ ((__format__ (__printf__, 2, 3)));
+     __attribute__ ((__format__ (__printf__, 2, 3)));
 
 
 /* Read formatted input from STREAM.
@@ -39429,7 +39400,7 @@ __attribute__ ((__format__ (__printf__, 2, 3)));
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int fscanf (FILE *__restrict __stream,
-                   const char *__restrict __format, ...) ;
+		   const char *__restrict __format, ...) ;
 /* Read formatted input from stdin.
 
    This function is a possible cancellation point and therefore not
@@ -39437,7 +39408,7 @@ extern int fscanf (FILE *__restrict __stream,
 extern int scanf (const char *__restrict __format, ...) ;
 /* Read formatted input from S.  */
 extern int sscanf (const char *__restrict __s,
-                   const char *__restrict __format, ...) __attribute__ ((__nothrow__));
+		   const char *__restrict __format, ...) __attribute__ ((__nothrow__));
 
 
 
@@ -39445,18 +39416,18 @@ extern int sscanf (const char *__restrict __s,
 
 
 
+				
+		       
+
+		       
+
+				    
+			   
+ 
+			    
 
 
-
-
-
-
-
-
-
-
-
-
+			    
 
 
 
@@ -39471,20 +39442,20 @@ extern int sscanf (const char *__restrict __s,
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int vfscanf (FILE *__restrict __s, const char *__restrict __format,
-                    __gnuc_va_list __arg)
-__attribute__ ((__format__ (__scanf__, 2, 0))) ;
+		    __gnuc_va_list __arg)
+     __attribute__ ((__format__ (__scanf__, 2, 0))) ;
 
 /* Read formatted input from stdin into argument list ARG.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int vscanf (const char *__restrict __format, __gnuc_va_list __arg)
-__attribute__ ((__format__ (__scanf__, 1, 0))) ;
+     __attribute__ ((__format__ (__scanf__, 1, 0))) ;
 
 /* Read formatted input from S into argument list ARG.  */
 extern int vsscanf (const char *__restrict __s,
-                    const char *__restrict __format, __gnuc_va_list __arg)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__scanf__, 2, 0)));
+		    const char *__restrict __format, __gnuc_va_list __arg)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__scanf__, 2, 0)));
 
 
 
@@ -39492,26 +39463,26 @@ __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__scanf__, 2, 0)));
 
 
 
+		       
+			
+		       
+     
 
+				
+     
 
+			   
+			    
+			    
+     
+ 
+			     
+			     
 
+			    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			     
+			     
 
 
 
@@ -39607,7 +39578,7 @@ extern int putw (int __w, FILE *__stream);
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
-;
+     ;
 
 /* Get a newline-terminated string from stdin, removing the newline.
    DO NOT USE THIS FUNCTION!!  There is no limit on how much it will read.
@@ -39625,7 +39596,7 @@ extern char *gets (char *__s) ;
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern char *fgets_unlocked (char *__restrict __s, int __n,
-                             FILE *__restrict __stream) ;
+			     FILE *__restrict __stream) ;
 
 
 /* Read up to (and including) a DELIMITER from STREAM into *LINEPTR
@@ -39639,11 +39610,11 @@ extern char *fgets_unlocked (char *__restrict __s, int __n,
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern __ssize_t __getdelim (char **__restrict __lineptr,
-                             size_t *__restrict __n, int __delimiter,
-                             FILE *__restrict __stream) ;
+			       size_t *__restrict __n, int __delimiter,
+			       FILE *__restrict __stream) ;
 extern __ssize_t getdelim (char **__restrict __lineptr,
-                           size_t *__restrict __n, int __delimiter,
-                           FILE *__restrict __stream) ;
+			     size_t *__restrict __n, int __delimiter,
+			     FILE *__restrict __stream) ;
 
 /* Like `getdelim', but reads up to a newline.
 
@@ -39652,8 +39623,8 @@ extern __ssize_t getdelim (char **__restrict __lineptr,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern __ssize_t getline (char **__restrict __lineptr,
-                          size_t *__restrict __n,
-                          FILE *__restrict __stream) ;
+			    size_t *__restrict __n,
+			    FILE *__restrict __stream) ;
 
 
 /* Write a string to STREAM.
@@ -39681,13 +39652,13 @@ extern int ungetc (int __c, FILE *__stream);
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
 extern size_t fread (void *__restrict __ptr, size_t __size,
-                     size_t __n, FILE *__restrict __stream) ;
+		     size_t __n, FILE *__restrict __stream) ;
 /* Write chunks of generic data to STREAM.
 
    This function is a possible cancellation points and therefore not
    marked with __THROW.  */
 extern size_t fwrite (const void *__restrict __ptr, size_t __size,
-                      size_t __n, FILE *__restrict __s) ;
+		      size_t __n, FILE *__restrict __s) ;
 
 
 
@@ -39698,7 +39669,7 @@ extern size_t fwrite (const void *__restrict __ptr, size_t __size,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int fputs_unlocked (const char *__restrict __s,
-                           FILE *__restrict __stream);
+			   FILE *__restrict __stream);
 
 
 /* Faster versions when locking is not necessary.
@@ -39708,9 +39679,9 @@ extern int fputs_unlocked (const char *__restrict __s,
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern size_t fread_unlocked (void *__restrict __ptr, size_t __size,
-                              size_t __n, FILE *__restrict __stream) ;
+			      size_t __n, FILE *__restrict __stream) ;
 extern size_t fwrite_unlocked (const void *__restrict __ptr, size_t __size,
-                               size_t __n, FILE *__restrict __stream) ;
+			       size_t __n, FILE *__restrict __stream) ;
 
 
 /* Seek to a certain position on STREAM.
@@ -39747,12 +39718,12 @@ extern int fseeko (FILE *__stream, __off_t __off, int __whence);
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern __off_t ftello (FILE *__stream) ;
+ 
 
+		       
+		       
 
-
-
-
-
+ 
 
 
 
@@ -39769,12 +39740,12 @@ extern int fgetpos (FILE *__restrict __stream, fpos_t *__restrict __pos);
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int fsetpos (FILE *__stream, const fpos_t *__pos);
+ 
 
+				 
 
-
-
-
-
+		       
+ 
 
 
 
@@ -39883,12 +39854,12 @@ struct obstack;			/* See <obstack.h>.  */
 
 /* Write formatted output to an obstack.  */
 extern int obstack_printf (struct obstack *__restrict __obstack,
-                           const char *__restrict __format, ...)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3)));
+			   const char *__restrict __format, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 3)));
 extern int obstack_vprintf (struct obstack *__restrict __obstack,
-                            const char *__restrict __format,
-                            __gnuc_va_list __args)
-__attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 0)));
+			    const char *__restrict __format,
+			    __gnuc_va_list __args)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 2, 0)));
 
 
 /* These are defined in POSIX.1:1996.  */
@@ -40090,6 +40061,7 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -40141,6 +40113,9 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -40187,6 +40162,7 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -40224,15 +40200,10 @@ extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -40484,7 +40455,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -40560,7 +40531,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
    symbols in the _FOO_T_ family, stays defined even after its
    corresponding type is defined).  If we define wchar_t, then we
    must undef _WCHAR_T_; for BSD/386 1.1 (and perhaps others), if
-   we undef _WCHAR_T_, then we must also define rune_t, since
+   we undef _WCHAR_T_, then we must also define rune_t, since 
    headers like runetype.h assume that if machine/ansi.h is included,
    and _BSD_WCHAR_T_ is not defined, then rune_t is available.
    machine/ansi.h says, "Note that _WCHAR_T_ and _RUNE_T_ must be of
@@ -40670,9 +40641,9 @@ typedef int wchar_t;
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -40843,6 +40814,7 @@ typedef int wchar_t;
 
 
 
+ 
 
 
 
@@ -40863,8 +40835,7 @@ typedef int wchar_t;
 
 
 
-
-
+ 
 
 
 
@@ -40884,37 +40855,37 @@ typedef int wchar_t;
 #line 67 "systems/redhat/usr/include/bits/waitstatus.h" 2
 
 union wait
-{
+  {
     int w_status;
     struct
-    {
-    
-        unsigned int __w_termsig:7; /* Terminating signal.  */
-        unsigned int __w_coredump:1; /* Set if dumped core.  */
-        unsigned int __w_retcode:8; /* Return code if exited normally.  */
-        unsigned int:16;
-        
-        
-        
-        
-        
-        
-        
-    } __wait_terminated;
+      {
+
+	unsigned int __w_termsig:7; /* Terminating signal.  */
+	unsigned int __w_coredump:1; /* Set if dumped core.  */
+	unsigned int __w_retcode:8; /* Return code if exited normally.  */
+	unsigned int:16;
+
+
+	
+	
+	
+	
+
+      } __wait_terminated;
     struct
-    {
-    
-        unsigned int __w_stopval:8; /* W_STOPPED if stopped.  */
-        unsigned int __w_stopsig:8; /* Stopping signal.  */
-        unsigned int:16;
-        
-        
-        
-        
-        
-        
-    } __wait_stopped;
-};
+      {
+
+	unsigned int __w_stopval:8; /* W_STOPPED if stopped.  */
+	unsigned int __w_stopsig:8; /* Stopping signal.  */
+	unsigned int:16;
+
+
+	
+	
+	
+
+      } __wait_stopped;
+  };
 
 
 
@@ -40933,7 +40904,7 @@ union wait
 
 
 
-
+ 
 
 /* This is the type of the argument to `wait'.  The funky union
    causes redeclarations with either `int *' or `union wait *' to be
@@ -40943,15 +40914,15 @@ union wait
 
 
 
-/* This works in GCC 2.6.1 and later.  */
+ /* This works in GCC 2.6.1 and later.  */
 typedef union
-{
+  {
     union wait *__uptr;
     int *__iptr;
-} __WAIT_STATUS __attribute__ ((__transparent_union__));
+  } __WAIT_STATUS __attribute__ ((__transparent_union__));
 
 
-
+ 
 
 
 
@@ -40970,18 +40941,18 @@ typedef union
 
 /* Returned by `div'.  */
 typedef struct
-{
+  {
     int quot;			/* Quotient.  */
     int rem;			/* Remainder.  */
-} div_t;
+  } div_t;
 
 /* Returned by `ldiv'.  */
 
 typedef struct
-{
+  {
     long int quot;		/* Quotient.  */
     long int rem;		/* Remainder.  */
-} ldiv_t;
+  } ldiv_t;
 
 
 
@@ -40990,10 +40961,10 @@ typedef struct
 
 /* Returned by `lldiv'.  */
 __extension__ typedef struct
-{
+  {
     long long int quot;		/* Quotient.  */
     long long int rem;		/* Remainder.  */
-} lldiv_t;
+  } lldiv_t;
 
 
 
@@ -41015,75 +40986,75 @@ extern size_t __ctype_get_mb_cur_max (void) __attribute__ ((__nothrow__)) ;
 
 /* Convert a string to a floating-point number.  */
 extern double atof (const char *__nptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
 /* Convert a string to an integer.  */
 extern int atoi (const char *__nptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
 /* Convert a string to a long integer.  */
 extern long int atol (const char *__nptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
 
 /* Convert a string to a long long integer.  */
 __extension__ extern long long int atoll (const char *__nptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
 /* Convert a string to a floating-point number.  */
 extern double strtod (const char *__restrict __nptr,
-                      char **__restrict __endptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+		      char **__restrict __endptr)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
 
 /* Likewise for `float' and `long double' sizes of floating-point numbers.  */
 extern float strtof (const char *__restrict __nptr,
-                     char **__restrict __endptr) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+		     char **__restrict __endptr) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 extern long double strtold (const char *__restrict __nptr,
-                            char **__restrict __endptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+			    char **__restrict __endptr)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
 /* Convert a string to a long integer.  */
 extern long int strtol (const char *__restrict __nptr,
-                        char **__restrict __endptr, int __base)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+			char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 /* Convert a string to an unsigned long integer.  */
 extern unsigned long int strtoul (const char *__restrict __nptr,
-                                  char **__restrict __endptr, int __base)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+				  char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
 /* Convert a string to a quadword integer.  */
 __extension__
 extern long long int strtoq (const char *__restrict __nptr,
-                             char **__restrict __endptr, int __base)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+			     char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 /* Convert a string to an unsigned quadword integer.  */
 __extension__
 extern unsigned long long int strtouq (const char *__restrict __nptr,
-                                       char **__restrict __endptr, int __base)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+				       char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
 /* Convert a string to a quadword integer.  */
 __extension__
 extern long long int strtoll (const char *__restrict __nptr,
-                              char **__restrict __endptr, int __base)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+			      char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 /* Convert a string to an unsigned quadword integer.  */
 __extension__
 extern unsigned long long int strtoull (const char *__restrict __nptr,
-                                        char **__restrict __endptr, int __base)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+					char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
@@ -41130,16 +41101,16 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
+  
+  
 
+  
+  
+  
+  
 
-
-
-
-
-
-
-
-
+  
+  
 
 
 
@@ -41151,38 +41122,55 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 /* Special versions of the functions above which take the locale to
    use as an additional parameter.  */
 extern long int strtol_l (const char *__restrict __nptr,
-                          char **__restrict __endptr, int __base,
-                          __locale_t __loc) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
+			  char **__restrict __endptr, int __base,
+			  __locale_t __loc) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
 extern unsigned long int strtoul_l (const char *__restrict __nptr,
-                                    char **__restrict __endptr,
-                                    int __base, __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
+				    char **__restrict __endptr,
+				    int __base, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
 __extension__
 extern long long int strtoll_l (const char *__restrict __nptr,
-                                char **__restrict __endptr, int __base,
-                                __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
+				char **__restrict __endptr, int __base,
+				__locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
 __extension__
 extern unsigned long long int strtoull_l (const char *__restrict __nptr,
-        char **__restrict __endptr,
-        int __base, __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
+					  char **__restrict __endptr,
+					  int __base, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 4))) ;
 
 extern double strtod_l (const char *__restrict __nptr,
-                        char **__restrict __endptr, __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
+			char **__restrict __endptr, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
 
 extern float strtof_l (const char *__restrict __nptr,
-                       char **__restrict __endptr, __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
+		       char **__restrict __endptr, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
 
 extern long double strtold_l (const char *__restrict __nptr,
-                              char **__restrict __endptr,
-                              __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
+			      char **__restrict __endptr,
+			      __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+
+
+  
 
 
 
@@ -41191,24 +41179,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -41221,7 +41192,7 @@ extern char *l64a (long int __n) __attribute__ ((__nothrow__)) ;
 
 /* Read a number from a string S in base 64 as above.  */
 extern long int a64l (const char *__s)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
@@ -41274,6 +41245,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
 
 
 
@@ -41304,6 +41276,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
 
 
 
@@ -41372,6 +41345,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
 
 
 
@@ -41380,9 +41354,11 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -41437,12 +41413,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
 
 
 
-
-
-
-
-
-
+ 
 
 
 
@@ -41484,7 +41455,7 @@ extern void srandom (unsigned int __seed) __attribute__ ((__nothrow__));
    32, 64, 128 and 256, the bigger the better; values less than 8 will
    cause an error and values greater than 256 will be rounded down.  */
 extern char *initstate (unsigned int __seed, char *__statebuf,
-                        size_t __statelen) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+			size_t __statelen) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 /* Switch the random number generator to state buffer STATEBUF,
    which should have been previously initialized by `initstate'.  */
@@ -41497,7 +41468,7 @@ extern char *setstate (char *__statebuf) __attribute__ ((__nothrow__)) __attribu
    state, rather than global state variables.  */
 
 struct random_data
-{
+  {
     int32_t *fptr;		/* Front pointer.  */
     int32_t *rptr;		/* Rear pointer.  */
     int32_t *state;		/* Array of state values.  */
@@ -41505,22 +41476,22 @@ struct random_data
     int rand_deg;		/* Degree of random number generator.  */
     int rand_sep;		/* Distance between front and rear.  */
     int32_t *end_ptr;		/* Pointer behind state table.  */
-};
+  };
 
 extern int random_r (struct random_data *__restrict __buf,
-                     int32_t *__restrict __result) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		     int32_t *__restrict __result) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 extern int srandom_r (unsigned int __seed, struct random_data *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 extern int initstate_r (unsigned int __seed, char *__restrict __statebuf,
-                        size_t __statelen,
-                        struct random_data *__restrict __buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
+			size_t __statelen,
+			struct random_data *__restrict __buf)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
 
 extern int setstate_r (char *__restrict __statebuf,
-                       struct random_data *__restrict __buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		       struct random_data *__restrict __buf)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
@@ -41544,17 +41515,17 @@ extern double erand48 (unsigned short int __xsubi[3]) __attribute__ ((__nothrow_
 /* Return non-negative, long integer in [0,2^31).  */
 extern long int lrand48 (void) __attribute__ ((__nothrow__));
 extern long int nrand48 (unsigned short int __xsubi[3])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Return signed, long integers in [-2^31,2^31).  */
 extern long int mrand48 (void) __attribute__ ((__nothrow__));
 extern long int jrand48 (unsigned short int __xsubi[3])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Seed random number generator.  */
 extern void srand48 (long int __seedval) __attribute__ ((__nothrow__));
 extern unsigned short int *seed48 (unsigned short int __seed16v[3])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 extern void lcong48 (unsigned short int __param[7]) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
@@ -41562,49 +41533,49 @@ extern void lcong48 (unsigned short int __param[7]) __attribute__ ((__nothrow__)
    type is to be regarded as opaque.  It's only exported because users
    have to allocate objects of this type.  */
 struct drand48_data
-{
+  {
     unsigned short int __x[3];	/* Current state.  */
     unsigned short int __old_x[3]; /* Old state.  */
     unsigned short int __c;	/* Additive const. in congruential formula.  */
     unsigned short int __init;	/* Flag for initializing.  */
     unsigned long long int __a;	/* Factor in congruential formula.  */
-};
+  };
 
 /* Return non-negative, double-precision floating-point value in [0.0,1.0).  */
 extern int drand48_r (struct drand48_data *__restrict __buffer,
-                      double *__restrict __result) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      double *__restrict __result) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern int erand48_r (unsigned short int __xsubi[3],
-                      struct drand48_data *__restrict __buffer,
-                      double *__restrict __result) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      struct drand48_data *__restrict __buffer,
+		      double *__restrict __result) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Return non-negative, long integer in [0,2^31).  */
 extern int lrand48_r (struct drand48_data *__restrict __buffer,
-                      long int *__restrict __result)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      long int *__restrict __result)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern int nrand48_r (unsigned short int __xsubi[3],
-                      struct drand48_data *__restrict __buffer,
-                      long int *__restrict __result)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      struct drand48_data *__restrict __buffer,
+		      long int *__restrict __result)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Return signed, long integers in [-2^31,2^31).  */
 extern int mrand48_r (struct drand48_data *__restrict __buffer,
-                      long int *__restrict __result)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      long int *__restrict __result)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern int jrand48_r (unsigned short int __xsubi[3],
-                      struct drand48_data *__restrict __buffer,
-                      long int *__restrict __result)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      struct drand48_data *__restrict __buffer,
+		      long int *__restrict __result)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Seed random number generator.  */
 extern int srand48_r (long int __seedval, struct drand48_data *__buffer)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 extern int seed48_r (unsigned short int __seed16v[3],
-                     struct drand48_data *__buffer) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		     struct drand48_data *__buffer) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 extern int lcong48_r (unsigned short int __param[7],
-                      struct drand48_data *__buffer)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      struct drand48_data *__buffer)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
@@ -41615,7 +41586,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern void *malloc (size_t __size) __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) ;
 /* Allocate NMEMB elements of SIZE bytes each, all initialized to 0.  */
 extern void *calloc (size_t __nmemb, size_t __size)
-__attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) ;
 
 
 
@@ -41626,7 +41597,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) ;
    the same pointer that was passed to it, aliasing needs to be allowed
    between objects pointed by the old and new pointers.  */
 extern void *realloc (void *__ptr, size_t __size)
-__attribute__ ((__nothrow__)) __attribute__ ((__warn_unused_result__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__warn_unused_result__));
 /* Free a block allocated by `malloc', `realloc' or `calloc'.  */
 extern void free (void *__ptr) __attribute__ ((__nothrow__));
 
@@ -41798,6 +41769,7 @@ extern void cfree (void *__ptr) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -41849,6 +41821,9 @@ extern void cfree (void *__ptr) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -41895,6 +41870,7 @@ extern void cfree (void *__ptr) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -41932,15 +41908,10 @@ extern void cfree (void *__ptr) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -42187,7 +42158,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -42373,9 +42344,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -42412,7 +42383,7 @@ extern void *valloc (size_t __size) __attribute__ ((__nothrow__)) __attribute__ 
 
 /* Allocate memory of SIZE bytes with an alignment of ALIGNMENT.  */
 extern int posix_memalign (void **__memptr, size_t __alignment, size_t __size)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 /* Abort execution and generate a core-dump.  */
@@ -42428,8 +42399,8 @@ extern int atexit (void (*__func) (void)) __attribute__ ((__nothrow__)) __attrib
 /* Register a function to be called when `quick_exit' is called.  */
 
 
-
-extern int at_quick_exit (void (*__func) (void)) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     
+ extern int at_quick_exit (void (*__func) (void)) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -42438,7 +42409,7 @@ extern int at_quick_exit (void (*__func) (void)) __attribute__ ((__nothrow__)) _
 /* Register a function to be called with the status
    given to `exit' and the given argument.  */
 extern int on_exit (void (*__func) (int __status, void *__arg), void *__arg)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Call all functions registered with `atexit' and `on_exit',
@@ -42471,7 +42442,7 @@ extern char *getenv (const char *__name) __attribute__ ((__nothrow__)) __attribu
 /* This function is similar to the above but returns NULL if the
    programs is running with SUID or SGID enabled.  */
 extern char *__secure_getenv (const char *__name)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 /* The SVID says this is in <stdio.h>, but this seems a better place.	*/
@@ -42483,7 +42454,7 @@ extern int putenv (char *__string) __attribute__ ((__nothrow__)) __attribute__ (
 /* Set NAME to VALUE in the environment.
    If REPLACE is nonzero, overwrite an existing value.  */
 extern int setenv (const char *__name, const char *__value, int __replace)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 /* Remove the variable NAME from the environment.  */
 extern int unsetenv (const char *__name) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
@@ -42512,10 +42483,10 @@ extern char *mktemp (char *__template) __attribute__ ((__nothrow__)) __attribute
    marked with __THROW.  */
 
 extern int mkstemp (char *__template) __attribute__ ((__nonnull__ (1))) ;
+ 
 
-
-
-
+     
+ 
 
 
 
@@ -42531,15 +42502,15 @@ extern int mkstemp64 (char *__template) __attribute__ ((__nonnull__ (1))) ;
    marked with __THROW.  */
 
 extern int mkstemps (char *__template, int __suffixlen) __attribute__ ((__nonnull__ (1))) ;
+ 
 
-
-
-
+		       
+ 
 
 
 
 extern int mkstemps64 (char *__template, int __suffixlen)
-__attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nonnull__ (1))) ;
 
 
 
@@ -42559,10 +42530,10 @@ extern char *mkdtemp (char *__template) __attribute__ ((__nothrow__)) __attribut
    marked with __THROW.  */
 
 extern int mkostemp (char *__template, int __flags) __attribute__ ((__nonnull__ (1))) ;
+ 
 
-
-
-
+     
+ 
 
 
 
@@ -42576,17 +42547,17 @@ extern int mkostemp64 (char *__template, int __flags) __attribute__ ((__nonnull_
    marked with __THROW.  */
 
 extern int mkostemps (char *__template, int __suffixlen, int __flags)
-__attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nonnull__ (1))) ;
+ 
 
-
-
-
-
+				   
+     
+ 
 
 
 
 extern int mkostemps64 (char *__template, int __suffixlen, int __flags)
-__attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nonnull__ (1))) ;
 
 
 
@@ -42602,7 +42573,7 @@ extern int system (const char *__command) ;
 /* Return a malloc'd string containing the canonical absolute name of the
    existing named file.  */
 extern char *canonicalize_file_name (const char *__name)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 /* Return the canonical absolute name of file NAME.  If RESOLVED is
@@ -42611,7 +42582,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
    ENAMETOOLONG; if the name fits in fewer than PATH_MAX chars,
    returns the name in RESOLVED.  */
 extern char *realpath (const char *__restrict __name,
-                       char *__restrict __resolved) __attribute__ ((__nothrow__)) ;
+		       char *__restrict __resolved) __attribute__ ((__nothrow__)) ;
 
 /* Shorthand for type of comparison functions.  */
 
@@ -42629,17 +42600,17 @@ typedef int (*__compar_d_fn_t) (const void *, const void *, void *);
 /* Do a binary search for KEY in BASE, which consists of NMEMB elements
    of SIZE bytes each, using COMPAR to perform the comparisons.  */
 extern void *bsearch (const void *__key, const void *__base,
-                      size_t __nmemb, size_t __size, __compar_fn_t __compar)
-__attribute__ ((__nonnull__ (1, 2, 5))) ;
+		      size_t __nmemb, size_t __size, __compar_fn_t __compar)
+     __attribute__ ((__nonnull__ (1, 2, 5))) ;
 
 /* Sort NMEMB elements of BASE, of SIZE bytes each,
    using COMPAR to perform the comparisons.  */
 extern void qsort (void *__base, size_t __nmemb, size_t __size,
-                   __compar_fn_t __compar) __attribute__ ((__nonnull__ (1, 4)));
+		   __compar_fn_t __compar) __attribute__ ((__nonnull__ (1, 4)));
 
 extern void qsort_r (void *__base, size_t __nmemb, size_t __size,
-                     __compar_d_fn_t __compar, void *__arg)
-__attribute__ ((__nonnull__ (1, 4)));
+		     __compar_d_fn_t __compar, void *__arg)
+  __attribute__ ((__nonnull__ (1, 4)));
 
 /* Return the absolute value of X.  */
 extern int abs (int __x) __attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
@@ -42648,23 +42619,23 @@ extern long int labs (long int __x) __attribute__ ((__nothrow__)) __attribute__ 
 
 
 __extension__ extern long long int llabs (long long int __x)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
 
 
 /* Return the `div_t', `ldiv_t' or `lldiv_t' representation
    of the value of NUMER over DENOM. */
 /* GCC may have built-ins for these someday.  */
 extern div_t div (int __numer, int __denom)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
 extern ldiv_t ldiv (long int __numer, long int __denom)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
 
 
 
 
 __extension__ extern lldiv_t lldiv (long long int __numer,
-                                    long long int __denom)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
+				    long long int __denom)
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
 
 
 
@@ -42675,50 +42646,50 @@ __attribute__ ((__nothrow__)) __attribute__ ((__const__)) ;
    this.  Set *DECPT with the position of the decimal character and *SIGN
    with the sign of the number.  */
 extern char *ecvt (double __value, int __ndigit, int *__restrict __decpt,
-                   int *__restrict __sign) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
+		   int *__restrict __sign) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
 
 /* Convert VALUE to a string rounded to NDIGIT decimal digits.  Set *DECPT
    with the position of the decimal character and *SIGN with the sign of
    the number.  */
 extern char *fcvt (double __value, int __ndigit, int *__restrict __decpt,
-                   int *__restrict __sign) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
+		   int *__restrict __sign) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
 
 /* If possible convert VALUE to a string with NDIGIT significant digits.
    Otherwise use exponential representation.  The resulting string will
    be written to BUF.  */
 extern char *gcvt (double __value, int __ndigit, char *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3))) ;
 
 
 
 /* Long double versions of above functions.  */
 extern char *qecvt (long double __value, int __ndigit,
-                    int *__restrict __decpt, int *__restrict __sign)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
+		    int *__restrict __decpt, int *__restrict __sign)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
 extern char *qfcvt (long double __value, int __ndigit,
-                    int *__restrict __decpt, int *__restrict __sign)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
+		    int *__restrict __decpt, int *__restrict __sign)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4))) ;
 extern char *qgcvt (long double __value, int __ndigit, char *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3))) ;
 
 
 /* Reentrant version of the functions above which provide their own
    buffers.  */
 extern int ecvt_r (double __value, int __ndigit, int *__restrict __decpt,
-                   int *__restrict __sign, char *__restrict __buf,
-                   size_t __len) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+		   int *__restrict __sign, char *__restrict __buf,
+		   size_t __len) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
 extern int fcvt_r (double __value, int __ndigit, int *__restrict __decpt,
-                   int *__restrict __sign, char *__restrict __buf,
-                   size_t __len) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+		   int *__restrict __sign, char *__restrict __buf,
+		   size_t __len) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
 
 extern int qecvt_r (long double __value, int __ndigit,
-                    int *__restrict __decpt, int *__restrict __sign,
-                    char *__restrict __buf, size_t __len)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+		    int *__restrict __decpt, int *__restrict __sign,
+		    char *__restrict __buf, size_t __len)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
 extern int qfcvt_r (long double __value, int __ndigit,
-                    int *__restrict __decpt, int *__restrict __sign,
-                    char *__restrict __buf, size_t __len)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+		    int *__restrict __decpt, int *__restrict __sign,
+		    char *__restrict __buf, size_t __len)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4, 5)));
 
 
 
@@ -42728,7 +42699,7 @@ extern int mblen (const char *__s, size_t __n) __attribute__ ((__nothrow__)) ;
 /* Return the length of the given multibyte character,
    putting its `wchar_t' representation in *PWC.  */
 extern int mbtowc (wchar_t *__restrict __pwc,
-                   const char *__restrict __s, size_t __n) __attribute__ ((__nothrow__)) ;
+		   const char *__restrict __s, size_t __n) __attribute__ ((__nothrow__)) ;
 /* Put the multibyte character represented
    by WCHAR in S, returning its length.  */
 extern int wctomb (char *__s, wchar_t __wchar) __attribute__ ((__nothrow__)) ;
@@ -42736,11 +42707,11 @@ extern int wctomb (char *__s, wchar_t __wchar) __attribute__ ((__nothrow__)) ;
 
 /* Convert a multibyte string to a wide char string.  */
 extern size_t mbstowcs (wchar_t *__restrict  __pwcs,
-                        const char *__restrict __s, size_t __n) __attribute__ ((__nothrow__));
+			const char *__restrict __s, size_t __n) __attribute__ ((__nothrow__));
 /* Convert a wide char string to multibyte string.  */
 extern size_t wcstombs (char *__restrict __s,
-                        const wchar_t *__restrict __pwcs, size_t __n)
-__attribute__ ((__nothrow__));
+			const wchar_t *__restrict __pwcs, size_t __n)
+     __attribute__ ((__nothrow__));
 
 
 
@@ -42759,9 +42730,9 @@ extern int rpmatch (const char *__response) __attribute__ ((__nothrow__)) __attr
    suboption.  On exit *OPTIONP is set to the beginning of the next
    token or at the terminating NUL character.  */
 extern int getsubopt (char **__restrict __optionp,
-                      char *const *__restrict __tokens,
-                      char **__restrict __valuep)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3))) ;
+		      char *const *__restrict __tokens,
+		      char **__restrict __valuep)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2, 3))) ;
 
 
 /* Setup DES tables according KEY.  */
@@ -42794,7 +42765,7 @@ extern char *ptsname (int __fd) __attribute__ ((__nothrow__)) ;
    terminal associated with the master FD is open on in BUF.
    Return 0 on success, otherwise an error number.  */
 extern int ptsname_r (int __fd, char *__buf, size_t __buflen)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 /* Open a master pseudo terminal and return its file descriptor.  */
 extern int getpt (void);
@@ -42804,7 +42775,7 @@ extern int getpt (void);
    NELEM elements of LOADAVG.  Return the number written (never more than
    three, but may be less than NELEM), or -1 if an error occurred.  */
 extern int getloadavg (double __loadavg[], int __nelem)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Define some macros helping to catch buffer overflows.  */
 
@@ -42876,7 +42847,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 /* Define va_list, if desired, from __gnuc_va_list. */
 /* We deliberately do not define va_list when called from
    stdio.h, because ANSI C says that stdio.h is not supposed to define
-   va_list.  stdio.h needs to have access to that data type,
+   va_list.  stdio.h needs to have access to that data type, 
    but must not use that name.  It should use the name __gnuc_va_list,
    which is safe because it is reserved for the implementation.  */
 
@@ -42903,10 +42874,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-/* The macro _VA_LIST_ is the same thing used by this file in Ultrix.
-  But on BSD NET2 we must not test or define or undef it.
-  (Note that the comments in NET 2's ansi.h
-  are incorrect for _VA_LIST_--see stdio.h!)  */
+ /* The macro _VA_LIST_ is the same thing used by this file in Ultrix.
+   But on BSD NET2 we must not test or define or undef it.
+   (Note that the comments in NET 2's ansi.h
+   are incorrect for _VA_LIST_--see stdio.h!)  */
 
 /* The macro _VA_LIST_DEFINED is used in Windows NT 3.5  */
 
@@ -43132,7 +43103,7 @@ typedef long int ptrdiff_t;
 
 
 
-
+ 
 
 
 
@@ -43318,9 +43289,9 @@ typedef long int ptrdiff_t;
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -43500,6 +43471,7 @@ typedef long int ptrdiff_t;
 
 
 
+ 
 
 
 
@@ -43551,6 +43523,9 @@ typedef long int ptrdiff_t;
 
 
 
+ 
+ 
+ 
 
 
 
@@ -43597,6 +43572,7 @@ typedef long int ptrdiff_t;
 
 
 
+ 
 
 
 
@@ -43634,15 +43610,10 @@ typedef long int ptrdiff_t;
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -43893,7 +43864,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -44079,9 +44050,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -44102,12 +44073,12 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 /* Copy N bytes of SRC to DEST.  */
 extern void *memcpy (void *__restrict __dest,
-                     const void *__restrict __src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		     const void *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 /* Copy N bytes of SRC to DEST, guaranteeing
    correct behavior for overlapping strings.  */
 extern void *memmove (void *__dest, const void *__src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Copy no more than N bytes of SRC to DEST, stopping when C is found.
@@ -44115,8 +44086,8 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
    or NULL if C was not found in the first N bytes of SRC.  */
 
 extern void *memccpy (void *__restrict __dest, const void *__restrict __src,
-                      int __c, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      int __c, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Set N bytes of S to C.  */
@@ -44124,33 +44095,33 @@ extern void *memset (void *__s, int __c, size_t __n) __attribute__ ((__nothrow__
 
 /* Compare N bytes of S1 and S2.  */
 extern int memcmp (const void *__s1, const void *__s2, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Search N bytes of S for C.  */
 
 
 
 
+      
+
+      
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
-
-
-
-
-
-extern void *memchr (const void *__s, int __c, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+ extern void *memchr (const void *__s, int __c, size_t __n)
+      __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -44159,52 +44130,52 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
    length limit.  */
 
 
+     
 
-
-
-extern void *rawmemchr (const void *__s, int __c)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+     
+ extern void *rawmemchr (const void *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 /* Search N bytes of S for the final occurrence of C.  */
 
 
+      
 
-
-
-extern void *memrchr (const void *__s, int __c, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+      
+ extern void *memrchr (const void *__s, int __c, size_t __n)
+      __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 
 /* Copy SRC to DEST.  */
 extern char *strcpy (char *__restrict __dest, const char *__restrict __src)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 /* Copy no more than N characters of SRC to DEST.  */
 extern char *strncpy (char *__restrict __dest,
-                      const char *__restrict __src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      const char *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Append SRC onto DEST.  */
 extern char *strcat (char *__restrict __dest, const char *__restrict __src)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 /* Append no more than N characters from SRC onto DEST.  */
 extern char *strncat (char *__restrict __dest, const char *__restrict __src,
-                      size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Compare S1 and S2.  */
 extern int strcmp (const char *__s1, const char *__s2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 /* Compare N characters of S1 and S2.  */
 extern int strncmp (const char *__s1, const char *__s2, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Compare the collated forms of S1 and S2.  */
 extern int strcoll (const char *__s1, const char *__s2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 /* Put a transformation of SRC into no more than N bytes of DEST.  */
 extern size_t strxfrm (char *__restrict __dest,
-                       const char *__restrict __src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+		       const char *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
@@ -44241,16 +44212,16 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
+  
+  
 
+  
+  
+  
+  
 
-
-
-
-
-
-
-
-
+  
+  
 
 
 
@@ -44261,22 +44232,22 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 /* Compare the collated forms of S1 and S2 using rules from L.  */
 extern int strcoll_l (const char *__s1, const char *__s2, __locale_t __l)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 3)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 3)));
 /* Put a transformation of SRC into no more than N bytes of DEST.  */
 extern size_t strxfrm_l (char *__dest, const char *__src, size_t __n,
-                         __locale_t __l) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
+			 __locale_t __l) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
 
 
 /* Duplicate S, returning an identical malloc'd string.  */
 extern char *strdup (const char *__s)
-__attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__ (1)));
 
 /* Return a malloc'd copy of at most N bytes of STRING.  The
    resultant string is terminated even if no null terminator
    appears before STRING[N].  */
 
 extern char *strndup (const char *__string, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Duplicate S, returning an identical alloca'd string.  */
@@ -44306,52 +44277,52 @@ __attribute__ ((__nothrow__)) __attribute__ ((__malloc__)) __attribute__ ((__non
 
 
 
+     
+
+     
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
-
-
-
-
-
-extern char *strchr (const char *__s, int __c)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+ extern char *strchr (const char *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 /* Find the last occurrence of C in S.  */
 
 
 
 
+     
+
+     
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
-
-
-
-
-
-extern char *strrchr (const char *__s, int __c)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+ extern char *strrchr (const char *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -44360,101 +44331,101 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
    the closing NUL byte in case C is not found in S.  */
 
 
+     
 
-
-
-extern char *strchrnul (const char *__s, int __c)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+     
+ extern char *strchrnul (const char *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 
 /* Return the length of the initial segment of S which
    consists entirely of characters not in REJECT.  */
 extern size_t strcspn (const char *__s, const char *__reject)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 /* Return the length of the initial segment of S which
    consists entirely of characters in ACCEPT.  */
 extern size_t strspn (const char *__s, const char *__accept)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 /* Find the first occurrence in S of any character in ACCEPT.  */
 
 
 
 
+     
+
+     
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
-
-
-
-
-
-extern char *strpbrk (const char *__s, const char *__accept)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+ extern char *strpbrk (const char *__s, const char *__accept)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Find the first occurrence of NEEDLE in HAYSTACK.  */
 
 
 
 
+     
+
+			     
+     
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
-
-
-
-
-
-
-extern char *strstr (const char *__haystack, const char *__needle)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+ extern char *strstr (const char *__haystack, const char *__needle)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Divide S into tokens separated by characters in DELIM.  */
 extern char *strtok (char *__restrict __s, const char *__restrict __delim)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 /* Divide S into tokens separated by characters in DELIM.  Information
    passed between calls are stored in SAVE_PTR.  */
 extern char *__strtok_r (char *__restrict __s,
-                         const char *__restrict __delim,
-                         char **__restrict __save_ptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+			 const char *__restrict __delim,
+			 char **__restrict __save_ptr)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 
 extern char *strtok_r (char *__restrict __s, const char *__restrict __delim,
-                       char **__restrict __save_ptr)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+		       char **__restrict __save_ptr)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 
 
 /* Similar to `strstr' but this function ignores the case of both strings.  */
 
 
+     
 
-
-
-
-extern char *strcasestr (const char *__haystack, const char *__needle)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+				       
+     
+ extern char *strcasestr (const char *__haystack, const char *__needle)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 
@@ -44462,29 +44433,29 @@ __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnu
    NEEDLE is NEEDLELEN bytes long;
    HAYSTACK is HAYSTACKLEN bytes long.  */
 extern void *memmem (const void *__haystack, size_t __haystacklen,
-                     const void *__needle, size_t __needlelen)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 3)));
+		     const void *__needle, size_t __needlelen)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 3)));
 
 /* Copy N bytes of SRC to DEST, return pointer to bytes after the
    last written byte.  */
 extern void *__mempcpy (void *__restrict __dest,
-                        const void *__restrict __src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+			const void *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern void *mempcpy (void *__restrict __dest,
-                      const void *__restrict __src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      const void *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Return the length of S.  */
 extern size_t strlen (const char *__s)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 
 /* Find the length of STRING, but scan at most MAXLEN characters.
    If no '\0' terminator is found in that many characters, return MAXLEN.  */
 extern size_t strnlen (const char *__string, size_t __maxlen)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Return a string describing the meaning of the `errno' code in ERRNUM.  */
@@ -44503,16 +44474,16 @@ extern char *strerror (int __errnum) __attribute__ ((__nothrow__));
 
 
 
+			   
+			   
+ 
+     
 
 
-
-
-
-
-/* If a temporary buffer is required, at most BUFLEN bytes of BUF will be
-  used.  */
+ /* If a temporary buffer is required, at most BUFLEN bytes of BUF will be
+   used.  */
 extern char *strerror_r (int __errnum, char *__buf, size_t __buflen)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
@@ -44526,66 +44497,66 @@ extern void __bzero (void *__s, size_t __n) __attribute__ ((__nothrow__)) __attr
 
 /* Copy N bytes of SRC to DEST (like memmove, but args reversed).  */
 extern void bcopy (const void *__src, void *__dest, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Set N bytes of S to 0.  */
 extern void bzero (void *__s, size_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Compare N bytes of S1 and S2 (same as memcmp).  */
 extern int bcmp (const void *__s1, const void *__s2, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Find the first occurrence of C in S (same as strchr).  */
 
 
 
 
+     
+
+     
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
-
-
-
-
-
-extern char *index (const char *__s, int __c)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+ extern char *index (const char *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 /* Find the last occurrence of C in S (same as strrchr).  */
 
 
 
 
+     
+
+     
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
-
-
-
-
-
-extern char *rindex (const char *__s, int __c)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
+ extern char *rindex (const char *__s, int __c)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1)));
 
 /* Return the position of the first bit set in I, or 0 if none are set.
    The least-significant bit is position 1, the most-significant 32.  */
@@ -44597,34 +44568,34 @@ extern int ffs (int __i) __attribute__ ((__nothrow__)) __attribute__ ((__const__
 extern int ffsl (long int __l) __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 __extension__ extern int ffsll (long long int __ll)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 
 /* Compare S1 and S2, ignoring case.  */
 extern int strcasecmp (const char *__s1, const char *__s2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Compare no more than N chars of S1 and S2, ignoring case.  */
 extern int strncasecmp (const char *__s1, const char *__s2, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Again versions of a few functions which use the given locale instead
    of the global one.  */
 extern int strcasecmp_l (const char *__s1, const char *__s2,
-                         __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 3)));
+			 __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 3)));
 
 extern int strncasecmp_l (const char *__s1, const char *__s2,
-                          size_t __n, __locale_t __loc)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 4)));
+			  size_t __n, __locale_t __loc)
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2, 4)));
 
 
 /* Return the next DELIM-delimited token from *STRINGP,
    terminating it with a '\0', and update *STRINGP to point past it.  */
 extern char *strsep (char **__restrict __stringp,
-                     const char *__restrict __delim)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		     const char *__restrict __delim)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Return a string describing the meaning of the signal number in SIG.  */
@@ -44632,23 +44603,23 @@ extern char *strsignal (int __sig) __attribute__ ((__nothrow__));
 
 /* Copy SRC to DEST, returning the address of the terminating '\0' in DEST.  */
 extern char *__stpcpy (char *__restrict __dest, const char *__restrict __src)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern char *stpcpy (char *__restrict __dest, const char *__restrict __src)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Copy no more than N characters of SRC to DEST, returning the address of
    the last character written into DEST.  */
 extern char *__stpncpy (char *__restrict __dest,
-                        const char *__restrict __src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+			const char *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern char *stpncpy (char *__restrict __dest,
-                      const char *__restrict __src, size_t __n)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		      const char *__restrict __src, size_t __n)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Compare S1 and S2 as strings holding name & indices/version numbers.  */
 extern int strverscmp (const char *__s1, const char *__s2)
-__attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Sautee STRING briskly.  */
 extern char *strfry (char *__string) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
@@ -44663,10 +44634,10 @@ extern void *memfrob (void *__s, size_t __n) __attribute__ ((__nothrow__)) __att
    available.  */
 
 
+     
 
-
-
-extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     
+ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 
@@ -44868,6 +44839,7 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+ 
 
 
 
@@ -44919,6 +44891,9 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+ 
+ 
+ 
 
 
 
@@ -44965,6 +44940,7 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+ 
 
 
 
@@ -45002,15 +44978,10 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -45148,9 +45119,9 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
-
-
-
+  
+    
+  
 
 
 /* We only want to define these functions if <signal.h> was actually
@@ -45351,6 +45322,10 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+  
+    
+    
+  
 
 
 
@@ -45361,8 +45336,21 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -45372,6 +45360,10 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+  
+    
+    
+  
 
 
 
@@ -45393,6 +45385,7 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+     
 
 
 
@@ -45402,12 +45395,16 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -45415,9 +45412,14 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -45433,10 +45435,12 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -45453,9 +45457,11 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -45505,6 +45511,7 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+		      
 
 
 
@@ -45515,6 +45522,7 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+     
 
 
 
@@ -45522,21 +45530,28 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -45576,51 +45591,7 @@ extern char *basename (const char *__filename) __attribute__ ((__nothrow__)) __a
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -45633,11 +45604,11 @@ typedef unsigned long int nfds_t;
 
 /* Data structure describing a polling request.  */
 struct pollfd
-{
+  {
     int fd;			/* File descriptor to poll.  */
     short int events;		/* Types of events poller cares about.  */
     short int revents;		/* Types of events that actually occurred.  */
-};
+  };
 
 
 
@@ -45660,8 +45631,8 @@ extern int poll (struct pollfd *__fds, nfds_t __nfds, int __timeout);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
-                  const struct timespec *__timeout,
-                  const __sigset_t *__ss);
+		  const struct timespec *__timeout,
+		  const __sigset_t *__ss);
 
 
 
@@ -45829,6 +45800,7 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
+ 
 
 
 
@@ -45880,6 +45852,9 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -45926,6 +45901,7 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
+ 
 
 
 
@@ -45963,15 +45939,10 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -46318,7 +46289,7 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 /* ARP cache control calls. */
-/*  0x8950 - 0x8952  * obsolete calls, don't re-use */
+		    /*  0x8950 - 0x8952  * obsolete calls, don't re-use */
 
 
 
@@ -46495,16 +46466,16 @@ extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
 
 
 struct winsize
-{
+  {
     unsigned short int ws_row;
     unsigned short int ws_col;
     unsigned short int ws_xpixel;
     unsigned short int ws_ypixel;
-};
+  };
 
 
 struct termio
-{
+  {
     unsigned short int c_iflag;		/* input mode flags */
     unsigned short int c_oflag;		/* output mode flags */
     unsigned short int c_cflag;		/* control mode flags */
@@ -46611,13 +46582,13 @@ struct termio
 
 
 
+ 
 
 
 
 
 
-
-
+ 
 
 
 
@@ -46644,9 +46615,9 @@ struct termio
  */
 
 
-
-
-
+	
+	
+	
 
 
 
@@ -46824,6 +46795,7 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
+ 
 
 
 
@@ -46875,6 +46847,9 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
+ 
+ 
+ 
 
 
 
@@ -46921,6 +46896,7 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
+ 
 
 
 
@@ -46958,15 +46934,10 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -47067,17 +47038,22 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -47127,6 +47103,7 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
+ 
 
 
 
@@ -47136,13 +47113,7 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __attribute__ ((__
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -47403,7 +47374,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -47589,9 +47560,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -47608,7 +47579,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -47733,18 +47704,18 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 extern void *mmap (void *__addr, size_t __len, int __prot,
-                   int __flags, int __fd, __off_t __offset) __attribute__ ((__nothrow__));
+		   int __flags, int __fd, __off_t __offset) __attribute__ ((__nothrow__));
+ 
 
-
-
-
-
-
+			      
+			       
+			      
+ 
 
 
 
 extern void *mmap64 (void *__addr, size_t __len, int __prot,
-                     int __flags, int __fd, __off64_t __offset) __attribute__ ((__nothrow__));
+		     int __flags, int __fd, __off64_t __offset) __attribute__ ((__nothrow__));
 
 /* Deallocate any mapping for the region starting at ADDR and extending LEN
    bytes.  Returns 0 if successful, -1 for errors (and sets errno).  */
@@ -47795,7 +47766,7 @@ extern int munlockall (void) __attribute__ ((__nothrow__));
    bit of each byte is 1 if the referenced page is in memory, otherwise
    it is zero.  */
 extern int mincore (void *__start, size_t __len, unsigned char *__vec)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 
 /* Remap pages mapped by the range [ADDR,ADDR+OLD_LEN) to new length
@@ -47804,12 +47775,12 @@ __attribute__ ((__nothrow__));
    takes another paramter which is a fixed address at which the block
    resides after a successful call.  */
 extern void *mremap (void *__addr, size_t __old_len, size_t __new_len,
-                     int __flags, ...) __attribute__ ((__nothrow__));
+		     int __flags, ...) __attribute__ ((__nothrow__));
 
 /* Remap arbitrary pages of a shared backing store within an existing
    VMA.  */
 extern int remap_file_pages (void *__start, size_t __size, int __prot,
-                             size_t __pgoff, int __flags) __attribute__ ((__nothrow__));
+			     size_t __pgoff, int __flags) __attribute__ ((__nothrow__));
 
 /* Open shared memory segment.  */
 extern int shm_open (const char *__name, int __oflag, mode_t __mode);
@@ -47865,13 +47836,20 @@ extern int shm_unlink (const char *__name);
 
 
 
+  
+    
+    
+  
 
 
 
 
 
+  
 
+  
 
+  
 
 
 
@@ -47884,6 +47862,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
@@ -47902,9 +47881,11 @@ extern int shm_unlink (const char *__name);
 
 
 
+	      
 
 
 
+	      
 
 
 
@@ -47917,12 +47898,15 @@ extern int shm_unlink (const char *__name);
 
 
 
+		       
 
 
 
+     
 
 
 
+			
 
 
 
@@ -47936,6 +47920,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+			
 
 
 
@@ -47957,6 +47942,8 @@ extern int shm_unlink (const char *__name);
 
 
 
+		       
+		       
 
 
 
@@ -47966,6 +47953,8 @@ extern int shm_unlink (const char *__name);
 
 
 
+			 
+			 
 
 
 
@@ -47974,6 +47963,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+			
 
 
 
@@ -47987,11 +47977,14 @@ extern int shm_unlink (const char *__name);
 
 
 
+		       
+		       
 
 
 
 
 
+		       
 
 
 
@@ -48008,6 +48001,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+		   
 
 
 
@@ -48015,30 +48009,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		    
 
 
 
@@ -48234,6 +48205,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
@@ -48285,6 +48257,9 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
+ 
+ 
 
 
 
@@ -48331,6 +48306,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
@@ -48368,15 +48344,10 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -48478,17 +48449,22 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -48538,6 +48514,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
@@ -48547,13 +48524,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -48740,6 +48711,10 @@ extern int shm_unlink (const char *__name);
 
 
 
+  
+    
+    
+  
 
 
 
@@ -48750,8 +48725,21 @@ extern int shm_unlink (const char *__name);
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -48761,6 +48749,10 @@ extern int shm_unlink (const char *__name);
 
 
 
+  
+    
+    
+  
 
 
 
@@ -48782,6 +48774,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+     
 
 
 
@@ -48791,12 +48784,16 @@ extern int shm_unlink (const char *__name);
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -48804,9 +48801,14 @@ extern int shm_unlink (const char *__name);
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -48822,10 +48824,12 @@ extern int shm_unlink (const char *__name);
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -48842,9 +48846,11 @@ extern int shm_unlink (const char *__name);
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -48894,6 +48900,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+		      
 
 
 
@@ -48904,6 +48911,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+     
 
 
 
@@ -48911,21 +48919,28 @@ extern int shm_unlink (const char *__name);
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -48965,51 +48980,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -49031,6 +49002,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
@@ -49045,6 +49017,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
@@ -49057,9 +49030,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-
-
-
+ 
 
 
 
@@ -49106,6 +49077,7 @@ extern int shm_unlink (const char *__name);
 
 
 
+ 
 
 
 
@@ -49113,121 +49085,120 @@ extern int shm_unlink (const char *__name);
 
 
 
+  
+    
 
+    
 
 
+    
+     
 
 
+    
+    
+     
+    
 
+    
+    
 
+    
 
+    
 
+    
 
 
+    
+     
 
+    
 
+    
+     
 
 
+    
 
 
 
 
 
+    
+    
+    
 
 
 
+     
+    
+    
+    
+    
+    
 
 
+    
+ 
+    
+    
+     
 
 
+  
 
 
 
 
+  
+    
 
+    
+    
+    
+     
+    
+    
+    
 
+    
+    
 
+    
+    
+    
+     
+    
+    
 
+    
+    
 
+    
 
 
 
 
 
+    
+    
+    
 
 
 
+     
+    
+    
+    
+    
+    
 
 
+    
+     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -49305,7 +49276,7 @@ extern int shm_unlink (const char *__name);
 
 
 
-
+ 
 
 /* These are from POSIX.1b.  If the objects are not implemented using separate
    distinct file types, the macros always will evaluate to zero.  Unlike the
@@ -49360,24 +49331,24 @@ extern int shm_unlink (const char *__name);
 
 /* Get file attributes for FILE and put them in BUF.  */
 extern int stat (const char *__restrict __file,
-                 struct stat *__restrict __buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		 struct stat *__restrict __buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Get file attributes for the file, device, pipe, or socket
    that file descriptor FD is open on and put them in BUF.  */
 extern int fstat (int __fd, struct stat *__buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+ 
 
+				  
+     
 
-
-
-
-
-
+     
+ 
 
 
 
 
 extern int stat64 (const char *__restrict __file,
-                   struct stat64 *__restrict __buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		   struct stat64 *__restrict __buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 extern int fstat64 (int __fd, struct stat64 *__buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
@@ -49386,20 +49357,20 @@ extern int fstat64 (int __fd, struct stat64 *__buf) __attribute__ ((__nothrow__)
    AT_FDCWD.  */
 
 extern int fstatat (int __fd, const char *__restrict __file,
-                    struct stat *__restrict __buf, int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+		    struct stat *__restrict __buf, int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+ 
 
-
-
-
-
-
+				     
+				     
+			   
+ 
 
 
 
 extern int fstatat64 (int __fd, const char *__restrict __file,
-                      struct stat64 *__restrict __buf, int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+		      struct stat64 *__restrict __buf, int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 
 
 
@@ -49407,32 +49378,32 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 /* Get file attributes about FILE and put them in BUF.
    If FILE is a symbolic link, do not follow it.  */
 extern int lstat (const char *__restrict __file,
-                  struct stat *__restrict __buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		  struct stat *__restrict __buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+ 
 
-
-
-
-
-
+			   
+			    
+     
+ 
 
 
 
 extern int lstat64 (const char *__restrict __file,
-                    struct stat64 *__restrict __buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		    struct stat64 *__restrict __buf)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Set file access permissions for FILE to MODE.
    If FILE is a symbolic link, this affects its target instead.  */
 extern int chmod (const char *__file, __mode_t __mode)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Set file access permissions for FILE to MODE.
    If FILE is a symbolic link, this affects the link itself
    rather than its target.  */
 extern int lchmod (const char *__file, __mode_t __mode)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Set file access permissions of the file FD is open on to MODE.  */
 
@@ -49442,8 +49413,8 @@ extern int fchmod (int __fd, __mode_t __mode) __attribute__ ((__nothrow__));
 /* Set file access permissions of FILE relative to
    the directory FD is open on.  */
 extern int fchmodat (int __fd, const char *__file, __mode_t __mode,
-                     int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
+		     int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
 
 /* Set the file creation mask of the current process to MASK,
    and return the old creation mask.  */
@@ -49456,49 +49427,49 @@ extern __mode_t getumask (void) __attribute__ ((__nothrow__));
 
 /* Create a new directory named PATH, with permission bits MODE.  */
 extern int mkdir (const char *__path, __mode_t __mode)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Like mkdir, create a new directory with permission bits MODE.  But
    interpret relative PATH names relative to the directory associated
    with FD.  */
 extern int mkdirat (int __fd, const char *__path, __mode_t __mode)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 /* Create a device file named PATH, with permission and special bits MODE
    and device number DEV (which can be constructed from major and minor
    device numbers with the `makedev' macro above).  */
 
 extern int mknod (const char *__path, __mode_t __mode, __dev_t __dev)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Like mknod, create a new device file with permission bits MODE and
    device number DEV.  But interpret relative PATH names relative to
    the directory associated with FD.  */
 extern int mknodat (int __fd, const char *__path, __mode_t __mode,
-                    __dev_t __dev) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+		    __dev_t __dev) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 /* Create a new FIFO named PATH, with permission bits MODE.  */
 extern int mkfifo (const char *__path, __mode_t __mode)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Like mkfifo, create a new FIFO with permission bits MODE.  But
    interpret relative PATH names relative to the directory associated
    with FD.  */
 extern int mkfifoat (int __fd, const char *__path, __mode_t __mode)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
 /* Set file access and modification times relative to directory file
    descriptor.  */
 extern int utimensat (int __fd, const char *__path,
-                      const struct timespec __times[2],
-                      int __flags)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+		      const struct timespec __times[2],
+		      int __flags)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 /* Set file access and modification times of the file associated with FD.  */
@@ -49529,51 +49500,51 @@ extern int futimens (int __fd, const struct timespec __times[2]) __attribute__ (
 /* Wrappers for stat and mknod system calls.  */
 
 extern int __fxstat (int __ver, int __fildes, struct stat *__stat_buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3)));
 extern int __xstat (int __ver, const char *__filename,
-                    struct stat *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+		    struct stat *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 extern int __lxstat (int __ver, const char *__filename,
-                     struct stat *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+		     struct stat *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 extern int __fxstatat (int __ver, int __fildes, const char *__filename,
-                       struct stat *__stat_buf, int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4)));
+		       struct stat *__stat_buf, int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4)));
+ 
 
+				      
+     
 
+				     
+     
 
+				      
+     
 
+					
+					
+			   
 
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
 
 
 extern int __fxstat64 (int __ver, int __fildes, struct stat64 *__stat_buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3)));
 extern int __xstat64 (int __ver, const char *__filename,
-                      struct stat64 *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+		      struct stat64 *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 extern int __lxstat64 (int __ver, const char *__filename,
-                       struct stat64 *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
+		       struct stat64 *__stat_buf) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3)));
 extern int __fxstatat64 (int __ver, int __fildes, const char *__filename,
-                         struct stat64 *__stat_buf, int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4)));
+			 struct stat64 *__stat_buf, int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 4)));
 
 extern int __xmknod (int __ver, const char *__path, __mode_t __mode,
-                     __dev_t *__dev) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
+		     __dev_t *__dev) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4)));
 
 extern int __xmknodat (int __ver, int __fd, const char *__path,
-                       __mode_t __mode, __dev_t *__dev)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
+		       __mode_t __mode, __dev_t *__dev)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
@@ -49581,71 +49552,71 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+  
 
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
 
 
+		
 
+  
 
 
 
 
 
 
+  
 
 
 
 
 
+		
 
+  
 
 
 
 
 
 
+  
 
 
 
 
 
 
+  
 
 
 
 
 
+  
 
 
 
 
 
+		  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -49818,6 +49789,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+ 
 
 
 
@@ -49869,6 +49841,9 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -49915,6 +49890,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+ 
 
 
 
@@ -49952,15 +49928,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -50062,17 +50033,22 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -50122,6 +50098,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+ 
 
 
 
@@ -50131,13 +50108,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -50317,6 +50288,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+  
+    
+    
+  
 
 
 
@@ -50327,8 +50302,21 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
+  
+  
+   
+  
 
 
 
@@ -50338,6 +50326,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+  
+    
+    
+  
 
 
 
@@ -50359,6 +50351,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+     
 
 
 
@@ -50368,12 +50361,16 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+			
+			
 
 
 
 
 
 
+		       
+     
 
 
 
@@ -50381,9 +50378,14 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+			  
+			  
+			  
 
 
 
+			 
+			 
 
 
 
@@ -50399,10 +50401,12 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+			    
 
 
 
 
+			       
 
 
 
@@ -50419,9 +50423,11 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+			
 
 
 
+		      
 
 
 
@@ -50471,6 +50477,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+		      
 
 
 
@@ -50481,6 +50488,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+     
 
 
 
@@ -50488,21 +50496,28 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+			    
+			    
 
 
 
 
 
 
+			 
+			 
 
 
 
 
 
 
+			  
+			  
 
 
 
+     
 
 
 
@@ -50542,51 +50557,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		      
 
 
 
@@ -50667,10 +50638,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
-
-
-
-
+  
+    
+    
+  
 
 
 #line 31 "systems/redhat/usr/include/sys/time.h" 2
@@ -50740,6 +50711,16 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+  
+    
+
+
+    
+
+     
+
+
+  
 
 
 
@@ -50769,6 +50750,9 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
+		   
+		   
+		   
 
 
 
@@ -50778,23 +50762,10 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		    
+		    
+		    
+		    
 
 
 
@@ -50822,13 +50793,13 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (3, 5)));
 /* Structure crudely representing a timezone.
    This is obsolete and should never be used.  */
 struct timezone
-{
+  {
     int tz_minuteswest;		/* Minutes west of GMT.  */
     int tz_dsttime;		/* Nonzero if DST is ever in effect.  */
-};
+  };
 
 typedef struct timezone *__restrict __timezone_ptr_t;
-
+ 
 
 /* Get the current time of day and timezone information,
    putting it into *TV and *TZ.  If TZ is NULL, *TZ is not filled.
@@ -50836,75 +50807,75 @@ typedef struct timezone *__restrict __timezone_ptr_t;
    NOTE: This form of timezone information is obsolete.
    Use the functions and variables declared in <time.h> instead.  */
 extern int gettimeofday (struct timeval *__restrict __tv,
-                         __timezone_ptr_t __tz) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+			 __timezone_ptr_t __tz) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Set the current time of day and timezone information.
    This call is restricted to the super-user.  */
 extern int settimeofday (const struct timeval *__tv,
-                         const struct timezone *__tz)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+			 const struct timezone *__tz)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Adjust the current time of day by the amount in DELTA.
    If OLDDELTA is not NULL, it is filled in with the amount
    of time adjustment remaining to be done from the last `adjtime' call.
    This call is restricted to the super-user.  */
 extern int adjtime (const struct timeval *__delta,
-                    struct timeval *__olddelta) __attribute__ ((__nothrow__));
+		    struct timeval *__olddelta) __attribute__ ((__nothrow__));
 
 /* Values for the first argument to `getitimer' and `setitimer'.  */
 enum __itimer_which
-{
+  {
     /* Timers run in real time.  */
     ITIMER_REAL = 0,
-    
+
     /* Timers run only when the process is executing.  */
     ITIMER_VIRTUAL = 1,
-    
+
     /* Timers run when the process is executing and when
        the system is executing on behalf of the process.  */
     ITIMER_PROF = 2
-    
-};
+
+  };
 
 /* Type of the second argument to `getitimer' and
    the second and third arguments `setitimer'.  */
 struct itimerval
-{
+  {
     /* Value to put into `it_value' when the timer expires.  */
     struct timeval it_interval;
     /* Time to the next timer expiration.  */
     struct timeval it_value;
-};
+  };
 
 
 /* Use the nicer parameter type only in GNU mode and not for C++ since the
    strict C++ rules prevent the automatic promotion.  */
 typedef enum __itimer_which __itimer_which_t;
-
+ 
 
 /* Set *VALUE to the current setting of timer WHICH.
    Return 0 on success, -1 on errors.  */
 extern int getitimer (__itimer_which_t __which,
-                      struct itimerval *__value) __attribute__ ((__nothrow__));
+		      struct itimerval *__value) __attribute__ ((__nothrow__));
 
 /* Set the timer WHICH to *NEW.  If OLD is not NULL,
    set *OLD to the old value of timer WHICH.
    Returns 0 on success, -1 on errors.  */
 extern int setitimer (__itimer_which_t __which,
-                      const struct itimerval *__restrict __new,
-                      struct itimerval *__restrict __old) __attribute__ ((__nothrow__));
+		      const struct itimerval *__restrict __new,
+		      struct itimerval *__restrict __old) __attribute__ ((__nothrow__));
 
 /* Change the access time of FILE to TVP[0] and the modification time of
    FILE to TVP[1].  If TVP is a null pointer, use the current time instead.
    Returns 0 on success, -1 on errors.  */
 extern int utimes (const char *__file, const struct timeval __tvp[2])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Same as `utimes', but does not follow symbolic links.  */
 extern int lutimes (const char *__file, const struct timeval __tvp[2])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Same as `utimes', but takes an open file descriptor instead of a name.  */
 extern int futimes (int __fd, const struct timeval __tvp[2]) __attribute__ ((__nothrow__));
@@ -50914,7 +50885,7 @@ extern int futimes (int __fd, const struct timeval __tvp[2]) __attribute__ ((__n
    modification time of FILE to TVP[1].  If TVP is a null pointer, use
    the current time instead.  Returns 0 on success, -1 on errors.  */
 extern int futimesat (int __fd, const char *__file,
-                      const struct timeval __tvp[2]) __attribute__ ((__nothrow__));
+		      const struct timeval __tvp[2]) __attribute__ ((__nothrow__));
 
 
 /* Convenience macros for operations on timevals.
@@ -50998,6 +50969,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -51028,6 +51000,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -51096,6 +51069,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -51104,9 +51078,11 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -51161,12 +51137,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-
-
-
-
-
-
+ 
 
 
 
@@ -51359,6 +51330,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -51410,6 +51382,9 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -51456,6 +51431,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -51493,15 +51469,10 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -51641,8 +51612,10 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+     
 
 
+     
 
 
 
@@ -51650,8 +51623,13 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+     
+ 
 
 
+				      
+				      
+ 
 
 
 
@@ -51660,6 +51638,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+     
 
 
 
@@ -51681,6 +51660,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+     
 
 
 
@@ -51705,8 +51685,10 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
+ 
 
 
 
@@ -51754,6 +51736,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+     
 
 
 
@@ -51761,9 +51744,11 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+		      
 
 
 
+		     
 
 
 
@@ -51771,6 +51756,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+			
 
 
 
@@ -51781,6 +51767,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+		      
 
 
 
@@ -51791,6 +51778,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+     
 
 
 
@@ -51798,6 +51786,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+			
 
 
 
@@ -51805,10 +51794,14 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+			 
+			 
+     
 
 
 
 
+     
 
 
 
@@ -51819,8 +51812,13 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+  
+    
+    
 
+    
 
+  
 
 
 
@@ -51834,6 +51832,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+		   
 
 
 
@@ -51861,40 +51860,12 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+     
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			
 
 
 
@@ -52093,6 +52064,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -52144,6 +52116,9 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -52190,6 +52165,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -52227,15 +52203,10 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -52362,17 +52333,22 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -52422,6 +52398,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
+ 
 
 
 
@@ -52431,13 +52408,7 @@ extern int futimesat (int __fd, const char *__file,
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -52516,84 +52487,84 @@ extern int futimesat (int __fd, const char *__file,
 /* Kinds of resource limit.  */
 enum __rlimit_resource
 {
-    /* Per-process CPU limit, in seconds.  */
-    RLIMIT_CPU = 0,
-    
-    
-    /* Largest file that can be created, in bytes.  */
-    RLIMIT_FSIZE = 1,
-    
-    
-    /* Maximum size of data segment, in bytes.  */
-    RLIMIT_DATA = 2,
-    
-    
-    /* Maximum size of stack segment, in bytes.  */
-    RLIMIT_STACK = 3,
-    
-    
-    /* Largest core file that can be created, in bytes.  */
-    RLIMIT_CORE = 4,
-    
-    
-    /* Largest resident set size, in bytes.
-       This affects swapping; processes that are exceeding their
-       resident set size will be more likely to have physical memory
-       taken from them.  */
-    __RLIMIT_RSS = 5,
-    
-    
-    /* Number of open files.  */
-    RLIMIT_NOFILE = 7,
-    __RLIMIT_OFILE = RLIMIT_NOFILE, /* BSD name for same.  */
-    
-    
-    
-    /* Address space limit.  */
-    RLIMIT_AS = 9,
-    
-    
-    /* Number of processes.  */
-    __RLIMIT_NPROC = 6,
-    
-    
-    /* Locked-in-memory address space.  */
-    __RLIMIT_MEMLOCK = 8,
-    
-    
-    /* Maximum number of file locks.  */
-    __RLIMIT_LOCKS = 10,
-    
-    
-    /* Maximum number of pending signals.  */
-    __RLIMIT_SIGPENDING = 11,
-    
-    
-    /* Maximum bytes in POSIX message queues.  */
-    __RLIMIT_MSGQUEUE = 12,
-    
-    
-    /* Maximum nice priority allowed to raise to.
-       Nice levels 19 .. -20 correspond to 0 .. 39
-       values of this resource limit.  */
-    __RLIMIT_NICE = 13,
-    
-    
-    /* Maximum realtime priority allowed for non-priviledged
-       processes.  */
-    __RLIMIT_RTPRIO = 14,
-    
-    
-    __RLIMIT_NLIMITS = 15,
-    __RLIM_NLIMITS = __RLIMIT_NLIMITS
-    
-    
+  /* Per-process CPU limit, in seconds.  */
+  RLIMIT_CPU = 0,
+
+
+  /* Largest file that can be created, in bytes.  */
+  RLIMIT_FSIZE = 1,
+
+
+  /* Maximum size of data segment, in bytes.  */
+  RLIMIT_DATA = 2,
+
+
+  /* Maximum size of stack segment, in bytes.  */
+  RLIMIT_STACK = 3,
+
+
+  /* Largest core file that can be created, in bytes.  */
+  RLIMIT_CORE = 4,
+
+
+  /* Largest resident set size, in bytes.
+     This affects swapping; processes that are exceeding their
+     resident set size will be more likely to have physical memory
+     taken from them.  */
+  __RLIMIT_RSS = 5,
+
+
+  /* Number of open files.  */
+  RLIMIT_NOFILE = 7,
+  __RLIMIT_OFILE = RLIMIT_NOFILE, /* BSD name for same.  */
+
+
+
+  /* Address space limit.  */
+  RLIMIT_AS = 9,
+
+
+  /* Number of processes.  */
+  __RLIMIT_NPROC = 6,
+
+
+  /* Locked-in-memory address space.  */
+  __RLIMIT_MEMLOCK = 8,
+
+
+  /* Maximum number of file locks.  */
+  __RLIMIT_LOCKS = 10,
+
+
+  /* Maximum number of pending signals.  */
+  __RLIMIT_SIGPENDING = 11,
+
+
+  /* Maximum bytes in POSIX message queues.  */
+  __RLIMIT_MSGQUEUE = 12,
+
+
+  /* Maximum nice priority allowed to raise to.
+     Nice levels 19 .. -20 correspond to 0 .. 39
+     values of this resource limit.  */
+  __RLIMIT_NICE = 13,
+
+
+  /* Maximum realtime priority allowed for non-priviledged
+     processes.  */
+  __RLIMIT_RTPRIO = 14,
+
+
+  __RLIMIT_NLIMITS = 15,
+  __RLIM_NLIMITS = __RLIMIT_NLIMITS
+
+
 };
 
 /* Value to indicate that there is no limit.  */
 
 
-
+ 
 
 
 
@@ -52606,47 +52577,47 @@ enum __rlimit_resource
 /* Type for resource quantity measurement.  */
 
 typedef __rlim_t rlim_t;
-
+ 
 
 
 typedef __rlim64_t rlim64_t;
 
 struct rlimit
-{
+  {
     /* The current (soft) limit.  */
     rlim_t rlim_cur;
     /* The hard limit.  */
     rlim_t rlim_max;
-};
+  };
 
 
 struct rlimit64
-{
+  {
     /* The current (soft) limit.  */
     rlim64_t rlim_cur;
     /* The hard limit.  */
     rlim64_t rlim_max;
-};
+ };
 
 /* Whose usage statistics do you want?  */
 enum __rusage_who
 {
-    /* The calling process.  */
-    RUSAGE_SELF = 0,
-    
-    
-    /* All of its terminated child processes.  */
-    RUSAGE_CHILDREN = -1
-    
-    
-    
-    ,
-    /* The calling thread.  */
-    RUSAGE_THREAD = 1
-    
-    /* Name for the same functionality on Solaris.  */
-    
-    
+  /* The calling process.  */
+  RUSAGE_SELF = 0,
+
+
+  /* All of its terminated child processes.  */
+  RUSAGE_CHILDREN = -1
+
+
+
+  ,
+  /* The calling thread.  */
+  RUSAGE_THREAD = 1
+
+  /* Name for the same functionality on Solaris.  */
+
+
 };
 
 
@@ -52723,17 +52694,17 @@ enum __rusage_who
 
 
 
-
-
-
-
+  
+    
+    
+  
 
 
 #line 177 "systems/redhat/usr/include/bits/resource.h" 2
 
 /* Structure which says how much of each resource has been used.  */
 struct rusage
-{
+  {
     /* Total amount of user time used.  */
     struct timeval ru_utime;
     /* Total amount of system time used.  */
@@ -52772,7 +52743,7 @@ struct rusage
     /* Number of involuntary context switches, i.e. a higher priority process
        became runnable or the current process used up its time slice.  */
     long int ru_nivcsw;
-};
+  };
 
 /* Priority limits.  */
 
@@ -52782,12 +52753,12 @@ struct rusage
    indicating what flavor of entity the WHO argument specifies.  */
 enum __priority_which
 {
-    PRIO_PROCESS = 0,		/* WHO is a process ID.  */
-    
-    PRIO_PGRP = 1,		/* WHO is a process group ID.  */
-    
-    PRIO_USER = 2			/* WHO is a user ID.  */
-    
+  PRIO_PROCESS = 0,		/* WHO is a process ID.  */
+
+  PRIO_PGRP = 1,		/* WHO is a process group ID.  */
+
+  PRIO_USER = 2			/* WHO is a user ID.  */
+
 };
 #line 27 "systems/redhat/usr/include/sys/resource.h" 2
 
@@ -52805,7 +52776,7 @@ enum __priority_which
 typedef enum __rlimit_resource __rlimit_resource_t;
 typedef enum __rusage_who __rusage_who_t;
 typedef enum __priority_which __priority_which_t;
-
+ 
 
 
 
@@ -52813,33 +52784,33 @@ typedef enum __priority_which __priority_which_t;
    Returns 0 if successful, -1 if not (and sets errno).  */
 
 extern int getrlimit (__rlimit_resource_t __resource,
-                      struct rlimit *__rlimits) __attribute__ ((__nothrow__));
+		      struct rlimit *__rlimits) __attribute__ ((__nothrow__));
+ 
 
-
-
-
+				       
+ 
 
 
 
 extern int getrlimit64 (__rlimit_resource_t __resource,
-                        struct rlimit64 *__rlimits) __attribute__ ((__nothrow__));
+			struct rlimit64 *__rlimits) __attribute__ ((__nothrow__));
 
 /* Set the soft and hard limits for RESOURCE to *RLIMITS.
    Only the super-user can increase hard limits.
    Return 0 if successful, -1 if not (and sets errno).  */
 
 extern int setrlimit (__rlimit_resource_t __resource,
-                      const struct rlimit *__rlimits) __attribute__ ((__nothrow__));
+		      const struct rlimit *__rlimits) __attribute__ ((__nothrow__));
+ 
 
-
-
-
-
+				       
+			   
+ 
 
 
 
 extern int setrlimit64 (__rlimit_resource_t __resource,
-                        const struct rlimit64 *__rlimits) __attribute__ ((__nothrow__));
+			const struct rlimit64 *__rlimits) __attribute__ ((__nothrow__));
 
 /* Return resource usage information on process indicated by WHO
    and put it in *USAGE.  Returns 0 for success, -1 for failure.  */
@@ -52854,7 +52825,7 @@ extern int getpriority (__priority_which_t __which, id_t __who) __attribute__ ((
 /* Set the priority of all processes specified by WHICH and WHO (see above)
    to PRIO.  Returns 0 on success, -1 on errors.  */
 extern int setpriority (__priority_which_t __which, id_t __who, int __prio)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 
 
@@ -52875,6 +52846,7 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -52884,16 +52856,15 @@ __attribute__ ((__nothrow__));
 
 
 
+ 
+
+  
+    
+    
+  
 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -52921,9 +52892,9 @@ __attribute__ ((__nothrow__));
 
 typedef enum
 {
-    P_ALL,		/* Wait for any child.  */
-    P_PID,		/* Wait for specified process.  */
-    P_PGID		/* Wait for members of process group.  */
+  P_ALL,		/* Wait for any child.  */
+  P_PID,		/* Wait for specified process.  */
+  P_PGID		/* Wait for members of process group.  */
 } idtype_t;
 
 /* Wait for a child to die.  When one does, put its status in *STAT_LOC
@@ -52986,7 +52957,7 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
-
+ 
 
 #line 27 "systems/redhat/usr/include/bits/siginfo.h" 2
 
@@ -52995,6 +52966,10 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
+  
+    
+    
+  
 
 
 
@@ -53002,15 +52977,65 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
+ 
 
 
+  
+    
+    
+    
 
+    
+      
+	
 
+	 
+	
+	  
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	    
+	    
+	    
+	  
 
+	
+	
+	  
+	    
+	  
 
+	
+	
+	  
+	    
+	    
+	  
+      
+  
 
 
 
@@ -53033,14 +53058,23 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
@@ -53048,70 +53082,105 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
 
 
 
+  
 
+  
 
+  
 
+  
 
+  
 
+  
 
 
 
@@ -53124,12 +53193,29 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
+ 
 
 
+  
+    
+    
+    
 
+    
+      
+	
 
+	
 
+	
 
+	
+	  
+	    
+	    
+	  
+      
+  
 
 
 
@@ -53138,129 +53224,14 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
 
 
 
+  
 
+  
 
+  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -53278,7 +53249,7 @@ extern __pid_t waitpid (__pid_t __pid, int *__stat_loc, int __options);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int waitid (idtype_t __idtype, __id_t __id, siginfo_t *__infop,
-                   int __options);
+		   int __options);
 
 
 /* This being here makes the prototypes valid whether or not
@@ -53291,12 +53262,12 @@ struct rusage;
    WUNTRACED bit is set in OPTIONS, return status for stopped children;
    otherwise don't.  */
 extern __pid_t wait3 (__WAIT_STATUS __stat_loc, int __options,
-                      struct rusage * __usage) __attribute__ ((__nothrow__));
+		      struct rusage * __usage) __attribute__ ((__nothrow__));
 
 
 /* PID is like waitpid.  Other args are like wait3.  */
 extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
-                      struct rusage *__usage) __attribute__ ((__nothrow__));
+		      struct rusage *__usage) __attribute__ ((__nothrow__));
 
 
 
@@ -53468,6 +53439,7 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
+ 
 
 
 
@@ -53519,6 +53491,9 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -53565,6 +53540,7 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
+ 
 
 
 
@@ -53602,15 +53578,10 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -53713,17 +53684,22 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -53773,6 +53749,7 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
+ 
 
 
 
@@ -53782,13 +53759,7 @@ extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -53897,7 +53868,7 @@ typedef unsigned int	tcflag_t;
 
 
 struct termios
-{
+  {
     tcflag_t c_iflag;		/* input mode flags */
     tcflag_t c_oflag;		/* output mode flags */
     tcflag_t c_cflag;		/* control mode flags */
@@ -53906,9 +53877,9 @@ struct termios
     cc_t c_cc[32];		/* control characters */
     speed_t c_ispeed;		/* input speed */
     speed_t c_ospeed;		/* output speed */
-    
-    
-};
+
+
+  };
 
 /* c_cc characters */
 
@@ -54111,7 +54082,7 @@ extern int tcgetattr (int __fd, struct termios *__termios_p) __attribute__ ((__n
 /* Set the state of FD to *TERMIOS_P.
    Values for OPTIONAL_ACTIONS (TCSA*) are in <bits/termios.h>.  */
 extern int tcsetattr (int __fd, int __optional_actions,
-                      const struct termios *__termios_p) __attribute__ ((__nothrow__));
+		      const struct termios *__termios_p) __attribute__ ((__nothrow__));
 
 
 
@@ -54200,13 +54171,13 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
 
 
-
-
+ 
 
 
 
@@ -54233,9 +54204,9 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
  */
 
 
-
-
-
+	
+	
+	
 
 
 
@@ -54411,6 +54382,7 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -54462,6 +54434,9 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -54508,6 +54483,7 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -54545,15 +54521,10 @@ extern __pid_t tcgetsid (int __fd) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -54806,7 +54777,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -54992,9 +54963,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -55083,10 +55054,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
-
-
-
+  
+    
+    
+  
 
 
 #line 44 "systems/redhat/usr/include/time.h" 2
@@ -55159,10 +55130,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
-
-
-
+  
+    
+    
+  
 
 
 
@@ -55173,22 +55144,22 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 /* Used by other time functions.  */
 struct tm
 {
-    int tm_sec;			/* Seconds.	[0-60] (1 leap second) */
-    int tm_min;			/* Minutes.	[0-59] */
-    int tm_hour;			/* Hours.	[0-23] */
-    int tm_mday;			/* Day.		[1-31] */
-    int tm_mon;			/* Month.	[0-11] */
-    int tm_year;			/* Year	- 1900.  */
-    int tm_wday;			/* Day of week.	[0-6] */
-    int tm_yday;			/* Days in year.[0-365]	*/
-    int tm_isdst;			/* DST.		[-1/0/1]*/
-    
-    
-    long int tm_gmtoff;		/* Seconds east of UTC.  */
-    const char *tm_zone;	/* Timezone abbreviation.  */
-    
-    
-    
+  int tm_sec;			/* Seconds.	[0-60] (1 leap second) */
+  int tm_min;			/* Minutes.	[0-59] */
+  int tm_hour;			/* Hours.	[0-23] */
+  int tm_mday;			/* Day.		[1-31] */
+  int tm_mon;			/* Month.	[0-11] */
+  int tm_year;			/* Year	- 1900.  */
+  int tm_wday;			/* Day of week.	[0-6] */
+  int tm_yday;			/* Days in year.[0-365]	*/
+  int tm_isdst;			/* DST.		[-1/0/1]*/
+
+
+  long int tm_gmtoff;		/* Seconds east of UTC.  */
+  const char *tm_zone;	/* Timezone abbreviation.  */
+   
+  
+
 };
 
 
@@ -55197,10 +55168,10 @@ struct tm
 
 /* POSIX.1b structure for timer start values and intervals.  */
 struct itimerspec
-{
+  {
     struct timespec it_interval;
     struct timespec it_value;
-};
+  };
 
 /* We can use a simple forward declaration.  */
 struct sigevent;
@@ -55222,7 +55193,7 @@ extern time_t time (time_t *__timer) __attribute__ ((__nothrow__));
 
 /* Return the difference between TIME1 and TIME0.  */
 extern double difftime (time_t __time1, time_t __time0)
-__attribute__ ((__nothrow__)) __attribute__ ((__const__));
+     __attribute__ ((__nothrow__)) __attribute__ ((__const__));
 
 /* Return the `time_t' representation of TP and normalize TP.  */
 extern time_t mktime (struct tm *__tp) __attribute__ ((__nothrow__));
@@ -55232,16 +55203,16 @@ extern time_t mktime (struct tm *__tp) __attribute__ ((__nothrow__));
    Write no more than MAXSIZE characters and return the number
    of characters written, or 0 if it would exceed MAXSIZE.  */
 extern size_t strftime (char *__restrict __s, size_t __maxsize,
-                        const char *__restrict __format,
-                        const struct tm *__restrict __tp) __attribute__ ((__nothrow__));
+			const char *__restrict __format,
+			const struct tm *__restrict __tp) __attribute__ ((__nothrow__));
 
 
 
 /* Parse S according to FORMAT and store binary time information in TP.
    The return value is a pointer to the first unparsed character in S.  */
 extern char *strptime (const char *__restrict __s,
-                       const char *__restrict __fmt, struct tm *__tp)
-__attribute__ ((__nothrow__));
+		       const char *__restrict __fmt, struct tm *__tp)
+     __attribute__ ((__nothrow__));
 
 
 /* Similar to the two functions above but take the information from
@@ -55276,16 +55247,16 @@ __attribute__ ((__nothrow__));
 
 
 
+  
+  
 
+  
+  
+  
+  
 
-
-
-
-
-
-
-
-
+  
+  
 
 
 
@@ -55295,14 +55266,14 @@ __attribute__ ((__nothrow__));
 #line 217 "systems/redhat/usr/include/time.h" 2
 
 extern size_t strftime_l (char *__restrict __s, size_t __maxsize,
-                          const char *__restrict __format,
-                          const struct tm *__restrict __tp,
-                          __locale_t __loc) __attribute__ ((__nothrow__));
+			  const char *__restrict __format,
+			  const struct tm *__restrict __tp,
+			  __locale_t __loc) __attribute__ ((__nothrow__));
 
 
 extern char *strptime_l (const char *__restrict __s,
-                         const char *__restrict __fmt, struct tm *__tp,
-                         __locale_t __loc) __attribute__ ((__nothrow__));
+			 const char *__restrict __fmt, struct tm *__tp,
+			 __locale_t __loc) __attribute__ ((__nothrow__));
 
 
 /* Return the `struct tm' representation of *TIMER
@@ -55318,12 +55289,12 @@ extern struct tm *localtime (const time_t *__timer) __attribute__ ((__nothrow__)
 /* Return the `struct tm' representation of *TIMER in UTC,
    using *TP to store the result.  */
 extern struct tm *gmtime_r (const time_t *__restrict __timer,
-                            struct tm *__restrict __tp) __attribute__ ((__nothrow__));
+			    struct tm *__restrict __tp) __attribute__ ((__nothrow__));
 
 /* Return the `struct tm' representation of *TIMER in local time,
    using *TP to store the result.  */
 extern struct tm *localtime_r (const time_t *__restrict __timer,
-                               struct tm *__restrict __tp) __attribute__ ((__nothrow__));
+			       struct tm *__restrict __tp) __attribute__ ((__nothrow__));
 
 
 /* Return a string of the form "Day Mon dd hh:mm:ss yyyy\n"
@@ -55340,11 +55311,11 @@ extern char *ctime (const time_t *__timer) __attribute__ ((__nothrow__));
 /* Return in BUF a string of the form "Day Mon dd hh:mm:ss yyyy\n"
    that is the representation of TP in this format.  */
 extern char *asctime_r (const struct tm *__restrict __tp,
-                        char *__restrict __buf) __attribute__ ((__nothrow__));
+			char *__restrict __buf) __attribute__ ((__nothrow__));
 
 /* Equivalent to `asctime_r (localtime_r (timer, *TMP*), buf)'.  */
 extern char *ctime_r (const time_t *__restrict __timer,
-                      char *__restrict __buf) __attribute__ ((__nothrow__));
+		      char *__restrict __buf) __attribute__ ((__nothrow__));
 
 /* Defined in localtime.c.  */
 extern char *__tzname[2];	/* Current timezone names.  */
@@ -55394,7 +55365,7 @@ extern int dysize (int __year) __attribute__ ((__nothrow__))  __attribute__ ((__
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int nanosleep (const struct timespec *__requested_time,
-                      struct timespec *__remaining);
+		      struct timespec *__remaining);
 
 
 /* Get resolution of clock CLOCK_ID.  */
@@ -55405,7 +55376,7 @@ extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __attribu
 
 /* Set clock CLOCK_ID to value TP.  */
 extern int clock_settime (clockid_t __clock_id, const struct timespec *__tp)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 
 /* High-resolution sleep with the specified clock.
@@ -55413,28 +55384,28 @@ __attribute__ ((__nothrow__));
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern int clock_nanosleep (clockid_t __clock_id, int __flags,
-                            const struct timespec *__req,
-                            struct timespec *__rem);
+			    const struct timespec *__req,
+			    struct timespec *__rem);
 
 /* Return clock ID for CPU-time clock.  */
 extern int clock_getcpuclockid (pid_t __pid, clockid_t *__clock_id) __attribute__ ((__nothrow__));
 
 /* Create new per-process timer using CLOCK_ID.  */
 extern int timer_create (clockid_t __clock_id,
-                         struct sigevent *__restrict __evp,
-                         timer_t *__restrict __timerid) __attribute__ ((__nothrow__));
+			 struct sigevent *__restrict __evp,
+			 timer_t *__restrict __timerid) __attribute__ ((__nothrow__));
 
 /* Delete timer TIMERID.  */
 extern int timer_delete (timer_t __timerid) __attribute__ ((__nothrow__));
 
 /* Set timer TIMERID to VALUE, returning old value in OVLAUE.  */
 extern int timer_settime (timer_t __timerid, int __flags,
-                          const struct itimerspec *__restrict __value,
-                          struct itimerspec *__restrict __ovalue) __attribute__ ((__nothrow__));
+			  const struct itimerspec *__restrict __value,
+			  struct itimerspec *__restrict __ovalue) __attribute__ ((__nothrow__));
 
 /* Get current value of timer TIMERID and store it in VLAUE.  */
 extern int timer_gettime (timer_t __timerid, struct itimerspec *__value)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Get expiration overrun for timer TIMERID.  */
 extern int timer_getoverrun (timer_t __timerid) __attribute__ ((__nothrow__));
@@ -55474,7 +55445,7 @@ extern struct tm *getdate (const char *__string);
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int getdate_r (const char *__restrict __string,
-                      struct tm *__restrict __resbufp);
+		      struct tm *__restrict __resbufp);
 
 
 
@@ -55647,6 +55618,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
+ 
 
 
 
@@ -55698,6 +55670,9 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -55744,6 +55719,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
+ 
 
 
 
@@ -55781,15 +55757,10 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -55853,13 +55824,13 @@ extern int getdate_r (const char *__restrict __string,
 
 /* POSIX Standard approved as ISO/IEC 9945-1 as of September 2008.  */
 
+ 
 
+ 
 
+ 
 
-
-
-
-
+ 
 
 
 /* These are not #ifdef __USE_POSIX2 because they are
@@ -55868,11 +55839,11 @@ extern int getdate_r (const char *__restrict __string,
 
 
 /* The utilities on GNU systems also correspond to this version.  */
+ 
 
+ 
 
-
-
-
+ 
 
 
 /* The utilities on GNU systems also correspond to this version.  */
@@ -55897,9 +55868,9 @@ extern int getdate_r (const char *__restrict __string,
 /* X/Open version number to which the library conforms.  It is selectable.  */
 
 
-
-
-
+ 
+ 
+ 
 
 /* Commands and utilities from XPG4 are available.  */
 
@@ -56234,7 +56205,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-
+ 
 
 #line 25 "systems/redhat/usr/include/bits/environments.h" 2
 
@@ -56278,7 +56249,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-
+ 
 
 
 
@@ -56363,17 +56334,22 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -56423,6 +56399,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
+ 
 
 
 
@@ -56432,13 +56409,7 @@ extern int getdate_r (const char *__restrict __string,
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -56705,7 +56676,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -56891,9 +56862,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -56921,7 +56892,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -56964,18 +56935,18 @@ extern int access (const char *__name, int __type) __attribute__ ((__nothrow__))
 /* Test for access to NAME using the effective UID and GID
    (as normal file operations use).  */
 extern int euidaccess (const char *__name, int __type)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* An alias for `euidaccess', used by some other systems.  */
 extern int eaccess (const char *__name, int __type)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Test for access to FILE relative to the directory FD is open on.
    If AT_EACCESS is set in FLAG, then use effective IDs like `eaccess',
    otherwise use real IDs like `access'.  */
 extern int faccessat (int __fd, const char *__file, int __type, int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
 
 /* Values for the WHENCE argument to lseek.  */
 
@@ -56996,16 +56967,16 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
    Return the new file position.  */
 
 extern __off_t lseek (int __fd, __off_t __offset, int __whence) __attribute__ ((__nothrow__));
+ 
 
-
-
-
-
+				 
+				 
+ 
 
 
 
 extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Close the file descriptor FD.
 
@@ -57035,7 +57006,7 @@ extern ssize_t write (int __fd, const void *__buf, size_t __n) ;
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t pread (int __fd, void *__buf, size_t __nbytes,
-                      __off_t __offset) ;
+		      __off_t __offset) ;
 
 /* Write N bytes of BUF to FD at the given position OFFSET without
    changing the file pointer.  Return the number written, or -1.
@@ -57043,15 +57014,15 @@ extern ssize_t pread (int __fd, void *__buf, size_t __nbytes,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t pwrite (int __fd, const void *__buf, size_t __n,
-                       __off_t __offset) ;
+		       __off_t __offset) ;
+ 
 
+				   
+			   
 
-
-
-
-
-
-
+				    
+			   
+ 
 
 
 
@@ -57060,11 +57031,11 @@ extern ssize_t pwrite (int __fd, const void *__buf, size_t __n,
    changing the file pointer.  Return the number read, -1 for errors
    or 0 for EOF.  */
 extern ssize_t pread64 (int __fd, void *__buf, size_t __nbytes,
-                        __off64_t __offset) ;
+			__off64_t __offset) ;
 /* Write N bytes of BUF to FD at the given position OFFSET without
    changing the file pointer.  Return the number written, or -1.  */
 extern ssize_t pwrite64 (int __fd, const void *__buf, size_t __n,
-                         __off64_t __offset) ;
+			 __off64_t __offset) ;
 
 
 /* Create a one-way communication channel (pipe).
@@ -57105,7 +57076,7 @@ extern unsigned int sleep (unsigned int __seconds);
    timer is reset to go off every INTERVAL microseconds thereafter.
    Returns the number of microseconds remaining before the alarm.  */
 extern __useconds_t ualarm (__useconds_t __value, __useconds_t __interval)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Sleep USECONDS microseconds, or until a signal arrives that is not blocked
    or ignored.
@@ -57124,7 +57095,7 @@ extern int pause (void);
 
 /* Change the owner and group of FILE.  */
 extern int chown (const char *__file, __uid_t __owner, __gid_t __group)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 /* Change the owner and group of the file that FD is open on.  */
@@ -57134,15 +57105,15 @@ extern int fchown (int __fd, __uid_t __owner, __gid_t __group) __attribute__ ((_
 /* Change owner and group of FILE, if it is a symbolic
    link the ownership of the symbolic link is changed.  */
 extern int lchown (const char *__file, __uid_t __owner, __gid_t __group)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 
 /* Change the owner and group of FILE relative to the directory FD is open
    on.  */
 extern int fchownat (int __fd, const char *__file, __uid_t __owner,
-                     __gid_t __group, int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
+		     __gid_t __group, int __flag)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
 
 /* Change the process's working directory to PATH.  */
 extern int chdir (const char *__path) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
@@ -57171,7 +57142,7 @@ extern char *get_current_dir_name (void) __attribute__ ((__nothrow__));
    If successful, return BUF.  If not, put an error message in
    BUF and return NULL.  BUF should be at least PATH_MAX bytes long.  */
 extern char *getwd (char *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) __attribute__ ((__deprecated__)) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) __attribute__ ((__deprecated__)) ;
 
 /* Duplicate FD, returning a new file descriptor on the same file.  */
 extern int dup (int __fd) __attribute__ ((__nothrow__)) ;
@@ -57192,45 +57163,45 @@ extern char **environ;
 /* Replace the current process, executing PATH with arguments ARGV and
    environment ENVP.  ARGV and ENVP are terminated by NULL pointers.  */
 extern int execve (const char *__path, char *const __argv[],
-                   char *const __envp[]) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		   char *const __envp[]) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Execute the file FD refers to, overlaying the running program image.
    ARGV and ENVP are passed to the new program, as for `execve'.  */
 extern int fexecve (int __fd, char *const __argv[], char *const __envp[])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 /* Execute PATH with arguments ARGV and environment from `environ'.  */
 extern int execv (const char *__path, char *const __argv[])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Execute PATH with all arguments after PATH until a NULL pointer,
    and the argument after that for environment.  */
 extern int execle (const char *__path, const char *__arg, ...)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Execute PATH with all arguments after PATH until
    a NULL pointer and environment from `environ'.  */
 extern int execl (const char *__path, const char *__arg, ...)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Execute FILE, searching in the `PATH' environment variable if it contains
    no slashes, with arguments ARGV and environment from `environ'.  */
 extern int execvp (const char *__file, char *const __argv[])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Execute FILE, searching in the `PATH' environment variable if
    it contains no slashes, with all arguments after FILE until a
    NULL pointer and environment from `environ'.  */
 extern int execlp (const char *__file, const char *__arg, ...)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Execute FILE, searching in the `PATH' environment variable if it contains
    no slashes, with arguments ARGV and environment from `environ'.  */
 extern int execvpe (const char *__file, char *const __argv[],
-                    char *const __envp[])
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		    char *const __envp[])
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 
 /* Add INC to priority of the current process.  */
@@ -57269,662 +57240,662 @@ extern void _exit (int __status) __attribute__ ((__noreturn__));
 
 /* Values for the NAME argument to `pathconf' and `fpathconf'.  */
 enum
-{
+  {
     _PC_LINK_MAX,
-    
+
     _PC_MAX_CANON,
-    
+
     _PC_MAX_INPUT,
-    
+
     _PC_NAME_MAX,
-    
+
     _PC_PATH_MAX,
-    
+
     _PC_PIPE_BUF,
-    
+
     _PC_CHOWN_RESTRICTED,
-    
+
     _PC_NO_TRUNC,
-    
+
     _PC_VDISABLE,
-    
+
     _PC_SYNC_IO,
-    
+
     _PC_ASYNC_IO,
-    
+
     _PC_PRIO_IO,
-    
+
     _PC_SOCK_MAXBUF,
-    
+
     _PC_FILESIZEBITS,
-    
+
     _PC_REC_INCR_XFER_SIZE,
-    
+
     _PC_REC_MAX_XFER_SIZE,
-    
+
     _PC_REC_MIN_XFER_SIZE,
-    
+
     _PC_REC_XFER_ALIGN,
-    
+
     _PC_ALLOC_SIZE_MIN,
-    
+
     _PC_SYMLINK_MAX,
-    
+
     _PC_2_SYMLINKS
-    
-};
+
+  };
 
 /* Values for the argument to `sysconf'.  */
 enum
-{
+  {
     _SC_ARG_MAX,
-    
+
     _SC_CHILD_MAX,
-    
+
     _SC_CLK_TCK,
-    
+
     _SC_NGROUPS_MAX,
-    
+
     _SC_OPEN_MAX,
-    
+
     _SC_STREAM_MAX,
-    
+
     _SC_TZNAME_MAX,
-    
+
     _SC_JOB_CONTROL,
-    
+
     _SC_SAVED_IDS,
-    
+
     _SC_REALTIME_SIGNALS,
-    
+
     _SC_PRIORITY_SCHEDULING,
-    
+
     _SC_TIMERS,
-    
+
     _SC_ASYNCHRONOUS_IO,
-    
+
     _SC_PRIORITIZED_IO,
-    
+
     _SC_SYNCHRONIZED_IO,
-    
+
     _SC_FSYNC,
-    
+
     _SC_MAPPED_FILES,
-    
+
     _SC_MEMLOCK,
-    
+
     _SC_MEMLOCK_RANGE,
-    
+
     _SC_MEMORY_PROTECTION,
-    
+
     _SC_MESSAGE_PASSING,
-    
+
     _SC_SEMAPHORES,
-    
+
     _SC_SHARED_MEMORY_OBJECTS,
-    
+
     _SC_AIO_LISTIO_MAX,
-    
+
     _SC_AIO_MAX,
-    
+
     _SC_AIO_PRIO_DELTA_MAX,
-    
+
     _SC_DELAYTIMER_MAX,
-    
+
     _SC_MQ_OPEN_MAX,
-    
+
     _SC_MQ_PRIO_MAX,
-    
+
     _SC_VERSION,
-    
+
     _SC_PAGESIZE,
-    
-    
+
+
     _SC_RTSIG_MAX,
-    
+
     _SC_SEM_NSEMS_MAX,
-    
+
     _SC_SEM_VALUE_MAX,
-    
+
     _SC_SIGQUEUE_MAX,
-    
+
     _SC_TIMER_MAX,
-    
-    
+
+
     /* Values for the argument to `sysconf'
        corresponding to _POSIX2_* symbols.  */
     _SC_BC_BASE_MAX,
-    
+
     _SC_BC_DIM_MAX,
-    
+
     _SC_BC_SCALE_MAX,
-    
+
     _SC_BC_STRING_MAX,
-    
+
     _SC_COLL_WEIGHTS_MAX,
-    
+
     _SC_EQUIV_CLASS_MAX,
-    
+
     _SC_EXPR_NEST_MAX,
-    
+
     _SC_LINE_MAX,
-    
+
     _SC_RE_DUP_MAX,
-    
+
     _SC_CHARCLASS_NAME_MAX,
-    
-    
+
+
     _SC_2_VERSION,
-    
+
     _SC_2_C_BIND,
-    
+
     _SC_2_C_DEV,
-    
+
     _SC_2_FORT_DEV,
-    
+
     _SC_2_FORT_RUN,
-    
+
     _SC_2_SW_DEV,
-    
+
     _SC_2_LOCALEDEF,
-    
-    
+
+
     _SC_PII,
-    
+
     _SC_PII_XTI,
-    
+
     _SC_PII_SOCKET,
-    
+
     _SC_PII_INTERNET,
-    
+
     _SC_PII_OSI,
-    
+
     _SC_POLL,
-    
+
     _SC_SELECT,
-    
+
     _SC_UIO_MAXIOV,
-    
+
     _SC_IOV_MAX = _SC_UIO_MAXIOV,
-    
+
     _SC_PII_INTERNET_STREAM,
-    
+
     _SC_PII_INTERNET_DGRAM,
-    
+
     _SC_PII_OSI_COTS,
-    
+
     _SC_PII_OSI_CLTS,
-    
+
     _SC_PII_OSI_M,
-    
+
     _SC_T_IOV_MAX,
-    
-    
+
+
     /* Values according to POSIX 1003.1c (POSIX threads).  */
     _SC_THREADS,
-    
+
     _SC_THREAD_SAFE_FUNCTIONS,
-    
+
     _SC_GETGR_R_SIZE_MAX,
-    
+
     _SC_GETPW_R_SIZE_MAX,
-    
+
     _SC_LOGIN_NAME_MAX,
-    
+
     _SC_TTY_NAME_MAX,
-    
+
     _SC_THREAD_DESTRUCTOR_ITERATIONS,
-    
+
     _SC_THREAD_KEYS_MAX,
-    
+
     _SC_THREAD_STACK_MIN,
-    
+
     _SC_THREAD_THREADS_MAX,
-    
+
     _SC_THREAD_ATTR_STACKADDR,
-    
+
     _SC_THREAD_ATTR_STACKSIZE,
-    
+
     _SC_THREAD_PRIORITY_SCHEDULING,
-    
+
     _SC_THREAD_PRIO_INHERIT,
-    
+
     _SC_THREAD_PRIO_PROTECT,
-    
+
     _SC_THREAD_PROCESS_SHARED,
-    
-    
+
+
     _SC_NPROCESSORS_CONF,
-    
+
     _SC_NPROCESSORS_ONLN,
-    
+
     _SC_PHYS_PAGES,
-    
+
     _SC_AVPHYS_PAGES,
-    
+
     _SC_ATEXIT_MAX,
-    
+
     _SC_PASS_MAX,
-    
-    
+
+
     _SC_XOPEN_VERSION,
-    
+
     _SC_XOPEN_XCU_VERSION,
-    
+
     _SC_XOPEN_UNIX,
-    
+
     _SC_XOPEN_CRYPT,
-    
+
     _SC_XOPEN_ENH_I18N,
-    
+
     _SC_XOPEN_SHM,
-    
-    
+
+
     _SC_2_CHAR_TERM,
-    
+
     _SC_2_C_VERSION,
-    
+
     _SC_2_UPE,
-    
-    
+
+
     _SC_XOPEN_XPG2,
-    
+
     _SC_XOPEN_XPG3,
-    
+
     _SC_XOPEN_XPG4,
-    
-    
+
+
     _SC_CHAR_BIT,
-    
+
     _SC_CHAR_MAX,
-    
+
     _SC_CHAR_MIN,
-    
+
     _SC_INT_MAX,
-    
+
     _SC_INT_MIN,
-    
+
     _SC_LONG_BIT,
-    
+
     _SC_WORD_BIT,
-    
+
     _SC_MB_LEN_MAX,
-    
+
     _SC_NZERO,
-    
+
     _SC_SSIZE_MAX,
-    
+
     _SC_SCHAR_MAX,
-    
+
     _SC_SCHAR_MIN,
-    
+
     _SC_SHRT_MAX,
-    
+
     _SC_SHRT_MIN,
-    
+
     _SC_UCHAR_MAX,
-    
+
     _SC_UINT_MAX,
-    
+
     _SC_ULONG_MAX,
-    
+
     _SC_USHRT_MAX,
-    
-    
+
+
     _SC_NL_ARGMAX,
-    
+
     _SC_NL_LANGMAX,
-    
+
     _SC_NL_MSGMAX,
-    
+
     _SC_NL_NMAX,
-    
+
     _SC_NL_SETMAX,
-    
+
     _SC_NL_TEXTMAX,
-    
-    
+
+
     _SC_XBS5_ILP32_OFF32,
-    
+
     _SC_XBS5_ILP32_OFFBIG,
-    
+
     _SC_XBS5_LP64_OFF64,
-    
+
     _SC_XBS5_LPBIG_OFFBIG,
-    
-    
+
+
     _SC_XOPEN_LEGACY,
-    
+
     _SC_XOPEN_REALTIME,
-    
+
     _SC_XOPEN_REALTIME_THREADS,
-    
-    
+
+
     _SC_ADVISORY_INFO,
-    
+
     _SC_BARRIERS,
-    
+
     _SC_BASE,
-    
+
     _SC_C_LANG_SUPPORT,
-    
+
     _SC_C_LANG_SUPPORT_R,
-    
+
     _SC_CLOCK_SELECTION,
-    
+
     _SC_CPUTIME,
-    
+
     _SC_THREAD_CPUTIME,
-    
+
     _SC_DEVICE_IO,
-    
+
     _SC_DEVICE_SPECIFIC,
-    
+
     _SC_DEVICE_SPECIFIC_R,
-    
+
     _SC_FD_MGMT,
-    
+
     _SC_FIFO,
-    
+
     _SC_PIPE,
-    
+
     _SC_FILE_ATTRIBUTES,
-    
+
     _SC_FILE_LOCKING,
-    
+
     _SC_FILE_SYSTEM,
-    
+
     _SC_MONOTONIC_CLOCK,
-    
+
     _SC_MULTI_PROCESS,
-    
+
     _SC_SINGLE_PROCESS,
-    
+
     _SC_NETWORKING,
-    
+
     _SC_READER_WRITER_LOCKS,
-    
+
     _SC_SPIN_LOCKS,
-    
+
     _SC_REGEXP,
-    
+
     _SC_REGEX_VERSION,
-    
+
     _SC_SHELL,
-    
+
     _SC_SIGNALS,
-    
+
     _SC_SPAWN,
-    
+
     _SC_SPORADIC_SERVER,
-    
+
     _SC_THREAD_SPORADIC_SERVER,
-    
+
     _SC_SYSTEM_DATABASE,
-    
+
     _SC_SYSTEM_DATABASE_R,
-    
+
     _SC_TIMEOUTS,
-    
+
     _SC_TYPED_MEMORY_OBJECTS,
-    
+
     _SC_USER_GROUPS,
-    
+
     _SC_USER_GROUPS_R,
-    
+
     _SC_2_PBS,
-    
+
     _SC_2_PBS_ACCOUNTING,
-    
+
     _SC_2_PBS_LOCATE,
-    
+
     _SC_2_PBS_MESSAGE,
-    
+
     _SC_2_PBS_TRACK,
-    
+
     _SC_SYMLOOP_MAX,
-    
+
     _SC_STREAMS,
-    
+
     _SC_2_PBS_CHECKPOINT,
-    
-    
+
+
     _SC_V6_ILP32_OFF32,
-    
+
     _SC_V6_ILP32_OFFBIG,
-    
+
     _SC_V6_LP64_OFF64,
-    
+
     _SC_V6_LPBIG_OFFBIG,
-    
-    
+
+
     _SC_HOST_NAME_MAX,
-    
+
     _SC_TRACE,
-    
+
     _SC_TRACE_EVENT_FILTER,
-    
+
     _SC_TRACE_INHERIT,
-    
+
     _SC_TRACE_LOG,
-    
-    
+
+
     _SC_LEVEL1_ICACHE_SIZE,
-    
+
     _SC_LEVEL1_ICACHE_ASSOC,
-    
+
     _SC_LEVEL1_ICACHE_LINESIZE,
-    
+
     _SC_LEVEL1_DCACHE_SIZE,
-    
+
     _SC_LEVEL1_DCACHE_ASSOC,
-    
+
     _SC_LEVEL1_DCACHE_LINESIZE,
-    
+
     _SC_LEVEL2_CACHE_SIZE,
-    
+
     _SC_LEVEL2_CACHE_ASSOC,
-    
+
     _SC_LEVEL2_CACHE_LINESIZE,
-    
+
     _SC_LEVEL3_CACHE_SIZE,
-    
+
     _SC_LEVEL3_CACHE_ASSOC,
-    
+
     _SC_LEVEL3_CACHE_LINESIZE,
-    
+
     _SC_LEVEL4_CACHE_SIZE,
-    
+
     _SC_LEVEL4_CACHE_ASSOC,
-    
+
     _SC_LEVEL4_CACHE_LINESIZE,
-    
+
     /* Leave room here, maybe we need a few more cache levels some day.  */
-    
+
     _SC_IPV6 = _SC_LEVEL1_ICACHE_SIZE + 50,
-    
+
     _SC_RAW_SOCKETS,
-    
-    
+
+
     _SC_V7_ILP32_OFF32,
-    
+
     _SC_V7_ILP32_OFFBIG,
-    
+
     _SC_V7_LP64_OFF64,
-    
+
     _SC_V7_LPBIG_OFFBIG,
-    
-    
+
+
     _SC_SS_REPL_MAX,
-    
-    
+
+
     _SC_TRACE_EVENT_NAME_MAX,
-    
+
     _SC_TRACE_NAME_MAX,
-    
+
     _SC_TRACE_SYS_MAX,
-    
+
     _SC_TRACE_USER_EVENT_MAX,
-    
-    
+
+
     _SC_XOPEN_STREAMS,
-    
-    
+
+
     _SC_THREAD_ROBUST_PRIO_INHERIT,
-    
+
     _SC_THREAD_ROBUST_PRIO_PROTECT
-    
-};
+
+  };
 
 /* Values for the NAME argument to `confstr'.  */
 enum
-{
+  {
     _CS_PATH,			/* The default search path.  */
-    
-    
+
+
     _CS_V6_WIDTH_RESTRICTED_ENVS,
-    
-    
-    
+
+
+
     _CS_GNU_LIBC_VERSION,
-    
+
     _CS_GNU_LIBPTHREAD_VERSION,
-    
-    
+
+
     _CS_V5_WIDTH_RESTRICTED_ENVS,
-    
-    
-    
+
+
+
     _CS_V7_WIDTH_RESTRICTED_ENVS,
-    
-    
-    
+
+
+
     _CS_LFS_CFLAGS = 1000,
-    
+
     _CS_LFS_LDFLAGS,
-    
+
     _CS_LFS_LIBS,
-    
+
     _CS_LFS_LINTFLAGS,
-    
+
     _CS_LFS64_CFLAGS,
-    
+
     _CS_LFS64_LDFLAGS,
-    
+
     _CS_LFS64_LIBS,
-    
+
     _CS_LFS64_LINTFLAGS,
-    
-    
+
+
     _CS_XBS5_ILP32_OFF32_CFLAGS = 1100,
-    
+
     _CS_XBS5_ILP32_OFF32_LDFLAGS,
-    
+
     _CS_XBS5_ILP32_OFF32_LIBS,
-    
+
     _CS_XBS5_ILP32_OFF32_LINTFLAGS,
-    
+
     _CS_XBS5_ILP32_OFFBIG_CFLAGS,
-    
+
     _CS_XBS5_ILP32_OFFBIG_LDFLAGS,
-    
+
     _CS_XBS5_ILP32_OFFBIG_LIBS,
-    
+
     _CS_XBS5_ILP32_OFFBIG_LINTFLAGS,
-    
+
     _CS_XBS5_LP64_OFF64_CFLAGS,
-    
+
     _CS_XBS5_LP64_OFF64_LDFLAGS,
-    
+
     _CS_XBS5_LP64_OFF64_LIBS,
-    
+
     _CS_XBS5_LP64_OFF64_LINTFLAGS,
-    
+
     _CS_XBS5_LPBIG_OFFBIG_CFLAGS,
-    
+
     _CS_XBS5_LPBIG_OFFBIG_LDFLAGS,
-    
+
     _CS_XBS5_LPBIG_OFFBIG_LIBS,
-    
+
     _CS_XBS5_LPBIG_OFFBIG_LINTFLAGS,
-    
-    
+
+
     _CS_POSIX_V6_ILP32_OFF32_CFLAGS,
-    
+
     _CS_POSIX_V6_ILP32_OFF32_LDFLAGS,
-    
+
     _CS_POSIX_V6_ILP32_OFF32_LIBS,
-    
+
     _CS_POSIX_V6_ILP32_OFF32_LINTFLAGS,
-    
+
     _CS_POSIX_V6_ILP32_OFFBIG_CFLAGS,
-    
+
     _CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS,
-    
+
     _CS_POSIX_V6_ILP32_OFFBIG_LIBS,
-    
+
     _CS_POSIX_V6_ILP32_OFFBIG_LINTFLAGS,
-    
+
     _CS_POSIX_V6_LP64_OFF64_CFLAGS,
-    
+
     _CS_POSIX_V6_LP64_OFF64_LDFLAGS,
-    
+
     _CS_POSIX_V6_LP64_OFF64_LIBS,
-    
+
     _CS_POSIX_V6_LP64_OFF64_LINTFLAGS,
-    
+
     _CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS,
-    
+
     _CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS,
-    
+
     _CS_POSIX_V6_LPBIG_OFFBIG_LIBS,
-    
+
     _CS_POSIX_V6_LPBIG_OFFBIG_LINTFLAGS,
-    
-    
+
+
     _CS_POSIX_V7_ILP32_OFF32_CFLAGS,
-    
+
     _CS_POSIX_V7_ILP32_OFF32_LDFLAGS,
-    
+
     _CS_POSIX_V7_ILP32_OFF32_LIBS,
-    
+
     _CS_POSIX_V7_ILP32_OFF32_LINTFLAGS,
-    
+
     _CS_POSIX_V7_ILP32_OFFBIG_CFLAGS,
-    
+
     _CS_POSIX_V7_ILP32_OFFBIG_LDFLAGS,
-    
+
     _CS_POSIX_V7_ILP32_OFFBIG_LIBS,
-    
+
     _CS_POSIX_V7_ILP32_OFFBIG_LINTFLAGS,
-    
+
     _CS_POSIX_V7_LP64_OFF64_CFLAGS,
-    
+
     _CS_POSIX_V7_LP64_OFF64_LDFLAGS,
-    
+
     _CS_POSIX_V7_LP64_OFF64_LIBS,
-    
+
     _CS_POSIX_V7_LP64_OFF64_LINTFLAGS,
-    
+
     _CS_POSIX_V7_LPBIG_OFFBIG_CFLAGS,
-    
+
     _CS_POSIX_V7_LPBIG_OFFBIG_LDFLAGS,
-    
+
     _CS_POSIX_V7_LPBIG_OFFBIG_LIBS,
-    
+
     _CS_POSIX_V7_LPBIG_OFFBIG_LINTFLAGS,
-    
-    
+
+
     _CS_V6_ENV,
-    
+
     _CS_V7_ENV
-    
-};
+
+  };
 #line 608 "systems/redhat/usr/include/unistd.h" 2
 
 /* Get file-specific configuration information about PATH.  */
 extern long int pathconf (const char *__path, int __name)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 /* Get file-specific configuration about descriptor FD.  */
 extern long int fpathconf (int __fd, int __name) __attribute__ ((__nothrow__));
@@ -57946,9 +57917,9 @@ extern __pid_t getppid (void) __attribute__ ((__nothrow__));
    This function is different on old BSD. */
 
 extern __pid_t getpgrp (void) __attribute__ ((__nothrow__));
+ 
 
-
-
+ 
 
 
 /* Get the process group ID of process PID.  */
@@ -57977,10 +57948,10 @@ extern int setpgid (__pid_t __pid, __pid_t __pgid) __attribute__ ((__nothrow__))
    This is exactly the same as `setpgid (0, 0)'.  */
 extern int setpgrp (void) __attribute__ ((__nothrow__));
 
+ 
 
 
-
-
+ 
 
 
 
@@ -58048,22 +58019,22 @@ extern int setegid (__gid_t __gid) __attribute__ ((__nothrow__));
 /* Fetch the real user ID, effective user ID, and saved-set user ID,
    of the calling process.  */
 extern int getresuid (__uid_t *__ruid, __uid_t *__euid, __uid_t *__suid)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Fetch the real group ID, effective group ID, and saved-set group ID,
    of the calling process.  */
 extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Set the real user ID, effective user ID, and saved-set user ID,
    of the calling process to RUID, EUID, and SUID, respectively.  */
 extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Set the real group ID, effective group ID, and saved-set group ID,
    of the calling process to RGID, EGID, and SGID, respectively.  */
 extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Clone the calling process, creating an exact copy.
    Return -1 for errors, 0 to the new process,
@@ -58084,7 +58055,7 @@ extern char *ttyname (int __fd) __attribute__ ((__nothrow__));
 /* Store at most BUFLEN characters of the pathname of the terminal FD is
    open on in BUF.  Return 0 on success, otherwise an error number.  */
 extern int ttyname_r (int __fd, char *__buf, size_t __buflen)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2))) ;
 
 /* Return 1 if FD is a valid descriptor associated
    with a terminal, zero if not.  */
@@ -58097,36 +58068,36 @@ extern int ttyslot (void) __attribute__ ((__nothrow__));
 
 /* Make a link to FROM named TO.  */
 extern int link (const char *__from, const char *__to)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2))) ;
 
 
 /* Like link but relative paths in TO and FROM are interpreted relative
    to FROMFD and TOFD respectively.  */
 extern int linkat (int __fromfd, const char *__from, int __tofd,
-                   const char *__to, int __flags)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4))) ;
+		   const char *__to, int __flags)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 4))) ;
 
 
 /* Make a symbolic link to FROM named TO.  */
 extern int symlink (const char *__from, const char *__to)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2))) ;
 
 /* Read the contents of the symbolic link PATH into no more than
    LEN bytes of BUF.  The contents are not null-terminated.
    Returns the number of characters read, or -1 for errors.  */
 extern ssize_t readlink (const char *__restrict __path,
-                         char *__restrict __buf, size_t __len)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2))) ;
+			 char *__restrict __buf, size_t __len)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2))) ;
 
 
 /* Like symlink but a relative path in TO is interpreted relative to TOFD.  */
 extern int symlinkat (const char *__from, int __tofd,
-                      const char *__to) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
+		      const char *__to) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 3))) ;
 
 /* Like readlink but a relative PATH is interpreted relative to FD.  */
 extern ssize_t readlinkat (int __fd, const char *__restrict __path,
-                           char *__restrict __buf, size_t __len)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3))) ;
+			   char *__restrict __buf, size_t __len)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2, 3))) ;
 
 /* Remove the link NAME.  */
 extern int unlink (const char *__name) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
@@ -58134,7 +58105,7 @@ extern int unlink (const char *__name) __attribute__ ((__nothrow__)) __attribute
 
 /* Remove the link NAME relative to FD.  */
 extern int unlinkat (int __fd, const char *__name, int __flag)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 /* Remove the directory PATH.  */
 extern int rmdir (const char *__path) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
@@ -58211,7 +58182,7 @@ extern int setlogin (const char *__name) __attribute__ ((__nothrow__)) __attribu
 
 
 
-
+ 
 
 
 
@@ -58272,12 +58243,12 @@ extern int optopt;
 
 
 
+  
+  
 
-
-
-
-
-
+  
+  
+  
 
 
 
@@ -58315,32 +58286,32 @@ extern int optopt;
    differences in the consts, in stdlib.h.  To avoid compilation
    errors, only prototype getopt for the GNU C library.  */
 extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
-__attribute__ ((__nothrow__));
+       __attribute__ ((__nothrow__));
 
 
 
 
 
 
+  
+				      
+			     
+ 
+			   
 
 
 
+ 
 
 
 
+			
+		        
+       
 
-
-
-
-
-
-
-
-
-
-
-
-
+			     
+		             
+       
 
 
 
@@ -58362,7 +58333,7 @@ extern int gethostname (char *__name, size_t __len) __attribute__ ((__nothrow__)
 /* Set the name of the current host to NAME, which is LEN bytes long.
    This call is restricted to the super-user.  */
 extern int sethostname (const char *__name, size_t __len)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 /* Set the current machine's Internet number to ID.
    This call is restricted to the super-user.  */
@@ -58373,9 +58344,9 @@ extern int sethostid (long int __id) __attribute__ ((__nothrow__)) ;
    Called just like `gethostname' and `sethostname'.
    The NIS domain name is usually the empty string when not using NIS.  */
 extern int getdomainname (char *__name, size_t __len)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 extern int setdomainname (const char *__name, size_t __len)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 
 /* Revoke access permissions to all processes currently communicating
@@ -58393,8 +58364,8 @@ extern int revoke (const char *__file) __attribute__ ((__nothrow__)) __attribute
    SAMPLE_BUFFER[((PC - OFFSET) / 2) * SCALE / 65536].  If SCALE is zero,
    disable profiling.  Returns zero on success, -1 on error.  */
 extern int profil (unsigned short int *__sample_buffer, size_t __size,
-                   size_t __offset, unsigned int __scale)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
+		   size_t __offset, unsigned int __scale)
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
 
 
 /* Turn accounting on if NAME is an existing file.  The system will then write
@@ -58453,25 +58424,25 @@ extern int getdtablesize (void) __attribute__ ((__nothrow__));
 /* Truncate FILE to LENGTH bytes.  */
 
 extern int truncate (const char *__file, __off_t __length)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+ 
 
-
-
-
-
+			   
+			   
+ 
 
 
 
 extern int truncate64 (const char *__file, __off64_t __length)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;
 
 /* Truncate the file FD is open on to LENGTH bytes.  */
 
 extern int ftruncate (int __fd, __off_t __length) __attribute__ ((__nothrow__)) ;
+ 
 
-
-
-
+			   
+ 
 
 
 
@@ -58522,10 +58493,10 @@ extern long int syscall (long int __sysno, ...) __attribute__ ((__nothrow__));
 
 
 
+ 
 
-
-
-
+		       
+ 
 
 
 
@@ -58553,7 +58524,7 @@ extern int fdatasync (int __fildes);
 
 /* Encrypt at most 8 characters from KEY using salt to perturb DES.  */
 extern char *crypt (const char *__key, const char *__salt)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Encrypt data in BLOCK in place if EDFLAG is zero; otherwise decrypt
    block in place.  */
@@ -58565,7 +58536,7 @@ extern void encrypt (char *__block, int __edflag) __attribute__ ((__nothrow__)) 
    range [FROM - N + 1, FROM - 1].  If N is odd the first byte in FROM
    is without partner.  */
 extern void swab (const void *__restrict __from, void *__restrict __to,
-                  ssize_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+		  ssize_t __n) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* The Single Unix specification demands this prototype to be here.
    It is also found in <stdio.h>.  */
@@ -58673,6 +58644,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -58692,6 +58664,14 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
+
+
+
+
+
+
+ 
 
 
 
@@ -58705,20 +58685,11 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ /* Get the compiler's limits.h, which defines almost all the ISO constants.
 
-
-
-
-
-
-
-
-
-/* Get the compiler's limits.h, which defines almost all the ISO constants.
-
-   We put this #include_next outside the double inclusion check because
-   it should be possible to include this file more than once and still get
-   the definitions from gcc's header.  */
+    We put this #include_next outside the double inclusion check because
+    it should be possible to include this file more than once and still get
+    the definitions from gcc's header.  */
 
 
 
@@ -58782,6 +58753,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -58815,13 +58787,12 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
 
-
-
-
+ 
 
 
 
@@ -59095,38 +59066,38 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
+
+ 
+
+
+
+ 
+
+ 
+
+ 
+
+
+
+ 
 
 
 
 
 
+ 
 
 
+ 
+
+ 
 
 
+ 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -59253,6 +59224,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -59283,6 +59255,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -59351,6 +59324,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -59359,9 +59333,11 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -59416,12 +59392,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-
-
-
-
-
-
+ 
 
 
 
@@ -59462,7 +59433,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
-
+ 
 
 
 
@@ -59641,6 +59612,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -59692,6 +59664,9 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -59738,6 +59713,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -59775,15 +59751,10 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -59914,12 +59885,14 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
 
 
 
+ 
 
 
 
@@ -59936,6 +59909,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -59999,6 +59973,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		     
 
 
 
@@ -60007,7 +59982,9 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
+ 
 
 
 
@@ -60031,6 +60008,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+     
 
 
 
@@ -60070,20 +60048,33 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		    
 
 
 
 
 
+		      
+		      
+ 
 
+				 
+  
 
+				   
+				   
+  
+ 
 
 
 
 
 
 
+		      
 
+			
+			
 
 
 
@@ -60093,10 +60084,13 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+			  
+			  
 
 
 
 
+  
 
 
 
@@ -60111,12 +60105,14 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		    
 
 
 
 
 
 
+		       
 
 
 
@@ -60127,6 +60123,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		    
 
 
 
@@ -60134,12 +60131,14 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		    
 
 
 
 
 
 
+		     
 
 
 
@@ -60147,22 +60146,33 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		     
 
 
 
 
 
 
+		     
+     
 
 
+		      
+     
 
 
 
 
 
 
+		      
+     
 
+		       
+     
 
+		     
+     
 
 
 
@@ -60172,7 +60182,10 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		     
+     
 
+     
 
 
 
@@ -60180,6 +60193,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		   
 
 
 
@@ -60187,6 +60201,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		   
 
 
 
@@ -60194,10 +60209,18 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+				
+		       
 
+		       
 
+				    
+			   
+ 
+			    
 
 
+			    
 
 
 
@@ -60212,15 +60235,20 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		    
+     
 
 
 
 
 
 
+     
 
 
 
+		    
+     
 
 
 
@@ -60228,10 +60256,26 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		       
+			
+		       
+     
 
+				
+     
 
+			   
+			    
+			    
+     
+ 
+			     
+			     
 
+			    
 
+			     
+			     
 
 
 
@@ -60327,6 +60371,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+     
 
 
 
@@ -60344,6 +60389,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+			     
 
 
 
@@ -60357,7 +60403,11 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+			       
+			       
 
+			     
+			     
 
 
 
@@ -60366,6 +60416,8 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+			    
+			    
 
 
 
@@ -60393,11 +60445,13 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+		     
 
 
 
 
 
+		      
 
 
 
@@ -60408,6 +60462,7 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+			   
 
 
 
@@ -60417,7 +60472,9 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+			      
 
+			       
 
 
 
@@ -60454,8 +60511,12 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
+		       
+		       
 
+ 
 
 
 
@@ -60472,8 +60533,12 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+ 
 
+				 
 
+		       
+ 
 
 
 
@@ -60549,106 +60614,12 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 
 
+			   
+     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			    
+			    
+     
 
 
 
@@ -60791,14 +60762,14 @@ extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
 
 /* Structure describing a mount table entry.  */
 struct mntent
-{
+  {
     char *mnt_fsname;		/* Device or server for filesystem.  */
     char *mnt_dir;		/* Directory mounted on.  */
     char *mnt_type;		/* Type of filesystem: ufs, nfs, etc.  */
     char *mnt_opts;		/* Comma-separated options for fs.  */
     int mnt_freq;		/* Dump frequency (in days).  */
     int mnt_passno;		/* Pass number for `fsck'.  */
-};
+  };
 
 
 /* Prepare to begin reading and/or writing mount table entries from the
@@ -60813,14 +60784,14 @@ extern struct mntent *getmntent (FILE *__stream) __attribute__ ((__nothrow__));
 
 /* Reentrant version of the above function.  */
 extern struct mntent *getmntent_r (FILE *__restrict __stream,
-                                   struct mntent *__restrict __result,
-                                   char *__restrict __buffer,
-                                   int __bufsize) __attribute__ ((__nothrow__));
+				   struct mntent *__restrict __result,
+				   char *__restrict __buffer,
+				   int __bufsize) __attribute__ ((__nothrow__));
 
 /* Write the mount table entry described by MNT to STREAM.
    Return zero on success, nonzero on failure.  */
 extern int addmntent (FILE *__restrict __stream,
-                      const struct mntent *__restrict __mnt) __attribute__ ((__nothrow__));
+		      const struct mntent *__restrict __mnt) __attribute__ ((__nothrow__));
 
 /* Close a stream opened with `setmntent'.  */
 extern int endmntent (FILE *__stream) __attribute__ ((__nothrow__));
@@ -60828,7 +60799,7 @@ extern int endmntent (FILE *__stream) __attribute__ ((__nothrow__));
 /* Search MNT->mnt_opts for an option matching OPT.
    Returns the address of the substring, or null if none found.  */
 extern char *hasmntopt (const struct mntent *__mnt,
-                        const char *__opt) __attribute__ ((__nothrow__));
+			const char *__opt) __attribute__ ((__nothrow__));
 
 
 
@@ -61000,6 +60971,7 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
+ 
 
 
 
@@ -61051,6 +61023,9 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
+ 
+ 
+ 
 
 
 
@@ -61097,6 +61072,7 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
+ 
 
 
 
@@ -61134,15 +61110,10 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -61267,17 +61238,22 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -61327,6 +61303,7 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
+ 
 
 
 
@@ -61336,13 +61313,7 @@ extern char *hasmntopt (const struct mntent *__mnt,
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -61414,30 +61385,30 @@ extern char *hasmntopt (const struct mntent *__mnt,
 #line 25 "systems/redhat/usr/include/bits/statfs.h" 2
 
 struct statfs
-{
+  {
     long int f_type;
     long int f_bsize;
-    
+
     __fsblkcnt_t f_blocks;
     __fsblkcnt_t f_bfree;
     __fsblkcnt_t f_bavail;
     __fsfilcnt_t f_files;
     __fsfilcnt_t f_ffree;
+     
     
     
     
     
-    
-    
+
     __fsid_t f_fsid;
     long int f_namelen;
     long int f_frsize;
     long int f_spare[5];
-};
+  };
 
 
 struct statfs64
-{
+  {
     long int f_type;
     long int f_bsize;
     __fsblkcnt64_t f_blocks;
@@ -61449,7 +61420,7 @@ struct statfs64
     long int f_namelen;
     long int f_frsize;
     long int f_spare[5];
-};
+  };
 
 /* Tell code we have these members.  */
 
@@ -61461,32 +61432,32 @@ struct statfs64
 /* Return information about the filesystem on which FILE resides.  */
 
 extern int statfs (const char *__file, struct statfs *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+ 
 
-
-
-
-
+			   
+			   
+ 
 
 
 
 extern int statfs64 (const char *__file, struct statfs64 *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1, 2)));
 
 /* Return information about the filesystem containing the file FILDES
    refers to.  */
 
 extern int fstatfs (int __fildes, struct statfs *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+ 
 
-
-
-
+			   
+ 
 
 
 
 extern int fstatfs64 (int __fildes, struct statfs64 *__buf)
-__attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
+     __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
@@ -61547,6 +61518,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
+ 
 
 
 
@@ -61577,6 +61549,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
+ 
 
 
 
@@ -61645,6 +61618,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
+ 
 
 
 
@@ -61653,9 +61627,11 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -61710,12 +61686,7 @@ __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (2)));
 
 
 
-
-
-
-
-
-
+ 
 
 
 
@@ -61824,7 +61795,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -61887,18 +61858,18 @@ extern void freeconary(security_context_t * con);
 extern int getcon(security_context_t * con);
 extern int getcon_raw(security_context_t * con);
 
-/* Set the current security context to con.
+/* Set the current security context to con.  
    Note that use of this function requires that the entire application
-   be trusted to maintain any desired separation between the old and new
-   security contexts, unlike exec-based transitions performed via setexeccon.
-   When possible, decompose your application and use setexeccon()+execve()
+   be trusted to maintain any desired separation between the old and new 
+   security contexts, unlike exec-based transitions performed via setexeccon.  
+   When possible, decompose your application and use setexeccon()+execve() 
    instead. Note that the application may lose access to its open descriptors
    as a result of a setcon() unless policy allows it to use descriptors opened
    by the old context. */
 extern int setcon(security_context_t con);
 extern int setcon_raw(security_context_t con);
 
-/* Get context of process identified by pid, and
+/* Get context of process identified by pid, and 
    set *con to refer to it.  Caller must free via freecon. */
 extern int getpidcon(pid_t pid, security_context_t * con);
 extern int getpidcon_raw(pid_t pid, security_context_t * con);
@@ -61914,7 +61885,7 @@ extern int getprevcon_raw(security_context_t * con);
 extern int getexeccon(security_context_t * con);
 extern int getexeccon_raw(security_context_t * con);
 
-/* Set exec security context for the next execve.
+/* Set exec security context for the next execve. 
    Call with NULL if you want to reset to the default. */
 extern int setexeccon(security_context_t con);
 extern int setexeccon_raw(security_context_t con);
@@ -61984,12 +61955,12 @@ typedef unsigned int access_vector_t;
 typedef unsigned short security_class_t;
 
 struct av_decision {
-    access_vector_t allowed;
-    access_vector_t decided;
-    access_vector_t auditallow;
-    access_vector_t auditdeny;
-    unsigned int seqno;
-    unsigned int flags;
+	access_vector_t allowed;
+	access_vector_t decided;
+	access_vector_t auditallow;
+	access_vector_t auditdeny;
+	unsigned int seqno;
+	unsigned int flags;
 };
 
 /* Definitions of av_decision.flags */
@@ -61997,29 +61968,29 @@ struct av_decision {
 
 /* Structure for passing options, used by AVC and label subsystems */
 struct selinux_opt {
-    int type;
-    const char *value;
+	int type;
+	const char *value;
 };
 
 /* Callback facilities */
 union selinux_callback {
-    /* log the printf-style format and arguments,
-       with the type code indicating the type of message */
-    int
-    
-    __attribute__ ((format(printf, 2, 3)))
-    
-    (*func_log) (int type, const char *fmt, ...);
-    /* store a string representation of auditdata (corresponding
-       to the given security class) into msgbuf. */
-    int (*func_audit) (void *auditdata, security_class_t cls,
-                       char *msgbuf, size_t msgbufsize);
-    /* validate the supplied context, modifying if necessary */
-    int (*func_validate) (security_context_t *ctx);
-    /* netlink callback for setenforce message */
-    int (*func_setenforce) (int enforcing);
-    /* netlink callback for policyload message */
-    int (*func_policyload) (int seqno);
+	/* log the printf-style format and arguments,
+	   with the type code indicating the type of message */
+	int 
+
+__attribute__ ((format(printf, 2, 3)))
+
+	(*func_log) (int type, const char *fmt, ...);
+	/* store a string representation of auditdata (corresponding
+	   to the given security class) into msgbuf. */
+	int (*func_audit) (void *auditdata, security_class_t cls,
+			   char *msgbuf, size_t msgbufsize);
+	/* validate the supplied context, modifying if necessary */
+	int (*func_validate) (security_context_t *ctx);
+	/* netlink callback for setenforce message */
+	int (*func_setenforce) (int enforcing);
+	/* netlink callback for policyload message */
+	int (*func_policyload) (int seqno);
 };
 
 
@@ -62031,7 +62002,7 @@ union selinux_callback {
 extern union selinux_callback selinux_get_callback(int type);
 extern void selinux_set_callback(int type, union selinux_callback cb);
 
-/* Logging type codes, passed to the logging callback */
+	/* Logging type codes, passed to the logging callback */
 
 
 
@@ -62039,99 +62010,99 @@ extern void selinux_set_callback(int type, union selinux_callback cb);
 
 /* Compute an access decision. */
 extern int security_compute_av(security_context_t scon,
-                               security_context_t tcon,
-                               security_class_t tclass,
-                               access_vector_t requested,
-                               struct av_decision *avd);
+			       security_context_t tcon,
+			       security_class_t tclass,
+			       access_vector_t requested,
+			       struct av_decision *avd);
 extern int security_compute_av_raw(security_context_t scon,
-                                   security_context_t tcon,
-                                   security_class_t tclass,
-                                   access_vector_t requested,
-                                   struct av_decision *avd);
+				   security_context_t tcon,
+				   security_class_t tclass,
+				   access_vector_t requested,
+				   struct av_decision *avd);
 
 extern int security_compute_av_flags(security_context_t scon,
-                                     security_context_t tcon,
-                                     security_class_t tclass,
-                                     access_vector_t requested,
-                                     struct av_decision *avd);
+				     security_context_t tcon,
+				     security_class_t tclass,
+				     access_vector_t requested,
+				     struct av_decision *avd);
 extern int security_compute_av_flags_raw(security_context_t scon,
-        security_context_t tcon,
-        security_class_t tclass,
-        access_vector_t requested,
-        struct av_decision *avd);
+					 security_context_t tcon,
+					 security_class_t tclass,
+					 access_vector_t requested,
+					 struct av_decision *avd);
 
 /* Compute a labeling decision and set *newcon to refer to it.
    Caller must free via freecon. */
 extern int security_compute_create(security_context_t scon,
-                                   security_context_t tcon,
-                                   security_class_t tclass,
-                                   security_context_t * newcon);
+				   security_context_t tcon,
+				   security_class_t tclass,
+				   security_context_t * newcon);
 extern int security_compute_create_raw(security_context_t scon,
-                                       security_context_t tcon,
-                                       security_class_t tclass,
-                                       security_context_t * newcon);
+				       security_context_t tcon,
+				       security_class_t tclass,
+				       security_context_t * newcon);
 
 /* Compute a relabeling decision and set *newcon to refer to it.
    Caller must free via freecon. */
 extern int security_compute_relabel(security_context_t scon,
-                                    security_context_t tcon,
-                                    security_class_t tclass,
-                                    security_context_t * newcon);
+				    security_context_t tcon,
+				    security_class_t tclass,
+				    security_context_t * newcon);
 extern int security_compute_relabel_raw(security_context_t scon,
-                                        security_context_t tcon,
-                                        security_class_t tclass,
-                                        security_context_t * newcon);
+					security_context_t tcon,
+					security_class_t tclass,
+					security_context_t * newcon);
 
 /* Compute a polyinstantiation member decision and set *newcon to refer to it.
    Caller must free via freecon. */
 extern int security_compute_member(security_context_t scon,
-                                   security_context_t tcon,
-                                   security_class_t tclass,
-                                   security_context_t * newcon);
+				   security_context_t tcon,
+				   security_class_t tclass,
+				   security_context_t * newcon);
 extern int security_compute_member_raw(security_context_t scon,
-                                       security_context_t tcon,
-                                       security_class_t tclass,
-                                       security_context_t * newcon);
+				       security_context_t tcon,
+				       security_class_t tclass,
+				       security_context_t * newcon);
 
-/* Compute the set of reachable user contexts and set *con to refer to
+/* Compute the set of reachable user contexts and set *con to refer to 
    the NULL-terminated array of contexts.  Caller must free via freeconary. */
 extern int security_compute_user(security_context_t scon,
-                                 const char *username,
-                                 security_context_t ** con);
+				 const char *username,
+				 security_context_t ** con);
 extern int security_compute_user_raw(security_context_t scon,
-                                     const char *username,
-                                     security_context_t ** con);
+				     const char *username,
+				     security_context_t ** con);
 
 /* Load a policy configuration. */
 extern int security_load_policy(void *data, size_t len);
 
-/* Get the context of an initial kernel security identifier by name.
+/* Get the context of an initial kernel security identifier by name.  
    Caller must free via freecon */
 extern int security_get_initial_context(const char *name,
-                                        security_context_t * con);
+					security_context_t * con);
 extern int security_get_initial_context_raw(const char *name,
-        security_context_t * con);
+					    security_context_t * con);
 
 /*
  * Make a policy image and load it.
  * This function provides a higher level interface for loading policy
  * than security_load_policy, internally determining the right policy
  * version, locating and opening the policy file, mapping it into memory,
- * manipulating it as needed for current boolean settings and/or local
+ * manipulating it as needed for current boolean settings and/or local 
  * definitions, and then calling security_load_policy to load it.
  *
- * 'preservebools' is a boolean flag indicating whether current
- * policy boolean values should be preserved into the new policy (if 1)
+ * 'preservebools' is a boolean flag indicating whether current 
+ * policy boolean values should be preserved into the new policy (if 1) 
  * or reset to the saved policy settings (if 0).  The former case is the
  * default for policy reloads, while the latter case is an option for policy
  * reloads but is primarily for the initial policy load.
  */
 extern int selinux_mkload_policy(int preservebools);
 
-/*
+/* 
  * Perform the initial policy load.
  * This function determines the desired enforcing mode, sets the
- * the *enforce argument accordingly for the caller to use, sets the
+ * the *enforce argument accordingly for the caller to use, sets the 
  * SELinux kernel enforcing status to match it, and loads the policy.
  * It also internally handles the initial selinuxfs mount required to
  * perform these actions.
@@ -62147,12 +62118,12 @@ extern int selinux_init_load_policy(int *enforce);
 
 /* Translate boolean strict to name value pair. */
 typedef struct {
-    char *name;
-    int value;
+	char *name;
+	int value;
 } SELboolean;
 /* save a list of booleans in a single transaction.  */
 extern int security_set_boolean_list(size_t boolcnt,
-                                     SELboolean * boollist, int permanent);
+				     SELboolean * boollist, int permanent);
 
 /* Load policy boolean settings.
    Path may be NULL, in which case the booleans are loaded from
@@ -62165,9 +62136,9 @@ extern int security_check_context_raw(security_context_t con);
 
 /* Canonicalize a security context. */
 extern int security_canonicalize_context(security_context_t con,
-        security_context_t * canoncon);
+					 security_context_t * canoncon);
 extern int security_canonicalize_context_raw(security_context_t con,
-        security_context_t * canoncon);
+					     security_context_t * canoncon);
 
 /* Get the enforce flag value. */
 extern int security_getenforce(void);
@@ -62201,8 +62172,8 @@ extern int security_commit_booleans(void);
 
 /* Userspace class mapping support */
 struct security_class_mapping {
-    const char *name;
-    const char *perms[sizeof(access_vector_t) * 8 + 1];
+	const char *name;
+	const char *perms[sizeof(access_vector_t) * 8 + 1];
 };
 
 extern int selinux_set_mapping(struct security_class_mapping *map);
@@ -62215,14 +62186,14 @@ extern const char *security_class_to_string(security_class_t cls);
 
 /* Convert between individual access vector permissions and string names */
 extern const char *security_av_perm_to_string(security_class_t tclass,
-        access_vector_t perm);
+					      access_vector_t perm);
 extern access_vector_t string_to_av_perm(security_class_t tclass,
-        const char *name);
+					 const char *name);
 
 /* Returns an access vector in a string representation.  User must free the
  * returned string via free(). */
 extern int security_av_string(security_class_t tclass,
-                              access_vector_t av, char **result);
+			      access_vector_t av, char **result);
 
 /* Display an access vector in a string representation. */
 extern void print_access_vector(security_class_t tclass, access_vector_t av);
@@ -62234,20 +62205,20 @@ extern void set_matchpathcon_printf(void (*f) (const char *fmt, ...));
 
 /* Set the function used by matchpathcon_init when checking the
    validity of a context in the file contexts configuration.  If not set,
-   then this defaults to a test based on security_check_context().
+   then this defaults to a test based on security_check_context().  
    The function is also responsible for reporting any such error, and
    may include the 'path' and 'lineno' in such error messages. */
 extern void set_matchpathcon_invalidcon(int (*f) (const char *path,
-                                        unsigned lineno,
-                                        char *context));
+						  unsigned lineno,
+						  char *context));
 
 /* Same as above, but also allows canonicalization of the context,
    by changing *context to refer to the canonical form.  If not set,
    and invalidcon is also not set, then this defaults to calling
    security_canonicalize_context(). */
 extern void set_matchpathcon_canoncon(int (*f) (const char *path,
-                                      unsigned lineno,
-                                      char **context));
+						unsigned lineno,
+						char **context));
 
 /* Set flags controlling operation of matchpathcon_init or matchpathcon. */
 
@@ -62256,12 +62227,12 @@ extern void set_matchpathcon_canoncon(int (*f) (const char *path,
 extern void set_matchpathcon_flags(unsigned int flags);
 
 /* Load the file contexts configuration specified by 'path'
-   into memory for use by subsequent matchpathcon calls.
+   into memory for use by subsequent matchpathcon calls.  
    If 'path' is NULL, then load the active file contexts configuration,
    i.e. the path returned by selinux_file_context_path().
    Unless the MATCHPATHCON_BASEONLY flag has been set, this
-   function also checks for a 'path'.homedirs file and
-   a 'path'.local file and loads additional specifications
+   function also checks for a 'path'.homedirs file and 
+   a 'path'.local file and loads additional specifications 
    from them if present. */
 extern int matchpathcon_init(const char *path);
 
@@ -62279,17 +62250,17 @@ extern void matchpathcon_fini(void);
    If matchpathcon_init has not already been called, then this function
    will call it upon its first invocation with a NULL path. */
 extern int matchpathcon(const char *path,
-                        mode_t mode, security_context_t * con);
+			mode_t mode, security_context_t * con);
 
-/* Same as above, but return a specification index for
+/* Same as above, but return a specification index for 
    later use in a matchpathcon_filespec_add() call - see below. */
 extern int matchpathcon_index(const char *path,
-                              mode_t mode, security_context_t * con);
+			      mode_t mode, security_context_t * con);
 
 /* Maintain an association between an inode and a specification index,
    and check whether a conflicting specification is already associated
    with the same inode (e.g. due to multiple hard links).  If so, then
-   use the latter of the two specifications based on their order in the
+   use the latter of the two specifications based on their order in the 
    file contexts configuration.  Return the used specification index. */
 extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *file);
 
@@ -62304,33 +62275,33 @@ extern void matchpathcon_filespec_eval(void);
    The 'str' is used as a prefix for any warning messages. */
 extern void matchpathcon_checkmatches(char *str);
 
-/* Match the specified media and against the media contexts
+/* Match the specified media and against the media contexts 
    configuration and set *con to refer to the resulting context.
    Caller must free con via freecon. */
 extern int matchmediacon(const char *media, security_context_t * con);
 
 /*
-  selinux_getenforcemode reads the /etc/selinux/config file and determines
-  whether the machine should be started in enforcing (1), permissive (0) or
+  selinux_getenforcemode reads the /etc/selinux/config file and determines 
+  whether the machine should be started in enforcing (1), permissive (0) or 
   disabled (-1) mode.
  */
 extern int selinux_getenforcemode(int *enforce);
 
 /*
-  selinux_getpolicytype reads the /etc/selinux/config file and determines
-  what the default policy for the machine is.  Calling application must
+  selinux_getpolicytype reads the /etc/selinux/config file and determines 
+  what the default policy for the machine is.  Calling application must 
   free policytype.
  */
 extern int selinux_getpolicytype(char **policytype);
 
 /*
-  selinux_policy_root reads the /etc/selinux/config file and returns
-  the directory path under which the compiled policy file and context
+  selinux_policy_root reads the /etc/selinux/config file and returns 
+  the directory path under which the compiled policy file and context 
   configuration files exist.
  */
 extern const char *selinux_policy_root(void);
 
-/* These functions return the paths to specific files under the
+/* These functions return the paths to specific files under the 
    policy root directory. */
 extern const char *selinux_binary_policy_path(void);
 extern const char *selinux_failsafe_context_path(void);
@@ -62368,29 +62339,29 @@ extern int checkPasswdAccess(access_vector_t requested);
 extern int selinux_check_securetty_context(security_context_t tty_context);
 
 /* Set the path to the selinuxfs mount point explicitly.
-   Normally, this is determined automatically during libselinux
+   Normally, this is determined automatically during libselinux 
    initialization, but this is not always possible, e.g. for /sbin/init
    which performs the initial mount of selinuxfs. */
 void set_selinuxmnt(char *mnt);
 
 /* Execute a helper for rpm in an appropriate security context. */
 extern int rpm_execcon(unsigned int verified,
-                       const char *filename,
-                       char *const argv[], char *const envp[]);
+		       const char *filename,
+		       char *const argv[], char *const envp[]);
 
-/* Returns whether a file context is customizable, and should not
+/* Returns whether a file context is customizable, and should not 
    be relabeled . */
 extern int is_context_customizable(security_context_t scontext);
 
 /* Perform context translation between the human-readable format
-   ("translated") and the internal system format ("raw").
-   Caller must free the resulting context via freecon.
+   ("translated") and the internal system format ("raw"). 
+   Caller must free the resulting context via freecon.  
    Returns -1 upon an error or 0 otherwise.
    If passed NULL, sets the returned context to NULL and returns 0. */
 extern int selinux_trans_to_raw_context(security_context_t trans,
-                                        security_context_t * rawp);
+					security_context_t * rawp);
 extern int selinux_raw_to_trans_context(security_context_t raw,
-                                        security_context_t * transp);
+					security_context_t * transp);
 
 /* Perform context translation between security contexts
    and display colors.  Returns a space-separated list of ten
@@ -62398,37 +62369,37 @@ extern int selinux_raw_to_trans_context(security_context_t raw,
    Caller must free the resulting string via free.
    Returns -1 upon an error or 0 otherwise. */
 extern int selinux_raw_context_to_color(security_context_t raw,
-                                        char **color_str);
+					char **color_str);
 
-/* Get the SELinux username and level to use for a given Linux username.
+/* Get the SELinux username and level to use for a given Linux username. 
    These values may then be passed into the get_ordered_context_list*
    and get_default_context* functions to obtain a context for the user.
    Returns 0 on success or -1 otherwise.
    Caller must free the returned strings via free. */
 extern int getseuserbyname(const char *linuxuser, char **seuser, char **level);
 
-/* Get the SELinux username and level to use for a given Linux username and service.
+/* Get the SELinux username and level to use for a given Linux username and service. 
    These values may then be passed into the get_ordered_context_list*
    and get_default_context* functions to obtain a context for the user.
    Returns 0 on success or -1 otherwise.
    Caller must free the returned strings via free. */
-extern int getseuser(const char *username, const char *service,
-                     char **r_seuser, char **r_level);
+extern int getseuser(const char *username, const char *service, 
+		     char **r_seuser, char **r_level);
 
 /* Compare two file contexts, return 0 if equivalent. */
 extern int selinux_file_context_cmp(const security_context_t a,
-                                    const security_context_t b);
+			     const security_context_t b);
 
-/*
+/* 
  * Verify the context of the file 'path' against policy.
- * Return 0 if correct.
+ * Return 0 if correct. 
  */
 extern int selinux_file_context_verify(const char *path, mode_t mode);
 
 /* This function sets the file context on to the system defaults returns 0 on success */
 extern int selinux_lsetfilecon_default(const char *path);
 
-/*
+/* 
  * Force a reset of the loaded configuration
  * WARNING: This is not thread safe. Be very sure that no other threads
  * are calling into libselinux when this is called.
@@ -62451,40 +62422,40 @@ extern void selinux_reset_config(void);
  * Functions to deal with security contexts in user space.
  */
 
-typedef struct {
-    void *ptr;
-} context_s_t;
+	typedef struct {
+		void *ptr;
+	} context_s_t;
 
-typedef context_s_t *context_t;
+	typedef context_s_t *context_t;
 
 /* Return a new context initialized to a context string */
 
-extern context_t context_new(const char *);
+	extern context_t context_new(const char *);
 
-/*
+/* 
  * Return a pointer to the string value of the context_t
- * Valid until the next call to context_str or context_free
+ * Valid until the next call to context_str or context_free 
  * for the same context_t*
  */
 
-extern char *context_str(context_t);
+	extern char *context_str(context_t);
 
 /* Free the storage used by a context */
-extern void context_free(context_t);
+	extern void context_free(context_t);
 
 /* Get a pointer to the string value of a context component */
 
-extern const char *context_type_get(context_t);
-extern const char *context_range_get(context_t);
-extern const char *context_role_get(context_t);
-extern const char *context_user_get(context_t);
+	extern const char *context_type_get(context_t);
+	extern const char *context_range_get(context_t);
+	extern const char *context_role_get(context_t);
+	extern const char *context_user_get(context_t);
 
 /* Set a context component.  Returns nonzero if unsuccessful */
 
-extern int context_type_set(context_t, const char *);
-extern int context_range_set(context_t, const char *);
-extern int context_role_set(context_t, const char *);
-extern int context_user_set(context_t, const char *);
+	extern int context_type_set(context_t, const char *);
+	extern int context_range_set(context_t, const char *);
+	extern int context_role_set(context_t, const char *);
+	extern int context_user_set(context_t, const char *);
 
 
 
@@ -63804,6 +63775,7 @@ extern int context_user_set(context_t, const char *);
 
 
 
+ 
 
 
 
@@ -63855,6 +63827,9 @@ extern int context_user_set(context_t, const char *);
 
 
 
+ 
+ 
+ 
 
 
 
@@ -63901,6 +63876,7 @@ extern int context_user_set(context_t, const char *);
 
 
 
+ 
 
 
 
@@ -63938,15 +63914,10 @@ extern int context_user_set(context_t, const char *);
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -64193,7 +64164,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -64379,9 +64350,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -64422,19 +64393,19 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 enum
 {
-    __LC_CTYPE = 0,
-    __LC_NUMERIC = 1,
-    __LC_TIME = 2,
-    __LC_COLLATE = 3,
-    __LC_MONETARY = 4,
-    __LC_MESSAGES = 5,
-    __LC_ALL = 6,
-    __LC_PAPER = 7,
-    __LC_NAME = 8,
-    __LC_ADDRESS = 9,
-    __LC_TELEPHONE = 10,
-    __LC_MEASUREMENT = 11,
-    __LC_IDENTIFICATION = 12
+  __LC_CTYPE = 0,
+  __LC_NUMERIC = 1,
+  __LC_TIME = 2,
+  __LC_COLLATE = 3,
+  __LC_MONETARY = 4,
+  __LC_MESSAGES = 5,
+  __LC_ALL = 6,
+  __LC_PAPER = 7,
+  __LC_NAME = 8,
+  __LC_ADDRESS = 9,
+  __LC_TELEPHONE = 10,
+  __LC_MEASUREMENT = 11,
+  __LC_IDENTIFICATION = 12
 };
 
 
@@ -64464,70 +64435,70 @@ enum
 /* Structure giving information about numeric and monetary notation.  */
 struct lconv
 {
-    /* Numeric (non-monetary) information.  */
-    
-    char *decimal_point;		/* Decimal point character.  */
-    char *thousands_sep;		/* Thousands separator.  */
-    /* Each element is the number of digits in each group;
-       elements with higher indices are farther left.
-       An element with value CHAR_MAX means that no further grouping is done.
-       An element with value 0 means that the previous element is used
-       for all groups farther left.  */
-    char *grouping;
-    
-    /* Monetary information.  */
-    
-    /* First three chars are a currency symbol from ISO 4217.
-       Fourth char is the separator.  Fifth char is '\0'.  */
-    char *int_curr_symbol;
-    char *currency_symbol;	/* Local currency symbol.  */
-    char *mon_decimal_point;	/* Decimal point character.  */
-    char *mon_thousands_sep;	/* Thousands separator.  */
-    char *mon_grouping;		/* Like `grouping' element (above).  */
-    char *positive_sign;		/* Sign for positive values.  */
-    char *negative_sign;		/* Sign for negative values.  */
-    char int_frac_digits;		/* Int'l fractional digits.  */
-    char frac_digits;		/* Local fractional digits.  */
-    /* 1 if currency_symbol precedes a positive value, 0 if succeeds.  */
-    char p_cs_precedes;
-    /* 1 iff a space separates currency_symbol from a positive value.  */
-    char p_sep_by_space;
-    /* 1 if currency_symbol precedes a negative value, 0 if succeeds.  */
-    char n_cs_precedes;
-    /* 1 iff a space separates currency_symbol from a negative value.  */
-    char n_sep_by_space;
-    /* Positive and negative sign positions:
-       0 Parentheses surround the quantity and currency_symbol.
-       1 The sign string precedes the quantity and currency_symbol.
-       2 The sign string follows the quantity and currency_symbol.
-       3 The sign string immediately precedes the currency_symbol.
-       4 The sign string immediately follows the currency_symbol.  */
-    char p_sign_posn;
-    char n_sign_posn;
-    
-    /* 1 if int_curr_symbol precedes a positive value, 0 if succeeds.  */
-    char int_p_cs_precedes;
-    /* 1 iff a space separates int_curr_symbol from a positive value.  */
-    char int_p_sep_by_space;
-    /* 1 if int_curr_symbol precedes a negative value, 0 if succeeds.  */
-    char int_n_cs_precedes;
-    /* 1 iff a space separates int_curr_symbol from a negative value.  */
-    char int_n_sep_by_space;
-    /* Positive and negative sign positions:
-       0 Parentheses surround the quantity and int_curr_symbol.
-       1 The sign string precedes the quantity and int_curr_symbol.
-       2 The sign string follows the quantity and int_curr_symbol.
-       3 The sign string immediately precedes the int_curr_symbol.
-       4 The sign string immediately follows the int_curr_symbol.  */
-    char int_p_sign_posn;
-    char int_n_sign_posn;
-    
-    
-    
-    
-    
-    
-    
+  /* Numeric (non-monetary) information.  */
+
+  char *decimal_point;		/* Decimal point character.  */
+  char *thousands_sep;		/* Thousands separator.  */
+  /* Each element is the number of digits in each group;
+     elements with higher indices are farther left.
+     An element with value CHAR_MAX means that no further grouping is done.
+     An element with value 0 means that the previous element is used
+     for all groups farther left.  */
+  char *grouping;
+
+  /* Monetary information.  */
+
+  /* First three chars are a currency symbol from ISO 4217.
+     Fourth char is the separator.  Fifth char is '\0'.  */
+  char *int_curr_symbol;
+  char *currency_symbol;	/* Local currency symbol.  */
+  char *mon_decimal_point;	/* Decimal point character.  */
+  char *mon_thousands_sep;	/* Thousands separator.  */
+  char *mon_grouping;		/* Like `grouping' element (above).  */
+  char *positive_sign;		/* Sign for positive values.  */
+  char *negative_sign;		/* Sign for negative values.  */
+  char int_frac_digits;		/* Int'l fractional digits.  */
+  char frac_digits;		/* Local fractional digits.  */
+  /* 1 if currency_symbol precedes a positive value, 0 if succeeds.  */
+  char p_cs_precedes;
+  /* 1 iff a space separates currency_symbol from a positive value.  */
+  char p_sep_by_space;
+  /* 1 if currency_symbol precedes a negative value, 0 if succeeds.  */
+  char n_cs_precedes;
+  /* 1 iff a space separates currency_symbol from a negative value.  */
+  char n_sep_by_space;
+  /* Positive and negative sign positions:
+     0 Parentheses surround the quantity and currency_symbol.
+     1 The sign string precedes the quantity and currency_symbol.
+     2 The sign string follows the quantity and currency_symbol.
+     3 The sign string immediately precedes the currency_symbol.
+     4 The sign string immediately follows the currency_symbol.  */
+  char p_sign_posn;
+  char n_sign_posn;
+
+  /* 1 if int_curr_symbol precedes a positive value, 0 if succeeds.  */
+  char int_p_cs_precedes;
+  /* 1 iff a space separates int_curr_symbol from a positive value.  */
+  char int_p_sep_by_space;
+  /* 1 if int_curr_symbol precedes a negative value, 0 if succeeds.  */
+  char int_n_cs_precedes;
+  /* 1 iff a space separates int_curr_symbol from a negative value.  */
+  char int_n_sep_by_space;
+  /* Positive and negative sign positions:
+     0 Parentheses surround the quantity and int_curr_symbol.
+     1 The sign string precedes the quantity and int_curr_symbol.
+     2 The sign string follows the quantity and int_curr_symbol.
+     3 The sign string immediately precedes the int_curr_symbol.
+     4 The sign string immediately follows the int_curr_symbol.  */
+  char int_p_sign_posn;
+  char int_n_sign_posn;
+   
+  
+  
+  
+  
+  
+
 };
 
 
@@ -64583,16 +64554,16 @@ extern struct lconv *localeconv (void) __attribute__ ((__nothrow__));
 
 
 
+  
+  
 
+  
+  
+  
+  
 
-
-
-
-
-
-
-
-
+  
+  
 
 
 
@@ -64606,7 +64577,7 @@ extern struct lconv *localeconv (void) __attribute__ ((__nothrow__));
    CATEGORY_MASK parameter here uses a single bit for each category,
    made by OR'ing together LC_*_MASK bits above.  */
 extern __locale_t newlocale (int __category_mask, const char *__locale,
-                             __locale_t __base) __attribute__ ((__nothrow__));
+			     __locale_t __base) __attribute__ ((__nothrow__));
 
 /* These are the bits that can be set in the CATEGORY_MASK argument to
    `newlocale'.  In the GNU implementation, LC_FOO_MASK has the value
@@ -64835,6 +64806,7 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
+ 
 
 
 
@@ -64886,6 +64858,9 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
+ 
+ 
+ 
 
 
 
@@ -64932,6 +64907,7 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
+ 
 
 
 
@@ -64969,15 +64945,10 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -65081,17 +65052,22 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -65141,6 +65117,7 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
+ 
 
 
 
@@ -65150,13 +65127,7 @@ extern __locale_t uselocale (__locale_t __dataset) __attribute__ ((__nothrow__))
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -65418,7 +65389,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -65604,9 +65575,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -65635,13 +65606,13 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 /* The passwd structure.  */
 struct passwd
 {
-    char *pw_name;		/* Username.  */
-    char *pw_passwd;		/* Password.  */
-    __uid_t pw_uid;		/* User ID.  */
-    __gid_t pw_gid;		/* Group ID.  */
-    char *pw_gecos;		/* Real name.  */
-    char *pw_dir;			/* Home directory.  */
-    char *pw_shell;		/* Shell program.  */
+  char *pw_name;		/* Username.  */
+  char *pw_passwd;		/* Password.  */
+  __uid_t pw_uid;		/* User ID.  */
+  __gid_t pw_gid;		/* Group ID.  */
+  char *pw_gecos;		/* Real name.  */
+  char *pw_dir;			/* Home directory.  */
+  char *pw_shell;		/* Shell program.  */
 };
 
 
@@ -65722,12 +65693,14 @@ struct passwd
 
 
 
+ 
 
 
 
 
 
 
+ 
 
 
 
@@ -65744,6 +65717,7 @@ struct passwd
 
 
 
+ 
 
 
 
@@ -65807,6 +65781,7 @@ struct passwd
 
 
 
+		     
 
 
 
@@ -65815,7 +65790,9 @@ struct passwd
 
 
 
+ 
 
+ 
 
 
 
@@ -65839,6 +65816,7 @@ struct passwd
 
 
 
+     
 
 
 
@@ -65878,20 +65856,33 @@ struct passwd
 
 
 
+		    
 
 
 
 
 
+		      
+		      
+ 
 
+				 
+  
 
+				   
+				   
+  
+ 
 
 
 
 
 
 
+		      
 
+			
+			
 
 
 
@@ -65901,10 +65892,13 @@ struct passwd
 
 
 
+			  
+			  
 
 
 
 
+  
 
 
 
@@ -65919,12 +65913,14 @@ struct passwd
 
 
 
+		    
 
 
 
 
 
 
+		       
 
 
 
@@ -65935,6 +65931,7 @@ struct passwd
 
 
 
+		    
 
 
 
@@ -65942,12 +65939,14 @@ struct passwd
 
 
 
+		    
 
 
 
 
 
 
+		     
 
 
 
@@ -65955,22 +65954,33 @@ struct passwd
 
 
 
+		     
 
 
 
 
 
 
+		     
+     
 
 
+		      
+     
 
 
 
 
 
 
+		      
+     
 
+		       
+     
 
+		     
+     
 
 
 
@@ -65980,7 +65990,10 @@ struct passwd
 
 
 
+		     
+     
 
+     
 
 
 
@@ -65988,6 +66001,7 @@ struct passwd
 
 
 
+		   
 
 
 
@@ -65995,6 +66009,7 @@ struct passwd
 
 
 
+		   
 
 
 
@@ -66002,10 +66017,18 @@ struct passwd
 
 
 
+				
+		       
 
+		       
 
+				    
+			   
+ 
+			    
 
 
+			    
 
 
 
@@ -66020,15 +66043,20 @@ struct passwd
 
 
 
+		    
+     
 
 
 
 
 
 
+     
 
 
 
+		    
+     
 
 
 
@@ -66036,10 +66064,26 @@ struct passwd
 
 
 
+		       
+			
+		       
+     
 
+				
+     
 
+			   
+			    
+			    
+     
+ 
+			     
+			     
 
+			    
 
+			     
+			     
 
 
 
@@ -66135,6 +66179,7 @@ struct passwd
 
 
 
+     
 
 
 
@@ -66152,6 +66197,7 @@ struct passwd
 
 
 
+			     
 
 
 
@@ -66165,7 +66211,11 @@ struct passwd
 
 
 
+			       
+			       
 
+			     
+			     
 
 
 
@@ -66174,6 +66224,8 @@ struct passwd
 
 
 
+			    
+			    
 
 
 
@@ -66201,11 +66253,13 @@ struct passwd
 
 
 
+		     
 
 
 
 
 
+		      
 
 
 
@@ -66216,6 +66270,7 @@ struct passwd
 
 
 
+			   
 
 
 
@@ -66225,7 +66280,9 @@ struct passwd
 
 
 
+			      
 
+			       
 
 
 
@@ -66262,8 +66319,12 @@ struct passwd
 
 
 
+ 
 
+		       
+		       
 
+ 
 
 
 
@@ -66280,8 +66341,12 @@ struct passwd
 
 
 
+ 
 
+				 
 
+		       
+ 
 
 
 
@@ -66357,106 +66422,12 @@ struct passwd
 
 
 
+			   
+     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			    
+			    
+     
 
 
 
@@ -66530,7 +66501,7 @@ extern struct passwd *fgetpwent (FILE *__stream);
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int putpwent (const struct passwd *__restrict __p,
-                     FILE *__restrict __f);
+		     FILE *__restrict __f);
 
 /* Search for an entry with a matching user ID.
 
@@ -66564,18 +66535,18 @@ extern struct passwd *getpwnam (const char *__name);
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int getpwent_r (struct passwd *__restrict __resultbuf,
-                       char *__restrict __buffer, size_t __buflen,
-                       struct passwd **__restrict __result);
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result);
 
 extern int getpwuid_r (__uid_t __uid,
-                       struct passwd *__restrict __resultbuf,
-                       char *__restrict __buffer, size_t __buflen,
-                       struct passwd **__restrict __result);
+		       struct passwd *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result);
 
 extern int getpwnam_r (const char *__restrict __name,
-                       struct passwd *__restrict __resultbuf,
-                       char *__restrict __buffer, size_t __buflen,
-                       struct passwd **__restrict __result);
+		       struct passwd *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result);
 
 
 
@@ -66587,9 +66558,9 @@ extern int getpwnam_r (const char *__restrict __name,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int fgetpwent_r (FILE *__restrict __stream,
-                        struct passwd *__restrict __resultbuf,
-                        char *__restrict __buffer, size_t __buflen,
-                        struct passwd **__restrict __result);
+			struct passwd *__restrict __resultbuf,
+			char *__restrict __buffer, size_t __buflen,
+			struct passwd **__restrict __result);
 
 
 
@@ -66774,6 +66745,7 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
+ 
 
 
 
@@ -66825,6 +66797,9 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
+ 
+ 
+ 
 
 
 
@@ -66871,6 +66846,7 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
+ 
 
 
 
@@ -66908,15 +66884,10 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -67020,17 +66991,22 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
+ 
 
 
 
 
 
 
+ 
 
+ 
 
+  
 
 
 
+  
 
 
 
@@ -67080,6 +67056,7 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
+ 
 
 
 
@@ -67089,13 +67066,7 @@ extern int getpw (__uid_t __uid, char *__buffer);
 
 
 
-
-
-
-
-
-
-
+ 
 
 
 
@@ -67357,7 +67328,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -67543,9 +67514,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -67567,12 +67538,12 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 /* The group structure.	 */
 struct group
-{
+  {
     char *gr_name;		/* Group name.	*/
     char *gr_passwd;		/* Password.	*/
     __gid_t gr_gid;		/* Group ID.	*/
     char **gr_mem;		/* Member list.	*/
-};
+  };
 
 
 
@@ -67652,12 +67623,14 @@ struct group
 
 
 
+ 
 
 
 
 
 
 
+ 
 
 
 
@@ -67674,6 +67647,7 @@ struct group
 
 
 
+ 
 
 
 
@@ -67737,6 +67711,7 @@ struct group
 
 
 
+		     
 
 
 
@@ -67745,7 +67720,9 @@ struct group
 
 
 
+ 
 
+ 
 
 
 
@@ -67769,6 +67746,7 @@ struct group
 
 
 
+     
 
 
 
@@ -67808,20 +67786,33 @@ struct group
 
 
 
+		    
 
 
 
 
 
+		      
+		      
+ 
 
+				 
+  
 
+				   
+				   
+  
+ 
 
 
 
 
 
 
+		      
 
+			
+			
 
 
 
@@ -67831,10 +67822,13 @@ struct group
 
 
 
+			  
+			  
 
 
 
 
+  
 
 
 
@@ -67849,12 +67843,14 @@ struct group
 
 
 
+		    
 
 
 
 
 
 
+		       
 
 
 
@@ -67865,6 +67861,7 @@ struct group
 
 
 
+		    
 
 
 
@@ -67872,12 +67869,14 @@ struct group
 
 
 
+		    
 
 
 
 
 
 
+		     
 
 
 
@@ -67885,22 +67884,33 @@ struct group
 
 
 
+		     
 
 
 
 
 
 
+		     
+     
 
 
+		      
+     
 
 
 
 
 
 
+		      
+     
 
+		       
+     
 
+		     
+     
 
 
 
@@ -67910,7 +67920,10 @@ struct group
 
 
 
+		     
+     
 
+     
 
 
 
@@ -67918,6 +67931,7 @@ struct group
 
 
 
+		   
 
 
 
@@ -67925,6 +67939,7 @@ struct group
 
 
 
+		   
 
 
 
@@ -67932,10 +67947,18 @@ struct group
 
 
 
+				
+		       
 
+		       
 
+				    
+			   
+ 
+			    
 
 
+			    
 
 
 
@@ -67950,15 +67973,20 @@ struct group
 
 
 
+		    
+     
 
 
 
 
 
 
+     
 
 
 
+		    
+     
 
 
 
@@ -67966,10 +67994,26 @@ struct group
 
 
 
+		       
+			
+		       
+     
 
+				
+     
 
+			   
+			    
+			    
+     
+ 
+			     
+			     
 
+			    
 
+			     
+			     
 
 
 
@@ -68065,6 +68109,7 @@ struct group
 
 
 
+     
 
 
 
@@ -68082,6 +68127,7 @@ struct group
 
 
 
+			     
 
 
 
@@ -68095,7 +68141,11 @@ struct group
 
 
 
+			       
+			       
 
+			     
+			     
 
 
 
@@ -68104,6 +68154,8 @@ struct group
 
 
 
+			    
+			    
 
 
 
@@ -68131,11 +68183,13 @@ struct group
 
 
 
+		     
 
 
 
 
 
+		      
 
 
 
@@ -68146,6 +68200,7 @@ struct group
 
 
 
+			   
 
 
 
@@ -68155,7 +68210,9 @@ struct group
 
 
 
+			      
 
+			       
 
 
 
@@ -68192,8 +68249,12 @@ struct group
 
 
 
+ 
 
+		       
+		       
 
+ 
 
 
 
@@ -68210,8 +68271,12 @@ struct group
 
 
 
+ 
 
+				 
 
+		       
+ 
 
 
 
@@ -68287,106 +68352,12 @@ struct group
 
 
 
+			   
+     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			    
+			    
+     
 
 
 
@@ -68462,7 +68433,7 @@ extern struct group *fgetgrent (FILE *__stream);
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int putgrent (const struct group *__restrict __p,
-                     FILE *__restrict __f);
+		     FILE *__restrict __f);
 
 /* Search for an entry with a matching group ID.
 
@@ -68497,25 +68468,25 @@ extern struct group *getgrnam (const char *__name);
 
 
 extern int getgrent_r (struct group *__restrict __resultbuf,
-                       char *__restrict __buffer, size_t __buflen,
-                       struct group **__restrict __result);
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result);
 
 /* Search for an entry with a matching group ID.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int getgrgid_r (__gid_t __gid, struct group *__restrict __resultbuf,
-                       char *__restrict __buffer, size_t __buflen,
-                       struct group **__restrict __result);
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result);
 
 /* Search for an entry with a matching group name.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int getgrnam_r (const char *__restrict __name,
-                       struct group *__restrict __resultbuf,
-                       char *__restrict __buffer, size_t __buflen,
-                       struct group **__restrict __result);
+		       struct group *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result);
 
 
 /* Read a group entry from STREAM.  This function is not standardized
@@ -68526,9 +68497,9 @@ extern int getgrnam_r (const char *__restrict __name,
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int fgetgrent_r (FILE *__restrict __stream,
-                        struct group *__restrict __resultbuf,
-                        char *__restrict __buffer, size_t __buflen,
-                        struct group **__restrict __result);
+			struct group *__restrict __resultbuf,
+			char *__restrict __buffer, size_t __buflen,
+			struct group **__restrict __result);
 
 
 
@@ -68723,7 +68694,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -68909,9 +68880,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -68937,7 +68908,7 @@ extern int setgroups (size_t __n, const __gid_t *__groups) __attribute__ ((__not
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 extern int getgrouplist (const char *__user, __gid_t __group,
-                         __gid_t *__groups, int *__ngroups);
+			 __gid_t *__groups, int *__ngroups);
 
 /* Initialize the group set for the current user
    by reading the group database and using all groups
@@ -69123,6 +69094,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
 
 
 
@@ -69174,6 +69146,9 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
+ 
+ 
 
 
 
@@ -69220,6 +69195,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
 
 
 
@@ -69257,15 +69233,10 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -69475,12 +69446,14 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
 
 
 
 
 
 
+ 
 
 
 
@@ -69497,6 +69470,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
 
 
 
@@ -69560,6 +69534,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		     
 
 
 
@@ -69568,7 +69543,9 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
 
+ 
 
 
 
@@ -69592,6 +69569,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+     
 
 
 
@@ -69631,20 +69609,33 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		    
 
 
 
 
 
+		      
+		      
+ 
 
+				 
+  
 
+				   
+				   
+  
+ 
 
 
 
 
 
 
+		      
 
+			
+			
 
 
 
@@ -69654,10 +69645,13 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+			  
+			  
 
 
 
 
+  
 
 
 
@@ -69672,12 +69666,14 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		    
 
 
 
 
 
 
+		       
 
 
 
@@ -69688,6 +69684,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		    
 
 
 
@@ -69695,12 +69692,14 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		    
 
 
 
 
 
 
+		     
 
 
 
@@ -69708,22 +69707,33 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		     
 
 
 
 
 
 
+		     
+     
 
 
+		      
+     
 
 
 
 
 
 
+		      
+     
 
+		       
+     
 
+		     
+     
 
 
 
@@ -69733,7 +69743,10 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		     
+     
 
+     
 
 
 
@@ -69741,6 +69754,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		   
 
 
 
@@ -69748,6 +69762,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		   
 
 
 
@@ -69755,10 +69770,18 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+				
+		       
 
+		       
 
+				    
+			   
+ 
+			    
 
 
+			    
 
 
 
@@ -69773,15 +69796,20 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		    
+     
 
 
 
 
 
 
+     
 
 
 
+		    
+     
 
 
 
@@ -69789,10 +69817,26 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		       
+			
+		       
+     
 
+				
+     
 
+			   
+			    
+			    
+     
+ 
+			     
+			     
 
+			    
 
+			     
+			     
 
 
 
@@ -69888,6 +69932,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+     
 
 
 
@@ -69905,6 +69950,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+			     
 
 
 
@@ -69918,7 +69964,11 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+			       
+			       
 
+			     
+			     
 
 
 
@@ -69927,6 +69977,8 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+			    
+			    
 
 
 
@@ -69954,11 +70006,13 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+		     
 
 
 
 
 
+		      
 
 
 
@@ -69969,6 +70023,7 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+			   
 
 
 
@@ -69978,7 +70033,9 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+			      
 
+			       
 
 
 
@@ -70015,8 +70072,12 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
 
+		       
+		       
 
+ 
 
 
 
@@ -70033,8 +70094,12 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+ 
 
+				 
 
+		       
+ 
 
 
 
@@ -70110,106 +70175,12 @@ extern int initgroups (const char *__user, __gid_t __group);
 
 
 
+			   
+     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			    
+			    
+     
 
 
 
@@ -70438,7 +70409,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
-
+ 
 
 
 
@@ -70624,9 +70595,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -70648,7 +70619,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 /* Structure of the password file.  */
 struct spwd
-{
+  {
     char *sp_namp;		/* Login name.  */
     char *sp_pwdp;		/* Encrypted password.  */
     long int sp_lstchg;		/* Date of last change.  */
@@ -70661,7 +70632,7 @@ struct spwd
     long int sp_expire;		/* Number of days since 1970-01-01 until
 				   account expires.  */
     unsigned long int sp_flag;	/* Reserved.  */
-};
+  };
 
 
 /* Open database for reading.
@@ -70729,19 +70700,19 @@ extern int putspent (const struct spwd *__p, FILE *__stream);
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
 extern int getspent_r (struct spwd *__result_buf, char *__buffer,
-                       size_t __buflen, struct spwd **__result);
+		       size_t __buflen, struct spwd **__result);
 
 extern int getspnam_r (const char *__name, struct spwd *__result_buf,
-                       char *__buffer, size_t __buflen,
-                       struct spwd **__result);
+		       char *__buffer, size_t __buflen,
+		       struct spwd **__result);
 
 extern int sgetspent_r (const char *__string, struct spwd *__result_buf,
-                        char *__buffer, size_t __buflen,
-                        struct spwd **__result);
+			char *__buffer, size_t __buflen,
+			struct spwd **__result);
 
 extern int fgetspent_r (FILE *__stream, struct spwd *__result_buf,
-                        char *__buffer, size_t __buflen,
-                        struct spwd **__result);
+			char *__buffer, size_t __buflen,
+			struct spwd **__result);
 
 /* The simple locking functionality provided here is not suitable for
    multi-threaded applications.  */
@@ -70761,8 +70732,8 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
-
-#line 1 "systems/redhat/usr/include/arpa/inet.h" 1
+ 
+ #line 1 "systems/redhat/usr/include/arpa/inet.h" 1
 /* Copyright (C) 1997, 1999, 2000, 2001, 2004 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -70924,6 +70895,7 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -70975,6 +70947,9 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
+ 
 
 
 
@@ -71021,6 +70996,7 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -71058,15 +71034,10 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+ 
+ 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
@@ -71154,35 +71125,67 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+  
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
+  
 
 
 
@@ -71190,17 +71193,51 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
+    
+    
+    
+    
+    
 
 
+    
+    
+    
+    
 
+    
+    
+    
+    
 
+    
+    
 
+    
+    
+  
 
 
 
 
 
+  
+    
+  
 
 
 
@@ -71253,13 +71290,21 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+  
+    
+      
+	
 
+	
+	
 
+      
 
 
 
 
 
+  
 
 
 
@@ -71272,50 +71317,124 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+  
+    
+    
+    
 
+    
+    
+			   
+			   
+			   
+  
 
 
 
+  
+    
+    
+    
+    
+    
+  
 
 
 
 
 
+  
+    
+    
 
+    
+    
+  
 
 
+  
+    
+    
 
+    
+    
 
+    
+    
+  
 
 
 
+  
+    
+    
 
+    
+    
+  
 
 
 
 
 
+  
+    
+    
 
+    
+    
+  
 
 
+  
+    
+    
 
+    
+    
 
+    
+    
+  
 
 
 
 
+  
+    
+    
 
+    
+    
 
+    
+    
 
+    
+    
+    
+    
+  
 
 
 
 
 
 
+  
+    
+    
 
+    
+    
 
+    
+    
 
+    
+    
+    
+    
 
 
 
@@ -71335,8 +71454,11 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+     
 
+     
 
+     
 
 
 
@@ -71354,6 +71476,7 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+ 
 
 
 
@@ -71406,6 +71529,7 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+     
 
 
 
@@ -71431,250 +71555,97 @@ extern int ulckpwdf (void) __attribute__ ((__nothrow__));
 
 
 
+  
+    
+    
+  
 
 
 
+  
+    
+    
+  
 
 
 
 
+     
 
+			      
 
+				
+				
 
+				    
+     
 
+			      
+     
 
+			      
+     
 
 
 
 
 
+			     
+			     
 
+     
 
+			      
 
+			   
+			   
 
+			   
+			   
 
+			      
 
 
 
 
 
+			     
 
 
 
 
+     
 
 
 
 
 
 
+				
+				
+     
 
 
 
+				
+				
+				
+     
 
 
 
 
+			    
+			    
+			    
+			    
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			    
+			    
+			    
+			    
 
 
 
@@ -71698,7 +71669,7 @@ extern in_addr_t inet_lnaof (struct in_addr __in) __attribute__ ((__nothrow__));
 /* Make Internet host address in network byte order by combining the
    network number NET with the local address HOST.  */
 extern struct in_addr inet_makeaddr (in_addr_t __net, in_addr_t __host)
-__attribute__ ((__nothrow__));
+     __attribute__ ((__nothrow__));
 
 /* Return network number part of the Internet address IN.  */
 extern in_addr_t inet_netof (struct in_addr __in) __attribute__ ((__nothrow__));
@@ -71715,14 +71686,14 @@ extern char *inet_ntoa (struct in_addr __in) __attribute__ ((__nothrow__));
    starting at CP to the binary network format and store result for
    interface type AF in buffer starting at BUF.  */
 extern int inet_pton (int __af, const char *__restrict __cp,
-                      void *__restrict __buf) __attribute__ ((__nothrow__));
+		      void *__restrict __buf) __attribute__ ((__nothrow__));
 
 /* Convert a Internet address in binary network format for interface
    type AF in buffer starting at CP to presentation form and place
    result in buffer of length LEN astarting at BUF.  */
 extern const char *inet_ntop (int __af, const void *__restrict __cp,
-                              char *__restrict __buf, socklen_t __len)
-__attribute__ ((__nothrow__));
+				char *__restrict __buf, socklen_t __len)
+     __attribute__ ((__nothrow__));
 
 
 /* The following functions are not part of XNS 5.2.  */
@@ -71739,24 +71710,24 @@ extern char *inet_neta (in_addr_t __net, char *__buf, size_t __len) __attribute_
    CP to presentation format.  The result will specifiy BITS bits of
    the number.  */
 extern char *inet_net_ntop (int __af, const void *__cp, int __bits,
-                            char *__buf, size_t __len) __attribute__ ((__nothrow__));
+			    char *__buf, size_t __len) __attribute__ ((__nothrow__));
 
 /* Convert network number for interface type AF from presentation in
    buffer starting at CP to network format and store result int
    buffer starting at BUF of size LEN.  */
 extern int inet_net_pton (int __af, const char *__cp,
-                          void *__buf, size_t __len) __attribute__ ((__nothrow__));
+			  void *__buf, size_t __len) __attribute__ ((__nothrow__));
 
 /* Convert ASCII representation in hexadecimal form of the Internet
    address to binary form and place result in buffer of length LEN
    starting at BUF.  */
 extern unsigned int inet_nsap_addr (const char *__cp,
-                                    unsigned char *__buf, int __len) __attribute__ ((__nothrow__));
+				    unsigned char *__buf, int __len) __attribute__ ((__nothrow__));
 
 /* Convert internet address in binary form in LEN bytes starting at CP
    a presentation form and place result in BUF.  */
 extern char *inet_nsap_ntoa (int __len, const unsigned char *__cp,
-                             char *__buf) __attribute__ ((__nothrow__));
+			     char *__buf) __attribute__ ((__nothrow__));
 
 
 
@@ -71768,7 +71739,7 @@ extern char *inet_nsap_ntoa (int __len, const unsigned char *__cp,
 
 
 
-
+   
 
 
 /* Some libc's forget to declare these, do it ourself */
@@ -71788,20 +71759,20 @@ char *dirname(char *path);
 /* Include our own copy of struct sysinfo to avoid binary compatibility
  * problems with Linux 2.4, which changed things.  Grumble, grumble. */
 struct sysinfo {
-    long uptime;			/* Seconds since boot */
-    unsigned long loads[3];		/* 1, 5, and 15 minute load averages */
-    unsigned long totalram;		/* Total usable main memory size */
-    unsigned long freeram;		/* Available memory size */
-    unsigned long sharedram;	/* Amount of shared memory */
-    unsigned long bufferram;	/* Memory used by buffers */
-    unsigned long totalswap;	/* Total swap space size */
-    unsigned long freeswap;		/* swap space still available */
-    unsigned short procs;		/* Number of current processes */
-    unsigned short pad;			/* Padding needed for m68k */
-    unsigned long totalhigh;	/* Total high memory size */
-    unsigned long freehigh;		/* Available high memory size */
-    unsigned int mem_unit;		/* Memory unit size in bytes */
-    char _f[20 - 2 * sizeof(long) - sizeof(int)]; /* Padding: libc5 uses this.. */
+	long uptime;			/* Seconds since boot */
+	unsigned long loads[3];		/* 1, 5, and 15 minute load averages */
+	unsigned long totalram;		/* Total usable main memory size */
+	unsigned long freeram;		/* Available memory size */
+	unsigned long sharedram;	/* Amount of shared memory */
+	unsigned long bufferram;	/* Memory used by buffers */
+	unsigned long totalswap;	/* Total swap space size */
+	unsigned long freeswap;		/* swap space still available */
+	unsigned short procs;		/* Number of current processes */
+	unsigned short pad;			/* Padding needed for m68k */
+	unsigned long totalhigh;	/* Total high memory size */
+	unsigned long freehigh;		/* Available high memory size */
+	unsigned int mem_unit;		/* Memory unit size in bytes */
+	char _f[20 - 2 * sizeof(long) - sizeof(int)]; /* Padding: libc5 uses this.. */
 };
 int sysinfo(struct sysinfo* info);
 
@@ -71882,7 +71853,7 @@ extern void bb_internal_endpwent(void);
 
 
 
-
+		     
 
 /* Search for an entry with a matching user ID.  */
 extern struct passwd *bb_internal_getpwuid(uid_t __uid);
@@ -71899,25 +71870,25 @@ extern struct passwd *bb_internal_getpwnam(const char *__name);
    POSIX people would choose.  */
 
 extern int bb_internal_getpwent_r(struct passwd *__restrict __resultbuf,
-                                  char *__restrict __buffer, size_t __buflen,
-                                  struct passwd **__restrict __result);
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result);
 
 extern int bb_internal_getpwuid_r(uid_t __uid,
-                                  struct passwd *__restrict __resultbuf,
-                                  char *__restrict __buffer, size_t __buflen,
-                                  struct passwd **__restrict __result);
+		       struct passwd *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result);
 
 extern int bb_internal_getpwnam_r(const char *__restrict __name,
-                                  struct passwd *__restrict __resultbuf,
-                                  char *__restrict __buffer, size_t __buflen,
-                                  struct passwd **__restrict __result);
+		       struct passwd *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct passwd **__restrict __result);
 
 /* Read an entry from STREAM.  This function is not standardized and
    probably never will.  */
 extern int bb_internal_fgetpwent_r(FILE *__restrict __stream,
-                                   struct passwd *__restrict __resultbuf,
-                                   char *__restrict __buffer, size_t __buflen,
-                                   struct passwd **__restrict __result);
+			struct passwd *__restrict __resultbuf,
+			char *__restrict __buffer, size_t __buflen,
+			struct passwd **__restrict __result);
 
 _Pragma("GCC visibility pop")
 
@@ -71990,7 +71961,7 @@ extern void bb_internal_endgrent(void);
 
 
 
-
+		     
 
 /* Search for an entry with a matching group ID.  */
 extern struct group *bb_internal_getgrgid(gid_t __gid);
@@ -72007,32 +71978,32 @@ extern struct group *bb_internal_getgrnam(const char *__name);
    POSIX people would choose.  */
 
 extern int bb_internal_getgrent_r(struct group *__restrict __resultbuf,
-                                  char *__restrict __buffer, size_t __buflen,
-                                  struct group **__restrict __result);
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result);
 
 /* Search for an entry with a matching group ID.  */
 extern int bb_internal_getgrgid_r(gid_t __gid, struct group *__restrict __resultbuf,
-                                  char *__restrict __buffer, size_t __buflen,
-                                  struct group **__restrict __result);
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result);
 
 /* Search for an entry with a matching group name.  */
 extern int bb_internal_getgrnam_r(const char *__restrict __name,
-                                  struct group *__restrict __resultbuf,
-                                  char *__restrict __buffer, size_t __buflen,
-                                  struct group **__restrict __result);
+		       struct group *__restrict __resultbuf,
+		       char *__restrict __buffer, size_t __buflen,
+		       struct group **__restrict __result);
 
 /* Read a group entry from STREAM.  This function is not standardized
    an probably never will.  */
 extern int bb_internal_fgetgrent_r(FILE *__restrict __stream,
-                                   struct group *__restrict __resultbuf,
-                                   char *__restrict __buffer, size_t __buflen,
-                                   struct group **__restrict __result);
+			struct group *__restrict __resultbuf,
+			char *__restrict __buffer, size_t __buflen,
+			struct group **__restrict __result);
 
 /* Store at most *NGROUPS members of the group set for USER into
    *GROUPS.  Also include GROUP.  The actual number of groups found is
    returned in *NGROUPS.  Return -1 if the if *NGROUPS is too small.  */
 extern int bb_internal_getgrouplist(const char *__user, gid_t __group,
-                                    gid_t *__groups, int *__ngroups);
+			 gid_t *__groups, int *__ngroups);
 
 /* Initialize the group set for the current user
    by reading the group database and using all groups
@@ -72075,15 +72046,15 @@ _Pragma("GCC visibility push(hidden)")
 
 /* Structure of the password file */
 struct spwd {
-    char *sp_namp;          /* Login name */
-    char *sp_pwdp;          /* Encrypted password */
-    long sp_lstchg;         /* Date of last change */
-    long sp_min;            /* Minimum number of days between changes */
-    long sp_max;            /* Maximum number of days between changes */
-    long sp_warn;           /* Number of days to warn user to change the password */
-    long sp_inact;          /* Number of days the account may be inactive */
-    long sp_expire;         /* Number of days since 1970-01-01 until account expires */
-    unsigned long sp_flag;  /* Reserved */
+	char *sp_namp;          /* Login name */
+	char *sp_pwdp;          /* Encrypted password */
+	long sp_lstchg;         /* Date of last change */
+	long sp_min;            /* Minimum number of days between changes */
+	long sp_max;            /* Maximum number of days between changes */
+	long sp_warn;           /* Number of days to warn user to change the password */
+	long sp_inact;          /* Number of days the account may be inactive */
+	long sp_expire;         /* Number of days since 1970-01-01 until account expires */
+	unsigned long sp_flag;  /* Reserved */
 };
 
 /* Paths to the user database files */
@@ -72132,20 +72103,20 @@ struct spwd {
 
 
 
-
+		       
 
 extern int bb_internal_getspnam_r(const char *__name, struct spwd *__result_buf,
-                                  char *__buffer, size_t __buflen,
-                                  struct spwd **__result);
+		       char *__buffer, size_t __buflen,
+		       struct spwd **__result);
 
 
 
+			
+			
 
 
-
-
-
-
+			
+			
 
 
 
@@ -72190,7 +72161,7 @@ _Pragma("GCC visibility pop")
 
 
 
-/* "long" is too short, need "long long" */
+ /* "long" is too short, need "long long" */
 typedef unsigned long long uoff_t;
 
 
@@ -72208,7 +72179,7 @@ typedef unsigned long uoff_t;
 
 
 
-
+ 
 
 
 
@@ -72286,18 +72257,18 @@ extern char *strrstr(const char *haystack, const char *needle) ;
 extern const char *bb_mode_string(mode_t mode) ;
 extern int is_directory(const char *name, int followLinks, struct stat *statBuf) ;
 enum {	/* DO NOT CHANGE THESE VALUES!  cp.c, mv.c, install.c depend on them. */
-    FILEUTILS_PRESERVE_STATUS = 1 << 0, /* -p */
-    FILEUTILS_DEREFERENCE     = 1 << 1, /* !-d */
-    FILEUTILS_RECUR           = 1 << 2, /* -R */
-    FILEUTILS_FORCE           = 1 << 3, /* -f */
-    FILEUTILS_INTERACTIVE     = 1 << 4, /* -i */
-    FILEUTILS_MAKE_HARDLINK   = 1 << 5, /* -l */
-    FILEUTILS_MAKE_SOFTLINK   = 1 << 6, /* -s */
-    FILEUTILS_DEREF_SOFTLINK  = 1 << 7, /* -L */
-    FILEUTILS_DEREFERENCE_L0  = 1 << 8, /* -H */
+	FILEUTILS_PRESERVE_STATUS = 1 << 0, /* -p */
+	FILEUTILS_DEREFERENCE     = 1 << 1, /* !-d */
+	FILEUTILS_RECUR           = 1 << 2, /* -R */
+	FILEUTILS_FORCE           = 1 << 3, /* -f */
+	FILEUTILS_INTERACTIVE     = 1 << 4, /* -i */
+	FILEUTILS_MAKE_HARDLINK   = 1 << 5, /* -l */
+	FILEUTILS_MAKE_SOFTLINK   = 1 << 6, /* -s */
+	FILEUTILS_DEREF_SOFTLINK  = 1 << 7, /* -L */
+	FILEUTILS_DEREFERENCE_L0  = 1 << 8, /* -H */
 #if (definedEx(CONFIG_FEATURE_FIND_CONTEXT) || definedEx(CONFIG_SELINUX))
-    FILEUTILS_PRESERVE_SECURITY_CONTEXT = 1 << 9, /* -c */
-    FILEUTILS_SET_SECURITY_CONTEXT = 1 << 10,
+	FILEUTILS_PRESERVE_SECURITY_CONTEXT = 1 << 9, /* -c */
+	FILEUTILS_SET_SECURITY_CONTEXT = 1 << 10,
 #endif
 };
 
@@ -72309,19 +72280,19 @@ extern int remove_file(const char *path, int flags) ;
 extern int copy_file(const char *source, const char *dest, int flags) ;
 
 enum {
-    ACTION_RECURSE        = (1 << 0),
-    ACTION_FOLLOWLINKS    = (1 << 1),
-    ACTION_FOLLOWLINKS_L0 = (1 << 2),
-    ACTION_DEPTHFIRST     = (1 << 3),
-    /*ACTION_REVERSE      = (1 << 4), - unused */
-    ACTION_QUIET          = (1 << 5),
-    ACTION_DANGLING_OK    = (1 << 6),
+	ACTION_RECURSE        = (1 << 0),
+	ACTION_FOLLOWLINKS    = (1 << 1),
+	ACTION_FOLLOWLINKS_L0 = (1 << 2),
+	ACTION_DEPTHFIRST     = (1 << 3),
+	/*ACTION_REVERSE      = (1 << 4), - unused */
+	ACTION_QUIET          = (1 << 5),
+	ACTION_DANGLING_OK    = (1 << 6),
 };
 typedef uint8_t recurse_flags_t;
 extern int recursive_action(const char *fileName, unsigned flags,
-                            int  (*fileAction)(const char *fileName, struct stat* statbuf, void* userData, int depth),
-                            int  (*dirAction)(const char *fileName, struct stat* statbuf, void* userData, int depth),
-                            void* userData, unsigned depth) ;
+	int  (*fileAction)(const char *fileName, struct stat* statbuf, void* userData, int depth),
+	int  (*dirAction)(const char *fileName, struct stat* statbuf, void* userData, int depth),
+	void* userData, unsigned depth) ;
 extern int device_open(const char *device, int mode) ;
 enum { GETPTY_BUFSIZE = 16 }; /* more than enough for "/dev/ttyXXX" */
 extern int xgetpty(char *line) ;
@@ -72367,34 +72338,34 @@ char *xmalloc_follow_symlinks(const char *path)  __attribute__ ((malloc));
 
 
 enum {
-    /* bb_signals(BB_FATAL_SIGS, handler) catches all signals which
-     * otherwise would kill us, except for those resulting from bugs:
-     * SIGSEGV, SIGILL, SIGFPE.
-     * Other fatal signals not included (TODO?):
-     * SIGBUS   Bus error (bad memory access)
-     * SIGPOLL  Pollable event. Synonym of SIGIO
-     * SIGPROF  Profiling timer expired
-     * SIGSYS   Bad argument to routine
-     * SIGTRAP  Trace/breakpoint trap
-     *
-     * The only known arch with some of these sigs not fitting
-     * into 32 bits is parisc (SIGXCPU=33, SIGXFSZ=34, SIGSTKFLT=36).
-     * Dance around with long long to guard against that...
-     */
-    BB_FATAL_SIGS = (int)(0
-    + (1LL << 1)
-    + (1LL << 2)
-    + (1LL << 15)
-    + (1LL << 13)   // Write to pipe with no readers
-    + (1LL << 3)   // Quit from keyboard
-    + (1LL << 6)   // Abort signal from abort(3)
-    + (1LL << 14)   // Timer signal from alarm(2)
-    + (1LL << 26) // Virtual alarm clock
-    + (1LL << 24)   // CPU time limit exceeded
-    + (1LL << 25)   // File size limit exceeded
-    + (1LL << 10)   // Yes kids, these are also fatal!
-    + (1LL << 12)
-    + 0),
+	/* bb_signals(BB_FATAL_SIGS, handler) catches all signals which
+	 * otherwise would kill us, except for those resulting from bugs:
+	 * SIGSEGV, SIGILL, SIGFPE.
+	 * Other fatal signals not included (TODO?):
+	 * SIGBUS   Bus error (bad memory access)
+	 * SIGPOLL  Pollable event. Synonym of SIGIO
+	 * SIGPROF  Profiling timer expired
+	 * SIGSYS   Bad argument to routine
+	 * SIGTRAP  Trace/breakpoint trap
+	 *
+	 * The only known arch with some of these sigs not fitting
+	 * into 32 bits is parisc (SIGXCPU=33, SIGXFSZ=34, SIGSTKFLT=36).
+	 * Dance around with long long to guard against that...
+	 */
+	BB_FATAL_SIGS = (int)(0
+		+ (1LL << 1)
+		+ (1LL << 2)
+		+ (1LL << 15)
+		+ (1LL << 13)   // Write to pipe with no readers
+		+ (1LL << 3)   // Quit from keyboard
+		+ (1LL << 6)   // Abort signal from abort(3)
+		+ (1LL << 14)   // Timer signal from alarm(2)
+		+ (1LL << 26) // Virtual alarm clock
+		+ (1LL << 24)   // CPU time limit exceeded
+		+ (1LL << 25)   // File size limit exceeded
+		+ (1LL << 10)   // Yes kids, these are also fatal!
+		+ (1LL << 12)
+		+ 0),
 };
 void bb_signals(int sigs, void (*f)(int)) ;
 /* Unlike signal() and bb_signals, sets handler with sigaction()
@@ -72442,16 +72413,13 @@ int xmkstemp(char *template) ;
 off_t fdlength(int fd) ;
 
 uoff_t  get_volume_size_in_bytes(int fd,
-                                 const char *override,
-                                 unsigned override_units,
-                                 int extend);
+                const char *override,
+                unsigned override_units,
+                int extend);
 
 void xpipe(int filedes[2]) ;
 /* In this form code with pipes is much more readable */
-struct fd_pair {
-    int rd;
-    int wr;
-};
+struct fd_pair { int rd; int wr; };
 
 
 
@@ -72459,27 +72427,27 @@ struct fd_pair {
 typedef int8_t socktype_t;
 typedef int8_t family_t;
 struct BUG_too_small {
-    char BUG_socktype_t_too_small[(0
-                                   | SOCK_STREAM
-                                   | SOCK_DGRAM
-                                   | SOCK_RDM
-                                   | SOCK_SEQPACKET
-                                   | SOCK_RAW
-                                  ) <= 127 ? 1 : -1];
-    char BUG_family_t_too_small[(0
-                                 | 0
-                                 | 2
-                                 | 10
-                                 | 1
-                                 
-                                 | 17
-                                 
-                                 
-                                 | 16
-                                 
-                                 /* | AF_DECnet */
-                                 /* | AF_IPX */
-                                ) <= 127 ? 1 : -1];
+	char BUG_socktype_t_too_small[(0
+			| SOCK_STREAM
+			| SOCK_DGRAM
+			| SOCK_RDM
+			| SOCK_SEQPACKET
+			| SOCK_RAW
+			) <= 127 ? 1 : -1];
+	char BUG_family_t_too_small[(0
+			| 0
+			| 2
+			| 10
+			| 1
+
+			| 17
+
+
+			| 16
+
+			/* | AF_DECnet */
+			/* | AF_IPX */
+			) <= 127 ? 1 : -1];
 };
 
 
@@ -72492,7 +72460,7 @@ void xbind(int sockfd, struct sockaddr *my_addr, socklen_t addrlen) ;
 void xlisten(int s, int backlog) ;
 void xconnect(int s, const struct sockaddr *s_addr, socklen_t addrlen) ;
 ssize_t xsendto(int s, const void *buf, size_t len, const struct sockaddr *to,
-                socklen_t tolen) ;
+				socklen_t tolen) ;
 /* SO_REUSEADDR allows a server to rebind to an address that is already
  * "in use" by old connections to e.g. previous server instance which is
  * killed or crashed. Without it bind will fail until all such connections
@@ -72505,26 +72473,26 @@ int setsockopt_bindtodevice(int fd, const char *iface) ;
 /* NB: returns port in host byte order */
 unsigned bb_lookup_port(const char *port, const char *protocol, unsigned default_port) ;
 typedef struct len_and_sockaddr {
-    socklen_t len;
-    union {
-        struct sockaddr sa;
-        struct sockaddr_in sin;
+	socklen_t len;
+	union {
+		struct sockaddr sa;
+		struct sockaddr_in sin;
 #if definedEx(CONFIG_FEATURE_IPV6)
-        struct sockaddr_in6 sin6;
+		struct sockaddr_in6 sin6;
 #endif
-    } u;
+	} u;
 } len_and_sockaddr;
 enum {
-    LSA_LEN_SIZE = __builtin_offsetof (len_and_sockaddr, u),
-    LSA_SIZEOF_SA = sizeof(
-    union {
-        struct sockaddr sa;
-        struct sockaddr_in sin;
+	LSA_LEN_SIZE = __builtin_offsetof (len_and_sockaddr, u),
+	LSA_SIZEOF_SA = sizeof(
+		union {
+			struct sockaddr sa;
+			struct sockaddr_in sin;
 #if definedEx(CONFIG_FEATURE_IPV6)
-        struct sockaddr_in6 sin6;
+			struct sockaddr_in6 sin6;
 #endif
-    }
-    )
+		}
+	)
 };
 /* Create stream socket, and allocate suitable lsa.
  * (lsa of correct size and lsa->sa.sa_family (AF_INET/AF_INET6))
@@ -72600,13 +72568,13 @@ struct hostent *xgethostbyname(const char *name) ;
 
 void socket_want_pktinfo(int fd) ;
 ssize_t send_to_from(int fd, void *buf, size_t len, int flags,
-                     const struct sockaddr *to,
-                     const struct sockaddr *from,
-                     socklen_t tolen) ;
+		const struct sockaddr *to,
+		const struct sockaddr *from,
+		socklen_t tolen) ;
 ssize_t recv_from_to(int fd, void *buf, size_t len, int flags,
-                     struct sockaddr *from,
-                     struct sockaddr *to,
-                     socklen_t sa_size) ;
+		struct sockaddr *from,
+		struct sockaddr *to,
+		socklen_t sa_size) ;
 
 
 char *xstrdup(const char *s)  __attribute__ ((malloc));
@@ -72633,9 +72601,9 @@ char *xasprintf(const char *format, ...) __attribute__ ((format(printf, 1, 2))) 
 
 
 typedef struct uni_stat_t {
-    unsigned byte_count;
-    unsigned unicode_count;
-    unsigned unicode_width;
+	unsigned byte_count;
+	unsigned unicode_count;
+	unsigned unicode_width;
 } uni_stat_t;
 /* Returns a string with unprintable chars replaced by '?' or
  * SUBST_WCHAR. This function is unicode-aware. */
@@ -72771,7 +72739,7 @@ void smart_ulltoa5(unsigned long long ul, char buf[5], const char *scale) ;
 
 //TODO: provide pointer to buf (avoid statics)?
 const char *make_human_readable_str(unsigned long long size,
-                                    unsigned long block_size, unsigned long display_unit) ;
+		unsigned long block_size, unsigned long display_unit) ;
 /* Put a string of hex bytes ("1b2e66fe"...), return advanced pointer */
 char *bin2hex(char *buf, const char *cp, int count) ;
 /* Reverse */
@@ -72782,8 +72750,8 @@ void generate_uuid(uint8_t *buf) ;
 
 /* Last element is marked by mult == 0 */
 struct suffix_mult {
-    char suffix[4];
-    unsigned mult;
+	char suffix[4];
+	unsigned mult;
 };
 #line 1 "/work/joliebig/workspace/TypeChef-BusyboxAnalysis/gitbusybox/include/xatonum.h" 1
 /* vi: set sw=4 ts=4: */
@@ -72817,21 +72785,7 @@ _Pragma("GCC visibility push(hidden)")
 
 
 /* Unsigned long long functions always exist */
-unsigned long long xstrtoull_range_sfx(const char *str, int b, unsigned long long l, unsigned long long u, const struct suffix_mult *sfx) ;
-unsigned long long xstrtoull_range(const char *str, int b, unsigned long long l, unsigned long long u) ;
-unsigned long long xstrtoull_sfx(const char *str, int b, const struct suffix_mult *sfx) ;
-unsigned long long xstrtoull(const char *str, int b) ;
-unsigned long long xatoull_range_sfx(const char *str, unsigned long long l, unsigned long long u, const struct suffix_mult *sfx) ;
-unsigned long long xatoull_range(const char *str, unsigned long long l, unsigned long long u) ;
-unsigned long long xatoull_sfx(const char *str, const struct suffix_mult *sfx) ;
-unsigned long long xatoull(const char *str) ;
-long long xstrtoll_range_sfx(const char *str, int b, long long l, long long u, const struct suffix_mult *sfx) ;
-long long xstrtoll_range(const char *str, int b, long long l, long long u) ;
-long long xstrtoll(const char *str, int b) ;
-long long xatoll_range_sfx(const char *str, long long l, long long u, const struct suffix_mult *sfx) ;
-long long xatoll_range(const char *str, long long l, long long u) ;
-long long xatoll_sfx(const char *str, const struct suffix_mult *sfx) ;
-long long xatoll(const char *str) ;
+unsigned long long xstrtoull_range_sfx(const char *str, int b, unsigned long long l, unsigned long long u, const struct suffix_mult *sfx) ; unsigned long long xstrtoull_range(const char *str, int b, unsigned long long l, unsigned long long u) ; unsigned long long xstrtoull_sfx(const char *str, int b, const struct suffix_mult *sfx) ; unsigned long long xstrtoull(const char *str, int b) ; unsigned long long xatoull_range_sfx(const char *str, unsigned long long l, unsigned long long u, const struct suffix_mult *sfx) ; unsigned long long xatoull_range(const char *str, unsigned long long l, unsigned long long u) ; unsigned long long xatoull_sfx(const char *str, const struct suffix_mult *sfx) ; unsigned long long xatoull(const char *str) ; long long xstrtoll_range_sfx(const char *str, int b, long long l, long long u, const struct suffix_mult *sfx) ; long long xstrtoll_range(const char *str, int b, long long l, long long u) ; long long xstrtoll(const char *str, int b) ; long long xatoll_range_sfx(const char *str, long long l, long long u, const struct suffix_mult *sfx) ; long long xatoll_range(const char *str, long long l, long long u) ; long long xatoll_sfx(const char *str, const struct suffix_mult *sfx) ; long long xatoll(const char *str) ;
 
 
 /* Provides inline definitions of functions */
@@ -72886,84 +72840,26 @@ long long xatoll(const char *str) ;
 
 /* If long == long long, then just map them one-to-one */
 
-static __inline__ unsigned long xstrtoul_range_sfx(const char *str, int b, unsigned long l, unsigned long u, const struct suffix_mult *sfx) {
-    return xstrtoull_range_sfx(str, b, l, u, sfx);
-}
-static __inline__ unsigned long xstrtoul_range(const char *str, int b, unsigned long l, unsigned long u) {
-    return xstrtoull_range(str, b, l, u);
-}
-static __inline__ unsigned long xstrtoul_sfx(const char *str, int b, const struct suffix_mult *sfx) {
-    return xstrtoull_sfx(str, b, sfx);
-}
-static __inline__ unsigned long xstrtoul(const char *str, int b) {
-    return xstrtoull(str, b);
-}
-static __inline__ unsigned long xatoul_range_sfx(const char *str, unsigned long l, unsigned long u, const struct suffix_mult *sfx) {
-    return xatoull_range_sfx(str, l, u, sfx);
-}
-static __inline__ unsigned long xatoul_range(const char *str, unsigned long l, unsigned long u) {
-    return xatoull_range(str, l, u);
-}
-static __inline__ unsigned long xatoul_sfx(const char *str, const struct suffix_mult *sfx) {
-    return xatoull_sfx(str, sfx);
-}
-static __inline__ unsigned long xatoul(const char *str) {
-    return xatoull(str);
-}
-static __inline__ long xstrtol_range_sfx(const char *str, int b, long l, long u, const struct suffix_mult *sfx) {
-    return xstrtoll_range_sfx(str, b, l, u, sfx);
-}
-static __inline__ long xstrtol_range(const char *str, int b, long l, long u) {
-    return xstrtoll_range(str, b, l, u);
-}
-static __inline__ long xstrtol(const char *str, int b) {
-    return xstrtoll(str, b);
-}
-static __inline__ long xatol_range_sfx(const char *str, long l, long u, const struct suffix_mult *sfx) {
-    return xatoll_range_sfx(str, l, u, sfx);
-}
-static __inline__ long xatol_range(const char *str, long l, long u) {
-    return xatoll_range(str, l, u);
-}
-static __inline__ long xatol_sfx(const char *str, const struct suffix_mult *sfx) {
-    return xatoll_sfx(str, sfx);
-}
-static __inline__ long xatol(const char *str) {
-    return xatoll(str);
-}
-
+static __inline__ unsigned long xstrtoul_range_sfx(const char *str, int b, unsigned long l, unsigned long u, const struct suffix_mult *sfx) { return xstrtoull_range_sfx(str, b, l, u, sfx); } static __inline__ unsigned long xstrtoul_range(const char *str, int b, unsigned long l, unsigned long u) { return xstrtoull_range(str, b, l, u); } static __inline__ unsigned long xstrtoul_sfx(const char *str, int b, const struct suffix_mult *sfx) { return xstrtoull_sfx(str, b, sfx); } static __inline__ unsigned long xstrtoul(const char *str, int b) { return xstrtoull(str, b); } static __inline__ unsigned long xatoul_range_sfx(const char *str, unsigned long l, unsigned long u, const struct suffix_mult *sfx) { return xatoull_range_sfx(str, l, u, sfx); } static __inline__ unsigned long xatoul_range(const char *str, unsigned long l, unsigned long u) { return xatoull_range(str, l, u); } static __inline__ unsigned long xatoul_sfx(const char *str, const struct suffix_mult *sfx) { return xatoull_sfx(str, sfx); } static __inline__ unsigned long xatoul(const char *str) { return xatoull(str); } static __inline__ long xstrtol_range_sfx(const char *str, int b, long l, long u, const struct suffix_mult *sfx) { return xstrtoll_range_sfx(str, b, l, u, sfx); } static __inline__ long xstrtol_range(const char *str, int b, long l, long u) { return xstrtoll_range(str, b, l, u); } static __inline__ long xstrtol(const char *str, int b) { return xstrtoll(str, b); } static __inline__ long xatol_range_sfx(const char *str, long l, long u, const struct suffix_mult *sfx) { return xatoll_range_sfx(str, l, u, sfx); } static __inline__ long xatol_range(const char *str, long l, long u) { return xatoll_range(str, l, u); } static __inline__ long xatol_sfx(const char *str, const struct suffix_mult *sfx) { return xatoll_sfx(str, sfx); } static __inline__ long xatol(const char *str) { return xatoll(str); }
+ 
 
 
 /* Same for int -> [long] long */
 
 
-
-unsigned int xstrtou_range_sfx(const char *str, int b, unsigned int l, unsigned int u, const struct suffix_mult *sfx) ;
-unsigned int xstrtou_range(const char *str, int b, unsigned int l, unsigned int u) ;
-unsigned int xstrtou_sfx(const char *str, int b, const struct suffix_mult *sfx) ;
-unsigned int xstrtou(const char *str, int b) ;
-unsigned int xatou_range_sfx(const char *str, unsigned int l, unsigned int u, const struct suffix_mult *sfx) ;
-unsigned int xatou_range(const char *str, unsigned int l, unsigned int u) ;
-unsigned int xatou_sfx(const char *str, const struct suffix_mult *sfx) ;
-unsigned int xatou(const char *str) ;
-int xstrtoi_range_sfx(const char *str, int b, int l, int u, const struct suffix_mult *sfx) ;
-int xstrtoi_range(const char *str, int b, int l, int u) ;
-int xstrtoi(const char *str, int b) ;
-int xatoi_range_sfx(const char *str, int l, int u, const struct suffix_mult *sfx) ;
-int xatoi_range(const char *str, int l, int u) ;
-int xatoi_sfx(const char *str, const struct suffix_mult *sfx) ;
-int xatoi(const char *str) ;
+ 
+ unsigned int xstrtou_range_sfx(const char *str, int b, unsigned int l, unsigned int u, const struct suffix_mult *sfx) ; unsigned int xstrtou_range(const char *str, int b, unsigned int l, unsigned int u) ; unsigned int xstrtou_sfx(const char *str, int b, const struct suffix_mult *sfx) ; unsigned int xstrtou(const char *str, int b) ; unsigned int xatou_range_sfx(const char *str, unsigned int l, unsigned int u, const struct suffix_mult *sfx) ; unsigned int xatou_range(const char *str, unsigned int l, unsigned int u) ; unsigned int xatou_sfx(const char *str, const struct suffix_mult *sfx) ; unsigned int xatou(const char *str) ; int xstrtoi_range_sfx(const char *str, int b, int l, int u, const struct suffix_mult *sfx) ; int xstrtoi_range(const char *str, int b, int l, int u) ; int xstrtoi(const char *str, int b) ; int xatoi_range_sfx(const char *str, int l, int u, const struct suffix_mult *sfx) ; int xatoi_range(const char *str, int l, int u) ; int xatoi_sfx(const char *str, const struct suffix_mult *sfx) ; int xatoi(const char *str) ;
 
 /* Specialized */
 
 uint32_t BUG_xatou32_unimplemented(void);
 static __inline__ uint32_t xatou32(const char *numstr)
 {
-    if ((2147483647 * 2U + 1U) == 0xffffffff)
-        return xatou(numstr);
-    if ((9223372036854775807L * 2UL + 1UL) == 0xffffffff)
-        return xatoul(numstr);
-    return BUG_xatou32_unimplemented();
+	if ((2147483647 * 2U + 1U) == 0xffffffff)
+		return xatou(numstr);
+	if ((9223372036854775807L * 2UL + 1UL) == 0xffffffff)
+		return xatoul(numstr);
+	return BUG_xatou32_unimplemented();
 }
 
 /* Non-aborting kind of convertors: bb_strto[u][l]l */
@@ -72985,14 +72881,11 @@ long long bb_strtoll(const char *arg, char **endp, int base) ;
 
 static __inline__
 unsigned long bb_strtoul(const char *arg, char **endp, int base)
-{
-    return bb_strtoull(arg, endp, base);
-}
+{ return bb_strtoull(arg, endp, base); }
 static __inline__
 long bb_strtol(const char *arg, char **endp, int base)
-{
-    return bb_strtoll(arg, endp, base);
-}
+{ return bb_strtoll(arg, endp, base); }
+ 
 
 
 
@@ -73002,25 +72895,24 @@ long bb_strtol(const char *arg, char **endp, int base)
 
 
 
+ 
 
 
 
 
 
-
-
-unsigned bb_strtou(const char *arg, char **endp, int base) ;
+ unsigned bb_strtou(const char *arg, char **endp, int base) ;
 int bb_strtoi(const char *arg, char **endp, int base) ;
 
 uint32_t BUG_bb_strtou32_unimplemented(void);
 static __inline__
 uint32_t bb_strtou32(const char *arg, char **endp, int base)
 {
-    if (sizeof(uint32_t) == sizeof(unsigned))
-        return bb_strtou(arg, endp, base);
-    if (sizeof(uint32_t) == sizeof(unsigned long))
-        return bb_strtoul(arg, endp, base);
-    return BUG_bb_strtou32_unimplemented();
+	if (sizeof(uint32_t) == sizeof(unsigned))
+		return bb_strtou(arg, endp, base);
+	if (sizeof(uint32_t) == sizeof(unsigned long))
+		return bb_strtoul(arg, endp, base);
+	return BUG_bb_strtou32_unimplemented();
 }
 
 /* Floating point */
@@ -73053,8 +72945,8 @@ long xgroup2gid(const char *name) ;
 unsigned long get_ug_id(const char *s, long  (*xname2id)(const char *)) ;
 /* from chpst. Does not die, returns 0 on failure */
 struct bb_uidgid_t {
-    uid_t uid;
-    gid_t gid;
+	uid_t uid;
+	gid_t gid;
 };
 /* always sets uid and gid */
 int get_uidgid(struct bb_uidgid_t*, const char*, int numeric_ok) ;
@@ -73142,12 +73034,12 @@ int wait4pid(pid_t pid) ;
 /* Same as wait4pid(spawn(argv)), but with NOFORK/NOEXEC if configured: */
 int spawn_and_wait(char **argv) ;
 struct nofork_save_area {
-    jmp_buf die_jmp;
-    const char *applet_name;
-    uint32_t option_mask32;
-    int die_sleep;
-    uint8_t xfunc_error_retval;
-    smallint saved;
+	jmp_buf die_jmp;
+	const char *applet_name;
+	uint32_t option_mask32;
+	int die_sleep;
+	uint8_t xfunc_error_retval;
+	smallint saved;
 };
 void save_nofork_data(struct nofork_save_area *save) ;
 void restore_nofork_data(struct nofork_save_area *save) ;
@@ -73179,37 +73071,37 @@ int run_nofork_applet_prime(struct nofork_save_area *old, int applet_no, char **
  * to /dev/null if they are not.
  */
 enum {
-    DAEMON_CHDIR_ROOT = 1,
-    DAEMON_DEVNULL_STDIO = 2,
-    DAEMON_CLOSE_EXTRA_FDS = 4,
-    DAEMON_ONLY_SANITIZE = 8, /* internal use */
+	DAEMON_CHDIR_ROOT = 1,
+	DAEMON_DEVNULL_STDIO = 2,
+	DAEMON_CLOSE_EXTRA_FDS = 4,
+	DAEMON_ONLY_SANITIZE = 8, /* internal use */
 };
 #if !definedEx(CONFIG_NOMMU)
-enum { re_execed = 0 };
+  enum { re_execed = 0 };
 
 
 
 #endif
 #if definedEx(CONFIG_NOMMU)
-extern _Bool re_execed;
-void re_exec(char **argv) __attribute__ ((__noreturn__)) ;
-pid_t fork_or_rexec(char **argv) ;
-int  BUG_fork_is_unavailable_on_nommu(void) ;
-int  BUG_daemon_is_unavailable_on_nommu(void) ;
-void BUG_bb_daemonize_is_unavailable_on_nommu(void) ;
+  extern _Bool re_execed;
+  void re_exec(char **argv) __attribute__ ((__noreturn__)) ;
+  pid_t fork_or_rexec(char **argv) ;
+  int  BUG_fork_is_unavailable_on_nommu(void) ;
+  int  BUG_daemon_is_unavailable_on_nommu(void) ;
+  void BUG_bb_daemonize_is_unavailable_on_nommu(void) ;
 
 
 
 
 #endif
-void
+void 
 #if !definedEx(CONFIG_NOMMU)
 bb_daemonize_or_rexec(int flags)
 #endif
 #if definedEx(CONFIG_NOMMU)
 bb_daemonize_or_rexec(int flags, char **argv)
 #endif
-;
+ ;
 void bb_sanitize_stdio(void) ;
 /* Clear dangerous stuff, set PATH. Return 1 if was run by different user. */
 int sanitize_env_if_suid(void) ;
@@ -73229,8 +73121,8 @@ extern uint32_t getopt32(char **argv, const char *applet_opts, ...) ;
 
 
 typedef struct llist_t {
-    char *data;
-    struct llist_t *link;
+	char *data;
+	struct llist_t *link;
 } llist_t;
 void llist_add_to(llist_t **old_head, void *data) ;
 void llist_add_to_end(llist_t **list_head, void *data) ;
@@ -73257,17 +73149,17 @@ enum { wrote_pidfile = 0 };
 
 #endif
 enum {
-    LOGMODE_NONE = 0,
-    LOGMODE_STDIO = (1 << 0),
-    LOGMODE_SYSLOG = (1 << 1) *
+	LOGMODE_NONE = 0,
+	LOGMODE_STDIO = (1 << 0),
+	LOGMODE_SYSLOG = (1 << 1) * 
 #if definedEx(CONFIG_FEATURE_SYSLOG)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_SYSLOG)
-    0
+0
 #endif
-    ,
-    LOGMODE_BOTH = LOGMODE_SYSLOG + LOGMODE_STDIO,
+,
+	LOGMODE_BOTH = LOGMODE_SYSLOG + LOGMODE_STDIO,
 };
 extern const char *msg_eol;
 extern smallint logmode;
@@ -73301,7 +73193,7 @@ extern void bb_verror_msg(const char *s, va_list p, const char *strerr) ;
 /* Applets which are useful from another applets */
 int bb_cat(char** argv);
 /* If shell needs them, they exist even if not enabled as applets */
-int echo_main(int argc, char** argv)
+int echo_main(int argc, char** argv) 
 #if definedEx(CONFIG_ECHO)
 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
@@ -73316,7 +73208,7 @@ __attribute__(( visibility("default") ))
 
 #endif
 ;
-int printf_main(int argc, char **argv)
+int printf_main(int argc, char **argv) 
 #if definedEx(CONFIG_PRINTF)
 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
@@ -73331,7 +73223,7 @@ __attribute__(( visibility("default") ))
 
 #endif
 ;
-int test_main(int argc, char **argv)
+int test_main(int argc, char **argv) 
 #if definedEx(CONFIG_TEST)
 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
@@ -73346,7 +73238,7 @@ __attribute__(( visibility("default") ))
 
 #endif
 ;
-int kill_main(int argc, char **argv)
+int kill_main(int argc, char **argv) 
 #if definedEx(CONFIG_KILL)
 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
@@ -73362,7 +73254,7 @@ __attribute__(( visibility("default") ))
 #endif
 ;
 /* Similar, but used by chgrp, not shell */
-int chown_main(int argc, char **argv)
+int chown_main(int argc, char **argv) 
 #if definedEx(CONFIG_CHOWN)
 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
@@ -73378,7 +73270,7 @@ __attribute__(( visibility("default") ))
 #endif
 ;
 /* Used by ftpd */
-int ls_main(int argc, char **argv)
+int ls_main(int argc, char **argv) 
 #if (definedEx(CONFIG_FEATURE_LS_COLOR) || definedEx(CONFIG_LS))
 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
@@ -73394,7 +73286,7 @@ __attribute__(( visibility("default") ))
 #endif
 ;
 /* Don't need IF_xxx() guard for these */
-int gunzip_main(int argc, char **argv)
+int gunzip_main(int argc, char **argv) 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
 __attribute__(( visibility("default") ))
 #endif
@@ -73402,7 +73294,7 @@ __attribute__(( visibility("default") ))
 
 #endif
 ;
-int bunzip2_main(int argc, char **argv)
+int bunzip2_main(int argc, char **argv) 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
 __attribute__(( visibility("default") ))
 #endif
@@ -73420,29 +73312,29 @@ int create_icmp6_socket(void) ;
 /* interface.c */
 /* This structure defines protocol families and their handlers. */
 struct aftype {
-    const char *name;
-    const char *title;
-    int af;
-    int alen;
-    char*        (*print)(unsigned char *);
-    const char*  (*sprint)(struct sockaddr *, int numeric);
-    int          (*input)(/*int type,*/ const char *bufp, struct sockaddr *);
-    void         (*herror)(char *text);
-    int          (*rprint)(int options);
-    int          (*rinput)(int typ, int ext, char **argv);
-    /* may modify src */
-    int          (*getmask)(char *src, struct sockaddr *mask, char *name);
+	const char *name;
+	const char *title;
+	int af;
+	int alen;
+	char*        (*print)(unsigned char *);
+	const char*  (*sprint)(struct sockaddr *, int numeric);
+	int          (*input)(/*int type,*/ const char *bufp, struct sockaddr *);
+	void         (*herror)(char *text);
+	int          (*rprint)(int options);
+	int          (*rinput)(int typ, int ext, char **argv);
+	/* may modify src */
+	int          (*getmask)(char *src, struct sockaddr *mask, char *name);
 };
 /* This structure defines hardware protocols and their handlers. */
 struct hwtype {
-    const char *name;
-    const char *title;
-    int type;
-    int alen;
-    char*  (*print)(unsigned char *);
-    int    (*input)(const char *, struct sockaddr *);
-    int    (*activate)(int fd);
-    int suppress_null_addr;
+	const char *name;
+	const char *title;
+	int type;
+	int alen;
+	char*  (*print)(unsigned char *);
+	int    (*input)(const char *, struct sockaddr *);
+	int    (*activate)(int fd);
+	int suppress_null_addr;
 };
 extern smallint interface_opt_a;
 int display_interfaces(char *ifname) ;
@@ -73497,33 +73389,33 @@ int bb_parse_mode(const char* s, mode_t* theMode) ;
  * Config file parser
  */
 enum {
-    PARSE_COLLAPSE  = 0x00010000, // treat consecutive delimiters as one
-    PARSE_TRIM      = 0x00020000, // trim leading and trailing delimiters
+	PARSE_COLLAPSE  = 0x00010000, // treat consecutive delimiters as one
+	PARSE_TRIM      = 0x00020000, // trim leading and trailing delimiters
 // TODO: COLLAPSE and TRIM seem to always go in pair
-    PARSE_GREEDY    = 0x00040000, // last token takes entire remainder of the line
-    PARSE_MIN_DIE   = 0x00100000, // die if < min tokens found
-    // keep a copy of current line
-    PARSE_KEEP_COPY = 0x00200000 *
+	PARSE_GREEDY    = 0x00040000, // last token takes entire remainder of the line
+	PARSE_MIN_DIE   = 0x00100000, // die if < min tokens found
+	// keep a copy of current line
+	PARSE_KEEP_COPY = 0x00200000 * 
 #if definedEx(CONFIG_FEATURE_CROND_D)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_CROND_D)
-    0
+0
 #endif
-    ,
+,
 //	PARSE_ESCAPE    = 0x00400000, // process escape sequences in tokens
-    // NORMAL is:
-    // * remove leading and trailing delimiters and collapse
-    //   multiple delimiters into one
-    // * warn and continue if less than mintokens delimiters found
-    // * grab everything into last token
-    PARSE_NORMAL    = PARSE_COLLAPSE | PARSE_TRIM | PARSE_GREEDY,
+	// NORMAL is:
+	// * remove leading and trailing delimiters and collapse
+	//   multiple delimiters into one
+	// * warn and continue if less than mintokens delimiters found
+	// * grab everything into last token
+	PARSE_NORMAL    = PARSE_COLLAPSE | PARSE_TRIM | PARSE_GREEDY,
 };
 typedef struct parser_t {
-    FILE *fp;
-    char *line;
-    char *data;
-    int lineno;
+	FILE *fp;
+	char *line;
+	char *data;
+	int lineno;
 } parser_t;
 parser_t* config_open(const char *filename) ;
 parser_t* config_open2(const char *filename, FILE*  (*fopen_func)(const char *path)) ;
@@ -73562,7 +73454,7 @@ extern void run_shell(const char *shell, int loginshell, const char *command, co
 extern void renew_current_security_context(void) ;
 extern void set_current_security_context(security_context_t sid) ;
 extern context_t set_security_context_component(security_context_t cur_context,
-        char *user, char *role, char *type, char *range) ;
+						char *user, char *role, char *type, char *range) ;
 extern void setfscreatecon_or_die(security_context_t scontext) ;
 extern void selinux_preserve_fcontext(int fdesc) ;
 #endif
@@ -73602,7 +73494,7 @@ pw_encrypt(const char *clear, const char *salt)
 #if definedEx(CONFIG_USE_BB_CRYPT)
 pw_encrypt(const char *clear, const char *salt, int cleanup)
 #endif
-;
+ ;
 extern int obscure(const char *old, const char *newval, const struct passwd *pwdp) ;
 /* rnd is additional random input. New one is returned.
  * Useful if you call crypt_make_salt many times in a row:
@@ -73618,19 +73510,19 @@ extern int crypt_make_salt(char *p, int cnt, int rnd) ;
 
 
 #endif
-extern int
+extern int 
 #if (!definedEx(CONFIG_FEATURE_ADDUSER_TO_GROUP) && !definedEx(CONFIG_FEATURE_DEL_USER_FROM_GROUP))
-update_passwd(const char *filename,
-              const char *username,
-              const char *data)
+update_passwd(const char *filename, 
+ const char *username, 
+ const char *data)
 #endif
 #if (definedEx(CONFIG_FEATURE_ADDUSER_TO_GROUP) || definedEx(CONFIG_FEATURE_DEL_USER_FROM_GROUP))
 update_passwd(const char *filename,
-              const char *username,
-              const char *data,
-              const char *member)
+		const char *username,
+		const char *data,
+		const char *member)
 #endif
-;
+ ;
 
 int index_in_str_array(const char *const string_array[], const char *key) ;
 int index_in_strings(const char *strings, const char *key) ;
@@ -73676,41 +73568,41 @@ unsigned long long bb_makedev(unsigned int major, unsigned int minor) ;
  * yet doesn't represent any valid Unicode character.
  * Also, -1 is reserved for error indication and we don't use it. */
 enum {
-    KEYCODE_UP       =  -2,
-    KEYCODE_DOWN     =  -3,
-    KEYCODE_RIGHT    =  -4,
-    KEYCODE_LEFT     =  -5,
-    KEYCODE_HOME     =  -6,
-    KEYCODE_END      =  -7,
-    KEYCODE_INSERT   =  -8,
-    KEYCODE_DELETE   =  -9,
-    KEYCODE_PAGEUP   = -10,
-    KEYCODE_PAGEDOWN = -11,
-    
-    KEYCODE_CTRL_UP    = KEYCODE_UP    & ~0x40,
-    KEYCODE_CTRL_DOWN  = KEYCODE_DOWN  & ~0x40,
-    KEYCODE_CTRL_RIGHT = KEYCODE_RIGHT & ~0x40,
-    KEYCODE_CTRL_LEFT  = KEYCODE_LEFT  & ~0x40,
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    KEYCODE_CURSOR_POS = -0x100, /* 0xfff..fff00 */
-    /* How long is the longest ESC sequence we know?
-     * We want it big enough to be able to contain
-     * cursor position sequence "ESC [ 9999 ; 9999 R"
-     */
-    KEYCODE_BUFFER_SIZE = 16
+	KEYCODE_UP       =  -2,
+	KEYCODE_DOWN     =  -3,
+	KEYCODE_RIGHT    =  -4,
+	KEYCODE_LEFT     =  -5,
+	KEYCODE_HOME     =  -6,
+	KEYCODE_END      =  -7,
+	KEYCODE_INSERT   =  -8,
+	KEYCODE_DELETE   =  -9,
+	KEYCODE_PAGEUP   = -10,
+	KEYCODE_PAGEDOWN = -11,
+
+	KEYCODE_CTRL_UP    = KEYCODE_UP    & ~0x40,
+	KEYCODE_CTRL_DOWN  = KEYCODE_DOWN  & ~0x40,
+	KEYCODE_CTRL_RIGHT = KEYCODE_RIGHT & ~0x40,
+	KEYCODE_CTRL_LEFT  = KEYCODE_LEFT  & ~0x40,
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	KEYCODE_CURSOR_POS = -0x100, /* 0xfff..fff00 */
+	/* How long is the longest ESC sequence we know?
+	 * We want it big enough to be able to contain
+	 * cursor position sequence "ESC [ 9999 ; 9999 R"
+	 */
+	KEYCODE_BUFFER_SIZE = 16
 };
 /* Note: fd may be in blocking or non-blocking mode, both make sense.
  * For one, less uses non-blocking mode.
@@ -73733,57 +73625,57 @@ void read_key_ungets(char *buffer, const char *str, unsigned len) ;
 /* It's NOT just ENABLEd or disabled. It's a number: */
 
 
-
+ 
 
 typedef struct line_input_t {
-    int flags;
-    const char *path_lookup;
-    
-    int cnt_history;
-    int cur_history;
+	int flags;
+	const char *path_lookup;
+
+	int cnt_history;
+	int cur_history;
 #if definedEx(CONFIG_FEATURE_EDITING_SAVEHISTORY)
-    unsigned cnt_history_in_file;
-    const char *hist_file;
+	unsigned cnt_history_in_file;
+	const char *hist_file;
 #endif
-    char *history[(255 + 0) + 1];
-    
+	char *history[(255 + 0) + 1];
+
 } line_input_t;
 enum {
-    DO_HISTORY = 1 * ((255 + 0) > 0),
-    SAVE_HISTORY = 2 * ((255 + 0) > 0) *
+	DO_HISTORY = 1 * ((255 + 0) > 0),
+	SAVE_HISTORY = 2 * ((255 + 0) > 0) * 
 #if definedEx(CONFIG_FEATURE_EDITING_SAVEHISTORY)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_EDITING_SAVEHISTORY)
-    0
+0
 #endif
-    ,
-    TAB_COMPLETION = 4 *
+,
+	TAB_COMPLETION = 4 * 
 #if definedEx(CONFIG_FEATURE_TAB_COMPLETION)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_TAB_COMPLETION)
-    0
+0
 #endif
-    ,
-    USERNAME_COMPLETION = 8 *
+,
+	USERNAME_COMPLETION = 8 * 
 #if definedEx(CONFIG_FEATURE_USERNAME_COMPLETION)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_USERNAME_COMPLETION)
-    0
+0
 #endif
-    ,
-    VI_MODE = 0x10 *
+,
+	VI_MODE = 0x10 * 
 #if definedEx(CONFIG_FEATURE_EDITING_VI)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_EDITING_VI)
-    0
+0
 #endif
-    ,
-    WITH_PATH_LOOKUP = 0x20,
-    FOR_SHELL = DO_HISTORY | SAVE_HISTORY | TAB_COMPLETION | USERNAME_COMPLETION,
+,
+	WITH_PATH_LOOKUP = 0x20,
+	FOR_SHELL = DO_HISTORY | SAVE_HISTORY | TAB_COMPLETION | USERNAME_COMPLETION,
 };
 line_input_t *new_line_input_t(int flags) ;
 /* So far static: void free_line_input_t(line_input_t *n) FAST_FUNC; */
@@ -73794,6 +73686,7 @@ line_input_t *new_line_input_t(int flags) ;
  * >0 length of input string, including terminating '\n'
  */
 int read_line_input(const char* prompt, char* command, int maxsize, line_input_t *state) ;
+ 
 
 
 
@@ -73801,209 +73694,208 @@ int read_line_input(const char* prompt, char* command, int maxsize, line_input_t
 
 
 
-
-/* synchronize with sizeof(task_struct.comm) in /usr/include/linux/sched.h */
+ /* synchronize with sizeof(task_struct.comm) in /usr/include/linux/sched.h */
 enum { COMM_LEN = 16 };
 
 
 struct smaprec {
-    unsigned long mapped_rw;
-    unsigned long mapped_ro;
-    unsigned long shared_clean;
-    unsigned long shared_dirty;
-    unsigned long private_clean;
-    unsigned long private_dirty;
-    unsigned long stack;
-    unsigned long smap_pss, smap_swap;
-    unsigned long smap_size;
-    unsigned long smap_start;
-    char smap_mode[5];
-    char *smap_name;
+	unsigned long mapped_rw;
+	unsigned long mapped_ro;
+	unsigned long shared_clean;
+	unsigned long shared_dirty;
+	unsigned long private_clean;
+	unsigned long private_dirty;
+	unsigned long stack;
+	unsigned long smap_pss, smap_swap;
+	unsigned long smap_size;
+	unsigned long smap_start;
+	char smap_mode[5];
+	char *smap_name;
 };
 
 #if !definedEx(CONFIG_PMAP)
 
 
 #endif
-int
+int  
 #if !definedEx(CONFIG_PMAP)
 procps_read_smaps(pid_t pid, struct smaprec *total)
 #endif
 #if definedEx(CONFIG_PMAP)
 procps_read_smaps(pid_t pid, struct smaprec *total,
-                  void (*cb)(struct smaprec *, void *), void *data)
+		      void (*cb)(struct smaprec *, void *), void *data)
 #endif
 ;
 
 typedef struct procps_status_t {
-    DIR *dir;
-    
+	DIR *dir;
+	
 #if definedEx(CONFIG_FEATURE_SHOW_THREADS)
-    DIR *task_dir;
+DIR *task_dir;
 #endif
 #if !definedEx(CONFIG_FEATURE_SHOW_THREADS)
-    
+
 #endif
-    
-    uint8_t shift_pages_to_bytes;
-    uint8_t shift_pages_to_kb;
-    /* Fields are set to 0/NULL if failed to determine (or not requested) */
-    uint16_t argv_len;
-    char *argv0;
-    char *exe;
-    
+
+	uint8_t shift_pages_to_bytes;
+	uint8_t shift_pages_to_kb;
+/* Fields are set to 0/NULL if failed to determine (or not requested) */
+	uint16_t argv_len;
+	char *argv0;
+	char *exe;
+	
 #if (definedEx(CONFIG_FEATURE_FIND_CONTEXT) || definedEx(CONFIG_SELINUX))
-    char *context;
+char *context;
 #endif
 #if (!definedEx(CONFIG_FEATURE_FIND_CONTEXT) && !definedEx(CONFIG_SELINUX))
-    
+
 #endif
-    
-    /* Everything below must contain no ptrs to malloc'ed data:
-     * it is memset(0) for each process in procps_scan() */
-    unsigned long vsz, rss; /* we round it to kbytes */
-    unsigned long stime, utime;
-    unsigned long start_time;
-    unsigned pid;
-    unsigned ppid;
-    unsigned pgid;
-    unsigned sid;
-    unsigned uid;
-    unsigned gid;
+
+	/* Everything below must contain no ptrs to malloc'ed data:
+	 * it is memset(0) for each process in procps_scan() */
+	unsigned long vsz, rss; /* we round it to kbytes */
+	unsigned long stime, utime;
+	unsigned long start_time;
+	unsigned pid;
+	unsigned ppid;
+	unsigned pgid;
+	unsigned sid;
+	unsigned uid;
+	unsigned gid;
 #if definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
-    unsigned ruid;
-    unsigned rgid;
-    int niceness;
+	unsigned ruid;
+	unsigned rgid;
+	int niceness;
 #endif
-    unsigned tty_major,tty_minor;
+	unsigned tty_major,tty_minor;
 #if definedEx(CONFIG_FEATURE_TOPMEM)
-    struct smaprec smaps;
+	struct smaprec smaps;
 #endif
-    char state[4];
-    /* basename of executable in exec(2), read from /proc/N/stat
-     * (if executable is symlink or script, it is NOT replaced
-     * by link target or interpreter name) */
-    char comm[COMM_LEN];
-    /* user/group? - use passwd/group parsing functions */
+	char state[4];
+	/* basename of executable in exec(2), read from /proc/N/stat
+	 * (if executable is symlink or script, it is NOT replaced
+	 * by link target or interpreter name) */
+	char comm[COMM_LEN];
+	/* user/group? - use passwd/group parsing functions */
 #if definedEx(CONFIG_FEATURE_TOP_SMP_PROCESS)
-    int last_seen_on_cpu;
+	int last_seen_on_cpu;
 #endif
 } procps_status_t;
 /* flag bits for procps_scan(xx, flags) calls */
 enum {
-    PSSCAN_PID      = 1 << 0,
-    PSSCAN_PPID     = 1 << 1,
-    PSSCAN_PGID     = 1 << 2,
-    PSSCAN_SID      = 1 << 3,
-    PSSCAN_UIDGID   = 1 << 4,
-    PSSCAN_COMM     = 1 << 5,
-    /* PSSCAN_CMD      = 1 << 6, - use read_cmdline instead */
-    PSSCAN_ARGV0    = 1 << 7,
-    PSSCAN_EXE      = 1 << 8,
-    PSSCAN_STATE    = 1 << 9,
-    PSSCAN_VSZ      = 1 << 10,
-    PSSCAN_RSS      = 1 << 11,
-    PSSCAN_STIME    = 1 << 12,
-    PSSCAN_UTIME    = 1 << 13,
-    PSSCAN_TTY      = 1 << 14,
-    PSSCAN_SMAPS	= (1 << 15) *
+	PSSCAN_PID      = 1 << 0,
+	PSSCAN_PPID     = 1 << 1,
+	PSSCAN_PGID     = 1 << 2,
+	PSSCAN_SID      = 1 << 3,
+	PSSCAN_UIDGID   = 1 << 4,
+	PSSCAN_COMM     = 1 << 5,
+	/* PSSCAN_CMD      = 1 << 6, - use read_cmdline instead */
+	PSSCAN_ARGV0    = 1 << 7,
+	PSSCAN_EXE      = 1 << 8,
+	PSSCAN_STATE    = 1 << 9,
+	PSSCAN_VSZ      = 1 << 10,
+	PSSCAN_RSS      = 1 << 11,
+	PSSCAN_STIME    = 1 << 12,
+	PSSCAN_UTIME    = 1 << 13,
+	PSSCAN_TTY      = 1 << 14,
+	PSSCAN_SMAPS	= (1 << 15) * 
 #if definedEx(CONFIG_FEATURE_TOPMEM)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_TOPMEM)
-    0
+0
 #endif
-    ,
-    /* NB: used by find_pid_by_name(). Any applet using it
-     * needs to be mentioned here. */
-    PSSCAN_ARGVN    = (1 << 16) * (
+,
+	/* NB: used by find_pid_by_name(). Any applet using it
+	 * needs to be mentioned here. */
+	PSSCAN_ARGVN    = (1 << 16) * (
 #if definedEx(CONFIG_KILLALL)
-        1
+1
 #endif
 #if !definedEx(CONFIG_KILLALL)
-        0
+0
 #endif
-        
-        ||
+
+				|| 
 #if definedEx(CONFIG_PGREP)
-        1
+1
 #endif
 #if !definedEx(CONFIG_PGREP)
-        0
+0
 #endif
-        ||
+ || 
 #if definedEx(CONFIG_PKILL)
-        1
+1
 #endif
 #if !definedEx(CONFIG_PKILL)
-        0
+0
 #endif
-        
-        ||
+
+				|| 
 #if definedEx(CONFIG_PIDOF)
-        1
+1
 #endif
 #if !definedEx(CONFIG_PIDOF)
-        0
+0
 #endif
-        
-        ||
+
+				|| 
 #if definedEx(CONFIG_SESTATUS)
-        1
+1
 #endif
 #if !definedEx(CONFIG_SESTATUS)
-        0
+0
 #endif
-        
-    ),
-    PSSCAN_CONTEXT  = (1 << 17) *
+
+				),
+	PSSCAN_CONTEXT  = (1 << 17) * 
 #if (definedEx(CONFIG_FEATURE_FIND_CONTEXT) || definedEx(CONFIG_SELINUX))
-    1
+1
 #endif
 #if (!definedEx(CONFIG_FEATURE_FIND_CONTEXT) && !definedEx(CONFIG_SELINUX))
-    0
+0
 #endif
-    ,
-    PSSCAN_START_TIME = 1 << 18,
-    PSSCAN_CPU      = (1 << 19) *
+,
+	PSSCAN_START_TIME = 1 << 18,
+	PSSCAN_CPU      = (1 << 19) * 
 #if definedEx(CONFIG_FEATURE_TOP_SMP_PROCESS)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_TOP_SMP_PROCESS)
-    0
+0
 #endif
-    ,
-    PSSCAN_NICE     = (1 << 20) *
+,
+	PSSCAN_NICE     = (1 << 20) * 
 #if definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
-    0
+0
 #endif
-    ,
-    PSSCAN_RUIDGID  = (1 << 21) *
+,
+	PSSCAN_RUIDGID  = (1 << 21) * 
 #if definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
-    0
+0
 #endif
-    ,
-    PSSCAN_TASKS	= (1 << 22) *
+,
+	PSSCAN_TASKS	= (1 << 22) * 
 #if definedEx(CONFIG_FEATURE_SHOW_THREADS)
-    1
+1
 #endif
 #if !definedEx(CONFIG_FEATURE_SHOW_THREADS)
-    0
+0
 #endif
-    ,
-    /* These are all retrieved from proc/NN/stat in one go: */
-    PSSCAN_STAT     = PSSCAN_PPID | PSSCAN_PGID | PSSCAN_SID
-    /**/            | PSSCAN_COMM | PSSCAN_STATE
-    /**/            | PSSCAN_VSZ | PSSCAN_RSS
-    /**/            | PSSCAN_STIME | PSSCAN_UTIME | PSSCAN_START_TIME
-    /**/            | PSSCAN_TTY | PSSCAN_NICE
-    /**/            | PSSCAN_CPU
+,
+	/* These are all retrieved from proc/NN/stat in one go: */
+	PSSCAN_STAT     = PSSCAN_PPID | PSSCAN_PGID | PSSCAN_SID
+	/**/            | PSSCAN_COMM | PSSCAN_STATE
+	/**/            | PSSCAN_VSZ | PSSCAN_RSS
+	/**/            | PSSCAN_STIME | PSSCAN_UTIME | PSSCAN_START_TIME
+	/**/            | PSSCAN_TTY | PSSCAN_NICE
+	/**/            | PSSCAN_CPU
 };
 //procps_status_t* alloc_procps_scan(void) FAST_FUNC;
 void free_procps_scan(procps_status_t* sp) ;
@@ -74021,24 +73913,24 @@ extern const char bb_uuenc_tbl_base64[];
 extern const char bb_uuenc_tbl_std[];
 void bb_uuencode(char *store, const void *s, int length, const char *tbl) ;
 enum {
-    BASE64_FLAG_UU_STOP = 0x100,
-    /* Sign-extends to a value which never matches fgetc result: */
-    BASE64_FLAG_NO_STOP_CHAR = 0x80,
+	BASE64_FLAG_UU_STOP = 0x100,
+	/* Sign-extends to a value which never matches fgetc result: */
+	BASE64_FLAG_NO_STOP_CHAR = 0x80,
 };
 void  read_base64(FILE *src_stream, FILE *dst_stream, int flags);
 
 typedef struct md5_ctx_t {
-    uint8_t wbuffer[64]; /* always correctly aligned for uint64_t */
-    void (*process_block)(struct md5_ctx_t*) ;
-    uint64_t total64;    /* must be directly before hash[] */
-    uint32_t hash[8];    /* 4 elements for md5, 5 for sha1, 8 for sha256 */
+	uint8_t wbuffer[64]; /* always correctly aligned for uint64_t */
+	void (*process_block)(struct md5_ctx_t*) ;
+	uint64_t total64;    /* must be directly before hash[] */
+	uint32_t hash[8];    /* 4 elements for md5, 5 for sha1, 8 for sha256 */
 } md5_ctx_t;
 typedef struct md5_ctx_t sha1_ctx_t;
 typedef struct md5_ctx_t sha256_ctx_t;
 typedef struct sha512_ctx_t {
-    uint64_t total64[2];  /* must be directly before hash[] */
-    uint64_t hash[8];
-    uint8_t wbuffer[128]; /* always correctly aligned for uint64_t */
+	uint64_t total64[2];  /* must be directly before hash[] */
+	uint64_t hash[8];
+	uint8_t wbuffer[128]; /* always correctly aligned for uint64_t */
 } sha512_ctx_t;
 void md5_begin(md5_ctx_t *ctx) ;
 void md5_hash(md5_ctx_t *ctx, const void *data, size_t length) ;
@@ -74059,24 +73951,24 @@ uint32_t crc32_block_endian1(uint32_t val, const void *buf, unsigned len, uint32
 uint32_t crc32_block_endian0(uint32_t val, const void *buf, unsigned len, uint32_t *crc_table) ;
 
 typedef struct masks_labels_t {
-    const char *labels;
-    const int masks[];
+	const char *labels;
+	const int masks[];
 } masks_labels_t;
 int print_flags_separated(const int *masks, const char *labels,
-                          int flags, const char *separator) ;
+		int flags, const char *separator) ;
 int print_flags(const masks_labels_t *ml, int flags) ;
 
 typedef struct bb_progress_t {
-    off_t lastsize;
-    unsigned lastupdate_sec;
-    unsigned start_sec;
-    smallint inited;
+	off_t lastsize;
+	unsigned lastupdate_sec;
+	unsigned start_sec;
+	smallint inited;
 } bb_progress_t;
 
 void bb_progress_init(bb_progress_t *p) ;
 void bb_progress_update(bb_progress_t *p, const char *curfile,
-                        off_t beg_range, off_t transferred,
-                        off_t totalsize) ;
+			off_t beg_range, off_t transferred,
+			off_t totalsize) ;
 
 extern const char *applet_name;
 
@@ -74172,7 +74064,7 @@ extern const char bb_default_login_shell[];
 
 
 
-
+ 
 
 
 
@@ -74252,36 +74144,36 @@ extern const char bb_default_login_shell[];
 
 static __inline__ int bb_ascii_isalnum(unsigned char a)
 {
-    unsigned char b = a - '0';
-    if (b <= 9)
-        return (b <= 9);
-    b = (a|0x20) - 'a';
-    return b <= 'z' - 'a';
+	unsigned char b = a - '0';
+	if (b <= 9)
+		return (b <= 9);
+	b = (a|0x20) - 'a';
+	return b <= 'z' - 'a';
 }
 
 static __inline__ int bb_ascii_isxdigit(unsigned char a)
 {
-    unsigned char b = a - '0';
-    if (b <= 9)
-        return (b <= 9);
-    b = (a|0x20) - 'a';
-    return b <= 'f' - 'a';
+	unsigned char b = a - '0';
+	if (b <= 9)
+		return (b <= 9);
+	b = (a|0x20) - 'a';
+	return b <= 'f' - 'a';
 }
 
 static __inline__ unsigned char bb_ascii_toupper(unsigned char a)
 {
-    unsigned char b = a - 'a';
-    if (b <= ('z' - 'a'))
-        a -= 'a' - 'A';
-    return a;
+	unsigned char b = a - 'a';
+	if (b <= ('z' - 'a'))
+		a -= 'a' - 'A';
+	return a;
 }
 
 static __inline__ unsigned char bb_ascii_tolower(unsigned char a)
 {
-    unsigned char b = a - 'A';
-    if (b <= ('Z' - 'A'))
-        a += 'a' - 'A';
-    return a;
+	unsigned char b = a - 'A';
+	if (b <= ('Z' - 'A'))
+		a += 'a' - 'A';
+	return a;
 }
 
 /* In ASCII and Unicode, these are likely to be very different.
@@ -74306,105 +74198,105 @@ _Pragma("GCC visibility push(hidden)")
 
 enum {
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+ 	COMPRESS_MAGIC = 0x9d1f,
+	GZIP_MAGIC  = 0x8b1f,
+	BZIP2_MAGIC = 'Z' * 256 + 'B',
+	XZ_MAGIC1   = '7' * 256 + 0xfd,
+	XZ_MAGIC2   = ((0 * 256 + 'Z') * 256 + 'X') * 256 + 'z',
+	XZ_MAGIC1a  = (('X' * 256 + 'z') * 256 + '7') * 256 + 0xfd,
+	XZ_MAGIC2a  = 0 * 256 + 'Z',
 
-
-
-
-
-
-
-
-
-
-    COMPRESS_MAGIC = 0x9d1f,
-    GZIP_MAGIC  = 0x8b1f,
-    BZIP2_MAGIC = 'Z' * 256 + 'B',
-    XZ_MAGIC1   = '7' * 256 + 0xfd,
-    XZ_MAGIC2   = ((0 * 256 + 'Z') * 256 + 'X') * 256 + 'z',
-    XZ_MAGIC1a  = (('X' * 256 + 'z') * 256 + '7') * 256 + 0xfd,
-    XZ_MAGIC2a  = 0 * 256 + 'Z',
-    
 };
 
 typedef struct file_header_t {
-    char *name;
-    char *link_target;
+	char *name;
+	char *link_target;
 #if definedEx(CONFIG_FEATURE_TAR_UNAME_GNAME)
-    char *tar__uname;
-    char *tar__gname;
+	char *tar__uname;
+	char *tar__gname;
 #endif
-    off_t size;
-    uid_t uid;
-    gid_t gid;
-    mode_t mode;
-    time_t mtime;
-    dev_t device;
+	off_t size;
+	uid_t uid;
+	gid_t gid;
+	mode_t mode;
+	time_t mtime;
+	dev_t device;
 } file_header_t;
 
 struct hardlinks_t;
 
 typedef struct archive_handle_t {
-    /* Flags. 1st since it is most used member */
-    unsigned ah_flags;
-    
-    /* The raw stream as read from disk or stdin */
-    int src_fd;
-    
-    /* Define if the header and data component should be processed */
-    char  (*filter)(struct archive_handle_t *);
-    /* List of files that have been accepted */
-    llist_t *accept;
-    /* List of files that have been rejected */
-    llist_t *reject;
-    /* List of files that have successfully been worked on */
-    llist_t *passed;
-    
-    /* Currently processed file's header */
-    file_header_t *file_header;
-    
-    /* Process the header component, e.g. tar -t */
-    void  (*action_header)(const file_header_t *);
-    
-    /* Process the data component, e.g. extract to filesystem */
-    void  (*action_data)(struct archive_handle_t *);
-    
-    /* Function that skips data */
-    void  (*seek)(int fd, off_t amount);
-    
-    /* Count processed bytes */
-    off_t offset;
-    
-    /* Archiver specific. Can make it a union if it ever gets big */
+	/* Flags. 1st since it is most used member */
+	unsigned ah_flags;
+
+	/* The raw stream as read from disk or stdin */
+	int src_fd;
+
+	/* Define if the header and data component should be processed */
+	char  (*filter)(struct archive_handle_t *);
+	/* List of files that have been accepted */
+	llist_t *accept;
+	/* List of files that have been rejected */
+	llist_t *reject;
+	/* List of files that have successfully been worked on */
+	llist_t *passed;
+
+	/* Currently processed file's header */
+	file_header_t *file_header;
+
+	/* Process the header component, e.g. tar -t */
+	void  (*action_header)(const file_header_t *);
+
+	/* Process the data component, e.g. extract to filesystem */
+	void  (*action_data)(struct archive_handle_t *);
+
+	/* Function that skips data */
+	void  (*seek)(int fd, off_t amount);
+
+	/* Count processed bytes */
+	off_t offset;
+
+	/* Archiver specific. Can make it a union if it ever gets big */
 #if (definedEx(CONFIG_FEATURE_TAR_LONG_OPTIONS) || definedEx(CONFIG_TAR) || definedEx(CONFIG_DPKG) || definedEx(CONFIG_DPKG_DEB))
-    smallint tar__end;
+	smallint tar__end;
 #if definedEx(CONFIG_FEATURE_TAR_GNU_EXTENSIONS)
-    char* tar__longname;
-    char* tar__linkname;
+	char* tar__longname;
+	char* tar__linkname;
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_TO_COMMAND)
-    char* tar__to_command;
+	char* tar__to_command;
 #endif
 #if definedEx(CONFIG_FEATURE_TAR_SELINUX)
-    char* tar__global_sctx;
-    char* tar__next_file_sctx;
+	char* tar__global_sctx;
+	char* tar__next_file_sctx;
 #endif
 #endif
 #if (definedEx(CONFIG_CPIO) || definedEx(CONFIG_RPM2CPIO) || definedEx(CONFIG_RPM))
-    uoff_t cpio__blocks;
-    struct hardlinks_t *cpio__hardlinks_to_create;
-    struct hardlinks_t *cpio__created_hardlinks;
+	uoff_t cpio__blocks;
+	struct hardlinks_t *cpio__hardlinks_to_create;
+	struct hardlinks_t *cpio__created_hardlinks;
 #endif
 #if (definedEx(CONFIG_DPKG) || definedEx(CONFIG_DPKG_DEB))
-    /* Temporary storage */
-    char *dpkg__buffer;
-    /* How to process any sub archive, e.g. get_header_tar_gz */
-    char  (*dpkg__action_data_subarchive)(struct archive_handle_t *);
-    /* Contains the handle to a sub archive */
-    struct archive_handle_t *dpkg__sub_archive;
+	/* Temporary storage */
+	char *dpkg__buffer;
+	/* How to process any sub archive, e.g. get_header_tar_gz */
+	char  (*dpkg__action_data_subarchive)(struct archive_handle_t *);
+	/* Contains the handle to a sub archive */
+	struct archive_handle_t *dpkg__sub_archive;
 #endif
 #if definedEx(CONFIG_FEATURE_AR_CREATE)
-    const char *ar__name;
-    struct archive_handle_t *ar__out;
+	const char *ar__name;
+	struct archive_handle_t *ar__out;
 #endif
 } archive_handle_t;
 /* bits in ah_flags */
@@ -74424,30 +74316,30 @@ typedef struct archive_handle_t {
 
 
 typedef struct tar_header_t {       /* byte offset */
-    char name[100];     /*   0-99 */
-    char mode[8];             /* 100-107 */
-    char uid[8];              /* 108-115 */
-    char gid[8];              /* 116-123 */
-    char size[12];            /* 124-135 */
-    char mtime[12];           /* 136-147 */
-    char chksum[8];           /* 148-155 */
-    char typeflag;            /* 156-156 */
-    char linkname[100]; /* 157-256 */
-    /* POSIX:   "ustar" NUL "00" */
-    /* GNU tar: "ustar  " NUL */
-    /* Normally it's defined as magic[6] followed by
-     * version[2], but we put them together to save code.
-     */
-    char magic[8];            /* 257-264 */
-    char uname[32];           /* 265-296 */
-    char gname[32];           /* 297-328 */
-    char devmajor[8];         /* 329-336 */
-    char devminor[8];         /* 337-344 */
-    char prefix[155];         /* 345-499 */
-    char padding[12];         /* 500-512 (pad to exactly TAR_BLOCK_SIZE) */
+	char name[100];     /*   0-99 */
+	char mode[8];             /* 100-107 */
+	char uid[8];              /* 108-115 */
+	char gid[8];              /* 116-123 */
+	char size[12];            /* 124-135 */
+	char mtime[12];           /* 136-147 */
+	char chksum[8];           /* 148-155 */
+	char typeflag;            /* 156-156 */
+	char linkname[100]; /* 157-256 */
+	/* POSIX:   "ustar" NUL "00" */
+	/* GNU tar: "ustar  " NUL */
+	/* Normally it's defined as magic[6] followed by
+	 * version[2], but we put them together to save code.
+	 */
+	char magic[8];            /* 257-264 */
+	char uname[32];           /* 265-296 */
+	char gname[32];           /* 297-328 */
+	char devmajor[8];         /* 329-336 */
+	char devminor[8];         /* 337-344 */
+	char prefix[155];         /* 345-499 */
+	char padding[12];         /* 500-512 (pad to exactly TAR_BLOCK_SIZE) */
 } tar_header_t;
 struct BUG_tar_header {
-    char c[sizeof(tar_header_t) == 512 ? 1 : -1];
+	char c[sizeof(tar_header_t) == 512 ? 1 : -1];
 };
 
 
@@ -74455,7 +74347,7 @@ struct BUG_tar_header {
 /* Info struct unpackers can fill out to inform users of thing like
  * timestamps of unpacked files */
 typedef struct unpack_info_t {
-    time_t mtime;
+	time_t mtime;
 } unpack_info_t;
 
 extern archive_handle_t *init_handle(void) ;
@@ -74499,8 +74391,8 @@ int read_bunzip(bunzip_data *bd, char *outbuf, int len) ;
 void dealloc_bunzip(bunzip_data *bd) ;
 
 typedef struct inflate_unzip_result {
-    off_t bytes_out;
-    uint32_t crc;
+	off_t bytes_out;
+	uint32_t crc;
 } inflate_unzip_result;
 
 
@@ -74510,7 +74402,7 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int inflate_unzip(inflate_unzip_result *res, off_t compr_size, int src_fd, int dst_fd) ;
+ int inflate_unzip(inflate_unzip_result *res, off_t compr_size, int src_fd, int dst_fd) ;
 /* xz unpacker takes .xz stream from offset 6 */
 
 #if definedEx(CONFIG_DESKTOP)
@@ -74519,7 +74411,7 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int unpack_xz_stream(int src_fd, int dst_fd) ;
+ int unpack_xz_stream(int src_fd, int dst_fd) ;
 /* lzma unpacker takes .lzma stream from offset 0 */
 
 #if definedEx(CONFIG_DESKTOP)
@@ -74528,7 +74420,7 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int unpack_lzma_stream(int src_fd, int dst_fd) ;
+ int unpack_lzma_stream(int src_fd, int dst_fd) ;
 /* the rest wants 2 first bytes already skipped by the caller */
 
 #if definedEx(CONFIG_DESKTOP)
@@ -74537,7 +74429,7 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int unpack_bz2_stream(int src_fd, int dst_fd) ;
+ int unpack_bz2_stream(int src_fd, int dst_fd) ;
 
 #if definedEx(CONFIG_DESKTOP)
 long long
@@ -74545,7 +74437,7 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int unpack_gz_stream(int src_fd, int dst_fd) ;
+ int unpack_gz_stream(int src_fd, int dst_fd) ;
 
 #if definedEx(CONFIG_DESKTOP)
 long long
@@ -74553,7 +74445,7 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int unpack_gz_stream_with_info(int src_fd, int dst_fd, unpack_info_t *info) ;
+ int unpack_gz_stream_with_info(int src_fd, int dst_fd, unpack_info_t *info) ;
 
 #if definedEx(CONFIG_DESKTOP)
 long long
@@ -74561,7 +74453,7 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int unpack_Z_stream(int src_fd, int dst_fd) ;
+ int unpack_Z_stream(int src_fd, int dst_fd) ;
 /* wrapper which checks first two bytes to be "BZ" */
 
 #if definedEx(CONFIG_DESKTOP)
@@ -74570,32 +74462,32 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int unpack_bz2_stream_prime(int src_fd, int dst_fd) ;
+ int unpack_bz2_stream_prime(int src_fd, int dst_fd) ;
 
 char* append_ext(char *filename, const char *expected_ext) ;
 int bbunpack(char **argv,
-
+	    
 #if definedEx(CONFIG_DESKTOP)
-             long long
+long long
 #endif
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-             int  (*unpacker)(unpack_info_t *info),
-             char*  (*make_new_name)(char *filename, const char *expected_ext),
-             const char *expected_ext
-            ) ;
+ int  (*unpacker)(unpack_info_t *info),
+	    char*  (*make_new_name)(char *filename, const char *expected_ext),
+	    const char *expected_ext
+) ;
 
 #if !definedEx(CONFIG_NOMMU)
 void open_transformer(int fd,
-
+	
 #if definedEx(CONFIG_DESKTOP)
-                      long long
+long long
 #endif
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-                      int  (*transformer)(int src_fd, int dst_fd)) ;
+ int  (*transformer)(int src_fd, int dst_fd)) ;
 
 #endif
 #if definedEx(CONFIG_NOMMU)
@@ -74619,7 +74511,7 @@ _Pragma("GCC visibility pop")
 
 
 
-
+ 
 
 
 
@@ -74633,19 +74525,19 @@ _Pragma("GCC visibility pop")
 
 
 
+ 
 
 
 
 
 
+ 
 
 
 
 
 
-
-
-
+ 
 
 
 /* gzip flag byte */
@@ -74701,7 +74593,7 @@ _Pragma("GCC visibility pop")
 
 
 
-
+ 
 
 /* ===========================================================================
  * Compile with MEDIUM_MEM to reduce the memory requirements or
@@ -74720,7 +74612,7 @@ _Pragma("GCC visibility pop")
 
 
 
-
+   
 
 
 
@@ -74747,150 +74639,150 @@ typedef unsigned IPos;
  */
 
 enum {
-    WINDOW_SIZE = 2 * 0x8000,
-    /* window size, 2*WSIZE except for MMAP or BIG_MEM, where it is the
-     * input file length plus MIN_LOOKAHEAD.
-     */
-    
-    max_chain_length = 4096,
-    /* To speed up deflation, hash chains are never searched beyond this length.
-     * A higher limit improves compression ratio but degrades the speed.
-     */
-    
-    max_lazy_match = 258,
-    /* Attempt to find a better match only when the current match is strictly
-     * smaller than this value. This mechanism is used only for compression
-     * levels >= 4.
-     */
-    
-    max_insert_length = max_lazy_match,
-    /* Insert new strings in the hash table only if the match length
-     * is not greater than this length. This saves time but degrades compression.
-     * max_insert_length is used only for compression levels <= 3.
-     */
-    
-    good_match = 32,
-    /* Use a faster search when the previous match is longer than this */
-    
-    /* Values for max_lazy_match, good_match and max_chain_length, depending on
-     * the desired pack level (0..9). The values given below have been tuned to
-     * exclude worst case performance for pathological files. Better values may be
-     * found for specific files.
-     */
-    
-    nice_match = 258,	/* Stop searching when current match exceeds this */
-    /* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
-     * For deflate_fast() (levels <= 3) good is ignored and lazy has a different
-     * meaning.
-     */
+	WINDOW_SIZE = 2 * 0x8000,
+/* window size, 2*WSIZE except for MMAP or BIG_MEM, where it is the
+ * input file length plus MIN_LOOKAHEAD.
+ */
+
+	max_chain_length = 4096,
+/* To speed up deflation, hash chains are never searched beyond this length.
+ * A higher limit improves compression ratio but degrades the speed.
+ */
+
+	max_lazy_match = 258,
+/* Attempt to find a better match only when the current match is strictly
+ * smaller than this value. This mechanism is used only for compression
+ * levels >= 4.
+ */
+
+	max_insert_length = max_lazy_match,
+/* Insert new strings in the hash table only if the match length
+ * is not greater than this length. This saves time but degrades compression.
+ * max_insert_length is used only for compression levels <= 3.
+ */
+
+	good_match = 32,
+/* Use a faster search when the previous match is longer than this */
+
+/* Values for max_lazy_match, good_match and max_chain_length, depending on
+ * the desired pack level (0..9). The values given below have been tuned to
+ * exclude worst case performance for pathological files. Better values may be
+ * found for specific files.
+ */
+
+	nice_match = 258,	/* Stop searching when current match exceeds this */
+/* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
+ * For deflate_fast() (levels <= 3) good is ignored and lazy has a different
+ * meaning.
+ */
 };
 
 
 struct globals {
 
-    lng block_start;
-    
-    /* window position at the beginning of the current output block. Gets
-     * negative when the window is moved backwards.
-     */
-    unsigned ins_h;	/* hash index of string to be inserted */
-    
-    
-    /* Number of bits by which ins_h and del_h must be shifted at each
-     * input step. It must be such that after MIN_MATCH steps, the oldest
-     * byte no longer takes part in the hash key, that is:
-     * H_SHIFT * MIN_MATCH >= HASH_BITS
-     */
-    
-    unsigned prev_length;
-    
-    /* Length of the best match at previous step. Matches not greater than this
-     * are discarded. This is used in the lazy match evaluation.
-     */
-    
-    unsigned strstart;	/* start of string to insert */
-    unsigned match_start;	/* start of matching string */
-    unsigned lookahead;	/* number of valid bytes ahead in window */
-    
-    /* ===========================================================================
-     */
-    
-    
-    
-    
-    
-    
-    
-    /* global buffers */
-    
-    /* buffer for literals or lengths */
-    /* DECLARE(uch, l_buf, LIT_BUFSIZE); */
-    uch * l_buf;
-    
-    ush * d_buf;
-    uch * outbuf;
-    
-    /* Sliding window. Input bytes are read into the second half of the window,
-     * and move to the first half later to keep a dictionary of at least WSIZE
-     * bytes. With this organization, matches are limited to a distance of
-     * WSIZE-MAX_MATCH bytes, but this ensures that IO is always
-     * performed with a length multiple of the block size. Also, it limits
-     * the window size to 64K, which is quite useful on MSDOS.
-     * To do: limit the window size to WSIZE+BSZ if SMALL_MEM (the code would
-     * be less efficient).
-     */
-    uch * window;
-    
-    /* Link to older string with same hash index. To limit the size of this
-     * array to 64K, this link is maintained only for the last 32K strings.
-     * An index in this array is thus a window index modulo 32K.
-     */
-    /* DECLARE(Pos, prev, WSIZE); */
-    ush * prev;
-    
-    /* Heads of the hash chains or 0. */
-    /* DECLARE(Pos, head, 1<<HASH_BITS); */
-    
-    
-    /* number of input bytes */
-    ulg isize;		/* only 32 bits stored in .gz file */
-    
-    /* bbox always use stdin/stdout */
-    
-    
-    
-    
-    
-    
-    unsigned outcnt;	/* bytes in output buffer */
-    
-    smallint eofile;	/* flag set at end of input file */
-    
-    /* ===========================================================================
-     * Local data used by the "bit string" routines.
-     */
-    
-    unsigned short bi_buf;
-    
-    /* Output buffer. bits are inserted starting at the bottom (least significant
-     * bits).
-     */
-    
-    
-    
-    /* Number of bits used within bi_buf. (bi_buf might be implemented on
-     * more than 16 bits on some systems.)
-     */
-    
-    int bi_valid;
-    
-    /* Current input function. Set to mem_read for in-memory compression */
-    
-    
-    
-    
-    /*uint32_t *crc_32_tab;*/
-    uint32_t crc;	/* shift register contents */
+	lng block_start;
+
+/* window position at the beginning of the current output block. Gets
+ * negative when the window is moved backwards.
+ */
+	unsigned ins_h;	/* hash index of string to be inserted */
+
+
+/* Number of bits by which ins_h and del_h must be shifted at each
+ * input step. It must be such that after MIN_MATCH steps, the oldest
+ * byte no longer takes part in the hash key, that is:
+ * H_SHIFT * MIN_MATCH >= HASH_BITS
+ */
+
+	unsigned prev_length;
+
+/* Length of the best match at previous step. Matches not greater than this
+ * are discarded. This is used in the lazy match evaluation.
+ */
+
+	unsigned strstart;	/* start of string to insert */
+	unsigned match_start;	/* start of matching string */
+	unsigned lookahead;	/* number of valid bytes ahead in window */
+
+/* ===========================================================================
+ */
+
+
+
+
+
+
+
+	/* global buffers */
+
+	/* buffer for literals or lengths */
+	/* DECLARE(uch, l_buf, LIT_BUFSIZE); */
+	uch * l_buf;
+
+	ush * d_buf;
+	uch * outbuf;
+
+/* Sliding window. Input bytes are read into the second half of the window,
+ * and move to the first half later to keep a dictionary of at least WSIZE
+ * bytes. With this organization, matches are limited to a distance of
+ * WSIZE-MAX_MATCH bytes, but this ensures that IO is always
+ * performed with a length multiple of the block size. Also, it limits
+ * the window size to 64K, which is quite useful on MSDOS.
+ * To do: limit the window size to WSIZE+BSZ if SMALL_MEM (the code would
+ * be less efficient).
+ */
+	uch * window;
+
+/* Link to older string with same hash index. To limit the size of this
+ * array to 64K, this link is maintained only for the last 32K strings.
+ * An index in this array is thus a window index modulo 32K.
+ */
+	/* DECLARE(Pos, prev, WSIZE); */
+	ush * prev;
+
+/* Heads of the hash chains or 0. */
+	/* DECLARE(Pos, head, 1<<HASH_BITS); */
+
+
+/* number of input bytes */
+	ulg isize;		/* only 32 bits stored in .gz file */
+
+/* bbox always use stdin/stdout */
+
+
+
+
+	
+
+	unsigned outcnt;	/* bytes in output buffer */
+
+	smallint eofile;	/* flag set at end of input file */
+
+/* ===========================================================================
+ * Local data used by the "bit string" routines.
+ */
+
+	unsigned short bi_buf;
+
+/* Output buffer. bits are inserted starting at the bottom (least significant
+ * bits).
+ */
+
+
+
+/* Number of bits used within bi_buf. (bi_buf might be implemented on
+ * more than 16 bits on some systems.)
+ */
+
+	int bi_valid;
+
+/* Current input function. Set to mem_read for in-memory compression */
+
+
+	
+
+	/*uint32_t *crc_32_tab;*/
+	uint32_t crc;	/* shift register contents */
 };
 
 
@@ -74902,10 +74794,11 @@ struct globals {
  */
 static void flush_outbuf(void)
 {
-    if ((*(ptr_to_globals - 1)).outcnt == 0)
-        return;
-    xwrite(1, (char *) (*(ptr_to_globals - 1)).outbuf, (*(ptr_to_globals - 1)).outcnt);
-    (*(ptr_to_globals - 1)).outcnt = 0;
+	if ((*(ptr_to_globals - 1)).outcnt == 0)
+		return;
+
+	xwrite(1, (char *) (*(ptr_to_globals - 1)).outbuf, (*(ptr_to_globals - 1)).outcnt);
+	(*(ptr_to_globals - 1)).outcnt = 0;
 }
 
 
@@ -74921,27 +74814,19 @@ static void flush_outbuf(void)
 /* Output a 16 bit value, lsb first */
 static void put_16bit(ush w)
 {
-    if ((*(ptr_to_globals - 1)).outcnt < 8192 - 2) {
-        (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = w;
-        (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = w >> 8;
-    } else {
-        do {
-            (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (w);
-            if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf();
-        }
-        while (0);
-        do {
-            (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (w >> 8);
-            if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf();
-        }
-        while (0);
-    }
+	if ((*(ptr_to_globals - 1)).outcnt < 8192 - 2) {
+		(*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = w;
+		(*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = w >> 8;
+	} else {
+		do { (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (w); if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf(); } while (0);
+		do { (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (w >> 8); if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf(); } while (0);
+	}
 }
 
 static void put_32bit(ulg n)
 {
-    put_16bit(n);
-    put_16bit(n >> 16);
+	put_16bit(n);
+	put_16bit(n >> 16);
 }
 
 /* ===========================================================================
@@ -74951,7 +74836,7 @@ static void put_32bit(ulg n)
  */
 static void updcrc(uch * s, unsigned n)
 {
-    (*(ptr_to_globals - 1)).crc = crc32_block_endian0((*(ptr_to_globals - 1)).crc, s, n, global_crc32_table /*G1.crc_32_tab*/);
+	(*(ptr_to_globals - 1)).crc = crc32_block_endian0((*(ptr_to_globals - 1)).crc, s, n, global_crc32_table /*G1.crc_32_tab*/);
 }
 
 
@@ -74962,14 +74847,17 @@ static void updcrc(uch * s, unsigned n)
  */
 static unsigned file_read(void *buf, unsigned size)
 {
-    unsigned len;
-    ;
-    len = safe_read(0, buf, size);
-    if (len == (unsigned)(-1) || len == 0)
-        return len;
-    updcrc(buf, len);
-    (*(ptr_to_globals - 1)).isize += len;
-    return len;
+	unsigned len;
+
+	;
+
+	len = safe_read(0, buf, size);
+	if (len == (unsigned)(-1) || len == 0)
+		return len;
+
+	updcrc(buf, len);
+	(*(ptr_to_globals - 1)).isize += len;
+	return len;
 }
 
 
@@ -74979,19 +74867,24 @@ static unsigned file_read(void *buf, unsigned size)
  */
 static void send_bits(int value, int length)
 {
-    /* If not enough room in bi_buf, use (valid) bits from bi_buf and
-     * (16 - bi_valid) bits from value, leaving (width - (16-bi_valid))
-     * unused bits in value.
-     */
-    if ((*(ptr_to_globals - 1)).bi_valid > (int) (8 * sizeof((*(ptr_to_globals - 1)).bi_buf)) - length) {
-        (*(ptr_to_globals - 1)).bi_buf |= (value << (*(ptr_to_globals - 1)).bi_valid);
-        put_16bit((*(ptr_to_globals - 1)).bi_buf);
-        (*(ptr_to_globals - 1)).bi_buf = (ush) value >> ((8 * sizeof((*(ptr_to_globals - 1)).bi_buf)) - (*(ptr_to_globals - 1)).bi_valid);
-        (*(ptr_to_globals - 1)).bi_valid += length - (8 * sizeof((*(ptr_to_globals - 1)).bi_buf));
-    } else {
-        (*(ptr_to_globals - 1)).bi_buf |= value << (*(ptr_to_globals - 1)).bi_valid;
-        (*(ptr_to_globals - 1)).bi_valid += length;
-    }
+
+	
+	
+	
+
+	/* If not enough room in bi_buf, use (valid) bits from bi_buf and
+	 * (16 - bi_valid) bits from value, leaving (width - (16-bi_valid))
+	 * unused bits in value.
+	 */
+	if ((*(ptr_to_globals - 1)).bi_valid > (int) (8 * sizeof((*(ptr_to_globals - 1)).bi_buf)) - length) {
+		(*(ptr_to_globals - 1)).bi_buf |= (value << (*(ptr_to_globals - 1)).bi_valid);
+		put_16bit((*(ptr_to_globals - 1)).bi_buf);
+		(*(ptr_to_globals - 1)).bi_buf = (ush) value >> ((8 * sizeof((*(ptr_to_globals - 1)).bi_buf)) - (*(ptr_to_globals - 1)).bi_valid);
+		(*(ptr_to_globals - 1)).bi_valid += length - (8 * sizeof((*(ptr_to_globals - 1)).bi_buf));
+	} else {
+		(*(ptr_to_globals - 1)).bi_buf |= value << (*(ptr_to_globals - 1)).bi_valid;
+		(*(ptr_to_globals - 1)).bi_valid += length;
+	}
 }
 
 
@@ -75002,13 +74895,14 @@ static void send_bits(int value, int length)
  */
 static unsigned bi_reverse(unsigned code, int len)
 {
-    unsigned res = 0;
-    while (1) {
-        res |= code & 1;
-        if (--len <= 0) return res;
-        code >>= 1;
-        res <<= 1;
-    }
+	unsigned res = 0;
+
+	while (1) {
+		res |= code & 1;
+		if (--len <= 0) return res;
+		code >>= 1;
+		res <<= 1;
+	}
 }
 
 
@@ -75017,17 +74911,16 @@ static unsigned bi_reverse(unsigned code, int len)
  */
 static void bi_windup(void)
 {
-    if ((*(ptr_to_globals - 1)).bi_valid > 8) {
-        put_16bit((*(ptr_to_globals - 1)).bi_buf);
-    } else if ((*(ptr_to_globals - 1)).bi_valid > 0) {
-        do {
-            (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = ((*(ptr_to_globals - 1)).bi_buf);
-            if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf();
-        }
-        while (0);
-    }
-    (*(ptr_to_globals - 1)).bi_buf = 0;
-    (*(ptr_to_globals - 1)).bi_valid = 0;
+	if ((*(ptr_to_globals - 1)).bi_valid > 8) {
+		put_16bit((*(ptr_to_globals - 1)).bi_buf);
+	} else if ((*(ptr_to_globals - 1)).bi_valid > 0) {
+		do { (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = ((*(ptr_to_globals - 1)).bi_buf); if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf(); } while (0);
+	}
+	(*(ptr_to_globals - 1)).bi_buf = 0;
+	(*(ptr_to_globals - 1)).bi_valid = 0;
+
+	
+
 }
 
 
@@ -75037,18 +74930,21 @@ static void bi_windup(void)
  */
 static void copy_block(char *buf, unsigned len, int header)
 {
-    bi_windup();		/* align on byte boundary */
-    if (header) {
-        put_16bit(len);
-        put_16bit(~len);
-    }
-    while (len--) {
-        do {
-            (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (*buf++);
-            if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf();
-        }
-        while (0);
-    }
+	bi_windup();		/* align on byte boundary */
+
+	if (header) {
+		put_16bit(len);
+		put_16bit(~len);
+
+		
+
+	}
+
+	
+
+	while (len--) {
+		do { (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (*buf++); if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf(); } while (0);
+	}
 }
 
 
@@ -75062,48 +74958,52 @@ static void copy_block(char *buf, unsigned len, int header)
  */
 static void fill_window(void)
 {
-    unsigned n, m;
-    unsigned more =	WINDOW_SIZE - (*(ptr_to_globals - 1)).lookahead - (*(ptr_to_globals - 1)).strstart;
-    /* Amount of free space at the end of the window. */
-    /* If the window is almost full and there is insufficient lookahead,
-     * move the upper half to the lower one to make room in the upper half.
-     */
-    if (more == (unsigned) -1) {
-        /* Very unlikely, but possible on 16 bit machine if strstart == 0
-         * and lookahead == 1 (input done one byte at time)
-         */
-        more--;
-    } else if ((*(ptr_to_globals - 1)).strstart >= 0x8000 + (0x8000-(258+3+1))) {
-        /* By the IN assertion, the window is not empty so we can't confuse
-         * more == 0 with more == 64K on a 16 bit machine.
-         */
-        ;
-        memcpy((*(ptr_to_globals - 1)).window, (*(ptr_to_globals - 1)).window + 0x8000, 0x8000);
-        (*(ptr_to_globals - 1)).match_start -= 0x8000;
-        (*(ptr_to_globals - 1)).strstart -= 0x8000;	/* we now have strstart >= MAX_DIST: */
-        (*(ptr_to_globals - 1)).block_start -= 0x8000;
-        for (n = 0; n < (unsigned)(1<<13); n++) {
-            m = ((*(ptr_to_globals - 1)).prev + 0x8000)[n];
-            ((*(ptr_to_globals - 1)).prev + 0x8000)[n] = (Pos) (m >= 0x8000 ? m - 0x8000 : 0);
-        }
-        for (n = 0; n < 0x8000; n++) {
-            m = (*(ptr_to_globals - 1)).prev[n];
-            (*(ptr_to_globals - 1)).prev[n] = (Pos) (m >= 0x8000 ? m - 0x8000 : 0);
-            /* If n is not on any hash chain, prev[n] is garbage but
-             * its value will never be used.
-             */
-        }
-        more += 0x8000;
-    }
-    /* At this point, more >= 2 */
-    if (!(*(ptr_to_globals - 1)).eofile) {
-        n = file_read((*(ptr_to_globals - 1)).window + (*(ptr_to_globals - 1)).strstart + (*(ptr_to_globals - 1)).lookahead, more);
-        if (n == 0 || n == (unsigned) -1) {
-            (*(ptr_to_globals - 1)).eofile = 1;
-        } else {
-            (*(ptr_to_globals - 1)).lookahead += n;
-        }
-    }
+	unsigned n, m;
+	unsigned more =	WINDOW_SIZE - (*(ptr_to_globals - 1)).lookahead - (*(ptr_to_globals - 1)).strstart;
+	/* Amount of free space at the end of the window. */
+
+	/* If the window is almost full and there is insufficient lookahead,
+	 * move the upper half to the lower one to make room in the upper half.
+	 */
+	if (more == (unsigned) -1) {
+		/* Very unlikely, but possible on 16 bit machine if strstart == 0
+		 * and lookahead == 1 (input done one byte at time)
+		 */
+		more--;
+	} else if ((*(ptr_to_globals - 1)).strstart >= 0x8000 + (0x8000-(258+3+1))) {
+		/* By the IN assertion, the window is not empty so we can't confuse
+		 * more == 0 with more == 64K on a 16 bit machine.
+		 */
+		;
+
+		memcpy((*(ptr_to_globals - 1)).window, (*(ptr_to_globals - 1)).window + 0x8000, 0x8000);
+		(*(ptr_to_globals - 1)).match_start -= 0x8000;
+		(*(ptr_to_globals - 1)).strstart -= 0x8000;	/* we now have strstart >= MAX_DIST: */
+
+		(*(ptr_to_globals - 1)).block_start -= 0x8000;
+
+		for (n = 0; n < (unsigned)(1<<13); n++) {
+			m = ((*(ptr_to_globals - 1)).prev + 0x8000)[n];
+			((*(ptr_to_globals - 1)).prev + 0x8000)[n] = (Pos) (m >= 0x8000 ? m - 0x8000 : 0);
+		}
+		for (n = 0; n < 0x8000; n++) {
+			m = (*(ptr_to_globals - 1)).prev[n];
+			(*(ptr_to_globals - 1)).prev[n] = (Pos) (m >= 0x8000 ? m - 0x8000 : 0);
+			/* If n is not on any hash chain, prev[n] is garbage but
+			 * its value will never be used.
+			 */
+		}
+		more += 0x8000;
+	}
+	/* At this point, more >= 2 */
+	if (!(*(ptr_to_globals - 1)).eofile) {
+		n = file_read((*(ptr_to_globals - 1)).window + (*(ptr_to_globals - 1)).strstart + (*(ptr_to_globals - 1)).lookahead, more);
+		if (n == 0 || n == (unsigned) -1) {
+			(*(ptr_to_globals - 1)).eofile = 1;
+		} else {
+			(*(ptr_to_globals - 1)).lookahead += n;
+		}
+	}
 }
 
 
@@ -75122,66 +75022,78 @@ static void fill_window(void)
  */
 static int longest_match(IPos cur_match)
 {
-    unsigned chain_length = max_chain_length;	/* max hash chain length */
-    uch *scan = (*(ptr_to_globals - 1)).window + (*(ptr_to_globals - 1)).strstart;	/* current string */
-    uch *match;	/* matched string */
-    int len;	/* length of current match */
-    int best_len = (*(ptr_to_globals - 1)).prev_length;	/* best match length so far */
-    IPos limit = (*(ptr_to_globals - 1)).strstart > (IPos) (0x8000-(258+3+1)) ? (*(ptr_to_globals - 1)).strstart - (IPos) (0x8000-(258+3+1)) : 0;
-    /* Stop when cur_match becomes <= limit. To simplify the code,
-     * we prevent matches with the string of window index 0.
-     */
-    /* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
-     * It is easy to get rid of this optimization if necessary.
-     */
-    uch *strend = (*(ptr_to_globals - 1)).window + (*(ptr_to_globals - 1)).strstart + 258;
-    uch scan_end1 = scan[best_len - 1];
-    uch scan_end = scan[best_len];
-    /* Do not waste too much time if we already have a good match: */
-    if ((*(ptr_to_globals - 1)).prev_length >= good_match) {
-        chain_length >>= 2;
-    }
-    ;
-    do {
-        ;
-        match = (*(ptr_to_globals - 1)).window + cur_match;
-        /* Skip to next match if the match length cannot increase
-         * or if the match length is less than 2:
-         */
-        if (match[best_len] != scan_end
-                || match[best_len - 1] != scan_end1
-                || *match != *scan || *++match != scan[1]
-           ) {
-            continue;
-        }
-        /* The check at best_len-1 can be removed because it will be made
-         * again later. (This heuristic is not always a win.)
-         * It is not necessary to compare scan[2] and match[2] since they
-         * are always equal when the other bytes match, given that
-         * the hash keys are equal and that HASH_BITS >= 8.
-         */
-        scan += 2, match++;
-        /* We check for insufficient lookahead only every 8th comparison;
-         * the 256th check will be made at strstart+258.
-         */
-        do {
-        } while (*++scan == *++match && *++scan == *++match &&
-                 *++scan == *++match && *++scan == *++match &&
-                 *++scan == *++match && *++scan == *++match &&
-                 *++scan == *++match && *++scan == *++match && scan < strend);
-        len = 258 - (int) (strend - scan);
-        scan = strend - 258;
-        if (len > best_len) {
-            (*(ptr_to_globals - 1)).match_start = cur_match;
-            best_len = len;
-            if (len >= nice_match)
-                break;
-            scan_end1 = scan[best_len - 1];
-            scan_end = scan[best_len];
-        }
-    } while ((cur_match = (*(ptr_to_globals - 1)).prev[cur_match & (0x8000-1)]) > limit
-             && --chain_length != 0);
-    return best_len;
+	unsigned chain_length = max_chain_length;	/* max hash chain length */
+	uch *scan = (*(ptr_to_globals - 1)).window + (*(ptr_to_globals - 1)).strstart;	/* current string */
+	uch *match;	/* matched string */
+	int len;	/* length of current match */
+	int best_len = (*(ptr_to_globals - 1)).prev_length;	/* best match length so far */
+	IPos limit = (*(ptr_to_globals - 1)).strstart > (IPos) (0x8000-(258+3+1)) ? (*(ptr_to_globals - 1)).strstart - (IPos) (0x8000-(258+3+1)) : 0;
+	/* Stop when cur_match becomes <= limit. To simplify the code,
+	 * we prevent matches with the string of window index 0.
+	 */
+
+/* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
+ * It is easy to get rid of this optimization if necessary.
+ */
+
+
+
+	uch *strend = (*(ptr_to_globals - 1)).window + (*(ptr_to_globals - 1)).strstart + 258;
+	uch scan_end1 = scan[best_len - 1];
+	uch scan_end = scan[best_len];
+
+	/* Do not waste too much time if we already have a good match: */
+	if ((*(ptr_to_globals - 1)).prev_length >= good_match) {
+		chain_length >>= 2;
+	}
+	;
+
+	do {
+		;
+		match = (*(ptr_to_globals - 1)).window + cur_match;
+
+		/* Skip to next match if the match length cannot increase
+		 * or if the match length is less than 2:
+		 */
+		if (match[best_len] != scan_end
+		 || match[best_len - 1] != scan_end1
+		 || *match != *scan || *++match != scan[1]
+		) {
+			continue;
+		}
+
+		/* The check at best_len-1 can be removed because it will be made
+		 * again later. (This heuristic is not always a win.)
+		 * It is not necessary to compare scan[2] and match[2] since they
+		 * are always equal when the other bytes match, given that
+		 * the hash keys are equal and that HASH_BITS >= 8.
+		 */
+		scan += 2, match++;
+
+		/* We check for insufficient lookahead only every 8th comparison;
+		 * the 256th check will be made at strstart+258.
+		 */
+		do {
+		} while (*++scan == *++match && *++scan == *++match &&
+				 *++scan == *++match && *++scan == *++match &&
+				 *++scan == *++match && *++scan == *++match &&
+				 *++scan == *++match && *++scan == *++match && scan < strend);
+
+		len = 258 - (int) (strend - scan);
+		scan = strend - 258;
+
+		if (len > best_len) {
+			(*(ptr_to_globals - 1)).match_start = cur_match;
+			best_len = len;
+			if (len >= nice_match)
+				break;
+			scan_end1 = scan[best_len - 1];
+			scan_end = scan[best_len];
+		}
+	} while ((cur_match = (*(ptr_to_globals - 1)).prev[cur_match & (0x8000-1)]) > limit
+			 && --chain_length != 0);
+
+	return best_len;
 }
 
 
@@ -75191,19 +75103,19 @@ static int longest_match(IPos cur_match)
 
 
 
+	
+	
+		
+		
+	
+	
+		
+		
+			
+		
+	
 
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 /* trees.c -- output deflated data using Huffman coding
  * Copyright (C) 1992-1993 Jean-loup Gailly
@@ -75280,25 +75192,23 @@ static int longest_match(IPos cur_match)
 
 /* extra bits for each length code */
 static const uint8_t extra_lbits[29] __attribute__((aligned(1))) = {
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4,
-    4, 4, 5, 5, 5, 5, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4,
+	4, 4, 5, 5, 5, 5, 0
 };
 
 /* extra bits for each distance code */
 static const uint8_t extra_dbits[30] __attribute__((aligned(1))) = {
-    0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,
-    10, 10, 11, 11, 12, 12, 13, 13
+	0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,
+	10, 10, 11, 11, 12, 12, 13, 13
 };
 
 /* extra bits for each bit length code */
 static const uint8_t extra_blbits[19] __attribute__((aligned(1))) = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7
-};
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7 };
 
 /* number of codes at each bit length for an optimal tree */
 static const uint8_t bl_order[19] __attribute__((aligned(1))) = {
-    16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15
-};
+	16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15 };
 
 
 
@@ -75308,9 +75218,9 @@ static const uint8_t bl_order[19] __attribute__((aligned(1))) = {
 
 
 
+ 
 
-
-
+ 
 
 
 
@@ -75348,14 +75258,14 @@ static const uint8_t bl_order[19] __attribute__((aligned(1))) = {
 */
 /* Data structure describing a single value and its code string. */
 typedef struct ct_data {
-    union {
-        ush freq;		/* frequency count */
-        ush code;		/* bit string */
-    } fc;
-    union {
-        ush dad;		/* father node in Huffman tree */
-        ush len;		/* length of bit string */
-    } dl;
+	union {
+		ush freq;		/* frequency count */
+		ush code;		/* bit string */
+	} fc;
+	union {
+		ush dad;		/* father node in Huffman tree */
+		ush len;		/* length of bit string */
+	} dl;
 } ct_data;
 
 
@@ -75367,100 +75277,100 @@ typedef struct ct_data {
 /* maximum heap size */
 
 typedef struct tree_desc {
-    ct_data *dyn_tree;	/* the dynamic tree */
-    ct_data *static_tree;	/* corresponding static tree or NULL */
-    const uint8_t *extra_bits;	/* extra bits for each code or NULL */
-    int extra_base;		/* base index for extra_bits */
-    int elems;			/* max number of elements in the tree */
-    int max_length;		/* max bit length for the codes */
-    int max_code;		/* largest code with non zero frequency */
+	ct_data *dyn_tree;	/* the dynamic tree */
+	ct_data *static_tree;	/* corresponding static tree or NULL */
+	const uint8_t *extra_bits;	/* extra bits for each code or NULL */
+	int extra_base;		/* base index for extra_bits */
+	int elems;			/* max number of elements in the tree */
+	int max_length;		/* max bit length for the codes */
+	int max_code;		/* largest code with non zero frequency */
 } tree_desc;
 
 struct globals2 {
 
-    ush heap[(2*(256+1+29) + 1)];     /* heap used to build the Huffman trees */
-    int heap_len;            /* number of elements in the heap */
-    int heap_max;            /* element of largest frequency */
-    
-    /* The sons of heap[n] are heap[2*n] and heap[2*n+1]. heap[0] is not used.
-     * The same heap array is used to build all trees.
-     */
-    
-    ct_data dyn_ltree[(2*(256+1+29) + 1)];	/* literal and length tree */
-    ct_data dyn_dtree[2 * 30 + 1];	/* distance tree */
-    
-    ct_data static_ltree[(256+1+29) + 2];
-    
-    /* The static literal tree. Since the bit lengths are imposed, there is no
-     * need for the L_CODES extra codes used during heap construction. However
-     * The codes 286 and 287 are needed to build a canonical tree (see ct_init
-     * below).
-     */
-    
-    ct_data static_dtree[30];
-    
-    /* The static distance tree. (Actually a trivial tree since all codes use
-     * 5 bits.)
-     */
-    
-    ct_data bl_tree[2 * 19 + 1];
-    
-    /* Huffman tree for the bit lengths */
-    
-    tree_desc l_desc;
-    tree_desc d_desc;
-    tree_desc bl_desc;
-    
-    ush bl_count[15 + 1];
-    
-    /* The lengths of the bit length codes are sent in order of decreasing
-     * probability, to avoid transmitting the lengths for unused bit length codes.
-     */
-    
-    uch depth[2 * (256+1+29) + 1];
-    
-    /* Depth of each subtree used as tie breaker for trees of equal frequency */
-    
-    uch length_code[258 - 3 + 1];
-    
-    /* length code for each normalized match length (0 == MIN_MATCH) */
-    
-    uch dist_code[512];
-    
-    /* distance codes. The first 256 values correspond to the distances
-     * 3 .. 258, the last 256 values correspond to the top 8 bits of
-     * the 15 bit distances.
-     */
-    
-    int base_length[29];
-    
-    /* First normalized length for each code (0 = MIN_MATCH) */
-    
-    int base_dist[30];
-    
-    /* First normalized distance for each code (0 = distance of 1) */
-    
-    uch flag_buf[0x2000 / 8];
-    
-    /* flag_buf is a bit array distinguishing literals from lengths in
-     * l_buf, thus indicating the presence or absence of a distance.
-     */
-    
-    unsigned last_lit;       /* running index in l_buf */
-    unsigned last_dist;      /* running index in d_buf */
-    unsigned last_flags;     /* running index in flag_buf */
-    uch flags;               /* current flags not yet saved in flag_buf */
-    uch flag_bit;            /* current bit used in flags */
-    
-    /* bits are filled in flags starting at bit 0 (least significant).
-     * Note: these flags are overkill in the current code since we don't
-     * take advantage of DIST_BUFSIZE == LIT_BUFSIZE.
-     */
-    
-    ulg opt_len;             /* bit length of current block with optimal trees */
-    ulg static_len;          /* bit length of current block with static trees */
-    
-    ulg compressed_len;      /* total bit length of compressed file */
+	ush heap[(2*(256+1+29) + 1)];     /* heap used to build the Huffman trees */
+	int heap_len;            /* number of elements in the heap */
+	int heap_max;            /* element of largest frequency */
+
+/* The sons of heap[n] are heap[2*n] and heap[2*n+1]. heap[0] is not used.
+ * The same heap array is used to build all trees.
+ */
+
+	ct_data dyn_ltree[(2*(256+1+29) + 1)];	/* literal and length tree */
+	ct_data dyn_dtree[2 * 30 + 1];	/* distance tree */
+
+	ct_data static_ltree[(256+1+29) + 2];
+
+/* The static literal tree. Since the bit lengths are imposed, there is no
+ * need for the L_CODES extra codes used during heap construction. However
+ * The codes 286 and 287 are needed to build a canonical tree (see ct_init
+ * below).
+ */
+
+	ct_data static_dtree[30];
+
+/* The static distance tree. (Actually a trivial tree since all codes use
+ * 5 bits.)
+ */
+
+	ct_data bl_tree[2 * 19 + 1];
+
+/* Huffman tree for the bit lengths */
+
+	tree_desc l_desc;
+	tree_desc d_desc;
+	tree_desc bl_desc;
+
+	ush bl_count[15 + 1];
+
+/* The lengths of the bit length codes are sent in order of decreasing
+ * probability, to avoid transmitting the lengths for unused bit length codes.
+ */
+
+	uch depth[2 * (256+1+29) + 1];
+
+/* Depth of each subtree used as tie breaker for trees of equal frequency */
+
+	uch length_code[258 - 3 + 1];
+
+/* length code for each normalized match length (0 == MIN_MATCH) */
+
+	uch dist_code[512];
+
+/* distance codes. The first 256 values correspond to the distances
+ * 3 .. 258, the last 256 values correspond to the top 8 bits of
+ * the 15 bit distances.
+ */
+
+	int base_length[29];
+
+/* First normalized length for each code (0 = MIN_MATCH) */
+
+	int base_dist[30];
+
+/* First normalized distance for each code (0 = distance of 1) */
+
+	uch flag_buf[0x2000 / 8];
+
+/* flag_buf is a bit array distinguishing literals from lengths in
+ * l_buf, thus indicating the presence or absence of a distance.
+ */
+
+	unsigned last_lit;       /* running index in l_buf */
+	unsigned last_dist;      /* running index in d_buf */
+	unsigned last_flags;     /* running index in flag_buf */
+	uch flags;               /* current flags not yet saved in flag_buf */
+	uch flag_bit;            /* current bit used in flags */
+
+/* bits are filled in flags starting at bit 0 (least significant).
+ * Note: these flags are overkill in the current code since we don't
+ * take advantage of DIST_BUFSIZE == LIT_BUFSIZE.
+ */
+
+	ulg opt_len;             /* bit length of current block with optimal trees */
+	ulg static_len;          /* bit length of current block with static trees */
+
+	ulg compressed_len;      /* total bit length of compressed file */
 };
 
 
@@ -75481,7 +75391,7 @@ static void compress_block(ct_data * ltree, ct_data * dtree);
 
 /* Send a code of the given tree. c and tree must not have side effects */
 
-
+ 
 
 
 
@@ -75501,19 +75411,21 @@ static void compress_block(ct_data * ltree, ct_data * dtree);
  */
 static void init_block(void)
 {
-    int n; /* iterates over tree elements */
-    /* Initialize the trees. */
-    for (n = 0; n < (256+1+29); n++)
-        (*((struct globals2*)(ptr_to_globals))).dyn_ltree[n].fc.freq = 0;
-    for (n = 0; n < 30; n++)
-        (*((struct globals2*)(ptr_to_globals))).dyn_dtree[n].fc.freq = 0;
-    for (n = 0; n < 19; n++)
-        (*((struct globals2*)(ptr_to_globals))).bl_tree[n].fc.freq = 0;
-    (*((struct globals2*)(ptr_to_globals))).dyn_ltree[256].fc.freq = 1;
-    (*((struct globals2*)(ptr_to_globals))).opt_len = (*((struct globals2*)(ptr_to_globals))).static_len = 0;
-    (*((struct globals2*)(ptr_to_globals))).last_lit = (*((struct globals2*)(ptr_to_globals))).last_dist = (*((struct globals2*)(ptr_to_globals))).last_flags = 0;
-    (*((struct globals2*)(ptr_to_globals))).flags = 0;
-    (*((struct globals2*)(ptr_to_globals))).flag_bit = 1;
+	int n; /* iterates over tree elements */
+
+	/* Initialize the trees. */
+	for (n = 0; n < (256+1+29); n++)
+		(*((struct globals2*)(ptr_to_globals))).dyn_ltree[n].fc.freq = 0;
+	for (n = 0; n < 30; n++)
+		(*((struct globals2*)(ptr_to_globals))).dyn_dtree[n].fc.freq = 0;
+	for (n = 0; n < 19; n++)
+		(*((struct globals2*)(ptr_to_globals))).bl_tree[n].fc.freq = 0;
+
+	(*((struct globals2*)(ptr_to_globals))).dyn_ltree[256].fc.freq = 1;
+	(*((struct globals2*)(ptr_to_globals))).opt_len = (*((struct globals2*)(ptr_to_globals))).static_len = 0;
+	(*((struct globals2*)(ptr_to_globals))).last_lit = (*((struct globals2*)(ptr_to_globals))).last_dist = (*((struct globals2*)(ptr_to_globals))).last_flags = 0;
+	(*((struct globals2*)(ptr_to_globals))).flags = 0;
+	(*((struct globals2*)(ptr_to_globals))).flag_bit = 1;
 }
 
 
@@ -75532,22 +75444,26 @@ static void init_block(void)
 
 static void pqdownheap(ct_data * tree, int k)
 {
-    int v = (*((struct globals2*)(ptr_to_globals))).heap[k];
-    int j = k << 1;		/* left son of k */
-    while (j <= (*((struct globals2*)(ptr_to_globals))).heap_len) {
-        /* Set j to the smallest of the two sons: */
-        if (j < (*((struct globals2*)(ptr_to_globals))).heap_len && (tree[(*((struct globals2*)(ptr_to_globals))).heap[j + 1]].fc.freq < tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq || (tree[(*((struct globals2*)(ptr_to_globals))).heap[j + 1]].fc.freq == tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq && (*((struct globals2*)(ptr_to_globals))).depth[(*((struct globals2*)(ptr_to_globals))).heap[j + 1]] <= (*((struct globals2*)(ptr_to_globals))).depth[(*((struct globals2*)(ptr_to_globals))).heap[j]])))
-            j++;
-        /* Exit if v is smaller than both sons */
-        if ((tree[v].fc.freq < tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq || (tree[v].fc.freq == tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq && (*((struct globals2*)(ptr_to_globals))).depth[v] <= (*((struct globals2*)(ptr_to_globals))).depth[(*((struct globals2*)(ptr_to_globals))).heap[j]])))
-            break;
-        /* Exchange v with the smallest son */
-        (*((struct globals2*)(ptr_to_globals))).heap[k] = (*((struct globals2*)(ptr_to_globals))).heap[j];
-        k = j;
-        /* And continue down the tree, setting j to the left son of k */
-        j <<= 1;
-    }
-    (*((struct globals2*)(ptr_to_globals))).heap[k] = v;
+	int v = (*((struct globals2*)(ptr_to_globals))).heap[k];
+	int j = k << 1;		/* left son of k */
+
+	while (j <= (*((struct globals2*)(ptr_to_globals))).heap_len) {
+		/* Set j to the smallest of the two sons: */
+		if (j < (*((struct globals2*)(ptr_to_globals))).heap_len && (tree[(*((struct globals2*)(ptr_to_globals))).heap[j + 1]].fc.freq < tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq || (tree[(*((struct globals2*)(ptr_to_globals))).heap[j + 1]].fc.freq == tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq && (*((struct globals2*)(ptr_to_globals))).depth[(*((struct globals2*)(ptr_to_globals))).heap[j + 1]] <= (*((struct globals2*)(ptr_to_globals))).depth[(*((struct globals2*)(ptr_to_globals))).heap[j]])))
+			j++;
+
+		/* Exit if v is smaller than both sons */
+		if ((tree[v].fc.freq < tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq || (tree[v].fc.freq == tree[(*((struct globals2*)(ptr_to_globals))).heap[j]].fc.freq && (*((struct globals2*)(ptr_to_globals))).depth[v] <= (*((struct globals2*)(ptr_to_globals))).depth[(*((struct globals2*)(ptr_to_globals))).heap[j]])))
+			break;
+
+		/* Exchange v with the smallest son */
+		(*((struct globals2*)(ptr_to_globals))).heap[k] = (*((struct globals2*)(ptr_to_globals))).heap[j];
+		k = j;
+
+		/* And continue down the tree, setting j to the left son of k */
+		j <<= 1;
+	}
+	(*((struct globals2*)(ptr_to_globals))).heap[k] = v;
 }
 
 
@@ -75563,80 +75479,89 @@ static void pqdownheap(ct_data * tree, int k)
  */
 static void gen_bitlen(tree_desc * desc)
 {
-    ct_data *tree = desc->dyn_tree;
-    const uint8_t *extra = desc->extra_bits;
-    int base = desc->extra_base;
-    int max_code = desc->max_code;
-    int max_length = desc->max_length;
-    ct_data *stree = desc->static_tree;
-    int h;				/* heap index */
-    int n, m;			/* iterate over the tree elements */
-    int bits;			/* bit length */
-    int xbits;			/* extra bits */
-    ush f;				/* frequency */
-    int overflow = 0;	/* number of elements with bit length too large */
-    for (bits = 0; bits <= 15; bits++)
-        (*((struct globals2*)(ptr_to_globals))).bl_count[bits] = 0;
-    /* In a first pass, compute the optimal bit lengths (which may
-     * overflow in the case of the bit length tree).
-     */
-    tree[(*((struct globals2*)(ptr_to_globals))).heap[(*((struct globals2*)(ptr_to_globals))).heap_max]].dl.len = 0;	/* root of the heap */
-    for (h = (*((struct globals2*)(ptr_to_globals))).heap_max + 1; h < (2*(256+1+29) + 1); h++) {
-        n = (*((struct globals2*)(ptr_to_globals))).heap[h];
-        bits = tree[tree[n].dl.dad].dl.len + 1;
-        if (bits > max_length) {
-            bits = max_length;
-            overflow++;
-        }
-        tree[n].dl.len = (ush) bits;
-        /* We overwrite tree[n].Dad which is no longer needed */
-        if (n > max_code)
-            continue;	/* not a leaf node */
-        (*((struct globals2*)(ptr_to_globals))).bl_count[bits]++;
-        xbits = 0;
-        if (n >= base)
-            xbits = extra[n - base];
-        f = tree[n].fc.freq;
-        (*((struct globals2*)(ptr_to_globals))).opt_len += (ulg) f *(bits + xbits);
-        if (stree)
-            (*((struct globals2*)(ptr_to_globals))).static_len += (ulg) f * (stree[n].dl.len + xbits);
-    }
-    if (overflow == 0)
-        return;
-    ;
-    /* This happens for example on obj2 and pic of the Calgary corpus */
-    /* Find the first bit length which could increase: */
-    do {
-        bits = max_length - 1;
-        while ((*((struct globals2*)(ptr_to_globals))).bl_count[bits] == 0)
-            bits--;
-        (*((struct globals2*)(ptr_to_globals))).bl_count[bits]--;	/* move one leaf down the tree */
-        (*((struct globals2*)(ptr_to_globals))).bl_count[bits + 1] += 2;	/* move one overflow item as its brother */
-        (*((struct globals2*)(ptr_to_globals))).bl_count[max_length]--;
-        /* The brother of the overflow item also moves one step up,
-         * but this does not affect bl_count[max_length]
-         */
-        overflow -= 2;
-    } while (overflow > 0);
-    /* Now recompute all bit lengths, scanning in increasing frequency.
-     * h is still equal to HEAP_SIZE. (It is simpler to reconstruct all
-     * lengths instead of fixing only the wrong ones. This idea is taken
-     * from 'ar' written by Haruhiko Okumura.)
-     */
-    for (bits = max_length; bits != 0; bits--) {
-        n = (*((struct globals2*)(ptr_to_globals))).bl_count[bits];
-        while (n != 0) {
-            m = (*((struct globals2*)(ptr_to_globals))).heap[--h];
-            if (m > max_code)
-                continue;
-            if (tree[m].dl.len != (unsigned) bits) {
-                ;
-                (*((struct globals2*)(ptr_to_globals))).opt_len += ((int32_t) bits - tree[m].dl.len) * tree[m].fc.freq;
-                tree[m].dl.len = bits;
-            }
-            n--;
-        }
-    }
+	ct_data *tree = desc->dyn_tree;
+	const uint8_t *extra = desc->extra_bits;
+	int base = desc->extra_base;
+	int max_code = desc->max_code;
+	int max_length = desc->max_length;
+	ct_data *stree = desc->static_tree;
+	int h;				/* heap index */
+	int n, m;			/* iterate over the tree elements */
+	int bits;			/* bit length */
+	int xbits;			/* extra bits */
+	ush f;				/* frequency */
+	int overflow = 0;	/* number of elements with bit length too large */
+
+	for (bits = 0; bits <= 15; bits++)
+		(*((struct globals2*)(ptr_to_globals))).bl_count[bits] = 0;
+
+	/* In a first pass, compute the optimal bit lengths (which may
+	 * overflow in the case of the bit length tree).
+	 */
+	tree[(*((struct globals2*)(ptr_to_globals))).heap[(*((struct globals2*)(ptr_to_globals))).heap_max]].dl.len = 0;	/* root of the heap */
+
+	for (h = (*((struct globals2*)(ptr_to_globals))).heap_max + 1; h < (2*(256+1+29) + 1); h++) {
+		n = (*((struct globals2*)(ptr_to_globals))).heap[h];
+		bits = tree[tree[n].dl.dad].dl.len + 1;
+		if (bits > max_length) {
+			bits = max_length;
+			overflow++;
+		}
+		tree[n].dl.len = (ush) bits;
+		/* We overwrite tree[n].Dad which is no longer needed */
+
+		if (n > max_code)
+			continue;	/* not a leaf node */
+
+		(*((struct globals2*)(ptr_to_globals))).bl_count[bits]++;
+		xbits = 0;
+		if (n >= base)
+			xbits = extra[n - base];
+		f = tree[n].fc.freq;
+		(*((struct globals2*)(ptr_to_globals))).opt_len += (ulg) f *(bits + xbits);
+
+		if (stree)
+			(*((struct globals2*)(ptr_to_globals))).static_len += (ulg) f * (stree[n].dl.len + xbits);
+	}
+	if (overflow == 0)
+		return;
+
+	;
+	/* This happens for example on obj2 and pic of the Calgary corpus */
+
+	/* Find the first bit length which could increase: */
+	do {
+		bits = max_length - 1;
+		while ((*((struct globals2*)(ptr_to_globals))).bl_count[bits] == 0)
+			bits--;
+		(*((struct globals2*)(ptr_to_globals))).bl_count[bits]--;	/* move one leaf down the tree */
+		(*((struct globals2*)(ptr_to_globals))).bl_count[bits + 1] += 2;	/* move one overflow item as its brother */
+		(*((struct globals2*)(ptr_to_globals))).bl_count[max_length]--;
+		/* The brother of the overflow item also moves one step up,
+		 * but this does not affect bl_count[max_length]
+		 */
+		overflow -= 2;
+	} while (overflow > 0);
+
+	/* Now recompute all bit lengths, scanning in increasing frequency.
+	 * h is still equal to HEAP_SIZE. (It is simpler to reconstruct all
+	 * lengths instead of fixing only the wrong ones. This idea is taken
+	 * from 'ar' written by Haruhiko Okumura.)
+	 */
+	for (bits = max_length; bits != 0; bits--) {
+		n = (*((struct globals2*)(ptr_to_globals))).bl_count[bits];
+		while (n != 0) {
+			m = (*((struct globals2*)(ptr_to_globals))).heap[--h];
+			if (m > max_code)
+				continue;
+			if (tree[m].dl.len != (unsigned) bits) {
+				;
+				(*((struct globals2*)(ptr_to_globals))).opt_len += ((int32_t) bits - tree[m].dl.len) * tree[m].fc.freq;
+				tree[m].dl.len = bits;
+			}
+			n--;
+		}
+	}
 }
 
 
@@ -75650,29 +75575,33 @@ static void gen_bitlen(tree_desc * desc)
  */
 static void gen_codes(ct_data * tree, int max_code)
 {
-    ush next_code[15 + 1];	/* next code value for each bit length */
-    ush code = 0;		/* running code value */
-    int bits;			/* bit index */
-    int n;				/* code index */
-    /* The distribution counts are first used to generate the code values
-     * without bit reversal.
-     */
-    for (bits = 1; bits <= 15; bits++) {
-        next_code[bits] = code = (code + (*((struct globals2*)(ptr_to_globals))).bl_count[bits - 1]) << 1;
-    }
-    /* Check that the bit counts in bl_count are consistent. The last code
-     * must be all ones.
-     */
-    ;
-    ;
-    for (n = 0; n <= max_code; n++) {
-        int len = tree[n].dl.len;
-        if (len == 0)
-            continue;
-        /* Now reverse the bits */
-        tree[n].fc.code = bi_reverse(next_code[len]++, len);
-        ;
-    }
+	ush next_code[15 + 1];	/* next code value for each bit length */
+	ush code = 0;		/* running code value */
+	int bits;			/* bit index */
+	int n;				/* code index */
+
+	/* The distribution counts are first used to generate the code values
+	 * without bit reversal.
+	 */
+	for (bits = 1; bits <= 15; bits++) {
+		next_code[bits] = code = (code + (*((struct globals2*)(ptr_to_globals))).bl_count[bits - 1]) << 1;
+	}
+	/* Check that the bit counts in bl_count are consistent. The last code
+	 * must be all ones.
+	 */
+	;
+	;
+
+	for (n = 0; n <= max_code; n++) {
+		int len = tree[n].dl.len;
+
+		if (len == 0)
+			continue;
+		/* Now reverse the bits */
+		tree[n].fc.code = bi_reverse(next_code[len]++, len);
+
+		;
+	}
 }
 
 
@@ -75700,74 +75629,87 @@ static void gen_codes(ct_data * tree, int max_code)
 
 static void build_tree(tree_desc * desc)
 {
-    ct_data *tree = desc->dyn_tree;
-    ct_data *stree = desc->static_tree;
-    int elems = desc->elems;
-    int n, m;			/* iterate over heap elements */
-    int max_code = -1;	/* largest code with non zero frequency */
-    int node = elems;	/* next internal node of the tree */
-    /* Construct the initial heap, with least frequent element in
-     * heap[SMALLEST]. The sons of heap[n] are heap[2*n] and heap[2*n+1].
-     * heap[0] is not used.
-     */
-    (*((struct globals2*)(ptr_to_globals))).heap_len = 0;
-    (*((struct globals2*)(ptr_to_globals))).heap_max = (2*(256+1+29) + 1);
-    for (n = 0; n < elems; n++) {
-        if (tree[n].fc.freq != 0) {
-            (*((struct globals2*)(ptr_to_globals))).heap[++(*((struct globals2*)(ptr_to_globals))).heap_len] = max_code = n;
-            (*((struct globals2*)(ptr_to_globals))).depth[n] = 0;
-        } else {
-            tree[n].dl.len = 0;
-        }
-    }
-    /* The pkzip format requires that at least one distance code exists,
-     * and that at least one bit should be sent even if there is only one
-     * possible code. So to avoid special checks later on we force at least
-     * two codes of non zero frequency.
-     */
-    while ((*((struct globals2*)(ptr_to_globals))).heap_len < 2) {
-        int new = (*((struct globals2*)(ptr_to_globals))).heap[++(*((struct globals2*)(ptr_to_globals))).heap_len] = (max_code < 2 ? ++max_code : 0);
-        tree[new].fc.freq = 1;
-        (*((struct globals2*)(ptr_to_globals))).depth[new] = 0;
-        (*((struct globals2*)(ptr_to_globals))).opt_len--;
-        if (stree)
-            (*((struct globals2*)(ptr_to_globals))).static_len -= stree[new].dl.len;
-        /* new is 0 or 1 so it does not have extra bits */
-    }
-    desc->max_code = max_code;
-    /* The elements heap[heap_len/2+1 .. heap_len] are leaves of the tree,
-     * establish sub-heaps of increasing lengths:
-     */
-    for (n = (*((struct globals2*)(ptr_to_globals))).heap_len / 2; n >= 1; n--)
-        pqdownheap(tree, n);
-    /* Construct the Huffman tree by repeatedly combining the least two
-     * frequent nodes.
-     */
-    do {
-        do {
-            n = (*((struct globals2*)(ptr_to_globals))).heap[1];
-            (*((struct globals2*)(ptr_to_globals))).heap[1] = (*((struct globals2*)(ptr_to_globals))).heap[(*((struct globals2*)(ptr_to_globals))).heap_len--];
-            pqdownheap(tree, 1);
-        }
-        while (0);	/* n = node of least frequency */
-        m = (*((struct globals2*)(ptr_to_globals))).heap[1];	/* m = node of next least frequency */
-        (*((struct globals2*)(ptr_to_globals))).heap[--(*((struct globals2*)(ptr_to_globals))).heap_max] = n;	/* keep the nodes sorted by frequency */
-        (*((struct globals2*)(ptr_to_globals))).heap[--(*((struct globals2*)(ptr_to_globals))).heap_max] = m;
-        /* Create a new node father of n and m */
-        tree[node].fc.freq = tree[n].fc.freq + tree[m].fc.freq;
-        (*((struct globals2*)(ptr_to_globals))).depth[node] = ((((*((struct globals2*)(ptr_to_globals))).depth[n])>((*((struct globals2*)(ptr_to_globals))).depth[m]))?((*((struct globals2*)(ptr_to_globals))).depth[n]):((*((struct globals2*)(ptr_to_globals))).depth[m])) + 1;
-        tree[n].dl.dad = tree[m].dl.dad = (ush) node;
-        /* and insert the new node in the heap */
-        (*((struct globals2*)(ptr_to_globals))).heap[1] = node++;
-        pqdownheap(tree, 1);
-    } while ((*((struct globals2*)(ptr_to_globals))).heap_len >= 2);
-    (*((struct globals2*)(ptr_to_globals))).heap[--(*((struct globals2*)(ptr_to_globals))).heap_max] = (*((struct globals2*)(ptr_to_globals))).heap[1];
-    /* At this point, the fields freq and dad are set. We can now
-     * generate the bit lengths.
-     */
-    gen_bitlen((tree_desc *) desc);
-    /* The field len is now set, we can generate the bit codes */
-    gen_codes((ct_data *) tree, max_code);
+	ct_data *tree = desc->dyn_tree;
+	ct_data *stree = desc->static_tree;
+	int elems = desc->elems;
+	int n, m;			/* iterate over heap elements */
+	int max_code = -1;	/* largest code with non zero frequency */
+	int node = elems;	/* next internal node of the tree */
+
+	/* Construct the initial heap, with least frequent element in
+	 * heap[SMALLEST]. The sons of heap[n] are heap[2*n] and heap[2*n+1].
+	 * heap[0] is not used.
+	 */
+	(*((struct globals2*)(ptr_to_globals))).heap_len = 0;
+	(*((struct globals2*)(ptr_to_globals))).heap_max = (2*(256+1+29) + 1);
+
+	for (n = 0; n < elems; n++) {
+		if (tree[n].fc.freq != 0) {
+			(*((struct globals2*)(ptr_to_globals))).heap[++(*((struct globals2*)(ptr_to_globals))).heap_len] = max_code = n;
+			(*((struct globals2*)(ptr_to_globals))).depth[n] = 0;
+		} else {
+			tree[n].dl.len = 0;
+		}
+	}
+
+	/* The pkzip format requires that at least one distance code exists,
+	 * and that at least one bit should be sent even if there is only one
+	 * possible code. So to avoid special checks later on we force at least
+	 * two codes of non zero frequency.
+	 */
+	while ((*((struct globals2*)(ptr_to_globals))).heap_len < 2) {
+		int new = (*((struct globals2*)(ptr_to_globals))).heap[++(*((struct globals2*)(ptr_to_globals))).heap_len] = (max_code < 2 ? ++max_code : 0);
+
+		tree[new].fc.freq = 1;
+		(*((struct globals2*)(ptr_to_globals))).depth[new] = 0;
+		(*((struct globals2*)(ptr_to_globals))).opt_len--;
+		if (stree)
+			(*((struct globals2*)(ptr_to_globals))).static_len -= stree[new].dl.len;
+		/* new is 0 or 1 so it does not have extra bits */
+	}
+	desc->max_code = max_code;
+
+	/* The elements heap[heap_len/2+1 .. heap_len] are leaves of the tree,
+	 * establish sub-heaps of increasing lengths:
+	 */
+	for (n = (*((struct globals2*)(ptr_to_globals))).heap_len / 2; n >= 1; n--)
+		pqdownheap(tree, n);
+
+	/* Construct the Huffman tree by repeatedly combining the least two
+	 * frequent nodes.
+	 */
+	do {
+		do { n = (*((struct globals2*)(ptr_to_globals))).heap[1]; (*((struct globals2*)(ptr_to_globals))).heap[1] = (*((struct globals2*)(ptr_to_globals))).heap[(*((struct globals2*)(ptr_to_globals))).heap_len--]; pqdownheap(tree, 1); } while (0);	/* n = node of least frequency */
+		m = (*((struct globals2*)(ptr_to_globals))).heap[1];	/* m = node of next least frequency */
+
+		(*((struct globals2*)(ptr_to_globals))).heap[--(*((struct globals2*)(ptr_to_globals))).heap_max] = n;	/* keep the nodes sorted by frequency */
+		(*((struct globals2*)(ptr_to_globals))).heap[--(*((struct globals2*)(ptr_to_globals))).heap_max] = m;
+
+		/* Create a new node father of n and m */
+		tree[node].fc.freq = tree[n].fc.freq + tree[m].fc.freq;
+		(*((struct globals2*)(ptr_to_globals))).depth[node] = ((((*((struct globals2*)(ptr_to_globals))).depth[n])>((*((struct globals2*)(ptr_to_globals))).depth[m]))?((*((struct globals2*)(ptr_to_globals))).depth[n]):((*((struct globals2*)(ptr_to_globals))).depth[m])) + 1;
+		tree[n].dl.dad = tree[m].dl.dad = (ush) node;
+
+		
+			
+					
+		
+
+		/* and insert the new node in the heap */
+		(*((struct globals2*)(ptr_to_globals))).heap[1] = node++;
+		pqdownheap(tree, 1);
+
+	} while ((*((struct globals2*)(ptr_to_globals))).heap_len >= 2);
+
+	(*((struct globals2*)(ptr_to_globals))).heap[--(*((struct globals2*)(ptr_to_globals))).heap_max] = (*((struct globals2*)(ptr_to_globals))).heap[1];
+
+	/* At this point, the fields freq and dad are set. We can now
+	 * generate the bit lengths.
+	 */
+	gen_bitlen((tree_desc *) desc);
+
+	/* The field len is now set, we can generate the bit codes */
+	gen_codes((ct_data *) tree, max_code);
 }
 
 
@@ -75779,46 +75721,50 @@ static void build_tree(tree_desc * desc)
  */
 static void scan_tree(ct_data * tree, int max_code)
 {
-    int n;				/* iterates over all tree elements */
-    int prevlen = -1;	/* last emitted length */
-    int curlen;			/* length of current code */
-    int nextlen = tree[0].dl.len;	/* length of next code */
-    int count = 0;		/* repeat count of the current code */
-    int max_count = 7;	/* max repeat count */
-    int min_count = 4;	/* min repeat count */
-    if (nextlen == 0) {
-        max_count = 138;
-        min_count = 3;
-    }
-    tree[max_code + 1].dl.len = 0xffff; /* guard */
-    for (n = 0; n <= max_code; n++) {
-        curlen = nextlen;
-        nextlen = tree[n + 1].dl.len;
-        if (++count < max_count && curlen == nextlen)
-            continue;
-        if (count < min_count) {
-            (*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.freq += count;
-        } else if (curlen != 0) {
-            if (curlen != prevlen)
-                (*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.freq++;
-            (*((struct globals2*)(ptr_to_globals))).bl_tree[16].fc.freq++;
-        } else if (count <= 10) {
-            (*((struct globals2*)(ptr_to_globals))).bl_tree[17].fc.freq++;
-        } else {
-            (*((struct globals2*)(ptr_to_globals))).bl_tree[18].fc.freq++;
-        }
-        count = 0;
-        prevlen = curlen;
-        max_count = 7;
-        min_count = 4;
-        if (nextlen == 0) {
-            max_count = 138;
-            min_count = 3;
-        } else if (curlen == nextlen) {
-            max_count = 6;
-            min_count = 3;
-        }
-    }
+	int n;				/* iterates over all tree elements */
+	int prevlen = -1;	/* last emitted length */
+	int curlen;			/* length of current code */
+	int nextlen = tree[0].dl.len;	/* length of next code */
+	int count = 0;		/* repeat count of the current code */
+	int max_count = 7;	/* max repeat count */
+	int min_count = 4;	/* min repeat count */
+
+	if (nextlen == 0) {
+		max_count = 138;
+		min_count = 3;
+	}
+	tree[max_code + 1].dl.len = 0xffff; /* guard */
+
+	for (n = 0; n <= max_code; n++) {
+		curlen = nextlen;
+		nextlen = tree[n + 1].dl.len;
+		if (++count < max_count && curlen == nextlen)
+			continue;
+
+		if (count < min_count) {
+			(*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.freq += count;
+		} else if (curlen != 0) {
+			if (curlen != prevlen)
+				(*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.freq++;
+			(*((struct globals2*)(ptr_to_globals))).bl_tree[16].fc.freq++;
+		} else if (count <= 10) {
+			(*((struct globals2*)(ptr_to_globals))).bl_tree[17].fc.freq++;
+		} else {
+			(*((struct globals2*)(ptr_to_globals))).bl_tree[18].fc.freq++;
+		}
+		count = 0;
+		prevlen = curlen;
+
+		max_count = 7;
+		min_count = 4;
+		if (nextlen == 0) {
+			max_count = 138;
+			min_count = 3;
+		} else if (curlen == nextlen) {
+			max_count = 6;
+			min_count = 3;
+		}
+	}
 }
 
 
@@ -75828,53 +75774,55 @@ static void scan_tree(ct_data * tree, int max_code)
  */
 static void send_tree(ct_data * tree, int max_code)
 {
-    int n;				/* iterates over all tree elements */
-    int prevlen = -1;	/* last emitted length */
-    int curlen;			/* length of current code */
-    int nextlen = tree[0].dl.len;	/* length of next code */
-    int count = 0;		/* repeat count of the current code */
-    int max_count = 7;	/* max repeat count */
-    int min_count = 4;	/* min repeat count */
-    /* tree[max_code+1].Len = -1; *//* guard already set */
-    if (nextlen == 0)
-        max_count = 138, min_count = 3;
-    for (n = 0; n <= max_code; n++) {
-        curlen = nextlen;
-        nextlen = tree[n + 1].dl.len;
-        if (++count < max_count && curlen == nextlen) {
-            continue;
-        } else if (count < min_count) {
-            do {
-                send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].dl.len);
-            } while (--count);
-        } else if (curlen != 0) {
-            if (curlen != prevlen) {
-                send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].dl.len);
-                count--;
-            }
-            ;
-            send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[16].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[16].dl.len);
-            send_bits(count - 3, 2);
-        } else if (count <= 10) {
-            send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[17].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[17].dl.len);
-            send_bits(count - 3, 3);
-        } else {
-            send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[18].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[18].dl.len);
-            send_bits(count - 11, 7);
-        }
-        count = 0;
-        prevlen = curlen;
-        if (nextlen == 0) {
-            max_count = 138;
-            min_count = 3;
-        } else if (curlen == nextlen) {
-            max_count = 6;
-            min_count = 3;
-        } else {
-            max_count = 7;
-            min_count = 4;
-        }
-    }
+	int n;				/* iterates over all tree elements */
+	int prevlen = -1;	/* last emitted length */
+	int curlen;			/* length of current code */
+	int nextlen = tree[0].dl.len;	/* length of next code */
+	int count = 0;		/* repeat count of the current code */
+	int max_count = 7;	/* max repeat count */
+	int min_count = 4;	/* min repeat count */
+
+/* tree[max_code+1].Len = -1; *//* guard already set */
+	if (nextlen == 0)
+		max_count = 138, min_count = 3;
+
+	for (n = 0; n <= max_code; n++) {
+		curlen = nextlen;
+		nextlen = tree[n + 1].dl.len;
+		if (++count < max_count && curlen == nextlen) {
+			continue;
+		} else if (count < min_count) {
+			do {
+				send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].dl.len);
+			} while (--count);
+		} else if (curlen != 0) {
+			if (curlen != prevlen) {
+				send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[curlen].dl.len);
+				count--;
+			}
+			;
+			send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[16].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[16].dl.len);
+			send_bits(count - 3, 2);
+		} else if (count <= 10) {
+			send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[17].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[17].dl.len);
+			send_bits(count - 3, 3);
+		} else {
+			send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[18].fc.code, (*((struct globals2*)(ptr_to_globals))).bl_tree[18].dl.len);
+			send_bits(count - 11, 7);
+		}
+		count = 0;
+		prevlen = curlen;
+		if (nextlen == 0) {
+			max_count = 138;
+			min_count = 3;
+		} else if (curlen == nextlen) {
+			max_count = 6;
+			min_count = 3;
+		} else {
+			max_count = 7;
+			min_count = 4;
+		}
+	}
 }
 
 
@@ -75884,27 +75832,31 @@ static void send_tree(ct_data * tree, int max_code)
  */
 static int build_bl_tree(void)
 {
-    int max_blindex;	/* index of last bit length code of non zero freq */
-    /* Determine the bit length frequencies for literal and distance trees */
-    scan_tree((*((struct globals2*)(ptr_to_globals))).dyn_ltree, (*((struct globals2*)(ptr_to_globals))).l_desc.max_code);
-    scan_tree((*((struct globals2*)(ptr_to_globals))).dyn_dtree, (*((struct globals2*)(ptr_to_globals))).d_desc.max_code);
-    /* Build the bit length tree: */
-    build_tree(&(*((struct globals2*)(ptr_to_globals))).bl_desc);
-    /* opt_len now includes the length of the tree representations, except
-     * the lengths of the bit lengths codes and the 5+5+4 bits for the counts.
-     */
-    /* Determine the number of bit length codes to send. The pkzip format
-     * requires that at least 4 bit length codes be sent. (appnote.txt says
-     * 3 but the actual value used is 4.)
-     */
-    for (max_blindex = 19 - 1; max_blindex >= 3; max_blindex--) {
-        if ((*((struct globals2*)(ptr_to_globals))).bl_tree[bl_order[max_blindex]].dl.len != 0)
-            break;
-    }
-    /* Update opt_len to include the bit length tree and counts */
-    (*((struct globals2*)(ptr_to_globals))).opt_len += 3 * (max_blindex + 1) + 5 + 5 + 4;
-    ;
-    return max_blindex;
+	int max_blindex;	/* index of last bit length code of non zero freq */
+
+	/* Determine the bit length frequencies for literal and distance trees */
+	scan_tree((*((struct globals2*)(ptr_to_globals))).dyn_ltree, (*((struct globals2*)(ptr_to_globals))).l_desc.max_code);
+	scan_tree((*((struct globals2*)(ptr_to_globals))).dyn_dtree, (*((struct globals2*)(ptr_to_globals))).d_desc.max_code);
+
+	/* Build the bit length tree: */
+	build_tree(&(*((struct globals2*)(ptr_to_globals))).bl_desc);
+	/* opt_len now includes the length of the tree representations, except
+	 * the lengths of the bit lengths codes and the 5+5+4 bits for the counts.
+	 */
+
+	/* Determine the number of bit length codes to send. The pkzip format
+	 * requires that at least 4 bit length codes be sent. (appnote.txt says
+	 * 3 but the actual value used is 4.)
+	 */
+	for (max_blindex = 19 - 1; max_blindex >= 3; max_blindex--) {
+		if ((*((struct globals2*)(ptr_to_globals))).bl_tree[bl_order[max_blindex]].dl.len != 0)
+			break;
+	}
+	/* Update opt_len to include the bit length tree and counts */
+	(*((struct globals2*)(ptr_to_globals))).opt_len += 3 * (max_blindex + 1) + 5 + 5 + 4;
+	;
+
+	return max_blindex;
 }
 
 
@@ -75915,22 +75867,25 @@ static int build_bl_tree(void)
  */
 static void send_all_trees(int lcodes, int dcodes, int blcodes)
 {
-    int rank;			/* index in bl_order */
-    ;
-    ;
-    ;
-    send_bits(lcodes - 257, 5);	/* not +255 as stated in appnote.txt */
-    send_bits(dcodes - 1, 5);
-    send_bits(blcodes - 4, 4);	/* not -3 as stated in appnote.txt */
-    for (rank = 0; rank < blcodes; rank++) {
-        ;
-        send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[bl_order[rank]].dl.len, 3);
-    }
-    ;
-    send_tree((ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_ltree, lcodes - 1);	/* send the literal tree */
-    ;
-    send_tree((ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_dtree, dcodes - 1);	/* send the distance tree */
-    ;
+	int rank;			/* index in bl_order */
+
+	;
+	;
+	;
+	send_bits(lcodes - 257, 5);	/* not +255 as stated in appnote.txt */
+	send_bits(dcodes - 1, 5);
+	send_bits(blcodes - 4, 4);	/* not -3 as stated in appnote.txt */
+	for (rank = 0; rank < blcodes; rank++) {
+		;
+		send_bits((*((struct globals2*)(ptr_to_globals))).bl_tree[bl_order[rank]].dl.len, 3);
+	}
+	;
+
+	send_tree((ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_ltree, lcodes - 1);	/* send the literal tree */
+	;
+
+	send_tree((ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_dtree, dcodes - 1);	/* send the distance tree */
+	;
 }
 
 
@@ -75940,45 +75895,49 @@ static void send_all_trees(int lcodes, int dcodes, int blcodes)
  */
 static int ct_tally(int dist, int lc)
 {
-    (*(ptr_to_globals - 1)).l_buf[(*((struct globals2*)(ptr_to_globals))).last_lit++] = lc;
-    if (dist == 0) {
-        /* lc is the unmatched char */
-        (*((struct globals2*)(ptr_to_globals))).dyn_ltree[lc].fc.freq++;
-    } else {
-        /* Here, lc is the match length - MIN_MATCH */
-        dist--;			/* dist = match distance - 1 */
-        ;
-        (*((struct globals2*)(ptr_to_globals))).dyn_ltree[(*((struct globals2*)(ptr_to_globals))).length_code[lc] + 256 + 1].fc.freq++;
-        (*((struct globals2*)(ptr_to_globals))).dyn_dtree[((dist) < 256 ? (*((struct globals2*)(ptr_to_globals))).dist_code[dist] : (*((struct globals2*)(ptr_to_globals))).dist_code[256 + ((dist)>>7)])].fc.freq++;
-        (*(ptr_to_globals - 1)).d_buf[(*((struct globals2*)(ptr_to_globals))).last_dist++] = dist;
-        (*((struct globals2*)(ptr_to_globals))).flags |= (*((struct globals2*)(ptr_to_globals))).flag_bit;
-    }
-    (*((struct globals2*)(ptr_to_globals))).flag_bit <<= 1;
-    /* Output the flags if they fill a byte: */
-    if (((*((struct globals2*)(ptr_to_globals))).last_lit & 7) == 0) {
-        (*((struct globals2*)(ptr_to_globals))).flag_buf[(*((struct globals2*)(ptr_to_globals))).last_flags++] = (*((struct globals2*)(ptr_to_globals))).flags;
-        (*((struct globals2*)(ptr_to_globals))).flags = 0;
-        (*((struct globals2*)(ptr_to_globals))).flag_bit = 1;
-    }
-    /* Try to guess if it is profitable to stop the current block here */
-    if (((*((struct globals2*)(ptr_to_globals))).last_lit & 0xfff) == 0) {
-        /* Compute an upper bound for the compressed length */
-        ulg out_length = (*((struct globals2*)(ptr_to_globals))).last_lit * 8L;
-        ulg in_length = (ulg) (*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start;
-        int dcode;
-        for (dcode = 0; dcode < 30; dcode++) {
-            out_length += (*((struct globals2*)(ptr_to_globals))).dyn_dtree[dcode].fc.freq * (5L + extra_dbits[dcode]);
-        }
-        out_length >>= 3;
-        ;
-        if ((*((struct globals2*)(ptr_to_globals))).last_dist < (*((struct globals2*)(ptr_to_globals))).last_lit / 2 && out_length < in_length / 2)
-            return 1;
-    }
-    return ((*((struct globals2*)(ptr_to_globals))).last_lit == 0x2000 - 1 || (*((struct globals2*)(ptr_to_globals))).last_dist == 0x2000);
-    /* We avoid equality with LIT_BUFSIZE because of wraparound at 64K
-     * on 16 bit machines and because stored blocks are restricted to
-     * 64K-1 bytes.
-     */
+	(*(ptr_to_globals - 1)).l_buf[(*((struct globals2*)(ptr_to_globals))).last_lit++] = lc;
+	if (dist == 0) {
+		/* lc is the unmatched char */
+		(*((struct globals2*)(ptr_to_globals))).dyn_ltree[lc].fc.freq++;
+	} else {
+		/* Here, lc is the match length - MIN_MATCH */
+		dist--;			/* dist = match distance - 1 */
+		;
+
+		(*((struct globals2*)(ptr_to_globals))).dyn_ltree[(*((struct globals2*)(ptr_to_globals))).length_code[lc] + 256 + 1].fc.freq++;
+		(*((struct globals2*)(ptr_to_globals))).dyn_dtree[((dist) < 256 ? (*((struct globals2*)(ptr_to_globals))).dist_code[dist] : (*((struct globals2*)(ptr_to_globals))).dist_code[256 + ((dist)>>7)])].fc.freq++;
+
+		(*(ptr_to_globals - 1)).d_buf[(*((struct globals2*)(ptr_to_globals))).last_dist++] = dist;
+		(*((struct globals2*)(ptr_to_globals))).flags |= (*((struct globals2*)(ptr_to_globals))).flag_bit;
+	}
+	(*((struct globals2*)(ptr_to_globals))).flag_bit <<= 1;
+
+	/* Output the flags if they fill a byte: */
+	if (((*((struct globals2*)(ptr_to_globals))).last_lit & 7) == 0) {
+		(*((struct globals2*)(ptr_to_globals))).flag_buf[(*((struct globals2*)(ptr_to_globals))).last_flags++] = (*((struct globals2*)(ptr_to_globals))).flags;
+		(*((struct globals2*)(ptr_to_globals))).flags = 0;
+		(*((struct globals2*)(ptr_to_globals))).flag_bit = 1;
+	}
+	/* Try to guess if it is profitable to stop the current block here */
+	if (((*((struct globals2*)(ptr_to_globals))).last_lit & 0xfff) == 0) {
+		/* Compute an upper bound for the compressed length */
+		ulg out_length = (*((struct globals2*)(ptr_to_globals))).last_lit * 8L;
+		ulg in_length = (ulg) (*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start;
+		int dcode;
+
+		for (dcode = 0; dcode < 30; dcode++) {
+			out_length += (*((struct globals2*)(ptr_to_globals))).dyn_dtree[dcode].fc.freq * (5L + extra_dbits[dcode]);
+		}
+		out_length >>= 3;
+		;
+		if ((*((struct globals2*)(ptr_to_globals))).last_dist < (*((struct globals2*)(ptr_to_globals))).last_lit / 2 && out_length < in_length / 2)
+			return 1;
+	}
+	return ((*((struct globals2*)(ptr_to_globals))).last_lit == 0x2000 - 1 || (*((struct globals2*)(ptr_to_globals))).last_dist == 0x2000);
+	/* We avoid equality with LIT_BUFSIZE because of wraparound at 64K
+	 * on 16 bit machines and because stored blocks are restricted to
+	 * 64K-1 bytes.
+	 */
 }
 
 /* ===========================================================================
@@ -75986,44 +75945,47 @@ static int ct_tally(int dist, int lc)
  */
 static void compress_block(ct_data * ltree, ct_data * dtree)
 {
-    unsigned dist;          /* distance of matched string */
-    int lc;                 /* match length or unmatched char (if dist == 0) */
-    unsigned lx = 0;        /* running index in l_buf */
-    unsigned dx = 0;        /* running index in d_buf */
-    unsigned fx = 0;        /* running index in flag_buf */
-    uch flag = 0;           /* current flags */
-    unsigned code;          /* the code to send */
-    int extra;              /* number of extra bits to send */
-    if ((*((struct globals2*)(ptr_to_globals))).last_lit != 0) do {
-            if ((lx & 7) == 0)
-                flag = (*((struct globals2*)(ptr_to_globals))).flag_buf[fx++];
-            lc = (*(ptr_to_globals - 1)).l_buf[lx++];
-            if ((flag & 1) == 0) {
-                send_bits(ltree[lc].fc.code, ltree[lc].dl.len);	/* send a literal byte */
-                ;
-            } else {
-                /* Here, lc is the match length - MIN_MATCH */
-                code = (*((struct globals2*)(ptr_to_globals))).length_code[lc];
-                send_bits(ltree[code + 256 + 1].fc.code, ltree[code + 256 + 1].dl.len);	/* send the length code */
-                extra = extra_lbits[code];
-                if (extra != 0) {
-                    lc -= (*((struct globals2*)(ptr_to_globals))).base_length[code];
-                    send_bits(lc, extra);	/* send the extra length bits */
-                }
-                dist = (*(ptr_to_globals - 1)).d_buf[dx++];
-                /* Here, dist is the match distance - 1 */
-                code = ((dist) < 256 ? (*((struct globals2*)(ptr_to_globals))).dist_code[dist] : (*((struct globals2*)(ptr_to_globals))).dist_code[256 + ((dist)>>7)]);
-                ;
-                send_bits(dtree[code].fc.code, dtree[code].dl.len);	/* send the distance code */
-                extra = extra_dbits[code];
-                if (extra != 0) {
-                    dist -= (*((struct globals2*)(ptr_to_globals))).base_dist[code];
-                    send_bits(dist, extra);	/* send the extra distance bits */
-                }
-            }			/* literal or match pair ? */
-            flag >>= 1;
-        } while (lx < (*((struct globals2*)(ptr_to_globals))).last_lit);
-    send_bits(ltree[256].fc.code, ltree[256].dl.len);
+	unsigned dist;          /* distance of matched string */
+	int lc;                 /* match length or unmatched char (if dist == 0) */
+	unsigned lx = 0;        /* running index in l_buf */
+	unsigned dx = 0;        /* running index in d_buf */
+	unsigned fx = 0;        /* running index in flag_buf */
+	uch flag = 0;           /* current flags */
+	unsigned code;          /* the code to send */
+	int extra;              /* number of extra bits to send */
+
+	if ((*((struct globals2*)(ptr_to_globals))).last_lit != 0) do {
+		if ((lx & 7) == 0)
+			flag = (*((struct globals2*)(ptr_to_globals))).flag_buf[fx++];
+		lc = (*(ptr_to_globals - 1)).l_buf[lx++];
+		if ((flag & 1) == 0) {
+			send_bits(ltree[lc].fc.code, ltree[lc].dl.len);	/* send a literal byte */
+			;
+		} else {
+			/* Here, lc is the match length - MIN_MATCH */
+			code = (*((struct globals2*)(ptr_to_globals))).length_code[lc];
+			send_bits(ltree[code + 256 + 1].fc.code, ltree[code + 256 + 1].dl.len);	/* send the length code */
+			extra = extra_lbits[code];
+			if (extra != 0) {
+				lc -= (*((struct globals2*)(ptr_to_globals))).base_length[code];
+				send_bits(lc, extra);	/* send the extra length bits */
+			}
+			dist = (*(ptr_to_globals - 1)).d_buf[dx++];
+			/* Here, dist is the match distance - 1 */
+			code = ((dist) < 256 ? (*((struct globals2*)(ptr_to_globals))).dist_code[dist] : (*((struct globals2*)(ptr_to_globals))).dist_code[256 + ((dist)>>7)]);
+			;
+
+			send_bits(dtree[code].fc.code, dtree[code].dl.len);	/* send the distance code */
+			extra = extra_dbits[code];
+			if (extra != 0) {
+				dist -= (*((struct globals2*)(ptr_to_globals))).base_dist[code];
+				send_bits(dist, extra);	/* send the extra distance bits */
+			}
+		}			/* literal or match pair ? */
+		flag >>= 1;
+	} while (lx < (*((struct globals2*)(ptr_to_globals))).last_lit);
+
+	send_bits(ltree[256].fc.code, ltree[256].dl.len);
 }
 
 
@@ -76034,68 +75996,82 @@ static void compress_block(ct_data * ltree, ct_data * dtree)
  */
 static ulg flush_block(char *buf, ulg stored_len, int eof)
 {
-    ulg opt_lenb, static_lenb;      /* opt_len and static_len in bytes */
-    int max_blindex;                /* index of last bit length code of non zero freq */
-    (*((struct globals2*)(ptr_to_globals))).flag_buf[(*((struct globals2*)(ptr_to_globals))).last_flags] = (*((struct globals2*)(ptr_to_globals))).flags;   /* Save the flags for the last 8 items */
-    /* Construct the literal and distance trees */
-    build_tree(&(*((struct globals2*)(ptr_to_globals))).l_desc);
-    ;
-    build_tree(&(*((struct globals2*)(ptr_to_globals))).d_desc);
-    ;
-    /* At this point, opt_len and static_len are the total bit lengths of
-     * the compressed block data, excluding the tree representations.
-     */
-    /* Build the bit length tree for the above two trees, and get the index
-     * in bl_order of the last bit length code to send.
-     */
-    max_blindex = build_bl_tree();
-    /* Determine the best encoding. Compute first the block length in bytes */
-    opt_lenb = ((*((struct globals2*)(ptr_to_globals))).opt_len + 3 + 7) >> 3;
-    static_lenb = ((*((struct globals2*)(ptr_to_globals))).static_len + 3 + 7) >> 3;
-    ;
-    if (static_lenb <= opt_lenb)
-        opt_lenb = static_lenb;
-    /* If compression failed and this is the first and last block,
-     * and if the zip file can be seeked (to rewrite the local header),
-     * the whole file is transformed into a stored file:
-     */
-    if (stored_len <= opt_lenb && eof && (*((struct globals2*)(ptr_to_globals))).compressed_len == 0L && 0) {
-        /* Since LIT_BUFSIZE <= 2*WSIZE, the input data must be there: */
-        if (buf == ((void *)0))
-            bb_error_msg("block vanished");
-        copy_block(buf, (unsigned) stored_len, 0);	/* without header */
-        (*((struct globals2*)(ptr_to_globals))).compressed_len = stored_len << 3;
-    } else if (stored_len + 4 <= opt_lenb && buf != ((void *)0)) {
-        /* 4: two words for the lengths */
-        /* The test buf != NULL is only necessary if LIT_BUFSIZE > WSIZE.
-         * Otherwise we can't have processed more than WSIZE input bytes since
-         * the last block flush, because compression would have been
-         * successful. If LIT_BUFSIZE <= WSIZE, it is never too late to
-         * transform a block into a stored block.
-         */
-        send_bits((0 << 1) + eof, 3);	/* send block type */
-        (*((struct globals2*)(ptr_to_globals))).compressed_len = ((*((struct globals2*)(ptr_to_globals))).compressed_len + 3 + 7) & ~7L;
-        (*((struct globals2*)(ptr_to_globals))).compressed_len += (stored_len + 4) << 3;
-        copy_block(buf, (unsigned) stored_len, 1);	/* with header */
-    } else if (static_lenb == opt_lenb) {
-        send_bits((1 << 1) + eof, 3);
-        compress_block((ct_data *) (*((struct globals2*)(ptr_to_globals))).static_ltree, (ct_data *) (*((struct globals2*)(ptr_to_globals))).static_dtree);
-        (*((struct globals2*)(ptr_to_globals))).compressed_len += 3 + (*((struct globals2*)(ptr_to_globals))).static_len;
-    } else {
-        send_bits((2 << 1) + eof, 3);
-        send_all_trees((*((struct globals2*)(ptr_to_globals))).l_desc.max_code + 1, (*((struct globals2*)(ptr_to_globals))).d_desc.max_code + 1,
-                       max_blindex + 1);
-        compress_block((ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_ltree, (ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_dtree);
-        (*((struct globals2*)(ptr_to_globals))).compressed_len += 3 + (*((struct globals2*)(ptr_to_globals))).opt_len;
-    }
-    ;
-    init_block();
-    if (eof) {
-        bi_windup();
-        (*((struct globals2*)(ptr_to_globals))).compressed_len += 7;	/* align on byte boundary */
-    }
-    ;
-    return (*((struct globals2*)(ptr_to_globals))).compressed_len >> 3;
+	ulg opt_lenb, static_lenb;      /* opt_len and static_len in bytes */
+	int max_blindex;                /* index of last bit length code of non zero freq */
+
+	(*((struct globals2*)(ptr_to_globals))).flag_buf[(*((struct globals2*)(ptr_to_globals))).last_flags] = (*((struct globals2*)(ptr_to_globals))).flags;   /* Save the flags for the last 8 items */
+
+	/* Construct the literal and distance trees */
+	build_tree(&(*((struct globals2*)(ptr_to_globals))).l_desc);
+	;
+
+	build_tree(&(*((struct globals2*)(ptr_to_globals))).d_desc);
+	;
+	/* At this point, opt_len and static_len are the total bit lengths of
+	 * the compressed block data, excluding the tree representations.
+	 */
+
+	/* Build the bit length tree for the above two trees, and get the index
+	 * in bl_order of the last bit length code to send.
+	 */
+	max_blindex = build_bl_tree();
+
+	/* Determine the best encoding. Compute first the block length in bytes */
+	opt_lenb = ((*((struct globals2*)(ptr_to_globals))).opt_len + 3 + 7) >> 3;
+	static_lenb = ((*((struct globals2*)(ptr_to_globals))).static_len + 3 + 7) >> 3;
+
+	;
+
+	if (static_lenb <= opt_lenb)
+		opt_lenb = static_lenb;
+
+	/* If compression failed and this is the first and last block,
+	 * and if the zip file can be seeked (to rewrite the local header),
+	 * the whole file is transformed into a stored file:
+	 */
+	if (stored_len <= opt_lenb && eof && (*((struct globals2*)(ptr_to_globals))).compressed_len == 0L && 0) {
+		/* Since LIT_BUFSIZE <= 2*WSIZE, the input data must be there: */
+		if (buf == ((void *)0))
+			bb_error_msg("block vanished");
+
+		copy_block(buf, (unsigned) stored_len, 0);	/* without header */
+		(*((struct globals2*)(ptr_to_globals))).compressed_len = stored_len << 3;
+
+	} else if (stored_len + 4 <= opt_lenb && buf != ((void *)0)) {
+		/* 4: two words for the lengths */
+		/* The test buf != NULL is only necessary if LIT_BUFSIZE > WSIZE.
+		 * Otherwise we can't have processed more than WSIZE input bytes since
+		 * the last block flush, because compression would have been
+		 * successful. If LIT_BUFSIZE <= WSIZE, it is never too late to
+		 * transform a block into a stored block.
+		 */
+		send_bits((0 << 1) + eof, 3);	/* send block type */
+		(*((struct globals2*)(ptr_to_globals))).compressed_len = ((*((struct globals2*)(ptr_to_globals))).compressed_len + 3 + 7) & ~7L;
+		(*((struct globals2*)(ptr_to_globals))).compressed_len += (stored_len + 4) << 3;
+
+		copy_block(buf, (unsigned) stored_len, 1);	/* with header */
+
+	} else if (static_lenb == opt_lenb) {
+		send_bits((1 << 1) + eof, 3);
+		compress_block((ct_data *) (*((struct globals2*)(ptr_to_globals))).static_ltree, (ct_data *) (*((struct globals2*)(ptr_to_globals))).static_dtree);
+		(*((struct globals2*)(ptr_to_globals))).compressed_len += 3 + (*((struct globals2*)(ptr_to_globals))).static_len;
+	} else {
+		send_bits((2 << 1) + eof, 3);
+		send_all_trees((*((struct globals2*)(ptr_to_globals))).l_desc.max_code + 1, (*((struct globals2*)(ptr_to_globals))).d_desc.max_code + 1,
+					   max_blindex + 1);
+		compress_block((ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_ltree, (ct_data *) (*((struct globals2*)(ptr_to_globals))).dyn_dtree);
+		(*((struct globals2*)(ptr_to_globals))).compressed_len += 3 + (*((struct globals2*)(ptr_to_globals))).opt_len;
+	}
+	;
+	init_block();
+
+	if (eof) {
+		bi_windup();
+		(*((struct globals2*)(ptr_to_globals))).compressed_len += 7;	/* align on byte boundary */
+	}
+	;
+
+	return (*((struct globals2*)(ptr_to_globals))).compressed_len >> 3;
 }
 
 
@@ -76144,110 +76120,107 @@ static ulg flush_block(char *buf, ulg stored_len, int eof)
 
 static ulg deflate(void)
 {
-    IPos hash_head;		/* head of hash chain */
-    IPos prev_match;	/* previous match */
-    int flush;			/* set if current block must be flushed */
-    int match_available = 0;	/* set if previous match exists */
-    unsigned match_length = 3 - 1;	/* length of best match */
-    /* Process the input block. */
-    while ((*(ptr_to_globals - 1)).lookahead != 0) {
-        /* Insert the string window[strstart .. strstart+2] in the
-         * dictionary, and set hash_head to the head of the hash chain:
-         */
-        do {
-            ((*(ptr_to_globals - 1)).ins_h = ((((*(ptr_to_globals - 1)).ins_h)<<((13+3-1) / 3)) ^ ((*(ptr_to_globals - 1)).window[((*(ptr_to_globals - 1)).strstart) + 3-1])) & ((unsigned)(1<<13)-1));
-            (*(ptr_to_globals - 1)).prev[((*(ptr_to_globals - 1)).strstart) & (0x8000-1)] = hash_head = ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h];
-            ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h] = ((*(ptr_to_globals - 1)).strstart);
-        }
-        while (0);
-        /* Find the longest match, discarding those <= prev_length.
-         */
-        (*(ptr_to_globals - 1)).prev_length = match_length;
-        prev_match = (*(ptr_to_globals - 1)).match_start;
-        match_length = 3 - 1;
-        if (hash_head != 0 && (*(ptr_to_globals - 1)).prev_length < max_lazy_match
-                && (*(ptr_to_globals - 1)).strstart - hash_head <= (0x8000-(258+3+1))
-           ) {
-            /* To simplify the code, we prevent matches with the string
-             * of window index 0 (in particular we have to avoid a match
-             * of the string with itself at the start of the input file).
-             */
-            match_length = longest_match(hash_head);
-            /* longest_match() sets match_start */
-            if (match_length > (*(ptr_to_globals - 1)).lookahead)
-                match_length = (*(ptr_to_globals - 1)).lookahead;
-            /* Ignore a length 3 match if it is too distant: */
-            if (match_length == 3 && (*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).match_start > 4096) {
-                /* If prev_match is also MIN_MATCH, G1.match_start is garbage
-                 * but we will ignore the current match anyway.
-                 */
-                match_length--;
-            }
-        }
-        /* If there was a match at the previous step and the current
-         * match is not better, output the previous match:
-         */
-        if ((*(ptr_to_globals - 1)).prev_length >= 3 && match_length <= (*(ptr_to_globals - 1)).prev_length) {
-            ((void)0);
-            flush = ct_tally((*(ptr_to_globals - 1)).strstart - 1 - prev_match, (*(ptr_to_globals - 1)).prev_length - 3);
-            /* Insert in hash table all strings up to the end of the match.
-             * strstart-1 and strstart are already inserted.
-             */
-            (*(ptr_to_globals - 1)).lookahead -= (*(ptr_to_globals - 1)).prev_length - 1;
-            (*(ptr_to_globals - 1)).prev_length -= 2;
-            do {
-                (*(ptr_to_globals - 1)).strstart++;
-                do {
-                    ((*(ptr_to_globals - 1)).ins_h = ((((*(ptr_to_globals - 1)).ins_h)<<((13+3-1) / 3)) ^ ((*(ptr_to_globals - 1)).window[((*(ptr_to_globals - 1)).strstart) + 3-1])) & ((unsigned)(1<<13)-1));
-                    (*(ptr_to_globals - 1)).prev[((*(ptr_to_globals - 1)).strstart) & (0x8000-1)] = hash_head = ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h];
-                    ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h] = ((*(ptr_to_globals - 1)).strstart);
-                }
-                while (0);
-                /* strstart never exceeds WSIZE-MAX_MATCH, so there are
-                 * always MIN_MATCH bytes ahead. If lookahead < MIN_MATCH
-                 * these bytes are garbage, but it does not matter since the
-                 * next lookahead bytes will always be emitted as literals.
-                 */
-            } while (--(*(ptr_to_globals - 1)).prev_length != 0);
-            match_available = 0;
-            match_length = 3 - 1;
-            (*(ptr_to_globals - 1)).strstart++;
-            if (flush) {
-                flush_block( (*(ptr_to_globals - 1)).block_start >= 0L ? (char*)&(*(ptr_to_globals - 1)).window[(unsigned)(*(ptr_to_globals - 1)).block_start] : (char*)((void *)0), (ulg)(*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start, (0) );
-                (*(ptr_to_globals - 1)).block_start = (*(ptr_to_globals - 1)).strstart;
-            }
-        } else if (match_available) {
-            /* If there was no match at the previous position, output a
-             * single literal. If there was a match but the current match
-             * is longer, truncate the previous match to a single literal.
-             */
-            ;
-            if (ct_tally(0, (*(ptr_to_globals - 1)).window[(*(ptr_to_globals - 1)).strstart - 1])) {
-                flush_block( (*(ptr_to_globals - 1)).block_start >= 0L ? (char*)&(*(ptr_to_globals - 1)).window[(unsigned)(*(ptr_to_globals - 1)).block_start] : (char*)((void *)0), (ulg)(*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start, (0) );
-                (*(ptr_to_globals - 1)).block_start = (*(ptr_to_globals - 1)).strstart;
-            }
-            (*(ptr_to_globals - 1)).strstart++;
-            (*(ptr_to_globals - 1)).lookahead--;
-        } else {
-            /* There is no previous match to compare with, wait for
-             * the next step to decide.
-             */
-            match_available = 1;
-            (*(ptr_to_globals - 1)).strstart++;
-            (*(ptr_to_globals - 1)).lookahead--;
-        }
-        ;
-        /* Make sure that we always have enough lookahead, except
-         * at the end of the input file. We need MAX_MATCH bytes
-         * for the next match, plus MIN_MATCH bytes to insert the
-         * string following the next match.
-         */
-        while ((*(ptr_to_globals - 1)).lookahead < (258+3+1) && !(*(ptr_to_globals - 1)).eofile)
-            fill_window();
-    }
-    if (match_available)
-        ct_tally(0, (*(ptr_to_globals - 1)).window[(*(ptr_to_globals - 1)).strstart - 1]);
-    return flush_block( (*(ptr_to_globals - 1)).block_start >= 0L ? (char*)&(*(ptr_to_globals - 1)).window[(unsigned)(*(ptr_to_globals - 1)).block_start] : (char*)((void *)0), (ulg)(*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start, (1) );	/* eof */
+	IPos hash_head;		/* head of hash chain */
+	IPos prev_match;	/* previous match */
+	int flush;			/* set if current block must be flushed */
+	int match_available = 0;	/* set if previous match exists */
+	unsigned match_length = 3 - 1;	/* length of best match */
+
+	/* Process the input block. */
+	while ((*(ptr_to_globals - 1)).lookahead != 0) {
+		/* Insert the string window[strstart .. strstart+2] in the
+		 * dictionary, and set hash_head to the head of the hash chain:
+		 */
+		do { ((*(ptr_to_globals - 1)).ins_h = ((((*(ptr_to_globals - 1)).ins_h)<<((13+3-1) / 3)) ^ ((*(ptr_to_globals - 1)).window[((*(ptr_to_globals - 1)).strstart) + 3-1])) & ((unsigned)(1<<13)-1)); (*(ptr_to_globals - 1)).prev[((*(ptr_to_globals - 1)).strstart) & (0x8000-1)] = hash_head = ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h]; ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h] = ((*(ptr_to_globals - 1)).strstart); } while (0);
+
+		/* Find the longest match, discarding those <= prev_length.
+		 */
+		(*(ptr_to_globals - 1)).prev_length = match_length;
+		prev_match = (*(ptr_to_globals - 1)).match_start;
+		match_length = 3 - 1;
+
+		if (hash_head != 0 && (*(ptr_to_globals - 1)).prev_length < max_lazy_match
+		 && (*(ptr_to_globals - 1)).strstart - hash_head <= (0x8000-(258+3+1))
+		) {
+			/* To simplify the code, we prevent matches with the string
+			 * of window index 0 (in particular we have to avoid a match
+			 * of the string with itself at the start of the input file).
+			 */
+			match_length = longest_match(hash_head);
+			/* longest_match() sets match_start */
+			if (match_length > (*(ptr_to_globals - 1)).lookahead)
+				match_length = (*(ptr_to_globals - 1)).lookahead;
+
+			/* Ignore a length 3 match if it is too distant: */
+			if (match_length == 3 && (*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).match_start > 4096) {
+				/* If prev_match is also MIN_MATCH, G1.match_start is garbage
+				 * but we will ignore the current match anyway.
+				 */
+				match_length--;
+			}
+		}
+		/* If there was a match at the previous step and the current
+		 * match is not better, output the previous match:
+		 */
+		if ((*(ptr_to_globals - 1)).prev_length >= 3 && match_length <= (*(ptr_to_globals - 1)).prev_length) {
+			((void)0);
+			flush = ct_tally((*(ptr_to_globals - 1)).strstart - 1 - prev_match, (*(ptr_to_globals - 1)).prev_length - 3);
+
+			/* Insert in hash table all strings up to the end of the match.
+			 * strstart-1 and strstart are already inserted.
+			 */
+			(*(ptr_to_globals - 1)).lookahead -= (*(ptr_to_globals - 1)).prev_length - 1;
+			(*(ptr_to_globals - 1)).prev_length -= 2;
+			do {
+				(*(ptr_to_globals - 1)).strstart++;
+				do { ((*(ptr_to_globals - 1)).ins_h = ((((*(ptr_to_globals - 1)).ins_h)<<((13+3-1) / 3)) ^ ((*(ptr_to_globals - 1)).window[((*(ptr_to_globals - 1)).strstart) + 3-1])) & ((unsigned)(1<<13)-1)); (*(ptr_to_globals - 1)).prev[((*(ptr_to_globals - 1)).strstart) & (0x8000-1)] = hash_head = ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h]; ((*(ptr_to_globals - 1)).prev + 0x8000)[(*(ptr_to_globals - 1)).ins_h] = ((*(ptr_to_globals - 1)).strstart); } while (0);
+				/* strstart never exceeds WSIZE-MAX_MATCH, so there are
+				 * always MIN_MATCH bytes ahead. If lookahead < MIN_MATCH
+				 * these bytes are garbage, but it does not matter since the
+				 * next lookahead bytes will always be emitted as literals.
+				 */
+			} while (--(*(ptr_to_globals - 1)).prev_length != 0);
+			match_available = 0;
+			match_length = 3 - 1;
+			(*(ptr_to_globals - 1)).strstart++;
+			if (flush) {
+				flush_block( (*(ptr_to_globals - 1)).block_start >= 0L ? (char*)&(*(ptr_to_globals - 1)).window[(unsigned)(*(ptr_to_globals - 1)).block_start] : (char*)((void *)0), (ulg)(*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start, (0) );
+				(*(ptr_to_globals - 1)).block_start = (*(ptr_to_globals - 1)).strstart;
+			}
+		} else if (match_available) {
+			/* If there was no match at the previous position, output a
+			 * single literal. If there was a match but the current match
+			 * is longer, truncate the previous match to a single literal.
+			 */
+			;
+			if (ct_tally(0, (*(ptr_to_globals - 1)).window[(*(ptr_to_globals - 1)).strstart - 1])) {
+				flush_block( (*(ptr_to_globals - 1)).block_start >= 0L ? (char*)&(*(ptr_to_globals - 1)).window[(unsigned)(*(ptr_to_globals - 1)).block_start] : (char*)((void *)0), (ulg)(*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start, (0) );
+				(*(ptr_to_globals - 1)).block_start = (*(ptr_to_globals - 1)).strstart;
+			}
+			(*(ptr_to_globals - 1)).strstart++;
+			(*(ptr_to_globals - 1)).lookahead--;
+		} else {
+			/* There is no previous match to compare with, wait for
+			 * the next step to decide.
+			 */
+			match_available = 1;
+			(*(ptr_to_globals - 1)).strstart++;
+			(*(ptr_to_globals - 1)).lookahead--;
+		}
+		;
+
+		/* Make sure that we always have enough lookahead, except
+		 * at the end of the input file. We need MAX_MATCH bytes
+		 * for the next match, plus MIN_MATCH bytes to insert the
+		 * string following the next match.
+		 */
+		while ((*(ptr_to_globals - 1)).lookahead < (258+3+1) && !(*(ptr_to_globals - 1)).eofile)
+			fill_window();
+	}
+	if (match_available)
+		ct_tally(0, (*(ptr_to_globals - 1)).window[(*(ptr_to_globals - 1)).strstart - 1]);
+
+	return flush_block( (*(ptr_to_globals - 1)).block_start >= 0L ? (char*)&(*(ptr_to_globals - 1)).window[(unsigned)(*(ptr_to_globals - 1)).block_start] : (char*)((void *)0), (ulg)(*(ptr_to_globals - 1)).strstart - (*(ptr_to_globals - 1)).block_start, (1) );	/* eof */
 }
 
 
@@ -76256,8 +76229,11 @@ static ulg deflate(void)
  */
 static void bi_init(void)
 {
-    (*(ptr_to_globals - 1)).bi_buf = 0;
-    (*(ptr_to_globals - 1)).bi_valid = 0;
+	(*(ptr_to_globals - 1)).bi_buf = 0;
+	(*(ptr_to_globals - 1)).bi_valid = 0;
+
+	
+
 }
 
 
@@ -76266,34 +76242,40 @@ static void bi_init(void)
  */
 static void lm_init(ush * flagsp)
 {
-    unsigned j;
-    /* Initialize the hash table. */
-    memset(((*(ptr_to_globals - 1)).prev + 0x8000), 0, (unsigned)(1<<13) * sizeof(*((*(ptr_to_globals - 1)).prev + 0x8000)));
-    /* prev will be initialized on the fly */
-    /* speed options for the general purpose bit flag */
-    *flagsp |= 2;	/* FAST 4, SLOW 2 */
-    /* ??? reduce max_chain_length for binary files */
-    (*(ptr_to_globals - 1)).strstart = 0;
-    (*(ptr_to_globals - 1)).block_start = 0L;
-    (*(ptr_to_globals - 1)).lookahead = file_read((*(ptr_to_globals - 1)).window,
-                                        sizeof(int) <= 2 ? (unsigned) 0x8000 : 2 * 0x8000);
-    if ((*(ptr_to_globals - 1)).lookahead == 0 || (*(ptr_to_globals - 1)).lookahead == (unsigned) -1) {
-        (*(ptr_to_globals - 1)).eofile = 1;
-        (*(ptr_to_globals - 1)).lookahead = 0;
-        return;
-    }
-    (*(ptr_to_globals - 1)).eofile = 0;
-    /* Make sure that we always have enough lookahead. This is important
-     * if input comes from a device such as a tty.
-     */
-    while ((*(ptr_to_globals - 1)).lookahead < (258+3+1) && !(*(ptr_to_globals - 1)).eofile)
-        fill_window();
-    (*(ptr_to_globals - 1)).ins_h = 0;
-    for (j = 0; j < 3 - 1; j++)
-        ((*(ptr_to_globals - 1)).ins_h = ((((*(ptr_to_globals - 1)).ins_h)<<((13+3-1) / 3)) ^ ((*(ptr_to_globals - 1)).window[j])) & ((unsigned)(1<<13)-1));
-    /* If lookahead < MIN_MATCH, ins_h is garbage, but this is
-     * not important since only literal bytes will be emitted.
-     */
+	unsigned j;
+
+	/* Initialize the hash table. */
+	memset(((*(ptr_to_globals - 1)).prev + 0x8000), 0, (unsigned)(1<<13) * sizeof(*((*(ptr_to_globals - 1)).prev + 0x8000)));
+	/* prev will be initialized on the fly */
+
+	/* speed options for the general purpose bit flag */
+	*flagsp |= 2;	/* FAST 4, SLOW 2 */
+	/* ??? reduce max_chain_length for binary files */
+
+	(*(ptr_to_globals - 1)).strstart = 0;
+	(*(ptr_to_globals - 1)).block_start = 0L;
+
+	(*(ptr_to_globals - 1)).lookahead = file_read((*(ptr_to_globals - 1)).window,
+			sizeof(int) <= 2 ? (unsigned) 0x8000 : 2 * 0x8000);
+
+	if ((*(ptr_to_globals - 1)).lookahead == 0 || (*(ptr_to_globals - 1)).lookahead == (unsigned) -1) {
+		(*(ptr_to_globals - 1)).eofile = 1;
+		(*(ptr_to_globals - 1)).lookahead = 0;
+		return;
+	}
+	(*(ptr_to_globals - 1)).eofile = 0;
+	/* Make sure that we always have enough lookahead. This is important
+	 * if input comes from a device such as a tty.
+	 */
+	while ((*(ptr_to_globals - 1)).lookahead < (258+3+1) && !(*(ptr_to_globals - 1)).eofile)
+		fill_window();
+
+	(*(ptr_to_globals - 1)).ins_h = 0;
+	for (j = 0; j < 3 - 1; j++)
+		((*(ptr_to_globals - 1)).ins_h = ((((*(ptr_to_globals - 1)).ins_h)<<((13+3-1) / 3)) ^ ((*(ptr_to_globals - 1)).window[j])) & ((unsigned)(1<<13)-1));
+	/* If lookahead < MIN_MATCH, ins_h is garbage, but this is
+	 * not important since only literal bytes will be emitted.
+	 */
 }
 
 
@@ -76305,75 +76287,86 @@ static void lm_init(ush * flagsp)
  */
 static void ct_init(void)
 {
-    int n;				/* iterates over tree elements */
-    int length;			/* length value */
-    int code;			/* code value */
-    int dist;			/* distance index */
-    (*((struct globals2*)(ptr_to_globals))).compressed_len = 0L;
-    /* Initialize the mapping length (0..255) -> length code (0..28) */
-    length = 0;
-    for (code = 0; code < 29 - 1; code++) {
-        (*((struct globals2*)(ptr_to_globals))).base_length[code] = length;
-        for (n = 0; n < (1 << extra_lbits[code]); n++) {
-            (*((struct globals2*)(ptr_to_globals))).length_code[length++] = code;
-        }
-    }
-    ;
-    /* Note that the length 255 (match length 258) can be represented
-     * in two different ways: code 284 + 5 bits or code 285, so we
-     * overwrite length_code[255] to use the best encoding:
-     */
-    (*((struct globals2*)(ptr_to_globals))).length_code[length - 1] = code;
-    /* Initialize the mapping dist (0..32K) -> dist code (0..29) */
-    dist = 0;
-    for (code = 0; code < 16; code++) {
-        (*((struct globals2*)(ptr_to_globals))).base_dist[code] = dist;
-        for (n = 0; n < (1 << extra_dbits[code]); n++) {
-            (*((struct globals2*)(ptr_to_globals))).dist_code[dist++] = code;
-        }
-    }
-    ;
-    dist >>= 7;			/* from now on, all distances are divided by 128 */
-    for (; code < 30; code++) {
-        (*((struct globals2*)(ptr_to_globals))).base_dist[code] = dist << 7;
-        for (n = 0; n < (1 << (extra_dbits[code] - 7)); n++) {
-            (*((struct globals2*)(ptr_to_globals))).dist_code[256 + dist++] = code;
-        }
-    }
-    ;
-    /* Construct the codes of the static literal tree */
-    /* already zeroed - it's in bss
-    for (n = 0; n <= MAX_BITS; n++)
-    	G2.bl_count[n] = 0; */
-    n = 0;
-    while (n <= 143) {
-        (*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 8;
-        (*((struct globals2*)(ptr_to_globals))).bl_count[8]++;
-    }
-    while (n <= 255) {
-        (*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 9;
-        (*((struct globals2*)(ptr_to_globals))).bl_count[9]++;
-    }
-    while (n <= 279) {
-        (*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 7;
-        (*((struct globals2*)(ptr_to_globals))).bl_count[7]++;
-    }
-    while (n <= 287) {
-        (*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 8;
-        (*((struct globals2*)(ptr_to_globals))).bl_count[8]++;
-    }
-    /* Codes 286 and 287 do not exist, but we must include them in the
-     * tree construction to get a canonical Huffman tree (longest code
-     * all ones)
-     */
-    gen_codes((ct_data *) (*((struct globals2*)(ptr_to_globals))).static_ltree, (256+1+29) + 1);
-    /* The static distance tree is trivial: */
-    for (n = 0; n < 30; n++) {
-        (*((struct globals2*)(ptr_to_globals))).static_dtree[n].dl.len = 5;
-        (*((struct globals2*)(ptr_to_globals))).static_dtree[n].fc.code = bi_reverse(n, 5);
-    }
-    /* Initialize the first block of the first file: */
-    init_block();
+	int n;				/* iterates over tree elements */
+	int length;			/* length value */
+	int code;			/* code value */
+	int dist;			/* distance index */
+
+	(*((struct globals2*)(ptr_to_globals))).compressed_len = 0L;
+
+
+	
+		
+
+	/* Initialize the mapping length (0..255) -> length code (0..28) */
+	length = 0;
+	for (code = 0; code < 29 - 1; code++) {
+		(*((struct globals2*)(ptr_to_globals))).base_length[code] = length;
+		for (n = 0; n < (1 << extra_lbits[code]); n++) {
+			(*((struct globals2*)(ptr_to_globals))).length_code[length++] = code;
+		}
+	}
+	;
+	/* Note that the length 255 (match length 258) can be represented
+	 * in two different ways: code 284 + 5 bits or code 285, so we
+	 * overwrite length_code[255] to use the best encoding:
+	 */
+	(*((struct globals2*)(ptr_to_globals))).length_code[length - 1] = code;
+
+	/* Initialize the mapping dist (0..32K) -> dist code (0..29) */
+	dist = 0;
+	for (code = 0; code < 16; code++) {
+		(*((struct globals2*)(ptr_to_globals))).base_dist[code] = dist;
+		for (n = 0; n < (1 << extra_dbits[code]); n++) {
+			(*((struct globals2*)(ptr_to_globals))).dist_code[dist++] = code;
+		}
+	}
+	;
+	dist >>= 7;			/* from now on, all distances are divided by 128 */
+	for (; code < 30; code++) {
+		(*((struct globals2*)(ptr_to_globals))).base_dist[code] = dist << 7;
+		for (n = 0; n < (1 << (extra_dbits[code] - 7)); n++) {
+			(*((struct globals2*)(ptr_to_globals))).dist_code[256 + dist++] = code;
+		}
+	}
+	;
+
+	/* Construct the codes of the static literal tree */
+	/* already zeroed - it's in bss
+	for (n = 0; n <= MAX_BITS; n++)
+		G2.bl_count[n] = 0; */
+
+	n = 0;
+	while (n <= 143) {
+		(*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 8;
+		(*((struct globals2*)(ptr_to_globals))).bl_count[8]++;
+	}
+	while (n <= 255) {
+		(*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 9;
+		(*((struct globals2*)(ptr_to_globals))).bl_count[9]++;
+	}
+	while (n <= 279) {
+		(*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 7;
+		(*((struct globals2*)(ptr_to_globals))).bl_count[7]++;
+	}
+	while (n <= 287) {
+		(*((struct globals2*)(ptr_to_globals))).static_ltree[n++].dl.len = 8;
+		(*((struct globals2*)(ptr_to_globals))).bl_count[8]++;
+	}
+	/* Codes 286 and 287 do not exist, but we must include them in the
+	 * tree construction to get a canonical Huffman tree (longest code
+	 * all ones)
+	 */
+	gen_codes((ct_data *) (*((struct globals2*)(ptr_to_globals))).static_ltree, (256+1+29) + 1);
+
+	/* The static distance tree is trivial: */
+	for (n = 0; n < 30; n++) {
+		(*((struct globals2*)(ptr_to_globals))).static_dtree[n].dl.len = 5;
+		(*((struct globals2*)(ptr_to_globals))).static_dtree[n].fc.code = bi_reverse(n, 5);
+	}
+
+	/* Initialize the first block of the first file: */
+	init_block();
 }
 
 
@@ -76384,34 +76377,34 @@ static void ct_init(void)
 
 static void zip(ulg time_stamp)
 {
-    ush deflate_flags = 0;  /* pkzip -es, -en or -ex equivalent */
-    (*(ptr_to_globals - 1)).outcnt = 0;
-    /* Write the header to the gzip file. See algorithm.doc for the format */
-    /* magic header for gzip files: 1F 8B */
-    /* compression method: 8 (DEFLATED) */
-    /* general flags: 0 */
-    put_32bit(0x00088b1f);
-    put_32bit(time_stamp);
-    /* Write deflated file to zip file */
-    (*(ptr_to_globals - 1)).crc = ~0;
-    bi_init();
-    ct_init();
-    lm_init(&deflate_flags);
-    do {
-        (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (deflate_flags);
-        if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf();
-    }
-    while (0);	/* extra flags */
-    do {
-        (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (3);
-        if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf();
-    }
-    while (0);	/* OS identifier = 3 (Unix) */
-    deflate();
-    /* Write the crc and uncompressed size */
-    put_32bit(~(*(ptr_to_globals - 1)).crc);
-    put_32bit((*(ptr_to_globals - 1)).isize);
-    flush_outbuf();
+	ush deflate_flags = 0;  /* pkzip -es, -en or -ex equivalent */
+
+	(*(ptr_to_globals - 1)).outcnt = 0;
+
+	/* Write the header to the gzip file. See algorithm.doc for the format */
+	/* magic header for gzip files: 1F 8B */
+	/* compression method: 8 (DEFLATED) */
+	/* general flags: 0 */
+	put_32bit(0x00088b1f);
+	put_32bit(time_stamp);
+
+	/* Write deflated file to zip file */
+	(*(ptr_to_globals - 1)).crc = ~0;
+
+	bi_init();
+	ct_init();
+	lm_init(&deflate_flags);
+
+	do { (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (deflate_flags); if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf(); } while (0);	/* extra flags */
+	do { (*(ptr_to_globals - 1)).outbuf[(*(ptr_to_globals - 1)).outcnt++] = (3); if ((*(ptr_to_globals - 1)).outcnt == 8192) flush_outbuf(); } while (0);	/* OS identifier = 3 (Unix) */
+
+	deflate();
+
+	/* Write the crc and uncompressed size */
+	put_32bit(~(*(ptr_to_globals - 1)).crc);
+	put_32bit((*(ptr_to_globals - 1)).isize);
+
+	flush_outbuf();
 }
 
 
@@ -76424,56 +76417,62 @@ long long
 #if !definedEx(CONFIG_DESKTOP)
 
 #endif
-int  pack_gzip(unpack_info_t *info __attribute__ ((__unused__)))
+ int  pack_gzip(unpack_info_t *info __attribute__ ((__unused__)))
 {
-    struct stat s;
-    /* Clear input and output buffers */
-    (*(ptr_to_globals - 1)).outcnt = 0;
-    (*(ptr_to_globals - 1)).isize = 0;
-    /* Reinit G2.xxx */
-    memset(&(*((struct globals2*)(ptr_to_globals))), 0, sizeof((*((struct globals2*)(ptr_to_globals)))));
-    (*((struct globals2*)(ptr_to_globals))).l_desc.dyn_tree     = (*((struct globals2*)(ptr_to_globals))).dyn_ltree;
-    (*((struct globals2*)(ptr_to_globals))).l_desc.static_tree  = (*((struct globals2*)(ptr_to_globals))).static_ltree;
-    (*((struct globals2*)(ptr_to_globals))).l_desc.extra_bits   = extra_lbits;
-    (*((struct globals2*)(ptr_to_globals))).l_desc.extra_base   = 256 + 1;
-    (*((struct globals2*)(ptr_to_globals))).l_desc.elems        = (256+1+29);
-    (*((struct globals2*)(ptr_to_globals))).l_desc.max_length   = 15;
-    //G2.l_desc.max_code     = 0;
-    (*((struct globals2*)(ptr_to_globals))).d_desc.dyn_tree     = (*((struct globals2*)(ptr_to_globals))).dyn_dtree;
-    (*((struct globals2*)(ptr_to_globals))).d_desc.static_tree  = (*((struct globals2*)(ptr_to_globals))).static_dtree;
-    (*((struct globals2*)(ptr_to_globals))).d_desc.extra_bits   = extra_dbits;
-    //G2.d_desc.extra_base   = 0;
-    (*((struct globals2*)(ptr_to_globals))).d_desc.elems        = 30;
-    (*((struct globals2*)(ptr_to_globals))).d_desc.max_length   = 15;
-    //G2.d_desc.max_code     = 0;
-    (*((struct globals2*)(ptr_to_globals))).bl_desc.dyn_tree    = (*((struct globals2*)(ptr_to_globals))).bl_tree;
-    //G2.bl_desc.static_tree = NULL;
-    (*((struct globals2*)(ptr_to_globals))).bl_desc.extra_bits  = extra_blbits,
-                                                    //G2.bl_desc.extra_base  = 0;
-                                                    (*((struct globals2*)(ptr_to_globals))).bl_desc.elems       = 19;
-    (*((struct globals2*)(ptr_to_globals))).bl_desc.max_length  = 7;
-    //G2.bl_desc.max_code    = 0;
-    s.st_ctim.tv_sec = 0;
-    fstat(0, &s);
-    zip(s.st_ctim.tv_sec);
-    return 0;
+	struct stat s;
+
+	/* Clear input and output buffers */
+	(*(ptr_to_globals - 1)).outcnt = 0;
+
+	
+
+	(*(ptr_to_globals - 1)).isize = 0;
+
+	/* Reinit G2.xxx */
+	memset(&(*((struct globals2*)(ptr_to_globals))), 0, sizeof((*((struct globals2*)(ptr_to_globals)))));
+	(*((struct globals2*)(ptr_to_globals))).l_desc.dyn_tree     = (*((struct globals2*)(ptr_to_globals))).dyn_ltree;
+	(*((struct globals2*)(ptr_to_globals))).l_desc.static_tree  = (*((struct globals2*)(ptr_to_globals))).static_ltree;
+	(*((struct globals2*)(ptr_to_globals))).l_desc.extra_bits   = extra_lbits;
+	(*((struct globals2*)(ptr_to_globals))).l_desc.extra_base   = 256 + 1;
+	(*((struct globals2*)(ptr_to_globals))).l_desc.elems        = (256+1+29);
+	(*((struct globals2*)(ptr_to_globals))).l_desc.max_length   = 15;
+	//G2.l_desc.max_code     = 0;
+	(*((struct globals2*)(ptr_to_globals))).d_desc.dyn_tree     = (*((struct globals2*)(ptr_to_globals))).dyn_dtree;
+	(*((struct globals2*)(ptr_to_globals))).d_desc.static_tree  = (*((struct globals2*)(ptr_to_globals))).static_dtree;
+	(*((struct globals2*)(ptr_to_globals))).d_desc.extra_bits   = extra_dbits;
+	//G2.d_desc.extra_base   = 0;
+	(*((struct globals2*)(ptr_to_globals))).d_desc.elems        = 30;
+	(*((struct globals2*)(ptr_to_globals))).d_desc.max_length   = 15;
+	//G2.d_desc.max_code     = 0;
+	(*((struct globals2*)(ptr_to_globals))).bl_desc.dyn_tree    = (*((struct globals2*)(ptr_to_globals))).bl_tree;
+	//G2.bl_desc.static_tree = NULL;
+	(*((struct globals2*)(ptr_to_globals))).bl_desc.extra_bits  = extra_blbits,
+	//G2.bl_desc.extra_base  = 0;
+	(*((struct globals2*)(ptr_to_globals))).bl_desc.elems       = 19;
+	(*((struct globals2*)(ptr_to_globals))).bl_desc.max_length  = 7;
+	//G2.bl_desc.max_code    = 0;
+
+	s.st_ctim.tv_sec = 0;
+	fstat(0, &s);
+	zip(s.st_ctim.tv_sec);
+	return 0;
 }
 
 #if definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS)
 static const char gzip_longopts[] __attribute__((aligned(1))) =
-    "stdout\0"              "\0"       "c"
-    "to-stdout\0"           "\0"       "c"
-    "force\0"               "\0"       "f"
-    "verbose\0"             "\0"       "v"
+	"stdout\0"              "\0"       "c"
+	"to-stdout\0"           "\0"       "c"
+	"force\0"               "\0"       "f"
+	"verbose\0"             "\0"       "v"
 #if definedEx(CONFIG_GUNZIP)
-    "decompress\0"          "\0"       "d"
-    "uncompress\0"          "\0"       "d"
-    "test\0"                "\0"       "t"
+	"decompress\0"          "\0"       "d"
+	"uncompress\0"          "\0"       "d"
+	"test\0"                "\0"       "t"
 #endif
-    "quiet\0"               "\0"       "q"
-    "fast\0"                "\0"       "1"
-    "best\0"                "\0"       "9"
-    ;
+	"quiet\0"               "\0"       "q"
+	"fast\0"                "\0"       "1"
+	"best\0"                "\0"       "9"
+	;
 #endif
 /*
  * Linux kernel build uses gzip -d -n. We accept and ignore -n.
@@ -76489,7 +76488,7 @@ static const char gzip_longopts[] __attribute__((aligned(1))) =
  * gunzip: restore the original file name and time stamp if present.
  */
 
-int gzip_main(int argc, char **argv)
+int gzip_main(int argc, char **argv) 
 #if definedEx(CONFIG_FEATURE_INDIVIDUAL)
 __attribute__(( visibility("default") ))
 #endif
@@ -76504,40 +76503,42 @@ int gzip_main(int argc, char **argv)
 int gzip_main(int argc __attribute__ ((__unused__)), char **argv)
 #endif
 {
-    unsigned opt;
+	unsigned opt;
+
 #if definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS)
-    applet_long_options = gzip_longopts;
+	applet_long_options = gzip_longopts;
 #endif
-    /* Must match bbunzip's constants OPT_STDOUT, OPT_FORCE! */
-    opt = getopt32(argv, "cfv"
+	/* Must match bbunzip's constants OPT_STDOUT, OPT_FORCE! */
+	opt = getopt32(argv, "cfv" 
 #if definedEx(CONFIG_GUNZIP)
-                   "dt"
+"dt"
 #endif
 #if !definedEx(CONFIG_GUNZIP)
+
 #endif
-                   "q123456789n");
+ "q123456789n");
 #if definedEx(CONFIG_GUNZIP)
-    if (opt & 0x18) // -d and/or -t
-        return gunzip_main(argc, argv);
+	if (opt & 0x18) // -d and/or -t
+		return gunzip_main(argc, argv);
 #endif
-    option_mask32 &= 0x7; /* ignore -q, -0..9 */
-    //if (opt & 0x1) // -c
-    //if (opt & 0x2) // -f
-    //if (opt & 0x4) // -v
-    argv += optind;
-    do {
-        (*(struct globals**)&ptr_to_globals) = (void*)((char *)xzalloc(sizeof(struct globals)+sizeof(struct globals2))
-                                               + sizeof(struct globals));
-        __asm__ __volatile__("":::"memory");
-    }
-    while (0);
-    /* Allocate all global buffers (for DYN_ALLOC option) */
-    (*(ptr_to_globals - 1)).l_buf = xzalloc((size_t)(((0x2000)+1L)/2) * 2*sizeof(uch));
-    (*(ptr_to_globals - 1)).outbuf = xzalloc((size_t)(((8192)+1L)/2) * 2*sizeof(uch));
-    (*(ptr_to_globals - 1)).d_buf = xzalloc((size_t)(((0x2000)+1L)/2) * 2*sizeof(ush));
-    (*(ptr_to_globals - 1)).window = xzalloc((size_t)(((2L * 0x8000)+1L)/2) * 2*sizeof(uch));
-    (*(ptr_to_globals - 1)).prev = xzalloc((size_t)(((1L << 16)+1L)/2) * 2*sizeof(ush));
-    /* Initialize the CRC32 table */
-    global_crc32_table = crc32_filltable(((void *)0), 0);
-    return bbunpack(argv, pack_gzip, append_ext, "gz");
+	option_mask32 &= 0x7; /* ignore -q, -0..9 */
+	//if (opt & 0x1) // -c
+	//if (opt & 0x2) // -f
+	//if (opt & 0x4) // -v
+	argv += optind;
+
+	do { (*(struct globals**)&ptr_to_globals) = (void*)((char *)xzalloc(sizeof(struct globals)+sizeof(struct globals2))
+ + sizeof(struct globals)); __asm__ __volatile__("":::"memory"); } while (0);
+
+	/* Allocate all global buffers (for DYN_ALLOC option) */
+	(*(ptr_to_globals - 1)).l_buf = xzalloc((size_t)(((0x2000)+1L)/2) * 2*sizeof(uch));
+	(*(ptr_to_globals - 1)).outbuf = xzalloc((size_t)(((8192)+1L)/2) * 2*sizeof(uch));
+	(*(ptr_to_globals - 1)).d_buf = xzalloc((size_t)(((0x2000)+1L)/2) * 2*sizeof(ush));
+	(*(ptr_to_globals - 1)).window = xzalloc((size_t)(((2L * 0x8000)+1L)/2) * 2*sizeof(uch));
+	(*(ptr_to_globals - 1)).prev = xzalloc((size_t)(((1L << 16)+1L)/2) * 2*sizeof(ush));
+
+	/* Initialize the CRC32 table */
+	global_crc32_table = crc32_filltable(((void *)0), 0);
+
+	return bbunpack(argv, pack_gzip, append_ext, "gz");
 }
