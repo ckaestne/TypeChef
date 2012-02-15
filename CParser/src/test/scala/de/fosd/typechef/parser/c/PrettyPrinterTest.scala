@@ -2,8 +2,7 @@ package de.fosd.typechef.parser.c
 
 import org.junit.Assert._
 import PrettyPrinter._
-import de.fosd.typechef.featureexpr.FeatureExpr
-import junit.framework.TestCase
+import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
 import org.junit.{Ignore, Test}
@@ -97,6 +96,11 @@ class PrettyPrinterTest  {
         parsePrintParse("void *(void, int)", p.parameterDeclaration)
         parsePrintParse("void ****(void, int)", p.parameterDeclaration)
         parsePrintParse("void ****a", p.parameterDeclaration)
+    }
+
+    @Test def testOptAndChoice {
+      val c = Choice(FeatureExpr.createDefinedExternal("CONFIG_FEATURE_UDHCP_RFC3397"),One(CaseStatement(Id("OPTION_DNS_STRING"),None)),One(LabelStatement(Id("test"), None)))
+      ppConditional(c, List())
     }
 
     @Test def testStatements {

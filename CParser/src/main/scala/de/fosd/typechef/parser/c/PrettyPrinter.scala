@@ -46,9 +46,10 @@ object PrettyPrinter {
     def print(ast: AST): String = layout(prettyPrint(ast))
 
 
-    private def ppConditional(e: Conditional[AST], list_feature_expr: List[FeatureExpr]): Doc = e match {
+    def ppConditional(e: Conditional[_], list_feature_expr: List[FeatureExpr]): Doc = e match {
         case One(c: AST) => prettyPrint(c, list_feature_expr)
-        case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a, list_feature_expr) * "#else" * prettyPrint(b, list_feature_expr) * "#endif"
+        case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a, f::list_feature_expr) * "#else" * prettyPrint(b, f.not::list_feature_expr) * "#endif"
+        case Choice(f, a: Conditional[_], b: Conditional[_]) => "#if" ~~ f.toTextExpr * ppConditional(a, f::list_feature_expr) * "#else" * ppConditional(b, f.not::list_feature_expr) * "#endif"
     }
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
@@ -59,7 +60,7 @@ object PrettyPrinter {
     def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExpr.base)): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a, list_feature_expr)
         implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a, list_feature_expr)
-        implicit def prettyCond(a: Conditional[AST]): Doc = ppConditional(a, list_feature_expr)
+        implicit def prettyCond(a: Conditional[_]): Doc = ppConditional(a, list_feature_expr)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
 
         def sep(l: List[Opt[AST]], s: (Doc, Doc) => Doc) = {
