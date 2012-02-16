@@ -456,6 +456,24 @@ class CParserTest {
         				|void x(){}""", p.translationUnit)
         assertParseable("main(){}", p.functionDef)
         assertParseable("main(){int T=100, a=(T)+1;}", p.functionDef)
+        assertParseable("""
+        int
+main (int argc, char **argv)
+{
+  int size = 10;
+
+  typedef struct {
+    char val[size];
+  } block;
+  block retframe_block()
+    {
+      return *(block*)0;
+    }
+
+  return 0;
+}
+        """, p.functionDef)
+
     }
 
     @Test def testTypedefName {
@@ -1070,6 +1088,13 @@ void bar() {
                     #endif
                     int x;
                 """, p.translationUnit)
+    }
+
+    @Test
+    def test_bug03 {
+      assertParseableAST("""
+      a(){int**b[]={&&c};c:;}
+      """, p.translationUnit)
     }
 
     private def assertNoDeadNodes(ast: Product) {

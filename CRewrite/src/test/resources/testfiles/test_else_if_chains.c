@@ -3,15 +3,15 @@ void foo(char* s) { }
 int main(void) {
    unsigned int alter;
 
-   if(alter < 18) {
-      foo("Sie sind noch nicht volljährig\n");
+   if (a) {
+      foo("a");
    }
-   else if(alter > 18)  {
-      foo("Sie sind volljährig\n");
+   else if(b)  {
+      foo("b");
    }
-   else if(alter == 18) {
-      foo("Den Führerschein schon bestanden?\n");
+   else if(c) {
+      foo("c");
    }
-   foo("Bye\n");
+   foo("d");
    return 0;
 }

@@ -178,6 +178,17 @@ class PrettyPrinterTest  {
         //                           |void x(){}""", p.translationUnit)
         parsePrintParse("main(){}", p.functionDef)
         parsePrintParse("main(){int T=100, a=(T)+1;}", p.functionDef)
+        parsePrintParse("""
+        main() {
+          int a;
+          #ifdef A
+          if (a) {
+            int b;}
+          }
+          #endif
+          int c;
+        }
+        """, p.functionDef)
     }
 
     @Test def testTypedefName {
