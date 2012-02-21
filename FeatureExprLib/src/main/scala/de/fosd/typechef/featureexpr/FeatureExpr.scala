@@ -916,9 +916,12 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
                         case And(innerChildren) =>
                             //conjuncts@(a_1 & a_2) | innerChildren@(b_1 & b_2)
                             //becomes conjuncts'@(a_1 | b_1) & (a_1 | b_2) & (a_2 | b_1) & (a_2 | b_2).
-                            conjuncts = conjuncts.flatMap(
+                            /*conjuncts = conjuncts.flatMap(
                                 conjunct => innerChildren.map(
-                                    _ or conjunct))
+                                    _ or conjunct))*/
+                            conjuncts =
+                              for (conjunct <- conjuncts; c <- innerChildren)
+                                yield c or conjunct
                         case _ =>
                             conjuncts = conjuncts.map(_ or child)
                     }
