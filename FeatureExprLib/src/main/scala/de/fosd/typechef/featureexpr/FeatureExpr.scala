@@ -53,8 +53,11 @@ object FeatureExpr extends FeatureExprValueOps {
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
     def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
 
-    val base: FeatureExpr = True
-    val dead: FeatureExpr = False
+    val base: FeatureExpr = de.fosd.typechef.featureexpr.True
+    val dead: FeatureExpr = de.fosd.typechef.featureexpr.False
+
+    def True = base
+    def False = dead
 
     private[featureexpr] case class StructuralEqualityWrapper(f: FeatureExpr) {
         final override def equals(that: Any) =
@@ -210,7 +213,9 @@ sealed abstract class FeatureExpr {
         class FoundUnresolvedException extends Exception
         try {
             this.mapDefinedExpr({
-                case e: DefinedMacro => {throw new FoundUnresolvedException(); e}
+                case e: DefinedMacro => {
+                    throw new FoundUnresolvedException(); e
+                }
                 case e => e
             }, Map())
             return true
@@ -246,7 +251,9 @@ sealed abstract class FeatureExpr {
      * be aware of exponential explosion. consider using toCnfEquiSat instead if possible
      */
     def toCNF(): FeatureExpr = {
-        if (cache_cnf == null) {cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf}
+        if (cache_cnf == null) {
+            cache_cnf = calcCNF; cache_cnfEquiSat = cache_cnf
+        }
         assert(CNFHelper.isCNF(cache_cnf))
         //XXX: add and test!
         //cache_cnfEquiSat.cache_cnf = cache_cnf
@@ -358,7 +365,9 @@ private[featureexpr] object FExprBuilder {
     private val hashConsingCache: WeakHashMap[FeatureExpr.StructuralEqualityWrapper, WeakReference[FeatureExpr.StructuralEqualityWrapper]] = WeakHashMap()
 
     private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
-        def update() = {val d = op; map(key) = new WeakReference[B](d); d}
+        def update() = {
+            val d = op; map(key) = new WeakReference[B](d); d
+        }
         map.get(key) match {
             case Some(WeakRef(value)) => value
             case _ => update()
@@ -568,7 +577,9 @@ private[featureexpr] object FExprBuilder {
                 e.notCache match {
                     case Some(NotRef(res)) => res
                     case _ =>
-                        def storeCache(e: FeatureExpr, neg: FeatureExpr) = {e.notCache = Some(new NotReference(neg)); e}
+                        def storeCache(e: FeatureExpr, neg: FeatureExpr) = {
+                            e.notCache = Some(new NotReference(neg)); e
+                        }
                         val res = canonical(e match {
                             /* This transformation is expensive, so we need to store
                             * a reference to e in the created expression. However,
@@ -634,7 +645,7 @@ private[featureexpr] object FExprBuilder {
                             createIf(i2.expr, evalRelation(i1.elseBr, i2.thenBr)(relation), evalRelation(i1.elseBr, i2.elseBr)(relation)))
                     case (i: If[_], x) => createIf(i.expr, evalRelation(i.thenBr, x)(relation), evalRelation(i.elseBr, x)(relation))
                     case (x, i: If[_]) => createIf(i.expr, evalRelation(x, i.thenBr)(relation), evalRelation(x, i.elseBr)(relation))
-                    case _ => throw new Exception("evalRelation: unexpected " + (smaller, larger))
+                    case _ => throw new Exception("evalRelation: unexpected " +(smaller, larger))
                 }
         }
     }
@@ -651,7 +662,7 @@ private[featureexpr] object FExprBuilder {
                             createIf(i2.expr, applyBinaryOperation(i1.elseBr, i2.thenBr)(operation), applyBinaryOperation(i1.elseBr, i2.elseBr)(operation)))
                     case (i: If[_], x) => createIf(i.expr, applyBinaryOperation(i.thenBr, x)(operation), applyBinaryOperation(i.elseBr, x)(operation))
                     case (x, i: If[_]) => createIf(i.expr, applyBinaryOperation(x, i.thenBr)(operation), applyBinaryOperation(x, i.elseBr)(operation))
-                    case _ => throw new Exception("applyBinaryOperation: unexpected " + (left, right))
+                    case _ => throw new Exception("applyBinaryOperation: unexpected " +(left, right))
                 }
         }
     }
@@ -722,7 +733,9 @@ object False extends Or(Set()) with DefaultPrint {
     override def isSatisfiable(fm: FeatureModel) = false
 }
 
-trait DefaultPrint extends FeatureExpr {override def print(p: Writer) = p.write(toTextExpr)}
+trait DefaultPrint extends FeatureExpr {
+    override def print(p: Writer) = p.write(toTextExpr)
+}
 
 //The class name means And/Or (Un)Extractor.
 abstract class AndOrUnExtractor[This <: BinaryLogicConnective[This]] {
@@ -771,8 +784,8 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
     override def equal1Level(that: FeatureExpr) = that match {
         case e: BinaryLogicConnective[_] =>
             e.primeHashMult == primeHashMult && //check this as a class tag
-                    e.clauses.subsetOf(clauses) &&
-                    e.clauses.size == clauses.size
+                e.clauses.subsetOf(clauses) &&
+                e.clauses.size == clauses.size
         case _ => false
     }
 
@@ -810,8 +823,12 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
         case class ToPrint[T](x: T) extends PrintValue
         p write "("
         clauses.map(x => ToPrint(x)).foldLeft[PrintValue](NoPrint)({
-            case (NoPrint, ToPrint(c)) => {c.print(p); Printed}
-            case (Printed, ToPrint(c)) => {p.write(" " + operName + operName + " "); c.print(p); Printed}
+            case (NoPrint, ToPrint(c)) => {
+                c.print(p); Printed
+            }
+            case (Printed, ToPrint(c)) => {
+                p.write(" " + operName + operName + " "); c.print(p); Printed
+            }
         })
         p write ")"
     }
@@ -836,7 +853,7 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
 class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: And, newF: FeatureExpr) = {
-        this (clauses)
+        this(clauses)
         presetHash(old, newF)
     }
 
@@ -852,7 +869,7 @@ class And(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[And] {
 class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
     //Use this constructor when adding newF to old, because it reuses the old hash.
     def this(clauses: Set[FeatureExpr], old: Or, newF: FeatureExpr) = {
-        this (clauses)
+        this(clauses)
         presetHash(old, newF)
     }
 
@@ -872,7 +889,10 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
         //
         //heuristic: up to a medium size do not introduce new variables but use normal toCNF mechanism
         //rationale: we might actually simplify the formula by transforming it into CNF and in such cases it's not very expensive
-        def size(child: FeatureExpr) = child match {case And(inner) => inner.size; case _ => 1}
+        def size(child: FeatureExpr) = child match {
+            case And(inner) => inner.size;
+            case _ => 1
+        }
         val predictedCNFClauses = cnfchildren.foldRight(1)((x, y) => if (y <= 16) size(x) * y else y)
         if (predictedCNFClauses <= 16)
             combineCNF(cnfchildren)
@@ -896,9 +916,12 @@ class Or(val clauses: Set[FeatureExpr]) extends BinaryLogicConnective[Or] {
                         case And(innerChildren) =>
                             //conjuncts@(a_1 & a_2) | innerChildren@(b_1 & b_2)
                             //becomes conjuncts'@(a_1 | b_1) & (a_1 | b_2) & (a_2 | b_1) & (a_2 | b_2).
-                            conjuncts = conjuncts.flatMap(
+                            /*conjuncts = conjuncts.flatMap(
                                 conjunct => innerChildren.map(
-                                    _ or conjunct))
+                                    _ or conjunct))*/
+                            conjuncts =
+                              for (conjunct <- conjuncts; c <- innerChildren)
+                                yield c or conjunct
                         case _ =>
                             conjuncts = conjuncts.map(_ or child)
                     }

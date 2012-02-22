@@ -445,4 +445,20 @@ return 1;
         }
 
     }
+
+
+    test("alternative structs") {
+        expect(true) {
+            check("""
+            #ifdef X
+                struct s { char x; };
+            #else
+                struct s { long x; };
+            #endif
+
+            void m(struct s *a) { a->x; }
+                """)
+        }
+    }
+
 }
