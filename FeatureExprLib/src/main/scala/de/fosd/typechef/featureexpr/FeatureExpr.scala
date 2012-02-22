@@ -57,7 +57,7 @@ object FeatureExpr extends FeatureExprValueOps {
     val dead: FeatureExpr = de.fosd.typechef.featureexpr.False
 
     def True = base
-    def False = base
+    def False = dead
 
     private[featureexpr] case class StructuralEqualityWrapper(f: FeatureExpr) {
         final override def equals(that: Any) =
