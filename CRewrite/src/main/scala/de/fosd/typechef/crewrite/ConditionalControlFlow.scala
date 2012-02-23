@@ -1008,13 +1008,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val d = defines(e)
         var res = out(t)
         if (!d.isEmpty) {
-          val dhfexp = lfexp2Fexp(d.head, env)
+          val dhfexp = env.featureExpr(d.head)
           res = updateMap(res, (dhfexp, d), {
             _ -- _
           })
         }
         if (!u.isEmpty) {
-          val uhfexp = lfexp2Fexp(u.head, env)
+          val uhfexp = env.featureExpr(u.head)
           res = updateMap(res, (uhfexp, u), {
             _ ++ _
           })

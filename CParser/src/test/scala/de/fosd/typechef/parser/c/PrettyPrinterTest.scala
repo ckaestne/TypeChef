@@ -187,7 +187,7 @@ class PrettyPrinterTest  {
           int a;
           #ifdef A
           if (a) {
-            int b;}
+            int b;
           }
           #endif
           int c;
