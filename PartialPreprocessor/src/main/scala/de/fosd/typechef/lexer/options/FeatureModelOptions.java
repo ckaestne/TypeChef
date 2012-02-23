@@ -59,7 +59,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
                 new Option("typeSystemFeatureModelDimacs", LongOpt.REQUIRED_ARGUMENT, FM_TSDIMACS, "file",
                         "Distinct feature model for the type system."),
                 new Option("partialConfiguration", LongOpt.REQUIRED_ARGUMENT, FM_PARTIALCONFIG, "file",
-                        "Loads a partial configuration to the feature model (file with #define and #undef lines).")
+                        "Loads a partial configuration to the type-system feature model (file with #define and #undef lines).")
         ));
 
         return r;
@@ -95,11 +95,9 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
                 throw new OptionException("cannot load a second partial configuration");
             partialConfig = PartialConfigurationParser$.MODULE$.load(g.getOptarg());
             FeatureExpr f = partialConfig.getFeatureExpr();
-            if (featureModel == null)
-                featureModel = de.fosd.typechef.featureexpr.FeatureModel.create(f);
-            else featureModel = featureModel.and(f);
-            if (featureModel_typeSystem != null)
-                featureModel_typeSystem = featureModel_typeSystem.and(partialConfig.getFeatureExpr());
+            if (featureModel_typeSystem == null)
+                featureModel_typeSystem = de.fosd.typechef.featureexpr.FeatureModel.create(f);
+            else featureModel_typeSystem = featureModel_typeSystem.and(f);
         } else
             return super.interpretOption(c, g);
         return true;
