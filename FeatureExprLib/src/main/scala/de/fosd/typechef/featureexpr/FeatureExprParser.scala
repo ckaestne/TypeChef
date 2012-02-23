@@ -61,7 +61,9 @@ class FeatureExprParser extends RegexParsers {
             } |
             "0" ^^ {
                 x => FeatureExpr.dead
-            }
+            } | ID ^^ {
+            toFeature(_)
+        }
 
     def ID = "[A-Za-z0-9_]*".r
 
