@@ -44,6 +44,22 @@ class TestDefinedMacro extends TestCase {
 
     }
 
+    @Test
+    def testMacroTable2() {
+        var macroTable = new MacroContext[String]()
+        MacroContext.setPostfixFilter("_")
+
+        assertEquiv(x, macroTable.getMacroCondition("X"))
+        macroTable = macroTable.undefine("X", b)
+        assertEquiv(x andNot b, macroTable.getMacroCondition("X"))
+
+        assertEquiv(dead, macroTable.getMacroCondition("X_"))
+        macroTable = macroTable.undefine("X_", b)
+        assertEquiv(dead, macroTable.getMacroCondition("X_"))
+
+
+    }
+
     def getMacroTable = {
         var macroTable = new MacroContext[String]()
 
@@ -61,7 +77,6 @@ class TestDefinedMacro extends TestCase {
         macroTable = macroTable.undefine("Z", base)
         macroTable
     }
-
 
 
     //    @Test
