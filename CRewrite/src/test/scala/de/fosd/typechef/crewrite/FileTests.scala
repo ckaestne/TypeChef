@@ -118,7 +118,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   // interessting anyway
 
   // test fails
-  @Ignore def test_20000105_1() {assert(checkCfg("20000105-1.c"))}
+  @Test def test_20000105_1() {assert(checkCfg("20000105-1.c"))}
   @Test def test_20000105_2() {assert(checkCfg("20000105-2.c"))}
   @Test def test_20000120_1() {assert(checkCfg("20000120-1.c"))}
   @Test def test_20000120_2() {assert(checkCfg("20000120-2.c"))}
@@ -126,11 +126,13 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20000211_1() {assert(checkCfg("20000211-1.c"))}
 
   // test fails
-  @Ignore def test_20000211_3() {assert(checkCfg("20000211-3.c"))}
+  @Test def test_20000211_3() {assert(checkCfg("20000211-3.c"))}
 
   // test fails
   @Ignore def test_20000224_1() {assert(checkCfg("20000224-1.c"))}
   @Test def test_20000314_1() {assert(checkCfg("20000314-1.c"))}
+
+  // parser fails
   @Ignore def test_20000314_2() {assert(checkCfg("20000314-2.c"))}
   @Test def test_20000319_1() {assert(checkCfg("20000319-1.c"))}
 
@@ -166,7 +168,9 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Ignore def test_20000728_1() {assert(checkCfg("20000728-1.c"))}
   @Test def test_20000802_1() {assert(checkCfg("20000802-1.c"))}
   @Test def test_20000803_1() {assert(checkCfg("20000803-1.c"))}
-  @Test def test_20000804_1() {assert(checkCfg("20000804-1.c"))}
+
+  // has dead code
+  @Ignore def test_20000804_1() {assert(checkCfg("20000804-1.c"))}
   @Test def test_20000818_1() {assert(checkCfg("20000818-1.c"))}
   @Test def test_20000825_1() {assert(checkCfg("20000825-1.c"))}
   @Test def test_20000827_1() {assert(checkCfg("20000827-1.c"))}
@@ -239,7 +243,9 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Ignore def test_20010714_1() {assert(checkCfg("20010714-1.c"))}
   @Test def test_20010824_1() {assert(checkCfg("20010824-1.c"))}
   @Test def test_20010903_1() {assert(checkCfg("20010903-1.c"))}
-  @Test def test_20010903_2() {assert(checkCfg("20010903-2.c"))}
+
+  // nested function definition
+  @Ignore def test_20010903_2() {assert(checkCfg("20010903-2.c"))}
   @Test def test_20010911_1() {assert(checkCfg("20010911-1.c"))}
   @Test def test_20011010_1() {assert(checkCfg("20011010-1.c"))}
   @Test def test_20011023_1() {assert(checkCfg("20011023-1.c"))}

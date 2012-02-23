@@ -16,6 +16,7 @@ public class FrontendOptions extends LexerOptions {
     boolean parse = true,
             typecheck = true,
             writeInterface = true,
+            conditionalControlFlow = false,
             serializeAST = false,
             writeDebugInterface = false,
             recordTiming = false,
@@ -29,6 +30,7 @@ public class FrontendOptions extends LexerOptions {
     private final static char F_INTERFACE = Options.genOptionId();
     private final static char F_WRITEPI = Options.genOptionId();
     private final static char F_DEBUGINTERFACE = Options.genOptionId();
+    private final static char F_CONDITIONALCONTROLFLOW = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
@@ -47,6 +49,9 @@ public class FrontendOptions extends LexerOptions {
                         "Lex, parse, and type check; but do not create interfaces."),
                 new Option("interface", LongOpt.NO_ARGUMENT, F_INTERFACE, null,
                         "Lex, parse, type check, and create interfaces (default)."),
+
+                new Option("conditionalControlFlow", LongOpt.NO_ARGUMENT, F_CONDITIONALCONTROLFLOW, null,
+                        "Lex, parse, and check conditional control flow"),
 
                 new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
                         "Path to output files (no extension, creates .pi, .macrodbg etc files)."),
@@ -86,6 +91,8 @@ public class FrontendOptions extends LexerOptions {
             writeInterface = false;
         } else if (c == F_INTERFACE) {//--interface
             parse = typecheck = writeInterface = true;
+        } else if (c == F_CONDITIONALCONTROLFLOW) {//--conditional control flow check
+            parse = conditionalControlFlow = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
         } else if (c == F_RECORDTIMING) {

@@ -7,6 +7,7 @@ package de.fosd.typechef
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
+import de.fosd.typechef.crewrite._
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 
@@ -60,13 +61,15 @@ object Frontend {
         var t3 = t2;
         var t4 = t2;
         var t5 = t2;
+        var t6 = t2;
         if (opt.parse) {
             println("parsing.")
             val in = CLexer.prepareTokens(tokens)
             val parserMain = new ParserMain(new CParser(fm))
             val ast = parserMain.parserMain(in, opt.parserStatistics)
             t3 = System.currentTimeMillis();
-            t5 = t3;
+            t6 = t3
+            t5 = t3
             t4 = t3
             if (ast != null && opt.serializeAST)
                 serializeAST(ast, opt.getSerializedASTFilename)
@@ -74,25 +77,33 @@ object Frontend {
             if (ast != null) {
                 val fm_ts = opt.getFeatureModelTypeSystem().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 if (opt.typecheck || opt.writeInterface) {
                     println("type checking.")
                     ts.checkAST
                     t4 = System.currentTimeMillis();
                     t5 = t4
+                    t6 = t4
                 }
                 if (opt.writeInterface) {
                     println("inferring interfaces.")
                     val interface = ts.getInferredInterface().and(opt.getFilePresenceCondition)
                     t5 = System.currentTimeMillis()
+                    t6 = t5
                     ts.writeInterface(interface, new File(opt.getInterfaceFilename))
                     if (opt.writeDebugInterface)
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
+                }
+                if (opt.conditionalControlFlow) {
+                    println("checking conditional control flow.")
+                    cf.checkCfG()
+                    t6 = System.currentTimeMillis()
                 }
             }
 
         }
         if (opt.recordTiming)
-            println("timing (lexer, parser, type system, interface inference)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4))
+            println("timing (lexer, parser, type system, interface inference, conditional control flow)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4) + ";" + (t6 - t5))
 
     }
 
