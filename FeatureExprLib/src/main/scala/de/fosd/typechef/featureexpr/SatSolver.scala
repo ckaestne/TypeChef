@@ -2,9 +2,11 @@ package de.fosd.typechef.featureexpr
 
 import org.sat4j.core.VecInt
 import collection.mutable.WeakHashMap
-import org.sat4j.specs.IConstr;
-import org.sat4j.minisat.SolverFactory;
-import org.sat4j.specs.ContradictionException;
+
+import org.sat4j.minisat.SolverFactory
+import org.sat4j.specs.{IVecInt, IConstr, ContradictionException}
+;
+
 
 /**
  * connection to the SAT4j SAT solver
@@ -101,13 +103,19 @@ class SatSolverImpl(featureModel: FeatureModel) {
                 case e: ContradictionException => return false;
             }
 
+            val assumptions: VecInt = new VecInt(featureModel.assumedFalse.size + featureModel.assumedTrue.size)
+            for (f <- featureModel.assumedTrue)
+                uniqueFlagIds.get(f).map(assumptions.push(_))
+            for (f <- featureModel.assumedFalse)
+                uniqueFlagIds.get(f).map(id => assumptions.push(-id))
+
             //update max size (nothing happens if smaller than previous setting)
             solver.newVar(uniqueFlagIds.size)
 
             if (PROFILING)
                 print(";")
 
-            val result = solver.isSatisfiable()
+            val result = solver.isSatisfiable(assumptions)
 
 
             if (PROFILING)

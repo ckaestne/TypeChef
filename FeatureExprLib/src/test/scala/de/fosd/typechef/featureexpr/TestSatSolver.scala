@@ -51,6 +51,7 @@ class TestSatSolver extends TestCase {
         assertEquals(true, b and (h.not) and (h or ((h.not) and b)).not isContradiction())
     }
 
+
     //(A||B) && (!B|| !A)
 
 }

@@ -249,7 +249,7 @@ class FeatureExpr(private[featureexpr] val bdd: BDD) {
         else if (bdd.isZero) false
         else if (fm == NoFeatureModel || fm == null) bdd.satOne() != FExprBuilder.FALSE
         //combination with a small FeatureExpr feature model
-        else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd).satOne() != FExprBuilder.FALSE
+        else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd and fm.assumptions.bdd).satOne() != FExprBuilder.FALSE
         //combination with SAT
         else cacheIsSatisfiable.getOrElseUpdate(fm,
             SatSolver.isSatisfiable(fm, toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat())), FExprBuilder.lookupFeatureName)
