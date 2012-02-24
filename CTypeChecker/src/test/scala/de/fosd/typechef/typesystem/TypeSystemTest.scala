@@ -461,4 +461,14 @@ return 1;
         }
     }
 
+    test("top level inline assembler") {
+        expect(true) {
+            check("""
+                int a;
+                __asm__("whatever");
+                int b;
+                    """, true)
+        }
+    }
+
 }

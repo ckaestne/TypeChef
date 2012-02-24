@@ -47,13 +47,14 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         (lookahead(textToken("typedef")) ~! declaration ^^ {
             case _ ~ r => r
         } |
-            declaration |
-            functionDef | typelessDeclaration | asm_expr | pragma | expectType | expectNotType | (SEMI ^^ {
+            asm_expr | declaration |
+            functionDef | typelessDeclaration | pragma | expectType | expectNotType | (SEMI ^^ {
             x => EmptyExternalDef()
         })) !
 
+    //parse with LPAREN instead of LCURLY in antlr grammar. seems to be the correct gnuc impl according to gcc
     def asm_expr: MultiParser[AsmExpr] =
-        asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {
+        asm ~! opt(volatile) ~ LPAREN ~ expr ~ RPAREN ~ rep1(SEMI) ^^ {
             case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)
         }
 
