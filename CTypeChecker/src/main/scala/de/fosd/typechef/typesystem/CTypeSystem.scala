@@ -212,7 +212,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         }, ctx)
         def checkExprX(expr: Expr, check: CType => Boolean, errorMsg: CType => String, featureExpr: FeatureExpr) =
             performExprCheck(expr, check, errorMsg, featureExpr, env)
-        def nop = (One(CUnknown("no type for " + stmt)), env)
+        def nop = (One(CVoid()), env) //(One(CUnknown("no type for " + stmt)), env)
 
         addEnv(stmt, env)
 
