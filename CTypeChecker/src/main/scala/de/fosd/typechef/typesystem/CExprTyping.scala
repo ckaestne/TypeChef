@@ -146,8 +146,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     }
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
-                        ConditionalLib.conditionalFoldRightFR(opList, et(expr), featureExpr,
-                            (fexpr: FeatureExpr, subExpr: NArySubExpr, ctype: CType) =>
+                        ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
+                            (fexpr: FeatureExpr, ctype: CType, subExpr: NArySubExpr) =>
                                 etF(subExpr.e, fexpr) map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr))
                         )
                     //a[e]
