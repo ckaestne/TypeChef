@@ -207,6 +207,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //        def checkFunctionCall(call: PostfixExpr) = checkExpr(call, !_.isUnknown, {ct => "cannot resolve function call, found " + ct})
         //        def checkIdentifier(id: Id) = checkExpr(id, !_.isUnknown, {ct => "identifier " + id.name + " unknown: " + ct})
         def checkExpr(expr: Expr) = checkExprF(expr, featureExpr)
+        //expect an expression or a RangeExpression
+        def checkExprWithRange(expr: Expr) = expr match {
+            case RangeExpr(from, to) => checkExpr(from); checkExpr(to)
+            case e => checkExprF(e, featureExpr)
+        }
         def checkExprF(expr: Expr, ctx: FeatureExpr) = checkExprX(expr, !_.isUnknown, {
             ct => "cannot resolve expression, found " + ct
         }, ctx)
@@ -277,7 +282,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 }
                 nop
 
-            case CaseStatement(expr, stmt) => checkExpr(expr); checkOCStmt(stmt); nop
+            case CaseStatement(expr, stmt) => checkExprWithRange(expr); checkOCStmt(stmt); nop
             case IfStatement(expr, tstmt, elifstmts, estmt) =>
                 expectScalar(expr) //spec
                 checkCStmt(tstmt)
