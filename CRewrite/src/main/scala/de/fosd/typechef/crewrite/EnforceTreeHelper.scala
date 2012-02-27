@@ -14,26 +14,6 @@ import de.fosd.typechef.featureexpr.FeatureExpr
  * case classes Opt and AST elements, which derive product directly
  */
 trait EnforceTreeHelper extends CASTEnv {
-  private def assertTree(ast: Product, env: ASTEnv ) {
-    for (c <- ast.productIterator) {
-      c match {
-        case l: List[Opt[_]] => l.map(assertTree(_, env))
-        case _: AST => {
-          val cparent = env.get(c)._2
-          assert(cparent == ast, "Child " + c + " points to different parent:\n  " + cparent + "\nshould be\n  " + ast)
-          assertTree(c.asInstanceOf[Product], env)
-        }
-        case _ => ;
-      }
-    }
-  }
-
-//  private def ensureTree(ast: Attributable) {
-//    for (c <- ast.children) {
-//      c.parent = ast
-//      ensureTree(c)
-//    }
-//  }
 
   /**
    * unfortunately cloning loses position information, so we have to reassign it
@@ -63,9 +43,6 @@ trait EnforceTreeHelper extends CASTEnv {
           n.clone()
     })
     val cast = clone(ast).get.asInstanceOf[TranslationUnit]
-//    ensureTree(cast)
-    val env = createASTEnv(cast)
-    assertTree(cast, env)
     copyPositions(ast, cast)
     cast
   }

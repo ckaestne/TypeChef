@@ -12,7 +12,7 @@ object Main {
 
       if (ast != null && ast.isInstanceOf[TranslationUnit]) {
         val ca = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit])
-        ca.succs
+        ca.checkCfG()
       }
     }
   }

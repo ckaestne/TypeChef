@@ -157,7 +157,18 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // ENTRY element
       case f@FunctionDef(_, _, _, stmt) => succHelper(stmt, env)
 
+      // EXIT element
+      case t@ReturnStatement(_) => {
+        findPriorASTElem[FunctionDef](t, env) match {
+          case None => assert(false, "return statement should always occur within a function statement"); List()
+          case Some(f) => List(f)
+        }
+      }
+
+      case t@CompoundStatement(l) => getSuccNestedLevel(l, env)
+
       case o: Opt[_] => succHelper(o.entry, env)
+      case t: Conditional[_] => succHelper(childAST(t), env)
 
       // loop statements
       case t@ForStatement(expr1, expr2, expr3, s) => {
@@ -172,20 +183,16 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@IfStatement(condition, _, _, _) => List(condition)
       case t@ElifStatement(c, _) => List(c)
       case SwitchStatement(c, _) => List(c)
-      case t@ReturnStatement(_) => {
-        findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(false, "return statement should always occur within a function statement"); List()
-          case Some(f) => List(f)
-        }
-      }
-      case t@CompoundStatement(l) => getSuccNestedLevel(l, env)
+
       case t@BreakStatement() => {
-        val f = followUpSucc(t, env)
-        if (f.isDefined) getSuccSameLevel(f.get.head, env) else getSuccSameLevel(t, env)
+        val e2b = findPriorASTElem2BreakStatement(t, env)
+        assert(e2b.isDefined, "break statement should always occur within a for, do-while, while, or switch statement")
+        getSuccSameLevel(e2b.get, env)
       }
       case t@ContinueStatement() => {
-        val f = followUpSucc(t, env)
-        if (f.isDefined) f.get.head match {
+        val e2c = findPriorASTElem2ContinueStatement(t, env)
+        assert(e2c.isDefined, "continue statement should always occur within a for, do-while, or while statement")
+        e2c.get match {
           case t@ForStatement(_, break, inc, b) => {
             if (inc.isDefined) List(inc.get)
             else if (break.isDefined) List(break.get)
@@ -194,7 +201,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case WhileStatement(c, _) => List(c)
           case DoStatement(c, _) => List(c)
           case _ => List()
-        } else getSuccSameLevel(t, env)
+        }
       }
       case t@GotoStatement(Id(l)) => {
         findPriorASTElem[FunctionDef](t, env) match {
@@ -494,10 +501,20 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: WhileStatement => Some(t)
       case t: DoStatement => Some(t)
       case t: SwitchStatement => Some(t)
-      case t: AST => findPriorASTElem2BreakStatement(t, env)
-      case t: Opt[_] => findPriorASTElem2BreakStatement(t, env)
-      case t: Conditional[_] => findPriorASTElem2BreakStatement(t, env)
       case null => None
+      case t: AnyRef => findPriorASTElem2BreakStatement(t, env)
+    }
+  }
+
+  // method to find prior element to a continue statement
+  private def findPriorASTElem2ContinueStatement(a: AnyRef, env: ASTEnv): Option[AST] = {
+    val aparent = env.parent(a)
+    aparent match {
+      case t: ForStatement => Some(t)
+      case t: WhileStatement => Some(t)
+      case t: DoStatement => Some(t)
+      case null => None
+      case t: AnyRef => findPriorASTElem2ContinueStatement(t, env)
     }
   }
 
@@ -991,13 +1008,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val d = defines(e)
         var res = out(t)
         if (!d.isEmpty) {
-          val dhfexp = lfexp2Fexp(d.head, env)
+          val dhfexp = env.featureExpr(d.head)
           res = updateMap(res, (dhfexp, d), {
             _ -- _
           })
         }
         if (!u.isEmpty) {
-          val uhfexp = lfexp2Fexp(u.head, env)
+          val uhfexp = env.featureExpr(u.head)
           res = updateMap(res, (uhfexp, u), {
             _ ++ _
           })

@@ -10,7 +10,7 @@ trait CASTEnv {
 
   // store context of an AST entry
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
-  class ASTEnv (private val astc: IdentityHashMap[Any, ASTContext]) {
+  class ASTEnv (private var astc: IdentityHashMap[Any, ASTContext]) {
 
     def get(elem: Any): ASTContext = astc.get(elem)
     def lfeature(elem: Any) = astc.get(elem)._1
@@ -23,8 +23,7 @@ trait CASTEnv {
 
     def add(elem: Any, newelemc: ASTContext) = {
       var curelemc: ASTContext = null
-      var curastc = new IdentityHashMap[Any, ASTContext](astc)
-      if (curastc.containsKey(elem)) curelemc = curastc.get(elem)
+      if (astc.containsKey(elem)) curelemc = astc.get(elem)
       else curelemc = (null, null, null, null, null)
 
       // lfexp; parent; prev; next; children
@@ -34,14 +33,9 @@ trait CASTEnv {
       if (curelemc._4 != newelemc._4 && newelemc._4 != null) { curelemc = curelemc.copy(_4 = newelemc._4)}
       if (curelemc._5 != newelemc._5 && newelemc._5 != null) { curelemc = curelemc.copy(_5 = newelemc._5)}
 
-      curastc.put(elem, curelemc)
-      new ASTEnv(curastc)
+      astc.put(elem, curelemc)
+      this
     }
-  }
-
-  // create a feature expression from an ASTEnv
-  def lfexp2Fexp(e: AnyRef, env: ASTEnv) = {
-    env.get(e)._1.foldLeft(FeatureExpr.base)(_ and _)
   }
 
   // create ast-neighborhood context for a given translation-unit

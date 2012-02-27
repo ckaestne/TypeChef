@@ -53,8 +53,11 @@ object FeatureExpr extends FeatureExprValueOps {
     def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
     def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
 
-    val base: FeatureExpr = True
-    val dead: FeatureExpr = False
+    val base: FeatureExpr = de.fosd.typechef.featureexpr.True
+    val dead: FeatureExpr = de.fosd.typechef.featureexpr.False
+
+    def True = base
+    def False = dead
 
 
 }
