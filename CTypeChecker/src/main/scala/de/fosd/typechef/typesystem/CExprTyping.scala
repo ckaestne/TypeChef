@@ -101,8 +101,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (targetType == CVoid() ||
                                     isPointer(targetType) ||
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
+                                else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
-                                else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown) targetType
+                                else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
                         )
@@ -131,6 +132,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 val opType = operationType(op, ltype, rtype, ae, fexpr)
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
+                                    case u: CUnknown => u.toValue
                                     case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                                 }
                             })

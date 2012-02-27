@@ -501,4 +501,17 @@ return 1;
         }
     }
 
+
+    test("cast pointer to long") {
+        expect(true) {
+            check("""
+                extern void f();
+                void foo(){
+                    long a;
+                    a=(long) f;
+                }
+                    """, true)
+        }
+
+    }
 }
