@@ -481,7 +481,7 @@ return 1;
                 }
                     """, true)
         }
-        expect(true) {
+        expect(false) {
             check("""
                 void foo(){
                     unsigned int *a;
@@ -511,6 +511,24 @@ return 1;
                     a=(long) f;
                 }
                     """, true)
+        }
+
+    }
+
+
+    test("range expression ") {
+        expect(true) {
+            check("""
+                    void foo(){
+                    int c;
+                      switch (c) {
+                                         default:
+                                                            break;
+                                         case 7 ... 9:
+                                                            break;
+                        }
+                    }
+                        """, true)
         }
 
     }
