@@ -423,7 +423,7 @@ trait CTypes {
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) => return true
-            case (CPointer(a), CPointer(b)) if (coerce(a, b)) => return true
+            case (CPointer(a), CPointer(b)) if (!a.isFunction && !b.isFunction && coerce(a, b)) => return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
             case (CStruct(_, _), CCompound()) => return true
