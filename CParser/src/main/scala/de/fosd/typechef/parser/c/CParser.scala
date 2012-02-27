@@ -780,11 +780,15 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def alignof = textToken("__alignof__") | textToken("__alignof")
 
+    def ignoreAttributes(s: Specifier): Boolean = s match {
+        case x: AttributeSpecifier => false
+        case _ => true
+    }
     def specList(otherSpecifiers: MultiParser[Specifier]): MultiParser[List[Opt[Specifier]]] =
         alwaysNonEmpty(repOpt(otherSpecifiers) ~~ opt(typedefName) ~~ repOpt(otherSpecifiers | typeSpecifier) ^^ {
             case list1 ~ Some(typedefn) ~ list2 => list1 ++ List(Opt(base, typedefn)) ++ list2
             case list1 ~ None ~ list2 => list1 ++ list2
-        })
+        }, ignoreAttributes)
 
     //XXX: CK: only for debugging purposes, not part of the C grammar
     def expectType = textToken("__expectType") ~ LBRACKET ~ COLON ~!> typedefName <~ COLON <~ RBRACKET ^^ {

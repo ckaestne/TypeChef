@@ -541,8 +541,20 @@ return 1;
                         char *a, *b, *c, *d;
                         d=a-b+c;
                     }
-                        """, true)
+                        """)
         }
 
     }
+
+    test("asm statement") {
+        expect(true) {
+            check("""
+                         void arch_kgdb_breakpoint(void)
+                        {
+                                asm("   int $3");
+                        }
+                            """, true)
+        }
+    }
+
 }

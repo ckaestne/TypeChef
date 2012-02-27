@@ -662,13 +662,15 @@ try {
     /**
      * returns failure when list is empty
      * considers all elements of an optList and returns failure for all conditions where the optList is empty
+     *
+     * filter can be used to ignore certain kinds of elements. only elements that pass the filter are counted.
      */
-    def alwaysNonEmpty[T](p: => MultiParser[List[Opt[T]]]): MultiParser[List[Opt[T]]] = new OtherParser[List[Opt[T]]](p) {
+    def alwaysNonEmpty[T](p: => MultiParser[List[Opt[T]]], filterE: T => Boolean = (x: T) => true): MultiParser[List[Opt[T]]] = new OtherParser[List[Opt[T]]](p) {
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[Opt[T]]] = {
             val t = p(in, feature)
             t.seqAllSuccessful(feature,
                 (fs: FeatureExpr, x: Success[List[Opt[T]]]) => {
-                    val nonEmptyCondition = x.result.map(_.feature).foldLeft(FeatureExpr.dead)(_ or _)
+                    val nonEmptyCondition = x.result.filter(x => filterE(x.entry)).map(_.feature).foldLeft(FeatureExpr.dead)(_ or _)
                     def error = Failure("empty list", x.nextInput, List())
                     if ((fs implies nonEmptyCondition).isTautology())
                         x
