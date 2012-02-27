@@ -467,7 +467,7 @@ return 1;
                     int a;
                     __asm__("whatever");
                     int b;
-                        """, true)
+                        """)
         }
     }
 
@@ -479,7 +479,7 @@ return 1;
                     signed int b;
                     a=b;
                 }
-                    """, true)
+                    """)
         }
         expect(false) {
             check("""
@@ -488,7 +488,7 @@ return 1;
                     signed int *b;
                     a=b;
                 }
-                    """, true)
+                    """)
         }
         expect(false) {
             check("""
@@ -497,7 +497,7 @@ return 1;
                     signed int *b;
                     a=&b;
                 }
-                    """, true)
+                    """)
         }
     }
 
@@ -510,7 +510,7 @@ return 1;
                     long a;
                     a=(long) f;
                 }
-                    """, true)
+                    """)
         }
 
     }
@@ -527,6 +527,19 @@ return 1;
                                          case 7 ... 9:
                                                             break;
                         }
+                    }
+                        """)
+        }
+
+    }
+
+    test("pointer arithmetics") {
+        //don't ask. pointer-pointer yields an int, + a pointer is a pointer
+        expect(true) {
+            check("""
+                    void foo(){
+                        char *a, *b, *c, *d;
+                        d=a-b+c;
                     }
                         """, true)
         }
