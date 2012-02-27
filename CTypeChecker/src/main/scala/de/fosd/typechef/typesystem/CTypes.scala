@@ -315,7 +315,7 @@ object CType {
  * internally storing Type, wheather its a function definition, and the current scope idx
  */
 class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends ConditionalCMap[CType](m) {
-    def this() = this (new ConditionalMap())
+    def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
     def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
@@ -323,7 +323,7 @@ class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends 
 }
 
 class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(CType, Boolean, Int)]]) extends ConditionalCMap[(CType, Boolean, Int)](m) {
-    def this() = this (new ConditionalMap())
+    def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
     def lookup(name: String): Conditional[(CType, Boolean, Int)] = getOrElse(name, (CUnknown(name), false, -1))
     def +(name: String, f: FeatureExpr, t: Conditional[CType], isFunctionDef: Boolean, scope: Int) = new ConditionalVarEnv(m.+(name, f, t.map(x => (x, isFunctionDef, scope))))
@@ -422,7 +422,8 @@ trait CTypes {
         if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) return true
+            case (CPointer(a), CPointer(b)) if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) => return true
+            case (CPointer(a), CPointer(b)) if (coerce(a, b)) => return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
             case (CStruct(_, _), CCompound()) => return true

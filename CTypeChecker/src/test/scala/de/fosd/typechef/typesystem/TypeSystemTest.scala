@@ -461,4 +461,44 @@ return 1;
         }
     }
 
+    test("top level inline assembler") {
+        expect(true) {
+            check("""
+                    int a;
+                    __asm__("whatever");
+                    int b;
+                        """, true)
+        }
+    }
+
+    test("int pointer compatibility") {
+        expect(true) {
+            check("""
+                void foo(){
+                    unsigned int a;
+                    signed int b;
+                    a=b;
+                }
+                    """, true)
+        }
+        expect(true) {
+            check("""
+                void foo(){
+                    unsigned int *a;
+                    signed int *b;
+                    a=b;
+                }
+                    """, true)
+        }
+        expect(false) {
+            check("""
+                void foo(){
+                    unsigned int *a;
+                    signed int *b;
+                    a=&b;
+                }
+                    """, true)
+        }
+    }
+
 }
