@@ -232,7 +232,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     }
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType], featureExpr: FeatureExpr, where: AST) =
-        ConditionalLib.mapCombination(thenTypes, elseTypes, (thenType: CType, elseType: CType) => {
+        ConditionalLib.mapCombinationF(thenTypes, elseTypes, featureExpr, (featureExpr: FeatureExpr, thenType: CType, elseType: CType) => {
             (thenType.toValue, elseType.toValue) match {
                 case (CPointer(CVoid()), CPointer(x)) => CPointer(x) //spec
                 case (CPointer(x), CPointer(CVoid())) => CPointer(x) //spec
