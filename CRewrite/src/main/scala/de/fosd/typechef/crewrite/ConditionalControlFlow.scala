@@ -227,6 +227,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         }
       }
 
+      case t@CaseStatement(c, s) => {
+        if (s.isDefined) simpleOrCompoundStatementSucc(t, s.get, env)
+        else getSuccSameLevel(t, env)
+      }
+
       case t: Statement => getSuccSameLevel(t, env)
       case t => nestedSucc(t, env)
     }
@@ -634,7 +639,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // this method filters all CaseStatements
   private def filterCaseStatements(a: Any, env: ASTEnv): List[CaseStatement] = {
     a match {
-      case t: CaseStatement => List(t)
+      case t@CaseStatement(_, s) => List(t) ++ (if (s.isDefined) filterCaseStatements(s.get, env) else List())
       case SwitchStatement => List()
       case l: List[_] => l.flatMap(filterCaseStatements(_, env))
       case x: Product => x.productIterator.toList.flatMap(filterCaseStatements(_, env))
