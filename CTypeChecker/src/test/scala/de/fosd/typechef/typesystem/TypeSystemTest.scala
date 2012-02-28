@@ -486,18 +486,37 @@ return 1;
                 void foo(){
                     unsigned int *a;
                     signed int *b;
-                    a=b;
+                    a=&b;
                 }
                     """)
         }
-        expect(false) {
+        //last two should not yield an error or warning if -Wno-pointer-sign is set (default in linux)
+        expect(true) {
             check("""
                 void foo(){
                     unsigned int *a;
                     signed int *b;
-                    a=&b;
+                    a=b;
                 }
                     """)
+        }
+        expect(true) {
+            check("""
+                void foo(){
+                    char *a;
+                    unsigned char *b;
+                    a=b;
+                }
+                    """)
+        }
+        expect(true) {
+            check("""
+                         void f(int *x) {}
+                         void g() {
+                                unsigned int y=3;
+                                f(&y);
+                        }
+                            """)
         }
     }
 
@@ -545,4 +564,17 @@ return 1;
         }
 
     }
+
+    test("asm statement") {
+        expect(true) {
+            check("""
+                         void arch_kgdb_breakpoint(void)
+                        {
+                                asm("   int $3");
+                        }
+                            """)
+        }
+    }
+
+
 }

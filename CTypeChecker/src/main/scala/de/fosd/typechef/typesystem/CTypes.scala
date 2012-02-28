@@ -112,7 +112,9 @@ case class CZero() extends CType {
     def toXML = <zero/>
 }
 
-case class CSigned(b: CBasicType) extends CType {
+abstract class CSignSpecifier(val basicType: CBasicType) extends CType
+
+case class CSigned(b: CBasicType) extends CSignSpecifier(b) {
     override def <(that: CType) = that match {
         case CSigned(thatb) => b < thatb
         case _ => false
@@ -123,7 +125,7 @@ case class CSigned(b: CBasicType) extends CType {
     </signed>
 }
 
-case class CUnsigned(b: CBasicType) extends CType {
+case class CUnsigned(b: CBasicType) extends CSignSpecifier(b) {
     override def <(that: CType) = that match {
         case CUnsigned(thatb) => b < thatb
         case _ => false
@@ -134,7 +136,7 @@ case class CUnsigned(b: CBasicType) extends CType {
     </unsigned>
 }
 
-case class CSignUnspecified(b: CBasicType) extends CType {
+case class CSignUnspecified(b: CBasicType) extends CSignSpecifier(b) {
     override def <(that: CType) = that match {
         case CSignUnspecified(thatb) => b < thatb
         case _ => false
@@ -356,7 +358,7 @@ abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, Condit
 /**
  * helper functions
  */
-trait CTypes {
+trait CTypes extends COptionProvider {
     type PtrEnv = Set[String]
 
 
@@ -423,6 +425,7 @@ trait CTypes {
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) => return true
+            case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if (!opts.warning_pointer_sign && (a.basicType == b.basicType)) => return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
             case (CStruct(_, _), CCompound()) => return true
