@@ -100,7 +100,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         findPriorASTElem[SwitchStatement](t, env) match {
           case None => assert(false, "case statements should always occur within a switch statement"); List()
           case Some(SwitchStatement) => {
-
+            List()
           }
         }
 
