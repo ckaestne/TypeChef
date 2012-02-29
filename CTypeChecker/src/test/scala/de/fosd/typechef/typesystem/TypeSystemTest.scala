@@ -576,5 +576,57 @@ return 1;
         }
     }
 
+    test("typedef and __typeof__ as struct forward declaration") {
+        //typeof works like a synonym to a typedef
+        //as such also works as forward declaration
+        //see http://gcc.gnu.org/onlinedocs/gcc/Typeof.html
+        expect(false) {
+            check("""
+                     typedef struct x Sx;
+
+                     Sx y;
+                """)
+        }
+
+        expect(false) {
+            check("""
+                 __typeof__(struct x) y;
+                    """)
+        }
+        expect(false) {
+            check("""
+                 struct x y;
+                    """)
+        }
+        expect(true) {
+            check("""
+                 struct x Sx;
+
+                 static Sx y;
+
+                 struct x {
+                  int a;
+                 };   """)
+        }
+
+        expect(true) {
+            check("""
+                     __typeof__(struct x) y;
+
+                     struct x {
+                      int a;
+                     };   """)
+        }
+
+        expect(true) {
+            check("""
+                             struct x y;
+
+                             struct x {
+                              int a;
+                             };   """)
+        }
+    }
+
 
 }
