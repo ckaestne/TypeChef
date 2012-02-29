@@ -627,6 +627,25 @@ return 1;
                              };   """)
         }
     }
-
+    test("enum type is unsigned int") {
+        expect(true) {
+            check("""enum x {a};
+                           enum x f(void);
+                           unsigned int f() { return 0; }
+                   """)
+        }
+        expect(false) {
+            check("""enum x {a};
+                           enum x f(void);
+                           signed int f() { return 0; }
+                   """)
+        }
+        expect(false) {
+            check("""enum x {a};
+                           enum x f(void);
+                           int f() { return 0; }
+                   """)
+        }
+    }
 
 }
