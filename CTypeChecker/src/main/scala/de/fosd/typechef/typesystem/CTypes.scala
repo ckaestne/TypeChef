@@ -430,6 +430,7 @@ trait CTypes extends COptionProvider {
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
             case (CStruct(_, _), CCompound()) => return true
             case (CAnonymousStruct(_, _), CCompound()) => return true
+            case (a, CCompound()) if (isScalar(a)) => return true //works for literals as well
             case _ =>
         })
 
