@@ -118,7 +118,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   // interessting anyway
 
   // test fails
-  @Ignore def test_20000105_1() {assert(checkCfg("20000105-1.c"))}
+  @Test def test_20000105_1() {assert(checkCfg("20000105-1.c"))}
   @Test def test_20000105_2() {assert(checkCfg("20000105-2.c"))}
   @Test def test_20000120_1() {assert(checkCfg("20000120-1.c"))}
   @Test def test_20000120_2() {assert(checkCfg("20000120-2.c"))}
