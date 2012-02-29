@@ -95,12 +95,21 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   def predHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
-      case w@LabelStatement(Id(n), _) => {
-        findPriorASTElem[FunctionDef](w, env) match {
+
+      case t: AST if (t.isInstanceOf[CaseStatement] || t.isInstanceOf[DefaultStatement]) => {
+        val prior_switch = findPriorASTElem[SwitchStatement](t, env)
+        assert(prior_switch.isDefined, "default or case statements should always occur withing a switch definition")
+        prior_switch.get match {
+          case SwitchStatement(expr, _) => simpleOrCompoundStatementExprPred(expr, env) ++ getPredSameLevel(t, env)
+        }
+      }
+
+      case t@LabelStatement(Id(n), _) => {
+        findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(false, "label statements should always occur within a function definition"); List()
           case Some(f) => {
             val l_gotos = gotoLookup(f, n, env)
-            val l_preds = getPredSameLevel(w, env)
+            val l_preds = getPredSameLevel(t, env)
             l_gotos ++ l_preds
           }
         }
@@ -404,6 +413,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         else List(condition)
       }
 
+      case t: CaseStatement => List(t)
+
       case s: Statement => getPredSameLevel(s, env)
 
       case _ => List()
@@ -534,7 +545,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val prior_switch = findPriorASTElem[SwitchStatement](t, env)
         assert(prior_switch.isDefined, "default statement without surrounding switch")
         prior_switch.get match {
-          case SwitchStatement(expr, _) => Some(simpleOrCompoundStatementExprPred(expr, env))
+          case SwitchStatement(expr, _) => Some(simpleOrCompoundStatementExprPred(expr, env) ++ nestedPred(t, env))
         }
       }
 
@@ -584,6 +595,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             }
           }
           case t@ElifStatement(condition, _) => Some(simpleOrCompoundStatementExprPred(condition, env))
+          case t@SwitchStatement(expr, _) => Some(simpleOrCompoundStatementExprPred(expr, env))
           case t: CaseStatement => Some(List(t))
 
           case t: CompoundStatementExpr => followUpPred(t, env)
@@ -690,8 +702,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
       case ElifStatement(condition, thenBranch) =>
         List(condition) ++ simpleOrCompoundStatementPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
-      case t@SwitchStatement(expr, s) =>
-        filterBreakStatements(t, env) ++ filterDefaultStatements(s, env).flatMap(rollUp(_, env))
+      case t@SwitchStatement(expr, s) => {
+        val lbreaks = filterBreakStatements(t, env)
+        val ldefaults = filterDefaultStatements(t, env)
+
+        if (ldefaults.isEmpty) lbreaks.flatMap(rollUp(_, env)) ++ simpleOrCompoundStatementExprPred(expr, env)
+        else (lbreaks ++ ldefaults).flatMap(rollUp(_, env))
+      }
       case t@CaseStatement(c, s) if (s.isDefined) =>
         simpleOrCompoundStatementPred(t, childAST(s), env)
       case DefaultStatement(s) if (s.isDefined) =>
