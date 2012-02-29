@@ -95,17 +95,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   def predHelper(a: Any, env: ASTEnv): List[AST] = {
     a match {
-
-      case t: CaseStatement => {
-        findPriorASTElem[SwitchStatement](t, env) match {
-          case None => assert(false, "case statements should always occur within a switch statement"); List()
-          case Some(SwitchStatement) => {
-            List()
-          }
-        }
-
-      }
-
       case w@LabelStatement(Id(n), _) => {
         findPriorASTElem[FunctionDef](w, env) match {
           case None => assert(false, "label statements should always occur within a function definition"); List()
@@ -415,6 +404,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         else List(condition)
       }
 
+      case s: Statement => getPredSameLevel(s, env)
+
       case _ => List()
     }
   }
@@ -538,11 +529,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
     nested_ast_elem match {
 
-      // default statements belong only to switch statements
-      case t: DefaultStatement => {
+      // case or default statements belong only to switch statements
+      case t if (t.isInstanceOf[CaseStatement] || t.isInstanceOf[DefaultStatement]) => {
         val prior_switch = findPriorASTElem[SwitchStatement](t, env)
         assert(prior_switch.isDefined, "default statement without surrounding switch")
-        Some(getPredSameLevel(prior_switch.get, env))
+        prior_switch.get match {
+          case SwitchStatement(expr, _) => Some(simpleOrCompoundStatementExprPred(expr, env))
+        }
       }
 
       // break statements belong to switch statements but also appear in loops (for, do-while, while)
@@ -733,7 +726,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case Left(p_list) => p_list.flatMap(rollUp(_, env)) // 2.
           case Right(p_list) => {
             val fups = followUpPred(s, env).getOrElse(List())
-            (p_list ++ fups).flatMap(rollUp(_, env))
+            val l = p_list ++ fups
+            l.filterNot(_.isInstanceOf[CaseStatement]).flatMap(rollUp(_, env)) ++ l.filter(_.isInstanceOf[CaseStatement])
           } // 3.
         }
       }

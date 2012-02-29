@@ -860,6 +860,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug02() {assert(checkCfg("bug02.c"))}
   @Test def test_bug03() {assert(checkCfg("bug03.c"))}
   @Test def test_bug04() {assert(checkCfg("bug04.c"))}
+  @Test def test_bug05() {assert(checkCfg("bug05.c"))}
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
 
   // performance testing
