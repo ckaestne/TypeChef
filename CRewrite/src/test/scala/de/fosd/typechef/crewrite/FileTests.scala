@@ -795,13 +795,13 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_991026_1() {assert(checkCfg("991026-1.c"))}
 
   // test fails
-  @Ignore def test_991026_2() {assert(checkCfg("991026-2.c"))}
+  @Test def test_991026_2() {assert(checkCfg("991026-2.c"))}
   @Test def test_991127_1() {assert(checkCfg("991127-1.c"))}
   @Test def test_991202_1() {assert(checkCfg("991202-1.c"))}
   @Test def test_991208_1() {assert(checkCfg("991208-1.c"))}
   @Test def test_991213_1() {assert(checkCfg("991213-1.c"))}
 
-  // test fails
+  // test fails infinite loop
   @Ignore def test_991213_2() {assert(checkCfg("991213-2.c"))}
   @Test def test_991213_3() {assert(checkCfg("991213-3.c"))}
   @Test def test_991214_1() {assert(checkCfg("991214-1.c"))}
@@ -868,6 +868,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug03() {assert(checkCfg("bug03.c"))}
   @Test def test_bug04() {assert(checkCfg("bug04.c"))}
   @Test def test_bug05() {assert(checkCfg("bug05.c"))}
+  @Test def test_bug06() {assert(checkCfg("bug06.c"))}
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
 
   // performance testing

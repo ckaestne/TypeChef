@@ -241,7 +241,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         }
       }
 
-      case t@CaseStatement(c, s) => {
+      case t@CaseStatement(_, s) => {
+        if (s.isDefined) getCondStmtSucc(t, s.get, env)
+        else getStmtSucc(t, env)
+      }
+
+      case t@DefaultStatement(s) => {
         if (s.isDefined) getCondStmtSucc(t, s.get, env)
         else getStmtSucc(t, env)
       }
@@ -598,6 +603,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case t@ElifStatement(condition, _) => Some(getCondExprPred(condition, env))
           case t@SwitchStatement(expr, _) => Some(getCondExprPred(expr, env))
           case t: CaseStatement => Some(List(t))
+          case t: DefaultStatement => Some(List(t))
 
           case t: CompoundStatementExpr => followUpPred(t, env)
           case t: Statement => Some(getStmtPred(t, env))
