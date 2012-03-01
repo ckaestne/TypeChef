@@ -145,6 +145,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _ if (!oldelem.eq(a.asInstanceOf[AnyRef])) => add2newres = List(oldelem)
               case _ =>
             }
@@ -578,7 +579,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             if (nested_ast_elem.eq(expr)) Some(List(t))
             else Some(simpleOrCompoundStatementExprPred(expr, env))
           }
-          case t: DoStatement => Some(List(t))
+          case t@DoStatement(expr, s) => {
+            if (nested_ast_elem.eq(expr)) Some(List(t) ++ simpleOrCompoundStatementPred(t, s, env))
+            else Some(simpleOrCompoundStatementExprPred(expr, env) ++ getPredSameLevel(t, env))
+          }
 
           // control flow comes either out of:
           // elseBranch: elifs + condition is the result
@@ -745,7 +749,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case Right(p_list) => {
             val fups = followUpPred(s, env).getOrElse(List())
             val l = p_list ++ fups
-            l.filterNot(_.isInstanceOf[CaseStatement]).flatMap(rollUp(_, env)) ++ l.filter(_.isInstanceOf[CaseStatement])
+            // TODO the filtering mechanism here, makes sure, we do not dig into elements when going up the AST
+            l.filterNot(x => x.isInstanceOf[CaseStatement] || x.isInstanceOf[DoStatement]).flatMap(rollUp(_, env)) ++
+                l.filter(x => x.isInstanceOf[CaseStatement] || x.isInstanceOf[DoStatement])
           } // 3.
         }
       }
