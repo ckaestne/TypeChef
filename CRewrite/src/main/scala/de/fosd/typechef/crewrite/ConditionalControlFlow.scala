@@ -735,6 +735,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     val previous_equal_annotated_ast_elem = getNextEqualAnnotatedASTElem(s, previous_ifdef_blocks)
     previous_equal_annotated_ast_elem match {
       // 1.
+      case Some(BreakStatement()) => List()
       case Some(x) => rollUp(x, env)
       case None => {
         val feature_expr_s_statement = env.featureExpr(s)
@@ -938,7 +939,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     })(l.reverse).reverse
   }
 
-  // get type of IfdefBlock:
+  // get type of IfdefBlocks:
   // 0 -> only true values
   // 1 -> #if-(#elif)* block
   // 2 -> #if-(#elif)*-#else block

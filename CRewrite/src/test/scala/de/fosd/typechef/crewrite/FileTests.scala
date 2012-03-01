@@ -14,6 +14,15 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     // check that number of nodes match
     if (lsuccs.size != lpreds.size) {
       println("number of nodes in ccfg does not match")
+      val sdiff = lsuccs.map(_._1).diff(lpreds.map(_._1))
+      val pdiff = lpreds.map(_._1).diff(lsuccs.map(_._1))
+
+      for (sdelem <- sdiff)
+        System.err.println(PrettyPrinter.print(sdelem), "is not present in preds")
+
+      for (pdelem <- pdiff)
+        System.err.println(PrettyPrinter.print(pdelem), "is not present in succs")
+
       return false
     }
 
@@ -126,10 +135,10 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20000211_1() {assert(checkCfg("20000211-1.c"))}
 
   // test fails
-  @Ignore def test_20000211_3() {assert(checkCfg("20000211-3.c"))}
+  @Test def test_20000211_3() {assert(checkCfg("20000211-3.c"))}
 
   // test fails
-  @Ignore def test_20000224_1() {assert(checkCfg("20000224-1.c"))}
+  @Test def test_20000224_1() {assert(checkCfg("20000224-1.c"))}
   @Test def test_20000314_1() {assert(checkCfg("20000314-1.c"))}
 
   // parser fails
