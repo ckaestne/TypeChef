@@ -12,19 +12,19 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   // given an ast element x and its successors lx: x should be in pred(lx)
   def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): Boolean = {
     // check that number of nodes match
-    if (lsuccs.size != lpreds.size) {
-      println("number of nodes in ccfg does not match")
-      val sdiff = lsuccs.map(_._1).diff(lpreds.map(_._1))
-      val pdiff = lpreds.map(_._1).diff(lsuccs.map(_._1))
+    val sdiff = lsuccs.map(_._1).diff(lpreds.map(_._1))
+    val pdiff = lpreds.map(_._1).diff(lsuccs.map(_._1))
 
-      for (sdelem <- sdiff)
-        System.err.println(PrettyPrinter.print(sdelem), "is not present in preds")
+    for (sdelem <- sdiff)
+      System.err.println(PrettyPrinter.print(sdelem), "[" + sdelem.getPositionFrom + ":" + sdelem.getPositionTo +
+        "]", "is not present in preds")
 
-      for (pdelem <- pdiff)
-        System.err.println(PrettyPrinter.print(pdelem), "is not present in succs")
+    for (pdelem <- pdiff)
+      System.err.println(PrettyPrinter.print(pdelem), "[" + pdelem.getPositionFrom + ":" + pdelem.getPositionTo +
+        "]", "is not present in succs")
 
+    if (sdiff.size > 0 || pdiff.size > 0)
       return false
-    }
 
     // check that number of edges match
     var res = true
