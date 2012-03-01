@@ -424,6 +424,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
 
       case t: CaseStatement => List(t)
+      case t: DefaultStatement => List(t)
 
       case s: Statement => getStmtPred(s, env)
 
@@ -574,6 +575,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             else {
               var res: List[AST] = List()
               if (expr1.isDefined) res = res ++ getCondExprPred(expr1.get, env)
+              else res = t :: res
               res = res ++ getCondStmtPred(t, s, env)
               Some(res)
             }
@@ -724,7 +726,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@DoStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@ForStatement(_, Some(expr2), _, _) => List(expr2) ++ filterBreakStatements(t, env)
-      case t@ForStatement(_, _, _, s) => filterBreakStatements(t, env) ++ getCondStmtPred(t, s, env)
+      // possibly infinite loop
+      case t@ForStatement(_, _, _, s) => filterBreakStatements(t, env)
 
       case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env).flatMap(rollUp(_, env))
 

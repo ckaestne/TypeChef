@@ -700,16 +700,16 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_950816_3() {assert(checkCfg("950816-3.c"))}
 
   // test fails
-  @Ignore def test_950910_1() {assert(checkCfg("950910-1.c"))}
+  @Test def test_950910_1() {assert(checkCfg("950910-1.c"))}
   @Ignore def test_950919_1() {assert(checkCfg("950919-1.c"))}
   @Test def test_950921_1() {assert(checkCfg("950921-1.c"))}
 
-  // test fails
+  // test fails infinite loop
   @Ignore def test_950922_1() {assert(checkCfg("950922-1.c"))}
   @Test def test_951004_1() {assert(checkCfg("951004-1.c"))}
   @Test def test_951106_1() {assert(checkCfg("951106-1.c"))}
 
-  // test fails
+  // test fails nesting function
   @Ignore def test_951116_1() {assert(checkCfg("951116-1.c"))}
   @Test def test_951128_1() {assert(checkCfg("951128-1.c"))}
   @Test def test_951220_1() {assert(checkCfg("951220-1.c"))}
