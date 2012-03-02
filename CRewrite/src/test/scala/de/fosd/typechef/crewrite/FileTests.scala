@@ -81,22 +81,22 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     res
   }
 
-  private def check(filename: String, featureExpr: FeatureModel = NoFeatureModel) = {
-    println("analysis " + filename)
-    var inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
-
-    if (inputStream == null)
-      throw new FileNotFoundException("Input file not fould: " + filename)
-
-    val ast = parseFile(inputStream, filename, folder)
-    val new_ast = prepareAST(ast)
-    val env = createASTEnv(new_ast)
-    true
-  }
+//  private def check(filename: String, featureExpr: FeatureModel = NoFeatureModel) = {
+//    println("analysis " + filename)
+//    var inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
+//
+//    if (inputStream == null)
+//      throw new FileNotFoundException("Input file not fould: " + filename)
+//
+//    val ast = parseFile(inputStream, filename, folder)
+//    val new_ast = prepareAST(ast)
+//    val env = createASTEnv(new_ast)
+//    true
+//  }
 
   private def checkCfg(filename: String, featureExpr: FeatureModel = NoFeatureModel) = {
     println("analysis " + filename)
-    var inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
+    val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 
     if (inputStream == null)
       throw new FileNotFoundException("Input file not fould: " + filename)
@@ -869,6 +869,9 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug04() {assert(checkCfg("bug04.c"))}
   @Test def test_bug05() {assert(checkCfg("bug05.c"))}
   @Test def test_bug06() {assert(checkCfg("bug06.c"))}
+  @Ignore def test_bug07() {assert(checkCfg("bug07.c"))}
+  @Ignore def test_bug08() {assert(checkCfg("bug08.c"))}
+
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
 
   // performance testing

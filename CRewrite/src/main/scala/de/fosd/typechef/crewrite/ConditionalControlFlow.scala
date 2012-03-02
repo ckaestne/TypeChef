@@ -565,7 +565,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       val prior_switch = findPriorASTElem[SwitchStatement](t, env)
       assert(prior_switch.isDefined, "default statement without surrounding switch")
       prior_switch.get match {
-        case SwitchStatement(expr, _) => Some(getCondExprPred(expr, env))
+        case SwitchStatement(expr, _) => {
+          val lconds = getCondExprPred(expr, env)
+          if (env.previous(t) != null) Some(lconds ++ getStmtPred(t, env))
+          else Some(lconds ++ followUpPred(parentAST(t, env), env).getOrElse(List()))
+        }
       }
     }
 
