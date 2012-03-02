@@ -148,6 +148,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: ForStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _ if (!oldelem.eq(a.asInstanceOf[AnyRef])) => add2newres = List(oldelem)
               case _ =>
             }
@@ -294,8 +295,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private def getCondStmtPred(a: AST, c: AST, env: ASTEnv) = {
     c match {
-      case CompoundStatement(l) => getCompoundPred(l, env).flatMap(rollUp(_, env))
-      case s: Statement => rollUp(s, env)
+      case CompoundStatement(l) => getCompoundPred(l, env)
+      case s: Statement => List(s)
     }
   }
 
@@ -555,16 +556,20 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // method to catch surrounding ast element, which precedes the given nested_ast_element
   private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
+
+    def handleSwitch(t: AST) = {
+      val prior_switch = findPriorASTElem[SwitchStatement](t, env)
+      assert(prior_switch.isDefined, "default statement without surrounding switch")
+      prior_switch.get match {
+        case SwitchStatement(expr, _) => Some(getCondExprPred(expr, env))
+      }
+    }
+
     nested_ast_elem match {
 
       // case or default statements belong only to switch statements
-      case t if (t.isInstanceOf[CaseStatement] || t.isInstanceOf[DefaultStatement]) => {
-        val prior_switch = findPriorASTElem[SwitchStatement](t, env)
-        assert(prior_switch.isDefined, "default statement without surrounding switch")
-        prior_switch.get match {
-          case SwitchStatement(expr, _) => Some(getCondExprPred(expr, env) ++ nestedPred(t, env))
-        }
-      }
+      case t: CaseStatement => handleSwitch(t)
+      case t: DefaultStatement => handleSwitch(t)
 
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
@@ -611,7 +616,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case t@ElifStatement(condition, _) => Some(getCondExprPred(condition, env))
           case t@SwitchStatement(expr, _) => Some(getCondExprPred(expr, env))
           case t: CaseStatement => Some(List(t))
-          case t: DefaultStatement => Some(List(t))
+          case t: DefaultStatement => handleSwitch(t)
 
           case t: CompoundStatementExpr => followUpPred(t, env)
           case t: Statement => Some(getStmtPred(t, env))
@@ -722,21 +727,29 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val ldefaults = filterDefaultStatements(t, env)
 
         if (ldefaults.isEmpty) lbreaks ++ getCondExprPred(expr, env)
-        else lbreaks ++ ldefaults.flatMap(rollUp(_, env))
+        else lbreaks ++ ldefaults.flatMap(rollUpJumpStatement(_, env))
       }
-      case t@CaseStatement(_, s) if (s.isDefined) =>
-        getCondStmtPred(t, childAST(s), env)
-      case t@DefaultStatement(s) if (s.isDefined) =>
-        getCondStmtPred(t, childAST(s), env)
 
       case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@DoStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@ForStatement(_, Some(expr2), _, _) => List(expr2) ++ filterBreakStatements(t, env)
-      // possibly infinite loop
       case t@ForStatement(_, _, _, s) => filterBreakStatements(t, env)
 
       case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env).flatMap(rollUp(_, env))
 
+      case _ => List(a)
+    }
+  }
+
+  // we have a separate rollUp function for CaseStatement, DefaultStatement, and BreakStatement
+  // because using rollUp in pred determination (see above) will return wrong results
+  private def rollUpJumpStatement(a: AST, env: ASTEnv): List[AST] = {
+    a match {
+      case t@CaseStatement(_, s) if (s.isDefined) =>
+        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, env))
+      case t@DefaultStatement(s) if (s.isDefined) =>
+        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, env))
+      case _: BreakStatement => List()
       case _ => List(a)
     }
   }
@@ -752,16 +765,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     previous_equal_annotated_ast_elem match {
       // 1.
       case Some(BreakStatement()) => List()
-      case Some(x) => rollUp(x, env)
+      case Some(x) => List(x).flatMap(rollUpJumpStatement(_, env))
       case None => {
         val feature_expr_s_statement = env.featureExpr(s)
         val predecessor_list = determineFollowingElements(feature_expr_s_statement, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
-          case Left(p_list) => p_list.flatMap(rollUp(_, env)) // 2.
-          case Right(p_list) => {
-            val fups = followUpPred(s, env).getOrElse(List())
-            p_list ++ fups
-          } // 3.
+          case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, env)) // 2.
+          case Right(p_list) => p_list.flatMap(rollUpJumpStatement(_, env)) ++ followUpPred(s, env).getOrElse(List()) // 3.
         }
       }
     }
@@ -795,8 +805,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       val predecessor_list = determineFollowingElements(list_parent_feature_expr, typed_grouped_ifdef_blocks, env)
 
       predecessor_list match {
-        case Left(p_list) => p_list.flatMap(rollUp(_, env))
-        case Right(p_list) => (p_list ++ followUpPred(l.reverse.head, env).getOrElse(List())).flatMap(rollUp(_, env))
+        case Left(p_list) => p_list
+        case Right(p_list) => (p_list ++ followUpPred(l.reverse.head, env).getOrElse(List()))
       }
     }
   }
