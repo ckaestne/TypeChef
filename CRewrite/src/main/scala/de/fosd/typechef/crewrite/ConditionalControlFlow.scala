@@ -74,7 +74,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             var add2newres = List[AST]()
             oldelem match {
               case _: ReturnStatement if (!a.isInstanceOf[FunctionDef]) => changed = true; add2newres = List()
-              case _ => add2newres = rollUp(oldelem, env)
+              case _ => {
+                add2newres = rollUp(oldelem, env)
+                if (add2newres.size == 1 && add2newres.head.eq(oldelem)) changed = false
+                else changed = true
+              }
             }
 
             // add only elements that are not in newres so far
