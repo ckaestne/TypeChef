@@ -73,12 +73,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           for (oldelem <- oldres) {
             var add2newres = List[AST]()
             oldelem match {
-              case _: IfStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: ElifStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: SwitchStatement => changed = true; add2newres = predHelper(oldelem, env)
-              case _: CompoundStatement => changed = true; add2newres = predHelper(oldelem, env)
               case _: ReturnStatement if (!a.isInstanceOf[FunctionDef]) => changed = true; add2newres = List()
-              case _ => add2newres = List(oldelem)
+              case _ => add2newres = rollUp(oldelem, env)
             }
 
             // add only elements that are not in newres so far
@@ -150,6 +146,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _ if (!oldelem.eq(a.asInstanceOf[AnyRef])) => add2newres = List(oldelem)
               case _ =>
             }
@@ -411,7 +408,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: ForStatement => getForStatementPred(t, nested_ast_elem, env)
 
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
-        List(t) ++ getCondStmtPred(t, s, env)
+        getStmtPred(t, env) ++ getCondStmtPred(t, s, env)
       case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getCondStmtPred(t, s, env)
 
@@ -421,7 +418,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // we are in elseBranch, so either elifs + condition or condition only is the result
       // otherwise
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) List(t)
+        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) getStmtPred(t, env)
         else if (childAST(thenBranch).eq(nested_ast_elem.asInstanceOf[AnyRef]))
           getCondExprPred(condition, env)
         else if (elseBranch.isDefined && childAST(elseBranch.get).eq(nested_ast_elem.asInstanceOf[AnyRef])) {
@@ -591,12 +588,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             else {
               var res: List[AST] = List()
               if (expr1.isDefined) res = res ++ getCondExprPred(expr1.get, env)
-              else res = t :: res
+              else res = getStmtPred(t, env) ++ res
               res = res ++ filterJumpStatements(getCondStmtPred(t, s, env))
               Some(res)
             }
           case t@WhileStatement(expr, _) => {
-            if (nested_ast_elem.eq(expr)) Some(List(t))
+            if (nested_ast_elem.eq(expr)) Some(getStmtPred(t, env))
             else Some(getCondExprPred(expr, env))
           }
           case t@DoStatement(expr, s) => {
@@ -767,7 +764,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val feature_expr_s_statement = env.featureExpr(s)
         val predecessor_list = determineFollowingElements(feature_expr_s_statement, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
-          case Left(p_list) => p_list // 2.
+          case Left(p_list) => p_list.flatMap(rollUp(_, env)) // 2.
           case Right(p_list) => {
             val fups = followUpPred(s, env).getOrElse(List())
             p_list ++ fups
