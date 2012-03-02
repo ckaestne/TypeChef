@@ -147,6 +147,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: ForStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _ if (!oldelem.eq(a.asInstanceOf[AnyRef])) => add2newres = List(oldelem)
               case _ =>
             }
@@ -381,31 +382,23 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     )
   }
 
-  // get predecessor of a with respect to surrounding for
-  private def getForStatementPred(f: ForStatement, a: Any, env: ASTEnv): List[AST] = {
-    f match {
-      case t@ForStatement(Some(expr1), _, _, _) if expr1.eq(a.asInstanceOf[AnyRef]) => List(t)
-      case t@ForStatement(_, _, Some(expr3), s) if expr3.eq(a.asInstanceOf[AnyRef]) =>
-        filterJumpStatements(getCondStmtPred(t, s, env))
-      case t@ForStatement(expr1, Some(expr2), expr3, s) => {
-        var res = List[AST]()
-        if (expr1.isDefined) res = getCondExprPred(expr1.get, env) ++ res
-        else res = t :: res
-        if (expr3.isDefined) res = getCondExprPred(expr3.get, env) ++ res
-        else res = res ++ filterJumpStatements(getCondStmtPred(t, s, env))
-        res
-      }
-      case _ => assert(false, "unmatch for statement"); List()
-    }
-  }
-
   // handling of predecessor determination of nested structures, such as for, while, ... and previous element in a list
   // of statements
   private def nestedPred(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
     val surrounding_parent = parentAST(nested_ast_elem, env)
     surrounding_parent match {
       // loop statements
-      case t: ForStatement => getForStatementPred(t, nested_ast_elem, env)
+      case t@ForStatement(Some(expr1), _, _, _) if expr1.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getStmtPred(t, env)
+      case t@ForStatement(_, _, Some(expr3), s) if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+        filterJumpStatements(getCondStmtPred(t, s, env))
+      case t@ForStatement(expr1, Some(expr2), expr3, s) => {
+        var res = List[AST]()
+        if (expr1.isDefined) res = getCondExprPred(expr1.get, env) ++ res
+        else res = getStmtPred(t, env) ++ res
+        if (expr3.isDefined) res = getCondExprPred(expr3.get, env) ++ res
+        else res = res ++ filterJumpStatements(getCondStmtPred(t, s, env))
+        res
+      }
 
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getStmtPred(t, env) ++ getCondStmtPred(t, s, env)
@@ -597,7 +590,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             else Some(getCondExprPred(expr, env))
           }
           case t@DoStatement(expr, s) => {
-            if (nested_ast_elem.eq(expr)) Some(List(t) ++ getCondStmtPred(t, s, env))
+            if (nested_ast_elem.eq(expr)) Some(getCondStmtPred(t, s, env))
             else Some(getCondExprPred(expr, env) ++ getStmtPred(t, env))
           }
 
