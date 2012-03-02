@@ -568,7 +568,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case SwitchStatement(expr, _) => {
           val lconds = getCondExprPred(expr, env)
           if (env.previous(t) != null) Some(lconds ++ getStmtPred(t, env))
-          else Some(lconds ++ followUpPred(parentAST(t, env), env).getOrElse(List()))
+          else {
+            val tparent = parentAST(t, env)
+            if (tparent.isInstanceOf[CaseStatement]) Some(tparent :: lconds)  // TODO rewrite, nested cases.
+            else Some(lconds ++ getStmtPred(tparent, env))
+          }
         }
       }
     }
