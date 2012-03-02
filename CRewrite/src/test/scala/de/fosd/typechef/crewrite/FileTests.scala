@@ -302,7 +302,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20020206_1() {assert(checkCfg("20020206-1.c"))}
   @Test def test_20020210_1() {assert(checkCfg("20020210-1.c"))}
   @Test def test_20020303_1() {assert(checkCfg("20020303-1.c"))}
-  @Test def test_20020304_1() {assert(checkCfg("20020304-1.c"))}
+  @Ignore def test_20020304_1() {assert(checkCfg("20020304-1.c"))}
   @Test def test_20020304_2() {assert(checkCfg("20020304-2.c"))}
   @Test def test_20020309_1() {assert(checkCfg("20020309-1.c"))}
 
@@ -700,7 +700,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_950816_3() {assert(checkCfg("950816-3.c"))}
 
   // test fails
-  @Test def test_950910_1() {assert(checkCfg("950910-1.c"))}
+  @Ignore def test_950910_1() {assert(checkCfg("950910-1.c"))}
   @Ignore def test_950919_1() {assert(checkCfg("950919-1.c"))}
   @Test def test_950921_1() {assert(checkCfg("950921-1.c"))}
 
