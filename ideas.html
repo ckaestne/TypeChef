@@ -64,6 +64,7 @@ void foo() {
 
         <td>
         <pre class="prettyprint lang-c">
+int A;		
 void foo() {
     int a = 0;
     if (A) {
@@ -75,10 +76,11 @@ void foo() {
     </tr>
     </table>
 
+	Although apparently simple in this example, challenges arise with conditional compilation at top level. For example, two alternative definitions of a function must be integrated or resolved with renaming one definition and disambiguating call-site variability. Corresponding analysis builds on top of the existing variability-aware parser and type system.
     </li>
 
     <li><em>Expected results:</em> A tool should be developed as part of TypeChef that automatically transforms all #ifdefs into ifs. The output source code should compile with a standard C compiler.</li>
-    <li><em>Knowledge prerequisite:</em> As TypeChef is developed in Java and Scala, applicants should have a fair understanding of both languages. Furthermore prior experiences in C is a plus. </li>
+    <li><em>Knowledge prerequisite:</em> TypeChef is developed mostly in Scala and applied to C code. Applicants should have a fair understanding of at least one of these languages. Especially prior experience with functional programming and Scala is a plus. </li>
     <li><em>Mentor:</em> J&ouml;rg Liebig (<a href="http://www.infosun.fim.uni-passau.de/cl/staff/liebig/" target="_blank">website</a>)</li>
     </ul>
 
@@ -104,8 +106,12 @@ void foo() {
     return 0;
 }
     </pre>
+	
+	The results of this analysis can be used to find errors in all configurations of a C project and can furthermore improve the precision of TypeChef's type system and linker analysis.
+	
     <li><em>Expected results:</em> A set of static code analyis algorithms should be implemented as part of the TypeChef infrastructure. Furthermore, the algorithms should be evaluated in a set of case studies such as the Linux kernel or busybox.</li>
-	<li><em>Knowledge prerequisite:</em> As TypeChef is developed in Scala and Java, applicants should have a fair understanding of both languages.
+	<li><em>Knowledge prerequisite:</em> 
+	As TypeChef is developed in Scala, applicants should have a fair understanding of Scala or at least Java. Prior knowledge of static analysis is a plus.
     <li><em>Mentor:</em> J&ouml;rg Liebig (<a href="http://www.infosun.fim.uni-passau.de/cl/staff/liebig/" target="_blank">website</a>)</li>
     </ul>
 
@@ -113,9 +119,26 @@ void foo() {
     <!-- project 3 -->
     <h2>Implemenation of a variablity-aware refactoring engine</h2>
     <ul>
-    <li><em>Project description:</em> Current integrated development enviroments (IDE), such as Eclipse or IntelliJ, have a rich toolset to support programming activity. One major part of these toolsets are refactoring engines, that support source code restructurings to improve code quality, while preserving program behavior. </li>
-    <li><em>Expected results:</em> </li>
-	<li><em>Knowledge prerequisite:</em> As TypeChef is developed in Scala and Java, applicants should have a fair understanding of both languages. Furthermore, basic knowledge of C is a plus.
+    <li><p><em>Project description:</em> Current integrated development enviroments (IDE), such as Eclipse or IntelliJ, have a rich toolset to support programming activity. One major part of these toolsets are refactoring engines, that support source code restructurings to improve code quality, while preserving program behavior. Unfortunately, most refactoring engines for C break or are unreliable in the presence of conditional compilation. </p>
+	
+	<p>As simple example consider a rename refactoring of variables a and b in the following code snippet, that should preserve the behavior of all configurations.
+ <pre class="prettyprint lang-c">
+#define FOO a
+void foo() {
+    int a = 0;
+    #ifdef A
+    a = FOO + 1;
+	float b = 1;
+	#else
+	int b = a * 2;
+    #endif
+	println(b);
+	println(FOO);
+}
+        </pre>
+	
+    <li><em>Expected results:</em> A refactoring engine on top of the TypeChef parser that correctly rewrites all configurations without relying on a brute-force strategy.</li>
+	<li><em>Knowledge prerequisite:</em> as above.
     <li><em>Mentor:</em> J&ouml;rg Liebig (<a href="http://www.infosun.fim.uni-passau.de/cl/staff/liebig/" target="_blank">website</a>)</li>
     </ul>
 
@@ -123,18 +146,12 @@ void foo() {
     <!-- project 4 -->
     <h2>Reimplementation of the parsing engine using a GLR parser</h2>
     <ul>
-    <li><em>Project description:</em> todo</li>
-    <li><em>Expected results:</em> todo</li>
+    <li><em>Project description:</em> The current parser of the TypeChef is implemented as parser combinator libary (recursive decent, backtracking parser), which allowed easy exploration of concepts (which are now well described and explored) but runs with comparably poor performance on the Java virtual machine. As the parser concept aligns well with the splitting and joining of parse forests in generalized LR parsers (GLR), but considers variability explicitly, we envision a compatible parser based on GLR technology. The Java implementation of a GLR parser in <a href="http://strategoxt.org/Spoofax">Spoofax</a> can serve as a good starting point.</li>
+    <li><em>Expected results:</em> A variability-aware parser reusing GLR concepts. Demonstrating that the new parser yields equivalent results at better performance, for example, with a demonstration of parsing the Linux kernel.</li>
+	<li><em>Knowledge prerequisite:</em> Knowledge of Java is required. Prior experience with Scala is a plus but not necessary. Some basic knowledge of parser strategies is helpful.
     <li><em>Mentor:</em> Christian K&auml;stner (<a href="http://www.uni-marburg.de/fb12/ps/team/kaestner/" target="_blank">website</a>)</li>
     </ul>
 
-    <!-- project 5 -->
-    <h2>Projekt 5</h2>
-    <ul>
-    <li><em>Project description:</em> todo</li>
-    <li><em>Expected results:</em> todo</li>
-    <li><em>Mentor:</em> Christian K&auml;stner (<a href="http://www.uni-marburg.de/fb12/ps/team/kaestner/" target="_blank">website</a>)</li>
-    </ul>
 
   </div>
 </body>
