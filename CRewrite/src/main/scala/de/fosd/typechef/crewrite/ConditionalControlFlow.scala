@@ -741,7 +741,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case ElifStatement(condition, thenBranch) => {
         var res = List[AST]()
         res = condition :: res
-        res = getCondStmtPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
+        res = res ++ getCondStmtPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
         res
       }
       case t@SwitchStatement(expr, s) => {
