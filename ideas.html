@@ -110,8 +110,7 @@ void foo() {
 	The results of this analysis can be used to find errors in all configurations of a C project and can furthermore improve the precision of TypeChef's type system and linker analysis.
 	
     <li><em>Expected results:</em> A set of static code analyis algorithms should be implemented as part of the TypeChef infrastructure. Furthermore, the algorithms should be evaluated in a set of case studies such as the Linux kernel or busybox.</li>
-	<li><em>Knowledge prerequisite:</em> 
-	As TypeChef is developed in Scala, applicants should have a fair understanding of Scala or at least Java. Prior knowledge of static analysis is a plus.
+	<li><em>Knowledge prerequisite:</em> As TypeChef is developed in Scala, applicants should have a fair understanding of Scala or at least Java. Prior knowledge of static analysis is a plus.
     <li><em>Mentor:</em> J&ouml;rg Liebig (<a href="http://www.infosun.fim.uni-passau.de/cl/staff/liebig/" target="_blank">website</a>)</li>
     </ul>
 
@@ -128,17 +127,17 @@ void foo() {
     int a = 0;
     #ifdef A
     a = FOO + 1;
-	float b = 1;
-	#else
-	int b = a * 2;
+    float b = 1;
+    #else
+    int b = a * 2;
     #endif
-	println(b);
-	println(FOO);
+    println(b);
+    println(FOO);
 }
         </pre>
 	
     <li><em>Expected results:</em> A refactoring engine on top of the TypeChef parser that correctly rewrites all configurations without relying on a brute-force strategy.</li>
-	<li><em>Knowledge prerequisite:</em> as above.
+	<li><em>Knowledge prerequisite:</em> As TypeChef is developed in Scala, applicants should have a fair understanding of Scala or at least Java. Prior knowledge of static analysis is a plus.
     <li><em>Mentor:</em> J&ouml;rg Liebig (<a href="http://www.infosun.fim.uni-passau.de/cl/staff/liebig/" target="_blank">website</a>)</li>
     </ul>
 
