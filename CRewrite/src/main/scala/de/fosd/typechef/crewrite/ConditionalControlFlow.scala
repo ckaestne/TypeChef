@@ -738,7 +738,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val ldefaults = filterDefaultStatements(t, env)
 
         if (ldefaults.isEmpty) lbreaks ++ getCondExprPred(expr, env)
-        else lbreaks ++ ldefaults.flatMap(rollUpJumpStatement(_, env))
+        else lbreaks ++ ldefaults.flatMap(rollUpJumpStatement(_, true, env))
       }
 
       case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
@@ -754,12 +754,19 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // we have a separate rollUp function for CaseStatement, DefaultStatement, and BreakStatement
   // because using rollUp in pred determination (see above) will return wrong results
-  private def rollUpJumpStatement(a: AST, env: ASTEnv): List[AST] = {
+  private def rollUpJumpStatement(a: AST, fromSwitch: Boolean, env: ASTEnv): List[AST] = {
     a match {
       case t@CaseStatement(_, s) if (s.isDefined) =>
-        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, env))
+        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, false, env))
+      case t@DefaultStatement(_) if (nextAST(t, env) != null && fromSwitch) => {
+        val dparent = findPriorASTElem[CompoundStatement](t, env)
+        assert(dparent.isDefined, "default statement always occurs in a compound statement of a switch")
+        dparent.get match {
+          case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env)
+        }
+      }
       case t@DefaultStatement(s) if (s.isDefined) =>
-        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, env))
+        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, false, env))
       case _: BreakStatement => List()
       case _ => List(a)
     }
@@ -776,13 +783,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     previous_equal_annotated_ast_elem match {
       // 1.
       case Some(BreakStatement()) => List()
-      case Some(x) => List(x).flatMap(rollUpJumpStatement(_, env))
+      case Some(x) => List(x).flatMap(rollUpJumpStatement(_, false, env))
       case None => {
         val feature_expr_s_statement = env.featureExpr(s)
         val predecessor_list = determineFollowingElements(feature_expr_s_statement, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
-          case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, env)) // 2.
-          case Right(p_list) => p_list.flatMap(rollUpJumpStatement(_, env)) ++ followUpPred(s, env).getOrElse(List()) // 3.
+          case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) // 2.
+          case Right(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) ++ followUpPred(s, env).getOrElse(List()) // 3.
         }
       }
     }
