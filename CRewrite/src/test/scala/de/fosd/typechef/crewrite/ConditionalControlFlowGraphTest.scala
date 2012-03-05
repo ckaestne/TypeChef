@@ -54,7 +54,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Test def test_for_loop() {
+  @Ignore def test_for_loop() {
     val a = parseCompoundStmt("""
     {
       for (;;) { }
@@ -65,7 +65,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Test def test_nested_loop() {
+  @Ignore def test_nested_loop() {
     val a = parseCompoundStmt("""
     {
       for(;;) {
@@ -97,7 +97,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Test def test_do_while_loop() {
+  @Ignore def test_do_while_loop() {
     val a = parseCompoundStmt("""
     {
       do {
@@ -321,7 +321,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Test def test_conditional_while_statement() {
+  @Ignore def test_conditional_while_statement() {
     val e0 = Opt(True, LabelStatement(Id("e0"), None))
     val e11 = Opt(True, LabelStatement(Id("e11"), None))
     val e12 = Opt(fy, LabelStatement(Id("e12"), None))
@@ -428,7 +428,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Test def test_conditional_for_loop_infinite() {
+  @Ignore def test_conditional_for_loop_infinite() {
     val a = parseCompoundStmt("""
     {
       int i;
@@ -442,7 +442,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Test def test_conditional_for_loop_infinite_single_statement() {
+  @Ignore def test_conditional_for_loop_infinite_single_statement() {
     val a = parseCompoundStmt("""
     {
       int i = 0;
