@@ -810,7 +810,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_991229_2() {assert(checkCfg("991229-2.c"))}
 
   // test fails
-  @Ignore def test_991229_3() {assert(checkCfg("991229-3.c"))}
+  @Test def test_991229_3() {assert(checkCfg("991229-3.c"))}
   @Test def test_calls() {assert(checkCfg("calls.c"))}
   @Test def test_cmpdi_1() {assert(checkCfg("cmpdi-1.c"))}
   @Test def test_combine_hang() {assert(checkCfg("combine-hang.c"))}
@@ -829,8 +829,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_init_2() {assert(checkCfg("init-2.c"))}
   @Test def test_init_3() {assert(checkCfg("init-3.c"))}
   @Test def test_inline_1() {assert(checkCfg("inline-1.c"))}
-
-  // both tests fail because both contain dead code
   @Test def test_labels_1() {assert(!checkCfg("labels-1.c"))}
   @Test def test_labels_2() {assert(!checkCfg("labels-2.c"))}
 
