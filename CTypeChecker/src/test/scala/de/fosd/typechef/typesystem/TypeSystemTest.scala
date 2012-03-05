@@ -647,5 +647,42 @@ return 1;
                    """)
         }
     }
+    test("field decrement") {
+            expect(true) {
+                check("""struct x { int i; } ;
+                         void test(void *data) {
+                            struct x *v=data;
+                            if (v->i > 0)
+                                v->i--;
+                         }
+                       """)
+            }
+        }
+
+    ignore("detect variable redefinitions") {
+        expect(false) {
+            check("float x; int x;")
+        }
+        expect(true) {
+            check("int x; int x;")
+        }
+        expect(false) {
+            check("int x=1; int x=1;")
+        }
+        expect(false) {
+            check("int x=1; \n" +
+                "#ifdef A\n" +
+                "int x=1;\n" +
+                "#endif\n")
+        }
+        expect(true) {
+            check("#ifndef A\n" +
+                "float x=1; \n" +
+                "#endif\n" +
+                "#ifdef A\n" +
+                "int x=1;\n" +
+                "#endif\n")
+        }
+    }
 
 }
