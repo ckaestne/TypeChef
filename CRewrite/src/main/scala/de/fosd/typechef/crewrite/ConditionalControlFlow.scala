@@ -669,26 +669,26 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // this method filters BreakStatements
   // a break belongs to next outer loop (for, while, do-while)
+  // or a switch statement (see [2])
   // so we recursively go over the structure of the ast elems
   // in case we find a break, we add it to the result list
   // in case we hit another loop, we return the result list
   private def filterBreakStatements(a: Any, env: ASTEnv) = {
-    def filterBreakStatementsHelper(a: Any, env: ASTEnv, firstloop: Boolean): List[BreakStatement] = {
+    def filterBreakStatementsHelper(a: Any, env: ASTEnv, breakenvlevel: Int): List[BreakStatement] = {
       a match {
+        case _ if (breakenvlevel > 1) => List()
         case t: BreakStatement => List(t)
-        case ForStatement if (!firstloop) => List()
-        case WhileStatement if (!firstloop) => List()
-        case DoStatement if (!firstloop) => List()
-        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_, env, firstloop))
+        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_, env, breakenvlevel))
         case x: Product => {
-          val isloop = x.isInstanceOf[ForStatement] || x.isInstanceOf[WhileStatement] || x.isInstanceOf[DoStatement]
-          x.productIterator.toList.flatMap(filterBreakStatementsHelper(_, env, isloop.unary_! && firstloop))
+          val breakenv = x.isInstanceOf[ForStatement] || x.isInstanceOf[WhileStatement] ||
+            x.isInstanceOf[DoStatement] || x.isInstanceOf[SwitchStatement]
+          x.productIterator.toList.flatMap(filterBreakStatementsHelper(_, env, breakenvlevel + (if (breakenv) 1 else 0)))
         }
         case _ => List()
       }
     }
 
-    filterBreakStatementsHelper(a, env, true)
+    filterBreakStatementsHelper(a, env, 0)
   }
 
   // this method filters all CaseStatements
@@ -744,7 +744,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res = res ++ getCondStmtPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
         res
       }
-      case t@SwitchStatement(expr, s) => {
+      case t@SwitchStatement(expr, _) => {
         val lbreaks = filterBreakStatements(t, env)
         val ldefaults = filterDefaultStatements(t, env)
 
@@ -755,7 +755,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@DoStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
       case t@ForStatement(_, Some(expr2), _, _) => List(expr2) ++ filterBreakStatements(t, env)
-      case t@ForStatement(_, _, _, s) => filterBreakStatements(t, env)
+      case t@ForStatement(_, _, _, _) => filterBreakStatements(t, env)
 
       case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env).flatMap(rollUp(_, env))
 
