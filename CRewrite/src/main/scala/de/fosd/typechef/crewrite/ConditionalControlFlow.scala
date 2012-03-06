@@ -12,21 +12,36 @@ import java.util.IdentityHashMap
 // at first sight the implementation of succ with a lot of private
 // function seems overly complicated; however the structure allows
 // also to implement pred
+// consider the following points:
+
 // the function definition an ast belongs to serves as the entry
 // and exit node of the cfg, because we do not have special ast
 // nodes for that, or we store everything in a ccfg itself with
 // special nodes for entry and exit such as
 // [1] http://soot.googlecode.com/svn/DUA_Forensis/src/dua/method/CFG.java
 
+// normally pred succ are the same except for the following cases:
+// 1. forward jumps using gotos
+// 2. code in switch body that does not belong to a case block, but that has a label and
+//    can be reached otherwise, e.g., switch (x) { l1: <code> case 0: .... }
+// 3. infinite for loops without break or return statements in them, e.g.,
+//    for (;;) { <code without break or return> }
+//    this way we do not have any handle to jump into the for block from
+//    its successors
+
+
+// for more information:
+
 // iso/iec 9899 standard; committee draft
 // [2] http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1124.pdf
-
-// one usage for pred is for instance the determination of
-// [3] reaching definitions (cf. http://en.wikipedia.org/wiki/Reaching_definition)
 
 // TODO support for (expr) ? (expr) : (expr);
 // TODO analysis static gotos should have a label (if more labels must be unique according to feature expresssions)
 // TODO analysis dynamic gotos should have a label
+// TODO analysis: The expression of each case label shall be an integer constant expression and no two of
+//                the case constant expressions in the same switch statement shall have the same value
+//                after conversion.
+// TODO analysis: There may be at most one default label in a switch statement.
 class CCFGCache {
   private val cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
 
@@ -658,21 +673,21 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // in case we find a break, we add it to the result list
   // in case we hit another loop, we return the result list
   private def filterBreakStatements(a: Any, env: ASTEnv) = {
-    def filterBreakStatementsHelper(a: Any, env: ASTEnv, breakenvlevel: Int): List[BreakStatement] = {
+    def filterBreakStatementsHelper(a: Any, env: ASTEnv, firstbreakenv: Boolean): List[BreakStatement] = {
       a match {
-        case _ if (breakenvlevel > 1) => List()
+        case _ if (!firstbreakenv) => List()
         case t: BreakStatement => List(t)
-        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_, env, breakenvlevel))
+        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_, env, firstbreakenv))
         case x: Product => {
           val breakenv = x.isInstanceOf[ForStatement] || x.isInstanceOf[WhileStatement] ||
             x.isInstanceOf[DoStatement] || x.isInstanceOf[SwitchStatement]
-          x.productIterator.toList.flatMap(filterBreakStatementsHelper(_, env, breakenvlevel + (if (breakenv) 1 else 0)))
+          x.productIterator.toList.flatMap(filterBreakStatementsHelper(_, env, firstbreakenv && breakenv.unary_!))
         }
         case _ => List()
       }
     }
 
-    filterBreakStatementsHelper(a, env, 0)
+    filterBreakStatementsHelper(a, env, true)
   }
 
   // this method filters all CaseStatements
@@ -728,18 +743,18 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res = res ++ getCondStmtPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
         res
       }
-      case t@SwitchStatement(expr, _) => {
-        val lbreaks = filterBreakStatements(t, env)
+      case t@SwitchStatement(expr, s) => {
+        val lbreaks = filterBreakStatements(s, env)
         val ldefaults = filterDefaultStatements(t, env)
 
         if (ldefaults.isEmpty) lbreaks ++ getCondExprPred(expr, env)
         else lbreaks ++ ldefaults.flatMap(rollUpJumpStatement(_, true, env))
       }
 
-      case t@WhileStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
-      case t@DoStatement(expr, _) => List(expr) ++ filterBreakStatements(t, env)
-      case t@ForStatement(_, Some(expr2), _, _) => List(expr2) ++ filterBreakStatements(t, env)
-      case t@ForStatement(_, _, _, _) => filterBreakStatements(t, env)
+      case t@WhileStatement(expr, s) => List(expr) ++ filterBreakStatements(s, env)
+      case t@DoStatement(expr, s) => List(expr) ++ filterBreakStatements(s, env)
+      case t@ForStatement(_, Some(expr2), _, s) => List(expr2) ++ filterBreakStatements(s, env)
+      case t@ForStatement(_, _, _, s) => filterBreakStatements(s, env)
 
       case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env).flatMap(rollUp(_, env))
 
