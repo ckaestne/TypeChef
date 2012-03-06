@@ -523,22 +523,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  // method returns a prior
-  private def findSurroundingASTElemForBreak(a: Any, env: ASTEnv): Option[AST] = {
-    a match {
-      case t: ForStatement => Some(t)
-      case t: DoStatement => Some(t)
-      case t: WhileStatement => Some(t)
-      case t: SwitchStatement => Some(t)
-      case x: Product => {
-        val aparent = parentAST(a, env)
-        assert(aparent != null, "break statement does not appear in context of a switch/for/do-while/while")
-        findSurroundingASTElemForBreak(aparent, env)
-      }
-      case null => None
-    }
-  }
-
   // method to find prior element to a break statement
   private def findPriorASTElem2BreakStatement(a: AnyRef, env: ASTEnv): Option[AST] = {
     val aparent = env.parent(a)
