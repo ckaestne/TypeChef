@@ -7,6 +7,7 @@ import de.fosd.typechef.conditional._
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes
 // see old version: https://github.com/ckaestne/TypeChef/blob/ConditionalControlFlow/CParser/src/main/scala/de/fosd/typechef/parser/c/ASTNavigation.scala
 trait ASTNavigation extends CASTEnv {
+  // method simply goes up the hierarchy and looks for next AST element and returns it
   def parentAST(e: Any, env: ASTEnv): AST = {
     val eparent = env.parent(e)
     eparent match {
@@ -17,6 +18,14 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // getting the previous element of an AST element in the presence of Opt and Choice
+  // has to consider the following situation
+  // Opt elements usually appear in the presence of lists
+  // List[Opt[_]] (see AST for more information)
+  // having a list of Opt elements, AST elements usually appear in those Opt elements
+  // [ Opt(f1, AST), Opt(f2, AST), ..., Opt(fn, AST)]
+  // to get the previous AST element of each AST element in that list, we have to
+  // go one level up and look for previous Opt elements and their children
   def prevAST(e: Any, env: ASTEnv): AST = {
     val eprev = env.previous(e)
     eprev match {
@@ -38,6 +47,7 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // similar to prevAST but with next
   def nextAST(e: Any, env: ASTEnv): AST = {
     val enext = env.next(e)
     enext match {
@@ -59,6 +69,11 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // returns a list of all previous AST elements including e
+  // useful in compound statements that have a list of Opt elements
+  // prevASTElems(e, env) // ei == e
+  // [ Opt(f1, e1), Opt(f2, e2), ..., Opt(fi, ei), ..., Opt(fn, en) ]
+  // returns [e1, e2, ..., ei]
   def prevASTElems(e: Any, env: ASTEnv): List[AST] = {
     e match {
       case null => List()
@@ -66,6 +81,9 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // returns a list of all next AST elements including e
+  // [ Opt(f1, e1), Opt(f2, e2), ..., Opt(fi, ei), ..., Opt(fn, en) ]
+  // returns [ei, ..., en]
   def nextASTElems(e: Any, env: ASTEnv): List[AST] = {
     e match {
       case null => List()
@@ -73,6 +91,9 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // returns the first AST element that is nested in the following elements
+  // or null; elements are Opt, Conditional, and Some
+  // function does not work for type List[_]
   def childAST(e: Any): AST = {
     e match {
       case Opt(_, v: AST) => v
@@ -85,6 +106,7 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // method recursively filters all AST elements for a given type T
   // http://goo.gl/QcUOy
   def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
     a match {
@@ -95,6 +117,7 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // go up the AST hierarchy and look for a specific AST element with type T
   def findPriorASTElem[T <: AST](a: Any, env: ASTEnv)(implicit m: ClassManifest[T]): Option[T] = {
     a match {
       case x if (m.erasure.isInstance(x)) => Some(x.asInstanceOf[T])
@@ -103,6 +126,7 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // recursively walk right branch of Choice structure until we hit an AST element
   private def lastChoice(x: Choice[_]): AST = {
     x.elseBranch match {
       case c: Choice[_] => lastChoice(c)
@@ -110,6 +134,7 @@ trait ASTNavigation extends CASTEnv {
     }
   }
 
+  // recursively walk left branch of Choice structure until we hit an AST element
   private def firstChoice(x: Choice[_]): AST = {
     x.thenBranch match {
       case c: Choice[_] => firstChoice(c)
