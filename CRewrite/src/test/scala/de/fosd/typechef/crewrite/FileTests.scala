@@ -179,7 +179,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20000827_1() {assert(checkCfg("20000827-1.c"))}
   @Test def test_20000922_1() {assert(checkCfg("20000922-1.c"))}
   @Test def test_20000923_1() {assert(checkCfg("20000923-1.c"))}
-
   @Test def test_20001018_1() {assert(checkCfg("20001018-1.c"))}
 
   // test fails; parser
@@ -227,6 +226,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
 
   // test fails; parser File not found limits.h
   @Ignore def test_20010404_1() {assert(checkCfg("20010404-1.c"))}
+
   // test fails; parser File not found stdbool.h
   @Ignore def test_20010423_1() {assert(checkCfg("20010423-1.c"))}
 
@@ -276,8 +276,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
 
   // test fails; parser
   @Ignore def test_20011114_3() {assert(checkCfg("20011114-3.c"))}
-
-  // test fails
   @Test def test_20011114_4() {assert(checkCfg("20011114-4.c"))}
   @Test def test_20011119_1() {assert(checkCfg("20011119-1.c"))}
   @Test def test_20011119_2() {assert(checkCfg("20011119-2.c"))}
@@ -290,19 +288,13 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20011219_1() {assert(checkCfg("20011219-1.c"))}
   @Test def test_20011219_2() {assert(checkCfg("20011219-2.c"))}
   @Test def test_20011229_1() {assert(checkCfg("20011229-1.c"))}
-
-  // test fails
   @Test def test_20011229_2() {assert(checkCfg("20011229-2.c"))}
   @Test def test_20020103_1() {assert(checkCfg("20020103-1.c"))}
   @Test def test_20020106_1() {assert(checkCfg("20020106-1.c"))}
   @Test def test_20020109_1() {assert(checkCfg("20020109-1.c"))}
   @Test def test_20020109_2() {assert(checkCfg("20020109-2.c"))}
   @Test def test_20020110() {assert(checkCfg("20020110.c"))}
-
-  // test fails
   @Test def test_20020116_1() {assert(checkCfg("20020116-1.c"))}
-
-  // test fails
   @Test def test_20020120_1() {assert(checkCfg("20020120-1.c"))}
   @Test def test_20020121_1() {assert(checkCfg("20020121-1.c"))}
   @Test def test_20020129_1() {assert(checkCfg("20020129-1.c"))}
@@ -331,11 +323,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20020415_1() {assert(checkCfg("20020415-1.c"))}
   @Test def test_20020418_1() {assert(checkCfg("20020418-1.c"))}
   @Test def test_20020530_1() {assert(checkCfg("20020530-1.c"))}
-
-  // test fails
   @Test def test_20020604_1() {assert(checkCfg("20020604-1.c"))}
-
-  // test fails
   @Test def test_20020605_1() {assert(checkCfg("20020605-1.c"))}
 
   // test fails; parser
@@ -375,8 +363,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20021212_1() {assert(checkCfg("20021212-1.c"))}
   @Test def test_20021230_1() {assert(checkCfg("20021230-1.c"))}
   @Test def test_20030109_1() {assert(checkCfg("20030109-1.c"))}
-
-  // test fails
   @Test def test_20030110_1() {assert(checkCfg("20030110-1.c"))}
 
   // test fails
@@ -399,8 +385,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20030410_1() {assert(checkCfg("20030410-1.c"))}
   @Test def test_20030415_1() {assert(checkCfg("20030415-1.c"))}
   @Test def test_20030418_1() {assert(checkCfg("20030418-1.c"))}
-
-  // test fails
   @Test def test_20030503_1() {assert(checkCfg("20030503-1.c"))}
   @Test def test_20030518_1() {assert(checkCfg("20030518-1.c"))}
   @Test def test_20030604_1() {assert(checkCfg("20030604-1.c"))}
@@ -421,8 +405,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20031002_1() {assert(checkCfg("20031002-1.c"))}
   @Test def test_20031010_1() {assert(checkCfg("20031010-1.c"))}
   @Test def test_20031011_1() {assert(checkCfg("20031011-1.c"))}
-
-  // test fails
   @Test def test_20031011_2() {assert(checkCfg("20031011-2.c"))}
 
   // test fails; parser File not found limits.h
@@ -439,22 +421,17 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
 
   // test fails
   @Ignore def test_20031031_1() {assert(checkCfg("20031031-1.c"))}
-
-  // test fails
   @Test def test_20031031_2() {assert(checkCfg("20031031-2.c"))}
   @Test def test_20031102_1() {assert(checkCfg("20031102-1.c"))}
   @Test def test_20031112_1() {assert(checkCfg("20031112-1.c"))}
   @Test def test_20031113_1() {assert(checkCfg("20031113-1.c"))}
   @Test def test_20031208_1() {assert(checkCfg("20031208-1.c"))}
   @Test def test_20031220_1() {assert(checkCfg("20031220-1.c"))}
-
-  // test fails
   @Test def test_20031220_2() {assert(checkCfg("20031220-2.c"))}
   @Test def test_20031227_1() {assert(checkCfg("20031227-1.c"))}
 
   // test fails; TODO continue statement
-  @Ignore def test_20031231_1() {assert(checkCfg("20031231-1.c"))}
-
+  @Test def test_20031231_1() {assert(checkCfg("20031231-1.c"))}
   @Test def test_20040101_1() {assert(checkCfg("20040101-1.c"))}
 
   // test fails; TODO default before case; no breaks
@@ -887,9 +864,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Ignore def test_bug10() {assert(checkCfg("bug10.c"))}
   @Ignore def test_bug11() {assert(checkCfg("bug11.c"))}
   @Ignore def test_bug12() {assert(checkCfg("bug12.c"))}
-
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
 
-  // performance testing
+  // test fails; infinite loop
   @Ignore def test_gzip() {assert(checkCfg("gzip.c"))}
 }
