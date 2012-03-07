@@ -104,6 +104,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
                 else if (a2b.isDefined && b2b.isDefined && a2b.get.ne(b2b.get)) add2newres = List(b)
                 else add2newres = List()
               }
+              // a continue statement shall appear only in a loop body
+              // a continue statement causes a jump to the loop-continuation portion
+              // of the smallest enclosing iteration statement
+              // TODO handling of continue statement
               case _ => {
                 add2newres = rollUp(oldelem, env)
                 if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
