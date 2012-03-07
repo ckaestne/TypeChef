@@ -430,7 +430,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getStmtPred(t, env) ++ getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
       case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
-        getCondStmtPred(t, s, env)
+        getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
 
       // conditional statements
       // we are in condition, so the IfStatement itself is the result
@@ -683,7 +683,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case _: WhileStatement => List()
         case _: DoStatement => List()
         case l: List[_] => l.flatMap(filterBreakStatementsHelper(_))
-        case x: Product => x.productIterator.toList.flatMap(filterBreakStatements(_))
+        case x: Product => x.productIterator.toList.flatMap(filterBreakStatementsHelper(_))
         case _ => List()
       }
     }
@@ -697,7 +697,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private def filterContinueStatements(s: Conditional[Statement], env: ASTEnv): List[ContinueStatement] = {
     def filterContinueStatementsHelper(a: Any): List[ContinueStatement] = {
       a match {
-        case t: BreakStatement => List(t)
+        case t: ContinueStatement => List(t)
         case _: ForStatement => List()
         case _: WhileStatement => List()
         case _: DoStatement => List()
@@ -770,8 +770,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
       case t@SwitchStatement(expr, s) => {
         val lbreaks = filterBreakStatements(s, env)
-        val ldefaults = filterDefaultStatements(t, env)
+        val ldefaults = filterDefaultStatements(s, env)
 
+        // TODO both lbreaks and ldefaults are empty!
         if (ldefaults.isEmpty) lbreaks ++ getCondExprPred(expr, env)
         else lbreaks ++ ldefaults.flatMap(rollUpJumpStatement(_, true, env))
       }
@@ -793,6 +794,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     a match {
       case t@CaseStatement(_, s) if (s.isDefined) =>
         getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, false, env))
+
+      // the code that belongs to the jump target default is either reachable via nextAST from the
+      // default statement: this first case statement here
+      // or the code is nested in the DefaultStatement, so we match it with the next case statement
       case t@DefaultStatement(_) if (nextAST(t, env) != null && fromSwitch) => {
         val dparent = findPriorASTElem[CompoundStatement](t, env)
         assert(dparent.isDefined, "default statement always occurs in a compound statement of a switch")
