@@ -107,7 +107,19 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               // a continue statement shall appear only in a loop body
               // a continue statement causes a jump to the loop-continuation portion
               // of the smallest enclosing iteration statement
-              // TODO handling of continue statement
+              case c: ContinueStatement => {
+                val a2c = findPriorASTElem2ContinueStatement(a.asInstanceOf[AnyRef], env)
+                val b2c = findPriorASTElem2ContinueStatement(c.asInstanceOf[AnyRef], env)
+
+                if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
+                  a2c.get match {
+                    // TODO more complex expr2 might be None
+                    case WhileStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
+                    case DoStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
+                    case _ => add2newres = List()
+                  }
+                } else add2newres = List()
+              }
               case _ => {
                 add2newres = rollUp(oldelem, env)
                 if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
@@ -123,6 +135,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         predCCFGCache.update(a, newres)
         newres
       }
+    }
+  }
+  
+  private def isPartOfAST(e: Any, t: Any): Boolean = {
+    t match {
+      case _ if (e.asInstanceOf[AnyRef].eq(t.asInstanceOf[AnyRef])) => true
+      case l: List[_] => l.map(isPartOfAST(e, _)).fold(false)(_ || _)
+      case x: Product => x.productIterator.toList.map(isPartOfAST(e, _)).fold(false)(_ || _)
+      case _ => false
     }
   }
 
@@ -678,7 +699,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // so we recursively go over the structure of the ast elems
   // in case we find a break, we add it to the result list
   // in case we hit another loop or switch we return the empty list
-  private def filterBreakStatements(s: Conditional[Statement], env: ASTEnv): List[BreakStatement] = {
+  private def filterBreakStatements(c: Conditional[Statement], env: ASTEnv): List[BreakStatement] = {
     def filterBreakStatementsHelper(a: Any): List[BreakStatement] = {
       a match {
         case t: BreakStatement => List(t)
@@ -691,14 +712,14 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case _ => List()
       }
     }
-    filterBreakStatementsHelper(s)
+    filterBreakStatementsHelper(c)
   }
 
   // this method filters ContinueStatements
   // according to [2]: A continue statement shall appear only in or as a
   // loop body
   // use this method only with the loop body!
-  private def filterContinueStatements(s: Conditional[Statement], env: ASTEnv): List[ContinueStatement] = {
+  private def filterContinueStatements(c: Conditional[Statement], env: ASTEnv): List[ContinueStatement] = {
     def filterContinueStatementsHelper(a: Any): List[ContinueStatement] = {
       a match {
         case t: ContinueStatement => List(t)
@@ -710,11 +731,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case _ => List()
       }
     }
-    filterContinueStatementsHelper(s)
+    filterContinueStatementsHelper(c)
   }
 
   // this method filters all CaseStatements
-  private def filterCaseStatements(s: Conditional[Statement], env: ASTEnv): List[CaseStatement] = {
+  private def filterCaseStatements(c: Conditional[Statement], env: ASTEnv): List[CaseStatement] = {
     def filterCaseStatementsHelper(a: Any): List[CaseStatement] = {
       a match {
         case t@CaseStatement(_, s) => List(t) ++ (if (s.isDefined) filterCaseStatementsHelper(s.get) else List())
@@ -724,12 +745,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case _ => List()
       }
     }
-    filterCaseStatementsHelper(s)
+    filterCaseStatementsHelper(c)
   }
 
   // although the standard says that a case statement only has one default statement
-  // we may have optional default statements
-  private def filterDefaultStatements(s: Conditional[Statement], env: ASTEnv): List[DefaultStatement] = {
+  // we may have differently annotated default statements
+  private def filterDefaultStatements(c: Conditional[Statement], env: ASTEnv): List[DefaultStatement] = {
     def filterDefaultStatementsHelper(a: Any): List[DefaultStatement] = {
       a match {
         case SwitchStatement => List()
@@ -739,7 +760,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         case _ => List()
       }
     }
-    filterDefaultStatementsHelper(s)
+    filterDefaultStatementsHelper(c)
   }
 
   // in predecessor determination we have to dig in into elements at certain points
