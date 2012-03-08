@@ -92,14 +92,6 @@ class CAnalysisFrontend(tunit: AST, featureModel: FeatureModel = NoFeatureModel)
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
     val s = getAllSucc(f, env)
-    val p = getAllPred(f, env)
-
-    val res = compareSuccWithPred(s, p, env)
-
-    if (! res) {
-      println("succs: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
-      println("preds: " + DotGraph.map2file(p, env.asInstanceOf[DotGraph.ASTEnv]))
-    }
-    res
+    true
   }
 }

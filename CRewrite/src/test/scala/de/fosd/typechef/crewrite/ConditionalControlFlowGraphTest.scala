@@ -54,7 +54,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Ignore def test_for_loop() {
+  @Test def test_for_loop() {
     val a = parseCompoundStmt("""
     {
       for (;;) { }

@@ -202,7 +202,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, env)
               case _: ForStatement => changed = true; add2newres = succHelper(oldelem, env)
@@ -346,7 +345,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private def getCondStmtSucc(p: AST, c: AST, env: ASTEnv) = {
     c match {
-      case CompoundStatement(l) => if (l.isEmpty) List(p) else getCompoundSucc(l, env)
+      case CompoundStatement(l) => List(c)
       case s: Statement => List(s)
     }
   }
