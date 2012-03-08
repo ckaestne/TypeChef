@@ -57,7 +57,7 @@ trait EnforceTreeHelper extends CASTEnv {
   // so if we omit CompoundStatement in succ pred determination, we need an expression
   // so that succ(e) -> e and pred(e) is e
   // we add a Constant("1") at the break
-  def rewriteInfiniteForLoop[T <: Product](ast: T): T = {
+  def rewriteInfiniteForLoops[T <: Product](ast: T): T = {
     assert(ast != null)
 
     val rewrite = everywherebu(rule {

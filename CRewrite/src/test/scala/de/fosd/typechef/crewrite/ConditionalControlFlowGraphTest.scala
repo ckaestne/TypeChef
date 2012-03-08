@@ -6,7 +6,7 @@ import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.featureexpr.{FeatureExpr, True}
 import org.junit.{Ignore, Test}
 
-class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables with CASTEnv {
+class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables with CASTEnv {
 
   // given an ast element x and its successors lx: x should be in pred(lx)
   def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
@@ -61,11 +61,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val newa = rewriteInfiniteForLoops(a)
+    val env = createASTEnv(newa)
+    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Ignore def test_nested_loop() {
+  @Test def test_nested_loop() {
     val a = parseCompoundStmt("""
     {
       for(;;) {
@@ -77,8 +78,9 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val newa = rewriteInfiniteForLoops[CompoundStatement](a)
+    val env = createASTEnv(newa)
+    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
   @Test def test_switch_case() {
@@ -97,7 +99,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Ignore def test_do_while_loop() {
+  @Test def test_do_while_loop() {
     val a = parseCompoundStmt("""
     {
       do {
@@ -321,7 +323,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Ignore def test_conditional_while_statement() {
+  @Test def test_conditional_while_statement() {
     val e0 = Opt(True, LabelStatement(Id("e0"), None))
     val e11 = Opt(True, LabelStatement(Id("e11"), None))
     val e12 = Opt(fy, LabelStatement(Id("e12"), None))
@@ -331,7 +333,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     val c = One(CompoundStatement(List(e0, e1, e2)))
 
     val env = createASTEnv(c.value)
-    succ(e0, env) should be(List(e1.entry, e2.entry))
+    succ(e0, env) should be(List(e1c, e2.entry))
     succ(e1, env) should be(List(e1c))
     succ(e1c, env) should be(List(e11.entry, e2.entry))
     println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
@@ -428,7 +430,7 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Ignore def test_conditional_for_loop_infinite() {
+  @Test def test_conditional_for_loop_infinite() {
     val a = parseCompoundStmt("""
     {
       int i;
@@ -438,11 +440,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val newa = rewriteInfiniteForLoops(a)
+    val env = createASTEnv(newa)
+    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
-  @Ignore def test_conditional_for_loop_infinite_single_statement() {
+  @Test def test_conditional_for_loop_infinite_single_statement() {
     val a = parseCompoundStmt("""
     {
       int i = 0;

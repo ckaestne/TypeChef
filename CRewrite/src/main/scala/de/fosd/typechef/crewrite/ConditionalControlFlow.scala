@@ -188,7 +188,34 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     succCCFGCache.lookup(a) match {
       case Some(v) => v
       case None => {
+        var oldres: List[AST] = List()
         var newres: List[AST] = succHelper(a, env)
+        var changed = true
+
+        while (changed) {
+          changed = false
+          oldres = newres
+          newres = List()
+          for (oldelem <- oldres) {
+            var add2newres: List[AST] = List()
+            oldelem match {
+              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: ForStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem, env)
+              case _ => add2newres = List(oldelem)
+            }
+
+            // add only elements that are not in newres so far
+            // add them add the end to keep the order of the elements
+            for (addnew <- add2newres)
+              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+          }
+        }
         succCCFGCache.update(a, newres)
         newres
       }
@@ -214,14 +241,18 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: Conditional[_] => succHelper(childAST(t), env)
 
       // loop statements
-      case ForStatement(None, Some(expr2), None, Some(One(EmptyStatement))) => List(expr2)
-      case ForStatement(None, Some(expr2), None, Some(One(CompoundStatement(List())))) => List(expr2)
+      case ForStatement(None, Some(expr2), None, One(EmptyStatement())) => List(expr2)
+      case ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => List(expr2)
       case t@ForStatement(expr1, expr2, expr3, s) => {
         if (expr1.isDefined) List(expr1.get)
         else if (expr2.isDefined) List(expr2.get)
         else getCondStmtSucc(t, childAST(s), env)
       }
+      case WhileStatement(expr, One(EmptyStatement())) => List(expr)
+      case WhileStatement(expr, One(CompoundStatement(List()))) => List(expr)
       case WhileStatement(expr, _) => List(expr)
+      case DoStatement(expr, One(EmptyStatement())) => List(expr)
+      case DoStatement(expr, One(CompoundStatement(List()))) => List(expr)
       case t@DoStatement(_, s) => getCondStmtSucc(t, childAST(s), env)
 
       // conditional statements
@@ -320,7 +351,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private def getCondStmtSucc(p: AST, c: AST, env: ASTEnv) = {
     c match {
-      case CompoundStatement(l) => List(c)
+      case CompoundStatement(l) => getCompoundSucc(l, c, env)
       case s: Statement => List(s)
     }
   }
