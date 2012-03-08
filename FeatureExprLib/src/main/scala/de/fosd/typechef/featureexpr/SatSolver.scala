@@ -60,7 +60,7 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
     /**init / constructor */
     val solver = SolverFactory.newDefault();
     //        solver.setTimeoutMs(1000);
-    solver.setTimeoutOnConflicts(100000)
+    solver.setTimeoutOnConflicts(-1)
 
     assert(featureModel != null)
     solver.addAllClauses(featureModel.clauses)
