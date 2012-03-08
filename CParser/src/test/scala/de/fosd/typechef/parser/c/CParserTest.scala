@@ -473,6 +473,10 @@ main (int argc, char **argv)
   return 0;
 }
         """, p.functionDef)
+      assertParseable("""main(){
+          for (;1;) ;
+        }
+      """, p.functionDef)
 
     }
 

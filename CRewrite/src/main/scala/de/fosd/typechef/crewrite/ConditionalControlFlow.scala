@@ -214,6 +214,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: Conditional[_] => succHelper(childAST(t), env)
 
       // loop statements
+      case ForStatement(None, Some(expr2), None, Some(One(EmptyStatement))) => List(expr2)
+      case ForStatement(None, Some(expr2), None, Some(One(CompoundStatement(List())))) => List(expr2)
       case t@ForStatement(expr1, expr2, expr3, s) => {
         if (expr1.isDefined) List(expr1.get)
         else if (expr2.isDefined) List(expr2.get)
