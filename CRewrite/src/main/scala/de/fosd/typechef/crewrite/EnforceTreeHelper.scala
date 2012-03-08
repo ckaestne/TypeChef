@@ -3,8 +3,6 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.WithPosition
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
  * preparation and checks for downstream tools
