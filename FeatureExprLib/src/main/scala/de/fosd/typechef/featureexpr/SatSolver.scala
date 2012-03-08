@@ -33,7 +33,7 @@ class SatSolver {
 }
 
 class SatSolverProducts(val featureModel: FeatureModel = NoFeatureModel) extends SatSolver {
-  private val ss = new SatSolverImpl(nfm(featureModel), false)
+  private val ss = new SatSolverImpl(featureModel, false)
   def getAllProducts = ss.getAllProducts
 }
 

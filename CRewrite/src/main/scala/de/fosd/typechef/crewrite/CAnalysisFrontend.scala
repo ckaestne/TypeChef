@@ -89,7 +89,7 @@ class CAnalysisFrontend(tunit: AST, featureModel: FeatureModel = NoFeatureModel)
     while (stproducts.isEmpty.unary_!) {
       productnum += 1
       stproducts = stproducts.tail
-      println("num product: " + productnum)
+      if (productnum % 1000 == 0) println("num product: " + productnum)
     }
 
     function_defs.map(intraCfGFunctionDef(_, env)).forall(_.==(true))
