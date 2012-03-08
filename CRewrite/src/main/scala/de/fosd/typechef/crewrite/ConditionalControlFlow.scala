@@ -188,34 +188,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     succCCFGCache.lookup(a) match {
       case Some(v) => v
       case None => {
-        var oldres: List[AST] = List()
         var newres: List[AST] = succHelper(a, env)
-        var changed = true
-
-        while (changed) {
-          changed = false
-          oldres = newres
-          newres = List()
-          for (oldelem <- oldres) {
-            var add2newres: List[AST] = List()
-            oldelem match {
-              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: ForStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem, env)
-              case _ if (!oldelem.eq(a.asInstanceOf[AnyRef])) => add2newres = List(oldelem)
-              case _ =>
-            }
-
-            // add only elements that are not in newres so far
-            // add them add the end to keep the order of the elements
-            for (addnew <- add2newres)
-              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
-          }
-        }
         succCCFGCache.update(a, newres)
         newres
       }
@@ -235,7 +208,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         }
       }
 
-      case t@CompoundStatement(l) => getCompoundSucc(l, env)
+      case t@CompoundStatement(l) => getCompoundSucc(l, t, env)
 
       case o: Opt[_] => succHelper(o.entry, env)
       case t: Conditional[_] => succHelper(childAST(t), env)
@@ -359,7 +332,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private def getCondExprSucc(e: Expr, env: ASTEnv) = {
     e match {
-      case CompoundStatementExpr(CompoundStatement(innerStatements)) => getCompoundSucc(innerStatements, env)
+      case c@CompoundStatementExpr(CompoundStatement(innerStatements)) =>
+        getCompoundSucc(innerStatements, c, env)
       case _ => List(e)
     }
   }
@@ -395,7 +369,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         getCondStmtSucc(t, b, env) ++ getStmtSucc(t, env)
       case t@IfStatement(e, tb, elif, el) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
         var res = getCondStmtSucc(t, tb, env)
-        if (!elif.isEmpty) res = res ++ getCompoundSucc(elif, env)
+        if (!elif.isEmpty) res = res ++ getCompoundSucc(elif, t, env)
         if (elif.isEmpty && el.isDefined) res = res ++ getCondStmtSucc(t, el.get, env)
         if (elif.isEmpty && !el.isDefined) res = res ++ getStmtSucc(t, env)
         res
@@ -860,19 +834,16 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // given a list of AST elements, determine successor AST elements based on feature expressions
-  private def getCompoundSucc(l: List[AST], env: ASTEnv): List[AST] = {
-    if (l.isEmpty) List()
-    else {
-      val ifdef_blocks = determineIfdefBlocks(l, env)
-      val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env).reverse
-      val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env).reverse
-      val list_parent_feature_expr = env.featureExpr(env.parent(l.head))
-      val successor_list = determineFollowingElements(list_parent_feature_expr, typed_grouped_ifdef_blocks, env)
+  private def getCompoundSucc(l: List[AST], parent: Any, env: ASTEnv): List[AST] = {
+    val ifdef_blocks = determineIfdefBlocks(l, env)
+    val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env).reverse
+    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env).reverse
+    val successor_list = determineFollowingElements(env.featureExpr(parent), typed_grouped_ifdef_blocks, env)
 
-      successor_list match {
-        case Left(s_list) => s_list
-        case Right(s_list) => s_list ++ followUpSucc(l.head, env).getOrElse(List())
-      }
+    successor_list match {
+      case Left(s_list) => s_list
+      case Right(s_list) => s_list ++ (if (l.isEmpty) followUpSucc(parent.asInstanceOf[AnyRef], env).getOrElse(List())
+                                       else followUpSucc(l.head, env).getOrElse(List()))
     }
   }
 
