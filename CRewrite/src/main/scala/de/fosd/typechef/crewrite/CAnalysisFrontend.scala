@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.{FunctionDef, AST}
-import de.fosd.typechef.featureexpr.{FeatureExpr, NoFeatureModel, FeatureModel}
+import de.fosd.typechef.featureexpr._
 
 
 class CAnalysisFrontend(tunit: AST, featureModel: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalControlFlow with EnforceTreeHelper {
@@ -83,6 +83,15 @@ class CAnalysisFrontend(tunit: AST, featureModel: FeatureModel = NoFeatureModel)
     val new_ast = prepareAST(tunit)
     val env = createASTEnv(new_ast)
     val function_defs = filterASTElems[FunctionDef](new_ast)
+    var productnum = 0
+    var stproducts = new SatSolverProducts(featureModel).getAllProducts
+
+    while (stproducts.isEmpty.unary_!) {
+      productnum += 1
+      stproducts = stproducts.tail
+      println("num product: " + productnum)
+    }
+
     function_defs.map(intraCfGFunctionDef(_, env)).forall(_.==(true))
 
     if (errors.size > 0) {

@@ -2,9 +2,12 @@ package de.fosd.typechef.featureexpr
 
 import org.sat4j.core.VecInt
 import collection.mutable.WeakHashMap
-import org.sat4j.specs.IConstr;
-import org.sat4j.minisat.SolverFactory;
-import org.sat4j.specs.ContradictionException;
+
+import org.sat4j.minisat.SolverFactory
+import org.sat4j.specs.{ISolver, IConstr, ContradictionException}
+import org.sat4j.tools.ModelIterator
+;
+
 
 /**
  * connection to the SAT4j SAT solver
@@ -26,8 +29,14 @@ class SatSolver {
             new SatSolverImpl(nfm(featureModel), false)).isSatisfiable(exprCNF)
     }
 
-    private def nfm(fm: FeatureModel) = if (fm == null) NoFeatureModel else fm
+    protected def nfm(fm: FeatureModel) = if (fm == null) NoFeatureModel else fm
 }
+
+class SatSolverProducts(val featureModel: FeatureModel = NoFeatureModel) extends SatSolver {
+  private val ss = new SatSolverImpl(nfm(featureModel), false)
+  def getAllProducts = ss.getAllProducts
+}
+
 
 private object SatSolverCache {
     val cache: WeakHashMap[FeatureModel, SatSolverImpl] = new WeakHashMap()
@@ -71,8 +80,6 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
         //as long as we do not consider feature models, expressions with a single variable
         //are always satisfiable
         if ((featureModel == NoFeatureModel) && (CNFHelper.isLiteralExternal(exprCNF))) return true
-
-        val startTime = System.currentTimeMillis();
 
         if (PROFILING)
             print("<SAT " + countClauses(exprCNF) + " with " + countFlags(exprCNF) + " flags; ")
@@ -128,7 +135,7 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
                 val result = solver.isSatisfiable(assumptions)
                 if (PROFILING)
                     print(result + ";")
-                return result
+                result
             } finally {
                 if (isReused)
                     for (constr<-constraintGroup)
@@ -139,6 +146,23 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
                 println(" in " + (System.currentTimeMillis() - startTimeSAT) + " ms>")
         }
     }
+
+  val isolg = new ModelIterator(solver)
+  val mIdFlagg = Map() ++ uniqueFlagIds.toList.map(_.swap)
+
+  def getAllProducts: Stream[List[(DefinedExternal, Boolean)]] = {
+    if (isolg.isSatisfiable) {
+      val product = isolg.model()
+      var pconfiguration: List[(DefinedExternal, Boolean)] = List()
+
+      for (iflag <- product.toList)
+        pconfiguration ::= (FeatureExpr.createDefinedExternal(mIdFlagg.get(iflag.abs).get), iflag > 0)
+
+      Stream.cons(pconfiguration, getAllProducts)
+    } else {
+      Stream.Empty
+    }
+  }
 }
 
 private object SatSolver {
