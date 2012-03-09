@@ -458,8 +458,16 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         res
       }
 
+      case t@WhileStatement(expr, One(EmptyStatement())) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+        getStmtPred(t, env) ++ List(expr)
+      case t@WhileStatement(expr, One(CompoundStatement(List()))) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+        getStmtPred(t, env) ++ List(expr)
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getStmtPred(t, env) ++ getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
+      case t@DoStatement(expr, One(EmptyStatement())) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+        getStmtPred(t, env) ++ List(expr)
+      case t@DoStatement(expr, One(CompoundStatement(List()))) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+        getStmtPred(t, env) ++ List(expr)
       case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
 
