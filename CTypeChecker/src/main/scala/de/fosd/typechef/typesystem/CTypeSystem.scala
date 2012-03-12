@@ -87,7 +87,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int)) => {
             if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
-                reportTypeError(f, "Invalid redeclaration of " + name +
+                reportTypeError(f, "Invalid redeclaration/redefinition of " + name +
                     " (was: " + prev._1 + ":" + kind + ":" + env.scope +
                     ", now: " + newType + ":" + prev._2 + ":" + prev._3 + ")",
                     where, Severity.RedeclarationError)
@@ -118,7 +118,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
         //global variables
-        if (newScope == 0 && prevScope == 0 && newKind == KDeclaration && prevKind == KDeclaration) {
+        if (newScope == 0 && prevScope == 0 && (newKind == KDeclaration || newKind == KDefinition) && prevKind == KDeclaration) {
             //valid if exact same type
             return newType.toValue == prevType.toValue
         }

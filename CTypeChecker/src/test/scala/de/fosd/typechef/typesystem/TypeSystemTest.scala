@@ -709,6 +709,11 @@ return 1;
         expect(false) {
             check("int foo() {int a=2; int a=1;}")
         }
+        expect(true) {
+            check("typedef struct s { int a;} s_t;" +
+                "extern s_t x;" +
+                "s_t x = (s_t) {0};")
+        }
     }
 
 }
