@@ -29,9 +29,7 @@ import java.util.IdentityHashMap
 //    this way we do not have any handle to jump into the for block from
 //    its successors
 
-
 // for more information:
-
 // iso/iec 9899 standard; committee draft
 // [2] http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1124.pdf
 
@@ -42,6 +40,9 @@ import java.util.IdentityHashMap
 //                the case constant expressions in the same switch statement shall have the same value
 //                after conversion.
 // TODO analysis: There may be at most one default label in a switch statement.
+// TODO analysis: we can continue this list only by looking at constrains in [2]
+
+
 class CCFGCache {
   private val cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
 
@@ -103,6 +104,22 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
                 else if (a2b.isDefined && b2b.isDefined && a2b.get.ne(b2b.get)) add2newres = List(b)
                 else add2newres = List()
               }
+              // a continue statement shall appear only in a loop body
+              // a continue statement causes a jump to the loop-continuation portion
+              // of the smallest enclosing iteration statement
+              case c: ContinueStatement => {
+                val a2c = findPriorASTElem2ContinueStatement(a.asInstanceOf[AnyRef], env)
+                val b2c = findPriorASTElem2ContinueStatement(c.asInstanceOf[AnyRef], env)
+
+                if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
+                  a2c.get match {
+                    // TODO more complex expr2 might be None
+                    case WhileStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
+                    case DoStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
+                    case _ => add2newres = List()
+                  }
+                } else add2newres = List()
+              }
               case _ => {
                 add2newres = rollUp(oldelem, env)
                 if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
@@ -118,6 +135,15 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         predCCFGCache.update(a, newres)
         newres
       }
+    }
+  }
+  
+  private def isPartOfAST(e: Any, t: Any): Boolean = {
+    t match {
+      case _ if (e.asInstanceOf[AnyRef].eq(t.asInstanceOf[AnyRef])) => true
+      case l: List[_] => l.map(isPartOfAST(e, _)).fold(false)(_ || _)
+      case x: Product => x.productIterator.toList.map(isPartOfAST(e, _)).fold(false)(_ || _)
+      case _ => false
     }
   }
 
@@ -427,9 +453,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
 
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
-        getStmtPred(t, env) ++ getCondStmtPred(t, s, env)
+        getStmtPred(t, env) ++ getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
       case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
-        getCondStmtPred(t, s, env)
+        getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
 
       // conditional statements
       // we are in condition, so the IfStatement itself is the result
@@ -669,48 +695,72 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // this method filters BreakStatements
   // a break belongs to next outer loop (for, while, do-while)
   // or a switch statement (see [2])
+  // use this method with the loop or switch body!
   // so we recursively go over the structure of the ast elems
   // in case we find a break, we add it to the result list
-  // in case we hit another loop, we return the result list
-  private def filterBreakStatements(a: Any, env: ASTEnv) = {
-    def filterBreakStatementsHelper(a: Any, env: ASTEnv, firstbreakenv: Boolean): List[BreakStatement] = {
+  // in case we hit another loop or switch we return the empty list
+  private def filterBreakStatements(c: Conditional[Statement], env: ASTEnv): List[BreakStatement] = {
+    def filterBreakStatementsHelper(a: Any): List[BreakStatement] = {
       a match {
-        case _ if (!firstbreakenv) => List()
         case t: BreakStatement => List(t)
-        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_, env, firstbreakenv))
-        case x: Product => {
-          val breakenv = x.isInstanceOf[ForStatement] || x.isInstanceOf[WhileStatement] ||
-            x.isInstanceOf[DoStatement] || x.isInstanceOf[SwitchStatement]
-          x.productIterator.toList.flatMap(filterBreakStatementsHelper(_, env, firstbreakenv && breakenv.unary_!))
-        }
+        case _: SwitchStatement => List()
+        case _: ForStatement => List()
+        case _: WhileStatement => List()
+        case _: DoStatement => List()
+        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_))
+        case x: Product => x.productIterator.toList.flatMap(filterBreakStatementsHelper(_))
         case _ => List()
       }
     }
+    filterBreakStatementsHelper(c)
+  }
 
-    filterBreakStatementsHelper(a, env, true)
+  // this method filters ContinueStatements
+  // according to [2]: A continue statement shall appear only in or as a
+  // loop body
+  // use this method only with the loop body!
+  private def filterContinueStatements(c: Conditional[Statement], env: ASTEnv): List[ContinueStatement] = {
+    def filterContinueStatementsHelper(a: Any): List[ContinueStatement] = {
+      a match {
+        case t: ContinueStatement => List(t)
+        case _: ForStatement => List()
+        case _: WhileStatement => List()
+        case _: DoStatement => List()
+        case l: List[_] => l.flatMap(filterContinueStatementsHelper(_))
+        case x: Product => x.productIterator.toList.flatMap(filterContinueStatementsHelper(_))
+        case _ => List()
+      }
+    }
+    filterContinueStatementsHelper(c)
   }
 
   // this method filters all CaseStatements
-  private def filterCaseStatements(a: Any, env: ASTEnv): List[CaseStatement] = {
-    a match {
-      case t@CaseStatement(_, s) => List(t) ++ (if (s.isDefined) filterCaseStatements(s.get, env) else List())
-      case SwitchStatement => List()
-      case l: List[_] => l.flatMap(filterCaseStatements(_, env))
-      case x: Product => x.productIterator.toList.flatMap(filterCaseStatements(_, env))
-      case _ => List()
+  private def filterCaseStatements(c: Conditional[Statement], env: ASTEnv): List[CaseStatement] = {
+    def filterCaseStatementsHelper(a: Any): List[CaseStatement] = {
+      a match {
+        case t@CaseStatement(_, s) => List(t) ++ (if (s.isDefined) filterCaseStatementsHelper(s.get) else List())
+        case SwitchStatement => List()
+        case l: List[_] => l.flatMap(filterCaseStatementsHelper(_))
+        case x: Product => x.productIterator.toList.flatMap(filterCaseStatementsHelper(_))
+        case _ => List()
+      }
     }
+    filterCaseStatementsHelper(c)
   }
 
   // although the standard says that a case statement only has one default statement
-  // we may have optional default statements
-  private def filterDefaultStatements(a: Any, env: ASTEnv): List[DefaultStatement] = {
-    a match {
-      case SwitchStatement => List()
-      case t: DefaultStatement => List(t)
-      case l: List[_] => l.flatMap(filterDefaultStatements(_, env))
-      case x: Product => x.productIterator.toList.flatMap(filterDefaultStatements(_, env))
-      case _ => List()
+  // we may have differently annotated default statements
+  private def filterDefaultStatements(c: Conditional[Statement], env: ASTEnv): List[DefaultStatement] = {
+    def filterDefaultStatementsHelper(a: Any): List[DefaultStatement] = {
+      a match {
+        case SwitchStatement => List()
+        case t: DefaultStatement => List(t)
+        case l: List[_] => l.flatMap(filterDefaultStatementsHelper(_))
+        case x: Product => x.productIterator.toList.flatMap(filterDefaultStatementsHelper(_))
+        case _ => List()
+      }
     }
+    filterDefaultStatementsHelper(c)
   }
 
   // in predecessor determination we have to dig in into elements at certain points
@@ -745,8 +795,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
       case t@SwitchStatement(expr, s) => {
         val lbreaks = filterBreakStatements(s, env)
-        val ldefaults = filterDefaultStatements(t, env)
+        val ldefaults = filterDefaultStatements(s, env)
 
+        // TODO both lbreaks and ldefaults are empty!
         if (ldefaults.isEmpty) lbreaks ++ getCondExprPred(expr, env)
         else lbreaks ++ ldefaults.flatMap(rollUpJumpStatement(_, true, env))
       }
@@ -768,6 +819,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     a match {
       case t@CaseStatement(_, s) if (s.isDefined) =>
         getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, false, env))
+
+      // the code that belongs to the jump target default is either reachable via nextAST from the
+      // default statement: this first case statement here
+      // or the code is nested in the DefaultStatement, so we match it with the next case statement
       case t@DefaultStatement(_) if (nextAST(t, env) != null && fromSwitch) => {
         val dparent = findPriorASTElem[CompoundStatement](t, env)
         assert(dparent.isDefined, "default statement always occurs in a compound statement of a switch")
