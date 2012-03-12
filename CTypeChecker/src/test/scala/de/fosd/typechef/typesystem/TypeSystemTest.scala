@@ -30,7 +30,7 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelper {
             check("void bar(){foo();}")
         }
     }
-    ignore("detect redefinitions") {
+    test("detect redefinitions") {
         expect(false) {
             check("void foo(){} void foo(){}")
         }
@@ -648,18 +648,18 @@ return 1;
         }
     }
     test("field decrement") {
-            expect(true) {
-                check("""struct x { int i; } ;
+        expect(true) {
+            check("""struct x { int i; } ;
                          void test(void *data) {
                             struct x *v=data;
                             if (v->i > 0)
                                 v->i--;
                          }
                        """)
-            }
         }
+    }
 
-    ignore("detect variable redefinitions") {
+    test("detect variable redefinitions") {
         expect(false) {
             check("float x; int x;")
         }
@@ -682,6 +682,31 @@ return 1;
                 "#ifdef A\n" +
                 "int x=1;\n" +
                 "#endif\n")
+        }
+        expect(false) {
+            check("enum x {a,b}; int a=3;")
+        }
+        expect(false) {
+            check("enum x {a,b}; int a;")
+        }
+        expect(false) {
+            check("enum x {a,b}; enum y {a,c};")
+        }
+        //TODO not implemented yet:
+        //        expect(false) {
+        //            check("int foo(int a, int a) {}")
+        //        }
+        expect(false) {
+            check("int foo(int a) {int a; a++;}")
+        }
+        expect(false) {
+            check("int foo() {int a; int a;}")
+        }
+        expect(false) {
+            check("int foo() {int a; int a=1;}")
+        }
+        expect(false) {
+            check("int foo() {int a=2; int a=1;}")
         }
     }
 

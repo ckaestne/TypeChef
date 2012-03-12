@@ -191,17 +191,21 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
-                                ): List[(String, FeatureExpr, Conditional[CType])] = {
+                                ): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
         val enumDecl = enumDeclarations(decl.declSpecs, featureExpr)
         val isExtern = getIsExtern(decl.declSpecs)
-        var eenv = env.addVars(enumDecl, false, env.scope)
+        var eenv = env.addVars(enumDecl, env.scope)
         val varDecl = if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
 
             for (Opt(f, init) <- decl.init) yield {
                 val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
-                eenv = eenv.addVar(init.getName, featureExpr and f, ctype, false, env.scope)
+                val declKind = if (init.hasInitializer) KDefinition else KDeclaration
+
+                eenv = eenv.addVar(init.getName, featureExpr and f, ctype,
+                    declKind,
+                    env.scope)
                 init.getExpr map {
                     checkInitializer(_, ctype, featureExpr and f, eenv)
                 }
@@ -211,7 +215,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 checkStructsC(ctype, featureExpr and f andNot isExtern, env, decl)
 
 
-                (init.declarator.getName, featureExpr and f, ctype)
+                (init.declarator.getName, featureExpr and f, ctype, declKind)
             }
         }
         enumDecl ++ varDecl
@@ -233,13 +237,16 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     /**define all fields from enum type specifiers as int values
      *
+     * enum is always interpreted as definition, not declaration. it conflicts with other definitions and
+     * other declarations.
+     *
      * important: this recurses into structures!
      **/
-    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType])] = {
-        var result = List[(String, FeatureExpr, Conditional[CType])]()
+    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
+        var result = List[(String, FeatureExpr, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
-                result = (enum.id.name, featureExpr and f and f2, One(CSigned(CInt()))) :: result
+                result = (enum.id.name, featureExpr and f and f2, One(CSigned(CInt())), KEnumVar) :: result
             //recurse into structs
             case StructOrUnionSpecifier(_, _, fields) =>
                 for (Opt(f2, structDeclaration) <- fields)

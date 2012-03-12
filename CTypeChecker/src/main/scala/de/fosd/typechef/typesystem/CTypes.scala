@@ -314,7 +314,7 @@ object CType {
  * maintains a map from names to types
  * a name may be mapped to alternative types with different feature expressions
  *
- * internally storing Type, wheather its a function definition, and the current scope idx
+ * internally storing Type, whether its a definition (as opposed to a declaration), and the current scope idx
  */
 class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends ConditionalCMap[CType](m) {
     def this() = this(new ConditionalMap())
@@ -324,12 +324,12 @@ class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends 
     def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
 }
 
-class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(CType, Boolean, Int)]]) extends ConditionalCMap[(CType, Boolean, Int)](m) {
+class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(CType, DeclarationKind, Int)]]) extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
-    def lookup(name: String): Conditional[(CType, Boolean, Int)] = getOrElse(name, (CUnknown(name), false, -1))
-    def +(name: String, f: FeatureExpr, t: Conditional[CType], isFunctionDef: Boolean, scope: Int) = new ConditionalVarEnv(m.+(name, f, t.map(x => (x, isFunctionDef, scope))))
-    def ++(v: Seq[(String, FeatureExpr, Conditional[CType], Boolean, Int)]) =
+    def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
+    def +(name: String, f: FeatureExpr, t: Conditional[CType], kind: DeclarationKind, scope: Int) = new ConditionalVarEnv(m.+(name, f, t.map(x => (x, kind, scope))))
+    def ++(v: Seq[(String, FeatureExpr, Conditional[CType], DeclarationKind, Int)]) =
         v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5))
 }
 
@@ -523,4 +523,23 @@ trait CTypes extends COptionProvider {
     }
 
 
+}
+
+
+sealed trait DeclarationKind
+
+object KDeclaration extends DeclarationKind {
+    override def toString = "declaration"
+}
+
+object KDefinition extends DeclarationKind {
+    override def toString = "definition"
+}
+
+object KEnumVar extends DeclarationKind {
+    override def toString = "enumerate"
+}
+
+object KParameter extends DeclarationKind {
+    override def toString = "parameter"
 }

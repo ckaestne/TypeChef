@@ -24,9 +24,11 @@ trait CEnv {
 
         //varenv
         def updateVarEnv(newVarEnv: VarTypingContext) = if (newVarEnv == varEnv) this else new Env(typedefEnv, newVarEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope)
-        def addVar(name: String, f: FeatureExpr, t: Conditional[CType], isFunction: Boolean, scope: Int) = updateVarEnv(varEnv +(name, f, t, isFunction, scope))
-        def addVars(vars: Seq[(String, FeatureExpr, Conditional[CType])], isFunction: Boolean, scope: Int) =
-            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, isFunction, scope)))
+        def addVar(name: String, f: FeatureExpr, t: Conditional[CType], kind: DeclarationKind, scope: Int) = updateVarEnv(varEnv +(name, f, t, kind, scope))
+        def addVars(vars: Seq[(String, FeatureExpr, Conditional[CType], DeclarationKind)], scope: Int) =
+            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, scope)))
+        def addVars(vars: Seq[(String, FeatureExpr, Conditional[CType])], kind: DeclarationKind, scope: Int) =
+            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, kind, scope)))
 
         //structenv
         def updateStructEnv(s: StructEnv) = if (s == structEnv) this else new Env(typedefEnv, varEnv, s, enumEnv, labelEnv, expectedReturnType, scope)
@@ -79,7 +81,7 @@ trait CEnv {
      * the structure declarations do not overlap variant-wise
      */
     class StructEnv(val env: Map[(String, Boolean), (FeatureExpr, ConditionalTypeMap)]) {
-        def this() = this (Map())
+        def this() = this(Map())
         //returns the condition under which a structure is defined
         def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
         def isDefined(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), (FeatureExpr.dead, null))._1

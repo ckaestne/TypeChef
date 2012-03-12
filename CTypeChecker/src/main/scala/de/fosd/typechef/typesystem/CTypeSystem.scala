@@ -61,15 +61,16 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         })
 
         val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
+        val kind = KDefinition
 
         //redeclaration?
-        checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, true)
+        checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
         //add type to environment for remaining code
-        val newEnv = env.addVar(declarator.getName, featureExpr, funType, true, env.scope)
+        val newEnv = env.addVar(declarator.getName, featureExpr, funType, kind, env.scope)
 
         //check body (add parameters to environment)
-        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), false, env.scope + 1).setExpectedReturnType(expectedReturnType)
+        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), KDeclaration, env.scope + 1).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
 
@@ -80,15 +81,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     }
 
 
-    private def checkRedeclaration(name: String, ctype: Conditional[CType], fexpr: FeatureExpr, env: Env, where: AST, isFunctionDef: Boolean) {
+    private def checkRedeclaration(name: String, ctype: Conditional[CType], fexpr: FeatureExpr, env: Env, where: AST, kind: DeclarationKind) {
 
-        val prevTypes: Conditional[(CType, Boolean, Int)] = env.varEnv.lookup(name)
+        val prevTypes: Conditional[(CType, DeclarationKind, Int)] = env.varEnv.lookup(name)
 
-        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, Boolean, Int)) => {
-            if (!isValidRedeclaration(normalize(newType), isFunctionDef, env.scope, normalize(prev._1), prev._2, prev._3))
+        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int)) => {
+            if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
                 reportTypeError(f, "Invalid redeclaration of " + name +
-                    " (was: " + prev._1 + (if (isFunctionDef) ":F_" else ":") + env.scope +
-                    ", now: " + newType + (if (prev._2) ":F_" else ":") + prev._3 + ")",
+                    " (was: " + prev._1 + ":" + kind + ":" + env.scope +
+                    ", now: " + newType + ":" + prev._2 + ":" + prev._3 + ")",
                     where, Severity.RedeclarationError)
         })
     }
@@ -96,7 +97,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     /**
      *
      */
-    private def isValidRedeclaration(newType: CType, isFunctionDef: Boolean, newScope: Int, prevType: CType, wasFunctionDef: Boolean, prevScope: Int): Boolean = {
+    private def isValidRedeclaration(newType: CType, newKind: DeclarationKind, newScope: Int, prevType: CType, prevKind: DeclarationKind, prevScope: Int): Boolean = {
         if (prevType.isUnknown) return true; //not previously defined => everything's fine
 
         //scopes
@@ -104,12 +105,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         (newType, prevType) match {
             //two prototypes
-            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (!isFunctionDef && !wasFunctionDef) =>
+            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (newKind == KDeclaration && prevKind == KDeclaration) =>
                 //must have same return type and same parameters (for common parameters)
                 return (newRet == prevRet) && (newParam.zip(prevParam).forall(x => x._1 == x._2))
 
             //function overriding a prototype or vice versa
-            case (CPointer(CFunction(_, _)), CPointer(CFunction(_, _))) if (isFunctionDef != wasFunctionDef) =>
+            case (CPointer(CFunction(_, _)), CPointer(CFunction(_, _))) if ((newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition)) =>
                 //must have the exact same type
                 return newType == prevType
             case _ =>
@@ -117,7 +118,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
         //global variables
-        if (newScope == 0 && prevScope == 0 && !isFunctionDef && !wasFunctionDef) {
+        if (newScope == 0 && prevScope == 0 && newKind == KDeclaration && prevKind == KDeclaration) {
             //valid if exact same type
             return newType.toValue == prevType.toValue
         }
@@ -150,10 +151,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         //check redeclaration
         for (v <- vars)
-            checkRedeclaration(v._1, v._3, v._2, env, d, false)
+            checkRedeclaration(v._1, v._3, v._2, env, d, v._4)
 
         //add declared variables to variable typing environment and check initializers
-        env = env.addVars(vars, false, env.scope)
+        env = env.addVars(vars, env.scope)
 
 
 
