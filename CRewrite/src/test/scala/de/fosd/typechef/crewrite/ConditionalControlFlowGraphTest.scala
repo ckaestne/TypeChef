@@ -664,9 +664,14 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     """)
 
    val env = createASTEnv(a)
-   val ins = getAllSucc(a, env).map(_._1)
+   val ins = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+
+  for (s <- ins)
+    println(PrettyPrinter.print(s) + "  def: " + defines(s) + "   use: " + uses(s))
+
+
    for (i <- ins)
-     println("ins: " + PrettyPrinter.print(i) + "  in: " + in(i, env) + "   out: " + out(i, env))
+     println("ins: " + PrettyPrinter.print(i) + "  out: " + out(i, env) + "   in: " + in(i, env))
   }
 
   @Test def test_fosd_liveness2() {
@@ -676,15 +681,19 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
       l1: b = a + 1;
       c = c + b;
       a = b + 2;
-      if (a < N) goto L1;
+      if (a < N) goto l1;
       return c;
     }
     """)
 
     val env = createASTEnv(a)
-    val ins = getAllSucc(a, env).map(_._1)
+    val ins = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+
+    for (s <- ins)
+      println(PrettyPrinter.print(s) + "  def: " + defines(s) + "   use: " + uses(s))
+
     for (i <- ins)
-      println("ins: " + PrettyPrinter.print(i) + "  in: " + in(i, env) + "   out: " + out(i, env))
+      println("ins: " + PrettyPrinter.print(i) + "  out: " + out(i, env) + "   in: " + in(i, env))
   }
 
   @Test def test_boa_hash() {

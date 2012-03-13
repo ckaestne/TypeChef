@@ -112,7 +112,17 @@ trait ASTNavigation extends CASTEnv {
     a match {
       case x if (m.erasure.isInstance(x)) => List(x.asInstanceOf[T])
       case l: List[_] => l.flatMap(filterASTElems[T](_))
-      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T](_))
+      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T])
+      case _ => List()
+    }
+  }
+
+  def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case x: Product if (m.erasure.isInstance(x)) =>
+        List(x.asInstanceOf[T]) ++ x.productIterator.toList.flatMap(filterAllASTElems[T](_))
+      case l: List[_] => l.flatMap(filterASTElems[T](_))
+      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T])
       case _ => List()
     }
   }

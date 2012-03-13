@@ -1114,13 +1114,16 @@ trait Variables extends ASTNavigation {
       case NArySubExpr(_, ex) => uses(ex)
       case ConditionalExpr(condition, _, _) => uses(condition)
       case ExprStatement(expr) => uses(expr)
-      case AssignExpr(target, _, source) => uses(target) ++ uses(source)
-      case o@Opt(_, entry) => uses(o.entry)
+      case AssignExpr(_, _, source) => uses(source)
+      case Opt(_, entry) => uses(entry)
       case _ => Set()
     }
   }
 
   val defines: PartialFunction[Any, Set[Id]] = {
+    case ExprStatement(expr) => defines(expr)
+    case i@Id(_) => Set(i)
+    case AssignExpr(target, _, source) => defines(target)
     case DeclarationStatement(d) => defines(d)
     case Declaration(_, init) => init.flatMap(defines).toSet
     case InitDeclaratorI(a, _, _) => defines(a)
@@ -1147,28 +1150,53 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // IdentityHashMap and uses (a, env) as a key there.
   private val astIdenEnvHM = new IdentityHashMap[AST, (AST, ASTEnv)]()
 
+  val insimple: PartialFunction[(Any, ASTEnv), Set[Id]] = {
+    circular[(Any, ASTEnv), Set[Id]](Set()) {
+      case t@(FunctionDef(_, _, _, _), _) => Set()
+      case t@(e, env) => {
+        val u = uses(e)
+        val d = defines(e)
+        var res = outsimple(t)
+
+        res = u.union(res.diff(d))
+        res
+      }
+    }
+  }
+
+  val outsimple: PartialFunction[(Any, ASTEnv), Set[Id]] = {
+    circular[(Any, ASTEnv), Set[Id]](Set()) {
+      case t@(e, env) => {
+        val ss = succ(e, env)
+        var res: Set[Id] = Set()
+        for (s <- ss) {
+          s match {
+            case _: FunctionDef =>
+            case _ => {
+              if (!astIdenEnvHM.containsKey(s))
+                astIdenEnvHM.put(s, (s, env))
+              res = res.union(insimple(astIdenEnvHM.get(s)))
+            }
+          }
+        }
+        res
+      }
+    }
+  }
+
   // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
   // page 5
   //  in(n) = uses(n) + (out(n) - defines(n))
   // out(n) = for s in succ(n) r = r + in(s); r
   val in: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
+      case t@(FunctionDef(_, _, _, _), _) => Map()
       case t@(e, env) => {
         val u = uses(e)
         val d = defines(e)
         var res = out(t)
-        if (!d.isEmpty) {
-          val dhfexp = env.featureExpr(d.head)
-          res = updateMap(res, (dhfexp, d), {
-            _ -- _
-          })
-        }
-        if (!u.isEmpty) {
-          val uhfexp = env.featureExpr(u.head)
-          res = updateMap(res, (uhfexp, u), {
-            _ ++ _
-          })
-        }
+        res = updateMap(res, (env.featureExpr(e), d), _.diff(_))
+        res = updateMap(res, (env.featureExpr(e), u), _.union(_))
         res
       }
     }
@@ -1180,12 +1208,14 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val sl = succ(e, env)
         var res = Map[FeatureExpr, Set[Id]]()
         for (a <- sl) {
-          if (!astIdenEnvHM.containsKey(a))
-            astIdenEnvHM.put(a, (a, env))
-          for (el <- in(astIdenEnvHM.get(a)))
-            res = updateMap(res, el, {
-              _ ++ _
-            })
+          a match {
+            case _: FunctionDef =>
+            case _ => {
+              if (!astIdenEnvHM.containsKey(a)) astIdenEnvHM.put(a, (a, env))
+              for (el <- in(astIdenEnvHM.get(a)))
+                res = updateMap(res, el, _.union(_))
+            }
+          }
         }
         res
       }

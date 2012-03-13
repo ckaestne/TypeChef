@@ -477,6 +477,16 @@ main (int argc, char **argv)
           for (;1;) ;
         }
       """, p.functionDef)
+      assertParseable("""
+      int foo(void) {
+        a = 0;
+        l1: b = a + 1;
+        c = c + b;
+        a = b + 2;
+        if (a) goto l1;
+        return c;
+      }
+      """, p.functionDef)
 
     }
 
