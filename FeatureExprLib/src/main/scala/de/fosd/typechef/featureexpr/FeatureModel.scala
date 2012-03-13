@@ -142,6 +142,58 @@ object FeatureModel {
         new FeatureModel(variables, clauses, maxId)
     }
 
+  import java.io.FileWriter
+  def using[A <: {def close(): Unit}, B](param: A)(f: A => B): B =
+    try { f(param) } finally { param.close() }
+
+  def writeToFile(fileName:String, data:String) =
+    using (new FileWriter(fileName)) {
+      fileWriter => fileWriter.write(data)
+    }
+
+  // export given FeatureModel fm to file name fileName
+  // the format is:
+  // ((not A) and B) or C, where A, B, and C are feature
+  // names and not, and, and or are boolean functions
+  def exportFM2CNF(fm: FeatureModel, fileName: String) = {
+    // reverse the map of variables (fm.variables) Map[String, Int]
+    // so we get a Map[Int, String] and can lookup feature names
+    // using ids given from the system.
+    val mIdFlagg = Map() ++ fm.variables.toList.map(_.swap)
+    var res = ""
+
+    // return feature name or negated feature name based on given id
+    def posNegFeatureName(id: Int) = {
+      if (mIdFlagg.isDefinedAt(id.abs))
+        Some("(" + (if (id > 0) "" else "not ") + mIdFlagg.get(id.abs).get + ")")
+      else
+        None
+    }
+
+    // adds element e between consecutive elements
+    // e.g., intersperse '-' "Hello" ~> "H-e-l-l-o"
+    def intersperse[T](e: T, l: List[T]): List[T] = {
+      l match {
+        case Nil => Nil
+        case x :: Nil => x :: Nil
+        case x :: xs => x :: e :: intersperse(e, xs)
+      }
+    }
+
+    // generate or clauses
+    var orcls: List[String] = List()
+    for (i <- 0 to (fm.clauses.size - 1)) {
+      val cl = fm.clauses.get(i)
+      val values = cl.toArray.toList.map(posNegFeatureName)
+      val definedValues = values.filter(_.isDefined).map(_.get)
+      orcls ::= "(" + intersperse(" or ", definedValues).fold("")(_ + _) + ")"
+    }
+
+    res += intersperse(" and ", orcls).fold("")(_ + _)
+
+    writeToFile(fileName, res)
+  }
+
     private def lookupLiteral(literal: String, variables: Map[String, Int]) =
         if (literal.startsWith("-"))
             -variables.getOrElse("CONFIG_" + (literal.substring(1)), throw new Exception("variable not declared"))
