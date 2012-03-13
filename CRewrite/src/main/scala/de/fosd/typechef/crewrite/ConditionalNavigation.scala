@@ -34,4 +34,13 @@ trait ConditionalNavigation extends CASTEnv {
     val efexp = env.get(e)._1.reduce(_ and _)
     efexp.not.isContradiction()
   }
+
+  def filterAllOptElems(e: Any): List[Opt[_]] = {
+    e match {
+      case x: Opt[_] => List(x) ++ x.productIterator.toList.flatMap(filterAllOptElems)
+      case l: List[_] => l.flatMap(filterAllOptElems)
+      case x: Product => x.productIterator.toList.flatMap(filterAllOptElems)
+      case _ => List()
+    }
+  }
 }
