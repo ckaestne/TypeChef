@@ -1,6 +1,6 @@
 package de.fosd.typechef.conditional
 
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.{Configuration, FeatureExpr}
 import org.kiama.rewriting.Rewriter._
 
 /**
@@ -84,5 +84,24 @@ object ConditionalLib {
      */
     def mapCombinationF[A, B, C](a: Conditional[A], b: Conditional[B], featureExpr: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
         zip(a, b).simplify(featureExpr).mapf(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
+
+  // derive a specific product from a given configuration
+  def deriveProductFromConfiguration[T](a: T, c: Configuration): T = {
+    val pconfig = everywherebu(rule {
+      case Choice(f, x, y) => if (c valid f) x else y
+      case l: List[Opt[_]] => {
+        var res: List[Opt[_]] = List()
+        // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
+        for (o <- l.reverse)
+          if (c.valid(o.feature)) {
+            res ::= Opt(FeatureExpr.base, o.entry)
+          }
+        res
+      }
+      case x => x
+    })
+
+    pconfig(a).get.asInstanceOf[T]
+  }
 }
 

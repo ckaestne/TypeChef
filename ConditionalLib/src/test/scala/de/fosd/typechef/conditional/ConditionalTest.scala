@@ -3,7 +3,7 @@ package de.fosd.typechef.conditional
 import org.junit._
 import Assert._
 import ConditionalLib._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.{FeatureExpr, Configuration}
 import FeatureExpr._
 
 class ConditionalTest {
@@ -184,5 +184,12 @@ class ConditionalTest {
         a = a.+("a", fb, 5)
         assertEquals(Choice(fb, One(5), v2), a.getOrElse("a", -1))
     }
+
+    @Test
+    def testConfiguration {
+      val x = Choice(fa, Choice(fb, One("a&b"), One("a&!b")), One("!a"))
+      println(ConditionalLib.deriveProductFromConfiguration(x, new Configuration(List(fa, fb))))
+    }
+
 
 }
