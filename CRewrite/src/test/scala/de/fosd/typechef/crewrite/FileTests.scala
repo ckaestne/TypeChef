@@ -6,7 +6,7 @@ import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c.{PrettyPrinter, AST, FunctionDef, TestHelper}
 
 
-class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with ConditionalControlFlow {
+class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with ConditionalControlFlow with ConditionalNavigation {
   val folder = "testfiles/"
 
   // given an ast element x and its successors lx: x should be in pred(lx)
@@ -104,6 +104,11 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     val ast = parseFile(inputStream, filename, folder)
     val new_ast = prepareAST(ast)
     val env = createASTEnv(new_ast)
+    val fexps = ConfigurationCoverage.collectFeatureExpressions(env.asInstanceOf[ConfigurationCoverage.ASTEnv]).filter(_.isSatisfiable())
+    val nconfigs = ConfigurationCoverage.naiveCoverage(filterAllOptElems(new_ast).toSet, featureExpr, env.asInstanceOf[ConfigurationCoverage.ASTEnv])
+    println("num of expressions: " + fexps.size)
+    println("expressions: " + fexps)
+    println("configurations: " + nconfigs.size)
 
     // filter function definitions and run cfg determination on it
     val function_defs = filterASTElems[FunctionDef](new_ast)
@@ -869,5 +874,5 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
 
   // test fails; infinite loop
-  @Ignore def test_gzip() {assert(checkCfg("gzip.c"))}
+  @Test def test_gzip() {assert(checkCfg("gzip.c"))}
 }
