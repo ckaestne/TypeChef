@@ -64,6 +64,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val newa = rewriteInfiniteForLoops(a)
     val env = createASTEnv(newa)
     println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(getAllPred(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
   @Test def test_nested_loop() {
@@ -81,6 +82,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val newa = rewriteInfiniteForLoops[CompoundStatement](a)
     val env = createASTEnv(newa)
     println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(getAllPred(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
   @Test def test_infinite_while_loop() {
@@ -92,6 +94,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val env = createASTEnv(a)
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
   @Test def test_infinite_while_loop_2() {
@@ -104,6 +107,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val env = createASTEnv(a)
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
   @Test def test_infinite_do_while_loop() {
@@ -115,6 +119,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val env = createASTEnv(a)
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
   @Test def test_infinite_do_while_loop2() {
@@ -128,6 +133,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val env = createASTEnv(a)
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
   @Test def test_switch_case() {
