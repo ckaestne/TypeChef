@@ -83,6 +83,53 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
+  @Test def test_infinite_while_loop() {
+    val a = parseCompoundStmt("""
+    {
+      while (1) { }
+    }
+    """)
+
+    val env = createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+  }
+
+  @Test def test_infinite_while_loop_2() {
+    val a = parseCompoundStmt("""
+    {
+      while (1)
+        ;
+    }
+    """)
+
+    val env = createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+  }
+
+  @Test def test_infinite_do_while_loop() {
+    val a = parseCompoundStmt("""
+    {
+      do {
+      } while (1);
+    """)
+
+    val env = createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+  }
+
+  @Test def test_infinite_do_while_loop2() {
+    val a = parseCompoundStmt("""
+    {
+      do
+        ;
+      while (1);
+    }
+    """)
+
+    val env = createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+  }
+
   @Test def test_switch_case() {
     val a = parseCompoundStmt("""
     {
