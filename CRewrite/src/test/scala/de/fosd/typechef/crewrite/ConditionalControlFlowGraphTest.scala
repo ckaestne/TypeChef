@@ -525,6 +525,30 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(f, env), env.asInstanceOf[DotGraph.ASTEnv]))
   }
 
+  @Test def test_liveness_std() {
+    val a = parseFunctionDef("""
+    void foo() {
+      a = 0;
+      l1: b = a + 1;
+      c = c + b;
+      a = b + 2;
+      if (a < 10) goto l1;
+      return c;
+    }
+    """)
+
+    val env = createASTEnv(a)
+    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+
+    for (s <- ss)
+      println(PrettyPrinter.print(s) + "  out: " + outsimple(s, env) + "   in: " + insimple(s, env))
+
+    println("#################################################")
+
+    for (s <- ss)
+      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
+  }
+
   @Test def test_simpel_function() {
     val a = parseFunctionDef("""
     void foo() {

@@ -188,7 +188,7 @@ class ConditionalTest {
     @Test
     def testConfiguration {
       val x = Choice(fa, Choice(fb, One("a&b"), One("a&!b")), One("!a"))
-      println(ConditionalLib.deriveProductFromConfiguration(x, new Configuration(List(fa, fb))))
+      println(ConditionalLib.deriveProductFromConfiguration(x, new Configuration(fa and fb)))
     }
 
 

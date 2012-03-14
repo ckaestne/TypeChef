@@ -1135,13 +1135,16 @@ trait Variables extends ASTNavigation {
 
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
+
   private def updateMap(m: Map[FeatureExpr, Set[Id]],
                         e: (FeatureExpr, Set[Id]),
                         op: (Set[Id], Set[Id]) => Set[Id]): Map[FeatureExpr, Set[Id]] = {
     val key = m.find(_._1.equivalentTo(e._1))
     key match {
       case None => m.+(e)
-      case Some((k, v)) => m.+((k, op(e._2, v)))
+      // beware op is not symetric, first element of op application should always the current
+      // value element of the map (here v)
+      case Some((k, v)) => m.+((k, op(v, e._2)))
     }
   }
 
@@ -1173,8 +1176,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
           s match {
             case _: FunctionDef =>
             case _ => {
-              if (!astIdenEnvHM.containsKey(s))
-                astIdenEnvHM.put(s, (s, env))
+              if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
               res = res.union(insimple(astIdenEnvHM.get(s)))
             }
           }
@@ -1212,8 +1214,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
             case _: FunctionDef =>
             case _ => {
               if (!astIdenEnvHM.containsKey(a)) astIdenEnvHM.put(a, (a, env))
-              for (el <- in(astIdenEnvHM.get(a)))
-                res = updateMap(res, el, _.union(_))
+              for ((el, newset) <- in(astIdenEnvHM.get(a)))
+                res = updateMap(res, (el, newset), _.union(_))
             }
           }
         }
