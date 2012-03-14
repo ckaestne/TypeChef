@@ -4,8 +4,8 @@ import org.sat4j.core.VecInt
 import collection.mutable.WeakHashMap
 
 import org.sat4j.minisat.SolverFactory
-import org.sat4j.specs.{ISolver, IConstr, ContradictionException}
-import org.sat4j.tools.ModelIterator
+import org.sat4j.specs.{IConstr, ContradictionException, TimeoutException}
+import org.sat4j.tools.{ModelIterator, SolutionCounter}
 ;
 
 
@@ -60,7 +60,7 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
     /**init / constructor */
     val solver = SolverFactory.newDefault();
     //        solver.setTimeoutMs(1000);
-    solver.setTimeoutOnConflicts(-1)
+    solver.setTimeoutOnConflicts(100000)
 
     assert(featureModel != null)
     solver.addAllClauses(featureModel.clauses)
@@ -150,6 +150,9 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
   val isolg = new ModelIterator(solver)
   val mIdFlagg = Map() ++ uniqueFlagIds.toList.map(_.swap)
 
+  // creates a stream with all configurations for the given featuremodel
+  // beware!!! calculating all configurations can be time-consuming and
+  // your machine can possibly run out of memory
   def getAllProducts: Stream[List[(DefinedExternal, Boolean)]] = {
     if (isolg.isSatisfiable) {
       val product = isolg.model()
@@ -162,6 +165,24 @@ private class SatSolverImpl(featureModel: FeatureModel, isReused: Boolean) {
     } else {
       Stream.Empty
     }
+  }
+
+  // return the number of solutions
+  // taken from:
+  // https://faracvs.cs.uni-magdeburg.de/projects/tthuem-FeatureIDE/browser/trunk/plugins/de.ovgu.featureide.fm.core/src/org/prop4j/SatSolver.java
+  // beware!!! the determination of countSolutions involves generating all solutions,
+  // which is a time- and resource-consuming task
+  def countSolutions = {
+    var numsolutions: Long = 0
+    val counter = new SolutionCounter(solver)
+
+    try {
+      numsolutions = counter.countSolutions()
+    } catch {
+      case _: TimeoutException => numsolutions = -1 - counter.lowerBound();
+    }
+
+    numsolutions
   }
 }
 
