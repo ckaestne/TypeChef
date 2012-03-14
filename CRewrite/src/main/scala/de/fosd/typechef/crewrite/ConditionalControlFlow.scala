@@ -1214,8 +1214,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
             case _: FunctionDef =>
             case _ => {
               if (!astIdenEnvHM.containsKey(a)) astIdenEnvHM.put(a, (a, env))
-              for ((el, newset) <- in(astIdenEnvHM.get(a)))
-                res = updateMap(res, (el, newset), _.union(_))
+              for (el <- in(astIdenEnvHM.get(a)))
+                res = updateMap(res, el, _.union(_))
             }
           }
         }
