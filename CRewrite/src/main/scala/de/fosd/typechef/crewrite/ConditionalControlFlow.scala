@@ -121,6 +121,16 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
                   }
                 } else add2newres = List()
               }
+              // in case we hit an elif statement, we have to check whether a and the elif belong to the same if
+              // if a belongs to an if
+              case e@ElifStatement(condition, _) => {
+                val a2e = findPriorASTElem[IfStatement](a.asInstanceOf[AnyRef], env)
+                val b2e = findPriorASTElem[IfStatement](e.asInstanceOf[AnyRef], env)
+
+                if (a2e.isEmpty) add2newres = rollUp(oldelem, env)
+                else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) add2newres = getCondExprPred(condition, env)
+                else add2newres = rollUp(oldelem, env)
+              }
               case _ => {
                 add2newres = rollUp(oldelem, env)
                 if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
@@ -797,25 +807,25 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // can be predecessors
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
         var res = List[AST]()
-        if (elseBranch.isDefined) res = res ++ getCondStmtPred(t, childAST(elseBranch.get), env)
+        if (elseBranch.isDefined) res ++= getCondStmtPred(t, childAST(elseBranch.get), env)
         if (!elifs.isEmpty) {
           for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
-            res = res ++ getCondStmtPred(elif, childAST(thenBranch), env).flatMap(rollUp(_, env))
+            res ++= getCondStmtPred(elif, childAST(thenBranch), env).flatMap(rollUp(_, env))
           }
 
           // without an else branch, the condition of elifs are possible predecessors of a
-          if (elseBranch.isEmpty) res = res ++ getCompoundPred(elifs, env)
+          if (elseBranch.isEmpty) res ++= getCompoundPred(elifs, env)
         }
-        res = res ++ getCondStmtPred(t, childAST(thenBranch), env).flatMap(rollUp(_, env))
+        res ++= getCondStmtPred(t, childAST(thenBranch), env).flatMap(rollUp(_, env))
 
         if (elifs.isEmpty && elseBranch.isEmpty)
-          res = res ++ List(condition)
+          res ++= getCondExprPred(condition, env)
         res
       }
       case ElifStatement(condition, thenBranch) => {
         var res = List[AST]()
-        res = condition :: res
-        res = res ++ getCondStmtPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
+        res ++= getCondExprPred(condition, env)
+        res ++= getCondStmtPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
         res
       }
       case t@SwitchStatement(expr, s) => {
