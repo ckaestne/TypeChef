@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr.{FeatureModel, NoFeatureModel}
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.{Ignore, Test}
-import de.fosd.typechef.parser.c.{PrettyPrinter, AST, FunctionDef, TestHelper}
+import de.fosd.typechef.parser.c._
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with ConditionalControlFlow with ConditionalNavigation {
@@ -102,7 +102,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
       throw new FileNotFoundException("Input file not fould: " + filename)
 
     val ast = parseFile(inputStream, filename, folder)
-    val new_ast = prepareAST(ast)
+    val new_ast = rewriteInfiniteForLoops[TranslationUnit](prepareAST(ast))
     val env = createASTEnv(new_ast)
     val fexps = ConfigurationCoverage.collectFeatureExpressions(env.asInstanceOf[ConfigurationCoverage.ASTEnv]).filter(_.isSatisfiable())
     val nconfigs = ConfigurationCoverage.naiveCoverage(filterAllOptElems(new_ast).toSet, featureExpr, env.asInstanceOf[ConfigurationCoverage.ASTEnv])
@@ -173,7 +173,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20000718() {assert(checkCfg("20000718.c"))}
 
   // test fails; infinite loop
-  @Ignore def test_20000728_1() {assert(checkCfg("20000728-1.c"))}
+  @Test def test_20000728_1() {assert(checkCfg("20000728-1.c"))}
   @Test def test_20000802_1() {assert(checkCfg("20000802-1.c"))}
   @Test def test_20000803_1() {assert(checkCfg("20000803-1.c"))}
 
@@ -275,7 +275,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20011106_2() {assert(checkCfg("20011106-2.c"))}
   @Test def test_20011109_1() {assert(checkCfg("20011109-1.c"))}
 
-  // test fails;
+  // test fails; parser
   @Ignore def test_20011114_1() {assert(checkCfg("20011114-1.c"))}
   @Test def test_20011114_2() {assert(checkCfg("20011114-2.c"))}
 
@@ -309,12 +309,10 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_20020304_1() {assert(checkCfg("20020304-1.c"))}
   @Test def test_20020304_2() {assert(checkCfg("20020304-2.c"))}
   @Test def test_20020309_1() {assert(checkCfg("20020309-1.c"))}
-
-  // test fails
   @Test def test_20020309_2() {assert(checkCfg("20020309-2.c"))}
   @Test def test_20020312_1() {assert(checkCfg("20020312-1.c"))}
 
-  // test fails; infinite loop
+  // test fails; goto
   @Ignore def test_20020314_1() {assert(checkCfg("20020314-1.c"))}
   @Test def test_20020315_1() {assert(checkCfg("20020315-1.c"))}
   @Test def test_20020318_1() {assert(checkCfg("20020318-1.c"))}
@@ -455,7 +453,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Ignore def test_20040708_1() {assert(checkCfg("20040708-1.c"))}
   @Test def test_20040726_1() {assert(checkCfg("20040726-1.c"))}
 
-  // test fails
   @Test def test_20041007_1() {assert(checkCfg("20041007-1.c"))}
   @Test def test_20041018_1() {assert(checkCfg("20041018-1.c"))}
   @Test def test_20041119_1() {assert(checkCfg("20041119-1.c"))}
@@ -863,14 +860,15 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug04() {assert(checkCfg("bug04.c"))}
   @Test def test_bug05() {assert(checkCfg("bug05.c"))}
   @Test def test_bug06() {assert(checkCfg("bug06.c"))}
-  @Ignore def test_bug07() {assert(checkCfg("bug07.c"))}
-  @Ignore def test_bug08() {assert(checkCfg("bug08.c"))}
-  @Ignore def test_bug09() {assert(checkCfg("bug09.c"))}
-  @Ignore def test_bug10() {assert(checkCfg("bug10.c"))}
-  @Ignore def test_bug11() {assert(checkCfg("bug11.c"))}
-  @Ignore def test_bug12() {assert(checkCfg("bug12.c"))}
-
+  @Test def test_bug07() {assert(checkCfg("bug07.c"))}
+  @Test def test_bug08() {assert(checkCfg("bug08.c"))}
+  @Test def test_bug09() {assert(checkCfg("bug09.c"))}
+  @Test def test_bug10() {assert(checkCfg("bug10.c"))}
+  @Test def test_bug11() {assert(checkCfg("bug11.c"))}
+  @Test def test_bug12() {assert(checkCfg("bug12.c"))}
   @Test def test_bug13() {assert(checkCfg("bug13.c"))}
+  @Test def test_bug14() {assert(checkCfg("bug14.c"))}
+  @Test def test_bug15() {assert(checkCfg("bug15.c"))}
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
 
   // test fails; infinite loop

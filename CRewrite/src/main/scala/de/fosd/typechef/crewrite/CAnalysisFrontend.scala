@@ -80,24 +80,15 @@ class CAnalysisFrontend(tunit: AST, featureModel: FeatureModel = NoFeatureModel)
   var errors = List[CCFGError]()
 
   def checkCfG() = {
-    FeatureModel.exportFM2CNF(featureModel, "/tmp/testxyz.txt")
-//    val new_ast = prepareAST(tunit)
-//    val env = createASTEnv(new_ast)
-//    val function_defs = filterASTElems[FunctionDef](new_ast)
-//    var productnum = 0
-//    var stproducts = new SatSolverProducts(featureModel).getAllProducts
-//
-//    while (stproducts.isEmpty.unary_!) {
-//      productnum += 1
-//      stproducts = stproducts.tail
-//      if (productnum % 1000 == 0) println("num product: " + productnum)
-//    }
-//
-//    function_defs.map(intraCfGFunctionDef(_, env)).forall(_.==(true))
-//
-//    if (errors.size > 0) {
-//      println(errors.foldLeft("")(_ + _))
-//    }
+    val new_ast = prepareAST(tunit)
+    val env = createASTEnv(new_ast)
+    val function_defs = filterASTElems[FunctionDef](new_ast)
+
+    function_defs.map(intraCfGFunctionDef(_, env)).forall(_.==(true))
+
+    if (errors.size > 0) {
+      println(errors.foldLeft("")(_ + _))
+    }
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
