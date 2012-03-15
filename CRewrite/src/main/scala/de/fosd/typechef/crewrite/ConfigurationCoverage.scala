@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr, Configuration}
+import de.fosd.typechef.featureexpr.{NoFeatureModel, FeatureModel, FeatureExpr, Configuration}
 
 // this code determines all configurations for a file based on a given ast
 // algorithms to get coverage are inspired by:
@@ -17,7 +17,9 @@ object ConfigurationCoverage extends CASTEnv {
 
   // naive coverage implementation inspired by [1]
   // given all optional nodes the algorithm determines all
-  //
+  // partical configurations that are necessary to select all blocks
+  // the result is not the number of variants that can be generated
+  // from the input set in
   def naiveCoverage(in: Set[Opt[_]], fm: FeatureModel, env: ASTEnv) = {
     var R: Set[FeatureExpr] = Set()   // found configurations
     var B: Set[Opt[_]] = Set()        // selected blocks
@@ -42,5 +44,14 @@ object ConfigurationCoverage extends CASTEnv {
     )
 
     R
+  }
+
+  // create a new feature model from a given set of annotations
+  def createFeatureModel(in: Set[Opt[_]]) = {
+    var res = NoFeatureModel
+    val annotations = in.map(_.feature)
+    val combinedannotations = annotations.fold(FeatureExpr.base)(_ or _)
+
+    res and combinedannotations
   }
 }
