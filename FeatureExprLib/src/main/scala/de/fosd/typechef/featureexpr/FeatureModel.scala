@@ -186,10 +186,10 @@ object FeatureModel {
       val cl = fm.clauses.get(i)
       val values = cl.toArray.toList.map(posNegFeatureName)
       val definedValues = values.filter(_.isDefined).map(_.get)
-      orcls ::= "(" + intersperse(" or ", definedValues).fold("")(_ + _) + ")"
+      orcls ::= "(" + intersperse(" and ", definedValues).fold("")(_ + _) + ")"
     }
 
-    res += intersperse(" and ", orcls).fold("")(_ + _)
+    res += intersperse(" or ", orcls).fold("")(_ + _)
 
     writeToFile(fileName, res)
   }
