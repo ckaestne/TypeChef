@@ -113,9 +113,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
                 if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
                   a2c.get match {
-                    // TODO more complex expr2 might be None
                     case WhileStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
                     case DoStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
+                    case ForStatement(_, Some(expr2), None, _) if (isPartOfAST(a, expr2)) => add2newres = List(c)
+                    case ForStatement(_, _, Some(expr3), _) if (isPartOfAST(a, expr3)) => add2newres = List(c)
                     case _ => add2newres = List()
                   }
                 } else add2newres = List()
@@ -453,7 +454,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if expr1.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getStmtPred(t, env)
       // inc
       case t@ForStatement(_, _, Some(expr3), s)
-        if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getCondStmtPred(t, s, env)
+        if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
       // break
       case t@ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => List(expr2) ++ getStmtPred(t, env)
       case t@ForStatement(expr1, Some(expr2), expr3, s) => {
