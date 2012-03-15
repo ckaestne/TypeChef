@@ -445,22 +445,36 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     val surrounding_parent = parentAST(nested_ast_elem, env)
     surrounding_parent match {
       // loop statements
-      case t@ForStatement(Some(expr1), _, _, _) if expr1.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getStmtPred(t, env)
-      case t@ForStatement(_, _, Some(expr3), s) if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
-        getCondStmtPred(t, s, env)
+
+      // for statements consists of of (init, break, inc, body)
+      // we are in one of these elements
+      // init
+      case t@ForStatement(Some(expr1), _, _, _)
+        if expr1.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getStmtPred(t, env)
+      // inc
+      case t@ForStatement(_, _, Some(expr3), s)
+        if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getCondStmtPred(t, s, env)
+      // break
+      case t@ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => List(expr2) ++ getStmtPred(t, env)
       case t@ForStatement(expr1, Some(expr2), expr3, s) => {
         var res = List[AST]()
-        if (expr1.isDefined) res = getCondExprPred(expr1.get, env) ++ res
-        else res = getStmtPred(t, env) ++ res
-        if (expr3.isDefined) res = getCondExprPred(expr3.get, env) ++ res
-        else res = res ++ getCondStmtPred(t, s, env)
+        if (expr1.isDefined) res ++= getCondExprPred(expr1.get, env)
+        else res ++= getStmtPred(t, env)
+        if (expr3.isDefined) res ++= getCondExprPred(expr3.get, env)
+        else res ++= getCondStmtPred(t, s, env)
+        res ++= filterContinueStatements(s, env)
         res
       }
 
+      // while statement consists of (expr, s)
+      // special case; we handle empty compound statements here directly because otherwise we do not terminate
       case t@WhileStatement(expr, One(CompoundStatement(List()))) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getStmtPred(t, env) ++ List(expr)
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getStmtPred(t, env) ++ getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
+
+      // do statement consists of (expr, s)
+      // special case: we handle empty compound statements here directly because otherwise we do not terminate
       case t@DoStatement(expr, One(CompoundStatement(List()))) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getStmtPred(t, env) ++ List(expr)
       case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
@@ -482,6 +496,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           getStmtPred(nested_ast_elem.asInstanceOf[AST], env)
         }
       }
+
       // pred of thenBranch is the condition itself
       // and if we are in condition, we strike for a previous elifstatement or the if itself using
       // getPredSameLevel
