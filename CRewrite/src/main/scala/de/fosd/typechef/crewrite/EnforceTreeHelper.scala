@@ -61,9 +61,7 @@ trait EnforceTreeHelper extends CASTEnv {
     assert(ast != null)
 
     val rewrite = everywherebu(rule {
-      case f@ForStatement(None, None, None, One(CompoundStatement(List()))) =>
-        f.copy(expr2 = Some(Constant("1")))
-      case f@ForStatement(None, None, None, One(EmptyStatement())) =>
+      case f@ForStatement(None, None, None, _) =>
         f.copy(expr2 = Some(Constant("1")))
       case n: AST => n
     })
