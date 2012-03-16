@@ -63,8 +63,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   private implicit def opt2AST(s: Opt[AST]) = s.entry
 
-  private implicit def conditional2AST(c: Conditional[_]) = childAST(c)
-
   private val predCCFGCache = new CCFGCache()
   private val succCCFGCache = new CCFGCache()
 
@@ -259,13 +257,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@ForStatement(expr1, expr2, expr3, s) => {
         if (expr1.isDefined) List(expr1.get)
         else if (expr2.isDefined) List(expr2.get)
-        else getCondStmtSucc(t, childAST(s), env)
+        else getCondStmtSucc(t, s, env)
       }
       case WhileStatement(expr, One(EmptyStatement())) => List(expr)
       case WhileStatement(expr, One(CompoundStatement(List()))) => List(expr)
       case WhileStatement(expr, _) => List(expr)
       case DoStatement(expr, One(CompoundStatement(List()))) => List(expr)
-      case t@DoStatement(_, s) => getCondStmtSucc(t, childAST(s), env)
+      case t@DoStatement(_, s) => getCondStmtSucc(t, s, env)
 
       // conditional statements
       case t@IfStatement(condition, _, _, _) => List(condition)
@@ -315,15 +313,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         }
       }
 
-      case t@CaseStatement(_, s) => {
-        if (s.isDefined) getCondStmtSucc(t, s.get, env)
-        else getStmtSucc(t, env)
-      }
+      case t@CaseStatement(_, Some(s)) => getCondStmtSucc(t, s, env)
+      case t: CaseStatement => getStmtSucc(t, env)
 
-      case t@DefaultStatement(s) => {
-        if (s.isDefined) getCondStmtSucc(t, s.get, env)
-        else getStmtSucc(t, env)
-      }
+      case t@DefaultStatement(Some(s)) => getCondStmtSucc(t, s, env)
+      case t: DefaultStatement => getStmtSucc(t, env)
 
       case t: Statement => getStmtSucc(t, env)
       case t => nestedSucc(t, env)
@@ -361,17 +355,19 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def getCondStmtSucc(p: AST, c: AST, env: ASTEnv) = {
+  private def getCondStmtSucc(p: AST, c: Conditional[_], env: ASTEnv): List[AST] = {
     c match {
-      case CompoundStatement(l) => getCompoundSucc(l, c, env)
-      case s: Statement => List(s)
+      case Choice(_, thenBranch, elseBranch) => getCondStmtSucc(p, thenBranch, env) ++ getCondStmtSucc(p, elseBranch, env)
+      case One(CompoundStatement(l)) => getCompoundSucc(l, c, env)
+      case One(s: Statement) => List(s)
     }
   }
 
-  private def getCondStmtPred(a: AST, c: AST, env: ASTEnv) = {
+  private def getCondStmtPred(p: AST, c: Conditional[_], env: ASTEnv): List[AST] = {
     c match {
-      case CompoundStatement(l) => getCompoundPred(l, env)
-      case s: Statement => List(s)
+      case Choice(_, thenBranch, elseBranch) => getCondStmtPred(p, thenBranch, env) ++ getCondStmtPred(p, elseBranch, env)
+      case One(CompoundStatement(l)) => getCompoundPred(l, env)
+      case One(s: Statement) => List(s)
     }
   }
 
@@ -406,7 +402,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t@ForStatement(_, expr2, expr3, s) if childAST(s).eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
         if (expr3.isDefined) getCondExprSucc(expr3.get, env)
         else if (expr2.isDefined) getCondExprSucc(expr2.get, env)
-        else getCondStmtSucc(t, childAST(s), env)
+        else getCondStmtSucc(t, s, env)
       }
       case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
         getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
@@ -427,7 +423,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         if (res.filter(_.isInstanceOf[ElifStatement]).isEmpty) {
           env.parent(env.parent(t)) match {
             case tp@IfStatement(_, _, _, None) => res = getStmtSucc(tp, env)
-            case IfStatement(_, _, _, Some(elseBranch)) => res = List(elseBranch)
+            case IfStatement(_, _, _, Some(elseBranch)) => res = getCondStmtSucc(t, elseBranch, env)
           }
         }
         res ++ getCondStmtSucc(t, thenBranch, env)
@@ -581,7 +577,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case t@ForStatement(_, expr2, expr3, s) => {
             if (expr3.isDefined) Some(getCondExprSucc(expr3.get, env))
             else if (expr2.isDefined) Some(getCondExprSucc(expr2.get, env))
-            else Some(getCondStmtSucc(t, childAST(s), env))
+            else Some(getCondStmtSucc(t, s, env))
           }
           case WhileStatement(expr, s) => Some(List(expr))
           case DoStatement(expr, s) => Some(List(expr))
@@ -656,10 +652,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         surrounding_parent match {
           // coming up a for statement
           case t@ForStatement(_, _, Some(expr3), s) if (nested_ast_elem.eq(expr3.asInstanceOf[AnyRef])) =>
-            Some(getCondStmtPred(t, childAST(s), env))
+            Some(getCondStmtPred(t, s, env))
           case t@ForStatement(_, Some(expr2), expr3, s) if (nested_ast_elem.eq(expr2.asInstanceOf[AnyRef])) =>
             if (expr3.isDefined) Some(getCondExprPred(expr3.get, env))
-            else Some(getCondStmtPred(t, childAST(s), env))
+            else Some(getCondStmtPred(t, s, env))
           case t@ForStatement(expr1, expr2, expr3, s) if (nested_ast_elem.eq(childAST(s).asInstanceOf[AnyRef])) =>
             if (expr2.isDefined) Some(getCondExprPred(expr2.get, env))
             else if (expr3.isDefined) Some(getCondExprPred(expr3.get, env))
@@ -809,16 +805,16 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // can be predecessors
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
         var res = List[AST]()
-        if (elseBranch.isDefined) res ++= getCondStmtPred(t, childAST(elseBranch.get), env)
+        if (elseBranch.isDefined) res ++= getCondStmtPred(t, elseBranch.get, env)
         if (!elifs.isEmpty) {
           for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
-            res ++= getCondStmtPred(elif, childAST(thenBranch), env).flatMap(rollUp(_, env))
+            res ++= getCondStmtPred(elif, thenBranch, env).flatMap(rollUp(_, env))
           }
 
           // without an else branch, the condition of elifs are possible predecessors of a
           if (elseBranch.isEmpty) res ++= getCompoundPred(elifs, env)
         }
-        res ++= getCondStmtPred(t, childAST(thenBranch), env).flatMap(rollUp(_, env))
+        res ++= getCondStmtPred(t, thenBranch, env).flatMap(rollUp(_, env))
 
         if (elifs.isEmpty && elseBranch.isEmpty)
           res ++= getCondExprPred(condition, env)
@@ -827,7 +823,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case ElifStatement(condition, thenBranch) => {
         var res = List[AST]()
         res ++= getCondExprPred(condition, env)
-        res ++= getCondStmtPred(a, childAST(thenBranch), env).flatMap(rollUp(_, env))
+        res ++= getCondStmtPred(a, thenBranch, env).flatMap(rollUp(_, env))
         res
       }
       case t@SwitchStatement(expr, s) => {
@@ -854,8 +850,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // because using rollUp in pred determination (see above) will return wrong results
   private def rollUpJumpStatement(a: AST, fromSwitch: Boolean, env: ASTEnv): List[AST] = {
     a match {
-      case t@CaseStatement(_, s) if (s.isDefined) =>
-        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, false, env))
+      case t@CaseStatement(_, Some(s)) => getCondStmtPred(t, s, env).flatMap(rollUpJumpStatement(_, false, env))
 
       // the code that belongs to the jump target default is either reachable via nextAST from the
       // default statement: this first case statement here
@@ -867,8 +862,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env)
         }
       }
-      case t@DefaultStatement(s) if (s.isDefined) =>
-        getCondStmtPred(t, childAST(s), env).flatMap(rollUpJumpStatement(_, false, env))
+      case t@DefaultStatement(Some(s)) => getCondStmtPred(t, s, env).flatMap(rollUpJumpStatement(_, false, env))
       case _: BreakStatement => List()
       case _ => List(a)
     }

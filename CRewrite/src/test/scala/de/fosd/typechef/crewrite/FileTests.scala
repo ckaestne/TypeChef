@@ -102,7 +102,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
       throw new FileNotFoundException("Input file not fould: " + filename)
 
     val ast = parseFile(inputStream, filename, folder)
-    val new_ast = rewriteInfiniteForLoops[TranslationUnit](prepareAST(ast))
+    val new_ast = prepareAST(ast)
     val env = createASTEnv(new_ast)
     val fexps = ConfigurationCoverage.collectFeatureExpressions(env.asInstanceOf[ConfigurationCoverage.ASTEnv]).filter(_.isSatisfiable())
     val nconfigs = ConfigurationCoverage.naiveCoverage(filterAllOptElems(new_ast).toSet, featureExpr, env.asInstanceOf[ConfigurationCoverage.ASTEnv])
@@ -666,8 +666,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_941014_1() {assert(checkCfg("941014-1.c"))}
   @Test def test_941014_2() {assert(checkCfg("941014-2.c"))}
 
-  // test fails; infinite loop
-  @Ignore def test_941014_3() {assert(checkCfg("941014-3.c"))}
+  @Test def test_941014_3() {assert(checkCfg("941014-3.c"))}
   @Test def test_941014_4() {assert(checkCfg("941014-4.c"))}
   @Test def test_941019_1() {assert(checkCfg("941019-1.c"))}
   @Test def test_941111_1() {assert(checkCfg("941111-1.c"))}
@@ -704,9 +703,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   // test fails; parser bad token
   @Ignore def test_950919_1() {assert(checkCfg("950919-1.c"))}
   @Test def test_950921_1() {assert(checkCfg("950921-1.c"))}
-
-  // test fails infinite loop
-  @Ignore def test_950922_1() {assert(checkCfg("950922-1.c"))}
+  @Test def test_950922_1() {assert(checkCfg("950922-1.c"))}
   @Test def test_951004_1() {assert(checkCfg("951004-1.c"))}
   @Test def test_951106_1() {assert(checkCfg("951106-1.c"))}
 
@@ -750,9 +747,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_980701_1() {assert(checkCfg("980701-1.c"))}
   @Test def test_980706_1() {assert(checkCfg("980706-1.c"))}
   @Test def test_980726_1() {assert(checkCfg("980726-1.c"))}
-
-  // test fails; infinite loop
-  @Ignore def test_980729_1() {assert(checkCfg("980729-1.c"))}
+  @Test def test_980729_1() {assert(checkCfg("980729-1.c"))}
 
   // test fails
   @Ignore def test_980816_1() {assert(checkCfg("980816-1.c"))}
@@ -796,9 +791,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_991202_1() {assert(checkCfg("991202-1.c"))}
   @Test def test_991208_1() {assert(checkCfg("991208-1.c"))}
   @Test def test_991213_1() {assert(checkCfg("991213-1.c"))}
-
-  // test fails; infinite loop
-  @Ignore def test_991213_2() {assert(checkCfg("991213-2.c"))}
+  @Test def test_991213_2() {assert(checkCfg("991213-2.c"))}
   @Test def test_991213_3() {assert(checkCfg("991213-3.c"))}
   @Test def test_991214_1() {assert(checkCfg("991214-1.c"))}
   @Test def test_991214_2() {assert(checkCfg("991214-2.c"))}
@@ -870,6 +863,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug14() {assert(checkCfg("bug14.c"))}
   @Test def test_bug15() {assert(checkCfg("bug15.c"))}
   @Test def test_bug16() {assert(checkCfg("bug16.c"))}
+  @Test def test_bug17() {assert(checkCfg("bug17.c"))}
+  @Test def test_bug18() {assert(checkCfg("bug18.c"))}
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
   @Test def test_tar() {assert(checkCfg("tar.c"))}
   @Test def test_gzip() {assert(checkCfg("gzip.c"))}
