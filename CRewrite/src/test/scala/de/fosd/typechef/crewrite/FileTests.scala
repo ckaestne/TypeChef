@@ -869,8 +869,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_bug13() {assert(checkCfg("bug13.c"))}
   @Test def test_bug14() {assert(checkCfg("bug14.c"))}
   @Test def test_bug15() {assert(checkCfg("bug15.c"))}
+  @Test def test_bug16() {assert(checkCfg("bug16.c"))}
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
-
-  // test fails; infinite loop
+  @Test def test_tar() {assert(checkCfg("tar.c"))}
   @Test def test_gzip() {assert(checkCfg("gzip.c"))}
 }

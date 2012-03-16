@@ -123,6 +123,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               }
               // in case we hit an elif statement, we have to check whether a and the elif belong to the same if
               // if a belongs to an if
+              // TODO should be moved to pred determination directly
               case e@ElifStatement(condition, _) => {
                 val a2e = findPriorASTElem[IfStatement](a.asInstanceOf[AnyRef], env)
                 val b2e = findPriorASTElem[IfStatement](e.asInstanceOf[AnyRef], env)
@@ -187,6 +188,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case o: Opt[_] => predHelper(childAST(o), env)
       case c: Conditional[_] => predHelper(childAST(c), env)
 
+      case f@FunctionDef(_, _, _, CompoundStatement(List())) => List(f)
       case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), env) ++ filterASTElems[ReturnStatement](f)
       case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env)
 
@@ -531,11 +533,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case IfStatement(condition, thenBranch, elifs, elseBranch) => {
         var res: List[AST] = List()
         val prev_elifs = elifs.reverse.dropWhile(_.entry.eq(a.asInstanceOf[AnyRef]).unary_!).drop(1)
-        val elif_feature_expr = env.featureExpr(a)
+        val eliffexp = env.featureExpr(a)
         val ifdef_blocks = determineIfdefBlocks(prev_elifs, env)
         val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
         val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
-        res = res ++ determineFollowingElements(elif_feature_expr, typed_grouped_ifdef_blocks, env).merge
+        res = res ++ determineFollowingElements(eliffexp, typed_grouped_ifdef_blocks, env).merge
 
         // if no previous elif statement is found, the result is condition
         if (!res.isEmpty) {
@@ -717,8 +719,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val feature_expr_s_statement = env.featureExpr(s)
-        val successor_list = determineFollowingElements(feature_expr_s_statement, next_ifdef_blocks.drop(1), env)
+        val parentsfexp = env.featureExpr(env.parent(s))
+        val successor_list = determineFollowingElements(parentsfexp, next_ifdef_blocks.drop(1), env)
         successor_list match {
           case Left(s_list) => s_list // 2.
           case Right(s_list) => s_list ++ followUpSucc(s, env).getOrElse(List()) // 3.
@@ -885,8 +887,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case Some(BreakStatement()) => List()
       case Some(x) => List(x).flatMap(rollUpJumpStatement(_, false, env))
       case None => {
-        val feature_expr_s_statement = env.featureExpr(s)
-        val predecessor_list = determineFollowingElements(feature_expr_s_statement, previous_ifdef_blocks.drop(1), env)
+        val parentsfexp = env.featureExpr(env.parent(s))
+        val predecessor_list = determineFollowingElements(parentsfexp, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
           case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) // 2.
           case Right(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) ++ followUpPred(s, env).getOrElse(List()) // 3.
@@ -916,8 +918,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       val ifdef_blocks = determineIfdefBlocks(l.reverse, env)
       val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
       val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
-      val list_parent_feature_expr = env.featureExpr(env.parent(l.reverse.head))
-      val predecessor_list = determineFollowingElements(list_parent_feature_expr, typed_grouped_ifdef_blocks, env)
+      val compoundstmtfexp = env.featureExpr(env.parent(l.head))
+      val predecessor_list = determineFollowingElements(compoundstmtfexp, typed_grouped_ifdef_blocks, env)
 
       predecessor_list match {
         case Left(p_list) => p_list
@@ -989,7 +991,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // code works both for succ and pred determination
   // based on the type of the IfdefBlocks (True(0), Optional (1), Alternative (2))
   // the function computes the following elements
-  private def determineFollowingElements(f: FeatureExpr,
+  //   context - represents surrounding annotation context
+  //   l - list of grouped/typed ifdef blocks
+  //   env - hold AST environment (parent, children, next, ...)
+  private def determineFollowingElements(context: FeatureExpr,
                                          l: List[(Int, IfdefBlocks)],
                                          env: ASTEnv): Either[List[AST], List[AST]] = {
     var res = List[AST]()
@@ -1001,7 +1006,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             x => List(x.head)
           })
           val e_feature_expr = env.featureExpr(ifdef_blocks.head.head)
-          if (e_feature_expr.equivalentTo(f) && e._1 == 1) return Left(res)
+          if (e_feature_expr.equivalentTo(context)) return Left(res)
         }
         case (2, ifdef_blocks) => return Left(res ++ ifdef_blocks.flatMap({
           x => List(x.head)
@@ -1069,8 +1074,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // later one should imply the not of previous ones; therefore using l.reverse
   private def groupIfdefBlocks(l: IfdefBlocks, env: ASTEnv) = {
     def checkImplication(a: AST, b: AST) = {
-      val as = env.get(a)._1.toSet
-      val bs = env.get(b)._1.toSet
+      val as = env.lfeature(a).toSet
+      val bs = env.lfeature(b).toSet
       val cs = as.intersect(bs)
       as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not()).isTautology()
     }
