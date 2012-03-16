@@ -111,10 +111,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
                 if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
                   a2c.get match {
-                    case WhileStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
-                    case DoStatement(expr, _) if (isPartOfAST(a, expr)) => add2newres = List(c)
-                    case ForStatement(_, Some(expr2), None, _) if (isPartOfAST(a, expr2)) => add2newres = List(c)
-                    case ForStatement(_, _, Some(expr3), _) if (isPartOfAST(a, expr3)) => add2newres = List(c)
+                    case WhileStatement(expr, _) if (isPartOf(a, expr)) => add2newres = List(c)
+                    case DoStatement(expr, _) if (isPartOf(a, expr)) => add2newres = List(c)
+                    case ForStatement(_, Some(expr2), None, _) if (isPartOf(a, expr2)) => add2newres = List(c)
+                    case ForStatement(_, _, Some(expr3), _) if (isPartOf(a, expr3)) => add2newres = List(c)
                     case _ => add2newres = List()
                   }
                 } else add2newres = List()
@@ -147,12 +147,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
     }
   }
-  
-  private def isPartOfAST(e: Any, t: Any): Boolean = {
+
+  // checks reference equality of e in a given struture t (t is either a product or a list)
+  private def isPartOf(e: Any, t: Any): Boolean = {
     t match {
       case _ if (e.asInstanceOf[AnyRef].eq(t.asInstanceOf[AnyRef])) => true
-      case l: List[_] => l.map(isPartOfAST(e, _)).fold(false)(_ || _)
-      case x: Product => x.productIterator.toList.map(isPartOfAST(e, _)).fold(false)(_ || _)
+      case l: List[_] => l.map(isPartOf(e, _)).fold(false)(_ || _)
+      case x: Product => x.productIterator.toList.map(isPartOf(e, _)).fold(false)(_ || _)
       case _ => false
     }
   }
@@ -391,24 +392,22 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   private def nestedSucc(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
     val surrounding_parent = parentAST(nested_ast_elem, env)
     surrounding_parent match {
-      case t@ForStatement(Some(expr1), expr2, _, s) if expr1.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+      case t@ForStatement(Some(expr1), expr2, _, s) if (isPartOf(nested_ast_elem, expr1)) =>
         if (expr2.isDefined) getCondExprSucc(expr2.get, env)
         else getCondStmtSucc(t, s, env)
-      case t@ForStatement(_, Some(expr2), _, s) if expr2.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+      case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) =>
         getStmtSucc(t, env) ++ getCondStmtSucc(t, s, env)
-      case t@ForStatement(_, expr2, Some(expr3), s) if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+      case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
         if (expr2.isDefined) getCondExprSucc(expr2.get, env)
         else getCondStmtSucc(t, s, env)
-      case t@ForStatement(_, expr2, expr3, s) if childAST(s).eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
+      case t@ForStatement(_, expr2, expr3, s) if (isPartOf(nested_ast_elem, s)) => {
         if (expr3.isDefined) getCondExprSucc(expr3.get, env)
         else if (expr2.isDefined) getCondExprSucc(expr2.get, env)
         else getCondStmtSucc(t, s, env)
       }
-      case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
-        getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
-      case t@DoStatement(e, b) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
-        getCondStmtSucc(t, b, env) ++ getStmtSucc(t, env)
-      case t@IfStatement(e, tb, elif, el) if e.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
+      case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
+      case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
+      case t@IfStatement(e, tb, elif, el) if (isPartOf(nested_ast_elem, e)) => {
         var res = getCondStmtSucc(t, tb, env)
         if (!elif.isEmpty) res = res ++ getCompoundSucc(elif, t, env)
         if (elif.isEmpty && el.isDefined) res = res ++ getCondStmtSucc(t, el.get, env)
@@ -418,7 +417,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
       // either go to next ElifStatement, ElseBranch, or next statement of the surrounding IfStatement
       // filtering is necessary, as else branches are not considered by getSuccSameLevel
-      case t@ElifStatement(condition, thenBranch) if condition.eq(nested_ast_elem.asInstanceOf[AnyRef]) => {
+      case t@ElifStatement(condition, thenBranch) if (isPartOf(nested_ast_elem, condition)) => {
         var res = getStmtSucc(t, env)
         if (res.filter(_.isInstanceOf[ElifStatement]).isEmpty) {
           env.parent(env.parent(t)) match {
@@ -435,7 +434,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // when hitting a break statement, we jump to the end of the switch
       case t@SwitchStatement(expr, s) => {
         var res: List[AST] = List()
-        if (expr.eq(nested_ast_elem.asInstanceOf[AnyRef])) {
+        if (isPartOf(nested_ast_elem, expr)) {
           res = filterCaseStatements(s, env)
           val dcase = filterDefaultStatements(s, env)
 
@@ -458,11 +457,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // for statements consists of of (init, break, inc, body)
       // we are in one of these elements
       // init
-      case t@ForStatement(Some(expr1), _, _, _)
-        if expr1.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getStmtPred(t, env)
+      case t@ForStatement(Some(expr1), _, _, _) if (isPartOf(nested_ast_elem, expr1)) => getStmtPred(t, env)
       // inc
-      case t@ForStatement(_, _, Some(expr3), s)
-        if expr3.eq(nested_ast_elem.asInstanceOf[AnyRef]) => getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
+      case t@ForStatement(_, _, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) => getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
       // break
       case t@ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => List(expr2) ++ getStmtPred(t, env)
       case t@ForStatement(expr1, Some(expr2), expr3, s) => {
@@ -477,16 +474,16 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
       // while statement consists of (expr, s)
       // special case; we handle empty compound statements here directly because otherwise we do not terminate
-      case t@WhileStatement(expr, One(CompoundStatement(List()))) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+      case t@WhileStatement(expr, One(CompoundStatement(List()))) if (isPartOf(nested_ast_elem, expr)) =>
         getStmtPred(t, env) ++ List(expr)
-      case t@WhileStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+      case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
         getStmtPred(t, env) ++ getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
 
       // do statement consists of (expr, s)
       // special case: we handle empty compound statements here directly because otherwise we do not terminate
-      case t@DoStatement(expr, One(CompoundStatement(List()))) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+      case t@DoStatement(expr, One(CompoundStatement(List()))) if (isPartOf(nested_ast_elem, expr)) =>
         getStmtPred(t, env) ++ List(expr)
-      case t@DoStatement(expr, s) if expr.eq(nested_ast_elem.asInstanceOf[AnyRef]) =>
+      case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
         getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
 
       // conditional statements
@@ -495,10 +492,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // we are in elseBranch, so either elifs + condition or condition only is the result
       // otherwise
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) getStmtPred(t, env)
-        else if (childAST(thenBranch).eq(nested_ast_elem.asInstanceOf[AnyRef]))
-          getCondExprPred(condition, env)
-        else if (elseBranch.isDefined && childAST(elseBranch.get).eq(nested_ast_elem.asInstanceOf[AnyRef])) {
+        if (isPartOf(nested_ast_elem, condition)) getStmtPred(t, env)
+        else if (isPartOf(nested_ast_elem, thenBranch)) getCondExprPred(condition, env)
+        else if (isPartOf(nested_ast_elem, elseBranch)) {
           if (elifs.isEmpty) getCondExprPred(condition, env)
           else getCompoundPred(elifs, env)
         } else {
@@ -510,7 +506,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // and if we are in condition, we strike for a previous elifstatement or the if itself using
       // getPredSameLevel
       case t@ElifStatement(condition, thenBranch) => {
-        if (condition.eq(nested_ast_elem.asInstanceOf[AnyRef])) predElifStatement(t, env)
+        if (isPartOf(nested_ast_elem, condition)) predElifStatement(t, env)
         else List(condition)
       }
 
@@ -569,10 +565,10 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           // expr3 -> expr2
           // expr2 -> s or t
           // s -> expr3 or expr2 or s
-          case t@ForStatement(_, expr2, Some(expr3), s) if (nested_ast_elem.eq(expr3.asInstanceOf[AnyRef])) =>
+          case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
             if (expr2.isDefined) Some(getCondExprSucc(expr2.get, env))
             else Some(getCondStmtSucc(t, s, env))
-          case t@ForStatement(_, Some(expr2), _, s) if (nested_ast_elem.eq(expr2.asInstanceOf[AnyRef])) =>
+          case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) =>
             Some(getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env))
           case t@ForStatement(_, expr2, expr3, s) => {
             if (expr3.isDefined) Some(getCondExprSucc(expr3.get, env))
@@ -651,12 +647,12 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
           // coming up a for statement
-          case t@ForStatement(_, _, Some(expr3), s) if (nested_ast_elem.eq(expr3.asInstanceOf[AnyRef])) =>
+          case t@ForStatement(_, _, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
             Some(getCondStmtPred(t, s, env))
-          case t@ForStatement(_, Some(expr2), expr3, s) if (nested_ast_elem.eq(expr2.asInstanceOf[AnyRef])) =>
+          case t@ForStatement(_, Some(expr2), expr3, s) if (isPartOf(nested_ast_elem, expr2)) =>
             if (expr3.isDefined) Some(getCondExprPred(expr3.get, env))
             else Some(getCondStmtPred(t, s, env))
-          case t@ForStatement(expr1, expr2, expr3, s) if (nested_ast_elem.eq(childAST(s).asInstanceOf[AnyRef])) =>
+          case t@ForStatement(expr1, expr2, expr3, s) if (isPartOf(nested_ast_elem, s)) =>
             if (expr2.isDefined) Some(getCondExprPred(expr2.get, env))
             else if (expr3.isDefined) Some(getCondExprPred(expr3.get, env))
             else {
@@ -671,7 +667,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             else Some(getCondExprPred(expr, env))
           }
           case t@DoStatement(expr, s) => {
-            if (nested_ast_elem.eq(expr)) Some(getCondStmtPred(t, s, env))
+            if (isPartOf(nested_ast_elem, expr)) Some(getCondStmtPred(t, s, env))
             else Some(getCondExprPred(expr, env) ++ getStmtPred(t, env))
           }
 
@@ -680,9 +676,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           // elifs: rest of elifs + condition
           // thenBranch: condition
           case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-            if (nested_ast_elem.eq(condition)) Some(getStmtPred(t, env))
-            else if (nested_ast_elem.eq(childAST(thenBranch))) Some(List(condition))
-            else if (elseBranch.isDefined && nested_ast_elem.eq(childAST(elseBranch.get))) {
+            if (isPartOf(nested_ast_elem, condition)) Some(getStmtPred(t, env))
+            else if (isPartOf(nested_ast_elem, thenBranch)) Some(List(condition))
+            else if (isPartOf(nested_ast_elem, elseBranch)) {
               if (!elifs.isEmpty) Some(getCompoundPred(elifs, env))
               else Some(getCondExprPred(condition, env))
             } else {
