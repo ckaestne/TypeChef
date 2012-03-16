@@ -407,11 +407,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       }
       case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
       case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
-      case t@IfStatement(e, tb, elif, el) if (isPartOf(nested_ast_elem, e)) => {
-        var res = getCondStmtSucc(t, tb, env)
-        if (!elif.isEmpty) res = res ++ getCompoundSucc(elif, t, env)
-        if (elif.isEmpty && el.isDefined) res = res ++ getCondStmtSucc(t, el.get, env)
-        if (elif.isEmpty && !el.isDefined) res = res ++ getStmtSucc(t, env)
+      case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
+        var res = getCondStmtSucc(t, thenBranch, env)
+        if (!elifs.isEmpty) res = res ++ getCompoundSucc(elifs, t, env)
+        if (elifs.isEmpty && elseBranch.isDefined) res = res ++ getCondStmtSucc(t, elseBranch.get, env)
+        if (elifs.isEmpty && !elseBranch.isDefined) res = res ++ getStmtSucc(t, env)
         res
       }
 
