@@ -36,7 +36,7 @@ trait ASTNavigation extends CASTEnv {
       case Opt(_, v: One[_]) => v.value.asInstanceOf[AST]
       case Opt(_, v: AST) => v
       case null => {
-        val eparent = env.get(e)._2
+        val eparent = env.parent(e)
         eparent match {
           case o: Opt[_] => prevAST(o, env)
           case c: Choice[_] => prevAST(c, env)
@@ -58,7 +58,7 @@ trait ASTNavigation extends CASTEnv {
       case Opt(_, v: One[_]) => v.value.asInstanceOf[AST]
       case Opt(_, v: AST) => v
       case null => {
-        val eparent = env.get(e)._2
+        val eparent = env.parent(e)
         eparent match {
           case o: Opt[_] => nextAST(o, env)
           case c: Choice[_] => nextAST(c, env)
