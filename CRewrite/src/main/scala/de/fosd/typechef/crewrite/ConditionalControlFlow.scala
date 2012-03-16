@@ -253,23 +253,23 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: Conditional[_] => succHelper(childAST(t), env)
 
       // loop statements
-      case ForStatement(None, Some(expr2), None, One(EmptyStatement())) => List(expr2)
-      case ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => List(expr2)
+      case ForStatement(None, Some(expr2), None, One(EmptyStatement())) => getCondExprSucc(expr2, env)
+      case ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => getCondExprSucc(expr2, env)
       case t@ForStatement(expr1, expr2, expr3, s) => {
-        if (expr1.isDefined) List(expr1.get)
-        else if (expr2.isDefined) List(expr2.get)
+        if (expr1.isDefined) getCondExprSucc(expr1.get, env)
+        else if (expr2.isDefined) getCondExprSucc(expr2.get, env)
         else getCondStmtSucc(t, s, env)
       }
-      case WhileStatement(expr, One(EmptyStatement())) => List(expr)
-      case WhileStatement(expr, One(CompoundStatement(List()))) => List(expr)
-      case WhileStatement(expr, _) => List(expr)
-      case DoStatement(expr, One(CompoundStatement(List()))) => List(expr)
+      case WhileStatement(expr, One(EmptyStatement())) => getCondExprSucc(expr, env)
+      case WhileStatement(expr, One(CompoundStatement(List()))) => getCondExprSucc(expr, env)
+      case WhileStatement(expr, _) => getCondExprSucc(expr, env)
+      case DoStatement(expr, One(CompoundStatement(List()))) => getCondExprSucc(expr, env)
       case t@DoStatement(_, s) => getCondStmtSucc(t, s, env)
 
       // conditional statements
-      case t@IfStatement(condition, _, _, _) => List(condition)
-      case t@ElifStatement(c, _) => List(c)
-      case SwitchStatement(c, _) => List(c)
+      case t@IfStatement(condition, _, _, _) => getCondExprSucc(condition, env)
+      case t@ElifStatement(condition, _) => getCondExprSucc(condition, env)
+      case SwitchStatement(expr, _) => getCondExprSucc(expr, env)
 
       case t@BreakStatement() => {
         val e2b = findPriorASTElem2BreakStatement(t, env)
@@ -280,13 +280,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val e2c = findPriorASTElem2ContinueStatement(t, env)
         assert(e2c.isDefined, "continue statement should always occur within a for, do-while, or while statement")
         e2c.get match {
-          case t@ForStatement(_, break, inc, b) => {
-            if (inc.isDefined) List(inc.get)
-            else if (break.isDefined) List(break.get)
-            else getCondStmtSucc(t, b, env)
+          case t@ForStatement(_, expr2, expr3, s) => {
+            if (expr3.isDefined) getCondExprSucc(expr3.get, env)
+            else if (expr2.isDefined) getCondExprSucc(expr2.get, env)
+            else getCondStmtSucc(t, s, env)
           }
-          case WhileStatement(c, _) => List(c)
-          case DoStatement(c, _) => List(c)
+          case WhileStatement(expr, _) => getCondExprSucc(expr, env)
+          case DoStatement(expr, _) => getCondExprSucc(expr, env)
           case _ => List()
         }
       }
@@ -580,7 +580,13 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
           // after control flow comes out of a branch from an IfStatement,
           // we go for the next element in the row
-          case t: IfStatement => Some(getStmtSucc(t, env))
+          case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
+            var res = getCondStmtSucc(t, thenBranch, env)
+            if (!elifs.isEmpty) res ++= getCompoundSucc(elifs, t, env)
+            if (elifs.isEmpty && elseBranch.isDefined) res ++= getCondStmtSucc(t, elseBranch.get, env)
+            if (elifs.isEmpty && !elseBranch.isDefined) res ++= getStmtSucc(t, env)
+            Some(res)
+          }
           case t: ElifStatement => followUpSucc(t, env)
 
           case t: Expr => followUpSucc(t, env)
@@ -677,7 +683,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           // thenBranch: condition
           case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
             if (isPartOf(nested_ast_elem, condition)) Some(getStmtPred(t, env))
-            else if (isPartOf(nested_ast_elem, thenBranch)) Some(List(condition))
+            else if (isPartOf(nested_ast_elem, thenBranch)) Some(getCondExprPred(condition, env))
             else if (isPartOf(nested_ast_elem, elseBranch)) {
               if (!elifs.isEmpty) Some(getCompoundPred(elifs, env))
               else Some(getCondExprPred(condition, env))

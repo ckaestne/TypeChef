@@ -102,7 +102,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
       throw new FileNotFoundException("Input file not fould: " + filename)
 
     val ast = parseFile(inputStream, filename, folder)
-    val new_ast = prepareAST(ast)
+    val new_ast = rewriteInfiniteForLoops[TranslationUnit](prepareAST(ast))
     val env = createASTEnv(new_ast)
     val fexps = ConfigurationCoverage.collectFeatureExpressions(env.asInstanceOf[ConfigurationCoverage.ASTEnv]).filter(_.isSatisfiable())
     val nconfigs = ConfigurationCoverage.naiveCoverage(filterAllOptElems(new_ast).toSet, featureExpr, env.asInstanceOf[ConfigurationCoverage.ASTEnv])
