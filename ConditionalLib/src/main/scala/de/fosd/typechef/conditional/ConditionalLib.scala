@@ -93,7 +93,9 @@ object ConditionalLib {
         var res: List[Opt[_]] = List()
         // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
         for (o <- l.reverse)
-          if (c valid o.feature) {
+          if (o.feature == FeatureExpr.base)
+            res ::= o
+          else if (c valid o.feature) {
             res ::= Opt(FeatureExpr.base, o.entry)
           }
         res
