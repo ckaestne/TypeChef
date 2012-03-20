@@ -717,7 +717,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val parentsfexp = env.featureExpr(env.parent(s))
+        val parentsfexp = if (env.parent(s) != null) env.featureExpr(env.parent(s)) else FeatureExpr.base
         val successor_list = determineFollowingElements(parentsfexp, next_ifdef_blocks.drop(1), env)
         successor_list match {
           case Left(s_list) => s_list // 2.
@@ -883,7 +883,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case Some(BreakStatement()) => List()
       case Some(x) => List(x).flatMap(rollUpJumpStatement(_, false, env))
       case None => {
-        val parentsfexp = env.featureExpr(env.parent(s))
+        val parentsfexp = if (env.parent(s) != null) env.featureExpr(env.parent(s)) else FeatureExpr.base
         val predecessor_list = determineFollowingElements(parentsfexp, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
           case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) // 2.
