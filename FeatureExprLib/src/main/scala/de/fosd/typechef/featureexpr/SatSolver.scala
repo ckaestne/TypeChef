@@ -6,7 +6,6 @@ import collection.mutable.WeakHashMap
 import org.sat4j.minisat.SolverFactory
 import org.sat4j.specs.{IConstr, ContradictionException, TimeoutException}
 import org.sat4j.tools.{ModelIterator, SolutionCounter}
-;
 
 
 /**
@@ -21,7 +20,7 @@ class SatSolver {
      * has shown that it can lead to incorrect results,
      * hence caching is currently disabled
      */
-    val CACHING = false
+    val CACHING = true
     def isSatisfiable(exprCNF: FeatureExpr, featureModel: FeatureModel = NoFeatureModel): Boolean = {
         (if (CACHING && (nfm(featureModel) != NoFeatureModel))
             SatSolverCache.get(nfm(featureModel))
