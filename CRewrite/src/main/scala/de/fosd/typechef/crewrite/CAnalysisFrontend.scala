@@ -83,20 +83,21 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
   def checkCfG(fileName: String) = {
 
     // family-based
-    val new_ast = prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit])
-    val env = createASTEnv(new_ast)
-    val function_defs = filterASTElems[FunctionDef](new_ast)
+    println("checking family-based")
+    val family_ast = prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit])
+    val family_env = createASTEnv(family_ast)
+    val family_function_defs = filterASTElems[FunctionDef](family_ast)
 
     val tfams = System.currentTimeMillis()
-    function_defs.map(intraCfGFunctionDef(_, env))
+    family_function_defs.map(intraCfGFunctionDef(_, family_env))
     val tfame = System.currentTimeMillis()
 
     val tfam = tfame - tfams
-    println("family-based: " + tfam + "ms")
 
     // base variant
+    println("checking base variant")
     val base_ast = prepareAST[TranslationUnit](
-      ConditionalLib.deriveProductFromConfiguration[TranslationUnit](new_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm)))
+      ConditionalLib.deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm)))
     val base_env = createASTEnv(base_ast)
     val base_function_defs = filterASTElems[FunctionDef](base_ast)
 
@@ -105,25 +106,31 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     val tbasee = System.currentTimeMillis()
 
     val tbase = tbasee - tbases
+
+    // full coverage
+    println("checking full coverage")
+    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv])
+    var current_config = 1
+    var tfullcoverage: Long = 0
+
+    for (config <- configs) {
+      println("checking configuration " + current_config + " of " + configs.size)
+      current_config += 1
+      val product_ast = prepareAST[TranslationUnit](ConditionalLib.deriveProductFromConfiguration[TranslationUnit](family_ast, new Configuration(config, fm)))
+      val product_env = createASTEnv(product_ast)
+      val product_function_defs = filterASTElems[FunctionDef](product_ast)
+
+      val tfullcoverages = System.currentTimeMillis()
+      product_function_defs.map(intraCfGFunctionDef(_, product_env))
+      val tfullcoveragee = System.currentTimeMillis()
+
+      tfullcoverage += (tfullcoveragee - tfullcoverages)
+    }
+
+    println("family-based: " + tfam + "ms")
     println("base variant: " + tbase + "ms")
+    println("full coverage: " + tfullcoverage + "ms")
 
-//    // product-based function level
-//    val tproductf: Long = 0
-//    for (function <- function_defs) {
-//      for (config <- ConfigurationCoverage.naiveCoverageAny(function, fm, env.asInstanceOf[ConfigurationCoverage.ASTEnv])) {
-//        val functionproduct = prepareAST[FunctionDef](ConditionalLib.deriveProductFromConfiguration[FunctionDef](function, new Configuration(config, fm)))
-//        val myenv = createASTEnv(functionproduct)
-//        val ss = getAllSucc(functionproduct.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-//        for (s <- ss) {
-//          if (! isPartOf(s, functionproduct)) {
-//            println(isPartOf(s, function) + " is part of old function")
-//          }
-//        }
-//      }
-//
-//    }
-
-//    println("product-based: " + tproductf + "ms")
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
