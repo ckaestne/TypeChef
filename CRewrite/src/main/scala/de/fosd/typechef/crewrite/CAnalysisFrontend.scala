@@ -1,10 +1,11 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{FunctionDef, AST}
 import de.fosd.typechef.featureexpr._
+import de.fosd.typechef.conditional.ConditionalLib
+import de.fosd.typechef.parser.c.{TranslationUnit, FunctionDef, AST}
 
 
-class CAnalysisFrontend(tunit: AST, featureModel: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalControlFlow with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalControlFlow with Liveness with EnforceTreeHelper {
 
   class CCFGError(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) {
     override def toString =
@@ -80,26 +81,58 @@ class CAnalysisFrontend(tunit: AST, featureModel: FeatureModel = NoFeatureModel)
   var errors = List[CCFGError]()
 
   def checkCfG(fileName: String) = {
-    val new_ast = prepareAST(tunit)
+
+    // family-based
+    val new_ast = prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit])
     val env = createASTEnv(new_ast)
     val function_defs = filterASTElems[FunctionDef](new_ast)
 
-
-    // family-based
     val tfams = System.currentTimeMillis()
     function_defs.map(intraCfGFunctionDef(_, env))
     val tfame = System.currentTimeMillis()
 
     val tfam = tfame - tfams
-    println()
+    println("family-based: " + tfam + "ms")
 
+    // base variant
+    val base_ast = prepareAST[TranslationUnit](
+      ConditionalLib.deriveProductFromConfiguration[TranslationUnit](new_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm)))
+    val base_env = createASTEnv(base_ast)
+    val base_function_defs = filterASTElems[FunctionDef](base_ast)
+
+    val tbases = System.currentTimeMillis()
+    base_function_defs.map(intraCfGFunctionDef(_, base_env))
+    val tbasee = System.currentTimeMillis()
+
+    val tbase = tbasee - tbases
+    println("base variant: " + tbase + "ms")
+
+//    // product-based function level
+//    val tproductf: Long = 0
+//    for (function <- function_defs) {
+//      for (config <- ConfigurationCoverage.naiveCoverageAny(function, fm, env.asInstanceOf[ConfigurationCoverage.ASTEnv])) {
+//        val functionproduct = prepareAST[FunctionDef](ConditionalLib.deriveProductFromConfiguration[FunctionDef](function, new Configuration(config, fm)))
+//        val myenv = createASTEnv(functionproduct)
+//        val ss = getAllSucc(functionproduct.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+//        for (s <- ss) {
+//          if (! isPartOf(s, functionproduct)) {
+//            println(isPartOf(s, function) + " is part of old function")
+//          }
+//        }
+//      }
+//
+//    }
+
+//    println("product-based: " + tproductf + "ms")
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val ss = getAllSucc(f.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+    val myenv = createASTEnv(f)
+
+    val ss = getAllSucc(f.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
     for (s <- ss) {
-      in(s, env)
-      out(s, env)
+      in(s, myenv)
+      out(s, myenv)
     }
 
     true

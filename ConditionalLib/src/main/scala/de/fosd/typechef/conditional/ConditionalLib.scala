@@ -86,7 +86,7 @@ object ConditionalLib {
         zip(a, b).simplify(featureExpr).mapf(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
 
   // derive a specific product from a given configuration
-  def deriveProductFromConfiguration[T](a: T, c: Configuration): T = {
+  def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration): T = {
     val pconfig = everywherebu(rule {
       case Choice(f, x, y) => if (c valid f) x else y
       case l: List[Opt[_]] => {
@@ -96,7 +96,7 @@ object ConditionalLib {
           if (o.feature == FeatureExpr.base)
             res ::= o
           else if (c valid o.feature) {
-            res ::= Opt(FeatureExpr.base, o.entry)
+            res ::= o.copy(feature = FeatureExpr.base)
           }
         res
       }

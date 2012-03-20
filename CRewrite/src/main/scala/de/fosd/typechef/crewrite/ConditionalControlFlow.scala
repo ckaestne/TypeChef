@@ -149,7 +149,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // checks reference equality of e in a given struture t (t is either a product or a list)
-  private def isPartOf(e: Any, t: Any): Boolean = {
+  def isPartOf(e: Any, t: Any): Boolean = {
     t match {
       case _ if (e.asInstanceOf[AnyRef].eq(t.asInstanceOf[AnyRef])) => true
       case l: List[_] => l.map(isPartOf(e, _)).fold(false)(_ || _)
@@ -552,8 +552,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
   private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
     nested_ast_elem match {
-      case _: ReturnStatement => {
-        findPriorASTElem[FunctionDef](nested_ast_elem, env) match {
+      case t: ReturnStatement => {
+        findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(false, "return statement should always occur within a function statement"); Some(List())
           case Some(f) => Some(List(f))
         }

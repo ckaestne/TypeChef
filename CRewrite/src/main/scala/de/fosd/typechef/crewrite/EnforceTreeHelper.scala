@@ -34,20 +34,25 @@ trait EnforceTreeHelper extends CASTEnv {
   // creates an AST without shared objects
   // the parser reuses parsed elements in different subtrees of the AST
   // this method makes sure we create an AST with unique elements
-  def prepareAST(ast: Product): TranslationUnit = {
+  def prepareAST[T <: Product](ast: T): T = {
     assert(ast != null)
 
     val clone = everywherebu(rule {
-      case f@ForStatement(None, None, None, One(CompoundStatement(List()))) =>
-        f.copy(expr2 = Some(Constant("1")))
+      // function to add a break expression to infinite loops: "for (;;) {}" and "for (;;) ;"
+      // reason is: for (;;) is the only infinite loop without explicit break statement,
+      // so if we omit CompoundStatement in succ pred determination, we need an expression
+      // so that succ(e) -> e and pred(e) is e
+      // we add a Constant("1") at the break
+      case ForStatement(None, None, None, One(CompoundStatement(List()))) =>
+        ForStatement(None, Some(Constant("1")), None, One(CompoundStatement(List())))
       case n: AST =>
         if (n.productIterator.size > 0) {
           //                    n.setChildConnections
-          n
+          n.clone()
         } else
           n.clone()
     })
-    val cast = clone(ast).get.asInstanceOf[TranslationUnit]
+    val cast = clone(ast).get.asInstanceOf[T]
     copyPositions(ast, cast)
     cast
   }

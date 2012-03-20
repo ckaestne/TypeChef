@@ -10,7 +10,7 @@ trait CASTEnv {
 
   // store context of an AST entry
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
-  class ASTEnv (private var astc: IdentityHashMap[Any, ASTContext]) {
+  class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
 
     def lfeature(elem: Any) = astc.get(elem)._1
     def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
@@ -19,6 +19,8 @@ trait CASTEnv {
     def next(elem: Any) = astc.get(elem)._4
     def children(elem: Any) = astc.get(elem)._5
     def keys() = astc.keySet().toArray
+    def get(elem: Any) = astc.get(elem)
+    def elems() = astc.keySet().toArray.toList.map(System.identityHashCode(_)).sortWith((x, y) => x > y)
 
     def add(elem: Any, newelemc: ASTContext) = {
       var curelemc: ASTContext = null
