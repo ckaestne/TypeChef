@@ -5,7 +5,7 @@ import de.fosd.typechef.conditional.ConditionalLib
 import de.fosd.typechef.parser.c.{TranslationUnit, FunctionDef, AST}
 
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalControlFlow with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
   class CCFGError(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) {
     override def toString =
@@ -79,8 +79,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
   }
 
   var errors = List[CCFGError]()
+  val liveness = "liveness.csv"
 
   def checkCfG(fileName: String) = {
+
+    // file-output
+    appendToFile(liveness, "filename;family-based;full-coverage;full-coverage-configs")
 
     // family-based
     println("checking family-based")
@@ -131,6 +135,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     println("base variant: " + tbase + "ms")
     println("full coverage: " + tfullcoverage + "ms")
 
+    appendToFile(liveness, fileName + ";" + tfam + ";" + tbase + ";" + tfullcoverage + ";" + configs.size + "\n")
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
