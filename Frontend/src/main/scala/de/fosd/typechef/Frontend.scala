@@ -96,7 +96,7 @@ object Frontend {
                 }
                 if (opt.conditionalControlFlow) {
                     println("checking conditional control flow.")
-                    cf.checkCfG()
+                    cf.checkCfG(opt.getFile)
                     t6 = System.currentTimeMillis()
                 }
             }
