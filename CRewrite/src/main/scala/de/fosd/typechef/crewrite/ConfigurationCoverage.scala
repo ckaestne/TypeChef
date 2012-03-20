@@ -23,23 +23,23 @@ object ConfigurationCoverage extends CASTEnv with ConditionalNavigation {
   // wrapper for naiveCoverage
   def naiveCoverageAny(a: Any, fm: FeatureModel, env: ASTEnv) = {
     val opts = filterAllOptElems(a)
-    naiveCoverage(opts, fm, env)
+    naiveCoverage(opts.toSet, fm, env)
   }
 
-  def naiveCoverage(in: List[Opt[_]], fm: FeatureModel, env: ASTEnv) = {
+  def naiveCoverage(in: Set[Opt[_]], fm: FeatureModel, env: ASTEnv) = {
     var R: Set[FeatureExpr] = Set()   // found configurations
-    var B: List[Opt[_]] = List()      // selected blocks
+    var B: Set[Opt[_]] = Set()        // selected blocks
 
     // iterate over all optional blocks
     for (b <- in) {
       // optional block b has not been handled before
-      if (B.filter(_.eq(b)).isEmpty) {
+      if (! B.contains(b)) {
         val fexpb = env.featureExpr(b)
         if (fexpb.isSatisfiable(fm)) {
           B ++= in.filter(fexpb implies env.featureExpr(_) isTautology())
           R += fexpb
         } else {
-          B ::= b
+          B += b
         }
       }
     }
