@@ -45,12 +45,7 @@ trait EnforceTreeHelper extends CASTEnv {
       // we add a Constant("1") at the break
       case ForStatement(None, None, None, One(CompoundStatement(List()))) =>
         ForStatement(None, Some(Constant("1")), None, One(CompoundStatement(List())))
-      case n: AST =>
-        if (n.productIterator.size > 0) {
-          //                    n.setChildConnections
-          n.clone()
-        } else
-          n.clone()
+      case n: AST => n.clone()
     })
     val cast = clone(ast).get.asInstanceOf[T]
     copyPositions(ast, cast)
