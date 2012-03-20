@@ -49,7 +49,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
   @Test def test_standard_liveness_variability_f() {
     val a = parseFunctionDef("""
-      void foo(int a, b, c) {
+      void foo(int a, int b, int c) {
         a = 0;
         l1: b = a + 1;
         c = c + b;
@@ -209,6 +209,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     {
       do {
       } while (1);
+    }
     """)
 
     val env = createASTEnv(a)
