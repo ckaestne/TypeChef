@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.{FeatureModel, NoFeatureModel}
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional.Opt
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with ConditionalControlFlow with ConditionalNavigation {
