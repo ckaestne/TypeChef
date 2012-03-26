@@ -1155,7 +1155,24 @@ trait Variables extends ASTNavigation {
   }
 }
 
+class LivenessCache {
+  private val cache: IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]] = new IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]]()
+
+  def update(k: Any, v: Map[FeatureExpr, Set[Id]]) {
+    cache.put(k, v)
+  }
+
+  def lookup(k: Any): Option[Map[FeatureExpr, Set[Id]]] = {
+    val v = cache.get(k)
+    if (v != null) Some(v)
+    else None
+  }
+}
+
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
+
+  private val incache = new LivenessCache()
+  private val outcache = new LivenessCache()
 
   private def updateMap(m: Map[FeatureExpr, Set[Id]],
                         e: (FeatureExpr, Set[Id]),
@@ -1210,7 +1227,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val in: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+  val inrec: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(FunctionDef(_, _, _, _), _) => Map()
       case t@(e, env) => {
@@ -1224,7 +1241,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val out: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] =
+  val outrec: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] =
     circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(e, env) => {
         val sl = succ(e, env).filterNot(_.isInstanceOf[FunctionDef])
@@ -1237,4 +1254,26 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         res
       }
     }
+
+  def out(a: (Any, ASTEnv)) = {
+    outcache.lookup(a._1) match {
+      case Some(v) => v
+      case None => {
+        val r = outrec(a)
+        outcache.update(a._1, r)
+        r
+      }
+    }
+  }
+
+  def in(a: (Any, ASTEnv)) = {
+    incache.lookup(a._1) match {
+      case Some(v) => v
+      case None => {
+        val r = inrec(a)
+        incache.update(a._1, r)
+        r
+      }
+    }
+  }
 }
