@@ -163,7 +163,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
     val myenv = createASTEnv(f)
 
-    val ss = getAllSucc(f.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+    val ss = if (f.stmt.innerStatements.isEmpty) List() else getAllSucc(f.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
     for (s <- ss.reverse) {
       in(s, myenv)
       out(s, myenv)
