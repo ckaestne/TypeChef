@@ -7,18 +7,24 @@ import de.fosd.typechef.conditional.{Opt, Choice, ConditionalLib}
 
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
-  
+
   // derive a specific product from a given configuration
-  def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration): T = {
-    val pconfig = everywherebu(rule {
-      case Choice(f, x, y) => if (c.config implies f isTautology()) x else y
+  def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
+    // all is crucial here; consider the following example
+    // Product1( c1, c2, c3, c4, c5)
+    // all changes the elements top down in level order, so the parent is changed before the children and this
+    // way the lookup env.featureExpr will not fail. Using topdown or everywherebu changes the children and so also the
+    // parent resulting in NullPointerExceptions calling env.featureExpr(x) because the parent is changed, has a different
+    // hashcode and is not part of the environment.
+    val pconfig = all(rule {
+      case Choice(f, x, y) => if (c.config implies env.featureExpr(x) isTautology()) x else y
       case l: List[Opt[_]] => {
         var res: List[Opt[_]] = List()
         // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
         for (o <- l.reverse)
           if (o.feature == FeatureExpr.base)
             res ::= o
-          else if (c.config implies o.feature isTautology()) {
+          else if (c.config implies env.featureExpr(o.entry) isTautology()) {
             res ::= o.copy(feature = FeatureExpr.base)
           }
         res
@@ -123,7 +129,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     // base variant
     println("checking base variant")
     val base_ast = prepareAST[TranslationUnit](
-      deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm)))
+      deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm), family_env))
     val base_env = createASTEnv(base_ast)
     val base_function_defs = filterASTElems[FunctionDef](base_ast)
 
@@ -142,7 +148,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     for (config <- configs) {
       println("checking configuration " + current_config + " of " + configs.size)
       current_config += 1
-      val product_ast = prepareAST[TranslationUnit](deriveProductFromConfiguration[TranslationUnit](family_ast, new Configuration(config, fm)))
+      val product_ast = prepareAST[TranslationUnit](deriveProductFromConfiguration[TranslationUnit](family_ast, new Configuration(config, fm), family_env))
       val product_env = createASTEnv(product_ast)
       val product_function_defs = filterASTElems[FunctionDef](product_ast)
 
