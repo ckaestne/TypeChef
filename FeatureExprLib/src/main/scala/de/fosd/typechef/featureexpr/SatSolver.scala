@@ -20,7 +20,7 @@ class SatSolver {
      * has shown that it can lead to incorrect results,
      * hence caching is currently disabled
      */
-    val CACHING = true
+    val CACHING = false
     def isSatisfiable(exprCNF: FeatureExpr, featureModel: FeatureModel = NoFeatureModel): Boolean = {
         (if (CACHING && (nfm(featureModel) != NoFeatureModel))
             SatSolverCache.get(nfm(featureModel))
