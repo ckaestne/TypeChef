@@ -627,7 +627,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // method to catch surrounding ast element, which precedes the given nested_ast_element
-  private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
+  private def followUpPred(nested_ast_elem: AnyRef, env: ASTEnv): List[AST] = {
 
     def handleSwitch(t: AST) = {
       val prior_switch = findPriorASTElem[SwitchStatement](t, env)
@@ -635,11 +635,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       prior_switch.get match {
         case SwitchStatement(expr, _) => {
           val lconds = getCondExprPred(expr, env)
-          if (env.previous(t) != null) Some(lconds ++ getStmtPred(t, env))
+          if (env.previous(t) != null) lconds ++ getStmtPred(t, env)
           else {
             val tparent = parentAST(t, env)
-            if (tparent.isInstanceOf[CaseStatement]) Some(tparent :: lconds)  // TODO rewrite, nested cases.
-            else Some(lconds ++ getStmtPred(tparent, env))
+            if (tparent.isInstanceOf[CaseStatement]) tparent :: lconds  // TODO rewrite, nested cases.
+            else lconds ++ getStmtPred(tparent, env)
           }
         }
       }
@@ -656,27 +656,27 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         surrounding_parent match {
           // coming up a for statement
           case t@ForStatement(_, _, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
-            Some(getCondStmtPred(t, s, env))
+            getCondStmtPred(t, s, env)
           case t@ForStatement(_, Some(expr2), expr3, s) if (isPartOf(nested_ast_elem, expr2)) =>
-            if (expr3.isDefined) Some(getCondExprPred(expr3.get, env))
-            else Some(getCondStmtPred(t, s, env))
+            if (expr3.isDefined) getCondExprPred(expr3.get, env)
+            else getCondStmtPred(t, s, env)
           case t@ForStatement(expr1, expr2, expr3, s) if (isPartOf(nested_ast_elem, s)) =>
-            if (expr2.isDefined) Some(getCondExprPred(expr2.get, env))
-            else if (expr3.isDefined) Some(getCondExprPred(expr3.get, env))
+            if (expr2.isDefined) getCondExprPred(expr2.get, env)
+            else if (expr3.isDefined) getCondExprPred(expr3.get, env)
             else {
               var res: List[AST] = List()
               if (expr1.isDefined) res = res ++ getCondExprPred(expr1.get, env)
               else res = getStmtPred(t, env) ++ res
               res = res ++ getCondStmtPred(t, s, env)
-              Some(res)
+              res
             }
           case t@WhileStatement(expr, _) => {
-            if (nested_ast_elem.eq(expr)) Some(getStmtPred(t, env))
-            else Some(getCondExprPred(expr, env))
+            if (nested_ast_elem.eq(expr)) getStmtPred(t, env)
+            else getCondExprPred(expr, env)
           }
           case t@DoStatement(expr, s) => {
-            if (isPartOf(nested_ast_elem, expr)) Some(getCondStmtPred(t, s, env))
-            else Some(getCondExprPred(expr, env) ++ getStmtPred(t, env))
+            if (isPartOf(nested_ast_elem, expr)) getCondStmtPred(t, s, env)
+            else getCondExprPred(expr, env) ++ getStmtPred(t, env)
           }
 
           // control flow comes either out of:
@@ -684,24 +684,24 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           // elifs: rest of elifs + condition
           // thenBranch: condition
           case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-            if (isPartOf(nested_ast_elem, condition)) Some(getStmtPred(t, env))
-            else if (isPartOf(nested_ast_elem, thenBranch)) Some(getCondExprPred(condition, env))
+            if (isPartOf(nested_ast_elem, condition)) getStmtPred(t, env)
+            else if (isPartOf(nested_ast_elem, thenBranch)) getCondExprPred(condition, env)
             else if (isPartOf(nested_ast_elem, elseBranch)) {
-              if (!elifs.isEmpty) Some(getCompoundPred(elifs, env))
-              else Some(getCondExprPred(condition, env))
+              if (!elifs.isEmpty) getCompoundPred(elifs, env)
+              else getCondExprPred(condition, env)
             } else {
-              Some(predElifStatement(nested_ast_elem.asInstanceOf[ElifStatement], env))
+              predElifStatement(nested_ast_elem.asInstanceOf[ElifStatement], env)
             }
           }
-          case t@ElifStatement(condition, _) => Some(getCondExprPred(condition, env))
-          case t@SwitchStatement(expr, _) => Some(getCondExprPred(expr, env))
-          case t: CaseStatement => Some(List(t))
+          case t@ElifStatement(condition, _) => getCondExprPred(condition, env)
+          case t@SwitchStatement(expr, _) => getCondExprPred(expr, env)
+          case t: CaseStatement => List(t)
           case t: DefaultStatement => handleSwitch(t)
 
           case t: CompoundStatementExpr => followUpPred(t, env)
-          case t: Statement => Some(getStmtPred(t, env))
-          case t: FunctionDef => Some(List(t))
-          case _ => None
+          case t: Statement => getStmtPred(t, env)
+          case t: FunctionDef => List(t)
+          case _ => List()
         }
       }
     }
@@ -889,7 +889,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val predecessor_list = determineFollowingElements(parentsfexp, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
           case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) // 2.
-          case Right(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) ++ followUpPred(s, env).getOrElse(List()) // 3.
+          case Right(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) ++ followUpPred(s, env) // 3.
         }
       }
     }
@@ -921,7 +921,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
       predecessor_list match {
         case Left(p_list) => p_list
-        case Right(p_list) => (p_list ++ followUpPred(l.reverse.head, env).getOrElse(List()))
+        case Right(p_list) => p_list ++ followUpPred(l.reverse.head, env)
       }
     }
   }
