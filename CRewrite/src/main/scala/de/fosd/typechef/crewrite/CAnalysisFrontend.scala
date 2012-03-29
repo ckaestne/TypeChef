@@ -12,8 +12,8 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
     // all is crucial here; consider the following example
     // Product1( c1, c2, c3, c4, c5)
-    // all changes the elements top down in level order, so the parent is changed before the children and this
-    // way the lookup env.featureExpr will not fail. Using topdown or everywherebu changes the children and so also the
+    // all changes the elements top down, so the parent is changed before the children and this
+    // way the lookup env.featureExpr(x) will not fail. Using topdown or everywherebu changes the children and so also the
     // parent resulting in NullPointerExceptions calling env.featureExpr(x) because the parent is changed, has a different
     // hashcode and is not part of the environment.
     val pconfig = all(rule {
