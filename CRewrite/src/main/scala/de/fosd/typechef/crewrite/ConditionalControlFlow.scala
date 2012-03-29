@@ -321,7 +321,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: DefaultStatement => getStmtSucc(t, env)
 
       case t: Statement => getStmtSucc(t, env)
-      case t => nestedSucc(t, env)
+      case t => followSucc(t, env)
     }
   }
 
@@ -389,7 +389,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // handling of successor determination of nested structures, such as for, while, ... and next element in a list
   // of statements
-  private def nestedSucc(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
+  private def followSucc(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
     nested_ast_elem match {
       case t: ReturnStatement => {
         findPriorASTElem[FunctionDef](t, env) match {
@@ -440,7 +440,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             }
             res ++ getCondStmtSucc(t, thenBranch, env)
           }
-          case t: ElifStatement => nestedSucc(t, env)
+          case t: ElifStatement => followSucc(t, env)
 
           // the switch statement behaves like a dynamic goto statement;
           // based on the expression we jump to one of the case statements or default statements
@@ -458,7 +458,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             res
           }
 
-          case t: Expr => nestedSucc(t, env)
+          case t: Expr => followSucc(t, env)
           case t: Statement => getStmtSucc(t, env)
 
           case t: FunctionDef => List(t)
@@ -694,7 +694,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val successor_list = determineFollowingElements(parentsfexp, next_ifdef_blocks.drop(1), env)
         successor_list match {
           case Left(s_list) => s_list // 2.
-          case Right(s_list) => s_list ++ nestedSucc(s, env) // 3.
+          case Right(s_list) => s_list ++ followSucc(s, env) // 3.
         }
       }
     }
@@ -875,8 +875,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
     successor_list match {
       case Left(s_list) => s_list
-      case Right(s_list) => s_list ++ (if (l.isEmpty) nestedSucc(parent.asInstanceOf[AnyRef], env)
-                                       else nestedSucc(l.head, env))
+      case Right(s_list) => s_list ++ (if (l.isEmpty) followSucc(parent.asInstanceOf[AnyRef], env)
+                                       else followSucc(l.head, env))
     }
   }
 
