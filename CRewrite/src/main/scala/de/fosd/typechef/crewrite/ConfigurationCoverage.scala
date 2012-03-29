@@ -48,7 +48,17 @@ object ConfigurationCoverage extends CASTEnv with ConditionalNavigation {
       (in.diff(B).map(_.feature)) + "\n" + R
     )
 
-    R
+    // reduce number of configurations using implication check; at most n^2 SAT checks!!!
+    // https://github.com/ckaestne/TypeChef/blob/MinimalVariants/LinuxAnalysis/src/main/scala/de/fosd/typechef/minimalvariants/MinimalVariants.scala
+    var Rreduced: Set[FeatureExpr] = Set()
+    Rreduced = Set()
+    for (f <- R) {
+      if (!f.isTautology(fm))
+        if (!Rreduced.exists(o => (o implies f).isTautology(fm)))
+          Rreduced += f
+    }
+
+    Rreduced
   }
 
   // create a new feature model from a given set of annotations
