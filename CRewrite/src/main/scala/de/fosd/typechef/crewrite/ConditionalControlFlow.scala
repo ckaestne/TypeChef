@@ -447,6 +447,56 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
+  // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
+  private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): List[AST] = {
+    nested_ast_elem match {
+      case t: ReturnStatement => {
+        findPriorASTElem[FunctionDef](t, env) match {
+          case None => assert(false, "return statement should always occur within a function statement"); List()
+          case Some(f) => List(f)
+        }
+      }
+      case _ => {
+        val surrounding_parent = parentAST(nested_ast_elem, env)
+        surrounding_parent match {
+          // depending on in which part of the loop we are, do the next
+          // expr3 -> expr2
+          // expr2 -> s or t
+          // s -> expr3 or expr2 or s
+          case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
+            if (expr2.isDefined) getCondExprSucc(expr2.get, env)
+            else getCondStmtSucc(t, s, env)
+          case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) =>
+            getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
+          case t@ForStatement(_, expr2, expr3, s) => {
+            if (expr3.isDefined) getCondExprSucc(expr3.get, env)
+            else if (expr2.isDefined) getCondExprSucc(expr2.get, env)
+            else getCondStmtSucc(t, s, env)
+          }
+          case WhileStatement(expr, s) => List(expr)
+          case DoStatement(expr, s) => List(expr)
+
+          // after control flow comes out of a branch from an IfStatement,
+          // we go for the next element in the row
+          case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
+            var res = getCondStmtSucc(t, thenBranch, env)
+            if (!elifs.isEmpty) res ++= getCompoundSucc(elifs, t, env)
+            if (elifs.isEmpty && elseBranch.isDefined) res ++= getCondStmtSucc(t, elseBranch.get, env)
+            if (elifs.isEmpty && !elseBranch.isDefined) res ++= getStmtSucc(t, env)
+            res
+          }
+          case t: ElifStatement => followUpSucc(t, env)
+
+          case t: Expr => followUpSucc(t, env)
+          case t: Statement => getStmtSucc(t, env)
+
+          case t: FunctionDef => List(t)
+          case _ => List()
+        }
+      }
+    }
+  }
+
   // handling of predecessor determination of nested structures, such as for, while, ... and previous element in a list
   // of statements
   private def nestedPred(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
@@ -549,55 +599,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
-  private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): Option[List[AST]] = {
-    nested_ast_elem match {
-      case t: ReturnStatement => {
-        findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(false, "return statement should always occur within a function statement"); Some(List())
-          case Some(f) => Some(List(f))
-        }
-      }
-      case _ => {
-        val surrounding_parent = parentAST(nested_ast_elem, env)
-        surrounding_parent match {
-          // depending on in which part of the loop we are, do the next
-          // expr3 -> expr2
-          // expr2 -> s or t
-          // s -> expr3 or expr2 or s
-          case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
-            if (expr2.isDefined) Some(getCondExprSucc(expr2.get, env))
-            else Some(getCondStmtSucc(t, s, env))
-          case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) =>
-            Some(getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env))
-          case t@ForStatement(_, expr2, expr3, s) => {
-            if (expr3.isDefined) Some(getCondExprSucc(expr3.get, env))
-            else if (expr2.isDefined) Some(getCondExprSucc(expr2.get, env))
-            else Some(getCondStmtSucc(t, s, env))
-          }
-          case WhileStatement(expr, s) => Some(List(expr))
-          case DoStatement(expr, s) => Some(List(expr))
 
-          // after control flow comes out of a branch from an IfStatement,
-          // we go for the next element in the row
-          case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
-            var res = getCondStmtSucc(t, thenBranch, env)
-            if (!elifs.isEmpty) res ++= getCompoundSucc(elifs, t, env)
-            if (elifs.isEmpty && elseBranch.isDefined) res ++= getCondStmtSucc(t, elseBranch.get, env)
-            if (elifs.isEmpty && !elseBranch.isDefined) res ++= getStmtSucc(t, env)
-            Some(res)
-          }
-          case t: ElifStatement => followUpSucc(t, env)
-
-          case t: Expr => followUpSucc(t, env)
-          case t: Statement => Some(getStmtSucc(t, env))
-
-          case t: FunctionDef => Some(List(t))
-          case _ => None
-        }
-      }
-    }
-  }
 
   // method to find prior element to a break statement
   private def findPriorASTElem2BreakStatement(a: AnyRef, env: ASTEnv): Option[AST] = {
@@ -721,7 +723,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val successor_list = determineFollowingElements(parentsfexp, next_ifdef_blocks.drop(1), env)
         successor_list match {
           case Left(s_list) => s_list // 2.
-          case Right(s_list) => s_list ++ followUpSucc(s, env).getOrElse(List()) // 3.
+          case Right(s_list) => s_list ++ followUpSucc(s, env) // 3.
         }
       }
     }
@@ -902,8 +904,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
     successor_list match {
       case Left(s_list) => s_list
-      case Right(s_list) => s_list ++ (if (l.isEmpty) followUpSucc(parent.asInstanceOf[AnyRef], env).getOrElse(List())
-                                       else followUpSucc(l.head, env).getOrElse(List()))
+      case Right(s_list) => s_list ++ (if (l.isEmpty) followUpSucc(parent.asInstanceOf[AnyRef], env)
+                                       else followUpSucc(l.head, env))
     }
   }
 
