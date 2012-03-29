@@ -390,65 +390,6 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   // handling of successor determination of nested structures, such as for, while, ... and next element in a list
   // of statements
   private def nestedSucc(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
-    val surrounding_parent = parentAST(nested_ast_elem, env)
-    surrounding_parent match {
-      case t@ForStatement(Some(expr1), expr2, _, s) if (isPartOf(nested_ast_elem, expr1)) =>
-        if (expr2.isDefined) getCondExprSucc(expr2.get, env)
-        else getCondStmtSucc(t, s, env)
-      case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) =>
-        getStmtSucc(t, env) ++ getCondStmtSucc(t, s, env)
-      case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
-        if (expr2.isDefined) getCondExprSucc(expr2.get, env)
-        else getCondStmtSucc(t, s, env)
-      case t@ForStatement(_, expr2, expr3, s) if (isPartOf(nested_ast_elem, s)) => {
-        if (expr3.isDefined) getCondExprSucc(expr3.get, env)
-        else if (expr2.isDefined) getCondExprSucc(expr2.get, env)
-        else getCondStmtSucc(t, s, env)
-      }
-      case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
-      case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
-      case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
-        var res = getCondStmtSucc(t, thenBranch, env)
-        if (!elifs.isEmpty) res = res ++ getCompoundSucc(elifs, t, env)
-        if (elifs.isEmpty && elseBranch.isDefined) res = res ++ getCondStmtSucc(t, elseBranch.get, env)
-        if (elifs.isEmpty && !elseBranch.isDefined) res = res ++ getStmtSucc(t, env)
-        res
-      }
-
-      // either go to next ElifStatement, ElseBranch, or next statement of the surrounding IfStatement
-      // filtering is necessary, as else branches are not considered by getSuccSameLevel
-      case t@ElifStatement(condition, thenBranch) if (isPartOf(nested_ast_elem, condition)) => {
-        var res = getStmtSucc(t, env)
-        if (res.filter(_.isInstanceOf[ElifStatement]).isEmpty) {
-          env.parent(env.parent(t)) match {
-            case tp@IfStatement(_, _, _, None) => res = getStmtSucc(tp, env)
-            case IfStatement(_, _, _, Some(elseBranch)) => res = getCondStmtSucc(t, elseBranch, env)
-          }
-        }
-        res ++ getCondStmtSucc(t, thenBranch, env)
-      }
-
-      // the switch statement behaves like a dynamic goto statement;
-      // based on the expression we jump to one of the case statements or default statements
-      // after the jump the case/default statements do not matter anymore
-      // when hitting a break statement, we jump to the end of the switch
-      case t@SwitchStatement(expr, s) => {
-        var res: List[AST] = List()
-        if (isPartOf(nested_ast_elem, expr)) {
-          res = filterCaseStatements(s, env)
-          val dcase = filterDefaultStatements(s, env)
-
-          if (dcase.isEmpty) res = res ++ getStmtSucc(t, env)
-          else res = res ++ dcase
-        }
-        res
-      }
-      case _ => List()
-    }
-  }
-
-  // method to catch surrounding while, for, ... statement, which is the follow item of a last element in it's list
-  private def followUpSucc(nested_ast_elem: AnyRef, env: ASTEnv): List[AST] = {
     nested_ast_elem match {
       case t: ReturnStatement => {
         findPriorASTElem[FunctionDef](t, env) match {
@@ -459,35 +400,65 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
-          // depending on in which part of the loop we are, do the next
-          // expr3 -> expr2
-          // expr2 -> s or t
-          // s -> expr3 or expr2 or s
-          case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
+          // loops
+          case t@ForStatement(Some(expr1), expr2, _, s) if (isPartOf(nested_ast_elem, expr1)) =>
             if (expr2.isDefined) getCondExprSucc(expr2.get, env)
             else getCondStmtSucc(t, s, env)
           case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) =>
-            getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
-          case t@ForStatement(_, expr2, expr3, s) => {
+            getStmtSucc(t, env) ++ getCondStmtSucc(t, s, env)
+          case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
+            if (expr2.isDefined) getCondExprSucc(expr2.get, env)
+            else getCondStmtSucc(t, s, env)
+          case t@ForStatement(_, expr2, expr3, s) if (isPartOf(nested_ast_elem, s)) => {
             if (expr3.isDefined) getCondExprSucc(expr3.get, env)
             else if (expr2.isDefined) getCondExprSucc(expr2.get, env)
             else getCondStmtSucc(t, s, env)
           }
+          case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
           case WhileStatement(expr, s) => List(expr)
+          case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => getCondStmtSucc(t, s, env) ++ getStmtSucc(t, env)
           case DoStatement(expr, s) => List(expr)
 
-          // after control flow comes out of a branch from an IfStatement,
-          // we go for the next element in the row
+          // conditional statements
           case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
             var res = getCondStmtSucc(t, thenBranch, env)
-            if (!elifs.isEmpty) res ++= getCompoundSucc(elifs, t, env)
-            if (elifs.isEmpty && elseBranch.isDefined) res ++= getCondStmtSucc(t, elseBranch.get, env)
-            if (elifs.isEmpty && !elseBranch.isDefined) res ++= getStmtSucc(t, env)
+            if (!elifs.isEmpty) res = res ++ getCompoundSucc(elifs, t, env)
+            if (elifs.isEmpty && elseBranch.isDefined) res = res ++ getCondStmtSucc(t, elseBranch.get, env)
+            if (elifs.isEmpty && !elseBranch.isDefined) res = res ++ getStmtSucc(t, env)
             res
           }
-          case t: ElifStatement => followUpSucc(t, env)
 
-          case t: Expr => followUpSucc(t, env)
+          // either go to next ElifStatement, ElseBranch, or next statement of the surrounding IfStatement
+          // filtering is necessary, as else branches are not considered by getSuccSameLevel
+          case t@ElifStatement(condition, thenBranch) if (isPartOf(nested_ast_elem, condition)) => {
+            var res = getStmtSucc(t, env)
+            if (res.filter(_.isInstanceOf[ElifStatement]).isEmpty) {
+              env.parent(env.parent(t)) match {
+                case tp@IfStatement(_, _, _, None) => res = getStmtSucc(tp, env)
+                case IfStatement(_, _, _, Some(elseBranch)) => res = getCondStmtSucc(t, elseBranch, env)
+              }
+            }
+            res ++ getCondStmtSucc(t, thenBranch, env)
+          }
+          case t: ElifStatement => nestedSucc(t, env)
+
+          // the switch statement behaves like a dynamic goto statement;
+          // based on the expression we jump to one of the case statements or default statements
+          // after the jump the case/default statements do not matter anymore
+          // when hitting a break statement, we jump to the end of the switch
+          case t@SwitchStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => {
+            var res: List[AST] = List()
+            if (isPartOf(nested_ast_elem, expr)) {
+              res = filterCaseStatements(s, env)
+              val dcase = filterDefaultStatements(s, env)
+
+              if (dcase.isEmpty) res = res ++ getStmtSucc(t, env)
+              else res = res ++ dcase
+            }
+            res
+          }
+
+          case t: Expr => nestedSucc(t, env)
           case t: Statement => getStmtSucc(t, env)
 
           case t: FunctionDef => List(t)
@@ -723,7 +694,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         val successor_list = determineFollowingElements(parentsfexp, next_ifdef_blocks.drop(1), env)
         successor_list match {
           case Left(s_list) => s_list // 2.
-          case Right(s_list) => s_list ++ followUpSucc(s, env) // 3.
+          case Right(s_list) => s_list ++ nestedSucc(s, env) // 3.
         }
       }
     }
@@ -904,8 +875,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
     successor_list match {
       case Left(s_list) => s_list
-      case Right(s_list) => s_list ++ (if (l.isEmpty) followUpSucc(parent.asInstanceOf[AnyRef], env)
-                                       else followUpSucc(l.head, env))
+      case Right(s_list) => s_list ++ (if (l.isEmpty) nestedSucc(parent.asInstanceOf[AnyRef], env)
+                                       else nestedSucc(l.head, env))
     }
   }
 
