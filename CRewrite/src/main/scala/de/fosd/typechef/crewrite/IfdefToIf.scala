@@ -14,6 +14,7 @@ class IfdefToIf {
 
     val CONFIGPREFIX = "v_"
 
+
     private val rewriteStrategy = everywherebu(rule {
         case Opt(f, stmt: Statement) if (!f.isTautology) =>
             Opt(base, IfStatement(featureToCExpr(f), One(stmt), List(), None))
@@ -23,6 +24,16 @@ class IfdefToIf {
 
     def rewrite(ast: AST): AST = {
         rewriteStrategy(ast).get.asInstanceOf[AST]
+    }
+
+    // this method replaces a given element e within a structure t with the elements
+    // n; we only match elements inside lists (case l: List[Opt[T]] => )
+    def replace[T <: Product](t: T, e: Opt[_], n: List[Opt[_]]): T = {
+      val r = all(rule {
+        case l: List[Opt[_]] => l.flatMap({x => if (x.eq(e)) n else x::Nil})
+      })
+
+      r(t).get.asInstanceOf[T]
     }
 
     def featureToCExpr(feature: FeatureExpr): Expr = feature match {
