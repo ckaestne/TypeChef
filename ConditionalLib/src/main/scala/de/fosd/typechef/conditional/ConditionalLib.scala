@@ -1,7 +1,6 @@
 package de.fosd.typechef.conditional
 
-import de.fosd.typechef.featureexpr.{Configuration, FeatureExpr}
-import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.featureexpr.{FeatureExpr}
 
 /**
  * maintains a map

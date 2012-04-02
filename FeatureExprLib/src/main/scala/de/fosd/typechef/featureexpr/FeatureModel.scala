@@ -190,8 +190,11 @@ object FeatureModel {
     }
 
     res += intersperse(" or ", orcls).fold("")(_ + _)
-
-    writeToFile(fileName, res)
+    if (fileName.equals("console")) {
+      println(res)
+    } else {
+      writeToFile(fileName, res)
+    }
   }
 
     private def lookupLiteral(literal: String, variables: Map[String, Int]) =

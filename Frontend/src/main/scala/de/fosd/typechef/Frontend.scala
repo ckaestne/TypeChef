@@ -4,10 +4,11 @@ package de.fosd.typechef
 * temporarily copied from PreprocessorFrontend due to technical problems
 */
 
-
+import conditional.Opt
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
+import featureexpr.{FeatureModel, FeatureExpr, Configuration}
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 
@@ -80,7 +81,8 @@ object Frontend {
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 if (opt.typecheck || opt.writeInterface) {
                     println("type checking.")
-                    ts.checkAST
+                    ProductGeneration.typecheckProducts(fm,fm_ts, ast)
+                    //ts.checkAST
                     t4 = System.currentTimeMillis();
                     t5 = t4
                     t6 = t4
