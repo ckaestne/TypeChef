@@ -155,7 +155,7 @@ object FeatureModel {
   // the format is:
   // ((not A) and B) or C, where A, B, and C are feature
   // names and not, and, and or are boolean functions
-  def exportFM2CNF(fm: FeatureModel, fileName: String) = {
+  def exportFM2DNF(fm: FeatureModel, fileName: String) = {
     // reverse the map of variables (fm.variables) Map[String, Int]
     // so we get a Map[Int, String] and can lookup feature names
     // using ids given from the system.
