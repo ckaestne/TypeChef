@@ -12,6 +12,7 @@ trait CASTEnv {
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
   class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
 
+    def containsASTElem(elem: Any) = astc.containsKey(elem)
     def lfeature(elem: Any) = astc.get(elem)._1
     def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
     def parent(elem: Any) = astc.get(elem)._2
