@@ -31,14 +31,21 @@ trait ConditionalNavigation extends CASTEnv {
     }
   }
 
-  def isVariable(e: Any, env: ASTEnv): Boolean = {
-    val efexp = env.lfeature(e).fold(FeatureExpr.base)(_ and _)
-    efexp.not.isContradiction()
+  // check recursively for any nodes that have an annotation != True
+  def isVariable(e: Any): Boolean = {
+    e match {
+      case o@Opt(FeatureExpr.base, _) => o.productIterator.toList.map(isVariable).exists(_ == true)
+      case Opt(FeatureExpr.dead, _) => false
+      case Opt(_, _) => true
+      case l: List[_] => l.map(isVariable).exists(_ == true)
+      case p: Product => p.productIterator.toList.map(isVariable).exists(_ == true)
+      case _ => false
+    }
   }
 
   def filterAllOptElems(e: Any): List[Opt[_]] = {
     e match {
-      case x: Opt[_] => List(x) ++ x.productIterator.toList.flatMap(filterAllOptElems)
+      case x: Opt[_] => x :: x.productIterator.toList.flatMap(filterAllOptElems)
       case l: List[_] => l.flatMap(filterAllOptElems)
       case x: Product => x.productIterator.toList.flatMap(filterAllOptElems)
       case _ => List()
