@@ -1,8 +1,8 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.conditional.Opt
 import java.util.IdentityHashMap
+import de.fosd.typechef.conditional.{Choice, Opt}
 
 trait CASTEnv {
 
@@ -12,8 +12,22 @@ trait CASTEnv {
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
   class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
 
-    def lfeature(elem: Any) = astc.get(elem)._1
-    def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
+    def lfeature(elem: Any) = {
+      val element =astc.get(elem)
+      if (element != null) {
+          element._1
+      } else if (elem.isInstanceOf[Object]) {
+          throw new IllegalArgumentException("Key not found in environment: " + elem + " : "
+            + elem.asInstanceOf[Object].getClass)
+      } else {
+          throw new IllegalArgumentException("Key not found in environment: " + elem)
+      }
+    }
+    def featureExpr(elem: Any) = {
+      assert (!elem.isInstanceOf[FeatureExpr], "Should not ask for a FeatureExpr for a FeatureExpr");
+      lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
+    }
+    def containsASTElem(elem: Any) = astc.containsKey(elem)
     def parent(elem: Any) = astc.get(elem)._2
     def previous(elem: Any) = astc.get(elem)._3
     def next(elem: Any) = astc.get(elem)._4
@@ -49,9 +63,20 @@ trait CASTEnv {
   // handling is generic because we can use the product-iterator interface of case classes, which makes
   // neighborhood settings is straight forward
   private def handleASTElem[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
+    //println("Handling AST elem " + e + " with fexb " + lfexp)
     e match {
       case l:List[Opt[_]] => handleOptList(l, parent, lfexp, env)
-      case Some(o) => handleASTElem(o, parent, lfexp, env)
+      case Some(o) =>  {
+        //println("handling some")
+        handleASTElem(o, parent, lfexp, env)
+      }
+      case x : Choice[_] => {
+        val trueExp:List[FeatureExpr] = lfexp ++ List(x.feature)
+        val falseExp:List[FeatureExpr] = lfexp ++ List(x.feature.not())
+        var x1 = new ASTContext(trueExp, x, null, x.elseBranch, x.thenBranch.asInstanceOf[Product].productIterator.toList)
+        var x2 = new ASTContext(falseExp, x, x.thenBranch, null, x.elseBranch.asInstanceOf[Product].productIterator.toList)
+        env.add(x.thenBranch,x1).add(x.elseBranch,x2) // returns the modified environment
+      }
       case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {

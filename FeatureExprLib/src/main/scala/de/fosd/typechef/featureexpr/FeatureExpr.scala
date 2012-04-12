@@ -316,9 +316,19 @@ sealed abstract class FeatureExpr {
         var result: Set[DefinedExternal] = Set()
         this.mapDefinedExpr(_ match {
             case e: DefinedExternal => result += e; e
+            case e: DefinedExpr => { println("ignoring DefExpr " + e); e}
             case e => e
         }, Map())
         result
+    }
+    def collectDistinctFeaturesInclMacros: Set[DefinedExpr] = {
+      var result: Set[DefinedExpr] = Set()
+      this.mapDefinedExpr(_ match {
+        case e: DefinedExternal => { result += e; e }
+        case e: DefinedMacro => { result +=e ; e }
+        case e => {e}
+      }, Map())
+      result
     }
     /**
      * counts the number of features in this expression for statistic

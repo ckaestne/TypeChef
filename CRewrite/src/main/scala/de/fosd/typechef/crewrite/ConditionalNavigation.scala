@@ -33,7 +33,7 @@ trait ConditionalNavigation extends CASTEnv {
 
   def isVariable(e: Any, env: ASTEnv): Boolean = {
     val efexp = env.lfeature(e).fold(FeatureExpr.base)(_ and _)
-    efexp.not.isContradiction()
+    efexp.isContradiction()
   }
 
   def filterAllOptElems(e: Any): List[Opt[_]] = {

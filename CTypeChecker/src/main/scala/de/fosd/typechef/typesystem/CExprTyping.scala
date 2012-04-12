@@ -103,8 +103,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown) targetType
-                                else
-                                    reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
+                                else{
+                                    reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType + " (position: " + expr.getPositionFrom + ")", ce)
+                                }
                         )
                     //a()
                     case pe@PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>

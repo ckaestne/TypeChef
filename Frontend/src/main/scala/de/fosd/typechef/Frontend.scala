@@ -81,7 +81,8 @@ object Frontend {
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 if (opt.typecheck || opt.writeInterface) {
                     println("type checking.")
-                    ProductGeneration.typecheckProducts(fm,fm_ts, ast)
+                    ProductGeneration.typecheckProducts(fm,fm_ts, ast, opt)
+                    //println("family:")
                     //ts.checkAST
                     t4 = System.currentTimeMillis();
                     t5 = t4
