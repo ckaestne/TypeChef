@@ -112,6 +112,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
 
     // filter function definitions and run cfg determination on it
     val function_defs = filterASTElems[FunctionDef](new_ast)
+    println("checking " + function_defs.size + " functions!")
     function_defs.map(intraCfgFunctionDef(_, env)).forall(_.==(true))
   }
 
@@ -816,8 +817,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
   @Test def test_init_2() {assert(checkCfg("init-2.c"))}
   @Test def test_init_3() {assert(checkCfg("init-3.c"))}
   @Test def test_inline_1() {assert(checkCfg("inline-1.c"))}
-  @Test def test_labels_1() {assert(!checkCfg("labels-1.c"))}
-  @Test def test_labels_2() {assert(!checkCfg("labels-2.c"))}
+  @Test def test_labels_1() {assert(checkCfg("labels-1.c"))}
+  @Test def test_labels_2() {assert(checkCfg("labels-2.c"))}
   @Test def test_labels_3() {assert(checkCfg("labels-3.c"))}
   @Test def test_libcall_1() {assert(checkCfg("libcall-1.c"))}
   @Test def test_mangle_1() {assert(checkCfg("mangle-1.c"))}

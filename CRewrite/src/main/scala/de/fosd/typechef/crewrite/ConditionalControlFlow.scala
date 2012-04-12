@@ -5,6 +5,7 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
+import org.kiama.rewriting.Rewriter._
 import java.util.IdentityHashMap
 
 // implements conditional control flow (cfg) on top of the typechef
@@ -44,13 +45,13 @@ import java.util.IdentityHashMap
 
 
 class CCFGCache {
-  private val cache: IdentityHashMap[Any, List[AST]] = new IdentityHashMap[Any, List[AST]]()
+  private val cache: IdentityHashMap[Product, List[AST]] = new IdentityHashMap[Product, List[AST]]()
 
-  def update(k: Any, v: List[AST]) {
+  def update(k: Product, v: List[AST]) {
     cache.put(k, v)
   }
 
-  def lookup(k: Any): Option[List[AST]] = {
+  def lookup(k: Product): Option[List[AST]] = {
     val v = cache.get(k)
     if (v != null) Some(v)
     else None
@@ -71,7 +72,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // determines predecessor of a given element
   // results are cached for secondary evaluation
-  def pred(a: Any, env: ASTEnv): List[AST] = {
+  def pred(a: Product, env: ASTEnv): List[AST] = {
     predCCFGCache.lookup(a) match {
       case Some(v) => v
       case None => {
@@ -95,8 +96,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               // therefore all predecessors of a belong to a different switch/loop;
               // otherwise we filter them
               case b: BreakStatement => {
-                val a2b = findPriorASTElem2BreakStatement(a.asInstanceOf[AnyRef], env)
-                val b2b = findPriorASTElem2BreakStatement(b.asInstanceOf[AnyRef], env)
+                val a2b = findPriorASTElem2BreakStatement(a, env)
+                val b2b = findPriorASTElem2BreakStatement(b, env)
 
                 if (a2b.isEmpty && b2b.isDefined) add2newres = List(b)
                 else if (a2b.isDefined && b2b.isDefined && a2b.get.ne(b2b.get)) add2newres = List(b)
@@ -106,8 +107,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               // a continue statement causes a jump to the loop-continuation portion
               // of the smallest enclosing iteration statement
               case c: ContinueStatement => {
-                val a2c = findPriorASTElem2ContinueStatement(a.asInstanceOf[AnyRef], env)
-                val b2c = findPriorASTElem2ContinueStatement(c.asInstanceOf[AnyRef], env)
+                val a2c = findPriorASTElem2ContinueStatement(a, env)
+                val b2c = findPriorASTElem2ContinueStatement(c, env)
 
                 if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
                   a2c.get match {
@@ -123,8 +124,8 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
               // if a belongs to an if
               // TODO should be moved to pred determination directly
               case e@ElifStatement(condition, _) => {
-                val a2e = findPriorASTElem[IfStatement](a.asInstanceOf[AnyRef], env)
-                val b2e = findPriorASTElem[IfStatement](e.asInstanceOf[AnyRef], env)
+                val a2e = findPriorASTElem[IfStatement](a, env)
+                val b2e = findPriorASTElem[IfStatement](e, env)
 
                 if (a2e.isEmpty) add2newres = rollUp(oldelem, env)
                 else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) add2newres = getCondExprPred(condition, env)
@@ -148,17 +149,17 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  // checks reference equality of e in a given struture t (t is either a product or a list)
-  def isPartOf(e: Any, t: Any): Boolean = {
+  // checks reference equality of e in a given struture t (either product or list)
+  def isPartOf(e: Product, t: Any): Boolean = {
     t match {
-      case _ if (e.asInstanceOf[AnyRef].eq(t.asInstanceOf[AnyRef])) => true
-      case l: List[_] => l.map(isPartOf(e, _)).fold(false)(_ || _)
-      case x: Product => x.productIterator.toList.map(isPartOf(e, _)).fold(false)(_ || _)
+      case _: Product if (e.asInstanceOf[AnyRef].eq(t.asInstanceOf[AnyRef])) => true
+      case l: List[_] => l.map(isPartOf(e, _)).exists(_ == true)
+      case p: Product => p.productIterator.toList.map(isPartOf(e, _)).exists(_ == true)
       case _ => false
     }
   }
 
-  def predHelper(a: Any, env: ASTEnv): List[AST] = {
+  def predHelper(a: Product, env: ASTEnv): List[AST] = {
 
     // helper method to handle a switch, if we come from a case or a default statement
     def handleSwitch(t: AST) = {
@@ -192,11 +193,11 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env)
 
       case s: Statement => getStmtPred(s, env)
-      case _ => followPred(a.asInstanceOf[AnyRef], env)
+      case _ => followPred(a, env)
     }
   }
 
-  def succ(a: Any, env: ASTEnv): List[AST] = {
+  def succ(a: Product, env: ASTEnv): List[AST] = {
     succCCFGCache.lookup(a) match {
       case Some(v) => v
       case None => {
@@ -234,7 +235,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def succHelper(a: Any, env: ASTEnv): List[AST] = {
+  private def succHelper(a: Product, env: ASTEnv): List[AST] = {
     a match {
       // ENTRY element
       case f@FunctionDef(_, _, _, stmt) => succHelper(stmt, env)
@@ -249,7 +250,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
       case t@CompoundStatement(l) => getCompoundSucc(l, t, env)
 
-      case o: Opt[_] => succHelper(o.entry, env)
+      case o: Opt[_] => succHelper(o.entry.asInstanceOf[Product], env)
       case t: Conditional[_] => succHelper(childAST(t), env)
 
       // loop statements
@@ -325,35 +326,24 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def iterateChildren(a: Any, l: String, env: ASTEnv, op: (Any, String, ASTEnv) => List[AST]): List[AST] = {
-    env.children(a).map(
-      x => x match {
-        case e: AST => op(e, l, env)
-        case Opt(_, entry) => op(entry, l, env)
-        case ls: List[_] => ls.flatMap(op(_, l, env))
-        case _ => List()
-      }
-    ).foldLeft(List[AST]())(_ ++ _)
-  }
-
-  private def labelLookup(a: Any, l: String, env: ASTEnv): List[AST] = {
-    a match {
-      case e@LabelStatement(Id(n), _) if (n == l) => List(e) ++ iterateChildren(e, l, env, labelLookup)
-      case e: AST => iterateChildren(e, l, env, labelLookup)
-      case o: Opt[_] => iterateChildren(o, l, env, labelLookup)
-    }
+  private def labelLookup(a: Product, l: String, env: ASTEnv): List[AST] = {
+    var res: List[AST] = List()
+    val filter = manytd(query{ case e@LabelStatement(Id(n), _) if (n == l) => res ::= e })
+    filter(a)
+    res
   }
 
   // lookup all goto with matching ids or those using indirect goto dispatch
   // indirect goto dispatch are possible candidates for this label because
   // evaluating the expression of the goto might lead to the given label
-  private def gotoLookup(a: Any, l: String, env: ASTEnv): List[AST] = {
-    a match {
-      case e@GotoStatement(Id(n)) if (n == l) => List(e)
-      case e@GotoStatement(PointerDerefExpr(_)) => List(e)
-      case e: AST => iterateChildren(e, l, env, gotoLookup)
-      case o: Opt[_] => iterateChildren(o, l, env, gotoLookup)
-    }
+  private def gotoLookup(a: Product, l: String, env: ASTEnv): List[AST] = {
+    var res: List[AST] = List()
+    val filter = all(query{
+      case e@GotoStatement(Id(n)) if (n == l) => res ::= e
+      case e@GotoStatement(PointerDerefExpr(_)) => res ::= e
+    })
+    filter(a)
+    res
   }
 
   private def getCondStmtSucc(p: AST, c: Conditional[_], env: ASTEnv): List[AST] = {
@@ -389,7 +379,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
   // handling of successor determination of nested structures, such as for, while, ... and next element in a list
   // of statements
-  private def followSucc(nested_ast_elem: Any, env: ASTEnv): List[AST] = {
+  private def followSucc(nested_ast_elem: Product, env: ASTEnv): List[AST] = {
     nested_ast_elem match {
       case t: ReturnStatement => {
         findPriorASTElem[FunctionDef](t, env) match {
@@ -469,7 +459,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // method to catch surrounding ast element, which precedes the given nested_ast_element
-  private def followPred(nested_ast_elem: AnyRef, env: ASTEnv): List[AST] = {
+  private def followPred(nested_ast_elem: Product, env: ASTEnv): List[AST] = {
 
     def handleSwitch(t: AST) = {
       val prior_switch = findPriorASTElem[SwitchStatement](t, env)
@@ -626,7 +616,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
 
   // method to find prior element to a break statement
-  private def findPriorASTElem2BreakStatement(a: AnyRef, env: ASTEnv): Option[AST] = {
+  private def findPriorASTElem2BreakStatement(a: Product, env: ASTEnv): Option[AST] = {
     val aparent = env.parent(a)
     aparent match {
       case t: ForStatement => Some(t)
@@ -634,19 +624,19 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case t: DoStatement => Some(t)
       case t: SwitchStatement => Some(t)
       case null => None
-      case t: AnyRef => findPriorASTElem2BreakStatement(t, env)
+      case p: Product => findPriorASTElem2BreakStatement(p, env)
     }
   }
 
   // method to find prior element to a continue statement
-  private def findPriorASTElem2ContinueStatement(a: AnyRef, env: ASTEnv): Option[AST] = {
+  private def findPriorASTElem2ContinueStatement(a: Product, env: ASTEnv): Option[AST] = {
     val aparent = env.parent(a)
     aparent match {
       case t: ForStatement => Some(t)
       case t: WhileStatement => Some(t)
       case t: DoStatement => Some(t)
       case null => None
-      case t: AnyRef => findPriorASTElem2ContinueStatement(t, env)
+      case p: Product => findPriorASTElem2ContinueStatement(p, env)
     }
   }
 
@@ -841,7 +831,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
   }
 
   // given a list of AST elements, determine successor AST elements based on feature expressions
-  private def getCompoundSucc(l: List[AST], parent: Any, env: ASTEnv): List[AST] = {
+  private def getCompoundSucc(l: List[AST], parent: Product, env: ASTEnv): List[AST] = {
     val ifdef_blocks = determineIfdefBlocks(l, env)
     val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env).reverse
     val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env).reverse
@@ -849,7 +839,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
 
     successor_list match {
       case Left(s_list) => s_list
-      case Right(s_list) => s_list ++ (if (l.isEmpty) followSucc(parent.asInstanceOf[AnyRef], env)
+      case Right(s_list) => s_list ++ (if (l.isEmpty) followSucc(parent, env)
                                        else followSucc(l.head, env))
     }
   }
@@ -1145,8 +1135,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // out(n) = for s in succ(n) r = r + in(s); r
   // insimple and outsimple are the non variability-aware in and out versiosn
   // of liveness determination
-  val insimple: PartialFunction[(Any, ASTEnv), Set[Id]] = {
-    circular[(Any, ASTEnv), Set[Id]](Set()) {
+  val insimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
+    circular[(Product, ASTEnv), Set[Id]](Set()) {
       case t@(FunctionDef(_, _, _, _), _) => Set()
       case t@(e, env) => {
         val u = uses(e)
@@ -1159,8 +1149,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outsimple: PartialFunction[(Any, ASTEnv), Set[Id]] = {
-    circular[(Any, ASTEnv), Set[Id]](Set()) {
+  val outsimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
+    circular[(Product, ASTEnv), Set[Id]](Set()) {
       case t@(e, env) => {
         val ss = succ(e, env).filterNot(_.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
@@ -1174,8 +1164,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
-    circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
+  val inrec: PartialFunction[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(FunctionDef(_, _, _, _), _) => Map()
       case t@(e, env) => {
         val u = uses(e)
@@ -1188,8 +1178,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outrec: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] =
-    circular[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
+  val outrec: PartialFunction[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]] =
+    circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(e, env) => {
         val sl = succ(e, env).filterNot(_.isInstanceOf[FunctionDef])
         var res = Map[FeatureExpr, Set[Id]]()
@@ -1202,7 +1192,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       }
     }
 
-  def out(a: (Any, ASTEnv)) = {
+  def out(a: (Product, ASTEnv)) = {
     outcache.lookup(a._1) match {
       case Some(v) => v
       case None => {
@@ -1213,7 +1203,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  def in(a: (Any, ASTEnv)) = {
+  def in(a: (Product, ASTEnv)) = {
     incache.lookup(a._1) match {
       case Some(v) => v
       case None => {

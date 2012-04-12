@@ -10,7 +10,7 @@ object ConfigurationCoverage extends CASTEnv with ConditionalNavigation {
   def collectFeatureExpressions(env: ASTEnv) = {
     var res: Set[FeatureExpr] = Set()
     for (e <- env.keys())
-      res += env.featureExpr(e)
+      res += env.featureExpr(e.asInstanceOf[Product])
 
     res
   }
@@ -21,7 +21,7 @@ object ConfigurationCoverage extends CASTEnv with ConditionalNavigation {
   // the result is not the number of variants that can be generated
   // from the input set in
   // wrapper for naiveCoverage
-  def naiveCoverageAny(a: Any, fm: FeatureModel, env: ASTEnv) = {
+  def naiveCoverageAny(a: Product, fm: FeatureModel, env: ASTEnv) = {
     val opts = filterAllOptElems(a)
     naiveCoverage(opts.toSet, fm, env)
   }

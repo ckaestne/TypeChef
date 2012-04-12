@@ -4,8 +4,10 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.featureexpr.FeatureExpr
 
+import org.kiama.rewriting.Rewriter._
+
 trait ConditionalNavigation extends CASTEnv {
-  def parentOpt(e: Any, env: ASTEnv): Opt[_] = {
+  def parentOpt(e: Product, env: ASTEnv): Opt[_] = {
     val eparent = env.parent(e)
     eparent match {
       case o: Opt[_] => o
@@ -32,23 +34,24 @@ trait ConditionalNavigation extends CASTEnv {
   }
 
   // check recursively for any nodes that have an annotation != True
-  def isVariable(e: Any): Boolean = {
-    e match {
-      case o@Opt(FeatureExpr.base, _) => o.productIterator.toList.map(isVariable).exists(_ == true)
-      case Opt(FeatureExpr.dead, _) => false
-      case Opt(_, _) => true
-      case l: List[_] => l.map(isVariable).exists(_ == true)
-      case p: Product => p.productIterator.toList.map(isVariable).exists(_ == true)
-      case _ => false
-    }
+  def isVariable(e: Product): Boolean = {
+    var res = false
+    val variable = manytd(query {
+      case Opt(f, _) => if (f != FeatureExpr.dead && f != FeatureExpr.base) res = true
+      case x => res = res
+    })
+
+    variable(e)
+    res
   }
 
-  def filterAllOptElems(e: Any): List[Opt[_]] = {
-    e match {
-      case x: Opt[_] => x :: x.productIterator.toList.flatMap(filterAllOptElems)
-      case l: List[_] => l.flatMap(filterAllOptElems)
-      case x: Product => x.productIterator.toList.flatMap(filterAllOptElems)
-      case _ => List()
-    }
+  def filterAllOptElems(e: Product): List[Opt[_]] = {
+    var res: List[Opt[_]] = List()
+    val filter = manytd(query {
+      case o: Opt[_] => res ::= o
+    })
+
+    filter(e)
+    res
   }
 }

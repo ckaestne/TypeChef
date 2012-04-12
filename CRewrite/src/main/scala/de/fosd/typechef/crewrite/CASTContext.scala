@@ -6,7 +6,7 @@ import java.util.IdentityHashMap
 
 trait CASTEnv {
 
-  type ASTContext = (List[FeatureExpr], Any, Any, Any, List[Any])
+  type ASTContext = (List[FeatureExpr], Product, Product, Product, List[Product])
 
   // store context of an AST entry
   // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
@@ -49,12 +49,12 @@ trait CASTEnv {
   // handle single ast elements
   // handling is generic because we can use the product-iterator interface of case classes, which makes
   // neighborhood settings is straight forward
-  private def handleASTElem[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
+  private def handleASTElem[T, U <: Product](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
       case l:List[Opt[_]] => handleOptList(l, parent, lfexp, env)
-      case Some(o) => handleASTElem(o, parent, lfexp, env)
+      case Some(o) => handleASTElem(o.asInstanceOf[Product], parent, lfexp, env)
       case x:Product => {
-        var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
+        var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.asInstanceOf[Iterator[Product]].toList))
         for (elem <- x.productIterator.toList) {
           curenv = handleASTElem(elem, x, lfexp, curenv)
         }
@@ -66,14 +66,15 @@ trait CASTEnv {
 
   // handle list of Opt nodes
   // sets prev-next connections for elements and recursively calls handleASTElems
-  private def handleOptList[T](l: List[Opt[_]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
+  private def handleOptList[T <: Product](l: List[Opt[_]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
     var curenv = env
 
     // set prev and next and children
     for (e <- createPrevElemNextTuples(l)) {
       e match {
         case (prev, Some(elem), next) => {
-          curenv = curenv.add(elem, (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), elem.asInstanceOf[Product].productIterator.toList))
+          curenv = curenv.add(elem,
+            (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), elem.asInstanceOf[Product].productIterator.asInstanceOf[Iterator[Product]].toList))
         }
         case _ => ;
       }
