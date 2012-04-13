@@ -461,4 +461,120 @@ return 1;
         }
     }
 
+    test("top level inline assembler") {
+        expect(true) {
+            check("""
+                    int a;
+                    __asm__("whatever");
+                    int b;
+                        """)
+        }
+    }
+
+    test("int pointer compatibility") {
+        expect(true) {
+            check("""
+                void foo(){
+                    unsigned int a;
+                    signed int b;
+                    a=b;
+                }
+                    """)
+        }
+        expect(false) {
+            check("""
+                void foo(){
+                    unsigned int *a;
+                    signed int *b;
+                    a=&b;
+                }
+                    """)
+        }
+        //last two should not yield an error or warning if -Wno-pointer-sign is set (default in linux)
+        expect(true) {
+            check("""
+                void foo(){
+                    unsigned int *a;
+                    signed int *b;
+                    a=b;
+                }
+                    """)
+        }
+        expect(true) {
+            check("""
+                void foo(){
+                    char *a;
+                    unsigned char *b;
+                    a=b;
+                }
+                    """)
+        }
+        expect(true) {
+            check("""
+                         void f(int *x) {}
+                         void g() {
+                                unsigned int y=3;
+                                f(&y);
+                        }
+                            """)
+        }
+    }
+
+
+    test("cast pointer to long") {
+        expect(true) {
+            check("""
+                extern void f();
+                void foo(){
+                    long a;
+                    a=(long) f;
+                }
+                    """)
+        }
+
+    }
+
+
+    test("range expression ") {
+        expect(true) {
+            check("""
+                    void foo(){
+                    int c;
+                      switch (c) {
+                                         default:
+                                                            break;
+                                         case 7 ... 9:
+                                                            break;
+                        }
+                    }
+                        """)
+        }
+
+    }
+
+    test("pointer arithmetics") {
+        //don't ask. pointer-pointer yields an int, + a pointer is a pointer
+        expect(true) {
+            check("""
+                    void foo(){
+                        char *a, *b, *c, *d;
+                        d=a-b+c;
+                    }
+                        """, true)
+        }
+
+    }
+
+    test("asm statement") {
+        expect(true) {
+            check("""
+                         void arch_kgdb_breakpoint(void)
+                        {
+                                asm("   int $3");
+                        }
+                            """)
+        }
+    }
+
+
 }

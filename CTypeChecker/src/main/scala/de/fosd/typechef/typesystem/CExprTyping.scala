@@ -103,9 +103,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown) targetType
-                                else{
-                                    reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType + " (position: " + expr.getPositionFrom + ")", ce)
-                                }
+                                else
+                                    reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
                         )
                     //a()
                     case pe@PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
@@ -145,8 +144,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     }
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
-                        ConditionalLib.conditionalFoldRightFR(opList, et(expr), featureExpr,
-                            (fexpr: FeatureExpr, subExpr: NArySubExpr, ctype: CType) =>
+                        ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
+                            (fexpr: FeatureExpr, ctype: CType, subExpr: NArySubExpr) =>
                                 etF(subExpr.e, fexpr) map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr))
                         )
                     //a[e]
@@ -231,7 +230,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     }
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType], featureExpr: FeatureExpr, where: AST) =
-        ConditionalLib.mapCombination(thenTypes, elseTypes, (thenType: CType, elseType: CType) => {
+        ConditionalLib.mapCombinationF(thenTypes, elseTypes, featureExpr, (featureExpr: FeatureExpr, thenType: CType, elseType: CType) => {
             (thenType.toValue, elseType.toValue) match {
                 case (CPointer(CVoid()), CPointer(x)) => CPointer(x) //spec
                 case (CPointer(x), CPointer(CVoid())) => CPointer(x) //spec
