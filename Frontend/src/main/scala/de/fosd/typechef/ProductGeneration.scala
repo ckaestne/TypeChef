@@ -63,8 +63,16 @@ object ProductGeneration {
     fw.close()
 
     //val configs = getAllProductsForAllFeatures(family_ast, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv])
-    val features : List[FeatureExpr] = getAllFeatures(ConfigurationCoverage.filterAllOptElems(family_ast))
+    val features : List[DefinedExpr] = getAllFeatures(ConfigurationCoverage.filterAllOptElems(family_ast))
+    //for (f <- features) println(f.feature)
     val configs = getAllPairwiseConfigurations(features,fm)
+    /*
+    val configs = getOneConfigWithFeatures(
+      List("CONFIG_FEATURE_LS_COLOR"),
+      //List("CONFIG_LONG_OPTS","CONFIG_FEATURE_GETOPT_LONG"),
+      List(),
+      features,fm)
+    */
     val outFilePrefix:String = "../reports/" + opt.getFile.substring(0,opt.getFile.length-2)
 
     var configurationsWithErrors = 0
@@ -80,6 +88,7 @@ object ProductGeneration {
       val configTime : Long = System.currentTimeMillis()-startTime
       totalTimeProductChecking += configTime
       if (!noErrors) {
+      //if (true) {
         // log product with error
         configurationsWithErrors += 1
         var file :File = new File(outFilePrefix + "_errors" + current_config + ".txt")
@@ -125,8 +134,44 @@ object ProductGeneration {
     fw.close()
 
   }
+  def getOneConfigWithFeatures(trueFeatures:List[String], falseFeatures:List[String],
+                                  allFeatures : List[DefinedExpr], fm:FeatureModel) : List[FeatureExpr] = {
+    var partConfig : FeatureExpr = FeatureExpr.base
+    var remainingFeatures :List[DefinedExpr] = allFeatures
+    for (fName : String <-trueFeatures) {
+      val fIndex :Int= remainingFeatures.indexWhere({(f:DefinedExpr) => f.feature.trim.equals(fName)})
+      if (fIndex != -1) { //-1 := no feature found
+        partConfig = partConfig.and(remainingFeatures.apply(fIndex))
+        // I know this is horrible. But it will be used only for debugging
+        remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
+      } else {
+        throw new IllegalArgumentException("Feature not found: " + fName)
+      }
+    }
+    for (fName : String <-falseFeatures) {
+      val fIndex :Int= remainingFeatures.indexWhere({(f:DefinedExpr) => f.feature.trim.equals(fName)})
+      if (fIndex != -1) { //-1 := no feature found
+        partConfig = partConfig.andNot(remainingFeatures.apply(fIndex))
+        // I know this is horrible. But it will be used only for debugging
+        remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
+      } else {
+        throw new IllegalArgumentException("Feature not found: " + fName)
+      }
+    }
+    if (partConfig.isSatisfiable(fm)) {
+      val completeConfig =  completeConfiguration(partConfig,remainingFeatures,fm)
+      if (completeConfig== null) {
+        throw new IllegalArgumentException("PartialConfig has no satisfiable extension!")
+      } else {
+        return List(completeConfig)
+      }
+    } else {
+      throw new IllegalArgumentException("PartialConfig \"" + partConfig.toTextExpr + "\" is not satisfiable!")
+    }
+  }
 
-  def getAllSinglewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
+
+  def getAllSinglewiseConfigurations(features : List[DefinedExpr], fm:FeatureModel) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[FeatureExpr] = Set()
     for (f1 <- features) {
@@ -135,28 +180,13 @@ object ProductGeneration {
         var conf = FeatureExpr.base.and(f1)
         if (conf.isSatisfiable(fm)) {
           // this pair is satisfiable
-          // make config complete by choosing the other features
-          val fIter = features.iterator
-          var partConfigFeasible : Boolean = true
-          while (partConfigFeasible && fIter.hasNext) {
-            val fx = fIter.next()
-            if (fx != f1) {
-              // try to set other variables to false first
-              if (conf.andNot(fx).isSatisfiable(fm)) {
-                conf = conf.andNot(fx)
-              } else if (conf.and(fx).isSatisfiable(fm)) {
-                conf = conf.and(fx)
-              } else {
-                // this configuration cannot be satisfied any more
-                println("no satisfiable configuration for feature " + f1)
-                partConfigFeasible=false
-              }
-            }
-          }
-          if (partConfigFeasible) {
-            // all features have been processed, and the config is still feasible.
-            // so we have a complete configuration now!
-            pwConfigs ::= conf // ::= adds to the head of the list? I don't care if head or tail in this case
+          // make config complete by choosing the other featuresval remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
+          val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1)})
+          val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+          if (completeConfig != null) {
+            pwConfigs ::= completeConfig
+          } else {
+            println("no satisfiable configuration for features " + f1)
           }
         } else {
           println("no satisfiable configuration for feature " + f1)
@@ -167,7 +197,7 @@ object ProductGeneration {
     return pwConfigs
   }
 
-  def getAllPairwiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
+  def getAllPairwiseConfigurations(features : List[DefinedExpr], fm:FeatureModel) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[Pair[FeatureExpr,FeatureExpr]] = Set()
 
@@ -179,27 +209,12 @@ object ProductGeneration {
           if (conf.isSatisfiable(fm)) {
             // this pair is satisfiable
             // make config complete by choosing the other features
-            val fIter = features.iterator
-            var partConfigFeasible : Boolean = true
-            while (partConfigFeasible && fIter.hasNext) {
-              val fx = fIter.next()
-              if (fx != f1 && fx != f2) {
-                // try to set other variables to false first
-                if (conf.andNot(fx).isSatisfiable(fm)) {
-                  conf = conf.andNot(fx)
-                } else if (conf.and(fx).isSatisfiable(fm)) {
-                  conf = conf.and(fx)
-                } else {
-                  // this configuration cannot be satisfied any more
-                  println("no satisfiable configuration for features " + f1 + " and " +f2)
-                  partConfigFeasible=false
-                }
-              }
-            }
-            if (partConfigFeasible) {
-              // all features have been processed, and the config is still feasible.
-              // so we have a complete configuration now!
-              pwConfigs ::= conf // ::= adds to the head of the list? I don't care if head or tail in this case
+            val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
+            val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+            if (completeConfig != null) {
+              pwConfigs ::= completeConfig
+            } else {
+              println("no satisfiable configuration for features " + f1 + " and " +f2)
             }
           } else {
             println("no satisfiable configuration for features " + f1 + " and " +f2)
@@ -210,7 +225,7 @@ object ProductGeneration {
     return pwConfigs
   }
 
-  def getAllTriplewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
+  def getAllTriplewiseConfigurations(features : List[DefinedExpr], fm:FeatureModel) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[Set[FeatureExpr]] = Set()
     for (f1 <- features)
@@ -222,27 +237,12 @@ object ProductGeneration {
         if (conf.isSatisfiable(fm)) {
           // this pair is satisfiable
           // make config complete by choosing the other features
-          val fIter = features.iterator
-          var partConfigFeasible : Boolean = true
-          while (partConfigFeasible && fIter.hasNext) {
-            val fx = fIter.next()
-            if (fx != f1 && fx != f2 && fx!= f3) {
-              // try to set other variables to false first
-              if (conf.andNot(fx).isSatisfiable(fm)) {
-                conf = conf.andNot(fx)
-              } else if (conf.and(fx).isSatisfiable(fm)) {
-                conf = conf.and(fx)
-              } else {
-                // this configuration cannot be satisfied any more
-                println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
-                partConfigFeasible=false
-              }
-            }
-          }
-          if (partConfigFeasible) {
-            // all features have been processed, and the config is still feasible.
-            // so we have a complete configuration now!
-            pwConfigs ::= conf // ::= adds to the head of the list? I don't care if head or tail in this case
+          val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)})
+          val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+          if (completeConfig != null) {
+            pwConfigs ::= completeConfig
+          } else {
+            println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
           }
         } else {
           println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
@@ -254,30 +254,63 @@ object ProductGeneration {
   }
 
   /**
+   * Completes a partial configuration so that no variability remains.
+   * Features are set to false if possible.
+   * If no satisfiable configuration is found then null is returned.
+   * @param partialConfig
+   * @param remainingFeatures
+   * @param fm
+   */
+  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[DefinedExpr], fm:FeatureModel) : FeatureExpr = {
+    var config : FeatureExpr = partialConfig
+    val fIter = remainingFeatures.iterator
+    var partConfigFeasible : Boolean = true
+    while (partConfigFeasible && fIter.hasNext) {
+      val fx = fIter.next()
+      // try to set other variables to false first
+      if (partialConfig.andNot(fx).isSatisfiable(fm)) {
+        config = config.andNot(fx)
+      } else if (partialConfig.and(fx).isSatisfiable(fm)) {
+        config = config.and(fx)
+      } else {
+        // this configuration cannot be satisfied any more
+        return null
+        partConfigFeasible=false
+      }
+    }
+    if (partConfigFeasible) {
+      // all features have been processed, and the config is still feasible.
+      // so we have a complete configuration now!
+      return config
+    }
+    return null
+  }
+
+  /**
    * Returns a sorted list of all features in this AST, including Opt and Choice Nodes
    * @param root
    * @return
    */
-  def getAllFeatures(root: Product) : List[FeatureExpr] = {
+  def getAllFeatures(root: Product) : List[DefinedExpr] = {
     // sort to eliminate any non-determinism caused by the set
     val featuresSorted = getAllFeaturesRec(root).toList.sortWith({
-      (x,y) => x.toTextExpr.compare(y.toTextExpr) > 0
+      (x,y) => x.feature.compare(y.toTextExpr) > 0
     });
     println ("found " + featuresSorted.size + " features")
     return featuresSorted;
   }
 
-  private def getAllFeaturesRec(root: Any) : Set[FeatureExpr] = {
+  private def getAllFeaturesRec(root: Any) : Set[DefinedExpr] = {
     root match {
       case x: Opt[_] => x.feature.collectDistinctFeaturesInclMacros.toSet ++ getAllFeaturesRec(x.entry)
       case x: Choice[_] => x.feature.collectDistinctFeaturesInclMacros.toSet ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
       case l: List[_] => {
-        var ret : Set[FeatureExpr] = Set();
+        var ret : Set[DefinedExpr] = Set();
         for (x <- l) {ret = ret ++ getAllFeaturesRec(x);}
         ret
       }
       case x: Product => {
-        var ret : Set[FeatureExpr] = Set();
+        var ret : Set[DefinedExpr] = Set();
         for (y <- x.productIterator.toList) {ret = ret ++ getAllFeaturesRec(y);}
         ret
       }
