@@ -259,26 +259,26 @@ object ProductGeneration {
    * @return
    */
   def getAllFeatures(root: Product) : List[FeatureExpr] = {
-    println(root)
     // sort to eliminate any non-determinism caused by the set
     val featuresSorted = getAllFeaturesRec(root).toList.sortWith({
       (x,y) => x.toTextExpr.compare(y.toTextExpr) > 0
     });
     println ("found " + featuresSorted.size + " features")
-    return featuresSorted; // reverse the list, because elements have always been added to the head
+    return featuresSorted;
   }
+
   private def getAllFeaturesRec(root: Any) : Set[FeatureExpr] = {
     root match {
-      case x: Opt[_] => Set(x.feature) ++ getAllFeaturesRec(x.entry)
-      case x: Choice[_] => Set(x.feature) ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
+      case x: Opt[_] => x.feature.collectDistinctFeaturesInclMacros.toSet ++ getAllFeaturesRec(x.entry)
+      case x: Choice[_] => x.feature.collectDistinctFeaturesInclMacros.toSet ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
       case l: List[_] => {
         var ret : Set[FeatureExpr] = Set();
-        for (x <- l) {ret ++ getAllFeaturesRec(x);}
+        for (x <- l) {ret = ret ++ getAllFeaturesRec(x);}
         ret
       }
       case x: Product => {
         var ret : Set[FeatureExpr] = Set();
-        for (y <- x.productIterator.toList) {ret ++ getAllFeaturesRec(y);}
+        for (y <- x.productIterator.toList) {ret = ret ++ getAllFeaturesRec(y);}
         ret
       }
       case o => {

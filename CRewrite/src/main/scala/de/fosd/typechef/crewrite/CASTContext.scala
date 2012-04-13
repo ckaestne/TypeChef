@@ -63,11 +63,9 @@ trait CASTEnv {
   // handling is generic because we can use the product-iterator interface of case classes, which makes
   // neighborhood settings is straight forward
   private def handleASTElem[T, U](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
-    //println("Handling AST elem " + e + " with fexb " + lfexp)
     e match {
       case l:List[Opt[_]] => handleOptList(l, parent, lfexp, env)
       case Some(o) =>  {
-        //println("handling some")
         handleASTElem(o, parent, lfexp, env)
       }
       case x : Choice[_] => {

@@ -3,6 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c._
 
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
@@ -89,7 +90,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
         res
       }
       case Opt(fex, entry : Product) =>
-        assert(c.config.implies(env.featureExpr(entry)).isTautology());
+        //assert(c.config.implies(env.featureExpr(entry)).isTautology());
         assert(c.config.implies(fex).isTautology());
         new Opt(FeatureExpr.base,deriveProd(entry,c,env)) // the variability should be handled be the List[Opt[_]] - code
       case l : List[Product] => l.map(deriveProd(_,c,env))
