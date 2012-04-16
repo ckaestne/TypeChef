@@ -112,7 +112,9 @@ case class CZero() extends CType {
     def toXML = <zero/>
 }
 
-case class CSigned(b: CBasicType) extends CType {
+abstract class CSignSpecifier(val basicType: CBasicType) extends CType
+
+case class CSigned(b: CBasicType) extends CSignSpecifier(b) {
     override def <(that: CType) = that match {
         case CSigned(thatb) => b < thatb
         case _ => false
@@ -123,7 +125,7 @@ case class CSigned(b: CBasicType) extends CType {
     </signed>
 }
 
-case class CUnsigned(b: CBasicType) extends CType {
+case class CUnsigned(b: CBasicType) extends CSignSpecifier(b) {
     override def <(that: CType) = that match {
         case CUnsigned(thatb) => b < thatb
         case _ => false
@@ -134,7 +136,7 @@ case class CUnsigned(b: CBasicType) extends CType {
     </unsigned>
 }
 
-case class CSignUnspecified(b: CBasicType) extends CType {
+case class CSignUnspecified(b: CBasicType) extends CSignSpecifier(b) {
     override def <(that: CType) = that match {
         case CSignUnspecified(thatb) => b < thatb
         case _ => false
@@ -315,7 +317,7 @@ object CType {
  * internally storing Type, wheather its a function definition, and the current scope idx
  */
 class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends ConditionalCMap[CType](m) {
-    def this() = this (new ConditionalMap())
+    def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
     def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
@@ -323,7 +325,7 @@ class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends 
 }
 
 class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(CType, Boolean, Int)]]) extends ConditionalCMap[(CType, Boolean, Int)](m) {
-    def this() = this (new ConditionalMap())
+    def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
     def lookup(name: String): Conditional[(CType, Boolean, Int)] = getOrElse(name, (CUnknown(name), false, -1))
     def +(name: String, f: FeatureExpr, t: Conditional[CType], isFunctionDef: Boolean, scope: Int) = new ConditionalVarEnv(m.+(name, f, t.map(x => (x, isFunctionDef, scope))))
@@ -356,7 +358,7 @@ abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, Condit
 /**
  * helper functions
  */
-trait CTypes {
+trait CTypes extends COptionProvider {
     type PtrEnv = Set[String]
 
 
@@ -422,7 +424,8 @@ trait CTypes {
         if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) => if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) return true
+            case (CPointer(a), CPointer(b)) if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) => return true
+            case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if (!opts.warning_pointer_sign && (a.basicType == b.basicType)) => return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
             case (CStruct(_, _), CCompound()) => return true

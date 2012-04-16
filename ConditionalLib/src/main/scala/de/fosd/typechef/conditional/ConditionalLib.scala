@@ -37,6 +37,9 @@ object ConditionalLib {
             }
         )
 
+    def conditionalFoldLeftFR[A, B](list: List[Opt[A]], init: Conditional[B], featureExpr: FeatureExpr, op: (FeatureExpr, B, A) => Conditional[B]): Conditional[B] =
+        conditionalFoldRightFR[A, B](list.reverse, init, featureExpr, (o, b, a) => op(o, a, b))
+
     def equals[T](a: Conditional[T], b: Conditional[T]): Boolean =
         compare(a, b, (x: T, y: T) => x equals y).simplify.forall(a => a)
 
