@@ -4,7 +4,7 @@ package de.fosd.typechef
 * temporarily copied from PreprocessorFrontend due to technical problems
 */
 
-import conditional.Opt
+
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._

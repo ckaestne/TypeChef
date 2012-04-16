@@ -5,28 +5,30 @@ import crewrite.{CASTEnv, ConfigurationCoverage, CAnalysisFrontend}
 import featureexpr.{DefinedExpr, FeatureExpr, Configuration, FeatureModel}
 import parser.c.{PrettyPrinter, TranslationUnit, AST}
 import parser.WithPosition
-import typesystem.CTypeSystemFrontend
 import java.io.{FileWriter, File}
 import org.kiama.rewriting.Rewriter._
 import collection.mutable.Queue
 import java.util.Date
+import typesystem.CTypeSystemFrontend
 
 /**
- * Created by IntelliJ IDEA.
+ *
  * User: rhein
  * Date: 4/2/12
  * Time: 3:45 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 
 object ProductGeneration {
   def typecheckProducts(fm:FeatureModel, fm_ts : FeatureModel, ast :AST, opt: FrontendOptions) {
+    println("starting product typechecking.")
     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
     var family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
     var family_env = cf.createASTEnv(family_ast)
 
     // PLAN: Ich bekomme ständig Fehlermedlungen, die keine Positionsangaben enthalten.
     // also: den ganzen AST durchgehen, bei allen Elementen, die keine Angaben haben, die der parents einfügen.
+
     val tmpq : Queue[Product] = Queue()
     tmpq.+=(family_ast)
     while (!tmpq.isEmpty) {
@@ -57,22 +59,31 @@ object ProductGeneration {
         }
       }
     }
+
     // write family ast
     var fw : FileWriter = new FileWriter(new File("../ast_fam.txt"))
     fw.write(family_ast.toString)
     fw.close()
 
-    //val configs = getAllProductsForAllFeatures(family_ast, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv])
-    val features : List[DefinedExpr] = getAllFeatures(ConfigurationCoverage.filterAllOptElems(family_ast))
+    println("generating configurations.")
+
+    val features : List[DefinedExpr] = getAllFeatures(family_ast)
     //for (f <- features) println(f.feature)
-    val configs = getAllPairwiseConfigurations(features,fm)
-    /*
+/**  All products */
+    //val configs = getAllProducts(features, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv])
+/**  Pairwise */
+    val configs = getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true)
+/** No configurations */
+    //val configs : List[FeatureExpr] = List()
+/** Just one hardcoded config */
+/*
     val configs = getOneConfigWithFeatures(
-      List("CONFIG_FEATURE_LS_COLOR"),
+      List(//"CONFIG_PMAP"//"CONFIG_USE_BB_CRYPT"
+      ),
       //List("CONFIG_LONG_OPTS","CONFIG_FEATURE_GETOPT_LONG"),
-      List(),
-      features,fm)
-    */
+      List("CONFIG_UNEXPAND"), //"CONFIG_UNEXPAND"
+      features,fm, true, true)
+*/
     val outFilePrefix:String = "../reports/" + opt.getFile.substring(0,opt.getFile.length-2)
 
     var configurationsWithErrors = 0
@@ -98,25 +109,26 @@ object ProductGeneration {
           fw.write("  - " + error + "\n")
         fw.close()
         // write product to file
-        file = new File(outFilePrefix + "_product_" + current_config + ".c")
+        file = new File(outFilePrefix + "_" + current_config + "_product.c")
         fw = new FileWriter(file)
         fw.write(PrettyPrinter.print(product))
         fw.close()
         //write configuration to file
-        file = new File(outFilePrefix + "_config_" + current_config + ".txt")
+        file = new File(outFilePrefix + "_" + current_config +  "_config.txt")
         fw = new FileWriter(file)
-        fw.write(config.toTextExpr)
+        fw.write(config.toTextExpr.replace("&&", "&&\n"))
         fw.close()
         // write ast to file
-        file = new File(outFilePrefix + "_ast_" + current_config + ".txt")
+        file = new File(outFilePrefix + "_" + current_config + "_ast.txt")
         fw = new FileWriter(file)
         fw.write(product.toString)
         fw.close()
       }
     }
     // family base checking
+    println("family-based type checking:")
     val startTime : Long = System.currentTimeMillis()
-    val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], FeatureModel.empty)
+    val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm_ts)
     val noErrors : Boolean = ts.checkAST
     val familyTime : Long = System.currentTimeMillis()-startTime
 
@@ -135,7 +147,7 @@ object ProductGeneration {
 
   }
   def getOneConfigWithFeatures(trueFeatures:List[String], falseFeatures:List[String],
-                                  allFeatures : List[DefinedExpr], fm:FeatureModel) : List[FeatureExpr] = {
+                                  allFeatures : List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true, fixConfig : Boolean = true) : List[FeatureExpr] = {
     var partConfig : FeatureExpr = FeatureExpr.base
     var remainingFeatures :List[DefinedExpr] = allFeatures
     for (fName : String <-trueFeatures) {
@@ -143,27 +155,33 @@ object ProductGeneration {
       if (fIndex != -1) { //-1 := no feature found
         partConfig = partConfig.and(remainingFeatures.apply(fIndex))
         // I know this is horrible. But it will be used only for debugging
-        remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
       } else {
-        throw new IllegalArgumentException("Feature not found: " + fName)
+        //throw new IllegalArgumentException("Feature not found: " + fName)
+        println("Feature not found: " + fName)
       }
+      remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
     }
     for (fName : String <-falseFeatures) {
       val fIndex :Int= remainingFeatures.indexWhere({(f:DefinedExpr) => f.feature.trim.equals(fName)})
       if (fIndex != -1) { //-1 := no feature found
         partConfig = partConfig.andNot(remainingFeatures.apply(fIndex))
         // I know this is horrible. But it will be used only for debugging
-        remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
       } else {
-        throw new IllegalArgumentException("Feature not found: " + fName)
+        //throw new IllegalArgumentException("Feature not found: " + fName)
+        println("Feature not found: " + fName)
       }
+      remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
     }
     if (partConfig.isSatisfiable(fm)) {
-      val completeConfig =  completeConfiguration(partConfig,remainingFeatures,fm)
-      if (completeConfig== null) {
-        throw new IllegalArgumentException("PartialConfig has no satisfiable extension!")
+      if (fixConfig) {
+        val completeConfig =  completeConfiguration(partConfig,remainingFeatures,fm,preferDisabledFeatures)
+        if (completeConfig == null) {
+          throw new IllegalArgumentException("PartialConfig has no satisfiable extension!")
+        } else {
+          return List(completeConfig)
+        }
       } else {
-        return List(completeConfig)
+        return List(partConfig)
       }
     } else {
       throw new IllegalArgumentException("PartialConfig \"" + partConfig.toTextExpr + "\" is not satisfiable!")
@@ -197,7 +215,7 @@ object ProductGeneration {
     return pwConfigs
   }
 
-  def getAllPairwiseConfigurations(features : List[DefinedExpr], fm:FeatureModel) : List[FeatureExpr] = {
+  def getAllPairwiseConfigurations(features : List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[Pair[FeatureExpr,FeatureExpr]] = Set()
 
@@ -210,7 +228,7 @@ object ProductGeneration {
             // this pair is satisfiable
             // make config complete by choosing the other features
             val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-            val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+            val completeConfig = completeConfiguration(conf,remainingFeatures,fm, preferDisabledFeatures)
             if (completeConfig != null) {
               pwConfigs ::= completeConfig
             } else {
@@ -261,21 +279,42 @@ object ProductGeneration {
    * @param remainingFeatures
    * @param fm
    */
-  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[DefinedExpr], fm:FeatureModel) : FeatureExpr = {
+  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
     var config : FeatureExpr = partialConfig
     val fIter = remainingFeatures.iterator
     var partConfigFeasible : Boolean = true
     while (partConfigFeasible && fIter.hasNext) {
-      val fx = fIter.next()
-      // try to set other variables to false first
-      if (partialConfig.andNot(fx).isSatisfiable(fm)) {
-        config = config.andNot(fx)
-      } else if (partialConfig.and(fx).isSatisfiable(fm)) {
-        config = config.and(fx)
+      val fx :DefinedExpr = fIter.next()
+      if (preferDisabledFeatures) {
+        // try to set other variables to false first
+        var tmp : FeatureExpr = config.andNot(fx)
+        if (tmp.isSatisfiable(fm)) {
+          config = tmp
+        } else {
+          tmp = config.and(fx)
+          if (tmp.isSatisfiable(fm)) {
+            config = tmp
+          } else {
+            // this configuration cannot be satisfied any more
+            return null
+            partConfigFeasible=false
+          }
+        }
       } else {
-        // this configuration cannot be satisfied any more
-        return null
-        partConfigFeasible=false
+        // try to set other variables to true first
+        var tmp : FeatureExpr = config.and(fx)
+        if (tmp.isSatisfiable(fm)) {
+          config = tmp
+        } else {
+          tmp = config.andNot(fx)
+          if (tmp.isSatisfiable(fm)) {
+            config = tmp
+          } else {
+            // this configuration cannot be satisfied any more
+            return null
+            partConfigFeasible=false
+          }
+        }
       }
     }
     if (partConfigFeasible) {
@@ -325,7 +364,7 @@ object ProductGeneration {
    * This method generates complete configurations for a list of Opt[] nodes.
    * No variability is left in these configurations.
    */
-  def getAllProducts(in: List[Opt[_]], fm: FeatureModel, env: ConfigurationCoverage.ASTEnv) = {
+  def getAllProducts(features : List[DefinedExpr], fm: FeatureModel, env: ConfigurationCoverage.ASTEnv) = {
     val prodLimit : Int = 30;
     var limitReached : Boolean = false
     var R: List[FeatureExpr] = List()   // found configurations
@@ -333,43 +372,34 @@ object ProductGeneration {
     var B: Set[Opt[_]] = Set()  // handled blocks
     var f : Set[FeatureExpr] = Set()  // handled features
     println("making all configurations (limited to " + prodLimit + " configurations")
-    // iterate over all optional blocks
-    for (b <- in) {
-        if (! B.contains(b)) {
-          val features : Set[DefinedExpr] = b.feature.collectDistinctFeaturesInclMacros
-          val featuresSorted = features.toArray.sortWith({
-            (x,y) => x.toTextExpr.compare(y.toTextExpr) > 0
-          });
-          for (fexpb <- featuresSorted) {
-            if (f.contains(fexpb)) {
-            } else
-             if (!f.contains(fexpb)) {
-              f += fexpb
-              var tmpR: List[FeatureExpr] = R
-              R = List()
-              for (partConfig <- tmpR) {
-                if (R.size < prodLimit) {
-                  val confT = partConfig.and(fexpb)
-                  val okT = confT.isSatisfiable(fm)
-                  if (okT) R::=confT
-                  val confF = partConfig.and(fexpb.not())
-                  val okF = confF.isSatisfiable(fm)
-                  if (okF) R::=confF
-                } else {
-                  limitReached=true
-                }
-              }
-            }
+
+    val featuresSorted = features.toArray.sortWith({
+      (x,y) => x.toTextExpr.compare(y.toTextExpr) > 0
+    });
+    for (fexpb <- featuresSorted) {
+      if (f.contains(fexpb)) {
+      } else
+       if (!f.contains(fexpb)) {
+        f += fexpb
+        var tmpR: List[FeatureExpr] = R
+        R = List()
+        for (partConfig <- tmpR) {
+          if (R.size < prodLimit) {
+            val confT = partConfig.and(fexpb)
+            val okT = confT.isSatisfiable(fm)
+            if (okT) R::=confT
+            val confF = partConfig.and(fexpb.not())
+            val okF = confF.isSatisfiable(fm)
+            if (okF) R::=confF
+          } else {
+            limitReached=true
           }
-          B += b
         }
+      }
     }
     println("configurations ready")
     if (limitReached)
       println("Product Limit of " + prodLimit + " was reached!")
-    assert(in.toSet.size == B.size, "configuration coverage missed the following optional blocks\n" +
-      (in.toSet.diff(B).map(_.feature)) + "\n" + R
-    )
     R
   }
 }

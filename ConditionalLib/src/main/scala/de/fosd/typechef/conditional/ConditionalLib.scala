@@ -1,6 +1,6 @@
 package de.fosd.typechef.conditional
 
-import de.fosd.typechef.featureexpr.{FeatureExpr}
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 /**
  * maintains a map
@@ -86,6 +86,5 @@ object ConditionalLib {
      */
     def mapCombinationF[A, B, C](a: Conditional[A], b: Conditional[B], featureExpr: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
         zip(a, b).simplify(featureExpr).mapf(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
-
 }
 
