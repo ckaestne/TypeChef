@@ -7,7 +7,7 @@ import org.kiama.rewriting.Rewriter._
 // simplified navigation support
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes
 // see old version: https://github.com/ckaestne/TypeChef/blob/ConditionalControlFlow/CParser/src/main/scala/de/fosd/typechef/parser/c/ASTNavigation.scala
-trait ASTNavigation extends CASTEnv {
+trait ASTNavigation {
 
   // method simply goes up the hierarchy and looks for next AST element and returns it
   def parentAST(e: Product, env: ASTEnv): AST = {
@@ -109,6 +109,7 @@ trait ASTNavigation extends CASTEnv {
   }
 
   // method recursively filters all AST elements for a given type T
+  // method is broken, because case x always matches and therefore the filtering does not work properly
   def filterASTElems[T <: AST](a: Product)(implicit m: ClassManifest[T]): List[T] = {
     var res: List[T] = List()
     val filter = oncetd(query{ case x if (m.erasure.isInstance(x)) => res ::= x.asInstanceOf[T] })

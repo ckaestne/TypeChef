@@ -4,46 +4,46 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.Opt
 import java.util.IdentityHashMap
 
-trait CASTEnv {
+// store context of an AST entry
+// e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
+class ASTEnv (val astc: IdentityHashMap[Any, (List[FeatureExpr], Product, Product, Product, List[Any])]) {
 
-  type ASTContext = (List[FeatureExpr], Product, Product, Product, List[Product])
+  type ASTContext = (List[FeatureExpr], Product, Product, Product, List[Any])
 
-  // store context of an AST entry
-  // e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
-  class ASTEnv (val astc: IdentityHashMap[Any, ASTContext]) {
+  def containsASTElem(elem: Any) = astc.containsKey(elem)
+  def lfeature(elem: Any) = astc.get(elem)._1
+  def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
+  def parent(elem: Any) = astc.get(elem)._2
+  def previous(elem: Any) = astc.get(elem)._3
+  def next(elem: Any) = astc.get(elem)._4
+  def children(elem: Any) = astc.get(elem)._5
+  def keys() = astc.keySet().toArray
+  def get(elem: Any) = astc.get(elem)
+  def elems() = astc.keySet().toArray.toList.map(System.identityHashCode(_)).sortWith((x, y) => x > y)
 
-    def containsASTElem(elem: Any) = astc.containsKey(elem)
-    def lfeature(elem: Any) = astc.get(elem)._1
-    def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
-    def parent(elem: Any) = astc.get(elem)._2
-    def previous(elem: Any) = astc.get(elem)._3
-    def next(elem: Any) = astc.get(elem)._4
-    def children(elem: Any) = astc.get(elem)._5
-    def keys() = astc.keySet().toArray
-    def get(elem: Any) = astc.get(elem)
-    def elems() = astc.keySet().toArray.toList.map(System.identityHashCode(_)).sortWith((x, y) => x > y)
+  def add(elem: Any, newelemc: ASTContext) = {
+    var curelemc: ASTContext = null
+    if (astc.containsKey(elem)) curelemc = astc.get(elem)
+    else curelemc = (null, null, null, null, null)
 
-    def add(elem: Any, newelemc: ASTContext) = {
-      var curelemc: ASTContext = null
-      if (astc.containsKey(elem)) curelemc = astc.get(elem)
-      else curelemc = (null, null, null, null, null)
+    // lfexp; parent; prev; next; children
+    if (curelemc._1 != newelemc._1 && newelemc._1 != null) { curelemc = curelemc.copy(_1 = newelemc._1)}
+    if (curelemc._2 != newelemc._2 && newelemc._2 != null) { curelemc = curelemc.copy(_2 = newelemc._2)}
+    if (curelemc._3 != newelemc._3 && newelemc._3 != null) { curelemc = curelemc.copy(_3 = newelemc._3)}
+    if (curelemc._4 != newelemc._4 && newelemc._4 != null) { curelemc = curelemc.copy(_4 = newelemc._4)}
+    if (curelemc._5 != newelemc._5 && newelemc._5 != null) { curelemc = curelemc.copy(_5 = newelemc._5)}
 
-      // lfexp; parent; prev; next; children
-      if (curelemc._1 != newelemc._1 && newelemc._1 != null) { curelemc = curelemc.copy(_1 = newelemc._1)}
-      if (curelemc._2 != newelemc._2 && newelemc._2 != null) { curelemc = curelemc.copy(_2 = newelemc._2)}
-      if (curelemc._3 != newelemc._3 && newelemc._3 != null) { curelemc = curelemc.copy(_3 = newelemc._3)}
-      if (curelemc._4 != newelemc._4 && newelemc._4 != null) { curelemc = curelemc.copy(_4 = newelemc._4)}
-      if (curelemc._5 != newelemc._5 && newelemc._5 != null) { curelemc = curelemc.copy(_5 = newelemc._5)}
-
-      astc.put(elem, curelemc)
-      this
-    }
+    astc.put(elem, curelemc)
+    this
   }
+}
+
+object CASTEnv {
 
   // create ast-neighborhood context for a given translation-unit
   def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
     assert(a != null, "ast elem is null!")
-    handleASTElem(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, ASTContext]()))
+    handleASTElem(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, (List[FeatureExpr], Product, Product, Product, List[Any])]()))
   }
 
   // handle single ast elements
@@ -54,7 +54,7 @@ trait CASTEnv {
       case l:List[Opt[_]] => handleOptList(l, parent, lfexp, env)
       case Some(o) => handleASTElem(o.asInstanceOf[Product], parent, lfexp, env)
       case x:Product => {
-        var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.asInstanceOf[Iterator[Product]].toList))
+        var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
           curenv = handleASTElem(elem, x, lfexp, curenv)
         }
@@ -74,7 +74,7 @@ trait CASTEnv {
       e match {
         case (prev, Some(elem), next) => {
           curenv = curenv.add(elem,
-            (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), elem.asInstanceOf[Product].productIterator.asInstanceOf[Iterator[Product]].toList))
+            (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), elem.productIterator.toList))
         }
         case _ => ;
       }

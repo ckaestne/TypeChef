@@ -46,7 +46,7 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
       val optstmt1 = Opt(True, stmt1)
       val optstmt2 = Opt(True, stmt2)
       val cp = CompoundStatement(List(optstmt0, optstmt1, optstmt2))
-      val env = createASTEnv(cp)
+      val env = CASTEnv.createASTEnv(cp)
       nextOpt(optstmt0, env) should be(optstmt1)
       nextOpt(optstmt1, env) should be(optstmt2)
     }
@@ -59,7 +59,7 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
       val optstmt1 = Opt(fa, stmt1)
       val optstmt2 = Opt(True, stmt2)
       val cp = CompoundStatement(List(optstmt0, optstmt1, optstmt2))
-      val env = createASTEnv(cp)
+      val env = CASTEnv.createASTEnv(cp)
 
       nextOpt(optstmt0, env) should be(optstmt1)
     }
@@ -124,7 +124,7 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
       //stmt8
       //stmt9
 
-      val env = createASTEnv(root)
+      val env = CASTEnv.createASTEnv(root)
       prevOpt(optstmt7, env) should equal(optstmt6)
       nextOpt(optstmt6, env) should equal(optstmt7)
       nextOpt(optstmt7, env) should equal(optstmt8)

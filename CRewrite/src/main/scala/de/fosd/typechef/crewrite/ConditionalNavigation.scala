@@ -6,7 +6,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 
 import org.kiama.rewriting.Rewriter._
 
-trait ConditionalNavigation extends CASTEnv {
+trait ConditionalNavigation {
   def parentOpt(e: Product, env: ASTEnv): Opt[_] = {
     val eparent = env.parent(e)
     eparent match {

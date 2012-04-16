@@ -6,7 +6,7 @@ import de.fosd.typechef.featureexpr.{NoFeatureModel, FeatureModel, FeatureExpr}
 // this code determines all configurations for a file based on a given ast
 // algorithms to get coverage are inspired by:
 // [1] http://www4.informatik.uni-erlangen.de/Publications/2011/tartler_11_plos.pdf
-object ConfigurationCoverage extends CASTEnv with ConditionalNavigation {
+object ConfigurationCoverage extends ConditionalNavigation {
   def collectFeatureExpressions(env: ASTEnv) = {
     var res: Set[FeatureExpr] = Set()
     for (e <- env.keys())

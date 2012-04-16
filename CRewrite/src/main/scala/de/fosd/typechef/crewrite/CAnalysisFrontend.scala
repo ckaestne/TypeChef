@@ -6,7 +6,7 @@ import de.fosd.typechef.conditional.{Opt, Choice, ConditionalLib}
 import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef, AST}
 
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
   // derive a specific product from a given configuration
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
@@ -120,7 +120,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     // family-based
     println("checking family-based")
     val family_ast = prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit])
-    val family_env = createASTEnv(family_ast)
+    val family_env = CASTEnv.createASTEnv(family_ast)
     val family_function_defs = filterASTElems[FunctionDef](family_ast)
 
     val tfams = System.currentTimeMillis()
@@ -132,7 +132,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     // base variant
     println("checking base variant")
     val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm), family_env)
-    val base_env = createASTEnv(base_ast)
+    val base_env = CASTEnv.createASTEnv(base_ast)
     val base_function_defs = filterASTElems[FunctionDef](base_ast)
 
     val tbases = System.currentTimeMillis()
@@ -143,7 +143,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
 
     // full coverage
     println("checking full coverage")
-    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv])
+    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env)
     var current_config = 1
     var tfullcoverage: Long = 0
 
@@ -151,7 +151,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
       println("checking configuration " + current_config + " of " + configs.size)
       current_config += 1
       val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
-      val product_env = createASTEnv(product_ast)
+      val product_env = CASTEnv.createASTEnv(product_ast)
       val product_function_defs = filterASTElems[FunctionDef](product_ast)
       appendToFile("test.c", PrettyPrinter.print(product_ast))
 
@@ -170,7 +170,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val myenv = createASTEnv(f)
+    val myenv = CASTEnv.createASTEnv(f)
 
     val ss = if (f.stmt.innerStatements.isEmpty) List() else getAllSucc(f.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
     for (s <- ss.reverse) {

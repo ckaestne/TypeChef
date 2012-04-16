@@ -5,7 +5,6 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
-import org.kiama.rewriting.Rewriter._
 import java.util.IdentityHashMap
 
 // implements conditional control flow (cfg) on top of the typechef
@@ -58,7 +57,7 @@ class CCFGCache {
   }
 }
 
-trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
+trait ConditionalControlFlow extends ASTNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
 
@@ -88,6 +87,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
           for (oldelem <- oldres) {
             var add2newres = List[AST]()
             oldelem match {
+
               case _: ReturnStatement if (!a.isInstanceOf[FunctionDef]) => changed = true; add2newres = List()
 
               // a break statement shall appear only in or as a switch body or loop body
@@ -189,7 +189,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
       case c: Conditional[_] => predHelper(childAST(c), env)
 
       case f@FunctionDef(_, _, _, CompoundStatement(List())) => List(f)
-      case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), env) ++ filterASTElems[ReturnStatement](f)
+      case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), env) ++ filterAllASTElems[ReturnStatement](f)
       case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env)
 
       case s: Statement => getStmtPred(s, env)
@@ -308,7 +308,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
         findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(false, "goto statement should always occur within a function definition"); List()
           case Some(f) => {
-            val l_list = filterASTElems[LabelStatement](f)
+            val l_list = filterAllASTElems[LabelStatement](f)
             if (l_list.isEmpty) getStmtSucc(t, env)
             else l_list
           }
@@ -326,24 +326,35 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
     }
   }
 
-  private def labelLookup(a: Product, l: String, env: ASTEnv): List[AST] = {
-    var res: List[AST] = List()
-    val filter = manytd(query{ case e@LabelStatement(Id(n), _) if (n == l) => res ::= e })
-    filter(a)
-    res
+  private def iterateChildren(a: Any, label: String, env: ASTEnv, op: (Any, String, ASTEnv) => List[AST]): List[AST] = {
+    env.children(a).map(
+      x => x match {
+        case e: AST      => op(e, label, env)
+        case ls: List[_] => ls.flatMap(op(_, label, env))
+        case o@Opt(_, entry) => op(entry, label, env)
+        case o@Choice(_, thenBranch, elseBranch) => op(thenBranch, label, env) ++ op(elseBranch, label, env)
+        case p: Product  => p.productIterator.toList.flatMap(op(_, label, env))
+        case _ => List()
+      }
+    ).foldLeft(List[AST]())(_ ++ _.asInstanceOf[List[AST]])
   }
 
   // lookup all goto with matching ids or those using indirect goto dispatch
   // indirect goto dispatch are possible candidates for this label because
   // evaluating the expression of the goto might lead to the given label
-  private def gotoLookup(a: Product, l: String, env: ASTEnv): List[AST] = {
-    var res: List[AST] = List()
-    val filter = all(query{
-      case e@GotoStatement(Id(n)) if (n == l) => res ::= e
-      case e@GotoStatement(PointerDerefExpr(_)) => res ::= e
-    })
-    filter(a)
-    res
+  private def gotoLookup(a: Any, l: String, env: ASTEnv): List[AST] = {
+    a match {
+      case e@GotoStatement(Id(n)) if (n == l) => List(e)
+      case e@GotoStatement(PointerDerefExpr(_)) => List(e)
+      case p: Product => iterateChildren(p, l, env, gotoLookup)
+    }
+  }
+
+  private def labelLookup(a: Any, label: String, env: ASTEnv): List[AST] = {
+    a match {
+      case e@LabelStatement(Id(n), _) if (n == label) => List(e) ++ iterateChildren(e, label, env, labelLookup)
+      case p: Product => iterateChildren(p, label, env, labelLookup)
+    }
   }
 
   private def getCondStmtSucc(p: AST, c: Conditional[_], env: ASTEnv): List[AST] = {

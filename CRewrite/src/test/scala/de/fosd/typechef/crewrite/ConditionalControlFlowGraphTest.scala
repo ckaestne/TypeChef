@@ -6,7 +6,7 @@ import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.featureexpr.{FeatureExpr, True}
 import org.junit.{Ignore, Test}
 
-class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables with CASTEnv {
+class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables {
 
   // given an ast element x and its successors lx: x should be in pred(lx)
   def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
@@ -34,7 +34,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     for (s <- ss)
@@ -44,7 +44,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability_f() {
@@ -60,14 +60,14 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     println("#################################################")
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability_notf() {
@@ -81,14 +81,14 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     println("#################################################")
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability() {
@@ -106,14 +106,14 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     println("#################################################")
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_if_the_else() {
@@ -129,8 +129,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_simple_ifdef() {
@@ -144,8 +144,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_for_loop() {
@@ -156,9 +156,9 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     """)
 
     val newa = rewriteInfiniteForLoops(a)
-    val env = createASTEnv(newa)
-    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(newa)
+    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(newa, env), env))
   }
 
   @Test def test_nested_loop() {
@@ -174,9 +174,9 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     """)
 
     val newa = rewriteInfiniteForLoops[CompoundStatement](a)
-    val env = createASTEnv(newa)
-    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(newa)
+    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(newa, env), env))
   }
 
   @Test def test_infinite_while_loop() {
@@ -186,9 +186,9 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
   }
 
   @Test def test_infinite_while_loop_2() {
@@ -199,9 +199,9 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
   }
 
   @Test def test_infinite_do_while_loop() {
@@ -212,9 +212,9 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
   }
 
   @Test def test_infinite_do_while_loop2() {
@@ -226,9 +226,9 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
   }
 
   @Test def test_switch_case() {
@@ -243,8 +243,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_do_while_loop() {
@@ -255,8 +255,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_while_loop() {
@@ -268,8 +268,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_if_the_else_chain() {
@@ -290,8 +290,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_simple_conditional_label_statements() {
@@ -302,7 +302,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e5 = Opt(True, LabelStatement(Id("e5"), None))
     val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e1, env) should be (List(e2.entry))
     succ(e2, env) should be (List(e3.entry))
     succ(e3, env) should be (List(e4.entry))
@@ -317,12 +317,12 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e5 = Opt(True, LabelStatement(Id("e5"), None))
     val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e1, env) should be (List(e2.entry, e3.entry, e4.entry))
     succ(e2, env) should be (List(e5.entry))
     succ(e3, env) should be (List(e5.entry))
     succ(e4, env) should be (List(e5.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env))
   }
 
   @Test def test_conditional_labelstatements_with_sequence_of_annotated_elements() {
@@ -333,12 +333,12 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e5 = Opt(True, LabelStatement(Id("e5"), None))
     val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e1, env) should be(List(e2.entry, e4.entry))
     succ(e2, env) should be(List(e3.entry))
     succ(e3, env) should be(List(e5.entry))
     succ(e4, env) should be(List(e5.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env))
   }
 
   @Test def test_conditional_labelstatements_if_if_else() {
@@ -354,7 +354,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e9 = Opt(True, LabelStatement(Id("e9"), None))
     val c = One(CompoundStatement(List(e0, e1, e2, e3, e4, e5, e6, e7, e8, e9)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e0, env) should be(List(e1.entry))
     succ(e1, env) should be(List(e2.entry))
     succ(e2, env) should be(List(e3.entry, e4.entry, e5.entry))
@@ -364,7 +364,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     succ(e6, env) should be(List(e8.entry, e9.entry))
     succ(e7, env) should be(List(e8.entry, e9.entry))
     succ(e8, env) should be(List(e9.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env))
   }
 
   @Test def test_conditional_declaration_statement_pred() {
@@ -396,7 +396,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e1, env) should be (List(e2.entry))
     succ(e2, env) should be (List(e3.entry))
     succ(e3, env) should be (List(e4.entry))
@@ -437,7 +437,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e1, env) should be (List(e2.entry))
     succ(e2, env) should be (List(e3.entry, e4.entry))
     succ(e3, env) should be (List(e5.entry))
@@ -464,11 +464,11 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e3 = Opt(True, LabelStatement(Id("e3"), None))
     val c = One(CompoundStatement(List(e0, e1, e2, e3)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e0, env) should be(List(e1.entry, e2.entry))
     succ(e1, env) should be(List(e3.entry))
     succ(e2, env) should be(List(e3.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env))
   }
 
   @Test def test_conditional_while_statement() {
@@ -480,11 +480,11 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e2 = Opt(True, LabelStatement(Id("e2"), None))
     val c = One(CompoundStatement(List(e0, e1, e2)))
 
-    val env = createASTEnv(c.value)
+    val env = CASTEnv.createASTEnv(c.value)
     succ(e0, env) should be(List(e1c, e2.entry))
     succ(e1, env) should be(List(e1c))
     succ(e1c, env) should be(List(e11.entry, e2.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env))
   }
 
   @Test def test_conditional_for_loop() {
@@ -501,8 +501,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_conditional_if_statement() {
@@ -521,8 +521,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_conditional_switch_statement() {
@@ -541,8 +541,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_conditional_for_loop_elems() {
@@ -555,8 +555,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e2 = Opt(True, LabelStatement(Id("e2"), None))
     val c = One(CompoundStatement(List(e0, e1, e2)))
 
-    val env = createASTEnv(c)
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(c)
+    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env))
   }
 
   @Test def test_conditional_for_loop_alternative() {
@@ -574,8 +574,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_conditional_for_loop_infinite() {
@@ -589,8 +589,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     """)
 
     val newa = rewriteInfiniteForLoops(a)
-    val env = createASTEnv(newa)
-    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(newa)
+    println("succs: " + DotGraph.map2file(getAllSucc(newa, env), env))
   }
 
   @Test def test_conditional_for_loop_infinite_single_statement() {
@@ -604,8 +604,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_statements_increment() {
@@ -618,8 +618,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_conditional_statements() {
@@ -651,8 +651,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_conditional_label_and_goto_statements_constructed() {
@@ -664,13 +664,13 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val e5 = Opt(FeatureExpr.base, LabelStatement(Id("label2"), None))
     val f = FunctionDef(List(Opt(FeatureExpr.base, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(f)
+    val env = CASTEnv.createASTEnv(f)
     succ(e0, env) should be (List(e1.entry, e3.entry))
     succ(e1, env) should be (List(e2.entry))
     succ(e2, env) should be (List(e5.entry))
     succ(e3, env) should be (List(e4.entry))
     succ(e4, env) should be (List(e5.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(f, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(getAllSucc(f, env), env))
   }
 
   @Test def test_liveness_std() {
@@ -685,7 +685,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     for (s <- ss)
@@ -708,8 +708,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    val env = CASTEnv.createASTEnv(a)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_liveness_simple() {
@@ -729,7 +729,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val s2 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("c"), List()), List(), Some(Initializer(None, Id("d")))))))))
     val c = One(CompoundStatement(List(s1, s2)))
 
-    val env = createASTEnv(c)
+    val env = CASTEnv.createASTEnv(c)
     println("in   (s1): " + in((s1, env)))
     println("out  (s1): " + out((s1, env)))
     println("in   (s2): " + in((s2, env)))
@@ -747,7 +747,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val s5 = Opt(True, ReturnStatement(Some(Id("x"))))
     val c = CompoundStatement(List(s1, s2, s3, s4, s5))
 
-    val env = createASTEnv(c)
+    val env = CASTEnv.createASTEnv(c)
     println("in      (s1): " + in((s1, env)))
     println("out     (s1): " + out((s1, env)))
     println("defines (s1): " + defines(s1))
@@ -813,10 +813,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
      }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
-    println("succs: " + DotGraph.map2file(succs, env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
     compareSuccWithPred(getAllSucc(a, env), env)
   }
 
@@ -835,7 +835,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-   val env = createASTEnv(a)
+   val env = CASTEnv.createASTEnv(a)
    val ins = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
   for (s <- ins)
@@ -858,7 +858,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val ins = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     for (s <- ins)
@@ -922,11 +922,11 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     val s = getAllSucc(a, env)
     val p = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(p, env.asInstanceOf[DotGraph.ASTEnv]))
+    println("succs: " + DotGraph.map2file(s, env))
+    println("preds: " + DotGraph.map2file(p, env))
     compareSuccWithPred(s, env)
   }
 }
