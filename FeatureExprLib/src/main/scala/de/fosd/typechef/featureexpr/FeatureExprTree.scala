@@ -4,10 +4,12 @@ package de.fosd.typechef.featureexpr
  * FeatureExprTree is the root class for non-propositional nodes in feature
  * expressions, i.e., Integer and If nodes, which cannot be checked for satisfiability.
  */
-sealed trait FeatureExprTree[T]
+sealed trait FeatureExprTree[T] {
+    def asObject(): FeatureExprTree[Object] = this.asInstanceOf[FeatureExprTree[Object]]
+}
 
 trait FeatureExprValueOps {
-    implicit def long2value(x: Long): FeatureExprValue = FExprBuilder.createValue(x)
+    implicit def long2value(x: Long): FeatureExprValue = FeatureExprTreeBuilder.createValue(x)
 
     //This is to add, for Scala sources, the toFeatureExpr method to
     //FeatureExprTree[Long] = FeatureExprValue
@@ -20,8 +22,8 @@ trait FeatureExprValueOps {
 
 object FeatureExprValue {
     def toFeatureExpr(v: FeatureExprTree[Long]): FeatureExpr = {
-        val zero = FExprBuilder.createValue[Long](0)
-        FExprBuilder.evalRelation(v, zero)(_ != _)
+        val zero = FeatureExprTreeBuilder.createValue[Long](0)
+        FeatureExprTreeBuilder.evalRelation(v, zero)(_ != _)
     }
 }
 

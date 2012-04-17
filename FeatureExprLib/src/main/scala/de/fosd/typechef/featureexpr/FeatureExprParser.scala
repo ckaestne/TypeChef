@@ -9,9 +9,9 @@ import java.io._
  *
  * does not support integer values yet
  */
-class FeatureExprParser extends RegexParsers {
+class FeatureExprParser(featureFactory: AbstractFeatureExprFactory = FeatureExprFactory.default) extends RegexParsers {
 
-    def toFeature(name: String) = FeatureExpr.createDefinedExternal(name)
+    def toFeature(name: String) = featureFactory.createDefinedExternal(name)
 
 
     //implications
@@ -52,15 +52,15 @@ class FeatureExprParser extends RegexParsers {
     def bool: Parser[FeatureExpr] =
         "!" ~> bool ^^ (_ not) |
             ("(" ~> expr <~ ")") |
-            "InvalidExpression()" ^^ (_ => False) |
+            "InvalidExpression()" ^^ (_ => featureFactory.dead) |
             (("definedEx" | "defined" | "def") ~ "(" ~> ID <~ ")") ^^ {
                 toFeature(_)
             } |
             "1" ^^ {
-                x => FeatureExpr.base
+                x => featureFactory.base
             } |
             "0" ^^ {
-                x => FeatureExpr.dead
+                x => featureFactory.dead
             } | ID ^^ {
             toFeature(_)
         }
@@ -88,10 +88,10 @@ class FeatureExprParser extends RegexParsers {
         val featureModelFile = new File(cfilename)
         if (featureModelFile.exists) {
             scala.io.Source.fromFile(featureModelFile).getLines().map(trimComment(_)).map(line =>
-                if (line.trim.isEmpty) FeatureExpr.base
+                if (line.trim.isEmpty) featureFactory.base
                 else parse(line)
-            ).fold(FeatureExpr.base)(_ and _)
-        } else FeatureExpr.base
+            ).fold(featureFactory.base)(_ and _)
+        } else featureFactory.base
     }
 
     def parseFile(file: File): FeatureExpr =
@@ -100,11 +100,11 @@ class FeatureExprParser extends RegexParsers {
 
     private def oneOf(features: List[FeatureExpr]): FeatureExpr = {
         (for (f1 <- features; f2 <- features if (f1 != f2)) yield f1 mex f2).
-            foldLeft(features.foldLeft(FeatureExpr.dead)(_ or _))(_ and _)
+            foldLeft(features.foldLeft(featureFactory.dead)(_ or _))(_ and _)
 
     }
 
     def atLeastOne(featuresNames: List[FeatureExpr]): FeatureExpr =
-        featuresNames.foldLeft(FeatureExpr.dead)(_ or _)
+        featuresNames.foldLeft(featureFactory.dead)(_ or _)
 
 }

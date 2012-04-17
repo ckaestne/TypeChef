@@ -1,4 +1,4 @@
-package de.fosd.typechef.featureexpr
+package de.fosd.typechef.featureexpr.bdd
 
 import org.sat4j.core.VecInt
 import collection.mutable.WeakHashMap
@@ -21,24 +21,24 @@ object SatSolver {
      * hence caching is currently disabled
      */
     val CACHING = true
-    def isSatisfiable(featureModel: FeatureModel, dnf: Iterator[Seq[Int]], lookupName: (Int) => String): Boolean = {
-        (if (CACHING && (nfm(featureModel) != NoFeatureModel))
+    def isSatisfiable(featureModel: BDDFeatureModel, dnf: Iterator[Seq[Int]], lookupName: (Int) => String): Boolean = {
+        (if (CACHING && (nfm(featureModel) != BDDNoFeatureModel))
             SatSolverCache.get(nfm(featureModel))
         else
             new SatSolverImpl(nfm(featureModel))).isSatisfiable(dnf, lookupName)
     }
 
-    private def nfm(fm: FeatureModel) = if (fm == null) NoFeatureModel else fm
+    private def nfm(fm: BDDFeatureModel) = if (fm == null) BDDNoFeatureModel else fm
 }
 
 private object SatSolverCache {
-    val cache: WeakHashMap[FeatureModel, SatSolverImpl] = new WeakHashMap()
-    def get(fm: FeatureModel) =
+    val cache: WeakHashMap[BDDFeatureModel, SatSolverImpl] = new WeakHashMap()
+    def get(fm: BDDFeatureModel) =
     /*if (fm == NoFeatureModel) new SatSolverImpl(fm)
    else */ cache.getOrElseUpdate(fm, new SatSolverImpl(fm))
 }
 
-class SatSolverImpl(featureModel: FeatureModel) {
+class SatSolverImpl(featureModel: BDDFeatureModel) {
     assert(featureModel != null)
 
     /**init / constructor */
