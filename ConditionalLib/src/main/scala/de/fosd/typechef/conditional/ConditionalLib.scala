@@ -1,6 +1,7 @@
 package de.fosd.typechef.conditional
 
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import FeatureExprFactory.base
 
 /**
  * maintains a map
@@ -22,7 +23,7 @@ object ConditionalLib {
      * affects the result only partially
      */
     def conditionalFoldRightR[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => Conditional[B]): Conditional[B] =
-        conditionalFoldRightFR(list, init, FeatureExpr.base, (f, a: A, b: B) => op(a, b))
+        conditionalFoldRightFR(list, init, base, (f, a: A, b: B) => op(a, b))
 
     def conditionalFoldRightFR[A, B](list: List[Opt[A]], init: Conditional[B], featureExpr: FeatureExpr, op: (FeatureExpr, A, B) => Conditional[B]): Conditional[B] =
         list.foldRight(init)(
@@ -70,7 +71,7 @@ object ConditionalLib {
      * this explodes variability and may repeat values as needed
      */
     def zip[A, B](a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] =
-        a.mapfr(FeatureExpr.base, (feature, x) => zipSubcondition(feature, x, b))
+        a.mapfr(base, (feature, x) => zipSubcondition(feature, x, b))
 
     private def zipSubcondition[A, B](context: FeatureExpr, entry: A, other: Conditional[B]): Conditional[(A, B)] =
         findSubtree(context, other).map(otherEntry => (entry, otherEntry))

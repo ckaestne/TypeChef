@@ -4,7 +4,7 @@ import org.junit._
 import Assert._
 import ConditionalLib._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import FeatureExpr._
+import de.fosd.typechef.featureexpr.FeatureExprFactory._
 
 class ConditionalTest {
 
