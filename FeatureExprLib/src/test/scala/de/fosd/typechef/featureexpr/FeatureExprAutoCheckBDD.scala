@@ -1,5 +1,6 @@
 package de.fosd.typechef.featureexpr
 
+import bdd.BDDFeatureModel
 import org.scalacheck._
 import Gen._
 import FeatureExprFactory.bdd._
@@ -101,12 +102,12 @@ object FeatureExprAutoCheckBDD extends Properties("FeatureExpr") {
     property("taut(a=>b) == contr(a and !b)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => a.implies(b).isTautology() == a.and(b.not).isContradiction)
 
     property("featuremodel.tautology") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isDead) ==> {
-        val fm = bdd.FeatureModel.create(a)
+        val fm = BDDFeatureModel.create(a)
         b.isTautology(fm) == a.implies(b).isTautology
     })
 
     property("featuremodel.sat") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isDead) ==> {
-        val fm = bdd.FeatureModel.create(a)
+        val fm = BDDFeatureModel.create(a)
         b.isSatisfiable(fm) == a.and(b).isSatisfiable
     })
 

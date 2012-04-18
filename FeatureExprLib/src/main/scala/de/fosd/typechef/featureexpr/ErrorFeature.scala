@@ -1,6 +1,5 @@
 package de.fosd.typechef.featureexpr
 
-import bdd.FeatureArithmeticException
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,13 +9,13 @@ import bdd.FeatureArithmeticException
  * To change this template use File | Settings | File Templates.
  */
 
-class ErrorFeature(msg:String, f:FeatureExpr) extends FeatureExpr {
-    def isSatisfiable(fm: FeatureModel) = f.isSatisfiable(fm)
-    protected def calcSize = 0
-    def collectDistinctFeatures = f.collectDistinctFeatures
-    def or(that: FeatureExpr) = f.or(that)
-    def and(that: FeatureExpr) = f.and(that)
-    def not() = f.not
+class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
+    def isSatisfiable(fm: FeatureModel) = error
+    protected def calcSize = error
+    def collectDistinctFeatures = error
+    def or(that: FeatureExpr) = error
+    def and(that: FeatureExpr) = error
+    def not() = error
 
     private def error: Nothing = throw new FeatureArithmeticException(msg)
     override def toTextExpr = error

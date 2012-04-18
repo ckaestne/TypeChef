@@ -83,7 +83,7 @@ abstract class AbstractLinuxFeatureModelTest {
 }
 
 class BDDLinuxFeatureModelTest extends AbstractLinuxFeatureModelTest {
-    val featureModel = de.fosd.typechef.featureexpr.bdd.FeatureModel.createFromDimacsFile_2Var(dimacsFile)
+    val featureModel = de.fosd.typechef.featureexpr.bdd.BDDFeatureModel.createFromDimacsFile_2Var(dimacsFile)
     def getFeatureModel = featureModel
     def getFeatureExprFactory = FeatureExprFactory.bdd
 
@@ -121,7 +121,7 @@ class BDDLinuxFeatureModelTest extends AbstractLinuxFeatureModelTest {
 
     @Test
     def testFeatureModelAssumptions() {
-        var fm = de.fosd.typechef.featureexpr.bdd.FeatureModel.empty
+        var fm = de.fosd.typechef.featureexpr.bdd.BDDFeatureModel.empty
         fm = fm.assumeFalse("a")
         fm = fm.assumeTrue("b")
 

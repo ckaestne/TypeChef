@@ -1,4 +1,4 @@
-package de.fosd.typechef.featureexprUtil
+package de.fosd.typechef.featureexpr
 
 class FeatureException(msg: String) extends RuntimeException(msg)
 

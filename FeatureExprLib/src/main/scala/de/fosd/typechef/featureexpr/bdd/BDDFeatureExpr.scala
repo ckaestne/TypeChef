@@ -288,9 +288,6 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
 }
 
-class FeatureException(msg: String) extends RuntimeException(msg)
-
-class FeatureArithmeticException(msg: String) extends FeatureException(msg)
 
 //// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
 //// however, this is only a concern for erroneous input anyway (but isn't it our point to detect it?)
