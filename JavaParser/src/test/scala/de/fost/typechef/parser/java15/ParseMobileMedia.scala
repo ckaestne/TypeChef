@@ -20,14 +20,14 @@ object ParseMobileMedia {
         checkDir(dir)
 
         println("Overall statistics:\n" +
-                "    sumParsingTime = " + sumParsingTime +
-                "\n    sumTokens =" + sumTokens +
-                "\n    sumAnnotated: " + sumAnnotated +
-                "\n    sumConsumed=" + sumConsumed +
-                "\n    sumBacktracked =" + sumBacktracked +
-                "\n    sumRepeated=" + sumRepeated +
-                "\n    sumChoices=" + sumChoices +
-                "\n    bruteForcePerFile=" + bruteForcePerFile)
+            "    sumParsingTime = " + sumParsingTime +
+            "\n    sumTokens =" + sumTokens +
+            "\n    sumAnnotated: " + sumAnnotated +
+            "\n    sumConsumed=" + sumConsumed +
+            "\n    sumBacktracked =" + sumBacktracked +
+            "\n    sumRepeated=" + sumRepeated +
+            "\n    sumChoices=" + sumChoices +
+            "\n    bruteForcePerFile=" + bruteForcePerFile)
         println("Features (" + features.size + "): " + features.mkString(", "))
         println(featuresPerFile)
     }
@@ -53,14 +53,14 @@ object ParseMobileMedia {
 
             val parserStartTime = System.currentTimeMillis
             val p = new JavaParser()
-            var ast = p.phrase(p.CompilationUnit)(tokens, FeatureExpr.base)
+            var ast = p.phrase(p.CompilationUnit)(tokens, FeatureExprFactory.base)
             val endTime = System.currentTimeMillis
 
             println(ast)
             val choices = ast match {
                 case p.Success(r, rest) => {
                     assert(rest.atEnd)
-                    countCoices(r, FeatureExpr.base)
+                    countCoices(r, FeatureExprFactory.base)
                 }
                 case _ => {
                     assert(false)
@@ -70,16 +70,16 @@ object ParseMobileMedia {
 
 
             println("Parsing statistics: \n" +
-                    "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
-                    "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
-                    "  Tokens: " + tokens.tokens.size + "\n" +
-                    "  Tokens Annotated: " + annotatedTokens + "\n" +
-                    "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(tokens) + "\n" +
-                    "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(tokens) + "\n" +
-                    "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(tokens) + "\n" +
-                    "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(tokens) + "\n" +
-                    "  Repeated Where: " + ProfilingTokenHelper.repeatedTokens(tokens).mkString(", ") + "\n" +
-                    "  Coices: " + choices)
+                "  Duration lexing: " + (parserStartTime - lexerStartTime) + " ms\n" +
+                "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
+                "  Tokens: " + tokens.tokens.size + "\n" +
+                "  Tokens Annotated: " + annotatedTokens + "\n" +
+                "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(tokens) + "\n" +
+                "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(tokens) + "\n" +
+                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(tokens) + "\n" +
+                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(tokens) + "\n" +
+                "  Repeated Where: " + ProfilingTokenHelper.repeatedTokens(tokens).mkString(", ") + "\n" +
+                "  Coices: " + choices)
             println("Features (" + fileFeatures.size + "): " + fileFeatures.mkString(", ") + "\n")
 
             sumParsingTime += (endTime - parserStartTime)
@@ -94,7 +94,9 @@ object ParseMobileMedia {
             sumChoices += choices;
 
             ast match {
-                case p.Success(ast, unparsed) => {if (!unparsed.atEnd) println("parser did not reach end of token stream: " + unparsed)}
+                case p.Success(ast, unparsed) => {
+                    if (!unparsed.atEnd) println("parser did not reach end of token stream: " + unparsed)
+                }
                 case p.NoSuccess(msg, unparsed, inner) => println(msg + " at " + unparsed + " " + inner)
                 case p.SplittedParseResult(f, a, b) => println("split")
             }
@@ -116,12 +118,14 @@ object ParseMobileMedia {
             case Some(x) => countCoices(x, ctx)
             case None => 0
             case x: String => 0
-            case e => {println(e); assert(false); 0}
+            case e => {
+                println(e); assert(false); 0
+            }
         }
 
 
     def countAnnotatedTokens(tokens: List[TokenWrapper]): Int =
-        tokens.filter(_.getFeature != FeatureExpr.base).size
+        tokens.filter(_.getFeature != FeatureExprFactory.base).size
 
     def findFeatures(tokens: List[TokenWrapper]): Set[String] = {
         var result: Set[String] = Set()
