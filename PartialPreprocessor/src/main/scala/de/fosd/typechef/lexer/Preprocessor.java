@@ -25,6 +25,7 @@ package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
+import de.fosd.typechef.featureexpr.FeatureExprValue$;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
@@ -1949,7 +1950,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         public FeatureExprTree<Object> assumeValue(Token tok) throws LexerException {
             if (value == null) {
                 warning(tok, "expecting value before token, found boolean expression " + expr + " instead");
-                return (FeatureExprTree<Object>) expr.toFeatureExprValue();
+
+                return (FeatureExprTree<Object>)
+                        FeatureExprLib.l().createIf(expr,
+                                FeatureExprLib.l().createInteger(1),
+                                FeatureExprLib.l().createInteger(0)
+                        );
             } else
                 return value;
         }
@@ -2244,7 +2250,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         consumeToken(':', true);
         ExprOrValue elseBranch = parse_featureExprOrValue(0, false);
         if (thenBranch.expr != null && elseBranch.expr != null)
-            return new ExprOrValue(FeatureExprLib.l().createIf(condition, thenBranch.expr, elseBranch.expr));
+            return new ExprOrValue(FeatureExprLib.l().createBooleanIf(condition, thenBranch.expr, elseBranch.expr));
         else
             return new ExprOrValue(FeatureExprLib.l().createIf(condition, thenBranch.assumeValue(tok), elseBranch.assumeValue(tok)));
     }

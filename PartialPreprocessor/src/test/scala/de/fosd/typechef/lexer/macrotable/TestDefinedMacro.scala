@@ -5,7 +5,7 @@ import junit.framework.Assert._
 import org.junit.Test
 
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.featureexpr.FeatureExpr._
+import de.fosd.typechef.featureexpr.FeatureExprFactory.sat._
 
 class TestDefinedMacro extends TestCase {
 

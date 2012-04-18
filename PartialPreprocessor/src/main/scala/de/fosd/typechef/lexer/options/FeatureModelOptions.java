@@ -4,7 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.featureexpr.FeatureModelFactory;
-import de.fosd.typechef.featureexpr.NoFeatureModel$;
+import de.fosd.typechef.lexer.FeatureExprLib;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
@@ -26,7 +26,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
     @Override
     public FeatureModel getFeatureModel() {
         if (featureModel == null)
-            return NoFeatureModel$.MODULE$;
+            return FeatureExprLib.featureModelFactory().empty();
         return featureModel;
     }
 
@@ -35,13 +35,13 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
         if (featureModel_typeSystem != null)
             return featureModel_typeSystem;
         if (featureModel == null)
-            return NoFeatureModel$.MODULE$;
+            return FeatureExprLib.featureModelFactory().empty();
         return featureModel;
     }
 
     private static final char FM_DIMACS = Options.genOptionId();
     private static final char FM_FEXPR = Options.genOptionId();
-    private static final char FM_CLASS = Options.genOptionId();
+    //    private static final char FM_CLASS = Options.genOptionId();
     private static final char FM_TSDIMACS = Options.genOptionId();
     private static final char FM_PARTIALCONFIG = Options.genOptionId();
 
@@ -54,8 +54,8 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
                         "Dimacs file describing a feature model."),
                 new Option("featureModelFExpr", LongOpt.REQUIRED_ARGUMENT, FM_FEXPR, "file",
                         "File in FExpr format describing a feature model."),
-                new Option("featureModelClass", LongOpt.REQUIRED_ARGUMENT, FM_CLASS, "classname",
-                        "Class describing a feature model."),
+//                new Option("featureModelClass", LongOpt.REQUIRED_ARGUMENT, FM_CLASS, "classname",
+//                        "Class describing a feature model."),
                 new Option("typeSystemFeatureModelDimacs", LongOpt.REQUIRED_ARGUMENT, FM_TSDIMACS, "file",
                         "Distinct feature model for the type system."),
                 new Option("partialConfiguration", LongOpt.REQUIRED_ARGUMENT, FM_PARTIALCONFIG, "file",
@@ -72,23 +72,23 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             if (featureModel != null)
                 throw new OptionException("cannot load feature model from dimacs file. feature model already exists.");
             checkFileExists(g.getOptarg());
-            featureModel = FeatureModel.createFromDimacsFile_2Var(g.getOptarg());
+            featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
             checkFileExists(g.getOptarg());
-            FeatureExpr f = new FeatureExprParser().parseFile(g.getOptarg());
+            FeatureExpr f = new FeatureExprParser(FeatureExprLib.l()).parseFile(g.getOptarg());
             if (featureModel == null)
-                featureModel = de.fosd.typechef.featureexpr.FeatureModel.create(f);
+                featureModel = FeatureExprLib.featureModelFactory().create(f);
             else featureModel = featureModel.and(f);
-        } else if (c == FM_CLASS) {//--featureModelClass
-            try {
-                FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
-                featureModel = factory.createFeatureModel();
-            } catch (Exception e) {
-                throw new OptionException("cannot instantiate feature model: " + e.getMessage());
-            }
+//        } else if (c == FM_CLASS) {//--featureModelClass
+//            try {
+//                FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
+//                featureModel = factory.createFeatureModel();
+//            } catch (Exception e) {
+//                throw new OptionException("cannot instantiate feature model: " + e.getMessage());
+//            }
         } else if (c == FM_TSDIMACS) {
             checkFileExists(g.getOptarg());
-            featureModel_typeSystem = FeatureModel.createFromDimacsFile_2Var(g.getOptarg());
+            featureModel_typeSystem = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
         } else if (c == FM_PARTIALCONFIG) {
             checkFileExists(g.getOptarg());
             if (partialConfig != null)
@@ -96,7 +96,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             partialConfig = PartialConfigurationParser$.MODULE$.load(g.getOptarg());
             FeatureExpr f = partialConfig.getFeatureExpr();
             if (featureModel_typeSystem == null)
-                featureModel_typeSystem = de.fosd.typechef.featureexpr.FeatureModel.empty();
+                featureModel_typeSystem = FeatureExprLib.featureModelFactory().empty();
 
             for (String featureName : partialConfig.getDefinedFeatures())
                 featureModel_typeSystem = featureModel_typeSystem.assumeTrue(featureName);
