@@ -1,11 +1,11 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.conditional.Opt
 import java.util.IdentityHashMap
+import de.fosd.typechef.conditional.{Choice, Opt}
 
 // store context of an AST entry
-// e: AST => (lfexp: List[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
+// e: AST => (lfexp: List[FeatureExpr] parent: Product, prev: Product, next: Product, children: List[AST])
 class ASTEnv (val astc: IdentityHashMap[Any, (List[FeatureExpr], Product, Product, Product, List[Any])]) {
 
   type ASTContext = (List[FeatureExpr], Product, Product, Product, List[Any])
@@ -53,6 +53,13 @@ object CASTEnv {
     e match {
       case l:List[Opt[_]] => handleOptList(l, parent, lfexp, env)
       case Some(o) => handleASTElem(o.asInstanceOf[Product], parent, lfexp, env)
+      case c@Choice(feature, thenBranch, elseBranch) => {
+        var curenv = env.add(e, (lfexp, parent, null, null, c.productIterator.toList))
+        curenv = handleASTElem(feature, c, lfexp, curenv)
+        curenv = handleASTElem(thenBranch, c, feature::lfexp, curenv)
+        curenv = handleASTElem(elseBranch, c, feature.not::lfexp, curenv)
+        curenv
+      }
       case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
         for (elem <- x.productIterator.toList) {
