@@ -3,7 +3,7 @@ package de.fosd.typechef.featureexpr
 import org.scalacheck._
 import Gen._
 import FeatureExprFactory.sat._
-import Prop._
+import Prop.propBoolean
 import java.io._
 import sat.SATFeatureModel
 
@@ -18,7 +18,7 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     val f = feature("f")
 
     val genAtomicFeatureWithDeadAndBase =
-        oneOf(base :: dead :: featureNames.map(feature(_)))
+        oneOf(True :: False :: featureNames.map(feature(_)))
     val genAtomicFeatureWithoutDeadAndBase =
         oneOf(featureNames.map(FeatureExprFactory.createDefinedExternal(_)))
 
@@ -59,11 +59,11 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
         a equivalentTo b
     })
 
-    property("and1") = Prop.forAll((a: FeatureExpr) => (a and base) equivalentTo a)
-    property("and0") = Prop.forAll((a: FeatureExpr) => (a and dead) equivalentTo dead)
+    property("and1") = Prop.forAll((a: FeatureExpr) => (a and True) equivalentTo a)
+    property("and0") = Prop.forAll((a: FeatureExpr) => (a and False) equivalentTo False)
     property("andSelf") = Prop.forAll((a: FeatureExpr) => (a and a) equivalentTo a)
-    property("or1") = Prop.forAll((a: FeatureExpr) => (a or base) equivalentTo base)
-    property("or0") = Prop.forAll((a: FeatureExpr) => (a or dead) equivalentTo a)
+    property("or1") = Prop.forAll((a: FeatureExpr) => (a or True) equivalentTo True)
+    property("or0") = Prop.forAll((a: FeatureExpr) => (a or False) equivalentTo a)
     property("orSelf") = Prop.forAll((a: FeatureExpr) => (a or a) equivalentTo a)
 
     property("a eq a") = Prop.forAll((a: FeatureExpr) => a eq a)
@@ -100,18 +100,18 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
 
     property("taut(a=>b) == contr(a and !b)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => a.implies(b).isTautology() == a.and(b.not).isContradiction)
 
-    property("featuremodel.tautology") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isDead) ==> {
+    property("featuremodel.tautology") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isContradiction) ==> {
         val fm = SATFeatureModel.create(a)
         b.isTautology(fm) == a.implies(b).isTautology
     })
 
-    property("featuremodel.sat") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isDead) ==> {
+    property("featuremodel.sat") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isContradiction) ==> {
         val fm = SATFeatureModel.create(a)
         b.isSatisfiable(fm) == a.and(b).isSatisfiable
     })
 
-    property("trueSat") = base.isSatisfiable
-    property("falseSat") = !(dead.isSatisfiable())
+    property("trueSat") = True.isSatisfiable
+    property("falseSat") = !(False.isSatisfiable())
 
     property("can_print") = Prop.forAll((a: FeatureExpr) => {
         a.toTextExpr;

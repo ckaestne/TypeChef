@@ -16,10 +16,10 @@ object TokenWrapper {
 }
 
 class TokenWrapper(
-                          image: String,
-                          featureExpr: FeatureExpr,
-                          position: Position,
-                          kind: Int) extends ProfilingToken {
+                      image: String,
+                      featureExpr: FeatureExpr,
+                      position: Position,
+                      kind: Int) extends ProfilingToken {
 
     def getFeature(): FeatureExpr = featureExpr
 
@@ -29,7 +29,7 @@ class TokenWrapper(
 
     def getPosition(): Position = position
 
-    override def toString = "\"" + image + "\"" + (if (!getFeature.isBase()) getFeature else "")
+    override def toString = "\"" + image + "\"" + (if (!getFeature.isTautology()) getFeature else "")
 }
 
 class JPosition(file: String, line: Int, col: Int) extends Position {

@@ -19,12 +19,12 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
 
 
     //if not already type checked, to the check now
-    def inferInterface(ast: TranslationUnit, fm: FeatureExpr = FeatureExprFactory.base): CInterface = {
+    def inferInterface(ast: TranslationUnit, fm: FeatureExpr = FeatureExprFactory.True): CInterface = {
         typecheckTranslationUnit(ast, fm)
         getInferredInterface(fm)
     }
 
-    def getInferredInterface(fm: FeatureExpr = FeatureExprFactory.base) = {
+    def getInferredInterface(fm: FeatureExpr = FeatureExprFactory.True) = {
         cleanImports()
         new CInterface(fm, featureNames, Set(), imports, exports).pack
     }
@@ -45,7 +45,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
         //eliminate duplicates with a map
         for (imp <- imports) {
             val key = (imp.name, imp.ctype)
-            val old = importMap.getOrElse(key, (FeatureExprFactory.dead, Seq()))
+            val old = importMap.getOrElse(key, (FeatureExprFactory.False, Seq()))
             importMap = importMap + (key ->(old._1 or imp.fexpr, old._2 ++ imp.pos))
         }
         //eliminate imports that have corresponding exports
@@ -73,7 +73,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     override def typedFunction(fun: FunctionDef, funType: Conditional[CType], featureExpr: FeatureExpr) {
         super.typedFunction(fun, funType, featureExpr)
 
-        val staticCondition = FeatureExprFactory.base andNot getStaticCondition(fun.specifiers)
+        val staticCondition = FeatureExprFactory.True andNot getStaticCondition(fun.specifiers)
 
         funType.simplify(featureExpr).mapf(featureExpr, {
             (fexpr, ctype) =>
@@ -85,7 +85,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     }
 
     private def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr =
-        specifiers.filter(_.entry == StaticSpecifier()).foldLeft(FeatureExprFactory.dead)((f, o) => f or o.feature)
+        specifiers.filter(_.entry == StaticSpecifier()).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
 
 
     /**

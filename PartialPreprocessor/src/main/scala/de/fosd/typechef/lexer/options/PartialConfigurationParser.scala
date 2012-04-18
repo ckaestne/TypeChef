@@ -19,7 +19,7 @@ object PartialConfigurationParser {
         val featureExpr =
             (booleanDefs.map(createDefinedExternal(_)) ++
                 undefs.map(createDefinedExternal(_).not())).
-                foldRight(base)(_ and _)
+                foldRight(True)(_ and _)
 
         new PartialConfiguration(booleanDefs.toArray, undefs.toArray, featureExpr)
     }

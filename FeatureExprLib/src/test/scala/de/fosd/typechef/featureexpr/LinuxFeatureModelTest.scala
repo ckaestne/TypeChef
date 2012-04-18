@@ -26,7 +26,7 @@ abstract class AbstractLinuxFeatureModelTest {
     def testSatisfiability {
         val CONFIG_LBDAF = getFeatureExprFactory.createDefinedExternal("CONFIG_LBDAF")
 
-        assertTrue(getFeatureExprFactory.base.isSatisfiable(getFeatureModel))
+        assertTrue(getFeatureExprFactory.True.isSatisfiable(getFeatureModel))
         assertTrue((CONFIG_LBDAF or (CONFIG_LBDAF.not)).isSatisfiable(getFeatureModel))
         assertTrue(CONFIG_LBDAF.not.isSatisfiable(getFeatureModel))
         assertTrue(CONFIG_LBDAF.isSatisfiable(getFeatureModel))
@@ -69,8 +69,8 @@ abstract class AbstractLinuxFeatureModelTest {
     @Test
     def testCorrectness {
         val allocators = List("SLAB", "SLOB", "SLUB")
-        println(allocators.reduceLeft(_ + "|" + _) + ": " + allocators.map(x => getFeatureExprFactory.createDefinedExternal("CONFIG_" + x)).foldRight(getFeatureExprFactory.base)(_ or _).isTautology(getFeatureModel))
-        println("!(" + allocators.reduceLeft(_ + "&" + _) + "): " + allocators.map(x => getFeatureExprFactory.createDefinedExternal("CONFIG_" + x)).foldRight(getFeatureExprFactory.base)(_ and _).not.isTautology(getFeatureModel))
+        println(allocators.reduceLeft(_ + "|" + _) + ": " + allocators.map(x => getFeatureExprFactory.createDefinedExternal("CONFIG_" + x)).foldRight(getFeatureExprFactory.True)(_ or _).isTautology(getFeatureModel))
+        println("!(" + allocators.reduceLeft(_ + "&" + _) + "): " + allocators.map(x => getFeatureExprFactory.createDefinedExternal("CONFIG_" + x)).foldRight(getFeatureExprFactory.True)(_ and _).not.isTautology(getFeatureModel))
         for (a <- allocators; b <- allocators if (a != b)) {
             println(a + " implies !" + b + ": " + (getFeatureExprFactory.createDefinedExternal("CONFIG_" + a) implies getFeatureExprFactory.createDefinedExternal("CONFIG_" + b).not).isTautology(getFeatureModel))
             println("!(" + a + " & " + b + "): " + (getFeatureExprFactory.createDefinedExternal("CONFIG_" + a) and getFeatureExprFactory.createDefinedExternal("CONFIG_" + b)).not.isTautology(getFeatureModel))

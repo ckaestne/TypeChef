@@ -15,7 +15,7 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
 
     private def declTL(code: String) = {
         val ast: Declaration = parseDecl(code)
-        val r = getDeclaredVariables(ast, FeatureExprFactory.base, EmptyEnv).map(e => (e._1, e._3))
+        val r = getDeclaredVariables(ast, FeatureExprFactory.True, EmptyEnv).map(e => (e._1, e._3))
         println(r)
         r
     }

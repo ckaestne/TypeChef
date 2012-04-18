@@ -1,6 +1,6 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.featureexpr.FeatureExprFactory.base
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
@@ -18,7 +18,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
     val initBuiltinTypedevEnv: Seq[(String, FeatureExpr, Conditional[CType])] =
         Map(
             "__builtin_va_list" -> CIgnore()
-        ).toList.map(x => (x._1, base, One(x._2)))
+        ).toList.map(x => (x._1, True, One(x._2)))
 
 
     val initBuiltinVarEnv: Seq[(String, FeatureExpr, Conditional[CType], DeclarationKind, Int)] =
@@ -32,7 +32,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             //            "__builtin_va_arg" -> One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
             "__builtin_va_end" -> One(CFunction(Seq(CIgnore()), CVoid())),
             "__builtin_va_copy" -> One(CFunction(Seq(CIgnore(), CIgnore()), CVoid()))
-        )).toList.map(x => (x._1, base, x._2, KDeclaration, 0))
+        )).toList.map(x => (x._1, True, x._2, KDeclaration, 0))
 
 
     /**taken directly from sparse/lib.c */
@@ -131,10 +131,10 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
         }
 
         val ast = getAST(buffer)
-        val env = EmptyEnv.addTypedef("__builtin_va_list", base, One(CIgnore()))
+        val env = EmptyEnv.addTypedef("__builtin_va_list", True, One(CIgnore()))
         Map() ++ (for (Opt(_, decl: Declaration) <- ast.defs) yield {
             val init = decl.init.head.entry
-            (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs, FeatureExprFactory.base, EmptyEnv, decl), FeatureExprFactory.base, env))
+            (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs, FeatureExprFactory.True, EmptyEnv, decl), FeatureExprFactory.True, env))
         })
     }
 

@@ -15,7 +15,7 @@ import collection.mutable.ArrayBuffer
 // * External interface for construction of non-boolean feature expressions
 // * (mostly delegated to FExprBuilder)
 // *
-// * Also provides access to the primitives base and dead (for true and false)
+// * Also provides access to the primitives True and False (for true and false)
 // * and allows to create DefinedExternal nodes
 // */
 //object FeatureExpr extends FeatureExprValueOps {
@@ -56,11 +56,11 @@ import collection.mutable.ArrayBuffer
 //    def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
 //    def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
 //
-//    val base: FeatureExpr = de.fosd.typechef.featureexpr.True
-//    val dead: FeatureExpr = de.fosd.typechef.featureexpr.False
+//    val True: FeatureExpr = de.fosd.typechef.featureexpr.True
+//    val False: FeatureExpr = de.fosd.typechef.featureexpr.False
 //
-//    def True = base
-//    def False = dead
+//    def True = True
+//    def False = False
 //
 
 //

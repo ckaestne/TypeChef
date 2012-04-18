@@ -84,7 +84,7 @@ trait CEnv {
         def this() = this(Map())
         //returns the condition under which a structure is defined
         def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
-        def isDefined(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), (FeatureExprFactory.dead, null))._1
+        def isDefined(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), (FeatureExprFactory.False, null))._1
         def isDefinedUnion(name: String) = isDefined(name, true)
         def isDefinedStruct(name: String) = isDefined(name, false)
         def add(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap) = {

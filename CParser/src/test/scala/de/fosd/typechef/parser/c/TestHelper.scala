@@ -31,28 +31,28 @@ trait TestHelper {
     def parseExpr(code: String): Expr = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.expr)(in, FeatureExprFactory.base)
+        val r = p.phrase(p.expr)(in, FeatureExprFactory.True)
         r.asInstanceOf[p.Success[Expr]].result
     }
 
     def parseDecl(code: String): Declaration = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.declaration)(in, FeatureExprFactory.base)
+        val r = p.phrase(p.declaration)(in, FeatureExprFactory.True)
         r.asInstanceOf[p.Success[Declaration]].result
     }
 
     def parseCompoundStmt(code: String): CompoundStatement = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.compoundStatement)(in, FeatureExprFactory.base)
+        val r = p.phrase(p.compoundStatement)(in, FeatureExprFactory.True)
         r.asInstanceOf[p.Success[CompoundStatement]].result
     }
 
     def parseFunctionDef(code: String): FunctionDef = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.functionDef)(in, FeatureExprFactory.base)
+        val r = p.phrase(p.functionDef)(in, FeatureExprFactory.True)
         r.asInstanceOf[p.Success[FunctionDef]].result
     }
 }

@@ -12,7 +12,7 @@ class TestErrorReporting extends TestCase {
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser()
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExprFactory.base)
+            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExprFactory.True)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {

@@ -5,8 +5,8 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.featureexpr.FeatureExprFactory.base
-import de.fosd.typechef.featureexpr.FeatureExprFactory.dead
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
+import de.fosd.typechef.featureexpr.FeatureExprFactory.False
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
@@ -71,13 +71,13 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         println(env.env)
 
         //struct should be in environement
-        env.isDefined("account", false) should be(base)
-        env.isDefined("account", true) should be(dead) //not a union
+        env.isDefined("account", false) should be(True)
+        env.isDefined("account", true) should be(False) //not a union
 
-        env.isDefined("uaccount", false) should be(dead)
-        env.isDefined("uaccount", true) should be(base) //a union
+        env.isDefined("uaccount", false) should be(False)
+        env.isDefined("uaccount", true) should be(True) //a union
 
-        env.isDefined("announcedStruct", false) should be(base) //announced structs should be in the environement, but empty
+        env.isDefined("announcedStruct", false) should be(True) //announced structs should be in the environement, but empty
         env.get("announcedStruct", false) should be('isEmpty)
 
         val accountStruct = env.get("account", false)
@@ -147,7 +147,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         val typedefs = lookupEnv(lastDecl).typedefEnv
 
         typedefs("myint") should be(_i)
-        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() +("x", base, One(CDouble())))))
+        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() +("x", True, One(CDouble())))))
         typedefs("myunsign") should be(One(CUnsigned(CInt())))
 
         //typedef is not a declaration
@@ -155,13 +155,13 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env.contains("mystr") should be(false)
 
         env("myintvar") should be(_i)
-        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", base, One(CDouble()))))))
+        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", True, One(CDouble()))))))
         env("mypairvar") should be(One(CStruct("pair")))
 
         //structure definitons should be recognized despite typedefs
         val structenv: StructEnv = lookupEnv(ast.defs.last.entry).structEnv
-        structenv.isDefined("pair", false) should be(base)
-        structenv.isDefined("mystr", false) should be(dead)
+        structenv.isDefined("pair", false) should be(True)
+        structenv.isDefined("mystr", false) should be(False)
 
         typedefs("transunion") should be(One(CIgnore()))
     }
@@ -346,7 +346,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         enumenv should contain key ("Color")
         enumenv should not contain key("Undef")
 
-        enumenv("Direction") should be(base)
+        enumenv("Direction") should be(True)
         enumenv("Color") should be(fy or fx)
 
         env("South") should be(Choice(fx, _i, One(CUndefined)))
@@ -425,7 +425,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
         println(structenv)
 
-        structenv.isDefined("s1", false) should be(base)
+        structenv.isDefined("s1", false) should be(True)
         structenv.isDefined("s2", false) should be(fx)
         structenv.isDefined("s3", false) should be(fx or fy)
 
@@ -632,7 +632,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         last.varEnv("uncompressed") should be(One(CUnknown()))
         last.varEnv("SEQ_COPY") should be(_i)
 
-        last.enumEnv("lzma2_seq") should be(FeatureExprFactory.base)
+        last.enumEnv("lzma2_seq") should be(FeatureExprFactory.True)
     }
 
 }

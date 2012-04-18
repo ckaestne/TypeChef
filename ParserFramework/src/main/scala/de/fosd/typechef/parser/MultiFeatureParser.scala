@@ -59,7 +59,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] = {
             val startPos = in.pos
             val result = thisParser(in, feature).map(f)
-            result.mapfr(FeatureExprFactory.base, (_, r) => r match {
+            result.mapfr(FeatureExprFactory.True, (_, r) => r match {
                 case Success(t, restIn) =>
                     if (t.isInstanceOf[WithPosition])
                         t.asInstanceOf[WithPosition].setPositionRange(startPos, restIn.pos)
@@ -378,11 +378,11 @@ try {
 } catch {
     */
     /**fallback (try to avoid for long lists!):
-     * normal repetition, where each is wrapped in an Opt(base,_) */
+     * normal repetition, where each is wrapped in an Opt(True,_) */
     /*
               case e: ListHandlingException => {
                   e.printStackTrace
-                  rep(p)(in, parserState).map(_.map(Opt(FeatureExprFactory.base, _)))
+                  rep(p)(in, parserState).map(_.map(Opt(FeatureExprFactory.True, _)))
               }
           }
       }
@@ -642,7 +642,7 @@ try {
      */
     def rep1[T](p: => MultiParser[T]): MultiParser[List[Opt[T]]] =
         p ~ repOpt(p) ^^ {
-            case x ~ list => Opt(FeatureExprFactory.base, x) :: list
+            case x ~ list => Opt(FeatureExprFactory.True, x) :: list
         }
 
     /**
@@ -670,7 +670,7 @@ try {
             val t = p(in, feature)
             t.seqAllSuccessful(feature,
                 (fs: FeatureExpr, x: Success[List[Opt[T]]]) => {
-                    val nonEmptyCondition = x.result.filter(x => filterE(x.entry)).map(_.feature).foldLeft(FeatureExprFactory.dead)(_ or _)
+                    val nonEmptyCondition = x.result.filter(x => filterE(x.entry)).map(_.feature).foldLeft(FeatureExprFactory.False)(_ or _)
                     def error = Failure("empty list", x.nextInput, List())
                     if ((fs implies nonEmptyCondition).isTautology())
                         x
@@ -690,7 +690,7 @@ try {
      */
     def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
         p ~ repOpt(separator ~> p) ^^ {
-            case r ~ l => Opt(FeatureExprFactory.base, r) :: l
+            case r ~ l => Opt(FeatureExprFactory.True, r) :: l
         }
 
     /**
@@ -833,7 +833,7 @@ try {
                     //XXX ChK: the following is an incorrect approximation and the lower code should be used, but reduces performance significantly
                     case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
                     //		    case e@Success((l, f), next) => {
-                    //                       val nonEmptyCondition = l.foldRight(FeatureExprFactory.dead)(_.feature or _)
+                    //                       val nonEmptyCondition = l.foldRight(FeatureExprFactory.False)(_.feature or _)
                     //                       lazy val failure = Failure("empty list (" + productionName + ")", next, List())
                     //                       if (nonEmptyCondition.isTautology(featureModel)) e
                     //                       else if (nonEmptyCondition.isContradiction(featureModel)) failure
@@ -875,7 +875,7 @@ try {
         //        /**turns a parse result with a conditional tailing separators into two parse results, indicating whther
         //         * there is a trailing separator */
         //        def hasTrailingSeparator(result: MultiParseResult[(List[Opt[T]], FeatureExpr)]): MultiParseResult[(List[Opt[T]], Boolean)] = {
-        //            result.mapfr(FeatureExprFactory.base,
+        //            result.mapfr(FeatureExprFactory.True,
         //                //(FeatureExpr, ParseResult[T]) => ParseResult[U]
         //                (f, result) => result match {
         //                    case Success((r, f), in) =>

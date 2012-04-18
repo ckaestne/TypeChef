@@ -29,7 +29,7 @@ class TokenReader[+T <: AbstractToken, U](val tokens: List[T], val offst: Int, v
     override def toString: String = {
         val out = new StringBuilder
         out ++= "TokenReader(" + pos.getLine + ","
-        var currFeat: FeatureExpr = FeatureExprFactory.base
+        var currFeat: FeatureExpr = FeatureExprFactory.True
 
         for (tok <- tokens.slice(0, min(tokens.size, 50))) {
             var newFeat: FeatureExpr = tok.getFeature

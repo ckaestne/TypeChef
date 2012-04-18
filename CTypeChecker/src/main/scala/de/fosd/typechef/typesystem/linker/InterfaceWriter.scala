@@ -37,7 +37,7 @@ trait InterfaceWriter {
     private def getFM(node: scala.xml.Node) = {
         val txt = (node \ "featuremodel").text
         if (txt.trim == "")
-            FeatureExprFactory.base
+            FeatureExprFactory.True
         else new FeatureExprParser().parse(txt)
     }
 

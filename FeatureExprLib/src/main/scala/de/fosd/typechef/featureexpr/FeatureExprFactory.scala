@@ -28,10 +28,8 @@ object FeatureExprFactory {
 
     //shorthands for convenience
     def createDefinedExternal(featureName: String) = default.createDefinedExternal(featureName)
-    def base: FeatureExpr = default.base
-    def dead: FeatureExpr = default.dead
-    def True = base
-    def False = dead
+    def True: FeatureExpr = default.True
+    def False: FeatureExpr = default.False
 
 }
 
@@ -41,10 +39,8 @@ trait AbstractFeatureExprFactory extends FeatureExprTreeFactory {
 
     def createBooleanIf(expr: FeatureExpr, thenBr: FeatureExpr, elseBr: FeatureExpr): FeatureExpr = (expr and thenBr) or (expr.not and elseBr)
 
-    def base: FeatureExpr
-    def dead: FeatureExpr
-    def True = base
-    def False = dead
+    def True: FeatureExpr
+    def False: FeatureExpr
 
     def featureModelFactory: FeatureModelFactory
 }

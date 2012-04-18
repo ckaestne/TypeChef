@@ -306,7 +306,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
 
     private def createSum(a: Expr, b: Expr) =
-        NAryExpr(a, List(Opt(FeatureExprFactory.base, NArySubExpr("+", b))))
+        NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b))))
 
 
     private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType], funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {

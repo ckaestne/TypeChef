@@ -202,7 +202,7 @@ public class AbstractCheckTests {
                             + column);
             }
         });
-        pp.addMacro("__JCPP__", FeatureExprLib.base());
+        pp.addMacro("__JCPP__", FeatureExprLib.True());
 
         // include path
         if (folder != null)

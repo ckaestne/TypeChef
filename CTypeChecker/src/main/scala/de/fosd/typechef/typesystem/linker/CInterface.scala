@@ -1,7 +1,7 @@
 package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.parser.Position
-import de.fosd.typechef.featureexpr.FeatureExprFactory.{base, dead}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.typesystem.CType
 
@@ -17,7 +17,7 @@ case class CInterface(
                          exports: Seq[CSignature]) {
 
 
-    def this(imports: Seq[CSignature], exports: Seq[CSignature]) = this(base, Set(), Set(), imports, exports)
+    def this(imports: Seq[CSignature], exports: Seq[CSignature]) = this(True, Set(), Set(), imports, exports)
 
     override def toString =
         "fm " + featureModel + "\n" +
@@ -47,11 +47,11 @@ case class CInterface(
     /**
      * removes duplicates by joining the corresponding conditions
      * removes imports that are available as exports in the same file
-     * removes dead imports
+     * removes False imports
      *
      * two elements are duplicate if they have the same name and type
      *
-     * exports are not packed beyond removing dead exports.
+     * exports are not packed beyond removing False exports.
      * duplicate exports are used for error detection
      */
     def pack: CInterface = if (isPacked) this
@@ -70,7 +70,7 @@ case class CInterface(
         //eliminate duplicates with a map
         for (imp <- imports if ((featureModel and imp.fexpr).isSatisfiable())) {
             val key = (imp.name, imp.ctype)
-            val old = importMap.getOrElse(key, (dead, Seq()))
+            val old = importMap.getOrElse(key, (False, Seq()))
             importMap = importMap + (key ->(old._1 or imp.fexpr, old._2 ++ imp.pos))
         }
         //eliminate imports that have corresponding exports
@@ -166,7 +166,7 @@ case class CInterface(
      * to not have a problem
      */
     private def inferConstraintsWith(that: CInterface): FeatureExpr =
-        getConflicts(that).foldLeft(FeatureExprFactory.base)(_ and _._2)
+        getConflicts(that).foldLeft(FeatureExprFactory.True)(_ and _._2)
 
 
     def and(f: FeatureExpr): CInterface =
@@ -248,7 +248,7 @@ case class CInterface(
     else {
         val pairs = for (a <- sigs.tails.take(sigs.size); b <- a.tail)
         yield (a.head.fexpr, b.fexpr)
-        val formula = featureModel implies pairs.foldLeft(base)((a, b) => a and (b._1 mex b._2))
+        val formula = featureModel implies pairs.foldLeft(True)((a, b) => a and (b._1 mex b._2))
         formula.isTautology
     }
 
@@ -295,7 +295,7 @@ object CInterface {
     }
 
 
-    private def disjointSigFeatureExpr(a: Seq[CSignature]): FeatureExpr = a.foldLeft(dead)(_ or _.fexpr)
+    private def disjointSigFeatureExpr(a: Seq[CSignature]): FeatureExpr = a.foldLeft(False)(_ or _.fexpr)
 
 
     //    /**
@@ -311,7 +311,7 @@ object CInterface {
     //        //two sets of signatures with the same name
     //        //(a1 or a2 or a3) mex (b1 or b2 or b3)
     //        def addConstraint(a: Seq[CSignature], b: Seq[CSignature]) =
-    //            a.foldLeft(dead)(_ or _.fexpr) mex b.foldLeft(dead)(_ or _.fexpr)
+    //            a.foldLeft(False)(_ or _.fexpr) mex b.foldLeft(False)(_ or _.fexpr)
     //
     //        for (signame <- aa.keys)
     //            if (bb.contains(signame)) {
@@ -324,4 +324,4 @@ object CInterface {
 
 }
 
-object EmptyInterface extends CInterface(FeatureExprFactory.base, Set(), Set(), Seq(), Seq())
+object EmptyInterface extends CInterface(FeatureExprFactory.True, Set(), Set(), Seq(), Seq())

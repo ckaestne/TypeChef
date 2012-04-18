@@ -15,8 +15,8 @@ class ConditionalTest {
     def testMap {
         assertEquals(One(1), One("a").map(_.length))
         assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).map(_.length))
-        assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).mapfr(base, (f, x) => One(x.length)))
-        assertEquals(Choice(fa, One(2), Choice(fb, One(3), One(5))), Choice(fa, One("bb"), One("a")).mapfr(base, (f, x) => if (f == fa) One(x.length) else Choice(fb, One(3), One(5))))
+        assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).mapfr(True, (f, x) => One(x.length)))
+        assertEquals(Choice(fa, One(2), Choice(fb, One(3), One(5))), Choice(fa, One("bb"), One("a")).mapfr(True, (f, x) => if (f == fa) One(x.length) else Choice(fb, One(3), One(5))))
 
     }
 
@@ -24,10 +24,10 @@ class ConditionalTest {
     def testFold {
         assertEquals(
             Choice(fa, One("ab"), One("b")),
-            conditionalFoldRight(List(Opt(fa, "a"), Opt(base, "b")), One(""), (a: String, b: String) => a + b))
+            conditionalFoldRight(List(Opt(fa, "a"), Opt(True, "b")), One(""), (a: String, b: String) => a + b))
         assertEquals(
             Choice(fb, Choice(fa, One(7), One(5)), Choice(fa, One(3), One(1))),
-            conditionalFoldRight(List(Opt(fa, 2), Opt(base, 1), Opt(fb, 4)), One(0), (a: Int, b: Int) => a + b))
+            conditionalFoldRight(List(Opt(fa, 2), Opt(True, 1), Opt(fb, 4)), One(0), (a: Int, b: Int) => a + b))
     }
 
     @Test
@@ -58,7 +58,7 @@ class ConditionalTest {
     def testExplode {
         assertEquals(
             Choice(fa, One(List("a", "b")), One(List("b"))),
-            explodeOptList(List(Opt(fa, "a"), Opt(base, "b"))))
+            explodeOptList(List(Opt(fa, "a"), Opt(True, "b"))))
         assertEquals(
             Choice(fa, One(List("a")), One(List("b"))),
             explodeOptList(List(Opt(fa.not, "b"), Opt(fa, "a"))))
@@ -112,11 +112,11 @@ class ConditionalTest {
     @Test
     def testLast {
         assertEquals(One(None), lastEntry(List()))
-        assertEquals(One(Some(2)), lastEntry(List(Opt(fa, 1), Opt(base, 2))))
+        assertEquals(One(Some(2)), lastEntry(List(Opt(fa, 1), Opt(True, 2))))
         assertEquals(Choice(fa, One(Some(2)), One(None)), lastEntry(List(Opt(fa, 2))))
         assertEquals(
             Choice(fa, One(Some(2)), One(Some(1))),
-            lastEntry(List(Opt(base, 1), Opt(fa, 2))))
+            lastEntry(List(Opt(True, 1), Opt(fa, 2))))
         assertEquals(
             Choice(fa, One(Some(2)), Choice(fb, One(Some(1)), One(None))),
             lastEntry(List(Opt(fb, 1), Opt(fa, 2))))
@@ -157,7 +157,7 @@ class ConditionalTest {
     @Test
     def testFoldCondition {
         val l = List(Opt(fa, 1), Opt(fa.not(), 2), Opt(fa.not(), 3))
-        val r = conditionalFoldRightFR(l, One("-"), base, (f: FeatureExpr, a: Int, b: String) => {
+        val r = conditionalFoldRightFR(l, One("-"), True, (f: FeatureExpr, a: Int, b: String) => {
             assert(!f.isTautology());
             println(f + ", " + a + ", " + b);
             One(a.toString + b)

@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExprFactory.{base, dead}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
 import de.fosd.typechef.typesystem.{CVoid, CFunction, CFloat}
 
 @RunWith(classOf[JUnitRunner])
@@ -15,17 +15,17 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
     val tfun = CFunction(Seq(), CVoid())
     val tfun2 = CFunction(Seq(CFloat()), CVoid())
 
-    val ffoo = CSignature("foo", tfun, base, Seq())
-    val ffoo2 = CSignature("foo", tfun2, base, Seq())
-    val fbar = CSignature("bar", tfun, base, Seq())
+    val ffoo = CSignature("foo", tfun, True, Seq())
+    val ffoo2 = CSignature("foo", tfun2, True, Seq())
+    val fbar = CSignature("bar", tfun, True, Seq())
 
     test("wellformed interfaces") {
         new CInterface(List(), List()).isWellformed should be(true)
         new CInterface(List(), List(ffoo)).isWellformed should be(true)
-        new CInterface(List(), List(ffoo, CSignature("bar", tfun, base, Seq()))).isWellformed should be(true)
+        new CInterface(List(), List(ffoo, CSignature("bar", tfun, True, Seq()))).isWellformed should be(true)
         new CInterface(List(), List(ffoo, ffoo)).isWellformed should be(false)
-        new CInterface(List(), List(ffoo, CSignature("bar", tfun, base, Seq()), ffoo)).isWellformed should be(false)
-        new CInterface(List(), List(ffoo, CSignature("foo", tfun2, base, Seq()))).isWellformed should be(false)
+        new CInterface(List(), List(ffoo, CSignature("bar", tfun, True, Seq()), ffoo)).isWellformed should be(false)
+        new CInterface(List(), List(ffoo, CSignature("foo", tfun2, True, Seq()))).isWellformed should be(false)
         new CInterface(List(), List(CSignature("foo", tfun, fa, Seq()), CSignature("foo", tfun, fa.not, Seq()))).isWellformed should be(true)
         new CInterface(List(ffoo), List(ffoo)).isWellformed should be(false)
         new CInterface(List(ffoo, ffoo), List()).isWellformed should be(false)
@@ -37,7 +37,7 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         val i3 = new CInterface(List(), List(ffoo, fbar))
 
         (i1 link i2) should be(i3)
-        (i1 link i1).featureModel should be(dead)
+        (i1 link i1).featureModel should be(False)
 
         ((i1 and fa) link (i1 and fa.not)).isWellformed should be(true)
 
@@ -50,9 +50,9 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
         (ii link i1).pack should be(i1)
 
         (CInterface(fa, List(), List()) link CInterface(fb, List(), List())).pack should be(CInterface(fa and fb, List(), List()))
-        (CInterface(fa, List(), List()) link CInterface(fa.not, List(), List())).pack should be(CInterface(dead, List(), List()))
-        (CInterface(fa, List(ffoo), List()) link CInterface(fa.not, List(), List())).pack should be(CInterface(dead, List(), List()))
-        (CInterface(fa, List(), List(ffoo)) link CInterface(fa.not, List(), List())).pack should be(CInterface(dead, List(), List()))
+        (CInterface(fa, List(), List()) link CInterface(fa.not, List(), List())).pack should be(CInterface(False, List(), List()))
+        (CInterface(fa, List(ffoo), List()) link CInterface(fa.not, List(), List())).pack should be(CInterface(False, List(), List()))
+        (CInterface(fa, List(), List(ffoo)) link CInterface(fa.not, List(), List())).pack should be(CInterface(False, List(), List()))
 
         (new CInterface(List(), List(ffoo and fa)) link new CInterface(List(), List(ffoo and fb))).featureModel should be(fa mex fb)
     }
@@ -62,7 +62,7 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
 
         i1.isComplete should be(true)
 
-        CInterface(base, List(), List(ffoo and fa)).isFullyConfigured should be(false)
+        CInterface(True, List(), List(ffoo and fa)).isFullyConfigured should be(false)
         CInterface(fa, List(), List(ffoo and fa)).isFullyConfigured should be(true)
 
     }
@@ -72,13 +72,13 @@ class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     test("conditional composition (db example)") {
-        val fwrite = CSignature("write", tfun, base, Seq())
-        val fread = CSignature("read", tfun, base, Seq())
-        val fselect = CSignature("select", tfun, base, Seq())
-        val fupdate = CSignature("update", tfun, base, Seq())
-        val idb = CInterface(base, List(fwrite, fread), List(fselect, fupdate))
-        val iinmem = CInterface(base, List(), List(fwrite, fread))
-        val iperist = iinmem //CInterface(base, List(),List(fwrite,fread))
+        val fwrite = CSignature("write", tfun, True, Seq())
+        val fread = CSignature("read", tfun, True, Seq())
+        val fselect = CSignature("select", tfun, True, Seq())
+        val fupdate = CSignature("update", tfun, True, Seq())
+        val idb = CInterface(True, List(fwrite, fread), List(fselect, fupdate))
+        val iinmem = CInterface(True, List(), List(fwrite, fread))
+        val iperist = iinmem //CInterface(True, List(),List(fwrite,fread))
         val ifm = CInterface(fa xor fb, List(), List())
 
         (idb isCompatibleTo iinmem) should be(true)

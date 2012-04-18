@@ -28,8 +28,8 @@ class TestSatSolver extends TestCase {
         assertEquals(false, a and (a.not) isSatisfiable())
         assertEquals(true, createBooleanIf(a, a, a.not) isSatisfiable())
         assertEquals(true, createBooleanIf(a, a.not, a) isContradiction())
-        assertEquals(true, dead isContradiction())
-        assertEquals(true, base isTautology())
+        assertEquals(true, False isContradiction())
+        assertEquals(true, True isTautology())
         assertEquals(true, createInteger(2).toFeatureExpr.isTautology())
     }
 

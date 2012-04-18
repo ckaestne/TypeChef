@@ -42,7 +42,7 @@ class BenchmarkTest extends TestCase with DigitListUtilities {
         val in = p.tr(l)
         println("----")
         println("tokens: " + l + " -- " + in.tokens.size)
-        println("parse result: " + p.phrase(parser)(in, FeatureExprFactory.base))
+        println("parse result: " + p.phrase(parser)(in, FeatureExprFactory.True))
 
         val totalConsumed = in.tokens.foldLeft(0)((sum, token) => sum + token.profile_consumed)
         val totalBacktracked = in.tokens.foldLeft(0)((sum, token) => sum + token.profile_consumed_backtracking)

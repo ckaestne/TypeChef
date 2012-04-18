@@ -53,14 +53,14 @@ object ParseMobileMedia {
 
             val parserStartTime = System.currentTimeMillis
             val p = new JavaParser()
-            var ast = p.phrase(p.CompilationUnit)(tokens, FeatureExprFactory.base)
+            var ast = p.phrase(p.CompilationUnit)(tokens, FeatureExprFactory.True)
             val endTime = System.currentTimeMillis
 
             println(ast)
             val choices = ast match {
                 case p.Success(r, rest) => {
                     assert(rest.atEnd)
-                    countCoices(r, FeatureExprFactory.base)
+                    countCoices(r, FeatureExprFactory.True)
                 }
                 case _ => {
                     assert(false)
@@ -119,13 +119,15 @@ object ParseMobileMedia {
             case None => 0
             case x: String => 0
             case e => {
-                println(e); assert(false); 0
+                println(e);
+                assert(false);
+                0
             }
         }
 
 
     def countAnnotatedTokens(tokens: List[TokenWrapper]): Int =
-        tokens.filter(_.getFeature != FeatureExprFactory.base).size
+        tokens.filter(_.getFeature != FeatureExprFactory.True).size
 
     def findFeatures(tokens: List[TokenWrapper]): Set[String] = {
         var result: Set[String] = Set()

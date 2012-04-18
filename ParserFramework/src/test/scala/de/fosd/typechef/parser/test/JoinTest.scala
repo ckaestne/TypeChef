@@ -12,7 +12,7 @@ class JoinTest extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
 
-    val tokenStream = new TokenReader[MyToken, TypeContext](List.fill(10)(new MyToken("_", base)), 0, null, EofToken)
+    val tokenStream = new TokenReader[MyToken, TypeContext](List.fill(10)(new MyToken("_", True)), 0, null, EofToken)
     val in1 = tokenStream
     val in2 = in1.rest
     val in3 = in2.rest
@@ -36,7 +36,7 @@ class JoinTest extends MultiFeatureParser {
             }
 
         //check in all SPLITs
-        for ((feature, r) <- result.toList(base))
+        for ((feature, r) <- result.toList(True))
             r match {
                 case Success(r, in) => found |= find(feature, r, f, l)
                 case _ =>
@@ -46,7 +46,7 @@ class JoinTest extends MultiFeatureParser {
     //checks recursively that there is an according entry with the required presence condition as direct child of a Success
     private def assertContains(result: MultiParseResult[Conditional[A]], f: FeatureExpr, entry: ParseResult[Conditional[A]]) {
         var found = false
-        for ((feature, r) <- result.toList(base))
+        for ((feature, r) <- result.toList(True))
             if ((r == entry) && (feature equivalentTo f))
                 found = true
         assertTrue("expected " + entry + " with " + f + " in " + result, found)
@@ -56,13 +56,13 @@ class JoinTest extends MultiFeatureParser {
         val s1 = Success[A](L(1), in1)
         val s2 = Success[A](L(2), in1)
         val s = SplittedParseResult[A](fa, s1, s2)
-        val joined = s.join(base)
+        val joined = s.join(True)
 
         println(joined)
 
         assertContainsL(joined, fa, L(1))
         assertContainsL(joined, fa.not, L(2))
-        assertContains(joined, base, Success(Choice(fa, One(L(1)), One(L(2))), in1))
+        assertContains(joined, True, Success(Choice(fa, One(L(1)), One(L(2))), in1))
     }
 
     @Test def testJoinInnerBinary {
@@ -70,7 +70,7 @@ class JoinTest extends MultiFeatureParser {
         val s2 = Success[A](L(2), in1)
         val s3 = Success[A](L(2), in2)
         val s = SplittedParseResult(fb, SplittedParseResult[A](fa, s1, s2), s3)
-        val joined = s.join(base)
+        val joined = s.join(True)
 
         println(joined)
         assertContainsL(joined, fb and fa, L(1))
@@ -82,7 +82,7 @@ class JoinTest extends MultiFeatureParser {
         val s1 = Success[A](L(1), in1)
         val s2 = Success[A](L(2), in2)
         val s = SplittedParseResult[A](fa, s1, s2)
-        val joined = s.join(base)
+        val joined = s.join(True)
 
 
         assertContainsL(joined, fa, L(1))
@@ -95,7 +95,7 @@ class JoinTest extends MultiFeatureParser {
         val s2 = Success[A](L(2), in1)
         val s3 = Success[A](L(3), in2)
         val s = SplittedParseResult[A](fa, SplittedParseResult(fb, s1, s3), s2)
-        val joined = s.join(base)
+        val joined = s.join(True)
 
         println(joined)
 

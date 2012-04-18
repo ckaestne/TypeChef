@@ -53,7 +53,7 @@ object JavaLexer {
         private def getConditionS(s: List[FeatureExpr]) =
             s.tail.foldRight(s.head)(_.not and _)
         private def getCondition(s: List[List[FeatureExpr]]): FeatureExpr =
-            if (s.isEmpty) FeatureExprFactory.base
+            if (s.isEmpty) FeatureExprFactory.True
             else getConditionS(s.head) and getCondition(s.tail)
         def isEmpty = stack.isEmpty
     }
@@ -82,7 +82,7 @@ object JavaLexer {
                 else if (PreprocessorParser.pelifdef(tokens).successful)
                     presenceConditionStack.addElse(PreprocessorParser.pelifdef(tokens).get)
                 else if (PreprocessorParser.pelse(tokens).successful)
-                    presenceConditionStack.addElse(FeatureExprFactory.base)
+                    presenceConditionStack.addElse(FeatureExprFactory.True)
                 else if (PreprocessorParser.pendif(tokens).successful)
                     presenceConditionStack.addEndif
                 else
@@ -97,7 +97,7 @@ object JavaLexer {
         }
         processPreprocessor(next)
         if (!presenceConditionStack.isEmpty) throw new PreprocessorException("less #endif than #if")
-        new TokenReader(tokenStream.reverse, 0, null, TokenWrapper.create(next, FeatureExprFactory.base, fileName))
+        new TokenReader(tokenStream.reverse, 0, null, TokenWrapper.create(next, FeatureExprFactory.True, fileName))
     }
 
 }

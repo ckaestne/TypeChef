@@ -8,7 +8,7 @@ class MultiExpressionParser extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.base).expectOneResult
+    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.True).expectOneResult
 
     def expr: MultiParser[Conditional[AST]] = {
         val r = term ~ opt((t("+") | t("-")) ~ expr) ^^! ({

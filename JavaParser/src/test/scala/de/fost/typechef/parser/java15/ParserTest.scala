@@ -21,7 +21,7 @@ class ParserTest {
     val p = new JavaParser()
 
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, Null], FeatureExpr) => p.MultiParseResult[Any]) {
-        val actual = mainProduction(JavaLexer.lex(code.stripMargin), FeatureExprFactory.base)
+        val actual = mainProduction(JavaLexer.lex(code.stripMargin), FeatureExprFactory.True)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {

@@ -15,8 +15,8 @@ object SATFeatureExprFactory extends AbstractFeatureExprFactory {
 
     val baseB: SATFeatureExpr = de.fosd.typechef.featureexpr.sat.True
     val deadB: SATFeatureExpr = de.fosd.typechef.featureexpr.sat.False
-    val base: FeatureExpr = baseB
-    val dead: FeatureExpr = deadB
+    val True: FeatureExpr = baseB
+    val False: FeatureExpr = deadB
 
 
     //feature model stuff

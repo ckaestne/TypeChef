@@ -21,7 +21,7 @@ class RepOptJoinTest extends TestCase with DigitListUtilities {
     @Test def testCharAndRepDigit = {
         val l = List(t("a"), t("2", f1))
         val in = p.tr(l)
-        val r = charAndRepDigit(in, FeatureExprFactory.base)
+        val r = charAndRepDigit(in, FeatureExprFactory.True)
         println("----")
         println("tokens: " + l + " -- " + in.tokens.size)
         println("parse result: " + r)

@@ -18,7 +18,7 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
                 myRepOpt(digitList | (digit.map(One(_))), "digitList") ^^ (
                     //List[this.OptResult[AST]] -> DigitList[List[Opt[AST]]]
                     ((x: List[this.OptResult[Conditional[AST]]]) =>
-                        (DigitList2(x.map((y: Conditional[AST]) => Opt(FeatureExprFactory.base, y))))))
+                        (DigitList2(x.map((y: Conditional[AST]) => Opt(FeatureExprFactory.True, y))))))
         }
 
     def testError1() {

@@ -14,7 +14,7 @@ trait CASTEnv {
 
         def get(elem: Any): ASTContext = astc.get(elem)
         def lfeature(elem: Any) = astc.get(elem)._1
-        def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExprFactory.base)(_ and _)
+        def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExprFactory.True)(_ and _)
         def parent(elem: Any) = astc.get(elem)._2
         def previous(elem: Any) = astc.get(elem)._3
         def next(elem: Any) = astc.get(elem)._4
@@ -49,7 +49,7 @@ trait CASTEnv {
     }
 
     // create ast-neighborhood context for a given translation-unit
-    def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExprFactory.base)): ASTEnv = {
+    def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExprFactory.True)): ASTEnv = {
         assert(a != null, "ast elem is null!")
         handleASTElem(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, ASTContext]()))
     }

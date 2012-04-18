@@ -126,7 +126,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
     // we also ignore test cases that make use of assembler (prettyprinter fails here); these test cases are not
     // interessting anyway
 
-    // test fails; dead code in succ determination
+    // test fails; False code in succ determination
     @Ignore def test_20000105_1() {
         assert(checkCfg("20000105-1.c"))
     }
@@ -252,7 +252,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
         assert(checkCfg("20000803-1.c"))
     }
 
-    // test fails; has dead code
+    // test fails; has False code
     @Ignore def test_20000804_1() {
         assert(checkCfg("20000804-1.c"))
     }
@@ -695,7 +695,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
         assert(checkCfg("20021103-1.c"))
     }
 
-    // test fails; dead code
+    // test fails; False code
     @Ignore def test_20021108_1() {
         assert(checkCfg("20021108-1.c"))
     }
@@ -948,7 +948,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with CASTEnv with Cond
         assert(checkCfg("20040705-1.c"))
     }
 
-    // test fails; dead code break after return
+    // test fails; False code break after return
     @Ignore def test_20040708_1() {
         assert(checkCfg("20040708-1.c"))
     }

@@ -57,12 +57,12 @@ class ParserMain(p: CParser) {
         val in = lexer().setContext(initialContext)
 
         val parserStartTime = System.currentTimeMillis
-        val result: p.MultiParseResult[AST] = p.phrase(p.translationUnit)(in, FeatureExprFactory.base)
-        //        val result = p.translationUnit(in, FeatureExprFactory.base)
+        val result: p.MultiParseResult[AST] = p.phrase(p.translationUnit)(in, FeatureExprFactory.True)
+        //        val result = p.translationUnit(in, FeatureExprFactory.True)
         val endTime = System.currentTimeMillis
 
         if (parserOptions.printParserResult)
-            println(printParseResult(result, FeatureExprFactory.base))
+            println(printParseResult(result, FeatureExprFactory.True))
 
         if (parserOptions.printParserStatistics) {
             val distinctFeatures = getDistinctFeatures(in.tokens) //expensive to calculate with bdds (at least the current implementation)
@@ -80,7 +80,7 @@ class ParserMain(p: CParser) {
                 "  Choice Nodes: " + countChoiceNodes(result) + "\n")
         }
 
-        //        checkParseResult(result, FeatureExprFactory.base)
+        //        checkParseResult(result, FeatureExprFactory.True)
 
         //        val resultStr: String = result.toString
         //        println("FeatureSolverCache.statistics: " + FeatureSolverCache.statistics)
@@ -89,9 +89,9 @@ class ParserMain(p: CParser) {
         //        writer.close
         //        println("done.")
 
-        val l = result.toList(FeatureExprFactory.base).filter(_._2.isSuccess)
+        val l = result.toList(FeatureExprFactory.True).filter(_._2.isSuccess)
         if (l.isEmpty || !result.toErrorList.isEmpty) {
-            println(printParseResult(result, FeatureExprFactory.base))
+            println(printParseResult(result, FeatureExprFactory.True))
             null
         } else l.head._2.asInstanceOf[p.Success[AST]].result
     }
@@ -131,7 +131,7 @@ class ParserMain(p: CParser) {
 
 
     def countConditionalTokens(tokens: List[TokenWrapper]): Int =
-        tokens.count(_.getFeature != FeatureExprFactory.base)
+        tokens.count(_.getFeature != FeatureExprFactory.True)
 
     def getDistinctFeatures(tokens: List[TokenWrapper]): Set[String] = {
         var features: Set[String] = Set()
@@ -163,7 +163,7 @@ class ParserMain(p: CParser) {
         //                if (node.isInstanceOf[Choice[_]])
         //                    result += 1
         //                for (opt <- node.getInnerOpt)
-        //                    if (opt.feature != FeatureExprFactory.base && opt.feature != ctx)
+        //                    if (opt.feature != FeatureExprFactory.True && opt.feature != ctx)
         //                        if (!((ctx implies (opt.feature)).isTautology)) {
         //                            result += 1
         //                        }

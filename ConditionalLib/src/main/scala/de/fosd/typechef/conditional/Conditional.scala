@@ -1,7 +1,7 @@
 package de.fosd.typechef.conditional
 
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import FeatureExprFactory.base
+import FeatureExprFactory.True
 
 
 case class Opt[+T](val feature: FeatureExpr, val entry: T) {
@@ -14,7 +14,7 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) {
     def and(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f), entry)
     def andNot(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f.not), entry)
     // jl: overriding Opt always causes trouble when looking at the output of AST directly should not be here!
-    //override def toString = if (feature == FeatureExpr.base) entry.toString else "Opt(" + feature + "," + entry + ")"
+    //override def toString = if (feature == FeatureExpr.True) entry.toString else "Opt(" + feature + "," + entry + ")"
 }
 
 //Conditional is either Choice or One
@@ -22,18 +22,18 @@ abstract class Conditional[+T] extends Product {
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U
 
     //simplify rewrites Choice Types; requires reasoning about variability
-    def simplify = _simplify(base)
+    def simplify = _simplify(True)
     def simplify(ctx: FeatureExpr) = _simplify(ctx)
     protected[conditional] def _simplify(context: FeatureExpr) = this
 
     def map[U](f: T => U): Conditional[U] = mapr(x => One(f(x)))
     def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U] = mapfr(inFeature, (c, x) => One(f(c, x)))
-    def mapr[U](f: T => Conditional[U]): Conditional[U] = mapfr(base, (c, x) => f(x))
+    def mapr[U](f: T => Conditional[U]): Conditional[U] = mapfr(True, (c, x) => f(x))
     def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U]
 
     def forall(f: T => Boolean): Boolean
     def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
-    def toOptList: List[Opt[T]] = Conditional.flatten(List(Opt(base, this)))
+    def toOptList: List[Opt[T]] = Conditional.flatten(List(Opt(True, this)))
     def toList: List[(FeatureExpr, T)] = this.toOptList.map(o => (o.feature, o.entry))
 }
 

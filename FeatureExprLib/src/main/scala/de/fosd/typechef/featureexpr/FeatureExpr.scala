@@ -37,8 +37,6 @@ trait FeatureExpr {
 
     final def isContradiction(): Boolean = isContradiction(null)
     final def isTautology(): Boolean = isTautology(null)
-    final def isDead(): Boolean = isContradiction(null)
-    final def isBase(): Boolean = isTautology(null)
     final def isSatisfiable(): Boolean = isSatisfiable(null)
     /**
      * FM -> X is tautology if FM.implies(X).isTautology or

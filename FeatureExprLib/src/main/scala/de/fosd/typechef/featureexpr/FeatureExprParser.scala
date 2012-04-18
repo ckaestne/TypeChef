@@ -52,15 +52,15 @@ class FeatureExprParser(featureFactory: AbstractFeatureExprFactory = FeatureExpr
     def bool: Parser[FeatureExpr] =
         "!" ~> bool ^^ (_ not) |
             ("(" ~> expr <~ ")") |
-            "InvalidExpression()" ^^ (_ => featureFactory.dead) |
+            "InvalidExpression()" ^^ (_ => featureFactory.False) |
             (("definedEx" | "defined" | "def") ~ "(" ~> ID <~ ")") ^^ {
                 toFeature(_)
             } |
             "1" ^^ {
-                x => featureFactory.base
+                x => featureFactory.True
             } |
             "0" ^^ {
-                x => featureFactory.dead
+                x => featureFactory.False
             } | ID ^^ {
             toFeature(_)
         }
@@ -88,10 +88,10 @@ class FeatureExprParser(featureFactory: AbstractFeatureExprFactory = FeatureExpr
         val featureModelFile = new File(cfilename)
         if (featureModelFile.exists) {
             scala.io.Source.fromFile(featureModelFile).getLines().map(trimComment(_)).map(line =>
-                if (line.trim.isEmpty) featureFactory.base
+                if (line.trim.isEmpty) featureFactory.True
                 else parse(line)
-            ).fold(featureFactory.base)(_ and _)
-        } else featureFactory.base
+            ).fold(featureFactory.True)(_ and _)
+        } else featureFactory.True
     }
 
     def parseFile(file: File): FeatureExpr =
@@ -100,11 +100,11 @@ class FeatureExprParser(featureFactory: AbstractFeatureExprFactory = FeatureExpr
 
     private def oneOf(features: List[FeatureExpr]): FeatureExpr = {
         (for (f1 <- features; f2 <- features if (f1 != f2)) yield f1 mex f2).
-            foldLeft(features.foldLeft(featureFactory.dead)(_ or _))(_ and _)
+            foldLeft(features.foldLeft(featureFactory.False)(_ or _))(_ and _)
 
     }
 
     def atLeastOne(featuresNames: List[FeatureExpr]): FeatureExpr =
-        featuresNames.foldLeft(featureFactory.dead)(_ or _)
+        featuresNames.foldLeft(featureFactory.False)(_ or _)
 
 }

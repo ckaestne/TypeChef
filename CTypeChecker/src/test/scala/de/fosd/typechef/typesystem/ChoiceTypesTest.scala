@@ -60,7 +60,7 @@ inline
 {
 	local_bh_disable();
 }""")
-        val env = checkTranslationUnit(ast, FeatureExprFactory.base, EmptyEnv).varEnv
+        val env = checkTranslationUnit(ast, FeatureExprFactory.True, EmptyEnv).varEnv
         println(env)
         env("__rcu_read_lock_bh") should be(One(CFunction(List(CVoid()), CVoid())))
     }

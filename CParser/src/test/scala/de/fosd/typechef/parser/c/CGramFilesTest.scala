@@ -13,7 +13,7 @@ class CGramFilesTest extends TestCase {
         println(inputStream.toString)
         assertNotNull("file not found " + fileName, inputStream)
         val result = p.phrase(p.translationUnit)(
-            CLexer.lexStream(inputStream, fileName, "", null), FeatureExprFactory.base)
+            CLexer.lexStream(inputStream, fileName, "", null), FeatureExprFactory.True)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {

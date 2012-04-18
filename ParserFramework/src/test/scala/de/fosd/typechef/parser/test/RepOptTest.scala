@@ -21,7 +21,7 @@ class RepOptTest extends TestCase with DigitListUtilities {
         type Elem = MyToken
         type TypeContext = Any
 
-        def parse(tokens: List[MyToken]): ParseResult[AST] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.base).expectOneResult
+        def parse(tokens: List[MyToken]): ParseResult[AST] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.True).expectOneResult
 
         def digitList: MultiParser[Conditional[AST]] =
             (t("(") ~! (digits ~ t(")"))) ^^! {

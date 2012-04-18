@@ -33,7 +33,7 @@ class BDDFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
         assert(expr.isInstanceOf[BDDFeatureExpr]) //FMCAST
         new BDDFeatureModel(variables, clauses, lastVarId, (extraConstraints and expr).asInstanceOf[BDDFeatureExpr], assumedFalse, assumedTrue)
     }
-    //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExprFactory.base) this
+    //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExprFactory.True) this
     //    else {
     //        val cnf = expr.toCNF
     //        try {
@@ -53,8 +53,8 @@ class BDDFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
 
     /**helper function*/
     def assumptions: BDDFeatureExpr =
-        (assumedTrue.map(BDDFeatureExprFactory.createDefinedExternal(_)).fold(BDDFeatureExprFactory.base)(_ and _) and
-            assumedFalse.map(BDDFeatureExprFactory.createDefinedExternal(_).not).fold(BDDFeatureExprFactory.base)(_ and _)).asInstanceOf[BDDFeatureExpr]
+        (assumedTrue.map(BDDFeatureExprFactory.createDefinedExternal(_)).fold(BDDFeatureExprFactory.True)(_ and _) and
+            assumedFalse.map(BDDFeatureExprFactory.createDefinedExternal(_).not).fold(BDDFeatureExprFactory.True)(_ and _)).asInstanceOf[BDDFeatureExpr]
 }
 
 /**
@@ -97,7 +97,7 @@ object BDDFeatureModel extends FeatureModelFactory {
             }
 
         }
-        new BDDFeatureModel(variables, clauses, varIdx, BDDFeatureExprFactory.baseB, Set(), Set())
+        new BDDFeatureModel(variables, clauses, varIdx, BDDFeatureExprFactory.TrueB, Set(), Set())
     }
 
     /**
@@ -129,7 +129,7 @@ object BDDFeatureModel extends FeatureModelFactory {
 
         }
         assert(maxId == variables.size)
-        new BDDFeatureModel(variables, clauses, maxId, BDDFeatureExprFactory.baseB, Set(), Set())
+        new BDDFeatureModel(variables, clauses, maxId, BDDFeatureExprFactory.TrueB, Set(), Set())
     }
     /**
      * special reader for the -2var model used by the LinuxAnalysis tools from waterloo
@@ -166,7 +166,7 @@ object BDDFeatureModel extends FeatureModelFactory {
 
         }
         assert(maxId == variables.size)
-        new BDDFeatureModel(variables, clauses, maxId, BDDFeatureExprFactory.baseB, Set(), Set())
+        new BDDFeatureModel(variables, clauses, maxId, BDDFeatureExprFactory.TrueB, Set(), Set())
     }
 
     private def lookupLiteral(literal: String, variables: Map[String, Int]) =

@@ -37,7 +37,7 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
     private val ge = FeatureExprFactory.createDefinedExternal("e")
     private val gf = FeatureExprFactory.createDefinedExternal("f")
     private val gg = FeatureExprFactory.createDefinedExternal("g")
-    private def o[T](o: T) = Option(FeatureExprFactory.base, o)
+    private def o[T](o: T) = Option(FeatureExprFactory.True, o)
 
     test("ast navigation nextOpt onlytrue") {
         val stmt0 = LabelStatement(Id("stmt0"), None)
@@ -85,8 +85,8 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
         val optstmt5 = Opt(gd, stmt5)
         val optstmt6 = Opt(gd, stmt6)
         val optstmt7 = Opt(gd, stmt7)
-        val optstmt8 = Opt(FeatureExprFactory.base, stmt8)
-        val optstmt9 = Opt(FeatureExprFactory.base, stmt9)
+        val optstmt8 = Opt(FeatureExprFactory.True, stmt8)
+        val optstmt9 = Opt(FeatureExprFactory.True, stmt9)
 
         val c1 = Choice(gb, stmt4, stmt5)
         val c2 = Choice(gb, stmt2, stmt3)
@@ -153,7 +153,7 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
     //        val stmt6 = LabelStatement(Id("stmt6"), None)
     //        val stmt7 = LabelStatement(Id("stmt7"), None)
     //        val choicestmt = Choice(gc, stmt1, Choice(ga, Choice(gb, stmt2, stmt3), Choice(gb, stmt4, stmt5)))
-    //        val root = CompoundStatement(Conditional.flatten(List[Conditional[Statement]](stmt0, choicestmt, stmt6, stmt7).map(Opt(FeatureExprFactory.base, _))))
+    //        val root = CompoundStatement(Conditional.flatten(List[Conditional[Statement]](stmt0, choicestmt, stmt6, stmt7).map(Opt(FeatureExprFactory.True, _))))
     //        stmt0 -> prevAST should equal(null)
     //        stmt1 -> prevAST should equal(stmt0)
     //        stmt2 -> prevAST should equal(stmt1)
@@ -185,7 +185,7 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
     //        val choicestmt = Choice(gc, stmt1, Choice(ga, Choice(gb, stmt2, stmt3), Choice(gb, stmt4, stmt5)))
     //        val exp = Constant("true")
     //        val ifStmt = IfStatement(exp, choicestmt, List(), None)
-    //        val root = CompoundStatement(List(stmt0, ifStmt, stmt6, stmt7).map(Opt(FeatureExprFactory.base, _)))
+    //        val root = CompoundStatement(List(stmt0, ifStmt, stmt6, stmt7).map(Opt(FeatureExprFactory.True, _)))
     //        stmt0 -> prevAST should equal(null)
     //        exp -> prevAST should equal(null)
     //        stmt1 -> prevAST should equal(exp)

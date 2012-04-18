@@ -39,7 +39,7 @@ object WebFrontend {
         val in = CLexer.prepareTokens(tokenStream)
         for (tok <- in.tokens) {
             print('"' + tok.getText + '"')
-            if (tok.getFeature != FeatureExprFactory.base)
+            if (tok.getFeature != FeatureExprFactory.True)
                 print("<sub>" + tok.getFeature + "</sub>")
             println(" * ")
         }

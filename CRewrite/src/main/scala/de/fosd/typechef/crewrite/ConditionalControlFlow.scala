@@ -1040,7 +1040,7 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
             val as = env.get(a)._1.toSet
             val bs = env.get(b)._1.toSet
             val cs = as.intersect(bs)
-            as.--(cs).foldLeft(FeatureExprFactory.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExprFactory.base)(_ and _).not()).isTautology()
+            as.--(cs).foldLeft(FeatureExprFactory.True)(_ and _).implies(bs.--(cs).foldLeft(FeatureExprFactory.True)(_ and _).not()).isTautology()
         }
         pack[List[AST]]({
             (x, y) => checkImplication(x.head, y.head)
@@ -1059,9 +1059,9 @@ trait ConditionalControlFlow extends CASTEnv with ASTNavigation {
                     e => env.featureExpr(e.head)
                 })
 
-                if (feature_expr_over_ifdef_blocks.foldLeft(FeatureExprFactory.base)(_ and _).isTautology())
+                if (feature_expr_over_ifdef_blocks.foldLeft(FeatureExprFactory.True)(_ and _).isTautology())
                     (0, h) :: determineTypeOfGroupedIfdefBlocks(t, env)
-                else if (feature_expr_over_ifdef_blocks.map(_.not()).foldLeft(FeatureExprFactory.base)(_ and _).isContradiction())
+                else if (feature_expr_over_ifdef_blocks.map(_.not()).foldLeft(FeatureExprFactory.True)(_ and _).isContradiction())
                     (2, h.reverse) :: determineTypeOfGroupedIfdefBlocks(t, env)
                 else (1, h) :: determineTypeOfGroupedIfdefBlocks(t, env)
             }

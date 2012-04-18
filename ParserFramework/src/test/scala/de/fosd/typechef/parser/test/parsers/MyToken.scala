@@ -13,7 +13,7 @@ class MyToken(val text: String, val feature: FeatureExpr) extends ProfilingToken
         def getColumn = 1
     }
 
-    override def toString = "\"" + text + "\"" + (if (!feature.isBase()) feature else "")
+    override def toString = "\"" + text + "\"" + (if (!feature.isTautology()) feature else "")
 }
 
-object EofToken extends MyToken("EOF", FeatureExprFactory.base)
+object EofToken extends MyToken("EOF", FeatureExprFactory.True)

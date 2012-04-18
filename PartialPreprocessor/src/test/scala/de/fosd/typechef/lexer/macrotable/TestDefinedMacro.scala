@@ -31,8 +31,8 @@ class TestDefinedMacro extends TestCase {
         macroTable = macroTable.undefine("X", d)
         assertEquiv(b or c or x and (d.not), macroTable.getMacroCondition("X"))
 
-        macroTable = macroTable.undefine("X", base)
-        assertEquiv(dead, macroTable.getMacroCondition("X"))
+        macroTable = macroTable.undefine("X", True)
+        assertEquiv(False, macroTable.getMacroCondition("X"))
 
         macroTable = macroTable.define("X", b, "1")
         assertEquiv(b, macroTable.getMacroCondition("X"))
@@ -53,9 +53,9 @@ class TestDefinedMacro extends TestCase {
         macroTable = macroTable.undefine("X", b)
         assertEquiv(x andNot b, macroTable.getMacroCondition("X"))
 
-        assertEquiv(dead, macroTable.getMacroCondition("X_"))
+        assertEquiv(False, macroTable.getMacroCondition("X_"))
         macroTable = macroTable.undefine("X_", b)
-        assertEquiv(dead, macroTable.getMacroCondition("X_"))
+        assertEquiv(False, macroTable.getMacroCondition("X_"))
 
 
     }
@@ -70,11 +70,11 @@ class TestDefinedMacro extends TestCase {
         //  -> 1 if a
         //Z if false
 
-        macroTable = macroTable.undefine("X", base)
+        macroTable = macroTable.undefine("X", True)
         macroTable = macroTable.define("X", b, "1")
         macroTable = macroTable.define("X", c, "2")
         macroTable = macroTable.define("Y", a, "1")
-        macroTable = macroTable.undefine("Z", base)
+        macroTable = macroTable.undefine("Z", True)
         macroTable
     }
 
@@ -98,11 +98,11 @@ class TestDefinedMacro extends TestCase {
     @Test
     def testSatisfiability2() {
         var macroTable = new MacroContext[String]()
-        macroTable = macroTable.undefine("X", base)
+        macroTable = macroTable.undefine("X", True)
         macroTable = macroTable.define("X", a, "1")
         macroTable = macroTable.define("X", a.not and b, "2")
         macroTable = macroTable.define("X", a.not and b.not and c, "3")
-        //        macroTable = macroTable.undefine("Y", base)
+        //        macroTable = macroTable.undefine("Y", True)
         //        macroTable = macroTable.define("Y", a, "1")
         macroTable = macroTable.define("GLOBAL", createDefinedMacro("X", macroTable), "")
         //        macroTable = macroTable.define("GLOBAL", createDefinedMacro("Y"), "")
@@ -119,7 +119,7 @@ class TestDefinedMacro extends TestCase {
     @Test
     def testSatisfiability3() {
         var macroTable = new MacroContext[String]()
-        macroTable = macroTable.undefine("X", base)
+        macroTable = macroTable.undefine("X", True)
 
         assertFalse(createDefinedMacro("X", macroTable).isTautology())
         assertTrue(createDefinedMacro("X", macroTable).isContradiction())
@@ -133,7 +133,7 @@ class TestDefinedMacro extends TestCase {
 
         assertFalse((createDefinedMacro("Y", macroTable) and createDefinedMacro("X", macroTable)).isSatisfiable())
 
-        macroTable = macroTable.define("X", base, "")
+        macroTable = macroTable.define("X", True, "")
         assertTrue((createDefinedMacro("Y", macroTable) and createDefinedMacro("X", macroTable)).isSatisfiable())
         assertFalse((createDefinedMacro("Y", macroTable) and createDefinedMacro("X", macroTable)).isTautology())
     }
@@ -141,7 +141,7 @@ class TestDefinedMacro extends TestCase {
     @Test
     def testOverTime() {
         var macroTable = new MacroContext[String]()
-        macroTable = macroTable.undefine("X", base)
+        macroTable = macroTable.undefine("X", True)
 
         val firstX = createDefinedMacro("X", macroTable) //false
         assertTrue(firstX.isContradiction)
@@ -157,7 +157,7 @@ class TestDefinedMacro extends TestCase {
         assertTrue(secondX.isSatisfiable)
         assertTrue(thirdX.isTautology)
 
-        macroTable = macroTable.undefine("X", base)
+        macroTable = macroTable.undefine("X", True)
         macroTable = macroTable.define("X", a.not, "") //!A
         val fourthX = createDefinedMacro("X", macroTable)
         assertTrue(firstX.isContradiction)

@@ -10,7 +10,7 @@ class DigitListParser extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = digitList(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.base).expectOneResult
+    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = digitList(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.True).expectOneResult
 
     def digitList: MultiParser[Conditional[AST]] =
         (t("(") ~ digits ~ t(")")) ^^ {

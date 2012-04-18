@@ -38,7 +38,7 @@ class LexerTest {
     def testJavaLexer() {
         val result: TokenReader[TokenWrapper, Null] = JavaLexer.lex("class Test {}")
         assertEquals(4, result.tokens.size)
-        assertTrue(result.tokens.forall(_.getFeature().isBase))
+        assertTrue(result.tokens.forall(_.getFeature().isTautology))
     }
 
     @Test

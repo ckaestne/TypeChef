@@ -7,7 +7,7 @@
 //
 //import de.fosd.typechef.parser.c._
 //import de.fosd.typechef.conditional._
-//import de.fosd.typechef.featureexpr.FeatureExprFactory.base
+//import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 //import de.fosd.typechef.featureexpr.FeatureExpr
 //import org.junit.Test
 //
@@ -16,7 +16,7 @@
 // *
 // * strategies to rewrite the parsed variability to use only Opt-nodes at Top-Level and at Statement-Level
 // * all other Opt or Choice nodes are removed in the process
-// * (the be precise we cannot remove Opt nodes, but we can ensure that their condition is *base*)
+// * (the be precise we cannot remove Opt nodes, but we can ensure that their condition is *True*)
 // */
 //
 //abstract class Choice[+T] {
@@ -70,12 +70,12 @@
 //        var r: Choice[List[Opt[T]]] = COne(l)
 //        var known = Set[FeatureExpr]()
 //        for (Opt(f, _) <- l)
-//            if (f != base && !(known contains f)) {
+//            if (f != True && !(known contains f)) {
 //                r = CChoice(f, r, r)
 //                known = known + f
 //            }
 //
-//        cleanChoice(base, r)
+//        cleanChoice(True, r)
 //    }
 //    private def cleanChoice[T](f: FeatureExpr, c: Choice[List[Opt[T]]]): Choice[List[Opt[T]]] = c match {
 //        case COne(l) => COne(cleanList(f, l))
@@ -85,7 +85,7 @@
 //            CChoice(feat, cleanChoice(f and feat, a), cleanChoice(f andNot feat, b))
 //    }
 //    private def cleanList[T](f: FeatureExpr, c: List[Opt[T]]): List[Opt[T]] =
-//        c.filter(o => (f implies o.feature).isTautology).map(o => Opt(base, o.entry))
+//        c.filter(o => (f implies o.feature).isTautology).map(o => Opt(True, o.entry))
 //
 //
 //    abstract class TAST
@@ -99,9 +99,9 @@
 //
 //    //    /*** ensure the result is correct. returns true if at most the desired variability is left */
 //    //    def check(ast:Attributable): Boolean = ast match {
-//    //        case Opt(_,a:ExternalDef)=> check(a)//do not require feature=base
-//    //        case Opt(_,a:Statement)=> check(a)//do not require feature=base
-//    //        case Opt(f,a:Attribute) => (f==base) && check(a)
+//    //        case Opt(_,a:ExternalDef)=> check(a)//do not require feature=True
+//    //        case Opt(_,a:Statement)=> check(a)//do not require feature=True
+//    //        case Opt(f,a:Attribute) => (f==True) && check(a)
 //    //        case c:Choice[_]=>false//no choice nodes allowed
 //    //        case o => o.children.forall(check(_))
 //    //    }
@@ -110,7 +110,7 @@
 //    val fx = FeatureExprFactory.createDefinedExternal("X")
 //    val fy = FeatureExprFactory.createDefinedExternal("Y")
 //    @Test def explode() = {
-//        println(explodeVariability(C(List(Opt(fx, E(1)), Opt(fy, E(2)), Opt(fy, E(3)), Opt(base, E(4))))))
+//        println(explodeVariability(C(List(Opt(fx, E(1)), Opt(fy, E(2)), Opt(fy, E(3)), Opt(True, E(4))))))
 //    }
 //
 //

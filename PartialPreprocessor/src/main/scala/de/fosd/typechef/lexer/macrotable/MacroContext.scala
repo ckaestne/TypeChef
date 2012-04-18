@@ -83,7 +83,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                     val initialFeatureExpr = if (MacroContext.flagFilter(name))
                         createDefinedExternal(name)
                     else
-                        dead
+                        False
                     knownMacros + ((name, new Macro[T](name, initialFeatureExpr andNot feature, List())))
             }, cnfCache - name, featureModel)
     }
@@ -95,7 +95,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
                 if (MacroContext.flagFilter(feature))
                     createDefinedExternal(feature)
                 else
-                    dead
+                    False
         }
     }
 

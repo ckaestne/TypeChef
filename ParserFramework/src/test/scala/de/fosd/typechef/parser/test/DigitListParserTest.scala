@@ -13,7 +13,7 @@ class DigitListParserTest extends TestCase {
     val f1 = FeatureExprFactory.createDefinedExternal("a")
     val f2 = FeatureExprFactory.createDefinedExternal("b")
 
-    def t(text: String): MyToken = t(text, FeatureExprFactory.base)
+    def t(text: String): MyToken = t(text, FeatureExprFactory.True)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
     def assertParseResult(expected: AST, actual: parser.ParseResult[Conditional[AST]]) {
@@ -70,7 +70,7 @@ class DigitListParserTest extends TestCase {
         val input = List(t("1"), t("3", f1))
         val expected = Choice(f1, One(DigitList(List(Lit(1), Lit(3)))), One(DigitList(List(Lit(1)))))
         //        DigitList(List(Lit(1),Lit(2),Alt(f1,Lit(3),Nil))
-        val v = (parser.digits)(new TokenReader[MyToken, Any](input, 0, null, EofToken), FeatureExprFactory.base).expectOneResult
+        val v = (parser.digits)(new TokenReader[MyToken, Any](input, 0, null, EofToken), FeatureExprFactory.True).expectOneResult
         println(v)
         assertParseResult(expected, v)
     }

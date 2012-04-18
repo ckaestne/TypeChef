@@ -11,13 +11,13 @@ trait DigitListUtilities {
     val l2 = Lit(2)
     val l3 = Lit(3)
 
-    def t(text: String): MyToken = t(text, FeatureExprFactory.base)
+    def t(text: String): MyToken = t(text, FeatureExprFactory.True)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
     def outer(x: AST) = DigitList2(List(o(x)))
-    def outer(x: Conditional[AST]) = DigitList2(List(Opt(FeatureExprFactory.base, x)))
-    def wrapList(x: AST*) = DigitList2(List() ++ x.map(One(_)).map(Opt(FeatureExprFactory.base, _)))
+    def outer(x: Conditional[AST]) = DigitList2(List(Opt(FeatureExprFactory.True, x)))
+    def wrapList(x: AST*) = DigitList2(List() ++ x.map(One(_)).map(Opt(FeatureExprFactory.True, _)))
     def wrapList(x: List[AST]): DigitList2 = wrapList(x: _*)
 
 
-    def o(ast: AST) = Opt(FeatureExprFactory.base, One(ast))
+    def o(ast: AST) = Opt(FeatureExprFactory.True, One(ast))
 }

@@ -12,7 +12,7 @@ abstract class DigitList2Parser extends MultiFeatureParser {
     type OptResult[T]
     def myRepOpt[T](p: => MultiParser[T], productionName: String): MultiParser[List[OptResult[T]]]
 
-    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.base).join(FeatureExprFactory.base).expectOneResult
+    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.True).join(FeatureExprFactory.True).expectOneResult
 
     def digitList: MultiParser[Conditional[AST]] =
         (t("(") ~! (digits ~ t(")"))) ^^! ({

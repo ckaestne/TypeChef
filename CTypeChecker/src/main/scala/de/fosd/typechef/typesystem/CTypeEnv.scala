@@ -119,7 +119,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 val typeSpec = opt.entry
                 typeSpec match {
                     case EnumSpecifier(Some(Id(name)), l) if (isHeadless || !l.isEmpty) =>
-                        b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.dead)))
+                        b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.False)))
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields) =>
                         fields.foldRight(b)(

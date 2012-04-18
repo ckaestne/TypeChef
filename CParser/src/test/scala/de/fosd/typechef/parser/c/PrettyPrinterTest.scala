@@ -18,7 +18,7 @@ class PrettyPrinterTest {
         //
         //        println(PrettyPrinter.print(sp,ast))
 
-        val f = FeatureExprFactory.base
+        val f = FeatureExprFactory.True
         val doc = prettyPrint(EnumSpecifier(Some(Id("e")), Some(List(
             Opt(f, Enumerator(Id("test"), None)),
             Opt(f, Enumerator(Id("test2"), None))
@@ -308,7 +308,7 @@ class PrettyPrinterTest {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
         assertNotNull("file not found " + fileName, inputStream)
         val result = p.phrase(p.translationUnit)(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExprFactory.base)
+            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExprFactory.True)
 
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {

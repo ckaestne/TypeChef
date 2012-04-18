@@ -25,7 +25,7 @@ class CParserTest {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
                 //                assertTree(ast)
-                //TODO dead nodes not reported. filter later.(?) cf. Issue #4
+                //TODO False nodes not reported. filter later.(?) cf. Issue #4
                 //                assertNoDeadNodes(ast)
             }
             case p.NoSuccess(msg, unparsed, inner) =>
@@ -52,7 +52,7 @@ class CParserTest {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 if (ast.isInstanceOf[AST]) {
                     //                    assertTree(ast.asInstanceOf[AST])
-                    //TODO dead nodes not reported. filter later.(?) cf. Issue #4
+                    //TODO False nodes not reported. filter later.(?) cf. Issue #4
                     //                    assertNoDeadNodes(ast.asInstanceOf[AST])
                 }
                 //succeed
@@ -119,7 +119,7 @@ class CParserTest {
 
     def intType = TypeName(lo(IntSpecifier()), None)
 
-    def o[T](x: T) = Opt(FeatureExprFactory.base, x)
+    def o[T](x: T) = Opt(FeatureExprFactory.True, x)
 
     def lo[T](x: T) = List(o(x))
 
@@ -992,8 +992,8 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
         """, p.phrase(p.translationUnit))
 
 
-    /**this code produced dead AST nodes */
-    @Ignore("TODO, remove dead nodes from AST")
+    /**this code produced False AST nodes */
+    @Ignore("TODO, remove False nodes from AST")
     @Test def testNoDeadAstNodes {
         val c = """
          #ifdef X
@@ -1017,7 +1017,7 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
          #endif
          ;"""
         val ast = assertParseableAST(c, p.translationUnit)
-        assertNoDeadNodes(ast.get, FeatureExprFactory.base, ast.get)
+        assertNoDeadNodes(ast.get, FeatureExprFactory.True, ast.get)
     }
 
     @Test def test_va_list {
@@ -1113,11 +1113,11 @@ void bar() {
     }
 
     private def assertNoDeadNodes(ast: Product) {
-        assertNoDeadNodes(ast, FeatureExprFactory.base, ast)
+        assertNoDeadNodes(ast, FeatureExprFactory.True, ast)
     }
 
     private def assertNoDeadNodes(ast: Any, f: FeatureExpr, orig: Product) {
-        assert(f.isSatisfiable(), "dead AST subtree: " + ast + " in " + orig)
+        assert(f.isSatisfiable(), "False AST subtree: " + ast + " in " + orig)
         ast match {
             case Opt(g, e: Object) => assertNoDeadNodes(e, f and g, orig)
             case c: Choice[_] => assertNoDeadNodes(c.thenBranch, f and c.feature, orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature, orig)

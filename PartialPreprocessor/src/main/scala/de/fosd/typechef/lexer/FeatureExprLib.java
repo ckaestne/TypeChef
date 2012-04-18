@@ -12,12 +12,12 @@ public class FeatureExprLib {
         return FeatureExprFactory$.MODULE$.dflt();
     }
 
-    public static FeatureExpr base() {
-        return FeatureExprFactory$.MODULE$.base();
+    public static FeatureExpr True() {
+        return FeatureExprFactory$.MODULE$.True();
     }
 
-    public static FeatureExpr dead() {
-        return FeatureExprFactory$.MODULE$.dead();
+    public static FeatureExpr False() {
+        return FeatureExprFactory$.MODULE$.False();
     }
 
     //TODO: for some reason FeatureExprTree<Long> does no longer work since

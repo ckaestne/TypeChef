@@ -24,8 +24,8 @@ class TestFeatureExpr extends TestCase {
     def Not(e: FeatureExpr) = e.not
     def Or(a: FeatureExpr, b: FeatureExpr) = a or b
     def And(a: FeatureExpr, b: FeatureExpr) = a and b
-    def BaseFeature() = base
-    def DeadFeature() = dead
+    def BaseFeature() = True
+    def DeadFeature() = False
 
 
     def testSimplifyIf() {
@@ -35,7 +35,7 @@ class TestFeatureExpr extends TestCase {
                 DefinedExternal("CONFIG_64BIT"),
                 IntegerLit(64),
                 IntegerLit(32))),
-            base)
+            True)
 
         // (1 + (1 + (1 + __IF__(defined(a),1,2))))) = __IF__(defined(a),4,5), results overall in BaseFeature because both are true
         val expr = FeatureExprFactory.default.createPlus(
@@ -61,7 +61,7 @@ class TestFeatureExpr extends TestCase {
             FeatureExprFactory.default.createShiftLeft(
                 (FeatureExprFactory.default.createInteger(1)),
                 FeatureExprFactory.default.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))),
-            FeatureExprFactory.default.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))).and(base), BaseFeature());
+            FeatureExprFactory.default.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))).and(True), BaseFeature());
 
         val expr = FeatureExprFactory.default.createBooleanIf(
             (FeatureExprFactory.createDefinedExternal("a")),
@@ -74,8 +74,8 @@ class TestFeatureExpr extends TestCase {
     def testEquality() {
         assertEquals(FeatureExprFactory.createDefinedExternal("a"), FeatureExprFactory.createDefinedExternal("a"))
         assertEquals(FeatureExprFactory.createDefinedExternal("a"), FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a")))
-        assertTrue(FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a").not) equivalentTo FeatureExprFactory.default.base)
-        assertTrue(FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a").not) equals FeatureExprFactory.default.base)
+        assertTrue(FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a").not) equivalentTo FeatureExprFactory.default.True)
+        assertTrue(FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a").not) equals FeatureExprFactory.default.True)
         assertTrue(FeatureExprFactory.createDefinedExternal("a").and(FeatureExprFactory.createDefinedExternal("b")) equivalentTo FeatureExprFactory.createDefinedExternal("b").and(FeatureExprFactory.createDefinedExternal("a")))
     }
 
