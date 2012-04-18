@@ -3,27 +3,28 @@ package de.fosd.typechef.crewrite
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.{Opt, One}
-import de.fosd.typechef.featureexpr.{FeatureExpr, True}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory}
+import FeatureExprFactory.True
 import org.junit.{Ignore, Test}
 
 class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables with CASTEnv {
 
-  // given an ast element x and its successors lx: x should be in pred(lx)
-  def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
-    var res = true
-    for ((ast_elem, succs) <- l) {
-      val s = succs.flatMap(pred(_, env))
-      if (!s.isEmpty)
-        if (s.map(_.eq(ast_elem)).max.unary_!) {
-          println(ast_elem + " is not in the predecessor list of its own successors!")
-          res = false
+    // given an ast element x and its successors lx: x should be in pred(lx)
+    def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
+        var res = true
+        for ((ast_elem, succs) <- l) {
+            val s = succs.flatMap(pred(_, env))
+            if (!s.isEmpty)
+                if (s.map(_.eq(ast_elem)).max.unary_!) {
+                    println(ast_elem + " is not in the predecessor list of its own successors!")
+                    res = false
+                }
         }
+        res
     }
-    res
-  }
 
-  @Test def test_if_the_else() {
-    val a = parseCompoundStmt("""
+    @Test def test_if_the_else() {
+        val a = parseCompoundStmt("""
     {
       #ifdef A
       int a;
@@ -35,12 +36,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_simple_ifdef() {
-    val a = parseCompoundStmt("""
+    @Test def test_simple_ifdef() {
+        val a = parseCompoundStmt("""
     {
       int a0;
       #ifdef A1
@@ -50,23 +51,23 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Ignore def test_for_loop() {
-    val a = parseCompoundStmt("""
+    @Ignore def test_for_loop() {
+        val a = parseCompoundStmt("""
     {
       for (;;) { }
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Ignore def test_nested_loop() {
-    val a = parseCompoundStmt("""
+    @Ignore def test_nested_loop() {
+        val a = parseCompoundStmt("""
     {
       for(;;) {
         for(;;) {
@@ -77,12 +78,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_switch_case() {
-    val a = parseCompoundStmt("""
+    @Test def test_switch_case() {
+        val a = parseCompoundStmt("""
     {
       switch(x) {
       case 1: break;
@@ -93,24 +94,24 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Ignore def test_do_while_loop() {
-    val a = parseCompoundStmt("""
+    @Ignore def test_do_while_loop() {
+        val a = parseCompoundStmt("""
     {
       do {
       } while (k);
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_while_loop() {
-    val a = parseCompoundStmt("""
+    @Test def test_while_loop() {
+        val a = parseCompoundStmt("""
     {
       while (k) {
         k--;
@@ -118,12 +119,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_if_the_else_chain() {
-    val a = parseCompoundStmt("""
+    @Test def test_if_the_else_chain() {
+        val a = parseCompoundStmt("""
     {
       int k = 3;
       if (k < 3) {
@@ -140,205 +141,205 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_simple_conditional_label_statements() {
-    val e1 = Opt(True, LabelStatement(Id("e1"), None))
-    val e2 = Opt(True, LabelStatement(Id("e2"), None))
-    val e3 = Opt(True, LabelStatement(Id("e3"), None))
-    val e4 = Opt(True, LabelStatement(Id("e4"), None))
-    val e5 = Opt(True, LabelStatement(Id("e5"), None))
-    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
+    @Test def test_simple_conditional_label_statements() {
+        val e1 = Opt(True, LabelStatement(Id("e1"), None))
+        val e2 = Opt(True, LabelStatement(Id("e2"), None))
+        val e3 = Opt(True, LabelStatement(Id("e3"), None))
+        val e4 = Opt(True, LabelStatement(Id("e4"), None))
+        val e5 = Opt(True, LabelStatement(Id("e5"), None))
+        val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
-    succ(e1, env) should be (List(e2.entry))
-    succ(e2, env) should be (List(e3.entry))
-    succ(e3, env) should be (List(e4.entry))
-    succ(e4, env) should be (List(e5.entry))
-  }
+        val env = createASTEnv(c.value)
+        succ(e1, env) should be(List(e2.entry))
+        succ(e2, env) should be(List(e3.entry))
+        succ(e3, env) should be(List(e4.entry))
+        succ(e4, env) should be(List(e5.entry))
+    }
 
-  @Test def test_conditional_labelstatements_if_elif_else() {
-    val e1 = Opt(True, LabelStatement(Id("e1"), None))
-    val e2 = Opt(fx, LabelStatement(Id("e2"), None))
-    val e3 = Opt(fy.and(fx.not()), LabelStatement(Id("e3"), None))
-    val e4 = Opt(fy.not().and(fx.not()), LabelStatement(Id("e4"), None))
-    val e5 = Opt(True, LabelStatement(Id("e5"), None))
-    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
+    @Test def test_conditional_labelstatements_if_elif_else() {
+        val e1 = Opt(True, LabelStatement(Id("e1"), None))
+        val e2 = Opt(fx, LabelStatement(Id("e2"), None))
+        val e3 = Opt(fy.and(fx.not()), LabelStatement(Id("e3"), None))
+        val e4 = Opt(fy.not().and(fx.not()), LabelStatement(Id("e4"), None))
+        val e5 = Opt(True, LabelStatement(Id("e5"), None))
+        val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
-    succ(e1, env) should be (List(e2.entry, e3.entry, e4.entry))
-    succ(e2, env) should be (List(e5.entry))
-    succ(e3, env) should be (List(e5.entry))
-    succ(e4, env) should be (List(e5.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(c.value)
+        succ(e1, env) should be(List(e2.entry, e3.entry, e4.entry))
+        succ(e2, env) should be(List(e5.entry))
+        succ(e3, env) should be(List(e5.entry))
+        succ(e4, env) should be(List(e5.entry))
+        println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_labelstatements_with_sequence_of_annotated_elements() {
-    val e1 = Opt(True, LabelStatement(Id("e1"), None))
-    val e2 = Opt(fx, LabelStatement(Id("e2"), None))
-    val e3 = Opt(fx, LabelStatement(Id("e3"), None))
-    val e4 = Opt(fx.not(), LabelStatement(Id("e4"), None))
-    val e5 = Opt(True, LabelStatement(Id("e5"), None))
-    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
+    @Test def test_conditional_labelstatements_with_sequence_of_annotated_elements() {
+        val e1 = Opt(True, LabelStatement(Id("e1"), None))
+        val e2 = Opt(fx, LabelStatement(Id("e2"), None))
+        val e3 = Opt(fx, LabelStatement(Id("e3"), None))
+        val e4 = Opt(fx.not(), LabelStatement(Id("e4"), None))
+        val e5 = Opt(True, LabelStatement(Id("e5"), None))
+        val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
-    succ(e1, env) should be(List(e2.entry, e4.entry))
-    succ(e2, env) should be(List(e3.entry))
-    succ(e3, env) should be(List(e5.entry))
-    succ(e4, env) should be(List(e5.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(c.value)
+        succ(e1, env) should be(List(e2.entry, e4.entry))
+        succ(e2, env) should be(List(e3.entry))
+        succ(e3, env) should be(List(e5.entry))
+        succ(e4, env) should be(List(e5.entry))
+        println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_labelstatements_if_if_else() {
-    val e0 = Opt(fx, LabelStatement(Id("e0"), None))
-    val e1 = Opt(True, LabelStatement(Id("e1"), None))
-    val e2 = Opt(True, LabelStatement(Id("e2"), None))
-    val e3 = Opt(fx, LabelStatement(Id("e3"), None))
-    val e4 = Opt(fx.not().and(fy), LabelStatement(Id("e4"), None))
-    val e5 = Opt(fx.not().and(fy.not()), LabelStatement(Id("e5"), None))
-    val e6 = Opt(fa, LabelStatement(Id("e6"), None))
-    val e7 = Opt(fa.not(), LabelStatement(Id("e7"), None))
-    val e8 = Opt(fb.not(), LabelStatement(Id("e8"), None))
-    val e9 = Opt(True, LabelStatement(Id("e9"), None))
-    val c = One(CompoundStatement(List(e0, e1, e2, e3, e4, e5, e6, e7, e8, e9)))
+    @Test def test_conditional_labelstatements_if_if_else() {
+        val e0 = Opt(fx, LabelStatement(Id("e0"), None))
+        val e1 = Opt(True, LabelStatement(Id("e1"), None))
+        val e2 = Opt(True, LabelStatement(Id("e2"), None))
+        val e3 = Opt(fx, LabelStatement(Id("e3"), None))
+        val e4 = Opt(fx.not().and(fy), LabelStatement(Id("e4"), None))
+        val e5 = Opt(fx.not().and(fy.not()), LabelStatement(Id("e5"), None))
+        val e6 = Opt(fa, LabelStatement(Id("e6"), None))
+        val e7 = Opt(fa.not(), LabelStatement(Id("e7"), None))
+        val e8 = Opt(fb.not(), LabelStatement(Id("e8"), None))
+        val e9 = Opt(True, LabelStatement(Id("e9"), None))
+        val c = One(CompoundStatement(List(e0, e1, e2, e3, e4, e5, e6, e7, e8, e9)))
 
-    val env = createASTEnv(c.value)
-    succ(e0, env) should be(List(e1.entry))
-    succ(e1, env) should be(List(e2.entry))
-    succ(e2, env) should be(List(e3.entry, e4.entry, e5.entry))
-    succ(e3, env) should be(List(e6.entry, e7.entry))
-    succ(e4, env) should be(List(e6.entry, e7.entry))
-    succ(e5, env) should be(List(e6.entry, e7.entry))
-    succ(e6, env) should be(List(e8.entry, e9.entry))
-    succ(e7, env) should be(List(e8.entry, e9.entry))
-    succ(e8, env) should be(List(e9.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(c.value)
+        succ(e0, env) should be(List(e1.entry))
+        succ(e1, env) should be(List(e2.entry))
+        succ(e2, env) should be(List(e3.entry, e4.entry, e5.entry))
+        succ(e3, env) should be(List(e6.entry, e7.entry))
+        succ(e4, env) should be(List(e6.entry, e7.entry))
+        succ(e5, env) should be(List(e6.entry, e7.entry))
+        succ(e6, env) should be(List(e8.entry, e9.entry))
+        succ(e7, env) should be(List(e8.entry, e9.entry))
+        succ(e8, env) should be(List(e9.entry))
+        println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_declaration_statement_pred() {
-    val e1 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e1"),List()),List(),None))))))
-    val e2 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e2"),List()),List(),None))))))
-    val e3 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e3"),List()),List(),None))))))
-    val e4 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e4"),List()),List(),None))))))
-    val e5 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e5"),List()),List(),None))))))
+    @Test def test_conditional_declaration_statement_pred() {
+        val e1 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e1"), List()), List(), None))))))
+        val e2 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e2"), List()), List(), None))))))
+        val e3 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e3"), List()), List(), None))))))
+        val e4 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e4"), List()), List(), None))))))
+        val e5 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e5"), List()), List(), None))))))
 
-    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
+        val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
-    succ(e1, env) should be (List(e2.entry))
-    succ(e2, env) should be (List(e3.entry))
-    succ(e3, env) should be (List(e4.entry))
-    succ(e4, env) should be (List(e5.entry))
+        val env = createASTEnv(c.value)
+        succ(e1, env) should be(List(e2.entry))
+        succ(e2, env) should be(List(e3.entry))
+        succ(e3, env) should be(List(e4.entry))
+        succ(e4, env) should be(List(e5.entry))
 
-    pred(e5, env) should be (List(e4.entry))
-    pred(e4, env) should be (List(e3.entry))
-    pred(e3, env) should be (List(e2.entry))
-    pred(e2, env) should be (List(e1.entry))
-  }
+        pred(e5, env) should be(List(e4.entry))
+        pred(e4, env) should be(List(e3.entry))
+        pred(e3, env) should be(List(e2.entry))
+        pred(e2, env) should be(List(e1.entry))
+    }
 
-  @Test def test_conditional_declaration_statement_pred2() {
-    val e1 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e1"),List()),List(),None))))))
-    val e2 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e2"),List()),List(),None))))))
-    val e3 = Opt(fx,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e3"),List()),List(),None))))))
-    val e4 = Opt(fx.not(),
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e4"),List()),List(),None))))))
-    val e5 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e5"),List()),List(),None))))))
+    @Test def test_conditional_declaration_statement_pred2() {
+        val e1 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e1"), List()), List(), None))))))
+        val e2 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e2"), List()), List(), None))))))
+        val e3 = Opt(fx,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e3"), List()), List(), None))))))
+        val e4 = Opt(fx.not(),
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e4"), List()), List(), None))))))
+        val e5 = Opt(True,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e5"), List()), List(), None))))))
 
-    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
+        val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(c.value)
-    succ(e1, env) should be (List(e2.entry))
-    succ(e2, env) should be (List(e3.entry, e4.entry))
-    succ(e3, env) should be (List(e5.entry))
-    succ(e4, env) should be (List(e5.entry))
+        val env = createASTEnv(c.value)
+        succ(e1, env) should be(List(e2.entry))
+        succ(e2, env) should be(List(e3.entry, e4.entry))
+        succ(e3, env) should be(List(e5.entry))
+        succ(e4, env) should be(List(e5.entry))
 
-    pred(e5, env) should be (List(e4.entry, e3.entry))
-    pred(e4, env) should be (List(e2.entry))
-    pred(e3, env) should be (List(e2.entry))
-    pred(e2, env) should be (List(e1.entry))
-  }
+        pred(e5, env) should be(List(e4.entry, e3.entry))
+        pred(e4, env) should be(List(e2.entry))
+        pred(e3, env) should be(List(e2.entry))
+        pred(e2, env) should be(List(e1.entry))
+    }
 
-  @Test def test_conditional_declaration_statement() {
-    val e0 = Opt(True, LabelStatement(Id("e0"), None))
-    val e1 = Opt(fx,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("k"),List()),List(),None))))))
-    val e2 = Opt(fx.not(),
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True,DoubleSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("k"),List()),List(),None))))))
-    val e3 = Opt(True, LabelStatement(Id("e3"), None))
-    val c = One(CompoundStatement(List(e0, e1, e2, e3)))
+    @Test def test_conditional_declaration_statement() {
+        val e0 = Opt(True, LabelStatement(Id("e0"), None))
+        val e1 = Opt(fx,
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, IntSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("k"), List()), List(), None))))))
+        val e2 = Opt(fx.not(),
+            DeclarationStatement(
+                Declaration(
+                    List(Opt(True, DoubleSpecifier())),
+                    List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("k"), List()), List(), None))))))
+        val e3 = Opt(True, LabelStatement(Id("e3"), None))
+        val c = One(CompoundStatement(List(e0, e1, e2, e3)))
 
-    val env = createASTEnv(c.value)
-    succ(e0, env) should be(List(e1.entry, e2.entry))
-    succ(e1, env) should be(List(e3.entry))
-    succ(e2, env) should be(List(e3.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(c.value)
+        succ(e0, env) should be(List(e1.entry, e2.entry))
+        succ(e1, env) should be(List(e3.entry))
+        succ(e2, env) should be(List(e3.entry))
+        println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Ignore def test_conditional_while_statement() {
-    val e0 = Opt(True, LabelStatement(Id("e0"), None))
-    val e11 = Opt(True, LabelStatement(Id("e11"), None))
-    val e12 = Opt(fy, LabelStatement(Id("e12"), None))
-    val e1c = Id("k")
-    val e1 = Opt(fx, WhileStatement(e1c, One(CompoundStatement(List(e11, e12)))))
-    val e2 = Opt(True, LabelStatement(Id("e2"), None))
-    val c = One(CompoundStatement(List(e0, e1, e2)))
+    @Ignore def test_conditional_while_statement() {
+        val e0 = Opt(True, LabelStatement(Id("e0"), None))
+        val e11 = Opt(True, LabelStatement(Id("e11"), None))
+        val e12 = Opt(fy, LabelStatement(Id("e12"), None))
+        val e1c = Id("k")
+        val e1 = Opt(fx, WhileStatement(e1c, One(CompoundStatement(List(e11, e12)))))
+        val e2 = Opt(True, LabelStatement(Id("e2"), None))
+        val c = One(CompoundStatement(List(e0, e1, e2)))
 
-    val env = createASTEnv(c.value)
-    succ(e0, env) should be(List(e1.entry, e2.entry))
-    succ(e1, env) should be(List(e1c))
-    succ(e1c, env) should be(List(e11.entry, e2.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(c.value)
+        succ(e0, env) should be(List(e1.entry, e2.entry))
+        succ(e1, env) should be(List(e1c))
+        succ(e1c, env) should be(List(e11.entry, e2.entry))
+        println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_for_loop() {
-    val a = parseCompoundStmt("""
+    @Test def test_conditional_for_loop() {
+        val a = parseCompoundStmt("""
     {
       int k = 2;
       int i;
@@ -351,12 +352,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_if_statement() {
-    val a = parseCompoundStmt("""
+    @Test def test_conditional_if_statement() {
+        val a = parseCompoundStmt("""
     {
       int k = 3;
       if (k < 2) { k = 2; }
@@ -371,12 +372,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_switch_statement() {
-    val a = parseCompoundStmt("""
+    @Test def test_conditional_switch_statement() {
+        val a = parseCompoundStmt("""
     {
       int k = 3;
       switch (k) {
@@ -391,26 +392,26 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_for_loop_elems() {
-    val e0 = Opt(True, LabelStatement(Id("e0"), None))
-    val e1 = Opt(fx, ForStatement(
-      Some(AssignExpr(Id("i"),"=",Constant("0"))),
-      Some(AssignExpr(Id("i"),"=",Constant("2"))),
-      Some(PostfixExpr(Id("i"),SimplePostfixSuffix("++"))),
-      One(CompoundStatement(List(Opt(fx,ExprStatement(PostfixExpr(Id("j"),SimplePostfixSuffix("++")))))))))
-    val e2 = Opt(True, LabelStatement(Id("e2"), None))
-    val c = One(CompoundStatement(List(e0, e1, e2)))
+    @Test def test_conditional_for_loop_elems() {
+        val e0 = Opt(True, LabelStatement(Id("e0"), None))
+        val e1 = Opt(fx, ForStatement(
+            Some(AssignExpr(Id("i"), "=", Constant("0"))),
+            Some(AssignExpr(Id("i"), "=", Constant("2"))),
+            Some(PostfixExpr(Id("i"), SimplePostfixSuffix("++"))),
+            One(CompoundStatement(List(Opt(fx, ExprStatement(PostfixExpr(Id("j"), SimplePostfixSuffix("++")))))))))
+        val e2 = Opt(True, LabelStatement(Id("e2"), None))
+        val c = One(CompoundStatement(List(e0, e1, e2)))
 
-    val env = createASTEnv(c)
-    println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(c)
+        println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_for_loop_alternative() {
-    val a = parseCompoundStmt("""
+    @Test def test_conditional_for_loop_alternative() {
+        val a = parseCompoundStmt("""
     {
       int i;
       for(;;) {
@@ -424,12 +425,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Ignore def test_conditional_for_loop_infinite() {
-    val a = parseCompoundStmt("""
+    @Ignore def test_conditional_for_loop_infinite() {
+        val a = parseCompoundStmt("""
     {
       int i;
       for(;;) {
@@ -438,12 +439,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Ignore def test_conditional_for_loop_infinite_single_statement() {
-    val a = parseCompoundStmt("""
+    @Ignore def test_conditional_for_loop_infinite_single_statement() {
+        val a = parseCompoundStmt("""
     {
       int i = 0;
       for(;;) {
@@ -453,12 +454,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_statements_increment() {
-    val a = parseCompoundStmt("""
+    @Test def test_statements_increment() {
+        val a = parseCompoundStmt("""
     {
       int k = 0;
       k++;
@@ -467,12 +468,12 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_statements() {
-    val a = parseCompoundStmt("""
+    @Test def test_conditional_statements() {
+        val a = parseCompoundStmt("""
     {
       int a = 2;
       int b = 200;
@@ -500,30 +501,30 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_conditional_label_and_goto_statements_constructed() {
-    val e0 = Opt(FeatureExpr.base, GotoStatement(Id("label1")))
-    val e1 = Opt(fx, LabelStatement(Id("label1"), None))
-    val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
-    val e3 = Opt(fx.not(), LabelStatement(Id("label1"), None))
-    val e4 = Opt(fx.not(), DeclarationStatement(Declaration(List(Opt(fx.not(), IntSpecifier())), List(Opt(fx.not(), InitDeclaratorI(AtomicNamedDeclarator(List(), Id("b"), List()), List(), None))))))
-    val e5 = Opt(FeatureExpr.base, LabelStatement(Id("label2"), None))
-    val f = FunctionDef(List(Opt(FeatureExpr.base, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
+    @Test def test_conditional_label_and_goto_statements_constructed() {
+        val e0 = Opt(FeatureExprFactory.base, GotoStatement(Id("label1")))
+        val e1 = Opt(fx, LabelStatement(Id("label1"), None))
+        val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
+        val e3 = Opt(fx.not(), LabelStatement(Id("label1"), None))
+        val e4 = Opt(fx.not(), DeclarationStatement(Declaration(List(Opt(fx.not(), IntSpecifier())), List(Opt(fx.not(), InitDeclaratorI(AtomicNamedDeclarator(List(), Id("b"), List()), List(), None))))))
+        val e5 = Opt(FeatureExprFactory.base, LabelStatement(Id("label2"), None))
+        val f = FunctionDef(List(Opt(FeatureExprFactory.base, VoidSpecifier())), AtomicNamedDeclarator(List(), Id("foo"), List(Opt(True, DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
 
-    val env = createASTEnv(f)
-    succ(e0, env) should be (List(e1.entry, e3.entry))
-    succ(e1, env) should be (List(e2.entry))
-    succ(e2, env) should be (List(e5.entry))
-    succ(e3, env) should be (List(e4.entry))
-    succ(e4, env) should be (List(e5.entry))
-    println("succs: " + DotGraph.map2file(getAllSucc(f, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(f)
+        succ(e0, env) should be(List(e1.entry, e3.entry))
+        succ(e1, env) should be(List(e2.entry))
+        succ(e2, env) should be(List(e5.entry))
+        succ(e3, env) should be(List(e4.entry))
+        succ(e4, env) should be(List(e5.entry))
+        println("succs: " + DotGraph.map2file(getAllSucc(f, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_simpel_function() {
-    val a = parseFunctionDef("""
+    @Test def test_simpel_function() {
+        val a = parseFunctionDef("""
     void foo() {
       #ifdef A
       int a;
@@ -533,84 +534,84 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
     }
     """)
 
-    val env = createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-  }
+        val env = createASTEnv(a)
+        println("succs: " + DotGraph.map2file(getAllSucc(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+    }
 
-  @Test def test_liveness_simple() {
-    val a = parseCompoundStmt("""
+    @Test def test_liveness_simple() {
+        val a = parseCompoundStmt("""
     {
       int a = 1;
       int b = c;
     }
     """)
 
-    println("defines: " + defines(a))
-    println("uses: " + uses(a))
-  }
+        println("defines: " + defines(a))
+        println("uses: " + uses(a))
+    }
 
-  @Test def test_liveness_simple_constructed() {
-    val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), Some(Initializer(None, Id("b")))))))))
-    val s2 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("c"), List()), List(), Some(Initializer(None, Id("d")))))))))
-    val c = One(CompoundStatement(List(s1, s2)))
+    @Test def test_liveness_simple_constructed() {
+        val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), Some(Initializer(None, Id("b")))))))))
+        val s2 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("c"), List()), List(), Some(Initializer(None, Id("d")))))))))
+        val c = One(CompoundStatement(List(s1, s2)))
 
-    val env = createASTEnv(c)
-    println("in   (s1): " + in((s1, env)))
-    println("out  (s1): " + out((s1, env)))
-    println("in   (s2): " + in((s2, env)))
-    println("out  (s2): " + out((s2, env)))
-  }
+        val env = createASTEnv(c)
+        println("in   (s1): " + in((s1, env)))
+        println("out  (s1): " + out((s1, env)))
+        println("in   (s2): " + in((s2, env)))
+        println("out  (s2): " + out((s2, env)))
+    }
 
-  // stack overflow
-  @Ignore def test_liveness_constructed() {
-    val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("y"), List()), List(), Some(Initializer(None, Id("v")))))))))
-    val s2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("z"), List()), List(), Some(Initializer(None, Id("y")))))))))
-    val s3 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("x"), List()), List(), Some(Initializer(None, Id("v")))))))))
-    val s41 = Opt(fy, ExprStatement(AssignExpr(Id("x"), "=", Id("w"))))
-    val s42 = Opt(True, ExprStatement(AssignExpr(Id("x"), "=", Id("v"))))
-    val s4 = Opt(True, WhileStatement(Id("x"), One(CompoundStatement(List(s41, s42)))))
-    val s5 = Opt(True, ReturnStatement(Some(Id("x"))))
-    val c = CompoundStatement(List(s1, s2, s3, s4, s5))
+    // stack overflow
+    @Ignore def test_liveness_constructed() {
+        val s1 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("y"), List()), List(), Some(Initializer(None, Id("v")))))))))
+        val s2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("z"), List()), List(), Some(Initializer(None, Id("y")))))))))
+        val s3 = Opt(True, DeclarationStatement(Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("x"), List()), List(), Some(Initializer(None, Id("v")))))))))
+        val s41 = Opt(fy, ExprStatement(AssignExpr(Id("x"), "=", Id("w"))))
+        val s42 = Opt(True, ExprStatement(AssignExpr(Id("x"), "=", Id("v"))))
+        val s4 = Opt(True, WhileStatement(Id("x"), One(CompoundStatement(List(s41, s42)))))
+        val s5 = Opt(True, ReturnStatement(Some(Id("x"))))
+        val c = CompoundStatement(List(s1, s2, s3, s4, s5))
 
-    val env = createASTEnv(c)
-    println("in      (s1): " + in((s1, env)))
-    println("out     (s1): " + out((s1, env)))
-    println("defines (s1): " + defines(s1))
-    println("uses    (s1): " + uses(s1))
-    println("#"*80)
-    println("in      (s2): " + in((s2, env)))
-    println("out     (s2): " + out((s2, env)))
-    println("defines (s2): " + defines(s2))
-    println("uses    (s2): " + uses(s2))
-    println("#"*80)
-    println("in      (s3): " + in((s3, env)))
-    println("out     (s3): " + out((s3, env)))
-    println("defines (s3): " + defines(s3))
-    println("uses    (s3): " + uses(s3))
-    println("#"*80)
-    println("in      (s4): " + in((s4, env)))
-    println("out     (s4): " + out((s4, env)))
-    println("defines (s4): " + defines(s4))
-    println("uses    (s4): " + uses(s4))
-    println("#"*80)
-    println("in      (s41): " + in((s41, env)))
-    println("out     (s41): " + out((s41, env)))
-    println("defines (s41): " + defines(s41))
-    println("uses    (s41): " + uses(s41))
-    println("#"*80)
-    println("in      (s42): " + in((s42, env)))
-    println("out     (s42): " + out((s42, env)))
-    println("defines (s42): " + defines(s42))
-    println("uses    (s42): " + uses(s42))
-    println("#"*80)
-    println("in      (s5): " + in((s5, env)))
-    println("out     (s5): " + out((s5, env)))
-    println("defines (s5): " + defines(s5))
-    println("uses    (s5): " + uses(s5))
-  }
+        val env = createASTEnv(c)
+        println("in      (s1): " + in((s1, env)))
+        println("out     (s1): " + out((s1, env)))
+        println("defines (s1): " + defines(s1))
+        println("uses    (s1): " + uses(s1))
+        println("#" * 80)
+        println("in      (s2): " + in((s2, env)))
+        println("out     (s2): " + out((s2, env)))
+        println("defines (s2): " + defines(s2))
+        println("uses    (s2): " + uses(s2))
+        println("#" * 80)
+        println("in      (s3): " + in((s3, env)))
+        println("out     (s3): " + out((s3, env)))
+        println("defines (s3): " + defines(s3))
+        println("uses    (s3): " + uses(s3))
+        println("#" * 80)
+        println("in      (s4): " + in((s4, env)))
+        println("out     (s4): " + out((s4, env)))
+        println("defines (s4): " + defines(s4))
+        println("uses    (s4): " + uses(s4))
+        println("#" * 80)
+        println("in      (s41): " + in((s41, env)))
+        println("out     (s41): " + out((s41, env)))
+        println("defines (s41): " + defines(s41))
+        println("uses    (s41): " + uses(s41))
+        println("#" * 80)
+        println("in      (s42): " + in((s42, env)))
+        println("out     (s42): " + out((s42, env)))
+        println("defines (s42): " + defines(s42))
+        println("uses    (s42): " + uses(s42))
+        println("#" * 80)
+        println("in      (s5): " + in((s5, env)))
+        println("out     (s5): " + out((s5, env)))
+        println("defines (s5): " + defines(s5))
+        println("uses    (s5): " + uses(s5))
+    }
 
-  @Test def test_binary_search() {
-    val a = parseFunctionDef("""
+    @Test def test_binary_search() {
+        val a = parseFunctionDef("""
      int binarySearch(int sortedArray[], int first, int last, int key) {
        // function:
        //   Searches sortedArray[first]..sortedArray[last] for key.
@@ -638,15 +639,15 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
      }
     """)
 
-    val env = createASTEnv(a)
-    val succs = getAllSucc(a, env)
-    println("succs: " + DotGraph.map2file(succs, env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
-    compareSuccWithPred(getAllSucc(a, env), env)
-  }
+        val env = createASTEnv(a)
+        val succs = getAllSucc(a, env)
+        println("succs: " + DotGraph.map2file(succs, env.asInstanceOf[DotGraph.ASTEnv]))
+        println("preds: " + DotGraph.map2file(getAllPred(a, env), env.asInstanceOf[DotGraph.ASTEnv]))
+        compareSuccWithPred(getAllSucc(a, env), env)
+    }
 
-  @Test def test_boa_hash() {
-    val a = parseCompoundStmt("""
+    @Test def test_boa_hash() {
+        val a = parseCompoundStmt("""
     {
           int i;
           hash_struct *temp;
@@ -699,11 +700,11 @@ class ConditionalControlFlowGraphTest extends TestHelper with ShouldMatchers wit
 
     """)
 
-    val env = createASTEnv(a)
-    val s = getAllSucc(a, env)
-    val p = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
-    println("preds: " + DotGraph.map2file(p, env.asInstanceOf[DotGraph.ASTEnv]))
-    compareSuccWithPred(s, env)
-  }
+        val env = createASTEnv(a)
+        val s = getAllSucc(a, env)
+        val p = getAllPred(a, env)
+        println("succs: " + DotGraph.map2file(s, env.asInstanceOf[DotGraph.ASTEnv]))
+        println("preds: " + DotGraph.map2file(p, env.asInstanceOf[DotGraph.ASTEnv]))
+        compareSuccWithPred(s, env)
+    }
 }

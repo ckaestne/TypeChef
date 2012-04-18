@@ -7,7 +7,7 @@
 //
 //import de.fosd.typechef.parser.c._
 //import de.fosd.typechef.conditional._
-//import de.fosd.typechef.featureexpr.FeatureExpr.base
+//import de.fosd.typechef.featureexpr.FeatureExprFactory.base
 //import de.fosd.typechef.featureexpr.FeatureExpr
 //import org.junit.Test
 //
@@ -107,8 +107,8 @@
 //    //    }
 //
 //
-//    val fx = FeatureExpr.createDefinedExternal("X")
-//    val fy = FeatureExpr.createDefinedExternal("Y")
+//    val fx = FeatureExprFactory.createDefinedExternal("X")
+//    val fy = FeatureExprFactory.createDefinedExternal("Y")
 //    @Test def explode() = {
 //        println(explodeVariability(C(List(Opt(fx, E(1)), Opt(fy, E(2)), Opt(fy, E(3)), Opt(base, E(4))))))
 //    }
