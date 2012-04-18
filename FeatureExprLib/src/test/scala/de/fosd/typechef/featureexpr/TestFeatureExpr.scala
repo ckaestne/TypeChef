@@ -5,7 +5,7 @@ import org.junit.Ignore
 import junit.framework._;
 import junit.framework.Assert._
 import org.junit.Test
-import FeatureExpr._
+import FeatureExprFactory._
 
 class TestFeatureExpr extends TestCase {
 
@@ -17,38 +17,39 @@ class TestFeatureExpr extends TestCase {
 
 
     //adapter for old model
-    def DefinedExternal(a: String) = FeatureExpr.createDefinedExternal(a)
-    def IntegerLit(a: Int) = FeatureExpr.createInteger(a)
+    def DefinedExternal(a: String) = FeatureExprFactory.createDefinedExternal(a)
+    def IntegerLit(a: Int) = FeatureExprFactory.default.createInteger(a)
     def And(l: List[FeatureExpr]) = l.reduce(_ and _)
     def Or(l: List[FeatureExpr]) = l.reduce(_ or _)
     def Not(e: FeatureExpr) = e.not
     def Or(a: FeatureExpr, b: FeatureExpr) = a or b
     def And(a: FeatureExpr, b: FeatureExpr) = a and b
-    def BaseFeature() = FeatureExpr.base
-    def DeadFeature() = FeatureExpr.dead
+    def BaseFeature() = base
+    def DeadFeature() = dead
 
 
     def testSimplifyIf() {
-        assertSimplify(FeatureExpr.createLessThanEquals(
-            (FeatureExpr.createInteger(1)),
-            FeatureExpr.createIf(
+        assertSimplify(FeatureExprFactory.default.createLessThanEquals(
+            (FeatureExprFactory.default.createInteger(1)),
+            FeatureExprFactory.default.createIf(
                 DefinedExternal("CONFIG_64BIT"),
                 IntegerLit(64),
                 IntegerLit(32))),
-            IntegerLit(1).toFeatureExpr)
+            base)
 
         // (1 + (1 + (1 + __IF__(defined(a),1,2))))) = __IF__(defined(a),4,5), results overall in BaseFeature because both are true
-        assertTrue(FeatureExpr.createPlus(
-            (FeatureExpr.createInteger(1)),
-            FeatureExpr.createPlus(
-                (FeatureExpr.createInteger(1)),
-                FeatureExpr.createPlus(
-                    (FeatureExpr.createInteger(1)),
-                    FeatureExpr.createIf(
+        val expr = FeatureExprFactory.default.createPlus(
+            (FeatureExprFactory.default.createInteger(1)),
+            FeatureExprFactory.default.createPlus(
+                (FeatureExprFactory.default.createInteger(1)),
+                FeatureExprFactory.default.createPlus(
+                    (FeatureExprFactory.default.createInteger(1)),
+                    FeatureExprFactory.default.createIf(
                         DefinedExternal("a"),
                         IntegerLit(1),
-                        IntegerLit(2))))).toFeatureExpr.isTautology)
-        //            FeatureExpr.createIf(
+                        IntegerLit(2)))))
+        assertTrue(FeatureExprValue.toFeatureExpr(expr).isTautology)
+        //            FeatureExprFactory.default.createIf(
         //                DefinedExternal("a"),
         //                IntegerLit(4),
         //                IntegerLit(5)).expr)
@@ -56,36 +57,36 @@ class TestFeatureExpr extends TestCase {
 
     def testSimplifyNumeric() {
         //&&	<=		<<			1			__IF__				CONFIG_NODES_SHIFT			__THEN__				0			__ELSE__				0		__IF__			CONFIG_64BIT		__THEN__			64		__ELSE__			32	1
-        assertSimplify(FeatureExpr.createLessThanEquals(
-            FeatureExpr.createShiftLeft(
-                (FeatureExpr.createInteger(1)),
-                FeatureExpr.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))),
-            FeatureExpr.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))).and(createInteger(1).toFeatureExpr), BaseFeature());
+        assertSimplify(FeatureExprFactory.default.createLessThanEquals(
+            FeatureExprFactory.default.createShiftLeft(
+                (FeatureExprFactory.default.createInteger(1)),
+                FeatureExprFactory.default.createIf(DefinedExternal("s"), IntegerLit(0), IntegerLit(0))),
+            FeatureExprFactory.default.createIf(DefinedExternal("b"), IntegerLit(64), IntegerLit(32))).and(base), BaseFeature());
 
-        assertSimplify(
-            FeatureExpr.createIf(
-                (FeatureExpr.createDefinedExternal("a")),
-                FeatureExpr.createLessThanEquals((FeatureExpr.createInteger(1)), (FeatureExpr.createInteger(64))),
-                FeatureExpr.createLessThanEquals((FeatureExpr.createInteger(1)), (FeatureExpr.createInteger(32)))).not, DeadFeature());
+        val expr = FeatureExprFactory.default.createBooleanIf(
+            (FeatureExprFactory.createDefinedExternal("a")),
+            FeatureExprFactory.default.createLessThanEquals((FeatureExprFactory.default.createInteger(1)), (FeatureExprFactory.default.createInteger(64))),
+            FeatureExprFactory.default.createLessThanEquals((FeatureExprFactory.default.createInteger(1)), (FeatureExprFactory.default.createInteger(32))))
+        assertSimplify(expr.not, DeadFeature());
     }
 
     @Ignore
     def testEquality() {
-        assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a"))
-        assertEquals(FeatureExpr.createDefinedExternal("a"), FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a")))
-        assertTrue(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equivalentTo FeatureExpr.base)
-        assertTrue(FeatureExpr.createDefinedExternal("a").or(FeatureExpr.createDefinedExternal("a").not) equals FeatureExpr.base)
-        assertTrue(FeatureExpr.createDefinedExternal("a").and(FeatureExpr.createDefinedExternal("b")) equivalentTo FeatureExpr.createDefinedExternal("b").and(FeatureExpr.createDefinedExternal("a")))
+        assertEquals(FeatureExprFactory.createDefinedExternal("a"), FeatureExprFactory.createDefinedExternal("a"))
+        assertEquals(FeatureExprFactory.createDefinedExternal("a"), FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a")))
+        assertTrue(FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a").not) equivalentTo FeatureExprFactory.default.base)
+        assertTrue(FeatureExprFactory.createDefinedExternal("a").or(FeatureExprFactory.createDefinedExternal("a").not) equals FeatureExprFactory.default.base)
+        assertTrue(FeatureExprFactory.createDefinedExternal("a").and(FeatureExprFactory.createDefinedExternal("b")) equivalentTo FeatureExprFactory.createDefinedExternal("b").and(FeatureExprFactory.createDefinedExternal("a")))
     }
 
     //    @Test
     //    def testFeatureModel = {
     //
-    //        val a = FeatureExpr.createDefinedExternal("a")
-    //        val b = FeatureExpr.createDefinedExternal("b")
-    //        val c = FeatureExpr.createDefinedExternal("c")
-    //        val d = FeatureExpr.createDefinedExternal("d")
-    //        val e = FeatureExpr.createDefinedExternal("e")
+    //        val a = FeatureExprFactory.createDefinedExternal("a")
+    //        val b = FeatureExprFactory.createDefinedExternal("b")
+    //        val c = FeatureExprFactory.createDefinedExternal("c")
+    //        val d = FeatureExprFactory.createDefinedExternal("d")
+    //        val e = FeatureExprFactory.createDefinedExternal("e")
     //
     //        val fm = FeatureModel.create((a implies b) and (a mex c) and d)
     //        val fma = FeatureModel.create(a)
@@ -101,8 +102,8 @@ class TestFeatureExpr extends TestCase {
 
     @Test
     def testAndNotOrPattern {
-        val a = FeatureExpr.createDefinedExternal("A")
-        val b = FeatureExpr.createDefinedExternal("B")
+        val a = FeatureExprFactory.createDefinedExternal("A")
+        val b = FeatureExprFactory.createDefinedExternal("B")
         val aAndB = (a and b)
 
         var expr: FeatureExpr = a
@@ -118,11 +119,11 @@ class TestFeatureExpr extends TestCase {
 
     @Test
     def testAndNotOrPattern2 {
-        val a = FeatureExpr.createDefinedExternal("A") //and FeatureExpr.createDefinedExternal("A2") or FeatureExpr.createDefinedExternal("A3")
+        val a = FeatureExprFactory.createDefinedExternal("A") //and FeatureExprFactory.createDefinedExternal("A2") or FeatureExprFactory.createDefinedExternal("A3")
 
         var expr: FeatureExpr = a
         for (i <- 1 until 100) {
-            val b = FeatureExpr.createDefinedExternal("B" + i)
+            val b = FeatureExprFactory.createDefinedExternal("B" + i)
             expr = expr andNot (a and b)
             expr = expr or (a and b)
         }

@@ -24,13 +24,13 @@ import scala.Predef._
  *
  */
 class BDDFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt], val lastVarId: Int,
-                   val extraConstraints: BDDFeatureExpr,
-                   val assumedFalse: Set[String], val assumedTrue: Set[String]) extends FeatureModel {
+                      val extraConstraints: BDDFeatureExpr,
+                      val assumedFalse: Set[String], val assumedTrue: Set[String]) extends FeatureModel {
     /**
      * make the feature model stricter by a formula
      */
     def and(expr: FeatureExpr /*CNF*/) = {
-        assert(expr.isInstanceOf[BDDFeatureExpr])     //FMCAST
+        assert(expr.isInstanceOf[BDDFeatureExpr]) //FMCAST
         new BDDFeatureModel(variables, clauses, lastVarId, (extraConstraints and expr).asInstanceOf[BDDFeatureExpr], assumedFalse, assumedTrue)
     }
     //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExpr.base) this
@@ -69,7 +69,7 @@ object FeatureModel {
     /**
      * create an empty feature model
      */
-    def empty: FeatureModel = BDDNoFeatureModel
+    def empty: BDDFeatureModel = BDDNoFeatureModel
 
     /**
      * create a feature model from a feature expression

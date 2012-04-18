@@ -15,7 +15,7 @@ import org.junit.Test
 class FeatureExprTest extends TestCase {
 
     import org.junit.Assert._
-    import FeatureExpr._
+    import FeatureExprFactory.sat._
 
 
     @Test
@@ -60,12 +60,12 @@ class FeatureExprTest extends TestCase {
     }
 
     @Test def testIf {
-        assertEquals(createIf(feature("a"), True, False), feature("a"))
-        assertEquals(createIf(feature("a"), False, True), feature("a").not)
-        assertEquals(createIf(feature("a"), feature("b") orNot feature("b"), False), feature("a"))
-        assertEquals(createIf(True, True, False), True)
-        assertEquals(createIf(True, feature("a"), feature("b")), feature("a"))
-        assertEquals(createIf(False, feature("a"), feature("b")), feature("b"))
+        assertEquals(createBooleanIf(feature("a"), True, False), feature("a"))
+        assertEquals(createBooleanIf(feature("a"), False, True), feature("a").not)
+        assertEquals(createBooleanIf(feature("a"), feature("b") orNot feature("b"), False), feature("a"))
+        assertEquals(createBooleanIf(True, True, False), True)
+        assertEquals(createBooleanIf(True, feature("a"), feature("b")), feature("a"))
+        assertEquals(createBooleanIf(False, feature("a"), feature("b")), feature("b"))
     }
 
     @Test def testComparison {

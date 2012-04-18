@@ -11,69 +11,95 @@ package de.fosd.typechef.featureexpr
 import org.junit._
 import org.junit.Assert._
 import org.sat4j.minisat.SolverFactory
-import de.fosd.typechef.featureexpr.FeatureExpr.createDefinedExternal
+import java.net.URI
 
 
-class LinuxFeatureModelTest {
+abstract class AbstractLinuxFeatureModelTest {
+
 
     val dimacsFile = this.getClass.getResource("/2.6.33.3-2var.dimacs").toURI
-    val featureModel = FeatureModel.createFromDimacsFile_2Var(dimacsFile)
+
+    def getFeatureExprFactory: AbstractFeatureExprFactory
+    def getFeatureModel: FeatureModel
 
     @Test
     def testSatisfiability {
-        val CONFIG_LBDAF = FeatureExpr.createDefinedExternal("CONFIG_LBDAF")
+        val CONFIG_LBDAF = getFeatureExprFactory.createDefinedExternal("CONFIG_LBDAF")
 
-        assertTrue(FeatureExpr.base.isSatisfiable(featureModel))
-        assertTrue((CONFIG_LBDAF or (CONFIG_LBDAF.not)).isSatisfiable(featureModel))
-        assertTrue(CONFIG_LBDAF.not.isSatisfiable(featureModel))
-        assertTrue(CONFIG_LBDAF.isSatisfiable(featureModel))
-        println(FeatureExpr.createDefinedExternal("CONFIG_X86").isTautology(featureModel))
+        assertTrue(getFeatureExprFactory.base.isSatisfiable(getFeatureModel))
+        assertTrue((CONFIG_LBDAF or (CONFIG_LBDAF.not)).isSatisfiable(getFeatureModel))
+        assertTrue(CONFIG_LBDAF.not.isSatisfiable(getFeatureModel))
+        assertTrue(CONFIG_LBDAF.isSatisfiable(getFeatureModel))
+        println(getFeatureExprFactory.createDefinedExternal("CONFIG_X86").isTautology(getFeatureModel))
 
     }
 
     @Test
     def testSatisfiability2 {
-        val CONFIG_LBDAF = FeatureExpr.createDefinedExternal("unknown")
+        val CONFIG_LBDAF = getFeatureExprFactory.createDefinedExternal("unknown")
 
-        assertTrue((CONFIG_LBDAF or (CONFIG_LBDAF.not)).isSatisfiable(featureModel))
-        assertTrue(CONFIG_LBDAF.not.isSatisfiable(featureModel))
-        assertTrue(CONFIG_LBDAF.isSatisfiable(featureModel))
+        assertTrue((CONFIG_LBDAF or (CONFIG_LBDAF.not)).isSatisfiable(getFeatureModel))
+        assertTrue(CONFIG_LBDAF.not.isSatisfiable(getFeatureModel))
+        assertTrue(CONFIG_LBDAF.isSatisfiable(getFeatureModel))
 
     }
 
     @Test
     def testMiscConstraints {
-        val CONFIG_X86_64 = FeatureExpr.createDefinedExternal("CONFIG_X86_64")
-        val CONFIG_HIGHMEM64G = FeatureExpr.createDefinedExternal("CONFIG_HIGHMEM64G")
+        val CONFIG_X86_64 = getFeatureExprFactory.createDefinedExternal("CONFIG_X86_64")
+        val CONFIG_HIGHMEM64G = getFeatureExprFactory.createDefinedExternal("CONFIG_HIGHMEM64G")
 
-        assertTrue((CONFIG_X86_64 or CONFIG_HIGHMEM64G).isSatisfiable(featureModel))
-        assertTrue(((CONFIG_X86_64.not) and (CONFIG_HIGHMEM64G.not)).isSatisfiable(featureModel))
+        assertTrue((CONFIG_X86_64 or CONFIG_HIGHMEM64G).isSatisfiable(getFeatureModel))
+        assertTrue(((CONFIG_X86_64.not) and (CONFIG_HIGHMEM64G.not)).isSatisfiable(getFeatureModel))
     }
 
     @Test
     def testContradictions {
-        val slab = FeatureExpr.createDefinedExternal("CONFIG_SLAB")
-        val slub = FeatureExpr.createDefinedExternal("CONFIG_SLUB")
-        val slob = FeatureExpr.createDefinedExternal("CONFIG_SLOB")
+        val slab = getFeatureExprFactory.createDefinedExternal("CONFIG_SLAB")
+        val slub = getFeatureExprFactory.createDefinedExternal("CONFIG_SLUB")
+        val slob = getFeatureExprFactory.createDefinedExternal("CONFIG_SLOB")
 
-        assertTrue((slab or slub).isSatisfiable(featureModel))
-        assertTrue((slab.not and slub).isSatisfiable(featureModel))
-        assertFalse((slab and slub).isSatisfiable(featureModel))
-        assertTrue((slab.not and slub.not).isSatisfiable(featureModel))
-        assertFalse((slab.not and slub.not and slob.not).isSatisfiable(featureModel))
+        assertTrue((slab or slub).isSatisfiable(getFeatureModel))
+        assertTrue((slab.not and slub).isSatisfiable(getFeatureModel))
+        assertFalse((slab and slub).isSatisfiable(getFeatureModel))
+        assertTrue((slab.not and slub.not).isSatisfiable(getFeatureModel))
+        assertFalse((slab.not and slub.not and slob.not).isSatisfiable(getFeatureModel))
     }
 
     @Test
     def testCorrectness {
         val allocators = List("SLAB", "SLOB", "SLUB")
-        println(allocators.reduceLeft(_ + "|" + _) + ": " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ or _).isTautology(featureModel))
-        println("!(" + allocators.reduceLeft(_ + "&" + _) + "): " + allocators.map(x => createDefinedExternal("CONFIG_" + x)).foldRight(FeatureExpr.base)(_ and _).not.isTautology(featureModel))
+        println(allocators.reduceLeft(_ + "|" + _) + ": " + allocators.map(x => getFeatureExprFactory.createDefinedExternal("CONFIG_" + x)).foldRight(getFeatureExprFactory.base)(_ or _).isTautology(getFeatureModel))
+        println("!(" + allocators.reduceLeft(_ + "&" + _) + "): " + allocators.map(x => getFeatureExprFactory.createDefinedExternal("CONFIG_" + x)).foldRight(getFeatureExprFactory.base)(_ and _).not.isTautology(getFeatureModel))
         for (a <- allocators; b <- allocators if (a != b)) {
-            println(a + " implies !" + b + ": " + (createDefinedExternal("CONFIG_" + a) implies createDefinedExternal("CONFIG_" + b).not).isTautology(featureModel))
-            println("!(" + a + " & " + b + "): " + (createDefinedExternal("CONFIG_" + a) and createDefinedExternal("CONFIG_" + b)).not.isTautology(featureModel))
+            println(a + " implies !" + b + ": " + (getFeatureExprFactory.createDefinedExternal("CONFIG_" + a) implies getFeatureExprFactory.createDefinedExternal("CONFIG_" + b).not).isTautology(getFeatureModel))
+            println("!(" + a + " & " + b + "): " + (getFeatureExprFactory.createDefinedExternal("CONFIG_" + a) and getFeatureExprFactory.createDefinedExternal("CONFIG_" + b)).not.isTautology(getFeatureModel))
         }
-        println("CONFIG_DEFAULT_SECURITY implies CONFIG_SECURITY: " + (createDefinedExternal("CONFIG_DEFAULT_SECURITY") implies createDefinedExternal("CONFIG_SECURITY")).isTautology(featureModel))
-        println("!CONFIG_X86_EXTENDED_PLATFORM: " + (!createDefinedExternal("CONFIG_X86_EXTENDED_PLATFORM")).isTautology(featureModel))
+        println("CONFIG_DEFAULT_SECURITY implies CONFIG_SECURITY: " + (getFeatureExprFactory.createDefinedExternal("CONFIG_DEFAULT_SECURITY") implies getFeatureExprFactory.createDefinedExternal("CONFIG_SECURITY")).isTautology(getFeatureModel))
+        println("!CONFIG_X86_EXTENDED_PLATFORM: " + (!getFeatureExprFactory.createDefinedExternal("CONFIG_X86_EXTENDED_PLATFORM")).isTautology(getFeatureModel))
+    }
+
+
+}
+
+class BDDLinuxFeatureModelTest extends AbstractLinuxFeatureModelTest {
+    val featureModel = de.fosd.typechef.featureexpr.bdd.FeatureModel.createFromDimacsFile_2Var(dimacsFile)
+    def getFeatureModel = featureModel
+    def getFeatureExprFactory = FeatureExprFactory.bdd
+
+    @Test
+    def testFeatureModelAssumptionsDimacs() {
+        val f = getFeatureExprFactory.createDefinedExternal("CONFIG_X86_32") and getFeatureExprFactory.createDefinedExternal("CONFIG_PARAVIRT")
+        assertTrue(f.isSatisfiable())
+        assertTrue(f.isSatisfiable(featureModel))
+        assertFalse(f.isTautology(featureModel))
+        val fm = featureModel.assumeFalse("CONFIG_X86_32")
+        assertFalse(f.isSatisfiable(fm))
+
+        val ff = getFeatureExprFactory.createDefinedExternal("CONFIG_X86_32") or getFeatureExprFactory.createDefinedExternal("CONFIG_PARAVIRT")
+        val fm2 = fm.assumeTrue("CONFIG_PARAVIRT")
+        assertTrue(ff.isSatisfiable(fm2))
+        assertTrue(ff.isTautology(fm2))
     }
 
     @Test
@@ -95,13 +121,13 @@ class LinuxFeatureModelTest {
 
     @Test
     def testFeatureModelAssumptions() {
-        var fm: FeatureModel = FeatureModel.empty
+        var fm = de.fosd.typechef.featureexpr.bdd.FeatureModel.empty
         fm = fm.assumeFalse("a")
         fm = fm.assumeTrue("b")
 
-        def a = createDefinedExternal("a")
-        def b = createDefinedExternal("b")
-        def h = createDefinedExternal("h")
+        def a = getFeatureExprFactory.createDefinedExternal("a")
+        def b = getFeatureExprFactory.createDefinedExternal("b")
+        def h = getFeatureExprFactory.createDefinedExternal("h")
 
         assertTrue(h.isSatisfiable(fm))
         assertTrue(a.isContradiction(fm))
@@ -111,21 +137,10 @@ class LinuxFeatureModelTest {
         assertFalse((a or b).isTautology())
 
     }
-    @Test
-    def testFeatureModelAssumptionsDimacs() {
-        val f = FeatureExpr.createDefinedExternal("CONFIG_X86_32") and FeatureExpr.createDefinedExternal("CONFIG_PARAVIRT")
-        assertTrue(f.isSatisfiable())
-        assertTrue(f.isSatisfiable(featureModel))
-        assertFalse(f.isTautology(featureModel))
-        val fm = featureModel.assumeFalse("CONFIG_X86_32")
-        assertFalse(f.isSatisfiable(fm))
-
-        val ff = FeatureExpr.createDefinedExternal("CONFIG_X86_32") or FeatureExpr.createDefinedExternal("CONFIG_PARAVIRT")
-        val fm2 = fm.assumeTrue("CONFIG_PARAVIRT")
-        assertTrue(ff.isSatisfiable(fm2))
-        assertTrue(ff.isTautology(fm2))
-    }
-
-
 }
 
+class SATLinuxFeatureModelTest extends AbstractLinuxFeatureModelTest {
+    val featureModel = de.fosd.typechef.featureexpr.sat.SATFeatureModel.createFromDimacsFile_2Var(dimacsFile)
+    def getFeatureModel = featureModel
+    def getFeatureExprFactory = FeatureExprFactory.sat
+}

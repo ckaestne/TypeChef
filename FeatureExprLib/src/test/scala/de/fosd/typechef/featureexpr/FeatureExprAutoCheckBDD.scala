@@ -2,12 +2,12 @@ package de.fosd.typechef.featureexpr
 
 import org.scalacheck._
 import Gen._
-import FeatureExprFactory.sat._
+import FeatureExprFactory.bdd._
 import Prop._
 import java.io._
 import sat.SATFeatureModel
 
-object FeatureExprAutoCheck extends Properties("FeatureExpr") {
+object FeatureExprAutoCheckBDD extends Properties("FeatureExpr") {
     def feature(a: String) = FeatureExprFactory.createDefinedExternal(a)
     val featureNames = List("a", "b", "c", "d", "e", "f")
     val a = feature("a")
@@ -101,12 +101,12 @@ object FeatureExprAutoCheck extends Properties("FeatureExpr") {
     property("taut(a=>b) == contr(a and !b)") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => a.implies(b).isTautology() == a.and(b.not).isContradiction)
 
     property("featuremodel.tautology") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isDead) ==> {
-        val fm = SATFeatureModel.create(a)
+        val fm = bdd.FeatureModel.create(a)
         b.isTautology(fm) == a.implies(b).isTautology
     })
 
     property("featuremodel.sat") = Prop.forAll((a: FeatureExpr, b: FeatureExpr) => (!a.isDead) ==> {
-        val fm = SATFeatureModel.create(a)
+        val fm = bdd.FeatureModel.create(a)
         b.isSatisfiable(fm) == a.and(b).isSatisfiable
     })
 

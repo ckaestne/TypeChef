@@ -4,6 +4,7 @@ import org.sat4j.core.{VecInt, Vec}
 import org.sat4j.specs.{IVec, IVecInt}
 import scala.collection.{mutable, immutable}
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import java.net.URI
 
 /**
  * the feature model is a special container for a single feature expression
@@ -114,12 +115,14 @@ object SATFeatureModel {
     /**
      * special reader for the -2var model used by the LinuxAnalysis tools from waterloo
      */
-    def createFromDimacsFile_2Var(file: String) = {
+    def createFromDimacsFile_2Var(file: URI): SATFeatureModel = createFromDimacsFile_2Var(scala.io.Source.fromFile(file))
+    def createFromDimacsFile_2Var(file: String): SATFeatureModel = createFromDimacsFile_2Var(scala.io.Source.fromFile(file))
+    def createFromDimacsFile_2Var(source: scala.io.Source): SATFeatureModel = {
         var variables: Map[String, Int] = Map()
         val clauses = new Vec[IVecInt]()
         var maxId = 0
 
-        for (line <- scala.io.Source.fromFile(file).getLines) {
+        for (line <- source.getLines) {
             if (line startsWith "c ") {
                 val entries = line.substring(2).split(" ")
                 val id = if (entries(0) endsWith "$")

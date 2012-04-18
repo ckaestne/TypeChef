@@ -25,12 +25,12 @@ class CNFBenchmark {
     }
 
 
-    val CONFIG_X86_64 = FeatureExpr.createDefinedExternal("CONFIG_X86_64")
-    val CONFIG_HIBERNATION = FeatureExpr.createDefinedExternal("CONFIG_HIBERNATION")
-    val CONFIG_NEED_MULTIPLE_NODES = FeatureExpr.createDefinedExternal("CONFIG_NEED_MULTIPLE_NODES")
-    val CONFIG_X86_LOCAL_APIC = FeatureExpr.createDefinedExternal("CONFIG_X86_LOCAL_APIC")
-    val CONFIG_SMP = FeatureExpr.createDefinedExternal("CONFIG_SMP")
-    val CONFIG_DEBUG_HIGHMEM = FeatureExpr.createDefinedExternal("CONFIG_DEBUG_HIGHMEM")
+    val CONFIG_X86_64 = FeatureExprFactory.createDefinedExternal("CONFIG_X86_64")
+    val CONFIG_HIBERNATION = FeatureExprFactory.createDefinedExternal("CONFIG_HIBERNATION")
+    val CONFIG_NEED_MULTIPLE_NODES = FeatureExprFactory.createDefinedExternal("CONFIG_NEED_MULTIPLE_NODES")
+    val CONFIG_X86_LOCAL_APIC = FeatureExprFactory.createDefinedExternal("CONFIG_X86_LOCAL_APIC")
+    val CONFIG_SMP = FeatureExprFactory.createDefinedExternal("CONFIG_SMP")
+    val CONFIG_DEBUG_HIGHMEM = FeatureExprFactory.createDefinedExternal("CONFIG_DEBUG_HIGHMEM")
     def not(e: FeatureExpr) = e.not
     val largeExpression =
         ((((((((((((((((((((((((((((((((((((((((((((not(((((CONFIG_X86_64 or CONFIG_HIBERNATION)
@@ -3845,8 +3845,8 @@ class CNFBenchmark {
 
 
     val stupidFormula = {
-        val a = FeatureExpr.createDefinedExternal("a")
-        val b = FeatureExpr.createDefinedExternal("b")
+        val a = FeatureExprFactory.createDefinedExternal("a")
+        val b = FeatureExprFactory.createDefinedExternal("b")
         var result: FeatureExpr = a
         // XXX: Now this is simplified during construction. Is still there a point in benchmarking this? PG
         for (i <- 1 until 100)

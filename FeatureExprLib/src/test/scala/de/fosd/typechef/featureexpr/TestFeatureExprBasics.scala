@@ -4,7 +4,7 @@ import junit.framework._
 import junit.framework.Assert._
 import org.junit.Test
 
-import FeatureExpr._
+import FeatureExprFactory._
 
 class TestFeatureExprBasics extends TestCase {
     def a = createDefinedExternal("a")
@@ -49,32 +49,32 @@ class TestFeatureExprBasics extends TestCase {
         check(a and b or a and h or b.not)
         check(a or a.not, t)
         check(True, t)
-        check(FeatureExpr.base, t)
+        check(base, t)
         check(a and a.not, c)
         check(False, c)
-        check(FeatureExpr.dead, c)
+        check(dead, c)
         check(a and b or (a and b.not))
         check((a.not and b.not and h) or (a) or (a.not and b))
-        check(FeatureExpr.dead and FeatureExpr.dead, c)
-        check(FeatureExpr.dead or FeatureExpr.dead, c)
-        check(FeatureExpr.base.not or FeatureExpr.base.not, c)
-        check(FeatureExpr.base.not and FeatureExpr.base.not, c)
-        check(FeatureExpr.base or FeatureExpr.dead, t)
-        check(FeatureExpr.base and FeatureExpr.dead, c)
-        check(FeatureExpr.base and FeatureExpr.base, t)
-        check(FeatureExpr.base or FeatureExpr.base, t)
-        check(FeatureExpr.dead or FeatureExpr.base, t)
-        check(FeatureExpr.dead and FeatureExpr.base, c)
-        check(FeatureExpr.dead and a, c)
-        check(FeatureExpr.dead or a, s)
-        check(a and FeatureExpr.dead, c)
-        check(a or FeatureExpr.dead, s)
-        check(FeatureExpr.base and a, s)
-        check(FeatureExpr.base or a, t)
-        check(a and FeatureExpr.base, s)
-        check(a or FeatureExpr.base, t)
-        check(FeatureExpr.base implies FeatureExpr.base, t)
-        check(FeatureExpr.base and (FeatureExpr.base not), c)
+        check(dead and dead, c)
+        check(dead or dead, c)
+        check(base.not or base.not, c)
+        check(base.not and base.not, c)
+        check(base or dead, t)
+        check(base and dead, c)
+        check(base and base, t)
+        check(base or base, t)
+        check(dead or base, t)
+        check(dead and base, c)
+        check(dead and a, c)
+        check(dead or a, s)
+        check(a and dead, c)
+        check(a or dead, s)
+        check(base and a, s)
+        check(base or a, t)
+        check(a and base, s)
+        check(a or base, t)
+        check(base implies base, t)
+        check(base and (base not), c)
     }
 
 }

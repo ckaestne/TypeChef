@@ -188,8 +188,8 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      * but is faster because FM is cached
      */
     def isSatisfiable(f: FeatureModel): Boolean = {
-        assert(f.isInstanceOf[BDDFeatureModel]) //FMCAST
-        val fm = f.asInstanceOf[BDDFeatureModel]
+        assert(f == null || f.isInstanceOf[BDDFeatureModel]) //FMCAST
+        val fm = if (f == null) null else f.asInstanceOf[BDDFeatureModel]
 
         if (bdd.isOne) true //assuming a valid feature model
         else if (bdd.isZero) false
