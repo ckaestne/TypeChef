@@ -9,7 +9,7 @@ import java.io._
 import sat.SATFeatureModel
 
 object FeatureExprAutoCheckBDD extends Properties("FeatureExpr") {
-    def feature(a: String) = FeatureExprFactory.createDefinedExternal(a)
+    def feature(a: String) = createDefinedExternal(a)
     val featureNames = List("a", "b", "c", "d", "e", "f")
     val a = feature("a")
     val b = feature("b")
@@ -21,7 +21,7 @@ object FeatureExprAutoCheckBDD extends Properties("FeatureExpr") {
     val genAtomicFeatureWithDeadAndBase =
         oneOf(base :: dead :: featureNames.map(feature(_)))
     val genAtomicFeatureWithoutDeadAndBase =
-        oneOf(featureNames.map(FeatureExprFactory.createDefinedExternal(_)))
+        oneOf(featureNames.map(createDefinedExternal(_)))
 
     implicit def arbFeatureExpr: Arbitrary[FeatureExpr] = Arbitrary {
         genFeatureExpr(genAtomicFeatureWithDeadAndBase, {
@@ -56,7 +56,7 @@ object FeatureExprAutoCheckBDD extends Properties("FeatureExpr") {
     property("parse(print(x))==x") = Prop.forAll((a: FeatureExpr) => {
         val writer = new StringWriter()
         a.print(writer)
-        val b = new FeatureExprParser().parse(new StringReader(writer.toString))
+        val b = new FeatureExprParser(FeatureExprFactory.bdd).parse(new StringReader(writer.toString))
         a equivalentTo b
     })
 
