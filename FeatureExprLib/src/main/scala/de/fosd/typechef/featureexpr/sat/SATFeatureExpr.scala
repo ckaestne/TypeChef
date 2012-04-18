@@ -68,9 +68,8 @@ import collection.mutable.ArrayBuffer
 
 
 object FeatureExprHelper {
-    def resolveDefined(
-    macro: DefinedMacro, macroTable: FeatureProvider): FeatureExpr =
-        macroTable.getMacroCondition( macro.feature)
+    def resolveDefined(mcro: DefinedMacro, macroTable: FeatureProvider): FeatureExpr =
+        macroTable.getMacroCondition(mcro.feature)
 
     private var freshFeatureNameCounter = 0
     def calcFreshFeatureName(): String = {
@@ -272,10 +271,6 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
      */
     def countDistinctFeatures: Int = collectDistinctFeatures.size
 }
-
-class FeatureException(msg: String) extends RuntimeException(msg)
-
-class FeatureArithmeticException(msg: String) extends FeatureException(msg)
 
 //// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
 //// however, this is only a concern for erroneous input anyway (but isn't it our point to detect it?)
@@ -551,7 +546,7 @@ private[sat] object FExprBuilder {
     //a form of caching provided by MacroTable, which we need to repeat here to create the same SATFeatureExpr object
     def definedMacro(name: String, macroTable: FeatureProvider): SATFeatureExpr = {
         val macroCondition = macroTable.getMacroCondition(name)
-        assert(macroCondition.isInstanceOf[SATFeatureExpr])//FMCAST
+        assert(macroCondition.isInstanceOf[SATFeatureExpr]) //FMCAST
         if (macroCondition.asInstanceOf[SATFeatureExpr].isSmall) {
             macroCondition.asInstanceOf[SATFeatureExpr]
         } else {
@@ -808,7 +803,7 @@ class Or(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[Or] {
                                 for (conjunct <- conjuncts; c <- innerChildren)
                                 yield FExprBuilder.or(c, conjunct)
                         case _ =>
-                            conjuncts = conjuncts.map(x=>FExprBuilder.or(x,child))
+                            conjuncts = conjuncts.map(x => FExprBuilder.or(x, child))
                     }
                 }
                 assert(conjuncts.forall(c => CNFHelper.isClause(c) || c == True || c == False))
@@ -840,7 +835,7 @@ class Or(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[Or] {
                 child match {
                     case And(innerChildren) =>
                         val freshFeature = FExprBuilder.definedExternal(FeatureExprHelper.calcFreshFeatureName())
-                        orClauses ++= innerChildren.map(x=>(freshFeature implies x).asInstanceOf[SATFeatureExpr])
+                        orClauses ++= innerChildren.map(x => (freshFeature implies x).asInstanceOf[SATFeatureExpr])
                         renamedDisjunction += freshFeature
                     case e =>
                         renamedDisjunction += e

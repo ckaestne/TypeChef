@@ -33,7 +33,7 @@ class BDDFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
         assert(expr.isInstanceOf[BDDFeatureExpr]) //FMCAST
         new BDDFeatureModel(variables, clauses, lastVarId, (extraConstraints and expr).asInstanceOf[BDDFeatureExpr], assumedFalse, assumedTrue)
     }
-    //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExpr.base) this
+    //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExprFactory.base) this
     //    else {
     //        val cnf = expr.toCNF
     //        try {
@@ -65,7 +65,7 @@ object BDDNoFeatureModel extends BDDFeatureModel(Map(), new Vec(), 0, True, Set(
 /**
  * companion object to create feature models
  */
-object FeatureModel {
+object BDDFeatureModel extends FeatureModelFactory {
     /**
      * create an empty feature model
      */

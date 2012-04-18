@@ -1,7 +1,7 @@
 package de.fosd.typechef.featureexpr.sat
 
 import de.fosd.typechef.featureexpr._
-
+import java.net.URI
 
 object SATFeatureExprFactory extends AbstractFeatureExprFactory {
 
@@ -17,4 +17,9 @@ object SATFeatureExprFactory extends AbstractFeatureExprFactory {
     val deadB: SATFeatureExpr = de.fosd.typechef.featureexpr.sat.False
     val base: FeatureExpr = baseB
     val dead: FeatureExpr = deadB
+
+
+    //feature model stuff
+    def featureModelFactory: FeatureModelFactory = SATFeatureModel
+
 }

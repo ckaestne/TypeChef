@@ -3,8 +3,8 @@ package de.fosd.typechef.featureexpr.sat
 import org.sat4j.core.{VecInt, Vec}
 import org.sat4j.specs.{IVec, IVecInt}
 import scala.collection.{mutable, immutable}
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 import java.net.URI
+import de.fosd.typechef.featureexpr.{FeatureModelFactory, FeatureExpr, FeatureModel}
 
 /**
  * the feature model is a special container for a single feature expression
@@ -35,7 +35,8 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
                 case e: Exception => println("FeatureModel.and: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
             }
         }
-
+    def assumeTrue(featurename: String) = this.and(SATFeatureExprFactory.createDefinedExternal(featurename))
+    def assumeFalse(featurename: String) = this.and(SATFeatureExprFactory.createDefinedExternal(featurename).not)
 }
 
 /**
@@ -46,7 +47,7 @@ object SATNoFeatureModel extends SATFeatureModel(Map(), new Vec(), 0)
 /**
  * companion object to create feature models
  */
-object SATFeatureModel {
+object SATFeatureModel extends FeatureModelFactory {
     /**
      * create an empty feature model
      */

@@ -15,6 +15,7 @@ import sat.SATFeatureExprFactory
 object FeatureExprFactory {
 
     var default: AbstractFeatureExprFactory = if (System.getProperty("FEATUREEXPR") == "BDD") bdd else sat
+    def dflt = default
 
     def setDefault(newFactory: AbstractFeatureExprFactory) {
         default = newFactory
@@ -44,4 +45,6 @@ trait AbstractFeatureExprFactory extends FeatureExprTreeFactory {
     def dead: FeatureExpr
     def True = base
     def False = dead
+
+    def featureModelFactory: FeatureModelFactory
 }

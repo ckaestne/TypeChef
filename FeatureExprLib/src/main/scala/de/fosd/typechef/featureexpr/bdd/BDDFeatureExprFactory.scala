@@ -1,6 +1,7 @@
 package de.fosd.typechef.featureexpr.bdd
 
 import de.fosd.typechef.featureexpr._
+import java.net.URI
 
 
 object BDDFeatureExprFactory extends AbstractFeatureExprFactory {
@@ -17,4 +18,6 @@ object BDDFeatureExprFactory extends AbstractFeatureExprFactory {
     val deadB: BDDFeatureExpr = de.fosd.typechef.featureexpr.bdd.False
     val base: FeatureExpr = baseB
     val dead: FeatureExpr = deadB
+
+    def featureModelFactory = BDDFeatureModel
 }
