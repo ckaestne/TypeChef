@@ -1,6 +1,7 @@
 package de.fosd.typechef;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory$;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.options.LexerOptions;
@@ -162,7 +163,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
 
     FeatureExpr getFilePresenceCondition() {
         if (filePC == null)
-            filePC = new FeatureExprParser().parseFile(getFilePresenceConditionFilename());
+            filePC = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getFilePresenceConditionFilename());
         return filePC;
     }
 
@@ -174,7 +175,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
 
     FeatureExpr getLocalFeatureModel() {
         if (localFM == null)
-            localFM = new FeatureExprParser().parseFile(getLocalFeatureModelFilename());
+            localFM = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getLocalFeatureModelFilename());
         return localFM;
     }
 
