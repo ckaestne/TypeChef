@@ -4,6 +4,7 @@ import junit.framework.TestCase
 import org.junit._
 import de.fosd.typechef.parser.test.parsers._
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class RepOptTest extends TestCase with DigitListUtilities {
 
@@ -20,7 +21,7 @@ class RepOptTest extends TestCase with DigitListUtilities {
         type Elem = MyToken
         type TypeContext = Any
 
-        def parse(tokens: List[MyToken]): ParseResult[AST] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).expectOneResult
+        def parse(tokens: List[MyToken]): ParseResult[AST] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.base).expectOneResult
 
         def digitList: MultiParser[Conditional[AST]] =
             (t("(") ~! (digits ~ t(")"))) ^^! {

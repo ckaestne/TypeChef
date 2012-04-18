@@ -5,12 +5,12 @@ import org.junit._
 import org.junit.Assert._
 import de.fosd.typechef.parser.test.parsers._
 import de.fosd.typechef.parser.~
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 
 /**
- *            some additional tests for repopt and joining
+ * some additional tests for repopt and joining
  */
 class RepOptJoinTest extends TestCase with DigitListUtilities {
 
@@ -21,7 +21,7 @@ class RepOptJoinTest extends TestCase with DigitListUtilities {
     @Test def testCharAndRepDigit = {
         val l = List(t("a"), t("2", f1))
         val in = p.tr(l)
-        val r = charAndRepDigit(in, FeatureExpr.base)
+        val r = charAndRepDigit(in, FeatureExprFactory.base)
         println("----")
         println("tokens: " + l + " -- " + in.tokens.size)
         println("parse result: " + r)

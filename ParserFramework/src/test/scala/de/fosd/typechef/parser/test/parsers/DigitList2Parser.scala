@@ -1,8 +1,8 @@
 package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 case class DigitList2(list: List[Opt[Conditional[AST]]]) extends AST
 
@@ -12,7 +12,7 @@ abstract class DigitList2Parser extends MultiFeatureParser {
     type OptResult[T]
     def myRepOpt[T](p: => MultiParser[T], productionName: String): MultiParser[List[OptResult[T]]]
 
-    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).join(FeatureExpr.base).expectOneResult
+    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = digits(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.base).join(FeatureExprFactory.base).expectOneResult
 
     def digitList: MultiParser[Conditional[AST]] =
         (t("(") ~! (digits ~ t(")"))) ^^! ({

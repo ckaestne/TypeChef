@@ -10,10 +10,10 @@ import de.fosd.typechef.conditional._
 
 class MultiFeatureParserTest extends TestCase {
 
-    val f1 = FeatureExpr.createDefinedExternal("a")
-    val f2 = FeatureExpr.createDefinedExternal("b")
+    val f1 = FeatureExprFactory.createDefinedExternal("a")
+    val f2 = FeatureExprFactory.createDefinedExternal("b")
 
-    def t(text: String): MyToken = t(text, FeatureExpr.base)
+    def t(text: String): MyToken = t(text, FeatureExprFactory.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
     def assertParseResult(expected: Conditional[AST], actual: parser.ParseResult[Conditional[AST]]) {
@@ -135,8 +135,8 @@ class MultiFeatureParserTest extends TestCase {
         val in = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f2), t("2", f2.not)), 0, null, EofToken)
         val in2 = new TokenReader[MyToken, Any](List(t("1", f1), t("2", f1.not), t("1", f1.not), t("2", f1)), 0, null, EofToken)
         val p = parser
-        println((p.digits ~ p.digits)(in, FeatureExpr.base)) // 1~1,1~2,2~1,2~2
-        println((p.digits ~ p.digits)(in2, FeatureExpr.base)) //1~2,2~1
+        println((p.digits ~ p.digits)(in, FeatureExprFactory.base)) // 1~1,1~2,2~1,2~2
+        println((p.digits ~ p.digits)(in2, FeatureExprFactory.base)) //1~2,2~1
 
     }
 

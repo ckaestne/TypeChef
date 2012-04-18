@@ -16,9 +16,9 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
                 repPlain(p)
             def digits: MultiParser[AST] =
                 myRepOpt(digitList | (digit.map(One(_))), "digitList") ^^ (
-                        //List[this.OptResult[AST]] -> DigitList[List[Opt[AST]]]
-                        ((x: List[this.OptResult[Conditional[AST]]]) =>
-                            (DigitList2(x.map((y: Conditional[AST]) => Opt(FeatureExpr.base, y))))))
+                    //List[this.OptResult[AST]] -> DigitList[List[Opt[AST]]]
+                    ((x: List[this.OptResult[Conditional[AST]]]) =>
+                        (DigitList2(x.map((y: Conditional[AST]) => Opt(FeatureExprFactory.base, y))))))
         }
 
     def testError1() {
@@ -156,7 +156,9 @@ class DigitList2ParserRepTest extends TestCase with DigitListUtilities {
         }
     }
 
-    def assertParseResult(expected: AST, actual: newParser.ParseResult[Conditional[AST]]) {assertParseResult(One(expected), actual)}
+    def assertParseResult(expected: AST, actual: newParser.ParseResult[Conditional[AST]]) {
+        assertParseResult(One(expected), actual)
+    }
     def assertParseResult(expected: Conditional[AST], actual: newParser.ParseResult[Conditional[AST]]) {
         System.out.println(actual)
         actual match {

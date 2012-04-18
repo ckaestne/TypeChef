@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import scala.math.min
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * reader of elements that each have a feature expression (that can be accessed with the getFeature function)
@@ -29,7 +29,7 @@ class TokenReader[+T <: AbstractToken, U](val tokens: List[T], val offst: Int, v
     override def toString: String = {
         val out = new StringBuilder
         out ++= "TokenReader(" + pos.getLine + ","
-        var currFeat: FeatureExpr = FeatureExpr.base
+        var currFeat: FeatureExpr = FeatureExprFactory.base
 
         for (tok <- tokens.slice(0, min(tokens.size, 50))) {
             var newFeat: FeatureExpr = tok.getFeature

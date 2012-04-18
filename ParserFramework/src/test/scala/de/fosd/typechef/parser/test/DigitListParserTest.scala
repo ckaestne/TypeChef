@@ -10,13 +10,15 @@ import de.fosd.typechef.conditional._
 
 class DigitListParserTest extends TestCase {
 
-    val f1 = FeatureExpr.createDefinedExternal("a")
-    val f2 = FeatureExpr.createDefinedExternal("b")
+    val f1 = FeatureExprFactory.createDefinedExternal("a")
+    val f2 = FeatureExprFactory.createDefinedExternal("b")
 
-    def t(text: String): MyToken = t(text, FeatureExpr.base)
+    def t(text: String): MyToken = t(text, FeatureExprFactory.base)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)
 
-    def assertParseResult(expected: AST, actual: parser.ParseResult[Conditional[AST]]) {assertParseResult(One(expected), actual)}
+    def assertParseResult(expected: AST, actual: parser.ParseResult[Conditional[AST]]) {
+        assertParseResult(One(expected), actual)
+    }
     def assertParseResult(expected: Conditional[AST], actual: parser.ParseResult[Conditional[AST]]) {
         System.out.println(actual)
         actual match {
@@ -68,7 +70,7 @@ class DigitListParserTest extends TestCase {
         val input = List(t("1"), t("3", f1))
         val expected = Choice(f1, One(DigitList(List(Lit(1), Lit(3)))), One(DigitList(List(Lit(1)))))
         //        DigitList(List(Lit(1),Lit(2),Alt(f1,Lit(3),Nil))
-        val v = (parser.digits)(new TokenReader[MyToken, Any](input, 0, null, EofToken), FeatureExpr.base).expectOneResult
+        val v = (parser.digits)(new TokenReader[MyToken, Any](input, 0, null, EofToken), FeatureExprFactory.base).expectOneResult
         println(v)
         assertParseResult(expected, v)
     }
