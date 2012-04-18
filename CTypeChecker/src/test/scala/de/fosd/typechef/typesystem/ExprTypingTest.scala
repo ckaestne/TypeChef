@@ -5,7 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
-import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExprFactory.base
 import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
 

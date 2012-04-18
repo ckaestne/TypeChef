@@ -1,10 +1,10 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
 import ConditionalLib._
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -56,7 +56,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     //TODO variability (not urgent)
     private def hasTransparentUnionAttribute(specifiers: List[Specifier]): Boolean =
-        specifiers.exists(isTransparentUnionAttribute(_, FeatureExpr.base))
+        specifiers.exists(isTransparentUnionAttribute(_, FeatureExprFactory.base))
 
     private def hasTransparentUnionAttributeOpt(specifiers: List[Opt[Specifier]]): Boolean =
         specifiers.exists(o => isTransparentUnionAttribute(o.entry, o.feature))
@@ -167,8 +167,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     })
 
     /**
-     *       if we declare a variable or array (not pointer or function)
-     *       ensure that structs are resolvable
+     * if we declare a variable or array (not pointer or function)
+     * ensure that structs are resolvable
      */
     protected def checkStructs(ctype: CType, expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype match {
         case CObj(t) => checkStructs(t, expr, env, where, checkedStructs)
@@ -187,7 +187,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
      * under which condition is modifier extern defined?
      */
     def getIsExtern(list: List[Opt[Specifier]]): FeatureExpr =
-        list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExpr.dead)(_ or _)
+        list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExprFactory.dead)(_ or _)
 
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck

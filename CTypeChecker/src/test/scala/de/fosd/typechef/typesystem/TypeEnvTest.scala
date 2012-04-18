@@ -5,11 +5,11 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.featureexpr.FeatureExpr.base
-import de.fosd.typechef.featureexpr.FeatureExpr.dead
+import de.fosd.typechef.featureexpr.FeatureExprFactory.base
+import de.fosd.typechef.featureexpr.FeatureExprFactory.dead
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 @RunWith(classOf[JUnitRunner])
 class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
@@ -632,7 +632,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         last.varEnv("uncompressed") should be(One(CUnknown()))
         last.varEnv("SEQ_COPY") should be(_i)
 
-        last.enumEnv("lzma2_seq") should be(FeatureExpr.base)
+        last.enumEnv("lzma2_seq") should be(FeatureExprFactory.base)
     }
 
 }

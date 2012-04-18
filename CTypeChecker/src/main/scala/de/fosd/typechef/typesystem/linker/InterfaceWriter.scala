@@ -2,8 +2,8 @@ package de.fosd.typechef.typesystem.linker
 
 import java.io._
 import de.fosd.typechef.typesystem.CType
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprParser}
 import de.fosd.typechef.parser.Position
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr, FeatureExprParser}
 
 trait InterfaceWriter {
 
@@ -37,7 +37,7 @@ trait InterfaceWriter {
     private def getFM(node: scala.xml.Node) = {
         val txt = (node \ "featuremodel").text
         if (txt.trim == "")
-            FeatureExpr.base
+            FeatureExprFactory.base
         else new FeatureExprParser().parse(txt)
     }
 

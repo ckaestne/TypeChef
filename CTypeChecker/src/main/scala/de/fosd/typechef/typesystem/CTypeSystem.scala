@@ -16,7 +16,7 @@ import de.fosd.typechef.conditional._
 trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
 
 
-    def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExpr.base): Unit = {
+    def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.base): Unit = {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
         checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
@@ -324,7 +324,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //    //        if (!targets.isEmpty) {
     //    //            //condition: feature implies (target1 or target2 ...)
     //    //            functionCallChecks += 1
-    //    //            val condition = callerFeature.implies(targets.map(_.feature).foldLeft(FeatureExpr.base.not)(_.or(_)))
+    //    //            val condition = callerFeature.implies(targets.map(_.feature).foldLeft(FeatureExprFactory.base.not)(_.or(_)))
     //    //            if (condition.isTautology(null) || condition.isTautology(featureModel)) {
     //    //                dbgPrintln(" always reachable " + condition)
     //    //                None
@@ -496,7 +496,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
             case EnumSpecifier(Some(id), None) =>
             // Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
-            //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExpr.dead)
+            //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExprFactory.dead)
             //                if ((expr andNot declExpr).isSatisfiable)
             //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 

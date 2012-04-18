@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExpr.{base, dead}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{base, dead}
 import de.fosd.typechef.typesystem.{CVoid, CFunction, CFloat}
 
 @RunWith(classOf[JUnitRunner])

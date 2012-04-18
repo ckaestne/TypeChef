@@ -3,7 +3,7 @@ package de.fosd.typechef.typesystem.linker
 import org.junit._
 import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
 import java.io.{File, InputStream, FileNotFoundException}
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class InterfaceInferenceTest extends TestHelper {
 
@@ -37,7 +37,7 @@ class InterfaceInferenceTest extends TestHelper {
     }
 
 
-    def d(x: String) = FeatureExpr.createDefinedExternal(x)
+    def d(x: String) = FeatureExprFactory.createDefinedExternal(x)
     @Test
     def testMini {
         val ast = parse("mini.pi")

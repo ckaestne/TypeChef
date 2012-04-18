@@ -1,9 +1,9 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExprFactory.base
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * all compiler-specific built-in stuff
@@ -134,7 +134,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
         val env = EmptyEnv.addTypedef("__builtin_va_list", base, One(CIgnore()))
         Map() ++ (for (Opt(_, decl: Declaration) <- ast.defs) yield {
             val init = decl.init.head.entry
-            (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs, FeatureExpr.base, EmptyEnv, decl), FeatureExpr.base, env))
+            (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs, FeatureExprFactory.base, EmptyEnv, decl), FeatureExprFactory.base, env))
         })
     }
 

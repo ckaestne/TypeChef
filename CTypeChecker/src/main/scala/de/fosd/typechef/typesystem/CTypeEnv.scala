@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping /*with CBuiltIn*/ {
 
@@ -119,7 +119,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 val typeSpec = opt.entry
                 typeSpec match {
                     case EnumSpecifier(Some(Id(name)), l) if (isHeadless || !l.isEmpty) =>
-                        b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExpr.dead)))
+                        b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.dead)))
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields) =>
                         fields.foldRight(b)(
