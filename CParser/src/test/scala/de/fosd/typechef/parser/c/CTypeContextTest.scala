@@ -1,13 +1,13 @@
 package de.fosd.typechef.parser.c
 
 import org.junit.Test
-import de.fosd.typechef.featureexpr.FeatureExpr
-import FeatureExpr._
+import de.fosd.typechef.featureexpr.FeatureExprFactory
+import FeatureExprFactory._
 
 class CTypeContextTest {
 
-    val fa = FeatureExpr.createDefinedExternal("fa")
-    val fb = FeatureExpr.createDefinedExternal("fb")
+    val fa = createDefinedExternal("fa")
+    val fb = createDefinedExternal("fb")
 
     @Test
     def testContext {

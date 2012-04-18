@@ -119,7 +119,7 @@ class CParserTest {
 
     def intType = TypeName(lo(IntSpecifier()), None)
 
-    def o[T](x: T) = Opt(FeatureExpr.base, x)
+    def o[T](x: T) = Opt(FeatureExprFactory.base, x)
 
     def lo[T](x: T) = List(o(x))
 
@@ -127,7 +127,7 @@ class CParserTest {
 
     def lo[T](x: T, y: T, z: T) = List(o(x), o(y), o(z))
 
-    def fa = FeatureExpr.createDefinedExternal("a")
+    def fa = FeatureExprFactory.createDefinedExternal("a")
 
     @Test
     def testId() {
@@ -1017,7 +1017,7 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
          #endif
          ;"""
         val ast = assertParseableAST(c, p.translationUnit)
-        assertNoDeadNodes(ast.get, FeatureExpr.base, ast.get)
+        assertNoDeadNodes(ast.get, FeatureExprFactory.base, ast.get)
     }
 
     @Test def test_va_list {
@@ -1113,7 +1113,7 @@ void bar() {
     }
 
     private def assertNoDeadNodes(ast: Product) {
-        assertNoDeadNodes(ast, FeatureExpr.base, ast)
+        assertNoDeadNodes(ast, FeatureExprFactory.base, ast)
     }
 
     private def assertNoDeadNodes(ast: Any, f: FeatureExpr, orig: Product) {

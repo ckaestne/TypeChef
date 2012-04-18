@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import java.io.InputStream
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 /**
  * common infrastructure for tests.
@@ -10,11 +10,11 @@ import java.io.InputStream
 
 trait TestHelper {
 
-    val fa = FeatureExpr.createDefinedExternal("A")
-    val fb = FeatureExpr.createDefinedExternal("B")
-    val fc = FeatureExpr.createDefinedExternal("C")
-    val fx = FeatureExpr.createDefinedExternal("X")
-    val fy = FeatureExpr.createDefinedExternal("Y")
+    val fa = FeatureExprFactory.createDefinedExternal("A")
+    val fb = FeatureExprFactory.createDefinedExternal("B")
+    val fc = FeatureExprFactory.createDefinedExternal("C")
+    val fx = FeatureExprFactory.createDefinedExternal("X")
+    val fy = FeatureExprFactory.createDefinedExternal("Y")
 
     def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
@@ -31,28 +31,28 @@ trait TestHelper {
     def parseExpr(code: String): Expr = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.expr)(in, FeatureExpr.base)
+        val r = p.phrase(p.expr)(in, FeatureExprFactory.base)
         r.asInstanceOf[p.Success[Expr]].result
     }
 
     def parseDecl(code: String): Declaration = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.declaration)(in, FeatureExpr.base)
+        val r = p.phrase(p.declaration)(in, FeatureExprFactory.base)
         r.asInstanceOf[p.Success[Declaration]].result
     }
 
     def parseCompoundStmt(code: String): CompoundStatement = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.compoundStatement)(in, FeatureExpr.base)
+        val r = p.phrase(p.compoundStatement)(in, FeatureExprFactory.base)
         r.asInstanceOf[p.Success[CompoundStatement]].result
     }
 
     def parseFunctionDef(code: String): FunctionDef = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()
-        val r = p.phrase(p.functionDef)(in, FeatureExpr.base)
+        val r = p.phrase(p.functionDef)(in, FeatureExprFactory.base)
         r.asInstanceOf[p.Success[FunctionDef]].result
     }
 }

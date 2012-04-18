@@ -12,7 +12,7 @@ class TestErrorReporting extends TestCase {
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser()
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExpr.base)
+            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExprFactory.base)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -28,6 +28,8 @@ class TestErrorReporting extends TestCase {
     //
 
     @Test
-    def test1() {parseFile("errors/test.c")}
+    def test1() {
+        parseFile("errors/test.c")
+    }
 
 }

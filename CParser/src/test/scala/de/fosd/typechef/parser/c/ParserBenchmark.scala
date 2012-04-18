@@ -17,7 +17,7 @@ object ParserBenchmark extends App {
         assertNotNull("file not found " + fileName, inputStream)
         val in = CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null)
         println(in.tokens.size)
-        val result = p.phrase(p.translationUnit)(in, FeatureExpr.base)
+        val result = p.phrase(p.translationUnit)(in, FeatureExprFactory.base)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)

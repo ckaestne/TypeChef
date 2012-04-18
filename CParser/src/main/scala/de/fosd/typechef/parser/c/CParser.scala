@@ -4,7 +4,7 @@ import de.fosd.typechef.lexer.Token
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExprFactory.base
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -17,10 +17,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     type TypeContext = CTypeContext
 
     def parse[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
-        mainProduction(CLexer.lex(code, featureModel), FeatureExpr.base)
+        mainProduction(CLexer.lex(code, featureModel), base)
 
     def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
-        mainProduction(CLexer.lex(code, featureModel), FeatureExpr.base)
+        mainProduction(CLexer.lex(code, featureModel), base)
 
     //parser
     val keywords = Set("__real__", "__imag__", "__alignof__", "__alignof", "__asm", "__asm__", "__attribute__", "__attribute",

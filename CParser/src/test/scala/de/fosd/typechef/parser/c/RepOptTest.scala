@@ -5,7 +5,7 @@ import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import org.junit.Test
-import FeatureExpr._
+import FeatureExprFactory._
 import de.fosd.typechef.conditional._
 
 class RepOptTest extends TestCase {
@@ -278,7 +278,7 @@ typedef long a;
         println(next)
         assert(ast.size == 3)
         println(next.context)
-        assert(next.context.knowsType("a", FeatureExpr.createDefinedExternal("X")))
+        assert(next.context.knowsType("a", FeatureExprFactory.createDefinedExternal("X")))
     }
 
 

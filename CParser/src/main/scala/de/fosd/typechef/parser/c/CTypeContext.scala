@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.featureexpr.{NoFeatureModel, FeatureModel, FeatureExpr}
-import FeatureExpr._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import FeatureExprFactory._
 
 /**
  * case class to have straightforward hashvalue and equals
@@ -11,7 +11,7 @@ import FeatureExpr._
 case class CTypeContext(val types: Map[String, FeatureExpr] = Map()) {
     def addType(newtype: String, condition: FeatureExpr) = new CTypeContext(types + (newtype -> (types.getOrElse(newtype, dead) or condition)))
 
-    def knowsType(typename: String, condition: FeatureExpr): Boolean = knowsType(typename, condition, NoFeatureModel)
+    def knowsType(typename: String, condition: FeatureExpr): Boolean = knowsType(typename, condition, FeatureExprFactory.default.featureModelFactory.empty)
 
     def knowsType(typename: String, condition: FeatureExpr, fm: FeatureModel): Boolean =
         (types contains typename) && (condition and types.getOrElse(typename, dead)).isSatisfiable(fm)

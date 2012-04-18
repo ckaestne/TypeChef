@@ -10,7 +10,7 @@ class PPFilesTest {
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser()
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/boa/", null), FeatureExpr.base)
+            CLexer.lexStream(inputStream, fileName, "testfiles/boa/", null), FeatureExprFactory.base)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
