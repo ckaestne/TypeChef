@@ -6,7 +6,7 @@ import sat.SATFeatureExprFactory
 
 object FeatureExprFactory {
 
-    var default: AbstractFeatureExprFactory = bdd
+    var default: AbstractFeatureExprFactory = if (System.getProperty("FEATUREEXPR") == "BDD") bdd else sat
 
     def setDefault(newFactory: AbstractFeatureExprFactory) {
         default = newFactory

@@ -23,7 +23,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             recordTiming = false,
             parserStatistics = false,
             parserResults = true,
-            writePI = false;
+            writePI = false,
+            isBDD = false;
     String outputStem = "";
     private String filePresenceConditionFile = "";
 
@@ -38,6 +39,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_FILEPC = Options.genOptionId();
     private final static char F_PARSERSTATS = Options.genOptionId();
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
+    private final static char F_BDD = Options.genOptionId();
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -70,7 +72,9 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                         "Report times for all phases."),
 
                 new Option("filePC", LongOpt.REQUIRED_ARGUMENT, F_FILEPC, "file",
-                        "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'.")
+                        "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'."),
+                new Option("bdd", LongOpt.NO_ARGUMENT, F_BDD, null,
+                        "Use BDD engine instead of SAT engine.")
         ));
         r.add(new OptionGroup("Parser options", 23,
                 new Option("hideparserresults", LongOpt.NO_ARGUMENT, F_HIDEPARSERRESULTS, null,

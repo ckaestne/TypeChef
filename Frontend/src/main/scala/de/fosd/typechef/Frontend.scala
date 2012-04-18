@@ -8,6 +8,7 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
+import featureexpr.FeatureExprFactory
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 
@@ -50,6 +51,8 @@ object Frontend {
 
 
     def processFile(opt: FrontendOptions) {
+        if (opt.isBDD) FeatureExprFactory.setDefault(FeatureExprFactory.bdd)
+
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
