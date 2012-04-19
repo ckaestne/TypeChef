@@ -28,7 +28,7 @@ public class FeatureExprLib {
     }
 
     public static FeatureExpr toFeatureExpr(FeatureExprTree<Object> v) {
-        return FeatureExprValue$.MODULE$.toFeatureExpr(v);
+        return FeatureExprValue$.MODULE$.toFeatureExpr(v, l());
     }
 
     public static FeatureModelFactory featureModelFactory() {
