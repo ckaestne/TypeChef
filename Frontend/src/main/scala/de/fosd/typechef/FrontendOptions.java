@@ -120,6 +120,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parserStatistics = true;
         } else if (c == F_WRITEPI) {
             writePI = true;
+        } else if (c == F_BDD) {
+            isBDD = true;
         } else
             return super.interpretOption(c, g);
 
