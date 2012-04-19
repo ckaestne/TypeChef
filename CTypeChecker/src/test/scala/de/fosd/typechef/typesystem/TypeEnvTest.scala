@@ -16,6 +16,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
     val _l = One(CSigned(CLong()))
     val _i = One(CSigned(CInt()))
+    val _ui = One(CUnsigned(CInt()))
     val x_i = Choice(fx, _i, One(CUndefined))
 
     private def compileCode(code: String) = {
@@ -198,8 +199,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env("South") should be(_i)
         env("Red") should be(_i)
         env("Green") should be(_i)
-        env("d") should be(_i)
-        env("e") should be(_i)
+        env("d") should be(_ui)
+        env("e") should be(_ui)
         //        env("x").sometimesUnknown should be(One(true) TODO
         env("Undef") should be(One(CUndefined))
     }

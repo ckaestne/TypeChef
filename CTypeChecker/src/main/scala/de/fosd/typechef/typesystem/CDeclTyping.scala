@@ -105,7 +105,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 })
             }
             case EnumSpecifier(_, _) =>
-                //according to tests with GCC, this should be unsigned int (see test)
+                //according to tests with GCC, this should be unsigned int (see test "enum type is unsigned int" in TypeSystemTest)
                 types = types :+ One(CUnsigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case TypeOfSpecifierT(typename) => types = types :+ getTypenameType(typename, featureExpr, env)
             case TypeOfSpecifierU(expr) =>
