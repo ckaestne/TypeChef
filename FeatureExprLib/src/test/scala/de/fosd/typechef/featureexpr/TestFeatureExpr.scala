@@ -48,7 +48,7 @@ class TestFeatureExpr extends TestCase {
                         DefinedExternal("a"),
                         IntegerLit(1),
                         IntegerLit(2)))))
-        assertTrue(FeatureExprValue.toFeatureExpr(expr).isTautology)
+        assertTrue(FeatureExprValue.toFeatureExpr(expr, FeatureExprFactory.default).isTautology)
         //            FeatureExprFactory.default.createIf(
         //                DefinedExternal("a"),
         //                IntegerLit(4),

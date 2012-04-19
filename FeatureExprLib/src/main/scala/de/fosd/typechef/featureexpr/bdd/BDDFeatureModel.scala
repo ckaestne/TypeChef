@@ -30,8 +30,7 @@ class BDDFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
      * make the feature model stricter by a formula
      */
     def and(expr: FeatureExpr /*CNF*/) = {
-        assert(expr.isInstanceOf[BDDFeatureExpr]) //FMCAST
-        new BDDFeatureModel(variables, clauses, lastVarId, (extraConstraints and expr).asInstanceOf[BDDFeatureExpr], assumedFalse, assumedTrue)
+        new BDDFeatureModel(variables, clauses, lastVarId, CastHelper.asBDDFeatureExpr(extraConstraints and expr), assumedFalse, assumedTrue)
     }
     //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExprFactory.True) this
     //    else {

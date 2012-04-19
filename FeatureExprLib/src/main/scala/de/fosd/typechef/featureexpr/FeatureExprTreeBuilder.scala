@@ -4,38 +4,41 @@ import scala.Predef._
 
 
 trait FeatureExprTreeFactory extends FeatureExprValueOps {
-    def createComplement(expr: FeatureExprValue): FeatureExprValue = FeatureExprTreeBuilder.applyUnaryOperation(expr)(~_)
-    def createNeg(expr: FeatureExprValue) = FeatureExprTreeBuilder.applyUnaryOperation(expr)(-_)
-    def createBitAnd(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ & _)
-    def createBitOr(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ | _)
-    def createDivision(left: FeatureExprValue, right: FeatureExprValue): FeatureExprValue = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(
-        (l, r) => if (r == 0) ErrorValue[Long]("division by zero") else FeatureExprTreeBuilder.createValue(l / r))
-    def createModulo(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ % _)
-    def createEquals(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.evalRelation(left, right)(_ == _)
-    def createNotEquals(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.evalRelation(left, right)(_ != _)
-    def createLessThan(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.evalRelation(left, right)(_ < _)
-    def createLessThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.evalRelation(left, right)(_ <= _)
-    def createGreaterThan(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.evalRelation(left, right)(_ > _)
-    def createGreaterThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.evalRelation(left, right)(_ >= _)
-    def createMinus(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ - _)
-    def createMult(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ * _)
-    def createPlus(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ + _)
-    def createPwr(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ ^ _)
-    def createShiftLeft(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ << _)
-    def createShiftRight(left: FeatureExprValue, right: FeatureExprValue) = FeatureExprTreeBuilder.applyBinaryOperation(left, right)(_ >> _)
+    def createComplement(expr: FeatureExprValue): FeatureExprValue = applyUnaryOperation(expr)(~_)
+    def createNeg(expr: FeatureExprValue) = applyUnaryOperation(expr)(-_)
+    def createBitAnd(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ & _)
+    def createBitOr(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ | _)
+    def createDivision(left: FeatureExprValue, right: FeatureExprValue): FeatureExprValue = applyBinaryOperation(left, right)(
+        (l, r) => if (r == 0) ErrorValue[Long]("division by zero") else createValue(l / r))
+    def createModulo(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ % _)
+    def createEquals(left: FeatureExprValue, right: FeatureExprValue) = evalRelation(left, right)(_ == _)
+    def createNotEquals(left: FeatureExprValue, right: FeatureExprValue) = evalRelation(left, right)(_ != _)
+    def createLessThan(left: FeatureExprValue, right: FeatureExprValue) = evalRelation(left, right)(_ < _)
+    def createLessThanEquals(left: FeatureExprValue, right: FeatureExprValue) = evalRelation(left, right)(_ <= _)
+    def createGreaterThan(left: FeatureExprValue, right: FeatureExprValue) = evalRelation(left, right)(_ > _)
+    def createGreaterThanEquals(left: FeatureExprValue, right: FeatureExprValue) = evalRelation(left, right)(_ >= _)
+    def createMinus(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ - _)
+    def createMult(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ * _)
+    def createPlus(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ + _)
+    def createPwr(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ ^ _)
+    def createShiftLeft(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ << _)
+    def createShiftRight(left: FeatureExprValue, right: FeatureExprValue) = applyBinaryOperation(left, right)(_ >> _)
 
-    def createInteger(value: Long): FeatureExprValue = FeatureExprTreeBuilder.createValue(value)
-    def createCharacter(value: Char): FeatureExprValue = FeatureExprTreeBuilder.createValue(value)
-    def createValue[T](v: T): FeatureExprTree[T] = FeatureExprTreeBuilder.createValue(v)
-    def createIf[T](condition: FeatureExpr, thenBranch: FeatureExprTree[T], elseBranch: FeatureExprTree[T]): FeatureExprTree[T] = FeatureExprTreeBuilder.createIf(condition, thenBranch, elseBranch)
-}
+    def createInteger(value: Long): FeatureExprValue = createValue(value)
+    def createCharacter(value: Char): FeatureExprValue = createValue(value)
+
+    def createBooleanIf(expr: FeatureExpr, thenBr: FeatureExpr, elseBr: FeatureExpr): FeatureExpr = (expr and thenBr) or (expr.not and elseBr)
+
+    //provided externally
+    def True: FeatureExpr
+    def False: FeatureExpr
+    //    def createIf[T](condition: FeatureExpr, thenBranch: FeatureExprTree[T], elseBranch: FeatureExprTree[T]): FeatureExprTree[T] = createIf(condition, thenBranch, elseBranch)
 
 
-/**
- * Central builder class, responsible for simplification of expressions during creation
- * and for extensive caching.
- */
-private[typechef] object FeatureExprTreeBuilder {
+    /**
+     * Central builder class, responsible for simplification of expressions during creation
+     * and for extensive caching.
+     */
 
     private def propagateError[T](left: FeatureExprTree[T], right: FeatureExprTree[T]): Option[ErrorValue[T]] = {
         (left, right) match {
@@ -48,10 +51,10 @@ private[typechef] object FeatureExprTreeBuilder {
 
     def evalRelation[T](smaller: FeatureExprTree[T], larger: FeatureExprTree[T])(relation: (T, T) => Boolean): FeatureExpr = {
         propagateError(smaller, larger) match {
-            case Some(ErrorValue(msg)) => return new ErrorFeature(msg, FeatureExprFactory.default.False)
+            case Some(ErrorValue(msg)) => return new ErrorFeature(msg, False)
             case _ =>
                 (smaller, larger) match {
-                    case (a: Value[_], b: Value[_]) => if (relation(a.value.asInstanceOf[T], b.value.asInstanceOf[T])) FeatureExprFactory.default.True else FeatureExprFactory.default.False
+                    case (a: Value[_], b: Value[_]) => if (relation(a.value.asInstanceOf[T], b.value.asInstanceOf[T])) True else False
                     case (i1: If[_], i2: If[_]) =>
                         createBooleanIf(i1.expr,
                             createBooleanIf(i2.expr, evalRelation(i1.thenBr, i2.thenBr)(relation), evalRelation(i1.thenBr, i2.elseBr)(relation)),
@@ -91,8 +94,6 @@ private[typechef] object FeatureExprTreeBuilder {
         else if (expr.isContradiction()) elseBr
         else if (thenBr == elseBr) thenBr
         else new If(expr, thenBr, elseBr)
-
-    def createBooleanIf(expr: FeatureExpr, thenBr: FeatureExpr, elseBr: FeatureExpr): FeatureExpr = (expr and thenBr) or (expr.not and elseBr)
 
     def createValue[T](v: T): FeatureExprTree[T] = new Value[T](v)
 

@@ -30,7 +30,7 @@ class TestSatSolver extends TestCase {
         assertEquals(true, createBooleanIf(a, a.not, a) isContradiction())
         assertEquals(true, False isContradiction())
         assertEquals(true, True isTautology())
-        assertEquals(true, createInteger(2).toFeatureExpr.isTautology())
+        assertEquals(true, FeatureExprValue.toFeatureExpr(createInteger(2), FeatureExprFactory.sat).isTautology())
     }
 
     @Test def testBrokenSat {

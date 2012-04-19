@@ -37,8 +37,6 @@ trait AbstractFeatureExprFactory extends FeatureExprTreeFactory {
     def createDefinedExternal(v: String): FeatureExpr
     def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr
 
-    def createBooleanIf(expr: FeatureExpr, thenBr: FeatureExpr, elseBr: FeatureExpr): FeatureExpr = (expr and thenBr) or (expr.not and elseBr)
-
     def True: FeatureExpr
     def False: FeatureExpr
 

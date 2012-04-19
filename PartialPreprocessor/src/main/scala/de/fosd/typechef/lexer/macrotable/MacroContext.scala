@@ -3,7 +3,7 @@ package de.fosd.typechef.lexer.macrotable
 import java.io.PrintWriter
 import de.fosd.typechef.featureexpr._
 import sat.LazyLib.Susp
-import sat.{SATFeatureExpr, LazyLib}
+import sat.{CastHelper, SATFeatureExpr, LazyLib}
 
 
 object MacroContext {
@@ -128,8 +128,7 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
         val c = getMacroCondition(name)
         val d = createDefinedExternal(newMacroName)
         val condition = c equiv d
-        assert(condition.isInstanceOf[SATFeatureExpr]) //FMCAST
-        val cnf = LazyLib.delay(condition.asInstanceOf[SATFeatureExpr].toCnfEquiSat)
+        val cnf = LazyLib.delay(CastHelper.asSATFeatureExpr(condition).toCnfEquiSat)
         val result = (newMacroName, cnf)
         cnfCache = cnfCache + (name -> result)
         result

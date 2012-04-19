@@ -154,42 +154,28 @@ object FeatureExprHelper {
  */
 class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
-    def or(that: FeatureExpr): FeatureExpr = {
-        assert(that.isInstanceOf[BDDFeatureExpr]) //FMCAST
-        FExprBuilder.or(this, that.asInstanceOf[BDDFeatureExpr])
-    }
-    def and(that: FeatureExpr): FeatureExpr = {
-        assert(that.isInstanceOf[BDDFeatureExpr]) //FMCAST
-        FExprBuilder.and(this, that.asInstanceOf[BDDFeatureExpr])
-    }
+    import CastHelper._
+
+    def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asBDDFeatureExpr(that))
+    def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asBDDFeatureExpr(that))
     def not(): FeatureExpr = FExprBuilder.not(this)
 
-    override def implies(that: FeatureExpr) = {
-        assert(that.isInstanceOf[BDDFeatureExpr]) //FMCAST
-        FExprBuilder.imp(this, that.asInstanceOf[BDDFeatureExpr])
-    }
-    override def xor(that: FeatureExpr) = {
-        assert(that.isInstanceOf[BDDFeatureExpr]) //FMCAST
-        FExprBuilder.xor(this, that.asInstanceOf[BDDFeatureExpr])
-    }
+    override def implies(that: FeatureExpr) = FExprBuilder.imp(this, asBDDFeatureExpr(that))
+    override def xor(that: FeatureExpr) = FExprBuilder.xor(this, asBDDFeatureExpr(that))
 
     // According to advanced textbooks, this representation is not always efficient:
     // not (a equiv b) generates 4 clauses, of which 2 are tautologies.
     // In positions of negative polarity (i.e. contravariant?), a equiv b is best transformed to
     // (a and b) or (!a and !b). However, currently it seems that we never construct not (a equiv b).
     // Be careful if that changes, though.
-    override def equiv(that: FeatureExpr) = {
-        assert(that.isInstanceOf[BDDFeatureExpr]) //FMCAST
-        FExprBuilder.biimp(this, that.asInstanceOf[BDDFeatureExpr])
-    }
+    override def equiv(that: FeatureExpr) = FExprBuilder.biimp(this, asBDDFeatureExpr(that))
 
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
      * but is faster because FM is cached
      */
     def isSatisfiable(f: FeatureModel): Boolean = {
-        assert(f == null || f.isInstanceOf[BDDFeatureModel]) //FMCAST
-        val fm = if (f == null) null else f.asInstanceOf[BDDFeatureModel]
+        val fm = asBDDFeatureModel(f)
 
         if (bdd.isOne) true //assuming a valid feature model
         else if (bdd.isZero) false
@@ -387,8 +373,7 @@ private[bdd] object FExprBuilder {
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
     def definedMacro(name: String, macroTable: FeatureProvider): BDDFeatureExpr = {
         val f = macroTable.getMacroCondition(name)
-        assert(f.isInstanceOf[BDDFeatureExpr]) //FMCAST
-        f.asInstanceOf[BDDFeatureExpr]
+        CastHelper.asBDDFeatureExpr(f)
     }
 }
 
@@ -433,4 +418,17 @@ object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint {
     override def isSatisfiable(fm: FeatureModel) = false
 }
 
+object CastHelper {
+    def asBDDFeatureExpr(fexpr: FeatureExpr): BDDFeatureExpr = if (fexpr == null) null
+    else {
+        assert(fexpr.isInstanceOf[BDDFeatureExpr], "Expected BDDFeatureExpr but found " + fexpr.getClass.getCanonicalName + "; do not mix implementations of FeatureExprLib.") //FMCAST
+        fexpr.asInstanceOf[BDDFeatureExpr]
+    }
+    def asBDDFeatureModel(fm: FeatureModel): BDDFeatureModel =
+        if (fm == null) null
+        else {
+            assert(fm.isInstanceOf[BDDFeatureModel], "Expected BDDFeatureModel but found " + fm.getClass.getCanonicalName + "; do not mix implementations of FeatureExprLib.") //FMCAST
+            fm.asInstanceOf[BDDFeatureModel]
+        }
+}
 

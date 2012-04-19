@@ -115,14 +115,11 @@ object FeatureExprHelper {
  * It would be interesting to see what happens for toEquiCNF.
  */
 sealed abstract class SATFeatureExpr extends FeatureExpr {
-    def or(that: FeatureExpr): FeatureExpr = {
-        assert(that.isInstanceOf[SATFeatureExpr]) //FMCAST
-        FExprBuilder.or(this, that.asInstanceOf[SATFeatureExpr])
-    }
-    def and(that: FeatureExpr): FeatureExpr = {
-        assert(that.isInstanceOf[SATFeatureExpr]) //FMCAST
-        FExprBuilder.and(this, that.asInstanceOf[SATFeatureExpr])
-    }
+
+    import CastHelper._
+
+    def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asSATFeatureExpr(that))
+    def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asSATFeatureExpr(that))
     def notS(): SATFeatureExpr = FExprBuilder.not(this)
     def not(): SATFeatureExpr = notS()
 
@@ -542,13 +539,14 @@ private[sat] object FExprBuilder {
 
     def definedExternal(name: String) = cacheGetOrElseUpdate(featureCache, name, new DefinedExternal(name))
 
+    import CastHelper._
+
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same SATFeatureExpr object
     def definedMacro(name: String, macroTable: FeatureProvider): SATFeatureExpr = {
-        val macroCondition = macroTable.getMacroCondition(name)
-        assert(macroCondition.isInstanceOf[SATFeatureExpr]) //FMCAST
-        if (macroCondition.asInstanceOf[SATFeatureExpr].isSmall) {
-            macroCondition.asInstanceOf[SATFeatureExpr]
+        val macroCondition = asSATFeatureExpr(macroTable.getMacroCondition(name))
+        if (macroCondition.isSmall) {
+            macroCondition
         } else {
             val (conditionName, conditionDef) = macroTable.getMacroConditionCNF(name)
 
@@ -560,7 +558,7 @@ private[sat] object FExprBuilder {
             cacheGetOrElseUpdate(macroCache, conditionName,
                 new DefinedMacro(
                     name,
-                    macroCondition.asInstanceOf[SATFeatureExpr],
+                    asSATFeatureExpr(macroCondition),
                     conditionName,
                     conditionDef))
         }
@@ -968,4 +966,19 @@ private[sat] case class StructuralEqualityWrapper(f: SATFeatureExpr) {
         })
     final override def hashCode = f.hashCode
     final def unwrap = f
+}
+
+
+object CastHelper {
+    def asSATFeatureExpr(fexpr: FeatureExpr): SATFeatureExpr = if (fexpr == null) null
+    else {
+        assert(fexpr.isInstanceOf[SATFeatureExpr], "Expected SATFeatureExpr but found " + fexpr.getClass.getCanonicalName + "; do not mix implementations of FeatureExprLib.") //FMCAST
+        fexpr.asInstanceOf[SATFeatureExpr]
+    }
+    def asSATFeatureModel(fm: FeatureModel): SATFeatureModel =
+        if (fm == null) null
+        else {
+            assert(fm.isInstanceOf[SATFeatureModel], "Expected SATFeatureModel but found " + fm.getClass.getCanonicalName + "; do not mix implementations of FeatureExprLib.") //FMCAST
+            fm.asInstanceOf[SATFeatureModel]
+        }
 }

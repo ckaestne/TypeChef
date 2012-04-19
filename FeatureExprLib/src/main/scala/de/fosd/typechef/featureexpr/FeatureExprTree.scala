@@ -9,21 +9,23 @@ sealed trait FeatureExprTree[T] {
 }
 
 trait FeatureExprValueOps {
-    implicit def long2value(x: Long): FeatureExprValue = FeatureExprTreeBuilder.createValue(x)
+    def createValue[T](v: T): FeatureExprTree[T]
 
-    //This is to add, for Scala sources, the toFeatureExpr method to
-    //FeatureExprTree[Long] = FeatureExprValue
-    class RichFeatureExprValue private[featureexpr](val v: FeatureExprValue) {
-        def toFeatureExpr: FeatureExpr = FeatureExprValue.toFeatureExpr(v)
-    }
-
-    implicit def val2rich(x: FeatureExprValue) = new RichFeatureExprValue(x)
+    implicit def long2value(x: Long): FeatureExprValue = createValue(x)
+    //
+    //    //This is to add, for Scala sources, the toFeatureExpr method to
+    //    //FeatureExprTree[Long] = FeatureExprValue
+    //    class RichFeatureExprValue private[featureexpr](val v: FeatureExprValue) {
+    //        def toFeatureExpr: FeatureExpr = FeatureExprValue.toFeatureExpr(v)
+    //    }
+    //
+    //    implicit def val2rich(x: FeatureExprValue) = new RichFeatureExprValue(x)
 }
 
 object FeatureExprValue {
-    def toFeatureExpr(v: FeatureExprTree[Long]): FeatureExpr = {
-        val zero = FeatureExprTreeBuilder.createValue[Long](0)
-        FeatureExprTreeBuilder.evalRelation(v, zero)(_ != _)
+    def toFeatureExpr(v: FeatureExprTree[Long], factory: AbstractFeatureExprFactory): FeatureExpr = {
+        val zero = factory.createValue[Long](0)
+        factory.evalRelation(v, zero)(_ != _)
     }
 }
 
