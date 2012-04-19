@@ -24,8 +24,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             recordTiming = false,
             parserStatistics = false,
             parserResults = true,
-            writePI = false,
-            isBDD = false;
+            writePI = false;
     String outputStem = "";
     private String filePresenceConditionFile = "";
 
@@ -75,7 +74,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                 new Option("filePC", LongOpt.REQUIRED_ARGUMENT, F_FILEPC, "file",
                         "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'."),
                 new Option("bdd", LongOpt.NO_ARGUMENT, F_BDD, null,
-                        "Use BDD engine instead of SAT engine.")
+                        "Use BDD engine instead of SAT engine (provide as first parameter).")
         ));
         r.add(new OptionGroup("Parser options", 23,
                 new Option("hideparserresults", LongOpt.NO_ARGUMENT, F_HIDEPARSERRESULTS, null,
@@ -121,7 +120,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
         } else if (c == F_WRITEPI) {
             writePI = true;
         } else if (c == F_BDD) {
-            isBDD = true;
+            de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.bdd());
         } else
             return super.interpretOption(c, g);
 
