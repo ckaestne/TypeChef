@@ -930,4 +930,33 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("preds: " + DotGraph.map2file(p, env))
     compareSuccWithPred(s, env)
   }
+
+  @Test def test_choice() {
+    val a = parseFunctionDef("""
+int hello() {
+// copied from coreutils/ls.pi:80305 - 80320
+	if (
+#if definedEx(CONFIG_FEATURE_CLEAN_UP)
+	1
+#endif
+#if !definedEx(CONFIG_FEATURE_CLEAN_UP)
+	0
+#endif
+	)
+
+#if !definedEx(CONFIG_FEATURE_LS_RECURSIVE)
+	((void)0)
+#endif
+#if definedEx(CONFIG_FEATURE_LS_RECURSIVE)
+	bar()
+#endif
+	;
+
+	return 1;
+}
+    """)
+
+    val env = CASTEnv.createASTEnv(a)
+
+  }
 }
