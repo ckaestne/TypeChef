@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
 import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef, AST}
+import de.fosd.typechef.crewrite.CAnalysisFrontend.CCFGErrorMis
 
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
@@ -40,7 +41,9 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     x
   }
 
-  class CCFGError(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) {
+  sealed abstract class CCFGError {}
+
+  class CCFGErrorDir(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) extends CCFGError {
     override def toString =
       "[" + sfexp + "]" + s.getClass + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + // print source
         "--> " +
@@ -48,13 +51,26 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
         "\n" + msg + "\n\n\n"
   }
 
+  class CCFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CCFGError {
+    override def toString =
+      "[" + sfexp + "]" + s.getClass + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + "\n" + msg + "\n\n\n"
+  }
+
   // given an ast element x and its successors lx: x should be in pred(lx)
   private def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): Boolean = {
     // check that number of nodes match
-    if (lsuccs.size != lpreds.size) {
-      println("number of nodes in ccfg does not match")
+    val sdiff = lsuccs.map(_._1).diff(lpreds.map(_._1))
+    val pdiff = lpreds.map(_._1).diff(lsuccs.map(_._1))
+
+    for (sdelem <- sdiff)
+      errors = new CCFGErrorMis("is not present in preds!", sdelem, env.featureExpr(sdelem)) :: errors
+
+
+    for (pdelem <- pdiff)
+      errors = new CCFGErrorMis("is not present in succs!", pdelem, env.featureExpr(pdelem)) :: errors
+
+    if (sdiff.size > 0 || pdiff.size > 0)
       return false
-    }
 
     // check that number of edges match
     var res = true
@@ -85,7 +101,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
           isin = true
       }
       if (!isin) {
-        errors = new CCFGError("is missing in preds", b1, env.featureExpr(b1), a1, env.featureExpr(a1)) :: errors
+        errors = new CCFGErrorDir("is missing in preds", b1, env.featureExpr(b1), a1, env.featureExpr(a1)) :: errors
         res = false
       }
     }
@@ -103,7 +119,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
           isin = true
       }
       if (!isin) {
-        errors = new CCFGError("is missing in succs", a1, env.featureExpr(a1), b1, env.featureExpr(b1)) :: errors
+        errors = new CCFGErrorDir("is missing in succs", a1, env.featureExpr(a1), b1, env.featureExpr(b1)) :: errors
         res = false
       }
     }
@@ -172,11 +188,17 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
   }
 
   private def intraCfGFunctionDef(f: FunctionDef) = {
+    errors = List()
     val fenv = CASTEnv.createASTEnv(f)
     val s = getAllSucc(f, fenv)
     val p = getAllPred(f, fenv)
-    println("succs: " + DotGraph.map2file(s, fenv))
-    println("preds: " + DotGraph.map2file(p, fenv))
-    compareSuccWithPred(s, p, fenv)
+
+    val res = compareSuccWithPred(s, p, fenv)
+
+    if (! errors.isEmpty) {
+      println("succs: " + DotGraph.map2file(s, fenv))
+      println("preds: " + DotGraph.map2file(p, fenv))
+    }
+    res
   }
 }
