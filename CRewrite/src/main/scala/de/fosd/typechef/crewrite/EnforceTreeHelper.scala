@@ -13,7 +13,7 @@ import de.fosd.typechef.conditional.One
  * we use the product interface of the elements here works both for
  * case classes Opt and AST elements, which derive product directly
  */
-trait EnforceTreeHelper extends CASTEnv {
+trait EnforceTreeHelper {
 
   /**
    * unfortunately cloning loses position information, so we have to reassign it

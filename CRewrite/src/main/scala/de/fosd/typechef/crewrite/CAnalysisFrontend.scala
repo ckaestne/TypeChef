@@ -2,29 +2,29 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional.{Opt, Choice, ConditionalLib}
+import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef, AST}
 
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends CASTEnv with ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
   // derive a specific product from a given configuration
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
-    // all is crucial here; consider the following example
+    // manytd is crucial here; consider the following example
     // Product1( c1, c2, c3, c4, c5)
     // all changes the elements top down, so the parent is changed before the children and this
     // way the lookup env.featureExpr(x) will not fail. Using topdown or everywherebu changes the children and so also the
-    // parent resulting in NullPointerExceptions calling env.featureExpr(x) because the parent is changed, has a different
-    // hashcode and is not part of the environment.
-    val pconfig = all(rule {
-      case Choice(f, x, y) => if (c.config implies env.featureExpr(x) isTautology()) x else y
+    // parent before the parent is processed so we get a NullPointerExceptions calling env.featureExpr(x). Reason is
+    // changed children lead to changed parent and a new hashcode so a call to env fails.
+    val pconfig = manytd(rule {
+      case Choice(f, x, y) => if (c.config implies (if (env.containsASTElem(x)) env.featureExpr(x) else FeatureExpr.base) isTautology()) x else y
       case l: List[Opt[_]] => {
         var res: List[Opt[_]] = List()
         // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
         for (o <- l.reverse)
           if (o.feature == FeatureExpr.base)
             res ::= o
-          else if (c.config implies env.featureExpr(o.entry) isTautology()) {
+          else if (c.config implies (if (env.containsASTElem(o.entry.asInstanceOf[Product])) env.featureExpr(o.entry.asInstanceOf[Product]) else FeatureExpr.base) isTautology()) {
             res ::= o.copy(feature = FeatureExpr.base)
           }
         res
@@ -33,14 +33,8 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     })
 
     val x = pconfig(a).get.asInstanceOf[T]
-    val env2 = createASTEnv(x)
-    /*filterAllOptElems(x).map(_.entry).map(
-      (e:Any) => if (!env2.containsASTElem(e)){println("NOT in Env: " + e.toString()); e}
-      else if (env2.featureExpr(e)!= FeatureExpr.base) {"Fexp != base: " + println(e.toString() + "\tFexp: " + env2.featureExpr(e).toTextExpr); e}
-    )
-    println("Opt Elements left: " + filterAllOptElems(x).size)
-    */
-    //assert(filterAllOptElems(x).map(_.entry).map(isVariable(_, env2)).fold(false)(_ || _) == false, "Fehler")
+    appendToFile("output.c", PrettyPrinter.print(x.asInstanceOf[AST]))
+    assert(isVariable(x) == true, "product still contains variability")
     x
   }
 
@@ -287,7 +281,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     // family-based
     println("checking family-based")
     val family_ast = prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit])
-    val family_env = createASTEnv(family_ast)
+    val family_env = CASTEnv.createASTEnv(family_ast)
     val family_function_defs = filterASTElems[FunctionDef](family_ast)
 
     val tfams = System.currentTimeMillis()
@@ -298,9 +292,8 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
 
     // base variant
     println("checking base variant")
-    val base_ast = prepareAST[TranslationUnit](
-      deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm), family_env))
-    val base_env = createASTEnv(base_ast)
+    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm), family_env)
+    val base_env = CASTEnv.createASTEnv(base_ast)
     val base_function_defs = filterASTElems[FunctionDef](base_ast)
 
     val tbases = System.currentTimeMillis()
@@ -311,16 +304,17 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
 
     // full coverage
     println("checking full coverage")
-    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv])
+    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env)
     var current_config = 1
     var tfullcoverage: Long = 0
 
     for (config <- configs) {
       println("checking configuration " + current_config + " of " + configs.size)
       current_config += 1
-      val product_ast = prepareAST[TranslationUnit](deriveProductFromConfiguration[TranslationUnit](family_ast, new Configuration(config, fm), family_env))
-      val product_env = createASTEnv(product_ast)
+      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
+      val product_env = CASTEnv.createASTEnv(product_ast)
       val product_function_defs = filterASTElems[FunctionDef](product_ast)
+      appendToFile("test.c", PrettyPrinter.print(product_ast))
 
       val tfullcoverages = System.currentTimeMillis()
       product_function_defs.map(intraCfGFunctionDef(_, product_env))
@@ -337,7 +331,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val myenv = createASTEnv(f)
+    val myenv = CASTEnv.createASTEnv(f)
 
     val ss = if (f.stmt.innerStatements.isEmpty) List() else getAllSucc(f.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
     for (s <- ss.reverse) {

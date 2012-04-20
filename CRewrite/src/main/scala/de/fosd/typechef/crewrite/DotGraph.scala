@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
 
-object DotGraph extends IOUtilities with CASTEnv {
+object DotGraph extends IOUtilities {
   import java.io.File
 
   private def getTmpFileName() = File.createTempFile("/tmp", ".dot")

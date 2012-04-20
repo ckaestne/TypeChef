@@ -2,13 +2,15 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional._
+import org.kiama.rewriting.Rewriter._
 
 // simplified navigation support
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes
 // see old version: https://github.com/ckaestne/TypeChef/blob/ConditionalControlFlow/CParser/src/main/scala/de/fosd/typechef/parser/c/ASTNavigation.scala
-trait ASTNavigation extends CASTEnv {
+trait ASTNavigation {
+
   // method simply goes up the hierarchy and looks for next AST element and returns it
-  def parentAST(e: Any, env: ASTEnv): AST = {
+  def parentAST(e: Product, env: ASTEnv): AST = {
     val eparent = env.parent(e)
     eparent match {
       case o: Opt[_] => parentAST(o, env)
@@ -26,7 +28,7 @@ trait ASTNavigation extends CASTEnv {
   // [ Opt(f1, AST), Opt(f2, AST), ..., Opt(fn, AST)]
   // to get the previous AST element of each AST element in that list, we have to
   // go one level up and look for previous Opt elements and their children
-  def prevAST(e: Any, env: ASTEnv): AST = {
+  def prevAST(e: Product, env: ASTEnv): AST = {
     val eprev = env.previous(e)
     eprev match {
       case c: Choice[_] => lastChoice(c)
@@ -48,7 +50,7 @@ trait ASTNavigation extends CASTEnv {
   }
 
   // similar to prevAST but with next
-  def nextAST(e: Any, env: ASTEnv): AST = {
+  def nextAST(e: Product, env: ASTEnv): AST = {
     val enext = env.next(e)
     enext match {
       case c: Choice[_] => firstChoice(c)
@@ -74,7 +76,7 @@ trait ASTNavigation extends CASTEnv {
   // prevASTElems(e, env) // ei == e
   // [ Opt(f1, e1), Opt(f2, e2), ..., Opt(fi, ei), ..., Opt(fn, en) ]
   // returns [e1, e2, ..., ei]
-  def prevASTElems(e: Any, env: ASTEnv): List[AST] = {
+  def prevASTElems(e: Product, env: ASTEnv): List[AST] = {
     e match {
       case null => List()
       case s => prevASTElems(prevAST(s, env), env) ++ List(childAST(s))
@@ -84,7 +86,7 @@ trait ASTNavigation extends CASTEnv {
   // returns a list of all next AST elements including e
   // [ Opt(f1, e1), Opt(f2, e2), ..., Opt(fi, ei), ..., Opt(fn, en) ]
   // returns [ei, ..., en]
-  def nextASTElems(e: Any, env: ASTEnv): List[AST] = {
+  def nextASTElems(e: Product, env: ASTEnv): List[AST] = {
     e match {
       case null => List()
       case s => List(childAST(s)) ++ nextASTElems(nextAST(s, env), env)
@@ -94,41 +96,36 @@ trait ASTNavigation extends CASTEnv {
   // returns the first AST element that is nested in the following elements
   // or null; elements are Opt, Conditional, and Some
   // function does not work for type List[_]
-  def childAST(e: Any): AST = {
+  def childAST(e: Product): AST = {
     e match {
       case Opt(_, v: AST) => v
       case Opt(_, v: One[_]) => v.value.asInstanceOf[AST]
       case Opt(_, v: Choice[_]) => firstChoice(v)
       case x: One[_] => x.value.asInstanceOf[AST]
       case a: AST => a
-      case Some(a) => childAST(a)
+      case x: Option[_] if (x.isDefined) => childAST(x.get.asInstanceOf[Product])
       case _ => null
     }
   }
 
   // method recursively filters all AST elements for a given type T
-  // http://goo.gl/QcUOy
-  def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
-    a match {
-      case x if (m.erasure.isInstance(x)) => List(x.asInstanceOf[T])
-      case l: List[_] => l.flatMap(filterASTElems[T](_))
-      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T])
-      case _ => List()
-    }
+  // method is broken, because case x always matches and therefore the filtering does not work properly
+  def filterASTElems[T <: AST](a: Product)(implicit m: ClassManifest[T]): List[T] = {
+    var res: List[T] = List()
+    val filter = oncetd(query{ case x if (m.erasure.isInstance(x)) => res ::= x.asInstanceOf[T] })
+    filter(a)
+    res
   }
 
-  def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
-    a match {
-      case x: Product if (m.erasure.isInstance(x)) =>
-        List(x.asInstanceOf[T]) ++ x.productIterator.toList.flatMap(filterAllASTElems[T](_))
-      case l: List[_] => l.flatMap(filterASTElems[T](_))
-      case x: Product => x.productIterator.toList.flatMap(filterASTElems[T])
-      case _ => List()
-    }
+  def filterAllASTElems[T <: AST](a: Product)(implicit m: ClassManifest[T]): List[T] = {
+    var res: List[T] = List()
+    val filter = manytd(query{ case x if (m.erasure.isInstance(x)) => res ::= x.asInstanceOf[T] })
+    filter(a)
+    res
   }
 
   // go up the AST hierarchy and look for a specific AST element with type T
-  def findPriorASTElem[T <: AST](a: Any, env: ASTEnv)(implicit m: ClassManifest[T]): Option[T] = {
+  def findPriorASTElem[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassManifest[T]): Option[T] = {
     a match {
       case x if (m.erasure.isInstance(x)) => Some(x.asInstanceOf[T])
       case x: Product => findPriorASTElem[T](parentAST(x, env), env)
