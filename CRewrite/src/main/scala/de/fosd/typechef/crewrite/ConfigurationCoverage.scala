@@ -63,10 +63,9 @@ object ConfigurationCoverage extends ConditionalNavigation {
 
   // create a new feature model from a given set of annotations
   def createFeatureModel(in: Set[Opt[_]]) = {
-    var res = FeatureExprFactory.default.featureModelFactory.empty
     val annotations = in.map(_.feature)
-    val combinedannotations = annotations.fold(FeatureExprFactory.True)(_ or _)
+    val combinedannotations = annotations.fold(FeatureExprFactory.True)(_ and _)
 
-    res and combinedannotations
+    FeatureExprFactory.default.featureModelFactory.create(combinedannotations)
   }
 }

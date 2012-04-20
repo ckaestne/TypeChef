@@ -17,7 +17,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     // parent before the parent is processed so we get a NullPointerExceptions calling env.featureExpr(x). Reason is
     // changed children lead to changed parent and a new hashcode so a call to env fails.
     val pconfig = manytd(rule {
-      case Choice(f, x, y) => if (c.config implies (if (env.containsASTElem(x)) env.featureExpr(x) else FeatureExprFactory.True) isTautology()) x else y
+      case Choice(feature, thenBranch, elseBranch) => if (c.config implies (if (env.containsASTElem(thenBranch)) env.featureExpr(thenBranch) else FeatureExprFactory.True) isTautology()) thenBranch else elseBranch
       case l: List[Opt[_]] => {
         var res: List[Opt[_]] = List()
         // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
@@ -29,20 +29,20 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
           }
         res
       }
-      case x => x
+      case s => s
     })
 
     val x = pconfig(a).get.asInstanceOf[T]
     appendToFile("output.c", PrettyPrinter.print(x.asInstanceOf[AST]))
-    assert(isVariable(x) == true, "product still contains variability")
+    assert(isVariable(x) == false, "product still contains variability")
     x
   }
 
   class CCFGError(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) {
     override def toString =
-      "[" + sfexp + "]" + s.getClass() + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + // print source
+      "[" + sfexp + "]" + s.getClass + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + // print source
         "--> " +
-        "[" + tfexp + "]" + t.getClass() + "(" + t.getPositionFrom + "--" + t.getPositionTo + ")" + // print target
+        "[" + tfexp + "]" + t.getClass + "(" + t.getPositionFrom + "--" + t.getPositionTo + ")" + // print target
         "\n" + msg + "\n\n\n"
   }
 
@@ -112,7 +112,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
   var errors = List[CCFGError]()
   val liveness = "liveness.csv"
 
-  def checkCfG(fileName: String) = {
+  def checkCfG(fileName: String) {
 
     // file-output
     appendToFile(liveness, "filename;family-based;full-coverage;full-coverage-configs")
