@@ -12,6 +12,14 @@ class ASTEnv(private var astc: IdentityHashMap[Any, (List[FeatureExpr], Product,
 
   type ASTContext = (List[FeatureExpr], Product, Product, Product, List[Any])
 
+  override def toString = {
+    var res = ""
+    for (i <- astc.values().toArray.toList) {
+      res += i
+      res += "\n"
+    }
+    res
+  }
   def containsASTElem(elem: Any) = astc.containsKey(elem)
   def get(elem: Any): ASTContext = astc.get(elem)
   def lfeature(elem: Any) = astc.get(elem)._1

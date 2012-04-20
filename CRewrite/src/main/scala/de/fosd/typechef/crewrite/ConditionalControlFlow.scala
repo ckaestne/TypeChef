@@ -3,7 +3,6 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
-import org.kiama.attribution.AttributionBase
 import java.util.IdentityHashMap
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 

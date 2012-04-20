@@ -2,6 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.sat.DefinedExpr
 
 // this code determines all configurations for a file based on a given ast
 // algorithms to get coverage are inspired by:
@@ -59,6 +60,60 @@ object ConfigurationCoverage extends ConditionalNavigation {
     }
 
     Rreduced
+  }
+
+    /**
+   * Completes a partial configuration so that no variability remains.
+   * Features are set to false if possible.
+   * If no satisfiable configuration is found then null is returned.
+   * @param partialConfig
+   * @param remainingFeatures
+   * @param fm
+   */
+  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
+    var config : FeatureExpr = partialConfig
+    val fIter = remainingFeatures.iterator
+    var partConfigFeasible : Boolean = true
+    while (partConfigFeasible && fIter.hasNext) {
+      val fx :DefinedExpr = fIter.next()
+      if (preferDisabledFeatures) {
+        // try to set other variables to false first
+        var tmp : FeatureExpr = config.andNot(fx)
+        if (tmp.isSatisfiable(fm)) {
+          config = tmp
+        } else {
+          tmp = config.and(fx)
+          if (tmp.isSatisfiable(fm)) {
+            config = tmp
+          } else {
+            // this configuration cannot be satisfied any more
+            return null
+            partConfigFeasible=false
+          }
+        }
+      } else {
+        // try to set other variables to true first
+        var tmp : FeatureExpr = config.and(fx)
+        if (tmp.isSatisfiable(fm)) {
+          config = tmp
+        } else {
+          tmp = config.andNot(fx)
+          if (tmp.isSatisfiable(fm)) {
+            config = tmp
+          } else {
+            // this configuration cannot be satisfied any more
+            return null
+            partConfigFeasible=false
+          }
+        }
+      }
+    }
+    if (partConfigFeasible) {
+      // all features have been processed, and the config is still feasible.
+      // so we have a complete configuration now!
+      return config
+    }
+    return null
   }
 
   // create a new feature model from a given set of annotations

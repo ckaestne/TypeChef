@@ -29,7 +29,9 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
           }
         res
       }
-      case s => s
+      // we need ast here because otherwise we have old and new elements in the resulting product
+      // and this might pollute our caches later
+      case a: AST => a.clone()
     })
 
     val x = pconfig(a).get.asInstanceOf[T]
@@ -121,10 +123,10 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     println("checking family-based")
     val family_ast = prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit])
     val family_env = CASTEnv.createASTEnv(family_ast)
-    val family_function_defs = filterASTElems[FunctionDef](family_ast)
+    val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
 
     val tfams = System.currentTimeMillis()
-    family_function_defs.map(intraCfGFunctionDef(_, family_env))
+    family_function_defs.map(intraCfGFunctionDef)
     val tfame = System.currentTimeMillis()
 
     val tfam = tfame - tfams
@@ -132,12 +134,11 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     // base variant
     println("checking base variant")
     val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit],
-      new Configuration(FeatureExprFactory.True, fm), family_env)
-    val base_env = CASTEnv.createASTEnv(base_ast)
-    val base_function_defs = filterASTElems[FunctionDef](base_ast)
+      new Configuration(ConfigurationCoverage.completeConfiguration(FeatureExprFactory.True, List(), fm), fm), family_env)
+    val base_function_defs = filterAllASTElems[FunctionDef](base_ast)
 
     val tbases = System.currentTimeMillis()
-    base_function_defs.map(intraCfGFunctionDef(_, base_env))
+    base_function_defs.map(intraCfGFunctionDef)
     val tbasee = System.currentTimeMillis()
 
     val tbase = tbasee - tbases
@@ -151,13 +152,13 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     for (config <- configs) {
       println("checking configuration " + current_config + " of " + configs.size)
       current_config += 1
-      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
-      val product_env = CASTEnv.createASTEnv(product_ast)
-      val product_function_defs = filterASTElems[FunctionDef](product_ast)
+      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast,
+        new Configuration(ConfigurationCoverage.completeConfiguration(config, List(), fm), fm), family_env)
+      val product_function_defs = filterAllASTElems[FunctionDef](product_ast)
       appendToFile("test.c", PrettyPrinter.print(product_ast))
 
       val tfullcoverages = System.currentTimeMillis()
-      product_function_defs.map(intraCfGFunctionDef(_, product_env))
+      product_function_defs.map(intraCfGFunctionDef)
       val tfullcoveragee = System.currentTimeMillis()
 
       tfullcoverage += (tfullcoveragee - tfullcoverages)
@@ -170,15 +171,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     appendToFile(liveness, fileName + ";" + tfam + ";" + tbase + ";" + tfullcoverage + ";" + configs.size + "\n")
   }
 
-  private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val myenv = CASTEnv.createASTEnv(f)
-
-    val ss = if (f.stmt.innerStatements.isEmpty) List() else getAllSucc(f.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-    for (s <- ss.reverse) {
-      in(s, myenv)
-      out(s, myenv)
-    }
-
-    true
+  private def intraCfGFunctionDef(f: FunctionDef) = {
+    val fenv = CASTEnv.createASTEnv(f)
+    val s = getAllSucc(f, fenv)
+    val p = getAllPred(f, fenv)
+    println("succs: " + DotGraph.map2file(s, fenv))
+    println("preds: " + DotGraph.map2file(p, fenv))
+    compareSuccWithPred(s, p, fenv)
   }
 }

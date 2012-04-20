@@ -3,11 +3,43 @@ package de.fosd.typechef.crewrite
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
+import de.fosd.typechef.featureexpr.{Configuration, FeatureExprFactory, FeatureModel}
+import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.conditional.{Opt, Choice}
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation {
   val folder = "testfiles/"
+
+  def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
+    // manytd is crucial here; consider the following example
+    // Product1( c1, c2, c3, c4, c5)
+    // all changes the elements top down, so the parent is changed before the children and this
+    // way the lookup env.featureExpr(x) will not fail. Using topdown or everywherebu changes the children and so also the
+    // parent before the parent is processed so we get a NullPointerExceptions calling env.featureExpr(x). Reason is
+    // changed children lead to changed parent and a new hashcode so a call to env fails.
+    val pconfig = manytd(rule {
+      case Choice(feature, thenBranch, elseBranch) => if (c.config implies (if (env.containsASTElem(thenBranch)) env.featureExpr(thenBranch) else FeatureExprFactory.True) isTautology()) thenBranch else elseBranch
+      case l: List[Opt[_]] => {
+        var res: List[Opt[_]] = List()
+        // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
+        for (o <- l.reverse)
+          if (o.feature == FeatureExprFactory.True)
+            res ::= o
+          else if (c.config implies (if (env.containsASTElem(o)) env.featureExpr(o) else FeatureExprFactory.True) isTautology()) {
+            res ::= o.copy(feature = FeatureExprFactory.True)
+          }
+        res
+      }
+      // we need ast here because otherwise we have old and new elements in the resulting product
+      // and this might pollute our caches later
+      case a: AST => a.clone()
+    })
+
+    val x = pconfig(a).get.asInstanceOf[T]
+    assert(isVariable(x) == false, "product still contains variability")
+    x
+  }
 
   // given an ast element x and its successors lx: x should be in pred(lx)
   def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): Boolean = {
@@ -81,20 +113,9 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     res
   }
 
-//  private def check(filename: String, featureExpr: FeatureModel = NoFeatureModel) = {
-//    println("analysis " + filename)
-//    var inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
-//
-//    if (inputStream == null)
-//      throw new FileNotFoundException("Input file not fould: " + filename)
-//
-//    val ast = parseFile(inputStream, filename, folder)
-//    val new_ast = prepareAST(ast)
-//    val env = createASTEnv(new_ast)
-//    true
-//  }
 
-  private def checkCfg(filename: String, featureExpr: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
+  private def checkCfg(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
+    var errorOccured = true
     println("analysis " + filename)
     val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 
@@ -102,18 +123,55 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
       throw new FileNotFoundException("Input file not fould: " + filename)
 
     val ast = parseFile(inputStream, filename, folder)
-    val new_ast = rewriteInfiniteForLoops[TranslationUnit](prepareAST(ast))
-    val env = CASTEnv.createASTEnv(new_ast)
-    val fexps = ConfigurationCoverage.collectFeatureExpressions(env).filter(_.isSatisfiable())
-    val nconfigs = ConfigurationCoverage.naiveCoverage(filterAllOptElems(new_ast).toSet, featureExpr, env)
-    println("num of expressions: " + fexps.size)
-    println("expressions: " + fexps)
-    println("configurations: " + nconfigs.size)
+    println("checking family-based")
+    val family_ast = rewriteInfiniteForLoops[TranslationUnit](prepareAST(ast))
+    val family_env = CASTEnv.createASTEnv(family_ast)
+    val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
 
-    // filter function definitions and run cfg determination on it
-    val function_defs = filterAllASTElems[FunctionDef](new_ast)
-    println("checking " + function_defs.size + " functions!")
-    function_defs.map(intraCfgFunctionDef(_, env)).forall(_.==(true))
+    val tfams = System.currentTimeMillis()
+    errorOccured &= family_function_defs.map(intraCfgFunctionDef(_, family_env)).forall(_ == true)
+    val tfame = System.currentTimeMillis()
+
+    val tfam = tfame - tfams
+
+    // base variant
+    println("checking base variant")
+    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit],
+      new Configuration(ConfigurationCoverage.completeConfiguration(FeatureExprFactory.True, List(), fm), fm), family_env)
+    val base_env = CASTEnv.createASTEnv(base_ast)
+    val base_function_defs = filterAllASTElems[FunctionDef](base_ast)
+
+    val tbases = System.currentTimeMillis()
+    errorOccured &= base_function_defs.map(intraCfgFunctionDef(_, base_env)).forall(_ == true)
+    val tbasee = System.currentTimeMillis()
+
+    val tbase = tbasee - tbases
+
+    // full coverage
+    println("checking full coverage")
+    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env) + FeatureExprFactory.True
+    var current_config = 1
+    var tfullcoverage: Long = 0
+
+    for (config <- configs) {
+      println("checking configuration " + current_config + " of " + configs.size)
+      current_config += 1
+      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast,
+        new Configuration(ConfigurationCoverage.completeConfiguration(config, List(), fm), fm), family_env)
+      val product_env = CASTEnv.createASTEnv(product_ast)
+      val product_function_defs = filterAllASTElems[FunctionDef](product_ast)
+
+      val tfullcoverages = System.currentTimeMillis()
+      errorOccured &= product_function_defs.map(intraCfgFunctionDef(_, product_env)).forall(_ == true)
+      val tfullcoveragee = System.currentTimeMillis()
+
+      tfullcoverage += (tfullcoveragee - tfullcoverages)
+    }
+
+    println("family-based: " + tfam + "ms")
+    println("base variant: " + tbase + "ms")
+    println("full coverage: " + tfullcoverage + "ms")
+    errorOccured
   }
 
   private def intraCfgFunctionDef(f: FunctionDef, env: ASTEnv) = {

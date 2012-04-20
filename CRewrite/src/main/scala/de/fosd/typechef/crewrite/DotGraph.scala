@@ -15,7 +15,7 @@ object DotGraph extends IOUtilities {
     // iterate ast elements and its successors and add nodes in for each ast element
     for ((o, succs) <- m) {
       val op = esc(PrettyPrinter.print(o))
-      dotstring += "\"" + System.identityHashCode(o) + "\" [label=\"{{" + op + "}|" + esc(env.featureExpr(o).toString()) + "}\"];\n"
+      dotstring += "\"" + System.identityHashCode(o) + "\" [label=\"{{" + op + "}|" /*+ esc(env.featureExpr(o).toString())*/ + "empty" + "}\"];\n"
 
       // iterate successors and add edges
       for (succ <- succs) dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\"\n"
