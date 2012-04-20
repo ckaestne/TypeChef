@@ -22,13 +22,13 @@ object ConfigurationCoverage extends ConditionalNavigation {
   // from the input set in
   // wrapper for naiveCoverage
   def naiveCoverageAny(a: Product, fm: FeatureModel, env: ASTEnv) = {
-    val opts = filterAllOptElems(a)
-    naiveCoverage(opts.toSet, fm, env)
+    val velems = filterAllVariableElems(a)
+    naiveCoverage(velems.toSet, fm, env)
   }
 
-  def naiveCoverage(in: Set[Opt[_]], fm: FeatureModel, env: ASTEnv) = {
+  def naiveCoverage(in: Set[Product], fm: FeatureModel, env: ASTEnv) = {
     var R: Set[FeatureExpr] = Set()   // found configurations
-    var B: Set[Opt[_]] = Set()        // selected blocks
+    var B: Set[Product] = Set()       // selected blocks; Opt and One
 
     // iterate over all optional blocks
     for (b <- in) {
@@ -45,7 +45,7 @@ object ConfigurationCoverage extends ConditionalNavigation {
     }
 
     assert(in.size == B.size, "configuration coverage missed the following optional blocks\n" +
-      (in.diff(B).map(_.feature)) + "\n" + R
+      (in.diff(B).map(env.featureExpr(_))) + "\n" + R
     )
 
     // reduce number of configurations using implication check; at most n^2 SAT checks!!!

@@ -54,4 +54,16 @@ trait ConditionalNavigation {
     filter(e)
     res
   }
+
+  // return all Opt and One elements
+  def filterAllVariableElems(e: Product): List[Product] = {
+    var res: List[Product] = List()
+    val filter = manytd(query {
+      case o: Opt[_] => res ::= o
+      case o: One[_] => res ::= o
+    })
+
+    filter(e)
+    res
+  }
 }
