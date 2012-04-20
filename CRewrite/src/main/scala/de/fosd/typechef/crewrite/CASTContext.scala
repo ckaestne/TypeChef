@@ -73,16 +73,22 @@ trait CASTEnv {
         val falseExp:List[FeatureExpr] = lfexp ++ List(x.feature.not())
         var x1 = new ASTContext(trueExp, x, null, x.elseBranch, x.thenBranch.asInstanceOf[Product].productIterator.toList)
         var x2 = new ASTContext(falseExp, x, x.thenBranch, null, x.elseBranch.asInstanceOf[Product].productIterator.toList)
-        env.add(x.thenBranch,x1).add(x.elseBranch,x2) // returns the modified environment
+        var curenv = env.add(x.thenBranch,x1).add(x.elseBranch,x2)
+        curenv = handleASTElem(x.thenBranch, x, trueExp, curenv)
+        curenv = handleASTElem(x.elseBranch, x, falseExp, curenv)
+        curenv
       }
       case x:Product => {
         var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
+
         for (elem <- x.productIterator.toList) {
           curenv = handleASTElem(elem, x, lfexp, curenv)
         }
         curenv
       }
-      case _ => env
+      case x => {
+        env
+      }
     }
   }
 
