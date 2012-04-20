@@ -2,8 +2,8 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.conditional.{Opt, Choice, ConditionalLib}
-import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef, AST}
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional.{One, Opt, Choice, ConditionalLib}
 
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {

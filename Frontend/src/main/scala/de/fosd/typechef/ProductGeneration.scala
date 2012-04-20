@@ -1,7 +1,7 @@
 package de.fosd.typechef
 
 import conditional.{Conditional, Choice, Opt}
-import crewrite.{CASTEnv, ConfigurationCoverage, CAnalysisFrontend}
+import crewrite.{ASTEnv, CASTEnv, ConfigurationCoverage, CAnalysisFrontend}
 import featureexpr._
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
 import parser.WithPosition
@@ -27,7 +27,7 @@ object ProductGeneration {
     println("starting product typechecking.")
     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
     var family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-    var family_env = cf.createASTEnv(family_ast)
+    var family_env = CASTEnv.createASTEnv(family_ast)
 
     // PLAN: Ich bekomme ständig Fehlermedlungen, die keine Positionsangaben enthalten.
     // also: den ganzen AST durchgehen, bei allen Elementen, die keine Angaben haben, die der parents einfügen.
@@ -62,7 +62,7 @@ object ProductGeneration {
         }
       }
     }
-    family_env = cf.createASTEnv(family_ast)
+    family_env = CASTEnv.createASTEnv(family_ast)
     var fw : FileWriter = null
 
 /** write family ast */
@@ -398,7 +398,7 @@ object ProductGeneration {
    * This method generates complete configurations for a list of Opt[] nodes.
    * No variability is left in these configurations.
    */
-  def getAllProducts(features : List[DefinedExpr], fm: FeatureModel, env: ConfigurationCoverage.ASTEnv) = {
+  def getAllProducts(features : List[DefinedExpr], fm: FeatureModel, env: ASTEnv) = {
     val prodLimit : Int = 30;
     var limitReached : Boolean = false
     var R: List[FeatureExpr] = List()   // found configurations
