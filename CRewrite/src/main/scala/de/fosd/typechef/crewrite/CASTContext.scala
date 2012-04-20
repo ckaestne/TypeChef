@@ -1,8 +1,9 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import java.util.IdentityHashMap
 import de.fosd.typechef.conditional.{Choice, Opt}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+
 
 // store context of an AST entry
 // e: AST => (lfexp: List[FeatureExpr] parent: Product, prev: Product, next: Product, children: List[AST])
@@ -12,7 +13,7 @@ class ASTEnv (val astc: IdentityHashMap[Any, (List[FeatureExpr], Product, Produc
 
   def containsASTElem(elem: Any) = astc.containsKey(elem)
   def lfeature(elem: Any) = astc.get(elem)._1
-  def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
+  def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExprFactory.True)(_ and _)
   def parent(elem: Any) = astc.get(elem)._2
   def previous(elem: Any) = astc.get(elem)._3
   def next(elem: Any) = astc.get(elem)._4
@@ -27,11 +28,15 @@ class ASTEnv (val astc: IdentityHashMap[Any, (List[FeatureExpr], Product, Produc
     else curelemc = (null, null, null, null, null)
 
     // lfexp; parent; prev; next; children
-    if (curelemc._1 != newelemc._1 && newelemc._1 != null) { curelemc = curelemc.copy(_1 = newelemc._1)}
-    if (curelemc._2 != newelemc._2 && newelemc._2 != null) { curelemc = curelemc.copy(_2 = newelemc._2)}
-    if (curelemc._3 != newelemc._3 && newelemc._3 != null) { curelemc = curelemc.copy(_3 = newelemc._3)}
-    if (curelemc._4 != newelemc._4 && newelemc._4 != null) { curelemc = curelemc.copy(_4 = newelemc._4)}
-    if (curelemc._5 != newelemc._5 && newelemc._5 != null) { curelemc = curelemc.copy(_5 = newelemc._5)}
+    if (curelemc._3 != newelemc._3 && newelemc._3 != null) {
+      curelemc = curelemc.copy(_3 = newelemc._3)
+    }
+    if (curelemc._4 != newelemc._4 && newelemc._4 != null) {
+      curelemc = curelemc.copy(_4 = newelemc._4)
+    }
+    if (curelemc._5 != newelemc._5 && newelemc._5 != null) {
+      curelemc = curelemc.copy(_5 = newelemc._5)
+    }
 
     astc.put(elem, curelemc)
     this
@@ -40,18 +45,18 @@ class ASTEnv (val astc: IdentityHashMap[Any, (List[FeatureExpr], Product, Produc
 
 object CASTEnv {
 
-  // create ast-neighborhood context for a given translation-unit
-  def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
-    assert(a != null, "ast elem is null!")
+    // create ast-neighborhood context for a given translation-unit
+    def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExprFactory.True)): ASTEnv = {
+        assert(a != null, "ast elem is null!")
     handleASTElem(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, (List[FeatureExpr], Product, Product, Product, List[Any])]()))
-  }
+    }
 
-  // handle single ast elements
-  // handling is generic because we can use the product-iterator interface of case classes, which makes
-  // neighborhood settings is straight forward
+    // handle single ast elements
+    // handling is generic because we can use the product-iterator interface of case classes, which makes
+    // neighborhood settings is straight forward
   private def handleASTElem[T, U <: Product](e: T, parent: U, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
-    e match {
-      case l:List[Opt[_]] => handleOptList(l, parent, lfexp, env)
+        e match {
+            case l: List[Opt[_]] => handleOptList(l, parent, lfexp, env)
       case Some(o) => handleASTElem(o.asInstanceOf[Product], parent, lfexp, env)
       case c@Choice(feature, thenBranch, elseBranch) => {
         var curenv = env.add(e, (lfexp, parent, null, null, c.productIterator.toList))
@@ -60,48 +65,48 @@ object CASTEnv {
         curenv = handleASTElem(elseBranch, c, feature.not::lfexp, curenv)
         curenv
       }
-      case x:Product => {
-        var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
-        for (elem <- x.productIterator.toList) {
-          curenv = handleASTElem(elem, x, lfexp, curenv)
+            case x: Product => {
+                var curenv = env.add(e, (lfexp, parent, null, null, x.productIterator.toList))
+                for (elem <- x.productIterator.toList) {
+                    curenv = handleASTElem(elem, x, lfexp, curenv)
+                }
+                curenv
+            }
+            case _ => env
         }
-        curenv
-      }
-      case _ => env
     }
-  }
 
-  // handle list of Opt nodes
-  // sets prev-next connections for elements and recursively calls handleASTElems
+    // handle list of Opt nodes
+    // sets prev-next connections for elements and recursively calls handleASTElems
   private def handleOptList[T <: Product](l: List[Opt[_]], parent: T, lfexp: List[FeatureExpr], env: ASTEnv): ASTEnv = {
-    var curenv = env
+        var curenv = env
 
-    // set prev and next and children
-    for (e <- createPrevElemNextTuples(l)) {
-      e match {
-        case (prev, Some(elem), next) => {
+        // set prev and next and children
+        for (e <- createPrevElemNextTuples(l)) {
+            e match {
+                case (prev, Some(elem), next) => {
           curenv = curenv.add(elem,
             (lfexp, parent, prev.getOrElse(null), next.getOrElse(null), elem.productIterator.toList))
+                }
+                case _ =>;
+            }
         }
-        case _ => ;
-      }
+
+        // recursive call
+        for (o@Opt(f, e) <- l) {
+            curenv = handleASTElem(e, o, f :: lfexp, curenv)
+        }
+        curenv
     }
 
-    // recursive call
-    for (o@Opt(f, e) <- l) {
-      curenv = handleASTElem(e, o, f::lfexp, curenv)
+    // since we do not have an neutral element that does not have any effect on ast
+    // we use null and Any to represent values of no reference
+    private def createPrevElemNextTuples[T](l: List[T]): List[(Option[T], Option[T], Option[T])] = {
+        val nl = l.map(Some(_))
+        val p = None :: None :: nl
+        val e = (None :: Nil) ++ (nl ++ (None :: Nil))
+        val n = nl ++ (None :: None :: Nil)
+
+        (p, e, n).zipped.toList
     }
-    curenv
-  }
-
-  // since we do not have an neutral element that does not have any effect on ast
-  // we use null and Any to represent values of no reference
-  private def createPrevElemNextTuples[T](l: List[T]): List[(Option[T],Option[T],Option[T])] = {
-    val nl = l.map(Some(_))
-    val p = None :: None :: nl
-    val e = (None :: Nil) ++ (nl ++ (None :: Nil))
-    val n = nl ++ (None :: None :: Nil)
-
-    (p,e,n).zipped.toList
-  }
 }

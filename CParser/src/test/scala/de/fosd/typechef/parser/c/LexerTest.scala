@@ -8,8 +8,8 @@ class LexerTest extends TestCase {
 
     def testLexerSimple() {
         println(CLexer.lex("#ifdef X\n" + "#define foo f\n" + "#else\n"
-                + "#define foo b\n" + "#endif\n" + "bar\n" + "#ifdef B\n"
-                + "foo\n" + "#endif\n", FeatureModel.create(FeatureExpr.createDefinedExternal("X"))))
+            + "#define foo b\n" + "#endif\n" + "bar\n" + "#ifdef B\n"
+            + "foo\n" + "#endif\n", FeatureExprFactory.default.featureModelFactory.create(FeatureExprFactory.createDefinedExternal("X"))))
     }
 
 }

@@ -1,9 +1,9 @@
 package de.fosd.typechef
 
+import featureexpr.{FeatureExprFactory, FeatureExpr}
 import java.io.File
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.lexer.Main
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.typesystem.CTypeSystemFrontend
 import de.fosd.typechef.typesystem.linker.CInferInterface
 
@@ -39,7 +39,7 @@ object WebFrontend {
         val in = CLexer.prepareTokens(tokenStream)
         for (tok <- in.tokens) {
             print('"' + tok.getText + '"')
-            if (tok.getFeature != FeatureExpr.base)
+            if (tok.getFeature != FeatureExprFactory.True)
                 print("<sub>" + tok.getFeature + "</sub>")
             println(" * ")
         }
@@ -47,7 +47,7 @@ object WebFrontend {
 
         println("<h2>Parser report</h2><pre name='parserresult'>")
         val parserMain = new ParserMain(new CParser(null, false))
-        val ast = parserMain.parserMain(in, true)
+        val ast = parserMain.parserMain(in, DefaultParserOptions)
         println("</pre>")
         println("<h2>AST</h2><div class='output'><div name='ast'>")
         println(ast)

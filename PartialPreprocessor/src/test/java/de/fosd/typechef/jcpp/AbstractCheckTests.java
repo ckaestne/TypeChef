@@ -141,8 +141,7 @@ public class AbstractCheckTests {
                         Assert.assertTrue("found token " + expectedName
                                 + " with " + t.getFeature()
                                 + " instead of expected " + expectedExpr,
-                                FeatureExprLib.l().createEquiv(t.getFeature(),
-                                        expectedExpr).isTautology());
+                                t.getFeature().equivalentTo(expectedExpr));
                     }
                 }
                 Assert.assertTrue("token " + expectedName + " not found.",
@@ -203,7 +202,7 @@ public class AbstractCheckTests {
                             + column);
             }
         });
-        pp.addMacro("__JCPP__", FeatureExprLib.base());
+        pp.addMacro("__JCPP__", FeatureExprLib.True());
 
         // include path
         if (folder != null)

@@ -2,18 +2,19 @@ package de.fosd.typechef.parser.java15
 
 import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.java15.lexer._
 import de.fosd.typechef.parser.java15.lexer.Java15ParserConstants._
 import java.io._
 import de.fosd.typechef.parser._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+
 /**
  * builds on top of a standard lexer (generated as part of CIDE
  * from a gcide grammer (internally using JavaCC))
  *
  * the main extensions are:
- * 	(1) we look at special tokens and recognize Antenna
- * 		IFDEF commands inside comments
+ * (1) we look at special tokens and recognize Antenna
+ * IFDEF commands inside comments
  *
  */
 object JavaLexer {
@@ -52,7 +53,7 @@ object JavaLexer {
         private def getConditionS(s: List[FeatureExpr]) =
             s.tail.foldRight(s.head)(_.not and _)
         private def getCondition(s: List[List[FeatureExpr]]): FeatureExpr =
-            if (s.isEmpty) FeatureExpr.base
+            if (s.isEmpty) FeatureExprFactory.True
             else getConditionS(s.head) and getCondition(s.tail)
         def isEmpty = stack.isEmpty
     }
@@ -81,7 +82,7 @@ object JavaLexer {
                 else if (PreprocessorParser.pelifdef(tokens).successful)
                     presenceConditionStack.addElse(PreprocessorParser.pelifdef(tokens).get)
                 else if (PreprocessorParser.pelse(tokens).successful)
-                    presenceConditionStack.addElse(FeatureExpr.base)
+                    presenceConditionStack.addElse(FeatureExprFactory.True)
                 else if (PreprocessorParser.pendif(tokens).successful)
                     presenceConditionStack.addEndif
                 else
@@ -96,7 +97,7 @@ object JavaLexer {
         }
         processPreprocessor(next)
         if (!presenceConditionStack.isEmpty) throw new PreprocessorException("less #endif than #if")
-        new TokenReader(tokenStream.reverse, 0, null, TokenWrapper.create(next, FeatureExpr.base, fileName))
+        new TokenReader(tokenStream.reverse, 0, null, TokenWrapper.create(next, FeatureExprFactory.True, fileName))
     }
 
 }
@@ -107,12 +108,16 @@ object PreprocessorParser extends StandardTokenParsers {
     //ifdef and ifndef
     def pifdef =
         phrase("#" ~> ("ifdef" ~> atomicFeature
-                | "ifndef" ~> atomicFeature ^^ {_.not}
-                | "if" ~> featureExpr))
+            | "ifndef" ~> atomicFeature ^^ {
+            _.not
+        }
+            | "if" ~> featureExpr))
     //elifdef and elifndef
     def pelifdef = phrase("#" ~> ("elifdef" ~> atomicFeature
-            | "elifndef" ~> atomicFeature ^^ {_.not}
-            | "elif" ~> featureExpr))
+        | "elifndef" ~> atomicFeature ^^ {
+        _.not
+    }
+        | "elif" ~> featureExpr))
     def pelse = phrase("#" ~ "else")
     def pendif = phrase("#" ~ "endif")
 
@@ -129,9 +134,13 @@ object PreprocessorParser extends StandardTokenParsers {
     }
     def literal =
         ("(" ~> featureExpr <~ ")" |
-                "!" ~> featureExpr ^^ {_.not}
-                | atomicFeature)
-    def atomicFeature = ident ^^ {FeatureExpr.createDefinedExternal(_)}
+            "!" ~> featureExpr ^^ {
+                _.not
+            }
+            | atomicFeature)
+    def atomicFeature = ident ^^ {
+        FeatureExprFactory.createDefinedExternal(_)
+    }
 
     def lex(s: String) =
         new lexical.Scanner(s)

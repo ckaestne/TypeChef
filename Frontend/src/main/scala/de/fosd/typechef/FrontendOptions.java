@@ -1,18 +1,20 @@
 package de.fosd.typechef;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory$;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.options.LexerOptions;
 import de.fosd.typechef.lexer.options.OptionException;
 import de.fosd.typechef.lexer.options.Options;
+import de.fosd.typechef.parser.c.ParserOptions;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.util.List;
 
 
-public class FrontendOptions extends LexerOptions {
+public class FrontendOptions extends LexerOptions implements ParserOptions {
     boolean parse = true,
             typecheck = true,
             writeInterface = true,
@@ -21,6 +23,7 @@ public class FrontendOptions extends LexerOptions {
             writeDebugInterface = false,
             recordTiming = false,
             parserStatistics = false,
+            parserResults = true,
             writePI = false;
     String outputStem = "";
     private String filePresenceConditionFile = "";
@@ -35,6 +38,8 @@ public class FrontendOptions extends LexerOptions {
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
     private final static char F_PARSERSTATS = Options.genOptionId();
+    private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
+    private final static char F_BDD = Options.genOptionId();
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -67,9 +72,13 @@ public class FrontendOptions extends LexerOptions {
                         "Report times for all phases."),
 
                 new Option("filePC", LongOpt.REQUIRED_ARGUMENT, F_FILEPC, "file",
-                        "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'.")
+                        "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'."),
+                new Option("bdd", LongOpt.NO_ARGUMENT, F_BDD, null,
+                        "Use BDD engine instead of SAT engine (provide as first parameter).")
         ));
         r.add(new OptionGroup("Parser options", 23,
+                new Option("hideparserresults", LongOpt.NO_ARGUMENT, F_HIDEPARSERRESULTS, null,
+                        "Do not show parser results."),
                 new Option("parserstatistics", LongOpt.NO_ARGUMENT, F_PARSERSTATS, null,
                         "Print parser statistics.")
         ));
@@ -104,10 +113,14 @@ public class FrontendOptions extends LexerOptions {
         } else if (c == F_FILEPC) {//--filePC
             checkFileExists(g.getOptarg());
             filePresenceConditionFile = g.getOptarg();
+        } else if (c == F_HIDEPARSERRESULTS) {
+            parserResults = false;
         } else if (c == F_PARSERSTATS) {
             parserStatistics = true;
         } else if (c == F_WRITEPI) {
             writePI = true;
+        } else if (c == F_BDD) {
+            de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.bdd());
         } else
             return super.interpretOption(c, g);
 
@@ -151,7 +164,7 @@ public class FrontendOptions extends LexerOptions {
 
     FeatureExpr getFilePresenceCondition() {
         if (filePC == null)
-            filePC = new FeatureExprParser().parseFile(getFilePresenceConditionFilename());
+            filePC = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getFilePresenceConditionFilename());
         return filePC;
     }
 
@@ -163,11 +176,19 @@ public class FrontendOptions extends LexerOptions {
 
     FeatureExpr getLocalFeatureModel() {
         if (localFM == null)
-            localFM = new FeatureExprParser().parseFile(getLocalFeatureModelFilename());
+            localFM = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getLocalFeatureModelFilename());
         return localFM;
     }
 
     String getSerializedASTFilename() {
         return outputStem + ".ast";
+    }
+
+    public boolean printParserStatistics() {
+        return parserStatistics;
+    }
+
+    public boolean printParserResult() {
+        return parserResults;
     }
 }

@@ -27,7 +27,7 @@ package de.fosd.typechef.lexer
 import java.{util => jUtil, lang => jLang}
 import collection.JavaConversions._
 import collection.JavaConverters._
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprTree, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprTree, FeatureExpr, FeatureExprFactory}
 import de.fosd.typechef.lexer.macrotable.MacroExpansion
 
 /**
@@ -56,10 +56,10 @@ object MacroExpander {
             else //if (inline)
                 Seq[Source]() //XXX: Should be the unexpanded code, or 0, depending on inline. Ask it to the caller!
 
-        macroExpansions.map(expansion => FeatureExpr.createValue[Seq[Source]](
+        macroExpansions.map(expansion => FeatureExprFactory.default.createValue[Seq[Source]](
             pp.macro_expandAlternative(macroName, expansion, args, origInvokeTok, origArgTokens, inline))).zip(
-            macroExpansions.map(_.getFeature)).foldRight[FeatureExprTree[Seq[Source]]](FeatureExpr.createValue(fallbackAlternative)) {
-            case ((expanded, feature), tree) => FeatureExpr.createIf(feature, expanded, tree)
+            macroExpansions.map(_.getFeature)).foldRight[FeatureExprTree[Seq[Source]]](FeatureExprFactory.default.createValue(fallbackAlternative)) {
+            case ((expanded, feature), tree) => FeatureExprFactory.default.createIf(feature, expanded, tree)
         }
     }
 }

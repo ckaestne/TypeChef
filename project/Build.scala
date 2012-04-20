@@ -10,7 +10,7 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.1"
+    val buildVersion = "0.3.2"
     val buildScalaVersion = "2.9.1"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
@@ -25,7 +25,6 @@ object BuildSettings {
 
         javacOptions ++= Seq("-source", "1.5", "-Xlint:unchecked"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
-        //    scalacOptions <+= scalaSource in Compile map { "-P:sxr:base-directory:" + _.getAbsolutePath },
 
         libraryDependencies ++= testEnvironment,
 

@@ -1,6 +1,5 @@
 package de.fost.typechef.parser.java15
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 
 import org.junit.Test
 import org.junit.Assert._
@@ -8,6 +7,7 @@ import de.fosd.typechef.parser.java15.lexer._
 import de.fosd.typechef.parser.java15._
 import de.fosd.typechef.parser._
 import java.io._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 class LexerTest {
 
@@ -38,7 +38,7 @@ class LexerTest {
     def testJavaLexer() {
         val result: TokenReader[TokenWrapper, Null] = JavaLexer.lex("class Test {}")
         assertEquals(4, result.tokens.size)
-        assertTrue(result.tokens.forall(_.getFeature().isBase))
+        assertTrue(result.tokens.forall(_.getFeature().isTautology))
     }
 
     @Test
@@ -48,7 +48,7 @@ class Test {}
 //#endif
 """)
         assertEquals(4, result.tokens.size)
-        assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExpr.createDefinedExternal("X"))))
+        assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExprFactory.createDefinedExternal("X"))))
     }
     @Test
     def testJavaLexerIfdef2() {
@@ -58,7 +58,7 @@ class Test {}
 //#endif
 """)
         assertEquals(4, result.tokens.size)
-        assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExpr.createDefinedExternal("X"))))
+        assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExprFactory.createDefinedExternal("X"))))
     }
 
     @Test
@@ -78,7 +78,7 @@ x""")
     def innerParserTest = {
         val tokens = PreprocessorParser.lex("#ifdef X")
         println(PreprocessorParser.pifdef(tokens))
-        assertEquals(FeatureExpr.createDefinedExternal("X"), PreprocessorParser.pifdef(tokens).get)
+        assertEquals(FeatureExprFactory.createDefinedExternal("X"), PreprocessorParser.pifdef(tokens).get)
 
     }
 

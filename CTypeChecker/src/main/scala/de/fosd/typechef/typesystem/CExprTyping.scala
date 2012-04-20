@@ -3,7 +3,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * typing C expressions
@@ -101,8 +101,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (targetType == CVoid() ||
                                     isPointer(targetType) ||
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
+                                else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
-                                else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown) targetType
+                                else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
                         )
@@ -131,6 +132,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 val opType = operationType(op, ltype, rtype, ae, fexpr)
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
+                                    case u: CUnknown => u.toValue
                                     case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                                 }
                             })
@@ -304,7 +306,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
 
     private def createSum(a: Expr, b: Expr) =
-        NAryExpr(a, List(Opt(FeatureExpr.base, NArySubExpr("+", b))))
+        NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b))))
 
 
     private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType], funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {

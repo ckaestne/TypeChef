@@ -5,7 +5,7 @@ import org.scalacheck._
 import Gen._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.featureexpr.FeatureExpr._
+import de.fosd.typechef.featureexpr.FeatureExprFactory._
 import de.fosd.typechef.parser.test.parsers._
 import de.fosd.typechef.conditional._
 
@@ -59,7 +59,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
         type Elem = MyToken
         type TypeContext = Any
 
-        val tokenStream = new TokenReader[MyToken, TypeContext](List.fill(3)(new MyToken("_", base)), 0, null, EofToken)
+        val tokenStream = new TokenReader[MyToken, TypeContext](List.fill(3)(new MyToken("_", True)), 0, null, EofToken)
         val in1 = tokenStream
         val in2 = in1.rest
         val in3 = in2.rest
@@ -68,7 +68,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
     }
 
     private def collectL(x: jt.MultiParseResult[A]): Map[L, FeatureExpr] =
-        x.toList(base).map(x => collectL(x._1, x._2)).foldRight(Map[L, FeatureExpr]())(_ ++ _)
+        x.toList(True).map(x => collectL(x._1, x._2)).foldRight(Map[L, FeatureExpr]())(_ ++ _)
     private def collectL(xf: FeatureExpr, xr: jt.ParseResult[A]): Map[L, FeatureExpr] =
         xr match {
             case jt.Success(r, in) => collectL(xf, r)
@@ -90,7 +90,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
                 case _ => false
             })
 
-        for ((feature, r) <- result.toList(base))
+        for ((feature, r) <- result.toList(True))
             r match {
                 case jt.Success(r, in) => found |= find(feature, r, f, l)
                 case _ =>
@@ -102,9 +102,9 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
         (x: jt.MultiParseResult[A]) => {
             var knownSuccessOffsets: Set[Int] = Set()
             var knownFailureOffsets: Set[Int] = Set()
-            val joined = x.join(base)
-            //                        println(x.toList(base).size+" => "+joined.toList(base).size)
-            joined.toList(base).forall(p => {
+            val joined = x.join(True)
+            //                        println(x.toList(True).size+" => "+joined.toList(True).size)
+            joined.toList(True).forall(p => {
                 p._2 match {
                     case jt.Success(_, _) => {
                         val v = knownSuccessOffsets contains (p._2.next.offset);
@@ -128,7 +128,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
             val mBefore: Map[L, FeatureExpr] = collectL(x)
 
             //                        println(x)
-            val joined = x.join(base)
+            val joined = x.join(True)
             //                        println(".")
 
             mBefore.forall((p: (L, FeatureExpr)) => assertContainsL(joined, p._2, p._1))

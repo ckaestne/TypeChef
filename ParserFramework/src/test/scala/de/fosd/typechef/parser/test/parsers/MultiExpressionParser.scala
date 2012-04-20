@@ -1,14 +1,14 @@
 package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.conditional._
 
 class MultiExpressionParser extends MultiFeatureParser {
     type Elem = MyToken
     type TypeContext = Any
 
-    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExpr.base).expectOneResult
+    def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.True).expectOneResult
 
     def expr: MultiParser[Conditional[AST]] = {
         val r = term ~ opt((t("+") | t("-")) ~ expr) ^^! ({
@@ -31,10 +31,10 @@ class MultiExpressionParser extends MultiFeatureParser {
         (digits ^^! ({
             t => Lit(t.text.toInt)
         })
-                | ((lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^! {
+            | ((lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^! {
             case _ ~ (b1 ~ e ~ b2) => e
         }).map(Conditional.combine(_))
-                | failc("digit or '(' expected"))
+            | failc("digit or '(' expected"))
 
 
     def t(text: String) = token(text, (x => x.t == text))

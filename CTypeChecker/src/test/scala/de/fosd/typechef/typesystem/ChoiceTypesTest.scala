@@ -7,13 +7,15 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 @RunWith(classOf[JUnitRunner])
 class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with TestHelper {
 
 
-    test("alternatives in declarations") {t()}
+    test("alternatives in declarations") {
+        t()
+    }
     def t() {
         val ast = getAST("""
          #ifdef X
@@ -58,7 +60,7 @@ inline
 {
 	local_bh_disable();
 }""")
-        val env = checkTranslationUnit(ast, FeatureExpr.base, EmptyEnv).varEnv
+        val env = checkTranslationUnit(ast, FeatureExprFactory.True, EmptyEnv).varEnv
         println(env)
         env("__rcu_read_lock_bh") should be(One(CFunction(List(CVoid()), CVoid())))
     }

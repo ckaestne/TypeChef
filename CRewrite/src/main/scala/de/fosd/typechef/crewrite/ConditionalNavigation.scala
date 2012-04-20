@@ -2,9 +2,9 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c.AST
-import de.fosd.typechef.featureexpr.FeatureExpr
 
 import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 trait ConditionalNavigation {
   def parentOpt(e: Product, env: ASTEnv): Opt[_] = {
@@ -37,7 +37,7 @@ trait ConditionalNavigation {
   def isVariable(e: Product): Boolean = {
     var res = false
     val variable = manytd(query {
-      case Opt(f, _) => if (f != FeatureExpr.dead && f != FeatureExpr.base) res = true
+      case Opt(f, _) => if (f != FeatureExprFactory.False && f != FeatureExprFactory.True) res = true
       case x => res = res
     })
 

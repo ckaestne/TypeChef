@@ -9,9 +9,9 @@ import java.io._
  *
  * does not support integer values yet
  */
-class FeatureExprParser extends RegexParsers {
+class FeatureExprParser(featureFactory: AbstractFeatureExprFactory = FeatureExprFactory.default) extends RegexParsers {
 
-    def toFeature(name: String) = FeatureExpr.createDefinedExternal(name)
+    def toFeature(name: String) = featureFactory.createDefinedExternal(name)
 
 
     //implications
@@ -23,44 +23,44 @@ class FeatureExprParser extends RegexParsers {
         } | aterm
 
     def aterm: Parser[FeatureExpr] =
-        bterm ~ opt(("=>" | "implies") ~> expr) ^^ {
+        bterm ~ opt(("=>" | "implies") ~> aterm) ^^ {
             case a ~ b => if (b.isDefined) a implies b.get else a
         }
 
     def bterm: Parser[FeatureExpr] =
-        cterm ~ opt(("<=>" | "equiv") ~> expr) ^^ {
+        cterm ~ opt(("<=>" | "equiv") ~> bterm) ^^ {
             case a ~ b => if (b.isDefined) a equiv b.get else a
         }
 
     //mutually exclusion
     def cterm: Parser[FeatureExpr] =
-        dterm ~ opt(("<!>" | "mex") ~> expr) ^^ {
+        dterm ~ opt(("<!>" | "mex") ~> cterm) ^^ {
             case a ~ b => if (b.isDefined) a mex b.get else a
         }
 
     //||
     def dterm: Parser[FeatureExpr] =
-        term ~ rep(("||" | "|" | "or") ~> expr) ^^ {
+        term ~ rep(("||" | "|" | "or") ~> dterm) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ or _)
         }
 
     def term: Parser[FeatureExpr] =
-        bool ~ rep(("&&" | "&" | "and") ~> expr) ^^ {
+        bool ~ rep(("&&" | "&" | "and") ~> term) ^^ {
             case a ~ bs => bs.foldLeft(a)(_ and _)
         }
 
     def bool: Parser[FeatureExpr] =
         "!" ~> bool ^^ (_ not) |
             ("(" ~> expr <~ ")") |
-            "InvalidExpression()" ^^ (_ => False) |
+            "InvalidExpression()" ^^ (_ => featureFactory.False) |
             (("definedEx" | "defined" | "def") ~ "(" ~> ID <~ ")") ^^ {
                 toFeature(_)
             } |
             "1" ^^ {
-                x => FeatureExpr.base
+                x => featureFactory.True
             } |
             "0" ^^ {
-                x => FeatureExpr.dead
+                x => featureFactory.False
             } | ID ^^ {
             toFeature(_)
         }
@@ -88,10 +88,10 @@ class FeatureExprParser extends RegexParsers {
         val featureModelFile = new File(cfilename)
         if (featureModelFile.exists) {
             scala.io.Source.fromFile(featureModelFile).getLines().map(trimComment(_)).map(line =>
-                if (line.trim.isEmpty) FeatureExpr.base
+                if (line.trim.isEmpty) featureFactory.True
                 else parse(line)
-            ).fold(FeatureExpr.base)(_ and _)
-        } else FeatureExpr.base
+            ).fold(featureFactory.True)(_ and _)
+        } else featureFactory.True
     }
 
     def parseFile(file: File): FeatureExpr =
@@ -100,11 +100,11 @@ class FeatureExprParser extends RegexParsers {
 
     private def oneOf(features: List[FeatureExpr]): FeatureExpr = {
         (for (f1 <- features; f2 <- features if (f1 != f2)) yield f1 mex f2).
-            foldLeft(features.foldLeft(FeatureExpr.dead)(_ or _))(_ and _)
+            foldLeft(features.foldLeft(featureFactory.False)(_ or _))(_ and _)
 
     }
 
     def atLeastOne(featuresNames: List[FeatureExpr]): FeatureExpr =
-        featuresNames.foldLeft(FeatureExpr.dead)(_ or _)
+        featuresNames.foldLeft(featureFactory.False)(_ or _)
 
 }

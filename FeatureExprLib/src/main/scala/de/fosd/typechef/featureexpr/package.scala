@@ -9,6 +9,6 @@ package object featureexpr {
     //val NotRef = SoftRef
     class NotReference[+T <: AnyRef](x: T) extends WeakReference(x) {}
 
-    val NotRef = WeakRef
+//    val NotRef = WeakRef
 }
 

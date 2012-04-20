@@ -1,10 +1,10 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
 import ConditionalLib._
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -38,7 +38,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     /**
      * filtering is a workaround for a parsing problem (see open test) that can produce
-     * dead AST-subtrees in some combinations.
+     * False AST-subtrees in some combinations.
      *
      * remove when problem is fixed
      */
@@ -56,7 +56,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     //TODO variability (not urgent)
     private def hasTransparentUnionAttribute(specifiers: List[Specifier]): Boolean =
-        specifiers.exists(isTransparentUnionAttribute(_, FeatureExpr.base))
+        specifiers.exists(isTransparentUnionAttribute(_, FeatureExprFactory.True))
 
     private def hasTransparentUnionAttributeOpt(specifiers: List[Opt[Specifier]]): Boolean =
         specifiers.exists(o => isTransparentUnionAttribute(o.entry, o.feature))
@@ -104,7 +104,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         One(reportTypeError(f, "type " + typedefname + " not defined (shadowed by variable with type " + t + ")", e))
                 })
             }
-            case EnumSpecifier(_, _) => types = types :+ One(CSigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
+            case EnumSpecifier(_, _) =>
+                //according to tests with GCC, this should be unsigned int (see test "enum type is unsigned int" in TypeSystemTest)
+                types = types :+ One(CUnsigned(CInt())) //TODO check that enum name is actually defined (not urgent, there is not much checking possible for enums anyway)
             case TypeOfSpecifierT(typename) => types = types :+ getTypenameType(typename, featureExpr, env)
             case TypeOfSpecifierU(expr) =>
                 types = types :+ getExprType(expr, featureExpr, env)
@@ -165,8 +167,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     })
 
     /**
-     *       if we declare a variable or array (not pointer or function)
-     *       ensure that structs are resolvable
+     * if we declare a variable or array (not pointer or function)
+     * ensure that structs are resolvable
      */
     protected def checkStructs(ctype: CType, expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype match {
         case CObj(t) => checkStructs(t, expr, env, where, checkedStructs)
@@ -185,21 +187,25 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
      * under which condition is modifier extern defined?
      */
     def getIsExtern(list: List[Opt[Specifier]]): FeatureExpr =
-        list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExpr.dead)(_ or _)
+        list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExprFactory.False)(_ or _)
 
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
-                                ): List[(String, FeatureExpr, Conditional[CType])] = {
+                                ): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
         val enumDecl = enumDeclarations(decl.declSpecs, featureExpr)
         val isExtern = getIsExtern(decl.declSpecs)
-        var eenv = env.addVars(enumDecl, false, env.scope)
+        var eenv = env.addVars(enumDecl, env.scope)
         val varDecl = if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
 
             for (Opt(f, init) <- decl.init) yield {
                 val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
-                eenv = eenv.addVar(init.getName, featureExpr and f, ctype, false, env.scope)
+                val declKind = if (init.hasInitializer) KDefinition else KDeclaration
+
+                eenv = eenv.addVar(init.getName, featureExpr and f, ctype,
+                    declKind,
+                    env.scope)
                 init.getExpr map {
                     checkInitializer(_, ctype, featureExpr and f, eenv)
                 }
@@ -209,7 +215,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 checkStructsC(ctype, featureExpr and f andNot isExtern, env, decl)
 
 
-                (init.declarator.getName, featureExpr and f, ctype)
+                (init.declarator.getName, featureExpr and f, ctype, declKind)
             }
         }
         enumDecl ++ varDecl
@@ -231,13 +237,16 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     /**define all fields from enum type specifiers as int values
      *
+     * enum is always interpreted as definition, not declaration. it conflicts with other definitions and
+     * other declarations.
+     *
      * important: this recurses into structures!
      **/
-    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType])] = {
-        var result = List[(String, FeatureExpr, Conditional[CType])]()
+    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
+        var result = List[(String, FeatureExpr, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
-                result = (enum.id.name, featureExpr and f and f2, One(CSigned(CInt()))) :: result
+                result = (enum.id.name, featureExpr and f and f2, One(CSigned(CInt())), KEnumVar) :: result
             //recurse into structs
             case StructOrUnionSpecifier(_, _, fields) =>
                 for (Opt(f2, structDeclaration) <- fields)

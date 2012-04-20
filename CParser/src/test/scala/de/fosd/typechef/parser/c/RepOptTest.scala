@@ -5,7 +5,7 @@ import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import org.junit.Test
-import FeatureExpr._
+import FeatureExprFactory._
 import de.fosd.typechef.conditional._
 
 class RepOptTest extends TestCase {
@@ -79,8 +79,8 @@ typedef int b;
         println(ast.mkString("\n"))
         println(next)
         assertTrue("actual AST size: " + ast.size, ast.size == 3)
-        assert(next.context.knowsType("a", base))
-        assert(next.context.knowsType("b", base))
+        assert(next.context.knowsType("a", True))
+        assert(next.context.knowsType("b", True))
     }
 
     def testRepOptMultiFeatureOverlap2() {
@@ -100,7 +100,7 @@ typedef int b;
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 4)
-        assert(next.context.knowsType("a", base))
+        assert(next.context.knowsType("a", True))
     }
 
     def testRepOptMultiFeatureOverlap7_linux() {
@@ -278,7 +278,7 @@ typedef long a;
         println(next)
         assert(ast.size == 3)
         println(next.context)
-        assert(next.context.knowsType("a", FeatureExpr.createDefinedExternal("X")))
+        assert(next.context.knowsType("a", FeatureExprFactory.createDefinedExternal("X")))
     }
 
 
@@ -298,7 +298,7 @@ typedef long a;
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
-        assert(next.context.knowsType("a", base))
+        assert(next.context.knowsType("a", True))
     }
 
     def testRepOptMultiFeature() {
@@ -316,7 +316,7 @@ typedef long a;
         println(ast.mkString("\n"))
         println(next)
         assert(ast.size == 3)
-        assert(next.context.knowsType("a", base))
+        assert(next.context.knowsType("a", True))
     }
 
     /**
@@ -337,8 +337,8 @@ typedef int b;
         println(next)
         val size = ast.asInstanceOf[List[Opt[ExternalDef]]].size
         assert(size == 2 || size == 3)
-        assert(next.context.knowsType("a", base))
-        assert(next.context.knowsType("b", base))
+        assert(next.context.knowsType("a", True))
+        assert(next.context.knowsType("b", True))
     }
 
     @Test
@@ -356,9 +356,9 @@ typedef int b;
         println(ast)
         println(next)
         assert(ast.asInstanceOf[List[Opt[ExternalDef]]].size == 5)
-        assert(next.context.knowsType("a", base))
-        assert(next.context.knowsType("b", base))
-        assert(next.context.knowsType("c", base))
+        assert(next.context.knowsType("a", True))
+        assert(next.context.knowsType("b", True))
+        assert(next.context.knowsType("c", True))
     }
 
 

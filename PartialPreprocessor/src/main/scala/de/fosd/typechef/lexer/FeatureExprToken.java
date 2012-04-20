@@ -37,7 +37,7 @@ public class FeatureExprToken extends SimpleToken {
 
     @Override
     public void lazyPrint(PrintWriter writer) {
-        expr.resolveToExternal().print(writer);
+        expr.print(writer);
     }
 
     public Token clone() {

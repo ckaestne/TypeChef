@@ -1,9 +1,9 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.featureexpr.{FeatureModel, NoFeatureModel}
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation {
@@ -94,7 +94,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
 //    true
 //  }
 
-  private def checkCfg(filename: String, featureExpr: FeatureModel = NoFeatureModel) = {
+  private def checkCfg(filename: String, featureExpr: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
     println("analysis " + filename)
     val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 

@@ -3,12 +3,12 @@ package de.fosd.typechef.typesystem
 import org.junit._
 import java.io.{InputStream, FileNotFoundException}
 import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
-import de.fosd.typechef.featureexpr.{NoFeatureModel, FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 class FileTest extends TestHelper {
 
     val folder = "testfiles/"
-    private def check(filename: String, featureExpr: FeatureModel = NoFeatureModel): Boolean = {
+    private def check(filename: String, featureExpr: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty): Boolean = {
         val start = System.currentTimeMillis
         println("parsing " + filename)
         var inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
@@ -24,21 +24,43 @@ class FileTest extends TestHelper {
     }
     private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean = new CTypeSystemFrontend(ast, featureModel).checkAST
 
-    private def d(n: String) = FeatureExpr.createDefinedExternal(n)
+    private def d(n: String) = FeatureExprFactory.createDefinedExternal(n)
 
     //async.i
-    @Test def test1 {assert(check("test1.xi"))}
-    @Test def busybox_ar {assert(check("ar.xi"))}
-    @Test def boa_boa {assert(check("boa.xi"))}
-    @Test def boa_boa_pi {assert(check("boa.pi"))}
-    @Test def busybox_top_pi {assert(check("top.pi"))}
-    @Test def busybox_umount_pi {assert(check("umount.pi"))}
-    @Test def busybox_udf_pi {assert(check("udf.pi"))}
+    @Test def test1 {
+        assert(check("test1.xi"))
+    }
+    @Test def busybox_ar {
+        assert(check("ar.xi"))
+    }
+    @Test def boa_boa {
+        assert(check("boa.xi"))
+    }
+    @Test def boa_boa_pi {
+        assert(check("boa.pi"))
+    }
+    @Test def busybox_top_pi {
+        assert(check("top.pi"))
+    }
+    @Test def busybox_umount_pi {
+        assert(check("umount.pi"))
+    }
+    @Test def busybox_udf_pi {
+        assert(check("udf.pi"))
+    }
     @Ignore("not finished yet")
-    @Test def linux_fork_pi {assert(check("fork_.pi" /*, FeatureModel.create(linux_fork_fm)*/))}
-    @Test def toybox_patch_pi {assert(check("patch.pi"))}
-    @Test def toybox_netcat_pi {assert(check("netcat.pi"))}
-    @Test def busybox_modutils_pi {assert(check("modutils-24.pi"))}
+    @Test def linux_fork_pi {
+        assert(check("fork_.pi" /*, FeatureModel.create(linux_fork_fm)*/))
+    }
+    @Test def toybox_patch_pi {
+        assert(check("patch.pi"))
+    }
+    @Test def toybox_netcat_pi {
+        assert(check("netcat.pi"))
+    }
+    @Test def busybox_modutils_pi {
+        assert(check("modutils-24.pi"))
+    }
     //
     //    val linux_fork_fm = ((d("CONFIG_SMP") implies d("CONFIG_X86_LOCAL_APIC")) and
     //            (d("CONFIG_PARAVIRT_SPINLOCKS") implies d("CONFIG_PARAVIRT")) and

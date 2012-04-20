@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.featureexpr.{NoFeatureModel, FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 
 // this code determines all configurations for a file based on a given ast
 // algorithms to get coverage are inspired by:
@@ -63,9 +63,9 @@ object ConfigurationCoverage extends ConditionalNavigation {
 
   // create a new feature model from a given set of annotations
   def createFeatureModel(in: Set[Opt[_]]) = {
-    var res = NoFeatureModel
+    var res = FeatureExprFactory.default.featureModelFactory.empty
     val annotations = in.map(_.feature)
-    val combinedannotations = annotations.fold(FeatureExpr.base)(_ or _)
+    val combinedannotations = annotations.fold(FeatureExprFactory.True)(_ or _)
 
     res and combinedannotations
   }
