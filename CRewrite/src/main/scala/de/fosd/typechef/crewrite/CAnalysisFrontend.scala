@@ -24,7 +24,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
         for (o <- l.reverse)
           if (o.feature == FeatureExprFactory.True)
             res ::= o
-          else if (c.config implies (if (env.containsASTElem(o.entry.asInstanceOf[Product])) env.featureExpr(o.entry.asInstanceOf[Product]) else FeatureExprFactory.True) isTautology()) {
+          else if (c.config implies (if (env.containsASTElem(o)) env.featureExpr(o) else FeatureExprFactory.True) isTautology()) {
             res ::= o.copy(feature = FeatureExprFactory.True)
           }
         res
