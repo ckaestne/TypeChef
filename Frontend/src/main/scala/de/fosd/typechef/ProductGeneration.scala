@@ -77,27 +77,24 @@ object ProductGeneration {
 
     val features : List[DefinedExpr] = getAllFeatures(family_ast)
     //for (f <- features) println(f.feature)
-
+/** Starting with no tasks */
     var typecheckingTasks : List[Pair[String, List[FeatureExpr]]] = List()
 
 /**  All products */
-    //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv]))
+    //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env))
 /**  Single-wise */
-    //typecheckingTasks ::= Pair("singleWise", getAllSinglewiseConfigurations(features,fm, preferDisabledFeatures=true))
-    //println("got " + typecheckingTasks.last._2.size + " singleWise configurations")
+    typecheckingTasks ::= Pair("singleWise", getAllSinglewiseConfigurations(features,fm, preferDisabledFeatures=true))
+    println("got " + typecheckingTasks.last._2.size + " singleWise configurations")
 /**  Pairwise */
-    typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
+    //typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
 /** Coverage Configurations */
-    /*
+/*
     typecheckingTasks ::=
-      Pair("coverage", ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env.asInstanceOf[ConfigurationCoverage.ASTEnv]).toList.map(
-      {ex : FeatureExpr => { println("completing config"); completeConfiguration(ex, features, fm, preferDisabledFeatures = true ) } }
+      Pair("coverage", ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env).toList.map(
+      {ex : FeatureExpr => completeConfiguration(ex, features, fm, preferDisabledFeatures = true ) }
     ))
     println("got " + typecheckingTasks.last._2.size + " coverage configurations")
-    */
-
-/** No configurations */
-
+*/
 /** Just one hardcoded config */
 /*
     typecheckingTasks ::= Pair("hardcoded", getOneConfigWithFeatures(
@@ -106,51 +103,56 @@ object ProductGeneration {
       features,fm, true, true)
       )
 */
-    println("start typechecking")
+
+    if (typecheckingTasks.size >0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
     // results (taskName, (NumConfigs, errors, timeSum))
     var configCheckingResults : List[ (String, (java.lang.Integer, java.lang.Integer, java.lang.Long) ) ] = List()
     val outFilePrefix:String = "../reports/" + opt.getFile.substring(0,opt.getFile.length-2)
     for ((taskDesc : String, configs : List[FeatureExpr]) <- typecheckingTasks) {
+
       var configurationsWithErrors = 0
       var current_config = 0
       var totalTimeProductChecking : Long = 0
       for (config <- configs) {
         current_config += 1
-        println("checking configuration " + current_config + " of " + configs.size + " (" + opt.getFile + " , " + taskDesc + ")")
-        val product = cf.deriveProd[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
-        val ts = new CTypeSystemFrontend(product.asInstanceOf[TranslationUnit], FeatureModel.empty)
-        val startTime : Long = System.currentTimeMillis()
-        val noErrors : Boolean = ts.checkAST
-        val configTime : Long = System.currentTimeMillis()-startTime
-        totalTimeProductChecking += configTime
-        if (!noErrors) {
-        //if (true) {
-          // log product with error
-          configurationsWithErrors += 1
-          var file :File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
-          file.getParentFile.mkdirs()
-          fw = new FileWriter(file)
-          for (error <- ts.errors)
-            fw.write("  - " + error + "\n")
-          fw.close()
-          // write product to file
-          file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
-          fw = new FileWriter(file)
-          fw.write(PrettyPrinter.print(product))
-          fw.close()
-          //write configuration to file
-          file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config +  "_config.txt")
-          fw = new FileWriter(file)
-          fw.write(config.toTextExpr.replace("&&", "&&\n"))
-          fw.close()
-          // write ast to file
-          file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
-          fw = new FileWriter(file)
-          fw.write(product.toString)
-          fw.close()
+        if (true || current_config < 5) { // i know its stupid, only temporary
+          println("checking configuration " + current_config + " of " + configs.size + " (" + opt.getFile + " , " + taskDesc + ")")
+          val product : TranslationUnit = cf.deriveProd[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
+          val ts = new CTypeSystemFrontend(product, FeatureModel.empty)
+          val startTime : Long = System.currentTimeMillis()
+          val noErrors : Boolean = ts.checkAST
+          val configTime : Long = System.currentTimeMillis()-startTime
+          totalTimeProductChecking += configTime
+          if (!noErrors) {
+          //if (true) {
+            // log product with error
+            configurationsWithErrors += 1
+            var file :File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
+            file.getParentFile.mkdirs()
+            fw = new FileWriter(file)
+            for (error <- ts.errors)
+              fw.write("  - " + error + "\n")
+            fw.close()
+            // write product to file
+            file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
+            fw = new FileWriter(file)
+            fw.write(PrettyPrinter.print(product))
+            fw.close()
+            //write configuration to file
+            file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config +  "_config.txt")
+            fw = new FileWriter(file)
+            fw.write(config.toTextExpr.replace("&&", "&&\n"))
+            fw.close()
+            // write ast to file
+            file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
+            fw = new FileWriter(file)
+            fw.write(product.toString)
+            fw.close()
+          }
         }
       }
       configCheckingResults ::= (taskDesc, (configs.size, configurationsWithErrors, totalTimeProductChecking))
+
     }
     // family base checking
     println("family-based type checking:")

@@ -24,7 +24,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
         for (o <- l.reverse)
           if (o.feature == FeatureExpr.base)
             res ::= o
-          else if (c.config implies (if (env.containsASTElem(o.entry.asInstanceOf[Product])) env.featureExpr(o.entry.asInstanceOf[Product]) else FeatureExpr.base) isTautology()) {
+          else if (c.config implies (if (env.containsASTElem(o.entry)) env.featureExpr(o.entry) else FeatureExpr.base) isTautology()) {
             res ::= o.copy(feature = FeatureExpr.base)
           }
         res
@@ -33,8 +33,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     })
 
     val x = pconfig(a).get.asInstanceOf[T]
-    appendToFile("output.c", PrettyPrinter.print(x.asInstanceOf[AST]))
-    assert(isVariable(x) == true, "product still contains variability")
+    //appendToFile("output.c", PrettyPrinter.print(x.asInstanceOf[AST]))
     x
   }
 
