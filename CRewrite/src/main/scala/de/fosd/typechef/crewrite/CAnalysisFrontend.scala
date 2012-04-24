@@ -4,8 +4,6 @@ import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
 import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef, AST}
-import de.fosd.typechef.crewrite.CAnalysisFrontend.CCFGErrorMis
-
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
@@ -184,20 +182,24 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     println("base variant: " + tbase + "ms")
     println("full coverage: " + tfullcoverage + "ms")
 
+    println("\n\n\n")
+
+
     appendToFile(liveness, fileName + ";" + tfam + ";" + tbase + ";" + tfullcoverage + ";" + configs.size + "\n")
   }
 
   private def intraCfGFunctionDef(f: FunctionDef) = {
-    errors = List()
     val fenv = CASTEnv.createASTEnv(f)
     val s = getAllSucc(f, fenv)
     val p = getAllPred(f, fenv)
 
     val res = compareSuccWithPred(s, p, fenv)
 
-    if (! errors.isEmpty) {
+    if (! res) {
       println("succs: " + DotGraph.map2file(s, fenv))
       println("preds: " + DotGraph.map2file(p, fenv))
+      println(errors.fold("")(_.toString + _.toString))
+      errors = List()
     }
     res
   }
