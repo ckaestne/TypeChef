@@ -1,5 +1,5 @@
 package de.fosd.typechef.crewrite
 
-trait DefUseChains {
+trait DefUseChains extends Variables {
 
 }

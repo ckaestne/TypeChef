@@ -1,14 +1,23 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
 import java.util.IdentityHashMap
 import org.kiama.attribution.AttributionBase
+import de.fosd.typechef.conditional.{One, Conditional, Opt}
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
-trait Variables extends ASTNavigation {
+trait Variables {
+
+  val usesVar: PartialFunction[Any, Conditional[Set[Id]]] = {
+    case a: Any => findUsesVar(a)
+  }
+
+  private def findUsesVar(e: Any): Conditional[Set[Id]] = {
+    One(Set())
+  }
+
   val uses: PartialFunction[Any, Set[Id]] = {
     case a: Any => findUses(a)
   }
@@ -53,7 +62,7 @@ trait Variables extends ASTNavigation {
     case Declaration(_, init) => init.flatMap(defines).toSet
     case InitDeclaratorI(a, _, _) => defines(a)
     case AtomicNamedDeclarator(_, i, _) => Set(i)
-    case o@Opt(_, entry) => defines(entry)
+    case Opt(_, entry) => defines(entry)
     case _ => Set()
   }
 }
