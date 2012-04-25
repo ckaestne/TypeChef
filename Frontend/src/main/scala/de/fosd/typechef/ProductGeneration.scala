@@ -3,16 +3,17 @@ package de.fosd.typechef
 import conditional.{Conditional, Choice, Opt}
 import crewrite.{ASTEnv, CASTEnv, ConfigurationCoverage, CAnalysisFrontend}
 import featureexpr._
+import bdd.BDDFeatureExpr
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
 import parser.WithPosition
 import org.kiama.rewriting.Rewriter._
 import java.util.Date
+import sat.{SATFeatureExpr, DefinedExpr}
 import typesystem.CTypeSystemFrontend
-import scala.Boolean
-import scala.Tuple
+import scala.collection.mutable.Queue
 import java.io.{File, FileWriter}
-import collection.mutable.Queue
 import scala.Predef._
+import scala._
 
 /**
  *
@@ -23,7 +24,10 @@ import scala.Predef._
  */
 
 object ProductGeneration {
-  def typecheckProducts(fm:FeatureModel, fm_ts : FeatureModel, ast :AST, opt: FrontendOptions) {
+  def typecheckProducts(fm_1:FeatureModel, fm_ts : FeatureModel, ast :AST, opt: FrontendOptions) {
+    var log,msg : String = ""
+    val fm = fm_ts // I got false positives while using the other fm
+    //val fm = fm_1
     println("starting product typechecking.")
     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
     var family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
@@ -72,10 +76,10 @@ object ProductGeneration {
     fw.close()
 */
 
-
     println("generating configurations.")
+    var startTime : Long = 0
 
-    val features : List[DefinedExpr] = getAllFeatures(family_ast)
+    val features : List[FeatureExpr] = getAllFeatures(family_ast)
     //for (f <- features) println(f.feature)
 /** Starting with no tasks */
     var typecheckingTasks : List[Pair[String, List[FeatureExpr]]] = List()
@@ -83,10 +87,21 @@ object ProductGeneration {
 /**  All products */
     //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env))
 /**  Single-wise */
+
+    startTime = System.currentTimeMillis()
     typecheckingTasks ::= Pair("singleWise", getAllSinglewiseConfigurations(features,fm, preferDisabledFeatures=true))
-    println("got " + typecheckingTasks.last._2.size + " singleWise configurations")
+    msg = "Time for config generation (singlewise): " + (System.currentTimeMillis() - startTime) + " ms\n"
+    println(msg)
+    log = log + msg
+
 /**  Pairwise */
-    //typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
+    /*
+    startTime = System.currentTimeMillis()
+    typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
+    msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n"
+    println(msg)
+    log = log + msg
+    */
 /** Coverage Configurations */
 /*
     typecheckingTasks ::=
@@ -99,7 +114,7 @@ object ProductGeneration {
 /*
     typecheckingTasks ::= Pair("hardcoded", getOneConfigWithFeatures(
       List(),
-      List("CONFIG_X86_32","CONFIG_X86_64"),
+      List(),
       features,fm, true, true)
       )
 */
@@ -109,46 +124,43 @@ object ProductGeneration {
     var configCheckingResults : List[ (String, (java.lang.Integer, java.lang.Integer, java.lang.Long) ) ] = List()
     val outFilePrefix:String = "../reports/" + opt.getFile.substring(0,opt.getFile.length-2)
     for ((taskDesc : String, configs : List[FeatureExpr]) <- typecheckingTasks) {
-
       var configurationsWithErrors = 0
       var current_config = 0
       var totalTimeProductChecking : Long = 0
       for (config <- configs) {
         current_config += 1
-        if (true || current_config < 5) { // i know its stupid, only temporary
-          println("checking configuration " + current_config + " of " + configs.size + " (" + opt.getFile + " , " + taskDesc + ")")
-          val product : TranslationUnit = cf.deriveProd[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
-          val ts = new CTypeSystemFrontend(product, FeatureModel.empty)
-          val startTime : Long = System.currentTimeMillis()
-          val noErrors : Boolean = ts.checkAST
-          val configTime : Long = System.currentTimeMillis()-startTime
-          totalTimeProductChecking += configTime
-          if (!noErrors) {
-          //if (true) {
-            // log product with error
-            configurationsWithErrors += 1
-            var file :File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
-            file.getParentFile.mkdirs()
-            fw = new FileWriter(file)
-            for (error <- ts.errors)
-              fw.write("  - " + error + "\n")
-            fw.close()
-            // write product to file
-            file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
-            fw = new FileWriter(file)
-            fw.write(PrettyPrinter.print(product))
-            fw.close()
-            //write configuration to file
-            file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config +  "_config.txt")
-            fw = new FileWriter(file)
-            fw.write(config.toTextExpr.replace("&&", "&&\n"))
-            fw.close()
-            // write ast to file
-            file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
-            fw = new FileWriter(file)
-            fw.write(product.toString)
-            fw.close()
-          }
+        println("checking configuration " + current_config + " of " + configs.size + " (" + opt.getFile + " , " + taskDesc + ")")
+        val product : TranslationUnit = cf.deriveProd[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
+        val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+        val startTime : Long = System.currentTimeMillis()
+        val noErrors : Boolean = ts.checkAST
+        val configTime : Long = System.currentTimeMillis()-startTime
+        totalTimeProductChecking += configTime
+        if (!noErrors) {
+        //if (true) {
+          // log product with error
+          configurationsWithErrors += 1
+          var file :File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
+          file.getParentFile.mkdirs()
+          fw = new FileWriter(file)
+          for (error <- ts.errors)
+            fw.write("  - " + error + "\n")
+          fw.close()
+          // write product to file
+          file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
+          fw = new FileWriter(file)
+          fw.write(PrettyPrinter.print(product))
+          fw.close()
+          //write configuration to file
+          file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config +  "_config.txt")
+          fw = new FileWriter(file)
+          fw.write(config.toTextExpr.replace("&&", "&&\n"))
+          fw.close()
+          // write ast to file
+          file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
+          fw = new FileWriter(file)
+          fw.write(product.toString)
+          fw.close()
         }
       }
       configCheckingResults ::= (taskDesc, (configs.size, configurationsWithErrors, totalTimeProductChecking))
@@ -156,16 +168,17 @@ object ProductGeneration {
     }
     // family base checking
     println("family-based type checking:")
-    val startTime : Long = System.currentTimeMillis()
+    startTime = System.currentTimeMillis()
     val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm_ts)
     val noErrors : Boolean = ts.checkAST
-    val familyTime : Long = System.currentTimeMillis()-startTime
+    val familyTime : Long = System.currentTimeMillis() - startTime
 
     var file:File = new File(outFilePrefix + "_report.txt")
     file.getParentFile.mkdirs()
     fw = new FileWriter(file)
     fw.write("File : " + opt.getFile + "\n")
     fw.write("Features : " + features.size + "\n")
+    fw.write(log + "\n")
 
     for ((taskDesc,(numConfigs,errors,time)) <- configCheckingResults) {
       fw.write("\n -- Task: " + taskDesc + "\n")
@@ -181,11 +194,11 @@ object ProductGeneration {
 
   }
   def getOneConfigWithFeatures(trueFeatures:List[String], falseFeatures:List[String],
-                                  allFeatures : List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true, fixConfig : Boolean = true) : List[FeatureExpr] = {
-    var partConfig : FeatureExpr = FeatureExpr.base
-    var remainingFeatures :List[DefinedExpr] = allFeatures
+                                  allFeatures : List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true, fixConfig : Boolean = true) : List[FeatureExpr] = {
+    var partConfig : FeatureExpr = FeatureExprFactory.True
+    var remainingFeatures :List[FeatureExpr] = allFeatures
     for (fName : String <-trueFeatures) {
-      val fIndex :Int= remainingFeatures.indexWhere({(f:DefinedExpr) => f.feature.trim.equals(fName)})
+      val fIndex :Int= remainingFeatures.indexWhere({(f:FeatureExpr) => f.collectDistinctFeatures.head.equals(fName)})
       if (fIndex != -1) { //-1 := no feature found
         partConfig = partConfig.and(remainingFeatures.apply(fIndex))
         // I know this is horrible. But it will be used only for debugging
@@ -196,7 +209,7 @@ object ProductGeneration {
       remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
     }
     for (fName : String <-falseFeatures) {
-      val fIndex :Int= remainingFeatures.indexWhere({(f:DefinedExpr) => f.feature.trim.equals(fName)})
+      val fIndex :Int= remainingFeatures.indexWhere({(f:FeatureExpr) => f.collectDistinctFeatures.head.equals(fName)})
       if (fIndex != -1) { //-1 := no feature found
         partConfig = partConfig.andNot(remainingFeatures.apply(fIndex))
         // I know this is horrible. But it will be used only for debugging
@@ -223,23 +236,24 @@ object ProductGeneration {
   }
 
 
-  def getAllSinglewiseConfigurations(features : List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
-    println("generating single-wise configurations")
+
+  def getAllSinglewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[FeatureExpr] = Set()
     for (f1 <- features) {
+      //val f1 = FeatureExprFactory.createDefinedExternal(f1Name)
       if (! (handledCombinations.contains(f1))) {
         // this pair was not considered yet
-        var conf = FeatureExpr.base.and(f1)
+        var conf = FeatureExprFactory.True.and(f1)
         if (conf.isSatisfiable(fm)) {
           // this pair is satisfiable
           // make config complete by choosing the other featuresval remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
           val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1)})
-          val completeConfig = completeConfiguration(conf,remainingFeatures,fm, preferDisabledFeatures)
+          val completeConfig = completeConfigurationOpt(conf,remainingFeatures, fm, preferDisabledFeatures)
           if (completeConfig != null) {
             pwConfigs ::= completeConfig
           } else {
-            println("no satisfiable configuration for features " + f1)
+            println("no satisfiable configuration for feature " + f1)
           }
         } else {
           println("no satisfiable configuration for feature " + f1)
@@ -250,20 +264,22 @@ object ProductGeneration {
     return pwConfigs
   }
 
-  def getAllPairwiseConfigurations(features : List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
+  def getAllPairwiseConfigurations(features : List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
     println("generating pair-wise configurations")
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[Pair[FeatureExpr,FeatureExpr]] = Set()
-    for (f1 <- features)
+
+    for (f1 <- features) {
       for (f2 <- features) {
         if (! (handledCombinations.contains(Pair(f2,f1)) || handledCombinations.contains(Pair(f1,f2)))) {
           // this pair was not considered yet
-          var conf = FeatureExpr.base.and(f1).and(f2)
+          var conf = FeatureExprFactory.True.and(f1).and(f2)
+
           if (conf.isSatisfiable(fm)) {
             // this pair is satisfiable
             // make config complete by choosing the other features
             val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-            val completeConfig = completeConfiguration(conf,remainingFeatures,fm, preferDisabledFeatures)
+            val completeConfig = completeConfigurationOpt(conf,remainingFeatures,fm, preferDisabledFeatures)
             if (completeConfig != null) {
               pwConfigs ::= completeConfig
             } else {
@@ -275,38 +291,65 @@ object ProductGeneration {
           handledCombinations += Pair(f1,f2)
         }
       }
+    }
     return pwConfigs
   }
 
-  def getAllTriplewiseConfigurations(features : List[DefinedExpr], fm:FeatureModel) : List[FeatureExpr] = {
+  def getAllTriplewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
     println("generating triple-wise configurations")
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[Set[FeatureExpr]] = Set()
-    for (f1 <- features)
-    for (f2 <- features)
-    for (f3 <- features) {
-      if (! (handledCombinations.contains(Set(f1,f2,f3)))) {
-        // this pair was not considered yet
-        var conf = FeatureExpr.base.and(f1).and(f2).and(f3)
-        if (conf.isSatisfiable(fm)) {
-          // this pair is satisfiable
-          // make config complete by choosing the other features
-          val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)})
-          val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
-          if (completeConfig != null) {
-            pwConfigs ::= completeConfig
-          } else {
-            println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
+    for (f1 <- features) {
+      for (f2 <- features) {
+        for (f3 <- features) {
+          if (! (handledCombinations.contains(Set(f1,f2,f3)))) {
+            // this pair was not considered yet
+            var conf = FeatureExprFactory.True.and(f1).and(f2).and(f3)
+            if (conf.isSatisfiable(fm)) {
+              // this pair is satisfiable
+              // make config complete by choosing the other features
+              val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)})
+              val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+              if (completeConfig != null) {
+                pwConfigs ::= completeConfig
+              } else {
+                println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
+              }
+            } else {
+              println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
+            }
+            handledCombinations += Set(f1,f2,f3)
           }
-        } else {
-          println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
         }
-        handledCombinations += Set(f1,f2,f3)
       }
     }
     return pwConfigs
   }
 
+  /**
+   * Optimzed version of the completeConfiguration method. Uses the original method as fallback if optimization is not applicable.
+   * The optimization is only applicable if the BDD feature is used.
+   * //perhaps implement for sat, too?!
+   * @param expr
+   * @param list
+   * @param model
+   * @param b
+   * @return
+   */
+  def completeConfigurationOpt(expr: FeatureExpr, list: List[FeatureExpr], model: FeatureModel, b: Boolean) : FeatureExpr = {
+    if (expr.isInstanceOf[BDDFeatureExpr]) {
+      val bddex = expr.asInstanceOf[BDDFeatureExpr]
+      val features :Set[String] = list.toSet.map({f : FeatureExpr => f.collectDistinctFeatures.head})
+      // get satisfying FeatureExpr with only features in this set
+      bddex.getSatisfiableAssignment(model, features) match {
+        case Some(ret) => return ret
+        case None => return null
+      }
+    } else {
+      return completeConfiguration(expr, list, model, b);
+    }
+
+  }
   /**
    * Completes a partial configuration so that no variability remains.
    * Features are set to false if possible.
@@ -315,20 +358,35 @@ object ProductGeneration {
    * @param remainingFeatures
    * @param fm
    */
-  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
+  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
+    var numSatCheck:Int = 0
+    var timeForSatChecks :Long = 0
     var config : FeatureExpr = partialConfig
     val fIter = remainingFeatures.iterator
     var partConfigFeasible : Boolean = true
+    var i =0
     while (partConfigFeasible && fIter.hasNext) {
-      val fx :DefinedExpr = fIter.next()
+      val fx :FeatureExpr = fIter.next()
+      println("handling feature " + i)
+      i+=1
       if (preferDisabledFeatures) {
         // try to set other variables to false first
         var tmp : FeatureExpr = config.andNot(fx)
-        if (tmp.isSatisfiable(fm)) {
+        var time = System.currentTimeMillis()
+        val res1 : Boolean =tmp.isSatisfiable(fm)
+        timeForSatChecks += System.currentTimeMillis()-time
+        numSatCheck+=1
+        println("SatCheck#" + numSatCheck + " totalTime For Satchecks: " + timeForSatChecks)
+        if (res1) {
           config = tmp
         } else {
           tmp = config.and(fx)
-          if (tmp.isSatisfiable(fm)) {
+          var time = System.currentTimeMillis()
+          val res2 : Boolean =tmp.isSatisfiable(fm)
+          timeForSatChecks += System.currentTimeMillis()-time
+          numSatCheck+=1
+          println("SatCheck#" + numSatCheck + " totalTime For Satchecks: " + timeForSatChecks)
+          if (res2) {
             config = tmp
           } else {
             // this configuration cannot be satisfied any more
@@ -366,26 +424,26 @@ object ProductGeneration {
    * @param root
    * @return
    */
-  def getAllFeatures(root: Product) : List[DefinedExpr] = {
+  def getAllFeatures(root: Product) : List[FeatureExpr] = {
     // sort to eliminate any non-determinism caused by the set
     val featuresSorted = getAllFeaturesRec(root).toList.sortWith({
-      (x,y) => x.feature.compare(y.toTextExpr) > 0
+      (x,y) => x.compare(y) > 0
     });
     println ("found " + featuresSorted.size + " features")
-    return featuresSorted;
+    return featuresSorted.map({s:String => FeatureExprFactory.createDefinedExternal(s)});
   }
 
-  private def getAllFeaturesRec(root: Any) : Set[DefinedExpr] = {
+  private def getAllFeaturesRec(root: Any) : Set[String] = {
     root match {
-      case x: Opt[_] => x.feature.collectDistinctFeaturesInclMacros.toSet ++ getAllFeaturesRec(x.entry)
-      case x: Choice[_] => x.feature.collectDistinctFeaturesInclMacros.toSet ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
+      case x: Opt[_] => x.feature.collectDistinctFeatures.toSet ++ getAllFeaturesRec(x.entry)
+      case x: Choice[_] => x.feature.collectDistinctFeatures.toSet ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
       case l: List[_] => {
-        var ret : Set[DefinedExpr] = Set();
+        var ret : Set[String] = Set();
         for (x <- l) {ret = ret ++ getAllFeaturesRec(x);}
         ret
       }
       case x: Product => {
-        var ret : Set[DefinedExpr] = Set();
+        var ret : Set[String] = Set();
         for (y <- x.productIterator.toList) {ret = ret ++ getAllFeaturesRec(y);}
         ret
       }
@@ -404,7 +462,7 @@ object ProductGeneration {
     val prodLimit : Int = 30;
     var limitReached : Boolean = false
     var R: List[FeatureExpr] = List()   // found configurations
-    R::=FeatureExpr.True
+    R::=FeatureExprFactory.True
     var B: Set[Opt[_]] = Set()  // handled blocks
     var f : Set[FeatureExpr] = Set()  // handled features
     println("making all configurations (limited to " + prodLimit + " configurations")

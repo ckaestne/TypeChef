@@ -2,10 +2,10 @@ package de.fosd.typechef.crewrite
 
 
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
 import java.util.IdentityHashMap
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.parser.c._
 
 // implements conditional control flow (cfg) on top of the typechef
 // infrastructure
@@ -665,7 +665,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       // 1.
       case Some(x) => List(x)
       case None => {
-        val parentsfexp = if (env.parent(s) != null) env.featureExpr(env.parent(s)) else FeatureExpr.base
+        val parentsfexp = if (env.parent(s) != null) env.featureExpr(env.parent(s)) else FeatureExprFactory.True
         val successor_list = determineFollowingElements(parentsfexp, next_ifdef_blocks.drop(1), env)
         successor_list match {
           case Left(s_list) => s_list // 2.
@@ -831,7 +831,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       case Some(BreakStatement()) => List()
       case Some(x) => List(x).flatMap(rollUpJumpStatement(_, false, env))
       case None => {
-        val parentsfexp = if (env.parent(s) != null) env.featureExpr(env.parent(s)) else FeatureExpr.base
+        val parentsfexp = if (env.parent(s) != null) env.featureExpr(env.parent(s)) else FeatureExprFactory.True
         val predecessor_list = determineFollowingElements(parentsfexp, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
           case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, env)) // 2.
@@ -1021,7 +1021,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       val as = env.lfeature(a).toSet
       val bs = env.lfeature(b).toSet
       val cs = as.intersect(bs)
-      as.--(cs).foldLeft(FeatureExpr.base)(_ and _).implies(bs.--(cs).foldLeft(FeatureExpr.base)(_ and _).not()).isTautology()
+      as.--(cs).foldLeft(FeatureExprFactory.True)(_ and _).implies(bs.--(cs).foldLeft(FeatureExprFactory.True)(_ and _).not()).isTautology()
     }
     pack[List[AST]]({
       (x, y) => checkImplication(x.head, y.head)
@@ -1040,9 +1040,9 @@ trait ConditionalControlFlow extends ASTNavigation {
           e => env.featureExpr(e.head)
         })
 
-        if (feature_expr_over_ifdef_blocks.foldLeft(FeatureExpr.base)(_ and _).isTautology())
+        if (feature_expr_over_ifdef_blocks.foldLeft(FeatureExprFactory.True)(_ and _).isTautology())
           (0, h) :: determineTypeOfGroupedIfdefBlocks(t, env)
-        else if (feature_expr_over_ifdef_blocks.map(_.not()).foldLeft(FeatureExpr.base)(_ and _).isContradiction())
+        else if (feature_expr_over_ifdef_blocks.map(_.not()).foldLeft(FeatureExprFactory.True)(_ and _).isContradiction())
           (2, h.reverse) :: determineTypeOfGroupedIfdefBlocks(t, env)
         else (1, h) :: determineTypeOfGroupedIfdefBlocks(t, env)
       }

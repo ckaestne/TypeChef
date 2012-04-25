@@ -4,9 +4,10 @@ import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.{One, Opt, Choice, ConditionalLib}
+import de.fosd.typechef.lexer.options.FeatureModelOptions
 
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
   // derive a specific product from a given configuration
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
@@ -17,15 +18,15 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
     // parent before the parent is processed so we get a NullPointerExceptions calling env.featureExpr(x). Reason is
     // changed children lead to changed parent and a new hashcode so a call to env fails.
     val pconfig = manytd(rule {
-      case Choice(f, x, y) => if (c.config implies (if (env.containsASTElem(x)) env.featureExpr(x) else FeatureExpr.base) isTautology()) x else y
+      case Choice(f, x, y) => if (c.config implies (if (env.containsASTElem(x)) env.featureExpr(x) else FeatureExprFactory.True) isTautology()) x else y
       case l: List[Opt[_]] => {
         var res: List[Opt[_]] = List()
         // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
         for (o <- l.reverse)
-          if (o.feature == FeatureExpr.base)
+          if (o.feature == FeatureExprFactory.True)
             res ::= o
-          else if (c.config implies (if (env.containsASTElem(o.entry)) env.featureExpr(o.entry) else FeatureExpr.base) isTautology()) {
-            res ::= o.copy(feature = FeatureExpr.base)
+          else if (c.config implies (if (env.containsASTElem(o.entry)) env.featureExpr(o.entry) else FeatureExprFactory.True) isTautology()) {
+            res ::= o.copy(feature = FeatureExprFactory.True)
           }
         res
       }
@@ -53,12 +54,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
       case Choice(f, x, y) => {
         //if (c.config.implies(env.featureExpr(x)).isTautology()) { //!! this does not work??
           if (c.config.implies(f).isTautology()) { // this probably only works for complete configurations
-          val res = new Choice(FeatureExpr.base, deriveProd(x,c,env), One(new EmptyStatement()))
+          val res = new Choice(FeatureExprFactory.True, deriveProd(x,c,env), One(new EmptyStatement()))
           //val res = new One(deriveProd(x,c,env))
           res
         //} else if (c.config.implies(env.featureExpr(y)).isTautology()) {
       } else if (c.config.implies(f.not()).isTautology()) {
-          val res = new Choice(FeatureExpr.base, deriveProd(y,c,env), One(new EmptyStatement()))
+          val res = new Choice(FeatureExprFactory.True, deriveProd(y,c,env), One(new EmptyStatement()))
           //val res = new One(deriveProd(y,c,env))
           res
         } else {
@@ -74,7 +75,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
         for (o <- l.reverse) {
           //if (c.config.implies(env.featureExpr(o.entry)).isTautology()) {
           if (c.config.implies(o.feature).isTautology()) {// this probably only works for complete configurations
-            val derived = deriveProd(o.copy(feature = FeatureExpr.base), c, env)
+            val derived = deriveProd(o.copy(feature = FeatureExprFactory.True), c, env)
             res ::= derived
           } else {
             //println("----omitting opt("+thisId+") " + o)
@@ -85,7 +86,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
       case Opt(fex, entry : Product) =>
         //assert(c.config.implies(env.featureExpr(entry)).isTautology());
         assert(c.config.implies(fex).isTautology());
-        new Opt(FeatureExpr.base,deriveProd(entry,c,env)) // the variability should be handled be the List[Opt[_]] - code
+        new Opt(FeatureExprFactory.True,deriveProd(entry,c,env)) // the variability should be handled be the List[Opt[_]] - code
       case l : List[Product] => l.map(deriveProd(_,c,env))
       case Some(x : Product) => new Some(deriveProd(x,c,env))
 
@@ -291,7 +292,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = NoFeatureModel) extends C
 
     // base variant
     println("checking base variant")
-    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExpr.base, fm), family_env)
+    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit], new Configuration(FeatureExprFactory.True, fm), family_env)
     val base_env = CASTEnv.createASTEnv(base_ast)
     val base_function_defs = filterASTElems[FunctionDef](base_ast)
 

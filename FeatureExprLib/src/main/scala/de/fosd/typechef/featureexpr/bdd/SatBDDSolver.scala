@@ -28,6 +28,24 @@ object SatSolver {
             new SatSolverImpl(nfm(featureModel))).isSatisfiable(dnf, lookupName)
     }
 
+  /**
+   * Basically a clone of isSatisfiable(..) that also returns the satisfying assignment (if available).
+   * The return value is a Pair where the first element is a list of the feature names set to true.
+   * The second element is a list of feature names set to false.
+   */
+    def getSatAssignment(featureModel: BDDFeatureModel, dnf: Iterator[Seq[Int]], lookupName: (Int) => String): Option[Pair[List[String],List[String]]] = {
+      val solver =
+      (if (CACHING && (nfm(featureModel) != BDDNoFeatureModel))
+        SatSolverCache.get(nfm(featureModel))
+      else
+        new SatSolverImpl(nfm(featureModel)))
+
+      if(solver.isSatisfiable(dnf, lookupName)) {
+        return Some(solver.getLastModel())
+      } else {return None}
+    }
+
+
     private def nfm(fm: BDDFeatureModel) = if (fm == null) BDDNoFeatureModel else fm
 }
 
@@ -114,9 +132,20 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
 
             if (PROFILING)
                 print(";")
-
             val result = solver.isSatisfiable(assumptions)
-
+            if (result == true) {
+              // scanning the model (storing the satisfiable assignment for later retrieval)
+              val model = solver.model()
+              var trueList : List[String] = List()
+              var falseList : List[String] = List()
+              for ((fName, modelID) <- uniqueFlagIds) {
+                if (solver.model(modelID))
+                  trueList ::= fName
+                else
+                  falseList ::= fName
+              }
+              lastModel = Pair(trueList,falseList)
+            }
 
             if (PROFILING)
                 print(result + ";")
@@ -129,4 +158,11 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
                 println(" in " + (System.currentTimeMillis() - startTimeSAT) + " ms>")
         }
     }
+
+  /**
+   * This pair contains the model that was constructed during the last isSatisfiable call (if the result was true).
+   * The first element contains the names of the features set to true, the second contains the names of the false features.
+   */
+    var lastModel : Pair[List[String],List[String]] = null
+    def getLastModel() = lastModel
 }

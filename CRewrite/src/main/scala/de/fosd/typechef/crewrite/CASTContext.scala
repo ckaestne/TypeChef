@@ -1,8 +1,8 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import java.util.IdentityHashMap
 import de.fosd.typechef.conditional.{Choice, Opt}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 // store context of an AST entry
 // e: AST => (lfexp: List[FeatureExpr] parent: Product, prev: Product, next: Product, children: List[AST])
@@ -12,7 +12,7 @@ class ASTEnv (val astc: IdentityHashMap[Any, (List[FeatureExpr], Product, Produc
 
   def containsASTElem(elem: Any) = astc.containsKey(elem)
   def lfeature(elem: Any) = astc.get(elem)._1
-  def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExpr.base)(_ and _)
+  def featureExpr(elem: Any) = lfeature(elem).foldLeft(FeatureExprFactory.True)(_ and _)
   def parent(elem: Any) = astc.get(elem)._2
   def previous(elem: Any) = astc.get(elem)._3
   def next(elem: Any) = astc.get(elem)._4
@@ -41,7 +41,7 @@ class ASTEnv (val astc: IdentityHashMap[Any, (List[FeatureExpr], Product, Produc
 object CASTEnv {
 
   // create ast-neighborhood context for a given translation-unit
-  def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExpr.base)): ASTEnv = {
+  def createASTEnv(a: Product, lfexp: List[FeatureExpr] = List(FeatureExprFactory.True)): ASTEnv = {
     assert(a != null, "ast elem is null!")
     handleASTElem(a, null, lfexp, new ASTEnv(new IdentityHashMap[Any, (List[FeatureExpr], Product, Product, Product, List[Any])]()))
   }

@@ -1,9 +1,11 @@
 package de.fosd.typechef.featureexpr.bdd
 
-import java.io.Writer
 import net.sf.javabdd._
-import collection.mutable.{HashMap, WeakHashMap, Map}
+import scala.collection.mutable.{ WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
+import bdd.FExprBuilder._
+import scala._
+import scala.Predef._
 
 
 object FeatureExprHelper {
@@ -169,6 +171,44 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     // (a and b) or (!a and !b). However, currently it seems that we never construct not (a equiv b).
     // Be careful if that changes, though.
     override def equiv(that: FeatureExpr) = FExprBuilder.biimp(this, asBDDFeatureExpr(that))
+
+  /**
+   * Returns one BDDFeatureExpr that satisfies this featureExpr and the given featureModel.
+   * The result FeatureExpr will only contain features listed in "interestingFeatures".
+   * Any features not contained in this expression and in the featureModel will be set to false in the result (default).
+   * If no satisfing assignment exists, we will return None.
+   * @param featureModel
+   * @param interestingFeatures
+   * @return Option[FeatureExpr]
+   */
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[String]): Option[FeatureExpr] = {
+      val fm = asBDDFeatureModel(featureModel)
+      val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
+      // get one satisfying assignment (a list of features set to true, and a list of features set to false)
+      val assignment : Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
+      // we will subtract from this set until all interesting features are handled
+      var remainingInterestingFeatures = interestingFeatures
+      assignment match {
+        case Some(Pair(trueFeatures, falseFeatures)) => {
+          var retBDD = this.bdd.id() // makes a copy of this.bdd, so that it is not consumed by the andWith functions
+          remainingInterestingFeatures --= this.collectDistinctFeatures
+          for (f <- trueFeatures)
+            if (remainingInterestingFeatures.contains(f)) {
+              remainingInterestingFeatures -= f
+              retBDD = lookupFeatureBDD(lookupFeatureID(f)).id() andWith retBDD
+            }
+          for (f <- falseFeatures)
+            if (remainingInterestingFeatures.contains(f)) {
+              remainingInterestingFeatures -= f
+              retBDD = lookupFeatureBDD(lookupFeatureID(f)).not() andWith retBDD
+            }
+          for (f <- remainingInterestingFeatures)
+            retBDD = lookupFeatureBDD(lookupFeatureID(f)).not() andWith retBDD
+          return Some(new BDDFeatureExpr(retBDD))
+        }
+        case None => return None
+      }
+    }
 
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
@@ -367,7 +407,14 @@ private[bdd] object FExprBuilder {
         new BDDFeatureExpr(featureBDDs(id))
     }
 
-    def lookupFeatureName(id: Int): String = featureNames(id)
+    def containsFeatureID(id: Int): Boolean = featureNames.contains(id)
+    def lookupFeatureName(id: Int): String = {if (featureNames.contains(id)) featureNames(id) else "unknown"}
+    def lookupFeatureID(name: String): Int = {
+      if (! featureIds.contains(name))
+        definedExternal(name)
+      featureIds(name)
+    }
+  private[bdd] def lookupFeatureBDD(id: Int): BDD = featureBDDs(id)
 
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object

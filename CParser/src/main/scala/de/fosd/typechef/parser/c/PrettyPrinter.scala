@@ -53,11 +53,11 @@ object PrettyPrinter {
     }
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
-        if (e.feature == FeatureExpr.base || list_feature_expr.contains(e.feature)) prettyPrint(e.entry, list_feature_expr)
+        if (e.feature == FeatureExprFactory.True || list_feature_expr.contains(e.feature)) prettyPrint(e.entry, list_feature_expr)
         else line ~ "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry, e.feature::list_feature_expr) * "#endif" ~ line
     }
 
-    def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExpr.base)): Doc = {
+    def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExprFactory.True)): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a, list_feature_expr)
         implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a, list_feature_expr)
         implicit def prettyCond(a: Conditional[_]): Doc = ppConditional(a, list_feature_expr)

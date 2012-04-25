@@ -16,6 +16,7 @@ object Frontend {
 
 
     def main(args: Array[String]): Unit = {
+
         // load options
         val opt = new FrontendOptionsWithConfigFiles()
         try {
@@ -45,7 +46,7 @@ object Frontend {
                 println("use parameter --help for more information.")
                 return;
         }
-
+      println("test")
         processFile(opt)
     }
 
@@ -80,8 +81,9 @@ object Frontend {
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 if (opt.typecheck || opt.writeInterface) {
-                    println("type checking.")
-                    ts.checkAST
+                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt)
+                    //println("type checking.")
+                    //ts.checkAST
                     t4 = System.currentTimeMillis();
                     t5 = t4
                     t6 = t4
@@ -97,7 +99,7 @@ object Frontend {
                 }
                 if (opt.conditionalControlFlow) {
                     println("checking conditional control flow.")
-                    cf.checkCfG()
+                    //cf.checkCfG()
                     t6 = System.currentTimeMillis()
                 }
             }

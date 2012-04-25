@@ -3,8 +3,9 @@ package de.fosd.typechef.crewrite
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.{Opt, One}
-import de.fosd.typechef.featureexpr.{FeatureExpr, True}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import org.junit.{Ignore, Test}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables {
 
@@ -656,13 +657,13 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
   }
 
   @Test def test_conditional_label_and_goto_statements_constructed() {
-    val e0 = Opt(FeatureExpr.base, GotoStatement(Id("label1")))
+    val e0 = Opt(FeatureExprFactory.True, GotoStatement(Id("label1")))
     val e1 = Opt(fx, LabelStatement(Id("label1"), None))
     val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
     val e3 = Opt(fx.not(), LabelStatement(Id("label1"), None))
     val e4 = Opt(fx.not(), DeclarationStatement(Declaration(List(Opt(fx.not(), IntSpecifier())), List(Opt(fx.not(), InitDeclaratorI(AtomicNamedDeclarator(List(), Id("b"), List()), List(), None))))))
-    val e5 = Opt(FeatureExpr.base, LabelStatement(Id("label2"), None))
-    val f = FunctionDef(List(Opt(FeatureExpr.base, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
+    val e5 = Opt(FeatureExprFactory.True, LabelStatement(Id("label2"), None))
+    val f = FunctionDef(List(Opt(FeatureExprFactory.True, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
 
     val env = CASTEnv.createASTEnv(f)
     succ(e0, env) should be (List(e1.entry, e3.entry))

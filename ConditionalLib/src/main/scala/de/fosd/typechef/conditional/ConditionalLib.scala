@@ -71,7 +71,7 @@ object ConditionalLib {
      * this explodes variability and may repeat values as needed
      */
     def zip[A, B](a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] =
-        a.mapfr(FeatureExpr.base, (feature, x) => zipSubcondition(feature, x, b))
+        a.mapfr(FeatureExprFactory.True, (feature, x) => zipSubcondition(feature, x, b))
 
     private def zipSubcondition[A, B](context: FeatureExpr, entry: A, other: Conditional[B]): Conditional[(A, B)] =
         findSubtree(context, other).map(otherEntry => (entry, otherEntry))

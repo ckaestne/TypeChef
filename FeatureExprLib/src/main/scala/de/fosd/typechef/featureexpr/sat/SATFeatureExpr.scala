@@ -9,6 +9,7 @@ import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
+import scala.Some
 
 //
 ///**
@@ -261,6 +262,16 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
             case e => e
         }, Map())
         result
+    }
+
+    def collectDistinctFeaturesInclMacros: Set[DefinedExpr] = {
+      var result: Set[DefinedExpr] = Set()
+      this.mapDefinedExpr(_ match {
+        case e: DefinedExternal => result += e; e
+        case e: DefinedMacro => result += e; e
+        case e => e
+      }, Map())
+      result
     }
     /**
      * counts the number of features in this expression for statistic
