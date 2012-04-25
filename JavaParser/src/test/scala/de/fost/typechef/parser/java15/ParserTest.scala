@@ -1,6 +1,5 @@
 package de.fost.typechef.parser.java15
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 
 import org.junit.Test
 import org.junit.Assert._
@@ -8,6 +7,7 @@ import de.fosd.typechef.parser.java15.lexer._
 import de.fosd.typechef.parser.java15._
 import de.fosd.typechef.parser._
 import java.io._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 class ParserTest {
 
@@ -21,7 +21,7 @@ class ParserTest {
     val p = new JavaParser()
 
     def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, Null], FeatureExpr) => p.MultiParseResult[Any]) {
-        val actual = mainProduction(JavaLexer.lex(code.stripMargin), FeatureExpr.base)
+        val actual = mainProduction(JavaLexer.lex(code.stripMargin), FeatureExprFactory.True)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {

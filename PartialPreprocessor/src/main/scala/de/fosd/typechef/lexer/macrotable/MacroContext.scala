@@ -1,8 +1,9 @@
 package de.fosd.typechef.lexer.macrotable
 
 import java.io.PrintWriter
-import de.fosd.typechef.featureexpr.LazyLib.Susp
 import de.fosd.typechef.featureexpr._
+import sat.LazyLib.Susp
+import sat.{CastHelper, SATFeatureExpr, LazyLib}
 
 
 object MacroContext {
@@ -24,18 +25,18 @@ object MacroContext {
     /**
      * Returns whether the macro x represents a feature.
      * It checks if any flag filters classify this as non-feature - equivalently, if all
-     *  flag filters classify this as feature
+     * flag filters classify this as feature
      *
-     *  If a macro does not represent a feature, it is not considered variable,
-     *  and if it is not defined it is assumed to be always undefined, and it
-     *  becomes thus easier to handle.
+     * If a macro does not represent a feature, it is not considered variable,
+     * and if it is not defined it is assumed to be always undefined, and it
+     * becomes thus easier to handle.
      *
-     *  This method must not be called for macros known to be defined!
+     * This method must not be called for macros known to be defined!
      */
     def flagFilter(x: String) = flagFilters.forall(_(x))
 }
 
-import FeatureExpr.createDefinedExternal
+import FeatureExprFactory._
 
 /**
  * represents the knowledge about macros at a specific point in time
@@ -43,15 +44,21 @@ import FeatureExpr.createDefinedExternal
  * knownMacros contains all macros but no duplicates
  *
  * by construction, all alternatives are mutually exclusive (but do not necessarily add to BASE)
+ *
+ * CNFCache is only used by SAT implementation of FeatureExprLib
  */
 class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[String, (String, Susp[FeatureExpr])], featureModel: FeatureModel) extends FeatureProvider {
-    def this(fm: FeatureModel) = {this (Map(), Map(), fm)}
-    def this() = {this (null)}
+    def this(fm: FeatureModel) = {
+        this(Map(), Map(), fm)
+    }
+    def this() = {
+        this(null)
+    }
     def define(name: String, infeature: FeatureExpr, other: T): MacroContext[T] = {
         val feature = infeature //.resolveToExternal()
         val newMC = new MacroContext(
             knownMacros.get(name) match {
-                case Some(macro) => knownMacros.updated(name, macro.addNewAlternative(new MacroExpansion[T](feature, other)))
+                case Some(mcr) => knownMacros.updated(name, mcr.addNewAlternative(new MacroExpansion[T](feature, other)))
                 case None => {
                     //XXX createDefinedExternal should simply check
                     //MacroContext.flagFilter and
@@ -71,21 +78,24 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
         val feature = infeature //.resolveToExternal()
         new MacroContext(
             knownMacros.get(name) match {
-                case Some(macro) => knownMacros.updated(name, macro.andNot(feature))
-                //XXX: why is flagFilter() not checked? The condition associated
-                //with the definition would become false.
-                case None => knownMacros + ((name, new Macro[T](name, feature.not().and(createDefinedExternal(name)), List())))
+                case Some(mcr) => knownMacros.updated(name, mcr.andNot(feature))
+                case None =>
+                    val initialFeatureExpr = if (MacroContext.flagFilter(name))
+                        createDefinedExternal(name)
+                    else
+                        False
+                    knownMacros + ((name, new Macro[T](name, initialFeatureExpr andNot feature, List())))
             }, cnfCache - name, featureModel)
     }
 
     def getMacroCondition(feature: String): FeatureExpr = {
         knownMacros.get(feature) match {
-            case Some(macro) => macro.getFeature()
+            case Some(mcr) => mcr.getFeature()
             case None =>
                 if (MacroContext.flagFilter(feature))
                     createDefinedExternal(feature)
                 else
-                    FeatureExpr.dead
+                    False
         }
     }
 
@@ -116,9 +126,9 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
 
         val newMacroName = name + "$$" + MacroIdGenerator.nextMacroId
         val c = getMacroCondition(name)
-        val d = FeatureExpr.createDefinedExternal(newMacroName)
+        val d = createDefinedExternal(newMacroName)
         val condition = c equiv d
-        val cnf = LazyLib.delay(condition.toCnfEquiSat)
+        val cnf = LazyLib.delay(CastHelper.asSATFeatureExpr(condition).toCnfEquiSat)
         val result = (newMacroName, cnf)
         cnfCache = cnfCache + (name -> result)
         result
@@ -130,13 +140,15 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
 
     def getMacroExpansions(identifier: String): Array[MacroExpansion[T]] =
         knownMacros.get(identifier) match {
-            case Some(macro) => macro.getOther(featureModel).toArray
+            case Some(mcr) => mcr.getOther(featureModel).toArray
             case None => Array()
         }
     def getApplicableMacroExpansions(identifier: String, currentPresenceCondition: FeatureExpr): Array[MacroExpansion[T]] =
         getMacroExpansions(identifier).filter(m => !currentPresenceCondition.and(m.getFeature()).isContradiction(featureModel));
 
-    override def toString() = {knownMacros.values.mkString("\n\n\n") + printStatistics}
+    override def toString() = {
+        knownMacros.values.mkString("\n\n\n") + printStatistics
+    }
     def debugPrint(writer: PrintWriter) {
         knownMacros.values.foreach(x => {
             writer print x;
@@ -146,12 +158,12 @@ class MacroContext[T](knownMacros: Map[String, Macro[T]], var cnfCache: Map[Stri
     }
     def printStatistics =
         "\n\n\nStatistics (macros,macros with >1 alternative expansions,>2,>3,>4,non-trivial presence conditions):\n" +
-                knownMacros.size + ";" +
-                knownMacros.values.filter(_.numberOfExpansions > 1).size + ";" +
-                knownMacros.values.filter(_.numberOfExpansions > 2).size + ";" +
-                knownMacros.values.filter(_.numberOfExpansions > 3).size + ";" +
-                knownMacros.values.filter(_.numberOfExpansions > 4).size + ";" +
-                knownMacros.values.filter(!_.getFeature.isTautology(featureModel)).size + "\n"
+            knownMacros.size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 1).size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 2).size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 3).size + ";" +
+            knownMacros.values.filter(_.numberOfExpansions > 4).size + ";" +
+            knownMacros.values.filter(!_.getFeature.isTautology(featureModel)).size + "\n"
     //,number of distinct configuration flags
     //    	+getNumberOfDistinctFlagsStatistic+"\n";
     //    private def getNumberOfDistinctFlagsStatistic = {

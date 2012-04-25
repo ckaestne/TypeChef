@@ -16,10 +16,10 @@ object JavaParserMain {
     //            Runtime.getRuntime().addShutdownHook(new Thread(logStats))
     //
     //            val result = new CParser().translationUnit(
-    //                CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExpr.base)
+    //                CLexer.lexFile(filePath, parentPath).setContext(initialContext), FeatureExprFactory.True)
     //
-    //            println(printParseResult(result, FeatureExpr.base))
-    //    //        checkParseResult(result, FeatureExpr.base)
+    //            println(printParseResult(result, FeatureExprFactory.True))
+    //    //        checkParseResult(result, FeatureExprFactory.True)
     //
     //            //        val resultStr: String = result.toString
     //            //        println("FeatureSolverCache.statistics: " + FeatureSolverCache.statistics)

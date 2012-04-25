@@ -66,7 +66,7 @@ public class Main {
         pp.addFeatures(options.getFeatures());
 
         pp.setListener(new PreprocessorListener(pp));
-        pp.addMacro("__TYPECHEF__", FeatureExprLib.base());
+        pp.addMacro("__TYPECHEF__", FeatureExprLib.True());
 
         PrintWriter output = null;
         if (options.getLexOutputFile().length() > 0) {
@@ -75,10 +75,16 @@ public class Main {
         } else if (options.isLexPrintToStdout())
             output = new PrintWriter(new OutputStreamWriter(System.out));
 
+        if (options.getPartialConfiguration() != null) {
+            for (String def : options.getPartialConfiguration().getDefinedFeatures())
+                pp.addMacro(def, FeatureExprLib.True(), "1");
+            for (String undef : options.getPartialConfiguration().getUndefinedFeatures())
+                pp.removeMacro(undef, FeatureExprLib.True());
+        }
         for (Map.Entry<String, String> macro : options.getDefinedMacros().entrySet())
-            pp.addMacro(macro.getKey(), FeatureExprLib.base(), macro.getValue());
+            pp.addMacro(macro.getKey(), FeatureExprLib.True(), macro.getValue());
         for (String undef : options.getUndefMacros())
-            pp.removeMacro(undef, FeatureExprLib.base());
+            pp.removeMacro(undef, FeatureExprLib.True());
 
         pp.getSystemIncludePath().addAll(options.getIncludePaths());
         pp.getQuoteIncludePath().addAll(options.getQuoteIncludePath());

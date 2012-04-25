@@ -58,7 +58,7 @@ LocalLabelDeclaration -- label names
 
 //Expressions
 trait AST extends Product with Cloneable with WithPosition {
-  override def clone(): AST.this.type = super.clone().asInstanceOf[AST.this.type]
+    override def clone(): AST.this.type = super.clone().asInstanceOf[AST.this.type]
 }
 
 sealed abstract class Expr extends AST
@@ -213,10 +213,13 @@ case class Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDecla
 abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {
     def getName = declarator.getName;
     def getExpr: Option[Expr]
+    def hasInitializer: Boolean = getExpr.isDefined
 }
 
 case class InitDeclaratorI(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], i: Option[Initializer]) extends InitDeclarator(declarator, attributes) {
-    def getExpr = i map {_.expr}
+    def getExpr = i map {
+        _.expr
+    }
 }
 
 case class InitDeclaratorE(override val declarator: Declarator, override val attributes: List[Opt[AttributeSpecifier]], e: Expr) extends InitDeclarator(declarator, attributes) {
@@ -240,12 +243,18 @@ case class InitDeclaratorE(override val declarator: Declarator, override val att
 
 sealed abstract class AbstractDeclarator(val pointers: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AST
 
-sealed abstract class Declarator(val pointers: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorExtension]]) extends AST {def getName: String}
+sealed abstract class Declarator(val pointers: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorExtension]]) extends AST {
+    def getName: String
+}
 
 
-case class AtomicNamedDeclarator(override val pointers: List[Opt[Pointer]], id: Id, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {def getName = id.name}
+case class AtomicNamedDeclarator(override val pointers: List[Opt[Pointer]], id: Id, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {
+    def getName = id.name
+}
 
-case class NestedNamedDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: Declarator, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {def getName = nestedDecl.getName}
+case class NestedNamedDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: Declarator, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {
+    def getName = nestedDecl.getName
+}
 
 case class AtomicAbstractDeclarator(override val pointers: List[Opt[Pointer]], override val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AbstractDeclarator(pointers, extensions)
 

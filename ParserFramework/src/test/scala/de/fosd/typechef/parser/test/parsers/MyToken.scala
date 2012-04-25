@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
-import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 
 class MyToken(val text: String, val feature: FeatureExpr) extends ProfilingToken {
     def t() = text
@@ -13,7 +13,7 @@ class MyToken(val text: String, val feature: FeatureExpr) extends ProfilingToken
         def getColumn = 1
     }
 
-    override def toString = "\"" + text + "\"" + (if (!feature.isBase()) feature else "")
+    override def toString = "\"" + text + "\"" + (if (!feature.isTautology()) feature else "")
 }
 
-object EofToken extends MyToken("EOF", FeatureExpr.base)
+object EofToken extends MyToken("EOF", FeatureExprFactory.True)

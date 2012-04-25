@@ -77,7 +77,7 @@ public class CppTask extends Task {
 
     public void addMacro(Macro macro) {
         try {
-            cpp.addMacro(macro.getName(), FeatureExprLib.base(), macro
+            cpp.addMacro(macro.getName(), FeatureExprLib.True(), macro
                     .getValue());
         } catch (LexerException e) {
             throw new BuildException(e);
@@ -93,7 +93,7 @@ public class CppTask extends Task {
                 throw new BuildException("Output not specified");
             cpp.addInput(this.input);
             writer = new PrintWriter(new FileWriter(this.output));
-            for (; ;) {
+            for (; ; ) {
                 Token tok = cpp.getNextToken();
                 if (tok != null && tok.getType() == Token.EOF)
                     break;

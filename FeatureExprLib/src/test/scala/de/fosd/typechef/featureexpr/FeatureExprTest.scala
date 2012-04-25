@@ -15,8 +15,7 @@ import org.junit.Test
 class FeatureExprTest extends TestCase {
 
     import org.junit.Assert._
-    import FeatureExpr._
-
+    import FeatureExprFactory._
 
     @Test
     def testBasics {
@@ -56,44 +55,53 @@ class FeatureExprTest extends TestCase {
         assertEquals(True, True or a)
         assertEquals(True, a or True)
 
-        assertEquals(((a andNot b) or b).toCNF, a or b)
-        assertEquals((a or (a and b).not).toCNF, True)
-        assertEquals(a, And(Set(a)))
-        assertEquals(a, Or(Set(a)))
+
     }
 
+    val d = FeatureExprFactory.default
+
     @Test def testIf {
-        assertEquals(createIf(feature("a"), True, False), feature("a"))
-        assertEquals(createIf(feature("a"), False, True), feature("a").not)
-        assertEquals(createIf(feature("a"), feature("b") orNot feature("b"), False), feature("a"))
-        assertEquals(createIf(True, True, False), True)
-        assertEquals(createIf(True, feature("a"), feature("b")), feature("a"))
-        assertEquals(createIf(False, feature("a"), feature("b")), feature("b"))
+        assertEquals(d.createBooleanIf(feature("a"), True, False), feature("a"))
+        assertEquals(d.createBooleanIf(feature("a"), False, True), feature("a").not)
+        assertEquals(d.createBooleanIf(feature("a"), feature("b") orNot feature("b"), False), feature("a"))
+        assertEquals(d.createBooleanIf(True, True, False), True)
+        assertEquals(d.createBooleanIf(True, feature("a"), feature("b")), feature("a"))
+        assertEquals(d.createBooleanIf(False, feature("a"), feature("b")), feature("b"))
     }
 
     @Test def testComparison {
         assertEquals(createLT(v(2), v(4)), True)
-        assertEquals(createLT(createIf(feature("a"), v(1), v(2)), v(4)), True)
-        assertEquals(createLT(createIf(feature("a"), v(1), v(5)), v(4)), feature("a"))
-        assertEquals(createLT(createIf(a, v(1), v(5)), createIf(b, v(2), v(6))), a or (a.not andNot b))
-        assertEquals(createLT(createIf(feature("a"), v(1), v(5)), createIf(feature("a"), v(2), v(6))), True)
-        assertEquals(createLT(createIf(a, createIf(b, v(1), v(2)), createIf(b, v(3), v(4))), v(5)), True)
-        assertEquals(createLT(createIf(a, createIf(b, v(1), v(2)), createIf(b, v(3), v(4))), v(2)), a and b)
+        assertEquals(createLT(d.createIf(feature("a"), v(1), v(2)), v(4)), True)
+        assertEquals(createLT(d.createIf(feature("a"), v(1), v(5)), v(4)), feature("a"))
+        assertEquals(createLT(d.createIf(a, v(1), v(5)), d.createIf(b, v(2), v(6))), a or (a.not andNot b))
+        assertEquals(createLT(d.createIf(feature("a"), v(1), v(5)), d.createIf(feature("a"), v(2), v(6))), True)
+        assertEquals(createLT(d.createIf(a, d.createIf(b, v(1), v(2)), d.createIf(b, v(3), v(4))), v(5)), True)
+        assertEquals(createLT(d.createIf(a, d.createIf(b, v(1), v(2)), d.createIf(b, v(3), v(4))), v(2)), a and b)
     }
 
     @Test def testOperations {
-        assertEquals(createPlus(v(2), v(4)), v(6))
-        assertEquals(createPlus(createIf(feature("a"), v(1), v(2)), v(4)), createIf(feature("a"), v(5), v(6)))
-        assertEquals(createLT(createIf(a, createPlus(createIf(b, v(1), v(2)), v(10)), createIf(b, v(3), v(4))), v(5)), a.not)
+        assertEquals(d.createPlus(v(2), v(4)), v(6))
+        assertEquals(d.createPlus(d.createIf(feature("a"), v(1), v(2)), v(4)), d.createIf(feature("a"), v(5), v(6)))
+        assertEquals(createLT(d.createIf(a, d.createPlus(d.createIf(b, v(1), v(2)), v(10)), d.createIf(b, v(3), v(4))), v(5)), a.not)
     }
 
+    @Test def testParserPrecedenceTest {
+        val p = new FeatureExprParser()
+        assertEquals(p.parse("def(a) && def(b) || def(c)"), p.parse("(def(a) && def(b)) || def(c)"))
 
-    def v(value: Int): FeatureExprValue = createInteger(value)
+        assertTrue(p.parse("def(a) && def(b) || def(c)").equivalentTo((a and b) or c))
+
+
+    }
+
+    def v(value: Int): FeatureExprValue = d.createInteger(value)
     def not(v: FeatureExpr) = v.not
     //Leave these as def, not val, maybe (???) to test caching more.
     def a = feature("a")
     def b = feature("b")
     def c = feature("c")
     def feature(n: String) = createDefinedExternal(n)
-    def createLT(a: FeatureExprValue, b: FeatureExprValue) = createLessThan(a, b)
+    def createLT(a: FeatureExprValue, b: FeatureExprValue) = d.createLessThan(a, b)
+
+
 }

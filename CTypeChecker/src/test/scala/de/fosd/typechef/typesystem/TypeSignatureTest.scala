@@ -5,11 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.featureexpr.FeatureExpr.base
-import de.fosd.typechef.featureexpr.FeatureExpr.dead
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr
 
 @RunWith(classOf[JUnitRunner])
 class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {

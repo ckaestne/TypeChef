@@ -56,7 +56,7 @@ public class PartialPPLexer {
             // throw new LexerException(msg);
             // }
         });
-        pp.addMacro("__JCPP__", FeatureExprLib.base());
+        pp.addMacro("__JCPP__", FeatureExprLib.True());
 
         // include path
         if (folderPath != null)
@@ -66,7 +66,7 @@ public class PartialPPLexer {
 
         ArrayList<Token> result = new ArrayList<Token>();
         PrintWriter stdOut = new PrintWriter(new OutputStreamWriter(System.out));
-        for (; ;) {
+        for (; ; ) {
             Token tok = pp.getNextToken();
             if (tok == null)
                 break;

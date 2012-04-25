@@ -1,6 +1,7 @@
 package de.fosd.typechef.featureexpr
 
-import de.fosd.typechef.featureexpr.LazyLib.Susp
+import sat.LazyLib.Susp
+
 
 abstract class FeatureProvider {
     //def isFeatureDefined(feature:String):Boolean

@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.featureexpr.{NoFeatureModel, FeatureModel, FeatureExpr}
-import FeatureExpr._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import FeatureExprFactory._
 
 /**
  * case class to have straightforward hashvalue and equals
@@ -9,12 +9,12 @@ import FeatureExpr._
  * the type context maps identifiers to the conditions under which they are known as types
  */
 case class CTypeContext(val types: Map[String, FeatureExpr] = Map()) {
-    def addType(newtype: String, condition: FeatureExpr) = new CTypeContext(types + (newtype -> (types.getOrElse(newtype, dead) or condition)))
+    def addType(newtype: String, condition: FeatureExpr) = new CTypeContext(types + (newtype -> (types.getOrElse(newtype, False) or condition)))
 
-    def knowsType(typename: String, condition: FeatureExpr): Boolean = knowsType(typename, condition, NoFeatureModel)
+    def knowsType(typename: String, condition: FeatureExpr): Boolean = knowsType(typename, condition, FeatureExprFactory.default.featureModelFactory.empty)
 
     def knowsType(typename: String, condition: FeatureExpr, fm: FeatureModel): Boolean =
-        (types contains typename) && (condition and types.getOrElse(typename, dead)).isSatisfiable(fm)
+        (types contains typename) && (condition and types.getOrElse(typename, False)).isSatisfiable(fm)
 
     def join(that: CTypeContext) =
         new CTypeContext(mergeMap(List(this.types, that.types))(_ or _))

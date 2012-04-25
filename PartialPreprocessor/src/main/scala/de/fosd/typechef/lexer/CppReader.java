@@ -73,7 +73,7 @@ public class CppReader extends Reader {
      * This is a convnience method.
      */
     public void addMacro(String name) throws LexerException {
-        cpp.addMacro(name, FeatureExprLib.base());
+        cpp.addMacro(name, FeatureExprLib.True());
     }
 
     /**
@@ -82,7 +82,7 @@ public class CppReader extends Reader {
      * This is a convnience method.
      */
     public void addMacro(String name, String value) throws LexerException {
-        cpp.addMacro(name, FeatureExprLib.base(), value);
+        cpp.addMacro(name, FeatureExprLib.True(), value);
     }
 
     private boolean refill() throws IOException {

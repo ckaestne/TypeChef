@@ -14,7 +14,7 @@ import linker.CInferInterface
  *
  */
 
-class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = NoFeatureModel) extends CTypeSystem with CInferInterface {
+class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends CTypeSystem with CInferInterface {
 
     class TypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) {
         override def toString =

@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.test
 
 import junit.framework.TestCase
 import org.junit.{Assert, Test}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,7 +12,6 @@ import org.junit.{Assert, Test}
  * To change this template use File | Settings | File Templates.
  */
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.test.parsers._
 
 class BenchmarkTest extends TestCase with DigitListUtilities {
@@ -42,7 +42,7 @@ class BenchmarkTest extends TestCase with DigitListUtilities {
         val in = p.tr(l)
         println("----")
         println("tokens: " + l + " -- " + in.tokens.size)
-        println("parse result: " + p.phrase(parser)(in, FeatureExpr.base))
+        println("parse result: " + p.phrase(parser)(in, FeatureExprFactory.True))
 
         val totalConsumed = in.tokens.foldLeft(0)((sum, token) => sum + token.profile_consumed)
         val totalBacktracked = in.tokens.foldLeft(0)((sum, token) => sum + token.profile_consumed_backtracking)

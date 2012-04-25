@@ -25,7 +25,7 @@ class CParserTest {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 assertEquals("incorrect parse result", expected, ast)
                 //                assertTree(ast)
-                //TODO dead nodes not reported. filter later.(?) cf. Issue #4
+                //TODO False nodes not reported. filter later.(?) cf. Issue #4
                 //                assertNoDeadNodes(ast)
             }
             case p.NoSuccess(msg, unparsed, inner) =>
@@ -52,7 +52,7 @@ class CParserTest {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 if (ast.isInstanceOf[AST]) {
                     //                    assertTree(ast.asInstanceOf[AST])
-                    //TODO dead nodes not reported. filter later.(?) cf. Issue #4
+                    //TODO False nodes not reported. filter later.(?) cf. Issue #4
                     //                    assertNoDeadNodes(ast.asInstanceOf[AST])
                 }
                 //succeed
@@ -119,7 +119,7 @@ class CParserTest {
 
     def intType = TypeName(lo(IntSpecifier()), None)
 
-    def o[T](x: T) = Opt(FeatureExpr.base, x)
+    def o[T](x: T) = Opt(FeatureExprFactory.True, x)
 
     def lo[T](x: T) = List(o(x))
 
@@ -127,7 +127,7 @@ class CParserTest {
 
     def lo[T](x: T, y: T, z: T) = List(o(x), o(y), o(z))
 
-    def fa = FeatureExpr.createDefinedExternal("a")
+    def fa = FeatureExprFactory.createDefinedExternal("a")
 
     @Test
     def testId() {
@@ -434,8 +434,8 @@ class CParserTest {
     }
 
     @Test def testAsmExpr {
-        assertParseable("asm { 3+3};", p.asm_expr)
-        assertParseable("asm volatile { 3+3};", p.asm_expr)
+        assertParseable("asm ( 3+3);", p.asm_expr)
+        assertParseable("asm volatile ( 3+3);", p.asm_expr)
     }
 
     @Test def testFunctionDef {
@@ -550,6 +550,21 @@ main (int argc, char **argv)
         #endif
         ,4}""", p.initializer)
 
+
+    @Test def testAsm {
+        assertParseableAST("asm (\"A\");", p.externalDef) match {
+            case Some(One(AsmExpr(false, _))) =>
+            case e => Assert.fail(e.toString)
+        }
+        assertParseableAST("int asm (\"A\") a;", p.externalDef) match {
+            case Some(One(x: Declaration)) =>
+            case e => Assert.fail(e.toString)
+        }
+        assertParseableAST("asm (\"A\") int a;", p.externalDef) match {
+            case Some(One(x: Declaration)) => println("done")
+            case e => Assert.fail(e.toString)
+        }
+    }
 
     @Test def testMisc0 {
         assertParseable("{__label__ hey, now;}", p.compoundStatement)
@@ -991,8 +1006,8 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
         """, p.phrase(p.translationUnit))
 
 
-    /**this code produced dead AST nodes */
-    @Ignore("TODO, remove dead nodes from AST")
+    /**this code produced False AST nodes */
+    @Ignore("TODO, remove False nodes from AST")
     @Test def testNoDeadAstNodes {
         val c = """
          #ifdef X
@@ -1016,7 +1031,7 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
          #endif
          ;"""
         val ast = assertParseableAST(c, p.translationUnit)
-        assertNoDeadNodes(ast.get, FeatureExpr.base, ast.get)
+        assertNoDeadNodes(ast.get, FeatureExprFactory.True, ast.get)
     }
 
     @Test def test_va_list {
@@ -1106,17 +1121,17 @@ void bar() {
 
     @Test
     def test_bug03 {
-      assertParseableAST("""
+        assertParseableAST("""
       a(){int**b[]={&&c};c:;}
       """, p.translationUnit)
     }
 
     private def assertNoDeadNodes(ast: Product) {
-        assertNoDeadNodes(ast, FeatureExpr.base, ast)
+        assertNoDeadNodes(ast, FeatureExprFactory.True, ast)
     }
 
     private def assertNoDeadNodes(ast: Any, f: FeatureExpr, orig: Product) {
-        assert(f.isSatisfiable(), "dead AST subtree: " + ast + " in " + orig)
+        assert(f.isSatisfiable(), "False AST subtree: " + ast + " in " + orig)
         ast match {
             case Opt(g, e: Object) => assertNoDeadNodes(e, f and g, orig)
             case c: Choice[_] => assertNoDeadNodes(c.thenBranch, f and c.feature, orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature, orig)

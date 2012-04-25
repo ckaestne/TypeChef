@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.parser.Position
-import de.fosd.typechef.featureexpr.FeatureExpr.{base, dead}
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.typesystem.CType
 
 /**
@@ -10,21 +10,21 @@ import de.fosd.typechef.typesystem.CType
  * signatures and all exported signatures.
  */
 case class CInterface(
-                             featureModel: FeatureExpr,
-                             importedFeatures: Set[String],
-                             declaredFeatures: Set[String], //not inferred
-                             imports: Seq[CSignature],
-                             exports: Seq[CSignature]) {
+                         featureModel: FeatureExpr,
+                         importedFeatures: Set[String],
+                         declaredFeatures: Set[String], //not inferred
+                         imports: Seq[CSignature],
+                         exports: Seq[CSignature]) {
 
 
-    def this(imports: Seq[CSignature], exports: Seq[CSignature]) = this (base, Set(), Set(), imports, exports)
+    def this(imports: Seq[CSignature], exports: Seq[CSignature]) = this(True, Set(), Set(), imports, exports)
 
     override def toString =
         "fm " + featureModel + "\n" +
-                "features (" + importedFeatures.size + ")\n\t" + importedFeatures.toList.sorted.mkString(", ") +
-                (if (declaredFeatures.isEmpty) "" else "declared features (" + declaredFeatures.size + ")\n\t" + declaredFeatures.toList.sorted.mkString(", ")) +
-                "\nimports (" + imports.size + ")\n" + imports.map("\t" + _.toString).sorted.mkString("\n") +
-                "\nexports (" + exports.size + ")\n" + exports.map("\t" + _.toString).sorted.mkString("\n") + "\n"
+            "features (" + importedFeatures.size + ")\n\t" + importedFeatures.toList.sorted.mkString(", ") +
+            (if (declaredFeatures.isEmpty) "" else "declared features (" + declaredFeatures.size + ")\n\t" + declaredFeatures.toList.sorted.mkString(", ")) +
+            "\nimports (" + imports.size + ")\n" + imports.map("\t" + _.toString).sorted.mkString("\n") +
+            "\nexports (" + exports.size + ")\n" + exports.map("\t" + _.toString).sorted.mkString("\n") + "\n"
 
     lazy val importsByName = imports.groupBy(_.name)
     lazy val exportsByName = exports.groupBy(_.name)
@@ -34,7 +34,7 @@ case class CInterface(
         var result: Set[String] = Set()
 
         def addFeatures(featureExpr: FeatureExpr) {
-            result = result ++ featureExpr.collectDistinctFeatures.map(_.feature)
+            result = result ++ featureExpr.collectDistinctFeatures
         }
 
         addFeatures(featureModel)
@@ -47,11 +47,11 @@ case class CInterface(
     /**
      * removes duplicates by joining the corresponding conditions
      * removes imports that are available as exports in the same file
-     * removes dead imports
+     * removes False imports
      *
      * two elements are duplicate if they have the same name and type
      *
-     * exports are not packed beyond removing dead exports.
+     * exports are not packed beyond removing False exports.
      * duplicate exports are used for error detection
      */
     def pack: CInterface = if (isPacked) this
@@ -60,15 +60,18 @@ case class CInterface(
             packImports, packExports).setPacked
 
     private var isPacked = false;
-    private def setPacked() = {isPacked = true; this}
+    private def setPacked() = {
+        isPacked = true;
+        this
+    }
     private def packImports: Seq[CSignature] = {
         var importMap = Map[(String, CType), (FeatureExpr, Seq[Position])]()
 
         //eliminate duplicates with a map
         for (imp <- imports if ((featureModel and imp.fexpr).isSatisfiable())) {
             val key = (imp.name, imp.ctype)
-            val old = importMap.getOrElse(key, (dead, Seq()))
-            importMap = importMap + (key -> (old._1 or imp.fexpr, old._2 ++ imp.pos))
+            val old = importMap.getOrElse(key, (False, Seq()))
+            importMap = importMap + (key ->(old._1 or imp.fexpr, old._2 ++ imp.pos))
         }
         //eliminate imports that have corresponding exports
         for (exp <- exports) {
@@ -77,7 +80,7 @@ case class CInterface(
                 val (oldFexpr, oldPos) = importMap(key)
                 val newFexpr = oldFexpr andNot exp.fexpr
                 if ((featureModel and newFexpr).isSatisfiable())
-                    importMap = importMap + (key -> (newFexpr, oldPos))
+                    importMap = importMap + (key ->(newFexpr, oldPos))
                 else
                     importMap = importMap - key
             }
@@ -154,16 +157,16 @@ case class CInterface(
      */
     def getConflicts(that: CInterface): List[(String, FeatureExpr, Seq[CSignature])] =
         CInterface.presenceConflicts(this.exportsByName, that.exportsByName) ++
-                CInterface.typeConflicts(this.importsByName, that.importsByName) ++
-                CInterface.typeConflicts(this.importsByName, that.exportsByName) ++
-                CInterface.typeConflicts(this.exportsByName, that.importsByName)
+            CInterface.typeConflicts(this.importsByName, that.importsByName) ++
+            CInterface.typeConflicts(this.importsByName, that.exportsByName) ++
+            CInterface.typeConflicts(this.exportsByName, that.importsByName)
 
     /**
      * when there is an overlap in the exports, infer constraints which must be satisfied
      * to not have a problem
      */
     private def inferConstraintsWith(that: CInterface): FeatureExpr =
-        getConflicts(that).foldLeft(FeatureExpr.base)(_ and _._2)
+        getConflicts(that).foldLeft(FeatureExprFactory.True)(_ and _._2)
 
 
     def and(f: FeatureExpr): CInterface =
@@ -186,7 +189,7 @@ case class CInterface(
      */
     def isCompatibleTo(that: CInterface): Boolean =
         (this link that).featureModel.isSatisfiable() &&
-                this.declaredFeatures.intersect(that.declaredFeatures).isEmpty
+            this.declaredFeatures.intersect(that.declaredFeatures).isEmpty
 
     def isCompatibleTo(thatSeq: Seq[CInterface]): Boolean = {
         var m = this
@@ -208,7 +211,7 @@ case class CInterface(
 
     def isFullyConfigured: Boolean =
         pack.imports.forall(s => (featureModel implies s.fexpr).isTautology) &&
-                pack.exports.forall(s => (featureModel implies s.fexpr).isTautology)
+            pack.exports.forall(s => (featureModel implies s.fexpr).isTautology)
 
     /**
      * we can use a global feature model to ensure that composing modules
@@ -245,7 +248,7 @@ case class CInterface(
     else {
         val pairs = for (a <- sigs.tails.take(sigs.size); b <- a.tail)
         yield (a.head.fexpr, b.fexpr)
-        val formula = featureModel implies pairs.foldLeft(base)((a, b) => a and (b._1 mex b._2))
+        val formula = featureModel implies pairs.foldLeft(True)((a, b) => a and (b._1 mex b._2))
         formula.isTautology
     }
 
@@ -292,7 +295,7 @@ object CInterface {
     }
 
 
-    private def disjointSigFeatureExpr(a: Seq[CSignature]): FeatureExpr = a.foldLeft(dead)(_ or _.fexpr)
+    private def disjointSigFeatureExpr(a: Seq[CSignature]): FeatureExpr = a.foldLeft(False)(_ or _.fexpr)
 
 
     //    /**
@@ -308,7 +311,7 @@ object CInterface {
     //        //two sets of signatures with the same name
     //        //(a1 or a2 or a3) mex (b1 or b2 or b3)
     //        def addConstraint(a: Seq[CSignature], b: Seq[CSignature]) =
-    //            a.foldLeft(dead)(_ or _.fexpr) mex b.foldLeft(dead)(_ or _.fexpr)
+    //            a.foldLeft(False)(_ or _.fexpr) mex b.foldLeft(False)(_ or _.fexpr)
     //
     //        for (signame <- aa.keys)
     //            if (bb.contains(signame)) {
@@ -321,4 +324,4 @@ object CInterface {
 
 }
 
-object EmptyInterface extends CInterface(FeatureExpr.base, Set(), Set(), Seq(), Seq())
+object EmptyInterface extends CInterface(FeatureExprFactory.True, Set(), Set(), Seq(), Seq())

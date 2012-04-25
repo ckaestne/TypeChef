@@ -22,17 +22,22 @@ Feature Expressions
 -----
 
 The subproject FeatureExprLib of TypeChef provides facilities to reason about propositional formulas. You create a
- literal with `FeatureExpr.createDefinedExternal(name)`. `FeatureExpr.True` and `FeatureExpr.False` can be used as well.
+ literal with `FeatureExprFactory.createDefinedExternal(name)`. `FeatureExprFactory.True` and `FeatureExprFactory.False`
+ can be used as well.
 
 Feature expressions can be combined with the usual operators and, not, or, implies. For example:
 
-    val fa = FeatureExpr.createDefinedExternal("a")
-    val fb = FeatureExpr.createDefinedExternal("b")
+    val fa = FeatureExprFactory.createDefinedExternal("a")
+    val fb = FeatureExprFactory.createDefinedExternal("b")
     val fx = (fa or fb) implies fa
 
 You can check whether expressions are satisfiable, contraditions or tautologies the obvious way:
 
     x.isSatisfiable()
+
+There are two different implementations of FeatureExprLib, one using a SAT solver and one using BDDs (plus a SAT solver
+    when large feature models are used). To the user the change is transparent. However both implementations should
+    not be mixed.
 
 Variational Data Structures
 -----
@@ -47,7 +52,7 @@ Conditional and optional data structures depend always on feature expressions to
 value is used. Optional entries are simple:
 
     val x = Opt(fa, 3)
-    val y = Opt(FeatureExpr.True, 4)
+    val y = Opt(FeatureExprFactory.True, 4)
 
 In this case, `x` has value 3 only if feature `a` is selected. Feature `y` has value 4 in all configurations.
 

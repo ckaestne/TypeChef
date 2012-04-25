@@ -1,9 +1,9 @@
 package de.fosd.typechef.parser
 
 import scala.math._
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 import annotation.tailrec
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing
@@ -59,7 +59,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] = {
             val startPos = in.pos
             val result = thisParser(in, feature).map(f)
-            result.mapfr(FeatureExpr.base, (_, r) => r match {
+            result.mapfr(FeatureExprFactory.True, (_, r) => r match {
                 case Success(t, restIn) =>
                     if (t.isInstanceOf[WithPosition])
                         t.asInstanceOf[WithPosition].setPositionRange(startPos, restIn.pos)
@@ -263,7 +263,7 @@ def apply(in: Input, parserState: ParserState): MultiParseResult[List[Opt[T]]] =
     /**
      * @param in0: token stream position before attempting to parse this sequence
      *
-     * returns a single parse result with the corresponding feature
+     *           returns a single parse result with the corresponding feature
      */
     /*
 def selectFirstMostResult(in0: Input, context: FeatureExpr, result: MultiParseResult[T]): (FeatureExpr, ParseResult[T]) =
@@ -306,12 +306,12 @@ while (true) {
     */
     /**
      * strategy1: parse the next statement with the annotation of the next token.
-     *  if it yields a unique result before the next token that would be parsed
-     *  with the alternative (split) parser, then this is the only result we need
-     *  to care about
+     * if it yields a unique result before the next token that would be parsed
+     * with the alternative (split) parser, then this is the only result we need
+     * to care about
      *
      * will work in the common case that the entire entry is annotated and
-     *  is not interleaved with other annotations
+     * is not interleaved with other annotations
      */
     /*
 
@@ -378,11 +378,11 @@ try {
 } catch {
     */
     /**fallback (try to avoid for long lists!):
-     * normal repetition, where each is wrapped in an Opt(base,_) */
+     * normal repetition, where each is wrapped in an Opt(True,_) */
     /*
               case e: ListHandlingException => {
                   e.printStackTrace
-                  rep(p)(in, parserState).map(_.map(Opt(FeatureExpr.base, _)))
+                  rep(p)(in, parserState).map(_.map(Opt(FeatureExprFactory.True, _)))
               }
           }
       }
@@ -607,15 +607,15 @@ try {
 
         /**
          * performance heuristic 1: parse the next statement with the annotation of the next token.
-         *  if it yields a unique result before the next token that would be parsed
-         *  with the alternative (split) parser, then this is the only result we need
-         *  to care about
+         * if it yields a unique result before the next token that would be parsed
+         * with the alternative (split) parser, then this is the only result we need
+         * to care about
          *
          * will work in the common case that the entire entry is annotated and
-         *  is not interleaved with other annotations
+         * is not interleaved with other annotations
          *
-         *  XXX this probably conflicts with the greedy approach of skipping tokens already in next
-         *  therefore this strategy might apply in significantly less cases than it could
+         * XXX this probably conflicts with the greedy approach of skipping tokens already in next
+         * therefore this strategy might apply in significantly less cases than it could
          */
         def applyStrategyA(in0: Input, ctx: ParserState): Option[(Opt[T], TokenReader[Elem, TypeContext])] = {
             val firstFeature = in0.first.getFeature
@@ -642,7 +642,7 @@ try {
      */
     def rep1[T](p: => MultiParser[T]): MultiParser[List[Opt[T]]] =
         p ~ repOpt(p) ^^ {
-            case x ~ list => Opt(FeatureExpr.base, x) :: list
+            case x ~ list => Opt(FeatureExprFactory.True, x) :: list
         }
 
     /**
@@ -662,13 +662,15 @@ try {
     /**
      * returns failure when list is empty
      * considers all elements of an optList and returns failure for all conditions where the optList is empty
+     *
+     * filter can be used to ignore certain kinds of elements. only elements that pass the filter are counted.
      */
-    def alwaysNonEmpty[T](p: => MultiParser[List[Opt[T]]]): MultiParser[List[Opt[T]]] = new OtherParser[List[Opt[T]]](p) {
+    def alwaysNonEmpty[T](p: => MultiParser[List[Opt[T]]], filterE: T => Boolean = (x: T) => true): MultiParser[List[Opt[T]]] = new OtherParser[List[Opt[T]]](p) {
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[Opt[T]]] = {
             val t = p(in, feature)
             t.seqAllSuccessful(feature,
                 (fs: FeatureExpr, x: Success[List[Opt[T]]]) => {
-                    val nonEmptyCondition = x.result.map(_.feature).foldLeft(FeatureExpr.dead)(_ or _)
+                    val nonEmptyCondition = x.result.filter(x => filterE(x.entry)).map(_.feature).foldLeft(FeatureExprFactory.False)(_ or _)
                     def error = Failure("empty list", x.nextInput, List())
                     if ((fs implies nonEmptyCondition).isTautology())
                         x
@@ -688,7 +690,7 @@ try {
      */
     def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
         p ~ repOpt(separator ~> p) ^^ {
-            case r ~ l => Opt(FeatureExpr.base, r) :: l
+            case r ~ l => Opt(FeatureExprFactory.True, r) :: l
         }
 
     /**
@@ -831,7 +833,7 @@ try {
                     //XXX ChK: the following is an incorrect approximation and the lower code should be used, but reduces performance significantly
                     case Success((l, f), next) if (l.isEmpty) => Failure("empty list (" + productionName + ")", next, List())
                     //		    case e@Success((l, f), next) => {
-                    //                       val nonEmptyCondition = l.foldRight(FeatureExpr.dead)(_.feature or _)
+                    //                       val nonEmptyCondition = l.foldRight(FeatureExprFactory.False)(_.feature or _)
                     //                       lazy val failure = Failure("empty list (" + productionName + ")", next, List())
                     //                       if (nonEmptyCondition.isTautology(featureModel)) e
                     //                       else if (nonEmptyCondition.isContradiction(featureModel)) failure
@@ -845,15 +847,15 @@ try {
 
         /**
          * performance heuristic 1: parse the next statement with the annotation of the next token.
-         *  if it yields a unique result before the next token that would be parsed
-         *  with the alternative (split) parser, then this is the only result we need
-         *  to care about
+         * if it yields a unique result before the next token that would be parsed
+         * with the alternative (split) parser, then this is the only result we need
+         * to care about
          *
          * will work in the common case that the entire entry is annotated and
-         *  is not interleaved with other annotations
+         * is not interleaved with other annotations
          *
-         *  XXX this probably conflicts with the greedy approach of skipping tokens already in next
-         *  therefore this strategy might apply in significantly less cases than it could
+         * XXX this probably conflicts with the greedy approach of skipping tokens already in next
+         * therefore this strategy might apply in significantly less cases than it could
          */
         def applyStrategyA(in0: Input, ctx: ParserState): Option[(Opt[T], TokenReader[Elem, TypeContext])] = {
             val firstFeature = in0.first.getFeature
@@ -873,7 +875,7 @@ try {
         //        /**turns a parse result with a conditional tailing separators into two parse results, indicating whther
         //         * there is a trailing separator */
         //        def hasTrailingSeparator(result: MultiParseResult[(List[Opt[T]], FeatureExpr)]): MultiParseResult[(List[Opt[T]], Boolean)] = {
-        //            result.mapfr(FeatureExpr.base,
+        //            result.mapfr(FeatureExprFactory.True,
         //                //(FeatureExpr, ParseResult[T]) => ParseResult[U]
         //                (f, result) => result match {
         //                    case Success((r, f), in) =>
@@ -1170,7 +1172,7 @@ try {
             }
 
         /**
-         *  joinTree is a non-aggressive join algorithm that only joins siblings in the tree, but does
+         * joinTree is a non-aggressive join algorithm that only joins siblings in the tree, but does
          * not perform cross-tree joins. the advantage is that the algorithm is simple and quick,
          * the disadvantage is that it misses opportunaties for joins
          */
@@ -1321,17 +1323,17 @@ try {
     var lastNoSuccess: NoSuccess = null
 
     /**<p>
-     *    A parser generator delimiting whole phrases (i.e. programs).
-     *  </p>
-     *  <p>
-     *    <code>phrase(p)</code> succeeds if <code>p</code> succeeds and
-     *    no input is left over after <code>p</code>.
-     *  </p>
+     * A parser generator delimiting whole phrases (i.e. programs).
+     * </p>
+     * <p>
+     * <code>phrase(p)</code> succeeds if <code>p</code> succeeds and
+     * no input is left over after <code>p</code>.
+     * </p>
      *
      * @param p the parser that must consume all input for the resulting parser
-     *           to succeed.
+     *          to succeed.
      * @return a parser that has the same result as `p', but that only succeeds
-     *           if <code>p</code> consumed all the input.
+     *         if <code>p</code> consumed all the input.
      */
     def phrase[T](p: MultiParser[T]) = new MultiParser[T] {
         lastNoSuccess = null

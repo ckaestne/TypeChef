@@ -5,7 +5,8 @@ import org.junit._
 import org.junit.Assert._
 import de.fosd.typechef.parser.test.parsers._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.featureexpr.FeatureExpr._
+import de.fosd.typechef.featureexpr.FeatureExprFactory._
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.conditional._
 
 
@@ -78,7 +79,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
         var l = List(t("0"))
         var expected = List(ol(0))
         for (i <- 1 until length) {
-            val f = FeatureExpr.createDefinedExternal("f" + i)
+            val f = FeatureExprFactory.createDefinedExternal("f" + i)
             l = l :+ t(",", f) :+ t(i.toString, f)
             expected = expected :+ ol(i, f)
         }
@@ -90,7 +91,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
         var l = List(t("0"), t(","))
         var expected = List(ol(0))
         for (i <- 1 until length) {
-            val f = FeatureExpr.createDefinedExternal("f" + i)
+            val f = FeatureExprFactory.createDefinedExternal("f" + i)
             l = l :+ t(i.toString, f) :+ t(",", f)
             expected = expected :+ ol(i, f)
         }
@@ -107,7 +108,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
         var l: List[MyToken] = List()
         var expected: List[Opt[Lit]] = List()
         for (i <- 1 until length) {
-            val f = FeatureExpr.createDefinedExternal("f" + i)
+            val f = FeatureExprFactory.createDefinedExternal("f" + i)
             l = l :+ t(i.toString, f) :+ t(",", f)
             expected = expected :+ ol(i, f)
         }
@@ -122,7 +123,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
      * simple list, but inside an annotation
      */
     private def annotatedList(length: Int) = {
-        val f = FeatureExpr.createDefinedExternal("f")
+        val f = FeatureExprFactory.createDefinedExternal("f")
 
         var l: List[MyToken] = List()
         var expected: List[Opt[Lit]] = List()
@@ -137,7 +138,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
         expectDigitList(l, expected)
     }
 
-    private def ol(v: Int) = Opt(base, Lit(v))
+    private def ol(v: Int) = Opt(True, Lit(v))
     private def ol(v: Int, f: FeatureExpr) = Opt(f, Lit(v))
     private def expectDigitList(providedList: List[MyToken], expectedEntries: List[Opt[Lit]], expectUnparsedTokens: Int = 0) {
         val baseFeature = createDefinedExternal("X")
@@ -161,7 +162,7 @@ class RepSepOptTest extends TestCase with DigitListUtilities {
     }
     //    private def expectDigitListCommaChar(providedList: List[MyToken], expectedEntries: List[Opt[Lit]], expectUnparsedTokens: Int = 0) {
     //        val in = p.tr(providedList)
-    //        val r = digitListCommaChar(in, FeatureExpr.base)
+    //        val r = digitListCommaChar(in, FeatureExprFactory.True)
     //        println("parse result: " + r)
     //
     //        r match {

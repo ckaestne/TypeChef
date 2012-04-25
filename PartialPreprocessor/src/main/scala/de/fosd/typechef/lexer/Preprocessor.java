@@ -25,6 +25,7 @@ package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
+import de.fosd.typechef.featureexpr.FeatureExprValue$;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
@@ -158,7 +159,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         for (String name : new String[]{
                 "__LINE__", "__FILE__", "__COUNTER__", "__TIME__", "__DATE__"
         }) {
-            macros = macros.define(name, FeatureExprLib.base(), new MacroData(INTERNAL));
+            macros = macros.define(name, FeatureExprLib.True(), new MacroData(INTERNAL));
         }
 
         state = new State();
@@ -487,7 +488,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     }
 
     /**
-     * only returns false if a code fragment is certainly dead, i.e., there is
+     * only returns false if a code fragment is certainly False, i.e., there is
      * no variant in which it is included.
      * <p/>
      * this can happen when a feature is explicitly undefined or explicitly
@@ -1083,7 +1084,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             }
             // If the macro was not variadic, or if there was no way to make
             // arities match, complain. This warning can be harmless if we are
-            // in a dead branch.
+            // in a False branch.
             warning(tok, "macro " + macroName
                     + " has " + expansion.getArgCount()
                     + " parameters (variadic: " + expansion.isVariadic() + ") for expansion under condition "
@@ -1949,7 +1950,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         public FeatureExprTree<Object> assumeValue(Token tok) throws LexerException {
             if (value == null) {
                 warning(tok, "expecting value before token, found boolean expression " + expr + " instead");
-                return (FeatureExprTree<Object>) expr.toFeatureExprValue();
+
+                return (FeatureExprTree<Object>)
+                        FeatureExprLib.l().createIf(expr,
+                                FeatureExprLib.l().createInteger(1),
+                                FeatureExprLib.l().createInteger(0)
+                        );
             } else
                 return value;
         }
@@ -1991,7 +1997,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                     expr_untoken(tok);
                     error(tok, "missing ) in expression after " + lhs + ", found "
                             + tok + " instead");
-                    return new ExprOrValue(FeatureExprLib.dead(), FeatureExprLib.zero());
+                    return new ExprOrValue(FeatureExprLib.False(), FeatureExprLib.zero());
                 }
                 break;
 
@@ -2013,10 +2019,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                         .createCharacter((Character) tok.getValue()));
                 break;
             case IDENTIFIER:
-                if (tok.getText().equals("___BASE___"))                //XXX: dead code?
-                    lhs = new ExprOrValue(FeatureExprLib.base());
-                else if (tok.getText().equals("___DEAD___"))            //XXX: dead code?
-                    lhs = new ExprOrValue(FeatureExprLib.dead());
+                if (tok.getText().equals("___BASE___"))                //XXX: False code?
+                    lhs = new ExprOrValue(FeatureExprLib.True());
+                else if (tok.getText().equals("___DEAD___"))            //XXX: False code?
+                    lhs = new ExprOrValue(FeatureExprLib.False());
                 else if (tok.getText().equals("__IF__")) {
                     lhs = new ExprOrValue(parse_ifExpr(tok));
                 } else if (tok.getText().equals("defined")) {
@@ -2029,14 +2035,14 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             && warnings.contains(Warning.UNDEF))
                         warning(tok, "Undefined token '" + tok.getText()
                                 + "' encountered in conditional.");
-                    lhs = new ExprOrValue(FeatureExprLib.dead(), FeatureExprLib.zero());
+                    lhs = new ExprOrValue(FeatureExprLib.False(), FeatureExprLib.zero());
                 }
                 break;
 
             default:
                 expr_untoken(tok);
                 error(tok, "Bad token in expression: " + getTextOrDefault(tok, "<Feature Expression>"));
-                return new ExprOrValue(FeatureExprLib.dead(), FeatureExprLib.zero());
+                return new ExprOrValue(FeatureExprLib.False(), FeatureExprLib.zero());
         }
 
         EXPR:
@@ -2146,7 +2152,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
                 default:
                     error(op, "Unexpected operator " + op.getText());
-                    return new ExprOrValue(FeatureExprLib.dead(), FeatureExprLib.zero());
+                    return new ExprOrValue(FeatureExprLib.False(), FeatureExprLib.zero());
 
             }
         }
@@ -2175,7 +2181,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         // is there a possibility that flag is undefined in the current state?
         // i.e. (state AND NOT flag) satisfiable?
-        // i.e. NOT (state AND NOT flag) dead
+        // i.e. NOT (state AND NOT flag) False
 
         return !state.getFullPresenceCondition().and(
                 FeatureExprLib.l().createDefinedExternal(flag).not()).isContradiction(featureModel);
@@ -2195,7 +2201,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
         if (la.getType() != IDENTIFIER) {
             error(la, "defined() needs identifier, not " + getTextOrDefault(la, "<Feature Expression>"));
-            lhs = FeatureExprLib.dead();
+            lhs = FeatureExprLib.False();
         } else
             // System.out.println("Found macro");
             if (!(la.getSource().isNormalizedExternalFeatureExpr() || referToExternalDefinitionsOnly))
@@ -2244,7 +2250,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         consumeToken(':', true);
         ExprOrValue elseBranch = parse_featureExprOrValue(0, false);
         if (thenBranch.expr != null && elseBranch.expr != null)
-            return new ExprOrValue(FeatureExprLib.l().createIf(condition, thenBranch.expr, elseBranch.expr));
+            return new ExprOrValue(FeatureExprLib.l().createBooleanIf(condition, thenBranch.expr, elseBranch.expr));
         else
             return new ExprOrValue(FeatureExprLib.l().createIf(condition, thenBranch.assumeValue(tok), elseBranch.assumeValue(tok)));
     }
@@ -2518,7 +2524,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                 if (tok.getType() != NL)
                                     source_skipline(isParentActive());
                             } else {
-                                state.putLocalFeature(FeatureExprLib.dead(), macros);
+                                state.putLocalFeature(FeatureExprLib.False(), macros);
                                 source_skipline(false);
                             }
 
@@ -2541,7 +2547,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                 state.processElIf();
                                 state.putLocalFeature(
                                         isParentActive() ? localFeaturExpr
-                                                : FeatureExprLib.dead(), macros);
+                                                : FeatureExprLib.False(), macros);
                                 tok = expr_token(true); /* unget */
 
                                 if (tok.getType() != NL)
@@ -2578,7 +2584,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                         .getText());
                                 state.putLocalFeature(
                                         isParentActive() ? localFeatureExpr2
-                                                : FeatureExprLib.dead(), macros);
+                                                : FeatureExprLib.False(), macros);
                                 // return
 
                                 if (tok.getType() != NL)
@@ -2600,7 +2606,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                                         .getText());
                                 state.putLocalFeature(
                                         isParentActive() ? localFeatureExpr3
-                                                : FeatureExprLib.dead(), macros);
+                                                : FeatureExprLib.False(), macros);
                                 if (tok.getType() != NL)
                                     source_skipline(isParentActive());
 

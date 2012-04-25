@@ -65,7 +65,7 @@ class State {
             assert !localFeatures.isEmpty() : "else before #if?";
 
         if (localFeatures.isEmpty())
-            return FeatureExprLib.base();
+            return FeatureExprLib.True();
         FeatureExpr result = localFeatures.get(localFeatures.size() - 1);
         /*
            * if (sawElse) result = result.not();
@@ -97,7 +97,7 @@ class State {
     }
 
     /**
-     * only returns false if a code fragment is certainly dead, i.e., there is
+     * only returns false if a code fragment is certainly False, i.e., there is
      * no variant in which it is included.
      * <p/>
      * this can happen when a feature is explicitly undefined or explicitly
@@ -130,7 +130,7 @@ class State {
 
     /**
      * normally each state represents a code block if an ifdef and endif. if the
-     * feature expression was base or dead, then the initial ifdef definition
+     * feature expression was True or False, then the initial ifdef definition
      * was skipped. the skipped expression is remembered here, so that also an
      * according endif is not output
      */

@@ -15,7 +15,7 @@ class TokenWrapper(token: Token, number: Int) extends /*AbstractToken*/ Profilin
     def isIdentifier = token.getType == Token.IDENTIFIER && !CLexer.keywords.contains(token.getText)
     def getText: String = token.getText
     def getType = token.getType
-    override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isBase()) getFeature else "")
+    override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isTautology) getFeature else "")
     private lazy val pos = new TokenPosition(
         if (token.getSource == null) null else token.getSource.toString,
         token.getLine,
@@ -150,6 +150,6 @@ object TokenWrapper {
     }
 
     val EOF = new TokenWrapper(new SimpleToken(Token.EOF, -1, -1, "<EOF>", null, null), -1) {
-        override def getFeature = FeatureExpr.dead
+        override def getFeature = FeatureExprFactory.False
     }
 }

@@ -5,7 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
-import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.parser.c.TestHelper
 import de.fosd.typechef.conditional._
 
@@ -28,7 +28,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     private def exprV(code: String): Conditional[CType] = {
         val ast = parseExpr(code)
         val env = EmptyEnv.updateVarEnv(varCtx).updateStructEnv(astructEnv)
-        val r = getExprType(ast, base, env)
+        val r = getExprType(ast, True, env)
         println(ast + " --> " + r)
         r
     }
@@ -42,33 +42,33 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     val varCtx: VarTypingContext =
         new VarTypingContext() ++ (Seq(
-            ("a", base, CDouble()),
-            ("i", base, CSigned(CInt())),
+            ("a", True, CDouble()),
+            ("i", True, CSigned(CInt())),
             ("ca", fa, CDouble()),
-            ("v", base, CVoid()),
-            ("s", base, CStruct("str")),
-            ("sp", base, CPointer(CStruct("str"))),
-            ("arr", base, CArray(CDouble(), 5)),
-            ("foo", base, CFunction(Seq(), CDouble())),
-            ("bar", base, CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid())),
-            ("strf", base, CFunction(Seq(), CStruct("str"))),
-            ("funparam", base, CPointer(CFunction(Seq(), CDouble()))),
-            ("funparamptr", base, CPointer(CPointer(CFunction(Seq(), CDouble())))),
-            ("argv", base, CArray(CPointer(CSignUnspecified(CChar())), -1))
-        ).map(x => (x._1, x._2, One(x._3), false, 0)) ++ Seq(
-            ("c", base, c_i_l, false, 0),
-            ("vstruct", base, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), false, 0),
-            ("vstruct2", base, Choice(fx, One(CStruct("vstrA")), _u), false, 0),
-            ("cfun", base, Choice(fx,
+            ("v", True, CVoid()),
+            ("s", True, CStruct("str")),
+            ("sp", True, CPointer(CStruct("str"))),
+            ("arr", True, CArray(CDouble(), 5)),
+            ("foo", True, CFunction(Seq(), CDouble())),
+            ("bar", True, CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid())),
+            ("strf", True, CFunction(Seq(), CStruct("str"))),
+            ("funparam", True, CPointer(CFunction(Seq(), CDouble()))),
+            ("funparamptr", True, CPointer(CPointer(CFunction(Seq(), CDouble())))),
+            ("argv", True, CArray(CPointer(CSignUnspecified(CChar())), -1))
+        ).map(x => (x._1, x._2, One(x._3), KDeclaration, 0)) ++ Seq(
+            ("c", True, c_i_l, KDeclaration, 0),
+            ("vstruct", True, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), KDeclaration, 0),
+            ("vstruct2", True, Choice(fx, One(CStruct("vstrA")), _u), KDeclaration, 0),
+            ("cfun", True, Choice(fx,
                 One(CFunction(Seq(CSigned(CInt())), CSigned(CInt()))),
-                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), false, 0) //i->i or i,i->l
+                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), KDeclaration, 0) //i->i or i,i->l
         ))
 
     val astructEnv: StructEnv =
         new StructEnv().add(
-            "str", false, base, new ConditionalTypeMap() +("a", base, One(CDouble())) +("b", base, One(CStruct("str")))).add(
+            "str", false, True, new ConditionalTypeMap() +("a", True, One(CDouble())) +("b", True, One(CStruct("str")))).add(
             "vstrA", false, fx, new ConditionalTypeMap() +("a", fx and fy, _l) +("b", fx, One(CStruct("str")))).add(
-            "vstrB", false, base, new ConditionalTypeMap() +("a", base, _i) +("b", base, _i) +("c", fx.not, _i)
+            "vstrB", false, True, new ConditionalTypeMap() +("a", True, _i) +("b", True, _i) +("c", fx.not, _i)
         )
 
     test("primitives and pointers") {

@@ -2,9 +2,9 @@ package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.conditional.{Opt, Conditional}
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.typesystem.{CType, CTypeSystem}
 import de.fosd.typechef.parser.Position
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * first attempt to infer the interface of a C file for linker checks
@@ -19,12 +19,12 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
 
 
     //if not already type checked, to the check now
-    def inferInterface(ast: TranslationUnit, fm: FeatureExpr = FeatureExpr.base): CInterface = {
+    def inferInterface(ast: TranslationUnit, fm: FeatureExpr = FeatureExprFactory.True): CInterface = {
         typecheckTranslationUnit(ast, fm)
         getInferredInterface(fm)
     }
 
-    def getInferredInterface(fm: FeatureExpr = FeatureExpr.base) = {
+    def getInferredInterface(fm: FeatureExpr = FeatureExprFactory.True) = {
         cleanImports()
         new CInterface(fm, featureNames, Set(), imports, exports).pack
     }
@@ -45,8 +45,8 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
         //eliminate duplicates with a map
         for (imp <- imports) {
             val key = (imp.name, imp.ctype)
-            val old = importMap.getOrElse(key, (FeatureExpr.dead, Seq()))
-            importMap = importMap + (key -> (old._1 or imp.fexpr, old._2 ++ imp.pos))
+            val old = importMap.getOrElse(key, (FeatureExprFactory.False, Seq()))
+            importMap = importMap + (key ->(old._1 or imp.fexpr, old._2 ++ imp.pos))
         }
         //eliminate imports that have corresponding exports
         for (exp <- (exports ++ staticFunctions)) {
@@ -55,7 +55,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
                 val (oldFexpr, oldPos) = importMap(key)
                 val newFexpr = oldFexpr andNot exp.fexpr
                 if (newFexpr.isSatisfiable())
-                    importMap = importMap + (key -> (newFexpr, oldPos))
+                    importMap = importMap + (key ->(newFexpr, oldPos))
                 else
                     importMap = importMap - key
             }
@@ -73,7 +73,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     override def typedFunction(fun: FunctionDef, funType: Conditional[CType], featureExpr: FeatureExpr) {
         super.typedFunction(fun, funType, featureExpr)
 
-        val staticCondition = FeatureExpr.base andNot getStaticCondition(fun.specifiers)
+        val staticCondition = FeatureExprFactory.True andNot getStaticCondition(fun.specifiers)
 
         funType.simplify(featureExpr).mapf(featureExpr, {
             (fexpr, ctype) =>
@@ -85,7 +85,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     }
 
     private def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr =
-        specifiers.filter(_.entry == StaticSpecifier()).foldLeft(FeatureExpr.dead)((f, o) => f or o.feature)
+        specifiers.filter(_.entry == StaticSpecifier()).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
 
 
     /**

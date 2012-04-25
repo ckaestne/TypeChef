@@ -3,7 +3,7 @@ package de.fosd.typechef.featureexpr
 import junit.framework._;
 import junit.framework.Assert._
 import org.junit.Test
-import FeatureExpr._
+import FeatureExprFactory.sat._
 
 class TestNumericConditions extends TestCase {
 
@@ -11,17 +11,17 @@ class TestNumericConditions extends TestCase {
     def testSimpleConditions() {
         //1==1
         assertTrue(
-            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(1)).isTautology());
+            createEquals(createInteger(1), createInteger(1)).isTautology());
         //1==2
         assertTrue(
-            FeatureExpr.createEquals(FeatureExpr.createInteger(1), FeatureExpr.createInteger(2)).isContradiction());
+            createEquals(createInteger(1), createInteger(2)).isContradiction());
         //1+1==2
         assertTrue(
-            FeatureExpr.createEquals(
-                FeatureExpr.createPlus(
-                    FeatureExpr.createInteger(1),
-                    FeatureExpr.createInteger(1)),
-                FeatureExpr.createInteger(2)).isTautology());
+            createEquals(
+                createPlus(
+                    createInteger(1),
+                    createInteger(1)),
+                createInteger(2)).isTautology());
     }
     def testConditions() {
         //	  &&
@@ -66,54 +66,53 @@ class TestNumericConditions extends TestCase {
         //				__ELSE__
         //					0
         //	CONFIG_SPARSEMEM
-        import FeatureExpr._
         val longExpr =
-            FeatureExpr.createGreaterThan(
-                FeatureExpr.createPlus(
-                    FeatureExpr.createMinus(
-                        FeatureExpr.createIf((createDefinedExternal("forcemaxzone").not), createInteger(11), createInteger(0)),
-                        (FeatureExpr.createInteger(1))),
-                    (FeatureExpr.createInteger(12))),
-                FeatureExpr.createIf(
-                    FeatureExpr.createDefinedExternal("3stuff"),
-                    (FeatureExpr.createInteger(29)),
-                    FeatureExpr.createIf(
-                        FeatureExpr.createDefinedExternal("3!morestuff"),
-                        (FeatureExpr.createInteger(26)),
-                        FeatureExpr.createIf(
-                            FeatureExpr.createDefinedExternal("2!stuff"),
-                            (FeatureExpr.createInteger(27)),
-                            (FeatureExpr.createInteger(0)))))).and(FeatureExpr.createDefinedExternal("sparsemem"));
+            createGreaterThan(
+                createPlus(
+                    createMinus(
+                        createIf((createDefinedExternal("forcemaxzone").not), createInteger(11), createInteger(0)),
+                        (createInteger(1))),
+                    (createInteger(12))),
+                createIf(
+                    createDefinedExternal("3stuff"),
+                    (createInteger(29)),
+                    createIf(
+                        createDefinedExternal("3!morestuff"),
+                        (createInteger(26)),
+                        createIf(
+                            createDefinedExternal("2!stuff"),
+                            (createInteger(27)),
+                            (createInteger(0)))))).and(createDefinedExternal("sparsemem"));
 
         assertTrue(longExpr.isSatisfiable());
 
         //!	__IF__		CONFIG_64BIT	__THEN__			1		<=			64	__ELSE__				1		<=		32
         assertTrue(
-            FeatureExpr.createIf(FeatureExpr.createDefinedExternal("CONFIG_64BIT"),
-                FeatureExpr.createLessThanEquals(
-                    (FeatureExpr.createInteger(1)),
-                    (FeatureExpr.createInteger(64))),
-                FeatureExpr.createLessThanEquals(
-                    (FeatureExpr.createInteger(1)),
-                    (FeatureExpr.createInteger(32)))).not.isContradiction())
+            createBooleanIf(createDefinedExternal("CONFIG_64BIT"),
+                createLessThanEquals(
+                    (createInteger(1)),
+                    (createInteger(64))),
+                createLessThanEquals(
+                    (createInteger(1)),
+                    (createInteger(32)))).not.isContradiction())
 
         //if !( 1<=	__IF__		CONFIG_64BIT	__THEN__		64	__ELSE__		32)
         assertTrue(
-            FeatureExpr.createLessThanEquals(
-                (FeatureExpr.createInteger(1)),
-                FeatureExpr.createIf(
+            createLessThanEquals(
+                (createInteger(1)),
+                createIf(
                     createDefinedExternal("CONFIG_64BIT"),
                     createInteger(64),
                     createInteger(32))).not.isContradiction());
 
         //a?1:2==2
         assertTrue(
-            FeatureExpr.createEquals(
-                FeatureExpr.createIf(
+            createEquals(
+                createIf(
                     createDefinedExternal("a"),
                     createInteger(1),
                     createInteger(2)),
-                FeatureExpr.createInteger(2)).isSatisfiable());
+                createInteger(2)).isSatisfiable());
 
     }
     def testMixIntChar = {

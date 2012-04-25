@@ -4,7 +4,7 @@ import de.fosd.typechef.lexer.Token
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExpr.base
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -17,10 +17,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     type TypeContext = CTypeContext
 
     def parse[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
-        mainProduction(CLexer.lex(code, featureModel), FeatureExpr.base)
+        mainProduction(CLexer.lex(code, featureModel), True)
 
     def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
-        mainProduction(CLexer.lex(code, featureModel), FeatureExpr.base)
+        mainProduction(CLexer.lex(code, featureModel), True)
 
     //parser
     val keywords = Set("__real__", "__imag__", "__alignof__", "__alignof", "__asm", "__asm__", "__attribute__", "__attribute",
@@ -47,13 +47,14 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         (lookahead(textToken("typedef")) ~! declaration ^^ {
             case _ ~ r => r
         } |
-            declaration |
-            functionDef | typelessDeclaration | asm_expr | pragma | expectType | expectNotType | (SEMI ^^ {
+            asm_expr | declaration |
+            functionDef | typelessDeclaration | pragma | expectType | expectNotType | (SEMI ^^ {
             x => EmptyExternalDef()
         })) !
 
+    //parse with LPAREN instead of LCURLY in antlr grammar. seems to be the correct gnuc impl according to gcc
     def asm_expr: MultiParser[AsmExpr] =
-        asm ~! opt(volatile) ~ LCURLY ~ expr ~ RCURLY ~ rep1(SEMI) ^^ {
+        asm ~! opt(volatile) ~ LPAREN ~ expr ~ RPAREN ~ rep1(SEMI) ^^ {
             case _ ~ v ~ _ ~ e ~ _ ~ _ => AsmExpr(v.isDefined, e)
         }
 
@@ -597,7 +598,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def offsetofMemberDesignator: MultiParser[List[Opt[OffsetofMemberDesignator]]] =
         ID ~ repOpt(offsetofMemberDesignatorExt) ^^ {
-            case id ~ list => Opt(base, OffsetofMemberDesignatorID(id)) +: list
+            case id ~ list => Opt(True, OffsetofMemberDesignatorID(id)) +: list
         }
 
     def offsetofMemberDesignatorExt: MultiParser[OffsetofMemberDesignator] =
@@ -779,11 +780,15 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def alignof = textToken("__alignof__") | textToken("__alignof")
 
+    def ignoreAttributes(s: Specifier): Boolean = s match {
+        case x: AttributeSpecifier => false
+        case _ => true
+    }
     def specList(otherSpecifiers: MultiParser[Specifier]): MultiParser[List[Opt[Specifier]]] =
         alwaysNonEmpty(repOpt(otherSpecifiers) ~~ opt(typedefName) ~~ repOpt(otherSpecifiers | typeSpecifier) ^^ {
-            case list1 ~ Some(typedefn) ~ list2 => list1 ++ List(Opt(base, typedefn)) ++ list2
+            case list1 ~ Some(typedefn) ~ list2 => list1 ++ List(Opt(True, typedefn)) ++ list2
             case list1 ~ None ~ list2 => list1 ++ list2
-        })
+        }, ignoreAttributes)
 
     //XXX: CK: only for debugging purposes, not part of the C grammar
     def expectType = textToken("__expectType") ~ LBRACKET ~ COLON ~!> typedefName <~ COLON <~ RBRACKET ^^ {
@@ -803,7 +808,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def anyTokenExcept(exceptions: List[String]): MultiParser[Elem] =
         token("any except " + exceptions, (t: Elem) => !exceptions.contains(t.getText))
 
-    private def o[T](x: T) = Opt(base, x)
+    private def o[T](x: T) = Opt(True, x)
 
     override def joinContext(a: CTypeContext, b: CTypeContext): CTypeContext = a join b
 
