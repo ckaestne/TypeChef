@@ -80,28 +80,28 @@ object ProductGeneration {
     var startTime : Long = 0
 
     val features : List[FeatureExpr] = getAllFeatures(family_ast)
-    //for (f <- features) println(f.feature)
+    //for (f <- features) println(f)
 /** Starting with no tasks */
     var typecheckingTasks : List[Pair[String, List[FeatureExpr]]] = List()
 
 /**  All products */
     //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env))
 /**  Single-wise */
-
+/*
     startTime = System.currentTimeMillis()
     typecheckingTasks ::= Pair("singleWise", getAllSinglewiseConfigurations(features,fm, preferDisabledFeatures=true))
     msg = "Time for config generation (singlewise): " + (System.currentTimeMillis() - startTime) + " ms\n"
     println(msg)
     log = log + msg
-
+*/
 /**  Pairwise */
-    /*
+
     startTime = System.currentTimeMillis()
     typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
     msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n"
     println(msg)
     log = log + msg
-    */
+
 /** Coverage Configurations */
 /*
     typecheckingTasks ::=
@@ -113,7 +113,7 @@ object ProductGeneration {
 /** Just one hardcoded config */
 /*
     typecheckingTasks ::= Pair("hardcoded", getOneConfigWithFeatures(
-      List(),
+      List("CONFIG_LONG_OPTS"),
       List(),
       features,fm, true, true)
       )
@@ -235,8 +235,6 @@ object ProductGeneration {
     }
   }
 
-
-
   def getAllSinglewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[FeatureExpr] = Set()
@@ -348,7 +346,6 @@ object ProductGeneration {
     } else {
       return completeConfiguration(expr, list, model, b);
     }
-
   }
   /**
    * Completes a partial configuration so that no variability remains.
@@ -359,33 +356,20 @@ object ProductGeneration {
    * @param fm
    */
   def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
-    var numSatCheck:Int = 0
-    var timeForSatChecks :Long = 0
     var config : FeatureExpr = partialConfig
     val fIter = remainingFeatures.iterator
     var partConfigFeasible : Boolean = true
-    var i =0
     while (partConfigFeasible && fIter.hasNext) {
       val fx :FeatureExpr = fIter.next()
-      println("handling feature " + i)
-      i+=1
       if (preferDisabledFeatures) {
         // try to set other variables to false first
         var tmp : FeatureExpr = config.andNot(fx)
-        var time = System.currentTimeMillis()
         val res1 : Boolean =tmp.isSatisfiable(fm)
-        timeForSatChecks += System.currentTimeMillis()-time
-        numSatCheck+=1
-        println("SatCheck#" + numSatCheck + " totalTime For Satchecks: " + timeForSatChecks)
         if (res1) {
           config = tmp
         } else {
           tmp = config.and(fx)
-          var time = System.currentTimeMillis()
           val res2 : Boolean =tmp.isSatisfiable(fm)
-          timeForSatChecks += System.currentTimeMillis()-time
-          numSatCheck+=1
-          println("SatCheck#" + numSatCheck + " totalTime For Satchecks: " + timeForSatChecks)
           if (res2) {
             config = tmp
           } else {
@@ -427,23 +411,23 @@ object ProductGeneration {
   def getAllFeatures(root: Product) : List[FeatureExpr] = {
     // sort to eliminate any non-determinism caused by the set
     val featuresSorted = getAllFeaturesRec(root).toList.sortWith({
-      (x,y) => x.compare(y) > 0
+      (x,y) => x.collectDistinctFeatures.head.compare(y.collectDistinctFeatures.head) > 0
     });
     println ("found " + featuresSorted.size + " features")
-    return featuresSorted.map({s:String => FeatureExprFactory.createDefinedExternal(s)});
+    return featuresSorted //.map({s:String => FeatureExprFactory.createDefinedExternal(s)});
   }
 
-  private def getAllFeaturesRec(root: Any) : Set[String] = {
+  private def getAllFeaturesRec(root: Any) : Set[FeatureExpr] = {
     root match {
-      case x: Opt[_] => x.feature.collectDistinctFeatures.toSet ++ getAllFeaturesRec(x.entry)
-      case x: Choice[_] => x.feature.collectDistinctFeatures.toSet ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
+      case x: Opt[_] => x.feature.collectDistinctFeatureObjects.toSet ++ getAllFeaturesRec(x.entry)
+      case x: Choice[_] => x.feature.collectDistinctFeatureObjects.toSet ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
       case l: List[_] => {
-        var ret : Set[String] = Set();
+        var ret : Set[FeatureExpr] = Set();
         for (x <- l) {ret = ret ++ getAllFeaturesRec(x);}
         ret
       }
       case x: Product => {
-        var ret : Set[String] = Set();
+        var ret : Set[FeatureExpr] = Set();
         for (y <- x.productIterator.toList) {ret = ret ++ getAllFeaturesRec(y);}
         ret
       }

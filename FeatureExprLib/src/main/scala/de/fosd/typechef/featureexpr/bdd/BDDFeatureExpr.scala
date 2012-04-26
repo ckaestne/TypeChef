@@ -6,6 +6,7 @@ import de.fosd.typechef.featureexpr._
 import bdd.FExprBuilder._
 import scala._
 import scala.Predef._
+import scala.Tuple2._
 
 
 object FeatureExprHelper {
@@ -305,6 +306,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
     def collectDistinctFeatures: Set[String] =
         collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
+
+  def collectDistinctFeatureObjects: Set[FeatureExpr] =
+    collectDistinctFeatureIds.map({id:Int => new BDDFeatureExpr(lookupFeatureBDD(id))})
 
 
     /**

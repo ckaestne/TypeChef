@@ -67,18 +67,15 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
     solver.addAllClauses(featureModel.clauses)
     var uniqueFlagIds: Map[String, Int] = featureModel.variables
 
-
     /**
      * checks whether (fm and dnf.not) is satisfiable
      *
      * dnf is the disjunctive normal form of the negated(!) expression
      */
     def isSatisfiable(dnf: Iterator[Seq[Int]], lookupName: (Int) => String): Boolean = {
-
+        this.lastModel=null // remove model from last satisfiability check
 
         val PROFILING = false
-
-
 
         val startTime = System.currentTimeMillis();
 
@@ -88,7 +85,6 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
         val startTimeSAT = System.currentTimeMillis();
         var constraintGroup: List[IConstr] = Nil
         try {
-
 
             def bddId2fmId(id: Int) = {
                 val featureName = lookupName(id)

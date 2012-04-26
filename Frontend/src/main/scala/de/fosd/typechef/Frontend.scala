@@ -46,7 +46,6 @@ object Frontend {
                 println("use parameter --help for more information.")
                 return;
         }
-      println("test")
         processFile(opt)
     }
 

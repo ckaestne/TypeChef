@@ -13,6 +13,7 @@ trait FeatureExpr {
   protected def calcSize: Int
   def toTextExpr: String //or other ToString variations for debugging etc
   def collectDistinctFeatures: Set[String]
+  def collectDistinctFeatureObjects: Set[FeatureExpr]
 
   def or(that: FeatureExpr): FeatureExpr
   def and(that: FeatureExpr): FeatureExpr

@@ -5,6 +5,7 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.{One, Opt, Choice, ConditionalLib}
 import de.fosd.typechef.lexer.options.FeatureModelOptions
+import sat.DefinedMacro
 
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
@@ -53,12 +54,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     val returnValue : Any = a match {
       case Choice(f, x, y) => {
         //if (c.config.implies(env.featureExpr(x)).isTautology()) { //!! this does not work??
-          if (c.config.implies(f).isTautology()) { // this probably only works for complete configurations
+        if (c.config.implies(f).isTautology()) { // this probably only works for complete configurations
           val res = new Choice(FeatureExprFactory.True, deriveProd(x,c,env), One(new EmptyStatement()))
           //val res = new One(deriveProd(x,c,env))
           res
-        //} else if (c.config.implies(env.featureExpr(y)).isTautology()) {
-      } else if (c.config.implies(f.not()).isTautology()) {
+          //} else if (c.config.implies(env.featureExpr(y)).isTautology()) {
+        } else if (c.config.implies(f.not()).isTautology()) {
           val res = new Choice(FeatureExprFactory.True, deriveProd(y,c,env), One(new EmptyStatement()))
           //val res = new One(deriveProd(y,c,env))
           res
@@ -78,7 +79,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
             val derived = deriveProd(o.copy(feature = FeatureExprFactory.True), c, env)
             res ::= derived
           } else {
-            //println("----omitting opt("+thisId+") " + o)
+            //println("----omitting opt (not implied) with feature " + o.feature.toTextExpr +" : " + o)
           }
         }
         res
@@ -86,7 +87,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
       case Opt(fex, entry : Product) =>
         //assert(c.config.implies(env.featureExpr(entry)).isTautology());
         assert(c.config.implies(fex).isTautology());
-        new Opt(FeatureExprFactory.True,deriveProd(entry,c,env)) // the variability should be handled be the List[Opt[_]] - code
+        new Opt(FeatureExprFactory.True, deriveProd(entry,c,env)) // the variability should be handled be the List[Opt[_]] - code
       case l : List[Product] => l.map(deriveProd(_,c,env))
       case Some(x : Product) => new Some(deriveProd(x,c,env))
 
