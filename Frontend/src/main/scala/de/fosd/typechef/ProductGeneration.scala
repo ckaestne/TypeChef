@@ -12,8 +12,8 @@ import sat.{SATFeatureExpr, DefinedExpr}
 import typesystem.CTypeSystemFrontend
 import scala.collection.mutable.Queue
 import java.io.{File, FileWriter}
-import scala.Predef._
 import scala._
+import scala.Predef._
 
 /**
  *
@@ -235,26 +235,21 @@ object ProductGeneration {
 
   def getAllSinglewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
-    var handledCombinations : Set[FeatureExpr] = Set()
     for (f1 <- features) {
-      //val f1 = FeatureExprFactory.createDefinedExternal(f1Name)
-      if (! (handledCombinations.contains(f1))) {
-        // this pair was not considered yet
-        var conf = FeatureExprFactory.True.and(f1)
-        if (conf.isSatisfiable(fm)) {
-          // this pair is satisfiable
-          // make config complete by choosing the other featuresval remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-          val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1)})
-          val completeConfig = completeConfiguration(conf,remainingFeatures, fm)
-          if (completeConfig != null) {
-            pwConfigs ::= completeConfig
-          } else {
-            println("no satisfiable configuration for feature " + f1)
-          }
+      // this pair was not considered yet
+      var conf = FeatureExprFactory.True.and(f1)
+      if (conf.isSatisfiable(fm)) {
+        // this pair is satisfiable
+        // make config complete by choosing the other featuresval remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
+        val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1)})
+        val completeConfig = completeConfiguration(conf,remainingFeatures, fm)
+        if (completeConfig != null) {
+          pwConfigs ::= completeConfig
         } else {
           println("no satisfiable configuration for feature " + f1)
         }
-        handledCombinations += f1
+      } else {
+        println("no satisfiable configuration for feature " + f1)
       }
     }
     return pwConfigs
@@ -263,30 +258,27 @@ object ProductGeneration {
   def getAllPairwiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
     println("generating pair-wise configurations")
     var pwConfigs : List[FeatureExpr] = List()
-    var handledCombinations : Set[Pair[FeatureExpr,FeatureExpr]] = Set()
 
     // todo: at the moment Pair(a,b) and Pair(b,a) are considered different. They should be equal!
-
-    for (f1 <- features) {
-      for (f2 <- features) {
-        if (! (handledCombinations.contains(Pair(f2,f1)) || handledCombinations.contains(Pair(f1,f2)))) {
-          // this pair was not considered yet
-          var conf = FeatureExprFactory.True.and(f1).and(f2)
-
-          if (conf.isSatisfiable(fm)) {
-            // this pair is satisfiable
-            // make config complete by choosing the other features
-            val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-            val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
-            if (completeConfig != null) {
-              pwConfigs ::= completeConfig
-            } else {
-              println("no satisfiable configuration for features " + f1 + " and " +f2)
-            }
+    // this for-loop structure should avoid pairs like "(A,A)" and ( "(A,B)" and "(B,A)" )
+    for (index1 <- 0 to features.size-1) {
+      val f1 = features(index1)
+      for (index2 <- index1+1 to features.size-1) {
+        val f2 = features(index2)
+        // this pair was not considered yet
+        var conf = FeatureExprFactory.True.and(f1).and(f2)
+        if (conf.isSatisfiable(fm)) {
+          // this pair is satisfiable
+          // make config complete by choosing the other features
+          val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
+          val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+          if (completeConfig != null) {
+            pwConfigs ::= completeConfig
           } else {
             println("no satisfiable configuration for features " + f1 + " and " +f2)
           }
-          handledCombinations += Pair(f1,f2)
+        } else {
+          println("no satisfiable configuration for features " + f1 + " and " +f2)
         }
       }
     }
@@ -296,27 +288,27 @@ object ProductGeneration {
   def getAllTriplewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
     println("generating triple-wise configurations")
     var pwConfigs : List[FeatureExpr] = List()
-    var handledCombinations : Set[Set[FeatureExpr]] = Set()
-    for (f1 <- features) {
-      for (f2 <- features) {
-        for (f3 <- features) {
-          if (! (handledCombinations.contains(Set(f1,f2,f3)))) {
-            // this pair was not considered yet
-            var conf = FeatureExprFactory.True.and(f1).and(f2).and(f3)
-            if (conf.isSatisfiable(fm)) {
-              // this pair is satisfiable
-              // make config complete by choosing the other features
-              val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)})
-              val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
-              if (completeConfig != null) {
-                pwConfigs ::= completeConfig
-              } else {
-                println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
-              }
+    // this for-loop structure should avoid pairs like "(A,A)" and ( "(A,B)" and "(B,A)" )
+    for (index1 <- 0 to features.size-1) {
+      val f1 = features(index1)
+      for (index2 <- index1 to features.size-1) {
+        val f2 = features(index2)
+        for (index3 <- index2 to features.size-1) {
+          val f3 = features(index3)
+          // this pair was not considered yet
+          var conf = FeatureExprFactory.True.and(f1).and(f2).and(f3)
+          if (conf.isSatisfiable(fm)) {
+            // this pair is satisfiable
+            // make config complete by choosing the other features
+            val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)})
+            val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+            if (completeConfig != null) {
+              pwConfigs ::= completeConfig
             } else {
               println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
             }
-            handledCombinations += Set(f1,f2,f3)
+          } else {
+            println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
           }
         }
       }
