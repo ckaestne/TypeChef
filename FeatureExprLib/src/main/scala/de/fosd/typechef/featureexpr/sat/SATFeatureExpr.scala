@@ -9,7 +9,7 @@ import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
-import scala.Some
+import scala.{Option, Some}
 
 //
 ///**
@@ -990,10 +990,12 @@ class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val 
 
     def feature = name
     override def toTextExpr = "defined(" + name + ")"
-    override def toString = "macro(" + name + ")"
+    override def toString = "macro(" + name + "=" +presenceCondition.resolveToExternal.toString +  ")"
     override def satName = expandedName
     def countSize() = 1
     def isExternal = false
+    override def collectDistinctFeatures=presenceCondition.resolveToExternal.collectDistinctFeatures
+    override def collectDistinctFeatureObjects=presenceCondition.resolveToExternal.collectDistinctFeatureObjects
 }
 
 object DefinedMacro {
