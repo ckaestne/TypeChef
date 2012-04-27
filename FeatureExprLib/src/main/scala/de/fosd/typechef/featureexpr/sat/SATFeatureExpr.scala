@@ -124,6 +124,35 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     def notS(): SATFeatureExpr = FExprBuilder.not(this)
     def not(): SATFeatureExpr = notS()
 
+  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[FeatureExpr]): Option[FeatureExpr] = {
+    val fm = asSATFeatureModel(featureModel)
+
+    // get one satisfying assignment (a list of features set to true, and a list of features set to false)
+    val assignment : Option[(List[String], List[String])] = new SatSolver().getSatAssignment(fm, toCnfEquiSat)
+    // we will subtract from this set until all interesting features are handled
+    var remainingInterestingFeatures = interestingFeatures
+    assignment match {
+      case Some(Pair(trueFeatures, falseFeatures)) => {
+        var retExpr :FeatureExpr = this
+        remainingInterestingFeatures --= this.collectDistinctFeatureObjects
+        for (f <- trueFeatures) {
+          //if (remainingInterestingFeatures.contains(f)) {
+          val res = remainingInterestingFeatures.find({fex:FeatureExpr => fex.collectDistinctFeatures.head.equals(f)}) match {
+            case Some(fex : FeatureExpr) => {
+              remainingInterestingFeatures -= fex
+              retExpr = fex.and(retExpr)
+            }
+            case None => {}
+          }
+        }
+        for (f <- remainingInterestingFeatures)
+          retExpr = retExpr.andNot(f)
+        return Some(retExpr)
+      }
+      case None => return None
+    }
+  }
+
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
      * but is faster because FM is cached
@@ -136,6 +165,7 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
         }
         cacheIsSatisfiable.getOrElseUpdate(f, new SatSolver().isSatisfiable(toCnfEquiSat, f))
     }
+
 
     /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.

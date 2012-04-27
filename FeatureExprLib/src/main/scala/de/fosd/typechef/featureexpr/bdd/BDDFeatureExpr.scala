@@ -4,9 +4,8 @@ import net.sf.javabdd._
 import scala.collection.mutable.{ WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
 import bdd.FExprBuilder._
-import scala._
 import scala.Predef._
-import scala.Tuple2._
+import scala._
 
 
 object FeatureExprHelper {
@@ -182,7 +181,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
    * @param interestingFeatures
    * @return Option[FeatureExpr]
    */
-    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[String]): Option[FeatureExpr] = {
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[FeatureExpr]): Option[FeatureExpr] = {
       val fm = asBDDFeatureModel(featureModel)
       val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
       // get one satisfying assignment (a list of features set to true, and a list of features set to false)
@@ -192,19 +191,31 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
       assignment match {
         case Some(Pair(trueFeatures, falseFeatures)) => {
           var retBDD = this.bdd.id() // makes a copy of this.bdd, so that it is not consumed by the andWith functions
-          remainingInterestingFeatures --= this.collectDistinctFeatures
-          for (f <- trueFeatures)
-            if (remainingInterestingFeatures.contains(f)) {
-              remainingInterestingFeatures -= f
-              retBDD = lookupFeatureBDD(lookupFeatureID(f)).id() andWith retBDD
+          remainingInterestingFeatures --= this.collectDistinctFeatureObjects
+          for (f <- trueFeatures) {
+            val elem = remainingInterestingFeatures.find({fex:FeatureExpr => fex.collectDistinctFeatures.head.equals(f)})
+            //if (remainingInterestingFeatures.contains(f)) {
+            elem match {
+              case Some(fex : FeatureExpr) => {
+                remainingInterestingFeatures -= fex
+                retBDD = asBDDFeatureExpr(fex).bdd.id() andWith retBDD
+              }
+              case None => {}
             }
-          for (f <- falseFeatures)
-            if (remainingInterestingFeatures.contains(f)) {
-              remainingInterestingFeatures -= f
-              retBDD = lookupFeatureBDD(lookupFeatureID(f)).not() andWith retBDD
+          }
+          for (f <- falseFeatures) {
+            val elem = remainingInterestingFeatures.find({fex:FeatureExpr => fex.collectDistinctFeatures.head.equals(f)})
+            //if (remainingInterestingFeatures.contains(f)) {
+            elem match {
+              case Some(fex : FeatureExpr) => {
+                remainingInterestingFeatures -= fex
+                retBDD = asBDDFeatureExpr(fex).bdd.not() andWith retBDD
+              }
+              case None => {}
             }
+          }
           for (f <- remainingInterestingFeatures)
-            retBDD = lookupFeatureBDD(lookupFeatureID(f)).not() andWith retBDD
+            retBDD = asBDDFeatureExpr(f).bdd.not() andWith retBDD
           return Some(new BDDFeatureExpr(retBDD))
         }
         case None => return None

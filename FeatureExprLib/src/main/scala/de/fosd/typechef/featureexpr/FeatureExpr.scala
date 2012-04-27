@@ -14,6 +14,7 @@ trait FeatureExpr {
   def toTextExpr: String //or other ToString variations for debugging etc
   def collectDistinctFeatures: Set[String]
   def collectDistinctFeatureObjects: Set[FeatureExpr]
+  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[FeatureExpr]): Option[FeatureExpr]
 
   def or(that: FeatureExpr): FeatureExpr
   def and(that: FeatureExpr): FeatureExpr

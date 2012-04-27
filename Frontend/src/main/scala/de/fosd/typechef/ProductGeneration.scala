@@ -89,24 +89,22 @@ object ProductGeneration {
 /**  Single-wise */
 /*
     startTime = System.currentTimeMillis()
-    typecheckingTasks ::= Pair("singleWise", getAllSinglewiseConfigurations(features,fm, preferDisabledFeatures=true))
+    typecheckingTasks ::= Pair("singleWise", getAllSinglewiseConfigurations(features,fm))
     msg = "Time for config generation (singlewise): " + (System.currentTimeMillis() - startTime) + " ms\n"
     println(msg)
     log = log + msg
 */
 /**  Pairwise */
-
     startTime = System.currentTimeMillis()
-    typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
+    typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm))
     msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n"
     println(msg)
     log = log + msg
-
 /** Coverage Configurations */
 /*
     typecheckingTasks ::=
       Pair("coverage", ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env).toList.map(
-      {ex : FeatureExpr => completeConfiguration(ex, features, fm, preferDisabledFeatures = true ) }
+      {ex : FeatureExpr => completeConfiguration(ex, features, fm) }
     ))
     println("got " + typecheckingTasks.last._2.size + " coverage configurations")
 */
@@ -194,7 +192,7 @@ object ProductGeneration {
 
   }
   def getOneConfigWithFeatures(trueFeatures:List[String], falseFeatures:List[String],
-                                  allFeatures : List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true, fixConfig : Boolean = true) : List[FeatureExpr] = {
+                                  allFeatures : List[FeatureExpr], fm:FeatureModel, fixConfig : Boolean = true) : List[FeatureExpr] = {
     var partConfig : FeatureExpr = FeatureExprFactory.True
     var remainingFeatures :List[FeatureExpr] = allFeatures
     for (fName : String <-trueFeatures) {
@@ -221,7 +219,7 @@ object ProductGeneration {
     }
     if (partConfig.isSatisfiable(fm)) {
       if (fixConfig) {
-        val completeConfig =  completeConfiguration(partConfig,remainingFeatures,fm,preferDisabledFeatures)
+        val completeConfig =  completeConfiguration(partConfig,remainingFeatures,fm)
         if (completeConfig == null) {
           throw new IllegalArgumentException("PartialConfig has no satisfiable extension!")
         } else {
@@ -235,7 +233,7 @@ object ProductGeneration {
     }
   }
 
-  def getAllSinglewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
+  def getAllSinglewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[FeatureExpr] = Set()
     for (f1 <- features) {
@@ -247,7 +245,7 @@ object ProductGeneration {
           // this pair is satisfiable
           // make config complete by choosing the other featuresval remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
           val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1)})
-          val completeConfig = completeConfigurationOpt(conf,remainingFeatures, fm, preferDisabledFeatures)
+          val completeConfig = completeConfiguration(conf,remainingFeatures, fm)
           if (completeConfig != null) {
             pwConfigs ::= completeConfig
           } else {
@@ -262,10 +260,12 @@ object ProductGeneration {
     return pwConfigs
   }
 
-  def getAllPairwiseConfigurations(features : List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : List[FeatureExpr] = {
+  def getAllPairwiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
     println("generating pair-wise configurations")
     var pwConfigs : List[FeatureExpr] = List()
     var handledCombinations : Set[Pair[FeatureExpr,FeatureExpr]] = Set()
+
+    // todo: at the moment Pair(a,b) and Pair(b,a) are considered different. They should be equal!
 
     for (f1 <- features) {
       for (f2 <- features) {
@@ -277,7 +277,7 @@ object ProductGeneration {
             // this pair is satisfiable
             // make config complete by choosing the other features
             val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-            val completeConfig = completeConfigurationOpt(conf,remainingFeatures,fm, preferDisabledFeatures)
+            val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
             if (completeConfig != null) {
               pwConfigs ::= completeConfig
             } else {
@@ -325,26 +325,16 @@ object ProductGeneration {
   }
 
   /**
-   * Optimzed version of the completeConfiguration method. Uses the original method as fallback if optimization is not applicable.
-   * The optimization is only applicable if the BDD feature is used.
-   * //perhaps implement for sat, too?!
+   * Optimzed version of the completeConfiguration method. Uses FeatureExpr.getSatisfiableAssignment to need only one SAT call.
    * @param expr
    * @param list
    * @param model
-   * @param b
    * @return
    */
-  def completeConfigurationOpt(expr: FeatureExpr, list: List[FeatureExpr], model: FeatureModel, b: Boolean) : FeatureExpr = {
-    if (expr.isInstanceOf[BDDFeatureExpr]) {
-      val bddex = expr.asInstanceOf[BDDFeatureExpr]
-      val features :Set[String] = list.toSet.map({f : FeatureExpr => f.collectDistinctFeatures.head})
-      // get satisfying FeatureExpr with only features in this set
-      bddex.getSatisfiableAssignment(model, features) match {
-        case Some(ret) => return ret
-        case None => return null
-      }
-    } else {
-      return completeConfiguration(expr, list, model, b);
+  def completeConfiguration(expr: FeatureExpr, list: List[FeatureExpr], model: FeatureModel) : FeatureExpr = {
+    expr.getSatisfiableAssignment(model, list.toSet) match {
+      case Some(ret) => return ret
+      case None => return null
     }
   }
   /**
@@ -355,7 +345,7 @@ object ProductGeneration {
    * @param remainingFeatures
    * @param fm
    */
-  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
+  def completeConfiguration_Inefficient(partialConfig : FeatureExpr, remainingFeatures:List[FeatureExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
     var config : FeatureExpr = partialConfig
     val fIter = remainingFeatures.iterator
     var partConfigFeasible : Boolean = true

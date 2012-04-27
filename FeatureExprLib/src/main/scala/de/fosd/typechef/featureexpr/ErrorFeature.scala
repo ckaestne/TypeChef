@@ -11,6 +11,7 @@ package de.fosd.typechef.featureexpr
 
 class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     def isSatisfiable(fm: FeatureModel) = error
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[FeatureExpr]) = error
     protected def calcSize = error
     def collectDistinctFeatures = error
     def collectDistinctFeatureObjects = error
@@ -22,5 +23,6 @@ class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     override def toTextExpr = error
     //    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]) = error
     override def debug_print(x: Int) = error
+
 
 }
