@@ -994,8 +994,9 @@ class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val 
     override def satName = expandedName
     def countSize() = 1
     def isExternal = false
-    override def collectDistinctFeatures=presenceCondition.resolveToExternal.collectDistinctFeatures
-    override def collectDistinctFeatureObjects=presenceCondition.resolveToExternal.collectDistinctFeatureObjects
+    /**TODO: This probably would be the correct way, but it breaks my product generation code, and i cannot fix it right now */
+    //override def collectDistinctFeatures=presenceCondition.resolveToExternal.collectDistinctFeatures
+    //override def collectDistinctFeatureObjects=presenceCondition.resolveToExternal.collectDistinctFeatureObjects
 }
 
 object DefinedMacro {
