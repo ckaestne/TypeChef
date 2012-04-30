@@ -7,6 +7,14 @@ import scala.collection.JavaConversions._
 import scala.math.min
 
 
+/* 
+ Algorithm to discover the minimal set of products necessary so that every token is included in at least one product.
+ Derives an optimal solution by reducing the problem to the graph coloring problem on a mutex graph.
+
+ Solution by Tillmann Rendel, Implementation by Christian Kaestner
+*/
+
+
 object MinimalVariants {
     def main(args: Array[String]): Unit = {
 
