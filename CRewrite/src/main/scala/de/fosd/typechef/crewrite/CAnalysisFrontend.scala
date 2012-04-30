@@ -2,10 +2,10 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.{One, Opt, Choice, ConditionalLib}
 import de.fosd.typechef.lexer.options.FeatureModelOptions
 import sat.DefinedMacro
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c._
 
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
@@ -39,7 +39,56 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     x
   }
 
-  /**
+
+    private def deriveConditional[T <: AST](e:Conditional[T], c: Configuration, env: ASTEnv ):One[T]=e match {
+        case Choice(f, x, y) => {
+            //if (c~.config.implies(env.featureExpr(x)).isTautology()) { //!! this does not work??
+            if (c.config.implies(f).isTautology()) { // this probably only works for complete configurations
+                val res = deriveConditional(x,c,env)
+                //val res = new One(deriveProd(x,c,env))
+                res
+                //} else if (c.config.implies(env.featureExpr(y)).isTautology()) {
+            } else if (c.config.implies(f.not()).isTautology()) {
+                val res = deriveConditional(y,c,env)
+                //val res = new One(deriveProd(y,c,env))
+                res
+            } else {
+                //println("failure!!!!")
+                assert(false,"variability in this configuration!")
+                deriveConditional(y,c,env)
+            }
+        }
+        case One(value) => new One(deriveProd(value,c,env))
+    }
+    private def deriveOptionalAST[T <: AST](e:Option[T], c: Configuration, env: ASTEnv ) : Option[T] = e match {
+        case None => None
+        case Some(x) => Some(deriveProd(x,c,env))
+    }
+    private def deriveOptionalConditional[T<:AST](e:Option[Conditional[T]], c: Configuration, env: ASTEnv ) : Option[Conditional[T]] = e match {
+        case None => None
+        case Some(cond) => Some(deriveConditional(cond,c,env))
+    }
+    private def deriveOptionalOptList[T<:AST](e:Option[List[Opt[T]]], c: Configuration, env: ASTEnv ) : Option[List[Opt[T]]] = e match {
+        case None => None
+        case Some(x) => Some(deriveOptList(x,c,env))
+    }
+    private def deriveASTList[T<:AST](e:List[T], c: Configuration, env: ASTEnv ) : List[T] =  {
+        e.map(deriveProd(_,c,env))
+    }
+    private def deriveOptList[T<:AST](e:List[Opt[T]], c: Configuration, env: ASTEnv ) : List[Opt[T]] =  {
+        var res: List[Opt[T]] = List()
+        for (o <- e.reverse) {
+            if (c.config.implies(o.feature).isTautology()) {// this probably only works for complete configurations
+            val derived = o.copy(feature = FeatureExprFactory.True, entry = deriveProd(o.entry,c,env))
+                res ::= derived
+            } else {
+                //println("----omitting opt (not implied) with feature " + o.feature.toTextExpr +" : " + o)
+            }
+        }
+        res
+    }
+
+    /**
    * Generates a second AST that has only the AST nodes belonging to the given configuration.
    * It is a projection of the original AST.
    * This method might work incorrectly if the given configuration still allows variability for features
@@ -50,53 +99,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
    * @tparam T Return variable is of the same type as the root node.
    * @return
    */
-  def deriveProd[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
+  def deriveProd[T <: AST](a: T, c: Configuration, env: ASTEnv): T = {
     val returnValue : Any = a match {
-      case Choice(f, x, y) => {
-        //if (c.config.implies(env.featureExpr(x)).isTautology()) { //!! this does not work??
-        if (c.config.implies(f).isTautology()) { // this probably only works for complete configurations
-          val res = new Choice(FeatureExprFactory.True, deriveProd(x,c,env), One(new EmptyStatement()))
-          //val res = new One(deriveProd(x,c,env))
-          res
-          //} else if (c.config.implies(env.featureExpr(y)).isTautology()) {
-        } else if (c.config.implies(f.not()).isTautology()) {
-          val res = new Choice(FeatureExprFactory.True, deriveProd(y,c,env), One(new EmptyStatement()))
-          //val res = new One(deriveProd(y,c,env))
-          res
-        } else {
-          //println("failure!!!!")
-          assert(false,"variability in this configuration!")
-          Choice(f,x,y)
-        }
-      }
-      case One(One(value:Product)) => new One(deriveProd(value,c,env))
-      case One(value:Product) => new One(deriveProd(value,c,env))
-      case l: List[Opt[_]] => {
-        var res: List[Opt[_]] = List()
-        for (o <- l.reverse) {
-          //if (c.config.implies(env.featureExpr(o.entry)).isTautology()) {
-          if (c.config.implies(o.feature).isTautology()) {// this probably only works for complete configurations
-            val derived = deriveProd(o.copy(feature = FeatureExprFactory.True), c, env)
-            res ::= derived
-          } else {
-            //println("----omitting opt (not implied) with feature " + o.feature.toTextExpr +" : " + o)
-          }
-        }
-        res
-      }
-      case Opt(fex, entry : Product) =>
-        //assert(c.config.implies(env.featureExpr(entry)).isTautology());
-        assert(c.config.implies(fex).isTautology());
-        new Opt(FeatureExprFactory.True, deriveProd(entry,c,env)) // the variability should be handled be the List[Opt[_]] - code
-      case l : List[Product] => l.map(deriveProd(_,c,env))
-      case Some(x : Product) => new Some(deriveProd(x,c,env))
-
-      case None => None
-
-      case Id(s) => new Id(s);
+      case i:Id => i
       case Constant(s) => new Constant(s);
       case StringLit(s) => new StringLit(s);
-      case BuiltinOffsetof(typeName,od) => new BuiltinOffsetof(deriveProd(typeName,c, env), deriveProd(od,c,env))
+      case BuiltinOffsetof(typeName,od) => new BuiltinOffsetof(typeName, deriveOptList(od,c,env))
       case BuiltinTypesCompatible(t1,t2) => new BuiltinTypesCompatible(deriveProd(t1,c, env), deriveProd(t2,c,env))
       case BuiltinVaArgs(ex,tn) => new BuiltinVaArgs(deriveProd(ex,c,env),deriveProd(tn,c,env))
       case CompoundStatementExpr(ent) => new CompoundStatementExpr(deriveProd(ent,c, env))
@@ -108,11 +116,11 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
       case PointerDerefExpr(expr) => new PointerDerefExpr(deriveProd(expr, c,env))
       case PointerCreationExpr(ex) => new PointerCreationExpr(deriveProd(ex,c,env))
       case UnaryOpExpr(kind,ex) => new UnaryOpExpr(kind,deriveProd(ex,c,env))
-      case NAryExpr(e,others) => new NAryExpr(deriveProd(e,c,env), deriveProd(others,c,env))
-      case ConditionalExpr(cond,then,elseEx) => new ConditionalExpr(deriveProd(cond,c,env),deriveProd(then,c,env),deriveProd(elseEx,c,env))
+      case NAryExpr(e,others) => new NAryExpr(deriveProd(e,c,env), deriveOptList(others,c,env))
+      case ConditionalExpr(cond,then,elseEx) => new ConditionalExpr(deriveProd(cond,c,env),deriveOptionalAST(then,c,env),deriveProd(elseEx,c,env))
       case AssignExpr(tgt,op,src) => new AssignExpr(deriveProd(tgt,c,env),op, deriveProd(src,c,env))
-      case ExprList(exs) => new ExprList(deriveProd(exs,c,env))
-      case LcurlyInitializer(inits) => new LcurlyInitializer(deriveProd(inits,c,env))
+      case ExprList(exs) => new ExprList(deriveOptList(exs,c,env))
+      case LcurlyInitializer(inits) => new LcurlyInitializer(deriveOptList(inits,c,env))
       case AlignOfExprT(tn) => new AlignOfExprT(deriveProd(tn,c,env))
       case AlignOfExprU(tn) => new AlignOfExprU(deriveProd(tn,c,env))
       case GnuAsmExpr(iv,ig,expr,stuff) => new GnuAsmExpr(iv,ig,deriveProd(expr,c,env), stuff)
@@ -122,77 +130,77 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
       case FunctionCall(params) => new FunctionCall(deriveProd(params,c,env))
       case ArrayAccess(expr) => new ArrayAccess(deriveProd(expr,c,env))
       case NArySubExpr(op, ex) => new NArySubExpr(op, deriveProd(ex,c,env))
-      case CompoundStatement(inner) => new CompoundStatement(deriveProd(inner,c,env))
+      case CompoundStatement(inner) => new CompoundStatement(deriveOptList(inner,c,env))
       case x:EmptyStatement => x
       case ExprStatement(ex) => new ExprStatement(deriveProd(ex,c,env))
-      case WhileStatement(ex, s) => new WhileStatement(deriveProd(ex,c,env), deriveProd(s,c,env))
-      case DoStatement(ex, s) => new DoStatement(deriveProd(ex,c,env),deriveProd(s,c,env))
-      case ForStatement(ex1,ex2,ex3,s) => new ForStatement(deriveProd(ex1,c,env),deriveProd(ex2,c,env),deriveProd(ex3,c,env),deriveProd(s,c,env))
+      case WhileStatement(ex, s) => new WhileStatement(deriveProd(ex,c,env), deriveConditional(s,c,env))
+      case DoStatement(ex, s) => new DoStatement(deriveProd(ex,c,env),deriveConditional(s,c,env))
+      case ForStatement(ex1,ex2,ex3,s) => new ForStatement(deriveOptionalAST(ex1,c,env),deriveOptionalAST(ex2,c,env),deriveOptionalAST(ex3,c,env),deriveConditional(s,c,env))
       case GotoStatement(ex) => new GotoStatement(deriveProd(ex,c,env))
       case x:ContinueStatement => x
       case x:BreakStatement => x
-      case ReturnStatement(ex)=> new ReturnStatement(deriveProd(ex,c,env))
-      case LabelStatement(id,attr) => new LabelStatement(deriveProd(id,c,env),deriveProd(attr,c,env))
-      case CaseStatement(cs,s) => new CaseStatement(deriveProd(cs,c,env), deriveProd(s,c,env))
-      case DefaultStatement(s) => new DefaultStatement(deriveProd(s,c,env))
-      case IfStatement(cond,then,elifs,elseBr) => new IfStatement(deriveProd(cond,c,env),deriveProd(then,c,env),deriveProd(elifs,c,env),deriveProd(elseBr,c,env))
-      case SwitchStatement(ex,s) => new SwitchStatement(deriveProd(ex,c,env),deriveProd(s,c,env))
+      case ReturnStatement(ex)=> new ReturnStatement(deriveOptionalAST(ex,c,env))
+      case LabelStatement(id,attr) => new LabelStatement(deriveProd(id,c,env),deriveOptionalAST(attr,c,env))
+      case CaseStatement(cs,s) => new CaseStatement(deriveProd(cs,c,env), deriveOptionalConditional(s,c,env))
+      case DefaultStatement(s) => new DefaultStatement(deriveOptionalConditional(s,c,env))
+      case IfStatement(cond,then,elifs,elseBr) => new IfStatement(deriveProd(cond,c,env),deriveConditional(then,c,env),deriveOptList(elifs,c,env),deriveOptionalConditional(elseBr,c,env))
+      case SwitchStatement(ex,s) => new SwitchStatement(deriveProd(ex,c,env),deriveConditional(s,c,env))
       case DeclarationStatement(dec) => new DeclarationStatement(deriveProd(dec,c,env))
-      case LocalLabelDeclaration(ids) => new LocalLabelDeclaration(deriveProd(ids,c,env))
-      case NestedFunctionDef(isAuto,specs,dec,par,stmt) => new NestedFunctionDef(isAuto,deriveProd(specs,c,env),deriveProd(dec,c,env),deriveProd(par,c,env),deriveProd(stmt,c,env))
-      case ElifStatement(cond,branch) => new ElifStatement(deriveProd(cond,c,env),deriveProd(branch,c,env))
+      case LocalLabelDeclaration(ids) => new LocalLabelDeclaration(deriveOptList(ids,c,env))
+      case NestedFunctionDef(isAuto,specs,dec,par,stmt) => new NestedFunctionDef(isAuto,deriveOptList(specs,c,env),deriveProd(dec,c,env),deriveOptList(par,c,env),deriveProd(stmt,c,env))
+      case ElifStatement(cond,branch) => new ElifStatement(deriveProd(cond,c,env),deriveConditional(branch,c,env))
       // all primitiveTypeSpecifier - subclasses do not have individual properties or sub-elements. So we can reuse them directly.
       case x : PrimitiveTypeSpecifier => x
       case OtherPrimitiveTypeSpecifier(tn) => new OtherPrimitiveTypeSpecifier(tn)
       case TypeDefTypeSpecifier(name) => new TypeDefTypeSpecifier(deriveProd(name,c,env))
       case x : SignedSpecifier => x
       case x : UnsignedSpecifier => x
-      case EnumSpecifier(id,enums) => new EnumSpecifier(deriveProd(id,c,env),deriveProd(enums,c,env))
-      case StructOrUnionSpecifier(isu,id,enums) => new StructOrUnionSpecifier(isu,deriveProd(id,c,env),deriveProd(enums,c,env))
+      case EnumSpecifier(id,enums) => new EnumSpecifier(deriveOptionalAST(id,c,env),deriveOptionalOptList(enums,c,env))
+      case StructOrUnionSpecifier(isu,id,enums) => new StructOrUnionSpecifier(isu,deriveOptionalAST(id,c,env),deriveOptList(enums,c,env))
       case TypeOfSpecifierT(tn) => new TypeOfSpecifierT(deriveProd(tn,c,env))
       case TypeOfSpecifierU(tn) => new TypeOfSpecifierU(deriveProd(tn,c,env))
       // all OtherSpecifier - subclasses do not have individual properties or sub-elements. So we can reuse them directly.
       case x : OtherSpecifier => x
       case x : TypedefSpecifier => x
-      case GnuAttributeSpecifier(attrList) => new GnuAttributeSpecifier(deriveProd(attrList,c,env))
+      case GnuAttributeSpecifier(attrList) => new GnuAttributeSpecifier(deriveOptList(attrList,c,env))
       case AsmAttributeSpecifier(strconst) => new AsmAttributeSpecifier(deriveProd(strconst,c,env))
       case AtomicAttribute(n) => new AtomicAttribute(n)
-      case CompoundAttribute(inner) => new CompoundAttribute(deriveProd(inner,c,env))
-      case AttributeSequence(attrs) => new AttributeSequence(deriveProd(attrs,c,env))
-      case InitDeclaratorI(dec,attrs,i) => new InitDeclaratorI(deriveProd(dec,c,env),deriveProd(attrs,c,env),deriveProd(i,c,env))
-      case InitDeclaratorE(dec,attrs,ex) => new InitDeclaratorE(deriveProd(dec,c,env),deriveProd(attrs,c,env),deriveProd(ex,c,env))
-      case AtomicAbstractDeclarator(pointers, exts) => new AtomicAbstractDeclarator(deriveProd(pointers,c,env),deriveProd(exts,c,env))
-      case NestedAbstractDeclarator(pointers,nest,exts) => new NestedAbstractDeclarator(deriveProd(pointers,c,env),deriveProd(nest,c,env),deriveProd(exts,c,env))
-      case AtomicNamedDeclarator(po,id,exts) => new AtomicNamedDeclarator(deriveProd(po,c,env),deriveProd(id,c,env),deriveProd(exts,c,env))
-      case NestedNamedDeclarator(po,nest,exts) => new NestedNamedDeclarator(deriveProd(po,c,env),deriveProd(nest,c,env),deriveProd(exts,c,env))
-      case DeclParameterDeclList(decls) => new DeclParameterDeclList(deriveProd(decls,c,env))
-      case DeclArrayAccess(ex) => new DeclArrayAccess(deriveProd(ex,c,env))
-      case DeclIdentifierList(idList) => new DeclIdentifierList(deriveProd(idList,c,env))
-      case Initializer(iel,ex) => new Initializer(deriveProd(iel,c,env), deriveProd(ex,c,env))
-      case Pointer(spec) => new Pointer(deriveProd(spec,c,env))
-      case PlainParameterDeclaration(specs) => new PlainParameterDeclaration(deriveProd(specs,c,env))
-      case ParameterDeclarationD(specs,decl) => new ParameterDeclarationD(deriveProd(specs,c,env), deriveProd(decl,c,env))
-      case ParameterDeclarationAD(specs,decl) => new ParameterDeclarationAD(deriveProd(specs,c,env), deriveProd(decl,c,env))
+      case CompoundAttribute(inner) => new CompoundAttribute(deriveOptList(inner,c,env))
+      case AttributeSequence(attrs) => new AttributeSequence(deriveOptList(attrs,c,env))
+      case InitDeclaratorI(dec,attrs,i) => new InitDeclaratorI(deriveProd(dec,c,env),deriveOptList(attrs,c,env),deriveOptionalAST(i,c,env))
+      case InitDeclaratorE(dec,attrs,ex) => new InitDeclaratorE(deriveProd(dec,c,env),deriveOptList(attrs,c,env),deriveProd(ex,c,env))
+      case AtomicAbstractDeclarator(pointers, exts) => new AtomicAbstractDeclarator(deriveOptList(pointers,c,env),deriveOptList(exts,c,env))
+      case NestedAbstractDeclarator(pointers,nest,exts) => new NestedAbstractDeclarator(deriveOptList(pointers,c,env),deriveProd(nest,c,env),deriveOptList(exts,c,env))
+      case AtomicNamedDeclarator(po,id,exts) => new AtomicNamedDeclarator(deriveOptList(po,c,env),deriveProd(id,c,env),deriveOptList(exts,c,env))
+      case NestedNamedDeclarator(po,nest,exts) => new NestedNamedDeclarator(deriveOptList(po,c,env),deriveProd(nest,c,env),deriveOptList(exts,c,env))
+      case DeclParameterDeclList(decls) => new DeclParameterDeclList(deriveOptList(decls,c,env))
+      case DeclArrayAccess(ex) => new DeclArrayAccess(deriveOptionalAST(ex,c,env))
+      case DeclIdentifierList(idList) => new DeclIdentifierList(deriveOptList(idList,c,env))
+      case Initializer(iel,ex) => new Initializer(deriveOptionalAST(iel,c,env), deriveProd(ex,c,env))
+      case Pointer(spec) => new Pointer(deriveOptList(spec,c,env))
+      case PlainParameterDeclaration(specs) => new PlainParameterDeclaration(deriveOptList(specs,c,env))
+      case ParameterDeclarationD(specs,decl) => new ParameterDeclarationD(deriveOptList(specs,c,env), deriveProd(decl,c,env))
+      case ParameterDeclarationAD(specs,decl) => new ParameterDeclarationAD(deriveOptList(specs,c,env), deriveProd(decl,c,env))
       case x : VarArgs => x
-      case Enumerator(id,ass) => new Enumerator(deriveProd(id,c,env),deriveProd(ass,c,env))
-      case StructDeclaration(qlist,declist) => new StructDeclaration(deriveProd(qlist,c,env),deriveProd(declist,c,env))
-      case StructDeclarator(decl,init,attrs) => new StructDeclarator(deriveProd(decl,c,env),deriveProd(init,c,env),deriveProd(attrs,c,env))
-      case StructInitializer(ex,attrs) => new StructInitializer(deriveProd(ex,c,env),deriveProd(attrs,c,env))
+      case Enumerator(id,ass) => new Enumerator(deriveProd(id,c,env),deriveOptionalAST(ass,c,env))
+      case StructDeclaration(qlist,declist) => new StructDeclaration(deriveOptList(qlist,c,env),deriveOptList(declist,c,env))
+      case StructDeclarator(decl,init,attrs) => new StructDeclarator(deriveProd(decl,c,env),deriveOptionalAST(init,c,env),deriveOptList(attrs,c,env))
+      case StructInitializer(ex,attrs) => new StructInitializer(deriveProd(ex,c,env),deriveOptList(attrs,c,env))
       case AsmExpr(isv,ex) => new AsmExpr(isv,deriveProd(ex,c,env))
-      case FunctionDef(specs,dec,osp,stmt) => new FunctionDef(deriveProd(specs,c,env),deriveProd(dec,c,env),deriveProd(osp,c,env),deriveProd(stmt,c,env))
-      case Declaration(decSpecs,init) => new Declaration(deriveProd(decSpecs,c,env),deriveProd(init,c,env))
+      case FunctionDef(specs,dec,osp,stmt) => new FunctionDef(deriveOptList(specs,c,env),deriveProd(dec,c,env),deriveOptList(osp,c,env),deriveProd(stmt,c,env))
+      case Declaration(decSpecs,init) => new Declaration(deriveOptList(decSpecs,c,env),deriveOptList(init,c,env))
       // AsmExpr already handled above
       //case AsmExpr(isv,ex) => new AsmExpr(isv,deriveProd(ex,c,env))
       // omit FunctionDef, i already handled that (four lines above)
       case x : EmptyExternalDef => x
-      case TypelessDeclaration(declList) => new TypelessDeclaration(deriveProd(declList,c,env))
+      case TypelessDeclaration(declList) => new TypelessDeclaration(deriveOptList(declList,c,env))
       case Pragma(cmd) => new Pragma(deriveProd(cmd,c,env))
-      case TypeName(specs,decl) => new TypeName(deriveProd(specs,c,env),deriveProd(decl,c,env))
-      case TranslationUnit(defs) => new TranslationUnit(deriveProd(defs,c,env))
+      case TypeName(specs,decl) => new TypeName(deriveOptList(specs,c,env),deriveOptionalAST(decl,c,env))
+      case TranslationUnit(defs) => new TranslationUnit(deriveOptList(defs,c,env))
       case InitializerArrayDesignator(ex) => new InitializerArrayDesignator(deriveProd(ex,c,env))
       case InitializerDesignatorC(id) => new InitializerDesignatorC(deriveProd(id,c,env))
       case InitializerDesignatorD(id) => new InitializerDesignatorD(deriveProd(id,c,env))
-      case InitializerAssigment(des) => new InitializerAssigment(deriveProd(des,c,env))
+      case InitializerAssigment(des) => new InitializerAssigment(deriveOptList(des,c,env))
       case OffsetofMemberDesignatorID(id) => new OffsetofMemberDesignatorID(deriveProd(id,c,env))
       case OffsetofMemberDesignatorExpr(ex) => new OffsetofMemberDesignatorExpr(deriveProd(ex,c,env))
       case y  => {assert(false, "unhandled type: " + y.getClass.getSimpleName); y}
