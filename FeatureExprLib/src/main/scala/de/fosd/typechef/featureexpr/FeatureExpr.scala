@@ -3,9 +3,11 @@ package de.fosd.typechef.featureexpr
 import java.io.Writer
 
 
+
 trait FeatureExpr {
 
-  /**
+
+    /**
    * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
    * but is faster because FM is cached
    */
@@ -13,8 +15,8 @@ trait FeatureExpr {
   protected def calcSize: Int
   def toTextExpr: String //or other ToString variations for debugging etc
   def collectDistinctFeatures: Set[String]
-  def collectDistinctFeatureObjects: Set[FeatureExpr]
-  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[FeatureExpr]): Option[FeatureExpr]
+  def collectDistinctFeatureObjects: Set[SingleFeatureExpr]
+  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr]): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]]
 
   def or(that: FeatureExpr): FeatureExpr
   def and(that: FeatureExpr): FeatureExpr

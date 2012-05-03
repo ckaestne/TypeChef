@@ -3,13 +3,12 @@ package de.fosd.typechef.featureexpr.sat
 import LazyLib._
 import scala.ref.WeakReference
 import java.io.Writer
-import de.fosd.typechef.featureexpr.{DefaultPrint, FeatureModel, FeatureProvider, FeatureExpr}
 import collection.immutable._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
-import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
-import scala.{Option, Some}
+import de.fosd.typechef.featureexpr._
+import scala.{Some, Option}
 
 //
 ///**
@@ -124,7 +123,7 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     def notS(): SATFeatureExpr = FExprBuilder.not(this)
     def not(): SATFeatureExpr = notS()
 
-  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[FeatureExpr]): Option[FeatureExpr] = {
+  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr]): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
     val fm = asSATFeatureModel(featureModel)
 
     // get one satisfying assignment (a list of features set to true, and a list of features set to false)
@@ -133,21 +132,19 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     var remainingInterestingFeatures = interestingFeatures
     assignment match {
       case Some(Pair(trueFeatures, falseFeatures)) => {
-        var retExpr :FeatureExpr = this
-        remainingInterestingFeatures --= this.collectDistinctFeatureObjects
+        var enabledFeatures = this.collectDistinctFeatureObjects
+        remainingInterestingFeatures --= this.collectDistinctFeatureObjects // this might be problematic (mutliple "equal" instances of BasicFeatureExpr)?
         for (f <- trueFeatures) {
           //if (remainingInterestingFeatures.contains(f)) {
-          val res = remainingInterestingFeatures.find({fex:FeatureExpr => fex.collectDistinctFeatures.head.equals(f)}) match {
-            case Some(fex : FeatureExpr) => {
+          val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
+            case Some(fex : SingleFeatureExpr) => {
               remainingInterestingFeatures -= fex
-              retExpr = fex.and(retExpr)
+                enabledFeatures += fex
             }
             case None => {}
           }
         }
-        for (f <- remainingInterestingFeatures)
-          retExpr = retExpr.andNot(f)
-        return Some(retExpr)
+        return Some(Pair(enabledFeatures.toList, remainingInterestingFeatures.toList))
       }
       case None => return None
     }
@@ -295,8 +292,8 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
         result
     }
 
-    def collectDistinctFeatureObjects: Set[FeatureExpr] = {
-      var result: Set[FeatureExpr] = Set()
+    def collectDistinctFeatureObjects: Set[SingleFeatureExpr] = {
+      var result: Set[SingleFeatureExpr] = Set()
       this.mapDefinedExpr(_ match {
         case e: DefinedExternal => result += e; e
         case e: DefinedMacro => result += e; e
@@ -940,7 +937,7 @@ object Not {
  * Leaf nodes of propositional feature expressions, either an external
  * feature defined by the user or another feature expression from a macro.
  */
-abstract class DefinedExpr extends SATFeatureExpr {
+abstract class DefinedExpr extends SATFeatureExpr with SingleFeatureExpr {
     /*
      * This method is overriden by children case classes to return the name.
      * It would be nice to have an actual field here, but that doesn't play nicely with case classes;

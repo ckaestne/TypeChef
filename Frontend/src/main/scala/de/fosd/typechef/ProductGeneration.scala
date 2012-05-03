@@ -1,19 +1,15 @@
 package de.fosd.typechef
 
 import conditional.{Conditional, Choice, Opt}
-import crewrite.{ASTEnv, CASTEnv, ConfigurationCoverage, CAnalysisFrontend}
+import crewrite.{ASTEnv, CASTEnv, CAnalysisFrontend}
 import featureexpr._
-import bdd.BDDFeatureExpr
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
-import parser.WithPosition
-import org.kiama.rewriting.Rewriter._
-import java.util.Date
-import sat.{SATFeatureExpr, DefinedExpr}
+
 import typesystem.CTypeSystemFrontend
 import scala.collection.mutable.Queue
 import java.io.{File, FileWriter}
-import scala._
 import scala.Predef._
+import scala._
 
 /**
  *
@@ -24,6 +20,14 @@ import scala.Predef._
  */
 
 object ProductGeneration {
+  class SimpleConfiguration(trueSet : List[SingleFeatureExpr], falseSet : List[SingleFeatureExpr]) {
+      def getTrueSet : List[SingleFeatureExpr] = this.trueSet
+      def getFalseSet : List[SingleFeatureExpr] = this.falseSet
+      override def toString() :String = {
+          return this.trueSet.mkString(" && ") + " && " + this.falseSet.map({f=>f.not()}).mkString(" && ")
+      }
+  }
+
   def typecheckProducts(fm_1:FeatureModel, fm_ts : FeatureModel, ast :AST, opt: FrontendOptions) {
     var log,msg : String = ""
     val fm = fm_ts // I got false positives while using the other fm
@@ -79,10 +83,10 @@ object ProductGeneration {
     println("generating configurations.")
     var startTime : Long = 0
 
-    val features : List[FeatureExpr] = getAllFeatures(family_ast)
+    val features : List[SingleFeatureExpr] = getAllFeatures(family_ast)
     //for (f <- features) println(f)
 /** Starting with no tasks */
-    var typecheckingTasks : List[Pair[String, List[FeatureExpr]]] = List()
+    var typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]] = List()
 
 /**  All products */
     //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env))
@@ -121,14 +125,15 @@ object ProductGeneration {
     // results (taskName, (NumConfigs, errors, timeSum))
     var configCheckingResults : List[ (String, (java.lang.Integer, java.lang.Integer, java.lang.Long) ) ] = List()
     val outFilePrefix:String = "../reports/" + opt.getFile.substring(0,opt.getFile.length-2)
-    for ((taskDesc : String, configs : List[FeatureExpr]) <- typecheckingTasks) {
+    for ((taskDesc : String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
       var configurationsWithErrors = 0
       var current_config = 0
       var totalTimeProductChecking : Long = 0
       for (config <- configs) {
         current_config += 1
         println("checking configuration " + current_config + " of " + configs.size + " (" + opt.getFile + " , " + taskDesc + ")")
-        val product : TranslationUnit = cf.deriveProd[TranslationUnit](family_ast, new Configuration(config, fm), family_env)
+        val product : TranslationUnit = cf.deriveProd[TranslationUnit](family_ast,
+            new Configuration(FeatureExprFactory.createFeatureExprFast(config.getTrueSet,config.getFalseSet), fm), family_env)
         val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
         val startTime : Long = System.currentTimeMillis()
         val noErrors : Boolean = ts.checkAST
@@ -152,7 +157,7 @@ object ProductGeneration {
           //write configuration to file
           file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config +  "_config.txt")
           fw = new FileWriter(file)
-          fw.write(config.toTextExpr.replace("&&", "&&\n"))
+          fw.write(config.toString().replace("&&", "&&\n"))
           fw.close()
           // write ast to file
           file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
@@ -192,13 +197,15 @@ object ProductGeneration {
 
   }
   def getOneConfigWithFeatures(trueFeatures:List[String], falseFeatures:List[String],
-                                  allFeatures : List[FeatureExpr], fm:FeatureModel, fixConfig : Boolean = true) : List[FeatureExpr] = {
+                                  allFeatures : List[SingleFeatureExpr], fm:FeatureModel, fixConfig : Boolean = true) : List[SimpleConfiguration] = {
     var partConfig : FeatureExpr = FeatureExprFactory.True
-    var remainingFeatures :List[FeatureExpr] = allFeatures
+    var remainingFeatures :List[SingleFeatureExpr] = allFeatures
+    var trueFeatureObjects : List[SingleFeatureExpr] = List()
     for (fName : String <-trueFeatures) {
-      val fIndex :Int= remainingFeatures.indexWhere({(f:FeatureExpr) => f.collectDistinctFeatures.head.equals(fName)})
+      val fIndex :Int= remainingFeatures.indexWhere({(f:SingleFeatureExpr) => f.feature.equals(fName)})
       if (fIndex != -1) { //-1 := no feature found
         partConfig = partConfig.and(remainingFeatures.apply(fIndex))
+        trueFeatureObjects ::= remainingFeatures.apply(fIndex)
         // I know this is horrible. But it will be used only for debugging
       } else {
         //throw new IllegalArgumentException("Feature not found: " + fName)
@@ -206,11 +213,13 @@ object ProductGeneration {
       }
       remainingFeatures = remainingFeatures.slice(0,fIndex) ++ remainingFeatures.slice(fIndex+1,remainingFeatures.length+1)
     }
+    var falseFeatureObjects : List[SingleFeatureExpr] = List()
     for (fName : String <-falseFeatures) {
-      val fIndex :Int= remainingFeatures.indexWhere({(f:FeatureExpr) => f.collectDistinctFeatures.head.equals(fName)})
+      val fIndex :Int= remainingFeatures.indexWhere({(f:SingleFeatureExpr) => f.feature.equals(fName)})
       if (fIndex != -1) { //-1 := no feature found
         partConfig = partConfig.andNot(remainingFeatures.apply(fIndex))
         // I know this is horrible. But it will be used only for debugging
+        falseFeatureObjects ::= remainingFeatures.apply(fIndex)
       } else {
         //throw new IllegalArgumentException("Feature not found: " + fName)
         println("Feature not found: " + fName)
@@ -226,22 +235,22 @@ object ProductGeneration {
           return List(completeConfig)
         }
       } else {
-        return List(partConfig)
+        return List(new SimpleConfiguration(trueFeatureObjects,falseFeatureObjects))
       }
     } else {
       throw new IllegalArgumentException("PartialConfig \"" + partConfig.toTextExpr + "\" is not satisfiable!")
     }
   }
 
-  def getAllSinglewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
-    var pwConfigs : List[FeatureExpr] = List()
+  def getAllSinglewiseConfigurations(features : List[SingleFeatureExpr], fm:FeatureModel) : List[SimpleConfiguration] = {
+    var pwConfigs : List[SimpleConfiguration] = List()
     for (f1 <- features) {
       // this pair was not considered yet
-      var conf = FeatureExprFactory.True.and(f1)
+      val conf = FeatureExprFactory.True.and(f1)
       if (conf.isSatisfiable(fm)) {
         // this pair is satisfiable
         // make config complete by choosing the other featuresval remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-        val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1)})
+        val remainingFeatures = features.filterNot({(fe : SingleFeatureExpr) => fe.equals(f1)})
         val completeConfig = completeConfiguration(conf,remainingFeatures, fm)
         if (completeConfig != null) {
           pwConfigs ::= completeConfig
@@ -255,23 +264,22 @@ object ProductGeneration {
     return pwConfigs
   }
 
-  def getAllPairwiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
+  def getAllPairwiseConfigurations(features : List[SingleFeatureExpr], fm:FeatureModel) : List[SimpleConfiguration] = {
     println("generating pair-wise configurations")
-    var pwConfigs : List[FeatureExpr] = List()
+    var pwConfigs : List[SimpleConfiguration] = List()
 
-    // todo: at the moment Pair(a,b) and Pair(b,a) are considered different. They should be equal!
     // this for-loop structure should avoid pairs like "(A,A)" and ( "(A,B)" and "(B,A)" )
     for (index1 <- 0 to features.size-1) {
       val f1 = features(index1)
       for (index2 <- index1+1 to features.size-1) {
         val f2 = features(index2)
         // this pair was not considered yet
-        var conf = FeatureExprFactory.True.and(f1).and(f2)
-        if (conf.isSatisfiable(fm)) {
+        val confEx = FeatureExprFactory.True.and(f1).and(f2)
+        if (confEx.isSatisfiable(fm)) {
           // this pair is satisfiable
           // make config complete by choosing the other features
-          val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-          val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
+          val remainingFeatures = features.filterNot({(fe : SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2)})
+          val completeConfig = completeConfiguration(confEx,remainingFeatures,fm)
           if (completeConfig != null) {
             pwConfigs ::= completeConfig
           } else {
@@ -285,9 +293,9 @@ object ProductGeneration {
     return pwConfigs
   }
 
-  def getAllTriplewiseConfigurations(features : List[FeatureExpr], fm:FeatureModel) : List[FeatureExpr] = {
+  def getAllTriplewiseConfigurations(features : List[SingleFeatureExpr], fm:FeatureModel) : List[SimpleConfiguration] = {
     println("generating triple-wise configurations")
-    var pwConfigs : List[FeatureExpr] = List()
+    var pwConfigs : List[SimpleConfiguration] = List()
     // this for-loop structure should avoid pairs like "(A,A)" and ( "(A,B)" and "(B,A)" )
     for (index1 <- 0 to features.size-1) {
       val f1 = features(index1)
@@ -296,11 +304,11 @@ object ProductGeneration {
         for (index3 <- index2 to features.size-1) {
           val f3 = features(index3)
           // this pair was not considered yet
-          var conf = FeatureExprFactory.True.and(f1).and(f2).and(f3)
+          val conf = FeatureExprFactory.True.and(f1).and(f2).and(f3)
           if (conf.isSatisfiable(fm)) {
             // this pair is satisfiable
             // make config complete by choosing the other features
-            val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)})
+            val remainingFeatures = features.filterNot({(fe : SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)})
             val completeConfig = completeConfiguration(conf,remainingFeatures,fm)
             if (completeConfig != null) {
               pwConfigs ::= completeConfig
@@ -323,9 +331,9 @@ object ProductGeneration {
    * @param model
    * @return
    */
-  def completeConfiguration(expr: FeatureExpr, list: List[FeatureExpr], model: FeatureModel) : FeatureExpr = {
+  def completeConfiguration(expr: FeatureExpr, list: List[SingleFeatureExpr], model: FeatureModel) : SimpleConfiguration = {
     expr.getSatisfiableAssignment(model, list.toSet) match {
-      case Some(ret) => return ret
+      case Some(ret) => return new SimpleConfiguration(ret._1, ret._2)
       case None => return null
     }
   }
@@ -390,26 +398,27 @@ object ProductGeneration {
    * @param root
    * @return
    */
-  def getAllFeatures(root: Product) : List[FeatureExpr] = {
+  def getAllFeatures(root: Product) : List[SingleFeatureExpr] = {
+    var featuresSorted : List[SingleFeatureExpr] = getAllFeaturesRec(root).toList
     // sort to eliminate any non-determinism caused by the set
-    val featuresSorted = getAllFeaturesRec(root).toList.sortWith({
-      (x,y) => x.collectDistinctFeatures.head.compare(y.collectDistinctFeatures.head) > 0
-    });
+      featuresSorted = featuresSorted.sortWith({
+        (x:SingleFeatureExpr,y:SingleFeatureExpr) => x.feature.compare(y.feature)>0
+    })
     println ("found " + featuresSorted.size + " features")
     return featuresSorted //.map({s:String => FeatureExprFactory.createDefinedExternal(s)});
   }
 
-  private def getAllFeaturesRec(root: Any) : Set[FeatureExpr] = {
+  private def getAllFeaturesRec(root: Any) : Set[SingleFeatureExpr] = {
     root match {
       case x: Opt[_] => x.feature.collectDistinctFeatureObjects.toSet ++ getAllFeaturesRec(x.entry)
       case x: Choice[_] => x.feature.collectDistinctFeatureObjects.toSet ++ getAllFeaturesRec(x.thenBranch) ++ getAllFeaturesRec(x.elseBranch)
       case l: List[_] => {
-        var ret : Set[FeatureExpr] = Set();
+        var ret : Set[SingleFeatureExpr] = Set();
         for (x <- l) {ret = ret ++ getAllFeaturesRec(x);}
         ret
       }
       case x: Product => {
-        var ret : Set[FeatureExpr] = Set();
+        var ret : Set[SingleFeatureExpr] = Set();
         for (y <- x.productIterator.toList) {ret = ret ++ getAllFeaturesRec(y);}
         ret
       }
@@ -417,49 +426,5 @@ object ProductGeneration {
         Set()
       }
     }
-  }
-
-  //Fixme: still handling only Opt nodes, ignoring Choice nodes
-  /**
-   * This method generates complete configurations for a list of Opt[] nodes.
-   * No variability is left in these configurations.
-   */
-  def getAllProducts(features : List[DefinedExpr], fm: FeatureModel, env: ASTEnv) = {
-    val prodLimit : Int = 30;
-    var limitReached : Boolean = false
-    var R: List[FeatureExpr] = List()   // found configurations
-    R::=FeatureExprFactory.True
-    var B: Set[Opt[_]] = Set()  // handled blocks
-    var f : Set[FeatureExpr] = Set()  // handled features
-    println("making all configurations (limited to " + prodLimit + " configurations")
-
-    val featuresSorted = features.toArray.sortWith({
-      (x,y) => x.toTextExpr.compare(y.toTextExpr) > 0
-    });
-    for (fexpb <- featuresSorted) {
-      if (f.contains(fexpb)) {
-      } else
-       if (!f.contains(fexpb)) {
-        f += fexpb
-        var tmpR: List[FeatureExpr] = R
-        R = List()
-        for (partConfig <- tmpR) {
-          if (R.size < prodLimit) {
-            val confT = partConfig.and(fexpb)
-            val okT = confT.isSatisfiable(fm)
-            if (okT) R::=confT
-            val confF = partConfig.and(fexpb.not())
-            val okF = confF.isSatisfiable(fm)
-            if (okF) R::=confF
-          } else {
-            limitReached=true
-          }
-        }
-      }
-    }
-    println("configurations ready")
-    if (limitReached)
-      println("Product Limit of " + prodLimit + " was reached!")
-    R
   }
 }

@@ -1,11 +1,11 @@
 package de.fosd.typechef.featureexpr.bdd
 
-import net.sf.javabdd._
 import scala.collection.mutable.{ WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
 import bdd.FExprBuilder._
 import scala.Predef._
 import scala._
+import net.sf.javabdd._
 
 
 object FeatureExprHelper {
@@ -156,6 +156,8 @@ object FeatureExprHelper {
  */
 class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
+
+
     import CastHelper._
 
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asBDDFeatureExpr(that))
@@ -181,7 +183,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
    * @param interestingFeatures
    * @return Option[FeatureExpr]
    */
-    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[FeatureExpr]): Option[FeatureExpr] = {
+    def getSatisfiableAssignmentAsFeatureExpr(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr]): Option[BDDFeatureExpr] = {
       val fm = asBDDFeatureModel(featureModel)
       val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
       // get one satisfying assignment (a list of features set to true, and a list of features set to false)
@@ -193,10 +195,10 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
           var retBDD = this.bdd.id() // makes a copy of this.bdd, so that it is not consumed by the andWith functions
           remainingInterestingFeatures --= this.collectDistinctFeatureObjects
           for (f <- trueFeatures) {
-            val elem = remainingInterestingFeatures.find({fex:FeatureExpr => fex.collectDistinctFeatures.head.equals(f)})
+            val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
             //if (remainingInterestingFeatures.contains(f)) {
             elem match {
-              case Some(fex : FeatureExpr) => {
+              case Some(fex : SingleFeatureExpr) => {
                 remainingInterestingFeatures -= fex
                 retBDD = asBDDFeatureExpr(fex).bdd.id() andWith retBDD
               }
@@ -204,10 +206,10 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
             }
           }
           for (f <- falseFeatures) {
-            val elem = remainingInterestingFeatures.find({fex:FeatureExpr => fex.collectDistinctFeatures.head.equals(f)})
+            val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
             //if (remainingInterestingFeatures.contains(f)) {
             elem match {
-              case Some(fex : FeatureExpr) => {
+              case Some(fex : SingleFeatureExpr) => {
                 remainingInterestingFeatures -= fex
                 retBDD = asBDDFeatureExpr(fex).bdd.not() andWith retBDD
               }
@@ -221,6 +223,49 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         case None => return None
       }
     }
+
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr]): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
+        val fm = asBDDFeatureModel(featureModel)
+        val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
+        // get one satisfying assignment (a list of features set to true, and a list of features set to false)
+        val assignment : Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
+        // we will subtract from this set until all interesting features are handled
+        var remainingInterestingFeatures = interestingFeatures
+        assignment match {
+            case Some(Pair(trueFeatures, falseFeatures)) => {
+                var enabledFeatures : Set[SingleFeatureExpr] = this.collectDistinctFeatureObjects
+                remainingInterestingFeatures --= this.collectDistinctFeatureObjects
+                for (f <- trueFeatures) {
+                    val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                    //if (remainingInterestingFeatures.contains(f)) {
+                    elem match {
+                        case Some(fex : SingleFeatureExpr) => {
+                            remainingInterestingFeatures -= fex
+                            enabledFeatures += fex
+                        }
+                        case None => {}
+                    }
+                }/*
+                for (f <- falseFeatures) {
+                    val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                    //if (remainingInterestingFeatures.contains(f)) {
+                    elem match {
+                        case Some(fex : SingleFeatureExpr) => {
+                            remainingInterestingFeatures -= fex
+                            retBDD = asBDDFeatureExpr(fex).bdd.not() andWith retBDD
+                        }
+                        case None => {}
+                    }
+                }
+                for (f <- remainingInterestingFeatures)
+                    retBDD = asBDDFeatureExpr(f).bdd.not() andWith retBDD
+                    */
+                return Some(enabledFeatures.toList, remainingInterestingFeatures.toList)
+            }
+            case None => return None
+        }
+    }
+
 
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
@@ -318,8 +363,11 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     def collectDistinctFeatures: Set[String] =
         collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
 
-  def collectDistinctFeatureObjects: Set[FeatureExpr] =
-    collectDistinctFeatureIds.map({id:Int => new BDDFeatureExpr(lookupFeatureBDD(id))})
+  def collectDistinctFeatureObjects: Set[SingleFeatureExpr] = {
+      collectDistinctFeatureIds.map({
+          id: Int => new SingleBDDFeatureExpr(id)
+      })
+  }
 
 
     /**
@@ -329,6 +377,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
 }
 
+class SingleBDDFeatureExpr(id:Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
+    def feature = lookupFeatureName(id)
+}
 
 //// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
 //// however, this is only a concern for erroneous input anyway (but isn't it our point to detect it?)
