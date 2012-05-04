@@ -63,7 +63,7 @@ For simple experimentation, try our online version at
 [http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
 
 Alternatively, you can download a .jar file including
-all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.1.jar). Run as usual
+all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.2.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
