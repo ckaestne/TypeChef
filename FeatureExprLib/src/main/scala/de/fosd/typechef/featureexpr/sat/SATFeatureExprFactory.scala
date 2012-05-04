@@ -22,7 +22,7 @@ object SATFeatureExprFactory extends AbstractFeatureExprFactory {
     //feature model stuff
     def featureModelFactory: FeatureModelFactory = SATFeatureModel
 
-    def createFeatureExprFast(enabledFeatures: List[SingleFeatureExpr], disabledFeatures: List[SingleFeatureExpr]) : FeatureExpr = {
+    def createFeatureExprFast(enabledFeatures: Set[SingleFeatureExpr], disabledFeatures: Set[SingleFeatureExpr]) : FeatureExpr = {
         // first a fold on the enabled Features (inner) then a fold on the disabled Features
         return disabledFeatures.foldLeft (
             enabledFeatures.foldLeft(True)({(f:FeatureExpr,sf:SingleFeatureExpr) => f.and(sf)})

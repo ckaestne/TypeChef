@@ -174,57 +174,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     // Be careful if that changes, though.
     override def equiv(that: FeatureExpr) = FExprBuilder.biimp(this, asBDDFeatureExpr(that))
 
-  /**
-   * Returns one BDDFeatureExpr that satisfies this featureExpr and the given featureModel.
-   * The result FeatureExpr will only contain features listed in "interestingFeatures".
-   * Any features not contained in this expression and in the featureModel will be set to false in the result (default).
-   * If no satisfing assignment exists, we will return None.
-   * @param featureModel
-   * @param interestingFeatures
-   * @return Option[FeatureExpr]
-   */
-    def getSatisfiableAssignmentAsFeatureExpr(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr]): Option[BDDFeatureExpr] = {
-      val fm = asBDDFeatureModel(featureModel)
-      val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
-      // get one satisfying assignment (a list of features set to true, and a list of features set to false)
-      val assignment : Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
-      // we will subtract from this set until all interesting features are handled
-      var remainingInterestingFeatures = interestingFeatures
-      assignment match {
-        case Some(Pair(trueFeatures, falseFeatures)) => {
-          var retBDD = this.bdd.id() // makes a copy of this.bdd, so that it is not consumed by the andWith functions
-          remainingInterestingFeatures --= this.collectDistinctFeatureObjects
-          for (f <- trueFeatures) {
-            val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
-            //if (remainingInterestingFeatures.contains(f)) {
-            elem match {
-              case Some(fex : SingleFeatureExpr) => {
-                remainingInterestingFeatures -= fex
-                retBDD = asBDDFeatureExpr(fex).bdd.id() andWith retBDD
-              }
-              case None => {}
-            }
-          }
-          for (f <- falseFeatures) {
-            val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
-            //if (remainingInterestingFeatures.contains(f)) {
-            elem match {
-              case Some(fex : SingleFeatureExpr) => {
-                remainingInterestingFeatures -= fex
-                retBDD = asBDDFeatureExpr(fex).bdd.not() andWith retBDD
-              }
-              case None => {}
-            }
-          }
-          for (f <- remainingInterestingFeatures)
-            retBDD = asBDDFeatureExpr(f).bdd.not() andWith retBDD
-          return Some(new BDDFeatureExpr(retBDD))
-        }
-        case None => return None
-      }
-    }
-
-    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr]): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr], preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
         val fm = asBDDFeatureModel(featureModel)
         val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
         // get one satisfying assignment (a list of features set to true, and a list of features set to false)
@@ -233,34 +183,36 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         var remainingInterestingFeatures = interestingFeatures
         assignment match {
             case Some(Pair(trueFeatures, falseFeatures)) => {
-                var enabledFeatures : Set[SingleFeatureExpr] = this.collectDistinctFeatureObjects
                 remainingInterestingFeatures --= this.collectDistinctFeatureObjects
-                for (f <- trueFeatures) {
-                    val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
-                    //if (remainingInterestingFeatures.contains(f)) {
-                    elem match {
-                        case Some(fex : SingleFeatureExpr) => {
-                            remainingInterestingFeatures -= fex
-                            enabledFeatures += fex
+                if (preferDisabledFeatures) {
+                var enabledFeatures : Set[SingleFeatureExpr] = this.collectDistinctFeatureObjects
+                    for (f <- trueFeatures) {
+                        val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                        //if (remainingInterestingFeatures.contains(f)) {
+                        elem match {
+                            case Some(fex : SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                enabledFeatures += fex
+                            }
+                            case None => {}
                         }
-                        case None => {}
                     }
-                }/*
-                for (f <- falseFeatures) {
-                    val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
-                    //if (remainingInterestingFeatures.contains(f)) {
-                    elem match {
-                        case Some(fex : SingleFeatureExpr) => {
-                            remainingInterestingFeatures -= fex
-                            retBDD = asBDDFeatureExpr(fex).bdd.not() andWith retBDD
+                    return Some(enabledFeatures.toList, remainingInterestingFeatures.toList)
+                } else {
+                    var disabledFeatures : Set[SingleFeatureExpr] = Set()
+                    for (f <- falseFeatures) {
+                        val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                        //if (remainingInterestingFeatures.contains(f)) {
+                        elem match {
+                            case Some(fex : SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                disabledFeatures += fex
+                            }
+                            case None => {}
                         }
-                        case None => {}
                     }
+                    return Some(remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList,disabledFeatures.toList)
                 }
-                for (f <- remainingInterestingFeatures)
-                    retBDD = asBDDFeatureExpr(f).bdd.not() andWith retBDD
-                    */
-                return Some(enabledFeatures.toList, remainingInterestingFeatures.toList)
             }
             case None => return None
         }

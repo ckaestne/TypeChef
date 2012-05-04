@@ -1,15 +1,16 @@
 package de.fosd.typechef
 
 import conditional.{Conditional, Choice, Opt}
-import crewrite.{ASTEnv, CASTEnv, CAnalysisFrontend}
+import crewrite.{CAnalysisFrontend, CASTEnv}
 import featureexpr._
-import parser.c.{AST, PrettyPrinter, TranslationUnit}
 
+import parser.c.{AST, PrettyPrinter, TranslationUnit}
 import typesystem.CTypeSystemFrontend
-import scala.collection.mutable.Queue
 import java.io.{File, FileWriter}
-import scala.Predef._
+import scala.collection.immutable.HashMap
+import scala.collection.mutable.{BitSet, Queue}
 import scala._
+import scala.Predef._
 
 /**
  *
@@ -20,11 +21,51 @@ import scala._
  */
 
 object ProductGeneration {
-  class SimpleConfiguration(trueSet : List[SingleFeatureExpr], falseSet : List[SingleFeatureExpr]) {
-      def getTrueSet : List[SingleFeatureExpr] = this.trueSet
-      def getFalseSet : List[SingleFeatureExpr] = this.falseSet
+  /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
+  private var featureIDHashmap : Map[SingleFeatureExpr, Int] = null
+  /** List of all features found in the currently processed file */
+  private var features : List[SingleFeatureExpr] = null
+  class SimpleConfiguration(private val config : scala.collection.immutable.BitSet) {
+      def this(trueSet : List[SingleFeatureExpr], falseSet : List[SingleFeatureExpr]) = this(
+          {
+            var ret : scala.collection.mutable.BitSet = BitSet()
+            for (tf : SingleFeatureExpr <- trueSet) ret.add(featureIDHashmap(tf))
+            for (ff : SingleFeatureExpr <- falseSet) ret.remove(featureIDHashmap(ff))
+            println("config created")
+            ret.toImmutable
+          }
+      )
+      def getTrueSet: Set[SingleFeatureExpr] = {
+          features.filter({fex:SingleFeatureExpr=>config.apply(featureIDHashmap(fex))}).toSet
+      }
+      def getFalseSet: Set[SingleFeatureExpr] = {
+          features.filterNot({fex:SingleFeatureExpr=>config.apply(featureIDHashmap(fex))}).toSet
+      }
       override def toString() :String = {
-          return this.trueSet.mkString(" && ") + " && " + this.falseSet.map({f=>f.not()}).mkString(" && ")
+          features.map(
+            {fex:SingleFeatureExpr => if(config.apply(featureIDHashmap(fex))) fex else fex.not()}
+          ).mkString("&&")
+      }
+      /**
+       * This method assumes that all features in the parameter-set appear in either the trueList, or in the falseList
+       * @param features
+       * @return
+       */
+      def containsFeaturesAsEnabled(features : Set[SingleFeatureExpr]) :Boolean = {
+        for (fex <- features) {
+            if (! config.apply(featureIDHashmap(fex))) return false
+        }
+        return true
+      }
+      override def equals(other : Any) :Boolean = {
+          if (! other.isInstanceOf[SimpleConfiguration]) return super.equals(other)
+          else {
+              val otherSC = other.asInstanceOf[SimpleConfiguration]
+              return otherSC.config.equals(this.config)
+          }
+      }
+      override def hashCode() :Int = {
+        return config.hashCode()
       }
   }
 
@@ -83,7 +124,8 @@ object ProductGeneration {
     println("generating configurations.")
     var startTime : Long = 0
 
-    val features : List[SingleFeatureExpr] = getAllFeatures(family_ast)
+    features = getAllFeatures(family_ast)
+    featureIDHashmap = new HashMap[SingleFeatureExpr,Int]().++(features.zipWithIndex)
     //for (f <- features) println(f)
 /** Starting with no tasks */
     var typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]] = List()
@@ -97,21 +139,33 @@ object ProductGeneration {
     msg = "Time for config generation (singlewise): " + (System.currentTimeMillis() - startTime) + " ms\n"
     println(msg)
     log = log + msg
-*/
-/**  Pairwise */
-    startTime = System.currentTimeMillis()
-    typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm))
-    msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n"
-    println(msg)
-    log = log + msg
+      */
 /** Coverage Configurations */
 /*
     typecheckingTasks ::=
-      Pair("coverage", ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env).toList.map(
-      {ex : FeatureExpr => completeConfiguration(ex, features, fm) }
+        Pair("coverage", ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env).toList.map(
+        {ex : FeatureExpr => completeConfiguration(ex, features, fm) }
     ))
     println("got " + typecheckingTasks.last._2.size + " coverage configurations")
 */
+/**  Pairwise MAX */
+    {
+        startTime = System.currentTimeMillis()
+        val(configs, logmsg) = getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=false)
+        typecheckingTasks ::= Pair("pairWiseMax", configs)
+        msg = "Time for config generation (pairwiseMax): " + (System.currentTimeMillis() - startTime) + " ms\n"+logmsg
+        println(msg)
+        log = log + msg
+    }
+/**  Pairwise */
+/*
+    startTime = System.currentTimeMillis()
+    typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
+    msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n"
+    println(msg)
+    log = log + msg
+*/
+
 /** Just one hardcoded config */
 /*
     typecheckingTasks ::= Pair("hardcoded", getOneConfigWithFeatures(
@@ -263,8 +317,46 @@ object ProductGeneration {
     }
     return pwConfigs
   }
-
-  def getAllPairwiseConfigurations(features : List[SingleFeatureExpr], fm:FeatureModel) : List[SimpleConfiguration] = {
+  def configListContainsFeaturesAsEnabled(lst:List[SimpleConfiguration], features:Set[SingleFeatureExpr]):Boolean = {
+      for (conf <-lst) {
+          if (conf.containsFeaturesAsEnabled(features))
+              return true
+      }
+      return false
+  }
+    /*
+  def getAllPairwiseMaxConfigurations(features : List[SingleFeatureExpr], fm:FeatureModel) : List[SimpleConfiguration] = {
+      println("generating pair-wise configurations")
+      var pwConfigs : List[SimpleConfiguration] = List()
+      // this for-loop structure should avoid pairs like "(A,A)" and ( "(A,B)" and "(B,A)" )
+      for (index1 <- 0 to features.size-1) {
+          val f1 = features(index1)
+          for (index2 <- index1+1 to features.size-1) {
+              val f2 = features(index2)
+              if (!configListContainsFeaturesAsEnabled(pwConfigs, Set(f1,f2))) {
+                  // this pair was not considered yet
+                  val confEx = FeatureExprFactory.True.and(f1).and(f2)
+                  if (confEx.isSatisfiable(fm)) {
+                      // this pair is satisfiable
+                      // make config complete by choosing the other features
+                      val remainingFeatures = features.filterNot({(fe : SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2)})
+                      val completeConfig = completeConfiguration(confEx,remainingFeatures,fm, preferDisabledFeatures=false)
+                      if (completeConfig != null) {
+                          pwConfigs ::= completeConfig
+                      } else {
+                          println("no satisfiable configuration for features " + f1 + " and " +f2)
+                      }
+                  } else {
+                      println("no satisfiable configuration for features " + f1 + " and " +f2)
+                  }
+              }
+          }
+      }
+      return pwConfigs
+  }*/
+  def getAllPairwiseConfigurations(features : List[SingleFeatureExpr], fm:FeatureModel, preferDisabledFeatures:Boolean) : (List[SimpleConfiguration],String) = {
+    var unsatCombinations = 0
+    var alreadyCoveredCombinations = 0
     println("generating pair-wise configurations")
     var pwConfigs : List[SimpleConfiguration] = List()
 
@@ -273,24 +365,33 @@ object ProductGeneration {
       val f1 = features(index1)
       for (index2 <- index1+1 to features.size-1) {
         val f2 = features(index2)
-        // this pair was not considered yet
-        val confEx = FeatureExprFactory.True.and(f1).and(f2)
-        if (confEx.isSatisfiable(fm)) {
-          // this pair is satisfiable
-          // make config complete by choosing the other features
-          val remainingFeatures = features.filterNot({(fe : SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-          val completeConfig = completeConfiguration(confEx,remainingFeatures,fm)
-          if (completeConfig != null) {
-            pwConfigs ::= completeConfig
-          } else {
-            println("no satisfiable configuration for features " + f1 + " and " +f2)
-          }
+        if (!configListContainsFeaturesAsEnabled(pwConfigs, Set(f1,f2))) {
+            // this pair was not considered yet
+            val confEx = FeatureExprFactory.True.and(f1).and(f2)
+            if (confEx.isSatisfiable(fm)) {
+              // this pair is satisfiable
+              // make config complete by choosing the other features
+              val remainingFeatures = features.filterNot({(fe : SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2)})
+              val completeConfig = completeConfiguration(confEx,remainingFeatures,fm, preferDisabledFeatures)
+              if (completeConfig != null) {
+                pwConfigs ::= completeConfig
+              } else {
+                println("no satisfiable configuration for features " + f1 + " and " +f2)
+                unsatCombinations+=1
+              }
+            } else {
+              println("no satisfiable configuration for features " + f1 + " and " +f2)
+              unsatCombinations+=1
+            }
         } else {
-          println("no satisfiable configuration for features " + f1 + " and " +f2)
+            println("feature combination " + f1 + " and " +f2 + " already covered")
+            alreadyCoveredCombinations+=1
         }
       }
     }
-    return pwConfigs
+    return (pwConfigs,
+        "unsatisfiableCombinations:"+unsatCombinations + "\n already covered combinations:"+alreadyCoveredCombinations+"\n"
+    )
   }
 
   def getAllTriplewiseConfigurations(features : List[SingleFeatureExpr], fm:FeatureModel) : List[SimpleConfiguration] = {
@@ -331,8 +432,8 @@ object ProductGeneration {
    * @param model
    * @return
    */
-  def completeConfiguration(expr: FeatureExpr, list: List[SingleFeatureExpr], model: FeatureModel) : SimpleConfiguration = {
-    expr.getSatisfiableAssignment(model, list.toSet) match {
+  def completeConfiguration(expr: FeatureExpr, list: List[SingleFeatureExpr], model: FeatureModel, preferDisabledFeatures:Boolean=false) : SimpleConfiguration = {
+    expr.getSatisfiableAssignment(model, list.toSet,preferDisabledFeatures) match {
       case Some(ret) => return new SimpleConfiguration(ret._1, ret._2)
       case None => return null
     }

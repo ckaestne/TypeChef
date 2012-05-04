@@ -4,11 +4,9 @@ import LazyLib._
 import scala.ref.WeakReference
 import java.io.Writer
 import collection.immutable._
-import collection.mutable.Map
-import collection.mutable.WeakHashMap
-import collection.mutable.ArrayBuffer
 import de.fosd.typechef.featureexpr._
 import scala.{Some, Option}
+import collection.mutable.{Map, WeakHashMap, ArrayBuffer}
 
 //
 ///**
@@ -123,7 +121,7 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     def notS(): SATFeatureExpr = FExprBuilder.not(this)
     def not(): SATFeatureExpr = notS()
 
-  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr]): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
+  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr],preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
     val fm = asSATFeatureModel(featureModel)
 
     // get one satisfying assignment (a list of features set to true, and a list of features set to false)
@@ -132,19 +130,33 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     var remainingInterestingFeatures = interestingFeatures
     assignment match {
       case Some(Pair(trueFeatures, falseFeatures)) => {
-        var enabledFeatures = this.collectDistinctFeatureObjects
-        remainingInterestingFeatures --= this.collectDistinctFeatureObjects // this might be problematic (mutliple "equal" instances of BasicFeatureExpr)?
-        for (f <- trueFeatures) {
-          //if (remainingInterestingFeatures.contains(f)) {
-          val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
-            case Some(fex : SingleFeatureExpr) => {
-              remainingInterestingFeatures -= fex
-                enabledFeatures += fex
+        remainingInterestingFeatures --= this.collectDistinctFeatureObjects
+        if (preferDisabledFeatures) {
+            var enabledFeatures = this.collectDistinctFeatureObjects
+            for (f <- trueFeatures) {
+              val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
+                case Some(fex : SingleFeatureExpr) => {
+                  remainingInterestingFeatures -= fex
+                    enabledFeatures += fex
+                }
+                case None => {}
+              }
             }
-            case None => {}
-          }
+            return Some(Pair(enabledFeatures.toList, remainingInterestingFeatures.toList))
+        } else {
+            var disabledFeatures : Set[SingleFeatureExpr] = Set()
+            for (f <- falseFeatures) {
+                val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
+                    case Some(fex : SingleFeatureExpr) => {
+                        remainingInterestingFeatures -= fex
+                        disabledFeatures += fex
+                    }
+                    case None => {}
+                }
+            }
+            return Some(Pair(remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList, disabledFeatures.toList))
         }
-        return Some(Pair(enabledFeatures.toList, remainingInterestingFeatures.toList))
+
       }
       case None => return None
     }
@@ -994,7 +1006,7 @@ class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val 
     /**TODO: This probably would be the correct way, but it breaks my product generation code, and i cannot fix it right now */
     //override def collectDistinctFeatures=presenceCondition.resolveToExternal.collectDistinctFeatures
     //override def collectDistinctFeatureObjects=presenceCondition.resolveToExternal.collectDistinctFeatureObjects
-}
+    }
 
 object DefinedMacro {
     def unapply(x: DefinedMacro) = Some((x.name, x.presenceCondition, x.expandedName, x.presenceConditionCNF))

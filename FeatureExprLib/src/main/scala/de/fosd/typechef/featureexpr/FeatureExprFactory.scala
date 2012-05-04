@@ -28,7 +28,7 @@ object FeatureExprFactory {
 
     //shorthands for convenience
     def createDefinedExternal(featureName: String) = default.createDefinedExternal(featureName)
-    def createFeatureExprFast(enabledFeatures : List[SingleFeatureExpr], disabledFeatures : List[SingleFeatureExpr]) : FeatureExpr =
+    def createFeatureExprFast(enabledFeatures : Set[SingleFeatureExpr], disabledFeatures : Set[SingleFeatureExpr]) : FeatureExpr =
         default.createFeatureExprFast(enabledFeatures, disabledFeatures)
     def True: FeatureExpr = default.True
     def False: FeatureExpr = default.False
@@ -39,7 +39,7 @@ trait AbstractFeatureExprFactory extends FeatureExprTreeFactory {
     def createDefinedExternal(v: String): FeatureExpr
     def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr
 
-    def createFeatureExprFast(enabledFeatures : List[SingleFeatureExpr], disabledFeatures : List[SingleFeatureExpr]) : FeatureExpr
+    def createFeatureExprFast(enabledFeatures : Set[SingleFeatureExpr], disabledFeatures : Set[SingleFeatureExpr]) : FeatureExpr
 
     def True: FeatureExpr
     def False: FeatureExpr
