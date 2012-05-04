@@ -44,7 +44,10 @@
     </div>
 
 {% include README.md %}
-
+{% capture about_content %}
+   {% include README.md %}
+{% endcapture %}
+{{ about_content | markdownify }}
 
     <h2>Download</h2>
     <p>
