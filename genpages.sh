@@ -11,8 +11,10 @@ git reset --hard
 #deploy
 cd ../..
 cp README.md pages/TypeChef/_includes/README.md
-sbt assembly
-cp TypeChef-*.jar pages/TypeChef/deploy
+if [ $1 = "--mkjar" ] 
+then sbt assembly; cp TypeChef-*.jar pages/TypeChef/deploy
+else echo not updating .jar file. call with --mkjar parameter to generate .jar file
+fi
 
 #update parameter documentation
 sbt mkrun
