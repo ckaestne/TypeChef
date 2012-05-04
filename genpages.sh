@@ -14,6 +14,10 @@ cp README.md pages/TypeChef/_includes/README.md
 sbt assembly
 cp TypeChef-*.jar pages/TypeChef/deploy
 
+#update parameter documentation
+sbt mkrun
+./typechef.sh --help > Parameter.txt
+git commit -m "update parameter list with genpages.sh" Parameter.txt
 
 cd pages/TypeChef
 
