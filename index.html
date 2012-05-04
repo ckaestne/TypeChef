@@ -1,3 +1,6 @@
+---
+---
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,123 +43,7 @@
         <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
     </div>
 
-    <h1><a href="http://github.com/ckaestne/TypeChef">TypeChef</a>
-      </h1>
-
-    <div class="description">
-      Type checking #ifdef variability
-    </div>
-
-<p>Try TypeChef <a href="http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/">online</a></p>
-
-    <p>TypeChef is a research project with the goal of type checking ifdef variability in C code with the target of
-    type checking the entire Linux kernel with several thousand features (or configuration options).</p>
-
-    <p>Instead of type checking each variant for each feature combination in isolation, TypeChef parses the
-    entire source code containing all variability in a variability-aware fashion without preprocessing.
-    The resulting abstract syntax tree contains the variability in form of choice nodes. Eventually, a
-    variability-aware type system performs type checking on these trees.</p>
-
-    <p>TypeChef detects syntax and type errors in all possible feature combinations.</p>
-
-    <h2>Architecture and Subprojects</h2>
-
-<a href="architecture.png"><img src="architecture.png" alt="TypeChef architecture overview" width="700"/></a>
-
-    <p>The TypeChef project contains of four main components and several helper libraries.</p>
-
-    <ul>
-    <li><p>A <strong>variability-aware lexer</strong> (also called partial preprocessor; subproject <em>PartialPreprocessor</em>) that
-    reads unpreprocessed code and produces a conditional token stream. The variability-aware lexer is responsible
-    for resolving macros and file inclusions and for normalizing <code>#ifdef</code> conditions</p></li>
-    <li><p>A <strong>variability-aware parser framework</strong> provides parser combinators to build variability-aware parsers
-    (subproject <em>ParserFramework</em>).</p></li>
-    <li><p>The <strong>variability-aware parsers</strong> for GNU C and Java (subprojects <em>CParser</em> and <em>JavaParser</em>) use the parser
-    framework to build parsers for the corresponding languages. The parsers read a conditional token stream and
-    produce abstract syntax trees with corresponding choice nodes.</p></li>
-    <li><p>A <strong>variability-aware type system</strong> (subproject <em>CTypeChecker</em>) eventually checks variability in the abstract
-    syntax tree. This will be supported by variability-aware linker checks.</p></li>
-    <li><p>All tasks are supported by a library for feature expressions and reasoning about feature expressions
-    (subproject <em>FeatureExprLib</em>). Internally the library uses the SAT solver <em>sat4j</em>.</p></li>
-    <li><p>Evaluation specific parts are provided in <a href="https://github.com/ckaestne">separate repositories</a>.</p></li>
-    </ul><h2>Installation and Usage</h2>
-
-    <p>For simple experimentation, try our online version at <a href="http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/">http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/</a></p>
-
-    <p>A single jar file including all dependencies is available here: <a href="http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.1.jar">TypeChef.jar</a> (ca. 13mb)<br />
-	
-	<pre><code>java -jar TypeChef.jar --help</code></pre>
-	</p>
-	
-	<p>
-	To build TypeChef from the source code (recommended), follow the instructions in the <a href="https://github.com/ckaestne/TypeChef">github repository</a>.</p>
-
-	<p>To run TypeChef on a C project, it is necessary to provide several platform parameters configuring include paths and preset macros of the used compiler. See the github repository  for further information and have a look at the examples.</p>
-	
-
-    <h2>Credits</h2>
-
-    <p>The project was only possible with fruitful collaboration of many researchers.</p>
-
-<a href="http://www.uni-marburg.de"><img src="umr.gif" style="float:right" alt="Philipps University Marburg"/></a>
-<ul>
-    <li>
-    <a href="http://www.uni-marburg.de/fb12/ps/team/kaestner">Christian Kaestner</a> (Philipps University Marburg, project leader)</li>
-    <li>
-    <a href="http://www.informatik.uni-marburg.de/~pgiarrusso/">Paolo G. Giarrusso</a> (Philipps University Marburg)</li>
-    <li>
-    <a href="http://www.informatik.uni-marburg.de/~rendel/">Tillmann Rendel</a> (Philipps University Marburg)</li>
-    <li>
-    <a href="http://www.informatik.uni-marburg.de/~seba/">Sebastian Erdweg</a> (Philipps University Marburg)</li>
-    <li>
-    <a href="http://www.informatik.uni-marburg.de/~kos/">Klaus Ostermann</a> (Philipps University Marburg)</li>
-    <li>
-    <a href="http://bis.uni-leipzig.de/ThorstenBerger">Thorsten Berger</a> (University of Leipzig)</li>
-    <li>Andy Kenner (Metop Research Institute, Magdeburg)</li>
-    <li>Steffen Haase (Metop Research Institute, Magdeburg)</li>
-    </ul><p>The variability-aware lexer is implemented on top of <a href="http://www.anarres.org/projects/jcpp/">jcpp</a>, an implementation of the
-    C preprocessor in Java.</p>
-
-    <p>For reasoning about propositional formulas, we use the SAT solver <a href="http://www.sat4j.org/">sat4j</a>.</p>
-
-    <p>The GNU C parser is based on an <a href="http://www.antlr.org/grammar/cgram">ANTLR grammar for GNU C</a>.</p>
-
-    <p>The Java parser is based on a grammar that can be traced back to the Java 1.5 grammar in the
-    <a href="http://java.net/projects/javacc/downloads/directory/contrib/grammars">JavaCC repository</a>.</p>
-
-    <p>We would further more thank for their support and discussions
-    <ul><li> <a href="http://www.eng.uwaterloo.ca/~shshe/">Steven She</a> (University of Waterloo)
-    <li> <a href="http://gsd.uwaterloo.ca/kczarnec">Krzysztof Czarnecki</a> (University of Waterloo)
-    <li> <a href="http://www.infosun.fim.uni-passau.de/spl/apel/">Sven Apel</a> (University of Passau)
-    <li> <a href="http://www.cs.brown.edu/~sk/">Shriram Krishnamurthi</a> (Brown University)
-    <li> <a href="http://wwwiti.cs.uni-magdeburg.de/~leich/">Thomas Leich</a> (Metop Research Institute, Magdeburg)</p>
-    </ul>
-
-    <p>This work is supported in part by the European Research Council, grant #203099.</p>
-
-    <h2>Contributing</h2>
-
-    <p>Fork the project, write bug reports, contact us, .... We are open for collaborations and extensions and other scenarios.</p>
-
-    <h2>Publications</h2>
-
-<p>An indepth discussion of the parsing approach and our experience with parsing Linux was published at OOPSLA:
-</p><blockquote><p>
-Christian K&auml;stner, Paolo G. Giarrusso, Tillmann Rendel, Sebastian Erdweg, Klaus Ostermann, and Thorsten Berger. <a href="http://www.informatik.uni-marburg.de/~kaestner/oopsla11_typechef.pdf">Variability-Aware Parsing in the Presence of Lexical Macros and Conditional Compilation</a>. In Proceedings of the 26th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA) (Portland, OR), New York, NY, October 2011. ACM Press.
-</p></blockquote>
-<p>An early overview of the project with a very preliminary implementation was published at</p>
-    <blockquote>
-    <p>Andy Kenner, Christian K&auml;stner, Steffen Haase, and Thomas Leich. <a href="http://www.informatik.uni-marburg.de/~kaestner/FOSD10-typechef.pdf">TypeChef: Toward Type Checking #ifdef Variability in C</a>. In Proceedings of the Second Workshop on Feature-Oriented Software Development (FOSD) (Eindhoven, The Netherlands), pages 25-32, New York, NY, USA, October 2010. ACM Press.</p>
-    </blockquote>
-    <p>A more detailed discussion of the variability-aware lexer (or partial preprocessor) was presented at</p>
-    <blockquote>
-    <p>Christian K&auml;stner, Paolo G. Giarrusso, and Klaus Ostermann. <a href="http://www.informatik.uni-marburg.de/~kaestner/vamos11.pdf">Partial Preprocessing C Code for Variability Analysis</a>. In Proceedings of the Fifth International Workshop on Variability Modelling of Software-intensive Systems (VaMoS) (Namur, Belgium), pages 137-140, New York, NY, USA, January 2011. ACM Press.</p>
-    </blockquote>
-    <p>An article about the variability-aware parser framework and our evaluation with Linux is currently under review.</p>
-
-    <h2>License</h2>
-
-    <p>TypeChef is published as open source under GPL 3.0. See <a href="http://github.com/ckaestne/TypeChef/blob/master/LICENSE">LICENSE</a>.</p>
+{% include README.md %}
 
 
     <h2>Download</h2>
