@@ -118,6 +118,8 @@ The project was only possible with fruitful collaboration of many researchers.
 * [Sebastian Erdweg](http://www.informatik.uni-marburg.de/~seba/) (Philipps University Marburg)
 * [Klaus Ostermann](http://www.informatik.uni-marburg.de/~kos/) (Philipps University Marburg)
 * [Thorsten Berger](http://bis.uni-leipzig.de/ThorstenBerger) (University of Leipzig)
+* [Joerg Liebig](http://www.infosun.fim.uni-passau.de/cl/staff/liebig/) (University of Passau)
+* [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/spl/people-rhein.php) (University of Passau)
 * Alex Eifler (Philipps University Marburg)
 * David Kraus (Philipps University Marburg)
 * Andy Kenner (Metop Research Institute, Magdeburg)
