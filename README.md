@@ -137,7 +137,7 @@ The Java parser is based on a grammar that can be traced back to the Java 1.5 gr
 
 For convenience, we include [sbt](http://code.google.com/p/simple-build-tool/) in the repository.
 
-We would further more thank for their contributions and discussions
+Furthermore, we thank for their contributions and discussions:
 * [Steven She](http://www.eng.uwaterloo.ca/~shshe/) (University of Waterloo)
 * [Krzysztof Czarnecki](http://gsd.uwaterloo.ca/kczarnec) (University of Waterloo)
 * [Sven Apel](http://www.infosun.fim.uni-passau.de/spl/apel/) (University of Passau)
