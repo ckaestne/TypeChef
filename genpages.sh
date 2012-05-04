@@ -10,7 +10,7 @@ git reset --hard
 
 #deploy
 cd ../..
-cat README.md >> pages/TypeChef/_includes/README.md
+cp README.md pages/TypeChef/_includes/README.md
 sbt assembly
 cp TypeChef-*.jar pages/TypeChef/deploy
 
