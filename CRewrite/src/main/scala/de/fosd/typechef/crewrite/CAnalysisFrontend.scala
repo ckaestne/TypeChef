@@ -39,9 +39,9 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     x
   }
 
-  sealed abstract class CCFGError {}
+  sealed abstract class CCFGError
 
-  class CCFGErrorDir(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) extends CCFGError {
+  case class CCFGErrorDir(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) extends CCFGError {
     override def toString =
       "[" + sfexp + "]" + s.getClass + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + // print source
         "--> " +
@@ -49,7 +49,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
         "\n" + msg + "\n\n\n"
   }
 
-  class CCFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CCFGError {
+  case class CCFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CCFGError {
     override def toString =
       "[" + sfexp + "]" + s.getClass + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + "\n" + msg + "\n\n\n"
   }
@@ -196,8 +196,13 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     val res = compareSuccWithPred(s, p, fenv)
 
     if (! res) {
-      println("succs: " + DotGraph.map2file(s, fenv))
-      println("preds: " + DotGraph.map2file(p, fenv))
+
+      val (nodeErrorsOcc, connectionErrorsOcc) = errors.span({_ match { case _: CCFGErrorMis => true; case _ => false}})
+      val nodeErrors = nodeErrorsOcc.map(_.asInstanceOf[CCFGErrorMis].s)
+      val connectionErrors = connectionErrorsOcc.map({x => (x.asInstanceOf[CCFGErrorDir].s, x.asInstanceOf[CCFGErrorDir].t)})
+
+      println("succs: " + DotGraph.map2file(s, fenv, nodeErrors, connectionErrors))
+      println("preds: " + DotGraph.map2file(p, fenv, nodeErrors, connectionErrors))
       println(errors.fold("")(_.toString + _.toString))
       errors = List()
     }
