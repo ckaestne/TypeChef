@@ -23,6 +23,4 @@ class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     override def toTextExpr = error
     //    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]) = error
     override def debug_print(x: Int) = error
-
-
 }

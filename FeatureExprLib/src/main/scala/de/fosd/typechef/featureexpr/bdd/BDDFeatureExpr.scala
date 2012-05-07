@@ -1,11 +1,11 @@
 package de.fosd.typechef.featureexpr.bdd
 
-import scala.collection.mutable.{ WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
+import scala.collection.mutable.{ WeakHashMap, Map}
 import bdd.FExprBuilder._
+import net.sf.javabdd._
 import scala.Predef._
 import scala._
-import net.sf.javabdd._
 
 
 object FeatureExprHelper {
@@ -183,9 +183,10 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         var remainingInterestingFeatures = interestingFeatures
         assignment match {
             case Some(Pair(trueFeatures, falseFeatures)) => {
-                remainingInterestingFeatures --= this.collectDistinctFeatureObjects
+                val thisParts = this.collectDistinctFeatureObjects
+                remainingInterestingFeatures --= thisParts
                 if (preferDisabledFeatures) {
-                var enabledFeatures : Set[SingleFeatureExpr] = this.collectDistinctFeatureObjects
+                    var enabledFeatures : Set[SingleFeatureExpr] = thisParts
                     for (f <- trueFeatures) {
                         val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
                         //if (remainingInterestingFeatures.contains(f)) {
@@ -211,7 +212,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                             case None => {}
                         }
                     }
-                    return Some(remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList,disabledFeatures.toList)
+                    return Some(remainingInterestingFeatures.++(thisParts).toList,disabledFeatures.toList)
                 }
             }
             case None => return None
@@ -309,8 +310,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      * helper function for statistics and such that determines which
      * features are involved in this feature expression
      */
-    private def collectDistinctFeatureIds: collection.immutable.Set[Int] =
+    private def collectDistinctFeatureIds: collection.immutable.Set[Int] = {
         bddAllSat.flatMap(clause => clause.zip(0 to (clause.length - 1)).filter(_._1 >= 0).map(_._2)).toSet
+    }
 
     def collectDistinctFeatures: Set[String] =
         collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
@@ -349,7 +351,6 @@ class SingleBDDFeatureExpr(id:Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) 
  */
 private[bdd] object FExprBuilder {
 
-
     val bddCacheSize = 100000
     var bddValNum = 4194304
     var bddVarNum = 100
@@ -374,7 +375,6 @@ private[bdd] object FExprBuilder {
     private val featureIds: Map[String, Int] = Map()
     private val featureNames: Map[Int, String] = Map()
     private val featureBDDs: Map[Int, BDD] = Map()
-
 
     /*
     * It seems that with the four patterns to optimize and/or, it's more difficult to

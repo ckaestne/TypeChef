@@ -1,7 +1,7 @@
 package de.fosd.typechef
 
 import conditional.{Conditional, Choice, Opt}
-import crewrite.{CAnalysisFrontend, CASTEnv}
+import crewrite._
 import featureexpr._
 
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
@@ -9,8 +9,8 @@ import typesystem.CTypeSystemFrontend
 import java.io.{File, FileWriter}
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.{BitSet, Queue}
-import scala.Predef._
 import scala._
+import scala.Predef._
 
 /**
  *
@@ -32,7 +32,6 @@ object ProductGeneration {
             var ret: scala.collection.mutable.BitSet = BitSet()
             for (tf: SingleFeatureExpr <- trueSet) ret.add(featureIDHashmap(tf))
             for (ff: SingleFeatureExpr <- falseSet) ret.remove(featureIDHashmap(ff))
-            println("config created")
             ret.toImmutable
         }
         )
@@ -93,7 +92,7 @@ object ProductGeneration {
 
         // PLAN: Ich bekomme ständig Fehlermedlungen, die keine Positionsangaben enthalten.
         // also: den ganzen AST durchgehen, bei allen Elementen, die keine Angaben haben, die der parents einfügen.
-
+/*
         val tmpq: Queue[Product] = Queue()
         tmpq.+=(family_ast)
         while (!tmpq.isEmpty) {
@@ -124,6 +123,7 @@ object ProductGeneration {
                 }
             }
         }
+*/
         family_env = CASTEnv.createASTEnv(family_ast)
         var fw: FileWriter = null
 
@@ -158,13 +158,17 @@ object ProductGeneration {
         }
 
         /**Coverage Configurations */
-        /*
-            typecheckingTasks ::=
-                Pair("coverage", ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env).toList.map(
-                {ex : FeatureExpr => completeConfiguration(ex, features, fm) }
-            ))
-            println("got " + typecheckingTasks.last._2.size + " coverage configurations")
-        */
+/*
+        {
+            startTime = System.currentTimeMillis()
+            val (configs, logmsg) = configurationCoverage(family_ast, fm, family_env)
+            typecheckingTasks ::= Pair("coverage", configs)
+            configurationCollection ++= configs
+            msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            println(msg)
+            log = log + msg
+        }
+*/
         /**Pairwise MAX */
         {
             startTime = System.currentTimeMillis()
@@ -341,26 +345,18 @@ object ProductGeneration {
             if (!configListContainsFeaturesAsEnabled(pwConfigs ++ existingConfigs, Set(f1))) {
                 // this pair was not considered yet
                 val conf = FeatureExprFactory.True.and(f1)
-                if (conf.isSatisfiable(fm)) {
-                    // this pair is satisfiable
-                    // make config complete by choosing the other features
-                    // val remainingFeatures = features.filterNot({(fe : FeatureExpr) => fe.equals(f1) || fe.equals(f2)})
-                    val remainingFeatures = features.filterNot({
-                        (fe: SingleFeatureExpr) => fe.equals(f1)
-                    })
-                    val completeConfig = completeConfiguration(conf, remainingFeatures, fm)
-                    if (completeConfig != null) {
-                        pwConfigs ::= completeConfig
-                    } else {
-                        println("no satisfiable configuration for feature " + f1)
-                        unsatCombinations += 1
-                    }
+                val remainingFeatures = features.filterNot({
+                    (fe: SingleFeatureExpr) => fe.equals(f1)
+                })
+                val completeConfig = completeConfiguration(conf, remainingFeatures, fm)
+                if (completeConfig != null) {
+                    pwConfigs ::= completeConfig
                 } else {
-                    println("no satisfiable configuration for feature " + f1)
+                    //println("no satisfiable configuration for feature " + f1)
                     unsatCombinations += 1
                 }
             } else {
-                println("feature " + f1 + " already covered")
+                //println("feature " + f1 + " already covered")
                 alreadyCoveredCombinations += 1
             }
         }
@@ -386,25 +382,19 @@ object ProductGeneration {
                 if (!configListContainsFeaturesAsEnabled(pwConfigs ++ existingConfigs, Set(f1, f2))) {
                     // this pair was not considered yet
                     val confEx = FeatureExprFactory.True.and(f1).and(f2)
-                    if (confEx.isSatisfiable(fm)) {
-                        // this pair is satisfiable
-                        // make config complete by choosing the other features
-                        val remainingFeatures = features.filterNot({
-                            (fe: SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2)
-                        })
-                        val completeConfig = completeConfiguration(confEx, remainingFeatures, fm, preferDisabledFeatures)
-                        if (completeConfig != null) {
-                            pwConfigs ::= completeConfig
-                        } else {
-                            println("no satisfiable configuration for features " + f1 + " and " + f2)
-                            unsatCombinations += 1
-                        }
+                    // make config complete by choosing the other features
+                    val remainingFeatures = features.filterNot({
+                        (fe: SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2)
+                    })
+                    val completeConfig = completeConfiguration(confEx, remainingFeatures, fm, preferDisabledFeatures)
+                    if (completeConfig != null) {
+                        pwConfigs ::= completeConfig
                     } else {
-                        println("no satisfiable configuration for features " + f1 + " and " + f2)
+                        //println("no satisfiable configuration for features " + f1 + " and " + f2)
                         unsatCombinations += 1
                     }
                 } else {
-                    println("feature combination " + f1 + " and " + f2 + " already covered")
+                    //println("feature combination " + f1 + " and " + f2 + " already covered")
                     alreadyCoveredCombinations += 1
                 }
             }
@@ -432,25 +422,19 @@ object ProductGeneration {
                     if (!configListContainsFeaturesAsEnabled(pwConfigs ++ existingConfigs, Set(f1, f2, f3))) {
                         // this pair was not considered yet
                         val conf = FeatureExprFactory.True.and(f1).and(f2).and(f3)
-                        if (conf.isSatisfiable(fm)) {
-                            // this pair is satisfiable
-                            // make config complete by choosing the other features
-                            val remainingFeatures = features.filterNot({
-                                (fe: SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)
-                            })
-                            val completeConfig = completeConfiguration(conf, remainingFeatures, fm)
-                            if (completeConfig != null) {
-                                pwConfigs ::= completeConfig
-                            } else {
-                                println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
-                                unsatCombinations += 1
-                            }
+                        // make config complete by choosing the other features
+                        val remainingFeatures = features.filterNot({
+                            (fe: SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)
+                        })
+                        val completeConfig = completeConfiguration(conf, remainingFeatures, fm)
+                        if (completeConfig != null) {
+                            pwConfigs ::= completeConfig
                         } else {
-                            println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
+                            //println("no satisfiable configuration for features " + f1 + " and " + f2 + " and " + f3)
                             unsatCombinations += 1
                         }
                     } else {
-                        println("feature combination " + f1 + " and " + f2 + " and " + f3 + " already covered")
+                        //println("feature combination " + f1 + " and " + f2 + " and " + f3 + " already covered")
                         alreadyCoveredCombinations += 1
                     }
                 }
@@ -461,7 +445,45 @@ object ProductGeneration {
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + pwConfigs.size + "\n")
     }
-
+    /*
+    Configuration Coverage Method copied from Joerg
+     */
+    def configurationCoverage(astRoot : TranslationUnit, fm: FeatureModel, env: ASTEnv) : (List[SimpleConfiguration],String) = {
+        // Todo: also use Choice Nodes
+        val in: List[Opt[_]] = {
+            var res: List[Opt[_]] = List()
+            val filter = org.kiama.rewriting.Rewriter.manytd(org.kiama.rewriting.Rewriter.query {
+                case o: Opt[_] => res ::= o
+            })
+            filter(astRoot)
+            res
+        }
+        var R: Set[FeatureExpr] = Set()   // found configurations
+        var B: Set[Opt[_]] = Set()        // selected blocks
+        // iterate over all optional blocks
+        for (b <- in) {
+            // optional block b has not been handled before
+            if (! B.contains(b)) {
+                val fexpb = env.featureExpr(b)
+                if (fexpb.isSatisfiable(fm)) {
+                    B ++= in.filter(fexpb implies env.featureExpr(_) isTautology())
+                    R += fexpb
+                } else {
+                    B += b
+                }
+            }
+        }
+        // reduce number of configurations using implication check; at most n^2 SAT checks!!!
+        // https://github.com/ckaestne/TypeChef/blob/MinimalVariants/LinuxAnalysis/src/main/scala/de/fosd/typechef/minimalvariants/MinimalVariants.scala
+        var Rreduced: Set[FeatureExpr] = Set()
+        Rreduced = Set()
+        for (f <- R) {
+            if (!f.isTautology(fm))
+                if (!Rreduced.exists(o => (o implies f).isTautology(fm)))
+                    Rreduced += f
+        }
+        return (Rreduced.map({ex : FeatureExpr => completeConfiguration(ex, features, fm)}).toList, " no logMsg yet")
+    }
     /**
      * Optimzed version of the completeConfiguration method. Uses FeatureExpr.getSatisfiableAssignment to need only one SAT call.
      * @param expr
