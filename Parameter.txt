@@ -11,12 +11,18 @@ Parameters:
     --parse                        Lex and parse the file; no type checking.
     --typecheck (-t)               Lex, parse, and type check; but do not create interfaces.
     --interface                    Lex, parse, type check, and create interfaces (default).
+    --conditionalControlFlow       Lex, parse, and check conditional control flow
     --output=file (-o)             Path to output files (no extension, creates .pi, .macrodbg etc files).
     --writePI                      Write lexer output into .pi file
     --debugInterface               Write interface in human readable format (requires --interface)
     --serializeAST                 Write ast to .ast file after parsing.
     --recordTiming                 Report times for all phases.
     --filePC=file                  Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'.
+    --bdd                          Use BDD engine instead of SAT engine (provide as first parameter).
+
+  Parser options
+    --hideparserresults            Do not show parser results.
+    --parserstatistics             Print parser statistics.
 
   Preprocessor configuration
     --define=name[=definition] (-D)
@@ -45,8 +51,12 @@ Parameters:
   Feature models
     --featureModelDimacs=file      Dimacs file describing a feature model.
     --featureModelFExpr=file       File in FExpr format describing a feature model.
-    --featureModelClass=classname  Class describing a feature model.
+    --typeSystemFeatureModelDimacs=file
+                                   Distinct feature model for the type system.
+    --partialConfiguration=file    Loads a partial configuration to the type-system feature model (file with #define and #undef lines).
 
   Misc
     --version                      Prints version number
     --help                         Displays help and usage information.
+
+TypeChef version 0.3.2_20120504233143

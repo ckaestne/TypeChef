@@ -154,7 +154,7 @@ object TypeChef extends Build {
         "Frontend",
         file("Frontend"),
         settings = buildSettings ++ VersionGen.settings
-    ) dependsOn(featureexpr, jcpp, cparser, ctypechecker, conditionallib, crewrite)
+    ) dependsOn(featureexpr, jcpp, cparser, ctypechecker, conditionallib, crewrite, javaparser)
 
     lazy val ctypechecker = Project(
         "CTypeChecker",

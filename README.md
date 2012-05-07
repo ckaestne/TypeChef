@@ -63,7 +63,7 @@ For simple experimentation, try our online version at
 [http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
 
 Alternatively, you can download a .jar file including
-all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.1.jar). Run as usual
+all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.2.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
@@ -118,6 +118,8 @@ The project was only possible with fruitful collaboration of many researchers.
 * [Sebastian Erdweg](http://www.informatik.uni-marburg.de/~seba/) (Philipps University Marburg)
 * [Klaus Ostermann](http://www.informatik.uni-marburg.de/~kos/) (Philipps University Marburg)
 * [Thorsten Berger](http://bis.uni-leipzig.de/ThorstenBerger) (University of Leipzig)
+* [Joerg Liebig](http://www.infosun.fim.uni-passau.de/cl/staff/liebig/) (University of Passau)
+* [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/spl/people-rhein.php) (University of Passau)
 * Alex Eifler (Philipps University Marburg)
 * David Kraus (Philipps University Marburg)
 * Andy Kenner (Metop Research Institute, Magdeburg)
@@ -135,7 +137,7 @@ The Java parser is based on a grammar that can be traced back to the Java 1.5 gr
 
 For convenience, we include [sbt](http://code.google.com/p/simple-build-tool/) in the repository.
 
-We would further more thank for their contributions and discussions
+Furthermore, we thank for their contributions and discussions:
 * [Steven She](http://www.eng.uwaterloo.ca/~shshe/) (University of Waterloo)
 * [Krzysztof Czarnecki](http://gsd.uwaterloo.ca/kczarnec) (University of Waterloo)
 * [Sven Apel](http://www.infosun.fim.uni-passau.de/spl/apel/) (University of Passau)

@@ -91,7 +91,8 @@ in a list with optional entries or counting the entries:
 
 There are many helper functions in the library. For example, `simplify` removes all unreachable branches from a
 conditional expression and collapses choices between equal values; `lastEntry` returns the last entry from a
-List[Opt[T]] list, which of course depends on the configuration and is again a conditional result.
+List[Opt[T]] list, which of course depends on the configuration and is again a conditional result. And `mapCombination`
+explodes all combinations of two conditional values and performs a map on them.
 
     Choice(fa, Choice(fa, One(1), One(2)), One(3)).simplify
     > Choice(a,One(1),One(3))
@@ -101,6 +102,9 @@ List[Opt[T]] list, which of course depends on the configuration and is again a c
 
     ConditionalLib.lastEntry(l)
     > Choice(!a,One(Some(5)),One(Some(3)))
+
+    ConditionalLib.mapCombination[Int,Int,Int](Choice(a,One(1),One(2)), Choice(b,One(3),One(5)), _ + _)
+    > Choice(def(a),Choice(def(b),One(4),One(6)),Choice(def(b),One(5),One(7)))
 
 Simply explore the library...
 
