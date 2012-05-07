@@ -1,5 +1,6 @@
 package de.fosd.typechef
 
+import de.fosd.typechef.parser
 import conditional.{Conditional, Choice, Opt}
 import crewrite._
 import featureexpr._
@@ -8,9 +9,9 @@ import parser.c.{AST, PrettyPrinter, TranslationUnit}
 import typesystem.CTypeSystemFrontend
 import java.io.{File, FileWriter}
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{BitSet, Queue}
-import scala._
+import scala.collection.mutable.{HashSet, BitSet, Queue}
 import scala.Predef._
+import scala._
 
 /**
  *
@@ -54,6 +55,14 @@ object ProductGeneration {
                 fex: SingleFeatureExpr => if (config.apply(featureIDHashmap(fex))) fex else fex.not()
             }
             ).mkString("&&")
+        }
+
+        // caching
+        private var featureExpression : FeatureExpr = null
+        def toFeatureExpr : FeatureExpr = {
+            if (featureExpression == null)
+                featureExpression = FeatureExprFactory.createFeatureExprFast(getTrueSet, getFalseSet)
+            return featureExpression
         }
 
         /**
@@ -149,7 +158,7 @@ object ProductGeneration {
         /**Single-wise */
         {
             startTime = System.currentTimeMillis()
-            val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = true)
+            val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
             typecheckingTasks ::= Pair("singleWise", configs)
             configurationCollection ++= configs
             msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
@@ -158,17 +167,17 @@ object ProductGeneration {
         }
 
         /**Coverage Configurations */
-/*
+
         {
             startTime = System.currentTimeMillis()
-            val (configs, logmsg) = configurationCoverage(family_ast, fm, family_env)
+            val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurationCollection, preferDisabledFeatures = false)
             typecheckingTasks ::= Pair("coverage", configs)
             configurationCollection ++= configs
-            msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
             println(msg)
             log = log + msg
         }
-*/
+
         /**Pairwise MAX */
         {
             startTime = System.currentTimeMillis()
@@ -210,7 +219,7 @@ object ProductGeneration {
                 current_config += 1
                 println("checking configuration " + current_config + " of " + configs.size + " (" + opt.getFile + " , " + taskDesc + ")")
                 val product: TranslationUnit = cf.deriveProd[TranslationUnit](family_ast,
-                    new Configuration(FeatureExprFactory.createFeatureExprFast(config.getTrueSet, config.getFalseSet), fm), family_env)
+                    new Configuration(config.toFeatureExpr, fm), family_env)
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
                 val startTime: Long = System.currentTimeMillis()
                 val noErrors: Boolean = ts.checkAST
@@ -253,7 +262,7 @@ object ProductGeneration {
         val noErrors: Boolean = ts.checkAST
         val familyTime: Long = System.currentTimeMillis() - startTime
 
-        var file: File = new File(outFilePrefix + "_report.txt")
+        val file: File = new File(outFilePrefix + "_report.txt")
         file.getParentFile.mkdirs()
         fw = new FileWriter(file)
         fw.write("File : " + opt.getFile + "\n")
@@ -446,43 +455,56 @@ object ProductGeneration {
                 " created combinations:" + pwConfigs.size + "\n")
     }
     /*
-    Configuration Coverage Method copied from Joerg
+    Configuration Coverage Method copied from Joerg and heavily modified :)
      */
-    def configurationCoverage(astRoot : TranslationUnit, fm: FeatureModel, env: ASTEnv) : (List[SimpleConfiguration],String) = {
-        // Todo: also use Choice Nodes
-        val in: List[Opt[_]] = {
-            var res: List[Opt[_]] = List()
-            val filter = org.kiama.rewriting.Rewriter.manytd(org.kiama.rewriting.Rewriter.query {
-                case o: Opt[_] => res ::= o
-            })
-            filter(astRoot)
-            res
-        }
-        var R: Set[FeatureExpr] = Set()   // found configurations
-        var B: Set[Opt[_]] = Set()        // selected blocks
-        // iterate over all optional blocks
-        for (b <- in) {
-            // optional block b has not been handled before
-            if (! B.contains(b)) {
-                val fexpb = env.featureExpr(b)
-                if (fexpb.isSatisfiable(fm)) {
-                    B ++= in.filter(fexpb implies env.featureExpr(_) isTautology())
-                    R += fexpb
+    def configurationCoverage(astRoot : TranslationUnit, fm: FeatureModel, features : List[SingleFeatureExpr],
+                              existingConfigs : List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean) : (List[SimpleConfiguration],String) = {
+        var unsatCombinations = 0
+        var alreadyCoveredCombinations = 0
+        var optNodes: List[Opt[_]] = List()
+        var choiceNodes: List[Choice[_]] = List()
+        val scanNodes = org.kiama.rewriting.Rewriter.manytd(org.kiama.rewriting.Rewriter.query {
+            case o: Opt[_] => optNodes ::= o
+            case o: Choice[_] => choiceNodes ::= o
+        })
+        scanNodes(astRoot)
+        // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
+        val handledExpressions : HashSet[FeatureExpr] = HashSet()
+        var retList : List[SimpleConfiguration] = List()
+        //inner function
+        def handleFeatureExpression(fex:FeatureExpr) = {
+            if (! handledExpressions.contains(fex)) {
+                // search for configs that imply this node
+                val isCovered : Boolean =
+                    (retList++existingConfigs).exists(
+                    {conf : SimpleConfiguration => conf.toFeatureExpr.implies(fex).isTautology(fm)}
+                    )
+                if (!isCovered) {
+                    val completeConfig = completeConfiguration(fex, features, fm, preferDisabledFeatures)
+                    if (completeConfig != null) {
+                        retList ::= completeConfig
+                    } else {
+                        unsatCombinations += 1
+                        //println("no satisfiable configuration for optNode " + optNode)
+                    }
                 } else {
-                    B += b
+                    alreadyCoveredCombinations += 1
                 }
+                handledExpressions.add(fex)
             }
         }
-        // reduce number of configurations using implication check; at most n^2 SAT checks!!!
-        // https://github.com/ckaestne/TypeChef/blob/MinimalVariants/LinuxAnalysis/src/main/scala/de/fosd/typechef/minimalvariants/MinimalVariants.scala
-        var Rreduced: Set[FeatureExpr] = Set()
-        Rreduced = Set()
-        for (f <- R) {
-            if (!f.isTautology(fm))
-                if (!Rreduced.exists(o => (o implies f).isTautology(fm)))
-                    Rreduced += f
+
+        for (optNode <- optNodes) {
+            handleFeatureExpression(optNode.feature)
         }
-        return (Rreduced.map({ex : FeatureExpr => completeConfiguration(ex, features, fm)}).toList, " no logMsg yet")
+        for (choiceNode <- choiceNodes) {
+            handleFeatureExpression(choiceNode.feature)
+            handleFeatureExpression(choiceNode.feature.not())
+        }
+        return (retList,
+            " unsatisfiableCombinations:" + unsatCombinations + "\n" +
+                " already covered combinations:" + alreadyCoveredCombinations + "\n" +
+                " created combinations:" + retList.size + "\n")
     }
     /**
      * Optimzed version of the completeConfiguration method. Uses FeatureExpr.getSatisfiableAssignment to need only one SAT call.
