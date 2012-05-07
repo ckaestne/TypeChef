@@ -89,14 +89,19 @@ object ConditionalLib {
     zip(a, b).simplify(featureExpr).mapf(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
 
 
+  /**
+   * convenience function to add an element (e) with feature expression (f) to an conditional tree (t) with the initial
+   * context (ctx)
+   * the function makes sure that elements with the feature expression (True) will always be the last alternative!
+   */
   def insert[T](t: Conditional[T], ctx: FeatureExpr, f: FeatureExpr, e: T): Conditional[T] = {
     t match {
-      case o@One(value) => if (ctx equivalentTo f) One(e) else
+      case o@One(value) => if ((f.isTautology()) || (ctx equivalentTo f)) One(e) else
         if (ctx isTautology()) Choice(f, One(e), o)
         else Choice(ctx, o, One(e))
       case Choice(feature, thenBranch, elseBranch) =>
         if (((ctx and feature) mex f isContradiction()) || f.isTautology())
-          Choice(feature, thenBranch, insert(elseBranch, ctx and (feature not), f, e))
+          Choice(feature, thenBranch, insert(elseBranch, ctx and (feature.not()), f, e))
         else
           Choice(feature, insert(thenBranch, ctx and feature, f, e), elseBranch)
     }

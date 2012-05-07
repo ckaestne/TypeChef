@@ -202,14 +202,12 @@ class ConditionalTest {
     val t1: Conditional[Set[Int]] = One(Set())
 
     assertEquals(Choice(fa, One(Set(0)), One(Set())), ConditionalLib.insert(t1, True, fa, Set(0)))
-    assertEquals(Choice(fa, One(Set()), One(Set(0))), ConditionalLib.insert(t1, fa, True, Set(0)))
+    assertEquals(One(Set(0)), ConditionalLib.insert(t1, fa, True, Set(0)))
     assertEquals(One(Set(0)), ConditionalLib.insert(t1, True, True, Set(0)))
     assertEquals(One(Set(0)), ConditionalLib.insert(t1, fa, fa, Set(0)))
 
     val t2: Conditional[Set[Int]] = Choice(fa, One(Set(1)), One(Set(-1)))
 
-    println("test")
     assertEquals(Choice(fa, One(Set(1)), One(Set(0))), ConditionalLib.insert(t2, fa, True, Set(0)))
-
   }
 }
