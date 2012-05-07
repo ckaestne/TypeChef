@@ -48,13 +48,13 @@ object PrettyPrinter {
 
     def ppConditional(e: Conditional[_], list_feature_expr: List[FeatureExpr]): Doc = e match {
         case One(c: AST) => prettyPrint(c, list_feature_expr)
-        case Choice(f, a: AST, b: AST) => "#if" ~~ f.toTextExpr * prettyPrint(a, f :: list_feature_expr) * "#else" * prettyPrint(b, f.not :: list_feature_expr) * "#endif"
-        case Choice(f, a: Conditional[_], b: Conditional[_]) => "#if" ~~ f.toTextExpr * ppConditional(a, f :: list_feature_expr) * "#else" * ppConditional(b, f.not :: list_feature_expr) * "#endif"
+        case Choice(f, a: AST, b: AST) => line ~ "#if" ~~ f.toTextExpr * prettyPrint(a, f :: list_feature_expr) * "#else" * prettyPrint(b, f.not :: list_feature_expr) * "#endif" ~ line
+        case Choice(f, a: Conditional[_], b: Conditional[_]) => line ~ "#if" ~~ f.toTextExpr * ppConditional(a, f :: list_feature_expr) * "#else" * ppConditional(b, f.not :: list_feature_expr) * "#endif" ~ line
     }
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
         if (e.feature == FeatureExprFactory.True || list_feature_expr.contains(e.feature)) prettyPrint(e.entry, list_feature_expr)
-        else "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry, e.feature :: list_feature_expr) * "#endif"
+        else line ~ "#if" ~~ e.feature.toTextExpr * prettyPrint(e.entry, e.feature :: list_feature_expr) * "#endif" ~ line
     }
 
     def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExprFactory.True)): Doc = {
