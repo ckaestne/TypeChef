@@ -107,17 +107,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     val p = getAllPred(f, fenv)
 
     val errors = compareSuccWithPred(s, p, fenv)
-
-    if (errors.size > 0) {
-
-      val (nodeErrorsOcc, connectionErrorsOcc) = errors.span({_ match { case _: CCFGErrorMis => true; case _ => false}})
-      val nodeErrors = nodeErrorsOcc.map(_.asInstanceOf[CCFGErrorMis].s)
-      val connectionErrors = connectionErrorsOcc.map({x => (x.asInstanceOf[CCFGErrorDir].s, x.asInstanceOf[CCFGErrorDir].t)})
-
-      println("succs: " + DotGraph.map2file(s, fenv, nodeErrors, connectionErrors))
-      println("preds: " + DotGraph.map2file(p, fenv, nodeErrors, connectionErrors))
-      println(errors.fold("")(_.toString + _.toString))
-    }
+    CCFGErrorOutput.printCFGErrors(s, p, errors, fenv)
 
     errors.size > 0
   }
