@@ -581,8 +581,16 @@ trait ConditionalControlFlow extends ASTNavigation {
 
           case SwitchStatement(expr, s) if (isPartOf(nested_ast_elem, s)) => getCondExprPred(expr, env)
           case t: CaseStatement => List(t)
-          //case t: DefaultStatement => List(t)
-          case t: DefaultStatement => handleSwitch(t)
+
+          // pred of default is either the expression of the switch, which is
+          // returned by handleSwitch, or a previous statement (e.g.,
+          // switch (exp) {
+          // ...
+          // label1:
+          // default: ...)
+          // as part of a fall through (sequence of statements without a break and that we catch
+          // with getStmtPred
+          case t: DefaultStatement => handleSwitch(t) ++ getStmtPred(t, env)
 
           case t: CompoundStatementExpr => followPred(t, env)
           case t: Statement => getStmtPred(t, env)

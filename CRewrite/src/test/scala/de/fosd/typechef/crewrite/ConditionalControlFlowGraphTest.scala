@@ -761,26 +761,49 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
   @Test def test_bug01() {
     val a = parseFunctionDef("""
-      int unlzma_main(int argc __attribute__ ((__unused__)), char **argv) {
+      int
+      unlzma_main (int argc, char **argv) {
+        #if definedEx(CONFIG_LZMA)
+        int opts = getopt32(argv , "cfvdt");
+        #endif
+        #if (!definedEx(CONFIG_LZMA) && (!definedEx(CONFIG_UNLZMA) || !definedEx(CONFIG_LZMA)))
+        getopt32(argv , "cfvdt");
+        #endif
+        #if definedEx(CONFIG_LZMA)
+        if (((applet_name[2] == 'm') && (! (opts & (OPT_DECOMPRESS | OPT_TEST))))) bb_show_usage();
+        #endif
+        if ((applet_name[2] == 'c')) (option_mask32 |= OPT_STDOUT);
+        (argv += optind);
+        return bbunpack(argv , unpack_unlzma , make_new_name_generic , "lzma");
+      }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    println("nodes without position information: \n")
+    for (n <- checkPositionInformation(a))
+      println(n)
+    assert(compareSuccWithPred(getAllSucc(a, env), env))
+  }
 
-      #if definedEx(CONFIG_LZMA)
-      int opts =
-      #endif
-      #if !definedEx(CONFIG_LZMA)
-
-      #endif
-      getopt32(argv, "cfvdt");
-      #if definedEx(CONFIG_LZMA)
-      /* lzma without -d or -t? */
-      if (applet_name[2] == 'm' && !(opts & (OPT_DECOMPRESS|OPT_TEST)))
-        bb_show_usage();
-      #endif
-      /* lzcat? */
-      if (applet_name[2] == 'c')
-        option_mask32 |= OPT_STDOUT;
-
-      argv += optind;
-      return bbunpack(argv, unpack_unlzma, make_new_name_generic, "lzma");
+  @Test def test_label_in_switch() {
+    val a = parseFunctionDef("""
+    int foo(int param) {
+      int exp = 0;
+      int res = -1;
+      switch (exp) {
+        case 0: if (param > 0) {
+          res = 0;
+          break;
+        } else {
+          goto l;
+        }
+        l:
+        default: res = 2;
+      }
+      return res;
     }
     """)
     val env = CASTEnv.createASTEnv(a)
