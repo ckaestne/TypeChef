@@ -19,10 +19,11 @@ case class CCFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CCFGErr
 }
 
 object CCFGErrorOutput {
-  def printCFGErrors(s: List[(AST, scala.List[AST])], p: List[(AST, scala.List[AST])], errors: List[CCFGError], env: ASTEnv) = {
+  def printCCFGErrors(s: List[(AST, scala.List[AST])], p: List[(AST, scala.List[AST])], errors: List[CCFGError], env: ASTEnv) = {
     if (errors.size > 0) {
 
-      val (nodeErrorsOcc, connectionErrorsOcc) = errors.span({_ match { case _: CCFGErrorMis => true; case _ => false}})
+      val nodeErrorsOcc = errors.filter({_ match { case _: CCFGErrorMis => true; case _ => false}})
+      val connectionErrorsOcc = errors.filter({_ match { case _: CCFGErrorDir => true; case _ => false}})
       val nodeErrors = nodeErrorsOcc.map(_.asInstanceOf[CCFGErrorMis].s)
       val connectionErrors = connectionErrorsOcc.map({x => (x.asInstanceOf[CCFGErrorDir].s, x.asInstanceOf[CCFGErrorDir].t)})
 

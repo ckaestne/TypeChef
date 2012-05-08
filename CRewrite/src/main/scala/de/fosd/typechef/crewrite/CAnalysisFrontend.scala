@@ -107,7 +107,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     val p = getAllPred(f, fenv)
 
     val errors = compareSuccWithPred(s, p, fenv)
-    CCFGErrorOutput.printCFGErrors(s, p, errors, fenv)
+    CCFGErrorOutput.printCCFGErrors(s, p, errors, fenv)
 
     errors.size > 0
   }

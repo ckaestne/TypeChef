@@ -708,9 +708,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_goto_pred_succ() {
@@ -722,9 +723,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_goto_pred_succ2() {
@@ -740,9 +742,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(preds, env))
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_bug01() {
@@ -766,12 +769,33 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(preds, env))
-    println("nodes without position information: \n")
-    for (n <- checkPositionInformation(a))
-      println(n)
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_bug01_simplified() {
+    val a = parseFunctionDef("""
+      void foo () {
+        #if definedEx(A)
+        k:
+        #else
+        l:
+        #endif
+        #if definedEx(A)
+        m:
+        #endif
+        n:
+      }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_bug02() {
@@ -805,12 +829,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(preds, env))
-    println("nodes without position information: \n")
-    for (n <- checkPositionInformation(a))
-      println(n)
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_label_in_switch() {
@@ -834,12 +856,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(preds, env))
-    println("nodes without position information: \n")
-    for (n <- checkPositionInformation(a))
-      println(n)
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_fosd_liveness() {
@@ -947,9 +967,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(preds, env))
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_choice() {
@@ -980,8 +1001,9 @@ int hello() {
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(preds, env))
-    assert(compareSuccWithPred(succs, preds, env).isEmpty)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 }
