@@ -22,6 +22,11 @@ object DotGraph extends IOUtilities {
 
   private def getTmpFileName = File.createTempFile("/tmp", ".dot")
 
+  // function takes a list of tupels with (source, [targets]) an environment and list of elements to highlight
+  // errors in the resulting dot files
+  // errorNodes and errorConnections are generated as part of predecessor successor checks
+  // e.g., missing nodes in pred are highlighted in the succ dot file
+  // and   missing connections in pred are similarly highlighted in the succ dot file
   def map2file(m: List[(AST, List[AST])], env: ASTEnv, errorNodes: List[AST] = List(), errorConnections: List[(AST, AST)] = List()) = {
     var dotstring = ""
     val fname = getTmpFileName
