@@ -126,12 +126,12 @@ trait ConditionalControlFlow extends ASTNavigation {
                 val a2e = findPriorASTElem[IfStatement](a, env)
                 val b2e = findPriorASTElem[IfStatement](e, env)
 
-                if (a2e.isEmpty) add2newres = rollUp(oldelem, env)
+                if (a2e.isEmpty) add2newres = rollUp(e, oldelem, env)
                 else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) add2newres = getCondExprPred(condition, env)
-                else add2newres = rollUp(oldelem, env)
+                else add2newres = rollUp(e, oldelem, env)
               }
-              case _ => {
-                add2newres = rollUp(oldelem, env)
+              case _: AST => {
+                add2newres = rollUp(a, oldelem, env)
                 if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
               }
             }
@@ -747,8 +747,11 @@ trait ConditionalControlFlow extends ASTNavigation {
 
   // in predecessor determination we have to dig in into elements at certain points
   // we dig into ast that have an Conditional part, such as for, while, ...
-  private def rollUp(a: AST, env: ASTEnv): List[AST] = {
-    a match {
+  // source is the element that we compute the predecessor for
+  // target is the current determined predecessor that might be evaluated further
+  // env is the ast environment that stores references to parents, siblings, and children
+  private def rollUp(source: Product, target: AST, env: ASTEnv): List[AST] = {
+    target match {
 
       // in general all elements from the different branches (thenBranch, elifs, elseBranch)
       // can be predecessors
@@ -757,13 +760,13 @@ trait ConditionalControlFlow extends ASTNavigation {
         if (elseBranch.isDefined) res ++= getCondStmtPred(t, elseBranch.get, env)
         if (!elifs.isEmpty) {
           for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
-            res ++= getCondStmtPred(elif, thenBranch, env).flatMap(rollUp(_, env))
+            res ++= getCondStmtPred(elif, thenBranch, env).flatMap(rollUp(source, _, env))
           }
 
           // without an else branch, the condition of elifs are possible predecessors of a
           if (elseBranch.isEmpty) res ++= getCompoundPred(elifs, env)
         }
-        res ++= getCondStmtPred(t, thenBranch, env).flatMap(rollUp(_, env))
+        res ++= getCondStmtPred(t, thenBranch, env).flatMap(rollUp(source, _, env))
 
         if (elifs.isEmpty && elseBranch.isEmpty)
           res ++= getCondExprPred(condition, env)
@@ -772,7 +775,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       case ElifStatement(condition, thenBranch) => {
         var res = List[AST]()
         res ++= getCondExprPred(condition, env)
-        res ++= getCondStmtPred(a, thenBranch, env).flatMap(rollUp(_, env))
+        res ++= getCondStmtPred(target, thenBranch, env).flatMap(rollUp(source, _, env))
         res
       }
       case t@SwitchStatement(expr, s) => {
@@ -789,9 +792,40 @@ trait ConditionalControlFlow extends ASTNavigation {
       case t@ForStatement(_, Some(expr2), _, s) => List(expr2) ++ filterBreakStatements(s, env)
       case t@ForStatement(_, _, _, s) => filterBreakStatements(s, env)
 
-      case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env).flatMap(rollUp(_, env))
+      case CompoundStatement(innerStatements) => getCompoundPred(innerStatements, env).flatMap(rollUp(source, _, env))
 
-      case _ => List(a)
+      // in case we found a goto statement we check whether the goto statement has possible targets
+      // if so the goto cannot be the pred of our current element
+      // if not the goto is the pred of our current element
+      case t@GotoStatement(Id(l)) => {
+        if (source.isInstanceOf[LabelStatement]) List(target)
+        else {
+          findPriorASTElem[FunctionDef](t, env) match {
+            case None => assert(false, "goto statement should always occur within a function definition"); List()
+            case Some(f) => {
+              val l_list = labelLookup(f, l, env)
+              if (l_list.isEmpty) List(target)
+              else List()
+            }
+          }
+        }
+      }
+
+      case t@GotoStatement(PointerDerefExpr(_)) => {
+        if (source.isInstanceOf[LabelStatement]) List(target)
+        else {
+          findPriorASTElem[FunctionDef](t, env) match {
+            case None => assert(false, "goto statement should always occur within a function definition"); List()
+            case Some(f) => {
+              val l_list = filterAllASTElems[LabelStatement](f)
+              if (l_list.isEmpty) List(target)
+              else List()
+            }
+          }
+        }
+      }
+
+      case _ => List(target)
     }
   }
 

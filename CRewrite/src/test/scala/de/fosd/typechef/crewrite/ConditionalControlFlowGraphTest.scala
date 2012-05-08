@@ -728,6 +728,37 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     compareSuccWithPred(getAllSucc(a, env), env)
   }
 
+  @Test def test_goto_pred_succ() {
+    val a = parseFunctionDef("""
+    int foo(void) {
+      goto l;
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    assert(compareSuccWithPred(getAllSucc(a, env), env))
+  }
+
+  @Test def test_goto_pred_succ2() {
+    val a = parseFunctionDef("""
+    int foo(void) {
+      int k;
+      if (k) {
+        goto l;
+      }
+      l:;
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    assert(compareSuccWithPred(getAllSucc(a, env), env))
+  }
+
   @Test def test_fosd_liveness() {
     val a = parseFunctionDef("""
     int foo(void) {
