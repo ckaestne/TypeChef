@@ -41,79 +41,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     x
   }
 
-  // given an ast element x and its successors lx: x should be in pred(lx)
-  def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): Boolean = {
-    // check that number of nodes match
-    val sdiff = lsuccs.map(_._1).diff(lpreds.map(_._1))
-    val pdiff = lpreds.map(_._1).diff(lsuccs.map(_._1))
-
-    for (sdelem <- sdiff)
-      System.err.println(PrettyPrinter.print(sdelem), "[" + sdelem.getPositionFrom + ":" + sdelem.getPositionTo +
-        "]", "is not present in preds")
-
-    for (pdelem <- pdiff)
-      System.err.println(PrettyPrinter.print(pdelem), "[" + pdelem.getPositionFrom + ":" + pdelem.getPositionTo +
-        "]", "is not present in succs")
-
-    if (sdiff.size > 0 || pdiff.size > 0)
-      return false
-
-    // check that number of edges match
-    var res = true
-    var succ_edges: List[(AST, AST)] = List()
-    for ((ast_elem, succs) <- lsuccs) {
-      for (succ <- succs) {
-        succ_edges = (ast_elem, succ) :: succ_edges
-      }
-    }
-
-    var pred_edges: List[(AST, AST)] = List()
-    for ((ast_elem, preds) <- lpreds) {
-      for (pred <- preds) {
-        pred_edges = (ast_elem, pred) :: pred_edges
-      }
-    }
-
-    // check succ/pred connection and print out missing connections
-    // given two ast elems:
-    //   a
-    //   b
-    // we check (a1, b1) successor
-    // against  (b2, a2) predecessor
-    for ((a1, b1) <- succ_edges) {
-      var isin = false
-      for ((b2, a2) <- pred_edges) {
-        if (a1.eq(a2) && b1.eq(b2))
-          isin = true
-      }
-      if (! isin) {
-        System.err.println(PrettyPrinter.print(b1), " -> ", PrettyPrinter.print(a1), " is missing in preds")
-        res = false
-      }
-    }
-
-    // check pred/succ connection and print out missing connections
-    // given two ast elems:
-    //  a
-    //  b
-    // we check (b1, a1) predecessor
-    // against  (a2, b2) successor
-    for ((b1, a1) <- pred_edges) {
-      var isin = false
-      for ((a2, b2) <- succ_edges) {
-        if (a1.eq(a2) && b1.eq(b2))
-          isin = true
-      }
-      if (! isin) {
-        System.err.println(PrettyPrinter.print(a1), " -> ", PrettyPrinter.print(b1), " is missing in succs")
-        res = false
-      }
-    }
-
-    res
-  }
-
-
   private def checkCfg(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
     var errorOccured = true
     println("analysis " + filename)
@@ -179,7 +106,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     val p = getAllPred(f, env)
     println("succs: " + DotGraph.map2file(s, env))
     println("preds: " + DotGraph.map2file(p, env))
-    compareSuccWithPred(s, p, env)
+    compareSuccWithPred(s, p, env).isEmpty
   }
 
   // gcc testsuite
