@@ -39,93 +39,6 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     x
   }
 
-  sealed abstract class CCFGError
-
-  case class CCFGErrorDir(msg: String, s: AST, sfexp: FeatureExpr, t: AST, tfexp: FeatureExpr) extends CCFGError {
-    override def toString =
-      "[" + sfexp + "]" + s.getClass + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + // print source
-        "--> " +
-        "[" + tfexp + "]" + t.getClass + "(" + t.getPositionFrom + "--" + t.getPositionTo + ")" + // print target
-        "\n" + msg + "\n\n\n"
-  }
-
-  case class CCFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CCFGError {
-    override def toString =
-      "[" + sfexp + "]" + s.getClass + "(" + s.getPositionFrom + "--" + s.getPositionTo + ")" + "\n" + msg + "\n\n\n"
-  }
-
-  // given an ast element x and its successors lx: x should be in pred(lx)
-  private def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): Boolean = {
-    // check that number of nodes match
-    val sdiff = lsuccs.map(_._1).diff(lpreds.map(_._1))
-    val pdiff = lpreds.map(_._1).diff(lsuccs.map(_._1))
-
-    for (sdelem <- sdiff)
-      errors = new CCFGErrorMis("is not present in preds!", sdelem, env.featureExpr(sdelem)) :: errors
-
-
-    for (pdelem <- pdiff)
-      errors = new CCFGErrorMis("is not present in succs!", pdelem, env.featureExpr(pdelem)) :: errors
-
-    if (sdiff.size > 0 || pdiff.size > 0)
-      return false
-
-    // check that number of edges match
-    var res = true
-    var succ_edges: List[(AST, AST)] = List()
-    for ((ast_elem, succs) <- lsuccs) {
-      for (succ <- succs) {
-        succ_edges = (ast_elem, succ) :: succ_edges
-      }
-    }
-
-    var pred_edges: List[(AST, AST)] = List()
-    for ((ast_elem, preds) <- lpreds) {
-      for (pred <- preds) {
-        pred_edges = (ast_elem, pred) :: pred_edges
-      }
-    }
-
-    // check succ/pred connection and print out missing connections
-    // given two ast elems:
-    //   a
-    //   b
-    // we check (a1, b1) successor
-    // against  (b2, a2) predecessor
-    for ((a1, b1) <- succ_edges) {
-      var isin = false
-      for ((b2, a2) <- pred_edges) {
-        if (a1.eq(a2) && b1.eq(b2))
-          isin = true
-      }
-      if (!isin) {
-        errors = new CCFGErrorDir("is missing in preds", b1, env.featureExpr(b1), a1, env.featureExpr(a1)) :: errors
-        res = false
-      }
-    }
-
-    // check pred/succ connection and print out missing connections
-    // given two ast elems:
-    //  a
-    //  b
-    // we check (b1, a1) predecessor
-    // against  (a2, b2) successor
-    for ((b1, a1) <- pred_edges) {
-      var isin = false
-      for ((a2, b2) <- succ_edges) {
-        if (a1.eq(a2) && b1.eq(b2))
-          isin = true
-      }
-      if (!isin) {
-        errors = new CCFGErrorDir("is missing in succs", a1, env.featureExpr(a1), b1, env.featureExpr(b1)) :: errors
-        res = false
-      }
-    }
-
-    res
-  }
-
-  var errors = List[CCFGError]()
   val liveness = "liveness.csv"
 
   def checkCfG(fileName: String) {
@@ -193,9 +106,9 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     val s = getAllSucc(f, fenv)
     val p = getAllPred(f, fenv)
 
-    val res = compareSuccWithPred(s, p, fenv)
+    val errors = compareSuccWithPred(s, p, fenv)
 
-    if (! res) {
+    if (errors.size > 0) {
 
       val (nodeErrorsOcc, connectionErrorsOcc) = errors.span({_ match { case _: CCFGErrorMis => true; case _ => false}})
       val nodeErrors = nodeErrorsOcc.map(_.asInstanceOf[CCFGErrorMis].s)
@@ -204,8 +117,8 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
       println("succs: " + DotGraph.map2file(s, fenv, nodeErrors, connectionErrors))
       println("preds: " + DotGraph.map2file(p, fenv, nodeErrors, connectionErrors))
       println(errors.fold("")(_.toString + _.toString))
-      errors = List()
     }
-    res
+
+    errors.size > 0
   }
 }

@@ -755,7 +755,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
     println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    println("preds: " + DotGraph.map2file(preds, env))
     assert(compareSuccWithPred(getAllSucc(a, env), env))
   }
 
@@ -781,7 +781,46 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
     println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    println("preds: " + DotGraph.map2file(preds, env))
+    println("nodes without position information: \n")
+    for (n <- checkPositionInformation(a))
+      println(n)
+    assert(compareSuccWithPred(getAllSucc(a, env), env))
+  }
+
+  @Test def test_bug02() {
+    val a = parseFunctionDef("""
+    static void handle_compress(void) {
+      EState *s = strm->state;
+      while (1) {
+        if (s->state == 1) {
+          copy_output_until_stop(s);
+          if (s->state_out_pos < s->numZ) break;
+          if (((s->mode == 4) && (s->strm->avail_in == 0) && isempty_RL(s))) break;
+          prepare_new_block(s);
+          s->state = 2;
+        }
+        if ((s->state == 2)) {
+          copy_input_until_stop(s);
+          if (((s->mode != 2) && (s->strm->avail_in == 0))) {
+            flush_RL(s);
+            BZ2_compressBlock(s , (s->mode == 4));
+            (s->state = 1);
+          } else if ((s->nblock >= s->nblockMAX)) {
+            BZ2_compressBlock(s , 0);
+            (s->state = 1);
+          } else if ((s->strm->avail_in == 0)) {
+            break;
+          }
+        }
+      }
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(preds, env))
     println("nodes without position information: \n")
     for (n <- checkPositionInformation(a))
       println(n)
@@ -810,7 +849,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val succs = getAllSucc(a, env)
     val preds = getAllPred(a, env)
     println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    println("preds: " + DotGraph.map2file(preds, env))
     println("nodes without position information: \n")
     for (n <- checkPositionInformation(a))
       println(n)
@@ -953,6 +992,10 @@ int hello() {
     """)
 
     val env = CASTEnv.createASTEnv(a)
-
+    val s = getAllSucc(a, env)
+    val p = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(s, env))
+    println("preds: " + DotGraph.map2file(p, env))
+    assert(compareSuccWithPred(s, env))
   }
 }
