@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.WithPosition
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.{Conditional, Opt, One}
+import de.fosd.typechef.conditional.One
 
 
 /**
