@@ -90,6 +90,7 @@ object DotGraph extends IOUtilities {
       replace("<", "\\<").
       replace(">", "\\>").
       replace("\"", "\\\"").
-      replace("|", "\\|")
+      replace("|", "\\|").
+      replace(" ", "\\ ")
   }
 }
