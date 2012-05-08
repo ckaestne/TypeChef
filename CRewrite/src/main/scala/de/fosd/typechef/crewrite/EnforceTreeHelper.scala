@@ -71,6 +71,7 @@ trait EnforceTreeHelper {
     cast
   }
 
+  // filter AST nodes that do not have position information
   def checkPositionInformation[T <: Product](ast: T): List[AST] = {
     assert(ast != null)
     var nodeswithoutposition: List[AST] = List()
