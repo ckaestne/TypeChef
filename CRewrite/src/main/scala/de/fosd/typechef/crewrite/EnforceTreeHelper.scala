@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.WithPosition
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.One
+import de.fosd.typechef.conditional.{Conditional, Opt, One}
 
 
 /**
@@ -71,4 +71,16 @@ trait EnforceTreeHelper {
     cast
   }
 
+  def checkPositionInformation[T <: Product](ast: T): List[AST] = {
+    assert(ast != null)
+    var nodeswithoutposition: List[AST] = List()
+
+    val checkpos = everywherebu(query {
+      case a: AST => if (! a.hasPosition) nodeswithoutposition ::= a
+    })
+
+    checkpos(ast)
+
+    nodeswithoutposition
+  }
 }

@@ -759,6 +759,41 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     assert(compareSuccWithPred(getAllSucc(a, env), env))
   }
 
+  @Test def test_bug01() {
+    val a = parseFunctionDef("""
+      int unlzma_main(int argc __attribute__ ((__unused__)), char **argv) {
+
+      #if definedEx(CONFIG_LZMA)
+      int opts =
+      #endif
+      #if !definedEx(CONFIG_LZMA)
+
+      #endif
+      getopt32(argv, "cfvdt");
+      #if definedEx(CONFIG_LZMA)
+      /* lzma without -d or -t? */
+      if (applet_name[2] == 'm' && !(opts & (OPT_DECOMPRESS|OPT_TEST)))
+        bb_show_usage();
+      #endif
+      /* lzcat? */
+      if (applet_name[2] == 'c')
+        option_mask32 |= OPT_STDOUT;
+
+      argv += optind;
+      return bbunpack(argv, unpack_unlzma, make_new_name_generic, "lzma");
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    println("nodes without position information: \n")
+    for (n <- checkPositionInformation(a))
+      println(n)
+    assert(compareSuccWithPred(getAllSucc(a, env), env))
+  }
+
   @Test def test_fosd_liveness() {
     val a = parseFunctionDef("""
     int foo(void) {
