@@ -8,22 +8,6 @@ import org.junit.{Ignore, Test}
 
 class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables {
 
-  // given an ast element x and its successors lx: x should be in pred(lx)
-  def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
-    var res = true
-    for ((ast_elem, succs) <- l) {
-      val s = succs.flatMap(pred(_, env))
-      if (!s.isEmpty)
-        if (s.map(_.eq(ast_elem)).max.unary_!) {
-          println(ast_elem + " is not in the predecessor list of its own successors!")
-          res = false
-        }
-    }
-    res
-  }
-
-
-
   @Test def test_if_the_else() {
     val a = parseCompoundStmt("""
     {
@@ -723,9 +707,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
     println("succs: " + DotGraph.map2file(succs, env))
     println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
-    compareSuccWithPred(getAllSucc(a, env), env)
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 
   @Test def test_goto_pred_succ() {
@@ -736,9 +721,10 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     """)
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
     println("succs: " + DotGraph.map2file(succs, env))
     println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
-    assert(compareSuccWithPred(getAllSucc(a, env), env))
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 
   @Test def test_goto_pred_succ2() {
@@ -756,7 +742,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     val preds = getAllPred(a, env)
     println("succs: " + DotGraph.map2file(succs, env))
     println("preds: " + DotGraph.map2file(preds, env))
-    assert(compareSuccWithPred(getAllSucc(a, env), env))
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 
   @Test def test_bug01() {
@@ -785,7 +771,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("nodes without position information: \n")
     for (n <- checkPositionInformation(a))
       println(n)
-    assert(compareSuccWithPred(getAllSucc(a, env), env))
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 
   @Test def test_bug02() {
@@ -824,7 +810,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("nodes without position information: \n")
     for (n <- checkPositionInformation(a))
       println(n)
-    assert(compareSuccWithPred(getAllSucc(a, env), env))
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 
   @Test def test_label_in_switch() {
@@ -853,7 +839,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("nodes without position information: \n")
     for (n <- checkPositionInformation(a))
       println(n)
-    assert(compareSuccWithPred(getAllSucc(a, env), env))
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 
   @Test def test_fosd_liveness() {
@@ -959,11 +945,11 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     """)
 
     val env = CASTEnv.createASTEnv(a)
-    val s = getAllSucc(a, env)
-    val p = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(s, env))
-    println("preds: " + DotGraph.map2file(p, env))
-    compareSuccWithPred(s, env)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(preds, env))
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 
   @Test def test_choice() {
@@ -992,10 +978,10 @@ int hello() {
     """)
 
     val env = CASTEnv.createASTEnv(a)
-    val s = getAllSucc(a, env)
-    val p = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(s, env))
-    println("preds: " + DotGraph.map2file(p, env))
-    assert(compareSuccWithPred(s, env))
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+    println("succs: " + DotGraph.map2file(succs, env))
+    println("preds: " + DotGraph.map2file(preds, env))
+    assert(compareSuccWithPred(succs, preds, env).isEmpty)
   }
 }
