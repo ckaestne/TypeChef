@@ -942,7 +942,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
   }
 
   @Test def test_boa_hash() {
-    val a = parseCompoundStmt("""
+    val a = parseFunctionDef("""
+    void test()
     {
           int i;
           hash_struct *temp;
