@@ -835,6 +835,37 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     assert(errors.isEmpty)
   }
 
+  @Test def test_bug02_simplified() {
+    val a = parseFunctionDef("""
+    static void handle_compress(void) {
+      while (1) {
+        if (s) {
+          if (s1) break;
+          if (s2) break;
+          s = 1;
+        }
+        if (s3) {
+          s = 2;
+          if (s4) {
+            s = 3;
+          } else if (s5) {
+            s = 4;
+          } else if (s6) {
+            break;
+          }
+        }
+      }
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
   @Test def test_label_in_switch() {
     val a = parseFunctionDef("""
     int foo(int param) {

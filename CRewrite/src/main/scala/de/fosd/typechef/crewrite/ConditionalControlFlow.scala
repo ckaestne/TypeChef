@@ -87,7 +87,7 @@ trait ConditionalControlFlow extends ASTNavigation {
             var add2newres = List[AST]()
             oldelem match {
 
-              case _: ReturnStatement if (!a.isInstanceOf[FunctionDef]) => changed = true; add2newres = List()
+              case _: ReturnStatement if (!a.isInstanceOf[FunctionDef]) => add2newres = List()
 
               // a break statement shall appear only in or as a switch body or loop body
               // a break statement terminates execution of the smallest enclosing switch or
@@ -126,9 +126,15 @@ trait ConditionalControlFlow extends ASTNavigation {
                 val a2e = findPriorASTElem[IfStatement](a, env)
                 val b2e = findPriorASTElem[IfStatement](e, env)
 
-                if (a2e.isEmpty) add2newres = rollUp(e, oldelem, env)
-                else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) add2newres = getCondExprPred(condition, env)
-                else add2newres = rollUp(e, oldelem, env)
+                if (a2e.isEmpty) { changed = true; add2newres = rollUp(e, oldelem, env)}
+                else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) {
+                  changed = true
+                  add2newres = getCondExprPred(condition, env)
+                }
+                else {
+                  changed = true
+                  add2newres = rollUp(e, oldelem, env)
+                }
               }
               case _: AST => {
                 add2newres = rollUp(a, oldelem, env)
@@ -538,7 +544,7 @@ trait ConditionalControlFlow extends ASTNavigation {
           case t@WhileStatement(expr, One(CompoundStatement(List()))) if (isPartOf(nested_ast_elem, expr)) =>
             getStmtPred(t, env) ++ List(expr)
           case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
-            getStmtPred(t, env) ++ getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env)
+            (getStmtPred(t, env) ++ getCondStmtPred(t, s, env) ++ filterContinueStatements(s, env))
           case t@WhileStatement(expr, _) => {
             if (nested_ast_elem.eq(expr)) getStmtPred(t, env)
             else getCondExprPred(expr, env)
