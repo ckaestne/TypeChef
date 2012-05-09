@@ -45,6 +45,9 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
 
     // file-output
     appendToFile(liveness, "filename;family-based;full-coverage;full-coverage-configs")
+    var tfam: Long = 0
+    var tbase: Long = 0
+    var tfullcoverage: Long = 0
 
     // family-based
     println("checking family-based")
@@ -56,40 +59,39 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     family_function_defs.map(intraCfGFunctionDef)
     val tfame = System.currentTimeMillis()
 
-    val tfam = tfame - tfams
+    tfam = tfame - tfams
 
     // base variant
-    println("checking base variant")
-    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit],
-      new Configuration(ConfigurationCoverage.completeConfiguration(FeatureExprFactory.True, List(), fm), fm), family_env)
-    val base_function_defs = filterAllASTElems[FunctionDef](base_ast)
-
-    val tbases = System.currentTimeMillis()
-    base_function_defs.map(intraCfGFunctionDef)
-    val tbasee = System.currentTimeMillis()
-
-    val tbase = tbasee - tbases
-
-    // full coverage
-    println("checking full coverage")
-    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env)
-    var current_config = 1
-    var tfullcoverage: Long = 0
-
-    for (config <- configs) {
-      println("checking configuration " + current_config + " of " + configs.size)
-      current_config += 1
-      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast,
-        new Configuration(ConfigurationCoverage.completeConfiguration(config, List(), fm), fm), family_env)
-      val product_function_defs = filterAllASTElems[FunctionDef](product_ast)
-      appendToFile("test.c", PrettyPrinter.print(product_ast))
-
-      val tfullcoverages = System.currentTimeMillis()
-      product_function_defs.map(intraCfGFunctionDef)
-      val tfullcoveragee = System.currentTimeMillis()
-
-      tfullcoverage += (tfullcoveragee - tfullcoverages)
-    }
+//    println("checking base variant")
+//    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit],
+//      new Configuration(ConfigurationCoverage.completeConfiguration(FeatureExprFactory.True, List(), fm), fm), family_env)
+//    val base_function_defs = filterAllASTElems[FunctionDef](base_ast)
+//
+//    val tbases = System.currentTimeMillis()
+//    base_function_defs.map(intraCfGFunctionDef)
+//    val tbasee = System.currentTimeMillis()
+//
+//    tbase = tbasee - tbases
+//
+//    // full coverage
+//    println("checking full coverage")
+//    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env)
+//    var current_config = 1
+//
+//    for (config <- configs) {
+//      println("checking configuration " + current_config + " of " + configs.size)
+//      current_config += 1
+//      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast,
+//        new Configuration(ConfigurationCoverage.completeConfiguration(config, List(), fm), fm), family_env)
+//      val product_function_defs = filterAllASTElems[FunctionDef](product_ast)
+//      appendToFile("test.c", PrettyPrinter.print(product_ast))
+//
+//      val tfullcoverages = System.currentTimeMillis()
+//      product_function_defs.map(intraCfGFunctionDef)
+//      val tfullcoveragee = System.currentTimeMillis()
+//
+//      tfullcoverage += (tfullcoveragee - tfullcoverages)
+//    }
 
     println("family-based: " + tfam + "ms")
     println("base variant: " + tbase + "ms")
@@ -98,7 +100,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     println("\n\n\n")
 
 
-    appendToFile(liveness, fileName + ";" + tfam + ";" + tbase + ";" + tfullcoverage + ";" + configs.size + "\n")
+    appendToFile(liveness, fileName + ";" + tfam + ";" + tbase + ";" + tfullcoverage + ";" + /* configs.size  + */ "\n")
   }
 
   private def intraCfGFunctionDef(f: FunctionDef) = {
