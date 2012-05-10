@@ -185,4 +185,14 @@ class ConditionalTest {
         assertEquals(Choice(fb, One(5), v2), a.getOrElse("a", -1))
     }
 
+    @Test
+    def testWhen {
+        val f = Choice(fa, Choice(fb, One(1), One(2)), One(3))
+
+        assertEquals(fa and fb, f.when(_ == 1))
+        assertEquals(True, f.when(_ >= 1))
+        assertEquals(fa.not() or (fa and fb.not), f.when(_ > 1))
+        assertEquals(False, f.when(_ < 1))
+    }
+
 }

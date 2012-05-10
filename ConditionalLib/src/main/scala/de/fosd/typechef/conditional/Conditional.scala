@@ -1,7 +1,7 @@
 package de.fosd.typechef.conditional
 
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import FeatureExprFactory.True
+import FeatureExprFactory.{True, False}
 
 
 case class Opt[+T](val feature: FeatureExpr, val entry: T) {
@@ -13,6 +13,7 @@ case class Opt[+T](val feature: FeatureExpr, val entry: T) {
     //helper function
     def and(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f), entry)
     def andNot(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f.not), entry)
+    def map[U](f: T => U): Opt[U] = Opt(feature, f(entry))
     // jl: overriding Opt always causes trouble when looking at the output of AST directly should not be here!
     //override def toString = if (feature == FeatureExpr.True) entry.toString else "Opt(" + feature + "," + entry + ")"
 }
@@ -35,6 +36,9 @@ abstract class Conditional[+T] extends Product {
     def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
     def toOptList: List[Opt[T]] = Conditional.flatten(List(Opt(True, this)))
     def toList: List[(FeatureExpr, T)] = this.toOptList.map(o => (o.feature, o.entry))
+
+    //returns the condition when predicate f is true
+    def when(f: T => Boolean): FeatureExpr
 }
 
 case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
@@ -59,6 +63,8 @@ case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBran
         Choice(feature, newResultA, newResultB)
     }
     def forall(f: T => Boolean): Boolean = thenBranch.forall(f) && elseBranch.forall(f)
+
+    def when(f: T => Boolean): FeatureExpr = (thenBranch.when(f) and feature) or (elseBranch.when(f) andNot feature)
 }
 
 case class One[+T](value: T) extends Conditional[T] {
@@ -66,6 +72,8 @@ case class One[+T](value: T) extends Conditional[T] {
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = value
     def mapfr[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = f(inFeature, value)
     def forall(f: T => Boolean): Boolean = f(value)
+
+    def when(f: T => Boolean): FeatureExpr = if (f(value)) True else False
 }
 
 object Conditional {
