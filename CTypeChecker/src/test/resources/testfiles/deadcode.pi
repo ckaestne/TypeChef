@@ -1,0 +1,20 @@
+int activefunction();
+int activefunction2();
+int deadfunction();
+int sometimesdead();
+
+#ifdef X
+#define A 1
+#else
+#define A 0
+#endif
+
+int main() {
+    activefunction();
+    if (0)
+        deadfunction();
+
+    if (A)
+        sometimesdead();
+    activefunction2();
+}

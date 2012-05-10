@@ -95,6 +95,24 @@ class InterfaceInferenceTest extends TestHelper {
         checkSerialization(interface)
     }
 
+
+    @Test
+    def testDeadCodeDetection {
+        val ast = parse("deadcode.pi")
+        val interface = new CInferInterface {}.inferInterface(ast)
+        println(interface)
+        checkSerialization(interface)
+
+        //find imported function
+        assert(interface.imports.exists(_.name == "activefunction"))
+        assert(interface.imports.exists(_.name == "activefunction2"))
+        assert(!interface.imports.exists(_.name == "deadfunction"))
+        assert(interface.imports.exists(_.name == "sometimesdead")) //should be imported only if defined(X)
+
+        assert(interface.exports.exists(_.name == "main"))
+    }
+
+
     //       @Test
     //    def testFork {
     //        val ast = parse("fork_.pi")
