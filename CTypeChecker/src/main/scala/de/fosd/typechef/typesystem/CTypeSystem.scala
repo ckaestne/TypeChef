@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
+import FeatureExprFactory.{True, False}
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -284,14 +285,21 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
 
             case CaseStatement(expr, stmt) => checkExprWithRange(expr); checkOCStmt(stmt); nop
+
+            //in the if statement we try to recognize dead code (and set the environment accordingly)
             case IfStatement(expr, tstmt, elifstmts, estmt) =>
                 expectScalar(expr) //spec
-                checkCStmt(tstmt)
+
+                //                val (contradiction, tautology) = analyzeExprBounds(expr, featureExpr)
+
+                checkCStmt(tstmt /*, env.markDead(contradiction) */)
+
                 for (Opt(elifFeature, ElifStatement(elifExpr, elifStmt)) <- elifstmts) {
                     expectScalar(elifExpr, featureExpr and elifFeature)
-                    checkCStmtF(elifStmt, featureExpr and elifFeature)
+                    //                                    val (contradiction,tautology)=analyzeExprBounds(expr,featureExpr)
+                    checkCStmtF(elifStmt, featureExpr and elifFeature /*,env.markDead(elifContradiction)*/)
                 }
-                checkOCStmt(estmt)
+                checkOCStmt(estmt /*,env.markDead(tautology)*/)
                 nop
 
             case SwitchStatement(expr, stmt) => expectIntegral(expr); checkCStmt(stmt); nop //spec
@@ -316,6 +324,71 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                     if (!check(c) && !c.isUnknown && !c.isIgnore) reportTypeError(f, errorMsg(c), expr) else c
             })
         } else One(CUnknown("unsatisfiable condition for expression"))
+
+
+    private[typesystem] def analyzeExprBounds(expr: Expr, context: FeatureExpr): (FeatureExpr, FeatureExpr) = {
+        val v = evalExpr(expr, context)
+
+        val contradiction = v.when(_ == VInt(0)) and context
+        var tautology = v.when({
+            case VInt(a) if (a > 0) => true
+            case _ => false
+        }) and context
+
+        (contradiction, tautology)
+    }
+
+    sealed trait VValue
+
+    case class VUnknown() extends VValue
+
+    case class VInt(v: Int) extends VValue
+
+
+    private[typesystem] def evalExpr(expr: Expr, context: FeatureExpr): Conditional[VValue] = expr match {
+        case Constant(v) => try {
+            One(VInt(v.toInt))
+        } catch {
+            case _: NumberFormatException => One(VUnknown())
+        }
+        case NAryExpr(e, others) =>
+            var result = evalExpr(e, context)
+            for (Opt(f, NArySubExpr(op, e)) <- others) {
+                //default value and integer operation for each supported operation
+                val evalue = evalExpr(e, context and f)
+                result = Choice(f, executeOp(op, result, evalue), result).simplify
+            }
+            result
+        case UnaryOpExpr(op, e) =>
+            evalExpr(e, context).map({
+                case VInt(a) => op match {
+                    case "!" => VInt(if (a == 0) 1 else 0)
+                    case _ => VUnknown()
+                }
+                case _ => VUnknown()
+            })
+
+        case _ => One(VUnknown())
+    }
+
+    def executeOp(op: String, ca: Conditional[VValue], cb: Conditional[VValue]): Conditional[VValue] =
+        ConditionalLib.mapCombination(ca, cb, (a: VValue, b: VValue) =>
+            (a, op, b) match {
+                case (VInt(a), "+", VInt(b)) => VInt(a + b)
+                case (VInt(a), "-", VInt(b)) => VInt(a - b)
+                case (VInt(a), "*", VInt(b)) => VInt(a * b)
+                case (VInt(a), "&&", VInt(b)) => VInt(if (a != 0 && b != 0) 1 else 0)
+                case (VInt(0), "&&", _) => VInt(0)
+                case (_, "&&", VInt(0)) => VInt(0)
+                case (VInt(a), "||", VInt(b)) => VInt(if (a != 0 || b != 0) 1 else 0)
+                case (VInt(a), "||", _) if (a > 0) => VInt(1)
+                case (_, "||", VInt(a)) if (a > 0) => VInt(1)
+                case (VInt(a), "==", VInt(b)) => VInt(if (a == b) 1 else 0)
+                case _ => VUnknown()
+            }
+        )
+
+    //    private[typesystem] def evalSubExpr(subexpr: NAryExpr, context: FeatureExpr): Conditional[VValue] = expr match {
 
 
     //
