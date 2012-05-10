@@ -10,7 +10,7 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.2-SNAPSHOT"
+    val buildVersion = "0.3.3-SNAPSHOT"
     val buildScalaVersion = "2.9.1"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
@@ -51,14 +51,6 @@ object BuildSettings {
                 <artifactId>oss-parent</artifactId>
                 <version>7</version>
             </parent> ++
-                <description>TypeChef is a research project with the goal of type checking ifdef variability in C code with the target of
-                    type checking the entire Linux kernel with several thousand features (or configuration options).
-                    Instead of type checking each variant for each feature combination in isolation, TypeChef parses the
-                    entire source code containing all variability in a variability-aware fashion without preprocessing. The resulting
-                    abstract syntax tree contains the variability in form of choice nodes. Eventually, a variability-aware type system
-                    performs type checking on these trees.
-                    TypeChef detects syntax and type errors in all possible feature combinations. TypeChef was originally short for
-                    Type Checking Ifdef Variability.</description> ++
                 <scm>
                     <connection>scm:git:git@github.com:ckaestne/TypeChef.git</connection>
                     <url>git@github.com:ckaestne/TypeChef.git</url>
