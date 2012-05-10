@@ -219,14 +219,14 @@ trait ConditionalControlFlow extends ASTNavigation {
           for (oldelem <- oldres) {
             var add2newres: List[AST] = List()
             oldelem match {
-              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
-              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
-              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
-              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
-              case _: DoStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
-              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
-              case _: ForStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
-              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem, ctx, env)
+              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
+              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
+              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
+              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
+              case _: DoStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
+              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
+              case _: ForStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
+              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem, env.featureExpr(oldelem), env)
               case _ => add2newres = List(oldelem)
             }
 
