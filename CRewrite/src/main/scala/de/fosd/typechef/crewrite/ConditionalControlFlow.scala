@@ -32,6 +32,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 // iso/iec 9899 standard; committee draft
 // [2] http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1124.pdf
 
+// TODO handling empty { } e.g., void foo() { { } }
 // TODO support for (expr) ? (expr) : (expr);
 // TODO analysis static gotos should have a label (if more labels must be unique according to feature expresssions)
 // TODO analysis dynamic gotos should have a label
@@ -622,7 +623,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         val prev_elifs = elifs.reverse.dropWhile(_.entry.eq(a.asInstanceOf[AnyRef]).unary_!).drop(1)
         val ifdef_blocks = determineIfdefBlocks(prev_elifs, env)
         val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
-        val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
+        val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, ctx, env)
         res = res ++ determineFollowingElements(ctx, typed_grouped_ifdef_blocks, env).merge
 
         // if no previous elif statement is found, the result is condition
@@ -678,7 +679,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   //    if yes stop; if not go to step 3.
   // 3. get the parent of our node and determine successor nodes of it
   private def getStmtSucc(s: AST, ctx: FeatureExpr, env: ASTEnv): List[AST] = {
-    val next_ifdef_blocks = getNextIfdefBlocks(s, env)
+    val next_ifdef_blocks = getNextIfdefBlocks(s, ctx, env)
     val next_equal_annotated_ast_element = getNextEqualAnnotatedASTElem(s, next_ifdef_blocks)
     next_equal_annotated_ast_element match {
       // 1.
@@ -879,7 +880,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   //    if yes stop; if not go to step 3.
   // 3. get the parent of our node and determine predecessor nodes of it
   private def getStmtPred(s: AST, ctx: FeatureExpr, env: ASTEnv): List[AST] = {
-    val previous_ifdef_blocks = getPreviousIfdefBlocks(s, env)
+    val previous_ifdef_blocks = getPreviousIfdefBlocks(s, ctx, env)
     val previous_equal_annotated_ast_elem = getNextEqualAnnotatedASTElem(s, previous_ifdef_blocks)
     previous_equal_annotated_ast_elem match {
       // 1.
@@ -899,7 +900,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def getCompoundSucc(l: List[AST], parent: Product, ctx: FeatureExpr, env: ASTEnv): List[AST] = {
     val ifdef_blocks = determineIfdefBlocks(l, env)
     val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks.reverse, env)
-    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env).reverse
+    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, ctx, env).reverse
     val successor_list = determineFollowingElements(ctx, typed_grouped_ifdef_blocks, env)
 
     successor_list match {
@@ -913,7 +914,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def getCompoundPred(l: List[AST], parent: Product, ctx: FeatureExpr, env: ASTEnv): List[AST] = {
     val ifdef_blocks = determineIfdefBlocks(l.reverse, env)
     val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
-    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
+    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, ctx, env)
     val predecessor_list = determineFollowingElements(ctx, typed_grouped_ifdef_blocks, env)
 
     predecessor_list match {
@@ -924,20 +925,20 @@ trait ConditionalControlFlow extends ASTNavigation {
   }
 
   // returns a list next AST elems grouped according to feature expressions
-  private def getNextIfdefBlocks(s: AST, env: ASTEnv): List[(Int, IfdefBlocks)] = {
+  private def getNextIfdefBlocks(s: AST, ctx: FeatureExpr, env: ASTEnv): List[(Int, IfdefBlocks)] = {
     val prev_and_next_ast_elems = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
     val ifdef_blocks = determineIfdefBlocks(prev_and_next_ast_elems, env)
     val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
-    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
+    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, ctx, env)
     getTailList(s, typed_grouped_ifdef_blocks)
   }
 
-  private def getPreviousIfdefBlocks(s: AST, env: ASTEnv) = {
+  private def getPreviousIfdefBlocks(s: AST, ctx: FeatureExpr, env: ASTEnv) = {
     val prev_and_next_ast_elems = prevASTElems(s, env) ++ nextASTElems(s, env).drop(1)
     val prev_and_next_ast_elems_reversed = prev_and_next_ast_elems.reverse
     val ifdef_blocks = determineIfdefBlocks(prev_and_next_ast_elems_reversed, env)
     val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
-    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, env)
+    val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, ctx, env)
     getTailList(s, typed_grouped_ifdef_blocks)
   }
 
@@ -1151,7 +1152,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   // 0 -> only true values
   // 1 -> #if-(#elif)* block
   // 2 -> #if-(#elif)*-#else block
-  private def determineTypeOfGroupedIfdefBlocks(l: List[IfdefBlocks], env: ASTEnv): List[(Int, IfdefBlocks)] = {
+  private def determineTypeOfGroupedIfdefBlocks(l: List[IfdefBlocks], ctx: FeatureExpr, env: ASTEnv): List[(Int, IfdefBlocks)] = {
 
     l match {
       case (h :: t) => {
@@ -1159,11 +1160,11 @@ trait ConditionalControlFlow extends ASTNavigation {
           e => env.featureExpr(e.head)
         })
 
-        if (feature_expr_over_ifdef_blocks.foldLeft(FeatureExprFactory.True)(_ and _).isTautology())
-          (0, h) :: determineTypeOfGroupedIfdefBlocks(t, env)
+        if ((ctx implies feature_expr_over_ifdef_blocks.foldLeft(FeatureExprFactory.True)(_ and _)).isTautology())
+          (0, h) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
         else if (feature_expr_over_ifdef_blocks.map(_.not()).foldLeft(FeatureExprFactory.True)(_ and _).isContradiction())
-          (2, h.reverse) :: determineTypeOfGroupedIfdefBlocks(t, env)
-        else (1, h) :: determineTypeOfGroupedIfdefBlocks(t, env)
+          (2, h.reverse) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
+        else (1, h) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
       }
       case Nil => List()
     }
