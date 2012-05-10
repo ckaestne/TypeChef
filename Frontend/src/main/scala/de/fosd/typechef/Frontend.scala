@@ -8,9 +8,10 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
-import featureexpr.FeatureExprFactory
+import featureexpr.{FeatureExpr, FeatureExprFactory}
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
+import parser.Position
 
 object Frontend {
 
@@ -58,6 +59,8 @@ object Frontend {
         val tokens = new lexer.Main().run(opt, opt.parse)
 
         //        val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, opt.parse, fm)
+        val errorXML = new ErrorXML(opt.errorXMLFile)
+        opt.setRenderParserError(errorXML.renderParserError)
         val t2 = System.currentTimeMillis()
         var t3 = t2;
         var t4 = t2;
@@ -104,6 +107,7 @@ object Frontend {
             }
 
         }
+        errorXML.write()
         if (opt.recordTiming)
             println("timing (lexer, parser, type system, interface inference, conditional control flow)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4) + ";" + (t6 - t5))
 

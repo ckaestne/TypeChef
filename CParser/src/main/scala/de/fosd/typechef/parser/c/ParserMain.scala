@@ -3,6 +3,7 @@ package de.fosd.typechef.parser.c
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.io.{FileWriter, File}
+import FeatureExprFactory.True
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -40,6 +41,7 @@ class ParserMain(p: CParser) {
     def parserMain(tokenstream: TokenReader[TokenWrapper, CTypeContext], parserOptions: ParserOptions): AST = {
         parserMain((() => tokenstream), new CTypeContext(), parserOptions)
     }
+
 
     def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): AST = {
         assert(parserOptions != null)
@@ -92,8 +94,25 @@ class ParserMain(p: CParser) {
         val l = result.toList(FeatureExprFactory.True).filter(_._2.isSuccess)
         if (l.isEmpty || !result.toErrorList.isEmpty) {
             println(printParseResult(result, FeatureExprFactory.True))
+            renderParseResult(result, True, parserOptions.renderParserError)
             null
         } else l.head._2.asInstanceOf[p.Success[AST]].result
+    }
+
+
+    def renderParseResult[T](result: p.MultiParseResult[T], feature: FeatureExpr, renderError: (FeatureExpr, String, Position) => Object) {
+        if (renderError != null)
+            result match {
+                case p.Success(ast, unparsed) =>
+                    if (!unparsed.atEnd)
+                        renderError(feature, "stopped before end", unparsed.first.getPosition)
+                case p.NoSuccess(msg, unparsed, inner) =>
+                    renderError(feature, msg + " (" + inner + ")", unparsed.pos)
+                case p.SplittedParseResult(f, left, right) => {
+                    renderParseResult(left, feature.and(f), renderError)
+                    renderParseResult(right, feature.and(f.not), renderError)
+                }
+            }
     }
 
     def printParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr): String = {
