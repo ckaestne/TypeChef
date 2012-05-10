@@ -42,7 +42,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   }
 
   private def checkCfg(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
-    var errorOccured = true
+    var errorOccured = false
     println("analysis " + filename)
     val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 
@@ -56,7 +56,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
 
     val tfams = System.currentTimeMillis()
-    errorOccured &= family_function_defs.map(intraCfgFunctionDef(_, family_env)).forall(_ == true)
+    errorOccured |= family_function_defs.map(intraCfgFunctionDef(_, family_env)).forall(_ == false)
     val tfame = System.currentTimeMillis()
 
     val tfam = tfame - tfams
@@ -69,7 +69,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     val base_function_defs = filterAllASTElems[FunctionDef](base_ast)
 
     val tbases = System.currentTimeMillis()
-    errorOccured &= base_function_defs.map(intraCfgFunctionDef(_, base_env)).forall(_ == true)
+    errorOccured |= base_function_defs.map(intraCfgFunctionDef(_, base_env)).forall(_ == false)
     val tbasee = System.currentTimeMillis()
 
     val tbase = tbasee - tbases
@@ -89,7 +89,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
       val product_function_defs = filterAllASTElems[FunctionDef](product_ast)
 
       val tfullcoverages = System.currentTimeMillis()
-      errorOccured &= product_function_defs.map(intraCfgFunctionDef(_, product_env)).forall(_ == true)
+      errorOccured |= product_function_defs.map(intraCfgFunctionDef(_, product_env)).forall(_ == false)
       val tfullcoveragee = System.currentTimeMillis()
 
       tfullcoverage += (tfullcoveragee - tfullcoverages)
@@ -104,9 +104,11 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   private def intraCfgFunctionDef(f: FunctionDef, env: ASTEnv) = {
     val s = getAllSucc(f, env)
     val p = getAllPred(f, env)
-    println("succs: " + DotGraph.map2file(s, env))
-    println("preds: " + DotGraph.map2file(p, env))
-    compareSuccWithPred(s, p, env).isEmpty
+
+    val errors = compareSuccWithPred(s, p, env)
+    CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
+
+    errors.size > 0
   }
 
   // gcc testsuite
@@ -860,6 +862,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug17() {assert(checkCfg("bug17.c"))}
   @Test def test_bug18() {assert(checkCfg("bug18.c"))}
   @Test def test_bug19() {assert(checkCfg("bug19.c"))}
+  @Test def test_bug20() {assert(checkCfg("bug19.c"))}
 
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c"))}
   @Ignore def test_tar() {assert(checkCfg("tar.c"))}
