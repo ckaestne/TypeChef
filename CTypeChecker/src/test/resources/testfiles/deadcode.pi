@@ -2,19 +2,68 @@ int activefunction();
 int activefunction2();
 int deadfunction();
 int sometimesdead();
+int sometimesdead2();
+int sometimesdead3();
+int sometimesdead4();
+int sometimesdeadAB();
+int i1(); int i2(); int i3();
+int s1(); int s2(); int s3();
+int t1(); int t2(); int t3();
 
 #ifdef X
 #define A 1
 #else
 #define A 0
 #endif
+#ifdef Y
+#define B 1
+#else
+#define B 0
+#endif
+
+#ifdef X
+#define I 0 //if X
+#elif defined(Y)
+#define I 1 //if !X and Y
+#else
+#define I i //if !X and !Y
+#endif
 
 int main() {
-    activefunction();
+    int i;
+    if (1)
+       activefunction();
     if (0)
         deadfunction();
 
     if (A)
         sometimesdead();
+     else
+        sometimesdead2();
+
+    if (!A)
+        sometimesdead4();
+    else
+        sometimesdead3();
+
+    if (A && B)
+            sometimesdeadAB();
+
+    if (i) i3();
+
+    if (I) i1(); else i2();
+
+    if (A)
+        t1();
+    else if (B)
+        t2();
+    else t3();
+
+    if (A)
+        s1();
+    else if (A)
+        s2();
+    else s3();
+
     activefunction2();
 }

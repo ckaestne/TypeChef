@@ -3,7 +3,8 @@ package de.fosd.typechef.typesystem.linker
 import org.junit._
 import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
 import java.io.{File, InputStream, FileNotFoundException}
-import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
+import FeatureExprFactory._
 
 class InterfaceInferenceTest extends TestHelper {
 
@@ -103,11 +104,32 @@ class InterfaceInferenceTest extends TestHelper {
         println(interface)
         checkSerialization(interface)
 
-        //find imported function
-        assert(interface.imports.exists(_.name == "activefunction"))
-        assert(interface.imports.exists(_.name == "activefunction2"))
+        def whenImported(s: String): FeatureExpr = interface.imports.filter(_.name == s).map(_.fexpr).fold(False)(_ or _)
+
+        def assertEquivalent(actual: FeatureExpr, expected: FeatureExpr) =
+            assert(actual equivalentTo expected, "expected " + expected + ", but found " + actual)
+
+        assertEquivalent(whenImported("activefunction"), True)
+        assertEquivalent(whenImported("activefunction2"), True)
         assert(!interface.imports.exists(_.name == "deadfunction"))
-        assert(interface.imports.exists(_.name == "sometimesdead")) //should be imported only if defined(X)
+        assertEquivalent(whenImported("sometimesdead"), fx)
+        assertEquivalent(whenImported("sometimesdead2"), fx.not)
+        assertEquivalent(whenImported("sometimesdead3"), fx)
+        assertEquivalent(whenImported("sometimesdead4"), fx.not)
+        assertEquivalent(whenImported("sometimesdeadAB"), (fx and fy))
+
+
+        assertEquivalent(whenImported("i3"), True)
+        assertEquivalent(whenImported("i1"), fx.not)
+        assertEquivalent(whenImported("i2"), ((fx.not and fy).not))
+
+        assertEquivalent(whenImported("t1"), fx)
+        assertEquivalent(whenImported("t2"), (fx orNot fy).not)
+        assertEquivalent(whenImported("t3"), (fx or fy).not)
+
+        assertEquivalent(whenImported("s1"), fx)
+        assertEquivalent(whenImported("s2"), False)
+        assertEquivalent(whenImported("s3"), fx.not)
 
         assert(interface.exports.exists(_.name == "main"))
     }
