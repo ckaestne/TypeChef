@@ -226,7 +226,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case e => One(reportTypeError(featureExpr, "unknown expression " + e + " (TODO)", e))
                 }
 
-        typedExpr(expr, resultType, featureExpr)
+        typedExpr(expr, resultType, featureExpr, env)
         addEnv(expr, env)
         resultType.simplify(featureExpr)
     }

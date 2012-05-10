@@ -15,7 +15,7 @@ trait CTypeSystemInterface extends CEnv {
      *
      * refined by CTypeCache if desired
      */
-    protected def typedExpr(expr: Expr, ctype: Conditional[CType], featureExpr: FeatureExpr) {}
+    protected def typedExpr(expr: Expr, ctype: Conditional[CType], featureExpr: FeatureExpr, env: Env) {}
 
     /**
      * invoked after typing a function definition (top level declaration, not nested function)

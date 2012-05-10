@@ -9,7 +9,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 trait CTypeCache extends CTypeSystemInterface {
     private var cache: Map[Expr, Conditional[CType]] = Map()
 
-    override def typedExpr(expr: Expr, ctype: Conditional[CType], featureExpr: FeatureExpr) {
+    override def typedExpr(expr: Expr, ctype: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
         cache = cache + (expr -> ctype)
     }
 

@@ -191,13 +191,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
      * most statements do not have types; type information extracted from sparse (evaluate.c)
      */
     def getStmtType(stmt: Statement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
-        def checkStmtF(stmt: Statement, newFeatureExpr: FeatureExpr) = getStmtType(stmt, newFeatureExpr, env)
+        def checkStmtF(stmt: Statement, newFeatureExpr: FeatureExpr, newEnv: Env = env) = getStmtType(stmt, newFeatureExpr, newEnv)
         def checkStmt(stmt: Statement) = checkStmtF(stmt, featureExpr)
-        def checkCStmtF(stmt: Conditional[Statement], newFeatureExpr: FeatureExpr) = stmt.mapf(newFeatureExpr, {
-            (f, t) => checkStmtF(t, f)
+        def checkCStmtF(stmt: Conditional[Statement], newFeatureExpr: FeatureExpr, newEnv: Env = env) = stmt.mapf(newFeatureExpr, {
+            (f, t) => checkStmtF(t, f, newEnv)
         })
-        def checkCStmt(stmt: Conditional[Statement]) = checkCStmtF(stmt, featureExpr)
-        def checkOCStmt(stmt: Option[Conditional[Statement]]) = stmt map checkCStmt
+        def checkCStmt(stmt: Conditional[Statement], newEnv: Env = env) = checkCStmtF(stmt, featureExpr, newEnv)
+        def checkOCStmt(stmt: Option[Conditional[Statement]]) = stmt.map(s => checkCStmt(s))
 
         def expectScalar(expr: Expr, ctx: FeatureExpr = featureExpr) = checkExprX(expr, isScalar, {
             c => "expected scalar, found " + c
