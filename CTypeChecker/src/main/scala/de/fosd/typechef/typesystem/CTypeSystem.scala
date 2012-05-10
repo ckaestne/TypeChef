@@ -198,8 +198,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             (f, t) => checkStmtF(t, f, newEnv)
         })
         def checkCStmt(stmt: Conditional[Statement], newEnv: Env = env) = checkCStmtF(stmt, featureExpr, newEnv)
-        def checkOCStmt(stmt: Option[Conditional[Statement]]) = stmt.map(s => checkCStmt(s))
+        def checkOCStmt(stmt: Option[Conditional[Statement]], newEnv: Env = env) = stmt.map(s => checkCStmt(s, newEnv))
 
+        def expectCScalar(expr: Conditional[Expr], ctx: FeatureExpr = featureExpr) = expr.mapf(ctx, (f, e) => expectScalar(e, f))
         def expectScalar(expr: Expr, ctx: FeatureExpr = featureExpr) = checkExprX(expr, isScalar, {
             c => "expected scalar, found " + c
         }, ctx)
@@ -288,18 +289,20 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
             //in the if statement we try to recognize dead code (and set the environment accordingly)
             case IfStatement(expr, tstmt, elifstmts, estmt) =>
-                expectScalar(expr) //spec
+                expectCScalar(expr) //spec
 
-                //                val (contradiction, tautology) = analyzeExprBounds(expr, featureExpr)
+                var (contradiction, tautology) = analyzeExprBounds(expr, featureExpr)
 
-                checkCStmt(tstmt /*, env.markDead(contradiction) */)
+                checkCStmt(tstmt, env.markDead(contradiction))
 
                 for (Opt(elifFeature, ElifStatement(elifExpr, elifStmt)) <- elifstmts) {
-                    expectScalar(elifExpr, featureExpr and elifFeature)
-                    //                                    val (contradiction,tautology)=analyzeExprBounds(expr,featureExpr)
-                    checkCStmtF(elifStmt, featureExpr and elifFeature /*,env.markDead(elifContradiction)*/)
+                    expectCScalar(elifExpr, featureExpr and elifFeature)
+                    val (innercontradiction, innertautology) = analyzeExprBounds(elifExpr, featureExpr and elifFeature)
+                    checkCStmtF(elifStmt, featureExpr and elifFeature, env.markDead(innercontradiction or tautology))
+
+                    tautology = tautology or innertautology
                 }
-                checkOCStmt(estmt /*,env.markDead(tautology)*/)
+                checkOCStmt(estmt, env.markDead(tautology))
                 nop
 
             case SwitchStatement(expr, stmt) => expectIntegral(expr); checkCStmt(stmt); nop //spec
@@ -326,7 +329,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         } else One(CUnknown("unsatisfiable condition for expression"))
 
 
-    private[typesystem] def analyzeExprBounds(expr: Expr, context: FeatureExpr): (FeatureExpr, FeatureExpr) = {
+    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr): (FeatureExpr, FeatureExpr) = {
         val v = evalExpr(expr, context)
 
         val contradiction = v.when(_ == VInt(0)) and context
@@ -345,22 +348,22 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     case class VInt(v: Int) extends VValue
 
 
-    private[typesystem] def evalExpr(expr: Expr, context: FeatureExpr): Conditional[VValue] = expr match {
+    private[typesystem] def evalExpr(expr: Conditional[Expr], context: FeatureExpr): Conditional[VValue] = expr mapr (e => e match {
         case Constant(v) => try {
             One(VInt(v.toInt))
         } catch {
             case _: NumberFormatException => One(VUnknown())
         }
         case NAryExpr(e, others) =>
-            var result = evalExpr(e, context)
+            var result = evalExpr(One(e), context)
             for (Opt(f, NArySubExpr(op, e)) <- others) {
                 //default value and integer operation for each supported operation
-                val evalue = evalExpr(e, context and f)
+                val evalue = evalExpr(One(e), context and f)
                 result = Choice(f, executeOp(op, result, evalue), result).simplify
             }
             result
         case UnaryOpExpr(op, e) =>
-            evalExpr(e, context).map({
+            evalExpr(One(e), context).map({
                 case VInt(a) => op match {
                     case "!" => VInt(if (a == 0) 1 else 0)
                     case _ => VUnknown()
@@ -369,7 +372,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             })
 
         case _ => One(VUnknown())
-    }
+    })
 
     def executeOp(op: String, ca: Conditional[VValue], cb: Conditional[VValue]): Conditional[VValue] =
         ConditionalLib.mapCombination(ca, cb, (a: VValue, b: VValue) =>
