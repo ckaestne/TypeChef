@@ -27,17 +27,22 @@ The subproject FeatureExprLib of TypeChef provides facilities to reason about pr
 
 Feature expressions can be combined with the usual operators and, not, or, implies. For example:
 
-    val fa = FeatureExprFactory.createDefinedExternal("a")
-    val fb = FeatureExprFactory.createDefinedExternal("b")
-    val fx = (fa or fb) implies fa
+```scala
+val fa = FeatureExprFactory.createDefinedExternal("a")
+val fb = FeatureExprFactory.createDefinedExternal("b")
+val fx = (fa or fb) implies fa
+```    
+
 
 You can check whether expressions are satisfiable, contraditions or tautologies the obvious way:
 
-    x.isSatisfiable()
+```scala
+x.isSatisfiable()
+```
 
 There are two different implementations of FeatureExprLib, one using a SAT solver and one using BDDs (plus a SAT solver
-    when large feature models are used). To the user the change is transparent. However both implementations should
-    not be mixed.
+when large feature models are used). To the user the change is transparent. However both implementations should
+not be mixed.
 
 Variational Data Structures
 -----
@@ -45,26 +50,34 @@ Variational Data Structures
 The core utils for variational data structures are defined in subproject ConditionalLib. A data structure can support
  alternative values with `Conditional` or optional values with `Opt`.
 
-    val x: Conditional[Int]
-    val y: Opt[Int]
+```scala
+val x: Conditional[Int]
+val y: Opt[Int]
+```
 
 Conditional and optional data structures depend always on feature expressions to specify under which condition which
 value is used. Optional entries are simple:
 
-    val x = Opt(fa, 3)
-    val y = Opt(FeatureExprFactory.True, 4)
+```scala
+val x = Opt(fa, 3)
+val y = Opt(FeatureExprFactory.True, 4)
+```
 
 In this case, `x` has value 3 only if feature `a` is selected. Feature `y` has value 4 in all configurations.
 
 Optional entries are especially common in lists:
 
-    val l: List[Opt[Int]] = List(Opt(FeatureExpr.True, 1), Opt(fb, 2), Opt(fa, 3), Opt(fa.not, 5))
+```scala
+val l: List[Opt[Int]] = List(Opt(FeatureExpr.True, 1), Opt(fb, 2), Opt(fa, 3), Opt(fa.not, 5))
+```
 
 Conditional data structures have a value in all configurations. They are constructed with `One` and `Choice`:
 
-    val c: Conditional[Int] = One(1)
-    val d: Conditional[Int] = Choice(fa, One(1), One(2))
-    val e: Conditional[Int] = Choice(fa, Choice(fb, One(1), One(2)), One(3))
+```scala
+val c: Conditional[Int] = One(1)
+val d: Conditional[Int] = Choice(fa, One(1), One(2))
+val e: Conditional[Int] = Choice(fa, Choice(fb, One(1), One(2)), One(3))
+```
 
 In this example, `c` always has value 1; `d` has value 1 if "a" is selected and 2 otherwise; `e` has value 1
 if both "a" and "b" are selected, 2 if "a" and not "b", and 3 if not "a".
@@ -77,34 +90,40 @@ Computing with Variational Data Structures
 Computations are usually performed as map or fold over the data structure. For example, to add 1 to all values
  of d, we simply write
 
-    val dd = d.map(_ + 1)
-    > Choice(fa, One(2), One(3))
+```scala
+val dd = d.map(_ + 1)
+> Choice(fa, One(2), One(3))
+```
 
 Furthermore, common operations apply to List[Opt[T]] lists, such as folds. Here is an example of summing all values
 in a list with optional entries or counting the entries:
 
-    ConditionalLib.conditionalFoldRight[Int, Int](l, One(0), _ + _)
-    > Choice(!a,Choice(b,One(8),One(6)),Choice(b,One(6),One(4)))
+```scala
+ConditionalLib.conditionalFoldRight[Int, Int](l, One(0), _ + _)
+> Choice(!a,Choice(b,One(8),One(6)),Choice(b,One(6),One(4)))
 
-    ConditionalLib.conditionalFoldRight[Int, Int](l, One(0), (a,b) => b + 1)
-    > Choice(b,One(3),One(2))
+ConditionalLib.conditionalFoldRight[Int, Int](l, One(0), (a,b) => b + 1)
+> Choice(b,One(3),One(2))
+```
 
 There are many helper functions in the library. For example, `simplify` removes all unreachable branches from a
 conditional expression and collapses choices between equal values; `lastEntry` returns the last entry from a
 List[Opt[T]] list, which of course depends on the configuration and is again a conditional result. And `mapCombination`
 explodes all combinations of two conditional values and performs a map on them.
 
-    Choice(fa, Choice(fa, One(1), One(2)), One(3)).simplify
-    > Choice(a,One(1),One(3))
+```scala
+Choice(fa, Choice(fa, One(1), One(2)), One(3)).simplify
+> Choice(a,One(1),One(3))
 
-    Choice(fa, Choice(fb, One(1), One(1)), One(3)).simplify
-    > Choice(a,One(1),One(3))
+Choice(fa, Choice(fb, One(1), One(1)), One(3)).simplify
+> Choice(a,One(1),One(3))
 
-    ConditionalLib.lastEntry(l)
-    > Choice(!a,One(Some(5)),One(Some(3)))
+ConditionalLib.lastEntry(l)
+> Choice(!a,One(Some(5)),One(Some(3)))
 
-    ConditionalLib.mapCombination[Int,Int,Int](Choice(a,One(1),One(2)), Choice(b,One(3),One(5)), _ + _)
-    > Choice(def(a),Choice(def(b),One(4),One(6)),Choice(def(b),One(5),One(7)))
+ConditionalLib.mapCombination[Int,Int,Int](Choice(a,One(1),One(2)), Choice(b,One(3),One(5)), _ + _)
+> Choice(def(a),Choice(def(b),One(4),One(6)),Choice(def(b),One(5),One(7)))
+```
 
 Simply explore the library...
 
