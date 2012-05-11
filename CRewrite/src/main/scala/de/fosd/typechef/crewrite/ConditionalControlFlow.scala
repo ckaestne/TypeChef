@@ -71,11 +71,12 @@ trait ConditionalControlFlow extends ASTNavigation {
 
   // determines predecessor of a given element
   // results are cached for secondary evaluation
-  def pred(a: Product, env: ASTEnv)(implicit ctx: FeatureExpr = env.featureExpr(a)): List[AST] = {
+  def pred(a: Product, env: ASTEnv): List[AST] = {
     predCCFGCache.lookup(a) match {
       case Some(v) => v
       case None => {
         var oldres: List[AST] = List()
+        val ctx = env.featureExpr(a)
         var newres: List[AST] = predHelper(a, ctx, env)
         var changed = true
 
@@ -204,11 +205,12 @@ trait ConditionalControlFlow extends ASTNavigation {
     }
   }
 
-  def succ(a: Product, env: ASTEnv)(implicit ctx: FeatureExpr = env.featureExpr(a)): List[AST] = {
+  def succ(a: Product, env: ASTEnv): List[AST] = {
     succCCFGCache.lookup(a) match {
       case Some(v) => v
       case None => {
         var oldres: List[AST] = List()
+        val ctx = env.featureExpr(a)
         var newres: List[AST] = succHelper(a, ctx, env)
         var changed = true
 
