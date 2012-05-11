@@ -1,6 +1,6 @@
 package de.fosd.typechef
 
-import de.fosd.typechef.parser
+import de.fosd.typechef.{featureexpr, parser}
 import conditional.{Conditional, Choice, Opt}
 import crewrite._
 import featureexpr._
@@ -156,6 +156,7 @@ object ProductGeneration {
         /**All products */
         //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env))
         /**Single-wise */
+/*
         {
             startTime = System.currentTimeMillis()
             val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
@@ -165,9 +166,9 @@ object ProductGeneration {
             println(msg)
             log = log + msg
         }
-
+*/
         /**Coverage Configurations */
-
+/*
         {
             startTime = System.currentTimeMillis()
             val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurationCollection, preferDisabledFeatures = false)
@@ -177,8 +178,9 @@ object ProductGeneration {
             println(msg)
             log = log + msg
         }
-
+*/
         /**Pairwise MAX */
+/*
         {
             startTime = System.currentTimeMillis()
             val (configs, logmsg) = getAllPairwiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
@@ -188,7 +190,7 @@ object ProductGeneration {
             println(msg)
             log = log + msg
         }
-
+*/
         /**Pairwise */
         /*
             startTime = System.currentTimeMillis()
@@ -380,15 +382,18 @@ object ProductGeneration {
                                      preferDisabledFeatures: Boolean): (List[SimpleConfiguration], String) = {
         var unsatCombinations = 0
         var alreadyCoveredCombinations = 0
+        val startTime = System.currentTimeMillis()
         println("generating pair-wise configurations")
         var pwConfigs: List[SimpleConfiguration] = List()
 
         // this for-loop structure should avoid pairs like "(A,A)" and ( "(A,B)" and "(B,A)" )
         for (index1 <- 0 to features.size - 1) {
             val f1 = features(index1)
+            var f1Configs = (pwConfigs ++ existingConfigs).filter({_.containsFeaturesAsEnabled(Set(f1))})
             for (index2 <- index1 + 1 to features.size - 1) {
                 val f2 = features(index2)
-                if (!configListContainsFeaturesAsEnabled(pwConfigs ++ existingConfigs, Set(f1, f2))) {
+                //if (!configListContainsFeaturesAsEnabled(pwConfigs ++ existingConfigs, Set(f1, f2))) {
+                if (!configListContainsFeaturesAsEnabled(f1Configs, Set(f2))) {
                     // this pair was not considered yet
                     val confEx = FeatureExprFactory.True.and(f1).and(f2)
                     // make config complete by choosing the other features
@@ -398,6 +403,7 @@ object ProductGeneration {
                     val completeConfig = completeConfiguration(confEx, remainingFeatures, fm, preferDisabledFeatures)
                     if (completeConfig != null) {
                         pwConfigs ::= completeConfig
+                        f1Configs ::= completeConfig
                     } else {
                         //println("no satisfiable configuration for features " + f1 + " and " + f2)
                         unsatCombinations += 1
@@ -405,6 +411,16 @@ object ProductGeneration {
                 } else {
                     //println("feature combination " + f1 + " and " + f2 + " already covered")
                     alreadyCoveredCombinations += 1
+                }
+                if (System.currentTimeMillis() - startTime > 60000) { // should be 1 minute
+                //if (System.currentTimeMillis() - startTime > 600000) { // should be 10 minutes
+                    val todo = features.size
+                    val done = index1-1
+                    return (pwConfigs,
+                        " unsatisfiableCombinations:" + unsatCombinations + "\n" +
+                            " already covered combinations:" + alreadyCoveredCombinations + "\n" +
+                            " created combinations:" + pwConfigs.size + "\n"+
+                            " generation stopped after 10 minutes (" + index1 +"/" + features.size + " features processed in outer loop) => (" + ((done*done+2*done+2*todo*100)/(todo*todo)) + "% done)\n")
                 }
             }
         }
@@ -475,6 +491,8 @@ object ProductGeneration {
         def handleFeatureExpression(fex:FeatureExpr) = {
             if (! handledExpressions.contains(fex)) {
                 // search for configs that imply this node
+                /* TODO: This could be so much better if i knew which features are enabled/disabled (for expr without 'or').
+                 * Then i could avoid the SAT call and search directly in the configurations */
                 val isCovered : Boolean =
                     (retList++existingConfigs).exists(
                     {conf : SimpleConfiguration => conf.toFeatureExpr.implies(fex).isTautology(fm)}

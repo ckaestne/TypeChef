@@ -2,9 +2,9 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.lexer.options.FeatureModelOptions
 import sat.DefinedMacro
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.WithPosition
 import de.fosd.typechef.parser.c._
 
 
@@ -102,7 +102,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
   def deriveProd[T <: AST](a: T, c: Configuration, env: ASTEnv): T = {
     val returnValue : Any = a match {
       case i:Id => i
-      case Constant(s) => new Constant(s);
+      case x@Constant(s) => new Constant(s)
       case StringLit(s) => new StringLit(s);
       case BuiltinOffsetof(typeName,od) => new BuiltinOffsetof(typeName, deriveOptList(od,c,env))
       case BuiltinTypesCompatible(t1,t2) => new BuiltinTypesCompatible(deriveProd(t1,c, env), deriveProd(t2,c,env))
@@ -204,6 +204,9 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
       case OffsetofMemberDesignatorID(id) => new OffsetofMemberDesignatorID(deriveProd(id,c,env))
       case OffsetofMemberDesignatorExpr(ex) => new OffsetofMemberDesignatorExpr(deriveProd(ex,c,env))
       case y  => {assert(false, "unhandled type: " + y.getClass.getSimpleName); y}
+    }
+    if (returnValue.isInstanceOf[WithPosition]) {// should always be true, because AST has WithPosition
+        returnValue.asInstanceOf[WithPosition].setPositionRange(a.getPositionFrom,a.getPositionTo)
     }
     returnValue.asInstanceOf[T]
   }
