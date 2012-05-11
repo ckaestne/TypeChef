@@ -372,6 +372,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             evalExpr(One(e), context).map({
                 case VInt(a) => op match {
                     case "!" => VInt(if (a == 0) 1 else 0)
+                    case "-" => VInt(-a)
                     case _ => VUnknown()
                 }
                 case _ => VUnknown()
@@ -402,6 +403,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 case (VInt(a), "!=", VInt(b)) => VInt(if (a != b) 1 else 0)
                 case (VAnyInt(), "!=", VInt(_)) => VInt(0)
                 case (VInt(_), "!=", VAnyInt()) => VInt(0)
+                case (VInt(a), "<", VInt(b)) => VInt(if (a < b) 1 else 0)
+                case (VInt(a), "<=", VInt(b)) => VInt(if (a <= b) 1 else 0)
+                case (VInt(a), ">", VInt(b)) => VInt(if (a > b) 1 else 0)
+                case (VInt(a), ">=", VInt(b)) => VInt(if (a >= b) 1 else 0)
                 case _ => VUnknown()
             }
         )

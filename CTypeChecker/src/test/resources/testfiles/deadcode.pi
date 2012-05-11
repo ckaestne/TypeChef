@@ -10,6 +10,9 @@ int i1(); int i2(); int i3();
 int s1(); int s2(); int s3();
 int t1(); int t2(); int t3();
 int ignoresizeof();
+int BUG_bad_PRIO_PROCESS();
+
+#define PRIO_PROCESS 5
 
 #ifdef X
 #define A 1
@@ -68,6 +71,9 @@ int main() {
 
     if (!(sizeof(i)==2))
         ignoresizeof();
+
+    if (PRIO_PROCESS < (-127 - 1) || PRIO_PROCESS > 127)
+                BUG_bad_PRIO_PROCESS();
 
     activefunction2();
 }
