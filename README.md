@@ -67,6 +67,13 @@ all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deplo
 
     java -jar TypeChef.jar ...
 
+TypeChef is also available as a [maven repository](http://search.maven.org/#search%7Cga%7C1%7Ctypechef).
+With [sbt](http://code.google.com/p/simple-build-tool/) you can include TypeChef with the following line:
+
+```scala
+libraryDependencies += "de.fosd.typechef" % "frontend_2.9.1" % "0.3.2"
+```
+
 To build TypeChef from source, we use 
 [sbt](http://code.google.com/p/simple-build-tool/). 
 Install *git* and download and compile the code as follows
