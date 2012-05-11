@@ -9,6 +9,7 @@ int sometimesdeadAB();
 int i1(); int i2(); int i3();
 int s1(); int s2(); int s3();
 int t1(); int t2(); int t3();
+int ignoresizeof();
 
 #ifdef X
 #define A 1
@@ -64,6 +65,9 @@ int main() {
     else if (A)
         s2();
     else s3();
+
+    if (!(sizeof(i)==2))
+        ignoresizeof();
 
     activefunction2();
 }
