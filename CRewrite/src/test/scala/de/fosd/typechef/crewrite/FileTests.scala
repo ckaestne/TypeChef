@@ -43,6 +43,10 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
 
   private def checkCfg(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
     var errorOccured = false
+    var tfam: Long = 0
+    var tbase: Long = 0
+    var tfullcoverage: Long = 0
+
     println("analysis " + filename)
     val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 
@@ -59,41 +63,41 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     errorOccured |= family_function_defs.map(intraCfgFunctionDef(_, family_env)).exists(_ == true)
     val tfame = System.currentTimeMillis()
 
-    val tfam = tfame - tfams
+    tfam = tfame - tfams
 
     // base variant
-    println("checking base variant")
-    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit],
-      new Configuration(ConfigurationCoverage.completeConfiguration(FeatureExprFactory.True, List(), fm), fm), family_env)
-    val base_env = CASTEnv.createASTEnv(base_ast)
-    val base_function_defs = filterAllASTElems[FunctionDef](base_ast)
+//    println("checking base variant")
+//    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit],
+//      new Configuration(ConfigurationCoverage.completeConfiguration(FeatureExprFactory.True, List(), fm), fm), family_env)
+//    val base_env = CASTEnv.createASTEnv(base_ast)
+//    val base_function_defs = filterAllASTElems[FunctionDef](base_ast)
+//
+//    val tbases = System.currentTimeMillis()
+//    errorOccured |= base_function_defs.map(intraCfgFunctionDef(_, base_env)).exists(_ == true)
+//    val tbasee = System.currentTimeMillis()
+//
+//    tbase = tbasee - tbases
 
-    val tbases = System.currentTimeMillis()
-    errorOccured |= base_function_defs.map(intraCfgFunctionDef(_, base_env)).exists(_ == true)
-    val tbasee = System.currentTimeMillis()
-
-    val tbase = tbasee - tbases
-
-    // full coverage
-    println("checking full coverage")
-    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env) + FeatureExprFactory.True
-    var current_config = 1
-    var tfullcoverage: Long = 0
-
-    for (config <- configs) {
-      println("checking configuration " + current_config + " of " + configs.size)
-      current_config += 1
-      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast,
-        new Configuration(ConfigurationCoverage.completeConfiguration(config, List(), fm), fm), family_env)
-      val product_env = CASTEnv.createASTEnv(product_ast)
-      val product_function_defs = filterAllASTElems[FunctionDef](product_ast)
-
-      val tfullcoverages = System.currentTimeMillis()
-      errorOccured |= product_function_defs.map(intraCfgFunctionDef(_, product_env)).exists(_ == true)
-      val tfullcoveragee = System.currentTimeMillis()
-
-      tfullcoverage += (tfullcoveragee - tfullcoverages)
-    }
+//    // full coverage
+//    println("checking full coverage")
+//    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env) + FeatureExprFactory.True
+//    var current_config = 1
+//
+//
+//    for (config <- configs) {
+//      println("checking configuration " + current_config + " of " + configs.size)
+//      current_config += 1
+//      val product_ast = deriveProductFromConfiguration[TranslationUnit](family_ast,
+//        new Configuration(ConfigurationCoverage.completeConfiguration(config, List(), fm), fm), family_env)
+//      val product_env = CASTEnv.createASTEnv(product_ast)
+//      val product_function_defs = filterAllASTElems[FunctionDef](product_ast)
+//
+//      val tfullcoverages = System.currentTimeMillis()
+//      errorOccured |= product_function_defs.map(intraCfgFunctionDef(_, product_env)).exists(_ == true)
+//      val tfullcoveragee = System.currentTimeMillis()
+//
+//      tfullcoverage += (tfullcoveragee - tfullcoverages)
+//    }
 
     println("family-based: " + tfam + "ms")
     println("base variant: " + tbase + "ms")
@@ -866,6 +870,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug18() {assert(checkCfg("bug18.c") == false)}
   @Test def test_bug19() {assert(checkCfg("bug19.c") == false)}
   @Test def test_bug20() {assert(checkCfg("bug20.c") == false)}
+  @Test def test_bug21() {assert(checkCfg("bug21.c") == false)}
 
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c") == false)}
   @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}
