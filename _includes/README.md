@@ -67,6 +67,13 @@ all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deplo
 
     java -jar TypeChef.jar ...
 
+TypeChef is also available as a [maven repository](http://search.maven.org/#search%7Cga%7C1%7Ctypechef).
+With [sbt](http://code.google.com/p/simple-build-tool/) you can include TypeChef with the following line:
+
+```scala
+libraryDependencies += "de.fosd.typechef" % "frontend_2.9.1" % "0.3.2"
+```
+
 To build TypeChef from source, we use 
 [sbt](http://code.google.com/p/simple-build-tool/). 
 Install *git* and download and compile the code as follows
@@ -158,6 +165,10 @@ Publications
 An indepth discussion of the parsing approach and our experience with parsing Linux was published at OOPSLA:
 
 > Christian Kaestner, Paolo G. Giarrusso, Tillmann Rendel, Sebastian Erdweg, Klaus Ostermann, and Thorsten Berger. [Variability-Aware Parsing in the Presence of Lexical Macros and Conditional Compilation](http://www.informatik.uni-marburg.de/~kaestner/oopsla11_typechef.pdf). In Proceedings of the 26th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA) (Portland, OR), New York, NY, October 2011. ACM Press.
+
+A discussion of a module system including type checks and linker checks built on top of TypeChef was published as technical report:
+
+> Christian Kästner, Klaus Ostermann, and Sebastian Erdweg. [A Variability-Aware Module System](http://www.informatik.uni-marburg.de/~kaestner/tr_modulesys12.pdf). Technical Report 01/2012, Department of Mathematics and Computer Science, Philipps University Marburg, April 2012.
 
 An early overview of the project with a very preliminary implementation was published at
 
