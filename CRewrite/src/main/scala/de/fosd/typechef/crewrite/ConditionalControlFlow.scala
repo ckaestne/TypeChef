@@ -128,18 +128,18 @@ trait ConditionalControlFlow extends ASTNavigation {
                 val a2e = findPriorASTElem[IfStatement](a, env)
                 val b2e = findPriorASTElem[IfStatement](e, env)
 
-                if (a2e.isEmpty) { changed = true; add2newres = rollUp(e, oldelem, ctx, env)}
+                if (a2e.isEmpty) { changed = true; add2newres = rollUp(e, oldelem, env.featureExpr(oldelem), env)}
                 else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) {
                   changed = true
-                  add2newres = getCondExprPred(condition, ctx, env)
+                  add2newres = getCondExprPred(condition, env.featureExpr(oldelem), env)
                 }
                 else {
                   changed = true
-                  add2newres = rollUp(e, oldelem, ctx, env)
+                  add2newres = rollUp(e, oldelem, env.featureExpr(oldelem), env)
                 }
               }
               case _: AST => {
-                add2newres = rollUp(a, oldelem, ctx, env)
+                add2newres = rollUp(a, oldelem, env.featureExpr(oldelem), env)
                 if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
               }
             }
@@ -773,6 +773,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   // we dig into ast that have an Conditional part, such as for, while, ...
   // source is the element that we compute the predecessor for
   // target is the current determined predecessor that might be evaluated further
+  // ctx stores the context of target element
   // env is the ast environment that stores references to parents, siblings, and children
   private def rollUp(source: Product, target: AST, ctx: FeatureExpr, env: ASTEnv): List[AST] = {
     target match {
