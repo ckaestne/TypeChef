@@ -329,10 +329,20 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         } else One(CUnknown("unsatisfiable condition for expression"))
 
 
+    /**
+     * we are conservative in the sense that we rather declare code dead if we do not know than
+     * letting the type system infer an import where there is non
+     *
+     * therefore if (sizeof(x)==3) produces dead code in both branches (both tautology and contradiction)
+     */
     private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr): (FeatureExpr, FeatureExpr) = {
         val v = evalExpr(expr, context)
 
-        val contradiction = v.when(_ == VInt(0)) and context
+        val contradiction = v.when({
+            case VInt(0) => true
+            case VAnyInt() => true
+            case _ => false
+        }) and context
         var tautology = v.when({
             case VInt(a) if (a > 0) => true
             case VAnyInt() => true
@@ -375,6 +385,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                     case "-" => VInt(-a)
                     case _ => VUnknown()
                 }
+                case VAnyInt() => VAnyInt()
                 case _ => VUnknown()
             })
         case SizeOfExprT(_) => One(VAnyInt())
@@ -389,8 +400,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 case (VInt(a), "+", VInt(b)) => VInt(a + b)
                 case (VInt(a), "-", VInt(b)) => VInt(a - b)
                 case (VInt(a), "*", VInt(b)) => VInt(a * b)
-                case (VAnyInt(), op, VInt(_)) if (Set("+", "-", "*") contains op) => VAnyInt()
-                case (VInt(_), op, VAnyInt()) if (Set("+", "-", "*") contains op) => VAnyInt()
+                case (VAnyInt(), op, VInt(_)) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=") contains op) => VAnyInt()
+                case (VInt(_), op, VAnyInt()) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=") contains op) => VAnyInt()
                 case (VInt(a), "&&", VInt(b)) => VInt(if (a != 0 && b != 0) 1 else 0)
                 case (VInt(0), "&&", _) => VInt(0)
                 case (_, "&&", VInt(0)) => VInt(0)
@@ -398,11 +409,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 case (VInt(a), "||", _) if (a > 0) => VInt(1)
                 case (_, "||", VInt(a)) if (a > 0) => VInt(1)
                 case (VInt(a), "==", VInt(b)) => VInt(if (a == b) 1 else 0)
-                case (VAnyInt(), "==", VInt(_)) => VInt(1)
-                case (VInt(_), "==", VAnyInt()) => VInt(1)
                 case (VInt(a), "!=", VInt(b)) => VInt(if (a != b) 1 else 0)
-                case (VAnyInt(), "!=", VInt(_)) => VInt(0)
-                case (VInt(_), "!=", VAnyInt()) => VInt(0)
                 case (VInt(a), "<", VInt(b)) => VInt(if (a < b) 1 else 0)
                 case (VInt(a), "<=", VInt(b)) => VInt(if (a <= b) 1 else 0)
                 case (VInt(a), ">", VInt(b)) => VInt(if (a > b) 1 else 0)
