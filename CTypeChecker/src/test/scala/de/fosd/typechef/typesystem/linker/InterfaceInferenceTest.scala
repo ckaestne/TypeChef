@@ -134,6 +134,8 @@ class InterfaceInferenceTest extends TestHelper {
         assertEquivalent(whenImported("ignoresizeof"), False)
         assertEquivalent(whenImported("BUG_bad_PRIO_PROCESS"), False)
 
+        assertEquivalent(whenImported("c1"), fx)
+        assertEquivalent(whenImported("c2"), fx.not)
 
 
         assert(interface.exports.exists(_.name == "main"))

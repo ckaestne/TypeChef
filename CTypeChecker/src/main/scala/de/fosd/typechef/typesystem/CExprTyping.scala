@@ -17,7 +17,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
      */
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
         val et = getExprType(_: Expr, featureExpr, env)
-        val etF = getExprType(_: Expr, _: FeatureExpr, env)
+        def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprType(e, f, newEnv)
         //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
         val resultType: Conditional[CType] =
@@ -186,10 +186,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         }
                     //x?y:z  (gnuc: x?:z === x?x:z)
                     case ce@ConditionalExpr(condition, thenExpr, elseExpr) =>
+                        //dead code detection, see CTypeSystem..IfStatement
+                        val (contr, taut) = analyzeExprBounds(One(condition), featureExpr)
+
                         et(condition) mapfr(featureExpr, {
                             (fexpr, conditionType) =>
                                 if (isScalar(conditionType))
-                                    getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr), etF(elseExpr, fexpr), fexpr, ce)
+                                    getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr, env.markDead(contr)), etF(elseExpr, fexpr, env.markDead(taut)), fexpr, ce)
                                 else if (conditionType.isIgnore) One(conditionType)
                                 else One(reportTypeError(fexpr, "invalid type of condition: " + conditionType, ce))
                         })
@@ -230,6 +233,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         addEnv(expr, env)
         resultType.simplify(featureExpr)
     }
+
+    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr): (FeatureExpr, FeatureExpr)
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType], featureExpr: FeatureExpr, where: AST) =
         ConditionalLib.mapCombinationF(thenTypes, elseTypes, featureExpr, (featureExpr: FeatureExpr, thenType: CType, elseType: CType) => {

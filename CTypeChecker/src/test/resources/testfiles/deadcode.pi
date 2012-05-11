@@ -9,6 +9,7 @@ int sometimesdeadAB();
 int i1(); int i2(); int i3();
 int s1(); int s2(); int s3();
 int t1(); int t2(); int t3();
+int c1(); int c2();
 int ignoresizeof();
 int BUG_bad_PRIO_PROCESS();
 
@@ -74,6 +75,8 @@ int main() {
 
     if (PRIO_PROCESS < (-127 - 1) || PRIO_PROCESS > 127)
                 BUG_bad_PRIO_PROCESS();
+
+    i = (A?c1():c2());
 
     activefunction2();
 }
