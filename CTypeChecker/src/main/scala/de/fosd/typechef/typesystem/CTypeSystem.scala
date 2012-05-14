@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
+import java.util.IdentityHashMap
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -14,7 +15,6 @@ import de.fosd.typechef.conditional._
  */
 
 trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
-
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True): Unit = {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
@@ -67,7 +67,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
         //add type to environment for remaining code
-        val newEnv = env.addVar(declarator.getName, featureExpr, funType, kind, env.scope)
+        val newEnv = env.addVar(declarator.getName, featureExpr, declarator, funType, kind, env.scope)
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), KDeclaration, env.scope + 1).setExpectedReturnType(expectedReturnType)
@@ -83,7 +83,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkRedeclaration(name: String, ctype: Conditional[CType], fexpr: FeatureExpr, env: Env, where: AST, kind: DeclarationKind) {
 
-        val prevTypes: Conditional[(CType, DeclarationKind, Int)] = env.varEnv.lookup(name)
+        val prevTypes: Conditional[(AST, CType, DeclarationKind, Int)] = env.varEnv.lookup(name)
 
         ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int)) => {
             if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
@@ -151,7 +151,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         //check redeclaration
         for (v <- vars)
-            checkRedeclaration(v._1, v._3, v._2, env, d, v._4)
+            checkRedeclaration(v._1, v._4, v._2, env, d, v._5)
 
         //add declared variables to variable typing environment and check initializers
         env = env.addVars(vars, env.scope)

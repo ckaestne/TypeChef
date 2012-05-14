@@ -2,6 +2,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c.{AST, Declarator}
 
 /**
  * basic types of C and definitions which types are compatible
@@ -309,31 +310,33 @@ object CType {
 
 //assumed well-formed pointer targets on structures
 
-
 /**
  * maintains a map from names to types
  * a name may be mapped to alternative types with different feature expressions
  *
  * internally storing Type, whether its a definition (as opposed to a declaration), and the current scope idx
  */
-class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends ConditionalCMap[CType](m) {
+class ConditionalTypeMap(m: ConditionalMap[String, AST, Conditional[CType]]) extends ConditionalCMap[CType](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
-    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
-    def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+    def ++(l: Seq[(String, FeatureExpr, AST, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
+    def +(name: String, f: FeatureExpr, d: AST, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, d, t))
 }
 
-class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(CType, DeclarationKind, Int)]]) extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
+class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(AST, CType, DeclarationKind, Int)]])
+      extends ConditionalCMap[(AST, CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
-    def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
-    def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
-    def +(name: String, f: FeatureExpr, t: Conditional[CType], kind: DeclarationKind, scope: Int) = new ConditionalVarEnv(m.+(name, f, t.map(x => (x, kind, scope))))
-    def ++(v: Seq[(String, FeatureExpr, Conditional[CType], DeclarationKind, Int)]) =
-        v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5))
+    def apply(name: String): Conditional[CType] = lookup(name).map(_._2)
+    def lookup(name: String): Conditional[(AST, CType, DeclarationKind, Int)] =
+      getOrElse(name, (null, CUnknown(name), KDeclaration, -1))
+    def +(name: String, f: FeatureExpr, d: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) =
+      new ConditionalVarEnv(m.+(name, f, t.map(x => (d, x, kind, scope))))
+    def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int)]) =
+        v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5, x._6))
 }
 
-abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, Conditional[T]]) {
+abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, AST, Conditional[T]]) {
     /**
      * apply returns a type, possibly CUndefined or a
      * choice type

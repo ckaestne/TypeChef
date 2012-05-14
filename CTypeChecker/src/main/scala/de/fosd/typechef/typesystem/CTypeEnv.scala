@@ -7,8 +7,8 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping /*with CBuiltIn*/ {
 
 
-    protected def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, Conditional[CType])] = {
-        var result = List[(String, FeatureExpr, Conditional[CType])]()
+    protected def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, AST, Conditional[CType])] = {
+        var result = List[(String, FeatureExpr, AST, Conditional[CType])]()
         for (Opt(extensionFeature, extension) <- decl.extensions) extension match {
             case DeclIdentifierList(List()) => //declarations with empty parameter lists
             case DeclParameterDeclList(paramDecls) =>
@@ -20,7 +20,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                             val onlyVoid = !specifiers.exists(spec => (spec.feature and f).isSatisfiable() && spec.entry != VoidSpecifier())
                             assertTypeSystemConstraint(onlyVoid, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
                         case ParameterDeclarationD(specifiers, decl) =>
-                            result = ((decl.getName, f, getDeclarationType(specifiers, decl, f, env))) :: result
+                            result = ((decl.getName, f, decl, getDeclarationType(specifiers, decl, f, env))) :: result
                         case ParameterDeclarationAD(specifiers, decl) =>
                             assertTypeSystemConstraint(false, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
                         case VarArgs() => //TODO not accessible as parameter?

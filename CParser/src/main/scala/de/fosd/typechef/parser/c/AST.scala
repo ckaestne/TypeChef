@@ -397,5 +397,4 @@ case class BuiltinVaArgs(expr: Expr, typeName: TypeName) extends PrimaryExpr
 
 case class CompoundStatementExpr(compoundStatement: CompoundStatement) extends PrimaryExpr
 
-case class Pragma(command: StringLit) extends ExternalDef 
-
+case class Pragma(command: StringLit) extends ExternalDef

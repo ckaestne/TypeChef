@@ -191,11 +191,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
-                                ): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
-        val enumDecl = enumDeclarations(decl.declSpecs, featureExpr)
+                                ): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
+        val enumDecl = enumDeclarations(decl.declSpecs, featureExpr, decl)
         val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl, env.scope)
-        val varDecl = if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
+        val varDecl: scala.List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] =
+          if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
         else {
             val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
 
@@ -203,7 +204,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
                 val declKind = if (init.hasInitializer) KDefinition else KDeclaration
 
-                eenv = eenv.addVar(init.getName, featureExpr and f, ctype,
+                eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
                     declKind,
                     env.scope)
                 init.getExpr map {
@@ -215,7 +216,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 checkStructsC(ctype, featureExpr and f andNot isExtern, env, decl)
 
 
-                (init.declarator.getName, featureExpr and f, ctype, declKind)
+                (init.declarator.getName, featureExpr and f, init, ctype, declKind)
             }
         }
         enumDecl ++ varDecl
@@ -242,15 +243,15 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
      *
      * important: this recurses into structures!
      **/
-    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
-        var result = List[(String, FeatureExpr, Conditional[CType], DeclarationKind)]()
+    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
+        var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
-                result = (enum.id.name, featureExpr and f and f2, One(CSigned(CInt())), KEnumVar) :: result
+                result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt())), KEnumVar) :: result
             //recurse into structs
             case StructOrUnionSpecifier(_, _, fields) =>
                 for (Opt(f2, structDeclaration) <- fields)
-                    result = result ++ enumDeclarations(structDeclaration.qualifierList, featureExpr and f and f2)
+                    result = result ++ enumDeclarations(structDeclaration.qualifierList, featureExpr and f and f2, structDeclaration)
             case _ =>
         }
         result
@@ -356,7 +357,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         //for nested structs, we need to add the inner structs to the environment
                         val env2 = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))
                         checkStructsC(ctype, featureExpr and f and g, env2, structDeclaration)
-                        result = result +(decl.getName, featureExpr and f and g, ctype)
+                        result = result +(decl.getName, featureExpr and f and g, decl, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }
             //for unnamed fields, if they are struct or union inline their fields
@@ -400,10 +401,10 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     //    private def outerTypedefEnv(e: AST): ConditionalTypeMap =
     //        outer[ConditionalTypeMap](typedefEnv, () => new ConditionalTypeMap(), e)
     //
-    protected def recognizeTypedefs(decl: Declaration, featureExpr: FeatureExpr, env: Env): Seq[(String, FeatureExpr, Conditional[CType])] = {
+    protected def recognizeTypedefs(decl: Declaration, featureExpr: FeatureExpr, env: Env): Seq[(String, FeatureExpr, AST, Conditional[CType])] = {
         if (isTypedef(decl.declSpecs))
             (for (Opt(f, init) <- decl.init) yield
-                (init.getName, featureExpr and f,
+                (init.getName, featureExpr and f, decl,
                     declType(decl.declSpecs, init.declarator, init.attributes, featureExpr and f, env)))
         else Seq()
     }
