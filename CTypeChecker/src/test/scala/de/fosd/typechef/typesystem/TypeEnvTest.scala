@@ -148,7 +148,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         val typedefs = lookupEnv(lastDecl).typedefEnv
 
         typedefs("myint") should be(_i)
-        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() +("x", True, One(CDouble())))))
+        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(),Id("x"),List()), One(CDouble())))))
         typedefs("myunsign") should be(One(CUnsigned(CInt())))
 
         //typedef is not a declaration
@@ -156,7 +156,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env.contains("mystr") should be(false)
 
         env("myintvar") should be(_i)
-        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", True, One(CDouble()))))))
+        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(),Id("x"),List()), One(CDouble()))))))
         env("mypairvar") should be(One(CStruct("pair")))
 
         //structure definitons should be recognized despite typedefs

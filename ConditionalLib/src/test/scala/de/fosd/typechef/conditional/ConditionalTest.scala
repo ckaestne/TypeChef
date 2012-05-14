@@ -169,19 +169,19 @@ class ConditionalTest {
 
     @Test
     def testConditionalMap {
-        var a = new ConditionalMap[String, Int]()
+        var a = new ConditionalMap[String, Int, Int]()
 
-        a = a.+("a", fa, 3)
+        a = a.+("a", fa, -2, 3)
         assertEquals(Choice(fa, One(3), One(-1)), a.getOrElse("a", -1))
 
-        a = a +("a", fa.not(), 2)
+        a = a +("a", fa.not(), -2, 2)
         assertEquals(Choice(fa.not, One(2), One(3)), a.getOrElse("a", -1))
 
-        a = a.+("a", fa, 4)
+        a = a.+("a", fa, -2, 4)
         val v2 = Choice(fa, One(4), One(2))
         assertEquals(v2, a.getOrElse("a", -1))
 
-        a = a.+("a", fb, 5)
+        a = a.+("a", fb, -2, 5)
         assertEquals(Choice(fb, One(5), v2), a.getOrElse("a", -1))
     }
 
