@@ -85,8 +85,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         val prevTypes: Conditional[(AST, CType, DeclarationKind, Int)] = env.varEnv.lookup(name)
 
-        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int)) => {
-            if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
+        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (AST, CType, DeclarationKind, Int)) => {
+            if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._2), prev._3, prev._4))
                 reportTypeError(f, "Invalid redeclaration/redefinition of " + name +
                     " (was: " + prev._1 + ":" + kind + ":" + env.scope +
                     ", now: " + newType + ":" + prev._2 + ":" + prev._3 + ")",

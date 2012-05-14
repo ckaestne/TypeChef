@@ -7,7 +7,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
  * maintains a map
  * a name may be mapped to alternative entries with different feature expressions
  */
-class ConditionalMap[A, B, C](private val entries: Map[A, Seq[(FeatureExpr, C, B)]]) {
+class ConditionalMap[A, B, C](private val entries: Map[A, Seq[(FeatureExpr, B, C)]]) {
     def this() = this(Map())
     /*
        feature expressions are not rewritten as in the macrotable, but we
@@ -15,7 +15,7 @@ class ConditionalMap[A, B, C](private val entries: Map[A, Seq[(FeatureExpr, C, B
         in get, they simply overwrite each other in order of addition
     */
     //       def apply(key: A): Conditional[B]= getOrElse(key, {throw new NoSuchElementException})
-    def getOrElse(key: A, other: B): Conditional[B] = {
+    def getOrElse(key: A, other: C): Conditional[C] = {
         if (!contains(key)) One(other)
         else {
             val types = entries(key)
@@ -34,7 +34,7 @@ class ConditionalMap[A, B, C](private val entries: Map[A, Seq[(FeatureExpr, C, B
         }
         new ConditionalMap(r)
     }
-    def ++(decls: Seq[(A, FeatureExpr, C, B)]) = {
+    def ++(decls: Seq[(A, FeatureExpr, B, C)]) = {
         var r = entries
         for (decl <- decls) {
             if (r contains decl._1)
@@ -44,15 +44,15 @@ class ConditionalMap[A, B, C](private val entries: Map[A, Seq[(FeatureExpr, C, B
         }
         new ConditionalMap(r)
     }
-    def +(key: A, f: FeatureExpr, d: C, t: B) = this ++ Seq((key, f, d, t))
+    def +(key: A, f: FeatureExpr, d: B, t: C) = this ++ Seq((key, f, d, t))
     def contains(name: A) = (entries contains name) && !entries(name).isEmpty
     def isEmpty = entries.isEmpty
-    def allEntriesFlat: Iterable[B] = entries.values.flatten.map(_._3)
+    def allEntriesFlat: Iterable[C] = entries.values.flatten.map(_._3)
     def whenDefined(name: A): FeatureExpr = entries.getOrElse(name, Seq()).foldLeft(False)(_ or _._1)
     def keys = entries.keys
 
-    private def createChoice(entries: Seq[(FeatureExpr, C, B)], other: B) =
-        entries.foldRight[Conditional[B]](One(other))((p, t) => Choice(p._1, One(p._3), t)).simplify
+    private def createChoice(entries: Seq[(FeatureExpr, B, C)], other: C) =
+        entries.foldRight[Conditional[C]](One(other))((p, t) => Choice(p._1, One(p._3), t)).simplify
 
 
     override def equals(that: Any) = that match {

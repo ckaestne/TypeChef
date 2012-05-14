@@ -324,14 +324,14 @@ class ConditionalTypeMap(m: ConditionalMap[String, AST, Conditional[CType]]) ext
     def +(name: String, f: FeatureExpr, d: AST, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, d, t))
 }
 
-class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(AST, CType, DeclarationKind, Int)]])
+class ConditionalVarEnv(m: ConditionalMap[String, AST, Conditional[(AST, CType, DeclarationKind, Int)]])
       extends ConditionalCMap[(AST, CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookup(name).map(_._2)
     def lookup(name: String): Conditional[(AST, CType, DeclarationKind, Int)] =
       getOrElse(name, (null, CUnknown(name), KDeclaration, -1))
     def +(name: String, f: FeatureExpr, d: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) =
-      new ConditionalVarEnv(m.+(name, f, t.map(x => (d, x, kind, scope))))
+      new ConditionalVarEnv(m.+(name, f, d, t.map(x => (d, x, kind, scope))))
     def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int)]) =
         v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5, x._6))
 }

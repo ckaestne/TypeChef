@@ -131,7 +131,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
         }
 
         val ast = getAST(buffer)
-        val env = EmptyEnv.addTypedef("__builtin_va_list", True, One(CIgnore()))
+        val env = EmptyEnv.addTypedef("__builtin_va_list", True, null, One(CIgnore()))
         Map() ++ (for (Opt(_, decl: Declaration) <- ast.defs) yield {
             val init = decl.init.head.entry
             (init.declarator.getName -> getDeclaratorType(init.declarator, constructType(decl.declSpecs, FeatureExprFactory.True, EmptyEnv, decl), FeatureExprFactory.True, env))
