@@ -1,17 +1,18 @@
 package de.fosd.typechef
 
-import de.fosd.typechef.{featureexpr, parser}
-import conditional.{Conditional, Choice, Opt}
+import conditional.{Choice, Opt}
 import crewrite._
 import featureexpr._
 
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
 import typesystem.CTypeSystemFrontend
-import java.io.{File, FileWriter}
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.{HashSet, BitSet, Queue}
 import scala.Predef._
 import scala._
+import io.Source
+import java.io.{File, FileWriter}
+import java.util.regex.Pattern
 
 /**
  *
@@ -28,6 +29,7 @@ object ProductGeneration {
     private var features: List[SingleFeatureExpr] = null
 
     class SimpleConfiguration(private val config: scala.collection.immutable.BitSet) {
+
         def this(trueSet: List[SingleFeatureExpr], falseSet: List[SingleFeatureExpr]) = this(
         {
             var ret: scala.collection.mutable.BitSet = BitSet()
@@ -73,6 +75,17 @@ object ProductGeneration {
         def containsFeaturesAsEnabled(features: Set[SingleFeatureExpr]): Boolean = {
             for (fex <- features) {
                 if (!config.apply(featureIDHashmap(fex))) return false
+            }
+            return true
+        }
+        /**
+         * This method assumes that all features in the parameter-set appear in the configuration (either as true or as false)
+         * @param features
+         * @return
+         */
+        def containsFeaturesAsDisabled(features: Set[SingleFeatureExpr]): Boolean = {
+            for (fex <- features) {
+                if (config.apply(featureIDHashmap(fex))) return false
             }
             return true
         }
@@ -155,6 +168,16 @@ object ProductGeneration {
 
         /**All products */
         //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env))
+        /** Load config from file */
+        {
+            startTime = System.currentTimeMillis()
+            val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/l/allyes.config"))
+            typecheckingTasks ::= Pair("FileConfig", configs)
+            configurationCollection ++= configs
+            msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            println(msg)
+            log = log + msg
+        }
         /**Single-wise */
 /*
         {
@@ -412,8 +435,8 @@ object ProductGeneration {
                     //println("feature combination " + f1 + " and " + f2 + " already covered")
                     alreadyCoveredCombinations += 1
                 }
-                if (System.currentTimeMillis() - startTime > 60000) { // should be 1 minute
-                //if (System.currentTimeMillis() - startTime > 600000) { // should be 10 minutes
+                //if (System.currentTimeMillis() - startTime > 60000) { // should be 1 minute
+                if (System.currentTimeMillis() - startTime > 600000) { // should be 10 minutes
                     val todo = features.size
                     val done = index1-1
                     return (pwConfigs,
@@ -428,6 +451,49 @@ object ProductGeneration {
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + pwConfigs.size + "\n")
+    }
+
+    def getConfigsFromFiles(features: List[SingleFeatureExpr], fm: FeatureModel, file :File) : (List[SimpleConfiguration], String) = {
+        var fileEx : FeatureExpr = FeatureExprFactory.True
+        var trueFeatures : Set[SingleFeatureExpr] = Set()
+        var falseFeatures : Set[SingleFeatureExpr] = Set()
+
+        val enabledPattern : Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=y")
+        val disabledPattern : Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=n")
+        for(line <- Source.fromFile(file).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)) {
+            var matcher = enabledPattern.matcher(line)
+            if (matcher.matches()) {
+                val name = "CONFIG_" + matcher.group(1)
+                val feature = FeatureExprFactory.createDefinedExternal(name)
+                trueFeatures += feature
+                fileEx = fileEx.and(feature)
+            } else {
+                matcher = disabledPattern.matcher(line)
+                if (matcher.matches()) {
+                    val name = "CONFIG_" + matcher.group(1)
+                    val feature = FeatureExprFactory.createDefinedExternal(name)
+                    falseFeatures += feature
+                    fileEx = fileEx.andNot(feature)
+                } else {
+                    println("ignoring line: " + line)
+                }
+            }
+            //println(line)
+        }
+        println("features mentioned in c-file but not in config: ")
+        for (x <- features.filterNot((trueFeatures++falseFeatures).contains(_))) {
+            println(x.feature)
+        }
+        val interestingTrueFeatures = trueFeatures.filter(features.contains(_)).toList
+        val interestingFalseFeatures = falseFeatures.filter(features.contains(_)).toList
+
+        fileEx.getSatisfiableAssignment(fm,features.toSet,true) match {
+            case None => println("configuration not satisfiable"); return (List(),"")
+            case Some((en,dis)) => return (List(new SimpleConfiguration(en,dis)), "")
+
+        }
+        return (List(new SimpleConfiguration(interestingTrueFeatures,interestingFalseFeatures)),
+            "")
     }
 
     def getAllTriplewiseConfigurations(features: List[SingleFeatureExpr], fm: FeatureModel,
@@ -477,6 +543,8 @@ object ProductGeneration {
                               existingConfigs : List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean) : (List[SimpleConfiguration],String) = {
         var unsatCombinations = 0
         var alreadyCoveredCombinations = 0
+        var complexNodes = 0
+        var simpleNodes = 0
         var optNodes: List[Opt[_]] = List()
         var choiceNodes: List[Choice[_]] = List()
         val scanNodes = org.kiama.rewriting.Rewriter.manytd(org.kiama.rewriting.Rewriter.query {
@@ -491,12 +559,24 @@ object ProductGeneration {
         def handleFeatureExpression(fex:FeatureExpr) = {
             if (! handledExpressions.contains(fex)) {
                 // search for configs that imply this node
-                /* TODO: This could be so much better if i knew which features are enabled/disabled (for expr without 'or').
-                 * Then i could avoid the SAT call and search directly in the configurations */
-                val isCovered : Boolean =
-                    (retList++existingConfigs).exists(
-                    {conf : SimpleConfiguration => conf.toFeatureExpr.implies(fex).isTautology(fm)}
-                    )
+                var isCovered : Boolean = false
+                fex.getConfIfSimpleExpr() match {
+                    case None => {
+                        complexNodes+=1
+                        isCovered = (retList++existingConfigs).exists(
+                            {conf : SimpleConfiguration => conf.toFeatureExpr.implies(fex).isTautology(fm)}
+                        )
+                     }
+                    case Some((enabled:Set[SingleFeatureExpr], disabled:Set[SingleFeatureExpr])) => {
+                        simpleNodes+=1
+                        isCovered = (retList++existingConfigs).exists( {
+                            conf:SimpleConfiguration => conf.containsFeaturesAsEnabled(enabled) &&
+                                conf.containsFeaturesAsDisabled(disabled)
+                        })
+
+                    }
+                }
+
                 if (!isCovered) {
                     val completeConfig = completeConfiguration(fex, features, fm, preferDisabledFeatures)
                     if (completeConfig != null) {
@@ -522,7 +602,8 @@ object ProductGeneration {
         return (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
-                " created combinations:" + retList.size + "\n")
+                " created combinations:" + retList.size + "\n" +
+                " found " + simpleNodes + " simple nodes and " + complexNodes + " complex nodes.\n")
     }
     /**
      * Optimzed version of the completeConfiguration method. Uses FeatureExpr.getSatisfiableAssignment to need only one SAT call.

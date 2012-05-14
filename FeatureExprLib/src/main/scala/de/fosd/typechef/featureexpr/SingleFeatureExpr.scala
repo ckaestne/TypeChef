@@ -10,4 +10,5 @@ package de.fosd.typechef.featureexpr
 
 trait SingleFeatureExpr extends FeatureExpr {
     def feature : String
+    override def getConfIfSimpleExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = Option(Set(this),Set())
 }

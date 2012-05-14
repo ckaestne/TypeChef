@@ -6,7 +6,7 @@ import java.net.URI
 object SATFeatureExprFactory extends AbstractFeatureExprFactory {
 
 
-    def createDefinedExternal(name: String): FeatureExpr = FExprBuilder.definedExternal(name)
+    def createDefinedExternal(name: String): SingleFeatureExpr = FExprBuilder.definedExternal(name)
     def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = FExprBuilder.definedMacro(name, macroTable)
 
 

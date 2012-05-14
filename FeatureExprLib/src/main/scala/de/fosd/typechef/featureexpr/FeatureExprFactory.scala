@@ -36,7 +36,7 @@ object FeatureExprFactory {
 }
 
 trait AbstractFeatureExprFactory extends FeatureExprTreeFactory {
-    def createDefinedExternal(v: String): FeatureExpr
+    def createDefinedExternal(v: String): SingleFeatureExpr
     def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr
 
     def createFeatureExprFast(enabledFeatures : Set[SingleFeatureExpr], disabledFeatures : Set[SingleFeatureExpr]) : FeatureExpr

@@ -156,8 +156,6 @@ object FeatureExprHelper {
  */
 class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
-
-
     import CastHelper._
 
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asBDDFeatureExpr(that))
@@ -329,6 +327,39 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      * purposes
      */
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
+
+    def getConfIfSimpleExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
+        // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
+        assert(! this.isInstanceOf[SingleFeatureExpr])
+        var enabled : Set[SingleFeatureExpr] = Set()
+        var disabled : Set[SingleFeatureExpr] = Set()
+        def isTrue(x:BDD) = x.isOne
+        def isFalse(x:BDD) = x.isZero
+
+        var finished : Boolean = false
+        var currentBDD : BDD = this.bdd
+        while (! isTrue(currentBDD)) {
+            if (isFalse(currentBDD)) {
+                // unsatisfiable
+                return None
+            }
+            // bdd.var should be the same int as in lookup-functions, hopefully
+            val predicate = new SingleBDDFeatureExpr(currentBDD.`var`())
+            val thenbranch:BDD = currentBDD.high()
+            val elsebranch:BDD = currentBDD.low()
+            if (isFalse(elsebranch)) {
+                enabled += predicate
+                currentBDD = thenbranch
+            } else if (isFalse(thenbranch)) {
+                disabled += predicate
+                currentBDD = elsebranch
+            } else {
+                // expression is more complex
+                return None
+            }
+        }
+        return Option(enabled,disabled)
+    }
 }
 
 class SingleBDDFeatureExpr(id:Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
@@ -408,7 +439,7 @@ private[bdd] object FExprBuilder {
 
     def not(a: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd.not())
 
-    def definedExternal(name: String): BDDFeatureExpr = {
+    def definedExternal(name: String): SingleBDDFeatureExpr = {
         val id: Int = featureIds.get(name) match {
             case Some(id) => id
             case _ =>
@@ -422,7 +453,7 @@ private[bdd] object FExprBuilder {
                 featureBDDs.put(maxFeatureId, bddFactory.ithVar(maxFeatureId))
                 maxFeatureId
         }
-        new BDDFeatureExpr(featureBDDs(id))
+        new SingleBDDFeatureExpr(id)
     }
 
     def containsFeatureID(id: Int): Boolean = featureNames.contains(id)
@@ -436,7 +467,7 @@ private[bdd] object FExprBuilder {
 
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
-    def definedMacro(name: String, macroTable: FeatureProvider): BDDFeatureExpr = {
+    def definedMacro(name: String, macroTable: FeatureProvider) : BDDFeatureExpr = {
         val f = macroTable.getMacroCondition(name)
         CastHelper.asBDDFeatureExpr(f)
     }
@@ -469,18 +500,20 @@ private[bdd] object FExprBuilder {
  * apply methods of the And and Or companion objects, which convert any empty set of
  * clauses into the canonical True or False object.
  */
-object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint {
+object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint with SingleFeatureExpr {
     override def toString = "True"
     override def toTextExpr = "1"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
+    override def feature = toString
 }
 
-object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint {
+object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint with SingleFeatureExpr {
     override def toString = "False"
     override def toTextExpr = "0"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
+    override def feature = toString
 }
 
 object CastHelper {

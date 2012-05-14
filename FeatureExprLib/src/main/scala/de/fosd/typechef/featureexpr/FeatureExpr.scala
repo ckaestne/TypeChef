@@ -35,6 +35,14 @@ trait FeatureExpr {
   def xor(that: FeatureExpr) = (this or that) andNot (this and that)
   def equiv(that: FeatureExpr) = (this and that) or (this.not and that.not)
 
+    /**
+     * If this expr is a simple concatenation of SingleFeatureExpressions (and their negations),
+     * then this method returns the expression as a set of singleFeatureExpr that occur as enabled (disabled).
+     * If the expression is more complex, None is returned.
+     * @return
+     */
+  def getConfIfSimpleExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])]
+
   final def orNot(that: FeatureExpr) = this or (that.not)
   final def andNot(that: FeatureExpr) = this and (that.not)
   def mex(that: FeatureExpr): FeatureExpr = (this and that).not
