@@ -639,4 +639,15 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
     last.enumEnv("lzma2_seq") should be(FeatureExprFactory.True)
   }
 
+  test("def use chain") {
+    val a = compileCode("""
+      int foo() {return 0;}
+      int bar() {foo(); foo(); return 0;}
+    """)
+
+    val lastdecl = a.defs.last.entry
+    lookupEnv(lastdecl)
+    println(a)
+    println(defuse)
+  }
 }
