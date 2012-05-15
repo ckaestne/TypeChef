@@ -117,8 +117,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         expr match {
                           case i@Id(name) => {
                             env.varEnv.getAstOrElse(name, null) match {
-                              case One(defelem) => defuse.put(defelem, defuse.get(defelem) ++ List(i))
-                              case _ => assert(false, "choice not expected here")
+                              case o:One[Id] => defuse.put(o.value, defuse.get(o.value) ++ List(i))
+                              case x => assert(false, "element (" + x + ") is not supported")
                             }
                           }
                         }

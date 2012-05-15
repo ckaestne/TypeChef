@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c._
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -49,7 +49,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
-        defuse.put(declarator, List())
+
+        declarator match {
+          case AtomicNamedDeclarator(_, i, _) => defuse.put(i, List())
+          case x => assert(false, "def element (" + x + ") is not supported!")
+        }
 
         //structs in signature defined?
         funType.mapf(featureExpr, (f, t) => t.toValue match {
@@ -67,7 +71,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
         //add type to environment for remaining code
-        val newEnv = env.addVar(declarator.getName, featureExpr, declarator, funType, kind, env.scope)
+        val newEnv = {
+          declarator match {
+            case AtomicNamedDeclarator(_, i, _) => env.addVar(declarator.getName, featureExpr, i, funType, kind, env.scope)
+            case _ => env.addVar(declarator.getName, featureExpr, declarator, funType, kind, env.scope)
+          }
+        }
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), KDeclaration, env.scope + 1).setExpectedReturnType(expectedReturnType)
