@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c.{AST, Declarator}
+import de.fosd.typechef.parser.c.AST
 
 /**
  * basic types of C and definitions which types are compatible
@@ -310,42 +310,56 @@ object CType {
 
 //assumed well-formed pointer targets on structures
 
+
 /**
  * maintains a map from names to types
  * a name may be mapped to alternative types with different feature expressions
  *
  * internally storing Type, whether its a definition (as opposed to a declaration), and the current scope idx
  */
-class ConditionalTypeMap(m: ConditionalMap[String, AST, Conditional[CType]]) extends ConditionalCMap[CType](m) {
+class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
+    extends ConditionalCMap[AST, CType](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
-    def ++(l: Seq[(String, FeatureExpr, AST, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
-    def +(name: String, f: FeatureExpr, d: AST, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, d, t))
+    def ++(l: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
+    def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, (a, t)))
 }
 
-class ConditionalVarEnv(m: ConditionalMap[String, AST, Conditional[(AST, CType, DeclarationKind, Int)]])
-      extends ConditionalCMap[(AST, CType, DeclarationKind, Int)](m) {
+class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int)])])
+    extends ConditionalCMap[AST, (CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
-    def apply(name: String): Conditional[CType] = lookup(name).map(_._2)
-    def lookup(name: String): Conditional[(AST, CType, DeclarationKind, Int)] =
-      getOrElse(name, (null, CUnknown(name), KDeclaration, -1))
-    def +(name: String, f: FeatureExpr, d: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) =
-      new ConditionalVarEnv(m.+(name, f, d, t.map(x => (d, x, kind, scope))))
+    def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
+    def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
+    def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) = new ConditionalVarEnv(m.+(name, f, (a, t.map(x => (x, kind, scope)))))
     def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int)]) =
         v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5, x._6))
 }
 
-abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, AST, Conditional[T]]) {
+/**
+ * map from names to ASTs with their conditional types (or other conditional information)
+ *
+ * the normal lookup functions apply and getOrElse will only return the conditional T, not the AST node (legacy reasons)
+ * too get the corresponding AST elements call the respective functions (getASTOrElse, ..)
+ *
+ */
+abstract class ConditionalCMap[A >: AST, T](protected val m: ConditionalMap[String, (A, Conditional[T])]) {
     /**
      * apply returns a type, possibly CUndefined or a
      * choice type
+     *
+     * returns only the type information, not the ast
      */
-    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
+    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(getFullOrElse(name, (null, One(errorType))).map(_._2)) simplify
+
+    def getAstOrElse(name: String, errorNode: A): Conditional[A] = getFullOrElse(name, (errorNode, null)).map(_._1)
+
+    def getFullOrElse(name: String, errorNode: (A, Conditional[T])): Conditional[(A, Conditional[T])] = m.getOrElse(name, errorNode)
 
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
-    def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat //warning: do not use, probably not what desired
+    def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat.map(_._2)
+    //warning: do not use, probably not what desired
     def keys = m.keys
     def whenDefined(name: String): FeatureExpr = m.whenDefined(name)
 
@@ -416,9 +430,9 @@ trait CTypes extends COptionProvider {
 
 
     /**
-     *  determines whether types are compatible in assignements etc
+     * determines whether types are compatible in assignements etc
      *
-     *  for "a=b;" with a:type1 and b:type2
+     * for "a=b;" with a:type1 and b:type2
      */
     def coerce(expectedType: CType, foundType: CType): Boolean = {
         val t1 = normalize(expectedType)
