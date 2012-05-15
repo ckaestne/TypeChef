@@ -139,11 +139,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //a++, a--
                     case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {
                         prepareArray
-                    } map {
-                        case CObj(t) if (isScalar(t)) => t //apparently ++ also works on arrays
+                    } mapf(featureExpr, {
+                        case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
                         //TODO check?: not on function references
-                        case e => reportTypeError(featureExpr, "wrong type argument to increment " + e, pe)
-                    }
+                        case (f, e) => reportTypeError(f, "wrong type argument to increment " + e, pe)
+                    })
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
                         ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
