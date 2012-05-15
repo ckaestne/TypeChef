@@ -244,7 +244,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
      *
      * important: this recurses into structures!
      **/
-    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
+    protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr): List[(String, FeatureExpr, Conditional[CType], DeclarationKind)] = {
         var result = List[(String, FeatureExpr, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
