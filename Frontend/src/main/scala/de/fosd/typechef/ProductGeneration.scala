@@ -133,7 +133,7 @@ object ProductGeneration {
         }
         mainDir.mkdirs()
         // it seems that the scala lists cannot be serialized, so i use java ArrayLists
-        writeObject(toJavaList(featureList.map(_.feature)), new File(mainDir,"FeatureHasmap.ser"))
+        writeObject(toJavaList(featureList.map(_.feature)), new File(mainDir,"FeatureHashmap.ser"))
         for ((taskName,configs)<-tasks) {
             writeObject(toJavaList(configs), new File(mainDir,taskName + ".ser"))
         }
@@ -162,11 +162,11 @@ object ProductGeneration {
         }
         var taskList : ListBuffer[(String, List[SimpleConfiguration])] = ListBuffer()
         // it seems that the scala lists cannot be serialized, so i use java ArrayLists
-        val savedFeatures : ArrayList[String] =  readObject[ArrayList[String]](new File(mainDir,"FeatureHasmap.ser"))
+        val savedFeatures : ArrayList[String] =  readObject[ArrayList[String]](new File(mainDir,"FeatureHashmap.ser"))
         assert(savedFeatures.equals(toJavaList(featureList.map((_.feature)))))
         for (file <- mainDir.listFiles()) {
             val fn = file.getName
-            if (!fn.equals("FeatureHasmap.ser") && fn.endsWith(".ser")) {
+            if (!fn.equals("FeatureHashmap.ser") && fn.endsWith(".ser")) {
                 val configs = readObject[ArrayList[SimpleConfiguration]](file)
                 val taskName = fn.substring(0,fn.length-".ser".length)
                 var taskConfigs : scala.collection.mutable.ListBuffer[SimpleConfiguration] = ListBuffer()
@@ -249,7 +249,7 @@ object ProductGeneration {
         val useSerialization = true
         if (useSerialization &&
             configSerializationDir.exists() &&
-            new File(configSerializationDir,"FeatureHasmap.ser").exists()) {
+            new File(configSerializationDir,"FeatureHashmap.ser").exists()) {
             /** Load serialized tasks */
             {
                 startTime = System.currentTimeMillis()
