@@ -142,8 +142,10 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             types = types :+ One(CDouble())
         if (has(FloatSpecifier()))
             types = types :+ One(CFloat())
-        if ((isSigned || isUnsigned || has(IntSpecifier()) || has(OtherPrimitiveTypeSpecifier("_Bool"))) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
+        if ((isSigned || isUnsigned || has(IntSpecifier())) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
             types = types :+ sign(CInt())
+        if (has(OtherPrimitiveTypeSpecifier("_Bool")))
+            types = types :+ One(CBool())
 
         if (has(VoidSpecifier()))
             types = types :+ One(CVoid())

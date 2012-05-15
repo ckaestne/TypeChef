@@ -147,6 +147,11 @@ case class CSignUnspecified(b: CBasicType) extends CSignSpecifier(b) {
     </nosign>
 }
 
+case class CBool() extends CType {
+    override def toText = "_Bool"
+    def toXML = <_Bool/>
+}
+
 //implementationspecific for Char
 
 case class CFloat() extends CType {
@@ -276,6 +281,7 @@ object CType {
         (node \ "nosign").map(x => result = CSignUnspecified(fromXMLBasicType(x)))
         (node \ "zero").map(x => result = CZero())
         (node \ "void").map(x => result = CVoid())
+        (node \ "_Bool").map(x => result = CBool())
         (node \ "float").map(x => result = CFloat())
         (node \ "double").map(x => result = CDouble())
         (node \ "longdouble").map(x => result = CLongDouble())
@@ -342,7 +348,8 @@ abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, Condit
 
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
-    def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat //warning: do not use, probably not what desired
+    def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat
+    //warning: do not use, probably not what desired
     def keys = m.keys
     def whenDefined(name: String): FeatureExpr = m.whenDefined(name)
 
@@ -391,6 +398,7 @@ trait CTypes extends COptionProvider {
         case CSigned(_) => true
         case CUnsigned(_) => true
         case CSignUnspecified(_) => true
+        case CBool() => true
         case _ => false
     }
     def isArithmetic(t: CType): Boolean = isIntegral(t) || (t.toValue match {
@@ -413,9 +421,9 @@ trait CTypes extends COptionProvider {
 
 
     /**
-     *  determines whether types are compatible in assignements etc
+     * determines whether types are compatible in assignements etc
      *
-     *  for "a=b;" with a:type1 and b:type2
+     * for "a=b;" with a:type1 and b:type2
      */
     def coerce(expectedType: CType, foundType: CType): Boolean = {
         val t1 = normalize(expectedType)
@@ -446,6 +454,9 @@ trait CTypes extends COptionProvider {
 
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true
+
+        //_Bool = any scala value
+        if (t1 == CBool() && isScalar(t2)) return true
 
         //assignment pointer = 0
         if (isPointer(t1) && isZero(t2)) return true
