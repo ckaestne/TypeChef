@@ -84,6 +84,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CUnsigned(_) => true
             case CSignUnspecified(_) => true
             case CZero() => true
+            case CBool() => true
             case CVoid() => true
             case CFloat() => true
             case CDouble() => true
