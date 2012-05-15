@@ -78,7 +78,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             }).exists((x: Boolean) => x)
 
 
-    private def constructTypeOne(specifiers: List[Specifier], featureExpr: FeatureExpr, env: Env, locationForErrorMsg: AST): Conditional[CType] = {
+    private def constructTypeOne(specifiers: List[Specifier], featureExpr: FeatureExpr,
+                                 env: Env, locationForErrorMsg: AST): Conditional[CType] = {
         //type specifiers
         var types = List[Conditional[CType]]()
         for (specifier <- specifiers) specifier match {

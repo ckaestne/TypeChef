@@ -14,18 +14,18 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 @RunWith(classOf[JUnitRunner])
 class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
 
-    val _l = One(CSigned(CLong()))
-    val _i = One(CSigned(CInt()))
-    val _ui = One(CUnsigned(CInt()))
-    val x_i = Choice(fx, _i, One(CUndefined))
+  val _l = One(CSigned(CLong()))
+  val _i = One(CSigned(CInt()))
+  val _ui = One(CUnsigned(CInt()))
+  val x_i = Choice(fx, _i, One(CUndefined))
 
-    private def compileCode(code: String) = {
-        val ast = getAST(code)
-        typecheckTranslationUnit(ast)
-        ast
-    }
+  private def compileCode(code: String) = {
+    val ast = getAST(code)
+    typecheckTranslationUnit(ast)
+    ast
+  }
 
-    private def ast = (compileCode("""
+  private def ast = (compileCode("""
             typedef int myint;
             typedef struct { double x; } mystr;
             typedef struct pair { double x,y; } mypair;
@@ -62,125 +62,128 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
             int end;
             """))
 
-    val lastDecl = ast.defs.last.entry
+  val lastDecl = ast.defs.last.entry
 
-    test("parse struct decl") {
+  test("parse struct decl") {
 
-        val env: StructEnv = lookupEnv(lastDecl).structEnv
-
-
-        println(env.env)
-
-        //struct should be in environement
-        env.isDefined("account", false) should be(True)
-        env.isDefined("account", true) should be(False) //not a union
-
-        env.isDefined("uaccount", false) should be(False)
-        env.isDefined("uaccount", true) should be(True) //a union
-
-        env.isDefined("announcedStruct", false) should be(True) //announced structs should be in the environement, but empty
-        env.get("announcedStruct", false) should be('isEmpty)
-
-        val accountStruct = env.get("account", false)
-
-        //should have field "firstname"
-        accountStruct contains "first_name" should be(true)
-        //should have correct type
-        val firstname = accountStruct("first_name")
-        val balance = accountStruct("balance")
-
-        balance should be(One(CFloat()))
-        firstname should be(One(CPointer(CChar())))
-
-    }
-
-    test("variable environment") {
-        val env = lookupEnv(lastDecl).varEnv
-
-        env("foo") should be(_i)
-        env("bar") should be(_i)
-        env("a") should be(One(CPointer(CStruct("account"))))
-        env("ua") should be(One(CPointer(CStruct("uaccount", true))))
-        env("acc") should be(One(CStruct("account")))
-        env("main") should be(One(CFunction(Seq(CDouble()), CVoid())))
-
-        env("i") should be(One(CFunction(Seq(CDouble(), CPointer(CFunction(Seq(CVoid()), CVoid()))), CSigned(CInt()))))
-        env("inner") should be(One(CDouble()))
-    }
-
-    test("variable scoping") {
-        t()
-    }
-
-    def t() {
-        //finding but last statement in last functiondef
-        val fundef = ast.defs.takeRight(3).head.entry.asInstanceOf[FunctionDef]
-        val lastStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry
-        val env = lookupEnv(lastStmt).varEnv
-
-        println(env)
-
-        env("inner") should be(_i)
-        env("foo") should be(One(CDouble()))
-
-        //parameters should be in scope
-        env("param") should be(One(CDouble()))
-        env("param2") should be(One(CPointer(CFunction(Seq(CVoid()), CVoid()))))
-
-        //nested functions should be in scope
-        env("square") should be(One(CFunction(List(CDouble()), CDouble())))
-    }
-
-    test("nested functions (lexical) scoping") {
-        //finding last statement in nested function in last functiondef
-        val fundef = ast.defs.takeRight(3).head.entry.asInstanceOf[FunctionDef]
-        val nestedFundef = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.tail.head.entry.asInstanceOf[NestedFunctionDef]
-        val stmt = nestedFundef.stmt.innerStatements.head.entry
-        val env = lookupEnv(stmt).varEnv
-
-        env("z") should be(One(CDouble()))
-        env("inner") should be(_i)
-    }
+    val env: StructEnv = lookupEnv(lastDecl).structEnv
 
 
-    test("typedef synonyms") {
-        val env = lookupEnv(lastDecl).varEnv
-        val typedefs = lookupEnv(lastDecl).typedefEnv
+    println(env.env)
 
-        typedefs("myint") should be(_i)
-        typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(),Id("x"),List()), One(CDouble())))))
-        typedefs("myunsign") should be(One(CUnsigned(CInt())))
+    //struct should be in environement
+    env.isDefined("account", false) should be(True)
+    env.isDefined("account", true) should be(False) //not a union
 
-        //typedef is not a declaration
-        env.contains("myint") should be(false)
-        env.contains("mystr") should be(false)
+    env.isDefined("uaccount", false) should be(False)
+    env.isDefined("uaccount", true) should be(True) //a union
 
-        env("myintvar") should be(_i)
-        env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(),Id("x"),List()), One(CDouble()))))))
-        env("mypairvar") should be(One(CStruct("pair")))
+    env.isDefined("announcedStruct", false) should be(True) //announced structs should be in the environement, but empty
+    env.get("announcedStruct", false) should be('isEmpty)
 
-        //structure definitons should be recognized despite typedefs
-        val structenv: StructEnv = lookupEnv(ast.defs.last.entry).structEnv
-        structenv.isDefined("pair", false) should be(True)
-        structenv.isDefined("mystr", false) should be(False)
+    val accountStruct = env.get("account", false)
 
-        typedefs("transunion") should be(One(CIgnore()))
-    }
+    //should have field "firstname"
+    accountStruct contains "first_name" should be(true)
+    //should have correct type
+    val firstname = accountStruct("first_name")
+    val balance = accountStruct("balance")
+
+    balance should be(One(CFloat()))
+    firstname should be(One(CPointer(CChar())))
+
+    val envvar = lookupEnv(lastDecl).varEnv
+    println("test: " + envvar.getAstOrElse("i", null))
+
+  }
+
+  test("variable environment") {
+    val env = lookupEnv(lastDecl).varEnv
+
+    env("foo") should be(_i)
+    env("bar") should be(_i)
+    env("a") should be(One(CPointer(CStruct("account"))))
+    env("ua") should be(One(CPointer(CStruct("uaccount", true))))
+    env("acc") should be(One(CStruct("account")))
+    env("main") should be(One(CFunction(Seq(CDouble()), CVoid())))
+
+    env("i") should be(One(CFunction(Seq(CDouble(), CPointer(CFunction(Seq(CVoid()), CVoid()))), CSigned(CInt()))))
+    env("inner") should be(One(CDouble()))
+  }
+
+  test("variable scoping") {
+    t()
+  }
+
+  def t() {
+    //finding but last statement in last functiondef
+    val fundef = ast.defs.takeRight(3).head.entry.asInstanceOf[FunctionDef]
+    val lastStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry
+    val env = lookupEnv(lastStmt).varEnv
+
+    println(env)
+
+    env("inner") should be(_i)
+    env("foo") should be(One(CDouble()))
+
+    //parameters should be in scope
+    env("param") should be(One(CDouble()))
+    env("param2") should be(One(CPointer(CFunction(Seq(CVoid()), CVoid()))))
+
+    //nested functions should be in scope
+    env("square") should be(One(CFunction(List(CDouble()), CDouble())))
+  }
+
+  test("nested functions (lexical) scoping") {
+    //finding last statement in nested function in last functiondef
+    val fundef = ast.defs.takeRight(3).head.entry.asInstanceOf[FunctionDef]
+    val nestedFundef = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.tail.head.entry.asInstanceOf[NestedFunctionDef]
+    val stmt = nestedFundef.stmt.innerStatements.head.entry
+    val env = lookupEnv(stmt).varEnv
+
+    env("z") should be(One(CDouble()))
+    env("inner") should be(_i)
+  }
 
 
-    test("typedefEnv cycle") {
-        val ast = (compileCode("""
+  test("typedef synonyms") {
+    val env = lookupEnv(lastDecl).varEnv
+    val typedefs = lookupEnv(lastDecl).typedefEnv
+
+    typedefs("myint") should be(_i)
+    typedefs("mystr") should be(One(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), One(CDouble())))))
+    typedefs("myunsign") should be(One(CUnsigned(CInt())))
+
+    //typedef is not a declaration
+    env.contains("myint") should be(false)
+    env.contains("mystr") should be(false)
+
+    env("myintvar") should be(_i)
+    env("mystrvar") should be(One(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), One(CDouble()))))))
+    env("mypairvar") should be(One(CStruct("pair")))
+
+    //structure definitons should be recognized despite typedefs
+    val structenv: StructEnv = lookupEnv(ast.defs.last.entry).structEnv
+    structenv.isDefined("pair", false) should be(True)
+    structenv.isDefined("mystr", false) should be(False)
+
+    typedefs("transunion") should be(One(CIgnore()))
+  }
+
+
+  test("typedefEnv cycle") {
+    val ast = (compileCode("""
             typedef int myint;
             typedef myint mymyint;
             mymyint inner;
             """))
-        val typedefs = lookupEnv(ast.defs.last.entry).typedefEnv
-        println(typedefs)
-        //expect no exception due to cyclic dependencies anymore
-    }
+    val typedefs = lookupEnv(ast.defs.last.entry).typedefEnv
+    println(typedefs)
+    //expect no exception due to cyclic dependencies anymore
+  }
 
-    test("enum environment and lookup") {
-        val ast = (compileCode("""
+  test("enum environment and lookup") {
+    val ast = (compileCode("""
             enum Direction { North, South, East, West };
             enum Color { Red, Green, Blue };
             enum Direction d = South;
@@ -188,25 +191,25 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
             enum Undef x = Red;
             enum Direction e = Undef;
             """))
-        val env = lookupEnv(ast.defs.last.entry).varEnv
-        val enumenv = lookupEnv(ast.defs.last.entry).enumEnv
+    val env = lookupEnv(ast.defs.last.entry).varEnv
+    val enumenv = lookupEnv(ast.defs.last.entry).enumEnv
 
-        enumenv should contain key ("Direction")
-        enumenv should contain key ("Color")
-        enumenv should not contain key("Undef")
+    enumenv should contain key ("Direction")
+    enumenv should contain key ("Color")
+    enumenv should not contain key("Undef")
 
-        env("North") should be(_i)
-        env("South") should be(_i)
-        env("Red") should be(_i)
-        env("Green") should be(_i)
-        env("d") should be(_ui)
-        env("e") should be(_ui)
-        //        env("x").sometimesUnknown should be(One(true) TODO
-        env("Undef") should be(One(CUndefined))
-    }
+    env("North") should be(_i)
+    env("South") should be(_i)
+    env("Red") should be(_i)
+    env("Green") should be(_i)
+    env("d") should be(_ui)
+    env("e") should be(_ui)
+    //        env("x").sometimesUnknown should be(One(true) TODO
+    env("Undef") should be(One(CUndefined))
+  }
 
-    test("anonymous struct and typedef") {
-        val ast = (compileCode("""
+  test("anonymous struct and typedef") {
+    val ast = (compileCode("""
             typedef struct {
              volatile long counter;
             } atomic64_t;
@@ -218,20 +221,20 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
              return (long)atomic64_sub_return(i, v);
             }
         """))
-        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
-        val env = lookupEnv(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry).varEnv
-        println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
-        println(env)
-        env("v") match {
-            case One(CPointer(CAnonymousStruct(_, _))) =>
-            case e => fail(e.toString)
-        }
+    val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+    val env = lookupEnv(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry).varEnv
+    println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
+    println(env)
+    env("v") match {
+      case One(CPointer(CAnonymousStruct(_, _))) =>
+      case e => fail(e.toString)
     }
+  }
 
-    test("anonymous structs nested") {
-        //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
-        //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
-        val ast = compileCode("""
+  test("anonymous structs nested") {
+    //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
+    //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+    val ast = compileCode("""
           struct stra { double a1, a2; };
           struct {
             struct {
@@ -253,24 +256,24 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
             int b3 = foo.b3;
             return 0;
           }""")
-        val env = lookupEnv(ast.defs.last.entry).varEnv
-        println(env)
-        env("foo") match {
-            case One(CAnonymousStruct(members, false)) =>
-                members("b3") should be(_i)
-                members("b1") should be(_i)
-                members("b2") should be(_i)
-                members("f1") should be(One(CFloat()))
-                members("i1") should be(_i)
-            //                members("a1") should be(CDouble()) //TODO, not implemented yet
-            //                members("a2") should be(CDouble())
-            case e => fail(e.toString)
-        }
+    val env = lookupEnv(ast.defs.last.entry).varEnv
+    println(env)
+    env("foo") match {
+      case One(CAnonymousStruct(members, false)) =>
+        members("b3") should be(_i)
+        members("b1") should be(_i)
+        members("b2") should be(_i)
+        members("f1") should be(One(CFloat()))
+        members("i1") should be(_i)
+      //                members("a1") should be(CDouble()) //TODO, not implemented yet
+      //                members("a2") should be(CDouble())
+      case e => fail(e.toString)
     }
+  }
 
 
-    test("typedef environment") {
-        val ast = (compileCode("""
+  test("typedef environment") {
+    val ast = (compileCode("""
             typedef struct {
                 long counter;
             } a;
@@ -278,18 +281,18 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
             void foo() {}
         """))
-        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+    val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
 
-        val tdenv = lookupEnv(fundef).typedefEnv
+    val tdenv = lookupEnv(fundef).typedefEnv
 
-        println(tdenv)
+    println(tdenv)
 
-        assert(wellformed(null, null, tdenv("a")))
-        assert(wellformed(null, null, tdenv("b")))
-    }
+    assert(wellformed(null, null, tdenv("a")))
+    assert(wellformed(null, null, tdenv("b")))
+  }
 
-    test("conditional typedef environment") {
-        val ast = (compileCode("""
+  test("conditional typedef environment") {
+    val ast = (compileCode("""
         #ifdef X
             typedef int a;
         #else
@@ -302,20 +305,20 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
             void foo() {}
         """))
-        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+    val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
 
-        val tdenv = lookupEnv(fundef).typedefEnv
-        val env = lookupEnv(fundef).varEnv
+    val tdenv = lookupEnv(fundef).typedefEnv
+    val env = lookupEnv(fundef).varEnv
 
-        println("tdenv: " + tdenv)
+    println("tdenv: " + tdenv)
 
-        env("v") should be(Choice(fx.not, _l, _i))
-        env("w") should equal(env("v"))
-    }
+    env("v") should be(Choice(fx.not, _l, _i))
+    env("w") should equal(env("v"))
+  }
 
 
-    test("conditional enum environment") {
-        val ast = (compileCode("""
+  test("conditional enum environment") {
+    val ast = (compileCode("""
             enum Direction {
                 #ifdef X
                     South,
@@ -340,37 +343,37 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
             #endif
             int end;
             """))
-        val env = lookupEnv(ast.defs.last.entry).varEnv
-        val enumenv = lookupEnv(ast.defs.last.entry).enumEnv
+    val env = lookupEnv(ast.defs.last.entry).varEnv
+    val enumenv = lookupEnv(ast.defs.last.entry).enumEnv
 
-        enumenv should contain key ("Direction")
-        enumenv should contain key ("Color")
-        enumenv should not contain key("Undef")
+    enumenv should contain key ("Direction")
+    enumenv should contain key ("Color")
+    enumenv should not contain key("Undef")
 
-        enumenv("Direction") should be(True)
-        enumenv("Color") should be(fy or fx)
+    enumenv("Direction") should be(True)
+    enumenv("Color") should be(fy or fx)
 
-        env("South") should be(Choice(fx, _i, One(CUndefined)))
-        env("North") should be(_i)
-        env("East") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined))))
-        env("West") should be(_i)
-        env("Red") should be(Choice(fy, _i, One(CUndefined)))
-        env("Blue") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined))))
-    }
+    env("South") should be(Choice(fx, _i, One(CUndefined)))
+    env("North") should be(_i)
+    env("East") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined))))
+    env("West") should be(_i)
+    env("Red") should be(Choice(fy, _i, One(CUndefined)))
+    env("Blue") should be(Choice(fx, _i, Choice(fy, _i, One(CUndefined))))
+  }
 
-    test("enum forward declaration") {
-        val ast = (compileCode("""
+  test("enum forward declaration") {
+    val ast = (compileCode("""
                     enum Direction;
                     int end;
                     """))
-        val enumenv = lookupEnv(ast.defs.last.entry).enumEnv
+    val enumenv = lookupEnv(ast.defs.last.entry).enumEnv
 
-        enumenv should contain key ("Direction")
-    }
+    enumenv should contain key ("Direction")
+  }
 
 
-    test("conditional structs") {
-        val ast = (compileCode("""
+  test("conditional structs") {
+    val ast = (compileCode("""
             struct s1 {
                 #ifdef X
                 int a;
@@ -420,62 +423,62 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
             void foo() {}
         """))
 
-        println(ast)
+    println(ast)
 
-        val structenv: StructEnv = lookupEnv(ast.defs.last.entry).structEnv
+    val structenv: StructEnv = lookupEnv(ast.defs.last.entry).structEnv
 
-        println(structenv)
+    println(structenv)
 
-        structenv.isDefined("s1", false) should be(True)
-        structenv.isDefined("s2", false) should be(fx)
-        structenv.isDefined("s3", false) should be(fx or fy)
+    structenv.isDefined("s1", false) should be(True)
+    structenv.isDefined("s2", false) should be(fx)
+    structenv.isDefined("s3", false) should be(fx or fy)
 
-        val structS1 = structenv.get("s1", false)
-        structS1("b") should be(_i)
-        structS1("a") should be(x_i)
-        structS1("c") should be(Choice(fx.not, _l, _i))
-        structS1("d") should be(Choice(fx.not and fy, _l, Choice(fx, _i, One(CUndefined))))
+    val structS1 = structenv.get("s1", false)
+    structS1("b") should be(_i)
+    structS1("a") should be(x_i)
+    structS1("c") should be(Choice(fx.not, _l, _i))
+    structS1("d") should be(Choice(fx.not and fy, _l, Choice(fx, _i, One(CUndefined))))
 
-        val structS2 = structenv.get("s2", false)
-        structS2("a") should be(Choice(fx, _i, One(CUndefined)))
-        structS2("b") should be(Choice(fx and fy, _i, One(CUndefined)))
+    val structS2 = structenv.get("s2", false)
+    structS2("a") should be(Choice(fx, _i, One(CUndefined)))
+    structS2("b") should be(Choice(fx and fy, _i, One(CUndefined)))
 
-        val structS3 = structenv.get("s3", false)
-        ConditionalLib.equals(
-            structS3("a"),
-            Choice(fx, _l, One(CUndefined))) should be(true)
-        ConditionalLib.equals(
-            structS3("b"),
-            Choice(fx, _l, Choice(fy, _i, One(CUndefined)))) should be(true)
-
-
-        val venv = lookupEnv(ast.defs.last.entry).varEnv
+    val structS3 = structenv.get("s3", false)
+    ConditionalLib.equals(
+      structS3("a"),
+      Choice(fx, _l, One(CUndefined))) should be(true)
+    ConditionalLib.equals(
+      structS3("b"),
+      Choice(fx, _l, Choice(fy, _i, One(CUndefined)))) should be(true)
 
 
-        venv("vs1") should be(One(CStruct("s1", false)))
-        venv("vvs1") should be(One(CStruct("s1", false)))
-        venv("vs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined)))
-        venv("vvs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined)))
-        ConditionalLib.equals(
-            venv("vs3"),
-            Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined))) should be(true)
-        ConditionalLib.equals(
-            venv("vvs3"),
-            Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined))) should be(true)
+    val venv = lookupEnv(ast.defs.last.entry).varEnv
 
 
-        //anonymous struct
-        venv("vs4") match {
-            case One(CAnonymousStruct(fields, false)) =>
-                fields("a") should be(_i)
-                fields("b") should be(Choice(fy, _i, One(CUndefined)))
-            case e => fail("vs4 illtyped: " + e)
-        }
+    venv("vs1") should be(One(CStruct("s1", false)))
+    venv("vvs1") should be(One(CStruct("s1", false)))
+    venv("vs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined)))
+    venv("vvs2") should be(Choice(fx, One(CStruct("s2", false)), One(CUndefined)))
+    ConditionalLib.equals(
+      venv("vs3"),
+      Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined))) should be(true)
+    ConditionalLib.equals(
+      venv("vvs3"),
+      Choice(fx or fy, One(CStruct("s3", false)), One(CUndefined))) should be(true)
 
+
+    //anonymous struct
+    venv("vs4") match {
+      case One(CAnonymousStruct(fields, false)) =>
+        fields("a") should be(_i)
+        fields("b") should be(Choice(fy, _i, One(CUndefined)))
+      case e => fail("vs4 illtyped: " + e)
     }
 
-    test("conditional variable environment") {
-        val ast = (compileCode("""
+  }
+
+  test("conditional variable environment") {
+    val ast = (compileCode("""
 
             int a;
             #ifdef X
@@ -507,31 +510,31 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
 
 
-        val venv = lookupEnv(ast.defs.last.entry).varEnv
+    val venv = lookupEnv(ast.defs.last.entry).varEnv
 
-        val fundef = ast.defs.takeRight(3).head.entry.asInstanceOf[FunctionDef]
-        val fenv = lookupEnv(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry).varEnv
+    val fundef = ast.defs.takeRight(3).head.entry.asInstanceOf[FunctionDef]
+    val fenv = lookupEnv(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry).varEnv
 
-        venv("l") should be(_l)
-        fenv("l") should be(_i)
-        fenv("a") should be(_i)
-        fenv("b") should be(x_i)
-        fenv("c") should be(Choice(fx, _i, _l))
-        venv("x") should be(_i)
-        fenv("x") should be(Choice(fx, _l, _i))
-        fenv("q") should be(x_i)
-        fenv("p") should be(Choice(fx, _l, _i))
-        fenv("r") should be(_i)
-
-
-        //TODO check local redefinition of parameter for validity
-    }
+    venv("l") should be(_l)
+    fenv("l") should be(_i)
+    fenv("a") should be(_i)
+    fenv("b") should be(x_i)
+    fenv("c") should be(Choice(fx, _i, _l))
+    venv("x") should be(_i)
+    fenv("x") should be(Choice(fx, _l, _i))
+    fenv("q") should be(x_i)
+    fenv("p") should be(Choice(fx, _l, _i))
+    fenv("r") should be(_i)
 
 
-    test("recursive and local struct") {
-        //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
-        //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
-        val ast = compileCode("""
+    //TODO check local redefinition of parameter for validity
+  }
+
+
+  test("recursive and local struct") {
+    //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
+    //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+    val ast = compileCode("""
             void foo() {
                 struct mtab_list {
                     char *dir;
@@ -542,28 +545,28 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
                 m->next->dir;
             }
           """)
-        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
-        val exprStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry.asInstanceOf[ExprStatement]
+    val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+    val exprStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry.asInstanceOf[ExprStatement]
 
-        val env = lookupEnv(exprStmt.expr).varEnv
-        env("m") should be(One(CPointer(CStruct("mtab_list", false))))
+    val env = lookupEnv(exprStmt.expr).varEnv
+    env("m") should be(One(CPointer(CStruct("mtab_list", false))))
 
-        val senv = lookupEnv(exprStmt.expr).structEnv
-        senv.get("mtab_list", false) should not be (null)
-        println(senv.get("mtab_list", false))
+    val senv = lookupEnv(exprStmt.expr).structEnv
+    senv.get("mtab_list", false) should not be (null)
+    println(senv.get("mtab_list", false))
 
-        println(exprStmt)
-        val et = lookupExprType(exprStmt.expr)
-        println(et)
-        et should be(One(CObj(CPointer(CSignUnspecified(CChar())))))
+    println(exprStmt)
+    val et = lookupExprType(exprStmt.expr)
+    println(et)
+    et should be(One(CObj(CPointer(CSignUnspecified(CChar())))))
 
-    }
+  }
 
 
-    test("nested structs") {
-        //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
-        //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
-        val ast = compileCode("""
+  test("nested structs") {
+    //unnamed fields of struct or union type are inlined (and should be checked for name clashes)
+    //see http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
+    val ast = compileCode("""
             struct volume_descriptor {
 	            struct descriptor_tag {
 		            float	id;
@@ -582,43 +585,43 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
                 m->tag->id;
             }
           """)
-        val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
-        val exprStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry.asInstanceOf[ExprStatement]
+    val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
+    val exprStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry.asInstanceOf[ExprStatement]
 
-        val env = lookupEnv(exprStmt.expr).varEnv
-        env("m") should be(One(CPointer(CStruct("volume_descriptor", false))))
+    val env = lookupEnv(exprStmt.expr).varEnv
+    env("m") should be(One(CPointer(CStruct("volume_descriptor", false))))
 
-        val senv = lookupEnv(exprStmt.expr).structEnv
-        senv.get("volume_descriptor", false) should not be (null)
-        println(senv.get("volume_descriptor", false))
-        senv.get("descriptor_tag", false) should not be (null)
-        println(senv.get("descriptor_tag", false))
-        senv.get("X", false) should not be (null)
-        println(senv.get("X", false))
-        senv.get("Y", false) should not be (null)
-        println(senv.get("Y", false))
+    val senv = lookupEnv(exprStmt.expr).structEnv
+    senv.get("volume_descriptor", false) should not be (null)
+    println(senv.get("volume_descriptor", false))
+    senv.get("descriptor_tag", false) should not be (null)
+    println(senv.get("descriptor_tag", false))
+    senv.get("X", false) should not be (null)
+    println(senv.get("X", false))
+    senv.get("Y", false) should not be (null)
+    println(senv.get("Y", false))
 
-        println(exprStmt)
-        val et = lookupExprType(exprStmt.expr)
-        println(et)
-        et should be(One(CObj(CFloat())))
+    println(exprStmt)
+    val et = lookupExprType(exprStmt.expr)
+    println(et)
+    et should be(One(CObj(CFloat())))
 
-    }
+  }
 
-    test("test __mode__ attribute") {
-        //for now, no support for __mode__ and set to ignore to avoid false negatives
-        val ast = compileCode("""
+  test("test __mode__ attribute") {
+    //for now, no support for __mode__ and set to ignore to avoid false negatives
+    val ast = compileCode("""
                 typedef unsigned int a __attribute__ ((__mode__ (__QI__)));
                 a b;
             """)
-        val env = lookupEnv(ast.defs.last.entry).typedefEnv
-        env("a") should be(One(CIgnore()))
-    }
+    val env = lookupEnv(ast.defs.last.entry).typedefEnv
+    env("a") should be(One(CIgnore()))
+  }
 
-    test("scope of enum in struct") {
-        //did not find a proper specification, but cf
-        //http://forums.whirlpool.net.au/archive/1689677
-        val ast = compileCode("""
+  test("scope of enum in struct") {
+    //did not find a proper specification, but cf
+    //http://forums.whirlpool.net.au/archive/1689677
+    val ast = compileCode("""
             struct lzma2_dec {
                 enum lzma2_seq {
                         SEQ_CONTROL,
@@ -629,11 +632,11 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
             };
             int a=SEQ_COPY;
             """)
-        val last = lookupEnv(ast.defs.last.entry)
-        last.varEnv("uncompressed") should be(One(CUnknown()))
-        last.varEnv("SEQ_COPY") should be(_i)
+    val last = lookupEnv(ast.defs.last.entry)
+    last.varEnv("uncompressed") should be(One(CUnknown()))
+    last.varEnv("SEQ_COPY") should be(_i)
 
-        last.enumEnv("lzma2_seq") should be(FeatureExprFactory.True)
-    }
+    last.enumEnv("lzma2_seq") should be(FeatureExprFactory.True)
+  }
 
 }

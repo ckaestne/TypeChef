@@ -8,8 +8,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface {
-
+trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface with CDefUse {
 
     /**
      * types an expression in an environment, returns a new
@@ -113,6 +112,17 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
                             case Opt(f, e) => Opt(f, etF(e, featureExpr and f))
                         })
+
+                        // defuse chain
+                        expr match {
+                          case i@Id(name) => {
+                            env.varEnv.getAstOrElse(name, null) match {
+                              case One(defelem) => defuse.put(defelem, defuse.get(defelem) ++ List(i))
+                              case _ => assert(false, "choice not expected here")
+                            }
+                          }
+                        }
+
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
                             (fexpr: FeatureExpr, funType: CType, paramTypes: List[CType]) =>
@@ -309,7 +319,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b))))
 
 
-    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType], funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
+    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
+                                 funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
         checkStructs(retType, featureExpr, env, expr)
         parameterTypes.map(checkStructs(_, featureExpr, env, expr))
 
