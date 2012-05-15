@@ -61,9 +61,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 issueTypeError(Severity.Crash, f, "not a function", declarator)
         })
 
-        val expectedReturnType = funType.mapf(featureExpr, {
+        val expectedReturnType: Conditional[CType] = funType.mapf(featureExpr, {
             case (f, CFunction(_, returnType)) => returnType
-            case (f, other) => issueTypeError(Severity.Crash, f, "not a function type: " + other, declarator)
+            case (f, other) => reportTypeError(f, "not a function type: " + other, declarator, Severity.Crash)
         }).simplify(featureExpr)
 
         val kind = KDefinition
