@@ -312,7 +312,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
     println("tdenv: " + tdenv)
 
-    env("v") should be(Choice(fx.not, _l, _i))
+    env("v") should be(Choice(fx.not(), _l, _i))
     env("w") should equal(env("v"))
   }
 
@@ -436,7 +436,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
     val structS1 = structenv.get("s1", false)
     structS1("b") should be(_i)
     structS1("a") should be(x_i)
-    structS1("c") should be(Choice(fx.not, _l, _i))
+    structS1("c") should be(Choice(fx.not(), _l, _i))
     structS1("d") should be(Choice(fx.not and fy, _l, Choice(fx, _i, One(CUndefined))))
 
     val structS2 = structenv.get("s2", false)
