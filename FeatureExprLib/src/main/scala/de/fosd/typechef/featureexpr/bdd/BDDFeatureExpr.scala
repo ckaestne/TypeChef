@@ -328,7 +328,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      */
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
 
-    def getConfIfSimpleExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
+    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
         // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
         assert(! this.isInstanceOf[SingleFeatureExpr])
         var enabled : Set[SingleFeatureExpr] = Set()
@@ -336,7 +336,6 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         def isTrue(x:BDD) = x.isOne
         def isFalse(x:BDD) = x.isZero
 
-        var finished : Boolean = false
         var currentBDD : BDD = this.bdd
         while (! isTrue(currentBDD)) {
             if (isFalse(currentBDD)) {
@@ -358,10 +357,40 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                 return None
             }
         }
-        return Option(enabled,disabled)
+        return Some(enabled,disabled)
+    }
+    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
+        // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
+        assert(! this.isInstanceOf[SingleFeatureExpr])
+        var enabled : Set[SingleFeatureExpr] = Set()
+        var disabled : Set[SingleFeatureExpr] = Set()
+        def isTrue(x:BDD) = x.isOne
+        def isFalse(x:BDD) = x.isZero
+
+        var currentBDD : BDD = this.bdd
+        while (! isFalse(currentBDD)) {
+            if (isTrue(currentBDD)) {
+                // this is a tautology, but i have problems expressing it
+                return None
+            }
+            // bdd.var should be the same int as in lookup-functions, hopefully
+            val predicate = new SingleBDDFeatureExpr(currentBDD.`var`())
+            val thenbranch:BDD = currentBDD.high()
+            val elsebranch:BDD = currentBDD.low()
+            if (isTrue(thenbranch)) {
+                enabled += predicate
+                currentBDD = elsebranch
+            } else if (isTrue(elsebranch)) {
+                disabled += predicate
+                currentBDD = thenbranch
+            } else {
+                // expression is more complex
+                return None
+            }
+        }
+        return Some(enabled,disabled)
     }
 }
-
 class SingleBDDFeatureExpr(id:Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
     def feature = lookupFeatureName(id)
 }

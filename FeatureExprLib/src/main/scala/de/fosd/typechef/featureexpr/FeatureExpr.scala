@@ -41,7 +41,8 @@ trait FeatureExpr {
      * If the expression is more complex, None is returned.
      * @return
      */
-  def getConfIfSimpleExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])]
+  def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])]
+  def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])]
 
   final def orNot(that: FeatureExpr) = this or (that.not)
   final def andNot(that: FeatureExpr) = this and (that.not)
