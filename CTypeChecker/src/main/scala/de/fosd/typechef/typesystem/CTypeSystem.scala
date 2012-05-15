@@ -61,7 +61,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 issueTypeError(Severity.Crash, f, "not a function", declarator)
         })
 
-        val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
+        val expectedReturnType = funType.mapf(featureExpr, {
+            case (f, CFunction(_, returnType)) => returnType
+            case (f, other) => issueTypeError(Severity.Crash, f, "not a function type: " + other, declarator)
+        }).simplify(featureExpr)
+
         val kind = KDefinition
 
         //redeclaration?
@@ -390,7 +394,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             })
         case SizeOfExprT(_) => One(VAnyInt())
         case SizeOfExprU(_) => One(VAnyInt())
-        case BuiltinOffsetof(_,_)=> One(VAnyInt())
+        case BuiltinOffsetof(_, _) => One(VAnyInt())
 
         case _ => One(VUnknown())
     })
@@ -401,8 +405,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 case (VInt(a), "+", VInt(b)) => VInt(a + b)
                 case (VInt(a), "-", VInt(b)) => VInt(a - b)
                 case (VInt(a), "*", VInt(b)) => VInt(a * b)
-                case (VAnyInt(), op, VInt(_)) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=","&&","||") contains op) => VAnyInt()
-                case (VInt(_), op, VAnyInt()) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=","&&","||") contains op) => VAnyInt()
+                case (VAnyInt(), op, VInt(_)) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=", "&&", "||") contains op) => VAnyInt()
+                case (VInt(_), op, VAnyInt()) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=", "&&", "||") contains op) => VAnyInt()
                 case (VInt(a), "&&", VInt(b)) => VInt(if (a != 0 && b != 0) 1 else 0)
                 case (VInt(0), "&&", _) => VInt(0)
                 case (_, "&&", VInt(0)) => VInt(0)
