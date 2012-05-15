@@ -42,7 +42,7 @@ trait CEnv {
         //typedefenv
         private def updateTypedefEnv(newTypedefEnv: ConditionalTypeMap) = if (newTypedefEnv == typedefEnv) this else new Env(newTypedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope)
         def addTypedefs(typedefs: ConditionalTypeMap) = updateTypedefEnv(typedefEnv ++ typedefs)
-        def addTypedefs(typedefs: Seq[(String, FeatureExpr, AST, Conditional[CType])]) = updateTypedefEnv(typedefEnv ++ typedefs)
+        def addTypedefs(typedefs: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = updateTypedefEnv(typedefEnv ++ typedefs)
         def addTypedef(name: String, f: FeatureExpr, d: AST, t: Conditional[CType]) = updateTypedefEnv(typedefEnv +(name, f, d, t))
 
         //expectedReturnType

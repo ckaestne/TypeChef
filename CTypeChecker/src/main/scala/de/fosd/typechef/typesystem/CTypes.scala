@@ -220,7 +220,7 @@ case class CObj(t: CType) extends CType {
     override def toObj = this
     //no CObj(CObj(...))
     override def toValue: CType = t match {
-        case CArray(t, _) => CPointer(t)
+        case CArray(g, _) => CPointer(g)
         case _ => t
     }
     override def isObject = true
@@ -248,7 +248,7 @@ case class CCompound() extends CType {
  */
 case class CIgnore() extends CType {
     def toXML = <ignore/>
-    override def isIgnore() = true
+    override def isIgnore = true
 }
 
 
@@ -318,7 +318,7 @@ object CType {
  * internally storing Type, whether its a definition (as opposed to a declaration), and the current scope idx
  */
 class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
-    extends ConditionalCMap[AST, CType](m) {
+    extends ConditionalCMap[CType](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
@@ -327,7 +327,7 @@ class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
 }
 
 class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int)])])
-    extends ConditionalCMap[AST, (CType, DeclarationKind, Int)](m) {
+    extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
     def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
@@ -343,18 +343,18 @@ class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, Decl
  * too get the corresponding AST elements call the respective functions (getASTOrElse, ..)
  *
  */
-abstract class ConditionalCMap[A >: AST, T](protected val m: ConditionalMap[String, (A, Conditional[T])]) {
+abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, (AST, Conditional[T])]) {
     /**
      * apply returns a type, possibly CUndefined or a
      * choice type
      *
      * returns only the type information, not the ast
      */
-    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(getFullOrElse(name, (null, One(errorType))).map(_._2)) simplify
+    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(getFullOrElse(name, (null, One(errorType))).map(_._2))
 
-    def getAstOrElse(name: String, errorNode: A): Conditional[A] = getFullOrElse(name, (errorNode, null)).map(_._1)
+    def getAstOrElse(name: String, errorNode: AST): Conditional[AST] = getFullOrElse(name, (errorNode, null)).map(_._1)
 
-    def getFullOrElse(name: String, errorNode: (A, Conditional[T])): Conditional[(A, Conditional[T])] = m.getOrElse(name, errorNode)
+    def getFullOrElse(name: String, errorNode: (AST, Conditional[T])): Conditional[(AST, Conditional[T])] = m.getOrElse(name, errorNode)
 
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
@@ -467,7 +467,7 @@ trait CTypes extends COptionProvider {
         //assignment pointer = 0
         if (isPointer(t1) && isZero(t2)) return true
 
-        return false
+        false
     }
 
     private def funCompatible(t1: CType, t2: CType): Boolean = (t1, t2) match {
@@ -526,7 +526,7 @@ trait CTypes extends COptionProvider {
                 case i: CIgnore => i
                 case e => CPointer(e)
             }
-        case CArray(t, _) => normalizeA(CPointer(t)) //TODO do this recursively for all occurences of Array
+        case CArray(g, _) => normalizeA(CPointer(g)) //TODO do this recursively for all occurences of Array
         case CFunction(p, rt) => CFunction(p.map(normalizeA).filter(_ != CVoid()), normalizeA(rt))
         case c => c
     }

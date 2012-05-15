@@ -401,11 +401,11 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     //    private def outerTypedefEnv(e: AST): ConditionalTypeMap =
     //        outer[ConditionalTypeMap](typedefEnv, () => new ConditionalTypeMap(), e)
     //
-    protected def recognizeTypedefs(decl: Declaration, featureExpr: FeatureExpr, env: Env): Seq[(String, FeatureExpr, AST, Conditional[CType])] = {
+    protected def recognizeTypedefs(decl: Declaration, featureExpr: FeatureExpr, env: Env): Seq[(String, FeatureExpr, (AST, Conditional[CType]))] = {
         if (isTypedef(decl.declSpecs))
             (for (Opt(f, init) <- decl.init) yield
-                (init.getName, featureExpr and f, decl,
-                    declType(decl.declSpecs, init.declarator, init.attributes, featureExpr and f, env)))
+                (init.getName, featureExpr and f, (decl,
+                    declType(decl.declSpecs, init.declarator, init.attributes, featureExpr and f, env))))
         else Seq()
     }
 
