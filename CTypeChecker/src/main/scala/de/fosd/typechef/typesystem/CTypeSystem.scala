@@ -43,7 +43,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case fun@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
                 val (funType, newEnv) = checkFunction(fun, specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
                 typedFunction(fun, funType, featureExpr)
-                addDef(fun)
                 newEnv
         }
     }
@@ -69,6 +68,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         //add type to environment for remaining code
         val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
+        addDef(f)
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), KDeclaration, env.scope + 1).setExpectedReturnType(expectedReturnType)

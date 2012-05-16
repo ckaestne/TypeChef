@@ -30,11 +30,12 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addDef(f: FunctionDef) {
+  def addDef(f: CDef) {
     f match {
       // TODO specifiers and parameters
       // parameters are definitions for uses in stmt
       case FunctionDef(specifiers, declarator, oldStyleParameters, _) => addSimpleDeclaratorDef(declarator)
+      case _ =>
     }
   }
 
@@ -48,6 +49,7 @@ trait CDefUse extends CEnv {
             val key = getSimpleDeclaratorDef(declarator)
             defuse.put(key, defuse.get(key) ++ List(i))
           }
+          case _ =>
         }
       }
       case _ =>
