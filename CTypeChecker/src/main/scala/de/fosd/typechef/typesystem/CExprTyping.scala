@@ -88,8 +88,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 One(reportTypeError(f, "invalid ." + id + " on " + p + " (" + e + ")", p))
                         })
                     //e->n (by rewrite to &e.n)
-                    case p@PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
-                        val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id)))
+                    case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
+                        val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
                         et(newExpr)
                     //(a)b
                     case ce@CastExpr(targetTypeName, expr) =>
