@@ -469,7 +469,7 @@ main (int argc, char **argv)
     {
       return *(block*)0;
     }
-
+  test();
   return 0;
 }
         """, p.functionDef)

@@ -44,21 +44,6 @@ trait CTypeSystemInterface extends CEnv {
     protected def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) {}
 
 
-    /**
-     * helper stuff
-     */
-    object Severity extends Enumeration {
-        type Severity = Value
-        val Crash = Value("Critical") //Type-System crashes (e.g. unimplemented parts)
-        val IdLookupError = Value("Id-Lookup Error") // severe errors during lookup of id
-        val FieldLookupError = Value("Field-Lookup Error") // severe errors during lookup of fields
-        val TypeLookupError = Value("Type-Lookup Error") // severe errors during lookup of id
-        val RedeclarationError = Value("Redeclaration Error") // severe errors during lookup of id
-        val OtherError = Value("Error") // other severe type errors
-        val Warning = Value("Warning")
-    }
-
-
     protected def assertTypeSystemConstraint(condition: Boolean, featureExpr: FeatureExpr, msg: String, where: AST): Boolean = {
         if (!condition)
             issueTypeError(Severity.Crash, featureExpr, msg, where)
@@ -69,4 +54,30 @@ trait CTypeSystemInterface extends CEnv {
         issueTypeError(severity, featureExpr, txt, where)
         CUnknown(txt)
     }
+}
+
+/**
+ * helper stuff
+ */
+object Severity extends Enumeration {
+    type Severity = Value
+    //Type-System crashes (e.g. unimplemented parts)
+    val Crash = Value("Critical")
+
+    // severe errors during lookup of id
+    val IdLookupError = Value("Id-Lookup Error")
+
+    // severe errors during lookup of fields
+    val FieldLookupError = Value("Field-Lookup Error")
+
+    // severe errors during lookup of id
+    val TypeLookupError = Value("Type-Lookup Error")
+
+    // severe errors during lookup of id
+    val RedeclarationError = Value("Redeclaration Error")
+
+    // other severe type errors
+    val OtherError = Value("Error")
+
+    val Warning = Value("Warning")
 }

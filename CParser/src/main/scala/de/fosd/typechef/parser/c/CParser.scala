@@ -129,7 +129,9 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         tokenWithContext("type",
             (token, featureContext, typeContext) =>
                 isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || typeContext.knowsType(token.getText, featureContext, featureModel))) ^^ {
-            t => TypeDefTypeSpecifier(Id(t.getText))
+            t => Id(t.getText)
+        } ^^ {
+            TypeDefTypeSpecifier(_)
         }
     def notypedefName =
         tokenWithContext("notype",
@@ -258,8 +260,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         }
 
     def parameterDeclList: MultiParser[List[Opt[ParameterDeclaration]]] =
-        rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt((COMMA | SEMI) ~> VARARGS) ^^ {
-            case l ~ Some(v) => l ++ List(o(VarArgs()));
+        rep1Sep(parameterDeclaration, COMMA | SEMI) ~ opt((COMMA | SEMI) ~> VARARGS ^^^ VarArgs()) ^^ {
+            case l ~ Some(v) => l ++ List(o(v));
             case l ~ None => l
         }
     //    def parameterTypeList: MultiParser[List[Opt[ParameterDeclaration]]] =
@@ -597,8 +599,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     //consumes trailing commas
 
     def offsetofMemberDesignator: MultiParser[List[Opt[OffsetofMemberDesignator]]] =
-        ID ~ repOpt(offsetofMemberDesignatorExt) ^^ {
-            case id ~ list => Opt(True, OffsetofMemberDesignatorID(id)) +: list
+        (ID ^^ {
+            id: Id => OffsetofMemberDesignatorID(id)
+        }) ~ repOpt(offsetofMemberDesignatorExt) ^^ {
+            case id ~ list => Opt(True, id) +: list
         }
 
     def offsetofMemberDesignatorExt: MultiParser[OffsetofMemberDesignator] =

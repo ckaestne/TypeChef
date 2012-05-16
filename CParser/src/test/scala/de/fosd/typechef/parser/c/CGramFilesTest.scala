@@ -4,6 +4,8 @@ import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.junit.Test
+import org.kiama.rewriting.Rewriter._
+
 
 class CGramFilesTest extends TestCase {
     val p = new CParser()
@@ -17,15 +19,25 @@ class CGramFilesTest extends TestCase {
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
+                val emptyLocation = checkPositionInformation(ast.asInstanceOf[Product])
+                assertTrue("found nodes with empty location information", emptyLocation.isEmpty)
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
                 //succeed
             }
             case p.NoSuccess(msg, unparsed, inner) =>
-                fail(msg + " at " + unparsed + " " + inner)
+                Assert.fail(msg + " at " + unparsed + " " + inner)
         }
 
     }
-
+    def checkPositionInformation(ast: Product): List[Product] = {
+        assert(ast != null)
+        var nodeswithoutposition: List[Product] = List()
+        val checkpos = everywherebu(query {
+            case a: AST => if (!a.hasPosition) nodeswithoutposition ::= a
+        })
+        checkpos(ast)
+        nodeswithoutposition
+    }
     //
 
     @Test

@@ -7,10 +7,13 @@ import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.options.LexerOptions;
 import de.fosd.typechef.lexer.options.OptionException;
 import de.fosd.typechef.lexer.options.Options;
+import de.fosd.typechef.parser.Position;
 import de.fosd.typechef.parser.c.ParserOptions;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
+import scala.Function3;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -25,6 +28,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parserStatistics = false,
             parserResults = true,
             writePI = false;
+    File errorXMLFile = null;
     String outputStem = "";
     private String filePresenceConditionFile = "";
 
@@ -40,6 +44,9 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_PARSERSTATS = Options.genOptionId();
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
     private final static char F_BDD = Options.genOptionId();
+    private final static char F_ERRORXML = Options.genOptionId();
+    private Function3<FeatureExpr, String, Position, Object> _renderParserError;
+
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -74,7 +81,11 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                 new Option("filePC", LongOpt.REQUIRED_ARGUMENT, F_FILEPC, "file",
                         "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'."),
                 new Option("bdd", LongOpt.NO_ARGUMENT, F_BDD, null,
-                        "Use BDD engine instead of SAT engine (provide as first parameter).")
+                        "Use BDD engine instead of SAT engine (provide as first parameter)."),
+
+                new Option("errorXML", LongOpt.REQUIRED_ARGUMENT, F_ERRORXML, "file",
+                        "File to store syntax and type errors in XML format.")
+
         ));
         r.add(new OptionGroup("Parser options", 23,
                 new Option("hideparserresults", LongOpt.NO_ARGUMENT, F_HIDEPARSERRESULTS, null,
@@ -121,6 +132,9 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writePI = true;
         } else if (c == F_BDD) {
             de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.bdd());
+        } else if (c == F_ERRORXML) {//--errorXML=file
+            checkFileWritable(g.getOptarg());
+            errorXMLFile = new File(g.getOptarg());
         } else
             return super.interpretOption(c, g);
 
@@ -187,6 +201,16 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     public boolean printParserStatistics() {
         return parserStatistics;
     }
+
+    @Override
+    public Function3<FeatureExpr, String, Position, Object> renderParserError() {
+        return _renderParserError;
+    }
+
+    public void setRenderParserError(Function3<FeatureExpr, String, Position, Object> r) {
+        _renderParserError = r;
+    }
+
 
     public boolean printParserResult() {
         return parserResults;

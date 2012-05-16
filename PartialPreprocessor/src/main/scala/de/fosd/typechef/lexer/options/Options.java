@@ -172,5 +172,10 @@ public abstract class Options {
             throw new OptionException("Expected a directory, found " + file);
     }
 
+    protected void checkFileWritable(String file) throws OptionException {
+        File f = new File(file);
+        if (f.isFile() && (!f.exists() && f.getParentFile().exists()))
+            throw new OptionException("Cannot write file " + file);
+    }
 
 }

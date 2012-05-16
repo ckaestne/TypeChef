@@ -16,12 +16,6 @@ import linker.CInferInterface
 
 class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends CTypeSystem with CInferInterface {
 
-    class TypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) {
-        override def toString =
-            severity.toString.take(1) + " [" + condition + "] " +
-                (if (where == null) "" else where.getPositionFrom + "--" + where.getPositionTo) + "\n\t" + msg
-    }
-
 
     def prettyPrintType(ctype: Conditional[CType]): String =
         Conditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
@@ -72,5 +66,8 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = Fe
 }
 
 
-
-
+class TypeError(val severity: Severity.Severity, val condition: FeatureExpr, val msg: String, val where: AST) {
+    override def toString =
+        severity.toString.take(1) + " [" + condition + "] " +
+            (if (where == null) "" else where.getPositionFrom + "--" + where.getPositionTo) + "\n\t" + msg
+}
