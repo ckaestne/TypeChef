@@ -29,7 +29,7 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def clearDefUseMap = defuse.clear()
+  def clearDefUseMap() { defuse.clear() }
   def getDefUseMap = defuse
 
   def addDef(f: CDef) {
