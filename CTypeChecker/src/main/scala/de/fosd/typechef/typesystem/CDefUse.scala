@@ -10,6 +10,8 @@ import de.fosd.typechef.parser.c._
 trait CDefUse extends CEnv {
   protected val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
 
+  private[typesystem] def clear() {defuse.clear()}
+
   def addExprUse(expr: Expr, env: Env) = {
     expr match {
       case i@Id(name) => {
