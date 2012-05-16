@@ -11,7 +11,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
  *
  * handling of typedef synonyms
  */
-trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
+trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUse {
 
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType]
 
@@ -176,7 +176,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         case CArray(t, _) => checkStructs(t, expr, env, where, checkedStructs)
         case CStruct(name, isUnion) =>
             val declExpr = env.structEnv.isDefined(name, isUnion)
-            if ((expr andNot declExpr).isSatisfiable)
+            if ((expr andNot declExpr).isSatisfiable())
                 reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + name + " not defined. (defined only in context " + declExpr + ")", where, Severity.TypeLookupError)
         case CAnonymousStruct(fields, _) => //check fields
             val fieldTypes = fields.keys.map(k => fields.getOrElse(k, CUnknown()))
@@ -354,6 +354,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
                 structDeclarator match {
                     case StructDeclarator(decl, _, attr) =>
+                        addDeclaratorDef(decl)
                         val ctype = declType(structDeclaration.qualifierList, decl, attr, featureExpr and f and g, env)
                         //for nested structs, we need to add the inner structs to the environment
                         val env2 = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))

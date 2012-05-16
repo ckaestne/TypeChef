@@ -643,6 +643,14 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
     val a = compileCode("""
       int foo() {return 0;}
       int bar() {foo(); foo(); return 0;}
+      struct a {
+        int x;
+      };
+      union b;
+      int spam() {
+        struct a k;
+        k.x = 2;
+      }
     """)
 
     val lastdecl = a.defs.last.entry

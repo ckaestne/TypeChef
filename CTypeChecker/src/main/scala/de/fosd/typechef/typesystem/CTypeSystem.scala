@@ -51,7 +51,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
-        addDeclaratorDef(declarator, env)
+        addDeclaratorDef(declarator)
 
         //structs in signature defined?
         funType.mapf(featureExpr, (f, t) => t.toValue match {
@@ -148,6 +148,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         var env = oldEnv
         //declared struct?
         env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
+        for (Opt(_, initdecl) <- d.init) {
+          addDeclaratorDef(initdecl.declarator)
+        }
+        for (Opt(_, specdecl) <- d.declSpecs) {
+          addSpecifierDef(specdecl)
+        }
+
         //declared enums?
         env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
         //declared typedefs?

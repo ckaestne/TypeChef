@@ -20,17 +20,26 @@ trait CDefUse extends CEnv {
             val key = o.value.asInstanceOf[Id]
             defuse.put(key, defuse.get(key) ++ List(i))
           }
-          case x => assert(false, x + " not expected here; defuse")
+          case x => assert(false, x + " not supported here; defuse")
         }
       }
-      case x => assert(false, x + " not expected here; defuse")
+      case x => assert(false, x + " not supported here; defuse")
     }
   }
 
-  def addDeclaratorDef(decl: Declarator, env: Env) = {
+  def addDeclaratorDef(decl: Declarator) = {
     decl match {
       case AtomicNamedDeclarator(_, i, _) => defuse.put(i, List())
-      case x => assert(false, x + " not expected here; defuse")
+      case x => assert(false, x + " not supported here; defuse")
     }
   }
+
+  def addSpecifierDef(spec: Specifier) = {
+    spec match {
+      case StructOrUnionSpecifier(_, Some(x), _) => defuse.put(x, List())
+      case _ => ;
+    }
+  }
+
+  def addIdDef(i: Id) = {defuse.put(i, List())}
 }
