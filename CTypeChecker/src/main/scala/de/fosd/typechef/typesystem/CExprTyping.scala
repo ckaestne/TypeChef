@@ -114,14 +114,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         })
 
                         // defuse chain
-                        expr match {
-                          case i@Id(name) => {
-                            env.varEnv.getAstOrElse(name, null) match {
-                              case One(defelem) => defuse.put(defelem, defuse.get(defelem) ++ List(i))
-                              case _ => assert(false, "choice not expected here")
-                            }
-                          }
-                        }
+                        addExprUse(expr, env)
 
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
