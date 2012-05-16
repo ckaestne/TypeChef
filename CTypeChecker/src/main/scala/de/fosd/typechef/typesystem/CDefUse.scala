@@ -7,6 +7,10 @@ import de.fosd.typechef.conditional.One
 // store def use chains
 // we store Id elements of AST structures that represent a definition (key element of defuse)
 // and a use (value element of defuse)
+//
+// the creation of defuse chains relies on the typesystem and it's data that is stored
+// in Env instances; during the traversal of the typesystem visitor Env instances get filled
+// with information about names, AST entries and their corresponding types
 trait CDefUse extends CEnv {
   protected val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
 
