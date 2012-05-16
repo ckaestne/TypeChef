@@ -354,7 +354,6 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
             for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
                 structDeclarator match {
                     case StructDeclarator(decl, _, attr) =>
-                        addDeclaratorDef(decl)
                         val ctype = declType(structDeclaration.qualifierList, decl, attr, featureExpr and f and g, env)
                         //for nested structs, we need to add the inner structs to the environment
                         val env2 = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))

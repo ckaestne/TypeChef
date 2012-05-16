@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.parser.c.{CDef, AST}
 
 /**
  * basic types of C and definitions which types are compatible

@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
 import java.util.IdentityHashMap
-import de.fosd.typechef.conditional.One
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional.One
 
 // store def use chains
 // we store Id elements of AST structures that represent a definition (key element of defuse)
@@ -12,34 +12,38 @@ trait CDefUse extends CEnv {
 
   private[typesystem] def clear() {defuse.clear()}
 
-  def addExprUse(expr: Expr, env: Env) = {
-    expr match {
-      case i@Id(name) => {
-        env.varEnv.getAstOrElse(name, null) match {
-          case o: One[_] if (o.value.isInstanceOf[Id]) => {
-            val key = o.value.asInstanceOf[Id]
-            defuse.put(key, defuse.get(key) ++ List(i))
-          }
-          case x => assert(false, x + " not supported here; defuse")
-        }
-      }
-      case x => assert(false, x + " not supported here; defuse")
-    }
-  }
-
-  def addDeclaratorDef(decl: Declarator) = {
+  private def addSimpleDeclaratorDef(decl: Declarator) = {
     decl match {
       case AtomicNamedDeclarator(_, i, _) => defuse.put(i, List())
-      case x => assert(false, x + " not supported here; defuse")
     }
   }
 
-  def addSpecifierDef(spec: Specifier) = {
-    spec match {
-      case StructOrUnionSpecifier(_, Some(x), _) => defuse.put(x, List())
-      case _ => ;
+  private def getSimpleDeclaratorDef(decl: Declarator): Id = {
+    decl match {
+      case AtomicNamedDeclarator(_, i, _) => i
     }
   }
 
-  def addIdDef(i: Id) = {defuse.put(i, List())}
+  def addDef(f: FunctionDef) = {
+    f match {
+      // TODO specifiers and parameters
+      // parameters are definitions for uses in stmt
+      case FunctionDef(specifiers, declarator, oldStyleParameters, _) => addSimpleDeclaratorDef(declarator)
+    }
+  }
+
+  def addUse(f: PostfixExpr, env: Env) = {
+    f match {
+      // TODO params
+      // params are uses of local or global variables
+      case PostfixExpr(i@Id(name), FunctionCall(params)) => {
+        env.varEnv.getAstOrElse(name, null) match {
+          case One(FunctionDef(_, declarator, _, _)) => {
+            val key = getSimpleDeclaratorDef(declarator)
+            defuse.put(key, defuse.get(key) ++ List(i))
+          }
+        }
+      }
+    }
+  }
 }

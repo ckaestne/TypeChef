@@ -42,16 +42,16 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case d: Declaration =>
                 addDeclarationToEnvironment(d, featureExpr, env)
             case fun@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
-                val (funType, newEnv) = checkFunction(specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
+                val (funType, newEnv) = checkFunction(fun, specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
                 typedFunction(fun, funType, featureExpr)
+                addDef(fun)
                 newEnv
         }
     }
 
 
-    private def checkFunction(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
+    private def checkFunction(f: CDef, specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
-        addDeclaratorDef(declarator)
 
         //structs in signature defined?
         funType.mapf(featureExpr, (f, t) => t.toValue match {
@@ -69,11 +69,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
         //add type to environment for remaining code
-        val newEnv =
-          declarator match {
-            case AtomicNamedDeclarator(_, i, _) => env.addVar(declarator.getName, featureExpr, i, funType, kind, env.scope)
-            case x => env.addVar(declarator.getName, featureExpr, x, funType, kind, env.scope)
-          }
+        val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), KDeclaration, env.scope + 1).setExpectedReturnType(expectedReturnType)
@@ -148,12 +144,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         var env = oldEnv
         //declared struct?
         env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
-        for (Opt(_, initdecl) <- d.init) {
-          addDeclaratorDef(initdecl.declarator)
-        }
-        for (Opt(_, specdecl) <- d.declSpecs) {
-          addSpecifierDef(specdecl)
-        }
 
         //declared enums?
         env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
@@ -258,8 +248,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 checkTypeDeclaration(d, featureExpr, newEnv)
                 (One(CVoid()), newEnv)
 
-            case NestedFunctionDef(_, spec, decl, oldSP, s) =>
-                (One(CVoid()), checkFunction(spec, decl, oldSP, s, featureExpr, env)._2)
+            case n@NestedFunctionDef(_, spec, decl, oldSP, s) =>
+                (One(CVoid()), checkFunction(n, spec, decl, oldSP, s, featureExpr, env)._2)
 
             case WhileStatement(expr, s) => expectScalar(expr); checkCStmt(s); nop //spec
             case DoStatement(expr, s) => expectScalar(expr); checkCStmt(s); nop //spec
