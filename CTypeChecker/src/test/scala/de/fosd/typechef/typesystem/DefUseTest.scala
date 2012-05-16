@@ -30,6 +30,6 @@ class DefUseTest extends CTypeSystem with CEnvCache with FunSuite with TestHelpe
     val lastdecl = a.defs.last.entry
     lookupEnv(lastdecl)
     println(a)
-    println(defuse)
+    println(getDefUseMap)
   }
 }

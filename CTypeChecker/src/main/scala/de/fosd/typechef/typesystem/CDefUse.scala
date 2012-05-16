@@ -12,8 +12,7 @@ import de.fosd.typechef.conditional.One
 // in Env instances; during the traversal of the typesystem visitor Env instances get filled
 // with information about names, AST entries and their corresponding types
 trait CDefUse extends CEnv {
-  protected val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
-
+  private val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
   private[typesystem] def clear() {defuse.clear()}
 
   private def addSimpleDeclaratorDef(decl: Declarator) {
@@ -29,6 +28,9 @@ trait CDefUse extends CEnv {
       case NestedNamedDeclarator(_, nestedDecl, _) => getSimpleDeclaratorDef(nestedDecl)
     }
   }
+
+  def clearDefUseMap = defuse.clear()
+  def getDefUseMap = defuse
 
   def addDef(f: CDef) {
     f match {

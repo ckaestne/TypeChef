@@ -17,7 +17,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
-        defuse.clear()
+        clearDefUseMap
         checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
 
