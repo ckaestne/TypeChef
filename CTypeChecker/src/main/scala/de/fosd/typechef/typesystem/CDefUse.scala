@@ -16,19 +16,21 @@ trait CDefUse extends CEnv {
 
   private[typesystem] def clear() {defuse.clear()}
 
-  private def addSimpleDeclaratorDef(decl: Declarator) = {
+  private def addSimpleDeclaratorDef(decl: Declarator) {
     decl match {
       case AtomicNamedDeclarator(_, i, _) => defuse.put(i, List())
+      case x: NestedNamedDeclarator => assert(false, x + " is not supported yet; defuse")
     }
   }
 
   private def getSimpleDeclaratorDef(decl: Declarator): Id = {
     decl match {
       case AtomicNamedDeclarator(_, i, _) => i
+      case NestedNamedDeclarator(_, nestedDecl, _) => getSimpleDeclaratorDef(nestedDecl)
     }
   }
 
-  def addDef(f: FunctionDef) = {
+  def addDef(f: FunctionDef) {
     f match {
       // TODO specifiers and parameters
       // parameters are definitions for uses in stmt
@@ -36,8 +38,8 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addUse(f: PostfixExpr, env: Env) = {
-    f match {
+  def addUse(pe: PostfixExpr, env: Env) {
+    pe match {
       // TODO params
       // params are uses of local or global variables
       case PostfixExpr(i@Id(name), FunctionCall(params)) => {
@@ -48,6 +50,7 @@ trait CDefUse extends CEnv {
           }
         }
       }
+      case _ =>
     }
   }
 }
