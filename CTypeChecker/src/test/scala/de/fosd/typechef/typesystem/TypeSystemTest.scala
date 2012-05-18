@@ -731,5 +731,17 @@ return 1;
         }
     }
 
+    test("curly initializers and casts and pointer deref") {
+        expect(true) {
+            check( """struct ab { int x; };
+
+                           void bar() {
+                                   struct ab * i;
+                                   i=&(struct ab){ 1 };
+                           }""")
+        }
+
+    }
+
 }
 

@@ -58,7 +58,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             case (f, CObj(t)) => CPointer(t)
                             case (f, t: CFunction) => CPointer(t)
                             case (f, e) =>
-                                reportTypeError(f, "invalid & on " + pc + " (" + e + ")", pc)
+                                reportTypeError(f, "invalid & on " + expr + " (" + e + ")", pc)
                         })
                     //*a: pointer dereferencing
                     case pd@PointerDerefExpr(expr) =>
@@ -102,7 +102,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     isPointer(targetType) ||
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
-                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
+                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
@@ -217,7 +217,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         //return original environment, definitions don't leave this scope
                         t
 
-                    case LcurlyInitializer(inits) => One(CCompound()) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
+                    case LcurlyInitializer(inits) => One(CCompound().toObj) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
                     case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
