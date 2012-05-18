@@ -428,11 +428,12 @@ trait CTypes extends COptionProvider {
     def coerce(expectedType: CType, foundType: CType): Boolean = {
         val t1 = normalize(expectedType)
         val t2 = normalize(foundType)
+        def pointerCompat(a: CType): Boolean = a == CVoid() || a == CZero() || a == CIgnore()
         //either void pointer?
         if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) => return true
+            case (CPointer(a), CPointer(b)) if (pointerCompat(a) || pointerCompat(b)) => return true
             case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if (!opts.warning_pointer_sign && (a.basicType == b.basicType)) => return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
