@@ -461,6 +461,7 @@ trait CTypes extends COptionProvider {
 
         //assignment pointer = 0
         if (isPointer(t1) && isZero(t2)) return true
+        if (isPointer(t2) && isZero(t1)) return true
 
         return false
     }
