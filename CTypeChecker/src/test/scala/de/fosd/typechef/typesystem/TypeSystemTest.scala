@@ -743,5 +743,67 @@ return 1;
 
     }
 
+
+    test("nested structs") {
+        expect(true) {
+            check( """
+            struct x {
+                    struct y {
+                            int a;
+                    } yy;
+                    struct {
+                            struct y b;
+                    } zz;
+            } xx;
+                   """)
+        }
+        expect(true) {
+            check( """
+            struct x {
+                    struct y {
+                            int a;
+                    } yy;
+                    struct y b;
+            } xx;
+                   """)
+        }
+        expect(true) {
+            check( """
+            struct x {
+                    struct z{
+                            struct y {
+                                int a;
+                            } yy;
+                    } zz;
+                            struct y b;
+            } xx;
+                   """)
+        }
+        expect(false) {
+            check( """
+            struct x {
+                    struct z{
+                            struct y {
+                                int a;
+                            } yy;
+                    } zz;
+                    struct abc b;
+            } xx;
+                   """)
+        }
+        expect(false) {
+            check( """
+              struct x {
+                      struct z{
+                              struct y {
+                                  int a;
+                              } yy;
+                      } zz;
+                      struct x b;
+              } xx;
+                   """)
+        }
+    }
+
 }
 
