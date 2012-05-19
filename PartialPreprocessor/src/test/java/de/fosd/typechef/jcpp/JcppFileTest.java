@@ -188,6 +188,7 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testKBuildStr() throws LexerException, IOException {
         testFile("kbuildstr.c");
     }
+
     @Test
     public void testStringify() throws LexerException, IOException {
         testFile("stringify.c");
@@ -233,8 +234,14 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testLinebreaks() throws LexerException, IOException {
         testFile("linebreaks.c", false, true);
     }
+
     @Test
     public void testLinebreaks2() throws LexerException, IOException {
         testFile("linebreaks2.c", false, true);
+    }
+
+    @Test
+    public void testFileBaseFile() throws LexerException, IOException {
+        testFile("filebasefile.c", false, true);
     }
 }

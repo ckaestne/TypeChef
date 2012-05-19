@@ -157,7 +157,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
         this.featureModel = fm;
         macros = new MacroContext<MacroData>(featureModel);
         for (String name : new String[]{
-                "__LINE__", "__FILE__", "__COUNTER__", "__TIME__", "__DATE__"
+                "__LINE__", "__FILE__", "__BASE_FILE__", "__COUNTER__", "__TIME__", "__DATE__"
         }) {
             macros = macros.define(name, FeatureExprLib.True(), new MacroData(INTERNAL));
         }
@@ -819,9 +819,13 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             outputStringTokenSource(origInvokeTok, String.format(Locale.US, "\"%1$tb %1$2te %1$tY\"", Calendar.getInstance()));
         } else if (macroName.equals("__TIME__")) {
             outputStringTokenSource(origInvokeTok, String.format(Locale.US, "\"%1$tT\"", Calendar.getInstance()));
-        } else if (macroName.equals("__FILE__")) {
+        } else if (macroName.equals("__FILE__") || macroName.equals("__BASE_FILE__")) {
+            //BASE file refers to the last input, whereas _FILE refers to the current source
+            Source source =
+                    macroName.equals("__BASE_FILE__") ? getLastInput() : getSource();
+
             StringBuilder buf = new StringBuilder("\"");
-            String name = getSource().getName();
+            String name = source == null ? null : source.getName();
             if (name == null)
                 name = "<no file>";
             for (int i = 0; i < name.length(); i++) {
@@ -2756,6 +2760,17 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     public Source getSource() {
         return sourceManager.getSource();
+    }
+
+    public Source getLastInput() {
+        List<Source> inputs = sourceManager.inputs;
+        if (inputs.isEmpty()) {
+            //return parentmost source
+            Source s = getSource();
+            while (s != null && s.getParent() != null)
+                s = s.getParent();
+            return s;
+        } else return inputs.get(inputs.size() - 1);
     }
 
     /**
