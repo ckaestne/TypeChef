@@ -1,18 +1,18 @@
 void foo() {
-    if ((archive_handle->filter(archive_handle) == 0)) {
-        archive_handle->action_header(typed);
+    if (a) {
+        func01();
 #if (definedEx(CONFIG_DPKG) || definedEx(CONFIG_DPKG_DEB))
-        if (archive_handle->dpkg__sub_archive) {
-            while ((archive_handle->dpkg__action_data_subarchive(archive_handle->dpkg__sub_archive) == 0)) continue;
+        if (b) {
+            while (c) continue;
         }
-        else archive_handle->action_data(archive_handle);
+        else func02();
 #endif
 #if (!definedEx(CONFIG_DPKG) && !definedEx(CONFIG_DPKG_DEB))
-        archive_handle->action_data(archive_handle);
+        func03();
 #endif
     }
     else {
-        data_skip(archive_handle);
+        func04();
     }
-    (archive_handle->offset += typed->size);
+    int e;
 }

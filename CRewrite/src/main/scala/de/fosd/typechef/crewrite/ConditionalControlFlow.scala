@@ -197,7 +197,8 @@ trait ConditionalControlFlow extends ASTNavigation {
           case None => assert(false, "label statements should always occur within a function definition"); List()
           case Some(f) => {
             val l_gotos = gotoLookup(f, n, env)
-            val l_preds = getStmtPred(t, ctx, env).flatMap(rollUp(a, _, ctx, env))
+            val l_preds = getStmtPred(t, ctx, env).
+              flatMap({ x => rollUp(a, x, env.featureExpr(x), env) })
             l_gotos ++ l_preds
           }
         }
@@ -808,13 +809,13 @@ trait ConditionalControlFlow extends ASTNavigation {
 
         if (elifs.isEmpty && elseBranch.isEmpty)
           res ++= getCondExprPred(condition, ctx, env)
-        res.flatMap(rollUp(source, _, ctx, env))
+        res.flatMap({ x => rollUp(source, x, env.featureExpr(x), env) })
       }
       case ElifStatement(condition, thenBranch) => {
         var res = List[AST]()
         res ++= getCondExprPred(condition, ctx, env)
         res ++= getCondStmtPred(target, thenBranch, ctx, env)
-        res.flatMap(rollUp(source, _, ctx, env))
+        res.flatMap({ x => rollUp(source, x, env.featureExpr(x), env) })
       }
       case t@SwitchStatement(expr, s) => {
         val lbreaks = filterBreakStatements(s, env.featureExpr(t), env)
@@ -822,7 +823,7 @@ trait ConditionalControlFlow extends ASTNavigation {
 
         // TODO both lbreaks and ldefaults are empty!
         if (ldefaults.isEmpty) lbreaks ++ getCondExprPred(expr, ctx, env)
-        else lbreaks ++ ldefaults.flatMap(rollUpJumpStatement(_, true, ctx, env))
+        else lbreaks ++ ldefaults.flatMap({ x => rollUpJumpStatement(x, true, env.featureExpr(x), env) })
       }
 
       case t@WhileStatement(expr, s) => List(expr) ++ filterBreakStatements(s, env.featureExpr(t), env)
@@ -831,7 +832,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       case t@ForStatement(_, _, _, s) => filterBreakStatements(s, env.featureExpr(t), env)
 
       case c@CompoundStatement(innerStatements) => getCompoundPred(innerStatements, c, ctx, env).
-        flatMap(rollUp(source, _, ctx, env))
+        flatMap({ x => rollUp(source, x, env.featureExpr(x), env) })
 
       case t@GotoStatement(PointerDerefExpr(_)) => {
         if (source.isInstanceOf[LabelStatement]) List(target)
@@ -855,7 +856,8 @@ trait ConditionalControlFlow extends ASTNavigation {
   // because using rollUp in pred determination (see above) will return wrong results
   private def rollUpJumpStatement(a: AST, fromSwitch: Boolean, ctx: FeatureExpr, env: ASTEnv): List[AST] = {
     a match {
-      case t@CaseStatement(_, Some(s)) => getCondStmtPred(t, s, ctx, env).flatMap(rollUpJumpStatement(_, false, ctx, env))
+      case t@CaseStatement(_, Some(s)) => getCondStmtPred(t, s, ctx, env).
+        flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), env) })
 
       // the code that belongs to the jump target default is either reachable via nextAST from the
       // default statement: this first case statement here
@@ -867,7 +869,8 @@ trait ConditionalControlFlow extends ASTNavigation {
           case c@CompoundStatement(innerStatements) => getCompoundPred(innerStatements, c, ctx, env)
         }
       }
-      case t@DefaultStatement(Some(s)) => getCondStmtPred(t, s, ctx, env).flatMap(rollUpJumpStatement(_, false, ctx, env))
+      case t@DefaultStatement(Some(s)) => getCondStmtPred(t, s, ctx, env).
+        flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), env) })
       case _: BreakStatement => List()
       case _ => List(a)
     }
@@ -884,12 +887,15 @@ trait ConditionalControlFlow extends ASTNavigation {
     previous_equal_annotated_ast_elem match {
       // 1.
       case Some(BreakStatement()) => List()
-      case Some(x) => List(x).flatMap(rollUpJumpStatement(_, false, ctx, env))
+      case Some(x) => List(x).
+        flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), env) })
       case None => {
         val predecessor_list = determineFollowingElements(ctx, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
-          case Left(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, ctx, env)) // 2.
-          case Right(p_list) => p_list.flatMap(rollUpJumpStatement(_, false, ctx, env)) ++ followPred(s, ctx, env) // 3.
+          case Left(p_list) => p_list.
+            flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), env) }) // 2.
+          case Right(p_list) => p_list.
+            flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), env) }) ++ followPred(s, ctx, env) // 3.
         }
       }
     }
