@@ -138,6 +138,17 @@ trait ConditionalControlFlow extends ASTNavigation {
                   add2newres = rollUp(e, oldelem, env.featureExpr(oldelem), env)
                 }
               }
+
+              // goto statements
+              // in general only label statements can be the source of goto statements
+              // and only the ones that have the same name
+              case s@GotoStatement(Id(name)) => {
+                if (a.isInstanceOf[LabelStatement]) {
+                  val lname = a.asInstanceOf[LabelStatement].id.name
+                  if (name == lname) add2newres = List(s)
+                }
+              }
+
               case _: AST => {
                 add2newres = rollUp(a, oldelem, env.featureExpr(oldelem), env)
                 if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
@@ -821,20 +832,6 @@ trait ConditionalControlFlow extends ASTNavigation {
 
       case c@CompoundStatement(innerStatements) => getCompoundPred(innerStatements, c, ctx, env).
         flatMap(rollUp(source, _, ctx, env))
-
-      // in case we found a goto statement we check whether the goto statement has possible targets
-      // if so the goto cannot be the pred of our current element
-      // if not the goto is the pred of our current element
-      case t@GotoStatement(Id(l)) => {
-        findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(false, "goto statement should always occur within a function definition"); List()
-          case Some(f) => {
-            val l_list = labelLookup(f, l, env)
-            if (l_list.isEmpty) List(target)
-            else List()
-          }
-        }
-      }
 
       case t@GotoStatement(PointerDerefExpr(_)) => {
         if (source.isInstanceOf[LabelStatement]) List(target)
