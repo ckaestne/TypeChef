@@ -57,6 +57,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     println("checking family-based")
     val family_ast = rewriteInfiniteForLoops[TranslationUnit](prepareAST(ast))
     val family_env = CASTEnv.createASTEnv(family_ast)
+
     val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
 
     val tfams = System.currentTimeMillis()
@@ -873,6 +874,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug21() {assert(checkCfg("bug21.c") == false)}
   @Test def test_bug22() {assert(checkCfg("bug22.c") == false)}
   @Test def test_bug23() {assert(checkCfg("bug23.c") == false)}
+  @Test def test_bug24() {assert(checkCfg("bug24.c") == false)}
 
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c") == false)}
   @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}

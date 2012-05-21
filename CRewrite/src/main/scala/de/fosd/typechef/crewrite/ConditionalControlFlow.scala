@@ -996,8 +996,9 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def determineFollowingElements(context: FeatureExpr,
                                          l: List[(Int, IfdefBlocks)],
                                          env: ASTEnv): Either[List[AST], List[AST]] = {
-    // context of all added AST nodes that have been added to res; combined using FeatureExpr or
-    var rescontext = FeatureExprFactory.False
+    // context of all added AST nodes that have been added to res
+    var rescontext: List[FeatureExpr] = List()
+
     var res = List[AST]()
 
     for (e <- l) {
@@ -1007,10 +1008,19 @@ trait ConditionalControlFlow extends ASTNavigation {
           for (block <- ifdef_blocks) {
             val bfexp = env.featureExpr(block.head)
             if (context equivalentTo bfexp) return Left(res ++ List(block.head))
-            if ((context and bfexp) isContradiction()) { }
-            else {res = res ++ List(block.head); rescontext = rescontext or bfexp}
 
-            if (rescontext isTautology()) return Left(res)
+            // annotations contradict each other: e.g., A and !A
+            if ((context and bfexp) isContradiction()) { }
+
+            // nodes of annotations that have been added before: e.g., ctx is true; A B A true
+            // the second A should not be added again because if A is selected the first A would have been selected
+            // and not the second one
+            else if (rescontext.exists(_ equivalentTo bfexp)) { }
+
+            // otherwise add element and update resulting context
+            else {res = res ++ List(block.head); rescontext ::= bfexp}
+
+            if (rescontext.fold(FeatureExprFactory.False)(_ or _) isTautology()) return Left(res)
           }
         }
       }

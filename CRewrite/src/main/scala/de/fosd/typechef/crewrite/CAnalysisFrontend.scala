@@ -99,7 +99,6 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
 
     println("\n\n\n")
 
-
     appendToFile(liveness, fileName + ";" + tfam + ";" + tbase + ";" + tfullcoverage + ";" + /* configs.size  + */ "\n")
   }
 
