@@ -1,19 +1,17 @@
 package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.parser.c.TestHelper
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
+import org.junit.Test
 
-@RunWith(classOf[JUnitRunner])
-class DefUseTest extends CTypeSystem with CEnvCache with FunSuite with TestHelper {
+class DefUseTest extends CTypeSystem with CEnvCache with TestHelper {
   private def compileCode(code: String) = {
     val ast = getAST(code)
     typecheckTranslationUnit(ast)
     ast
   }
 
-  test("def use chain") {
+  @Test
+  def test_def_use_chain() {
     val a = compileCode("""
       int foo() {return 0;}
       int bar() {foo(); foo(); return 0;}
