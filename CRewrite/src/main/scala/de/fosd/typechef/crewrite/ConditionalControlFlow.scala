@@ -185,7 +185,7 @@ trait ConditionalControlFlow extends ASTNavigation {
           case None => assert(false, "label statements should always occur within a function definition"); List()
           case Some(f) => {
             val l_gotos = gotoLookup(f, n, env)
-            val l_preds = getStmtPred(t, ctx, env)
+            val l_preds = getStmtPred(t, ctx, env).flatMap(rollUp(a, _, ctx, env))
             l_gotos ++ l_preds
           }
         }
@@ -779,26 +779,28 @@ trait ConditionalControlFlow extends ASTNavigation {
       // can be predecessors
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
         var res = List[AST]()
+      
         if (elseBranch.isDefined) res ++= getCondStmtPred(t, elseBranch.get, ctx, env)
         if (!elifs.isEmpty) {
           for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
-            res ++= getCondStmtPred(elif, thenBranch, ctx, env).flatMap(rollUp(source, _, ctx, env))
+            if (f implies ctx isSatisfiable)
+              res ++= getCondStmtPred(elif, thenBranch, ctx, env)
           }
 
           // without an else branch, the condition of elifs are possible predecessors of a
           if (elseBranch.isEmpty) res ++= getCompoundPred(elifs, t, ctx, env)
         }
-        res ++= getCondStmtPred(t, thenBranch, ctx, env).flatMap(rollUp(source, _, ctx, env))
+        res ++= getCondStmtPred(t, thenBranch, ctx, env)
 
         if (elifs.isEmpty && elseBranch.isEmpty)
           res ++= getCondExprPred(condition, ctx, env)
-        res
+        res.flatMap(rollUp(source, _, ctx, env))
       }
       case ElifStatement(condition, thenBranch) => {
         var res = List[AST]()
         res ++= getCondExprPred(condition, ctx, env)
-        res ++= getCondStmtPred(target, thenBranch, ctx, env).flatMap(rollUp(source, _, ctx, env))
-        res
+        res ++= getCondStmtPred(target, thenBranch, ctx, env)
+        res.flatMap(rollUp(source, _, ctx, env))
       }
       case t@SwitchStatement(expr, s) => {
         val lbreaks = filterBreakStatements(s, env.featureExpr(t), env)
@@ -821,15 +823,12 @@ trait ConditionalControlFlow extends ASTNavigation {
       // if so the goto cannot be the pred of our current element
       // if not the goto is the pred of our current element
       case t@GotoStatement(Id(l)) => {
-        if (source.isInstanceOf[LabelStatement]) List(target)
-        else {
-          findPriorASTElem[FunctionDef](t, env) match {
-            case None => assert(false, "goto statement should always occur within a function definition"); List()
-            case Some(f) => {
-              val l_list = labelLookup(f, l, env)
-              if (l_list.isEmpty) List(target)
-              else List()
-            }
+        findPriorASTElem[FunctionDef](t, env) match {
+          case None => assert(false, "goto statement should always occur within a function definition"); List()
+          case Some(f) => {
+            val l_list = labelLookup(f, l, env)
+            if (l_list.isEmpty) List(target)
+            else List()
           }
         }
       }
