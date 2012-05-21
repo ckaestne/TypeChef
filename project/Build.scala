@@ -10,7 +10,7 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.2"
+    val buildVersion = "0.3.3-SNAPSHOT"
     val buildScalaVersion = "2.9.1"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
@@ -28,7 +28,40 @@ object BuildSettings {
 
         libraryDependencies ++= testEnvironment,
 
-        parallelExecution := false //run into memory problems on hudson otherwise
+        parallelExecution := false, //run into memory problems on hudson otherwise
+
+        homepage := Some(url("https://github.com/ckaestne/TypeChef")),
+        licenses := Seq("GNU General Public License v3.0" -> url("http://www.gnu.org/licenses/gpl.txt")),
+
+        //maven
+        publishTo <<= version {
+            (v: String) =>
+                val nexus = "https://oss.sonatype.org/"
+                if (v.trim.endsWith("SNAPSHOT"))
+                    Some("snapshots" at nexus + "content/repositories/snapshots")
+                else
+                    Some("releases" at nexus + "service/local/staging/deploy/maven2")
+        },
+        publishMavenStyle := true,
+        publishArtifact in Test := false,
+
+        pomExtra :=
+            <parent>
+                <groupId>org.sonatype.oss</groupId>
+                <artifactId>oss-parent</artifactId>
+                <version>7</version>
+            </parent> ++
+                <scm>
+                    <connection>scm:git:git@github.com:ckaestne/TypeChef.git</connection>
+                    <url>git@github.com:ckaestne/TypeChef.git</url>
+                </scm> ++
+                <developers>
+                    <developer>
+                        <id>ckaestne</id> <name>Christian Kaestner</name> <url>http://www.uni-marburg.de/fb12/ps/team/kaestner</url>
+                    </developer>
+                </developers>,
+
+        credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
     )
 }
 

@@ -1,5 +1,8 @@
 package de.fosd.typechef.parser.c
 
+import de.fosd.typechef.parser.Position
+import de.fosd.typechef.featureexpr.FeatureExpr
+
 /**
  * Created by IntelliJ IDEA.
  * User: kaestner
@@ -11,6 +14,9 @@ package de.fosd.typechef.parser.c
 trait ParserOptions {
     def printParserResult: Boolean
     def printParserStatistics: Boolean
+
+    //callback function to render parser errors, for example to an XML file
+    def renderParserError: (FeatureExpr, String, Position) => Object = null
 }
 
 object DefaultParserOptions extends ParserOptions {

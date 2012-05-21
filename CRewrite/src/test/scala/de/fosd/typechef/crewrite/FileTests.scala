@@ -66,7 +66,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
 
     tfam = tfame - tfams
 
-    // base variant
+//    // base variant
 //    println("checking base variant")
 //    val base_ast = deriveProductFromConfiguration[TranslationUnit](family_ast.asInstanceOf[TranslationUnit],
 //      new Configuration(ConfigurationCoverage.completeConfiguration(FeatureExprFactory.True, List(), fm), fm), family_env)
@@ -78,7 +78,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
 //    val tbasee = System.currentTimeMillis()
 //
 //    tbase = tbasee - tbases
-
+//
 //    // full coverage
 //    println("checking full coverage")
 //    val configs = ConfigurationCoverage.naiveCoverageAny(family_ast, fm, family_env) + FeatureExprFactory.True
@@ -873,8 +873,11 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug20() {assert(checkCfg("bug20.c") == false)}
   @Test def test_bug21() {assert(checkCfg("bug21.c") == false)}
   @Test def test_bug22() {assert(checkCfg("bug22.c") == false)}
+<<<<<<< HEAD
   @Test def test_bug23() {assert(checkCfg("bug23.c") == false)}
   @Test def test_bug24() {assert(checkCfg("bug24.c") == false)}
+=======
+>>>>>>> 7c02a74c3fc22655e088ee04e7039c85420e28cc
 
   @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c") == false)}
   @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}

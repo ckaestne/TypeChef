@@ -137,13 +137,13 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def mapWithPosition[U](f: T => U): MultiParser[U] = new MapWithPositionParser(this, f)
 
         //replace on success
-        def ^^^[U](repl: U): MultiParser[U] = map(x => repl)
+        def ^^^[U](repl: U): MultiParser[U] = mapWithPosition(x => repl)
 
         /**
          * map and join ASTs (when possible)
          */
         def ^^![U](f: T => U): MultiParser[Conditional[U]] =
-            this.map(f).join
+            this.mapWithPosition(f).join
 
         //        def ^^!![U](f: Conditional[T] => Conditional[U]): MultiParser[Conditional[U]] =
         //            this.map(f).join.map(Conditional.combine(_))

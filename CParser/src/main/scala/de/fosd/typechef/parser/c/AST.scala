@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.WithPosition
+import de.fosd.typechef.parser.{WithPosition, Position}
 
 /**
  * AST for C
@@ -65,6 +65,8 @@ sealed abstract class Expr extends AST
 
 sealed abstract class PrimaryExpr extends Expr
 
+trait CDef extends AST
+
 case class Id(name: String) extends PrimaryExpr
 
 case class Constant(value: String) extends PrimaryExpr
@@ -77,11 +79,23 @@ case class SimplePostfixSuffix(t: String) extends PostfixSuffix
 
 case class PointerPostfixSuffix(kind: String, id: Id) extends PostfixSuffix
 
-case class FunctionCall(params: ExprList) extends PostfixSuffix
+case class FunctionCall(params: ExprList) extends PostfixSuffix {
+    //hack to propagate position information
+    override def setPositionRange(from: Position, to: Position) = {
+        if (!params.hasPosition) params.setPositionRange(from, to);
+        super.setPositionRange(from, to)
+    }
+}
 
 case class ArrayAccess(expr: Expr) extends PostfixSuffix
 
-case class PostfixExpr(p: Expr, s: PostfixSuffix) extends Expr
+case class PostfixExpr(p: Expr, s: PostfixSuffix) extends Expr {
+    //hack to propagate position information
+    override def setPositionRange(from: Position, to: Position) = {
+        if (!p.hasPosition) p.setPositionRange(from, to);
+        super.setPositionRange(from, to)
+    }
+}
 
 case class UnaryExpr(kind: String, e: Expr) extends Expr
 
@@ -228,8 +242,8 @@ case class InitDeclaratorE(override val declarator: Declarator, override val att
 
 
 /**
- *  A declaration has two parts
- *   specifier+ declarator+
+ * A declaration has two parts
+ * specifier+ declarator+
  * The specifier describes the basic type (which is modified by information in the declarator)
  *
  * A declarator is either an atomic declarator with a name, pointers and extensions or
@@ -317,11 +331,11 @@ case class StructInitializer(expr: Expr, attributes: List[Opt[AttributeSpecifier
 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 
-case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef {
+case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef with CDef {
     def getName = declarator.getName
 }
 
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration {
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration with CDef {
     def getName = declarator.getName
 }
 
@@ -385,5 +399,4 @@ case class BuiltinVaArgs(expr: Expr, typeName: TypeName) extends PrimaryExpr
 
 case class CompoundStatementExpr(compoundStatement: CompoundStatement) extends PrimaryExpr
 
-case class Pragma(command: StringLit) extends ExternalDef 
-
+case class Pragma(command: StringLit) extends ExternalDef

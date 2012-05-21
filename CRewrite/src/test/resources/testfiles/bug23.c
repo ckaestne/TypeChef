@@ -15,6 +15,4 @@ void foo() {
         data_skip(archive_handle);
     }
     (archive_handle->offset += typed->size);
-    lseek(archive_handle->src_fd , archive_handle->offset , 0);
-    return 0;
 }
