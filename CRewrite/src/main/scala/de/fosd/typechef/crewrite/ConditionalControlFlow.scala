@@ -196,10 +196,16 @@ trait ConditionalControlFlow extends ASTNavigation {
         findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(false, "label statements should always occur within a function definition"); List()
           case Some(f) => {
-            val l_gotos = gotoLookup(f, n, env)
+            val l_gotos = filterASTElems[GotoStatement](f, env.featureExpr(t), env)
+            // filter gotostatements with the same id as the labelstatement
+            // and all gotostatements with dynamic target
+            val l_gotos_filtered = l_gotos.filter({
+              case GotoStatement(Id(name)) => if (n == name) true else false
+              case _ => true
+            })
             val l_preds = getStmtPred(t, ctx, env).
               flatMap({ x => rollUp(a, x, env.featureExpr(x), env) })
-            l_gotos ++ l_preds
+            l_gotos_filtered ++ l_preds
           }
         }
       }
@@ -317,7 +323,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(false, "goto statement should always occur within a function definition"); List()
           case Some(f) => {
-            val l_list = labelLookup(f, l, env)
+            val l_list = filterAllASTElems[LabelStatement](f, env.featureExpr(t), env).filter(_.id.name == l)
             if (l_list.isEmpty) getStmtSucc(t, ctx, env)
             else l_list
           }
@@ -345,37 +351,6 @@ trait ConditionalControlFlow extends ASTNavigation {
 
       case t: Statement => getStmtSucc(t, ctx, env)
       case t => followSucc(t, ctx, env)
-    }
-  }
-
-  private def iterateChildren(a: Any, label: String, env: ASTEnv, op: (Any, String, ASTEnv) => List[AST]): List[AST] = {
-    env.children(a).map(
-      x => x match {
-        case e: AST      => op(e, label, env)
-        case ls: List[_] => ls.flatMap(op(_, label, env))
-        case o@Opt(_, entry) => op(entry, label, env)
-        case o@Choice(_, thenBranch, elseBranch) => op(thenBranch, label, env) ++ op(elseBranch, label, env)
-        case p: Product  => p.productIterator.toList.flatMap(op(_, label, env))
-        case _ => List()
-      }
-    ).foldLeft(List[AST]())(_ ++ _.asInstanceOf[List[AST]])
-  }
-
-  // lookup all goto with matching ids or those using indirect goto dispatch
-  // indirect goto dispatch are possible candidates for this label because
-  // evaluating the expression of the goto might lead to the given label
-  private def gotoLookup(a: Any, l: String, env: ASTEnv): List[AST] = {
-    a match {
-      case e@GotoStatement(Id(n)) if (n == l) => List(e)
-      case e@GotoStatement(PointerDerefExpr(_)) => List(e)
-      case p: Product => iterateChildren(p, l, env, gotoLookup)
-    }
-  }
-
-  private def labelLookup(a: Any, label: String, env: ASTEnv): List[AST] = {
-    a match {
-      case e@LabelStatement(Id(n), _) if (n == label) => List(e) ++ iterateChildren(e, label, env, labelLookup)
-      case p: Product => iterateChildren(p, label, env, labelLookup)
     }
   }
 
@@ -798,7 +773,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         if (elseBranch.isDefined) res ++= getCondStmtPred(t, elseBranch.get, ctx, env)
         if (!elifs.isEmpty) {
           for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
-            if (f implies ctx isSatisfiable)
+            if (f.implies(ctx).isSatisfiable())
               res ++= getCondStmtPred(elif, thenBranch, ctx, env)
           }
 
