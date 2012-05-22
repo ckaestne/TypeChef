@@ -51,7 +51,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
 
     // family-based
     println("checking family-based")
-    val family_ast = prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit])
+    val family_ast = rewriteInfiniteForLoops[TranslationUnit](prepareAST[TranslationUnit](tunit.asInstanceOf[TranslationUnit]))
     val family_env = CASTEnv.createASTEnv(family_ast)
     val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
 
