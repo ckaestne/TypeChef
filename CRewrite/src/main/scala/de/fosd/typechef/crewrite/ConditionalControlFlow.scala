@@ -789,7 +789,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         if (!elifs.isEmpty) {
           for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
             if (f.implies(ctx).isSatisfiable())
-              res ++= getCondStmtPred(elif, thenBranch, ctx, env)
+              res ++= getCondStmtPred(elif, thenBranch, env.featureExpr(elif), env)
           }
 
           // without an else branch, the condition of elifs are possible predecessors of a
