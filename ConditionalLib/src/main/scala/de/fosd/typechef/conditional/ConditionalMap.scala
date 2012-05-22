@@ -51,7 +51,7 @@ class ConditionalMap[A, B](private val entries: Map[A, Seq[(FeatureExpr, B)]]) {
     def whenDefined(name: A): FeatureExpr = entries.getOrElse(name, Seq()).foldLeft(False)(_ or _._1)
     def keys = entries.keys
 
-    private def createChoice(entries: Seq[(FeatureExpr, B)], other: B) =
+    private def createChoice(entries: Seq[(FeatureExpr, B)], other: B): Conditional[B] =
         entries.foldRight[Conditional[B]](One(other))((p, t) => Choice(p._1, One(p._2), t)) simplify
 
 

@@ -1,0 +1,4 @@
+language: scala
+script: java -Xmx1024M -Xss10m -XX:PermSize=64M -XX:MaxPermSize=128M -XX:ReservedCodeCacheSize=128m -jar sbt-launch.jar compile 'project CTypeChecker' test
+notifications:
+   email: false
