@@ -136,7 +136,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     }
 
     test("conditional function calls") {
-        assertCondEquals(exprV("""cfun(1
+        assertCondEquals(exprV( """cfun(1
             #ifdef Y
             ,2
             #endif
@@ -174,19 +174,19 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     }
     test("conditional binary operation") {
         assertCondEquals(_i,
-            exprV("""1
+            exprV( """1
                  #ifdef X
                  +2
                  #endif
                  +3"""))
         assertCondEquals(Choice(fx, _u, _i),
-            exprV("""1
+            exprV( """1
                  #ifdef X
                  +s
                  #endif
                  +3"""))
         assertCondEquals(Choice(fx, _l, _i),
-            exprV("""1
+            exprV( """1
                  #ifdef X
                  +1l
                  #endif
@@ -197,7 +197,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         expr("({1;foo();2;})") should be(CSigned(CInt()))
     }
     test("conditional compound statement expressions") {
-        exprV("""({1;
+        exprV( """({1;
                     foo();
                     "";
                     #ifdef X
@@ -206,6 +206,9 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
                     })""") should be(Choice(fx, _i, One(CPointer(CSignUnspecified(CChar())))))
     }
 
+    test("arrays") {
+        expr("arr[0]") should be(CObj(CDouble()))
+    }
 
     test("operations") {
 

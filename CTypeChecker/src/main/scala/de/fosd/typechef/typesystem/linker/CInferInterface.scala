@@ -92,12 +92,13 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
      * all function declarations without definitions are imports
      * if they are referenced at least once
      */
-    override def typedExpr(expr: Expr, ctypes: Conditional[CType], featureExpr: FeatureExpr) {
+    override def typedExpr(expr: Expr, ctypes: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
         expr match {
             case identifier: Id =>
+                val deadCondition = env.isDeadCode
                 for ((fexpr, ctype) <- ctypes.toList)
-                    if (ctype.isFunction && (fexpr and (featureExpr) isSatisfiable))
-                        imports = CSignature(identifier.name, ctype, fexpr and featureExpr, Seq(identifier.getPositionFrom)) :: imports
+                    if (ctype.isFunction && ((fexpr and featureExpr andNot deadCondition) isSatisfiable))
+                        imports = CSignature(identifier.name, ctype, fexpr and featureExpr andNot deadCondition, Seq(identifier.getPositionFrom)) :: imports
             case _ =>
         }
 

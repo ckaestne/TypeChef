@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
+import FeatureExprFactory.{True, False}
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -60,18 +61,25 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 issueTypeError(Severity.Crash, f, "not a function", declarator)
         })
 
-        val expectedReturnType = funType.map(t => t.asInstanceOf[CFunction].ret).simplify(featureExpr)
+        val expectedReturnType: Conditional[CType] = funType.mapf(featureExpr, {
+            case (f, CFunction(_, returnType)) => returnType
+            case (f, other) => reportTypeError(f, "not a function type: " + other, declarator, Severity.Crash)
+        }).simplify(featureExpr)
+
         val kind = KDefinition
 
         //redeclaration?
         checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
+        //declared enums?
+        val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
+
         //add type to environment for remaining code
-        val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
+        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
         addDef(f)
 
         //check body (add parameters to environment)
-        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, env.incScope()), KDeclaration, env.scope + 1).setExpectedReturnType(expectedReturnType)
+        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
 
@@ -186,13 +194,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
      * most statements do not have types; type information extracted from sparse (evaluate.c)
      */
     def getStmtType(stmt: Statement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
-        def checkStmtF(stmt: Statement, newFeatureExpr: FeatureExpr) = getStmtType(stmt, newFeatureExpr, env)
-        def checkCStmtF(stmt: Conditional[Statement], newFeatureExpr: FeatureExpr) = stmt.mapf(newFeatureExpr, {
-            (f, t) => checkStmtF(t, f)
+        def checkStmtF(stmt: Statement, newFeatureExpr: FeatureExpr, newEnv: Env = env) = getStmtType(stmt, newFeatureExpr, newEnv)
+        def checkStmt(stmt: Statement) = checkStmtF(stmt, featureExpr)
+        def checkCStmtF(stmt: Conditional[Statement], newFeatureExpr: FeatureExpr, newEnv: Env = env) = stmt.mapf(newFeatureExpr, {
+            (f, t) => checkStmtF(t, f, newEnv)
         })
-        def checkCStmt(stmt: Conditional[Statement]) = checkCStmtF(stmt, featureExpr)
-        def checkOCStmt(stmt: Option[Conditional[Statement]]) = stmt map checkCStmt
+        def checkCStmt(stmt: Conditional[Statement], newEnv: Env = env) = checkCStmtF(stmt, featureExpr, newEnv)
+        def checkOCStmt(stmt: Option[Conditional[Statement]], newEnv: Env = env) = stmt.map(s => checkCStmt(s, newEnv))
 
+        def expectCScalar(expr: Conditional[Expr], ctx: FeatureExpr = featureExpr) = expr.mapf(ctx, (f, e) => expectScalar(e, f))
         def expectScalar(expr: Expr, ctx: FeatureExpr = featureExpr) = checkExprX(expr, isScalar, {
             c => "expected scalar, found " + c
         }, ctx)
@@ -278,14 +288,23 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
 
             case CaseStatement(expr, s) => checkExprWithRange(expr); checkOCStmt(s); nop
+
+            //in the if statement we try to recognize dead code (and set the environment accordingly)
             case IfStatement(expr, tstmt, elifstmts, estmt) =>
-                expectScalar(expr) //spec
-                checkCStmt(tstmt)
+                expectCScalar(expr) //spec
+
+                var (contradiction, tautology) = analyzeExprBounds(expr, featureExpr)
+
+                checkCStmt(tstmt, env.markDead(contradiction))
+
                 for (Opt(elifFeature, ElifStatement(elifExpr, elifStmt)) <- elifstmts) {
-                    expectScalar(elifExpr, featureExpr and elifFeature)
-                    checkCStmtF(elifStmt, featureExpr and elifFeature)
+                    expectCScalar(elifExpr, featureExpr and elifFeature)
+                    val (innercontradiction, innertautology) = analyzeExprBounds(elifExpr, featureExpr and elifFeature)
+                    checkCStmtF(elifStmt, featureExpr and elifFeature, env.markDead(innercontradiction or tautology))
+
+                    tautology = tautology or innertautology
                 }
-                checkOCStmt(estmt)
+                checkOCStmt(estmt, env.markDead(tautology))
                 nop
 
             case SwitchStatement(expr, s) => expectIntegral(expr); checkCStmt(s); nop //spec
@@ -310,6 +329,99 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                     if (!check(c) && !c.isUnknown && !c.isIgnore) reportTypeError(f, errorMsg(c), expr) else c
             })
         } else One(CUnknown("unsatisfiable condition for expression"))
+
+
+    /**
+     * we are conservative in the sense that we rather declare code dead if we do not know than
+     * letting the type system infer an import where there is non
+     *
+     * therefore if (sizeof(x)==3) produces dead code in both branches (both tautology and contradiction)
+     */
+    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr): (FeatureExpr, FeatureExpr) = {
+        val v = evalExpr(expr, context)
+
+        val contradiction = v.when({
+            case VInt(0) => true
+            case VAnyInt() => true
+            case _ => false
+        }) and context
+        var tautology = v.when({
+            case VInt(a) if (a > 0) => true
+            case VAnyInt() => true
+            case _ => false
+        }) and context
+
+        (contradiction, tautology)
+    }
+
+    sealed trait VValue
+
+    //anything else that cannot be computed at compiletime
+    case class VUnknown() extends VValue
+
+    //an integer value
+    case class VInt(v: Int) extends VValue
+
+    //VAnyInt is the same as any integer. used to ignore sizeof statements
+    case class VAnyInt() extends VValue
+
+
+    private[typesystem] def evalExpr(expr: Conditional[Expr], context: FeatureExpr): Conditional[VValue] = expr mapr (e => e match {
+        case Constant(v) => try {
+            One(VInt(v.toInt))
+        } catch {
+            case _: NumberFormatException => One(VUnknown())
+        }
+        case NAryExpr(e, others) =>
+            var result = evalExpr(One(e), context)
+            for (Opt(f, NArySubExpr(op, e)) <- others) {
+                //default value and integer operation for each supported operation
+                val evalue = evalExpr(One(e), context and f)
+                result = Choice(f, executeOp(op, result, evalue), result).simplify
+            }
+            result
+        case UnaryOpExpr(op, e) =>
+            evalExpr(One(e), context).map({
+                case VInt(a) => op match {
+                    case "!" => VInt(if (a == 0) 1 else 0)
+                    case "-" => VInt(-a)
+                    case _ => VUnknown()
+                }
+                case VAnyInt() => VAnyInt()
+                case _ => VUnknown()
+            })
+        case SizeOfExprT(_) => One(VAnyInt())
+        case SizeOfExprU(_) => One(VAnyInt())
+        case BuiltinOffsetof(_, _) => One(VAnyInt())
+
+        case _ => One(VUnknown())
+    })
+
+    def executeOp(op: String, ca: Conditional[VValue], cb: Conditional[VValue]): Conditional[VValue] =
+        ConditionalLib.mapCombination(ca, cb, (a: VValue, b: VValue) =>
+            (a, op, b) match {
+                case (VInt(a), "+", VInt(b)) => VInt(a + b)
+                case (VInt(a), "-", VInt(b)) => VInt(a - b)
+                case (VInt(a), "*", VInt(b)) => VInt(a * b)
+                case (VAnyInt(), op, VInt(_)) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=", "&&", "||") contains op) => VAnyInt()
+                case (VInt(_), op, VAnyInt()) if (Set("+", "-", "*", "<", ">", "<=", ">=", "==", "!=", "&&", "||") contains op) => VAnyInt()
+                case (VInt(a), "&&", VInt(b)) => VInt(if (a != 0 && b != 0) 1 else 0)
+                case (VInt(0), "&&", _) => VInt(0)
+                case (_, "&&", VInt(0)) => VInt(0)
+                case (VInt(a), "||", VInt(b)) => VInt(if (a != 0 || b != 0) 1 else 0)
+                case (VInt(a), "||", _) if (a > 0) => VInt(1)
+                case (_, "||", VInt(a)) if (a > 0) => VInt(1)
+                case (VInt(a), "==", VInt(b)) => VInt(if (a == b) 1 else 0)
+                case (VInt(a), "!=", VInt(b)) => VInt(if (a != b) 1 else 0)
+                case (VInt(a), "<", VInt(b)) => VInt(if (a < b) 1 else 0)
+                case (VInt(a), "<=", VInt(b)) => VInt(if (a <= b) 1 else 0)
+                case (VInt(a), ">", VInt(b)) => VInt(if (a > b) 1 else 0)
+                case (VInt(a), ">=", VInt(b)) => VInt(if (a >= b) 1 else 0)
+                case _ => VUnknown()
+            }
+        )
+
+    //    private[typesystem] def evalSubExpr(subexpr: NAryExpr, context: FeatureExpr): Conditional[VValue] = expr match {
 
 
     //

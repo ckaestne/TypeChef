@@ -59,7 +59,7 @@ object Frontend {
         val tokens = new lexer.Main().run(opt, opt.parse)
 
         //        val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, opt.parse, fm)
-        val errorXML = new ErrorXML(opt.errorXMLFile)
+        val errorXML = new ErrorXML(opt.getErrorXMLFile)
         opt.setRenderParserError(errorXML.renderParserError)
         val t2 = System.currentTimeMillis()
         var t3 = t2;
