@@ -20,13 +20,13 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 // [1] http://soot.googlecode.com/svn/DUA_Forensis/src/dua/method/CFG.java
 
 // normally pred succ are the same except for the following cases:
-// 1. forward jumps using gotos
-// 2. code in switch body that does not belong to a case block, but that has a label and
+// 1. code in switch body that does not belong to a case block, but that has a label and
 //    can be reached otherwise, e.g., switch (x) { l1: <code> case 0: .... }
-// 3. infinite for loops without break or return statements in them, e.g.,
+// 2. infinite for loops without break or return statements in them, e.g.,
 //    for (;;) { <code without break or return> }
 //    this way we do not have any handle to jump into the for block from
-//    its successors
+//    its successors; we work around this issue by introducing a break statement;
+//    for (;;) => for (;1;)
 
 // for more information:
 // iso/iec 9899 standard; committee draft
@@ -422,6 +422,7 @@ trait ConditionalControlFlow extends ASTNavigation {
           case DoStatement(expr, s) => List(expr)
 
           // conditional statements
+          // we are in the condition of the if statement
           case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
             var res = getCondStmtSucc(t, thenBranch, ctx, env)
             if (!elifs.isEmpty) res = res ++ getCompoundSucc(elifs, t, ctx, env)
@@ -433,13 +434,18 @@ trait ConditionalControlFlow extends ASTNavigation {
           // either go to next ElifStatement, ElseBranch, or next statement of the surrounding IfStatement
           // filtering is necessary, as else branches are not considered by getSuccSameLevel
           case t@ElifStatement(condition, thenBranch) if (isPartOf(nested_ast_elem, condition)) => {
-            var res = getStmtSucc(t, ctx, env)
-            if (res.filter(_.isInstanceOf[ElifStatement]).isEmpty) {
-              env.parent(env.parent(t)) match {
-                case tp@IfStatement(_, _, _, None) => res = getStmtSucc(tp, ctx, env)
-                case IfStatement(_, _, _, Some(elseBranch)) => res = getCondStmtSucc(t, elseBranch, ctx, env)
+            var res: List[AST] = List()
+            getElifSucc(t, ctx, env) match {
+              case Left(l)  => res ++= l
+              case Right(l) => {
+                res ++= l
+                parentAST(t, env) match {
+                  case tp@IfStatement(_, _, _, None) => res ++= getStmtSucc(tp, ctx, env)
+                  case IfStatement(_, _, _, Some(elseBranch)) => res ++= getCondStmtPred(t, elseBranch, ctx, env)
+                }
               }
             }
+
             res ++ getCondStmtSucc(t, thenBranch, ctx, env)
           }
           case t: ElifStatement => followSucc(t, ctx, env)
@@ -660,8 +666,6 @@ trait ConditionalControlFlow extends ASTNavigation {
     }
   }
 
-
-
   // we have to check possible successor nodes in at max three steps:
   // 1. get direct successors with same annotation; if yes stop; if not go to step 2.
   // 2. get all annotated elements at the same level and check whether we find a definite set of successor nodes
@@ -680,6 +684,17 @@ trait ConditionalControlFlow extends ASTNavigation {
           case Right(s_list) => s_list ++ followSucc(s, ctx, env) // 3.
         }
       }
+    }
+  }
+
+  // specialized version of getStmtSucc for ElifStatements
+  //
+  private def getElifSucc(s: ElifStatement, ctx: FeatureExpr, env: ASTEnv): Either[List[AST], List[AST]] = {
+    val next_ifdef_blocks = getNextIfdefBlocks(s, ctx, env)
+    val next_equal_annotated_ast_element = getNextEqualAnnotatedASTElem(s, next_ifdef_blocks)
+    next_equal_annotated_ast_element match {
+      case Some(x) => Left(List(x))
+      case None    => determineFollowingElements(ctx, next_ifdef_blocks.drop(1), env)
     }
   }
 
