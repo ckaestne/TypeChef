@@ -94,15 +94,14 @@ trait ConditionalControlFlow extends ASTNavigation {
               // a break statement shall appear only in or as a switch body or loop body
               // a break statement terminates execution of the smallest enclosing switch or
               // iteration statement (see standard [2])
-              // therefore all predecessors of a belong to a different switch/loop;
-              // otherwise we filter them
+              // so as soon as we hit a break statement and the break statement belongs to the same loop as we do
+              // the break statement is not a valid predecessor
               case b: BreakStatement => {
-                val a2b = findPriorASTElem2BreakStatement(a, env)
                 val b2b = findPriorASTElem2BreakStatement(b, env)
 
-                if (a2b.isEmpty && b2b.isDefined) add2newres = List(b)
-                else if (a2b.isDefined && b2b.isDefined && a2b.get.ne(b2b.get)) add2newres = List(b)
-                else add2newres = List()
+                assert(b2b.isDefined, "missing loop to break statement!")
+                if (isPartOf(a, b2b.get)) add2newres = List()
+                else add2newres = List(b)
               }
               // a continue statement shall appear only in a loop body
               // a continue statement causes a jump to the loop-continuation portion
@@ -149,9 +148,11 @@ trait ConditionalControlFlow extends ASTNavigation {
                 }
               }
 
+              // for all other elements we use rollup and check whether the outcome of rollup differs from
+              // its input (oldelem)
               case _: AST => {
                 add2newres = rollUp(a, oldelem, env.featureExpr(oldelem), env)
-                if (!(add2newres.size == 1 && add2newres.head.eq(oldelem))) changed = true
+                if (add2newres.size > 1 || (add2newres.size > 0 && add2newres.head.ne(oldelem))) changed = true
               }
             }
 
@@ -639,9 +640,7 @@ trait ConditionalControlFlow extends ASTNavigation {
     }
   }
 
-
-
-  // method to find prior element to a break statement
+  // method to find a prior loop statement that belongs to a given break statement
   private def findPriorASTElem2BreakStatement(a: Product, env: ASTEnv): Option[AST] = {
     val aparent = env.parent(a)
     aparent match {
@@ -877,8 +876,7 @@ trait ConditionalControlFlow extends ASTNavigation {
     previous_equal_annotated_ast_elem match {
       // 1.
       case Some(BreakStatement()) => List()
-      case Some(x) => List(x).
-        flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), env) })
+      case Some(x) => List(x).flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), env) })
       case None => {
         val predecessor_list = determineFollowingElements(ctx, previous_ifdef_blocks.drop(1), env)
         predecessor_list match {
