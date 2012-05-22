@@ -441,7 +441,7 @@ trait ConditionalControlFlow extends ASTNavigation {
                 res ++= l
                 parentAST(t, env) match {
                   case tp@IfStatement(_, _, _, None) => res ++= getStmtSucc(tp, ctx, env)
-                  case IfStatement(_, _, _, Some(elseBranch)) => res ++= getCondStmtPred(t, elseBranch, ctx, env)
+                  case IfStatement(_, _, _, Some(elseBranch)) => res ++= getCondStmtSucc(t, elseBranch, ctx, env)
                 }
               }
             }
