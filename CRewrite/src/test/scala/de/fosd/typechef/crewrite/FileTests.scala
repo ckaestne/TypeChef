@@ -846,6 +846,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_widechar_1() {assert(checkCfg("widechar-1.c") == false)}
   @Test def test_zero_strct_1() {assert(checkCfg("zero-strct-1.c") == false)}
   @Test def test_zero_strct_2() {assert(checkCfg("zero-strct-2.c") == false)}
+  @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c") == false)}
 
   // bugfinding
   @Test def test_bug01() {assert(checkCfg("bug01.c") == false)}
@@ -878,8 +879,9 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug28() {assert(checkCfg("bug28.c") == false)}
   @Test def test_bug29() {assert(checkCfg("bug29.c") == false)}
   @Test def test_bug30() {assert(checkCfg("bug30.c") == false)}
+  @Test def test_bug31() {assert(checkCfg("bug31.c") == false)}
+  @Test def test_bug32() {assert(checkCfg("bug32.c") == false)}
 
-  @Test def test_else_if_chains() {assert(checkCfg("test_else_if_chains.c") == false)}
   @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}
-  @Test def test_gzip() {assert(checkCfg("gzip.c") == false)}
+  @Ignore def test_gzip() {assert(checkCfg("gzip.c") == false)}
 }

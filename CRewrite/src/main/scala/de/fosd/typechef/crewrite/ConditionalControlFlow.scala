@@ -595,7 +595,7 @@ trait ConditionalControlFlow extends ASTNavigation {
               if (elifs.isEmpty) getCondExprPred(condition, ctx, env)
               else {
                 getCompoundPred(elifs, t, ctx, env).flatMap({
-                  case ElifStatement(condition, _) => getCondExprPred(condition, ctx, env)
+                  case ElifStatement(elif_condition, _) => getCondExprPred(elif_condition, ctx, env)
                   case x => List(x)
                 })
               }
@@ -840,10 +840,22 @@ trait ConditionalControlFlow extends ASTNavigation {
       }
       case t@SwitchStatement(expr, s) => {
         val lbreaks = filterBreakStatements(s, env.featureExpr(t), env)
-        val ldefaults = filterDefaultStatements(s, env.featureExpr(t), env)
+        lazy val ldefaults = filterDefaultStatements(s, env.featureExpr(t), env)
 
-        // TODO both lbreaks and ldefaults are empty!
-        if (ldefaults.isEmpty) lbreaks ++ getExprPred(expr, ctx, env)
+        // if no break and default statement is there, possible predecessors are the expr of the switch itself
+        // and the code after the last case
+        if (lbreaks.isEmpty && ldefaults.isEmpty) {
+          var res = getExprPred(expr, ctx, env)
+          val listcasestmts = filterCaseStatements(s, ctx, env)
+
+          if (! listcasestmts.isEmpty) {
+            val lastcase = listcasestmts.last
+            res ++= rollUpJumpStatement(lastcase, true, env.featureExpr(lastcase), env)
+          }
+
+          res
+        }
+        else if (ldefaults.isEmpty) lbreaks ++ getExprPred(expr, ctx, env)
         else lbreaks ++ ldefaults.flatMap({ x => rollUpJumpStatement(x, true, env.featureExpr(x), env) })
       }
 
@@ -1161,7 +1173,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   // pack similar elements into sublists
   private def pack[T](f: (T, T) => Boolean)(l: List[T]): List[List[T]] = {
     if (l.isEmpty) List()
-    else (l.head :: l.tail.takeWhile(f(l.head, _))) :: pack(f)(l.tail.dropWhile(f(l.head, _)))
+    else (l.head :: l.tail.takeWhile(f(l.head, _))) :: pack[T](f)(l.tail.dropWhile(f(l.head, _)))
   }
 
   // group consecutive Opts in a list and return a list of list containing consecutive (feature equivalent) opts
@@ -1191,13 +1203,13 @@ trait ConditionalControlFlow extends ASTNavigation {
 
     l match {
       case (h :: t) => {
-        val feature_expr_over_ifdef_blocks = h.map({
+        val listfexp = h.map({
           e => env.featureExpr(e.head)
         })
 
-        if ((ctx implies feature_expr_over_ifdef_blocks.foldLeft(FeatureExprFactory.True)(_ and _)).isTautology())
+        if ((ctx implies listfexp.foldLeft(FeatureExprFactory.True)(_ and _)).isTautology())
           (0, h) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
-        else if (feature_expr_over_ifdef_blocks.map(_.not()).foldLeft(FeatureExprFactory.True)(_ and _).isContradiction())
+        else if (listfexp.map(_.not()).foldLeft(FeatureExprFactory.True)(_ and _).isContradiction())
           (2, h.reverse) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
         else (1, h) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
       }
