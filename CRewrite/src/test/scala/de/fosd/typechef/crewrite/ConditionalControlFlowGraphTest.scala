@@ -714,7 +714,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     assert(errors.isEmpty)
   }
 
-  @Test def test_goto_pred_succ() {
+  @Ignore def test_goto_pred_succ() {
     val a = parseFunctionDef("""
     int foo(void) {
       goto l;
