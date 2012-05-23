@@ -593,7 +593,12 @@ trait ConditionalControlFlow extends ASTNavigation {
             else if (isPartOf(nested_ast_elem, thenBranch)) getCondExprPred(condition, ctx, env)
             else if (isPartOf(nested_ast_elem, elseBranch)) {
               if (elifs.isEmpty) getCondExprPred(condition, ctx, env)
-              else getCompoundPred(elifs, t, ctx, env)
+              else {
+                getCompoundPred(elifs, t, ctx, env).flatMap({
+                  case ElifStatement(condition, _) => getCondExprPred(condition, ctx, env)
+                  case x => List(x)
+                })
+              }
             } else {
               getStmtPred(nested_ast_elem.asInstanceOf[AST], ctx, env)
             }
@@ -821,7 +826,16 @@ trait ConditionalControlFlow extends ASTNavigation {
       case ElifStatement(condition, thenBranch) => {
         var res = List[AST]()
         res ++= getCondExprPred(condition, ctx, env)
-        res ++= getCondStmtPred(target, thenBranch, ctx, env)
+
+        // check wether source is part of a possibly exising elsebranch;
+        // if so we do not roll up the thenbranch
+        findPriorASTElem[IfStatement](source, env) match {
+          case None =>
+          case Some(IfStatement(_, _, _, None)) => res ++= getCondStmtPred(target, thenBranch, ctx, env)
+          case Some(IfStatement(_, _, _, Some(x))) => if (! isPartOf(source, x))
+            res ++= getCondStmtPred(target, thenBranch, ctx, env)
+        }
+
         res.flatMap({ x => rollUp(source, x, env.featureExpr(x), env) })
       }
       case t@SwitchStatement(expr, s) => {
