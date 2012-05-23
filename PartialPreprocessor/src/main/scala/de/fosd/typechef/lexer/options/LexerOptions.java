@@ -123,7 +123,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
 
     protected Map<String, String> definedMacros = new HashMap<String, String>();
     protected Set<String> undefMacros = new HashSet<String>();
-    protected List<String> systemIncludePath = new ArrayList<String>();
+    public List<String> systemIncludePath = new ArrayList<String>();
     protected List<String> quoteIncludePath = new ArrayList<String>();
     protected List<String> macroFilter = new ArrayList<String>();
     protected List<String> includedHeaders = new ArrayList<String>();

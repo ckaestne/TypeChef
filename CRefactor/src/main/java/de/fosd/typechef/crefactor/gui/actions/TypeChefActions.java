@@ -1,6 +1,7 @@
 package de.fosd.typechef.crefactor.gui.actions;
 
 import de.fosd.typechef.crefactor.connector.CreateASTForCode;
+import de.fosd.typechef.crefactor.connector.CreateASTForCode$;
 import org.fife.ui.rtextarea.RTextArea;
 
 import javax.swing.*;
@@ -20,13 +21,10 @@ public class TypeChefActions {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedText = textArea.getSelectedText();
-                if (selectedText == null) {
-                    return;
-                }
+ 
                 try {
-                    CreateASTForCode connector = new CreateASTForCode(selectedText);
-                    String ast = connector.analyse();
+                    String ast = CreateASTForCode$.MODULE$.analyse();
+
                     displayModalTextArea("AST", ast);
 
 
@@ -38,21 +36,35 @@ public class TypeChefActions {
         return action;
     }
 
-    public static Action getPrettyAST(final RTextArea textArea) {
+    public static Action showPrettyAST(final RTextArea textArea) {
         Action action = new AbstractAction() {
             {
-                putValue(Action.NAME, "Analysiere AST");
+                putValue(Action.NAME, "Zeige Code");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textArea.setText(CreateASTForCode.prettyAnalyse());
+            }
+        };
+        return action;
+    }
+
+    public static Action getElementAtPosition(final RTextArea textArea) {
+        Action action = new AbstractAction() {
+            {
+                putValue(Action.NAME, "Analysiere Element");
             }
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedText = textArea.getSelectedText();
-                if (selectedText == null) {
+                String text = textArea.getText();
+                int column = textArea.getCaretOffsetFromLineStart();
+                int line = textArea.getCaretLineNumber() + 1;
+                if (text == null) {
                     return;
                 }
                 try {
-                    CreateASTForCode connector = new CreateASTForCode(selectedText);
-                    String ast = connector.prettyAnalyse();
+                    String ast = CreateASTForCode.positionAnalyse(column, line);
                     displayModalTextArea("Analyse", ast);
 
 

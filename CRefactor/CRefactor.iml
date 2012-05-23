@@ -32,7 +32,17 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="org.scala-lang_scala-library_2.9.1" level="project" />
-    <orderEntry type="module" module-name="CParser" />
+    <orderEntry type="module" module-name="CParser" exported="" />
+    <orderEntry type="module" module-name="CRewrite" exported="" />
+    <orderEntry type="module" module-name="TypeChef" exported="" />
+    <orderEntry type="module" module-name="ConditionalLib" exported="" />
+    <orderEntry type="module" module-name="CTypeChecker" />
+    <orderEntry type="module" module-name="FeatureExprLib" exported="" />
+    <orderEntry type="module" module-name="Frontend" exported="" />
+    <orderEntry type="module" module-name="JavaParser" exported="" />
+    <orderEntry type="module" module-name="ParserFramework" exported="" />
+    <orderEntry type="module" module-name="PartialPreprocessor" exported="" />
+    <orderEntry type="module" module-name="project" exported="" />
   </component>
 </module>
 

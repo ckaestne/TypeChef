@@ -45,6 +45,7 @@ public class EditorWindow extends JFrame {
         this.textArea.setWhitespaceVisible(true);
         this.textArea.setCodeFoldingEnabled(true);
         this.textArea.setAntiAliasingEnabled(true);
+        this.textArea.setEditable(false);
 
         // add menubar
         super.setJMenuBar(MenubarFactory.buildMenuBar(this.textArea));

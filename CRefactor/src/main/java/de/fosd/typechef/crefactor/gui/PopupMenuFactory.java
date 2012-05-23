@@ -38,7 +38,8 @@ public final class PopupMenuFactory {
     private static JMenu getRefactorMenu(final RTextArea textArea) {
         JMenu refactorMenu = new JMenu(REFACTOR_MENU_NAME);
         refactorMenu.add(new JMenuItem(TypeChefActions.getAST(textArea)));
-        refactorMenu.add(new JMenuItem(TypeChefActions.getPrettyAST(textArea)));
+        refactorMenu.add(new JMenuItem(TypeChefActions.getElementAtPosition(textArea)));
+        refactorMenu.add(new JMenuItem(TypeChefActions.showPrettyAST(textArea)));
         return refactorMenu;
     }
 

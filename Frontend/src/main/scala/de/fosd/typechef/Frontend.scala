@@ -15,6 +15,9 @@ import parser.Position
 
 object Frontend {
 
+  private var storedAst = null.asInstanceOf[AST]
+
+  private var options = new FrontendOptions
 
     def main(args: Array[String]): Unit = {
         // load options
@@ -46,7 +49,7 @@ object Frontend {
                 println("use parameter --help for more information.")
                 return;
         }
-
+        options = opt
         processFile(opt)
     }
 
@@ -71,6 +74,7 @@ object Frontend {
             val in = CLexer.prepareTokens(tokens)
             val parserMain = new ParserMain(new CParser(fm))
             val ast = parserMain.parserMain(in, opt)
+            println(ast)
             t3 = System.currentTimeMillis();
             t6 = t3
             t5 = t3
@@ -79,6 +83,7 @@ object Frontend {
                 serializeAST(ast, opt.getSerializedASTFilename)
 
             if (ast != null) {
+                storedAst = ast
                 val fm_ts = opt.getFeatureModelTypeSystem().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
@@ -118,5 +123,13 @@ object Frontend {
         val fw = new FileWriter(filename)
         fw.write(ast.toString)
         fw.close()
+    }
+
+    def getAST() : AST = {
+       return storedAst
+    }
+
+    def getOptions() : FrontendOptions = {
+      return options
     }
 }

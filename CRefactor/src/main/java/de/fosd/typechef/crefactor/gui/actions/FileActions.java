@@ -1,5 +1,6 @@
 package de.fosd.typechef.crefactor.gui.actions;
 
+import de.fosd.typechef.crefactor.connector.CreateASTForCode$;
 import org.fife.ui.rtextarea.RTextArea;
 
 import javax.swing.*;
@@ -39,7 +40,15 @@ public class FileActions {
                 }
                 if (filePath != null) {
                     loadFile(textArea, filePath);
+                    String args[] = new String[3];
+                    args[0] = filePath;
+                    args[1] = "-xCONFIG_";
+                    args[2] = "-c/Users/andi/Dropbox/HiWi/Andi/andi.properties";
+                    CreateASTForCode$.MODULE$.getAST(args);
                 }
+
+                // build ast
+
             }
         };
         return action;
