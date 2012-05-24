@@ -23,7 +23,6 @@ import java.io._
  * Time: 3:45 PM
  *
  */
-
 object ProductGeneration {
     /**Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
     private var featureIDHashmap: Map[SingleFeatureExpr, Int] = null
@@ -265,19 +264,19 @@ object ProductGeneration {
         /**All products */
         //typecheckingTasks ::= Pair("allProducts", getAllProducts(features, fm, family_env))
         /** Load config from file */
-/*
+
         {
             startTime = System.currentTimeMillis()
-            val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/l/allyes_modified.config"))
+            val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/linux-2.6.33.3/allyes_modified.config"))
             typecheckingTasks ::= Pair("FileConfig", configs)
             configurationCollection ++= configs
             msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
             println(msg)
             log = log + msg
         }
-*/
-        /**Single-wise */
 
+        /**Single-wise */
+/*
         {
             startTime = System.currentTimeMillis()
             val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
@@ -287,7 +286,7 @@ object ProductGeneration {
             println(msg)
             log = log + msg
         }
-
+*/
         /**Coverage Configurations */
 /*
         {
@@ -678,7 +677,10 @@ object ProductGeneration {
 
 
     def getConfigsFromFiles(@SuppressWarnings(Array("unchecked")) features: List[SingleFeatureExpr], fm: FeatureModel, file :File) : (List[SimpleConfiguration], String) = {
-        val correctFeatureModelIncopatibility = true
+        var correctFeatureModelIncompatibility = false
+        var ignoredFeatures = 0
+        var changedAssignment = 0
+        var totalFeatures = 0
         var fileEx : FeatureExpr = FeatureExprFactory.True
         var trueFeatures : Set[SingleFeatureExpr] = Set()
         var falseFeatures : Set[SingleFeatureExpr] = Set()
@@ -686,18 +688,20 @@ object ProductGeneration {
         val enabledPattern : Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=y")
         val disabledPattern : Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=n")
         for(line <- Source.fromFile(file).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)) {
+            totalFeatures+=1
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
                 val name = "CONFIG_" + matcher.group(1)
                 val feature = FeatureExprFactory.createDefinedExternal(name)
                 var fileExTmp = fileEx.and(feature)
-                if (correctFeatureModelIncopatibility) {
-                    val isSat =fileEx.isSatisfiable(fm)
+                if (correctFeatureModelIncompatibility) {
+                    val isSat =fileExTmp.isSatisfiable(fm)
                     println(name+" "+(if (isSat) "sat" else "!sat"))
                     if (!isSat) {
-                        fileExTmp = fileEx.andNot(feature)
-                        println("SETTING " + name + "=n")
+                        fileExTmp = fileEx.andNot(feature); println("disabling feature " + feature)
+                        //fileExTmp = fileEx; println("ignoring Feature " +feature)
                         falseFeatures +=feature
+                        changedAssignment+=1
                     } else {
                         trueFeatures += feature
                     }
@@ -711,13 +715,14 @@ object ProductGeneration {
                     val name = "CONFIG_" + matcher.group(1)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
                     var fileExTmp = fileEx.andNot(feature)
-                    if (correctFeatureModelIncopatibility) {
+                    if (correctFeatureModelIncompatibility) {
                         val isSat = fileEx.isSatisfiable(fm)
                         println("! " + name+" "+(if (isSat) "sat" else "!sat"))
                         if (!isSat) {
                             fileExTmp = fileEx.and(feature)
                             println("SETTING " + name + "=y")
                             trueFeatures +=feature
+                            changedAssignment+=1
                         } else {
                             falseFeatures +=feature
                         }
@@ -726,6 +731,7 @@ object ProductGeneration {
                     }
                     fileEx = fileExTmp
                 } else {
+                    ignoredFeatures+=1
                     //println("ignoring line: " + line)
                 }
             }
@@ -734,6 +740,16 @@ object ProductGeneration {
         println("features mentioned in c-file but not in config: ")
         for (x <- features.filterNot((trueFeatures++falseFeatures).contains(_))) {
             println(x.feature)
+        }
+        if (correctFeatureModelIncompatibility) {
+            // save corrected file
+            val fw = new FileWriter(new File(file.getParentFile, file.getName + "_corrected"))
+            fw.write("# configFile written by typechef, based on " + file.getAbsoluteFile)
+            fw.write("# ignored " + ignoredFeatures + " features of " + totalFeatures + " features")
+            fw.write("# changed assignment for " + changedAssignment + " features of " + totalFeatures + " features")
+            for (feature <- trueFeatures)
+                fw.append(feature.feature + "=y\n")
+            fw.close()
         }
         val interestingTrueFeatures = trueFeatures.filter(features.contains(_)).toList
         val interestingFalseFeatures = falseFeatures.filter(features.contains(_)).toList

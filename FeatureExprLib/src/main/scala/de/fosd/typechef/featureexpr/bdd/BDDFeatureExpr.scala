@@ -184,7 +184,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                 val thisParts = this.collectDistinctFeatureObjects
                 remainingInterestingFeatures --= thisParts
                 if (preferDisabledFeatures) {
-                    var enabledFeatures : Set[SingleFeatureExpr] = thisParts
+                    var enabledFeatures : Set[SingleFeatureExpr] = thisParts.filter(interestingFeatures.contains(_)) // only add parts of this expression that are interesting
                     for (f <- trueFeatures) {
                         val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
                         //if (remainingInterestingFeatures.contains(f)) {
