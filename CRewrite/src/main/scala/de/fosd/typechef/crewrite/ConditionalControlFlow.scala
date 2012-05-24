@@ -650,7 +650,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         val prev_elifs = elifs.reverse.dropWhile(_.entry.eq(a.asInstanceOf[AnyRef]).unary_!).drop(1)
         val ifdef_blocks = determineIfdefBlocks(prev_elifs, env)
         val grouped_ifdef_blocks = groupIfdefBlocks(ifdef_blocks, env)
-        val typed_grouped_ifdef_blocks = determineTypeOfGroupedIfdefBlocks(grouped_ifdef_blocks, ctx, env)
+        val typed_grouped_ifdef_blocks = typeOptAltBlocks(grouped_ifdef_blocks, ctx, env)
         res = res ++ determineFollowingElements(ctx, typed_grouped_ifdef_blocks, env).merge
 
         // if no previous elif statement is found, the result is condition
@@ -980,7 +980,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def getTypedOptAltBlocks(l: List[AST], ctx: FeatureExpr, env: ASTEnv): List[TypedOptAltBlock] = {
     val ifdefblocks = determineIfdefBlocks(l, env)
     val groupedblocks = groupIfdefBlocks(ifdefblocks, env)
-    val typedblocks = determineTypeOfGroupedIfdefBlocks(groupedblocks, ctx, env)
+    val typedblocks = typeOptAltBlocks(groupedblocks, ctx, env)
     return typedblocks
   }
 
@@ -1221,8 +1221,8 @@ trait ConditionalControlFlow extends ASTNavigation {
     // order b, a (see l.reverse below)
     def checkImplication(a: AST, b: AST) = {
       // annotation sets for a and b
-      val afexpset = env.lfeature(a).toSet
-      val bfexpset = env.lfeature(b).toSet
+      val afexpset = env.featureSet(a)
+      val bfexpset = env.featureSet(b)
 
       // determine common part of both elements
       val abcommon = afexpset.intersect(bfexpset)
@@ -1248,7 +1248,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   // 0 -> only true values
   // 1 -> #if-(#elif)* block
   // 2 -> #if-(#elif)*-#else block
-  private def determineTypeOfGroupedIfdefBlocks(l: List[OptAltBlock], ctx: FeatureExpr, env: ASTEnv): List[TypedOptAltBlock] = {
+  private def typeOptAltBlocks(l: List[OptAltBlock], ctx: FeatureExpr, env: ASTEnv): List[TypedOptAltBlock] = {
 
     l match {
       case (h :: t) => {
@@ -1257,12 +1257,22 @@ trait ConditionalControlFlow extends ASTNavigation {
         })
 
         if ((ctx implies listfexp.foldLeft(FeatureExprFactory.True)(_ and _)).isTautology())
-          (0, h) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
+          (0, h) :: typeOptAltBlocks(t, ctx, env)
         else if (listfexp.map(_.not()).foldLeft(FeatureExprFactory.True)(_ and _).isContradiction())
-          (2, h.reverse) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
-        else (1, h) :: determineTypeOfGroupedIfdefBlocks(t, ctx, env)
+          (2, h.reverse) :: typeOptAltBlocks(t, ctx, env)
+        else (1, h) :: typeOptAltBlocks(t, ctx, env)
       }
       case Nil => List()
+    }
+  }
+
+  private def typeOptAltBlocksPred(l: List[OptAltBlock], ctx: FeatureExpr, env: ASTEnv): List[TypedOptAltBlock] = {
+    if (l.isEmpty) Nil
+    else {
+      val lhead = l.head
+      val listfexp = lhead.map( e => env.featureExpr(e.head) )
+
+      Nil
     }
   }
 }
