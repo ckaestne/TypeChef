@@ -243,7 +243,6 @@ object ProductGeneration {
 
         /**Starting with no tasks */
         var typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]] = List()
-
         val configSerializationDir =new File("../savedConfigs/" + opt.getFile.substring(0, opt.getFile.length - 2))
         val useSerialization = true
         if (useSerialization &&
@@ -266,35 +265,48 @@ object ProductGeneration {
         /** Load config from file */
 
         {
-            startTime = System.currentTimeMillis()
-            val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/linux-2.6.33.3/allyes_modified.config"))
-            typecheckingTasks ::= Pair("FileConfig", configs)
-            configurationCollection ++= configs
-            msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            if (typecheckingTasks.find(_._1.equals("FileConfig")).isDefined) {
+                msg = "omitting FileConfig generation, because a serialized version was loaded"
+            } else {
+                startTime = System.currentTimeMillis()
+                val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/linux-2.6.33.3/allyes_modified.config"))
+                typecheckingTasks :+= Pair("FileConfig", configs)
+                configurationCollection ++= configs
+                msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            }
             println(msg)
             log = log + msg
         }
 
         /**Single-wise */
-/*
+
         {
-            startTime = System.currentTimeMillis()
-            val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
-            typecheckingTasks ::= Pair("singleWise", configs)
-            configurationCollection ++= configs
-            msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            if (typecheckingTasks.find(_._1.equals("singleWise")).isDefined) {
+                msg = "omitting singleWise generation, because a serialized version was loaded"
+            } else {
+                startTime = System.currentTimeMillis()
+                val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
+                typecheckingTasks :+= Pair("singleWise", configs)
+
+                configurationCollection ++= configs
+                msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            }
             println(msg)
             log = log + msg
         }
-*/
+
         /**Coverage Configurations */
 /*
         {
-            startTime = System.currentTimeMillis()
-            val (configs, logmsg) = configurationCoverage(family_ast, family_env, fm, features, configurationCollection, preferDisabledFeatures = false)
-            typecheckingTasks ::= Pair("coverage", configs)
-            configurationCollection ++= configs
-            msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            if (typecheckingTasks.find(_._1.equals("coverage")).isDefined) {
+                msg = "omitting coverage generation, because a serialized version was loaded"
+            } else {
+                startTime = System.currentTimeMillis()
+                val (configs, logmsg) = configurationCoverage(family_ast, family_env, fm, features, configurationCollection, preferDisabledFeatures = false)
+                typecheckingTasks :+= Pair("coverage", configs)
+                configurationCollection ++= configs
+                msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            }
             println(msg)
             log = log + msg
         }
@@ -302,27 +314,35 @@ object ProductGeneration {
         /**Pairwise MAX */
 /*
         {
-            startTime = System.currentTimeMillis()
-            val (configs, logmsg) = getAllPairwiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
-            typecheckingTasks ::= Pair("pairWiseMax", configs)
-            configurationCollection ++= configs
-            msg = "Time for config generation (pairwiseMax): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            if (typecheckingTasks.find(_._1.equals("pairWiseMax")).isDefined) {
+                msg = "omitting pairWiseMax generation, because a serialized version was loaded"
+            } else {
+                startTime = System.currentTimeMillis()
+                val (configs, logmsg) = getAllPairwiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
+                typecheckingTasks :+= Pair("pairWiseMax", configs)
+                configurationCollection ++= configs
+                msg = "Time for config generation (pairwiseMax): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            }
             println(msg)
             log = log + msg
         }
 */
         /**Pairwise */
         /*
+        if (typecheckingTasks.find(_._1.equals("pairWise")).isDefined) {
+            msg = "omitting pairWise generation, because a serialized version was loaded"
+        } else {
             startTime = System.currentTimeMillis()
-            typecheckingTasks ::= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
+            typecheckingTasks :+= Pair("pairWise", getAllPairwiseConfigurations(features,fm, preferDisabledFeatures=true))
             msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n"
+        }
             println(msg)
             log = log + msg
         */
 
         /**Just one hardcoded config */
         /*
-            typecheckingTasks ::= Pair("hardcoded", getOneConfigWithFeatures(
+            typecheckingTasks :+= Pair("hardcoded", getOneConfigWithFeatures(
               List("CONFIG_LONG_OPTS"),
               List(),
               features,fm, true, true)
