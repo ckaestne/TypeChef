@@ -1013,7 +1013,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       val bfexp = env.featureExpr(head)
       
       // context implies annotation directly
-      if (context equivalentTo bfexp) return Left(res ++ List(head))
+      if ((context implies bfexp) isTautology()) return Left(res ++ List(head))
 
       // annotation of the block contradicts with context; do nothing
       else if ((context and bfexp) isContradiction()) { }
