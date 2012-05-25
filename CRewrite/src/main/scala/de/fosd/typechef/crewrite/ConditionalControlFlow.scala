@@ -1066,7 +1066,7 @@ trait ConditionalControlFlow extends ASTNavigation {
 
     for (e <- l) {
       e match {
-        case (0, ifdef_blocks) => return Left(res ++ List(ifdef_blocks.head.head))
+        case (0, ifdef_blocks) => return Left(res ++ ifdef_blocks.map(x => x.head))
         case (1, ifdef_blocks) => {
           for (block <- ifdef_blocks) {
             val bfexp = env.featureExpr(block.head)
