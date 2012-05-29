@@ -178,16 +178,14 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         // get one satisfying assignment (a list of features set to true, and a list of features set to false)
         val assignment : Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
         // we will subtract from this set until all interesting features are handled
+        // the result will only contain interesting features. Even parts of this expression will be omitted if uninteresting.
         var remainingInterestingFeatures = interestingFeatures
         assignment match {
             case Some(Pair(trueFeatures, falseFeatures)) => {
-                val thisParts = this.collectDistinctFeatureObjects
-                remainingInterestingFeatures --= thisParts
                 if (preferDisabledFeatures) {
-                    var enabledFeatures : Set[SingleFeatureExpr] = thisParts.filter(interestingFeatures.contains(_)) // only add parts of this expression that are interesting
+                    var enabledFeatures : Set[SingleFeatureExpr] = Set()
                     for (f <- trueFeatures) {
                         val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
-                        //if (remainingInterestingFeatures.contains(f)) {
                         elem match {
                             case Some(fex : SingleFeatureExpr) => {
                                 remainingInterestingFeatures -= fex
@@ -201,7 +199,6 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                     var disabledFeatures : Set[SingleFeatureExpr] = Set()
                     for (f <- falseFeatures) {
                         val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
-                        //if (remainingInterestingFeatures.contains(f)) {
                         elem match {
                             case Some(fex : SingleFeatureExpr) => {
                                 remainingInterestingFeatures -= fex
@@ -210,13 +207,12 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                             case None => {}
                         }
                     }
-                    return Some(remainingInterestingFeatures.++(thisParts).toList,disabledFeatures.toList)
+                    return Some(remainingInterestingFeatures.toList,disabledFeatures.toList)
                 }
             }
             case None => return None
         }
     }
-
 
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable

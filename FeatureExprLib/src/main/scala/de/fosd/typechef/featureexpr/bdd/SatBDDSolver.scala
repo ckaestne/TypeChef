@@ -5,6 +5,7 @@ import collection.mutable.WeakHashMap
 
 import org.sat4j.minisat.SolverFactory
 import org.sat4j.specs.{IVecInt, IConstr, ContradictionException}
+import de.fosd.typechef.featureexpr.{SingleFeatureExpr, FeatureModel}
 ;
 
 
@@ -15,6 +16,61 @@ import org.sat4j.specs.{IVecInt, IConstr, ContradictionException}
  */
 
 object SatSolver {
+
+
+    /**
+     * takes two sets of strings as parameter (one for true variables and one for false variables).
+     * Computes an assignment that satisfies the configuration.
+     * Assuming that all variable names appear in the featureModel.
+     *
+     */
+    def getSatisfiableAssignmentFromStringSets(fm: BDDFeatureModel, interestingFeatures : Set[SingleFeatureExpr],
+                                               defEnabledFeatures : Set[String], defDisabledFeatures : Set[String],
+                                               preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
+        val bddDNF = Set(
+            (defEnabledFeatures.map(fm.variables(_)) ++ defDisabledFeatures.map(- fm.variables(_)))
+                .toSeq).iterator
+
+        // get one satisfying assignment (a list of features set to true, and a list of features set to false)
+        val assignment : Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
+        // we will subtract from this set until all interesting features are handled
+        // the result will only contain interesting features. Even parts of this expression will be omitted if uninteresting.
+        var remainingInterestingFeatures = interestingFeatures
+        assignment match {
+            case Some(Pair(trueFeatures, falseFeatures)) => {
+
+                if (preferDisabledFeatures) {
+                    var enabledFeatures : Set[SingleFeatureExpr] = Set()
+                    for (f <- trueFeatures) {
+                        val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                        elem match {
+                            case Some(fex : SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                enabledFeatures += fex
+                            }
+                            case None => {}
+                        }
+                    }
+                    return Some(enabledFeatures.toList, remainingInterestingFeatures.toList)
+                } else {
+                    var disabledFeatures : Set[SingleFeatureExpr] = Set()
+                    for (f <- falseFeatures) {
+                        val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                        elem match {
+                            case Some(fex : SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                disabledFeatures += fex
+                            }
+                            case None => {}
+                        }
+                    }
+                    return Some(remainingInterestingFeatures.toList,disabledFeatures.toList)
+                }
+            }
+            case None => return None
+        }
+    }
+
     /**
      * caching can reuse SAT solver instances, but experience
      * has shown that it can lead to incorrect results,

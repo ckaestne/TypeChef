@@ -4,6 +4,7 @@ import conditional.{Choice, Opt}
 import crewrite._
 import featureexpr._
 
+import bdd.{BDDFeatureModel, SatSolver, BDDFeatureExpr}
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
 import typesystem.CTypeSystemFrontend
 import scala.collection.immutable.HashMap
@@ -60,7 +61,8 @@ object ProductGeneration {
             ).mkString("&&")
         }
 
-        // caching
+        // caching, values of this field will not be serialized
+        @transient
         private var featureExpression : FeatureExpr = null
         def toFeatureExpr : FeatureExpr = {
             if (featureExpression == null)
@@ -173,8 +175,6 @@ object ProductGeneration {
                 while (iter.hasNext) {
                     taskConfigs += iter.next()
                 }
-
-
                 taskList.+=((taskName, taskConfigs.toList))
             }
         }
@@ -182,6 +182,8 @@ object ProductGeneration {
     }
 
     def typecheckProducts(fm_1: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions) {
+        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+
         var log, msg: String = ""
         val fm = fm_ts // I got false positives while using the other fm
         //val fm = fm_1
@@ -243,8 +245,8 @@ object ProductGeneration {
 
         /**Starting with no tasks */
         var typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]] = List()
-        val configSerializationDir =new File("../savedConfigs/" + opt.getFile.substring(0, opt.getFile.length - 2))
-        val useSerialization = true
+        val configSerializationDir =new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
+        val useSerialization = false
         if (useSerialization &&
             configSerializationDir.exists() &&
             new File(configSerializationDir,"FeatureHashmap.ser").exists()) {
@@ -341,26 +343,26 @@ object ProductGeneration {
         */
 
         /**Just one hardcoded config */
-        /*
+/*
             typecheckingTasks :+= Pair("hardcoded", getOneConfigWithFeatures(
-              List("CONFIG_LONG_OPTS"),
-              List(),
-              features,fm, true, true)
+              List("CONFIG_SMP"),
+              List("CONFIG_X86_32_SMP","CONFIG_X86_64_SMP"),
+              features,fm, true)
               )
-        */
+*/
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
 
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (java.lang.Integer, java.lang.Integer, java.lang.Long))] = List()
-        val outFilePrefix: String = "../reports/" + opt.getFile.substring(0, opt.getFile.length - 2)
+        val outFilePrefix: String = "../reports/" + thisFilePath.substring(0, thisFilePath.length - 2)
         for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
             var configurationsWithErrors = 0
             var current_config = 0
             var totalTimeProductChecking: Long = 0
             for (config <- configs) {
                 current_config += 1
-                println("checking configuration " + current_config + " of " + configs.size + " (" + opt.getFile + " , " + taskDesc + ")")
+                println("checking configuration " + current_config + " of " + configs.size + " (" + thisFilePath + " , " + taskDesc + ")")
                 val product: TranslationUnit = cf.deriveProd[TranslationUnit](family_ast,
                     new Configuration(config.toFeatureExpr, fm), family_env)
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
@@ -408,7 +410,7 @@ object ProductGeneration {
         val file: File = new File(outFilePrefix + "_report.txt")
         file.getParentFile.mkdirs()
         fw = new FileWriter(file)
-        fw.write("File : " + opt.getFile + "\n")
+        fw.write("File : " + thisFilePath + "\n")
         fw.write("Features : " + features.size + "\n")
         fw.write(log + "\n")
 
@@ -470,6 +472,7 @@ object ProductGeneration {
             }
             remainingFeatures = remainingFeatures.slice(0, fIndex) ++ remainingFeatures.slice(fIndex + 1, remainingFeatures.length + 1)
         }
+        println("cecking satisfiability of " + partConfig.toTextExpr)
         if (partConfig.isSatisfiable(fm)) {
             if (fixConfig) {
                 val completeConfig = completeConfiguration(partConfig, remainingFeatures, fm)
@@ -496,11 +499,8 @@ object ProductGeneration {
         for (f1 <- features) {
             if (!configListContainsFeaturesAsEnabled(pwConfigs ++ existingConfigs, Set(f1))) {
                 // this pair was not considered yet
-                val conf = FeatureExprFactory.True.and(f1)
-                val remainingFeatures = features.filterNot({
-                    (fe: SingleFeatureExpr) => fe.equals(f1)
-                })
-                val completeConfig = completeConfiguration(conf, remainingFeatures, fm)
+                val conf = f1
+                val completeConfig = completeConfiguration(conf, features, fm)
                 if (completeConfig != null) {
                     pwConfigs ::= completeConfig
                 } else {
@@ -538,10 +538,7 @@ object ProductGeneration {
                     // this pair was not considered yet
                     val confEx = FeatureExprFactory.True.and(f1).and(f2)
                     // make config complete by choosing the other features
-                    val remainingFeatures = features.filterNot({
-                        (fe: SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2)
-                    })
-                    val completeConfig = completeConfiguration(confEx, remainingFeatures, fm, preferDisabledFeatures)
+                    val completeConfig = completeConfiguration(confEx, features, fm, preferDisabledFeatures)
                     if (completeConfig != null) {
                         pwConfigs ::= completeConfig
                         f1Configs ::= completeConfig
@@ -589,10 +586,7 @@ object ProductGeneration {
                         // this pair was not considered yet
                         val conf = FeatureExprFactory.True.and(f1).and(f2).and(f3)
                         // make config complete by choosing the other features
-                        val remainingFeatures = features.filterNot({
-                            (fe: SingleFeatureExpr) => fe.equals(f1) || fe.equals(f2) || fe.equals(f3)
-                        })
-                        val completeConfig = completeConfiguration(conf, remainingFeatures, fm)
+                        val completeConfig = completeConfiguration(conf, features, fm)
                         if (completeConfig != null) {
                             pwConfigs ::= completeConfig
                         } else {
@@ -611,11 +605,18 @@ object ProductGeneration {
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + pwConfigs.size + "\n")
     }
+
+
     /*
     Configuration Coverage Method copied from Joerg and heavily modified :)
      */
     def configurationCoverage(astRoot : TranslationUnit, env : ASTEnv, fm: FeatureModel, features : List[SingleFeatureExpr],
                               existingConfigs : List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean) : (List[SimpleConfiguration],String) = {
+        val unsatCombinationsCacheFile = new File("unsatCombinationsCache.txt")
+        val useUnsatCombinationsCache = true
+        val unsatCombinationsCache : scala.collection.immutable.HashSet[String] = if (useUnsatCombinationsCache && unsatCombinationsCacheFile.exists()) {
+            new scala.collection.immutable.HashSet[String] ++ (Source.fromFile(unsatCombinationsCacheFile).getLines()).toSet
+        } else { scala.collection.immutable.HashSet() }
         var unsatCombinations = 0
         var alreadyCoveredCombinations = 0
         var complexNodes = 0
@@ -634,7 +635,9 @@ object ProductGeneration {
         var retList : List[SimpleConfiguration] = List()
         //inner function
         def handleFeatureExpression(fex:FeatureExpr) = {
-            if (! handledExpressions.contains(fex)) {
+            if (! handledExpressions.contains(fex) && !(useUnsatCombinationsCache && unsatCombinationsCache.contains(fex.toTextExpr))) {
+
+                //println("fex : " + fex.toTextExpr)
                 // search for configs that imply this node
                 var isCovered : Boolean = false
                 fex.getConfIfSimpleAndExpr() match {
@@ -667,14 +670,23 @@ object ProductGeneration {
                     val completeConfig = completeConfiguration(fex, features, fm, preferDisabledFeatures)
                     if (completeConfig != null) {
                         retList ::= completeConfig
+                        //println("created config for fex " + fex.toTextExpr)
                     } else {
+                        if (useUnsatCombinationsCache) {
+                            //unsatCombinationsCacheFile.getParentFile.mkdirs()
+                            val fw = new FileWriter(unsatCombinationsCacheFile, true)
+                            fw.write(fex.toTextExpr+"\n")
+                            fw.close()
+                        }
                         unsatCombinations += 1
-                        //println("no satisfiable configuration for optNode " + optNode)
+                        //println("no satisfiable configuration for fex " + fex.toTextExpr)
                     }
                 } else {
+                    //println("covered fex " + fex.toTextExpr)
                     alreadyCoveredCombinations += 1
                 }
                 handledExpressions.add(fex)
+                //println("retList.size = " + retList.size)
             }
         }
 
@@ -697,7 +709,7 @@ object ProductGeneration {
 
 
     def getConfigsFromFiles(@SuppressWarnings(Array("unchecked")) features: List[SingleFeatureExpr], fm: FeatureModel, file :File) : (List[SimpleConfiguration], String) = {
-        var correctFeatureModelIncompatibility = false
+        val correctFeatureModelIncompatibility = false
         var ignoredFeatures = 0
         var changedAssignment = 0
         var totalFeatures = 0
@@ -780,6 +792,60 @@ object ProductGeneration {
         }
         return (List(new SimpleConfiguration(interestingTrueFeatures,interestingFalseFeatures)),
             "")
+    }
+
+    /**
+     * Does the same as the other config-from-file method. However, it does not create additional bdd-Feature
+     * expressions but uses string Sets as parameters to the sat-call.
+     * Results are slightly different to the other method ?!
+     * @param features
+     * @param fm
+     * @param file
+     * @return
+     */
+    def getConfigsFromFiles_noBDDcreation(@SuppressWarnings(Array("unchecked")) features: List[SingleFeatureExpr], fm: FeatureModel, file :File) : (List[SimpleConfiguration], String) = {
+        var ignoredFeatures = 0
+        var totalFeatures = 0
+        var trueFeatures : Set[String] = Set()
+        var falseFeatures : Set[String] = Set()
+        val enabledPattern : Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=y")
+        val disabledPattern : Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=n")
+        for(line <- Source.fromFile(file).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)) {
+            totalFeatures+=1
+            var matcher = enabledPattern.matcher(line)
+            if (matcher.matches()) {
+                val name = "CONFIG_" + matcher.group(1)
+                trueFeatures +=name
+            } else {
+                matcher = disabledPattern.matcher(line)
+                if (matcher.matches()) {
+                    val name = "CONFIG_" + matcher.group(1)
+                    falseFeatures +=name
+                } else {
+                    ignoredFeatures+=1
+                }
+            }
+        }
+        println("features mentioned in c-file but not in config: ")
+        for (x <- features.filterNot({x=>(trueFeatures++falseFeatures).contains(x.feature)})) {
+            println(x.feature)
+        }
+        if (fm.isInstanceOf[BDDFeatureModel]) {
+            SatSolver.getSatisfiableAssignmentFromStringSets(fm.asInstanceOf[BDDFeatureModel],
+                features.toSet,trueFeatures,falseFeatures,true) match {
+                case None => println("configuration not satisfiable"); return (List(),"")
+                case Some((en,dis)) => {
+                    val x:SimpleConfiguration = new SimpleConfiguration(en,dis)
+                    if (!x.toFeatureExpr.isSatisfiable(fm)) {
+                        println("created unsat expr")
+                    }
+                    return (List(x), "")
+                }
+            }
+        } else {
+            println("ok, this works only with bdds!")
+            return null
+        }
     }
 
     /**
