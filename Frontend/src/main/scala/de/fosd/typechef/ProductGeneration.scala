@@ -246,7 +246,7 @@ object ProductGeneration {
         /**Starting with no tasks */
         var typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]] = List()
         val configSerializationDir =new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
-        val useSerialization = false
+        val useSerialization = true
         if (useSerialization &&
             configSerializationDir.exists() &&
             new File(configSerializationDir,"FeatureHashmap.ser").exists()) {
@@ -271,7 +271,8 @@ object ProductGeneration {
                 msg = "omitting FileConfig generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
-                val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/linux-2.6.33.3/allyes_modified.config"))
+                //val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/Linux_allyes_modified.config"))
+                val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("../Linux_allyes_modified.config"))
                 typecheckingTasks :+= Pair("FileConfig", configs)
                 configurationCollection ++= configs
                 msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
@@ -298,7 +299,7 @@ object ProductGeneration {
         }
 
         /**Coverage Configurations */
-/*
+
         {
             if (typecheckingTasks.find(_._1.equals("coverage")).isDefined) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
@@ -312,7 +313,7 @@ object ProductGeneration {
             println(msg)
             log = log + msg
         }
-*/
+
         /**Pairwise MAX */
 /*
         {
