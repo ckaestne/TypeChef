@@ -276,6 +276,12 @@ object ProductGeneration {
                 typecheckingTasks :+= Pair("FileConfig", configs)
                 configurationCollection ++= configs
                 msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+
+                //abort if no configuration could be loaded. No report file will be written in this case
+                if (configs.isEmpty) {
+                    println(msg +"\n" + " aborting check of file \"" + thisFilePath + "\" because file config could not be loaded.")
+                    return
+                }
             }
             println(msg)
             log = log + msg
