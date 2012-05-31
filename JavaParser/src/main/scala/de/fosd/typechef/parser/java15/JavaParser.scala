@@ -149,7 +149,7 @@ class JavaParser extends MultiFeatureParser {
         "(" ~> repSep(FormalParameter, ",") <~ ")" !
 
     def FormalParameter: MultiParser[Any] =
-        opt("final") ~ Type ~ opt("...") ~ VariableDeclaratorId !
+       opt(Annotation)~ opt("final") ~ Type ~ opt("...") ~ VariableDeclaratorId !
 
     def ConstructorDeclaration: MultiParser[Any] =
         opt(TypeParameters) ~ IDENTIFIER ~ FormalParameters ~ opt("throws" ~> NameList) ~ "{" ~ opt(ExplicitConstructorInvocation) ~ repOpt(BlockStatement) ~ "}" !
@@ -428,7 +428,7 @@ class JavaParser extends MultiFeatureParser {
                 ClassOrInterfaceDeclaration !() named ("BlockStatement")
 
     def LocalVariableDeclaration: MultiParser[Any] =
-        opt("final") ~ Type ~ rep1Sep(VariableDeclarator, ",") !() named ("LocalVariableDeclaration")
+        opt(Annotation) ~ opt("final") ~ Type ~ rep1Sep(VariableDeclarator, ",") !() named ("LocalVariableDeclaration")
 
     def EmptyStatement: MultiParser[Any] =
         ";" !() named ("EmptyStatement")
@@ -476,7 +476,7 @@ class JavaParser extends MultiFeatureParser {
         "for" ~ "(" ~ ForStatementInternal ~ ")" ~ Statement !
 
     def ForStatementInternal: MultiParser[Any] =
-        (Type ~ IDENTIFIER ~ ":" ~ Expression) |
+        (opt(Annotation) ~ opt("final") ~ Type ~ IDENTIFIER ~ ":" ~ Expression) |
                 (opt(ForInit) ~ ";" ~ opt(Expression) ~ ";" ~ opt(ForUpdate)) !
 
     def ForInit: MultiParser[Any] =
@@ -512,7 +512,7 @@ class JavaParser extends MultiFeatureParser {
         "try" ~ Block ~ TryStatementEnd !
 
     def TryStatementEnd: MultiParser[Any] =
-        rep1(CatchBlock) ~ opt("finally" ~ Block) !;
+        repOpt(CatchBlock) ~ opt("finally" ~ Block) !;
 
     def CatchBlock: MultiParser[Any] =
         "catch" ~ "(" ~ FormalParameter ~ ")" ~ Block !;
