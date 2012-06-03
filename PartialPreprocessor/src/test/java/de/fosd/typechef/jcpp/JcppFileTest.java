@@ -256,4 +256,9 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("bnx.c", false, true);
     }
 
+    @Test
+    public void testVarargs() throws LexerException, IOException {
+        testFile("varargs.c", false, true);
+    }
+
 }
