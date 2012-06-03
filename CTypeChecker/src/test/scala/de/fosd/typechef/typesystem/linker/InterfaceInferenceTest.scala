@@ -141,6 +141,7 @@ class InterfaceInferenceTest extends TestHelper {
         assertEquivalent(whenImported("deadsizeof1"), False)
         assertEquivalent(whenImported("deadsizeof2"), False)
 
+        assertEquivalent(whenImported("deadByEnum"), False)
 
         assert(interface.exports.exists(_.name == "main"))
     }
