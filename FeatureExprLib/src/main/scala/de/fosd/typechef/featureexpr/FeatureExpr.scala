@@ -80,4 +80,16 @@ trait FeatureExpr {
     def print(p: Writer) = p.write(toTextExpr)
     def debug_print(indent: Int): String = toTextExpr
 
+
+    /**
+     * evaluate the expression for a given feature selection
+     * (all features not provided are assumed deselected)
+     *
+     * features provided as a list of names (how they would be created
+     * with createDefinedExternal)
+     *
+     * evaluates to true or false
+     */
+    def evaluate(selectedFeatures: Set[String]): Boolean
+
 }

@@ -1,9 +1,9 @@
 package de.fosd.typechef.featureexpr.bdd
 
-import java.io.Writer
 import net.sf.javabdd._
-import collection.mutable.{HashMap, WeakHashMap, Map}
+import collection.mutable.{WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
+import annotation.tailrec
 
 
 object FeatureExprHelper {
@@ -133,6 +133,8 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      * purposes
      */
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
+
+    def evaluate(selectedFeatures: Set[String]): Boolean = FExprBuilder.evalBdd(bdd, selectedFeatures)
 }
 
 
@@ -203,6 +205,17 @@ private[bdd] object FExprBuilder {
         val f = macroTable.getMacroCondition(name)
         CastHelper.asBDDFeatureExpr(f)
     }
+
+
+    @tailrec
+    def evalBdd(bdd: BDD, set: Set[String]): Boolean =
+        if (bdd.isOne) true
+        else if (bdd.isZero) false
+        else {
+            val featureId = bdd.`var`()
+            val featureName = featureNames(featureId)
+            evalBdd(if (set contains featureName) bdd.high() else bdd.low(), set)
+        }
 }
 
 

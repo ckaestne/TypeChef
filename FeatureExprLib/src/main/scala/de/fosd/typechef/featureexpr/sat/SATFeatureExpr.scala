@@ -7,7 +7,6 @@ import de.fosd.typechef.featureexpr.{DefaultPrint, FeatureModel, FeatureProvider
 import collection.immutable._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
-import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
 
 
@@ -211,6 +210,8 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
      * purposes
      */
     def countDistinctFeatures: Int = collectDistinctFeatures.size
+
+    def evaluate(selectedFeatures: Set[String]): Boolean
 }
 
 
@@ -535,6 +536,7 @@ object True extends And(Set()) with DefaultPrint {
     override def toTextExpr = "1"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
+    override def evaluate(selectedFeatures: Set[String]) = true
 }
 
 object False extends Or(Set()) with DefaultPrint {
@@ -542,6 +544,7 @@ object False extends Or(Set()) with DefaultPrint {
     override def toTextExpr = "0"
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
+    override def evaluate(selectedFeatures: Set[String]) = false
 }
 
 
@@ -674,6 +677,8 @@ class And(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[And] {
 
     override protected def calcCNF: SATFeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCNF))
     override protected def calcCNFEquiSat: SATFeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
+    override def evaluate(selectedFeatures: Set[String]) =
+        clauses.foldLeft(true)(_ && _.evaluate(selectedFeatures))
 }
 
 //private[featureexpr]
@@ -784,6 +789,8 @@ class Or(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[Or] {
             FExprBuilder.createAnd(orClauses.flatten[SATFeatureExpr] + FExprBuilder.createOr(renamedDisjunction))*/
         } else FExprBuilder.createOr(cnfchildren)
 
+    override def evaluate(selectedFeatures: Set[String]) =
+        clauses.foldLeft(false)(_ || _.evaluate(selectedFeatures))
 }
 
 //private[featureexpr]
@@ -820,6 +827,9 @@ class Not(val expr: SATFeatureExpr) extends HashCachingFeatureExpr {
     }
 
     private[featureexpr] override def retrieveMemoizedNot = expr
+
+    override def evaluate(selectedFeatures: Set[String]) =
+        !expr.evaluate(selectedFeatures)
 }
 
 object Not {
@@ -868,6 +878,7 @@ class DefinedExternal(name: String) extends DefinedExpr {
     override def toString = "def(" + name + ")"
     def countSize() = 1
     def isExternal = true
+    override def evaluate(selectedFeatures: Set[String]) = selectedFeatures contains name
 }
 
 /**
@@ -884,6 +895,7 @@ class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val 
     override def satName = expandedName
     def countSize() = 1
     def isExternal = false
+    override def evaluate(selectedFeatures: Set[String]) = presenceCondition.evaluate(selectedFeatures)
 }
 
 object DefinedMacro {
