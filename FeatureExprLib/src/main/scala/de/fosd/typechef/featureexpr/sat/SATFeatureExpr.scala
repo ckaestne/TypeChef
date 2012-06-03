@@ -10,62 +10,6 @@ import collection.mutable.WeakHashMap
 import collection.mutable.HashMap
 import collection.mutable.ArrayBuffer
 
-//
-///**
-// * External interface for construction of non-boolean feature expressions
-// * (mostly delegated to FExprBuilder)
-// *
-// * Also provides access to the primitives True and False (for true and false)
-// * and allows to create DefinedExternal nodes
-// */
-//object FeatureExpr extends FeatureExprValueOps {
-//
-//    def createComplement(expr: FeatureExprValue): FeatureExprValue = FExprBuilder.applyUnaryOperation(expr)(~_)
-//    def createNeg(expr: FeatureExprValue) = FExprBuilder.applyUnaryOperation(expr)(-_)
-//    def createBitAnd(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ & _)
-//    def createBitOr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ | _)
-//    def createDivision(left: FeatureExprValue, right: FeatureExprValue): FeatureExprValue = FExprBuilder.applyBinaryOperation(left, right)(
-//        (l, r) => if (r == 0) ErrorValue[Long]("division by zero") else FExprBuilder.createValue(l / r))
-//    def createModulo(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ % _)
-//    def createEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ == _)
-//    def createNotEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ != _)
-//    def createLessThan(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ < _)
-//    def createLessThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ <= _)
-//    def createGreaterThan(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ > _)
-//    def createGreaterThanEquals(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.evalRelation(left, right)(_ >= _)
-//    def createMinus(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ - _)
-//    def createMult(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ * _)
-//    def createPlus(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ + _)
-//    def createPwr(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ ^ _)
-//    def createShiftLeft(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ << _)
-//    def createShiftRight(left: FeatureExprValue, right: FeatureExprValue) = FExprBuilder.applyBinaryOperation(left, right)(_ >> _)
-//
-//    def createInteger(value: Long): FeatureExprValue = FExprBuilder.createValue(value)
-//    def createCharacter(value: Char): FeatureExprValue = FExprBuilder.createValue(value)
-//    def createValue[T](v: T): FeatureExprTree[T] = FExprBuilder.createValue(v)
-//
-//
-//    def createDefinedExternal(name: String): DefinedExternal = FExprBuilder.definedExternal(name)
-//    def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = FExprBuilder.definedMacro(name, macroTable)
-//
-//
-//    //helper
-//    def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr): FeatureExpr = FExprBuilder.createIf(condition, thenBranch, elseBranch)
-//    def createIf[T](condition: FeatureExpr, thenBranch: FeatureExprTree[T], elseBranch: FeatureExprTree[T]): FeatureExprTree[T] = FExprBuilder.createIf(condition, thenBranch, elseBranch)
-//
-//    def createImplies(left: FeatureExpr, right: FeatureExpr) = left implies right
-//    def createEquiv(left: FeatureExpr, right: FeatureExpr) = left equiv right
-//
-//    val True: FeatureExpr = de.fosd.typechef.featureexpr.True
-//    val False: FeatureExpr = de.fosd.typechef.featureexpr.False
-//
-//    def True = True
-//    def False = False
-//
-
-//
-//}
-
 
 object FeatureExprHelper {
     def resolveDefined(mcro: DefinedMacro, macroTable: FeatureProvider): FeatureExpr =
@@ -269,17 +213,6 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     def countDistinctFeatures: Int = collectDistinctFeatures.size
 }
 
-//// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
-//// however, this is only a concern for erroneous input anyway (but isn't it our point to detect it?)
-//case class ErrorFeature(msg: String) extends FeatureExpr {
-//    private def error: Nothing = throw new FeatureArithmeticException(msg)
-//    override def calcCNF = error
-//    override def calcCNFEquiSat = error
-//    override def toTextExpr = error
-//    override def calcSize = error
-//    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]) = error
-//    override def debug_print(x: Int) = error
-//}
 
 // Cache the computed hashCode. Note that this can make sense only if you override calcHashCode,
 // and the computation is complex enough. Currently this means only not, and even then I'm not sure it's the best.

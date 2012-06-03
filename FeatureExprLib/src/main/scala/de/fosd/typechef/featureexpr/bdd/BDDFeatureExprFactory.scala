@@ -11,9 +11,6 @@ object BDDFeatureExprFactory extends AbstractFeatureExprFactory {
     def createDefinedMacro(name: String, macroTable: FeatureProvider): FeatureExpr = FExprBuilder.definedMacro(name, macroTable)
 
 
-    //helper
-    //        def createIf(condition: FeatureExpr, thenBranch: FeatureExpr, elseBranch: FeatureExpr): FeatureExpr = FeatureExprFactory.createBooleanIf(condition, thenBranch, elseBranch)
-
     val TrueB: BDDFeatureExpr = de.fosd.typechef.featureexpr.bdd.True
     val FalseB: BDDFeatureExpr = de.fosd.typechef.featureexpr.bdd.False
     val True: FeatureExpr = TrueB
