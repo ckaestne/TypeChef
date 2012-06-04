@@ -69,14 +69,6 @@ trait ConditionalControlFlow extends ASTNavigation {
   // equal annotated AST elements
   type IfdefBlock  = List[AST]
 
-  // #ifdef blocks that relate to each other, e.g.,
-  // alternative: #if-(#elif)*-#else
-  // optional:    #if-(#elif)*
-  type OptAltBlock = List[IfdefBlock]
-
-  // OptAltBlock with alt/opt annotation
-  type TypedOptAltBlock = (Int, OptAltBlock)
-
   // determines predecessor of a given element
   // results are cached for secondary evaluation
   def pred(source: Product, env: ASTEnv): List[AST] = {
@@ -653,7 +645,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         val ifdef_blocks = determineIfdefBlocks(prev_elifs, env)
 //        res = res ++ determineFollowingElements(ctx, resctx, ifdef_blocks, env).merge
 
-        determineFollowingElements(false, ctx, resctx, ifdef_blocks, env) match {
+        determineFollowingElementsPred(ctx, resctx, ifdef_blocks, env) match {
           case Left(plist) => res = res ++ plist
           case Right((cresctx, plist)) => res = res ++ plist ++ getCondExprPred(condition, ctx, cresctx, env)
         }
@@ -717,7 +709,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       val lprevnext = getPrevAndNextListMembers(s, env)
       val ifdefblocks = determineIfdefBlocks(lprevnext, env)
       val taillist = getTailListSucc(s, ifdefblocks)
-      determineFollowingElements(true, ctx, resctx, taillist.drop(1), env) match {
+      determineFollowingElementsSucc(ctx, resctx, taillist.drop(1), env) match {
         case Left(slist) => slist // 2.
         case Right((cresctx, slist)) => slist ++ followSucc(s, ctx, cresctx, env) // 3.
       }
@@ -736,7 +728,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       val lprevnext = getPrevAndNextListMembers(s, env)
       val ifdefblocks = determineIfdefBlocks(lprevnext, env)
       val taillist = getTailListSucc(s, ifdefblocks)      
-      determineFollowingElements(true, ctx, resctx, taillist.drop(1), env)
+      determineFollowingElementsSucc(ctx, resctx, taillist.drop(1), env)
     }
   }
 
@@ -949,7 +941,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       val taillist = getTailListPred(s, ifdefblocks)
       val taillistreversed = taillist.map(_.reverse).reverse
 
-      determineFollowingElements(false, ctx, resctx, taillistreversed.drop(1), env) match {
+      determineFollowingElementsPred(ctx, resctx, taillistreversed.drop(1), env) match {
         case Left(plist) => plist.
           flatMap({ x => rollUpJumpStatement(x, false, env.featureExpr(x), resctx, env)}) // 2.
         case Right((cresctx, plist)) => plist.
@@ -964,7 +956,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def getCompoundSucc(l: List[AST], parent: Product, ctx: FeatureExpr, resctx: List[FeatureExpr], env: ASTEnv): List[AST] = {
     val ifdefblocks = determineIfdefBlocks(l, env)
 
-    determineFollowingElements(true, ctx, resctx, ifdefblocks, env) match {
+    determineFollowingElementsSucc(ctx, resctx, ifdefblocks, env) match {
       case Left(slist) => slist
       case Right((cresctx, slist) ) => slist ++ (if (l.isEmpty) followSucc(parent, ctx, cresctx, env)
                                                  else followSucc(l.head, ctx, cresctx, env))
@@ -976,7 +968,7 @@ trait ConditionalControlFlow extends ASTNavigation {
     val ifdefblocks = determineIfdefBlocks(l, env)
     val ifdefblocksreverse = ifdefblocks.map(_.reverse).reverse
 
-    determineFollowingElements(false, ctx, resctx, ifdefblocksreverse, env) match {
+    determineFollowingElementsPred(ctx, resctx, ifdefblocksreverse, env) match {
       case Left(plist) => plist
       case Right((cresctx, plist)) => plist ++ (if (l.isEmpty) followPred(parent, ctx, cresctx, env)
                                       else followPred(l.reverse.head, ctx, cresctx, env))
@@ -1002,14 +994,44 @@ trait ConditionalControlFlow extends ASTNavigation {
     getTailListSucc(rev, l.reverse).reverse
   }
 
+  private def determineFollowingElementsPred(ctx: FeatureExpr,
+                                             resctx: List[FeatureExpr],
+                                             l: List[IfdefBlock],
+                                             env: ASTEnv): Either[List[AST], (List[FeatureExpr], List[AST])] = {
+    // context of all added AST nodes that have been added to res
+    var res = List[AST]()
+    var cresctx = resctx
+
+    for (ifdefblock <- l) {
+      // get the first element of the ifdef block and check
+      val head = ifdefblock.head
+      val bfexp = env.featureExpr(head)
+
+      // annotation of the block contradicts with context; do nothing
+      if ((ctx and bfexp) isContradiction()) { }
+
+      // nodes of annotations that have been added before: e.g., ctx is true; A B A true
+      // the second A should not be added again because if A is selected the first A would have been selected
+      // and not the second one
+      else if (cresctx.exists({ x => (bfexp implies x) isTautology()})) { }
+
+      // otherwise add element and update resulting context
+      else {res = res ++ List(head); cresctx ::= bfexp}
+
+      if (cresctx.fold(FeatureExprFactory.False)(_ or _) isTautology()) return Left(res)
+      if (bfexp equivalentTo ctx) return Left(res)
+    }
+    Right((cresctx, res))
+  }
+
+
   // code works both for succ and pred determination
   // based on the type of the IfdefBlocks (True(0), Optional (1), Alternative (2))
   // the function computes the following elements
   //   context - represents of the element we come frome
   //   l - list of grouped/typed ifdef blocks
   //   env - hold AST environment (parent, children, next, ...)
-  private def determineFollowingElements(succ: Boolean,
-                                         ctx: FeatureExpr,
+  private def determineFollowingElementsSucc(ctx: FeatureExpr,
                                          resctx: List[FeatureExpr],
                                          l: List[IfdefBlock],
                                          env: ASTEnv): Either[List[AST], (List[FeatureExpr], List[AST])] = {
@@ -1021,7 +1043,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       // get the first element of the ifdef block and check
       val head = ifdefblock.head
       val bfexp = env.featureExpr(head)
-      
+
       // annotation of the block contradicts with context; do nothing
       if ((ctx and bfexp) isContradiction()) { }
 
@@ -1033,12 +1055,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       // otherwise add element and update resulting context
       else {res = res ++ List(head); cresctx ::= bfexp}
 
-      if (succ) {
-        if (ctx implies cresctx.fold(FeatureExprFactory.False)(_ or _) isTautology()) return Left(res)
-      } else {
-        val cresfexp = cresctx.fold(FeatureExprFactory.False)(_ or _)
-        if ((ctx equivalentTo cresfexp) || (cresfexp isTautology())) return Left(res)
-      }
+      if (ctx implies cresctx.fold(FeatureExprFactory.False)(_ or _) isTautology()) return Left(res)
     }
     Right((cresctx, res))
   }
@@ -1159,90 +1176,6 @@ trait ConditionalControlFlow extends ASTNavigation {
   // given a list of Opt elements; pack elements with the same annotation into sublists
   private def determineIfdefBlocks(l: List[AST], env: ASTEnv): List[IfdefBlock] = {
     pack[AST](env.featureExpr(_) equivalentTo env.featureExpr(_))(l)
-  }
-
-  // given a list of lists that contain elements with the same annotation
-  // pack ifdef blocks together that belong to each other, e.g., by forming
-  // optional groups (#if-(#elif)*) or alternative groups (#if-(#elif)*-#else)
-  private def groupIfdefBlocks(l: List[IfdefBlock], env: ASTEnv): List[OptAltBlock] = {
-
-    // due to nesting of #ifdefs at different levels of the AST (annotation of a function vs.
-    // annotation of a statement inside a function) AST elements do have a set of annotations
-    // equal annotated AST elements (IfdefBlock) relate to each other and form optional or
-    // alternative groups
-    // the relation is that the latter one implies the not of the former one
-    // order b, a (see l.reverse below)
-    def checkImplication(a: AST, b: AST) = {
-      // annotation sets for a and b
-      val afexpset = env.featureSet(a)
-      val bfexpset = env.featureSet(b)
-
-      // determine common part of both elements
-      val abcommon = afexpset.intersect(bfexpset)
-
-      // determine unique fexp set elements for a and b, and form one expression
-      val afexpuniq = (afexpset -- abcommon).foldLeft(FeatureExprFactory.True)(_ and _)
-      val bfexpuniq = (bfexpset -- abcommon).foldLeft(FeatureExprFactory.True)(_ and _)
-
-      // latter implies not former
-      afexpuniq implies (bfexpuniq.not()) isTautology()
-    }
-
-    // reverse list for check later implies former
-    // e.g., [A, B, C, D, E]
-    val lreversed = l.reverse
-    val res = pack[List[AST]]({(x, y) => checkImplication(x.head, y.head)})(lreversed)
-
-    // e.g., [[E, D, C], [B, A]] => [[A, B], [C, D, E]]
-    res.map(_.reverse).reverse
-  }
-
-  // get type of IfdefBlocks:
-  // 0 -> only true values
-  // 1 -> #if-(#elif)* block
-  // 2 -> #if-(#elif)*-#else block
-  private def typeOptAltBlocksSucc(l: List[OptAltBlock], ctx: FeatureExpr, env: ASTEnv): List[TypedOptAltBlock] = {
-    if (l.isEmpty) Nil
-    else {
-      val lhead = l.head
-
-      // get all feature expression sets of all elements of the optaltblock
-      val lfexpsets = lhead.map( e => env.featureSet(e.head) )
-
-      // determine the common part of all sets
-      val common = lfexpsets.fold(lfexpsets.head)(_ & _)
-
-      // determine the uniq feature expression of all elements in fexpsets
-      val lfexpsuniq = lfexpsets.map( x => (x -- common).fold(FeatureExprFactory.True)(_ and _))
-
-      // feature expression for the entire opt alt block
-      val fexpoab = lfexpsuniq.fold(FeatureExprFactory.False)(_ or _)
-
-      if ((ctx implies fexpoab) isTautology()) (0, lhead) :: typeOptAltBlocksPred(l.tail, ctx, env)
-      else (1, lhead) :: typeOptAltBlocksPred(l.tail, ctx, env)
-    }
-  }
-
-  private def typeOptAltBlocksPred(l: List[OptAltBlock], ctx: FeatureExpr, env: ASTEnv): List[TypedOptAltBlock] = {
-    if (l.isEmpty) Nil
-    else {
-      val lhead = l.head
-
-      // get all feature expression sets of all elements of the optaltblock
-      val lfexpsets = lhead.map( e => env.featureSet(e.head) )
-
-      // determine the common part of all sets
-      val common = lfexpsets.fold(lfexpsets.head)(_ & _)
-
-      // determine the uniq feature expression of all elements in fexpsets
-      val lfexpsuniq = lfexpsets.map( x => (x -- common).fold(FeatureExprFactory.True)(_ and _))
-
-      // feature expression for the entire opt alt block
-      val fexpoab = lfexpsuniq.fold(FeatureExprFactory.False)(_ or _)
-
-      if ((ctx implies fexpoab) isTautology()) (0, lhead) :: typeOptAltBlocksPred(l.tail, ctx, env)
-      else (1, lhead) :: typeOptAltBlocksPred(l.tail, ctx, env)
-    }
   }
 }
 
