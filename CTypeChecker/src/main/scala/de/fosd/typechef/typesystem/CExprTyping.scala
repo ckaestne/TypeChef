@@ -190,7 +190,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //x?y:z  (gnuc: x?:z === x?x:z)
                     case ce@ConditionalExpr(condition, thenExpr, elseExpr) =>
                         //dead code detection, see CTypeSystem..IfStatement
-                        val (contr, taut) = analyzeExprBounds(One(condition), featureExpr)
+                        val (contr, taut) = analyzeExprBounds(One(condition), featureExpr, env)
 
                         et(condition) mapfr(featureExpr, {
                             (fexpr, conditionType) =>
@@ -237,7 +237,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         resultType.simplify(featureExpr)
     }
 
-    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr): (FeatureExpr, FeatureExpr)
+    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr, env: Env): (FeatureExpr, FeatureExpr)
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType], featureExpr: FeatureExpr, where: AST) =
         ConditionalLib.mapCombinationF(thenTypes, elseTypes, featureExpr, (featureExpr: FeatureExpr, thenType: CType, elseType: CType) => {

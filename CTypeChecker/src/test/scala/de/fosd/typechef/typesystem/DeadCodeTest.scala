@@ -19,13 +19,12 @@ class DeadCodeTest extends CTypeSystem with FunSuite with ShouldMatchers with Te
         println(r)
         r
     }
-    def evalExpr(s: String): Conditional[VValue] = evalExpr(One(e(s.replace("[[", "\n#ifdef A\n").replace("][", "\n#else\n").replace("]]", "\n#endif\n"))), True)
-
+    def evalExpr(s: String): Conditional[VValue] = evalExpr(One(e(s.replace("[[", "\n#ifdef A\n").replace("][", "\n#else\n").replace("]]", "\n#endif\n"))), True, EmptyEnv)
 
     test("get expression bounds") {
-        analyzeExprBounds(One(Constant("0")), True) should be((True, False))
-        analyzeExprBounds(One(Constant("1")), True) should be((False, True))
-        analyzeExprBounds(One(e("1+0")), True) should be((False, True))
+        analyzeExprBounds(One(Constant("0")), True, EmptyEnv) should be((True, False))
+        analyzeExprBounds(One(Constant("1")), True, EmptyEnv) should be((False, True))
+        analyzeExprBounds(One(e("1+0")), True, EmptyEnv) should be((False, True))
     }
     test("eval expression") {
         evalExpr("1") should be(One(VInt(1)))

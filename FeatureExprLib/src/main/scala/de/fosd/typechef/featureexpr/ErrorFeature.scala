@@ -16,6 +16,7 @@ class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     def or(that: FeatureExpr) = error
     def and(that: FeatureExpr) = error
     def not() = error
+    override def evaluate(selectedFeatures: Set[String]) = false
 
     private def error: Nothing = throw new FeatureArithmeticException(msg)
     override def toTextExpr = error

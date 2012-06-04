@@ -14,6 +14,9 @@ int ignoresizeof();
 int ignoresizeofElse();
 int BUG_bad_PRIO_PROCESS();
 int deadsizeof2(); int deadsizeof2();
+int deadByEnum();
+
+enum { enumA = 0, enumB=1 } ab;
 
 #define PRIO_PROCESS 5
 
@@ -86,4 +89,7 @@ int main() {
     if (sizeof(i) <= 100) deadsizeof2();
 
     activefunction2();
+
+    if (enumA)
+        deadByEnum();
 }

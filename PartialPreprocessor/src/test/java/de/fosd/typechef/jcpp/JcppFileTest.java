@@ -244,4 +244,21 @@ public class JcppFileTest extends AbstractCheckTests {
     public void testFileBaseFile() throws LexerException, IOException {
         testFile("filebasefile.c", false, true);
     }
+
+    @Test
+    public void testBnx2() throws LexerException, IOException {
+        testFile("bnx2.c", false, true);
+    }
+
+    @Test
+    @Ignore("bug in lexer, see issue #10")
+    public void testBnx() throws LexerException, IOException {
+        testFile("bnx.c", false, true);
+    }
+
+    @Test
+    public void testVarargs() throws LexerException, IOException {
+        testFile("varargs.c", false, true);
+    }
+
 }

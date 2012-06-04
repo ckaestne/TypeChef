@@ -293,13 +293,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case IfStatement(expr, tstmt, elifstmts, estmt) =>
                 expectCScalar(expr) //spec
 
-                var (contradiction, tautology) = analyzeExprBounds(expr, featureExpr)
+                var (contradiction, tautology) = analyzeExprBounds(expr, featureExpr, env)
 
                 checkCStmt(tstmt, env.markDead(contradiction))
 
                 for (Opt(elifFeature, ElifStatement(elifExpr, elifStmt)) <- elifstmts) {
                     expectCScalar(elifExpr, featureExpr and elifFeature)
-                    val (innercontradiction, innertautology) = analyzeExprBounds(elifExpr, featureExpr and elifFeature)
+                    val (innercontradiction, innertautology) = analyzeExprBounds(elifExpr, featureExpr and elifFeature, env)
                     checkCStmtF(elifStmt, featureExpr and elifFeature, env.markDead(innercontradiction or tautology))
 
                     tautology = tautology or innertautology
@@ -337,8 +337,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
      *
      * therefore if (sizeof(x)==3) produces dead code in both branches (both tautology and contradiction)
      */
-    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr): (FeatureExpr, FeatureExpr) = {
-        val v = evalExpr(expr, context)
+    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr, env: Env): (FeatureExpr, FeatureExpr) = {
+        val v = evalExpr(expr, context, env)
 
         val contradiction = v.when({
             case VInt(0) => true
@@ -366,36 +366,45 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     case class VAnyInt() extends VValue
 
 
-    private[typesystem] def evalExpr(expr: Conditional[Expr], context: FeatureExpr): Conditional[VValue] = expr mapr (e => e match {
-        case Constant(v) => try {
-            One(VInt(v.toInt))
-        } catch {
-            case _: NumberFormatException => One(VUnknown())
-        }
-        case NAryExpr(e, others) =>
-            var result = evalExpr(One(e), context)
-            for (Opt(f, NArySubExpr(op, e)) <- others) {
-                //default value and integer operation for each supported operation
-                val evalue = evalExpr(One(e), context and f)
-                result = Choice(f, executeOp(op, result, evalue), result).simplify
+    private[typesystem] def evalExpr(expr: Conditional[Expr], context: FeatureExpr, env: Env): Conditional[VValue] =
+        expr mapr (e => e match {
+            case Constant(v) => try {
+                One(VInt(v.toInt))
+            } catch {
+                case _: NumberFormatException => One(VUnknown())
             }
-            result
-        case UnaryOpExpr(op, e) =>
-            evalExpr(One(e), context).map({
-                case VInt(a) => op match {
-                    case "!" => VInt(if (a == 0) 1 else 0)
-                    case "-" => VInt(-a)
-                    case _ => VUnknown()
+            case Id(name) =>
+                val varDecl = env.varEnv.getAstOrElse(name, null)
+                varDecl mapfr(context, (f, v) => v match {
+                    case Enumerator(Id(enumName), Some(initExpr)) if (name == enumName) =>
+                        //TODO: env is not correct (currently dynamic scoping instead of lexical scoping), but we keep this as approximation here
+                        evalExpr(One(initExpr), f, env)
+                    case _ => One(VUnknown())
+                })
+            case NAryExpr(e, others) =>
+                var result = evalExpr(One(e), context, env)
+                for (Opt(f, NArySubExpr(op, e)) <- others) {
+                    //default value and integer operation for each supported operation
+                    val evalue = evalExpr(One(e), context and f, env)
+                    result = Choice(f, executeOp(op, result, evalue), result).simplify
                 }
-                case VAnyInt() => VAnyInt()
-                case _ => VUnknown()
-            })
-        case SizeOfExprT(_) => One(VAnyInt())
-        case SizeOfExprU(_) => One(VAnyInt())
-        case BuiltinOffsetof(_, _) => One(VAnyInt())
+                result
+            case UnaryOpExpr(op, e) =>
+                evalExpr(One(e), context, env).map({
+                    case VInt(a) => op match {
+                        case "!" => VInt(if (a == 0) 1 else 0)
+                        case "-" => VInt(-a)
+                        case _ => VUnknown()
+                    }
+                    case VAnyInt() => VAnyInt()
+                    case _ => VUnknown()
+                })
+            case SizeOfExprT(_) => One(VAnyInt())
+            case SizeOfExprU(_) => One(VAnyInt())
+            case BuiltinOffsetof(_, _) => One(VAnyInt())
 
-        case _ => One(VUnknown())
-    })
+            case _ => One(VUnknown())
+        })
 
     def executeOp(op: String, ca: Conditional[VValue], cb: Conditional[VValue]): Conditional[VValue] =
         ConditionalLib.mapCombination(ca, cb, (a: VValue, b: VValue) =>
@@ -528,17 +537,17 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
     def checkTypeParam(declaration: ParameterDeclaration, expr: FeatureExpr, env: Env) {
-      declaration match {
-        case PlainParameterDeclaration(specifiers) =>
-          checkTypeSpecifiers(specifiers, expr, env)
-        case ParameterDeclarationD(specifiers, decl) =>
-          checkTypeSpecifiers(specifiers, expr, env)
-          checkTypeDeclarator(decl, expr, env)
-        case ParameterDeclarationAD(specifiers, abstDecl) =>
-          checkTypeSpecifiers(specifiers, expr, env)
-          checkTypeAbstractDeclarator(abstDecl, expr, env)
-        case VarArgs() =>
-      }
+        declaration match {
+            case PlainParameterDeclaration(specifiers) =>
+                checkTypeSpecifiers(specifiers, expr, env)
+            case ParameterDeclarationD(specifiers, decl) =>
+                checkTypeSpecifiers(specifiers, expr, env)
+                checkTypeDeclarator(decl, expr, env)
+            case ParameterDeclarationAD(specifiers, abstDecl) =>
+                checkTypeSpecifiers(specifiers, expr, env)
+                checkTypeAbstractDeclarator(abstDecl, expr, env)
+            case VarArgs() =>
+        }
     }
 
 
@@ -587,10 +596,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     }
 
     private def checkTypeOldStyleParam(declaration: OldParameterDeclaration, expr: FeatureExpr, env: Env) {
-      declaration match {
-        case d: Declaration => checkTypeDeclaration(d, expr, env)
-        case VarArgs() =>
-      }
+        declaration match {
+            case d: Declaration => checkTypeDeclaration(d, expr, env)
+            case VarArgs() =>
+        }
     }
 
 
