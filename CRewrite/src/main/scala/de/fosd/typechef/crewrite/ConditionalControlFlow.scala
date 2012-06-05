@@ -786,7 +786,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         case t@CaseStatement(_, s) =>
           (if (env.featureExpr(t) implies ctx isSatisfiable()) List(t) else List()) ++
             (if (s.isDefined) filterCaseStatementsHelper(s.get) else List())
-        case SwitchStatement => List()
+        case _: SwitchStatement => List()
         case l: List[_] => l.flatMap(filterCaseStatementsHelper(_))
         case x: Product => x.productIterator.toList.flatMap(filterCaseStatementsHelper(_))
         case _ => List()
@@ -800,7 +800,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def filterDefaultStatements(c: Conditional[Statement], ctx: FeatureExpr, env: ASTEnv): List[DefaultStatement] = {
     def filterDefaultStatementsHelper(a: Any): List[DefaultStatement] = {
       a match {
-        case SwitchStatement => List()
+        case _: SwitchStatement => List()
         case t: DefaultStatement => if (env.featureExpr(t) implies ctx isSatisfiable()) List(t) else List()
         case l: List[_] => l.flatMap(filterDefaultStatementsHelper(_))
         case x: Product => x.productIterator.toList.flatMap(filterDefaultStatementsHelper(_))
