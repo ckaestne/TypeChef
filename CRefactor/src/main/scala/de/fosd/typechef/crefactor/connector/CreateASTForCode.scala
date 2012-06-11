@@ -1,10 +1,8 @@
 package de.fosd.typechef.crefactor.connector
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.crewrite.PositionMapper
-import de.fosd.typechef.lexer.options.LexerOptions
-import de.fosd.typechef.{Frontend, lexer, FrontendOptions, FrontendOptionsWithConfigFiles}
+import de.fosd.typechef.Frontend
 
 
 /**
@@ -41,22 +39,19 @@ object CreateASTForCode {
     }
   }
 
+  def extendedPosAnalyse(columnStart:Int, columnEnd:Int, lineStart:Int, lineEnd:Int) {
+    if (ast != null) {
+      val positions = new PositionMapper()
+      positions.getSelectedElements(ast, columnStart, lineStart, columnEnd, lineEnd)
+    }
+  }
+
 
 
    def getAST(args: Array[String]): AST = {
-
-    //var args = new Array[String](3)
-    //args.update(0, "/Users/andi/Desktop/HelloWorld.c")
-    //args.update(1, "-xCONFIG_")
-    //args.update(2, "-i/Users/andi/Dropbox/HiWi/busybox-1.19.4/Config.h")
-    //args.update(3, "-I/Users/andi/Dropbox/HiWi/busybox-1.19.4/include")
-    //args.update(2, "-c/Users/andi/Dropbox/HiWi/Andi/andi.properties")
-
     var frontend = Frontend.main(args)
     ast = Frontend.getAST()
     println(ast)
-    //ast = new ParserMain(new CParser).parserMain(
-    //  () => CLexer.lex(code, null), new CTypeContext, Frontend.getOptions())
     return ast
   }
 

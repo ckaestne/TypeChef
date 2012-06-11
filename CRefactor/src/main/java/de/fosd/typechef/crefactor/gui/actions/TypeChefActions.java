@@ -2,6 +2,7 @@ package de.fosd.typechef.crefactor.gui.actions;
 
 import de.fosd.typechef.crefactor.connector.CreateASTForCode;
 import de.fosd.typechef.crefactor.connector.CreateASTForCode$;
+import de.fosd.typechef.crefactor.gui.util.PositionWrapper;
 import org.fife.ui.rtextarea.RTextArea;
 
 import javax.swing.*;
@@ -44,6 +45,37 @@ public class TypeChefActions {
             @Override
             public void actionPerformed(ActionEvent e) {
                 textArea.setText(CreateASTForCode.prettyAnalyse());
+            }
+        };
+        return action;
+    }
+
+    public static Action getElementsAtPosition(final RTextArea textArea) {
+        Action action = new AbstractAction() {
+            {
+                putValue(Action.NAME, "Extract Function");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               int selectionStart = textArea.getSelectionStart();
+               int selectionEnd = textArea.getSelectionEnd();
+
+               if (selectionStart == selectionEnd) {
+                   // nothing to do
+                   // TODO: display message
+                   return;
+               }
+
+               String selectedText = textArea.getSelectedText();
+               int startingOffset = textArea.getSelectionStart();
+               int lineStart = PositionWrapper.getLine(textArea, textArea.getSelectionStart());
+               int columnStart = PositionWrapper.getRow(textArea, textArea.getSelectionStart());
+               int lineEnd = PositionWrapper.getLine(textArea, textArea.getSelectionEnd());
+               int columnEnd = PositionWrapper.getRow(textArea, textArea.getSelectionEnd());
+
+               CreateASTForCode.extendedPosAnalyse(columnStart, columnEnd, lineStart + 1, lineEnd + 1);
+
+
             }
         };
         return action;
