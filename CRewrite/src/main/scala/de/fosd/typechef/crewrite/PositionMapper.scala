@@ -81,7 +81,7 @@ class PositionMapper() extends ASTNavigation {
     for (entry <- astList) {
       var toAdd = true
       for (resultEntry <- result; if toAdd) {
-        if (entry.getPositionFrom.equals(resultEntry) && entry.getPositionTo.equals(resultEntry.getPositionTo)) {
+        if (entry.getPositionFrom.equals(resultEntry.getPositionFrom) && entry.getPositionTo.equals(resultEntry.getPositionTo)) {
           if ((entry.productArity > resultEntry.productArity)) {
             result = removeFromList(resultEntry, result)
           } else {
