@@ -4,18 +4,21 @@ import conditional.{Choice, Opt}
 import crewrite._
 import featureexpr._
 
-import bdd.{BDDFeatureModel, SatSolver, BDDFeatureExpr}
+import bdd.{BDDFeatureModel, SatSolver}
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
 import typesystem.CTypeSystemFrontend
 import scala.collection.immutable.HashMap
 import scala.Predef._
 import scala._
-import collection.mutable.{ListBuffer, HashSet, BitSet, Queue}
+import collection.mutable.{ListBuffer, HashSet, BitSet}
 import io.Source
 import java.util.regex.Pattern
 import java.util.ArrayList
 import java.lang.SuppressWarnings
 import java.io._
+
+import org.kiama.rewriting.Rewriter.manytd
+import org.kiama.rewriting.Rewriter.query
 
 /**
  *
@@ -34,7 +37,7 @@ object ProductGeneration {
 
         def this(trueSet: List[SingleFeatureExpr], falseSet: List[SingleFeatureExpr]) = this(
         {
-            var ret: scala.collection.mutable.BitSet = BitSet()
+            val ret: scala.collection.mutable.BitSet = BitSet()
             for (tf: SingleFeatureExpr <- trueSet) ret.add(featureIDHashmap(tf))
             for (ff: SingleFeatureExpr <- falseSet) ret.remove(featureIDHashmap(ff))
             ret.toImmutable
@@ -189,44 +192,8 @@ object ProductGeneration {
         //val fm = fm_1
         println("starting product typechecking.")
         val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
-        var family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-        var family_env = CASTEnv.createASTEnv(family_ast)
+        val family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
 
-        // PLAN: Ich bekomme ständig Fehlermedlungen, die keine Positionsangaben enthalten.
-        // also: den ganzen AST durchgehen, bei allen Elementen, die keine Angaben haben, die der parents einfügen.
-/*
-        val tmpq: Queue[Product] = Queue()
-        tmpq.+=(family_ast)
-        while (!tmpq.isEmpty) {
-            val x: Product = tmpq.dequeue()
-
-            if (x.isInstanceOf[AST] && !x.asInstanceOf[AST].hasPosition) {
-                var parent: Any = family_env.parent(x)
-                var parentisnull = (parent == null)
-                while (!parentisnull && (!parent.isInstanceOf[AST] || !parent.asInstanceOf[AST].hasPosition)) {
-                    parent = family_env.parent(parent)
-                    parentisnull = (parent == null)
-                }
-                if (x.isInstanceOf[AST] && !parentisnull) {
-                    x.asInstanceOf[AST].setPositionRange(parent.asInstanceOf[AST].getPositionFrom, parent.asInstanceOf[AST].getPositionTo)
-                    //println("added position to " + x.hashCode() + " : " + x.getClass().getSimpleName())
-                } else {
-                }
-            } else {
-            }
-            for (y <- family_env.children(x)) {
-                if (y.isInstanceOf[List[_]]) {
-                    for (lelem <- y.asInstanceOf[List[_]]) {
-                        tmpq.enqueue(lelem.asInstanceOf[Product])
-                    }
-                } else if (y.isInstanceOf[AST]) {
-                    tmpq.enqueue(y.asInstanceOf[AST])
-                } else if (y.isInstanceOf[Conditional[_]]) {
-                }
-            }
-        }
-*/
-        family_env = CASTEnv.createASTEnv(family_ast)
         var fw: FileWriter = null
 
         /**write family ast */
@@ -241,6 +208,7 @@ object ProductGeneration {
 
         features = getAllFeatures(family_ast)
         featureIDHashmap = new HashMap[SingleFeatureExpr, Int]().++(features.zipWithIndex)
+        //println("features: ")
         //for (f <- features) println(f)
 
         /**Starting with no tasks */
@@ -311,7 +279,7 @@ object ProductGeneration {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
-                val (configs, logmsg) = configurationCoverage(family_ast, family_env, fm, features, configurationCollection, preferDisabledFeatures = false)
+                val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurationCollection, preferDisabledFeatures = false)
                 typecheckingTasks :+= Pair("coverage", configs)
                 configurationCollection ++= configs
                 msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
@@ -371,7 +339,7 @@ object ProductGeneration {
                 current_config += 1
                 println("checking configuration " + current_config + " of " + configs.size + " (" + thisFilePath + " , " + taskDesc + ")")
                 val product: TranslationUnit = cf.deriveProd[TranslationUnit](family_ast,
-                    new Configuration(config.toFeatureExpr, fm), family_env)
+                    new Configuration(config.toFeatureExpr, fm))
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
                 val startTime: Long = System.currentTimeMillis()
                 val noErrors: Boolean = ts.checkAST
@@ -617,8 +585,9 @@ object ProductGeneration {
     /*
     Configuration Coverage Method copied from Joerg and heavily modified :)
      */
-    def configurationCoverage(astRoot : TranslationUnit, env : ASTEnv, fm: FeatureModel, features : List[SingleFeatureExpr],
+    def configurationCoverage(astRoot : TranslationUnit, fm: FeatureModel, features : List[SingleFeatureExpr],
                               existingConfigs : List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean) : (List[SimpleConfiguration],String) = {
+        val env = CASTEnv.createASTEnv(astRoot)
         val unsatCombinationsCacheFile = new File("unsatCombinationsCache.txt")
         val useUnsatCombinationsCache = true
         val unsatCombinationsCache : scala.collection.immutable.HashSet[String] = if (useUnsatCombinationsCache && unsatCombinationsCacheFile.exists()) {
@@ -631,7 +600,7 @@ object ProductGeneration {
         var simpleAndNodes = 0
         var optNodes: List[Opt[_]] = List()
         var choiceNodes: List[Choice[_]] = List()
-        val scanNodes = org.kiama.rewriting.Rewriter.manytd(org.kiama.rewriting.Rewriter.query {
+        val scanNodes = manytd(query {
             case o: Opt[_] => optNodes ::= o
             case o: Choice[_] => choiceNodes ::= o
         })
