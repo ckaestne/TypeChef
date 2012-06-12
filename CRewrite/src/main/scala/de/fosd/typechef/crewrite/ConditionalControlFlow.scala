@@ -308,7 +308,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       case t@BreakStatement() => {
         val e2b = findPriorASTElem2BreakStatement(t, env)
         assert(e2b.isDefined, "break statement should always occur within a for, do-while, while, or switch statement")
-        getStmtSucc(e2b.get, ctx, curctx, resctx, env)
+        getStmtSucc(e2b.get, ctx, env.featureExpr(e2b.get), resctx, env)
       }
       case t@ContinueStatement() => {
         val e2c = findPriorASTElem2ContinueStatement(t, env)
@@ -538,7 +538,7 @@ trait ConditionalControlFlow extends ASTNavigation {
           // we are in one of these elements
           // init
           case t@ForStatement(Some(expr1), _, _, _) if (isPartOf(nested_ast_elem, expr1)) =>
-            getStmtPred(t, ctx, curctx, resctx, env)
+            getStmtPred(t, ctx, env.featureExpr(t), resctx, env)
           // inc
           case t@ForStatement(_, _, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
             getCondStmtPred(t, s, ctx, curctx, resctx, env) ++ filterContinueStatements(s, ctx, env.featureExpr(t), env)
@@ -563,7 +563,7 @@ trait ConditionalControlFlow extends ASTNavigation {
             else {
               var res: List[AST] = List()
               if (expr1.isDefined) res = res ++ getExprPred(expr1.get, ctx, curctx, resctx, env)
-              else res = getStmtPred(t, ctx, curctx, resctx, env) ++ res
+              else res = getStmtPred(t, ctx, env.featureExpr(t), resctx, env) ++ res
               res = res ++ getCondStmtPred(t, s, ctx, curctx, resctx, env)
               res
             }
@@ -576,7 +576,7 @@ trait ConditionalControlFlow extends ASTNavigation {
             (getStmtPred(t, ctx, curctx, resctx, env) ++ getCondStmtPred(t, s, ctx, curctx, resctx, env) ++
               filterContinueStatements(s, ctx, env.featureExpr(t), env))
           case t@WhileStatement(expr, _) => {
-            if (nested_ast_elem.eq(expr)) getStmtPred(t, ctx, curctx, resctx, env)
+            if (nested_ast_elem.eq(expr)) getStmtPred(t, ctx, env.featureExpr(t), resctx, env)
             else getExprPred(expr, ctx, curctx, resctx, env)
           }
 
@@ -585,7 +585,8 @@ trait ConditionalControlFlow extends ASTNavigation {
           case t@DoStatement(expr, One(CompoundStatement(List()))) if (isPartOf(nested_ast_elem, expr)) =>
             getStmtPred(t, ctx, curctx, resctx, env) ++ getExprPred(expr, ctx, curctx, resctx, env)
           case t@DoStatement(expr, s) => {
-            if (isPartOf(nested_ast_elem, expr)) getCondStmtPred(t, s, ctx, curctx, resctx, env) ++ filterContinueStatements(s, ctx, env.featureExpr(t), env)
+            if (isPartOf(nested_ast_elem, expr)) getCondStmtPred(t, s, ctx, curctx, resctx, env) ++
+              filterContinueStatements(s, ctx, env.featureExpr(t), env)
             else getExprPred(expr, ctx, curctx, resctx, env) ++ getStmtPred(t, ctx, env.featureExpr(t), resctx, env)
           }
 
@@ -864,12 +865,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         // and the code after the last case
         if (lbreaks.isEmpty && ldefaults.isEmpty) {
           var res = getExprPred(expr, ctx, curctx, resctx, env)
-          val listcasestmts = filterCaseStatements(s, ctx, curctx, env)
-
-          if (! listcasestmts.isEmpty) {
-            val lastcase = listcasestmts.last
-            res ++= rollUpJumpStatement(lastcase, true, ctx, env.featureExpr(lastcase), resctx, env)
-          }
+          res ++= getCondStmtPred(t, s, ctx, curctx, resctx, env)
 
           res
         }
