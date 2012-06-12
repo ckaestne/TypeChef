@@ -242,15 +242,16 @@ trait ConditionalControlFlow extends ASTNavigation {
           newres = List()
           for (oldelem <- oldres) {
             var add2newres: List[AST] = List()
+            val newctx = env.featureExpr(oldelem);
             oldelem match {
-              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-              case _: DoStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-              case _: ForStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem, ctx, env.featureExpr(oldelem), resctx, env)
+              case _: IfStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
+              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
+              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
+              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
+              case _: DoStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
+              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
+              case _: ForStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
+              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
               case _ => add2newres = List(oldelem)
             }
 
@@ -493,7 +494,7 @@ trait ConditionalControlFlow extends ASTNavigation {
           }
 
           case t: Expr => followSucc(t, ctx, curctx, resctx, env)
-          case t: Statement => getStmtSucc(t, ctx, curctx, resctx, env)
+          case t: Statement => getStmtSucc(t, ctx, env.featureExpr(t), resctx, env)
 
           case t: FunctionDef => List(t)
           case _ => List()
@@ -713,7 +714,7 @@ trait ConditionalControlFlow extends ASTNavigation {
     // check whether next statement has the same annotation if yes return it, if not
     // check the following ifdef blocks; 1.
     val snext = nextAST(s, env)
-    if (snext != null && (env.featureExpr(snext) equivalentTo ctx)) return List(snext)
+    if (snext != null && (env.featureExpr(snext) equivalentTo curctx)) return List(snext)
     else {
       val snexts = nextASTElems(s, env)
       val ifdefblocks = determineIfdefBlocks(snexts, env)
@@ -730,7 +731,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       Either[List[AST], (List[FeatureExpr], List[AST])] = {
     
     val snext = nextAST(s, env)
-    if (snext != null && (env.featureExpr(snext) equivalentTo ctx)) return Left(List(snext))
+    if (snext != null && (env.featureExpr(snext) equivalentTo curctx)) return Left(List(snext))
     else {
       val snexts = nextASTElems(s, env)
       val ifdefblocks = determineIfdefBlocks(snexts, env)
@@ -937,7 +938,7 @@ trait ConditionalControlFlow extends ASTNavigation {
 
     // 1.
     val sprev = prevAST(s, env)
-    if (sprev != null && (env.featureExpr(sprev) equivalentTo ctx)) {
+    if (sprev != null && (env.featureExpr(sprev) equivalentTo curctx)) {
       sprev match {
         case BreakStatement() => List()
         case a => List(a).flatMap({ x => rollUpJumpStatement(x, false, ctx, env.featureExpr(x), resctx, env) })
