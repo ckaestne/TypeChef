@@ -749,7 +749,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def filterBreakStatements(c: Conditional[Statement], ctx: FeatureExpr, curctx: FeatureExpr, env: ASTEnv): List[BreakStatement] = {
     def filterBreakStatementsHelper(a: Any): List[BreakStatement] = {
       a match {
-        case t: BreakStatement => if (env.featureExpr(t) implies ctx isSatisfiable()) List(t) else List()
+        case t: BreakStatement => if (env.featureExpr(t) implies ctx isTautology()) List(t) else List()
         case _: SwitchStatement => List()
         case _: ForStatement => List()
         case _: WhileStatement => List()
@@ -769,7 +769,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def filterContinueStatements(c: Conditional[Statement], ctx: FeatureExpr, curctx: FeatureExpr, env: ASTEnv): List[ContinueStatement] = {
     def filterContinueStatementsHelper(a: Any): List[ContinueStatement] = {
       a match {
-        case t: ContinueStatement => if (env.featureExpr(t) implies ctx isSatisfiable()) List(t) else List()
+        case t: ContinueStatement => if (env.featureExpr(t) implies ctx isTautology()) List(t) else List()
         case _: ForStatement => List()
         case _: WhileStatement => List()
         case _: DoStatement => List()
