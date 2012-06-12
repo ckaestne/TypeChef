@@ -584,11 +584,9 @@ trait ConditionalControlFlow extends ASTNavigation {
           // special case: we handle empty compound statements here directly because otherwise we do not terminate
           case t@DoStatement(expr, One(CompoundStatement(List()))) if (isPartOf(nested_ast_elem, expr)) =>
             getStmtPred(t, ctx, curctx, resctx, env) ++ getExprPred(expr, ctx, curctx, resctx, env)
-          case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
-            getCondStmtPred(t, s, ctx, curctx, resctx, env) ++ filterContinueStatements(s, ctx, env.featureExpr(t), env)
           case t@DoStatement(expr, s) => {
-            if (isPartOf(nested_ast_elem, expr)) getCondStmtPred(t, s, ctx, curctx, resctx, env)
-            else getExprPred(expr, ctx, curctx, resctx, env) ++ getStmtPred(t, ctx, curctx, resctx, env)
+            if (isPartOf(nested_ast_elem, expr)) getCondStmtPred(t, s, ctx, curctx, resctx, env) ++ filterContinueStatements(s, ctx, env.featureExpr(t), env)
+            else getExprPred(expr, ctx, curctx, resctx, env) ++ getStmtPred(t, ctx, env.featureExpr(t), resctx, env)
           }
 
           // conditional statements
