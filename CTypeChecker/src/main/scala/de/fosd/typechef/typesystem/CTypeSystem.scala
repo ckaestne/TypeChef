@@ -287,7 +287,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 }
                 nop
 
-            case CaseStatement(expr, s) => checkExprWithRange(expr); checkOCStmt(s); nop
+            case CaseStatement(expr) => checkExprWithRange(expr); nop
 
             //in the if statement we try to recognize dead code (and set the environment accordingly)
             case IfStatement(expr, tstmt, elifstmts, estmt) =>

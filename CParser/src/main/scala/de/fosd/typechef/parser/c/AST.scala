@@ -146,7 +146,7 @@ case class ReturnStatement(expr: Option[Expr]) extends Statement
 
 case class LabelStatement(id: Id, attribute: Option[AttributeSpecifier]) extends Statement
 
-case class CaseStatement(c: Expr, s: Option[Conditional[Statement]]) extends Statement
+case class CaseStatement(c: Expr) extends Statement
 
 case class DefaultStatement(s: Option[Conditional[Statement]]) extends Statement
 

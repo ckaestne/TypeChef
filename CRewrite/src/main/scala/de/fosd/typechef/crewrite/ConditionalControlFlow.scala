@@ -348,7 +348,6 @@ trait ConditionalControlFlow extends ASTNavigation {
         }
       }
 
-      case t@CaseStatement(_, Some(s)) => getCondStmtSucc(t, s, ctx, curctx, resctx, env)
       case t: CaseStatement => getStmtSucc(t, ctx, curctx, resctx, env)
 
       case t@DefaultStatement(Some(s)) => getCondStmtSucc(t, s, ctx, curctx, resctx, env)
@@ -785,9 +784,8 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def filterCaseStatements(c: Conditional[Statement], ctx: FeatureExpr, curctx: FeatureExpr, env: ASTEnv): List[CaseStatement] = {
     def filterCaseStatementsHelper(a: Any): List[CaseStatement] = {
       a match {
-        case t@CaseStatement(_, s) =>
-          (if (env.featureExpr(t) implies ctx isSatisfiable()) List(t) else List()) ++
-            (if (s.isDefined) filterCaseStatementsHelper(s.get) else List())
+        case t@CaseStatement(_) =>
+          if (env.featureExpr(t) implies ctx isSatisfiable()) List(t) else List()
         case _: SwitchStatement => List()
         case l: List[_] => l.flatMap(filterCaseStatementsHelper(_))
         case x: Product => x.productIterator.toList.flatMap(filterCaseStatementsHelper(_))
@@ -903,9 +901,6 @@ trait ConditionalControlFlow extends ASTNavigation {
   // because using rollUp in pred determination (see above) will return wrong results
   private def rollUpJumpStatement(a: AST, fromSwitch: Boolean, ctx: FeatureExpr, curctx: FeatureExpr, resctx: List[FeatureExpr], env: ASTEnv): List[AST] = {
     a match {
-      case t@CaseStatement(_, Some(s)) => getCondStmtPred(t, s, ctx, curctx, resctx, env).
-        flatMap({ x => rollUpJumpStatement(x, false, ctx, env.featureExpr(x), resctx, env) })
-
       // the code that belongs to the jump target default is either reachable via nextAST from the
       // default statement: this first case statement here
       // or the code is nested in the DefaultStatement, so we match it with the next case statement
