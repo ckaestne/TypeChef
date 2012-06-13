@@ -1049,7 +1049,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       // nodes of annotations that have been added before: e.g., ctx is true; A B A true
       // the second A should not be added again because if A is selected the first A would have been selected
       // and not the second one
-      else if (cresctx.exists(_ equivalentTo bfexp)) { }
+      else if (cresctx.fold(FeatureExprFactory.False)(_ or _) equivalentTo bfexp) { }
 
       // otherwise add element and update resulting context
       else {res = res ++ List(head); cresctx ::= bfexp}
