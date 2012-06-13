@@ -115,7 +115,7 @@ class PrettyPrinterTest {
         parsePrintParseCond("if (a) b; else c;", p.statement)
         parsePrintParseCond("if (a) if (b) if (c) d; ", p.statement)
         parsePrintParseCond("{a;b;}", p.statement)
-        parsePrintParseCond("case a: x;", p.statement)
+        //parsePrintParseCond("case a: x;", p.statement)
         parsePrintParseCond("break;", p.statement)
         parsePrintParseCond("a:", p.statement)
         parsePrintParseCond("goto x;", p.statement)
