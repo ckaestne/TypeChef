@@ -242,7 +242,7 @@ trait ConditionalControlFlow extends ASTNavigation {
           newres = List()
           for (oldelem <- oldres) {
             var add2newres: List[AST] = List()
-            val newctx = env.featureExpr(oldelem);
+            val newctx = env.featureExpr(oldelem)
             oldelem match {
               case _: IfStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
               case _: ElifStatement => changed = true; add2newres = succHelper(oldelem, newctx, newctx, resctx, env)
@@ -713,7 +713,7 @@ trait ConditionalControlFlow extends ASTNavigation {
     // check whether next statement has the same annotation if yes return it, if not
     // check the following ifdef blocks; 1.
     val snext = nextAST(s, env)
-    if (snext != null && (env.featureExpr(snext) equivalentTo curctx)) return List(snext)
+    if (snext != null && (env.featureExpr(snext) equivalentTo curctx)) List(snext)
     else {
       val snexts = nextASTElems(s, env)
       val ifdefblocks = determineIfdefBlocks(snexts, env)
@@ -730,7 +730,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       Either[List[AST], (List[FeatureExpr], List[AST])] = {
     
     val snext = nextAST(s, env)
-    if (snext != null && (env.featureExpr(snext) equivalentTo curctx)) return Left(List(snext))
+    if (snext != null && (env.featureExpr(snext) equivalentTo curctx)) Left(List(snext))
     else {
       val snexts = nextASTElems(s, env)
       val ifdefblocks = determineIfdefBlocks(snexts, env)
