@@ -152,7 +152,7 @@ trait ConditionalControlFlow extends ASTNavigation {
               // for all other elements we use rollup and check whether the outcome of rollup differs from
               // its input (oldelem)
               case _: AST => {
-                add2newres = rollUp(source, oldelem, ctx, curctx, resctx, env)
+                add2newres = rollUp(source, oldelem, ctx, env.featureExpr(oldelem), resctx, env)
                 if (add2newres.size > 1 || (add2newres.size > 0 && add2newres.head.ne(oldelem))) changed = true
               }
             }

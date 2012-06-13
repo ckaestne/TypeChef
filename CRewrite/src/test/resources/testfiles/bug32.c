@@ -4,7 +4,7 @@ void foo() {
     b;
 #endif
 
-#if !definedEx(A)&!definedEx(B)
+#if (!definedEx(A))&(!definedEx(B))
     if (c) {
         d;
     }
