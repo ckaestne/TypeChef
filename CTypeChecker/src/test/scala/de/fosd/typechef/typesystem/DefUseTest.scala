@@ -26,8 +26,9 @@ class DefUseTest extends CTypeSystem with CEnvCache with TestHelper {
                         """)
 
     val lastdecl = a.defs.last.entry
+    println("Last declaration is:\n" + lastdecl + "\n")
     lookupEnv(lastdecl)
-    println(a)
-    println(getDefUseMap)
+    println("Ast is:\n" + a + "\n")
+    println("Def use map is:\n" + getDefUseMap + "\n")
   }
 }
