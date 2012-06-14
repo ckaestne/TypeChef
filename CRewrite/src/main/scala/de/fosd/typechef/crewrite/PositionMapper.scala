@@ -1,6 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.crewrite.CASTEnv._
 
 
 class PositionMapper() extends ASTNavigation {
