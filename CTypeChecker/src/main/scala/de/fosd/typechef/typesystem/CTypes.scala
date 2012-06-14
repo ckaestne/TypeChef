@@ -148,6 +148,11 @@ case class CSignUnspecified(b: CBasicType) extends CSignSpecifier(b) {
     </nosign>
 }
 
+case class CBool() extends CType {
+    override def toText = "_Bool"
+    def toXML = <_Bool/>
+}
+
 //implementationspecific for Char
 
 case class CFloat() extends CType {
@@ -277,6 +282,7 @@ object CType {
         (node \ "nosign").map(x => result = CSignUnspecified(fromXMLBasicType(x)))
         (node \ "zero").map(x => result = CZero())
         (node \ "void").map(x => result = CVoid())
+        (node \ "_Bool").map(x => result = CBool())
         (node \ "float").map(x => result = CFloat())
         (node \ "double").map(x => result = CDouble())
         (node \ "longdouble").map(x => result = CLongDouble())
@@ -408,6 +414,7 @@ trait CTypes extends COptionProvider {
         case CSigned(_) => true
         case CUnsigned(_) => true
         case CSignUnspecified(_) => true
+        case CBool() => true
         case _ => false
     }
     def isArithmetic(t: CType): Boolean = isIntegral(t) || (t.toValue match {
@@ -437,11 +444,12 @@ trait CTypes extends COptionProvider {
     def coerce(expectedType: CType, foundType: CType): Boolean = {
         val t1 = normalize(expectedType)
         val t2 = normalize(foundType)
+        def pointerCompat(a: CType): Boolean = a == CVoid() || a == CZero() || a == CIgnore()
         //either void pointer?
         if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) => return true
+            case (CPointer(a), CPointer(b)) if (pointerCompat(a) || pointerCompat(b)) => return true
             case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if (!opts.warning_pointer_sign && (a.basicType == b.basicType)) => return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
@@ -464,8 +472,12 @@ trait CTypes extends COptionProvider {
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true
 
+        //_Bool = any scala value
+        if (t1 == CBool() && isScalar(t2)) return true
+
         //assignment pointer = 0
         if (isPointer(t1) && isZero(t2)) return true
+        if (isPointer(t2) && isZero(t1)) return true
 
         false
     }

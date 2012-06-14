@@ -57,7 +57,7 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
         declT("float a;") should be(CFloat())
         declT("double a;") should be(CDouble())
         declT("long double a;") should be(CLongDouble())
-        declT("_Bool a;") should be(CSigned(CInt()))
+        declT("_Bool a;") should be(CBool())
 
         declT("int double a;").isUnknown should be(true)
         declT("signed unsigned char a;").isUnknown should be(true)
@@ -99,7 +99,7 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
         declT("struct a { double a;} foo;") should be(CStruct("a"))
         declTL("struct a;").size should be(0)
 
-        declT("""struct mtab_list {
+        declT( """struct mtab_list {
                     char *dir;
                     char *device;
                     struct mtab_list *next;

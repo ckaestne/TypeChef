@@ -3,9 +3,12 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c.AST
 
-trait ConditionalNavigation extends CASTEnv {
-  def parentOpt(e: Any, env: ASTEnv): Opt[_] = {
-    val eparent = env.get(e)._2
+import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+
+trait ConditionalNavigation {
+  def parentOpt(e: Product, env: ASTEnv): Opt[_] = {
+    val eparent = env.parent(e)
     eparent match {
       case o: Opt[_] => o
       case c: Conditional[_] => Conditional.toOptList(c).head
@@ -15,7 +18,7 @@ trait ConditionalNavigation extends CASTEnv {
   }
 
   def prevOpt(e: Opt[_], env: ASTEnv): Opt[_] = {
-    val eprev = env.get(e)._3
+    val eprev = env.previous(e)
     eprev match {
       case o: Opt[_] => o
       case _ => null
@@ -23,15 +26,44 @@ trait ConditionalNavigation extends CASTEnv {
   }
 
   def nextOpt(e: Opt[_], env: ASTEnv): Opt[_] = {
-    val enext = env.get(e)._4
+    val enext = env.next(e)
     enext match {
       case o: Opt[_] => o
       case _ => null
     }
   }
 
-  def isVariable(e: Any, env: ASTEnv): Boolean = {
-    val efexp = env.get(e)._1.reduce(_ and _)
-    efexp.not.isContradiction()
+  // check recursively for any nodes that have an annotation != True
+  def isVariable(e: Product): Boolean = {
+    var res = false
+    val variable = manytd(query {
+      case Opt(f, _) => if (f != FeatureExprFactory.False && f != FeatureExprFactory.True) res = true
+      case x => res = res
+    })
+
+    variable(e)
+    res
+  }
+
+  def filterAllOptElems(e: Product): List[Opt[_]] = {
+    var res: List[Opt[_]] = List()
+    val filter = manytd(query {
+      case o: Opt[_] => res ::= o
+    })
+
+    filter(e)
+    res
+  }
+
+  // return all Opt and One elements
+  def filterAllVariableElems(e: Product): List[Product] = {
+    var res: List[Product] = List()
+    val filter = manytd(query {
+      case o: Opt[_] => res ::= o
+      case o: One[_] => res ::= o
+    })
+
+    filter(e)
+    res
   }
 }

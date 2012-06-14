@@ -348,7 +348,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         DefaultStatement(_)
     })
         //// Selection statements:
-        | (textToken("if") ~! LPAREN ~ expr ~ RPAREN ~ statement ~
+        | (textToken("if") ~! LPAREN ~ (expr !) ~ RPAREN ~ statement ~
         //ifelse handled as loop, because it is a common undisciplined pattern
         elifs ~
         opt(textToken("else") ~> statement) ^^ {
@@ -364,7 +364,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     private def elifs: MultiParser[List[Opt[ElifStatement]]] =
         repOpt(
-            textToken("else") ~~ textToken("if") ~! LPAREN ~!> expr ~ (RPAREN ~> statement) ^^ {
+            textToken("else") ~~ textToken("if") ~! LPAREN ~!> (expr !) ~ (RPAREN ~> statement) ^^ {
                 case e ~ s => ElifStatement(e, s)
             }
         )
