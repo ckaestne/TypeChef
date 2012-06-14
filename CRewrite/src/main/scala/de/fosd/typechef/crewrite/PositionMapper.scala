@@ -54,7 +54,7 @@ class PositionMapper() extends ASTNavigation {
         val from = entry.getPositionFrom
         val to = entry.getPositionTo
         if ((isInRange(from.getColumn, startColumn, endColumn) && isInRange(from.getLine, startLine, endLine))
-          && (isInRange(to.getColumn - 1, startColumn, endColumn) && isInRange(to.getLine, startLine, endLine))) {
+          || (isInRange(to.getColumn - 1, startColumn, endColumn) && isInRange(to.getLine, startLine, endLine))) {
           result = entry :: result
         }
       }
