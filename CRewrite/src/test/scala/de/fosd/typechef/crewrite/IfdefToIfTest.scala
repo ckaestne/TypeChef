@@ -7,7 +7,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 
-class IfdefToIfTest extends TestHelper with ConditionalNavigation with ASTNavigation with CDefUse /*with CTypeSystem*/ {
+class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
 
   @Test def test_replace() {
     val e1 = Opt(True,
@@ -754,10 +754,11 @@ class IfdefToIfTest extends TestHelper with ConditionalNavigation with ASTNaviga
                      """)
     val i = new IfdefToIf()
     val env = createASTEnv(ast)
-    //typecheckTranslationUnit(ast)
+    typecheckTranslationUnit(ast)
 
     val lastdecl = ast.defs.last.entry
     println("Last declaration is:\n" + lastdecl + "\n")
     println("Def use map is:\n" + getDefUseMap + "\n")
+    println("Test:\n" + env.featureSet(ast.defs.head.entry.asInstanceOf[FunctionDef].specifiers.head))
   }
 }
