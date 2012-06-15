@@ -130,14 +130,14 @@ trait ConditionalControlFlow extends ASTNavigation {
                 val a2e = findPriorASTElem[IfStatement](source, env)
                 val b2e = findPriorASTElem[IfStatement](e, env)
 
-                if (a2e.isEmpty) { changed = true; add2newres = rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), curres.filterNot(td => td._2.eq(oldelem)), env)}
+                if (a2e.isEmpty) { changed = true; add2newres = rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), newres.filterNot(td => td._2.eq(oldelem)), env)}
                 else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) {
                   changed = true
                   add2newres = getCondExprPred(condition, ctx, env.featureExpr(oldelem), curres, env)
                 }
                 else {
                   changed = true
-                  add2newres = rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), curres.filterNot(td => td._2.eq(oldelem)), env)
+                  add2newres = rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), newres.filterNot(td => td._2.eq(oldelem)), env)
                 }
               }
 
@@ -154,8 +154,8 @@ trait ConditionalControlFlow extends ASTNavigation {
               // for all other elements we use rollup and check whether the outcome of rollup differs from
               // its input (oldelem)
               case _: AST => {
-                add2newres = rollUp(source, oldelem._2, ctx, oldelem._1, curres.filterNot(td => td._2.eq(oldelem)), env)
-                if (add2newres.size > 1 || (add2newres.size > 0 && add2newres.head._2.ne(oldelem))) changed = true
+                add2newres = rollUp(source, oldelem._2, ctx, oldelem._1, newres.filterNot(td => td._2.eq(oldelem._2)), env)
+                if (! add2newres.exists({ newelem => newelem._2.eq(oldelem._2)})) changed = true
               }
             }
 
@@ -212,7 +212,7 @@ trait ConditionalControlFlow extends ASTNavigation {
               case _ => true
             })
             val l_preds = getStmtPred(t, ctx, curctx, curres, env).
-              flatMap({ x => rollUp(source, x._2, ctx, env.featureExpr(x), curres.filterNot(td => td._2.eq(x)), env) })
+              flatMap({ x => rollUp(source, x._2, ctx, x._1, curres.filterNot(td => td._2.eq(x)), env) })
             l_gotos_filtered.map(x => (env.featureExpr(x), x)) ++ l_preds
           }
         }
@@ -881,7 +881,7 @@ trait ConditionalControlFlow extends ASTNavigation {
 
         if (elifs.isEmpty && elseBranch.isEmpty)
           res = getCondExprPred(condition, ctx, curctx, res, env)
-        res.flatMap({ x => rollUp(source, x._2, ctx, env.featureExpr(x), curres.filterNot(td => td.eq(x)), env) })
+        res.flatMap({ x => rollUp(source, x._2, ctx, x._1, curres.filterNot(td => td.eq(x)), env) })
       }
       case ElifStatement(condition, thenBranch) => {
         var res = curres
@@ -896,7 +896,7 @@ trait ConditionalControlFlow extends ASTNavigation {
             res = getCondStmtPred(target, thenBranch, ctx, curctx, res, env)
         }
 
-        res.flatMap({ x => rollUp(source, x._2, ctx, env.featureExpr(x), curres.filterNot(td => td.eq(x)), env) })
+        res.flatMap({ x => rollUp(source, x._2, ctx, x._1, curres.filterNot(td => td.eq(x)), env) })
       }
       case t@SwitchStatement(expr, s) => {
         val lbreaks = filterBreakStatements(s, ctx, env.featureExpr(t), env)
@@ -934,8 +934,12 @@ trait ConditionalControlFlow extends ASTNavigation {
       }
       case t@ForStatement(_, _, _, s) => curres ++ filterBreakStatements(s, ctx, env.featureExpr(t), env).map(x => (env.featureExpr(x), x))
 
-      case c@CompoundStatement(innerStatements) => getCompoundPred(innerStatements, c, ctx, curctx, curres, env).
-        flatMap({ x => rollUp(source, x._2, ctx, env.featureExpr(x), curres.filterNot(td => td._2.eq(x)), env) })
+      case c@CompoundStatement(innerStatements) => {
+        var res = curres
+        res = getCompoundPred(innerStatements, c, ctx, curctx, res, env)
+        res = res.flatMap({ x => rollUp(source, x._2, ctx, x._1, res.filterNot(td => td._2.eq(x)), env) })
+        res
+      }
 
       case t@GotoStatement(PointerDerefExpr(_)) => {
         if (source.isInstanceOf[LabelStatement]) curres ++ List((env.featureExpr(target), target))
@@ -951,7 +955,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         }
       }
 
-      case _ => curres ++ List((env.featureExpr(target), target))
+      case _ => List((env.featureExpr(target), target)) ++ curres
     }
   }
 
@@ -970,7 +974,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         }
       }
       case t@DefaultStatement(Some(s)) => getCondStmtPred(t, s, ctx, curctx, curres, env).
-        flatMap({ x => rollUpJumpStatement(x._2, false, ctx, env.featureExpr(x), curres.filterNot(td => td._2.eq(x)), env) })
+        flatMap({ x => rollUpJumpStatement(x._2, false, ctx, x._1, curres.filterNot(td => td._2.eq(x)), env) })
       case _: BreakStatement => curres
       case _ => curres ++ List((env.featureExpr(a), a))
     }
@@ -988,7 +992,7 @@ trait ConditionalControlFlow extends ASTNavigation {
     if (sprev != null && (env.featureExpr(sprev) equivalentTo curctx)) {
       sprev match {
         case BreakStatement() => curres
-        case a => List(a).flatMap({ x => rollUpJumpStatement(x, false, ctx, env.featureExpr(x), curres, env) })
+        case a => List(a).flatMap({ x => rollUpJumpStatement(x, false, ctx, env.featureExpr(x), curres.filterNot(td => td._2.eq(x)), env) })
       }
     } else {
       val sprevs = prevASTElems(s, env)
@@ -998,10 +1002,10 @@ trait ConditionalControlFlow extends ASTNavigation {
 
       determineFollowingElementsPred(ctx, curctx, curres, taillistreversed.drop(1), env) match {
         case Left(res) => res.
-          flatMap({ x => rollUpJumpStatement(x._2, false, ctx, env.featureExpr(x), res.filterNot(td => td._2.eq(x)), env)}) // 2.
+          flatMap({ x => rollUpJumpStatement(x._2, false, ctx, x._1, res.filterNot(td => td._2.eq(x)), env)}) // 2.
         case Right(res) => {
           val newres = res.
-            flatMap({ x => rollUpJumpStatement(x._2, false, ctx, env.featureExpr(x), res.filterNot(td => td._2.eq(x)), env)})
+            flatMap({ x => rollUpJumpStatement(x._2, false, ctx, x._1, res.filterNot(td => td._2.eq(x)), env)})
           followPred(s, ctx, curctx, newres, env) // 3.
         }
       }
