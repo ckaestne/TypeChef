@@ -162,11 +162,12 @@ trait ConditionalControlFlow extends ASTNavigation {
             // add only elements that are not in newres so far
             // add them add the end to keep the order of the elements
             for (addnew <- add2newres)
-              if (newres._2.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = (List[FeatureExpr](), newres._2 ++ List(addnew))
+              if (newres.map(_._2.eq(addnew._2)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
           }
         }
-        predCCFGCache.update(source, newres._2)
-        newres
+        val ret = newres.map(_._2)
+        predCCFGCache.update(source, ret)
+        ret
       }
     }
   }
