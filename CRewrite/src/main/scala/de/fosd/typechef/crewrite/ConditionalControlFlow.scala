@@ -372,8 +372,8 @@ trait ConditionalControlFlow extends ASTNavigation {
     c match {
       case Choice(_, thenBranch, elseBranch) => {
         var res = curres
-        res = res ++ getCondStmtSucc(p, thenBranch, ctx, curctx, res, env)
-        res = res ++ getCondStmtSucc(p, elseBranch, ctx, curctx, res, env)
+        res = getCondStmtSucc(p, thenBranch, ctx, curctx, res, env)
+        res = getCondStmtSucc(p, elseBranch, ctx, curctx, res, env)
         res
       }
       case One(CompoundStatement(l)) => getCompoundSucc(l, c, ctx, curctx, curres, env)
@@ -405,8 +405,8 @@ trait ConditionalControlFlow extends ASTNavigation {
       case One(value) => getExprSucc(value, ctx, curctx, curres, env)
       case Choice(_, thenBranch, elseBranch) => {
         var res = curres
-        res = res ++ getCondExprSucc(thenBranch, ctx, env.featureExpr(thenBranch), res, env)
-        res = res ++ getCondExprSucc(elseBranch, ctx, env.featureExpr(elseBranch), res, env)
+        res = getCondExprSucc(thenBranch, ctx, env.featureExpr(thenBranch), res, env)
+        res = getCondExprSucc(elseBranch, ctx, env.featureExpr(elseBranch), res, env)
         res
       }
     }
@@ -452,8 +452,8 @@ trait ConditionalControlFlow extends ASTNavigation {
             else getCondStmtSucc(t, s, ctx, curctx, curres, env)
           case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) => {
             var res = curres
-            res = res ++ getStmtSucc(t, ctx, curctx, res, env)
-            res = res ++ getCondStmtSucc(t, s, ctx, curctx, res, env)
+            res = getStmtSucc(t, ctx, curctx, res, env)
+            res = getCondStmtSucc(t, s, ctx, curctx, res, env)
             res
           }
           case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
@@ -466,15 +466,15 @@ trait ConditionalControlFlow extends ASTNavigation {
           }
           case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => {
             var res = curres
-            res = res ++ getCondStmtSucc(t, s, ctx, curctx, res, env)
-            res = res ++ getStmtSucc(t, ctx, curctx, res, env)
+            res = getCondStmtSucc(t, s, ctx, curctx, res, env)
+            res = getStmtSucc(t, ctx, curctx, res, env)
             res
           }
           case WhileStatement(expr, s) => getExprSucc(expr, ctx, curctx, curres, env)
           case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => {
             var res = curres
-            res = res ++ getCondStmtSucc(t, s, ctx, curctx, res, env)
-            res = res ++ getStmtSucc(t, ctx, curctx, res, env)
+            res = getCondStmtSucc(t, s, ctx, curctx, res, env)
+            res = getStmtSucc(t, ctx, curctx, res, env)
             res
           }
 
@@ -484,10 +484,10 @@ trait ConditionalControlFlow extends ASTNavigation {
           // we are in the condition of the if statement
           case t@IfStatement(condition, thenBranch, elifs, elseBranch) if (isPartOf(nested_ast_elem, condition)) => {
             var res = curres
-            res = res ++ getCondStmtSucc(t, thenBranch, ctx, curctx, res, env)
-            if (!elifs.isEmpty) res = res ++ getCompoundSucc(elifs, t, ctx, curctx, res, env)
-            if (elifs.isEmpty && elseBranch.isDefined) res = res ++ getCondStmtSucc(t, elseBranch.get, ctx, curctx, res, env)
-            if (elifs.isEmpty && !elseBranch.isDefined) res = res ++ getStmtSucc(t, ctx, env.featureExpr(t), res, env)
+            res = getCondStmtSucc(t, thenBranch, ctx, curctx, res, env)
+            if (!elifs.isEmpty) res = getCompoundSucc(elifs, t, ctx, curctx, res, env)
+            if (elifs.isEmpty && elseBranch.isDefined) res = getCondStmtSucc(t, elseBranch.get, ctx, curctx, res, env)
+            if (elifs.isEmpty && !elseBranch.isDefined) res = getStmtSucc(t, ctx, env.featureExpr(t), res, env)
             res
           }
 
@@ -521,7 +521,7 @@ trait ConditionalControlFlow extends ASTNavigation {
               res = res ++ filterCaseStatements(s, ctx, env.featureExpr(t), env).map(x => (env.featureExpr(x), x))
               val dcase = filterDefaultStatements(s, ctx, env.featureExpr(t), env)
 
-              if (dcase.isEmpty) res = res ++ getStmtSucc(t, ctx, curctx, res, env)
+              if (dcase.isEmpty) res = getStmtSucc(t, ctx, curctx, res, env)
               else res = res ++ dcase.map(x => (env.featureExpr(x), x))
             }
             res
