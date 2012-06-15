@@ -259,7 +259,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env))
   }
 
-  @Test def test_conditional_declaration_statement_pred() {
+  @Ignore def test_conditional_declaration_statement_pred() {
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
