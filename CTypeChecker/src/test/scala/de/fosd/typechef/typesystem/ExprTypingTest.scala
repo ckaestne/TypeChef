@@ -46,6 +46,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
             ("i", True, CSigned(CInt())),
             ("ca", fa, CDouble()),
             ("v", True, CVoid()),
+            ("ig", True, CIgnore()),
             ("s", True, CStruct("str")),
             ("sp", True, CPointer(CStruct("str"))),
             ("arr", True, CArray(CDouble(), 5)),
@@ -220,6 +221,13 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     test("label deref") {
         expr("&&foo") should be(CPointer(CVoid()))
+    }
+
+    test("ignored types") {
+        expr("ig").toValue should be(CIgnore())
+        expr("&ig") should be(CPointer(CIgnore()))
+        expr("*ig") should be(CIgnore())
+        expr("(double)ig") should be(CDouble())
     }
 
     //    @Ignore

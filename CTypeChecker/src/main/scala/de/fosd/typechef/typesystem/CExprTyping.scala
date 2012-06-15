@@ -64,6 +64,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         et(expr).mapf(featureExpr, (f, x) => x.toValue match {
                             case CPointer(t) if (t != CVoid) => t.toObj
                             case CArray(t, _) => t.toObj
+                            case CIgnore() => CIgnore()
                             case fun: CFunction => fun // for some reason deref of a function still yields a valid function in gcc
                             case e =>
                                 reportTypeError(f, "invalid * on " + expr + " (" + e + ")", pd)
