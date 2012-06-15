@@ -88,11 +88,10 @@ trait ConditionalControlFlow extends ASTNavigation {
           changed = false
           oldres = newres
 
-          for (oldelem <- oldres) {
-            var add2newres: CCFGRes = List()
+          var add2newres = oldres.flatMap(oldelem => {
             oldelem._2 match {
 
-              case _: ReturnStatement if (!source.isInstanceOf[FunctionDef]) => add2newres = List()
+              case _: ReturnStatement if (!source.isInstanceOf[FunctionDef]) => List()
 
               // a break statement shall appear only in or as a switch body or loop body
               // a break statement terminates execution of the smallest enclosing switch or
@@ -103,8 +102,8 @@ trait ConditionalControlFlow extends ASTNavigation {
                 val b2b = findPriorASTElem2BreakStatement(b, env)
 
                 assert(b2b.isDefined, "missing loop to break statement!")
-                if (isPartOf(source, b2b.get)) add2newres = List()
-                else add2newres = List((env.featureExpr(b), b))
+                if (isPartOf(source, b2b.get)) List()
+                else List((env.featureExpr(b), b))
               }
               // a continue statement shall appear only in a loop body
               // a continue statement causes a jump to the loop-continuation portion
@@ -115,13 +114,13 @@ trait ConditionalControlFlow extends ASTNavigation {
 
                 if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
                   a2c.get match {
-                    case WhileStatement(expr, _) if (isPartOf(source, expr)) => add2newres = List((env.featureExpr(c), c))
-                    case DoStatement(expr, _) if (isPartOf(source, expr)) => add2newres = List((env.featureExpr(c), c))
-                    case ForStatement(_, Some(expr2), None, _) if (isPartOf(source, expr2)) => add2newres = List((env.featureExpr(c), c))
-                    case ForStatement(_, _, Some(expr3), _) if (isPartOf(source, expr3)) => add2newres = List((env.featureExpr(c), c))
-                    case _ => add2newres = List()
+                    case WhileStatement(expr, _) if (isPartOf(source, expr)) => List((env.featureExpr(c), c))
+                    case DoStatement(expr, _) if (isPartOf(source, expr)) => List((env.featureExpr(c), c))
+                    case ForStatement(_, Some(expr2), None, _) if (isPartOf(source, expr2)) => List((env.featureExpr(c), c))
+                    case ForStatement(_, _, Some(expr3), _) if (isPartOf(source, expr3)) => List((env.featureExpr(c), c))
+                    case _ => List()
                   }
-                } else add2newres = List()
+                } else List()
               }
               // in case we hit an elif statement, we have to check whether a and the elif belong to the same if
               // if a belongs to an if
@@ -130,14 +129,12 @@ trait ConditionalControlFlow extends ASTNavigation {
                 val a2e = findPriorASTElem[IfStatement](source, env)
                 val b2e = findPriorASTElem[IfStatement](e, env)
 
-                if (a2e.isEmpty) { changed = true; add2newres = rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), newres.filterNot(td => td._2.eq(oldelem)), env)}
+                if (a2e.isEmpty) { rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), newres.filterNot(td => td._2.eq(oldelem)), env)}
                 else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) {
-                  changed = true
-                  add2newres = getCondExprPred(condition, ctx, env.featureExpr(oldelem), curres, env)
+                  getCondExprPred(condition, ctx, env.featureExpr(oldelem), curres, env)
                 }
                 else {
-                  changed = true
-                  add2newres = rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), newres.filterNot(td => td._2.eq(oldelem)), env)
+                  rollUp(e, oldelem._2, ctx, env.featureExpr(oldelem), newres.filterNot(td => td._2.eq(oldelem)), env)
                 }
               }
 
@@ -147,23 +144,41 @@ trait ConditionalControlFlow extends ASTNavigation {
               case s@GotoStatement(Id(name)) => {
                 if (source.isInstanceOf[LabelStatement]) {
                   val lname = source.asInstanceOf[LabelStatement].id.name
-                  if (name == lname) add2newres = List((env.featureExpr(s), s))
+                  if (name == lname) List((env.featureExpr(s), s))
                 }
+                List()
               }
 
               // for all other elements we use rollup and check whether the outcome of rollup differs from
               // its input (oldelem)
               case _: AST => {
-                add2newres = rollUp(source, oldelem._2, ctx, oldelem._1, newres.filterNot(td => td._2.eq(oldelem._2)), env)
-                if (! add2newres.exists({ newelem => newelem._2.eq(oldelem._2)})) changed = true
-              }
-            }
+                val newresmold = newres.filterNot(td => td._2.eq(oldelem._2))
+                val ret = rollUp(source, oldelem._2, ctx, oldelem._1, newresmold, env)
 
-            // add only elements that are not in newres so far
-            // add them add the end to keep the order of the elements
-            for (addnew <- add2newres)
-              if (newres.map(_._2.eq(addnew._2)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+                var newret: CCFGRes = List()
+                for (e@(f, a) <- ret) {
+                  if (newresmold.exists({ case (_, x) => a.eq(x)})) { }
+                  else newret ::= e
+                }
+
+                if (newret.isEmpty) {
+                  newres = newres.filterNot({ case (_, x) => oldelem._2.eq(x) })
+                }
+
+                newret
+              }
+          }})
+
+          // check wether elements of oldres have been exchanged by new elements
+          for ((_, oldelem) <- oldres) {
+            if (add2newres.exists({ case (_, x) => oldelem.eq(x)})) { }
+            else { changed = true }
           }
+
+          // add only elements that are not in newres so far
+          // add them add the end to keep the order of the elements
+          for (e@(f, addnew) <- add2newres)
+            if (! newres.exists({case (_, x) => x.eq(addnew)})) newres = newres ++ List(e)
         }
         val ret = newres.map(_._2)
         predCCFGCache.update(source, ret)
