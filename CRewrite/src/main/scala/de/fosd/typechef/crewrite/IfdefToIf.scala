@@ -7,6 +7,7 @@ import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.featureexpr._
 import sat._
 import collection.mutable.ListBuffer
+import java.util
 
 /**
  * strategies to rewrite ifdefs to ifs
@@ -19,7 +20,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   var IdMap:Map[FeatureExpr, Int] = Map()
   var IdMap2:Map[FeatureExpr, Int] = Map()
   var IdSet:Set[FeatureExpr] = Set()
-  var fctMap:Map[String, Map[FeatureExpr, String]] = Map()
+  var fctMap:Map[Id, Map[FeatureExpr, String]] = Map()
   var jmpMap:Map[String, Map[FeatureExpr, String]] = Map()
 
 
@@ -116,7 +117,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     case Not(n) => UnaryOpExpr("!", featureToCExpr(n))
   }
 
-  /* TODO: reimplement that lost functionality from the loss of collectDistinctFeatures
   def definedExternalToStruct(defExSet: Set[DefinedExternal]) : CompoundStatement = {
     def getAllStructDeclarators(defExSet: Set[DefinedExternal]) : List[Opt[StructDeclaration]] = {
       def defExToOpt(defEx: DefinedExternal) : Opt[StructDeclaration] = {
@@ -138,28 +138,36 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     val cstmt = CompoundStatement(all.asInstanceOf[List[Opt[Statement]]])
     cstmt
   }
-
-
-  def filtFeatures(a: Any, env: ASTEnv) : Set[DefinedExternal] = {
+  def filterFeatures(a: Any, env: ASTEnv) : Set[DefinedExternal] = {
     def filterFeatureExpressions(lst: List[FeatureExpr]) : Set[DefinedExternal] = {
       if (lst.size > 0) {
-        lst(0).collectDistinctFeatures ++ filterFeatureExpressions (lst.tail)
+        //println(lst(0).collectDistinctFeatures.toSet)
+        lst(0).collectDistinctFeatures2 ++ filterFeatureExpressions (lst.tail)
       } else {
         Set()
       }
     }
     def getFeatureExpressions(a: Any, env:ASTEnv): List[FeatureExpr] = {
       a match {
-        case o: Opt[_] => if (o.feature.isTautology()) List() ++ o.productIterator.toList.flatMap(getFeatureExpressions(_, env)) else List(o.feature)
+        case o: Opt[_] => if (o.feature == FeatureExprFactory.True) List() ++ o.productIterator.toList.flatMap(getFeatureExpressions(_, env)) else List(o.feature)
         case l: List[_] => l.flatMap(getFeatureExpressions(_, env))
         case p: Product => p.productIterator.toList.flatMap(getFeatureExpressions(_, env))
-        case t: FeatureExpr => if (t.isTautology()) List() else List(t)
+        case t: FeatureExpr => if (t == FeatureExprFactory.True) List() else List(t)
         case _ => List()
       }
     }
+
     filterFeatureExpressions(getFeatureExpressions(a, env))
   }
-  */
+
+  def filterInvariableOpts(a: Any,  env:ASTEnv): List[Opt [_]] = {
+    a match {
+      case o: Opt[_] => if (isVariable(o, env)) List(o) else List() ++ o.productIterator.toList.flatMap(filterInvariableOpts(_, env))
+      case l: List[_] => l.flatMap(filterInvariableOpts(_, env))
+      case p: Product => p.productIterator.toList.flatMap(filterInvariableOpts(_, env))
+      case _ => List()
+    }
+  }
 
   def getNewFunctionDef(a: AST) : List[List[FunctionDef]] = {
     val tempLst = filterASTElems[FunctionDef](a)
@@ -167,7 +175,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     def rename(list: List[FunctionDef]) : List[List[FunctionDef]] = {
       def getAll(fd: FunctionDef) : List[FunctionDef] = {
         val map = functionMap(a)
-        def getNewId(name: String, specifiers: List[Opt[_]]) : List[Id] = {
+        def getNewId(name: Id, specifiers: List[Opt[_]]) : List[Id] = {
           if (specifiers.length > 0) {
             List(Id(map.get(name).get(specifiers(0).feature))) ++ getNewId (name, specifiers.tail)
           } else {
@@ -197,7 +205,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
           }
         }
         getNewFunctions(getDeclarator(fd.declarator,
-          getNewId(fd.declarator.getName, fd.specifiers)), getSpecs(fd.specifiers), fd)
+          getNewId(fd.declarator.asInstanceOf[AtomicNamedDeclarator].id, fd.specifiers)), getSpecs(fd.specifiers), fd)
       }
       if (list.size > 0) {
         List(getAll(list(0))) ++ rename (list.tail)
@@ -208,9 +216,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     rename(lst)
   }
 
-  def replaceConvertFunctions(a: AST, e: ASTEnv) : AST = {
+  def replaceConvertFunctions(a: AST, e: ASTEnv, idHashMap: util.IdentityHashMap[Id, List[Id]]) : AST = {
     val tempAST = replaceFunctionDef(a, e)
-    val finalAST = convertFunctionCalls(tempAST, e)
+    val finalAST = convertFunctionCalls(tempAST, e, idHashMap)
     finalAST
   }
 
@@ -221,19 +229,18 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   }
 
   def replaceFunctionDef(a: AST, e: ASTEnv) : AST = {
+    var replaceMap:Map[Opt[_], List[Opt[_]]] = Map()
     val tempLst = filterASTElems[FunctionDef](a)
     val lst = tempLst.filter(x => x.specifiers.length > 1)
     val lstLst = getNewFunctionDef(a)
-    def replaceRecursive(ast: AST,  listList: List[List[FunctionDef]], oldList: List[FunctionDef]) : AST = {
-      if (listList.size > 0 && oldList.size > 0) {
-        val newOpts = listFDefToOpt(listList(0))
-        val oldOpt = getFunctionOpt(e, oldList(0))
-        replaceRecursive(replace(ast, oldOpt, newOpts), listList.tail, oldList.tail)
-      } else {
-        ast
+    if (lst.size == lstLst.size) {
+      for (i <- 0 to (lst.size - 1)) {
+        val newOpts = listFDefToOpt(lstLst(i))
+        val oldOpt = getFunctionOpt(e, lst(i))
+        replaceMap += (oldOpt -> newOpts)
       }
     }
-    replaceRecursive(a, lstLst, lst)
+    replaceWithMap(a, replaceMap)
   }
 
   def getFunctionOpt(env: ASTEnv, fd: FunctionDef) : Opt[FunctionDef] = {
@@ -251,27 +258,27 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
 
 
 
-  def functionMap(a: AST) : Map[String, Map[FeatureExpr, String]] = {
+  def functionMap(a: AST) : Map[Id, Map[FeatureExpr, String]] = {
     val functions = filterASTElems[FunctionDef](a)
     val fct = functions.filter(s => s.specifiers.length > 1)
-    var M:Map[String,  Map[FeatureExpr,  String]] = Map()
+    var M:Map[Id,  Map[FeatureExpr,  String]] = Map()
     var M2:Map[FeatureExpr,  String] = Map()
     def addMap(lst: List[FunctionDef]) = {
-      def addSMap(name: String, specs: List[Opt[Specifier]]) = {
+      def addSMap(name: Id, specs: List[Opt[Specifier]]) = {
         specs.foreach(x => if(!IdMap.contains(x.feature)) {
           IdMap += (x.feature -> IdMap.size)
         })
         specs.foreach(x => if (IdMap.contains(x.feature)) {
-          M2 += (x.feature -> ("_" + IdMap.get(x.feature).get + "_" + name))
+          M2 += (x.feature -> ("_" + IdMap.get(x.feature).get + "_" + name.name))
         })
         M += (name -> M2)
         M2 = Map()
       }
-      lst.foreach(y => addSMap(y.getName, y.specifiers))
+      lst.foreach(y => addSMap(y.declarator.asInstanceOf[AtomicNamedDeclarator].id, y.specifiers))
     }
     // println("Found " + fct.length + " functions with more than one specifier.")
     addMap(fct)
-    //println("\nMap:\n" + M + "\n\n")
+    println("\nMap:\n" + M + "\n\n")
     fctMap = M
     M
   }
@@ -369,50 +376,46 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  def convertFunctionCalls(a: AST,  env: ASTEnv) : AST = {
+  def convertFunctionCalls(a: AST,  env: ASTEnv, defUseMap: util.IdentityHashMap[Id, List[Id]]) : AST = {
     val map = fctMap
-    val filteredFCT = filterASTElems[FunctionCall](a).filter(s => (env.parent(s).isInstanceOf[PostfixExpr] && env.parent(s).asInstanceOf[PostfixExpr].p.isInstanceOf[Id] && map .contains (env.parent(s).asInstanceOf[PostfixExpr].p.asInstanceOf[Id].name)))
+    var replaceMap:Map[Opt[_], List[Opt[_]]] = Map()
 
-    def convertFC(ast: AST, fct: FunctionCall) : AST = {
-      val toBeReplaced = env.parent(env.parent(env.parent(fct))).asInstanceOf[Opt[_]]
-      val parent = env.parent(fct).asInstanceOf[PostfixExpr]
-      val expr = parent.p
-      val innerMap = map.get(expr.asInstanceOf[Id].name).get
-
-      def convertSingleFunctionCall(ft: FeatureExpr, functName: String, functCall: FunctionCall) : Opt[IfStatement] = {
-        val ifBranch = featureToCExpr(ft)
-        val thenBranch = One(CompoundStatement(List(Opt(FeatureExprFactory.True,ExprStatement(PostfixExpr(Id(functName), functCall))))))
-        val ifStmt = IfStatement(One(ifBranch), thenBranch, List(), None)
-        Opt(FeatureExprFactory.True, ifStmt)
-      }
-
-      val it = innerMap.iterator
+    def convertFunctCall(ft: FeatureExpr, newName: String, fct: FunctionCall) : Opt[IfStatement] = {
+      val ifBranch = featureToCExpr(ft)
+      val thenBranch = One(CompoundStatement(List(Opt(FeatureExprFactory.True, ExprStatement(PostfixExpr(Id(newName), fct))))))
+      val ifStmt = IfStatement(One(ifBranch), thenBranch, List(), None)
+      Opt(FeatureExprFactory.True, ifStmt)
+    }
+    def mapToOptList(map: Map[FeatureExpr, String], fct: FunctionCall) : List[Opt[_]] = {
+      val it = map.iterator
       val optBuffer = new ListBuffer[Opt[IfStatement]]
       while (it.hasNext) {
         val current = it.next()
-        optBuffer += convertSingleFunctionCall(current._1, current._2, fct)
+        optBuffer += convertFunctCall(current._1, current._2, fct)
       }
       val optLst = optBuffer.toList
-      replaceOptByOpts(ast, toBeReplaced, optLst)
+      optLst
     }
-    if (filteredFCT.size > 0) {
-      val newAst = convertFC(a, filteredFCT.head)
-      convertFunctionCalls(newAst, createASTEnv(newAst))
-    } else {
-      a
-    }
+
+    fctMap.keySet.foreach(x => if (defUseMap.containsKey(x)) {
+      val replaceList = defUseMap.get(x)
+      if (replaceList.size > 0) {
+        replaceList.foreach(y => replaceMap += (idToOptExpr(y, env) -> mapToOptList(fctMap.get(x).get, idToFunctionCall(y, env))))
+      }
+    })
+    replaceWithMap(a, replaceMap)
   }
 
   def convertFunctionCallsNew(a: AST,  env: ASTEnv) : AST = {
     val map = fctMap
-    val filteredFCT = filterASTElems[FunctionCall](a).filter(s => (env.parent(s).isInstanceOf[PostfixExpr] && env.parent(s).asInstanceOf[PostfixExpr].p.isInstanceOf[Id] && map .contains (env.parent(s).asInstanceOf[PostfixExpr].p.asInstanceOf[Id].name)))
+    val filteredFCT = filterASTElems[FunctionCall](a).filter(s => (env.parent(s).isInstanceOf[PostfixExpr] && env.parent(s).asInstanceOf[PostfixExpr].p.isInstanceOf[Id] && map .contains (env.parent(s).asInstanceOf[PostfixExpr].p.asInstanceOf[Id])))
     var replaceMap:Map[Opt[_], List[Opt[_]]] = Map()
 
     def convertFC(ast: AST, fct: FunctionCall) {
       val toBeReplaced = env.parent(env.parent(env.parent(fct))).asInstanceOf[Opt[_]]
       val parent = env.parent(fct).asInstanceOf[PostfixExpr]
       val expr = parent.p
-      val innerMap = map.get(expr.asInstanceOf[Id].name).get
+      val innerMap = map.get(expr.asInstanceOf[Id]).get
 
       def convertSingleFunctionCall(ft: FeatureExpr, functName: String, functCall: FunctionCall) : Opt[IfStatement] = {
         val ifBranch = featureToCExpr(ft)
@@ -589,7 +592,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     newAst
   }
 
-
   def replaceIfs(ast: AST, env: ASTEnv) : AST = {
     val exprStmts = filterASTElems[ExprStatement](ast)
     val varExprStmts = exprStmts.filter(x => env.parent(x).asInstanceOf[Opt[ExprStatement]].feature != FeatureExprFactory.True)
@@ -608,4 +610,24 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
     return exprToIf(ast, env, varExprStmts)
   }
+
+  def idToOptExpr(id: Id, env: ASTEnv) : Opt[ExprStatement] = {
+    val optFC = env.parent(env.parent(env.parent(id)))
+    if (optFC.isInstanceOf[Opt[ExprStatement]]) {
+      return optFC.asInstanceOf[Opt[ExprStatement]]
+    } else {
+      return null
+    }
+  }
+
+  def idToFunctionCall(id: Id, env: ASTEnv) : FunctionCall = {
+    val pstFxExpr = env.parent(id)
+    if (pstFxExpr.isInstanceOf[PostfixExpr]) {
+      return pstFxExpr.asInstanceOf[PostfixExpr].s.asInstanceOf[FunctionCall]
+    } else {
+      return null
+    }
+  }
+
+  //def isOptStruct
 }

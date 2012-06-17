@@ -1,6 +1,7 @@
 package de.fosd.typechef.featureexpr
 
 import java.io.Writer
+import sat.DefinedExternal
 
 
 trait FeatureExpr {
@@ -14,6 +15,7 @@ trait FeatureExpr {
     def toTextExpr: String
     //or other ToString variations for debugging etc
     def collectDistinctFeatures: Set[String]
+    def collectDistinctFeatures2: Set[DefinedExternal]
 
     def or(that: FeatureExpr): FeatureExpr
     def and(that: FeatureExpr): FeatureExpr

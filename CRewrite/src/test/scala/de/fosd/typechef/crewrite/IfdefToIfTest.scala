@@ -123,13 +123,12 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     }
                      """)
     val env = createASTEnv(ast)
-    println("Test:\n")
-    /*
-    val fio = filterInvariableOpts(ast, env)
     val i = new IfdefToIf()
+    println("Test:\n")
 
-    val feat = filterFeatures(ast, env)
-    val test = i.filtFeatures(ast, env.asInstanceOf[i.ASTEnv])
+    val fio = i.filterInvariableOpts(ast, env)
+
+    val feat = i.filterFeatures(ast, env)
     println ("++Distinct features in ast" + " (" + feat.size + ")" + "++")
     println(feat)
     val cstmt = i.definedExternalToStruct(feat)
@@ -139,7 +138,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println()
     println("++Pretty printed++")
     println(PrettyPrinter.print(cstmt))
-    */
+
   }
 
   @Test def test_map() {
@@ -232,14 +231,16 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println(ast)
 
     println()
+    typecheckTranslationUnit(ast)
+    val defUseMap = getDefUseMap
     val i = new IfdefToIf()
     val env = createASTEnv(ast)
 
-    val newAst = i.replaceConvertFunctions(ast, env)
+    val newAst = i.replaceConvertFunctions(ast, env, defUseMap)
     println(PrettyPrinter.print(newAst))
 
-    val newAst2 = i.replaceConvertFunctionsNew(ast, env)
-    println("\n\n" + PrettyPrinter.print(newAst2))
+    //val newAst2 = i.replaceConvertFunctionsNew(ast, env)
+    //println("\n\n" + PrettyPrinter.print(newAst2))
   }
 
   @Test def test_text2() {
@@ -687,7 +688,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("Source:\n" + source_ast)
   }
 
-  @Test def uint32_test {
+  @Test def test_opt_in_struct {
     val source_ast = getAST("""
       const unsigned int e2attr_flags_value[] = {
       #ifdef ENABLE_COMPRESSION
@@ -712,53 +713,70 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     };
 
                             """);
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast) + "\n")
     println("Source:\n" + source_ast)
   }
 
-  @Test def def_use_test {
-    val ast = getAST("""
-      #if definedEx(A)
-      int
-      #elif !definedEx(B)
-      double
-      #else
-      short
+  @Test def test_opt_struct {
+    val source_ast = getAST("""
+      #ifdef ENABLE_COMPRESSION
+      const unsigned int e2attr_flags_value[] = {
+	      EXT2_COMPRBLK_FL,
+	      EXT2_DIRTY_FL,
+	      EXT2_NOCOMPR_FL,
+      	EXT2_ECOMPR_FL,
+      };
       #endif
-      foo(int jahreseinkommen) {
+      """);
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast) + "\n")
+    println("Source:\n" + source_ast)
+  }
+
+  @Test def test_opt_int {
+    val source_ast = getAST("""
+      int main(void) {
+        #if definedEx(A)
+        int i = 8;
+        #endif
+        #if definedEx(B)
+        int i = 16;
+        #endif
+        #if definedEx(C)
+        int i = 32;
+        #else
+        int i = 64;
+        #endif
+
+        #if definedEx(D)
+        int j = 32;
+        #else
+        int j = 64;
+        #endif
+
+        i = i*i;
+        j = 2*j;
         return 0;
       }
+                            """);
 
-      #if !definedEx(C)
-      int
-      #elif definedEx(D)
-      double
-      #else
-      short
-      #endif
-      foo2(int jahreseinkommen) {
+    val target_ast = getAST("""
+      int main(void) {
+        int _0_i = 8;
+        int _1_i = 16;
+        int _2_i = 32;
+        int _3_i = 64;
+        int _4_j = 32;
+        int _5_j = 64;
+
+        if (options.a) {
+          _0_i = _0_i * _0_i
+        }
+        i = i*i;
+        j = 2*j;
         return 0;
       }
-
-      bar3() {
-        println("Wir sind in bar3");
-        foo(3);
-        foo2(3);
-      }
-
-       bar5() {
-        println("Wir sind in bar5");
-        foo2(5);
-        foo(5);
-      }
-                     """)
-    val i = new IfdefToIf()
-    val env = createASTEnv(ast)
-    typecheckTranslationUnit(ast)
-
-    val lastdecl = ast.defs.last.entry
-    println("Last declaration is:\n" + lastdecl + "\n")
-    println("Def use map is:\n" + getDefUseMap + "\n")
-    println("Test:\n" + env.featureSet(ast.defs.head.entry.asInstanceOf[FunctionDef].specifiers.head))
+                            """);
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast) + "\n")
+    println("Source:\n" + source_ast)
   }
 }

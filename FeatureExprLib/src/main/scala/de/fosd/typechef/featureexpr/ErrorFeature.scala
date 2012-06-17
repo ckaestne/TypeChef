@@ -13,6 +13,7 @@ class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     def isSatisfiable(fm: FeatureModel) = error
     protected def calcSize = error
     def collectDistinctFeatures = error
+    def collectDistinctFeatures2 = error
     def or(that: FeatureExpr) = error
     def and(that: FeatureExpr) = error
     def not() = error

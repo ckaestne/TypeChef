@@ -205,6 +205,14 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
         }, Map())
         result
     }
+    def collectDistinctFeatures2: Set[DefinedExternal] = {
+      var result: Set[DefinedExternal] = Set()
+      this.mapDefinedExpr(_ match {
+        case e: DefinedExternal => result += e; e
+        case e => e
+      }, Map())
+      result
+    }
     /**
      * counts the number of features in this expression for statistic
      * purposes
