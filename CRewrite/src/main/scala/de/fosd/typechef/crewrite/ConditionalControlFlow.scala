@@ -411,6 +411,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       case _ => {
         val expfexp = env.featureExpr(exp)
         if (expfexp implies resctx.fold(FeatureExprFactory.False)(_ or _) isTautology()) List()
+        else if (expfexp and ctx isContradiction()) List()
         else List(exp)
       }
     }
