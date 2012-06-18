@@ -133,11 +133,10 @@ trait ConditionalControlFlow extends ASTNavigation {
 
                 if (a2e.isEmpty) { add2newres = rollUp(e, oldelem._2, ctx, oldelem._1, oldres, env) }
                 else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) {
-                  add2newres = getCondExprPred(condition, ctx, oldelem._1, oldres, env)
+                  add2newres = getCondExprPred(condition, ctx, oldelem._1, oldres.filterNot(td => td._1.eq(oldelem._1)), env)
                 }
                 else {
-                  changed = true
-                  add2newres = rollUp(e, oldelem._2, ctx, oldelem._1, oldres, env)
+                  add2newres = rollUp(e, oldelem._2, ctx, oldelem._1, oldres.filterNot(td => td._1.eq(oldelem._1)), env)
                 }
               }
 
@@ -154,20 +153,20 @@ trait ConditionalControlFlow extends ASTNavigation {
               // for all other elements we use rollup and check whether the outcome of rollup differs from
               // its input (oldelem)
               case _: AST => {
-                add2newres = rollUp(source, oldelem._2, ctx, oldelem._1, newres, env)
+                val foldres = oldres.filterNot(td => td._1.eq(oldelem._1) || td._1.isTautology())
+                add2newres = rollUp(source, oldelem._2, ctx, oldelem._1, foldres, env)
               }
             }
+
+            // check whether oldelem is present in add2newres;
+            // if false oldelem has been replaced by another element => changed = true
+            // if true oldelem has nott been replaced => changed remains the same
+            if (! add2newres.exists(_._2.eq(oldelem._2))) changed = true
 
             // add only elements that are not in newres so far
             // add them add the end to keep the order of the elements
             for (e@(f, addnew) <- add2newres)
               if (! newres.exists({case (_, x) => x.eq(addnew)})) newres = newres ++ List(e)
-
-
-            // add only elements that are not in newres so far
-            // add them add the end to keep the order of the elements
-            for (addnew <- add2newres)
-              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
           }
         }
         val newret = newres.map(_._2)
@@ -256,21 +255,21 @@ trait ConditionalControlFlow extends ASTNavigation {
             var add2newres: CCFGRes = List()
             val newctx = oldelem._1
             oldelem._2 match {
-              case _: IfStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
-              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
-              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
-              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
-              case _: DoStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
-              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
-              case _: ForStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
-              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, newctx, curres, env)
+              case _: IfStatement => changed = true; add2newres = succHelper(oldelem._2, ctx, newctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
+              case _: ElifStatement => changed = true; add2newres = succHelper(oldelem._2, ctx, newctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
+              case _: SwitchStatement => changed = true; add2newres = succHelper(oldelem._2, ctx, newctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
+              case _: CompoundStatement => changed = true; add2newres = succHelper(oldelem._2, ctx, newctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
+              case _: DoStatement => changed = true; add2newres = succHelper(oldelem._2, newctx, ctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
+              case _: WhileStatement => changed = true; add2newres = succHelper(oldelem._2, ctx, newctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
+              case _: ForStatement => changed = true; add2newres = succHelper(oldelem._2, ctx, newctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
+              case _: DefaultStatement => changed = true; add2newres = succHelper(oldelem._2, ctx, newctx, oldres.filterNot(td => td._2.eq(oldelem._2)), env)
               case _ => add2newres = List(oldelem)
             }
 
             // add only elements that are not in newres so far
             // add them add the end to keep the order of the elements
             for (addnew <- add2newres)
-              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+              if (! newres.exists(_.eq(addnew))) newres ::= addnew
           }
         }
         val ret = newres.map(_._2)
@@ -399,7 +398,7 @@ trait ConditionalControlFlow extends ASTNavigation {
     e match {
       case c@CompoundStatementExpr(CompoundStatement(innerStatements)) =>
         getCompoundSucc(innerStatements, c, ctx, curctx, curres, env)
-      case _ => curres ++ List((env.featureExpr(e), e))
+      case _ => List((env.featureExpr(e), e))
     }
   }
 
@@ -407,10 +406,8 @@ trait ConditionalControlFlow extends ASTNavigation {
     cexp match {
       case One(value) => getExprSucc(value, ctx, curctx, curres, env)
       case Choice(_, thenBranch, elseBranch) => {
-        var res = curres
-        res = getCondExprSucc(thenBranch, ctx, env.featureExpr(thenBranch), res, env)
-        res = getCondExprSucc(elseBranch, ctx, env.featureExpr(elseBranch), res, env)
-        res
+        getCondExprSucc(thenBranch, ctx, env.featureExpr(thenBranch), curres, env) ++
+          getCondExprSucc(elseBranch, ctx, env.featureExpr(elseBranch), curres, env)
       }
     }
   }
@@ -430,8 +427,8 @@ trait ConditionalControlFlow extends ASTNavigation {
     cexp match {
       case One(value) => getExprPred(value, ctx, curctx, curres, env)
       case Choice(_, thenBranch, elseBranch) => {
-        val res = getCondExprPred(thenBranch, ctx, env.featureExpr(thenBranch), curres, env)
-        getCondExprPred(elseBranch, ctx, env.featureExpr(elseBranch), res, env)
+        getCondExprPred(thenBranch, ctx, env.featureExpr(thenBranch), curres, env) ++
+          getCondExprPred(elseBranch, ctx, env.featureExpr(elseBranch), curres, env)
       }
     }
   }
@@ -578,7 +575,7 @@ trait ConditionalControlFlow extends ASTNavigation {
             var res: CCFGRes = List()
             if (expr1.isDefined) res ++= getExprPred(expr1.get, ctx, curctx, curres, env)
             else res ++= getStmtPred(t, ctx, curctx, curres, env)
-            if (expr3.isDefined) res = getExprPred(expr3.get, ctx, curctx, curres, env)
+            if (expr3.isDefined) res ++= getExprPred(expr3.get, ctx, curctx, curres, env)
             else {
               res ++= getCondStmtPred(t, s, ctx, curctx, curres, env)
               res ++= filterContinueStatements(s, ctx, env.featureExpr(t), env).map(x => (env.featureExpr(x), x))
@@ -679,10 +676,10 @@ trait ConditionalControlFlow extends ASTNavigation {
           case t: Statement => getStmtPred(t, ctx, curctx, curres, env)
           case t: FunctionDef => {
             val ffexp = env.featureExpr(t)
-            if (ffexp implies curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) isTautology()) curres
-            else curres ++ List((env.featureExpr(t), t))
+            if (ffexp implies curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) isTautology()) List()
+            else List((env.featureExpr(t), t))
           }
-          case _ => curres
+          case _ => List()
         }
       }
     }
@@ -746,7 +743,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       val taillist = getTailListSucc(s, ifdefblocks)
       determineFollowingElementsSucc(ctx, curres.map(_._1), taillist.drop(1), env) match {
         case Left(res) => res // 2.
-        case Right(res) => followSucc(s, ctx, curctx, res, env) // 3.
+        case Right(res) => curres ++ followSucc(s, ctx, curctx, res, env) // 3.
       }
     }
   }
@@ -754,7 +751,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   // specialized version of getStmtSucc for ElifStatements
   private def getElifSucc(s: ElifStatement, ctx: FeatureExpr, curctx: FeatureExpr, curres: CCFGRes, env: ASTEnv):
       Either[CCFGRes, CCFGRes] = {
-    
+
     val snext = nextAST(s, env)
     if (snext != null && (env.featureExpr(snext) equivalentTo curctx)) Left(curres ++ List((env.featureExpr(snext), snext)))
     else {
@@ -850,8 +847,8 @@ trait ConditionalControlFlow extends ASTNavigation {
       // can be predecessors
       case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
         var res: CCFGRes = List()
-      
-        if (elseBranch.isDefined) res = getCondStmtPred(t, elseBranch.get, ctx, curctx, curres, env)
+
+        if (elseBranch.isDefined) res ++= getCondStmtPred(t, elseBranch.get, ctx, curctx, curres, env)
         if (!elifs.isEmpty) {
           for (Opt(f, elif@ElifStatement(_, thenBranch)) <- elifs) {
             if (f.implies(ctx).isSatisfiable())
@@ -865,7 +862,7 @@ trait ConditionalControlFlow extends ASTNavigation {
 
         if (elifs.isEmpty && elseBranch.isEmpty)
           res ++= getCondExprPred(condition, ctx, curctx, curres, env)
-        res.flatMap({ x => rollUp(source, x._2, ctx, x._1, curres, env) })
+        res.flatMap({ x => rollUp(source, x._2, ctx, x._1, res.filterNot(td => td._1.eq(x._1)), env) })
       }
       case ElifStatement(condition, thenBranch) => {
         var res: CCFGRes = List()
@@ -880,7 +877,7 @@ trait ConditionalControlFlow extends ASTNavigation {
             res ++= getCondStmtPred(target, thenBranch, ctx, curctx, curres, env)
         }
 
-        res.flatMap({ x => rollUp(source, x._2, ctx, x._1, curres, env) })
+        res.flatMap({ x => rollUp(source, x._2, ctx, x._1, res.filterNot(td => td._1.eq(x._1)), env) })
       }
       case t@SwitchStatement(expr, s) => {
         val lbreaks = filterBreakStatements(s, ctx, env.featureExpr(t), env)
@@ -915,8 +912,9 @@ trait ConditionalControlFlow extends ASTNavigation {
       case t@ForStatement(_, _, _, s) => curres ++ filterBreakStatements(s, ctx, env.featureExpr(t), env).map(x => (env.featureExpr(x), x))
 
       case c@CompoundStatement(innerStatements) => {
-        getCompoundPred(innerStatements, c, ctx, curctx, curres, env).
-          flatMap({ x => rollUp(source, x._2, ctx, x._1, curres, env) })
+        val res = getCompoundPred(innerStatements, c, ctx, curctx, curres, env)
+        val newres = res.flatMap({ x => rollUp(source, x._2, ctx, x._1, res.filterNot(td => td._1.eq(x._1)), env) })
+        newres
       }
 
       case t@GotoStatement(PointerDerefExpr(_)) => {
@@ -933,7 +931,7 @@ trait ConditionalControlFlow extends ASTNavigation {
         }
       }
 
-      case _ => List((env.featureExpr(target), target)) ++ curres
+      case _ => List((env.featureExpr(target), target))
     }
   }
 
@@ -979,10 +977,10 @@ trait ConditionalControlFlow extends ASTNavigation {
       val taillistreversed = taillist.map(_.reverse).reverse
 
       determineFollowingElementsPred(ctx, curres.map(_._1), taillistreversed.drop(1), env) match {
-        case Left(res) => res.flatMap({ x => rollUpJumpStatement(x._2, false, ctx, x._1, curres, env)}) // 2.
+        case Left(res) => res.flatMap({ x => rollUpJumpStatement(x._2, false, ctx, x._1, res, env)}) // 2.
         case Right(res) => {
-          res.flatMap({ x => rollUpJumpStatement(x._2, false, ctx, x._1, curres, env)}) ++
-            followPred(s, ctx, curctx, curres, env) // 3.
+          res.flatMap({ x => rollUpJumpStatement(x._2, false, ctx, x._1, res, env)}) ++
+            followPred(s, ctx, curctx, res, env) // 3.
         }
       }
     }
@@ -994,8 +992,8 @@ trait ConditionalControlFlow extends ASTNavigation {
 
     determineFollowingElementsSucc(ctx, curres.map(_._1), ifdefblocks, env) match {
       case Left(res) => res
-      case Right(res) => if (l.isEmpty) followSucc(parent, ctx, curctx, res, env)
-                         else followSucc(l.head, ctx, curctx, res, env)
+      case Right(res) => curres ++ (if (l.isEmpty) followSucc(parent, ctx, curctx, res, env)
+                                    else followSucc(l.head, ctx, curctx, res, env))
     }
   }
 
@@ -1006,10 +1004,8 @@ trait ConditionalControlFlow extends ASTNavigation {
 
     determineFollowingElementsPred(ctx, curres.map(_._1), ifdefblocksreverse, env) match {
       case Left(res) => res
-      case Right(res) => {
-        if (l.isEmpty) followPred(parent, ctx, curctx, res, env)
-        else followPred(l.reverse.head, ctx, curctx, res, env)
-      }
+      case Right(res) => curres ++ (if (l.isEmpty) followPred(parent, ctx, curctx, res, env)
+                                    else followPred(l.reverse.head, ctx, curctx, res, env))
     }
   }
 
