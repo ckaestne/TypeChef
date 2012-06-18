@@ -769,7 +769,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         int _5_j = 64;
 
         if (options.a) {
-          _0_i = _0_i * _0_i
+          _0_i = _0_i * _0_i;
         }
         i = i*i;
         j = 2*j;
