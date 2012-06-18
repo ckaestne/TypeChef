@@ -76,7 +76,7 @@ trait EnforceTreeHelper {
     assert(ast != null)
 
     val rewrite = everywherebu(rule {
-      case f@ForStatement(None, None, None, _) =>
+      case f@ForStatement(_, None, _, _) =>
         f.copy(expr2 = Some(Constant("1")))
       case n: AST => n
     })
