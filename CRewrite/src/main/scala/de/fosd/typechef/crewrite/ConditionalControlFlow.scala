@@ -68,8 +68,6 @@ trait ConditionalControlFlow extends ASTNavigation {
   // equal annotated AST elements
   type IfdefBlock  = List[AST]
 
-  var inrollup = false
-
   // determines predecessor of a given element
   // results are cached for secondary evaluation
   def pred(source: Product, env: ASTEnv): List[AST] = {
@@ -132,12 +130,10 @@ trait ConditionalControlFlow extends ASTNavigation {
 
                 if (a2e.isEmpty) { changed = true; add2newres = rollUp(e, oldelem, ctx, env.featureExpr(oldelem), resctx, env)}
                 else if (a2e.isDefined && b2e.isDefined && a2e.get.eq(b2e.get)) {
-                  changed = true
                   add2newres = getCondExprPred(condition, ctx, env.featureExpr(oldelem), resctx, env)
                 }
                 else {
-                  changed = true
-                  add2newres = rollUp(e, oldelem, ctx, env.featureExpr(oldelem), resctx, env)
+                  add2newres = rollUp(e, oldelem, ctx, env.featureExpr(oldelem), List(FeatureExprFactory.True), env)
                 }
               }
 
@@ -154,15 +150,29 @@ trait ConditionalControlFlow extends ASTNavigation {
               // for all other elements we use rollup and check whether the outcome of rollup differs from
               // its input (oldelem)
               case _: AST => {
-                add2newres = rollUp(source, oldelem, ctx, env.featureExpr(oldelem), resctx, env)
-                if (add2newres.size > 1 || (add2newres.size > 0 && add2newres.head.ne(oldelem))) changed = true
+                val fexpoldelem = env.featureExpr(oldelem)
+                add2newres = rollUp(source, oldelem, ctx, fexpoldelem, resctx, env)
+
+                if (! add2newres.exists(_.eq(oldelem))) {
+                  val f = add2newres.filter(x => ! isPartOf(x, oldres))
+
+                  for (i <- f) {
+                    if (env.featureExpr(i).isTautology()) {
+                      add2newres = add2newres.filterNot(x => x.eq(i))
+                    }
+                  }
+                }
               }
             }
+
+            // check whether oldelem is already available in add2newres
+            // if so changed is remains the same, otherwise changed is true
+            if (! add2newres.exists(_.eq(oldelem))) changed = true
 
             // add only elements that are not in newres so far
             // add them add the end to keep the order of the elements
             for (addnew <- add2newres)
-              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+              if (! newres.exists(_.eq(addnew))) newres = newres ++ List(addnew)
           }
         }
         predCCFGCache.update(source, newres)
