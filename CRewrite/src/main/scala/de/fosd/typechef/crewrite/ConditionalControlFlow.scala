@@ -71,6 +71,8 @@ trait ConditionalControlFlow extends ASTNavigation {
   // cfg result consists of
   type CCFGRes     = List[(FeatureExpr, AST)]
 
+  var inrollup = false
+
   // determines predecessor of a given element
   // results are cached for secondary evaluation
   def pred(source: Product, env: ASTEnv): List[AST] = {
@@ -153,8 +155,10 @@ trait ConditionalControlFlow extends ASTNavigation {
               // for all other elements we use rollup and check whether the outcome of rollup differs from
               // its input (oldelem)
               case _: AST => {
-                val foldres = oldres.filterNot(td => td._1.eq(oldelem._1) || td._1.isTautology())
+                val foldres = oldres.filterNot(td => td._1.eq(oldelem._1))
+                inrollup = true
                 add2newres = rollUp(source, oldelem._2, ctx, oldelem._1, foldres, env)
+                inrollup = false
               }
             }
 
@@ -417,7 +421,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       case t@CompoundStatementExpr(CompoundStatement(innerStatements)) => getCompoundPred(innerStatements, t, ctx, curctx, curres, env)
       case _ => {
         val expfexp = env.featureExpr(exp)
-        if (expfexp implies curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) isTautology()) curres
+        if (!inrollup && (expfexp implies curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) isTautology())) curres
         else curres ++ List((expfexp, exp))
       }
     }
@@ -1047,7 +1051,7 @@ trait ConditionalControlFlow extends ASTNavigation {
       // nodes of annotations that have been added before: e.g., ctx is true; A B A true
       // the second A should not be added again because if A is selected the first A would have been selected
       // and not the second one
-      else if (bfexp implies curresctx.fold(FeatureExprFactory.False)(_ or _) isTautology()) { }
+      else if (!inrollup && (bfexp implies curresctx.fold(FeatureExprFactory.False)(_ or _) isTautology())) { }
 
       // otherwise add element and update resulting context
       else {res = res ++ List((bfexp, head)); curresctx ::= bfexp}
