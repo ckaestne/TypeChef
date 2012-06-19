@@ -165,6 +165,8 @@ trait ConditionalControlFlow extends ASTNavigation {
               }
             }
 
+            add2newres = add2newres.filterNot( x => env.featureExpr(x) and ctx isContradiction())
+
             // check whether oldelem is already available in add2newres
             // if so changed is remains the same, otherwise changed is true
             if (! add2newres.exists(_.eq(oldelem))) changed = true
@@ -229,7 +231,7 @@ trait ConditionalControlFlow extends ASTNavigation {
 
       case f@FunctionDef(_, _, _, CompoundStatement(List())) => List(f)
       case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), ctx, curctx, resctx, env) ++
-        filterAllASTElems[ReturnStatement](f, env.featureSet(f))
+        filterReturnStatements(stmt, ctx, env)
       case c@CompoundStatement(innerStatements) => getCompoundPred(innerStatements, c, ctx, curctx, resctx, env)
 
       case s: Statement => getStmtPred(s, ctx, curctx, resctx, env)
@@ -267,10 +269,12 @@ trait ConditionalControlFlow extends ASTNavigation {
               case _ => add2newres = List(oldelem)
             }
 
+            add2newres = add2newres.filterNot(x => env.featureExpr(x) and ctx isContradiction())
+
             // add only elements that are not in newres so far
             // add them add the end to keep the order of the elements
             for (addnew <- add2newres)
-              if (newres.map(_.eq(addnew)).foldLeft(false)(_ || _).unary_!) newres = newres ++ List(addnew)
+              if (! newres.exists(_.eq(addnew))) newres = newres ++ List(addnew)
           }
         }
         succCCFGCache.update(source, newres)
@@ -388,11 +392,15 @@ trait ConditionalControlFlow extends ASTNavigation {
     }
   }
 
-  private def getExprSucc(e: Expr, ctx: FeatureExpr, curctx: FeatureExpr, resctx: List[FeatureExpr], env: ASTEnv) = {
-    e match {
+  private def getExprSucc(exp: Expr, ctx: FeatureExpr, curctx: FeatureExpr, resctx: List[FeatureExpr], env: ASTEnv) = {
+    exp match {
       case c@CompoundStatementExpr(CompoundStatement(innerStatements)) =>
         getCompoundSucc(innerStatements, c, ctx, curctx, resctx, env)
-      case _ => List(e)
+      case _ => {
+        val expfexp = env.featureExpr(exp)
+        if (expfexp and ctx isContradiction()) List()
+        else List(exp)
+      }
     }
   }
 
@@ -761,7 +769,7 @@ trait ConditionalControlFlow extends ASTNavigation {
   private def filterBreakStatements(c: Conditional[Statement], ctx: FeatureExpr, curctx: FeatureExpr, env: ASTEnv): List[BreakStatement] = {
     def filterBreakStatementsHelper(a: Any): List[BreakStatement] = {
       a match {
-        case t: BreakStatement => if (env.featureExpr(t) implies ctx isTautology()) List(t) else List()
+        case t: BreakStatement => if (env.featureExpr(t) implies ctx isSatisfiable()) List(t) else List()
         case _: SwitchStatement => List()
         case _: ForStatement => List()
         case _: WhileStatement => List()
@@ -772,6 +780,20 @@ trait ConditionalControlFlow extends ASTNavigation {
       }
     }
     filterBreakStatementsHelper(c)
+  }
+
+  private def filterReturnStatements(c: CompoundStatement, ctx: FeatureExpr, env: ASTEnv): List[ReturnStatement] = {
+    def filterReturnStatementsHelper(a: Any): List[ReturnStatement] = {
+      a match {
+        case r: ReturnStatement => (if (env.featureExpr(r) implies ctx isSatisfiable()) List(r) else List()) ++
+          r.productIterator.toList.flatMap(filterReturnStatementsHelper(_))
+        case _: NestedFunctionDef => List()
+        case l: List[_] => l.flatMap(filterReturnStatementsHelper(_))
+        case x: Product => x.productIterator.toList.flatMap(filterReturnStatementsHelper(_))
+        case _ => List()
+      }
+    }
+    filterReturnStatementsHelper(c)
   }
 
   // this method filters ContinueStatements
