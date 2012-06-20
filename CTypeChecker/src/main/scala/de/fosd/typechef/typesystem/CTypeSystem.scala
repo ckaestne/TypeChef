@@ -308,7 +308,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
 
             case SwitchStatement(expr, s) => expectIntegral(expr); checkCStmt(s); nop //spec
-            case DefaultStatement(s) => checkOCStmt(s); nop
+            case DefaultStatement() => nop
 
             case EmptyStatement() => nop
             case ContinueStatement() => nop

@@ -344,8 +344,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ^^ {
         case _ ~ e ~ _ => CaseStatement(e)
     })
-        | (textToken("default") ~! COLON ~> opt(statement) ^^ {
-        DefaultStatement(_)
+        | (textToken("default") ~! COLON ^^ {
+      case _ => DefaultStatement()
     })
         //// Selection statements:
         | (textToken("if") ~! LPAREN ~ (expr !) ~ RPAREN ~ statement ~

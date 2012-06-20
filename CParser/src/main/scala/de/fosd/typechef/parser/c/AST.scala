@@ -148,7 +148,7 @@ case class LabelStatement(id: Id, attribute: Option[AttributeSpecifier]) extends
 
 case class CaseStatement(c: Expr) extends Statement
 
-case class DefaultStatement(s: Option[Conditional[Statement]]) extends Statement
+case class DefaultStatement() extends Statement
 
 case class IfStatement(condition: Conditional[Expr], thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
 

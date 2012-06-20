@@ -139,7 +139,7 @@ object PrettyPrinter {
             case ReturnStatement(Some(e)) => "return" ~~ e ~ ";"
             case LabelStatement(id: Id, _) => id ~ ":"
             case CaseStatement(c: Expr) => "case" ~~ c ~ ":"
-            case DefaultStatement(s) => "default:" ~~ optCond(s)
+            case DefaultStatement() => "default:"
             case IfStatement(condition, thenBranch, elifs, elseBranch) =>
                 "if (" ~ condition ~ ")" ~~ thenBranch ~~ sep(elifs, _ * _) ~~ optCondExt(elseBranch, line ~ "else" ~~ _)
             case ElifStatement(condition, thenBranch) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch
