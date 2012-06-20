@@ -138,9 +138,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             }
 
             // add only elements that are not in newres so far
-            // add them add the end to keep the order of the elements
             for (addnew <- add2newres)
-              if (! newres.exists(_.eq(addnew))) newres ::= addnew
+              if (! newres.exists(_._2.eq(addnew._2))) newres ::= addnew
           }
         }
 
