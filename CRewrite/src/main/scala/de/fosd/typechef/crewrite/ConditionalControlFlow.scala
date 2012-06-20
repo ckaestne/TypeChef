@@ -70,6 +70,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   type CCFGRes     = List[(FeatureExpr, AST)]
 
   var barrier: List[AST] = List()
+  var iscomplete: Boolean = false
 
   // determines predecessor of a given element
   // results are cached for secondary evaluation
@@ -79,9 +80,15 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case None => {
         var oldres: CCFGRes = List()
         val ctx = env.featureExpr(source)
-        val resctx: CCFGRes = List()
-        var newres: CCFGRes = predHelper(source, ctx, resctx, env)
+        iscomplete = false
+        var newres: CCFGRes = predHelper(source, ctx, oldres, env)
         var changed = true
+
+        if (! predComplete(ctx, newres)) {
+          val f = findPriorASTElem[FunctionDef](source, env).get
+          val fexpf = env.featureExpr(f)
+          newres ::= (fexpf, f)
+        }
 
         while (changed) {
           changed = false
@@ -167,7 +174,12 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       val prior_switch = findPriorASTElem[SwitchStatement](t, env)
       assert(prior_switch.isDefined, "default or case statements should always occur withing a switch definition")
       prior_switch.get match {
-        case SwitchStatement(expr, _) => getExprPred(expr, ctx, oldres, env) ++ getStmtPred(t, ctx, oldres, env)
+        case SwitchStatement(expr, _) => {
+          barrier ::= t
+          val res = getExprPred(expr, ctx, oldres, env) ++ getStmtPred(t, ctx, oldres, env)
+          barrier = barrier.filterNot(x => x.eq(t))
+          res
+        }
       }
     }
 
@@ -192,6 +204,20 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
         if (elifs.isEmpty && elseBranch.isEmpty)
           res ++= getCondExprPred(condition, ctx, oldres, env)
+        res
+      }
+
+      case t@SwitchStatement(expr, s) => {
+        val lbreaks = filterBreakStatements(s, ctx, env)
+        val ldefaults = filterDefaultStatements(s, ctx, env)
+
+        var res = oldres ++ lbreaks
+
+        if (ldefaults.isEmpty) {
+          res ++= getExprPred(expr, ctx, oldres, env)
+        } else {
+          res ++= getCondStmtPred(t, s, ctx, oldres, env)
+        }
         res
       }
 
@@ -265,8 +291,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   private def predComplete(ctx: FeatureExpr, curres: CCFGRes): Boolean = {
-    val curresctx = curres.map(_._1).fold(FeatureExprFactory.False)(_ or _)
-    curresctx equivalentTo ctx
+    val curresctx = curres.map(_._1)
+    (curresctx.fold(FeatureExprFactory.False)(_ or _) equivalentTo ctx) ||
+      (curresctx.exists(x => x equivalentTo  ctx)) ||
+      (curresctx.exists(x => x isTautology()))
   }
 
   // checks whether the current result list is complete
@@ -615,7 +643,11 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             else getCondExprPred(condition, ctx, oldres, env)
           }
 
-          case SwitchStatement(expr, s) if (isPartOf(nested_ast_elem, s)) => getExprPred(expr, ctx, oldres, env)
+          case t@SwitchStatement(expr, s) => {
+            if (isPartOf(nested_ast_elem, s)) getExprPred(expr, ctx, oldres, env)
+            else getStmtPred(t, ctx, oldres, env)
+          }
+
           case t: CaseStatement => (env.featureExpr(t), t) :: oldres
 
           // pred of default is either the expression of the switch, which is
@@ -839,7 +871,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           }
         }
       })
-      followPred(parent, ctx, curres, env)
+      curres
     }
   }
 
