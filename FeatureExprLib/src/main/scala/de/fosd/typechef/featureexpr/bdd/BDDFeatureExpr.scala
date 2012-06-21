@@ -162,6 +162,16 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asBDDFeatureExpr(that))
     def not(): FeatureExpr = FExprBuilder.not(this)
 
+    /**
+     * frees the space occupied by this bdd in the bdd library.
+     * This is done without any safety-measures!
+     * If there is any reference to this FeatureExpression left, and its reference to
+     * the (cleared) bdd is used, there might be an exception or undefined behavior.
+     */
+    def freeBDD() {
+        this.bdd.free()
+    }
+
     override def implies(that: FeatureExpr) = FExprBuilder.imp(this, asBDDFeatureExpr(that))
     override def xor(that: FeatureExpr) = FExprBuilder.xor(this, asBDDFeatureExpr(that))
 

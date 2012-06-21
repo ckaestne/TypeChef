@@ -6,7 +6,6 @@ import java.io.Writer
 
 trait FeatureExpr {
 
-
     /**
    * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
    * but is faster because FM is cached

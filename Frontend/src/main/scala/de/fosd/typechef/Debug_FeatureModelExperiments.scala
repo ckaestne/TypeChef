@@ -1,6 +1,8 @@
 package de.fosd.typechef
 
-import featureexpr.FeatureModel
+import conditional.{Choice, Opt}
+import featureexpr.{FeatureExpr, SingleFeatureExpr, FeatureModel}
+import parser.c.AST
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,6 +13,7 @@ import featureexpr.FeatureModel
  */
 
 object Debug_FeatureModelExperiments {
+
     /** some feature model experimentation, only for debug purposes */
     def experiment(fm_ts: FeatureModel) {
         val rds_t = de.fosd.typechef.featureexpr.FeatureExprFactory.createDefinedExternal("CONFIG_RDS_TCP")
@@ -28,3 +31,5 @@ object Debug_FeatureModelExperiments {
         println("all rds: " + (rds).and(rds_r).and(rds_t).isSatisfiable(fm_ts))
     }
 }
+
+

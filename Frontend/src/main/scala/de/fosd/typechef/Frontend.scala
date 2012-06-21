@@ -88,6 +88,8 @@ object Frontend {
 
                 if (opt.typecheck || opt.writeInterface) {
                     ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt)
+                    //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
+
                     //println("type checking.")
                     //ts.checkAST
                     t4 = System.currentTimeMillis();
