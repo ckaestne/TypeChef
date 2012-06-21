@@ -103,12 +103,14 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val s = getAllSucc(f, env)
-    val p = getAllPred(f, env)
+    val myenv = CASTEnv.createASTEnv(f)
 
-    val errors = compareSuccWithPred(s, p, env)
-    CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
+    val ss = getAllSucc(f.stmt.innerStatements.head.entry, myenv).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+    for (s <- ss.reverse) {
+      in(s, myenv)
+      out(s, myenv)
+    }
 
-    errors.size > 0
+    true
   }
 }

@@ -65,12 +65,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   private val predCCFGCache = new CCFGCache()
   private val succCCFGCache = new CCFGCache()
 
-  // equal annotated AST elements
-  type IfdefBlock  = List[AST]
-  type CCFGRes     = List[(FeatureExpr, AST)]
-
+  type CCFGRes = List[(FeatureExpr, AST)]
   var barrier: List[AST] = List()
-  var iscomplete: Boolean = false
 
   // determines predecessor of a given element
   // results are cached for secondary evaluation
@@ -80,14 +76,15 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case None => {
         var oldres: CCFGRes = List()
         val ctx = env.featureExpr(source)
-        iscomplete = false
         var newres: CCFGRes = predHelper(source, ctx, oldres, env)
         var changed = true
 
         if (! predComplete(ctx, newres)) {
           val f = findPriorASTElem[FunctionDef](source, env).get
           val fexpf = env.featureExpr(f)
-          newres ::= (fexpf, f)
+
+          if (! newres.map(_._1).exists(x => x equivalentTo fexpf))
+            newres ::= (fexpf, f)
         }
 
         while (changed) {
@@ -626,12 +623,19 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             if (isPartOf(nested_ast_elem, condition)) getStmtPred(t, ctx, oldres, env)
             else if (isPartOf(nested_ast_elem, thenBranch)) getCondExprPred(condition, ctx, oldres, env)
             else if (isPartOf(nested_ast_elem, elseBranch)) {
-              if (elifs.isEmpty) getCondExprPred(condition, ctx, oldres, env)
+              if (elifs.isEmpty || elifs.exists(x => x.entry.eq(nested_ast_elem))) getCondExprPred(condition, ctx, oldres, env)
               else {
                 getCompoundPred(elifs.reverse, t, ctx, oldres, env)
               }
             } else {
-              getStmtPred(nested_ast_elem.asInstanceOf[AST], ctx, oldres, env)
+              val curelem = nested_ast_elem.asInstanceOf[AST]
+              if (barrier.exists(x => curelem.eq(x))) { getCondExprPred(condition, ctx, oldres, env) }
+              else {
+                barrier ::= curelem
+                val res = getStmtPred(curelem, ctx, oldres, env)
+                barrier = barrier.filterNot(x => x.eq(curelem))
+                res
+              }
             }
           }
 
@@ -720,7 +724,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       a match {
         case t: BreakStatement => {
           val fexpt = env.featureExpr(t)
-          if (fexpt implies ctx isSatisfiable()) List((fexpt, t)) else List()
+          if (! (fexpt and ctx isContradiction())) List((fexpt, t)) else List()
         }
         case _: SwitchStatement => List()
         case _: ForStatement => List()
@@ -743,7 +747,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       a match {
         case t: ContinueStatement => {
           val fexpt = env.featureExpr(t)
-          if (fexpt implies ctx isSatisfiable()) List((fexpt, t)) else List()
+          if (! (fexpt and ctx isContradiction())) List((fexpt, t)) else List()
         }
         case _: ForStatement => List()
         case _: WhileStatement => List()
@@ -762,7 +766,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       a match {
         case t@CaseStatement(_) => {
           val fexpt = env.featureExpr(t)
-          if (fexpt implies ctx isSatisfiable()) List((fexpt, t)) else List()
+          if (! (fexpt and ctx isContradiction())) List((fexpt, t)) else List()
         }
         case _: SwitchStatement => List()
         case l: List[_] => l.flatMap(filterCaseStatementsHelper)
@@ -779,7 +783,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       a match {
         case t@ReturnStatement(_) => {
           val fexpt = env.featureExpr(t)
-          if (fexpt implies ctx isSatisfiable()) List((fexpt, t)) else List()
+          if (! (fexpt and ctx isContradiction())) List((fexpt, t)) else List()
         }
         case _: NestedFunctionDef => List()
         case l: List[_] => l.flatMap(filterReturnStatementsHelper)
@@ -798,7 +802,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         case _: SwitchStatement => List()
         case t: DefaultStatement => {
           val fexpt = env.featureExpr(t)
-          if (fexpt implies ctx isSatisfiable()) List((fexpt, t)) else List()
+          if (! (fexpt and ctx isContradiction())) List((fexpt, t)) else List()
         }
         case l: List[_] => l.flatMap(filterDefaultStatementsHelper)
         case x: Product => x.productIterator.toList.flatMap(filterDefaultStatementsHelper)
@@ -855,9 +859,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       l.map({
         x => {
           val ctxx = env.featureExpr(x.entry)
+          val nestedannotations = filterAllOptElems(x.entry).map(_.feature)
 
           if (ctxx and ctx isContradiction()) { }
-          else if (curres.exists(x => x._1 equivalentTo ctxx)) { }
+          else if ((curres.exists(x => x._1 equivalentTo ctxx)) && (nestedannotations.forall(x => x equivalentTo ctxx))) { }
           else if (ctxx implies curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) isTautology()) { }
           else if (ctxx implies ctx isSatisfiable()) {
             if (isCFGInstruction(x.entry)) curres ::= (ctxx, x.entry)

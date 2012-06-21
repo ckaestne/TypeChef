@@ -92,6 +92,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
                         e: (FeatureExpr, Set[Id]),
                         op: (Set[Id], Set[Id]) => Set[Id]): Map[FeatureExpr, Set[Id]] = {
     val key = m.find(_._1.equivalentTo(e._1))
+
     key match {
       case None => m.+(e)
       // beware op is not symetric, first element of op application should always the current
