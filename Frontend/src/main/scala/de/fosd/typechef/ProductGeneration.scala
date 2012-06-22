@@ -236,7 +236,6 @@ object ProductGeneration {
                 msg = "omitting FileConfig generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
-                //val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("/home/rhein/Tools/TypeChef/GitClone/Linux_allyes_modified.config"))
                 val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("../Linux_allyes_modified.config"))
                 typecheckingTasks :+= Pair("FileConfig", configs)
                 configurationCollection ++= configs
@@ -258,13 +257,11 @@ object ProductGeneration {
             if (typecheckingTasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
             } else {
-                val productsDir = new File("/home/rhein/Tools/TypeChef/GitClone/otherTools/perrouin/generatedConfigs/")
+                val productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
                 startTime = System.currentTimeMillis()
-                //val (configs, logmsg) = loadConfigurationsFromCSVFile(new File("/home/rhein/Tools/TypeChef/GitClone/otherTools/perrouin/2.6.33.3-2var.dimacs_GA-SimpleGAProducts-50prods-60000ms-run1.products.csv"),
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
-                    //List(new File("/home/rhein/Tools/TypeChef/GitClone/otherTools/perrouin/generatedConfigs/2.6.33.3-2var.dimacs_GA-SimpleGAProducts-150prods-60000ms-run1.product2")),
-                    productsDir.list().map(new File(productsDir,_)).toList,
-                    new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs"),
+                    productsDir.list().map(new File(productsDir,_)).toList.sortBy({f:File=>(f.getName.substring(f.getName.lastIndexOf("product")+"product".length)).toInt}),
+                    new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs"),
                     features, fm)
                 typecheckingTasks :+= Pair("henard", configs)
 
@@ -349,12 +346,12 @@ object ProductGeneration {
 
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
-        var configCheckingResults: List[(String, (java.lang.Integer, java.lang.Integer, java.lang.Long))] = List()
+        var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
         val outFilePrefix: String = "../reports/" + thisFilePath.substring(0, thisFilePath.length - 2)
         for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
             var configurationsWithErrors = 0
             var current_config = 0
-            var totalTimeProductChecking: Long = 0
+            var checkTimes : List[Long] = List()
             for (config <- configs) {
                 current_config += 1
                 println("checking configuration " + current_config + " of " + configs.size + " (" + thisFilePath + " , " + taskDesc + ")")
@@ -364,7 +361,7 @@ object ProductGeneration {
                 val startTime: Long = System.currentTimeMillis()
                 val noErrors: Boolean = ts.checkAST
                 val configTime: Long = System.currentTimeMillis() - startTime
-                totalTimeProductChecking += configTime
+                checkTimes ::= configTime // append to the beginning of checkTimes
                 if (!noErrors) {
                     //if (true) {
                     // log product with error
@@ -392,7 +389,8 @@ object ProductGeneration {
                     fw.close()
                 }
             }
-            configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, totalTimeProductChecking))
+            // reverse checkTimes to get the ordering correct
+            configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, checkTimes.sum, checkTimes.reverse))
 
         }
         // family base checking
@@ -409,11 +407,12 @@ object ProductGeneration {
         fw.write("Features : " + features.size + "\n")
         fw.write(log + "\n")
 
-        for ((taskDesc, (numConfigs, errors, time)) <- configCheckingResults) {
+        for ((taskDesc, (numConfigs, errors, totalTime, lstTimes:List[Long])) <- configCheckingResults) {
             fw.write("\n -- Task: " + taskDesc + "\n")
             fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
             fw.write("(" + taskDesc + ")Configurations with errors: " + errors + "\n")
-            fw.write("(" + taskDesc + ")TimeSum Products: " + time + " ms\n")
+            fw.write("(" + taskDesc + ")TimeSum Products: " + totalTime + " ms\n")
+            fw.write("(" + taskDesc + ")Times Products: " + lstTimes.mkString(","))
             fw.write("\n")
         }
 
@@ -871,6 +870,11 @@ object ProductGeneration {
     }
 
     def loadConfigurationsFromHenardFiles(files: List[File], dimacsFile: File, features: List[SingleFeatureExpr], fm: FeatureModel): (List[SimpleConfiguration], String) = {
+        def getConfigID(filename: String) : Int = {
+            // this is specific for the files generated by henard
+            // example: "2.6.33.3-2var.dimacs_GA-SimpleGAProducts-200prods-60000ms-run1.product4"
+            return (filename.substring(filename.lastIndexOf("product") + "product".length)).toInt
+        }
         var retList : List[SimpleConfiguration] = List()
         var featureNamesTmp : List[String] = List("--dummy--") // we have to pre-set index 0, so that the real indices start with 1
         var currentLine:Int = 1
@@ -894,6 +898,7 @@ object ProductGeneration {
                 interestingFeaturesMap.update(i, searchResult.get)
             }
         }
+        var unsat_configs : List[Int] = List()
         for (file : File <- files) {
             // load
             var trueFeatures : List[SingleFeatureExpr] = List();
@@ -905,31 +910,22 @@ object ProductGeneration {
                     if (lineContent > 0) {
                         trueFeatures ::= interestingFeaturesMap(math.abs(lineContent));
                         //println(interestingFeaturesMap(math.abs(lineContent)) +  " := true (" + (lineContent) + ")")
-                        //fex = fex.and(interestingFeaturesMap(math.abs(lineContent)))
                     } else {
                         falseFeatures ::= interestingFeaturesMap(math.abs(lineContent));
                         //println(interestingFeaturesMap(math.abs(lineContent)) +  " := false (" + (lineContent) + ")")
-                        //fex = fex.and(interestingFeaturesMap(math.abs(lineContent)).not())
                     }
-/*
-                    if(fex.isSatisfiable(fm)) {
-                        println("   Still statisfiable")
-                    } else {
-                        println("---------NOT statisfiable")
-                    }
-*/
                 }
             }
             val config = new SimpleConfiguration(trueFeatures,falseFeatures)
             if (! config.toFeatureExpr.getSatisfiableAssignment(fm,features.toSet,true).isDefined) {
-                println("no satisfiable solution for product: " + file)
+                //println("no satisfiable solution for product: " + file)
+                unsat_configs ::= getConfigID(file.getName)
             } else {
-                println("Product : " + file)
-                println("true Features : " + "%3d".format(trueFeatures.size) +" false Features : " + falseFeatures.size)
+                println("Config" + getConfigID(file.getName) + " true Features : " + "%3d".format(trueFeatures.size) +" false Features : " + falseFeatures.size)
                 retList ::= config;
             }
         }
-        return (retList,"");
+        return (retList,"Unsat Configs:" + unsat_configs.mkString("{", ",", "}"));
     }
 
     def loadConfigurationsFromCSVFile(csvFile: File, features: List[SingleFeatureExpr], fm: FeatureModel): (List[SimpleConfiguration], String) = {
