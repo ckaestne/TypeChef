@@ -528,11 +528,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             // either go to next ElifStatement, ElseBranch, or next statement of the surrounding IfStatement
             // filtering is necessary, as else branches are not considered by getSuccSameLevel
             case t@ElifStatement(condition, thenBranch) if (isPartOf(nested_ast_elem, condition)) => {
-              var res = getStmtSucc(t, ctx, oldres, env)  /* TODO we need an own function here */
-              val nextelifs = nextASTElems(t, env).tail
-              val nextelifsfexp = nextelifs.map(env.featureExpr).fold(FeatureExprFactory.False)(_ or _)
+              var res = getElifSucc(t, ctx, oldres, env)
 
-              if (nextelifs.isEmpty || (! (ctx implies nextelifsfexp isTautology()))) {
+              if (! succComplete(ctx, res)) {
                 parentAST(t, env) match {
                   case tp@IfStatement(_, _, _, None) => res ++= getStmtSucc(tp, ctx, res, env)
                   case IfStatement(_, _, _, Some(elseBranch)) => res ++= getCondStmtSucc(elseBranch, ctx, res, env)
@@ -667,10 +665,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             if (isPartOf(nested_ast_elem, condition)) getStmtPred(t, ctx, oldres, env)
             else if (isPartOf(nested_ast_elem, thenBranch)) getCondExprPred(condition, ctx, oldres, env)
             else if (isPartOf(nested_ast_elem, elseBranch)) {
-              if (elifs.isEmpty || elifs.exists(x => x.entry.eq(nested_ast_elem))) getCondExprPred(condition, ctx, oldres, env)
-              else {
-                getCompoundPred(elifs.reverse, t, ctx, oldres, env)
-              }
+              var res = getElifPred(elifs.reverse, ctx, oldres, env)
+
+              if (! predComplete(ctx, res)) res ++= getCondExprPred(condition, ctx, oldres, env)
+              res
             } else {
               val curelem = nested_ast_elem.asInstanceOf[AST]
               if (barrier.exists(x => curelem.eq(x))) { getCondExprPred(condition, ctx, oldres, env) }
@@ -694,7 +692,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
               if (predelifs.isEmpty || (! (predelifsfexp implies ctx isTautology()))) {
                 parentAST(t, env) match {
-                  case tp@IfStatement(condition, _, _, _) => res ++= getCondExprPred(condition, ctx, oldres, env)
+                  case tp@IfStatement(elif_condition, _, _, _) => res ++= getCondExprPred(elif_condition, ctx, oldres, env)
                 }
               }
               res
@@ -766,6 +764,43 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     val snexts = nextASTElems(s, env).tail.map(x => parentOpt(x, env).asInstanceOf[Opt[AST]])
     getCompoundSucc(snexts, s, ctx, oldres, env)
   }
+
+  // separate function to get the successor elements of a elifstatement
+  // we get the next elif statements and get the conditions
+  private def getElifSucc(s: ElifStatement, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+    val snexts = nextASTElems(s, env).tail
+    var curres = oldres
+
+    snexts.map({ x =>
+      x match {
+        case ElifStatement(condition, _) => {
+          curres ++= getCondExprPred(condition, ctx, curres, env)
+
+          if (succComplete(ctx, curres)) return curres
+        }
+      }
+    })
+
+    curres
+  }
+
+  // separate function to get predecessor elements of possible elif statements
+  private def getElifPred(l: List[AST], ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+    var curres = oldres
+
+    l.map({ x =>
+      x match {
+        case ElifStatement(condition, _) => {
+          curres ++= getCondExprPred(condition, ctx, curres, env)
+
+          if (predComplete(ctx, curres)) return curres
+        }
+      }
+    })
+
+    curres
+  }
+
 
   // this method filters BreakStatements
   // a break belongs to next outer loop (for, while, do-while)
