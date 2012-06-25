@@ -53,7 +53,7 @@ public class TypeChefActions {
     public static Action getElementsAtPosition(final RTextArea textArea) {
         Action action = new AbstractAction() {
             {
-                putValue(Action.NAME, "Extract Function");
+                putValue(Action.NAME, "Rename Function");
             }
             @Override
             public void actionPerformed(ActionEvent e) {

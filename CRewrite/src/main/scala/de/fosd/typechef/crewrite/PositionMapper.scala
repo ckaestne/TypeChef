@@ -1,10 +1,14 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
+import de.fosd.typechef.typesystem.{CTypeSystem, CDefUse}
+import de.fosd.typechef.parser.c.AtomicNamedDeclarator
+import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.parser.c.FunctionDef
 
 
-class PositionMapper() extends ASTNavigation {
+class PositionMapper() extends ASTNavigation with CDefUse with CTypeSystem with ASTRefactor {
 
   def getElementForPosition(ast: AST, column: Int, line: Int): String = {
     val env = createASTEnv(ast)
@@ -69,7 +73,20 @@ class PositionMapper() extends ASTNavigation {
       println(entry.getPositionFrom)
       println(entry.getPositionTo)
     }
+
+    // TODO extract
+
     buildASTResult(result)
+    typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
+    println("Def use map is:\n" + getDefUseMap + "\n")
+    for (entry <-result) {
+      if (entry.isInstanceOf[FunctionDef]) {
+        val id = entry.asInstanceOf[FunctionDef].declarator.asInstanceOf[AtomicNamedDeclarator].id
+        println("ID is: " +id)
+        val renamedAST = renameFunction(ast, getDefUseMap, "awesome", id)
+        println("RenamedAST = " + PrettyPrinter.print(renamedAST))
+      }
+    }
     return result
   }
 
