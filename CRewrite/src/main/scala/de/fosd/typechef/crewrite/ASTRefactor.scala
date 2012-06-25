@@ -4,8 +4,6 @@ import de.fosd.typechef.typesystem.{CTypeSystem, CDefUse}
 import de.fosd.typechef.parser.c._
 import java.util
 import de.fosd.typechef.crewrite.CASTEnv._
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.parser.c.Id
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c.AtomicNamedDeclarator
 import de.fosd.typechef.conditional.Opt
@@ -14,7 +12,6 @@ import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.PostfixExpr
 import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.parser.c.InitDeclaratorI
-import de.fosd.typechef.parser.c.InitDeclaratorE
 
 
 trait ASTRefactor extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem {
@@ -22,33 +19,6 @@ trait ASTRefactor extends ConditionalNavigation with ASTNavigation with CDefUse 
   def renameFunction(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newID: String, oldID: Id): AST = {
     // TODO Check if possible
     return performFunctionRenaming(ast, newID, oldID)
-  }
-
-  private def replaceID(opt: Opt[_], newId: Id, oldId: Id): Opt[_] = {
-    var rOpt = opt
-    if (opt.entry.isInstanceOf[FunctionDef]) {
-      val oldEntry = opt.entry.asInstanceOf[FunctionDef]
-      val declarator = getCorrectDelarator(oldEntry.declarator.asInstanceOf[AtomicNamedDeclarator], newId, oldId)
-      println(oldEntry.specifiers)
-      val newEntry = oldEntry.copy(declarator = declarator)
-      rOpt = opt.copy(entry = newEntry)
-    } else if (opt.entry.isInstanceOf[InitDeclaratorI]) {
-      val oldEntry = opt.entry.asInstanceOf[InitDeclaratorI]
-      val declarator = getCorrectDelarator(oldEntry.declarator.asInstanceOf[AtomicNamedDeclarator], newId, oldId)
-      oldEntry.i
-      val newEntry = oldEntry.copy(declarator = declarator)
-      rOpt = opt.copy(entry = newEntry)
-    }
-    else if (opt.entry.isInstanceOf[InitDeclaratorE]) {
-      val oldEntry = opt.entry.asInstanceOf[InitDeclaratorE]
-      val declarator = getCorrectDelarator(oldEntry.declarator.asInstanceOf[AtomicNamedDeclarator], newId, oldId)
-      println(oldEntry.e)
-      val newEntry = oldEntry.copy(declarator = declarator)
-      rOpt = opt.copy(entry = newEntry)
-    }
-
-    return rOpt
-
   }
 
   private def getCorrectDelarator(declarator : AtomicNamedDeclarator, newID : Id, oldId :Id) : AtomicNamedDeclarator = {
