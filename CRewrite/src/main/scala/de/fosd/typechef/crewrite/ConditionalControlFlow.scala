@@ -453,8 +453,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     cexp match {
       case One(value) => getExprSucc(value, ctx, oldres, env)
       case Choice(_, thenBranch, elseBranch) =>
-        getCondExprSucc(thenBranch, env.featureExpr(thenBranch), oldres, env) ++
-          getCondExprSucc(elseBranch, env.featureExpr(elseBranch), oldres, env)
+        getCondExprSucc(thenBranch, ctx, oldres, env) ++
+          getCondExprSucc(elseBranch, ctx, oldres, env)
     }
   }
 
@@ -464,7 +464,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         getCompoundPred(innerStatements.reverse, c, ctx, oldres, env)
       case _ => {
         val fexpexp = env.featureExpr(exp)
-        if (! (fexpexp and ctx isContradiction())) (env.featureExpr(exp), exp) :: oldres
+        if (! (fexpexp and ctx isContradiction())) (fexpexp, exp) :: oldres
         else oldres
       }
     }
