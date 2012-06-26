@@ -904,6 +904,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug50() {assert(checkCfg("bug50.c") == false)}
   @Test def test_bug51() {assert(checkCfg("bug51.c") == false)}
   @Test def test_bug52() {assert(checkCfg("bug52.c") == false)}
+  @Test def test_bug53() {assert(checkCfg("bug53.c") == false)}
 
 //  @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}
 //  @Ignore def test_gzip() {assert(checkCfg("gzip.c") == false)}
