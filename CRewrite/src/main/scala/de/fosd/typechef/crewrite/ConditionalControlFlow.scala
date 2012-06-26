@@ -184,7 +184,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case None => false
       case Some(ForStatement(_, _, _, s)) => isPartOf(elem, s)
       case Some(WhileStatement(expr, s)) => ! isPartOf(elem, expr)
-      case Some(ElifStatement(condition, _)) => ! isPartOf(elem, condition)
+      case Some(e@ElifStatement(_, _)) => isPartOf(elem, e)
       case Some(IfStatement(condition, _, _, _)) => ! isPartOf(elem, condition)
       case Some(SwitchStatement(expr, _)) => ! isPartOf(elem, expr)
 
@@ -220,7 +220,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
         if (elseBranch.isDefined) res ++= getCondStmtPred(elseBranch.get, ctx, oldres, env)
         if (!elifs.isEmpty) {
-          for (elif <- elifs.map(childAST)) {
+          for (elif <- elifs.reverse.map(childAST)) {
             val eliffexp = env.featureExpr(elif)
             if (! (eliffexp and ctx isContradiction())) {
               elif match {
@@ -249,6 +249,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
         if (ldefaults.isEmpty) {
           res ++= getExprPred(expr, ctx, oldres, env)
+          res ++= getCondStmtPred(s, ctx, oldres, env)
         } else {
           res ++= getCondStmtPred(s, ctx, oldres, env)
         }
@@ -624,7 +625,12 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       }
     }
 
-    if (barrier.exists(x => x.eq(nested_ast_elem))) oldres
+    if (barrier.exists(x => x.eq(nested_ast_elem))) {
+      parentAST(nested_ast_elem, env) match {
+        case _: DoStatement =>
+        case _ => return oldres
+      }
+    }
 
     nested_ast_elem match {
 
@@ -711,12 +717,11 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
               for (e <- elifs.reverse.map(childAST)) {
                 if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
-                else if (elifsfexp.fold(FeatureExprFactory.False)(_ or _) implies ctx isTautology()) { iscomplete = true }
                 else {
                   e match {
                     case ce@ElifStatement(elif_condition, elif_thenbranch) => {
-                      res ++= (if (haselse) getCondStmtPred(elif_thenbranch, ctx, oldres, env)
-                               else getCondExprPred(elif_condition, ctx, oldres, env))
+                      res ++= (if (haselse) getCondExprPred(elif_condition, ctx, oldres, env)
+                               else getCondStmtPred(elif_thenbranch, ctx, oldres, env))
                       elifsfexp ::= env.featureExpr(ce)
                     }
                   }
@@ -757,12 +762,11 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
               for (e <- elifs) {
                 if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
-                else if (elifsfexp.fold(FeatureExprFactory.False)(_ or _) implies ctx isTautology()) { iscomplete = true }
                 else {
                   e match {
                     case ce@ElifStatement(elif_condition, elif_thenbranch) => {
-                      res ++= (if (haselse) getCondStmtPred(elif_thenbranch, ctx, oldres, env)
-                               else getCondExprPred(elif_condition, ctx, oldres, env))
+                      res ++= (if (haselse) getCondExprPred(elif_condition, ctx, oldres, env)
+                               else getCondStmtPred(elif_thenbranch, ctx, oldres, env))
                       elifsfexp ::= env.featureExpr(ce)
                     }
                   }
@@ -770,7 +774,6 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               }
 
               if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
-              // if (elifsfexp.fold(FeatureExprFactory.False)(_ or _) implies ctx isTautology()) { iscomplete = true }
 
               if (! iscomplete) {
                 parentAST(t, env) match {
