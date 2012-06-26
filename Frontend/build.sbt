@@ -43,3 +43,10 @@ excludedFiles in assembly := { (bases: Seq[File]) =>
        case f if f.getName.toLowerCase == "manifest.mf" => f
      }
    }}
+
+mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+  {
+    case f if f startsWith "org/fusesource/" => MergeStrategy.first
+    case x => old(x)
+  }
+}
