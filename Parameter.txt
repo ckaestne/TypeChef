@@ -19,7 +19,7 @@ Parameters:
     --recordTiming                 Report times for all phases.
     --filePC=file                  Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'.
     --bdd                          Use BDD engine instead of SAT engine (provide as first parameter).
-    --errorXML=file                File to store syntax and type errors in XML format.
+    --errorXML[=file]              File to store syntax and type errors in XML format.
 
   Parser options
     --hideparserresults            Do not show parser results.
@@ -60,4 +60,4 @@ Parameters:
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.3-SNAPSHOT_20120511095238
+TypeChef version 0.3.3_20120626150059
