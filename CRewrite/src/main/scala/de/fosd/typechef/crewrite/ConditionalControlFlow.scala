@@ -885,10 +885,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           case t: CompoundStatementExpr => followPred(t, ctx, oldres, env)
           case t: CompoundStatement => {
 
-            nested_ast_elem match {
-              case _: CompoundStatement => getStmtPred(nested_ast_elem.asInstanceOf[AST], ctx, oldres, env)
-              case _ => getStmtPred(t, ctx, oldres, env)
-            }
+            if (prevASTElems(t, env).size > 0) getStmtPred(t, ctx, oldres, env)
+            else getStmtPred(parentAST(t, env), ctx, oldres, env)
           }
           case t: Statement => getStmtPred(t, ctx, oldres, env)
           case t: FunctionDef => {
