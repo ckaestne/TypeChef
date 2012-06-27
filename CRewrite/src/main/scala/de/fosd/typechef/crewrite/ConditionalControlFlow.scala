@@ -81,11 +81,14 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
         if (! predComplete(ctx, newres)) {
           val f = findPriorASTElem[FunctionDef](source, env).get
-          val fexpf = env.featureExpr(f)
 
-          if (isPartOfBody(source, env)) { }
-          else if (! newres.map(_._1).exists(x => x equivalentTo fexpf))
-            newres ::= (fexpf, f)
+          f match {
+            case f@FunctionDef(_, _, _, CompoundStatement(innerStatements)) => {
+              val ffexp = env.featureExpr(f)
+              if (isPartOfBody(source, env)) { }
+              else if (innerStatements.forall(isVariable) && (ffexp isTautology())) newres ::= (ffexp, f)
+            }
+          }
         }
 
         while (changed) {
@@ -156,7 +159,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   // checks reference equality of e in a given struture t (either product or list)
-  def isPartOf(subterm: Product, term: Any): Boolean = {
+  private def isPartOf(subterm: Product, term: Any): Boolean = {
     term match {
       case _: Product if (subterm.asInstanceOf[AnyRef].eq(term.asInstanceOf[AnyRef])) => true
       case l: List[_] => l.map(isPartOf(subterm, _)).exists(_ == true)
@@ -165,34 +168,25 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  // checks whether given element is part of the body of switch, for, ...
-  def isPartOfBody(elem: Product, env: ASTEnv): Boolean = {
-    def findPriorASTElem(subelem: Product): Option[AST] = {
-      parentAST(subelem, env) match {
-        case s: ForStatement => Some(s)
-        case s: WhileStatement => Some(s)
-        case s: DoStatement => Some(s)
-        case s: IfStatement => Some(s)
-        case s: ElifStatement => Some(s)
-        case s: SwitchStatement => Some(s)
-        case a: AST => findPriorASTElem(a)
-        case null => None
+  private def isPartOfBody(subterm: Product, env: ASTEnv): Boolean = {
+    def findPriorASTElems(elem: Product): List[AST] = {
+      parentAST(elem, env) match {
+        case t: IfStatement => t :: findPriorASTElems(t)
+        case t: ForStatement => t :: findPriorASTElems(t)
+        case t: WhileStatement => t :: findPriorASTElems(t)
+        case t: SwitchStatement => t :: findPriorASTElems(t)
+        case t: ElifStatement => t :: findPriorASTElems(t)
+        case t: AST => findPriorASTElems(t)
+        case null => List()
       }
     }
 
-    findPriorASTElem(elem) match {
-      case None => false
-      case Some(ForStatement(_, _, _, s)) => isPartOf(elem, s)
-      case Some(WhileStatement(expr, s)) => ! isPartOf(elem, expr)
-      case Some(e@ElifStatement(_, _)) => isPartOf(elem, e)
-      case Some(IfStatement(condition, _, _, _)) => ! isPartOf(elem, condition)
-      case Some(SwitchStatement(expr, _)) => ! isPartOf(elem, expr)
-
-      // DoStatement is special, as we control flow might directly jump into the do { } statement block without getting
-      // to the expression of the DoStatement first
-      case Some(DoStatement(_, _)) => false
-      case _ => false
-    }
+    findPriorASTElems(subterm).exists({
+      x => x match {
+        case IfStatement(_, thenBranch, _, elseBranch) => isPartOf(subterm, thenBranch) || isPartOf(subterm, elseBranch)
+        case _ => false
+      }
+    })
   }
 
   def predHelper(source: Product, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
@@ -520,7 +514,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         res
       case _ => {
         val fexpexp = env.featureExpr(exp)
-        if (! (fexpexp and ctx isContradiction())) (fexpexp, exp) :: oldres
+        if (! (fexpexp and ctx isContradiction())) {
+          if (oldres.map(_._1).exists(x => x equivalentTo fexpexp)) oldres
+          else (fexpexp, exp) :: oldres
+        }
         else oldres
       }
     }
@@ -797,24 +794,23 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               var res = oldres
               var iscomplete = false
               var elifsfexp: List[FeatureExpr] = List()
-              val haselse = elseBranch.isDefined
 
               for (e <- elifs.reverse.map(childAST)) {
+                val efexp = env.featureExpr(e)
                 if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
+                else if (elifsfexp.exists( x => x equivalentTo ctx)) { }
+                else if (elifsfexp.exists( x => x equivalentTo efexp)) { }
                 else {
                   e match {
-                    case ce@ElifStatement(elif_condition, elif_thenbranch) => {
-                      res ++= (if (haselse) getCondExprPred(elif_condition, ctx, oldres, env)
-                               else getCondStmtPred(elif_thenbranch, ctx, oldres, env))
-                      elifsfexp ::= env.featureExpr(ce)
+                    case ElifStatement(elif_condition, _) => {
+                      res ++= getCondExprPred(elif_condition, ctx, oldres, env)
+                      elifsfexp ::= efexp
                     }
                   }
                 }
               }
 
               if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
-              //if (elifsfexp.fold(FeatureExprFactory.False)(_ or _) implies ctx isTautology()) { iscomplete = true }
-
               if (! iscomplete) res ++= getCondExprPred(condition, ctx, oldres, env)
               res
             } else {
@@ -888,6 +884,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
           case t: CompoundStatementExpr => followPred(t, ctx, oldres, env)
           case t: CompoundStatement => {
+
             nested_ast_elem match {
               case _: CompoundStatement => getStmtPred(nested_ast_elem.asInstanceOf[AST], ctx, oldres, env)
               case _ => getStmtPred(t, ctx, oldres, env)
