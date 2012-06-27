@@ -246,6 +246,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               }
             }
           }
+
+          if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
         }
 
         res ++= getCondStmtPred(thenBranch, ctx, oldres, env)
@@ -833,20 +835,13 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               var iscomplete = false
               val elifs = prevASTElems(t, env).reverse.tail
               var elifsfexp: List[FeatureExpr] = List()
-              val haselse = {
-                parentAST(t, env) match {
-                  case IfStatement(_, _, _, Some(_)) => true
-                  case _ => false
-                }
-              }
 
               for (e <- elifs) {
                 if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
                 else {
                   e match {
-                    case ce@ElifStatement(elif_condition, elif_thenbranch) => {
-                      res ++= (if (haselse) getCondExprPred(elif_condition, ctx, oldres, env)
-                               else getCondStmtPred(elif_thenbranch, ctx, oldres, env))
+                    case ce@ElifStatement(elif_condition, _) => {
+                      res ++= getCondExprPred(elif_condition, ctx, oldres, env)
                       elifsfexp ::= env.featureExpr(ce)
                     }
                   }
@@ -1046,18 +1041,19 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       l.map({
         x => {
           val ctxx = env.featureExpr(x)
-          val nestedannotations = filterAllFeatureExpr(x)
+          val newres = if (isCFGInstruction(x)) List((ctxx, x))
+                       else {
+                         barrier ::= x
+                         val res = succHelper(x, ctx, curres, env)
+                         barrier = barrier.filterNot(e => e.eq(x))
+                         res
+                       }
 
           if (ctxx and ctx isContradiction()) { }
-          else if ((curres.exists(x => x._1 equivalentTo ctxx)) && (nestedannotations.forall(x => x equivalentTo ctxx))) { }
-          else if ((curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) equivalentTo ctxx) && (nestedannotations.forall(x => x equivalentTo ctxx))) { }
+          else if (newres.map(_._1).forall(x => curres.map(_._1).exists(y => x equivalentTo y))) { }
+          else if (newres.map(_._1).forall(x => curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) equivalentTo x)) { }
           else if (ctx implies ctxx isSatisfiable()) {
-            if (isCFGInstruction(x)) curres ::= (ctxx, x)
-            else {
-              barrier ::= x
-              curres = succHelper(x, ctx, curres, env)
-              barrier = barrier.filterNot(e => e.eq(x))
-            }
+            curres ++= newres
 
             if (succComplete(ctx, curres)) return curres
           }
