@@ -993,6 +993,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
           if (ctxx and ctx isContradiction()) { }
           else if (curres.map(_._2).exists(x => x equivalentTo ctxx)) { }
+          else if (ctxx implies curres.map(_._2).fold(FeatureExprFactory.False)(_ or _) isTautology()) { }
           else {
             if (isCFGInstruction(x)) curres ::= (getNewResCtx(curres, ctx, ctxx), ctxx, x)
             else {
