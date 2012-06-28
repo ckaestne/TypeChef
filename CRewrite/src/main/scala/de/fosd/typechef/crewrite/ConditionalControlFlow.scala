@@ -809,11 +809,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           case t: DefaultStatement => handleSwitch(t) ++ getStmtPred(t, ctx, oldres, env)
 
           case t: CompoundStatementExpr => followPred(t, ctx, oldres, env)
-          case t: CompoundStatement => {
 
-            if (prevASTElems(t, env).size > 0) getStmtPred(t, ctx, oldres, env)
-            else getStmtPred(parentAST(t, env), ctx, oldres, env)
-          }
           case t: Statement => getStmtPred(t, ctx, oldres, env)
           case t: FunctionDef => {
             val ffexp = env.featureExpr(t)
