@@ -4,7 +4,6 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import javax.management.remote.rmi._RMIConnection_Stub
 
 // implements conditional control flow (cfg) on top of the typechef
 // infrastructure
@@ -67,6 +66,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   private val succCCFGCache = new CCFGCache()
 
   type CCFGRes = List[(FeatureExpr, FeatureExpr, AST)]
+  var barrier: List[AST] = List()
 
   // determines predecessor of a given element
   // results are cached for secondary evaluation
@@ -245,7 +245,12 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         filterBreakStatements(s, ctx, env)
       case t@ForStatement(_, _, _, s) => oldres ++ filterBreakStatements(s, ctx, env)
 
-      case c@CompoundStatement(innerStatements) => getCompoundPred(innerStatements.reverse.map(_.entry), c, ctx, oldres, env)
+      case c@CompoundStatement(innerStatements) => {
+        if (! parentAST(c, env).isInstanceOf[FunctionDef]) barrier ::= c
+        val res = getCompoundPred(innerStatements.reverse.map(_.entry), c, ctx, oldres, env)
+        barrier = barrier.filterNot(x => x.eq(c))
+        res
+      }
 
       case t@LabelStatement(Id(n), _) => {
         findPriorASTElem[FunctionDef](t, env) match {
@@ -632,6 +637,13 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       }
     }
 
+    if (barrier.exists(x => x.eq(nested_ast_elem))) {
+      parentAST(nested_ast_elem, env) match {
+        case _: DoStatement =>
+        case _ => return oldres
+      }
+    }
+
     nested_ast_elem match {
 
       // case or default statements belong only to switch statements
@@ -951,12 +963,13 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       l.map({
         x => {
           val ctxx = env.featureExpr(x)
+          val newres = if (isCFGInstruction(x)) List((getNewResCtx(curres, ctx, ctxx), ctxx, x))
+                       else succHelper(x, ctx, curres, env)
 
           if (ctxx and ctx isContradiction()) { }
-          else if (curres.map(_._2).exists(x => x equivalentTo ctxx)) { }
+          else if (newres.map(_._2).forall(x => curres.map(_._2).exists(y => x equivalentTo y))) { }
           else {
-            if (isCFGInstruction(x)) curres ::= (getNewResCtx(curres, ctx, ctxx), ctxx, x)
-            else curres ++= succHelper(x, ctx, curres, env)
+            curres ++= newres
 
             if (succComplete(ctx, curres)) return curres
           }
@@ -982,7 +995,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           else if (curres.map(_._2).exists(x => x equivalentTo ctxx)) { }
           else {
             if (isCFGInstruction(x)) curres ::= (getNewResCtx(curres, ctx, ctxx), ctxx, x)
-            else curres = predHelper(x, ctx, curres, env)
+            else {
+              curres = predHelper(x, ctx, curres, env)
+            }
 
             if (predComplete(ctx, curres)) return curres
           }

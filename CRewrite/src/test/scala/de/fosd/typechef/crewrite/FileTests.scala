@@ -17,7 +17,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     // all changes the elements top down, so the parent is changed before the children and this
     // way the lookup env.featureExpr(x) will not fail. Using topdown or everywherebu changes the children and so also the
     // parent before the parent is processed so we get a NullPointerExceptions calling env.featureExpr(x). Reason is
-    // changed children lead to changed parent and a new hashcode so a call to env fails.
+    // changed children lead to changed parent and a new hashcode so a call to env fails.    a
     val pconfig = manytd(rule {
       case Choice(feature, thenBranch, elseBranch) => if (c.config implies (if (env.containsASTElem(thenBranch)) env.featureExpr(thenBranch) else FeatureExprFactory.True) isTautology()) thenBranch else elseBranch
       case l: List[Opt[_]] => {
