@@ -76,20 +76,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case None => {
         var oldres: CCFGRes = List()
         val ctx = env.featureExpr(source)
-        var newres: CCFGRes = predHelper(source, ctx, oldres, env)
+        val curctx = ctx
+        var newres: CCFGRes = predHelper(source, ctx, curctx, oldres, env)
         var changed = true
-
-        if (! predComplete(ctx, newres)) {
-          val f = findPriorASTElem[FunctionDef](source, env).get
-
-          f match {
-            case f@FunctionDef(_, _, _, CompoundStatement(innerStatements)) => {
-              val ffexp = env.featureExpr(f)
-              if (isPartOfBody(source, env)) { }
-              else if (innerStatements.forall(isVariable) && (ffexp isTautology())) newres ::= (ffexp, f)
-            }
-          }
-        }
 
         while (changed) {
           changed = false
@@ -168,28 +157,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  private def isPartOfBody(subterm: Product, env: ASTEnv): Boolean = {
-    def findPriorASTElems(elem: Product): List[AST] = {
-      parentAST(elem, env) match {
-        case t: IfStatement => t :: findPriorASTElems(t)
-        case t: ForStatement => t :: findPriorASTElems(t)
-        case t: WhileStatement => t :: findPriorASTElems(t)
-        case t: SwitchStatement => t :: findPriorASTElems(t)
-        case t: ElifStatement => t :: findPriorASTElems(t)
-        case t: AST => findPriorASTElems(t)
-        case null => List()
-      }
-    }
-
-    findPriorASTElems(subterm).exists({
-      x => x match {
-        case IfStatement(_, thenBranch, _, elseBranch) => isPartOf(subterm, thenBranch) || isPartOf(subterm, elseBranch)
-        case _ => false
-      }
-    })
-  }
-
-  def predHelper(source: Product, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+  def predHelper(source: Product, ctx: FeatureExpr, curctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
 
     // helper method to handle a switch, if we come from a case or a default statement
     def handleSwitch(t: AST) = {
@@ -198,7 +166,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       prior_switch.get match {
         case SwitchStatement(expr, _) => {
           barrier ::= t
-          val res = getExprPred(expr, ctx, oldres, env) ++ getStmtPred(t, ctx, oldres, env)
+          val res = getExprPred(expr, ctx, curctx, oldres, env) ++ getStmtPred(t, ctx, curctx, oldres, env)
           barrier = barrier.filterNot(x => x.eq(t))
           res
         }
@@ -214,7 +182,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         var iscomplete = false
 
         if (elseBranch.isDefined) {
-          res ++= getCondStmtPred(elseBranch.get, ctx, oldres, env)
+          res ++= getCondStmtPred(elseBranch.get, ctx, curctx, oldres, env)
           iscomplete = true
         }
         if (!elifs.isEmpty) {
@@ -222,7 +190,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             val eliffexp = env.featureExpr(elif)
             if (! (eliffexp and ctx isContradiction())) {
               elif match {
-                case ElifStatement(_, elif_thenBranch) => res ++= getCondStmtPred(elif_thenBranch, ctx, oldres, env)
+                case ElifStatement(_, elif_thenBranch) => res ++= getCondStmtPred(elif_thenBranch, ctx, curctx, oldres, env)
                 case _ => assert(1 != 0, "expected elif statement")
               }
             }
@@ -239,7 +207,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               else {
                 elif match {
                   case ElifStatement(elif_condition, _) => {
-                    res ++= getCondExprPred(elif_condition, ctx, oldres, env)
+                    res ++= getCondExprPred(elif_condition, ctx, curctx, oldres, env)
                     elifsfexp ::= eliffexp
                   }
                 }
@@ -250,8 +218,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
         }
 
-        res ++= getCondStmtPred(thenBranch, ctx, oldres, env)
-        if (! iscomplete) res ++= getCondExprPred(condition, ctx, oldres, env)
+        res ++= getCondStmtPred(thenBranch, ctx, curctx, oldres, env)
+        if (! iscomplete) res ++= getCondExprPred(condition, ctx, curctx, oldres, env)
 
         res
       }
@@ -263,23 +231,23 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         var res = oldres ++ lbreaks
 
         if (ldefaults.isEmpty) {
-          res ++= getExprPred(expr, ctx, oldres, env)
-          res ++= getCondStmtPred(s, ctx, oldres, env)
+          res ++= getExprPred(expr, ctx, curctx, oldres, env)
+          res ++= getCondStmtPred(s, ctx, curctx, oldres, env)
         } else {
-          res ++= getCondStmtPred(s, ctx, oldres, env)
+          res ++= getCondStmtPred(s, ctx, curctx, oldres, env)
         }
         res
       }
 
-      case t@WhileStatement(expr, s) => getExprPred(expr, ctx, oldres, env) ++ filterBreakStatements(s, ctx, env)
-      case t@DoStatement(expr, s) => getExprPred(expr, ctx, oldres, env) ++ filterBreakStatements(s, ctx, env)
-      case t@ForStatement(_, Some(expr2), _, s) => getExprPred(expr2, ctx, oldres, env) ++
+      case t@WhileStatement(expr, s) => getExprPred(expr, ctx, curctx, oldres, env) ++ filterBreakStatements(s, ctx, env)
+      case t@DoStatement(expr, s) => getExprPred(expr, ctx, curctx, oldres, env) ++ filterBreakStatements(s, ctx, env)
+      case t@ForStatement(_, Some(expr2), _, s) => getExprPred(expr2, ctx, curctx, oldres, env) ++
         filterBreakStatements(s, ctx, env)
       case t@ForStatement(_, _, _, s) => oldres ++ filterBreakStatements(s, ctx, env)
 
       case c@CompoundStatement(innerStatements) => {
         barrier ::= c
-        val res = getCompoundPred(innerStatements.reverse.map(_.entry), c, ctx, oldres, env)
+        val res = getCompoundPred(innerStatements.reverse.map(_.entry), c, ctx, curctx, oldres, env)
         barrier = barrier.filterNot(x => x.eq(c))
         res
       }
@@ -295,21 +263,21 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               case GotoStatement(Id(name)) => if (n == name) true else false
               case _ => true
             })
-            val l_preds = getStmtPred(t, ctx, oldres, env)
+            val l_preds = getStmtPred(t, ctx, curctx, oldres, env)
             l_gotos_filtered.map(x => (env.featureExpr(x), x)) ++ l_preds
           }
         }
       }
 
-      case o: Opt[_] => predHelper(childAST(o), ctx, oldres, env)
-      case c: Conditional[_] => predHelper(childAST(c), ctx, oldres, env)
+      case o: Opt[_] => predHelper(childAST(o), ctx, curctx, oldres, env)
+      case c: Conditional[_] => predHelper(childAST(c), ctx, curctx, oldres, env)
 
       case f@FunctionDef(_, _, _, CompoundStatement(List())) => (env.featureExpr(f), f) :: oldres
-      case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), ctx, oldres, env) ++
+      case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), ctx, curctx, oldres, env) ++
         filterReturnStatements(stmt, ctx, env)
 
-      case s: Statement => getStmtPred(s, ctx, oldres, env)
-      case _ => followPred(source, ctx, oldres, env)
+      case s: Statement => getStmtPred(s, ctx, curctx, oldres, env)
+      case _ => followPred(source, ctx, curctx, oldres, env)
     }
   }
 
@@ -463,19 +431,19 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  private def getCondStmtPred(cond: Conditional[_], ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+  private def getCondStmtPred(cond: Conditional[_], ctx: FeatureExpr, curctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
     cond match {
       case Choice(_, thenBranch, elseBranch) =>
-        getCondStmtPred(thenBranch, ctx, oldres, env) ++ getCondStmtPred(elseBranch, ctx, oldres, env)
+        getCondStmtPred(thenBranch, ctx, curctx, oldres, env) ++ getCondStmtPred(elseBranch, ctx, curctx, oldres, env)
       case One(compstmt@CompoundStatement(l)) => {
         barrier ::= compstmt
-        val res = getCompoundPred(l.reverse.map(_.entry), compstmt, ctx, oldres, env)
+        val res = getCompoundPred(l.reverse.map(_.entry), compstmt, ctx, curctx, oldres, env)
         barrier = barrier.filterNot(x => x.eq(compstmt))
         res
       }
       case One(s: Statement) => {
         barrier ::= s
-        val res = getCompoundPred(List(s), s, ctx, oldres, env)
+        val res = getCompoundPred(List(s), s, ctx, curctx, oldres, env)
         barrier = barrier.filterNot(x => x.eq(s))
         res
       }
@@ -507,11 +475,11 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  private def getExprPred(exp: Expr, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+  private def getExprPred(exp: Expr, ctx: FeatureExpr, curctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
     exp match {
       case c@CompoundStatementExpr(compstmt@CompoundStatement(innerStatements)) =>
         barrier ::= compstmt
-        val res = getCompoundPred(innerStatements.reverse.map(_.entry), c, ctx, oldres, env)
+        val res = getCompoundPred(innerStatements.reverse.map(_.entry), c, ctx, curctx, oldres, env)
         barrier = barrier.filterNot(x => x.eq(compstmt))
         res
       case _ => {
@@ -525,12 +493,12 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  private def getCondExprPred(cexp: Conditional[Expr], ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+  private def getCondExprPred(cexp: Conditional[Expr], ctx: FeatureExpr, curctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
     cexp match {
-      case One(value) => getExprPred(value, ctx, oldres, env)
+      case One(value) => getExprPred(value, ctx, curctx, oldres, env)
       case Choice(_, thenBranch, elseBranch) =>
-        getCondExprPred(thenBranch, ctx, oldres, env) ++
-          getCondExprPred(elseBranch, ctx, oldres, env)
+        getCondExprPred(thenBranch, ctx, curctx, oldres, env) ++
+          getCondExprPred(elseBranch, ctx, curctx, oldres, env)
     }
   }
 
@@ -690,19 +658,19 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   // method to catch surrounding ast element, which precedes the given nested_ast_element
-  private def followPred(nested_ast_elem: Product, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+  private def followPred(nested_ast_elem: Product, ctx: FeatureExpr, curctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
 
     def handleSwitch(t: AST): CCFGRes = {
       val prior_switch = findPriorASTElem[SwitchStatement](t, env)
       assert(prior_switch.isDefined, "default statement without surrounding switch")
       prior_switch.get match {
         case SwitchStatement(expr, _) => {
-          val lconds = getExprPred(expr, ctx, oldres, env)
-          if (env.previous(t) != null) lconds ++ getStmtPred(t, ctx, oldres, env)
+          val lconds = getExprPred(expr, ctx, curctx, oldres, env)
+          if (env.previous(t) != null) lconds ++ getStmtPred(t, ctx, curctx, oldres, env)
           else {
             val tparent = parentAST(t, env)
             if (tparent.isInstanceOf[CaseStatement]) (env.featureExpr(tparent), tparent) :: lconds
-            else lconds ++ getStmtPred(tparent, ctx, oldres, env)
+            else lconds ++ getStmtPred(tparent, ctx, curctx, oldres, env)
           }
         }
       }
@@ -731,57 +699,57 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           // we are in one of these elements
           // init
           case t@ForStatement(Some(expr1), _, _, _) if (isPartOf(nested_ast_elem, expr1)) =>
-            getStmtPred(t, ctx, oldres, env)
+            getStmtPred(t, ctx, curctx, oldres, env)
           // inc
           case t@ForStatement(_, _, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
-            getCondStmtPred(s, ctx, oldres, env) ++ filterContinueStatements(s, env.featureExpr(t), env)
+            getCondStmtPred(s, ctx, curctx, oldres, env) ++ filterContinueStatements(s, env.featureExpr(t), env)
           // break
           case t@ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) =>
-            (env.featureExpr(expr2), expr2) :: getStmtPred(t, ctx, oldres, env)
+            (env.featureExpr(expr2), expr2) :: getStmtPred(t, ctx, curctx, oldres, env)
           case t@ForStatement(expr1, Some(expr2), expr3, s) if (isPartOf(nested_ast_elem, expr2)) => {
             var res = oldres
-            if (expr1.isDefined) res ++= getExprPred(expr1.get, ctx, oldres, env)
-            else res ++= getStmtPred(t, ctx, oldres, env)
-            if (expr3.isDefined) res ++= getExprPred(expr3.get, ctx, oldres, env)
+            if (expr1.isDefined) res ++= getExprPred(expr1.get, ctx, curctx, oldres, env)
+            else res ++= getStmtPred(t, ctx, curctx, oldres, env)
+            if (expr3.isDefined) res ++= getExprPred(expr3.get, ctx, curctx, oldres, env)
             else {
-              res ++= getCondStmtPred(s, ctx, oldres, env)
+              res ++= getCondStmtPred(s, ctx, curctx, oldres, env)
               res ++= filterContinueStatements(s, env.featureExpr(t), env)
             }
             res
           }
           // s
           case t@ForStatement(expr1, expr2, expr3, s) if (isPartOf(nested_ast_elem, s)) =>
-            if (expr2.isDefined) getExprPred(expr2.get, ctx, oldres, env)
-            else if (expr3.isDefined) getExprPred(expr3.get, ctx, oldres, env)
+            if (expr2.isDefined) getExprPred(expr2.get, ctx, curctx, oldres, env)
+            else if (expr3.isDefined) getExprPred(expr3.get, ctx, curctx, oldres, env)
             else {
               var res = oldres
-              if (expr1.isDefined) res = res ++ getExprPred(expr1.get, ctx, oldres, env)
-              else res = getStmtPred(t, ctx, oldres, env) ++ res
-              res = res ++ getCondStmtPred(s, ctx, oldres, env)
+              if (expr1.isDefined) res = res ++ getExprPred(expr1.get, ctx, curctx, oldres, env)
+              else res = getStmtPred(t, ctx, curctx, oldres, env) ++ res
+              res = res ++ getCondStmtPred(s, ctx, curctx, oldres, env)
               res
             }
 
           // while statement consists of (expr, s)
           // special case; we handle empty compound statements here directly because otherwise we do not terminate
           case t@WhileStatement(expr, One(CompoundStatement(List()))) if (isPartOf(nested_ast_elem, expr)) =>
-            (env.featureExpr(expr), expr) :: getStmtPred(t, ctx, oldres, env)
+            (env.featureExpr(expr), expr) :: getStmtPred(t, ctx, curctx, oldres, env)
           case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
-            (getStmtPred(t, ctx, oldres, env) ++ getCondStmtPred(s, ctx, oldres, env) ++
+            (getStmtPred(t, ctx, curctx, oldres, env) ++ getCondStmtPred(s, ctx, curctx, oldres, env) ++
               filterContinueStatements(s, env.featureExpr(t), env))
           case t@WhileStatement(expr, _) => {
-            if (nested_ast_elem.eq(expr)) getStmtPred(t, ctx, oldres, env)
-            else getExprPred(expr, ctx, oldres, env)
+            if (nested_ast_elem.eq(expr)) getStmtPred(t, ctx, curctx, oldres, env)
+            else getExprPred(expr, ctx, curctx, oldres, env)
           }
 
           // do statement consists of (expr, s)
           // special case: we handle empty compound statements here directly because otherwise we do not terminate
           case t@DoStatement(expr, One(CompoundStatement(List()))) if (isPartOf(nested_ast_elem, expr)) =>
-            (env.featureExpr(expr), expr) :: getStmtPred(t, ctx, oldres, env)
+            (env.featureExpr(expr), expr) :: getStmtPred(t, ctx, curctx, oldres, env)
           case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
-            getCondStmtPred(s, ctx, oldres, env) ++ filterContinueStatements(s, env.featureExpr(t), env)
+            getCondStmtPred(s, ctx, curctx, oldres, env) ++ filterContinueStatements(s, env.featureExpr(t), env)
           case t@DoStatement(expr, s) => {
-            if (isPartOf(nested_ast_elem, expr)) getCondStmtPred(s, ctx, oldres, env)
-            else getExprPred(expr, ctx, oldres, env) ++ getStmtPred(t, ctx, oldres, env)
+            if (isPartOf(nested_ast_elem, expr)) getCondStmtPred(s, ctx, curctx, oldres, env)
+            else getExprPred(expr, ctx, curctx, oldres, env) ++ getStmtPred(t, ctx, curctx, oldres, env)
           }
 
           // conditional statements
@@ -790,8 +758,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           // elifs: rest of elifs + condition
           // thenBranch: condition
           case t@IfStatement(condition, thenBranch, elifs, elseBranch) => {
-            if (isPartOf(nested_ast_elem, condition)) getStmtPred(t, ctx, oldres, env)
-            else if (isPartOf(nested_ast_elem, thenBranch)) getCondExprPred(condition, ctx, oldres, env)
+            if (isPartOf(nested_ast_elem, condition)) getStmtPred(t, ctx, env.featureExpr(t), oldres, env)
+            else if (isPartOf(nested_ast_elem, thenBranch)) getCondExprPred(condition, ctx, curctx, oldres, env)
             else if (isPartOf(nested_ast_elem, elseBranch)) {
               var res = oldres
               var iscomplete = false
@@ -805,7 +773,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                 else {
                   e match {
                     case ElifStatement(elif_condition, _) => {
-                      res ++= getCondExprPred(elif_condition, ctx, oldres, env)
+                      res ++= getCondExprPred(elif_condition, ctx, curctx, oldres, env)
                       elifsfexp ::= efexp
                     }
                   }
@@ -813,14 +781,14 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               }
 
               if (elifsfexp.exists(x => x isTautology())) { iscomplete = true }
-              if (! iscomplete) res ++= getCondExprPred(condition, ctx, oldres, env)
+              if (! iscomplete) res ++= getCondExprPred(condition, ctx, curctx, oldres, env)
               res
             } else {
               val curelem = nested_ast_elem.asInstanceOf[AST]
-              if (barrier.exists(x => curelem.eq(x))) { getCondExprPred(condition, ctx, oldres, env) }
+              if (barrier.exists(x => curelem.eq(x))) { getCondExprPred(condition, ctx, curctx, oldres, env) }
               else {
                 barrier ::= curelem
-                val res = getStmtPred(curelem, ctx, oldres, env)
+                val res = getStmtPred(curelem, ctx, curctx, oldres, env)
                 barrier = barrier.filterNot(x => x.eq(curelem))
                 res
               }
@@ -841,7 +809,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                 else {
                   e match {
                     case ce@ElifStatement(elif_condition, _) => {
-                      res ++= getCondExprPred(elif_condition, ctx, oldres, env)
+                      res ++= getCondExprPred(elif_condition, ctx, curctx, oldres, env)
                       elifsfexp ::= env.featureExpr(ce)
                     }
                   }
@@ -852,17 +820,17 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
               if (! iscomplete) {
                 parentAST(t, env) match {
-                  case tp@IfStatement(if_condition, _, _, _) => res ++= getCondExprPred(if_condition, ctx, oldres, env)
+                  case tp@IfStatement(if_condition, _, _, _) => res ++= getCondExprPred(if_condition, ctx, curctx, oldres, env)
                 }
               }
               res
             }
-            else getCondExprPred(condition, ctx, oldres, env)
+            else getCondExprPred(condition, ctx, curctx, oldres, env)
           }
 
           case t@SwitchStatement(expr, s) => {
-            if (isPartOf(nested_ast_elem, s)) getExprPred(expr, ctx, oldres, env)
-            else getStmtPred(t, ctx, oldres, env)
+            if (isPartOf(nested_ast_elem, s)) getExprPred(expr, ctx, curctx, oldres, env)
+            else getStmtPred(t, ctx, curctx, oldres, env)
           }
 
           case t: CaseStatement => (env.featureExpr(t), t) :: oldres
@@ -875,15 +843,18 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           // default: ...)
           // as part of a fall through (sequence of statements without a break and that we catch
           // with getStmtPred
-          case t: DefaultStatement => handleSwitch(t) ++ getStmtPred(t, ctx, oldres, env)
+          case t: DefaultStatement => handleSwitch(t) ++ getStmtPred(t, ctx, curctx, oldres, env)
 
-          case t: CompoundStatementExpr => followPred(t, ctx, oldres, env)
+          case t: CompoundStatementExpr => followPred(t, ctx, curctx, oldres, env)
           case t: CompoundStatement => {
+            val res = if (prevASTElems(t, env).size > 0) getStmtPred(t, ctx, curctx, oldres, env)
+                      else getStmtPred(parentAST(t, env), ctx, curctx, oldres, env)
+            val prior2nestedfexp = prevASTElems(nested_ast_elem, env).reverse.tail.map(env.featureExpr)
 
-            if (prevASTElems(t, env).size > 0) getStmtPred(t, ctx, oldres, env)
-            else getStmtPred(parentAST(t, env), ctx, oldres, env)
+            if (res.map(_._1).forall(x => prior2nestedfexp.exists(y => x equivalentTo y))) oldres
+            else res
           }
-          case t: Statement => getStmtPred(t, ctx, oldres, env)
+          case t: Statement => getStmtPred(t, ctx, curctx, oldres, env)
           case t: FunctionDef => {
             val ffexp = env.featureExpr(t)
             if (ffexp implies oldres.map(_._1).fold(FeatureExprFactory.False)(_ or _) isTautology()) oldres
@@ -920,9 +891,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  private def getStmtPred(s: AST, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+  private def getStmtPred(s: AST, ctx: FeatureExpr, curctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
     val sprevs = prevASTElems(s, env).reverse.tail
-    getCompoundPred(sprevs, s, ctx, oldres, env)
+    getCompoundPred(sprevs, s, ctx, curctx, oldres, env)
   }
 
   private def getStmtSucc(s: AST, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
@@ -1065,10 +1036,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   // given a list of AST elements, determine predecessor AST elements based on feature expressions
-  private def getCompoundPred(l: List[AST], parent: AST, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+  private def getCompoundPred(l: List[AST], parent: AST, ctx: FeatureExpr, curctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
     if (l.isEmpty) {
-      if (predComplete(ctx, oldres)) oldres
-      else followPred(parent, ctx, oldres, env)
+      if (predComplete(curctx, oldres)) oldres
+      else followPred(parent, ctx, curctx, oldres, env)
     } else {
       var curres = oldres
       l.map({
@@ -1081,13 +1052,13 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           else if (ctxx implies curres.map(_._1).fold(FeatureExprFactory.False)(_ or _) isTautology()) { }
           else if (ctxx implies ctx isSatisfiable()) {
             if (isCFGInstruction(x)) curres ::= (ctxx, x)
-            else curres = predHelper(x, ctx, curres, env)
+            else curres = predHelper(x, ctx, curctx, curres, env)
 
-            if (predComplete(ctx, curres)) return curres
+            if (predComplete(curctx, curres)) return curres
           }
         }
       })
-      followPred(parent, ctx, curres, env)
+      followPred(parent, ctx, curctx, curres, env)
     }
   }
 
