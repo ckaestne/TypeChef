@@ -476,6 +476,15 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   // of statements
   private def followSucc(nested_ast_elem: Product, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
 
+    if (barrier.exists(x => x.eq(nested_ast_elem))) {
+      parentAST(nested_ast_elem, env) match {
+        case _: DoStatement =>
+        case _: ForStatement =>
+        case _: WhileStatement =>
+        case _ => return oldres
+      }
+    }
+
     nested_ast_elem match {
       case t: ReturnStatement => {
         findPriorASTElem[FunctionDef](t, env) match {
@@ -964,10 +973,16 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         x => {
           val ctxx = env.featureExpr(x)
           val newres = if (isCFGInstruction(x)) List((getNewResCtx(curres, ctx, ctxx), ctxx, x))
-                       else succHelper(x, ctx, curres, env)
+                       else {
+                         barrier ::= x
+                         val res = succHelper(x, ctx, curres, env)
+                         barrier = barrier.filterNot(e => e.eq(x))
+                         res
+          }
 
           if (ctxx and ctx isContradiction()) { }
           else if (newres.map(_._2).forall(x => curres.map(_._2).exists(y => x equivalentTo y))) { }
+          else if (newres.map(_._2).forall(x => curres.map(_._2).fold(FeatureExprFactory.False)(_ or _) equivalentTo x)) { }
           else {
             curres ++= newres
 
