@@ -182,16 +182,6 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         val elifsrc = elifs.reverse.map(childAST)
 
         if (!elifs.isEmpty) {
-          for (elif <- elifsrc) {
-            val eliffexp = env.featureExpr(elif)
-            if (! (eliffexp and ctx isContradiction())) {
-              elif match {
-                case ElifStatement(_, elif_thenBranch) => res ++= getCondStmtPred(elif_thenBranch, ctx, oldres, env)
-                case _ => assert(1 != 0, "expected elif statement")
-              }
-            }
-          }
-
           if (elseBranch.isEmpty) {
             for (elif <- elifsrc) {
 
@@ -207,6 +197,16 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                     }
                   }
                 }
+              }
+            }
+          }
+
+          for (elif <- elifsrc) {
+            val eliffexp = env.featureExpr(elif)
+            if (! (eliffexp and ctx isContradiction())) {
+              elif match {
+                case ElifStatement(_, elif_thenBranch) => res ++= getCondStmtPred(elif_thenBranch, ctx, oldres, env)
+                case _ => assert(1 != 0, "expected elif statement")
               }
             }
           }
