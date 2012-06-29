@@ -869,15 +869,15 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     def filterBreakStatementsHelper(a: Any): CCFGRes = {
       a match {
         case t: BreakStatement => {
-          val fexpt = env.featureExpr(t)
-          if (! (fexpt and ctx isContradiction())) List((fexpt, fexpt, t)) else List()
+          val tfexp = env.featureExpr(t)
+          if (! (tfexp and ctx isContradiction())) List((tfexp, tfexp, t)) else List()
         }
         case _: SwitchStatement => List()
         case _: ForStatement => List()
         case _: WhileStatement => List()
         case _: DoStatement => List()
-        case l: List[_] => l.flatMap(filterBreakStatementsHelper(_))
-        case x: Product => x.productIterator.toList.flatMap(filterBreakStatementsHelper(_))
+        case l: List[_] => l.flatMap(filterBreakStatementsHelper)
+        case x: Product => x.productIterator.toList.flatMap(filterBreakStatementsHelper)
         case _ => List()
       }
     }
@@ -892,8 +892,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     def filterContinueStatementsHelper(a: Any): CCFGRes = {
       a match {
         case t: ContinueStatement => {
-          val fexpt = env.featureExpr(t)
-          if (! (fexpt and ctx isContradiction())) List((fexpt, fexpt, t)) else List()
+          val tfexp = env.featureExpr(t)
+          if (! (tfexp and ctx isContradiction())) List((tfexp, tfexp, t)) else List()
         }
         case _: ForStatement => List()
         case _: WhileStatement => List()
@@ -911,8 +911,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     def filterCaseStatementsHelper(a: Any): CCFGRes = {
       a match {
         case t@CaseStatement(_) => {
-          val fexpt = env.featureExpr(t)
-          if (! (fexpt and ctx isContradiction())) List((fexpt, fexpt, t)) else List()
+          val tfexp = env.featureExpr(t)
+          if (! (tfexp and ctx isContradiction())) List((tfexp, tfexp, t)) else List()
         }
         case _: SwitchStatement => List()
         case l: List[_] => l.flatMap(filterCaseStatementsHelper)
@@ -928,8 +928,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     def filterReturnStatementsHelper(a: Any): CCFGRes = {
       a match {
         case t@ReturnStatement(_) => {
-          val fexpt = env.featureExpr(t)
-          if (! (fexpt and ctx isContradiction())) List((fexpt, fexpt, t)) else List()
+          val tfexp = env.featureExpr(t)
+          if (! (tfexp and ctx isContradiction())) List((tfexp, tfexp, t)) else List()
         }
         case _: NestedFunctionDef => List()
         case l: List[_] => l.flatMap(filterReturnStatementsHelper)
@@ -947,8 +947,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       a match {
         case _: SwitchStatement => List()
         case t: DefaultStatement => {
-          val fexpt = env.featureExpr(t)
-          if (! (fexpt and ctx isContradiction())) List((fexpt, fexpt, t)) else List()
+          val tfexp = env.featureExpr(t)
+          if (! (tfexp and ctx isContradiction())) List((tfexp, tfexp, t)) else List()
         }
         case l: List[_] => l.flatMap(filterDefaultStatementsHelper)
         case x: Product => x.productIterator.toList.flatMap(filterDefaultStatementsHelper)
