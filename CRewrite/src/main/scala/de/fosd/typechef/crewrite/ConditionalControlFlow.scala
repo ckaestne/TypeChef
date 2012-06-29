@@ -316,7 +316,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   // would have been reached before x
   private def predComplete(ctx: FeatureExpr, curres: CCFGRes): Boolean = {
     val curresctx = curres.map(_._1).fold(FeatureExprFactory.False)(_ or _)
-    (curresctx equivalentTo ctx)
+    val curresfexp = curres.map(_._2)
+    (curresctx equivalentTo ctx) || (curresfexp.exists(x => x.not() and ctx isContradiction()))
   }
 
   // checks whether the current result list is complete
@@ -968,19 +969,26 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       l.map({
         x => {
           val ctxx = env.featureExpr(x)
-          val newres = if (isCFGInstruction(x)) List((getNewResCtx(curres, ctx, ctxx), ctxx, x))
-                       else {
-                         barrier ::= x
-                         val res = succHelper(x, ctx, curres, env)
-                         barrier = barrier.filterNot(e => e.eq(x))
-                         res
+          val newres = if (isCFGInstruction(x)) {
+            List((getNewResCtx(curres, ctx, ctxx), ctxx, x))
+          } else {
+            barrier ::= x
+            val res = succHelper(x, ctx, curres, env)
+            barrier = barrier.filterNot(e => e.eq(x))
+            res
           }
 
-          if (ctxx and ctx isContradiction()) { }
+          if (newres.isEmpty) { }
+          else if (ctxx and ctx isContradiction()) { }
           else if (newres.map(_._2).forall(z => curres.map(_._2).exists(y => z equivalentTo y))) { }
           else if (newres.map(_._2).forall(x => curres.map(_._2).fold(FeatureExprFactory.False)(_ or _) equivalentTo x)) { }
           else {
-            curres ++= newres
+
+            for (n <- newres) {
+              if (curres.map(_._2).exists(x => x.not() and n._2 isContradiction())) { }
+              else curres ::= n
+            }
+
 
             if (succComplete(ctx, curres)) return curres
           }
