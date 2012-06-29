@@ -413,8 +413,18 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     c match {
       case Choice(_, thenBranch, elseBranch) =>
         getCondStmtSucc(thenBranch, ctx, oldres, env) ++ getCondStmtSucc(elseBranch, ctx, oldres, env)
-      case One(c@CompoundStatement(l)) => getCompoundSucc(l.map(_.entry), c, ctx, oldres, env)
-      case One(s: Statement) => getCompoundSucc(List(s), s, ctx, oldres, env)
+      case One(c@CompoundStatement(l)) => {
+        barrier ::= c
+        val res = getCompoundSucc(l.map(_.entry), c, ctx, oldres, env)
+        barrier = barrier.filterNot(x => x.eq(c))
+        res
+      }
+      case One(s: Statement) => {
+        barrier ::= s
+        val res = getCompoundSucc(List(s), s, ctx, oldres, env)
+        barrier = barrier.filterNot(x => x.eq(s))
+        res
+      }
     }
   }
 
