@@ -977,7 +977,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           }
 
           if (ctxx and ctx isContradiction()) { }
-          else if (newres.map(_._2).forall(x => curres.map(_._2).exists(y => x equivalentTo y))) { }
+          else if (newres.map(_._2).forall(z => curres.map(_._2).exists(y => z equivalentTo y))) { }
           else if (newres.map(_._2).forall(x => curres.map(_._2).fold(FeatureExprFactory.False)(_ or _) equivalentTo x)) { }
           else {
             curres ++= newres
@@ -1003,7 +1003,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           val ctxx = env.featureExpr(x)
 
           if (ctxx and ctx isContradiction()) { }
-          else if (curres.map(_._2).exists(x => x equivalentTo ctxx)) { }
+          else if (curres.map(_._2).exists(z => z equivalentTo ctxx)) { }
           else if (ctxx implies curres.map(_._2).fold(FeatureExprFactory.False)(_ or _) isTautology()) { }
           else {
             if (isCFGInstruction(x)) curres ::= (getNewResCtx(curres, ctx, ctxx), ctxx, x)
