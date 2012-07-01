@@ -498,8 +498,6 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     if (barrier.exists(x => x.eq(nested_ast_elem))) {
       parentAST(nested_ast_elem, env) match {
         case _: DoStatement =>
-        case _: ForStatement =>
-        case _: WhileStatement =>
         case _ => return oldres
       }
     }
@@ -518,8 +516,18 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           case t@ForStatement(Some(expr1), expr2, _, s) if (isPartOf(nested_ast_elem, expr1)) =>
             if (expr2.isDefined) getExprSucc(expr2.get, ctx, oldres, env)
             else getCondStmtSucc(s, ctx, oldres, env)
-          case t@ForStatement(_, Some(expr2), _, s) if (isPartOf(nested_ast_elem, expr2)) =>
-            getStmtSucc(t, ctx, oldres, env) ++ getCondStmtSucc(s, ctx, oldres, env)
+          case t@ForStatement(_, Some(expr2), expr3, s) if (isPartOf(nested_ast_elem, expr2)) => {
+            val n = getStmtSucc(t, ctx, oldres, env)
+            val i = getCondStmtSucc(s, ctx, oldres, env)
+
+            if (! succComplete(ctx, i)) {
+              val e = if (expr3.isDefined) getExprSucc(expr3.get, ctx, oldres, env)
+                      else getExprSucc(expr2, ctx, oldres, env)
+              n ++ i ++ e
+            } else {
+              n ++ i
+            }
+          }
           case t@ForStatement(_, expr2, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
             if (expr2.isDefined) getExprSucc(expr2.get, ctx, oldres, env)
             else getCondStmtSucc(s, ctx, oldres, env)
@@ -528,8 +536,17 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             else if (expr2.isDefined) getExprSucc(expr2.get, ctx, oldres, env)
             else getCondStmtSucc(s, ctx, oldres, env)
           }
-          case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
-            getCondStmtSucc(s, ctx, oldres, env) ++ getStmtSucc(t, ctx, oldres, env)
+          case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => {
+            val n = getStmtSucc(t, ctx, oldres, env)
+            val i = getCondStmtSucc(s, ctx, oldres, env)
+            
+            if (! succComplete(ctx, i)) {
+              val e = getExprSucc(expr, ctx, oldres, env)
+              n ++ i ++ e
+            } else {
+              n ++ i
+            }
+          }            
           case WhileStatement(expr, _) => getExprSucc(expr, ctx, oldres, env)
           case t@DoStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
             getCondStmtSucc(s, ctx, oldres, env) ++ getStmtSucc(t, ctx, oldres, env)
@@ -661,8 +678,16 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           case t@ForStatement(Some(expr1), _, _, _) if (isPartOf(nested_ast_elem, expr1)) =>
             getStmtPred(t, ctx, oldres, env)
           // inc
-          case t@ForStatement(_, _, Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) =>
-            getCondStmtPred(s, ctx, oldres, env) ++ filterContinueStatements(s, env.featureExpr(t), env)
+          case t@ForStatement(_, Some(expr2), Some(expr3), s) if (isPartOf(nested_ast_elem, expr3)) => {
+            val rs = getCondStmtPred(s, ctx, oldres, env)
+            val rf = filterContinueStatements(s, env.featureExpr(t), env)
+            
+            if (! predComplete(ctx, rs)) {
+              rs ++ getExprPred(expr2, ctx, rs, env) ++ rf
+            } else {
+              rs ++ rf
+            }
+          }
           // break
           case t@ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) =>
             (getNewResCtx(oldres, ctx, env.featureExpr(expr2)), env.featureExpr(expr2), expr2) :: getStmtPred(t, ctx, oldres, env)
