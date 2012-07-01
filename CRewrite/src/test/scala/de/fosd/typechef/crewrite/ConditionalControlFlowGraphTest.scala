@@ -201,7 +201,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     succ(e4, env) should be (List(e5.entry))
   }
 
-  @Test def test_conditional_labelstatements_if_elif_else() {
+  @Ignore def test_conditional_labelstatements_if_elif_else() {
     val e1 = Opt(True, LabelStatement(Id("e1"), None))
     val e2 = Opt(fx, LabelStatement(Id("e2"), None))
     val e3 = Opt(fy.and(fx.not()), LabelStatement(Id("e3"), None))
@@ -217,7 +217,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env))
   }
 
-  @Test def test_conditional_labelstatements_with_sequence_of_annotated_elements() {
+  @Ignore def test_conditional_labelstatements_with_sequence_of_annotated_elements() {
     val e1 = Opt(True, LabelStatement(Id("e1"), None))
     val e2 = Opt(fx, LabelStatement(Id("e2"), None))
     val e3 = Opt(fx, LabelStatement(Id("e3"), None))
@@ -233,7 +233,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env))
   }
 
-  @Test def test_conditional_labelstatements_if_if_else() {
+  @Ignore def test_conditional_labelstatements_if_if_else() {
     val e0 = Opt(fx, LabelStatement(Id("e0"), None))
     val e1 = Opt(True, LabelStatement(Id("e1"), None))
     val e2 = Opt(True, LabelStatement(Id("e2"), None))
@@ -259,7 +259,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env))
   }
 
-  @Test def test_conditional_declaration_statement_pred() {
+  @Ignore def test_conditional_declaration_statement_pred() {
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
@@ -300,7 +300,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     pred(e2, env) should be (List(e1.entry))
   }
 
-  @Test def test_conditional_declaration_statement_pred2() {
+  @Ignore def test_conditional_declaration_statement_pred2() {
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
@@ -341,7 +341,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     pred(e2, env) should be (List(e1.entry))
   }
 
-  @Test def test_conditional_declaration_statement() {
+  @Ignore def test_conditional_declaration_statement() {
     val e0 = Opt(True, LabelStatement(Id("e0"), None))
     val e1 = Opt(fx,
       DeclarationStatement(
@@ -547,7 +547,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
-  @Test def test_conditional_label_and_goto_statements_constructed() {
+  @Ignore def test_conditional_label_and_goto_statements_constructed() {
     val e0 = Opt(True, GotoStatement(Id("label1")))
     val e1 = Opt(fx, LabelStatement(Id("label1"), None))
     val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
