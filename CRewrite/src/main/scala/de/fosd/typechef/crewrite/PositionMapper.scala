@@ -3,12 +3,9 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem.{CTypeSystem, CDefUse}
-import de.fosd.typechef.parser.c.AtomicNamedDeclarator
-import de.fosd.typechef.parser.c.TranslationUnit
-import de.fosd.typechef.parser.c.FunctionDef
 
 
-class PositionMapper() extends ASTNavigation with CDefUse with CTypeSystem with ASTRefactor {
+class PositionMapper() extends ASTNavigation with CDefUse with CTypeSystem {
 
   def getElementForPosition(ast: AST, column: Int, line: Int): String = {
     val env = createASTEnv(ast)
@@ -45,11 +42,6 @@ class PositionMapper() extends ASTNavigation with CDefUse with CTypeSystem with 
   }
 
   def getSelectedElements(ast: AST, startColumn: Int, startLine: Int, endColumn: Int, endLine: Int): List[AST] = {
-    println(startColumn)
-    println(endColumn)
-    println(startLine)
-    println(endLine)
-
     val env = createASTEnv(ast)
     val keys = env.keys()
     var result = List[AST]()
@@ -67,26 +59,9 @@ class PositionMapper() extends ASTNavigation with CDefUse with CTypeSystem with 
 
     result = result.sortWith(compareLength)
 
-    for (entry <- result) {
-      println(entry)
-      println(entry.productArity)
-      println(entry.getPositionFrom)
-      println(entry.getPositionTo)
-    }
-
     // TODO extract
 
-    buildASTResult(result)
-    typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
-    println("Def use map is:\n" + getDefUseMap + "\n")
-    for (entry <-result) {
-      if (entry.isInstanceOf[FunctionDef]) {
-        val id = entry.asInstanceOf[FunctionDef].declarator.asInstanceOf[AtomicNamedDeclarator].id
-        println("ID is: " +id)
-        val renamedAST = renameFunction(ast, getDefUseMap, "awesome", id)
-        println("RenamedAST = " + PrettyPrinter.print(renamedAST))
-      }
-    }
+    result = buildASTResult(result)
     return result
   }
 
@@ -106,9 +81,9 @@ class PositionMapper() extends ASTNavigation with CDefUse with CTypeSystem with 
             toAdd = false
           }
         } else if (positionCut(entry, resultEntry) && (entry.getPositionFrom.getLine == resultEntry.getPositionFrom.getLine)) {
-          val entryLenght = entry.getPositionTo.getColumn - entry.getPositionFrom.getColumn
-          val resultEntryLenght = resultEntry.getPositionTo.getColumn - resultEntry.getPositionFrom.getColumn
-          if (((entryLenght == resultEntryLenght) && (entry.productArity > resultEntry.productArity)) || (entryLenght > resultEntryLenght)) {
+          val entryLength = entry.getPositionTo.getColumn - entry.getPositionFrom.getColumn
+          val resultEntryLength = resultEntry.getPositionTo.getColumn - resultEntry.getPositionFrom.getColumn
+          if (((entryLength == resultEntryLength) && (entry.productArity > resultEntry.productArity)) || (entryLength > resultEntryLength)) {
             result = removeFromList(resultEntry, result)
           } else {
             toAdd = false

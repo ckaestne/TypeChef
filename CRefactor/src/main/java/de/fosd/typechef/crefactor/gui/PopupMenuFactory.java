@@ -1,6 +1,6 @@
 package de.fosd.typechef.crefactor.gui;
 
-import de.fosd.typechef.crefactor.gui.actions.TypeChefActions;
+import de.fosd.typechef.crefactor.gui.actions.RefactorMenuActions;
 import org.fife.ui.rtextarea.RTextArea;
 
 import javax.swing.*;
@@ -37,10 +37,7 @@ public final class PopupMenuFactory {
      */
     private static JMenu getRefactorMenu(final RTextArea textArea) {
         JMenu refactorMenu = new JMenu(REFACTOR_MENU_NAME);
-        refactorMenu.add(new JMenuItem(TypeChefActions.getAST(textArea)));
-        refactorMenu.add(new JMenuItem(TypeChefActions.getElementAtPosition(textArea)));
-        refactorMenu.add(new JMenuItem(TypeChefActions.showPrettyAST(textArea)));
-        refactorMenu.add(new JMenuItem(TypeChefActions.getElementsAtPosition(textArea)));
+        refactorMenu.addMenuListener(new RefactorMenuActions(textArea, refactorMenu));
         return refactorMenu;
     }
 

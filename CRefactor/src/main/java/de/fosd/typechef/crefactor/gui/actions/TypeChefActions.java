@@ -2,12 +2,17 @@ package de.fosd.typechef.crefactor.gui.actions;
 
 import de.fosd.typechef.crefactor.connector.CreateASTForCode;
 import de.fosd.typechef.crefactor.connector.CreateASTForCode$;
+import de.fosd.typechef.crefactor.gui.actions.util.InputBox;
 import de.fosd.typechef.crefactor.gui.util.PositionWrapper;
+import de.fosd.typechef.crewrite.ASTRefactor;
+import de.fosd.typechef.parser.c.Id;
 import org.fife.ui.rtextarea.RTextArea;
+import scala.collection.immutable.List;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.IdentityHashMap;
 
 /**
  * All actions to interact with TypeChef are found in this class
@@ -22,7 +27,7 @@ public class TypeChefActions {
 
             @Override
             public void actionPerformed(ActionEvent e) {
- 
+
                 try {
                     String ast = CreateASTForCode$.MODULE$.analyse();
 
@@ -42,6 +47,7 @@ public class TypeChefActions {
             {
                 putValue(Action.NAME, "Zeige Code");
             }
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 textArea.setText(CreateASTForCode.prettyAnalyse());
@@ -55,25 +61,22 @@ public class TypeChefActions {
             {
                 putValue(Action.NAME, "Rename Function");
             }
+
             @Override
             public void actionPerformed(ActionEvent e) {
-               int selectionStart = textArea.getSelectionStart();
-               int selectionEnd = textArea.getSelectionEnd();
 
-               if (selectionStart == selectionEnd) {
-                   // nothing to do
-                   // TODO: display message
-                   return;
-               }
+                if (textArea.getSelectionStart() == textArea.getSelectionEnd()) {
+                    // nothing to do
+                    // TODO: display message
+                    return;
+                }
 
-               String selectedText = textArea.getSelectedText();
-               int startingOffset = textArea.getSelectionStart();
-               int lineStart = PositionWrapper.getLine(textArea, textArea.getSelectionStart());
-               int columnStart = PositionWrapper.getRow(textArea, textArea.getSelectionStart());
-               int lineEnd = PositionWrapper.getLine(textArea, textArea.getSelectionEnd());
-               int columnEnd = PositionWrapper.getRow(textArea, textArea.getSelectionEnd());
+                int lineStart = PositionWrapper.getLine(textArea, textArea.getSelectionStart());
+                int columnStart = PositionWrapper.getRow(textArea, textArea.getSelectionStart());
+                int lineEnd = PositionWrapper.getLine(textArea, textArea.getSelectionEnd());
+                int columnEnd = PositionWrapper.getRow(textArea, textArea.getSelectionEnd());
 
-               CreateASTForCode.extendedPosAnalyse(columnStart, columnEnd, lineStart + 1, lineEnd + 1);
+                CreateASTForCode.extendedPosAnalyse(columnStart, columnEnd, lineStart + 1, lineEnd + 1);
 
 
             }
@@ -102,6 +105,26 @@ public class TypeChefActions {
 
                 } catch (Exception exception) {
                     exception.printStackTrace();
+                }
+            }
+        };
+        return action;
+    }
+
+    public static Action renameFunction(final IdentityHashMap<Id, List<Id>> defuse, final Id id) {
+        Action action = new AbstractAction() {
+
+            {
+                putValue(Action.NAME, "Rename " + id.name() + "()");
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ASTRefactor refactor = new ASTRefactor();
+                InputBox box = new InputBox(id.name());
+                String rename = box.getInput();
+                if ((rename != null) && (rename.trim().length() > 1)) {
+                    refactor.renameFunction(CreateASTForCode.ast(), defuse, rename, id);
                 }
             }
         };
