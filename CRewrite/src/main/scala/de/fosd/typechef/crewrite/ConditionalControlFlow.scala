@@ -569,7 +569,12 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                 else {
                   e match {
                     case ce@ElifStatement(elif_condition, _) => {
-                      res ++= getCondExprSucc(elif_condition, ctx, oldres, env)
+                      val newres = getCondExprSucc(elif_condition, ctx, oldres, env)
+
+                      for (n <- newres) {
+                        if (res.map(_._2).fold(FeatureExprFactory.False)(_ or _).not() and n._2 isContradiction()) { }
+                        else res ++= List(n)
+                      }
                     }
                     case _ => assert(1 != 0, "expected elif statement")
                   }
@@ -596,7 +601,12 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               else {
                 e match {
                   case ce@ElifStatement(elif_condition, _) => {
-                    res ++= getCondExprSucc(elif_condition, ctx, oldres, env)
+                    val newres = getCondExprSucc(elif_condition, ctx, oldres, env)
+
+                    for (n <- newres) {
+                      if (res.map(_._2).fold(FeatureExprFactory.False)(_ or _).not() and n._2 isContradiction()) { }
+                      else res ++= List(n)
+                    }
                   }
                   case _ => assert(1 != 0, "expected elif statement")
                 }
@@ -758,7 +768,14 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                 if (predComplete(ctx, res)) { }
                 else {
                   e match {
-                    case ElifStatement(elif_condition, _) => res ++= getCondExprPred(elif_condition, ctx, oldres, env)
+                    case ElifStatement(elif_condition, _) => {
+                      val newres = getCondExprPred(elif_condition, ctx, oldres, env)
+
+                      for (n <- newres) {
+                        if (res.map(_._2).fold(FeatureExprFactory.False)(_ or _).not() and n._2 isContradiction()) { }
+                        else res ++= List(n)
+                      }
+                    }
                   }
                 }
               }
@@ -781,7 +798,14 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                 if (predComplete(ctx, res)) { }
                 else {
                   e match {
-                    case ce@ElifStatement(elif_condition, _) => res ++= getCondExprPred(elif_condition, ctx, oldres, env)
+                    case ce@ElifStatement(elif_condition, _) => {
+                      val newres = getCondExprPred(elif_condition, ctx, oldres, env)
+
+                      for (n <- newres) {
+                        if (res.map(_._2).fold(FeatureExprFactory.False)(_ or _).not() and n._2 isContradiction()) { }
+                        else res ++= List(n)
+                      }
+                    }
                   }
                 }
               }
