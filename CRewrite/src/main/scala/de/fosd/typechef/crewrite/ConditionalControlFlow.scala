@@ -76,6 +76,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case None => {
         var oldres: CCFGRes = List()
         val ctx = env.featureExpr(source)
+
+        if (ctx isContradiction()) return List()
+
         var newres: CCFGRes = predHelper(source, ctx, oldres, env)
         var changed = true
 
@@ -284,8 +287,11 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case Some(v) => v
       case None => {
         var curres: CCFGRes = List()
-        val ctxsource = env.featureExpr(source)
-        curres = succHelper(source, ctxsource, curres, env)
+        val ctx = env.featureExpr(source)
+
+        if (ctx isContradiction()) return List()
+
+        curres = succHelper(source, ctx, curres, env)
 
         val res = curres.map(_._3)
         succCCFGCache.update(source, res)
