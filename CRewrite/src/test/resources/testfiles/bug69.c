@@ -1,21 +1,16 @@
 #if definedEx(A)
-void foo() {
-    if (a) { b; }
-    else
-    #if definedEx(B) && definedEx(C)
-    do {
-        c;
-    } while (d)
-    #else
-    #if definedEx(B) && !definedEx(C)
-    do {
-        e;
-    } while (f)
-    #else
-    do {
-        g;
-    } while (h)
-    #endif
-    #endif
-}
+void foo(void) {
+  if (a) {
+    b;
+  } else
+#if definedEx(B) && definedEx(C)
+do { c; } while (d)
 #endif
+#if definedEx(B) && !definedEx(C)
+do { e; } while (e)
+#endif
+#if !definedEx(B)
+do { f; } while(g)
+#endif
+;
+}
