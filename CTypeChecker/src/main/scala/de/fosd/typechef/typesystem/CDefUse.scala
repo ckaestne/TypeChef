@@ -15,13 +15,6 @@ trait CDefUse extends CEnv {
   private val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
   private[typesystem] def clear() {defuse.clear()}
 
-  private def addSimpleDeclaratorDef(decl: Declarator) {
-    decl match {
-      case AtomicNamedDeclarator(_, i, _) => defuse.put(i, List())
-      case x: NestedNamedDeclarator => assert(false, x + " is not supported yet; defuse")
-    }
-  }
-
   private def getSimpleDeclaratorDef(decl: Declarator): Id = {
     decl match {
       case AtomicNamedDeclarator(_, i, _) => i
@@ -32,11 +25,24 @@ trait CDefUse extends CEnv {
   def clearDefUseMap() { defuse.clear() }
   def getDefUseMap = defuse
 
-  def addDef(f: CDef) {
+  // add definition:
+  //   - function: function declarations (forward declarations) and function definitions are handled
+  //               if a function declaration exists, we add it as def and the function definition as its use
+  //               if no function declaration exists, we add the function definition as def
+  def addDef(f: CDef, env: Env) {
     f match {
-      // TODO specifiers and parameters
-      // parameters are definitions for uses in stmt
-      case FunctionDef(specifiers, declarator, oldStyleParameters, _) => addSimpleDeclaratorDef(declarator)
+      case FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
+        // lookup whether a prior function declaration exists
+        val id = getSimpleDeclaratorDef(declarator)
+        env.varEnv.getAstOrElse(id.name, null) match {
+          case One(i: InitDeclarator) => {
+            val key = i.getId
+            defuse.put(key, defuse.get(key) ++ List(id))
+          }
+          case null => defuse.put(declarator.getId, List())
+        }
+      }
+      case i: InitDeclarator => defuse.put(i.getId, List())
       case _ =>
     }
   }
