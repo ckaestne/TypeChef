@@ -173,6 +173,17 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
   def predHelper(source: Product, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
 
+    def findPriorCaseStatements(elem: AST): List[AST] = {
+      elem match {
+        case _: SwitchStatement => List()
+        case e: AST => prevASTElems(e, env).filter({
+          case _: CaseStatement => true
+          case _ => false
+        }) ++ findPriorCaseStatements(parentAST(e, env))
+        case _ => List()
+      }
+    }
+
     // helper method to handle a switch, source is a case or a default statement
     def handleSwitch(t: AST) = {
       val prior_switch = findPriorASTElem[SwitchStatement](t, env)
@@ -186,9 +197,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           //   int a;
           //   case 1;
           val r2 = {
-            val sprevs = prevASTElems(t, env).reverse.tail
-            val pcases = sprevs.flatMap(x => filterCaseStatements(One(x.asInstanceOf[Statement]), env.featureExpr(expr), env))
-            if (! pcases.isEmpty) getStmtPred(t, ctx, oldres, env)
+            // we count given case t itself also
+            val prevcases = findPriorCaseStatements(t)
+            if (prevcases.size > 1) getStmtPred(t, ctx, oldres, env)
             else List()
           }
           r1 ++ r2
