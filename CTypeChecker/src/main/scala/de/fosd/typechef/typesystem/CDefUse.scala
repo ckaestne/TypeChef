@@ -15,13 +15,6 @@ trait CDefUse extends CEnv {
   private val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
   private[typesystem] def clear() {defuse.clear()}
 
-  private def getSimpleDeclaratorDef(decl: Declarator): Id = {
-    decl match {
-      case AtomicNamedDeclarator(_, i, _) => i
-      case NestedNamedDeclarator(_, nestedDecl, _) => getSimpleDeclaratorDef(nestedDecl)
-    }
-  }
-
   def clearDefUseMap() { defuse.clear() }
   def getDefUseMap = defuse
 
@@ -34,13 +27,14 @@ trait CDefUse extends CEnv {
       case FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
-        val id = getSimpleDeclaratorDef(declarator)
+        val id = declarator.getId
         env.varEnv.getAstOrElse(id.name, null) match {
+          case null => defuse.put(declarator.getId, List())
+          case One(null) => defuse.put(declarator.getId, List())
           case One(i: InitDeclarator) => {
             val key = i.getId
             defuse.put(key, defuse.get(key) ++ List(id))
           }
-          case null => defuse.put(declarator.getId, List())
         }
       }
       case i: InitDeclarator => defuse.put(i.getId, List())
@@ -55,8 +49,20 @@ trait CDefUse extends CEnv {
       case PostfixExpr(i@Id(name), FunctionCall(params)) => {
         env.varEnv.getAstOrElse(name, null) match {
           case One(FunctionDef(_, declarator, _, _)) => {
-            val key = getSimpleDeclaratorDef(declarator)
-            defuse.put(key, defuse.get(key) ++ List(i))
+            val key = declarator.getId
+
+            // function definition used as def entry
+            if (defuse.containsKey(key)) {
+              defuse.put(key, defuse.get(key) ++ List(i))
+            } else {
+              var fd: Id = null
+              for (k <- defuse.keySet().toArray)
+                for (v <- defuse.get(k))
+                  if (v.eq(key)) fd = k.asInstanceOf[Id]
+
+              defuse.put(fd, defuse.get(fd) ++ List(i))
+            }
+
           }
           case _ =>
         }
