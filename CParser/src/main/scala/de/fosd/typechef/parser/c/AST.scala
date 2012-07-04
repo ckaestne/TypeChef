@@ -224,7 +224,7 @@ case class CompoundAttribute(inner: List[Opt[AttributeSequence]]) extends Attrib
 case class Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) extends ExternalDef with OldParameterDeclaration
 
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST with CDef {
     def getId = declarator.getId
     def getName = declarator.getName
     def getExpr: Option[Expr]

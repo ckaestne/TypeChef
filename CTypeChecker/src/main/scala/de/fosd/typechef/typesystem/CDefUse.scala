@@ -29,10 +29,11 @@ trait CDefUse extends CEnv {
   //   - function: function declarations (forward declarations) and function definitions are handled
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
-  def addDef(f: CDef, env: Env) {
+  def addDef(f: AST, env: Env) {
     f match {
       case FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
+        // if so we get an InitDeclarator instance back
         val id = getSimpleDeclaratorDef(declarator)
         env.varEnv.getAstOrElse(id.name, null) match {
           case One(i: InitDeclarator) => {

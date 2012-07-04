@@ -208,6 +208,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
                 eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
                     declKind,
                     env.scope)
+                addDef(init, eenv)
+
                 init.getExpr map {
                     checkInitializer(_, ctype, featureExpr and f, eenv)
                 }
