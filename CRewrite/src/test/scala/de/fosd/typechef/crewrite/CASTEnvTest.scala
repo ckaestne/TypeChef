@@ -14,7 +14,7 @@ class CASTEnvTest extends ConditionalControlFlow with TestHelper {
     }
     """)
 
-    val env = createASTEnv(a)
+    val env = CASTEnv.createASTEnv(a)
     println(env)
   }
 }

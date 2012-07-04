@@ -150,9 +150,9 @@ case class CaseStatement(c: Expr, s: Option[Conditional[Statement]]) extends Sta
 
 case class DefaultStatement(s: Option[Conditional[Statement]]) extends Statement
 
-case class IfStatement(condition: Expr, thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
+case class IfStatement(condition: Conditional[Expr], thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
 
-case class ElifStatement(condition: Expr, thenBranch: Conditional[Statement]) extends AST
+case class ElifStatement(condition: Conditional[Expr], thenBranch: Conditional[Statement]) extends AST
 
 case class SwitchStatement(expr: Expr, s: Conditional[Statement]) extends Statement
 

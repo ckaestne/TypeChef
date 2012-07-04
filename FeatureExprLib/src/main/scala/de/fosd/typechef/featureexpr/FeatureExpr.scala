@@ -11,7 +11,8 @@ trait FeatureExpr {
      */
     def isSatisfiable(fm: FeatureModel): Boolean
     protected def calcSize: Int
-    def toTextExpr: String //or other ToString variations for debugging etc
+    def toTextExpr: String
+    //or other ToString variations for debugging etc
     def collectDistinctFeatures: Set[String]
 
     def or(that: FeatureExpr): FeatureExpr
@@ -65,19 +66,6 @@ trait FeatureExpr {
 
     final lazy val size: Int = calcSize
 
-    //        /**
-    //         * heuristic to determine whether a feature expression is small
-    //         * (may be used to decide whether to inline it or not)
-    //         *
-    //         * use with care
-    //         */
-    //        def isSmall(): Boolean = size <= 10
-
-    //    /**
-    //     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
-    //     */
-    //    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
-
     /**
      * Converts this formula to a textual expression.
      */
@@ -93,13 +81,15 @@ trait FeatureExpr {
     def debug_print(indent: Int): String = toTextExpr
 
 
-    //        /**
-    //         * simple translation into a FeatureExprValue if needed for some reason
-    //         * (creates IF(expr, 1, 0))
-    //         */
-    //        def toFeatureExprValue: FeatureExprTree[Long] =
-    //            FeatureExpr.createIf(this, FeatureExpr.createValue(1l), FeatureExpr.createValue(0l))
-
-    //        protected def thisFeatureExpr : FeatureExpr
+    /**
+     * evaluate the expression for a given feature selection
+     * (all features not provided are assumed deselected)
+     *
+     * features provided as a list of names (how they would be created
+     * with createDefinedExternal)
+     *
+     * evaluates to true or false
+     */
+    def evaluate(selectedFeatures: Set[String]): Boolean
 
 }

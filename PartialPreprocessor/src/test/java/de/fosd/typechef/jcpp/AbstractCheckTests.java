@@ -78,6 +78,7 @@ public class AbstractCheckTests {
         boolean containsErrorCheck = false;
         InputStream inputStream = getClass().getResourceAsStream(
                 "/" + folder + filename + ".check");
+        Assert.assertNotNull("cannot load file /" + folder + filename + ".check", inputStream);
         BufferedReader checkFile = new BufferedReader(new InputStreamReader(
                 inputStream));
         String line;

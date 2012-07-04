@@ -13,7 +13,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
     object InitialEnv extends Env(
         new ConditionalTypeMap() ++ initBuiltinTypedevEnv,
         new VarTypingContext() ++ initBuiltinVarEnv,
-        new StructEnv(), Map(), Map(), None, 0)
+        new StructEnv(), Map(), Map(), None, 0, FeatureExprFactory.False)
 
     val initBuiltinTypedevEnv: Seq[(String, FeatureExpr, (AST, Conditional[CType]))] =
         Map(

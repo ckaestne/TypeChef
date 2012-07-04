@@ -143,8 +143,10 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
             types = types :+ One(CDouble())
         if (has(FloatSpecifier()))
             types = types :+ One(CFloat())
-        if ((isSigned || isUnsigned || has(IntSpecifier()) || has(OtherPrimitiveTypeSpecifier("_Bool"))) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
+        if ((isSigned || isUnsigned || has(IntSpecifier())) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(CharSpecifier()))
             types = types :+ sign(CInt())
+        if (has(OtherPrimitiveTypeSpecifier("_Bool")))
+            types = types :+ One(CBool())
 
         if (has(VoidSpecifier()))
             types = types :+ One(CVoid())
@@ -214,14 +216,15 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
                     checkInitializer(_, ctype, featureExpr and f, eenv)
                 }
 
-                //if we declare a variable or array (not pointer or function)
-                //ensure that structs are resolvable
-                checkStructsC(ctype, featureExpr and f andNot isExtern, env, decl)
+
+                    //if we declare a variable or array (not pointer or function)
+                    //ensure that structs are resolvable
+                    checkStructsC(ctype, featureExpr and f andNot isExtern, env, decl)
 
 
-                (init.declarator.getName, featureExpr and f, init, ctype, declKind)
+                    (init.declarator.getName, featureExpr and f, init, ctype, declKind)
+                }
             }
-        }
         enumDecl ++ varDecl
     }
 
@@ -246,7 +249,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
      *
      * important: this recurses into structures!
      **/
-    private def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
+    protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
         var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
@@ -350,7 +353,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
 
     def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): StructEnv;
 
-    def parseStructMembers(members: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, env: Env): ConditionalTypeMap = {
+    def parseStructMembers(members: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, initialEnv: Env): ConditionalTypeMap = {
+        var env = initialEnv
         var result = new ConditionalTypeMap()
         for (Opt(f, structDeclaration) <- members) {
             for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
@@ -358,8 +362,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
                     case StructDeclarator(decl, _, attr) =>
                         val ctype = declType(structDeclaration.qualifierList, decl, attr, featureExpr and f and g, env)
                         //for nested structs, we need to add the inner structs to the environment
-                        val env2 = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))
-                        checkStructsC(ctype, featureExpr and f and g, env2, structDeclaration)
+                        env = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))
+                        checkStructsC(ctype, featureExpr and f and g, env, structDeclaration)
                         result = result +(decl.getName, featureExpr and f and g, decl, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }

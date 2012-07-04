@@ -28,7 +28,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parserStatistics = false,
             parserResults = true,
             writePI = false;
-    File errorXMLFile = null;
+    protected File errorXMLFile = null;
+    private final File _autoErrorXMLFile = new File(".");
     String outputStem = "";
     private String filePresenceConditionFile = "";
 
@@ -83,7 +84,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                 new Option("bdd", LongOpt.NO_ARGUMENT, F_BDD, null,
                         "Use BDD engine instead of SAT engine (provide as first parameter)."),
 
-                new Option("errorXML", LongOpt.REQUIRED_ARGUMENT, F_ERRORXML, "file",
+                new Option("errorXML", LongOpt.OPTIONAL_ARGUMENT, F_ERRORXML, "file",
                         "File to store syntax and type errors in XML format.")
 
         ));
@@ -133,8 +134,12 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
         } else if (c == F_BDD) {
             de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.bdd());
         } else if (c == F_ERRORXML) {//--errorXML=file
-            checkFileWritable(g.getOptarg());
-            errorXMLFile = new File(g.getOptarg());
+            if (g.getOptarg() == null)
+                errorXMLFile = _autoErrorXMLFile;
+            else {
+                checkFileWritable(g.getOptarg());
+                errorXMLFile = new File(g.getOptarg());
+            }
         } else
             return super.interpretOption(c, g);
 
@@ -214,5 +219,12 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
 
     public boolean printParserResult() {
         return parserResults;
+    }
+
+    public File getErrorXMLFile() {
+        if (errorXMLFile == _autoErrorXMLFile)
+            return new File(getFile() + ".xml");
+        else
+            return errorXMLFile;
     }
 }

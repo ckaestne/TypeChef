@@ -1,9 +1,9 @@
 package de.fosd.typechef.featureexpr.bdd
 
-import java.io.Writer
 import net.sf.javabdd._
-import collection.mutable.{HashMap, WeakHashMap, Map}
+import collection.mutable.{WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
+import annotation.tailrec
 
 
 object FeatureExprHelper {
@@ -15,142 +15,8 @@ object FeatureExprHelper {
 }
 
 
-//trait FeatureExpr {
-//    /**
-//     * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
-//     * but is faster because FM is cached
-//     */
-//    def isSatisfiable(fm: FeatureModel): Boolean
-//    protected def calcSize: Int
-//    def toTextExpr: String //or other ToString variations for debugging etc
-//    protected def collectDistinctFeatures: Set[String]
-//
-//    def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, that)
-//    def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, that)
-//    def not(): FeatureExpr = FExprBuilder.not(this)
-//    def implies(that: FeatureExpr) = FExprBuilder.imp(this, that)
-//    def xor(that: FeatureExpr) = FExprBuilder.xor(this, that)
-//    def equiv(that: FeatureExpr) = FExprBuilder.biimp(this, that)
-
-//
-//    //equals, hashcode
-//
-//
-//
-//
-//
-//    def unary_! = not
-//    def &(that: FeatureExpr) = and(that)
-//    def |(that: FeatureExpr) = or(that)
-//
-//    def orNot(that: FeatureExpr) = this or (that.not)
-//    def andNot(that: FeatureExpr) = this and (that.not)
-//    def mex(that: FeatureExpr): FeatureExpr = (this and that).not
-//
-//    def isContradiction(): Boolean = isContradiction(NoFeatureModel)
-//    def isTautology(): Boolean = isTautology(NoFeatureModel)
-//    def isDead(): Boolean = isContradiction(NoFeatureModel)
-//    def isBase(): Boolean = isTautology(NoFeatureModel)
-//    def isSatisfiable(): Boolean = isSatisfiable(NoFeatureModel)
-//    /**
-//     * FM -> X is tautology if FM.implies(X).isTautology or
-//     * !FM.and.(x.not).isSatisfiable
-//     *
-//     **/
-//    def isTautology(fm: FeatureModel): Boolean = !this.not.isSatisfiable(fm)
-//    def isContradiction(fm: FeatureModel): Boolean = !isSatisfiable(fm)
-//
-//
-//    /**
-//     * uses a SAT solver to determine whether two expressions are
-//     * equivalent.
-//     *
-//     * for performance reasons, it checks pointer
-//     * equivalence first, but won't use the recursive equals on aexpr
-//     * (there should only be few cases when equals is more
-//     * accurate than eq, which are not worth the performance
-//     * overhead)
-//     */
-//    def equivalentTo(that: FeatureExpr): Boolean = (this eq that) || (this equiv that).isTautology();
-//    def equivalentTo(that: FeatureExpr, fm: FeatureModel): Boolean = (this eq that) || (this equiv that).isTautology(fm);
-//
-//    protected def indent(level: Int): String = "\t" * level
-//
-//    final lazy val size: Int = calcSize
-//
-//    /**
-//     * heuristic to determine whether a feature expression is small
-//     * (may be used to decide whether to inline it or not)
-//     *
-//     * use with care
-//     */
-//    def isSmall(): Boolean = size <= 10
-//
-//    //    /**
-//    //     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
-//    //     */
-//    //    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
-//
-//    /**
-//     * Converts this formula to a textual expression.
-//     */
-//    override def toString: String = toTextExpr
-//
-//
-//    /**
-//     * Prints the textual representation of this formula on a Writer. The result shall be equivalent to
-//     * p.print(toTextExpr), but it should avoid consuming so much temporary space.
-//     * @param p the output Writer
-//     */
-//    def print(p: Writer) = p.write(toTextExpr)
-//    def debug_print(indent: Int): String = toTextExpr
-//
-//
-//    /**
-//     * simple translation into a FeatureExprValue if needed for some reason
-//     * (creates IF(expr, 1, 0))
-//     */
-//    def toFeatureExprValue: FeatureExprValue =
-//        FExprBuilder.createIf(this, FExprBuilder.createValue(1l), FExprBuilder.createValue(0l))
-//
-//}
-
-
 /**
- * Propositional (or boolean) feature expressions.
- *
- * Feature expressions are compared on object identity (comparing them for equivalence is
- * an additional but expensive operation). Connectives such as "and", "or" and "not"
- * memoize results, so that the operation yields identical results on identical parameters.
- * Classes And, Or and Not are made package-private, and their constructors wrapped
- * through companion objects, to prevent the construction of formulas in any other way.
- *
- * However, this is not yet enough to guarantee the 'maximal sharing' property, because the
- * and/or operators are also associative, but the memoization cannot be associative.
- * Papers on hash-consing explain that one needs to perform a further normalization step.
- *
- * More in general, one can almost prove a theorem called the weak-canonicalization guarantee:
- *
- * If at a given time during program execution, two formula objects represent structurally
- * equal formulas, i.e. which are deeply equal modulo the order of operands of "and" and "or",
- * then they are represented by the same object.
- *
- * XXX: HOWEVER, that the associative property does not hold with pointer equality:
- * (a and b) and c ne a and (b and c). Hopefully this is fixable through different caching.
- *
- * Note that this is not related to formula equivalence, rather to pointer equality.
- * This does not hold for formulas existing at different moments, because caches
- * are implemented using weak references, so if a formula disappears from the heap
- * it is recreated. However, this is not observable for the code.
- *
- * The weak canonicalization property, if true, should allows also ensuring the strong-canonicalization guarantee:
- * If at a given time during program execution, two formula objects a and b
- * represent equivalent formulas, then a.toCNF eq b.toCNF (where eq denotes pointer equality).
- *
- * CNF canonicalization, by construction, ensures that a.toCNF and b.toCNF are structurally equal.
- * The weak canonicalization property would also ensure that they are the same object.
- *
- * It would be interesting to see what happens for toEquiCNF.
+ * Propositional (or boolean) feature expressions., based on a BDD library
  */
 class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
@@ -211,11 +77,6 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      */
     def isSmall(): Boolean = size <= 10
 
-    //    /**
-    //     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
-    //     */
-    //    def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]): FeatureExpr
-
     /**
      * Converts this formula to a textual expression.
      */
@@ -272,17 +133,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      * purposes
      */
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
+
+    def evaluate(selectedFeatures: Set[String]): Boolean = FExprBuilder.evalBdd(bdd, selectedFeatures)
 }
-
-
-//// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
-//// however, this is only a concern for erroneous input anyway (but isn't it our point to detect it?)
-//case class ErrorFeature(msg: String) extends BDDFeatureExpr(FExprBuilder.FALSE) {
-//    private def error: Nothing = throw new FeatureArithmeticException(msg)
-//    override def toTextExpr = error
-//    //    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]) = error
-//    override def debug_print(x: Int) = error
-//}
 
 
 /**
@@ -295,7 +148,8 @@ private[bdd] object FExprBuilder {
     val bddCacheSize = 100000
     var bddValNum = 4194304
     var bddVarNum = 100
-    var maxFeatureId = 0 //start with one, so we can distinguish -x and x for sat solving and tostring
+    var maxFeatureId = 0
+    //start with one, so we can distinguish -x and x for sat solving and tostring
     var bddFactory: BDDFactory = null
     try {
         bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
@@ -316,30 +170,6 @@ private[bdd] object FExprBuilder {
     private val featureIds: Map[String, Int] = Map()
     private val featureNames: Map[Int, String] = Map()
     private val featureBDDs: Map[Int, BDD] = Map()
-
-
-    /*
-    * It seems that with the four patterns to optimize and/or, it's more difficult to
-    * produce a formula with duplicated literals - you need two levels of nesting for that to happen.
-    * Duplications is removed in variations of:
-    * a && (b || !a), where a and b can be any formula, and && and || can be replaced by any connective.
-    * Examples where duplication appears:
-    * a && !(a || b) - fixable by implementing DeMorgan laws in Not.
-    * (a || b) && (b || c)
-    * a && (b || (c && a)) - note the two levels of nesting. The inner a could
-    * be removed in this particular case using shortcircuiting, but there does
-    * not seem to be an easy way of implementing this.
-    *
-    *
-    * Please note that due to duality, the code below is essentially
-    * duplicated (andOr() is dual to orAnd(), and() to or(), and so on).
-    * Remember that to dualize this code, one must swap or with and, and False with True.
-    * Please check that it does not go out of sync.
-    */
-    // XXX: in various places, we merge sets with an O(N) reduction. It allows looking up the memoized results, but now
-    // that we later canonicalize everything, it is not clear whether we should still do it. Such occurrences are marked
-    // below with "XXX: O(N) set rebuild". Note however that to make them O(1) one needs to write a O(1) hash calculator
-    // for them as well - very simple, just some work to do. See specialized constructors in AndOrUnExtractor.
 
 
     def and(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd and b.bdd)
@@ -375,35 +205,20 @@ private[bdd] object FExprBuilder {
         val f = macroTable.getMacroCondition(name)
         CastHelper.asBDDFeatureExpr(f)
     }
+
+
+    @tailrec
+    def evalBdd(bdd: BDD, set: Set[String]): Boolean =
+        if (bdd.isOne) true
+        else if (bdd.isZero) false
+        else {
+            val featureId = bdd.`var`()
+            val featureName = featureNames(featureId)
+            evalBdd(if (set contains featureName) bdd.high() else bdd.low(), set)
+        }
 }
 
 
-////////////////////////////
-// propositional formulas //
-////////////////////////////
-/**
- * True and False. They are represented as special cases of And and Or
- * with no clauses, as it is common practice, for instance in the resolution algorithm.
- *
- * True is the zero element for And, while False is the zero element for Or.
- * Therefore, True can be represented as an empty conjunction, while False
- * by an empty disjunction.
- *
- * One can imagine to build a disjunction incrementally, by having an empty one
- * be considered as false, so that each added operand can make the resulting
- * formula true. Dually, an empty conjunction is true, and and'ing clauses can
- * make it false.
- *
- * This avoids introducing two new leaf nodes to handle (avoiding some bugs causing NoLiteralException).
- *
- * Moreover, since those are valid formulas, they would otherwise be valid but
- * non-canonical representations, and avoiding the very existence of such things
- * simplifies ensuring that our canonicalization algorithms actually work.
- *
- * The use of only canonical representations for True and False is ensured thanks to the
- * apply methods of the And and Or companion objects, which convert any empty set of
- * clauses into the canonical True or False object.
- */
 object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint {
     override def toString = "True"
     override def toTextExpr = "1"
