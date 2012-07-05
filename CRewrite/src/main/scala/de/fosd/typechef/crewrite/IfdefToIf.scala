@@ -60,13 +60,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     })
     r(t).get.asInstanceOf[T]
   }
-
-  def replaceAndy[T <: Product](t: T, oldId: Id, newId: Id): T = {
-    val r = manytd(rule {
-      case l: List[Opt[_]] => l.flatMap({x => if (x.isInstanceOf[AtomicNamedDeclarator] && x.asInstanceOf[AtomicNamedDeclarator].id == oldId) AtomicNamedDeclarator(List(), newId, x.asInstanceOf[AtomicNamedDeclarator].extensions):: Nil else x:: Nil})
-    })
-    r(t).get.asInstanceOf[T]
-  }
   
   def replaceOptByOpts[T <: Product](t: T, e: Opt[_], n: List[Opt[_]]): T = {
     // println("Replacing\n" + e + "\nwith\n" + n + "\n\nin:\n" + t +"\n\n")
