@@ -135,6 +135,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         ConditionalLib.mapCombinationF(et(rexpr), et(lexpr), featureExpr,
                             (fexpr: FeatureExpr, rtype: CType, ltype: CType) => {
                                 val opType = operationType(op, ltype, rtype, ae, fexpr)
+                              addUse(ae, env)
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
                                     case u: CUnknown => u.toValue

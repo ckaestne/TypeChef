@@ -795,4 +795,35 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("Source:\n" + source_ast)
     println("+++PrettyPrinted result+++\n" + PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
   }
+
+  @Test def test_int_def_use {
+    val source_ast = getAST("""
+      int foo(int x) {
+        int i = x + 5;
+        i = 5;
+        int y;
+        y = 5;
+        return x + i;
+      }
+      int main(void) {
+        int i = 0;
+        i = i + 1;
+        foo(i);
+
+        int j;
+        j = 10;
+        i = j * j;
+        return 0;
+      }
+                            """);
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    println("Source:\n" + source_ast)
+    println("\nDef Use Map:\n" + defUseMap)
+  }
 }

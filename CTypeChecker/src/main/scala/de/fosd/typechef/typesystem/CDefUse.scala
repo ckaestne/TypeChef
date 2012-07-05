@@ -42,8 +42,8 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addUse(pe: PostfixExpr, env: Env) {
-    pe match {
+  def addUse(entry: AST, env: Env) {
+    entry match {
       // TODO params
       // params are uses of local or global variables
       case PostfixExpr(i@Id(name), FunctionCall(params)) => {
@@ -67,6 +67,26 @@ trait CDefUse extends CEnv {
           case _ =>
         }
       }
+      case AssignExpr(i@Id(name), _, _) =>
+        env.varEnv.getAstOrElse(name, null) match {
+          case One(InitDeclaratorI(declarator, _, _)) => {
+            val key = declarator.getId
+
+            // function definition used as def entry
+            if (defuse.containsKey(key)) {
+              defuse.put(key, defuse.get(key) ++ List(i))
+            } else {
+              var fd: Id = null
+              for (k <- defuse.keySet().toArray)
+                for (v <- defuse.get(k))
+                  if (v.eq(key)) fd = k.asInstanceOf[Id]
+
+              defuse.put(fd, defuse.get(fd) ++ List(i))
+            }
+
+          }
+          case _ =>
+        }
       case _ =>
     }
   }
