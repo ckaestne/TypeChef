@@ -12,7 +12,7 @@ class DefUseTest extends CTypeSystem with CEnvCache with TestHelper {
 
   @Test
   def test_def_use_chain() {
-    val a = compileCode( """
+    val a = compileCode("""
       int b;
       int foo(); // forward declaration
       int foo() {return 0;}
