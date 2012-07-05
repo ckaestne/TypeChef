@@ -5,7 +5,9 @@ import de.fosd.typechef.crefactor.connector.CreateASTForCode$;
 import de.fosd.typechef.crefactor.gui.actions.util.InputBox;
 import de.fosd.typechef.crefactor.gui.util.PositionWrapper;
 import de.fosd.typechef.crewrite.ASTRefactor;
+import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
+import de.fosd.typechef.parser.c.PrettyPrinter;
 import org.fife.ui.rtextarea.RTextArea;
 import scala.collection.immutable.List;
 
@@ -111,7 +113,7 @@ public class TypeChefActions {
         return action;
     }
 
-    public static Action renameFunction(final IdentityHashMap<Id, List<Id>> defuse, final Id id) {
+    public static Action renameFunction(final RTextArea textarea, final IdentityHashMap<Id, List<Id>> defuse, final Id id) {
         Action action = new AbstractAction() {
 
             {
@@ -124,7 +126,8 @@ public class TypeChefActions {
                 InputBox box = new InputBox(id.name());
                 String rename = box.getInput();
                 if ((rename != null) && (rename.trim().length() > 1)) {
-                    refactor.renameFunction(CreateASTForCode.ast(), defuse, rename, id);
+                    AST refactoredAST = refactor.renameFunction(CreateASTForCode.ast(), defuse, rename, id);
+                    textarea.setText(PrettyPrinter.print(refactoredAST));
                 }
             }
         };

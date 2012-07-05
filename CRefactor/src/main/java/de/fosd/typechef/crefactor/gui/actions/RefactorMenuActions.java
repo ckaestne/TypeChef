@@ -46,7 +46,7 @@ public class RefactorMenuActions implements MenuListener {
 
         for (Iterator<Id> it = possibleRefactorings.iterator(); it.hasNext(); ) {
             Id id = it.next();
-            this.menu.add(new JMenuItem(TypeChefActions.renameFunction(defuse, id)));
+            this.menu.add(new JMenuItem(TypeChefActions.renameFunction(this.textArea, defuse, id)));
         }
     }
 
