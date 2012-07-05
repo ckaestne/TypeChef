@@ -111,6 +111,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         )
                     //a()
                     case pe@PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
+                        parameterExprs.foreach(x => if (x.isInstanceOf[Opt[Id]]) {
+                          addUse(x.entry, env)
+                        }
+                        )
                         val functionType: Conditional[CType] = et(expr)
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
                             case Opt(f, e) => Opt(f, etF(e, featureExpr and f))
