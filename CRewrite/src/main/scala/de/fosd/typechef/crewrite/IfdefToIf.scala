@@ -640,7 +640,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
             case InitDeclaratorI(_, _, Some(Initializer(_, lcurly: LcurlyInitializer))) =>
               specs.foreach(x => if (x.feature != FeatureExprFactory.True) return true)
               lcurly.inits.foreach(x => if (x.feature != FeatureExprFactory.True) return true)
+            case _ =>
           }
+        case _ =>
       }
       return false
     }
@@ -665,8 +667,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                   val newDeclStmt = declStmt.copy(decl = Declaration(newSpec, newInit))
                   replaceMap += (secondParent.asInstanceOf[Opt[DeclarationStatement]] -> List(Opt(FeatureExprFactory.True, newDeclStmt)))
                 //}
+                case _ =>
               }
             }
+          case _ =>
         }
       }
       if (firstParent.isInstanceOf[Opt[Declaration]]) {
@@ -689,6 +693,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     }))
                     i.copy(entry = i.entry.asInstanceOf[InitDeclaratorI].copy(i = Some(i.entry.asInstanceOf[InitDeclaratorI].i.get.copy(expr = newCurly))))
                   }
+                case _ =>
               })
               replaceMap += (firstParent.asInstanceOf[Opt[_]] -> List(opt.copy(entry = decl.copy(init = newInit.asInstanceOf[List[Opt[InitDeclaratorI]]]))))
             } else {
@@ -720,15 +725,17 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                             }
                         })
                         s.copy(feature = FeatureExprFactory.True).copy(entry = i.copy(declarator = newAnd).copy(i = Some(i.i.get.copy(expr = LcurlyInitializer(newCurly)))))
+                      case _ =>
                     }
                   } else {
                     s
                   }
+                case _ =>
               })
-              val newOpt = Opt(FeatureExprFactory.True, Declaration(newSpec, newInit))
+              val newOpt = Opt(FeatureExprFactory.True, Declaration(newSpec, newInit.asInstanceOf[List[Opt[InitDeclarator]]]))
               replaceMap += (firstParent.asInstanceOf[Opt[_]] -> List(newOpt))
             }
-
+          case _ =>
           /*
           init match {
             case List(Opt(ft, i: InitDeclaratorI)) =>
