@@ -798,7 +798,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
   @Test def test_int_def_use {
     val source_ast = getAST("""
-      int foo(int x) {
+      int foo(int x, int z) {
         int i = x + 5;
         i = 5;
         int y;
