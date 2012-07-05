@@ -18,7 +18,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
-        clearDefUseMap
+        clearDefUseMap()
         checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
 
@@ -75,8 +75,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
 
         //add type to environment for remaining code
-        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
-        addDef(f)
+        val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
+        addDef(f, env)
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
@@ -242,7 +242,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 val t: Conditional[CType] = lastType.mapr({
                     case None => One(CVoid())
                     case Some(ctype) => ctype
-                }) simplify (featureExpr);
+                }) simplify (featureExpr)
 
                 //return original environment, definitions don't leave this scope
                 (t, env)
