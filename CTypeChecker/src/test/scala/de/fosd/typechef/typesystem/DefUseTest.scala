@@ -25,7 +25,7 @@ class DefUseTest extends CTypeSystem with CEnvCache with TestHelper {
         struct a k;
         k.x = 2;
       }
-                          """)
+                        """)
 
     val lastdecl = lookupEnv(a.defs.last.entry)
     println(a)
