@@ -687,10 +687,11 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                       s.entry match {
                         case ini@Initializer(_, i: Id) =>
                           s.copy(feature = FeatureExprFactory.True).copy(entry = ini.copy(expr = Id("_" + IdMap.get(s.feature).get + "_" + i.name)))
+                        case _ =>
                       }
                     } else {
                       s
-                    }))
+                    }).asInstanceOf[List[Opt[Initializer]]])
                     i.copy(entry = i.entry.asInstanceOf[InitDeclaratorI].copy(i = Some(i.entry.asInstanceOf[InitDeclaratorI].i.get.copy(expr = newCurly))))
                   }
                 case _ =>
@@ -723,8 +724,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                             } else {
                               o
                             }
+                          case _ =>
                         })
-                        s.copy(feature = FeatureExprFactory.True).copy(entry = i.copy(declarator = newAnd).copy(i = Some(i.i.get.copy(expr = LcurlyInitializer(newCurly)))))
+                        s.copy(feature = FeatureExprFactory.True).copy(entry = i.copy(declarator = newAnd).copy(i = Some(i.i.get.copy(expr = LcurlyInitializer(newCurly.asInstanceOf[List[Opt[Initializer]]])))))
                       case _ =>
                     }
                   } else {
