@@ -87,6 +87,46 @@ trait CDefUse extends CEnv {
           }
           case _ =>
         }
+      case NAryExpr(i@Id(name), _) =>
+        env.varEnv.getAstOrElse(name, null) match {
+          case One(InitDeclaratorI(declarator, _, _)) => {
+            val key = declarator.getId
+
+            // function definition used as def entry
+            if (defuse.containsKey(key)) {
+              defuse.put(key, defuse.get(key) ++ List(i))
+            } else {
+              var fd: Id = null
+              for (k <- defuse.keySet().toArray)
+                for (v <- defuse.get(k))
+                  if (v.eq(key)) fd = k.asInstanceOf[Id]
+
+              defuse.put(fd, defuse.get(fd) ++ List(i))
+            }
+
+          }
+          case _ =>
+        }
+      case NArySubExpr(_, i@Id(name)) =>
+        env.varEnv.getAstOrElse(name, null) match {
+          case One(InitDeclaratorI(declarator, _, _)) => {
+            val key = declarator.getId
+
+            // function definition used as def entry
+            if (defuse.containsKey(key)) {
+              defuse.put(key, defuse.get(key) ++ List(i))
+            } else {
+              var fd: Id = null
+              for (k <- defuse.keySet().toArray)
+                for (v <- defuse.get(k))
+                  if (v.eq(key)) fd = k.asInstanceOf[Id]
+
+              defuse.put(fd, defuse.get(fd) ++ List(i))
+            }
+
+          }
+          case _ =>
+        }
       case _ =>
     }
   }

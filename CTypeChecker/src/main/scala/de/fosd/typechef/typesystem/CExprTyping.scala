@@ -132,10 +132,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                     //a=b, a+=b, ...
                     case ae@AssignExpr(lexpr, op, rexpr) =>
+                      addUse(ae, env)
                         ConditionalLib.mapCombinationF(et(rexpr), et(lexpr), featureExpr,
                             (fexpr: FeatureExpr, rtype: CType, ltype: CType) => {
                                 val opType = operationType(op, ltype, rtype, ae, fexpr)
-                              addUse(ae, env)
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
                                     case u: CUnknown => u.toValue
@@ -154,8 +154,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     // TODO AddUse
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
+                        addUse(ne, env)
                         ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
                             (fexpr: FeatureExpr, ctype: CType, subExpr: NArySubExpr) =>
+
                                 etF(subExpr.e, fexpr) map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr))
                         )
                       // TODO Adduse
