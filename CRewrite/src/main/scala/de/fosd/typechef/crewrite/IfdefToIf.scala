@@ -61,6 +61,13 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     r(t).get.asInstanceOf[T]
   }
 
+  def replaceAndy[T <: Product](t: T, oldId: Id, newId: Id): T = {
+    val r = manytd(rule {
+      case l: List[Opt[_]] => l.flatMap({x => if (x.isInstanceOf[AtomicNamedDeclarator] && x.asInstanceOf[AtomicNamedDeclarator].id == oldId) AtomicNamedDeclarator(List(), newId, x.asInstanceOf[AtomicNamedDeclarator].extensions):: Nil else x:: Nil})
+    })
+    r(t).get.asInstanceOf[T]
+  }
+  
   def replaceOptByOpts[T <: Product](t: T, e: Opt[_], n: List[Opt[_]]): T = {
     // println("Replacing\n" + e + "\nwith\n" + n + "\n\nin:\n" + t +"\n\n")
     val r = manytd(rule {
@@ -569,8 +576,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
           List(opt)
         }
       }
-
-
       optLst.foreach(x => replaceMap += (x -> replaceSingleOpt(x)))
       replaceMap
       //println(PrettyPrinter.print(replaceWithMap(a, replaceMap)))
@@ -629,5 +634,128 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  //def isOptStruct
+  def transformVariableDeclarations(ast: AST, env: ASTEnv) : AST = {
+    var replaceMap: Map[Opt[_], List[Opt[_]]] = Map()
+
+    def isVariableDeclaration(decl: Declaration) : Boolean = {
+      decl match {
+        case Declaration(specs, List(Opt(feature, i: InitDeclaratorI))) =>
+          if (feature != FeatureExprFactory.True) {
+            return true
+          }
+          i match {
+            case InitDeclaratorI(_, _, Some(Initializer(_, lcurly: LcurlyInitializer))) =>
+              specs.foreach(x => if (x.feature != FeatureExprFactory.True) return true)
+              lcurly.inits.foreach(x => if (x.feature != FeatureExprFactory.True) return true)
+          }
+      }
+      return false
+    }
+    def convertSingleDeclaration(decl: Declaration /*, ft: FeatureExpr */) /*: Opt[Declaration] */ = {
+      val secondParent = env.parent(env.parent(decl))
+      val firstParent = env.parent(decl)
+
+      if (secondParent.isInstanceOf[Opt[DeclarationStatement]]) {
+        secondParent match {
+          case Opt(feature, declStmt: DeclarationStatement) =>
+            if (feature != FeatureExprFactory.True) {
+              if (!IdMap.contains(feature)) {
+                IdMap += (feature -> IdMap.size)
+              }
+              declStmt match {
+                case DeclarationStatement(Declaration(specs, init: List[Opt[InitDeclaratorI]])) =>
+                  //init match {
+                  // case InitDeclaratorI(a: AtomicNamedDeclarator, c, d) =>
+                  val namePrefix = "_" + IdMap.get(feature).get + "_"
+                  val newInit = init.map(s => Opt(FeatureExprFactory.True, s.entry.copy(declarator = s.entry.declarator.asInstanceOf[AtomicNamedDeclarator].copy(id = Id(namePrefix + s.entry.declarator.asInstanceOf[AtomicNamedDeclarator].getName)))))
+                  val newSpec = specs.map(s => s.copy(feature = FeatureExprFactory.True))
+                  val newDeclStmt = declStmt.copy(decl = Declaration(newSpec, newInit))
+                  replaceMap += (secondParent.asInstanceOf[Opt[DeclarationStatement]] -> List(Opt(FeatureExprFactory.True, newDeclStmt)))
+                //}
+              }
+            }
+        }
+      }
+      if (firstParent.isInstanceOf[Opt[Declaration]]) {
+        firstParent match {
+          case opt@Opt(ft, decl@Declaration(specs, init)) =>
+            if (ft == FeatureExprFactory.True) {
+              val newInit = init.map(i => i match {
+                case Opt(ftt, InitDeclaratorI(_, _, Some(Initializer(_, lcurly: LcurlyInitializer)))) =>
+                  if (ftt == FeatureExprFactory.True) {
+                    val newCurly = lcurly.copy(inits = lcurly.inits.map(s => if (s.feature != FeatureExprFactory.True) {
+                      if (!IdMap.contains(s.feature)) {
+                        IdMap += (s.feature -> IdMap.size)
+                      }
+                      s.entry match {
+                        case ini@Initializer(_, i: Id) =>
+                          s.copy(feature = FeatureExprFactory.True).copy(entry = ini.copy(expr = Id("_" + IdMap.get(s.feature).get + "_" + i.name)))
+                      }
+                    } else {
+                      s
+                    }))
+                    i.copy(entry = i.entry.asInstanceOf[InitDeclaratorI].copy(i = Some(i.entry.asInstanceOf[InitDeclaratorI].i.get.copy(expr = newCurly))))
+                  }
+              })
+              replaceMap += (firstParent.asInstanceOf[Opt[_]] -> List(opt.copy(entry = decl.copy(init = newInit.asInstanceOf[List[Opt[InitDeclaratorI]]]))))
+            } else {
+              if (!IdMap.contains(ft)) {
+                IdMap += (ft -> IdMap.size)
+              }
+              val newSpec = specs.map(s => if (s.feature == ft) {
+                s.copy(feature = FeatureExprFactory.True)
+              } else {
+                s
+              })
+              val newInit = init.map(s => s match {
+                case Opt(feat, i: InitDeclaratorI) =>
+                  if (feat == ft) {
+                    i match {
+                      case InitDeclaratorI(and: AtomicNamedDeclarator, _, Some(Initializer(_, lcurly: LcurlyInitializer))) =>
+                        val newAnd = and.copy(id = Id("_" + IdMap.get(ft).get + "_" + and.id.name)).copy(extensions = and.extensions.map(g =>
+                        if (g.feature == ft) {
+                          g.copy(feature = FeatureExprFactory.True)
+                        } else {
+                          g
+                        }))
+                        val newCurly = lcurly.inits.map(u => u match {
+                          case o@Opt(feature, Initializer(_, id: Id)) =>
+                            if (feature == ft) {
+                              o.copy(feature = FeatureExprFactory.True)
+                            } else {
+                              o
+                            }
+                        })
+                        s.copy(feature = FeatureExprFactory.True).copy(entry = i.copy(declarator = newAnd).copy(i = Some(i.i.get.copy(expr = LcurlyInitializer(newCurly)))))
+                    }
+                  } else {
+                    s
+                  }
+              })
+              val newOpt = Opt(FeatureExprFactory.True, Declaration(newSpec, newInit))
+              replaceMap += (firstParent.asInstanceOf[Opt[_]] -> List(newOpt))
+            }
+
+          /*
+          init match {
+            case List(Opt(ft, i: InitDeclaratorI)) =>
+             i match {
+              case InitDeclaratorI(_, _, Some(Initializer(_, lcurly: LcurlyInitializer))) =>
+                lcurly.inits.foreach(y => y match {
+                  case Opt(ft, in: Initializer) => lcurlyinits += Opt(FeatureExprFactory.True, in)
+                  case Opt(FeatureExprFactory.True, in: Initializer) => specifiers += y
+                  case Opt(feature, in: Initializer) => if (featureMap.contains(feature)) {
+                    featureMap += (feature -> (featureMap.get(feature).get ++ List(Opt(FeatureExprFactory.True, in))))
+                  }
+                })
+            }
+          } */
+        }
+      }
+    }
+    val declarations = filterASTElems[Declaration](ast)
+    declarations.foreach(x => if (isVariableDeclaration(x)) convertSingleDeclaration(x))
+    //println("\nReplaceMap is:\n" + replaceMap)
+    replaceWithMap(ast, replaceMap)
+  }
 }

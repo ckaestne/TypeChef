@@ -684,8 +684,30 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         };
         #endif
                             """);
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
+    println(PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
+  }
+
+  @Test def normal_struct {
+    val source_ast = getAST("""
+      static const struct file_operations acpi_ac_fops = {
+        .owner = THIS_MODULE,
+        .open = acpi_ac_open_fs,
+        .read = seq_read,
+        .llseek = seq_lseek,
+        .release = single_release,
+        };
+                            """);
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    println("Source:\n" + source_ast)
+    println(i.transformVariableDeclarations(source_ast, env))
   }
 
   @Test def test_opt_in_struct {
@@ -713,8 +735,12 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     };
 
                             """);
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast) + "\n")
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
+    println("+++PrettyPrinted result+++\n" + PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
   }
 
   @Test def test_opt_struct {
@@ -728,8 +754,12 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       };
       #endif
       """);
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast) + "\n")
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
+    println("+++PrettyPrinted result+++\n" + PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
   }
 
   @Test def test_opt_int {
@@ -758,25 +788,11 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         return 0;
       }
                             """);
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
 
-    val target_ast = getAST("""
-      int main(void) {
-        int _0_i = 8;
-        int _1_i = 16;
-        int _2_i = 32;
-        int _3_i = 64;
-        int _4_j = 32;
-        int _5_j = 64;
-
-        if (options.a) {
-          _0_i = _0_i * _0_i;
-        }
-        i = i*i;
-        j = 2*j;
-        return 0;
-      }
-                            """);
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast) + "\n")
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
+    println("+++PrettyPrinted result+++\n" + PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
   }
 }
