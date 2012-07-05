@@ -3,6 +3,7 @@ package de.fosd.typechef.crefactor.connector
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.PositionMapper
 import de.fosd.typechef.Frontend
+import java.util
 
 
 /**
@@ -11,8 +12,7 @@ import de.fosd.typechef.Frontend
 
 object CreateASTForCode {
 
-  private val p = new CParser()
-  private var ast = null.asInstanceOf[AST]
+  var ast = null.asInstanceOf[AST]
 
   def prettyAnalyse: String = {
     if (ast != null) {
@@ -30,32 +30,34 @@ object CreateASTForCode {
     }
   }
 
-  def positionAnalyse(column:Int, line:Int): String = {
+  def positionAnalyse(column: Int, line: Int): String = {
     if (ast != null) {
-    val positions = new PositionMapper()
-    positions.getElementForPosition(ast, column, line)
+      val positions = new PositionMapper()
+      positions.getElementForPosition(ast, column, line)
     } else {
       "AST is invalid!".asInstanceOf[String]
     }
   }
 
-  def extendedPosAnalyse(columnStart:Int, columnEnd:Int, lineStart:Int, lineEnd:Int) {
+  def extendedPosAnalyse(columnStart: Int, columnEnd: Int, lineStart: Int, lineEnd: Int): List[AST] = {
     if (ast != null) {
       val positions = new PositionMapper()
-      positions.getSelectedElements(ast, columnStart, lineStart, columnEnd, lineEnd)
+      return positions.getSelectedElements(ast, columnStart, lineStart, columnEnd, lineEnd)
     }
+    return List[AST]()
   }
 
-
-
-   def getAST(args: Array[String]): AST = {
-    var frontend = Frontend.main(args)
+  def getAST(args: Array[String]): AST = {
+    Frontend.main(args)
     ast = Frontend.getAST()
     println(ast)
     return ast
   }
 
-
-
+  def getDefUseMap(): util.IdentityHashMap[Id, List[Id]] = {
+    val positions = new PositionMapper()
+    positions.typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
+    return positions.getDefUseMap
+  }
 
 }

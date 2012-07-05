@@ -30,5 +30,15 @@ class DefUseTest extends CTypeSystem with CEnvCache with TestHelper {
     lookupEnv(lastdecl)
     println("Ast is:\n" + a + "\n")
     println("Def use map is:\n" + getDefUseMap + "\n")
+    val keys = getDefUseMap.keySet().toArray
+    for (key <- keys) {
+      val entries = getDefUseMap.get(key)
+      for (entry <- entries) {
+        println("Eintrag: " + entry)
+        val copy = entry.copy("bier")
+        println(copy)
+
+      }
+    }
   }
 }

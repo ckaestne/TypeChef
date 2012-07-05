@@ -1,10 +1,11 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
+import de.fosd.typechef.typesystem.{CTypeSystem, CDefUse}
 
 
-class PositionMapper() extends ASTNavigation {
+class PositionMapper() extends ASTNavigation with CDefUse with CTypeSystem {
 
   def getElementForPosition(ast: AST, column: Int, line: Int): String = {
     val env = createASTEnv(ast)
@@ -41,11 +42,6 @@ class PositionMapper() extends ASTNavigation {
   }
 
   def getSelectedElements(ast: AST, startColumn: Int, startLine: Int, endColumn: Int, endLine: Int): List[AST] = {
-    println(startColumn)
-    println(endColumn)
-    println(startLine)
-    println(endLine)
-
     val env = createASTEnv(ast)
     val keys = env.keys()
     var result = List[AST]()
@@ -63,13 +59,9 @@ class PositionMapper() extends ASTNavigation {
 
     result = result.sortWith(compareLength)
 
-    for (entry <- result) {
-      println(entry)
-      println(entry.productArity)
-      println(entry.getPositionFrom)
-      println(entry.getPositionTo)
-    }
-    buildASTResult(result)
+    // TODO extract
+
+    result = buildASTResult(result)
     return result
   }
 
@@ -89,9 +81,9 @@ class PositionMapper() extends ASTNavigation {
             toAdd = false
           }
         } else if (positionCut(entry, resultEntry) && (entry.getPositionFrom.getLine == resultEntry.getPositionFrom.getLine)) {
-          val entryLenght = entry.getPositionTo.getColumn - entry.getPositionFrom.getColumn
-          val resultEntryLenght = resultEntry.getPositionTo.getColumn - resultEntry.getPositionFrom.getColumn
-          if (((entryLenght == resultEntryLenght) && (entry.productArity > resultEntry.productArity)) || (entryLenght > resultEntryLenght)) {
+          val entryLength = entry.getPositionTo.getColumn - entry.getPositionFrom.getColumn
+          val resultEntryLength = resultEntry.getPositionTo.getColumn - resultEntry.getPositionFrom.getColumn
+          if (((entryLength == resultEntryLength) && (entry.productArity > resultEntry.productArity)) || (entryLength > resultEntryLength)) {
             result = removeFromList(resultEntry, result)
           } else {
             toAdd = false
