@@ -798,12 +798,12 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
   @Test def test_int_def_use {
     val source_ast = getAST("""
-      int foo(int x) {
-        int i = x + 5;
-        i = 5;
+      int foo(int *x, int z) {
+        int i2 = x + 5;
+        i2 = 5;
         int y;
         y = 5;
-        return x + i;
+        return x + i2;
       }
       int main(void) {
         int i = 0;
@@ -812,7 +812,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
         int j;
         j = 10;
-        i = j * j;
+        i = (j * (j*(j-(j+j)))) - (j*j) + j;
         return 0;
       }
                             """);
@@ -825,5 +825,50 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
     println("\nDef Use Map:\n" + defUseMap)
+  }
+
+  @Test def test_array_def_use {
+    val source_ast = getAST("""
+      int foo(int arr[5], int z) {
+        arr[0] = 10;
+        arr[1] = 5;
+        arr[2] = (arr[0] + arr[1]) * arr[0];
+        int i2 = x + 5;
+        i2 = 5;
+        int y;
+        y = 5;
+        return i2;
+      }
+      int main(void) {
+        int a[5];
+        char c;
+        c = 'a';
+
+
+
+        a[0] = 0;
+        int plusgleich = 10;
+        plusgleich += 5;
+        int funktion;
+        foo(a[5], funktion);
+        int plusplus = 1;
+        plusplus++;
+        return plsugleich;
+      }
+                            """);
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    println("Source:\n" + source_ast)
+    println("\nDef Use Map:\n" + defUseMap)
+  }
+
+  @Test def busy_box_test {
+    // Datei einlesen, Argumente mit Dateipfad -xCONFIG_ -c/AndyHiwi/Andi/Andi.properties String Array // FileActions
+    val args: Array[String] = Array("C:\\Users\\Flo\\Dropbox\\HiWi\\HelloWorld.c", "-xCONFIG_", "-C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\flo_properties")
   }
 }
