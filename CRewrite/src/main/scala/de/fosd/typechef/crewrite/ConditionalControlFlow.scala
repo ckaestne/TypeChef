@@ -1219,7 +1219,6 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     for (sdelem <- sdiff)
       errors = new CCFGErrorMis("is not present in preds!", sdelem, env.featureExpr(sdelem)) :: errors
 
-
     for (pdelem <- pdiff)
       errors = new CCFGErrorMis("is not present in succs!", pdelem, env.featureExpr(pdelem)) :: errors
 
