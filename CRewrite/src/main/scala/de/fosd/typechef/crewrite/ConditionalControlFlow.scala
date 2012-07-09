@@ -198,8 +198,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           //   case 1;
           val r2 = {
             // we count given case t itself also
-            val prevcases = findPriorCaseStatements(t)
-            if (prevcases.size > 1) getStmtPred(t, ctx, oldres, env)
+            val prevcases = findPriorCaseStatements(t).filterNot(x => x.eq(t))
+            if (prevcases.size > 0) getStmtPred(t, ctx, oldres, env)
             else List()
           }
           r1 ++ r2
@@ -319,7 +319,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       case f@FunctionDef(_, _, _, CompoundStatement(List())) => (getNewResCtx(oldres, ctx, env.featureExpr(f)), env.featureExpr(f), f) :: oldres
       case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), ctx, oldres, env) ++
-        filterReturnStatements(stmt, ctx, env)
+        filterReturnStatements(stmt, ctx, oldres, env)
 
       case s: Statement => getStmtPred(s, ctx, oldres, env)
       case _ => followPred(source, ctx, oldres, env)
@@ -345,7 +345,23 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   // checks whether a given AST element is a succ instruction or not
-  private def isCFGInstruction(elem: AST): Boolean = {
+  private def isCFGInstructionSucc(elem: AST): Boolean = {
+    elem match {
+      case _: ForStatement => false
+      case _: WhileStatement => false
+      case _: DoStatement => false
+      case _: CompoundStatement => false
+      case _: CompoundStatementExpr => false
+      case _: IfStatement => false
+      case _: ElifStatement => false
+      case _: SwitchStatement => false
+      case ReturnStatement(Some(CompoundStatementExpr(_))) => false
+      case _ => true
+    }
+  }
+
+  // checks whether a given AST element is a succ instruction or not
+  private def isCFGInstructionPred(elem: AST): Boolean = {
     elem match {
       case _: ForStatement => false
       case _: WhileStatement => false
@@ -385,6 +401,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case f@FunctionDef(_, _, _, stmt) => oldres ++ succHelper(stmt, ctx, oldres, env)
 
       // EXIT element
+      case t@ReturnStatement(Some(c: CompoundStatementExpr)) => getExprSucc(c, ctx, oldres, env)
       case t@ReturnStatement(_) => {
         findPriorASTElem[FunctionDef](t, env) match {
           case None => assert(1 == 0, "return statement should always occur within a function statement"); List()
@@ -550,6 +567,13 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
+  private def getReturnStatementSucc(t: AST, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
+    findPriorASTElem[FunctionDef](t, env) match {
+      case None => assert(1 == 0, "return statement should always occur within a function statement"); List()
+      case Some(f) => (getNewResCtx(oldres, ctx, env.featureExpr(f)), env.featureExpr(f), f) :: oldres
+    }
+  }
+
   // handling of successor determination of nested structures, such as for, while, ... and next element in a list
   // of statements
   private def followSucc(nested_ast_elem: Product, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
@@ -557,12 +581,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     if (barrier.exists(x => x.eq(nested_ast_elem))) return oldres
 
     nested_ast_elem match {
-      case t: ReturnStatement => {
-        findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(1 == 0, "return statement should always occur within a function statement"); List()
-          case Some(f) => (getNewResCtx(oldres, ctx, env.featureExpr(f)), env.featureExpr(f), f) :: oldres
-        }
-      }
+      case t: ReturnStatement => getReturnStatementSucc(t, ctx, oldres, env)
       case _ => {
         val surrounding_parent = parentAST(nested_ast_elem, env)
         surrounding_parent match {
@@ -690,6 +709,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           }
 
           case t: Expr => followSucc(t, ctx, oldres, env)
+          case t: ReturnStatement => getReturnStatementSucc(t, ctx, oldres, env)
           case t: Statement => getStmtSucc(t, ctx, oldres, env)
 
           case t: FunctionDef => oldres ++ List((env.featureExpr(t), env.featureExpr(t), t))
@@ -1009,9 +1029,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   // this method filters all ReturnStatements
-  private def filterReturnStatements(c: CompoundStatement, ctx: FeatureExpr, env: ASTEnv): CCFGRes = {
+  private def filterReturnStatements(c: CompoundStatement, ctx: FeatureExpr, oldres: CCFGRes, env: ASTEnv): CCFGRes = {
     def filterReturnStatementsHelper(a: Any): CCFGRes = {
       a match {
+        case t@ReturnStatement(Some(c: CompoundStatementExpr)) => getExprPred(c, ctx, oldres, env)
         case t@ReturnStatement(_) => {
           val tfexp = env.featureExpr(t)
           if (! (tfexp and ctx isContradiction())) List((tfexp, tfexp, t)) else List()
@@ -1053,7 +1074,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       l.map({
         x => {
           val ctxx = env.featureExpr(x)
-          val newres = if (isCFGInstruction(x)) {
+          val newres = if (isCFGInstructionSucc(x)) {
             List((getNewResCtx(curres, ctx, ctxx), ctxx, x))
           } else {
             if (barrier.exists(e => e.eq(x))) {
@@ -1104,7 +1125,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           else if (curres.map(_._2).exists(z => z equivalentTo ctxx)) { }
           else if (ctxx implies curres.map(_._2).fold(FeatureExprFactory.False)(_ or _) isTautology()) { }
           else {
-            if (isCFGInstruction(x)) curres ++= {
+            if (isCFGInstructionPred(x)) curres ++= {
               if (curres.map(_._2).exists(z => (ctx and ctxx) equivalentTo (ctxx and z))) List()
               else List((getNewResCtx(curres, ctx, ctxx), ctxx, x))
             }
