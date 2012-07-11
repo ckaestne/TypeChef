@@ -3,7 +3,7 @@ package de.fosd.typechef.featureexpr.sat
 import LazyLib._
 import scala.ref.WeakReference
 import java.io.Writer
-import de.fosd.typechef.featureexpr.{DefaultPrint, FeatureModel, FeatureProvider, FeatureExpr}
+import de.fosd.typechef.featureexpr.{DefaultPrint, FeatureModel, FeatureProvider, FeatureExpr, SingleFeatureExpr}
 import collection.immutable._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
@@ -61,10 +61,55 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
 
     import CastHelper._
 
+    // have not implemented yet
+    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {assert(false, "method not implemented"); None }
+    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {assert(false, "method not implemented"); None }
+
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asSATFeatureExpr(that))
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asSATFeatureExpr(that))
     def notS(): SATFeatureExpr = FExprBuilder.not(this)
     def not(): SATFeatureExpr = notS()
+
+  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr],preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
+    val fm = asSATFeatureModel(featureModel)
+
+    // get one satisfying assignment (a list of features set to true, and a list of features set to false)
+    val assignment : Option[(List[String], List[String])] = new SatSolver().getSatAssignment(fm, toCnfEquiSat)
+    // we will subtract from this set until all interesting features are handled
+    var remainingInterestingFeatures = interestingFeatures
+    assignment match {
+      case Some(Pair(trueFeatures, falseFeatures)) => {
+        remainingInterestingFeatures --= this.collectDistinctFeatureObjects
+        if (preferDisabledFeatures) {
+            var enabledFeatures = this.collectDistinctFeatureObjects
+            for (f <- trueFeatures) {
+              val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
+                case Some(fex : SingleFeatureExpr) => {
+                  remainingInterestingFeatures -= fex
+                    enabledFeatures += fex
+                }
+                case None => {}
+              }
+            }
+            return Some(Pair(enabledFeatures.toList, remainingInterestingFeatures.toList))
+        } else {
+            var disabledFeatures : Set[SingleFeatureExpr] = Set()
+            for (f <- falseFeatures) {
+                val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
+                    case Some(fex : SingleFeatureExpr) => {
+                        remainingInterestingFeatures -= fex
+                        disabledFeatures += fex
+                    }
+                    case None => {}
+                }
+            }
+            return Some(Pair(remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList, disabledFeatures.toList))
+        }
+
+      }
+      case None => return None
+    }
+  }
 
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
@@ -201,10 +246,22 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
         var result: Set[String] = Set()
         this.mapDefinedExpr(_ match {
             case e: DefinedExternal => result += e.feature; e
+            case e: DefinedMacro => result += e.feature; e
             case e => e
         }, Map())
         result
     }
+
+    def collectDistinctFeatureObjects: Set[SingleFeatureExpr] = {
+      var result: Set[SingleFeatureExpr] = Set()
+      this.mapDefinedExpr(_ match {
+        case e: DefinedExternal => result += e; e
+        case e: DefinedMacro => result += e; e
+        case e => e
+      }, Map())
+      result
+    }
+
     /**
      * counts the number of features in this expression for statistic
      * purposes
@@ -840,7 +897,7 @@ object Not {
  * Leaf nodes of propositional feature expressions, either an external
  * feature defined by the user or another feature expression from a macro.
  */
-abstract class DefinedExpr extends SATFeatureExpr {
+abstract class DefinedExpr extends SATFeatureExpr with SingleFeatureExpr {
     /*
      * This method is overriden by children case classes to return the name.
      * It would be nice to have an actual field here, but that doesn't play nicely with case classes;
@@ -891,11 +948,14 @@ class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val 
 
     def feature = name
     override def toTextExpr = "defined(" + name + ")"
-    override def toString = "macro(" + name + ")"
+    override def toString = "macro(" + name + "=" +presenceCondition.resolveToExternal.toString +  ")"
     override def satName = expandedName
     def countSize() = 1
     def isExternal = false
-    override def evaluate(selectedFeatures: Set[String]) = presenceCondition.evaluate(selectedFeatures)
+    /**TODO: This probably would be the correct way, but it breaks my product generation code, and i cannot fix it right now */
+    //override def collectDistinctFeatures=presenceCondition.resolveToExternal.collectDistinctFeatures
+    //override def collectDistinctFeatureObjects=presenceCondition.resolveToExternal.collectDistinctFeatureObjects
+	override def evaluate(selectedFeatures: Set[String]) = presenceCondition.evaluate(selectedFeatures)
 }
 
 object DefinedMacro {

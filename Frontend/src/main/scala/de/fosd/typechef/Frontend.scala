@@ -82,10 +82,17 @@ object Frontend {
                 val fm_ts = opt.getFeatureModelTypeSystem().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+
+                /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
+                //Debug_FeatureModelExperiments.experiment(fm_ts)
+
                 if (opt.typecheck || opt.writeInterface) {
-                    println("type checking.")
-                    ts.checkAST
-                    ts.errors.map(errorXML.renderTypeError(_))
+                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt)
+                    //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
+
+                    //println("type checking.")
+                    //ts.checkAST
+					//ts.errors.map(errorXML.renderTypeError(_))
                     t4 = System.currentTimeMillis();
                     t5 = t4
                     t6 = t4
