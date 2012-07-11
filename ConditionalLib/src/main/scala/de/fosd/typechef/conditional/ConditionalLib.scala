@@ -71,7 +71,7 @@ object ConditionalLib {
      * this explodes variability and may repeat values as needed
      */
     def zip[A, B](a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] =
-        a.mapfr(FeatureExprFactory.True, (feature, x) => zipSubcondition(feature, x, b))
+        a.mapfr(True, (feature, x) => zipSubcondition(feature, x, b))
 
     private def zipSubcondition[A, B](context: FeatureExpr, entry: A, other: Conditional[B]): Conditional[(A, B)] =
         findSubtree(context, other).map(otherEntry => (entry, otherEntry))
@@ -87,5 +87,25 @@ object ConditionalLib {
      */
     def mapCombinationF[A, B, C](a: Conditional[A], b: Conditional[B], featureExpr: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
         zip(a, b).simplify(featureExpr).mapf(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
+
+
+  /**
+   * convenience function to add an element (e) with feature expression (f) to an conditional tree (t) with the initial
+   * context (ctx)
+   * the function makes sure that elements with the feature expression (True) will always be the last alternative!
+   */
+  def insert[T](t: Conditional[T], ctx: FeatureExpr, f: FeatureExpr, e: T): Conditional[T] = {
+    t match {
+      case o@One(value) => if ((f.isTautology()) || (ctx equivalentTo f)) One(e) else
+        if (ctx isTautology()) Choice(f, One(e), o)
+        else Choice(ctx, o, One(e))
+      case Choice(feature, thenBranch, elseBranch) =>
+        if (((ctx and feature) mex f isContradiction()) || f.isTautology())
+          Choice(feature, thenBranch, insert(elseBranch, ctx and (feature.not()), f, e))
+        else
+          Choice(feature, insert(thenBranch, ctx and feature, f, e), elseBranch)
+    }
+  }
+
 }
 

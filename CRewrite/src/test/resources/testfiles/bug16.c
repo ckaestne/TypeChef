@@ -1,11 +1,11 @@
-#if definedEx(CONFIG_GUNZIP)
+#if definedEx(A)
 int gzip_main(int argc, char **argv)
 {
-	unsigned opt;
+	a;
 
-#if definedEx(CONFIG_FEATURE_GZIP_LONG_OPTIONS)
-	applet_long_options = gzip_longopts;
+#if definedEx(B)
+	b;
 #endif
-	return bbunpack(argv, pack_gzip, append_ext, "gz");
+	c;
 }
 #endif

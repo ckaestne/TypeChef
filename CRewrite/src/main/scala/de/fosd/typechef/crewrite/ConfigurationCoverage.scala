@@ -2,6 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.sat.DefinedExpr
 
 // this code determines all configurations for a file based on a given ast
 // algorithms to get coverage are inspired by:
@@ -22,13 +23,13 @@ object ConfigurationCoverage extends ConditionalNavigation {
   // from the input set in
   // wrapper for naiveCoverage
   def naiveCoverageAny(a: Product, fm: FeatureModel, env: ASTEnv) = {
-    val opts = filterAllOptElems(a)
-    naiveCoverage(opts.toSet, fm, env)
+    val velems = filterAllVariableElems(a)
+    naiveCoverage(velems.toSet, fm, env)
   }
 
-  def naiveCoverage(in: Set[Opt[_]], fm: FeatureModel, env: ASTEnv) = {
+  def naiveCoverage(in: Set[Product], fm: FeatureModel, env: ASTEnv) = {
     var R: Set[FeatureExpr] = Set()   // found configurations
-    var B: Set[Opt[_]] = Set()        // selected blocks
+    var B: Set[Product] = Set()       // selected blocks; Opt and One
 
     // iterate over all optional blocks
     for (b <- in) {
@@ -45,7 +46,7 @@ object ConfigurationCoverage extends ConditionalNavigation {
     }
 
     assert(in.size == B.size, "configuration coverage missed the following optional blocks\n" +
-      (in.diff(B).map(_.feature)) + "\n" + R
+      (in.diff(B).map(env.featureExpr(_))) + "\n" + R
     )
 
     // reduce number of configurations using implication check; at most n^2 SAT checks!!!
@@ -61,12 +62,65 @@ object ConfigurationCoverage extends ConditionalNavigation {
     Rreduced
   }
 
+    /**
+   * Completes a partial configuration so that no variability remains.
+   * Features are set to false if possible.
+   * If no satisfiable configuration is found then null is returned.
+   * @param partialConfig
+   * @param remainingFeatures
+   * @param fm
+   */
+  def completeConfiguration(partialConfig : FeatureExpr, remainingFeatures:List[DefinedExpr], fm:FeatureModel, preferDisabledFeatures : Boolean = true) : FeatureExpr = {
+    var config : FeatureExpr = partialConfig
+    val fIter = remainingFeatures.iterator
+    var partConfigFeasible : Boolean = true
+    while (partConfigFeasible && fIter.hasNext) {
+      val fx :DefinedExpr = fIter.next()
+      if (preferDisabledFeatures) {
+        // try to set other variables to false first
+        var tmp : FeatureExpr = config.andNot(fx)
+        if (tmp.isSatisfiable(fm)) {
+          config = tmp
+        } else {
+          tmp = config.and(fx)
+          if (tmp.isSatisfiable(fm)) {
+            config = tmp
+          } else {
+            // this configuration cannot be satisfied any more
+            return null
+            partConfigFeasible=false
+          }
+        }
+      } else {
+        // try to set other variables to true first
+        var tmp : FeatureExpr = config.and(fx)
+        if (tmp.isSatisfiable(fm)) {
+          config = tmp
+        } else {
+          tmp = config.andNot(fx)
+          if (tmp.isSatisfiable(fm)) {
+            config = tmp
+          } else {
+            // this configuration cannot be satisfied any more
+            return null
+            partConfigFeasible=false
+          }
+        }
+      }
+    }
+    if (partConfigFeasible) {
+      // all features have been processed, and the config is still feasible.
+      // so we have a complete configuration now!
+      return config
+    }
+    return null
+  }
+
   // create a new feature model from a given set of annotations
   def createFeatureModel(in: Set[Opt[_]]) = {
-    var res = FeatureExprFactory.default.featureModelFactory.empty
     val annotations = in.map(_.feature)
-    val combinedannotations = annotations.fold(FeatureExprFactory.True)(_ or _)
+    val combinedannotations = annotations.fold(FeatureExprFactory.True)(_ and _)
 
-    res and combinedannotations
+    FeatureExprFactory.default.featureModelFactory.create(combinedannotations)
   }
 }

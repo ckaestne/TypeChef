@@ -145,4 +145,34 @@ class TestFeatureExpr extends TestCase {
         assert((a and b).isContradiction)
     }
 
+
+    @Test
+    def testExprEvaluationSAT {
+        testEval(FeatureExprFactory.sat)
+    }
+    @Test
+    def testExprEvaluationBDD {
+        testEval(FeatureExprFactory.bdd)
+    }
+
+
+    private def testEval(f: AbstractFeatureExprFactory) {
+        def d(x: String) = f.createDefinedExternal(x)
+
+        val expr = d("a") and d("b")
+        assert(expr.evaluate(Set("a", "b")))
+        assert(!expr.evaluate(Set("a")))
+
+        val expr2 = d("a").not
+        assert(!expr2.evaluate(Set("a", "b")))
+        assert(expr2.evaluate(Set("b")))
+
+        val expr3 = d("a") orNot d("b")
+        assert(expr3.evaluate(Set("a", "b")))
+        assert(!expr3.evaluate(Set("b")))
+
+        val expr4 = d("a") orNot d("b") or f.True
+        assert(expr4.evaluate(Set("a", "b")))
+    }
+
 }

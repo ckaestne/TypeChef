@@ -5,117 +5,8 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import org.junit.{Ignore, Test}
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables {
-
-  // given an ast element x and its successors lx: x should be in pred(lx)
-  def compareSuccWithPred(l: List[(AST, List[AST])], env: ASTEnv) = {
-    var res = true
-    for ((ast_elem, succs) <- l) {
-      val s = succs.flatMap(pred(_, env))
-      if (!s.isEmpty)
-        if (s.map(_.eq(ast_elem)).max.unary_!) {
-          println(ast_elem + " is not in the predecessor list of its own successors!")
-          res = false
-        }
-    }
-    res
-  }
-
-  @Test def test_standard_liveness_example() {
-    val a = parseFunctionDef("""
-      void foo() {
-        a = 0;
-        l1: b = a + 1;
-        c = c + b;
-        a = b + 2;
-        if (a < 20) goto l1;
-        return c;
-    }
-    """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + outsimple(s, env) + "   in: " + insimple(s, env))
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
-  }
-
-  @Test def test_standard_liveness_variability_f() {
-    val a = parseFunctionDef("""
-      void foo(int a, int b, int c) {
-        a = 0;
-        l1: b = a + 1;
-        c = c + b;
-        a = b + 2;
-        if (a < 20)
-          goto l1;
-        return c;
-    }
-    """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
-  }
-
-  @Test def test_standard_liveness_variability_notf() {
-    val a = parseFunctionDef("""
-      void foo() {
-        a = 0;
-        l1: b = a + 1;
-        c = c + b;
-        a = b + 2;
-        return c;
-    }
-    """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
-  }
-
-  @Test def test_standard_liveness_variability() {
-    val a = parseFunctionDef("""
-      void foo() {
-        a = 0;
-        l1: b = a + 1;
-        c = c + b;
-        a = b + 2;
-        #ifdef F
-        if (a < 20)
-          goto l1;
-        #endif
-        return c;
-    }
-    """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
-  }
 
   @Test def test_if_the_else() {
     val a = parseCompoundStmt("""
@@ -310,7 +201,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     succ(e4, env) should be (List(e5.entry))
   }
 
-  @Test def test_conditional_labelstatements_if_elif_else() {
+  @Ignore def test_conditional_labelstatements_if_elif_else() {
     val e1 = Opt(True, LabelStatement(Id("e1"), None))
     val e2 = Opt(fx, LabelStatement(Id("e2"), None))
     val e3 = Opt(fy.and(fx.not()), LabelStatement(Id("e3"), None))
@@ -326,7 +217,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env))
   }
 
-  @Test def test_conditional_labelstatements_with_sequence_of_annotated_elements() {
+  @Ignore def test_conditional_labelstatements_with_sequence_of_annotated_elements() {
     val e1 = Opt(True, LabelStatement(Id("e1"), None))
     val e2 = Opt(fx, LabelStatement(Id("e2"), None))
     val e3 = Opt(fx, LabelStatement(Id("e3"), None))
@@ -342,7 +233,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(e1.entry, env), env))
   }
 
-  @Test def test_conditional_labelstatements_if_if_else() {
+  @Ignore def test_conditional_labelstatements_if_if_else() {
     val e0 = Opt(fx, LabelStatement(Id("e0"), None))
     val e1 = Opt(True, LabelStatement(Id("e1"), None))
     val e2 = Opt(True, LabelStatement(Id("e2"), None))
@@ -368,7 +259,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(e0.entry, env), env))
   }
 
-  @Test def test_conditional_declaration_statement_pred() {
+  @Ignore def test_conditional_declaration_statement_pred() {
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
@@ -409,7 +300,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     pred(e2, env) should be (List(e1.entry))
   }
 
-  @Test def test_conditional_declaration_statement_pred2() {
+  @Ignore def test_conditional_declaration_statement_pred2() {
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
@@ -450,7 +341,7 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     pred(e2, env) should be (List(e1.entry))
   }
 
-  @Test def test_conditional_declaration_statement() {
+  @Ignore def test_conditional_declaration_statement() {
     val e0 = Opt(True, LabelStatement(Id("e0"), None))
     val e1 = Opt(fx,
       DeclarationStatement(
@@ -656,14 +547,14 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
-  @Test def test_conditional_label_and_goto_statements_constructed() {
-    val e0 = Opt(FeatureExprFactory.True, GotoStatement(Id("label1")))
+  @Ignore def test_conditional_label_and_goto_statements_constructed() {
+    val e0 = Opt(True, GotoStatement(Id("label1")))
     val e1 = Opt(fx, LabelStatement(Id("label1"), None))
     val e2 = Opt(fx, DeclarationStatement(Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("a"), List()), List(), None))))))
     val e3 = Opt(fx.not(), LabelStatement(Id("label1"), None))
     val e4 = Opt(fx.not(), DeclarationStatement(Declaration(List(Opt(fx.not(), IntSpecifier())), List(Opt(fx.not(), InitDeclaratorI(AtomicNamedDeclarator(List(), Id("b"), List()), List(), None))))))
-    val e5 = Opt(FeatureExprFactory.True, LabelStatement(Id("label2"), None))
-    val f = FunctionDef(List(Opt(FeatureExprFactory.True, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
+    val e5 = Opt(True, LabelStatement(Id("label2"), None))
+    val f = FunctionDef(List(Opt(True, VoidSpecifier())), AtomicNamedDeclarator(List(),Id("foo"),List(Opt(True,DeclIdentifierList(List())))), List(), CompoundStatement(List(e0, e1, e2, e3, e4, e5)))
 
     val env = CASTEnv.createASTEnv(f)
     succ(e0, env) should be (List(e1.entry, e3.entry))
@@ -816,9 +707,190 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
 
     val env = CASTEnv.createASTEnv(a)
     val succs = getAllSucc(a, env)
-    println("succs: " + DotGraph.map2file(succs, env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
-    compareSuccWithPred(getAllSucc(a, env), env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Ignore def test_goto_pred_succ() {
+    val a = parseFunctionDef("""
+    int foo(void) {
+      goto l;
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_goto_pred_succ2() {
+    val a = parseFunctionDef("""
+    int foo(void) {
+      int k;
+      if (k) {
+        goto l;
+      }
+      l:;
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_bug01() {
+    val a = parseFunctionDef("""
+      int
+      unlzma_main (int argc, char **argv) {
+        #if definedEx(CONFIG_LZMA)
+        int opts = getopt32(argv , "cfvdt");
+        #endif
+        #if (!definedEx(CONFIG_LZMA) && (!definedEx(CONFIG_UNLZMA) || !definedEx(CONFIG_LZMA)))
+        getopt32(argv , "cfvdt");
+        #endif
+        #if definedEx(CONFIG_LZMA)
+        if (((applet_name[2] == 'm') && (! (opts & (OPT_DECOMPRESS | OPT_TEST))))) bb_show_usage();
+        #endif
+        if ((applet_name[2] == 'c')) (option_mask32 |= OPT_STDOUT);
+        (argv += optind);
+        return bbunpack(argv , unpack_unlzma , make_new_name_generic , "lzma");
+      }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_bug01_simplified() {
+    val a = parseFunctionDef("""
+      void foo () {
+        #if definedEx(A)
+        k:
+        #else
+        l:
+        #endif
+        #if definedEx(A)
+        m:
+        #endif
+        n:
+      }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_bug02() {
+    val a = parseFunctionDef("""
+    static void handle_compress(void) {
+      EState *s = strm->state;
+      while (1) {
+        if (s->state == 1) {
+          copy_output_until_stop(s);
+          if (s->state_out_pos < s->numZ) break;
+          if (((s->mode == 4) && (s->strm->avail_in == 0) && isempty_RL(s))) break;
+          prepare_new_block(s);
+          s->state = 2;
+        }
+        if ((s->state == 2)) {
+          copy_input_until_stop(s);
+          if (((s->mode != 2) && (s->strm->avail_in == 0))) {
+            flush_RL(s);
+            BZ2_compressBlock(s , (s->mode == 4));
+            (s->state = 1);
+          } else if ((s->nblock >= s->nblockMAX)) {
+            BZ2_compressBlock(s , 0);
+            (s->state = 1);
+          } else if ((s->strm->avail_in == 0)) {
+            break;
+          }
+        }
+      }
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_bug02_simplified() {
+    val a = parseFunctionDef("""
+    static void handle_compress(void) {
+      while (1) {
+        if (s) {
+          if (s1) break;
+          if (s2) break;
+          s = 1;
+        }
+        if (s3) {
+          s = 2;
+          if (s4) {
+            s = 3;
+          } else if (s5) {
+            s = 4;
+          } else if (s6) {
+            break;
+          }
+        }
+      }
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_label_in_switch() {
+    val a = parseFunctionDef("""
+    int foo(int param) {
+      int exp = 0;
+      int res = -1;
+      switch (exp) {
+        case 0: if (param > 0) {
+          res = 0;
+          break;
+        } else {
+          goto l;
+        }
+        l:
+        default: res = 2;
+      }
+      return res;
+    }
+    """)
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 
   @Test def test_fosd_liveness() {
@@ -870,7 +942,8 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
   }
 
   @Test def test_boa_hash() {
-    val a = parseCompoundStmt("""
+    val a = parseFunctionDef("""
+    void test()
     {
           int i;
           hash_struct *temp;
@@ -924,10 +997,45 @@ class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper 
     """)
 
     val env = CASTEnv.createASTEnv(a)
-    val s = getAllSucc(a, env)
-    val p = getAllPred(a, env)
-    println("succs: " + DotGraph.map2file(s, env))
-    println("preds: " + DotGraph.map2file(p, env))
-    compareSuccWithPred(s, env)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
+  }
+
+  @Test def test_choice() {
+    val a = parseFunctionDef("""
+int hello() {
+// copied from coreutils/ls.pi:80305 - 80320
+	if (
+#if definedEx(CONFIG_FEATURE_CLEAN_UP)
+	1
+#endif
+#if !definedEx(CONFIG_FEATURE_CLEAN_UP)
+	0
+#endif
+	)
+
+#if !definedEx(CONFIG_FEATURE_LS_RECURSIVE)
+	((void)0)
+#endif
+#if definedEx(CONFIG_FEATURE_LS_RECURSIVE)
+	bar()
+#endif
+	;
+
+	return 1;
+}
+    """)
+
+    val env = CASTEnv.createASTEnv(a)
+    val succs = getAllSucc(a, env)
+    val preds = getAllPred(a, env)
+
+    val errors = compareSuccWithPred(succs, preds, env)
+    CCFGErrorOutput.printCCFGErrors(succs, preds, errors, env)
+    assert(errors.isEmpty)
   }
 }

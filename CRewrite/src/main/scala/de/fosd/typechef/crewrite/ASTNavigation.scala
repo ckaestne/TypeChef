@@ -3,6 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional._
 import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 // simplified navigation support
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes
@@ -109,19 +110,43 @@ trait ASTNavigation {
   }
 
   // method recursively filters all AST elements for a given type T
-  // method is broken, because case x always matches and therefore the filtering does not work properly
-  def filterASTElems[T <: AST](a: Product)(implicit m: ClassManifest[T]): List[T] = {
-    var res: List[T] = List()
-    val filter = oncetd(query{ case x if (m.erasure.isInstance(x)) => res ::= x.asInstanceOf[T] })
-    filter(a)
-    res
+  def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T])
+      case l: List[_] => l.flatMap(filterASTElems[T])
+      case p: Product => p.productIterator.toList.flatMap(filterASTElems[T])
+      case _ => List()
+    }
   }
 
-  def filterAllASTElems[T <: AST](a: Product)(implicit m: ClassManifest[T]): List[T] = {
-    var res: List[T] = List()
-    val filter = manytd(query{ case x if (m.erasure.isInstance(x)) => res ::= x.asInstanceOf[T] })
-    filter(a)
-    res
+  def filterASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case p: Product if (m.erasure.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T])
+      case l: List[_] => l.flatMap(filterAllASTElems[T](_, ctx, env))
+      case p: Product => p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
+      case _ => List()
+    }
+  }
+
+  def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T]) ++
+        p.productIterator.toList.flatMap(filterASTElems[T])
+      case l: List[_] => l.flatMap(filterASTElems[T])
+      case p: Product => p.productIterator.toList.flatMap(filterASTElems[T])
+      case _ => List()
+    }
+  }
+
+  def filterAllASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)
+                                 (implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case p: Product if (m.erasure.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T]) ++
+        p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
+      case l: List[_] => l.flatMap(filterAllASTElems[T](_, ctx, env))
+      case p: Product => p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
+      case _ => List()
+    }
   }
 
   // go up the AST hierarchy and look for a specific AST element with type T

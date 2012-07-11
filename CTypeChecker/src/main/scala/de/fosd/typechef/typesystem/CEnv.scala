@@ -2,14 +2,15 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.conditional.Conditional
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-
+import de.fosd.typechef.parser.c.{AST, Declarator}
+import FeatureExprFactory._
 
 /**
  * bundles all environments during type checking
  */
 trait CEnv {
 
-    object EmptyEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), Map(), None, 0)
+    object EmptyEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), Map(), None, 0, False)
 
     protected class Env(
                            val typedefEnv: ConditionalTypeMap,
@@ -18,36 +19,40 @@ trait CEnv {
                            val enumEnv: EnumEnv,
                            val labelEnv: LabelEnv,
                            val expectedReturnType: Option[Conditional[CType]], //for a function
-                           val scope: Int
+                           val scope: Int,
+                           val isDeadCode: FeatureExpr
                            ) {
 
+        private def copy(typedefEnv: ConditionalTypeMap = this.typedefEnv, varEnv: VarTypingContext = this.varEnv, structEnv: StructEnv = this.structEnv, enumEnv: EnumEnv = this.enumEnv, labelEnv: LabelEnv = this.labelEnv, expectedReturnType: Option[Conditional[CType]] = this.expectedReturnType, scope: Int = this.scope, isDeadCode: FeatureExpr = this.isDeadCode) = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode)
 
         //varenv
-        def updateVarEnv(newVarEnv: VarTypingContext) = if (newVarEnv == varEnv) this else new Env(typedefEnv, newVarEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope)
-        def addVar(name: String, f: FeatureExpr, t: Conditional[CType], kind: DeclarationKind, scope: Int) = updateVarEnv(varEnv +(name, f, t, kind, scope))
-        def addVars(vars: Seq[(String, FeatureExpr, Conditional[CType], DeclarationKind)], scope: Int) =
-            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, scope)))
-        def addVars(vars: Seq[(String, FeatureExpr, Conditional[CType])], kind: DeclarationKind, scope: Int) =
-            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, kind, scope)))
+        def updateVarEnv(newVarEnv: VarTypingContext) = if (newVarEnv == varEnv) this else new Env(typedefEnv, newVarEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode)
+        def addVar(name: String, f: FeatureExpr, d: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) = updateVarEnv(varEnv +(name, f, d, t, kind, scope))
+        def addVars(vars: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)], scope: Int) =
+            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, v._5, scope)))
+        def addVars(vars: Seq[(String, FeatureExpr, AST, Conditional[CType])], kind: DeclarationKind, scope: Int) =
+            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, kind, scope)))
 
         //structenv
-        def updateStructEnv(s: StructEnv) = if (s == structEnv) this else new Env(typedefEnv, varEnv, s, enumEnv, labelEnv, expectedReturnType, scope)
+        def updateStructEnv(s: StructEnv) = if (s == structEnv) this else copy(structEnv = s)
         //enumenv
-        def updateEnumEnv(s: EnumEnv) = if (s == enumEnv) this else new Env(typedefEnv, varEnv, structEnv, s, labelEnv, expectedReturnType, scope)
+        def updateEnumEnv(s: EnumEnv) = if (s == enumEnv) this else copy(enumEnv = s)
 
         //enumenv
-        def updateLabelEnv(s: LabelEnv) = if (s == labelEnv) this else new Env(typedefEnv, varEnv, structEnv, enumEnv, s, expectedReturnType, scope)
+        def updateLabelEnv(s: LabelEnv) = if (s == labelEnv) this else copy(labelEnv = s)
 
         //typedefenv
-        private def updateTypedefEnv(newTypedefEnv: ConditionalTypeMap) = if (newTypedefEnv == typedefEnv) this else new Env(newTypedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope)
+        private def updateTypedefEnv(newTypedefEnv: ConditionalTypeMap) = if (newTypedefEnv == typedefEnv) this else new Env(newTypedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode)
         def addTypedefs(typedefs: ConditionalTypeMap) = updateTypedefEnv(typedefEnv ++ typedefs)
-        def addTypedefs(typedefs: Seq[(String, FeatureExpr, Conditional[CType])]) = updateTypedefEnv(typedefEnv ++ typedefs)
-        def addTypedef(name: String, f: FeatureExpr, t: Conditional[CType]) = updateTypedefEnv(typedefEnv +(name, f, t))
+        def addTypedefs(typedefs: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = updateTypedefEnv(typedefEnv ++ typedefs)
+        def addTypedef(name: String, f: FeatureExpr, d: AST, t: Conditional[CType]) = updateTypedefEnv(typedefEnv +(name, f, d, t))
 
         //expectedReturnType
-        def setExpectedReturnType(newExpectedReturnType: Conditional[CType]) = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, Some(newExpectedReturnType), scope)
+        def setExpectedReturnType(newExpectedReturnType: Conditional[CType]) = this.copy(expectedReturnType = Some(newExpectedReturnType))
 
-        def incScope() = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope + 1)
+        def incScope() = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope + 1, isDeadCode)
+
+        def markDead(condition: FeatureExpr) = this.copy(isDeadCode = this.isDeadCode or condition)
     }
 
 

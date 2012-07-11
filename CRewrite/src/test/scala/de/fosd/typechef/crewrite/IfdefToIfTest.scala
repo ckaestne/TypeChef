@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 import org.junit.Test
-import de.fosd.typechef.featureexpr._
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.{One, Opt}
 

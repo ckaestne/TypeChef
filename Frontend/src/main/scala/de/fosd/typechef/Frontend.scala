@@ -17,7 +17,6 @@ object Frontend {
 
 
     def main(args: Array[String]): Unit = {
-
         // load options
         val opt = new FrontendOptionsWithConfigFiles()
         try {
@@ -47,6 +46,7 @@ object Frontend {
                 println("use parameter --help for more information.")
                 return;
         }
+
         processFile(opt)
     }
 
@@ -59,7 +59,7 @@ object Frontend {
         val tokens = new lexer.Main().run(opt, opt.parse)
 
         //        val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, opt.parse, fm)
-        val errorXML = new ErrorXML(opt.errorXMLFile)
+        val errorXML = new ErrorXML(opt.getErrorXMLFile)
         opt.setRenderParserError(errorXML.renderParserError)
         val t2 = System.currentTimeMillis()
         var t3 = t2;
@@ -92,6 +92,7 @@ object Frontend {
 
                     //println("type checking.")
                     //ts.checkAST
+					//ts.errors.map(errorXML.renderTypeError(_))
                     t4 = System.currentTimeMillis();
                     t5 = t4
                     t6 = t4
@@ -107,7 +108,7 @@ object Frontend {
                 }
                 if (opt.conditionalControlFlow) {
                     println("checking conditional control flow.")
-                    //cf.checkCfG()
+                    cf.checkCfG(opt.getFile)
                     t6 = System.currentTimeMillis()
                 }
             }
@@ -126,4 +127,3 @@ object Frontend {
         fw.close()
     }
 }
-

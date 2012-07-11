@@ -2,6 +2,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c.{CDef, AST}
 
 /**
  * basic types of C and definitions which types are compatible
@@ -147,6 +148,11 @@ case class CSignUnspecified(b: CBasicType) extends CSignSpecifier(b) {
     </nosign>
 }
 
+case class CBool() extends CType {
+    override def toText = "_Bool"
+    def toXML = <_Bool/>
+}
+
 //implementationspecific for Char
 
 case class CFloat() extends CType {
@@ -219,7 +225,7 @@ case class CObj(t: CType) extends CType {
     override def toObj = this
     //no CObj(CObj(...))
     override def toValue: CType = t match {
-        case CArray(t, _) => CPointer(t)
+        case CArray(g, _) => CPointer(g)
         case _ => t
     }
     override def isObject = true
@@ -247,7 +253,7 @@ case class CCompound() extends CType {
  */
 case class CIgnore() extends CType {
     def toXML = <ignore/>
-    override def isIgnore() = true
+    override def isIgnore = true
 }
 
 
@@ -276,6 +282,7 @@ object CType {
         (node \ "nosign").map(x => result = CSignUnspecified(fromXMLBasicType(x)))
         (node \ "zero").map(x => result = CZero())
         (node \ "void").map(x => result = CVoid())
+        (node \ "_Bool").map(x => result = CBool())
         (node \ "float").map(x => result = CFloat())
         (node \ "double").map(x => result = CDouble())
         (node \ "longdouble").map(x => result = CLongDouble())
@@ -316,33 +323,49 @@ object CType {
  *
  * internally storing Type, whether its a definition (as opposed to a declaration), and the current scope idx
  */
-class ConditionalTypeMap(m: ConditionalMap[String, Conditional[CType]]) extends ConditionalCMap[CType](m) {
+class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
+    extends ConditionalCMap[CType](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
-    def ++(l: Seq[(String, FeatureExpr, Conditional[CType])]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
-    def +(name: String, f: FeatureExpr, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, t))
+    def ++(l: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
+    def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, (a, t)))
 }
 
-class ConditionalVarEnv(m: ConditionalMap[String, Conditional[(CType, DeclarationKind, Int)]]) extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
+class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int)])])
+    extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
     def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
-    def +(name: String, f: FeatureExpr, t: Conditional[CType], kind: DeclarationKind, scope: Int) = new ConditionalVarEnv(m.+(name, f, t.map(x => (x, kind, scope))))
-    def ++(v: Seq[(String, FeatureExpr, Conditional[CType], DeclarationKind, Int)]) =
-        v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5))
+    def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) = new ConditionalVarEnv(m.+(name, f, (a, t.map(x => (x, kind, scope)))))
+    def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int)]) =
+        v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5, x._6))
 }
 
-abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, Conditional[T]]) {
+/**
+ * map from names to ASTs with their conditional types (or other conditional information)
+ *
+ * the normal lookup functions apply and getOrElse will only return the conditional T, not the AST node (legacy reasons)
+ * too get the corresponding AST elements call the respective functions (getASTOrElse, ..)
+ *
+ */
+abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, (AST, Conditional[T])]) {
     /**
      * apply returns a type, possibly CUndefined or a
      * choice type
+     *
+     * returns only the type information, not the ast
      */
-    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(m.getOrElse(name, One(errorType))) simplify
+    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(getFullOrElse(name, (null, One(errorType))).map(_._2))
+
+    def getAstOrElse(name: String, errorNode: AST): Conditional[AST] = getFullOrElse(name, (errorNode, null)).map(_._1)
+
+    def getFullOrElse(name: String, errorNode: (AST, Conditional[T])): Conditional[(AST, Conditional[T])] = m.getOrElse(name, errorNode)
 
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
-    def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat //warning: do not use, probably not what desired
+    def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat.map(_._2)
+    //warning: do not use, probably not what desired
     def keys = m.keys
     def whenDefined(name: String): FeatureExpr = m.whenDefined(name)
 
@@ -391,6 +414,7 @@ trait CTypes extends COptionProvider {
         case CSigned(_) => true
         case CUnsigned(_) => true
         case CSignUnspecified(_) => true
+        case CBool() => true
         case _ => false
     }
     def isArithmetic(t: CType): Boolean = isIntegral(t) || (t.toValue match {
@@ -413,18 +437,19 @@ trait CTypes extends COptionProvider {
 
 
     /**
-     *  determines whether types are compatible in assignements etc
+     * determines whether types are compatible in assignements etc
      *
-     *  for "a=b;" with a:type1 and b:type2
+     * for "a=b;" with a:type1 and b:type2
      */
     def coerce(expectedType: CType, foundType: CType): Boolean = {
         val t1 = normalize(expectedType)
         val t2 = normalize(foundType)
+        def pointerCompat(a: CType): Boolean = a == CVoid() || a == CZero() || a == CIgnore()
         //either void pointer?
         if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) if (a == CVoid() || b == CVoid() || a == CIgnore() || b == CIgnore()) => return true
+            case (CPointer(a), CPointer(b)) if (pointerCompat(a) || pointerCompat(b)) => return true
             case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if (!opts.warning_pointer_sign && (a.basicType == b.basicType)) => return true
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return true
@@ -447,10 +472,14 @@ trait CTypes extends COptionProvider {
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true
 
+        //_Bool = any scala value
+        if (t1 == CBool() && isScalar(t2)) return true
+
         //assignment pointer = 0
         if (isPointer(t1) && isZero(t2)) return true
+        if (isPointer(t2) && isZero(t1)) return true
 
-        return false
+        false
     }
 
     private def funCompatible(t1: CType, t2: CType): Boolean = (t1, t2) match {
@@ -509,7 +538,7 @@ trait CTypes extends COptionProvider {
                 case i: CIgnore => i
                 case e => CPointer(e)
             }
-        case CArray(t, _) => normalizeA(CPointer(t)) //TODO do this recursively for all occurences of Array
+        case CArray(g, _) => normalizeA(CPointer(g)) //TODO do this recursively for all occurences of Array
         case CFunction(p, rt) => CFunction(p.map(normalizeA).filter(_ != CVoid()), normalizeA(rt))
         case c => c
     }

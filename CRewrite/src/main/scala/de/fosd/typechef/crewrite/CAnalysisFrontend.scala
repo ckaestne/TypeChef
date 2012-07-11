@@ -2,11 +2,13 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.conditional.{Opt, Choice}
+import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef, AST}
+
 import sat.DefinedMacro
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.WithPosition
 import de.fosd.typechef.parser.c._
-
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
@@ -142,12 +144,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
       case LabelStatement(id,attr) => new LabelStatement(deriveProd(id,c),deriveOptionalAST(attr,c))
       case CaseStatement(cs,s) => new CaseStatement(deriveProd(cs,c), deriveOptionalConditional(s,c))
       case DefaultStatement(s) => new DefaultStatement(deriveOptionalConditional(s,c))
-      case IfStatement(cond,then,elifs,elseBr) => new IfStatement(deriveProd(cond,c),deriveConditional(then,c),deriveOptList(elifs,c),deriveOptionalConditional(elseBr,c))
+      case IfStatement(cond,then,elifs,elseBr) => new IfStatement(deriveConditional(cond,c),deriveConditional(then,c),deriveOptList(elifs,c),deriveOptionalConditional(elseBr,c))
       case SwitchStatement(ex,s) => new SwitchStatement(deriveProd(ex,c),deriveConditional(s,c))
       case DeclarationStatement(dec) => new DeclarationStatement(deriveProd(dec,c))
       case LocalLabelDeclaration(ids) => new LocalLabelDeclaration(deriveOptList(ids,c))
       case NestedFunctionDef(isAuto,specs,dec,par,stmt) => new NestedFunctionDef(isAuto,deriveOptList(specs,c),deriveProd(dec,c),deriveOptList(par,c),deriveProd(stmt,c))
-      case ElifStatement(cond,branch) => new ElifStatement(deriveProd(cond,c),deriveConditional(branch,c))
+      case ElifStatement(cond,branch) => new ElifStatement(deriveConditional(cond,c),deriveConditional(branch,c))
       // all primitiveTypeSpecifier - subclasses do not have individual properties or sub-elements. So we can reuse them directly.
       case x : PrimitiveTypeSpecifier => x
       case OtherPrimitiveTypeSpecifier(tn) => new OtherPrimitiveTypeSpecifier(tn)
@@ -216,69 +218,6 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
         "--> " +
         "[" + tfexp + "]" + t.getClass() + "(" + t.getPositionFrom + "--" + t.getPositionTo + ")" + // print target
         "\n" + msg + "\n\n\n"
-  }
-
-  // given an ast element x and its successors lx: x should be in pred(lx)
-  private def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): Boolean = {
-    // check that number of nodes match
-    if (lsuccs.size != lpreds.size) {
-      println("number of nodes in ccfg does not match")
-      return false
-    }
-
-    // check that number of edges match
-    var res = true
-    var succ_edges: List[(AST, AST)] = List()
-    for ((ast_elem, succs) <- lsuccs) {
-      for (succ <- succs) {
-        succ_edges = (ast_elem, succ) :: succ_edges
-      }
-    }
-
-    var pred_edges: List[(AST, AST)] = List()
-    for ((ast_elem, preds) <- lpreds) {
-      for (pred <- preds) {
-        pred_edges = (ast_elem, pred) :: pred_edges
-      }
-    }
-
-    // check succ/pred connection and print out missing connections
-    // given two ast elems:
-    //   a
-    //   b
-    // we check (a1, b1) successor
-    // against  (b2, a2) predecessor
-    for ((a1, b1) <- succ_edges) {
-      var isin = false
-      for ((b2, a2) <- pred_edges) {
-        if (a1.eq(a2) && b1.eq(b2))
-          isin = true
-      }
-      if (!isin) {
-        errors = new CCFGError("is missing in preds", b1, env.featureExpr(b1), a1, env.featureExpr(a1)) :: errors
-        res = false
-      }
-    }
-
-    // check pred/succ connection and print out missing connections
-    // given two ast elems:
-    //  a
-    //  b
-    // we check (b1, a1) predecessor
-    // against  (a2, b2) successor
-    for ((b1, a1) <- pred_edges) {
-      var isin = false
-      for ((a2, b2) <- succ_edges) {
-        if (a1.eq(a2) && b1.eq(b2))
-          isin = true
-      }
-      if (!isin) {
-        errors = new CCFGError("is missing in succs", a1, env.featureExpr(a1), b1, env.featureExpr(b1)) :: errors
-        res = false
-      }
-    }
-
-    res
   }
 
   var errors = List[CCFGError]()

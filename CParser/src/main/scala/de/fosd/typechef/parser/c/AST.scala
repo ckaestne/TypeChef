@@ -65,6 +65,8 @@ sealed abstract class Expr extends AST
 
 sealed abstract class PrimaryExpr extends Expr
 
+trait CDef extends AST
+
 case class Id(name: String) extends PrimaryExpr
 
 case class Constant(value: String) extends PrimaryExpr
@@ -148,9 +150,9 @@ case class CaseStatement(c: Expr, s: Option[Conditional[Statement]]) extends Sta
 
 case class DefaultStatement(s: Option[Conditional[Statement]]) extends Statement
 
-case class IfStatement(condition: Expr, thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
+case class IfStatement(condition: Conditional[Expr], thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
 
-case class ElifStatement(condition: Expr, thenBranch: Conditional[Statement]) extends AST
+case class ElifStatement(condition: Conditional[Expr], thenBranch: Conditional[Statement]) extends AST
 
 case class SwitchStatement(expr: Expr, s: Conditional[Statement]) extends Statement
 
@@ -329,11 +331,11 @@ case class StructInitializer(expr: Expr, attributes: List[Opt[AttributeSpecifier
 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 
-case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef {
+case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef with CDef {
     def getName = declarator.getName
 }
 
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration {
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration with CDef {
     def getName = declarator.getName
 }
 
@@ -397,5 +399,4 @@ case class BuiltinVaArgs(expr: Expr, typeName: TypeName) extends PrimaryExpr
 
 case class CompoundStatementExpr(compoundStatement: CompoundStatement) extends PrimaryExpr
 
-case class Pragma(command: StringLit) extends ExternalDef 
-
+case class Pragma(command: StringLit) extends ExternalDef

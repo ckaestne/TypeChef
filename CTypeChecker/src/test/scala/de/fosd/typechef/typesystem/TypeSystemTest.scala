@@ -94,7 +94,7 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelper {
 
     test("local variable test") {
         expect(true) {
-            check("""
+            check( """
 enum {
 false = 0,
 true = 1
@@ -136,13 +136,13 @@ return 1;
 
     test("increment on array") {
         expect(false) {
-            check("""
+            check( """
                 struct s {} x;
                 int foo() { if (x->a) {} }""")
         }
 
         expect(true) {
-            check("""
+            check( """
             void xchdir(const char *path) ;
             int foo(char *argv[]) {
                 if (*++argv)
@@ -153,7 +153,7 @@ return 1;
 
     test("illtyped only under unsatisfiable configurations") {
         expect(true) {
-            check("""
+            check( """
             #if defined(X)
             void foo() {
             #if !defined(X)
@@ -161,20 +161,20 @@ return 1;
             #endif
             }
             #endif
-            """)
+                   """)
         }
     }
 
     test("nested functions") {
         expect(true) {
-            check("""
+            check( """
                 int foo (double a, double b){
                     double square (double z) { return z * z; }
                     return square (a) + square (b);
                 }""")
         }
         expect(true) {
-            check("""
+            check( """
                  int bar (int *array, int offset, int size)
                      {
                        int access (int *array, int index)
@@ -188,7 +188,7 @@ return 1;
 
     test("local typedef") {
         expect(true) {
-            check("""
+            check( """
             void copyt(int n)
             {
                 typedef int B[n]; // B is n ints, n evaluated now
@@ -199,19 +199,19 @@ return 1;
                 for (i = 1; i < n; i++)
                       a[i-1] = b[i];
             }
-            """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
             int a() {
             #ifdef X
                 typedef int xx;
             #endif
             }
-            """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
             int
             #ifdef A
             a()
@@ -222,7 +222,7 @@ return 1;
                 typedef int xx __attribute__((__may_alias__));
                 xx c;
             }
-            """, true)
+                   """, true)
         }
 
 
@@ -230,48 +230,48 @@ return 1;
 
     test("initializer scope") {
         expect(false) {
-            check("""
+            check( """
              int x=y;
-             """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
              int x=x;
-             """)
+                   """)
         }
     }
 
     ignore("check label environement") {
         //TODO check label environement
         expect(false) {
-            check("""
+            check( """
          void foo() {&&__lab;}
-         """)
+                   """)
         }
         expect(false) {
-            check("""
+            check( """
          void foo() {goto __lab;}
-         """)
+                   """)
         }
     }
 
     test("local labels and label deref") {
         expect(true) {
-            check("""
+            check( """
              void foo() {__label__ __lab; __lab: &&__lab;}
-             """)
+                   """)
         }
     }
     test("recursive function") {
         expect(true) {
-            check("""
+            check( """
              int foo(int i) {if (i==1) return 0; else return foo(i-1);}
-             """)
+                   """)
         }
     }
     test("alternative parameter declaration") {
         expect(true) {
-            check("""
+            check( """
              int foo(
              #ifdef X
                 int sock
@@ -279,102 +279,105 @@ return 1;
                 void
              #endif
              ) {}
-             """)
+                   """)
         }
     }
     test("parameter checks (warnings)") {
         expect(false) {
-            check("""
+            check( """
              void foo(int a, int *b, int c) {}
              void bar() {
                 int a,b,*c;
                 foo(a,b,c);
              }
-             """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
              void foo(int *a) {}
              void bar() {
                 foo(0);
              }
-             """)
+                   """)
         }
         expect(false) {
-            check("""
+            check( """
              void foo(int *a) {}
              void bar() {
                 foo(1);
              }
-             """)
+                   """)
         }
     }
 
     test("function comparison") {
         expect(true) {
-            check("""
+            check( """
              void foo(int a) ;
              void bar() {
                 if (foo==&foo);
              }
-             """)
+                   """)
         }
     }
 
     test("enum scope") {
         expect(true) {
-            check("""
-             enum { A, B, C };
-              int x = A;
-             """)
+            check( """enum { A, B, C };
+                      int x = A;  """)
         }
         expect(true) {
-            check("""
-             enum { A, B, C } x = A;
-             """)
+            check( """enum { A, B, C } x = A;""")
+        }
+        expect(true) {
+            check( """enum { A, B, C } foo() { return 0; }
+                      int x=A; """)
+        }
+        expect(true) {
+            check( """enum { A, B, C } foo() { return A; }""")
         }
     }
 
     test("decl scope") {
         expect(true) {
-            check("""
+            check( """
              struct { int a; } a[2], *b=a;
-             """)
+                   """)
         }
 
     }
 
     test("check array initialization") {
         expect(true) {
-            check("""
+            check( """
                 int a=3;
                 int b[a];
-                """)
+                   """)
         }
         expect(false) {
-            check("""
+            check( """
                 int b[a];
-                """)
+                   """)
         }
     }
 
     test("builtin") {
         expect(true) {
-            check("""
+            check( """
                 void foo(){int a[],b[];
                     int x[];
                     x=a;
                     x=b;
                 }
-                """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
                         char x[]=__PRETTY_FUNCTION__;
-                        """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
                 typedef __builtin_va_list __gnuc_va_list;
                 typedef __gnuc_va_list va_list;
                 void foo(const char *ctl, ...){
@@ -389,7 +392,7 @@ return 1;
 
     test("multiple conditional structs") {
         expect(true) {
-            check("""
+            check( """
             #ifdef X
             struct s { char x; };
 
@@ -399,10 +402,10 @@ return 1;
             void foo() { struct t x; }
             #endif
             #endif
-                """)
+                   """)
         }
         expect(false) {
-            check("""
+            check( """
             #ifdef Y
             struct s { char x; };
             #endif
@@ -411,10 +414,10 @@ return 1;
                 struct s y[3];
             };
             void foo() { struct t x; }
-                       """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
             #ifdef Y
             struct s { char x; };
             #endif
@@ -426,7 +429,7 @@ return 1;
             };
 
             void foo() { struct t x; }
-                        """)
+                   """)
         }
     }
 
@@ -436,12 +439,12 @@ return 1;
         //a declaration that is always there, but where all specifiers and initializers have the same condition
         //Opt(true,Declaration(List(Opt(X,...
         expect(true) {
-            check("""
+            check( """
              #ifdef X
              int a
              #endif
              ;
-             """)
+                   """)
         }
 
     }
@@ -449,7 +452,7 @@ return 1;
 
     test("alternative structs") {
         expect(true) {
-            check("""
+            check( """
             #ifdef X
                 struct s { char x; };
             #else
@@ -457,79 +460,79 @@ return 1;
             #endif
 
             void m(struct s *a) { a->x; }
-                """)
+                   """)
         }
     }
 
     test("top level inline assembler") {
         expect(true) {
-            check("""
+            check( """
                     int a;
                     __asm__("whatever");
                     int b;
-                        """)
+                   """)
         }
     }
 
     test("int pointer compatibility") {
         expect(true) {
-            check("""
+            check( """
                 void foo(){
                     unsigned int a;
                     signed int b;
                     a=b;
                 }
-                    """)
+                   """)
         }
         expect(false) {
-            check("""
+            check( """
                 void foo(){
                     unsigned int *a;
                     signed int *b;
                     a=&b;
                 }
-                    """)
+                   """)
         }
         //last two should not yield an error or warning if -Wno-pointer-sign is set (default in linux)
         expect(true) {
-            check("""
+            check( """
                 void foo(){
                     unsigned int *a;
                     signed int *b;
                     a=b;
                 }
-                    """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
                 void foo(){
                     char *a;
                     unsigned char *b;
                     a=b;
                 }
-                    """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
                          void f(int *x) {}
                          void g() {
                                 unsigned int y=3;
                                 f(&y);
                         }
-                            """)
+                   """)
         }
     }
 
 
     test("cast pointer to long") {
         expect(true) {
-            check("""
+            check( """
                 extern void f();
                 void foo(){
                     long a;
                     a=(long) f;
                 }
-                    """)
+                   """)
         }
 
     }
@@ -537,7 +540,7 @@ return 1;
 
     test("range expression ") {
         expect(true) {
-            check("""
+            check( """
                     void foo(){
                     int c;
                       switch (c) {
@@ -547,7 +550,7 @@ return 1;
                                                             break;
                         }
                     }
-                        """)
+                   """)
         }
 
     }
@@ -555,24 +558,24 @@ return 1;
     test("pointer arithmetics") {
         //don't ask. pointer-pointer yields an int, + a pointer is a pointer
         expect(true) {
-            check("""
+            check( """
                     void foo(){
                         char *a, *b, *c, *d;
                         d=a-b+c;
                     }
-                        """)
+                   """)
         }
 
     }
 
     test("asm statement") {
         expect(true) {
-            check("""
+            check( """
                          void arch_kgdb_breakpoint(void)
                         {
                                 asm("   int $3");
                         }
-                            """)
+                   """)
         }
     }
 
@@ -582,25 +585,25 @@ return 1;
         //as such also works as forward declaration
         //see http://gcc.gnu.org/onlinedocs/gcc/Typeof.html
         expect(false) {
-            check("""
+            check( """
                      typedef struct x Sx;
 
                      Sx y;
-                """)
+                   """)
         }
 
         expect(false) {
-            check("""
+            check( """
                  __typeof__(struct x) y;
-                    """)
+                   """)
         }
         expect(false) {
-            check("""
+            check( """
                  struct x y;
-                    """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
                  struct x Sx;
 
                  static Sx y;
@@ -611,7 +614,7 @@ return 1;
         }
 
         expect(true) {
-            check("""
+            check( """
                      __typeof__(struct x) y;
 
                      struct x {
@@ -620,7 +623,7 @@ return 1;
         }
 
         expect(true) {
-            check("""
+            check( """
                              struct x y;
 
                              struct x {
@@ -630,19 +633,19 @@ return 1;
     }
     test("enum type is unsigned int") {
         expect(true) {
-            check("""enum x {a};
+            check( """enum x {a};
                            enum x f(void);
                            unsigned int f() { return 0; }
                    """)
         }
         expect(false) {
-            check("""enum x {a};
+            check( """enum x {a};
                            enum x f(void);
                            signed int f() { return 0; }
                    """)
         }
         expect(false) {
-            check("""enum x {a};
+            check( """enum x {a};
                            enum x f(void);
                            int f() { return 0; }
                    """)
@@ -650,13 +653,13 @@ return 1;
     }
     test("field decrement") {
         expect(true) {
-            check("""struct x { int i; } ;
+            check( """struct x { int i; } ;
                          void test(void *data) {
                             struct x *v=data;
                             if (v->i > 0)
                                 v->i--;
                          }
-                       """)
+                   """)
         }
     }
 
@@ -713,6 +716,92 @@ return 1;
             check("typedef struct s { int a;} s_t;" +
                 "extern s_t x;" +
                 "s_t x = (s_t) {0};")
+        }
+    }
+
+    test("handle boolean types") {
+        expect(true) {
+            check("_Bool foo() {return 1;}")
+        }
+        expect(true) {
+            check("_Bool foo() {int a; return a;}")
+        }
+        expect(true) {
+            check("_Bool foo() {int a; return &a;}")
+        }
+    }
+
+    test("curly initializers and casts and pointer deref") {
+        expect(true) {
+            check( """struct ab { int x; };
+
+                           void bar() {
+                                   struct ab * i;
+                                   i=&(struct ab){ 1 };
+                           }""")
+        }
+
+    }
+
+
+    test("nested structs") {
+        expect(true) {
+            check( """
+            struct x {
+                    struct y {
+                            int a;
+                    } yy;
+                    struct {
+                            struct y b;
+                    } zz;
+            } xx;
+                   """)
+        }
+        expect(true) {
+            check( """
+            struct x {
+                    struct y {
+                            int a;
+                    } yy;
+                    struct y b;
+            } xx;
+                   """)
+        }
+        expect(true) {
+            check( """
+            struct x {
+                    struct z{
+                            struct y {
+                                int a;
+                            } yy;
+                    } zz;
+                            struct y b;
+            } xx;
+                   """)
+        }
+        expect(false) {
+            check( """
+            struct x {
+                    struct z{
+                            struct y {
+                                int a;
+                            } yy;
+                    } zz;
+                    struct abc b;
+            } xx;
+                   """)
+        }
+        expect(false) {
+            check( """
+              struct x {
+                      struct z{
+                              struct y {
+                                  int a;
+                              } yy;
+                      } zz;
+                      struct x b;
+              } xx;
+                   """)
         }
     }
 

@@ -3,9 +3,11 @@ package de.fosd.typechef.featureexpr.bdd
 import de.fosd.typechef.featureexpr._
 import scala.collection.mutable.{ WeakHashMap, Map}
 import bdd.FExprBuilder._
+import java.io.Writer
 import net.sf.javabdd._
-import scala.Predef._
-import scala._
+import collection.mutable.{HashMap, WeakHashMap, Map}
+import de.fosd.typechef.featureexpr._
+import annotation.tailrec
 
 
 object FeatureExprHelper {
@@ -119,40 +121,7 @@ object FeatureExprHelper {
 
 
 /**
- * Propositional (or boolean) feature expressions.
- *
- * Feature expressions are compared on object identity (comparing them for equivalence is
- * an additional but expensive operation). Connectives such as "and", "or" and "not"
- * memoize results, so that the operation yields identical results on identical parameters.
- * Classes And, Or and Not are made package-private, and their constructors wrapped
- * through companion objects, to prevent the construction of formulas in any other way.
- *
- * However, this is not yet enough to guarantee the 'maximal sharing' property, because the
- * and/or operators are also associative, but the memoization cannot be associative.
- * Papers on hash-consing explain that one needs to perform a further normalization step.
- *
- * More in general, one can almost prove a theorem called the weak-canonicalization guarantee:
- *
- * If at a given time during program execution, two formula objects represent structurally
- * equal formulas, i.e. which are deeply equal modulo the order of operands of "and" and "or",
- * then they are represented by the same object.
- *
- * XXX: HOWEVER, that the associative property does not hold with pointer equality:
- * (a and b) and c ne a and (b and c). Hopefully this is fixable through different caching.
- *
- * Note that this is not related to formula equivalence, rather to pointer equality.
- * This does not hold for formulas existing at different moments, because caches
- * are implemented using weak references, so if a formula disappears from the heap
- * it is recreated. However, this is not observable for the code.
- *
- * The weak canonicalization property, if true, should allows also ensuring the strong-canonicalization guarantee:
- * If at a given time during program execution, two formula objects a and b
- * represent equivalent formulas, then a.toCNF eq b.toCNF (where eq denotes pointer equality).
- *
- * CNF canonicalization, by construction, ensures that a.toCNF and b.toCNF are structurally equal.
- * The weak canonicalization property would also ensure that they are the same object.
- *
- * It would be interesting to see what happens for toEquiCNF.
+ * Propositional (or boolean) feature expressions., based on a BDD library
  */
 class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
@@ -314,26 +283,23 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      * helper function for statistics and such that determines which
      * features are involved in this feature expression
      */
-    private def collectDistinctFeatureIds: collection.immutable.Set[Int] = {
+    private def collectDistinctFeatureIds: collection.immutable.Set[Int] =
         bddAllSat.flatMap(clause => clause.zip(0 to (clause.length - 1)).filter(_._1 >= 0).map(_._2)).toSet
-    }
 
     def collectDistinctFeatures: Set[String] =
         collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
 
-  def collectDistinctFeatureObjects: Set[SingleFeatureExpr] = {
+  def collectDistinctFeatureObjects: Set[SingleFeatureExpr] =
       collectDistinctFeatureIds.map({
           id: Int => new SingleBDDFeatureExpr(id)
       })
-  }
-
 
     /**
      * counts the number of features in this expression for statistic
      * purposes
      */
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
-
+    def evaluate(selectedFeatures: Set[String]): Boolean = FExprBuilder.evalBdd(bdd, selectedFeatures)
     def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
         // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
         assert(! this.isInstanceOf[SingleFeatureExpr])
@@ -365,7 +331,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         }
         return Some(enabled,disabled)
     }
-    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
+def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
         // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
         assert(! this.isInstanceOf[SingleFeatureExpr])
         var enabled : Set[SingleFeatureExpr] = Set()
@@ -397,6 +363,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         return Some(enabled,disabled)
     }
 }
+
 class SingleBDDFeatureExpr(id:Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
     def feature = lookupFeatureName(id)
 }
@@ -410,17 +377,18 @@ class SingleBDDFeatureExpr(id:Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) 
 //    override def debug_print(x: Int) = error
 //}
 
-
 /**
  * Central builder class, responsible for simplification of expressions during creation
  * and for extensive caching.
  */
 private[bdd] object FExprBuilder {
 
+
     val bddCacheSize = 100000
     var bddValNum = 4194304
     var bddVarNum = 100
-    var maxFeatureId = 0 //start with one, so we can distinguish -x and x for sat solving and tostring
+    var maxFeatureId = 0
+    //start with one, so we can distinguish -x and x for sat solving and tostring
     var bddFactory: BDDFactory = null
     try {
         bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
@@ -441,29 +409,6 @@ private[bdd] object FExprBuilder {
     private val featureIds: Map[String, Int] = Map()
     private val featureNames: Map[Int, String] = Map()
     private val featureBDDs: Map[Int, BDD] = Map()
-
-    /*
-    * It seems that with the four patterns to optimize and/or, it's more difficult to
-    * produce a formula with duplicated literals - you need two levels of nesting for that to happen.
-    * Duplications is removed in variations of:
-    * a && (b || !a), where a and b can be any formula, and && and || can be replaced by any connective.
-    * Examples where duplication appears:
-    * a && !(a || b) - fixable by implementing DeMorgan laws in Not.
-    * (a || b) && (b || c)
-    * a && (b || (c && a)) - note the two levels of nesting. The inner a could
-    * be removed in this particular case using shortcircuiting, but there does
-    * not seem to be an easy way of implementing this.
-    *
-    *
-    * Please note that due to duality, the code below is essentially
-    * duplicated (andOr() is dual to orAnd(), and() to or(), and so on).
-    * Remember that to dualize this code, one must swap or with and, and False with True.
-    * Please check that it does not go out of sync.
-    */
-    // XXX: in various places, we merge sets with an O(N) reduction. It allows looking up the memoized results, but now
-    // that we later canonicalize everything, it is not clear whether we should still do it. Such occurrences are marked
-    // below with "XXX: O(N) set rebuild". Note however that to make them O(1) one needs to write a O(1) hash calculator
-    // for them as well - very simple, just some work to do. See specialized constructors in AndOrUnExtractor.
 
 
     def and(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd and b.bdd)
@@ -502,39 +447,24 @@ private[bdd] object FExprBuilder {
 
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
-    def definedMacro(name: String, macroTable: FeatureProvider) : BDDFeatureExpr = {
+    def definedMacro(name: String, macroTable: FeatureProvider): BDDFeatureExpr = {
         val f = macroTable.getMacroCondition(name)
         CastHelper.asBDDFeatureExpr(f)
+    }
+
+
+    @tailrec
+    def evalBdd(bdd: BDD, set: Set[String]): Boolean =
+        if (bdd.isOne) true
+        else if (bdd.isZero) false
+        else {
+            val featureId = bdd.`var`()
+            val featureName = featureNames(featureId)
+            evalBdd(if (set contains featureName) bdd.high() else bdd.low(), set)
     }
 }
 
 
-////////////////////////////
-// propositional formulas //
-////////////////////////////
-/**
- * True and False. They are represented as special cases of And and Or
- * with no clauses, as it is common practice, for instance in the resolution algorithm.
- *
- * True is the zero element for And, while False is the zero element for Or.
- * Therefore, True can be represented as an empty conjunction, while False
- * by an empty disjunction.
- *
- * One can imagine to build a disjunction incrementally, by having an empty one
- * be considered as false, so that each added operand can make the resulting
- * formula true. Dually, an empty conjunction is true, and and'ing clauses can
- * make it false.
- *
- * This avoids introducing two new leaf nodes to handle (avoiding some bugs causing NoLiteralException).
- *
- * Moreover, since those are valid formulas, they would otherwise be valid but
- * non-canonical representations, and avoiding the very existence of such things
- * simplifies ensuring that our canonicalization algorithms actually work.
- *
- * The use of only canonical representations for True and False is ensured thanks to the
- * apply methods of the And and Or companion objects, which convert any empty set of
- * clauses into the canonical True or False object.
- */
 object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint with SingleFeatureExpr {
     override def toString = "True"
     override def toTextExpr = "1"

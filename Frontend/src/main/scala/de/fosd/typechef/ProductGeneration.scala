@@ -766,12 +766,12 @@ object ProductGeneration {
         }
 
         for (optN <- optNodes) {
-            val fex : FeatureExpr = env.lfeature(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+            val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
             handleFeatureExpression(fex)
         }
 
         for (choiceNode <- choiceNodes) {
-            val fex : FeatureExpr = env.lfeature(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+            val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
             handleFeatureExpression(fex.and(choiceNode.feature))
             handleFeatureExpression(fex.and(choiceNode.feature.not()))
         }

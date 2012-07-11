@@ -8,8 +8,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface {
-
+trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface with CDefUse {
 
     /**
      * types an expression in an environment, returns a new
@@ -17,7 +16,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
      */
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
         val et = getExprType(_: Expr, featureExpr, env)
-        val etF = getExprType(_: Expr, _: FeatureExpr, env)
+        def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprType(e, f, newEnv)
         //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
         val resultType: Conditional[CType] =
@@ -58,15 +57,17 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             case (f, CObj(t)) => CPointer(t)
                             case (f, t: CFunction) => CPointer(t)
                             case (f, e) =>
-                                reportTypeError(f, "invalid & on " + pc + " (" + e + ")", pc)
+                                reportTypeError(f, "invalid & on " + expr + " (" + e + ")", pc)
                         })
                     //*a: pointer dereferencing
                     case pd@PointerDerefExpr(expr) =>
                         et(expr).mapf(featureExpr, (f, x) => x.toValue match {
                             case CPointer(t) if (t != CVoid) => t.toObj
+                            case CArray(t, _) => t.toObj
+                            case CIgnore() => CIgnore()
                             case fun: CFunction => fun // for some reason deref of a function still yields a valid function in gcc
                             case e =>
-                                reportTypeError(f, "invalid * on " + pd + " (" + e + ")", pd)
+                                reportTypeError(f, "invalid * on " + expr + " (" + e + ")", pd)
                         })
                     //e.n notation
                     case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
@@ -89,8 +90,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 One(reportTypeError(f, "invalid ." + id + " on " + p + " (" + e + ")", p))
                         })
                     //e->n (by rewrite to &e.n)
-                    case p@PostfixExpr(expr, PointerPostfixSuffix("->", Id(id))) =>
-                        val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", Id(id)))
+                    case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
+                        val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
                         et(newExpr)
                     //(a)b
                     case ce@CastExpr(targetTypeName, expr) =>
@@ -101,8 +102,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (targetType == CVoid() ||
                                     isPointer(targetType) ||
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
-                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType //workaround for array/struct initializers
-                                else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown) targetType
+                                else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
+                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
+                                else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
                         )
@@ -112,6 +114,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
                             case Opt(f, e) => Opt(f, etF(e, featureExpr and f))
                         })
+
+                        addUse(pe, env)
+
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
                             (fexpr: FeatureExpr, funType: CType, paramTypes: List[CType]) =>
@@ -131,17 +136,18 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 val opType = operationType(op, ltype, rtype, ae, fexpr)
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
+                                    case u: CUnknown => u.toValue
                                     case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                                 }
                             })
                     //a++, a--
                     case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {
                         prepareArray
-                    } map {
-                        case CObj(t) if (isScalar(t)) => t //apparently ++ also works on arrays
+                    } mapf(featureExpr, {
+                        case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
                         //TODO check?: not on function references
-                        case e => reportTypeError(featureExpr, "wrong type argument to increment " + e, pe)
-                    }
+                        case (f, e) => reportTypeError(f, "wrong type argument to increment " + e, pe)
+                    })
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
                         ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
@@ -184,10 +190,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         }
                     //x?y:z  (gnuc: x?:z === x?x:z)
                     case ce@ConditionalExpr(condition, thenExpr, elseExpr) =>
+                        //dead code detection, see CTypeSystem..IfStatement
+                        val (contr, taut) = analyzeExprBounds(One(condition), featureExpr, env)
+
                         et(condition) mapfr(featureExpr, {
                             (fexpr, conditionType) =>
                                 if (isScalar(conditionType))
-                                    getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr), etF(elseExpr, fexpr), fexpr, ce)
+                                    getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr, env.markDead(contr)), etF(elseExpr, fexpr, env.markDead(taut)), fexpr, ce)
                                 else if (conditionType.isIgnore) One(conditionType)
                                 else One(reportTypeError(fexpr, "invalid type of condition: " + conditionType, ce))
                         })
@@ -212,7 +221,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         //return original environment, definitions don't leave this scope
                         t
 
-                    case LcurlyInitializer(inits) => One(CCompound()) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
+                    case LcurlyInitializer(inits) => One(CCompound().toObj) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
                     case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
@@ -224,10 +233,12 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case e => One(reportTypeError(featureExpr, "unknown expression " + e + " (TODO)", e))
                 }
 
-        typedExpr(expr, resultType, featureExpr)
+        typedExpr(expr, resultType, featureExpr, env)
         addEnv(expr, env)
         resultType.simplify(featureExpr)
     }
+
+    private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr, env: Env): (FeatureExpr, FeatureExpr)
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType], featureExpr: FeatureExpr, where: AST) =
         ConditionalLib.mapCombinationF(thenTypes, elseTypes, featureExpr, (featureExpr: FeatureExpr, thenType: CType, elseType: CType) => {
@@ -235,6 +246,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                 case (CPointer(CVoid()), CPointer(x)) => CPointer(x) //spec
                 case (CPointer(x), CPointer(CVoid())) => CPointer(x) //spec
                 case (t1, t2) if (coerce(t1, t2)) => converse(t1, t2) //spec
+                case (t1, t2) if ((isArithmetic(t1) && t2 == CVoid()) || (isArithmetic(t2) && t1 == CVoid())) => CVoid() //tested from gcc
                 case (t1, t2) => reportTypeError(featureExpr, "different address spaces in conditional expression: " + t1 + " and " + t2, where)
             }
         })
@@ -307,7 +319,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b))))
 
 
-    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType], funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
+    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
+                                 funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
         checkStructs(retType, featureExpr, env, expr)
         parameterTypes.map(checkStructs(_, featureExpr, env, expr))
 

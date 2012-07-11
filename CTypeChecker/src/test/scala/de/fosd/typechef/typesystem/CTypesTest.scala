@@ -15,12 +15,12 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
 
     test("wellformed types") {
         val sEnv: StructEnv = new StructEnv(Map(
-            (("wf1", false) -> (new ConditionalTypeMap() +("a", True, One(CFloat())))),
-            (("wf2", true) -> (new ConditionalTypeMap() +("a", True, One(CFloat())) +("b", True, One(CDouble())))), //union
-            (("wf3", false) -> (new ConditionalTypeMap() +("a", True, One(CPointer(CStruct("wf2")))) +("b", True, One(CDouble())))),
-            (("wf4", false) -> (new ConditionalTypeMap() +("a", True, One(CPointer(CStruct("wf2")))) +("b", True, One(CPointer(CStruct("wf4")))))),
+            (("wf1", false) -> (new ConditionalTypeMap() +("a", True, null, One(CFloat())))),
+            (("wf2", true) -> (new ConditionalTypeMap() +("a", True, null, One(CFloat())) +("b", True, null, One(CDouble())))), //union
+            (("wf3", false) -> (new ConditionalTypeMap() +("a", True, null, One(CPointer(CStruct("wf2")))) +("b", True, null, One(CDouble())))),
+            (("wf4", false) -> (new ConditionalTypeMap() +("a", True, null, One(CPointer(CStruct("wf2")))) +("b", True, null, One(CPointer(CStruct("wf4")))))),
             //            (("nwf1", false) -> new ConditionalTypeMap(Map("a" -> Seq((True, CFloat()), (True, CDouble()))))),
-            (("nwf2", false) -> (new ConditionalTypeMap() +("a", True, One(CVoid())) +("b", True, One(CDouble())))),
+            (("nwf2", false) -> (new ConditionalTypeMap() +("a", True, null, One(CVoid())) +("b", True, null, One(CDouble())))),
             (("nwf3", false) -> new ConditionalTypeMap())
         ).mapValues(x => (True, x)))
         val tEnv: PtrEnv = Set("Str", "wf2")
@@ -100,6 +100,8 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
 
         coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CIgnore()), CVoid())) should be(true)
         coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CDouble()), CIgnore())) should be(true)
+
+        coerce(CPointer(CZero()), CPointer(CSigned(CInt()))) should be(true)
     }
 
 }

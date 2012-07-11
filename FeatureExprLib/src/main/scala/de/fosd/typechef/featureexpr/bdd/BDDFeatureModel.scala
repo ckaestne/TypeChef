@@ -32,18 +32,7 @@ class BDDFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
     def and(expr: FeatureExpr /*CNF*/) = {
         new BDDFeatureModel(variables, clauses, lastVarId, CastHelper.asBDDFeatureExpr(extraConstraints and expr), assumedFalse, assumedTrue)
     }
-    //    def and(expr: FeatureExpr /*CNF*/) = if (expr == FeatureExprFactory.True) this
-    //    else {
-    //        val cnf = expr.toCNF
-    //        try {
-    //            assert(!expr.isContradiction(null))
-    //            val (newVariables, newLastVarId) = FeatureModel.getVariables(cnf, lastVarId, variables)
-    //            val newClauses = FeatureModel.addClauses(cnf, newVariables, clauses)
-    //            new FeatureModel(newVariables, newClauses, newLastVarId)
-    //        } catch {
-    //            case e: Exception => println("FeatureModel.and: Exception: " + e + " with expr: " + expr + " and cnf: " + cnf); throw e
-    //        }
-    //    }
+
 
     def assumeTrue(featurename: String) =
         new BDDFeatureModel(variables, clauses, lastVarId, extraConstraints, assumedFalse, assumedTrue + featurename)
@@ -63,6 +52,8 @@ object BDDNoFeatureModel extends BDDFeatureModel(Map(), new Vec(), 0, True, Set(
 
 /**
  * companion object to create feature models
+ *
+ * TODO: this code is replicated from SATFeatureModel, integrate again
  */
 object BDDFeatureModel extends FeatureModelFactory {
     /**
@@ -175,27 +166,4 @@ object BDDFeatureModel extends FeatureModelFactory {
             variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
 
 
-    //        private[FeatureModel] def getVariables(expr: FeatureExpr /*CNF*/ , lastVarId: Int, oldMap: Map[String, Int] = Map()): (Map[String, Int], Int) = {
-    //            val uniqueFlagIds = mutable.Map[String, Int]()
-    //            uniqueFlagIds ++= oldMap
-    //            var lastId = lastVarId
-    //
-    //            for (clause <- CNFHelper.getCNFClauses(expr))
-    //                for (literal <- CNFHelper.getDefinedExprs(clause))
-    //                    if (!uniqueFlagIds.contains(literal.satName)) {
-    //                        lastId = lastId + 1
-    //                        uniqueFlagIds(literal.satName) = lastId
-    //                    }
-    //            (immutable.Map[String, Int]() ++ uniqueFlagIds, lastId)
-    //        }
-    //
-    //
-    //        private[FeatureModel] def addClauses(cnf: FeatureExpr /*CNF*/ , variables: Map[String, Int], oldVec: IVec[IVecInt] = null): Vec[IVecInt] = {
-    //            val result = new Vec[IVecInt]()
-    //            if (oldVec != null)
-    //                oldVec.copyTo(result)
-    //            for (clause <- CNFHelper.getCNFClauses(cnf); if (clause != True))
-    //                result.push(SatSolver.getClauseVec(variables, clause))
-    //            result
-    //        }
 }
