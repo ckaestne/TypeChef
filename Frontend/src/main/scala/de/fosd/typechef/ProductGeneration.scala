@@ -336,9 +336,9 @@ object ProductGeneration {
         val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
 
         val fm = fm_ts // I got false positives while using the other fm
-        println("starting product typechecking.")
         val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
         val family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
+        println("starting product typechecking.")
 
         var fw: FileWriter = null
 
@@ -351,9 +351,17 @@ object ProductGeneration {
 
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-        val (log, typecheckingTasks) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
+        val (log : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
 
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
+
+        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,opt)
+
+    }
+    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]], family_ast:TranslationUnit, fm: FeatureModel, ast: AST, opt: FrontendOptions) {
+        val log:String = ""
+        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+        println("starting product typechecking.")
 
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
@@ -366,7 +374,7 @@ object ProductGeneration {
             for (config <- configs) {
                 current_config += 1
                 println("checking configuration " + current_config + " of " + configs.size + " (" + thisFilePath + " , " + taskDesc + ")")
-                val product: TranslationUnit = cf.deriveProd[TranslationUnit](family_ast,
+                val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
                     new Configuration(config.toFeatureExpr, fm))
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
                 val startTime: Long = System.currentTimeMillis()
@@ -374,6 +382,7 @@ object ProductGeneration {
                 val configTime: Long = System.currentTimeMillis() - startTime
                 checkTimes ::= configTime // append to the beginning of checkTimes
                 if (!noErrors) {
+                    var fw : FileWriter = null;
                     //if (true) {
                     // log product with error
                     configurationsWithErrors += 1
@@ -407,13 +416,13 @@ object ProductGeneration {
         // family base checking
         println("family-based type checking:")
         var startTime : Long = System.currentTimeMillis()
-        val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm_ts)
+        val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
         val noErrors: Boolean = ts.checkAST
         val familyTime: Long = System.currentTimeMillis() - startTime
 
         val file: File = new File(outFilePrefix + "_report.txt")
         file.getParentFile.mkdirs()
-        fw = new FileWriter(file)
+        val fw : FileWriter = new FileWriter(file)
         fw.write("File : " + thisFilePath + "\n")
         fw.write("Features : " + features.size + "\n")
         fw.write(log + "\n")
