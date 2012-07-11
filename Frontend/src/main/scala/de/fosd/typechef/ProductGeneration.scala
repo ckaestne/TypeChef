@@ -183,6 +183,12 @@ object ProductGeneration {
         return taskList.toList
     }
 
+    /**
+     * returns: (log:String, configs: List[Pair[String,List[SimpleConfiguration] ] ])
+     * log is a compilation of the log messages
+     * the configs-list contains pairs of the name of the config-generation method and the respective generated configs
+     *
+     */
     def buildConfigurations(family_ast : TranslationUnit, fm:FeatureModel, configSerializationDir : File) : (String, List[Pair[String, List[SimpleConfiguration]]]) = {
         var msg : String = "";
         var log : String = "";
@@ -338,27 +344,25 @@ object ProductGeneration {
         val fm = fm_ts // I got false positives while using the other fm
         val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
         val family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-        println("starting product typechecking.")
-
-        var fw: FileWriter = null
 
         /**write family ast */
         /*
-            fw = new FileWriter(new File("../ast_fam.txt"))
+            var fw: FileWriter = new FileWriter(new File("../ast_fam.txt"))
             fw.write(family_ast.toString)
             fw.close()
         */
 
+        println("starting product typechecking.")
+
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-        val (log : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
-
+        val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
-
-        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,opt)
+        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,opt, startLog = configGenLog)
 
     }
-    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]], family_ast:TranslationUnit, fm: FeatureModel, ast: AST, opt: FrontendOptions) {
+
+    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]], family_ast:TranslationUnit, fm: FeatureModel, ast: AST, opt: FrontendOptions, startLog:String="") {
         val log:String = ""
         val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
         println("starting product typechecking.")
