@@ -183,24 +183,9 @@ object ProductGeneration {
         return taskList.toList
     }
 
-    def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions) {
-        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
-
-        var log, msg: String = ""
-        val fm = fm_ts // I got false positives while using the other fm
-        println("starting product typechecking.")
-        val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
-        val family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-
-        var fw: FileWriter = null
-
-        /**write family ast */
-        /*
-            fw = new FileWriter(new File("../ast_fam.txt"))
-            fw.write(family_ast.toString)
-            fw.close()
-        */
-
+    def buildConfigurations(family_ast : TranslationUnit, fm:FeatureModel, configSerializationDir : File) : (String, List[Pair[String, List[SimpleConfiguration]]]) = {
+        var msg : String = "";
+        var log : String = "";
         println("generating configurations.")
         var startTime: Long = 0
 
@@ -209,15 +194,14 @@ object ProductGeneration {
         //println("features: ")
         //for (f <- features) println(f)
 
-
         /**Starting with no tasks */
         var typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]] = List()
-        val configSerializationDir =new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
+
         val useSerialization = false
         if (useSerialization &&
             configSerializationDir.exists() &&
-            new File(configSerializationDir,"FeatureHashmap.ser").exists()) {
-            /** Load serialized tasks */
+            new File(configSerializationDir, "FeatureHashmap.ser").exists()) {
+            /**Load serialized tasks */
             {
                 startTime = System.currentTimeMillis()
                 println("loading tasks from serialized files")
@@ -227,31 +211,32 @@ object ProductGeneration {
                 log = log + msg
             }
         }
-        /** Generate tasks */
+        /**Generate tasks */
         var configurationCollection: List[SimpleConfiguration] = List()
-        /** Load config from file */
-/*
-        {
-            if (typecheckingTasks.find(_._1.equals("FileConfig")).isDefined) {
-                msg = "omitting FileConfig generation, because a serialized version was loaded"
-            } else {
-                startTime = System.currentTimeMillis()
-                val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("../Linux_allyes_modified.config"))
-                typecheckingTasks :+= Pair("FileConfig", configs)
-                configurationCollection ++= configs
-                msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
 
-                //abort if no configuration could be loaded. No report file will be written in this case
-                if (configs.isEmpty) {
-                    println(msg +"\n" + " aborting check of file \"" + thisFilePath + "\" because file config could not be loaded.")
-                    return
+        /**Load config from file */
+        /*
+                {
+                    if (typecheckingTasks.find(_._1.equals("FileConfig")).isDefined) {
+                        msg = "omitting FileConfig generation, because a serialized version was loaded"
+                    } else {
+                        startTime = System.currentTimeMillis()
+                        val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("../Linux_allyes_modified.config"))
+                        typecheckingTasks :+= Pair("FileConfig", configs)
+                        configurationCollection ++= configs
+                        msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+
+                        //abort if no configuration could be loaded. No report file will be written in this case
+                        if (configs.isEmpty) {
+                            println(msg +"\n" + " aborting check of file \"" + thisFilePath + "\" because file config could not be loaded.")
+                            return
+                        }
+                    }
+                    println(msg)
+                    log = log + msg
                 }
-            }
-            println(msg)
-            log = log + msg
-        }
-*/
-        /** Henard CSV configurations */
+        */
+        /**Henard CSV configurations */
 
         {
             if (typecheckingTasks.find(_._1.equals("csv")).isDefined) {
@@ -260,7 +245,9 @@ object ProductGeneration {
                 val productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
-                    productsDir.list().map(new File(productsDir,_)).toList.sortBy({f:File=>(f.getName.substring(f.getName.lastIndexOf("product")+"product".length)).toInt}),
+                    productsDir.list().map(new File(productsDir, _)).toList.sortBy({
+                        f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
+                    }),
                     new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs"),
                     features, fm)
                 typecheckingTasks :+= Pair("henard", configs)
@@ -273,54 +260,54 @@ object ProductGeneration {
         }
 
         /**Single-wise */
-/*
-        {
-            if (typecheckingTasks.find(_._1.equals("singleWise")).isDefined) {
-                msg = "omitting singleWise generation, because a serialized version was loaded"
-            } else {
-                startTime = System.currentTimeMillis()
-                val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
-                typecheckingTasks :+= Pair("singleWise", configs)
+        /*
+                {
+                    if (typecheckingTasks.find(_._1.equals("singleWise")).isDefined) {
+                        msg = "omitting singleWise generation, because a serialized version was loaded"
+                    } else {
+                        startTime = System.currentTimeMillis()
+                        val (configs, logmsg) = getAllSinglewiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
+                        typecheckingTasks :+= Pair("singleWise", configs)
 
-                configurationCollection ++= configs
-                msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-            }
-            println(msg)
-            log = log + msg
-        }
-*/
+                        configurationCollection ++= configs
+                        msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+                    }
+                    println(msg)
+                    log = log + msg
+                }
+        */
         /**Coverage Configurations */
-/*
-        {
-            if (typecheckingTasks.find(_._1.equals("coverage")).isDefined) {
-                msg = "omitting coverage generation, because a serialized version was loaded"
-            } else {
-                startTime = System.currentTimeMillis()
-                val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurationCollection, preferDisabledFeatures = false)
-                typecheckingTasks :+= Pair("coverage", configs)
-                configurationCollection ++= configs
-                msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-            }
-            println(msg)
-            log = log + msg
-        }
-*/
+        /*
+                {
+                    if (typecheckingTasks.find(_._1.equals("coverage")).isDefined) {
+                        msg = "omitting coverage generation, because a serialized version was loaded"
+                    } else {
+                        startTime = System.currentTimeMillis()
+                        val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurationCollection, preferDisabledFeatures = false)
+                        typecheckingTasks :+= Pair("coverage", configs)
+                        configurationCollection ++= configs
+                        msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+                    }
+                    println(msg)
+                    log = log + msg
+                }
+        */
         /**Pairwise MAX */
-/*
-        {
-            if (typecheckingTasks.find(_._1.equals("pairWiseMax")).isDefined) {
-                msg = "omitting pairWiseMax generation, because a serialized version was loaded"
-            } else {
-                startTime = System.currentTimeMillis()
-                val (configs, logmsg) = getAllPairwiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
-                typecheckingTasks :+= Pair("pairWiseMax", configs)
-                configurationCollection ++= configs
-                msg = "Time for config generation (pairwiseMax): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-            }
-            println(msg)
-            log = log + msg
-        }
-*/
+        /*
+                {
+                    if (typecheckingTasks.find(_._1.equals("pairWiseMax")).isDefined) {
+                        msg = "omitting pairWiseMax generation, because a serialized version was loaded"
+                    } else {
+                        startTime = System.currentTimeMillis()
+                        val (configs, logmsg) = getAllPairwiseConfigurations(features, fm, configurationCollection, preferDisabledFeatures = false)
+                        typecheckingTasks :+= Pair("pairWiseMax", configs)
+                        configurationCollection ++= configs
+                        msg = "Time for config generation (pairwiseMax): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+                    }
+                    println(msg)
+                    log = log + msg
+                }
+        */
         /**Pairwise */
         /*
         if (typecheckingTasks.find(_._1.equals("pairWise")).isDefined) {
@@ -335,13 +322,37 @@ object ProductGeneration {
         */
 
         /**Just one hardcoded config */
-/*
-            typecheckingTasks :+= Pair("hardcoded", getOneConfigWithFeatures(
-              List("CONFIG_LOCK_STAT"),
-              List("CONFIG_DEBUG_LOCK_ALLOC"),
-              features,fm, true)
-              )
-*/
+        /*
+                    typecheckingTasks :+= Pair("hardcoded", getOneConfigWithFeatures(
+                      List("CONFIG_LOCK_STAT"),
+                      List("CONFIG_DEBUG_LOCK_ALLOC"),
+                      features,fm, true)
+                      )
+        */
+        return (log,typecheckingTasks)
+    }
+
+    def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions) {
+        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+
+        val fm = fm_ts // I got false positives while using the other fm
+        println("starting product typechecking.")
+        val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
+        val family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
+
+        var fw: FileWriter = null
+
+        /**write family ast */
+        /*
+            fw = new FileWriter(new File("../ast_fam.txt"))
+            fw.write(family_ast.toString)
+            fw.close()
+        */
+
+        val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
+
+        val (log, typecheckingTasks) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
+
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
 
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
@@ -395,7 +406,7 @@ object ProductGeneration {
         }
         // family base checking
         println("family-based type checking:")
-        startTime = System.currentTimeMillis()
+        var startTime : Long = System.currentTimeMillis()
         val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm_ts)
         val noErrors: Boolean = ts.checkAST
         val familyTime: Long = System.currentTimeMillis() - startTime
