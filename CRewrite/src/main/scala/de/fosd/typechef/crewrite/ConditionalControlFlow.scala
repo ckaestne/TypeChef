@@ -43,13 +43,13 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 
 class CCFGCache {
-  private val cache: java.util.IdentityHashMap[Product, List[AST]] = new java.util.IdentityHashMap[Product, List[AST]]()
+  private val cache: java.util.IdentityHashMap[Product, Conditional[List[AST]]] = new java.util.IdentityHashMap[Product, Conditional[List[AST]]]()
 
-  def update(k: Product, v: List[AST]) {
+  def update(k: Product, v: Conditional[List[AST]]) {
     cache.put(k, v)
   }
 
-  def lookup(k: Product): Option[List[AST]] = {
+  def lookup(k: Product): Option[Conditional[List[AST]]] = {
     val v = cache.get(k)
     if (v != null) Some(v)
     else None
@@ -68,6 +68,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   // result type of pred/succ determination
   // List[(computed annotation, given annotation, ast node)]
   type CCFGRes = List[(FeatureExpr, FeatureExpr, AST)]
+  type CCFG    = Conditional[List[AST]]
 
   // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
   // we use the barrier list to add elements we do not want to get out again;
@@ -76,14 +77,14 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
   // determines predecessor of a given element
   // results are cached for secondary evaluation
-  def pred(source: Product, env: ASTEnv): List[AST] = {
+  def pred(source: Product, env: ASTEnv): CCFG = {
     predCCFGCache.lookup(source) match {
       case Some(v) => v
       case None => {
         var oldres: CCFGRes = List()
         val ctx = env.featureExpr(source)
 
-        if (ctx isContradiction()) return List()
+        if (ctx isContradiction()) return One(List())
 
         var newres: CCFGRes = predHelper(source, ctx, oldres, env)
         var changed = true
@@ -149,9 +150,18 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           }
         }
 
-        val newret = newres.map(_._3)
-        predCCFGCache.update(source, newret)
-        newret
+        var ccfg: CCFG = One(List())
+
+        for ((f, _, l) <- newres) {
+          ConditionalLib.findSubtree(f, ccfg) match {
+            case One(value) => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, l::value)
+            case _          => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, List(l))
+          }
+
+        }
+
+        predCCFGCache.update(source, ccfg)
+        ccfg
       }
     }
   }
@@ -329,20 +339,29 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  def succ(source: Product, env: ASTEnv): List[AST] = {
+  def succ(source: Product, env: ASTEnv): CCFG = {
     succCCFGCache.lookup(source) match {
       case Some(v) => v
       case None => {
-        var curres: CCFGRes = List()
+        var newres: CCFGRes = List()
         val ctx = env.featureExpr(source)
 
-        if (ctx isContradiction()) return List()
+        if (ctx isContradiction()) return One(List())
 
-        curres = succHelper(source, ctx, curres, env)
+        newres = succHelper(source, ctx, newres, env)
 
-        val res = curres.map(_._3)
-        succCCFGCache.update(source, res)
-        res
+        var ccfg: CCFG = One(List())
+
+        for ((f, _, l) <- newres) {
+          ConditionalLib.findSubtree(f, ccfg) match {
+            case One(value) => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, l::value)
+            case _          => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, List(l))
+          }
+
+        }
+
+        succCCFGCache.update(source, ccfg)
+        ccfg
       }
     }
   }
@@ -1161,7 +1180,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
   // determine recursively all succs check
   def getAllSucc(i: AST, env: ASTEnv) = {
-    var r = List[(AST, List[AST])]()
+    var r = List[(AST, Conditional[List[AST]])]()
     var s = List(i)
     var d = List[AST]()
     var c: AST = null
@@ -1172,7 +1191,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       if (d.filter(_.eq(c)).isEmpty) {
         r = (c, succ(c, env)) :: r
-        s = s ++ r.head._2
+        s = s ++ ConditionalLib.leaves(r.head._2).flatten
         d = d ++ List(c)
       }
     }
@@ -1181,7 +1200,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
   // determine recursively all pred
   def getAllPred(i: AST, env: ASTEnv) = {
-    var r = List[(AST, List[AST])]()
+    var r = List[(AST, Conditional[List[AST]])]()
     var s = List(i)
     var d = List[AST]()
     var c: AST = null
@@ -1192,7 +1211,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       if (d.filter(_.eq(c)).isEmpty) {
         r = (c, pred(c, env)) :: r
-        s = s ++ r.head._2
+        s = s ++ ConditionalLib.leaves(r.head._2).flatten
         d = d ++ List(c)
       }
     }
