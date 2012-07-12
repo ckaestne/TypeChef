@@ -70,140 +70,34 @@ trait CDefUse extends CEnv {
   }
 
   def addUse(entry: AST, env: Env) {
+
     entry match {
-      // TODO params
-      // params are uses of local or global variables
       case PostfixExpr(i@Id(name), FunctionCall(params)) => {
         env.varEnv.getAstOrElse(name, null) match {
-          case One(FunctionDef(_, declarator, _, _)) => {
-            val key = declarator.getId
-            // function definition used as def entry
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-
-            }
-          }
+          case One(FunctionDef(_, declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case _ =>
         }
       }
-      /*case AssignExpr(i@Id(name), _, _) =>
-        env.varEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) => {
-            val key = declarator.getId
-
-            // function definition used as def entry
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
-
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
-
-          }
-          case _ =>
-        }
-      case NAryExpr(i@Id(name), _) =>
-        env.varEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) => {
-            val key = declarator.getId
-            // function definition used as def entry
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
-
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
-
-          }
-          case One(AtomicNamedDeclarator(_, declarator, _)) => {
-            if (defuse.containsKey(declarator)) {
-              defuse.put(declarator, defuse.get(declarator) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(declarator)) fd = k.asInstanceOf[Id]
-
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
-          }
-          case _ =>
-        }
-      case NArySubExpr(_, i@Id(name)) =>
-        env.varEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) => {
-            val key = declarator.getId
-
-            // function definition used as def entry
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
-
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
-
-          }
-          case _ =>
-        }  */
-      // TODO Refactor double code!
       case i@Id(name) =>
-        val test = env.varEnv.getAstOrElse(name, null)
-        test match {
-          case One(InitDeclaratorI(declarator, _, _)) => {
-            val key = declarator.getId
-
-            // function definition used as def entry
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
-          }
-          case One(AtomicNamedDeclarator(_, key, _)) =>
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
-          case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
-          case _ => println("Error " + i + " from: " + test)
+        env.varEnv.getAstOrElse(name, null) match {
+          case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
+          case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
+          case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
+          case _ =>
         }
       case _ =>
+    }
+  }
+
+  private def addToDefUseMap(key: Id, target: Id) {
+    if (defuse.containsKey(key)) {
+      defuse.put(key, defuse.get(key) ++ List(target))
+    } else {
+      var fd: Id = null
+      for (k <- defuse.keySet().toArray)
+        for (v <- defuse.get(k))
+          if (v.eq(key)) fd = k.asInstanceOf[Id]
+      defuse.put(fd, defuse.get(fd) ++ List(target))
     }
   }
 }
