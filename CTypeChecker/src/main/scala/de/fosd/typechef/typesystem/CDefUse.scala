@@ -13,9 +13,15 @@ import de.fosd.typechef.conditional.{Opt, One}
 // with information about names, AST entries and their corresponding types
 trait CDefUse extends CEnv {
   private val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
-  private[typesystem] def clear() {defuse.clear()}
 
-  def clearDefUseMap() { defuse.clear() }
+  private[typesystem] def clear() {
+    defuse.clear()
+  }
+
+  def clearDefUseMap() {
+    defuse.clear()
+  }
+
   def getDefUseMap = defuse
 
   // add definition:
@@ -40,9 +46,9 @@ trait CDefUse extends CEnv {
         // Parameter Declaration
         ext.foreach(x => x match {
           case null =>
-          case Opt(_, d:DeclParameterDeclList) => d.parameterDecls.foreach(pdL => pdL match {
+          case Opt(_, d: DeclParameterDeclList) => d.parameterDecls.foreach(pdL => pdL match {
             case null =>
-            case Opt(_, pd:ParameterDeclarationD) => {
+            case Opt(_, pd: ParameterDeclarationD) => {
               val paramID = pd.decl.getId
               env.varEnv.getAstOrElse(paramID.name, null) match {
                 case null => defuse.put(paramID, List())
@@ -51,7 +57,7 @@ trait CDefUse extends CEnv {
                   val key = i.getId
                   defuse.put(key, defuse.get(key) ++ List(id))
                 }
-            }
+              }
             }
             case _ =>
           })
@@ -71,7 +77,6 @@ trait CDefUse extends CEnv {
         env.varEnv.getAstOrElse(name, null) match {
           case One(FunctionDef(_, declarator, _, _)) => {
             val key = declarator.getId
-
             // function definition used as def entry
             if (defuse.containsKey(key)) {
               defuse.put(key, defuse.get(key) ++ List(i))
@@ -80,8 +85,8 @@ trait CDefUse extends CEnv {
               for (k <- defuse.keySet().toArray)
                 for (v <- defuse.get(k))
                   if (v.eq(key)) fd = k.asInstanceOf[Id]
-
               defuse.put(fd, defuse.get(fd) ++ List(i))
+
             }
 
           }
@@ -158,7 +163,7 @@ trait CDefUse extends CEnv {
 
           }
           case _ =>
-        }*/
+        }  */
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) => {
@@ -166,14 +171,12 @@ trait CDefUse extends CEnv {
 
             // function definition used as def entry
             if (defuse.containsKey(key)) {
-              println("drin? " + i + defuse.get(key).contains(i))
               defuse.put(key, defuse.get(key) ++ List(i))
             } else {
               var fd: Id = null
               for (k <- defuse.keySet().toArray)
                 for (v <- defuse.get(k))
                   if (v.eq(key)) fd = k.asInstanceOf[Id]
-              println("drin? "  + defuse.get(fd).contains(i))
               defuse.put(fd, defuse.get(fd) ++ List(i))
             }
 

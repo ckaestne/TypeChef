@@ -13,38 +13,38 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e1"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e1"), List()), List(), None))))))
     val e2 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e2"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e2"), List()), List(), None))))))
     val e21 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e21"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e21"), List()), List(), None))))))
     val e22 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e22"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e22"), List()), List(), None))))))
     val e3 = Opt(fx,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e3"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e3"), List()), List(), None))))))
     val e4 = Opt(fx.not(),
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e4"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e4"), List()), List(), None))))))
     val e5 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e5"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e5"), List()), List(), None))))))
 
     val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
@@ -58,38 +58,38 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val e1 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e1"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e1"), List()), List(), None))))))
     val e2 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e2"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e2"), List()), List(), None))))))
     val e21 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e21"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e21"), List()), List(), None))))))
     val e22 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e22"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e22"), List()), List(), None))))))
     val e3 = Opt(fx,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e3"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e3"), List()), List(), None))))))
     val e4 = Opt(fx.not(),
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e4"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e4"), List()), List(), None))))))
     val e5 = Opt(True,
       DeclarationStatement(
         Declaration(
-          List(Opt(True,IntSpecifier())),
-          List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("e5"),List()),List(),None))))))
+          List(Opt(True, IntSpecifier())),
+          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e5"), List()), List(), None))))))
 
     val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
 
@@ -100,7 +100,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_struct() {
-    val ast = getAST("""
+    val ast = getAST( """
     main {
     int a;
     #if definedEx(A)
@@ -121,7 +121,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     a = 256;
     #endif
     }
-                     """)
+                      """)
     val env = createASTEnv(ast)
     val i = new IfdefToIf()
     println("Test:\n")
@@ -129,7 +129,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val fio = i.filterInvariableOpts(ast, env)
 
     val feat = i.filterFeatures(ast, env)
-    println ("++Distinct features in ast" + " (" + feat.size + ")" + "++")
+    println("++Distinct features in ast" + " (" + feat.size + ")" + "++")
     println(feat)
     val cstmt = i.definedExternalToStruct(feat)
     println()
@@ -142,7 +142,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_map() {
-    val ast = getAST("""
+    val ast = getAST( """
       #if definedEx(A)
       int
       #elif definedEx(B)
@@ -177,7 +177,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       int foo4() {
       return 0;
       }
-                     """)
+                      """)
     val env = createASTEnv(ast)
     val i = new IfdefToIf()
     println(i.functionMap(ast))
@@ -192,7 +192,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_function() {
-    val ast = getAST("""
+    val ast = getAST( """
       #if definedEx(A)
       int
       #elif !definedEx(B)
@@ -226,7 +226,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         foo2(5);
         foo(5);
       }
-    """)
+                      """)
     println("++ Vorgabe ++")
     println(ast)
 
@@ -244,7 +244,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_text2() {
-    val ast = getAST("""
+    val ast = getAST( """
       #if definedEx(A)
       int
       #elif !definedEx(B)
@@ -260,7 +260,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       main(void) {
         foo();
       }
-                     """)
+                      """)
     println(ast + "\n")
     val i = new IfdefToIf()
     val env = createASTEnv(ast)
@@ -274,7 +274,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_switch1 {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       void foo_01(int a) {
         int optA = 1;
         switch (a) {
@@ -286,8 +286,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           case 3: printf("in 3\n"); break;
         }
       }
-                            """)
-    val target_ast = getAST("""
+                             """)
+    val target_ast = getAST( """
       void foo_01(int a) {
         int optA = 1;
         switch (a) {
@@ -301,7 +301,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           case 3: printf("in 3\n"); break;
         }
       }
-                            """)
+                             """)
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     println("Source:\n" + source_ast)
@@ -314,7 +314,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
 
   @Test def test_switch2 {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       void foo_02(int a) {
         int optA = 1;
         switch (a) {
@@ -326,8 +326,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           case 3: printf("in 3\n"); break;
         }
       }
-                            """)
-    val target_ast = getAST("""
+                             """)
+    val target_ast = getAST( """
       void foo_02(int a) {
         int optA = 1;
         switch (a) {
@@ -342,7 +342,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         }
       sexit:;
       }
-                            """)
+                             """)
 
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
@@ -356,7 +356,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
 
   @Test def test_switch3 {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       void foo_03(int a) {
         int optA = 1;
         switch (a) {
@@ -376,8 +376,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           case 3: printf("in 3\n"); break;
         }
       }
-                            """)
-    val target_ast = getAST("""
+                             """)
+    val target_ast = getAST( """
       void foo_03(int a) {
         int optA = 1;
         switch (a) {
@@ -392,7 +392,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           case 3: printf("in 3\n"); break;
         }
       }
-                            """)
+                             """)
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     println("Source:\n" + source_ast)
@@ -405,7 +405,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
 
   @Test def test_switch4 {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       void foo_04(int a) {
         int optA = 1;
         switch (a) {
@@ -418,8 +418,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           default: printf("in default\n"); break;
         }
       }
-                            """)
-    val target_ast = getAST("""
+                             """)
+    val target_ast = getAST( """
       void foo_04(int a) {
         int optA = 1;
         switch (a) {
@@ -439,7 +439,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           default: printf("in default\n"); break;
         }
       }
-                            """)
+                             """)
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     println("Source:\n" + source_ast)
@@ -451,7 +451,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def if_test {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       void foo_04(int a) {
       int i;
       #if definedEx(A)
@@ -462,8 +462,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       i = 128;
       #endif
       }
-                            """)
-    val target_ast = getAST("""
+                             """)
+    val target_ast = getAST( """
       void foo_04(int a) {
         int i;
         if (options.a) {
@@ -476,7 +476,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           i = 128;
         }
       }
-                            """)
+                             """)
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     println("Source:\n" + source_ast)
@@ -486,7 +486,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def if_test2 {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       void foo_04(int a) {
       int i = 0;
       if (i) {
@@ -498,8 +498,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       }
       #endif
       }
-                            """)
-    val target_ast = getAST("""
+                             """)
+    val target_ast = getAST( """
       void foo_04(int a) {
         int i = 0;
         if (i) {
@@ -508,7 +508,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
           i = 64;
         }
       }
-                            """)
+                             """)
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     println("Source:\n" + source_ast)
@@ -518,7 +518,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_jump {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       int main(void) {
         goto j1;
         goto j2;
@@ -541,8 +541,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
         return 0;
       }
-                            """);
-    val target_ast = getAST("""
+                             """);
+    val target_ast = getAST( """
       int main(void) {
         if(options.a) {
           goto _0_j1;
@@ -580,7 +580,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
         return 0;
       }
-                            """);
+                             """);
     println("Source:\n" + source_ast)
     //println("\n\nTarget:\n" + target_ast + "\n\n")
 
@@ -590,7 +590,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_int {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       int main(void) {
         #if definedEx(A)
         int i = 8;
@@ -614,8 +614,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         j = 2*j;
         return 0;
       }
-                            """);
-    val target_ast = getAST("""
+                             """);
+    val target_ast = getAST( """
       int main(void) {
         int _0_i = 8
 
@@ -663,7 +663,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
         return 0;
       }
-                            """);
+                             """);
     println("Source:\n" + source_ast + "\n")
     //println("\n\nTarget:\n" + target_ast + "\n\n")
 
@@ -673,7 +673,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def ac_test {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       #ifdef CONFIG_ACPI_PROCFS_POWER
       static const struct file_operations acpi_ac_fops = {
         .owner = THIS_MODULE,
@@ -683,7 +683,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         .release = single_release,
         };
         #endif
-                            """);
+                             """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
 
@@ -693,7 +693,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def normal_struct {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       static const struct file_operations acpi_ac_fops = {
         .owner = THIS_MODULE,
         .open = acpi_ac_open_fs,
@@ -701,7 +701,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         .llseek = seq_lseek,
         .release = single_release,
         };
-                            """);
+                             """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
 
@@ -711,7 +711,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_opt_in_struct {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       const unsigned int e2attr_flags_value[] = {
       #ifdef ENABLE_COMPRESSION
 	      EXT2_COMPRBLK_FL,
@@ -734,7 +734,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 	      EXT2_TOPDIR_FL
     };
 
-                            """);
+                             """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
 
@@ -744,7 +744,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_opt_struct {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       #ifdef ENABLE_COMPRESSION
       const unsigned int e2attr_flags_value[] = {
 	      EXT2_COMPRBLK_FL,
@@ -753,7 +753,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       	EXT2_ECOMPR_FL,
       };
       #endif
-      """);
+                             """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
 
@@ -763,7 +763,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_opt_int {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       int main(void) {
         #if definedEx(A)
         int i = 8;
@@ -787,7 +787,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         j = 2*j;
         return 0;
       }
-                            """);
+                             """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
 
@@ -797,25 +797,27 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_int_def_use {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       int foo(int *x, int z) {
         int i2 = x + 5;
         i2 = 5;
         int y;
         y = 5;
-        return x + i2;
+        return x + i2 + z;
       }
       int main(void) {
         int i = 0;
         i = i + 1;
         foo(i);
+        int b = 666;
+        foo(b);
 
         int j;
         j = 10;
         i = (j * (j*(j-(j+j)))) - (j*j) + j;
         return 0;
       }
-                            """);
+                             """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
 
@@ -828,7 +830,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_array_def_use {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       const int konst = 55;
       int foo(int arr[5], int z) {
         arr[0] = 10;
@@ -852,16 +854,16 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
 
 
-        a[0] = 0;
+        a[konst] = 0;
         int plusgleich = 10;
         plusgleich += 5;
         int funktion;
         foo(a[5], funktion);
         int plusplus = 1;
         plusplus++;
-        return plsugleich;
+        return plusgleich;
       }
-                            """);
+                             """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
 
