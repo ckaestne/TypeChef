@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.conditional.Conditional
+import de.fosd.typechef.conditional.Opt
 
 sealed abstract class CCFGError
 
@@ -20,7 +20,7 @@ case class CCFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CCFGErr
 }
 
 object CCFGErrorOutput {
-  def printCCFGErrors(s: List[(AST, Conditional[List[AST]])], p: List[(AST, Conditional[List[AST]])], errors: List[CCFGError], env: ASTEnv) {
+  def printCCFGErrors(s: List[(AST, List[Opt[AST]])], p: List[(AST, List[Opt[AST]])], errors: List[CCFGError], env: ASTEnv) {
     if (errors.size > 0) {
 
       val nodeErrorsOcc = errors.filter({_ match { case _: CCFGErrorMis => true; case _ => false}})

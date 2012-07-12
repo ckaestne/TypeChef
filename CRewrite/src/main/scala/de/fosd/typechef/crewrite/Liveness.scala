@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
-import de.fosd.typechef.conditional.{ConditionalLib, Opt}
+import de.fosd.typechef.conditional.Opt
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
@@ -162,16 +162,11 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   val outsimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
     circular[(Product, ASTEnv), Set[Id]](Set()) {
       case t@(e, env) => {
-        val ss = succ(e, env)
+        val ss = succ(e, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
-        for ((f, s) <- ConditionalLib.items(ss)) {
-          for (ns <- s) {
-            if (ns.isInstanceOf[FunctionDef]) { }
-            else {
-              if (!astIdenEnvHM.containsKey(ns)) astIdenEnvHM.put(ns, (ns, env))
-              res = res.union(insimple(ns))
-            }
-          }
+        for (s <- ss.map(_.entry)) {
+          if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
+          res = res.union(insimple(s))
         }
         res
       }
@@ -198,18 +193,12 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   val outrec: PartialFunction[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]] =
     circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(e, env) => {
-        val ss = succ(e, env)
+        val ss = succ(e, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[FeatureExpr, Set[Id]]()
-        for ((f, s) <- ConditionalLib.items(ss)) {
-          for (ns <- s) {
-            if (ns.isInstanceOf[FunctionDef]) { }
-            else {
-              if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(ns, (ns, env))
-              for (el <- in(ns))
-                res = updateMap(res, el, _.union(_))
-            }
-          }
-
+        for (s <- ss.map(_.entry)) {
+          if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
+          for (el <- in(s))
+            res = updateMap(res, el, _.union(_))
         }
         res
       }

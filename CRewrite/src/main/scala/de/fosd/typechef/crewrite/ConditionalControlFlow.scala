@@ -41,15 +41,14 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 // TODO analysis: There may be at most one default label in a switch statement.
 // TODO analysis: we can continue this list only by looking at constrains in [2]
 
-
 class CCFGCache {
-  private val cache: java.util.IdentityHashMap[Product, Conditional[List[AST]]] = new java.util.IdentityHashMap[Product, Conditional[List[AST]]]()
+  private val cache = new java.util.IdentityHashMap[Product, List[Opt[AST]]]()
 
-  def update(k: Product, v: Conditional[List[AST]]) {
+  def update(k: Product, v: List[Opt[AST]]) {
     cache.put(k, v)
   }
 
-  def lookup(k: Product): Option[Conditional[List[AST]]] = {
+  def lookup(k: Product): Option[List[Opt[AST]]] = {
     val v = cache.get(k)
     if (v != null) Some(v)
     else None
@@ -68,7 +67,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   // result type of pred/succ determination
   // List[(computed annotation, given annotation, ast node)]
   type CCFGRes = List[(FeatureExpr, FeatureExpr, AST)]
-  type CCFG    = Conditional[List[AST]]
+  type CCFG    = List[Opt[AST]]
 
   // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
   // we use the barrier list to add elements we do not want to get out again;
@@ -84,7 +83,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         var oldres: CCFGRes = List()
         val ctx = env.featureExpr(source)
 
-        if (ctx isContradiction()) return One(List())
+        if (ctx isContradiction()) return List()
 
         var newres: CCFGRes = predHelper(source, ctx, oldres, env)
         var changed = true
@@ -150,18 +149,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
           }
         }
 
-        var ccfg: CCFG = One(List())
-
-        for ((f, _, l) <- newres) {
-          ConditionalLib.findSubtree(f, ccfg) match {
-            case One(value) => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, l::value)
-            case _          => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, List(l))
-          }
-
-        }
-
-        predCCFGCache.update(source, ccfg)
-        ccfg
+        val res = newres.map(x => Opt(x._1, x._3))
+        predCCFGCache.update(source, res)
+        res
       }
     }
   }
@@ -346,22 +336,13 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         var newres: CCFGRes = List()
         val ctx = env.featureExpr(source)
 
-        if (ctx isContradiction()) return One(List())
+        if (ctx isContradiction()) return List()
 
         newres = succHelper(source, ctx, newres, env)
 
-        var ccfg: CCFG = One(List())
-
-        for ((f, _, l) <- newres) {
-          ConditionalLib.findSubtree(f, ccfg) match {
-            case One(value) => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, l::value)
-            case _          => ccfg = ConditionalLib.insert(ccfg, FeatureExprFactory.True, f, List(l))
-          }
-
-        }
-
-        succCCFGCache.update(source, ccfg)
-        ccfg
+        val res = newres.map(x => Opt(x._1, x._3))
+        succCCFGCache.update(source, res)
+        res
       }
     }
   }
@@ -1180,7 +1161,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
   // determine recursively all succs check
   def getAllSucc(i: AST, env: ASTEnv) = {
-    var r = List[(AST, Conditional[List[AST]])]()
+    var r = List[(AST, List[Opt[AST]])]()
     var s = List(i)
     var d = List[AST]()
     var c: AST = null
@@ -1191,7 +1172,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       if (d.filter(_.eq(c)).isEmpty) {
         r = (c, succ(c, env)) :: r
-        s = s ++ ConditionalLib.leaves(r.head._2).flatten
+        s = s ++ r.head._2.map(x => x.entry)
         d = d ++ List(c)
       }
     }
@@ -1200,7 +1181,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
   // determine recursively all pred
   def getAllPred(i: AST, env: ASTEnv) = {
-    var r = List[(AST, Conditional[List[AST]])]()
+    var r = List[(AST, List[Opt[AST]])]()
     var s = List(i)
     var d = List[AST]()
     var c: AST = null
@@ -1211,7 +1192,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       if (d.filter(_.eq(c)).isEmpty) {
         r = (c, pred(c, env)) :: r
-        s = s ++ ConditionalLib.leaves(r.head._2).flatten
+        s = s ++ r.head._2.map(x => x.entry)
         d = d ++ List(c)
       }
     }
@@ -1245,15 +1226,13 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     // check that number of edges match
     var succ_edges: List[(AST, AST)] = List()
     for ((ast_elem, csuccs) <- lsuccs) {
-      for ((_, succs) <- ConditionalLib.items(csuccs))
-        for (succ <- succs)
-          succ_edges = (ast_elem, succ) :: succ_edges
+      for (succ <- csuccs.map(_.entry))
+        succ_edges = (ast_elem, succ) :: succ_edges
     }
 
     var pred_edges: List[(AST, AST)] = List()
     for ((ast_elem, cpreds) <- lpreds) {
-      for ((_, preds) <- ConditionalLib.items(cpreds))
-        for (pred <- preds)
+        for (pred <- cpreds.map(_.entry))
           pred_edges = (ast_elem, pred) :: pred_edges
     }
 

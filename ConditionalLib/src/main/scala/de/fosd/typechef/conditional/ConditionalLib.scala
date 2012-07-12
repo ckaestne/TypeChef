@@ -99,7 +99,7 @@ object ConditionalLib {
         if (ctx isTautology()) Choice(f, One(e), o)
         else Choice(ctx, o, One(e))
       case Choice(feature, thenBranch, elseBranch) =>
-        if (((ctx and feature) and f isContradiction()) || f.isTautology())
+        if ((ctx and feature) and f isContradiction())
           Choice(feature, thenBranch, insert(elseBranch, ctx and (feature.not()), f, e))
         else
           Choice(feature, insert(thenBranch, ctx and feature, f, e), elseBranch)

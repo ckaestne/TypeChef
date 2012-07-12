@@ -204,7 +204,12 @@ class ConditionalTest {
     t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
     t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
 
+    var t2: Conditional[String] = One("true")
+    t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
+    t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
+
     println(t1)
+    println(t2)
 
     }
 }
