@@ -87,26 +87,54 @@ trait CDefUse extends CEnv {
           case _ =>
         }
       }
-      case AssignExpr(i@Id(name), _, _) =>
-        env.varEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) => {
-            val key = declarator.getId
+      case AssignExpr(i1, _, i2) =>
+        i1 match {
+          case id1@Id(name) =>
+            env.varEnv.getAstOrElse(name, null) match {
+              case One(InitDeclaratorI(declarator, _, _)) => {
+                val key = declarator.getId
 
-            // function definition used as def entry
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(i))
-            } else {
-              var fd: Id = null
-              for (k <- defuse.keySet().toArray)
-                for (v <- defuse.get(k))
-                  if (v.eq(key)) fd = k.asInstanceOf[Id]
+                // function definition used as def entry
+                if (defuse.containsKey(key)) {
+                  defuse.put(key, defuse.get(key) ++ List(id1))
+                } else {
+                  var fd: Id = null
+                  for (k <- defuse.keySet().toArray)
+                    for (v <- defuse.get(k))
+                      if (v.eq(key)) fd = k.asInstanceOf[Id]
 
-              defuse.put(fd, defuse.get(fd) ++ List(i))
-            }
+                  defuse.put(fd, defuse.get(fd) ++ List(id1))
+                }
 
-          }
+              }
+              case _ =>
+        }
           case _ =>
         }
+        i2 match {
+          case id2@Id(name) =>
+            env.varEnv.getAstOrElse(name, null) match {
+              case One(InitDeclaratorI(declarator, _, _)) => {
+                val key = declarator.getId
+
+                // function definition used as def entry
+                if (defuse.containsKey(key)) {
+                  defuse.put(key, defuse.get(key) ++ List(id2))
+                } else {
+                  var fd: Id = null
+                  for (k <- defuse.keySet().toArray)
+                    for (v <- defuse.get(k))
+                      if (v.eq(key)) fd = k.asInstanceOf[Id]
+
+                  defuse.put(fd, defuse.get(fd) ++ List(id2))
+                }
+
+              }
+              case _ =>
+            }
+          case _ =>
+        }
+
       case NAryExpr(i@Id(name), _) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) => {
