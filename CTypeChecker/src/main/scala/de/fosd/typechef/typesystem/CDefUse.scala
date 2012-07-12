@@ -88,7 +88,6 @@ trait CDefUse extends CEnv {
               defuse.put(fd, defuse.get(fd) ++ List(i))
 
             }
-
           }
           case _ =>
         }
@@ -164,8 +163,10 @@ trait CDefUse extends CEnv {
           }
           case _ =>
         }  */
+      // TODO Refactor double code!
       case i@Id(name) =>
-        env.varEnv.getAstOrElse(name, null) match {
+        val test = env.varEnv.getAstOrElse(name, null)
+        test match {
           case One(InitDeclaratorI(declarator, _, _)) => {
             val key = declarator.getId
 
@@ -179,9 +180,19 @@ trait CDefUse extends CEnv {
                   if (v.eq(key)) fd = k.asInstanceOf[Id]
               defuse.put(fd, defuse.get(fd) ++ List(i))
             }
-
           }
-          case _ =>
+          case One(AtomicNamedDeclarator(_, key, _)) => {
+            if (defuse.containsKey(key)) {
+              defuse.put(key, defuse.get(key) ++ List(i))
+            } else {
+              var fd: Id = null
+              for (k <- defuse.keySet().toArray)
+                for (v <- defuse.get(k))
+                  if (v.eq(key)) fd = k.asInstanceOf[Id]
+              defuse.put(fd, defuse.get(fd) ++ List(i))
+            }
+          }
+          case _ => println("Error " + i + " from: " + test)
         }
       case _ =>
     }

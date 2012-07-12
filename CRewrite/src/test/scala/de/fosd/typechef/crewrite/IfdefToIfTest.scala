@@ -838,7 +838,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         arr[2] = (arr[0] + arr[1]) * arr[0];
         int x = 5;
         int i2 = x + 5;
-        i2 = 5;
+        i2 = z;
         int y;
         y = konst;
         konst = 5;
