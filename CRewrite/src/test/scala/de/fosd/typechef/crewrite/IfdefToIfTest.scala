@@ -847,14 +847,18 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         konst = 5;
         int missing = 3;
         y = missing;
+        int variable;
         #ifdef awesome
-          int variable = 4;
+          variable = 4;
+          int noType = 3;
           int onlyHere = 3;
           z = onlyHere;
           y = quadrat(z);
         #else
-          float variable = 3;
+          variable = 7;
+          float noType = 7;
         #endif
+        noType += noType;
         return variable;
       }
       int main(void) {
