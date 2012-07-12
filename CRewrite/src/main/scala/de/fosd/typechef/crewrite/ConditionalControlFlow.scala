@@ -205,7 +205,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         case SwitchStatement(expr, _) => {
           val r1 = getExprPred(expr, ctx, oldres, env)
 
-          // do not determine the pred of t in case no case statement precedes t; TODO nested case
+          // do not determine the pred of t in case no case statement precedes t
           // switch (e) {
           //   int a;
           //   case 1;
@@ -1219,7 +1219,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   // given an ast element x and its successors lx: x should be in pred(lx)
-  def compareSuccWithPred(lsuccs: List[(AST, List[AST])], lpreds: List[(AST, List[AST])], env: ASTEnv): List[CCFGError] = {
+  def compareSuccWithPred(lsuccs: List[(AST, CCFG)], lpreds: List[(AST, CCFG)], env: ASTEnv): List[CCFGError] = {
     var errors: List[CCFGError] = List()
 
     // check that number of nodes match
@@ -1244,17 +1244,17 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
     // check that number of edges match
     var succ_edges: List[(AST, AST)] = List()
-    for ((ast_elem, succs) <- lsuccs) {
-      for (succ <- succs) {
-        succ_edges = (ast_elem, succ) :: succ_edges
-      }
+    for ((ast_elem, csuccs) <- lsuccs) {
+      for ((_, succs) <- ConditionalLib.items(csuccs))
+        for (succ <- succs)
+          succ_edges = (ast_elem, succ) :: succ_edges
     }
 
     var pred_edges: List[(AST, AST)] = List()
-    for ((ast_elem, preds) <- lpreds) {
-      for (pred <- preds) {
-        pred_edges = (ast_elem, pred) :: pred_edges
-      }
+    for ((ast_elem, cpreds) <- lpreds) {
+      for ((_, preds) <- ConditionalLib.items(cpreds))
+        for (pred <- preds)
+          pred_edges = (ast_elem, pred) :: pred_edges
     }
 
     // check succ/pred connection and print out missing connections
