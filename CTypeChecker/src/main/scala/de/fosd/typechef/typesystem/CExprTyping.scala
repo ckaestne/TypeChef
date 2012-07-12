@@ -22,7 +22,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         val resultType: Conditional[CType] =
             if (!featureExpr.isSatisfiable()) {
                 One(CIgnore())
-            } else
+            } else  {
                 expr match {
                     /**
                      * The standard provides for methods of
@@ -40,6 +40,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                       // TODO Add Use
                     //variable or function ref
                     case id@Id(name) =>
+                        addUse(id, env)
                         val ctype = env.varEnv(name)
                         ctype.mapf(featureExpr, {
                             (f, t) =>
@@ -248,7 +249,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                     //TODO initializers 6.5.2.5
                     case e => One(reportTypeError(featureExpr, "unknown expression " + e + " (TODO)", e))
-                }
+                } }
 
         typedExpr(expr, resultType, featureExpr, env)
         addEnv(expr, env)

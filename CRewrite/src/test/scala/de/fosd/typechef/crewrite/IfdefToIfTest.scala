@@ -829,15 +829,21 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
   @Test def test_array_def_use {
     val source_ast = getAST("""
+      const int konst = 55;
       int foo(int arr[5], int z) {
         arr[0] = 10;
         arr[1] = 5;
         arr[2] = (arr[0] + arr[1]) * arr[0];
+        int x = 5;
         int i2 = x + 5;
         i2 = 5;
         int y;
+        y = konst;
+        konst = 5;
+        int missing = 3;
+        y = missing;
         y = 5;
-        return i2;
+        return missing;
       }
       int main(void) {
         int a[5];
