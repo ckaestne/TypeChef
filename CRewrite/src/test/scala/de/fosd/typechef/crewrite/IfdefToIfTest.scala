@@ -831,6 +831,9 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
   @Test def test_array_def_use {
     val source_ast = getAST( """
+      #ifdef awesome
+        #define quadrat(q) ((q)*(q))
+      #endif
       const int konst = 55;
       int foo(int arr[5], int z) {
         arr[0] = 10;
@@ -844,8 +847,15 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         konst = 5;
         int missing = 3;
         y = missing;
-        y = 5;
-        return missing;
+        #ifdef awesome
+          int variable = 4;
+          int onlyHere = 3;
+          z = onlyHere;
+          y = quadrat(z);
+        #else
+          float variable = 3;
+        #endif
+        return variable;
       }
       int main(void) {
         int a[5];
