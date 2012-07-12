@@ -875,6 +875,35 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("\nDef Use Map:\n" + defUseMap)
   }
 
+  @Test def test_struct_def_use {
+    val source_ast = getAST( """
+      struct student {
+        int id;
+        char *name;
+        float percentage;
+      } student1, student2, student3;
+      int main(void) {
+        struct student st;
+        st.id = 5;
+        student1.id = 1;
+        student2.name = "Joerg";
+        student3.percentage = 90.0;
+
+        int i = student1.id;
+        return 0;
+      }
+                             """);
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    println("Source:\n" + source_ast)
+    println("\nDef Use Map:\n" + defUseMap)
+  }
+
   @Test def busy_box_test {
     // Datei einlesen, Argumente mit Dateipfad -xCONFIG_ -c/AndyHiwi/Andi/Andi.properties String Array // FileActions
     val args: Array[String] = Array("C:\\Users\\Flo\\Dropbox\\HiWi\\HelloWorld.c", "-xCONFIG_", "-C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\flo_properties")
