@@ -114,8 +114,8 @@ object ProductDerivation {
             case x:BreakStatement => x
             case ReturnStatement(ex)=> new ReturnStatement(deriveOptionalAST(ex,c))
             case LabelStatement(id,attr) => new LabelStatement(deriveProd(id,c),deriveOptionalAST(attr,c))
-            case CaseStatement(cs,s) => new CaseStatement(deriveProd(cs,c), deriveOptionalConditional(s,c))
-            case DefaultStatement(s) => new DefaultStatement(deriveOptionalConditional(s,c))
+            case CaseStatement(cs) => new CaseStatement(deriveProd(cs,c))
+            case DefaultStatement() => new DefaultStatement()
             case IfStatement(cond,then,elifs,elseBr) => new IfStatement(deriveConditional(cond,c),deriveConditional(then,c),deriveOptList(elifs,c),deriveOptionalConditional(elseBr,c))
             case SwitchStatement(ex,s) => new SwitchStatement(deriveProd(ex,c),deriveConditional(s,c))
             case DeclarationStatement(dec) => new DeclarationStatement(deriveProd(dec,c))
