@@ -1,6 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
+import de.fosd.typechef.conditional.{ConditionalLib, Conditional}
 
 object DotGraph extends IOUtilities {
   import java.io.File
@@ -27,7 +28,7 @@ object DotGraph extends IOUtilities {
   // errorNodes and errorConnections are generated as part of predecessor successor checks
   // e.g., missing nodes in pred are highlighted in the succ dot file
   // and   missing connections in pred are similarly highlighted in the succ dot file
-  def map2file(m: List[(AST, List[AST])], env: ASTEnv, errorNodes: List[AST] = List(), errorConnections: List[(AST, AST)] = List()) = {
+  def map2file(m: List[(AST, Conditional[List[AST]])], env: ASTEnv, errorNodes: List[AST] = List(), errorConnections: List[(AST, AST)] = List()) = {
     var dotstring = ""
     val fname = getTmpFileName
 
@@ -36,7 +37,7 @@ object DotGraph extends IOUtilities {
     dotstring += "node [shape=record];\n"
 
     // iterate ast elements and its successors and add nodes in for each ast element
-    for ((o, succs) <- m) {
+    for ((o, csuccs) <- m) {
       val op = esc(PrettyPrinter.print(o))
       dotstring += "\"" + System.identityHashCode(o) + "\""
       dotstring += "["
@@ -59,21 +60,26 @@ object DotGraph extends IOUtilities {
       dotstring += "];\n"
 
       // iterate successors and add edges
-      for (succ <- succs) {
+      for ((f, succs) <- ConditionalLib.items(csuccs)) {
 
-        dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\""
-        dotstring += "["
+        for (succ <- succs) {
+          dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\""
+          dotstring += "["
 
-        // current connection is one of the erroneous connections
-        // apply specific formatting
-        if (errorConnections.filter({s => s._1.eq(succ) && s._2.eq(o)}).size > 0) {
-          dotstring += "color=\"" + errorConnectionEdgeColor + "\", "
-          dotstring += "style=\"" + errorConnectionEdgeThickness + "\""
-        } else {
-          dotstring += "color=\"" + normalConnectionEdgeColor + "\", "
-          dotstring += "style=\"" + normalConnectionEdgeThickness + "\""
+          // current connection is one of the erroneous connections
+          // apply specific formatting
+          if (errorConnections.filter({s => s._1.eq(succ) && s._2.eq(o)}).size > 0) {
+            dotstring += "label=\"" + f.toTextExpr + "\", "
+            dotstring += "color=\"" + errorConnectionEdgeColor + "\", "
+            dotstring += "style=\"" + errorConnectionEdgeThickness + "\""
+          } else {
+            dotstring += "label=\"" + f.toTextExpr + "\", "
+            dotstring += "color=\"" + normalConnectionEdgeColor + "\", "
+            dotstring += "style=\"" + normalConnectionEdgeThickness + "\""
+          }
+          dotstring += "];\n"
         }
-        dotstring += "];\n"
+
       }
     }
 
