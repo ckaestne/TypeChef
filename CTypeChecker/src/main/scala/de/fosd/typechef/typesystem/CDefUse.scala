@@ -181,7 +181,7 @@ trait CDefUse extends CEnv {
               defuse.put(fd, defuse.get(fd) ++ List(i))
             }
           }
-          case One(AtomicNamedDeclarator(_, key, _)) => {
+          case One(AtomicNamedDeclarator(_, key, _)) =>
             if (defuse.containsKey(key)) {
               defuse.put(key, defuse.get(key) ++ List(i))
             } else {
@@ -191,7 +191,16 @@ trait CDefUse extends CEnv {
                   if (v.eq(key)) fd = k.asInstanceOf[Id]
               defuse.put(fd, defuse.get(fd) ++ List(i))
             }
-          }
+          case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
+            if (defuse.containsKey(key)) {
+              defuse.put(key, defuse.get(key) ++ List(i))
+            } else {
+              var fd: Id = null
+              for (k <- defuse.keySet().toArray)
+                for (v <- defuse.get(k))
+                  if (v.eq(key)) fd = k.asInstanceOf[Id]
+              defuse.put(fd, defuse.get(fd) ++ List(i))
+            }
           case _ => println("Error " + i + " from: " + test)
         }
       case _ =>
