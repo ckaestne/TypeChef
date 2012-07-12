@@ -149,6 +149,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     // TODO add use
                     //a++, a--
                     case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {
+                        addUse(expr, env)
                         prepareArray
                     } mapf(featureExpr, {
                         case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
