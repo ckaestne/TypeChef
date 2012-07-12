@@ -37,7 +37,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             else
             if (v.last.toLower == 'l') One(CSigned(CLong()))
             else One(CSigned(CInt()))
-          // TODO Add Use
           //variable or function ref
           case id@Id(name) =>
             addUse(id, env)
@@ -134,7 +133,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
           //a=b, a+=b, ...
           case ae@AssignExpr(lexpr, op, rexpr) =>
-            addUse(ae, env)
             ConditionalLib.mapCombinationF(et(rexpr), et(lexpr), featureExpr,
               (fexpr: FeatureExpr, rtype: CType, ltype: CType) => {
                 val opType = operationType(op, ltype, rtype, ae, fexpr)
@@ -144,7 +142,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                   case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                 }
               })
-          // TODO add use
           //a++, a--
           case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {
             prepareArray
@@ -153,32 +150,24 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             //TODO check?: not on function references
             case (f, e) => reportTypeError(f, "wrong type argument to increment " + e, pe)
           })
-          // TODO AddUse
           //a+b
           case ne@NAryExpr(expr, opList) =>
-            addUse(ne, env)
-            opList.foreach(x => if (x.isInstanceOf[Opt[NArySubExpr]]) {
-              addUse(x.entry, env)
-            })
             ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
               (fexpr: FeatureExpr, ctype: CType, subExpr: NArySubExpr) =>
 
                 etF(subExpr.e, fexpr) map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr))
             )
-          // TODO Adduse
           //a[e]
           case p@PostfixExpr(expr, ArrayAccess(idx)) =>
             //syntactic sugar for *(a+i)
             val newExpr = PointerDerefExpr(createSum(expr, idx))
             et(newExpr)
-          // TODO Adduse
           //"a"
           case StringLit(_) => One(CPointer(CSignUnspecified(CChar()))) //unspecified sign according to Paolo
           //++a, --a
           case p@UnaryExpr(_, expr) =>
             val newExpr = AssignExpr(expr, "+=", Constant("1"))
             et(newExpr)
-          // TODO Adduse
           case SizeOfExprT(_) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
           case SizeOfExprU(_) => One(CUnsigned(CInt()))
           case ue@UnaryOpExpr(kind, expr) =>
@@ -213,7 +202,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                 else if (conditionType.isIgnore) One(conditionType)
                 else One(reportTypeError(fexpr, "invalid type of condition: " + conditionType, ce))
             })
-          // TODO AddUse
           //compound statement in expr. ({a;b;c;}), type is the type of the last statement
           case CompoundStatementExpr(compoundStatement) =>
             getStmtType(compoundStatement, featureExpr, env)._1

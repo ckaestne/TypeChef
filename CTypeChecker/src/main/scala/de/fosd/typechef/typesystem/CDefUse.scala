@@ -72,12 +72,13 @@ trait CDefUse extends CEnv {
   def addUse(entry: AST, env: Env) {
 
     entry match {
-      case PostfixExpr(i@Id(name), FunctionCall(params)) => {
+      // TODO to remove?
+      /*case PostfixExpr(i@Id(name), FunctionCall(params)) => {
         env.varEnv.getAstOrElse(name, null) match {
           case One(FunctionDef(_, declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case _ =>
         }
-      }
+      }*/
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
