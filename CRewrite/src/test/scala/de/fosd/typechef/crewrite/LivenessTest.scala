@@ -4,8 +4,22 @@ import org.junit.Test
 import de.fosd.typechef.parser.c.{TestHelper, PrettyPrinter, FunctionDef}
 
 class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness {
+
+  private def runExample(code: String) {
+    val a = parseFunctionDef(code)
+
+    val env = CASTEnv.createASTEnv(a)
+    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+
+    for (s <- ss)
+      println(PrettyPrinter.print(s) + "  uses: " + usesVar(s, env) + "   defines: " + definesVar(s, env) +
+        "  in: " + in(s, env) + "   out: " + out(s, env))
+    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+  }
+
+
   @Test def test_standard_liveness_example() {
-    val a = parseFunctionDef("""
+    runExample("""
       void foo() {
         a = 0;
         l1: b = a + 1;
@@ -15,22 +29,10 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
         return c;
     }
     """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + outsimple(s, env) + "   in: " + insimple(s, env))
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability_f() {
-    val a = parseFunctionDef("""
+    runExample("""
       void foo(int a, int b, int c) {
         a = 0;
         l1: b = a + 1;
@@ -41,19 +43,10 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
         return c;
     }
     """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability_notf() {
-    val a = parseFunctionDef("""
+    runExample("""
       void foo() {
         a = 0;
         l1: b = a + 1;
@@ -62,19 +55,10 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
         return c;
     }
     """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability() {
-    val a = parseFunctionDef("""
+    runExample("""
       void foo() {
         a = 0;
         l1: b = a + 1;
@@ -87,15 +71,20 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
         return c;
     }
     """)
-
-    val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
-
-    println("#################################################")
-
-    for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
+  @Test def test_simple() {
+    runExample("""
+      int foo(int a, int b) {
+        int c = a;
+        if (c) {
+          c = c + a;
+          #if definedEx(A)
+          c = c + b;
+          #endif
+        }
+        return c;
+    }
+    """)
+  }
 }

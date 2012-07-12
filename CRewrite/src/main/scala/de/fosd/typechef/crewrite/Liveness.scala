@@ -10,12 +10,44 @@ import de.fosd.typechef.conditional.{One, Conditional, Opt}
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
 trait Variables {
 
-  val usesVar: PartialFunction[Any, Conditional[Set[Id]]] = {
-    case a: Any => findUsesVar(a)
+  val usesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    case (a, env) => findUsesVar(a, env)
   }
 
-  private def findUsesVar(e: Any): Conditional[Set[Id]] = {
-    One(Set())
+  private def findUsesVar(e: Any, env: ASTEnv): Map[FeatureExpr, Set[Id]] = {
+    var res = Map[FeatureExpr, Set[Id]]()
+
+    for (r <- uses(e)) {
+      val rfexp = env.featureExpr(r)
+
+      val key = res.find(_._1 equivalentTo rfexp)
+      key match {
+        case None => res = res.+((rfexp, Set(r)))
+        case Some((k, v)) => res = res.+((k, v ++ Set(r)))
+      }
+    }
+
+    res
+  }
+
+  val definesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    case (a, env) => findDefinesVar(a, env)
+  }
+
+  private def findDefinesVar(e: Any, env: ASTEnv): Map[FeatureExpr, Set[Id]] = {
+    var res = Map[FeatureExpr, Set[Id]]()
+
+    for (r <- defines(e)) {
+      val rfexp = env.featureExpr(r)
+
+      val key = res.find(_._1 equivalentTo rfexp)
+      key match {
+        case None => res = res.+((rfexp, Set(r)))
+        case Some((k, v)) => res = res.+((k, v ++ Set(r)))
+      }
+    }
+
+    res
   }
 
   val uses: PartialFunction[Any, Set[Id]] = {
@@ -35,7 +67,7 @@ trait Variables {
       case Initializer(_, expr) => uses(expr)
       case i@Id(name) => Set(i)
       case PointerPostfixSuffix(kind, id) => Set(id)
-      case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
+      case FunctionCall(params) => params.exprs.map(_.entry).flatMap(findUses).toSet
       case ArrayAccess(expr) => uses(expr)
       case PostfixExpr(p, s) => uses(p) ++ uses(s)
       case UnaryExpr(_, ex) => uses(ex)
@@ -147,11 +179,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(FunctionDef(_, _, _, _), _) => Map()
       case t@(e, env) => {
-        val u = uses(e)
-        val d = defines(e)
+        val u = usesVar(e, env)
+        val d = definesVar(e, env)
         var res = out(t)
-        res = updateMap(res, (env.featureExpr(e), d), _.diff(_))
-        res = updateMap(res, (env.featureExpr(e), u), _.union(_))
+
+        for ((k, v) <- d) res = updateMap(res, (k, v), _.diff(_))
+        for ((k, v) <- u) res = updateMap(res, (k, v), _.union(_))
+
         res
       }
     }

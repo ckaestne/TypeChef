@@ -66,10 +66,11 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   private val succCCFGCache = new CCFGCache()
 
   // result type of pred/succ determination
+  // List[(computed annotation, given annotation, ast node)]
   type CCFGRes = List[(FeatureExpr, FeatureExpr, AST)]
 
   // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
-  // we use the barrier list to add elements we do not want to get out again; TODO should not be necessary
+  // we use the barrier list to add elements we do not want to get out again;
   // in case we determine where we come from.
   var barrier: List[AST] = List()
 
