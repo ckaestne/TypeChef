@@ -99,7 +99,8 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
             variables.copyToArray(vars)
             def sortFunction(a:Pair[String,Int],b:Pair[String,Int]):Boolean = {a._2<b._2}
             for ((varname,varid) <-vars.sortWith(sortFunction)) {
-                fw.write("c " +  varid + " " + varname + "\n")
+                val realVarname = if (varname.startsWith("CONFIG_")) varname.replaceFirst("CONFIG_","") else varname
+                fw.write("c " +  varid + " " + realVarname + "\n")
             }
             var numClauses = 0;
             val clauseBuffer = new StringBuffer();

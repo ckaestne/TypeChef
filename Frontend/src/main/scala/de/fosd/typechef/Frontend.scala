@@ -9,6 +9,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
 import featureexpr.{FeatureExpr, FeatureExprFactory}
+import featureexpr.sat.SATFeatureModel
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 import parser.Position
@@ -55,6 +56,11 @@ object Frontend {
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+
+/*
+        opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].
+            writeToDimacsFile(new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-BusyboxAnalysis/BB_fm.dimacs"))
+*/
 
         val tokens = new lexer.Main().run(opt, opt.parse)
 

@@ -189,7 +189,7 @@ object ProductGeneration {
      * the configs-list contains pairs of the name of the config-generation method and the respective generated configs
      *
      */
-    def buildConfigurations(family_ast : TranslationUnit, fm:FeatureModel, configSerializationDir : File) : (String, List[Pair[String, List[SimpleConfiguration]]]) = {
+    def buildConfigurations(family_ast : TranslationUnit, fm:FeatureModel, configSerializationDir : File, caseStudy:String) : (String, List[Pair[String, List[SimpleConfiguration]]]) = {
         var msg : String = "";
         var log : String = "";
         println("generating configurations.")
@@ -243,17 +243,21 @@ object ProductGeneration {
                 }
         */
         /**Henard CSV configurations */
-/*
         {
             if (typecheckingTasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
             } else {
-                //Linux
-                //val productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
-                //val dimacsFM = new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
-                //Busybox
-                val productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
-                val dimacsFM = new File("../TypeChef-BusyboxAnalysis/BB_fm.dimacs")
+                var productsDir :File=null;
+                var dimacsFM :File = null;
+                if (caseStudy=="linux") {
+                    productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
+                    dimacsFM = new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
+                } else if(caseStudy=="busybox") {
+                    productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
+                    dimacsFM = new File("../TypeChef-BusyboxAnalysis/BB_fm.dimacs")
+                } else {
+                    throw new Exception("unknown case Study, give linux or busybox")
+                }
 
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
@@ -271,7 +275,7 @@ object ProductGeneration {
             println(msg)
             log = log + msg
         }
-*/
+
         /**Single-wise */
         /*
                 {
@@ -345,12 +349,19 @@ object ProductGeneration {
         return (log,typecheckingTasks)
     }
 
+
+
     def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions) {
+        var caseStudy = "";
         var thisFilePath :String ="";
         if (opt.getFile.contains("linux-2.6.33.3")) {
             thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+            caseStudy = "linux";
         } else if (opt.getFile.contains("busybox-1.18.5")) {
             thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
+            caseStudy = "busybox";
+        } else {
+            thisFilePath=opt.getFile
         }
 
         val fm = fm_ts // I got false positives while using the other fm
@@ -368,7 +379,7 @@ object ProductGeneration {
 
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-        val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
+        val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy);
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
         typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = configGenLog)
 
