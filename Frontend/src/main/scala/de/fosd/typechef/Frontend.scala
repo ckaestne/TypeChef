@@ -8,15 +8,13 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
-import featureexpr.{FeatureExpr, FeatureExprFactory}
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
-import parser.Position
 
 object Frontend {
 
 
-    def main(args: Array[String]): Unit = {
+    def main(args: Array[String]) {
         // load options
         val opt = new FrontendOptionsWithConfigFiles()
         try {
@@ -54,7 +52,7 @@ object Frontend {
     def processFile(opt: FrontendOptions) {
         val t1 = System.currentTimeMillis()
 
-        val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        val fm = opt.getFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
 
         val tokens = new lexer.Main().run(opt, opt.parse)
 
@@ -79,7 +77,7 @@ object Frontend {
                 serializeAST(ast, opt.getSerializedASTFilename)
 
             if (ast != null) {
-                val fm_ts = opt.getFeatureModelTypeSystem().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+                val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 

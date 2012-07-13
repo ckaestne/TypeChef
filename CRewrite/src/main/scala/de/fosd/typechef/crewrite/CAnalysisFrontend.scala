@@ -57,7 +57,7 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
 
     val tfams = System.currentTimeMillis()
-    family_function_defs.map(intraCfGFunctionDef(_, family_env))
+    family_function_defs.map(intraCfGFunctionDef(_, fm, family_env))
     val tfame = System.currentTimeMillis()
 
     tfam = tfame - tfams
@@ -103,9 +103,9 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     appendToFile(liveness, fileName + ";" + tfam + ";" + tbase + ";" + tfullcoverage + ";" + /* configs.size  + */ "\n")
   }
 
-  private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val s = getAllSucc(f, env)
-    val p = getAllPred(f, env)
+  private def intraCfGFunctionDef(f: FunctionDef, Fm: FeatureModel, env: ASTEnv) = {
+    val s = getAllSucc(f, fm, env)
+    val p = getAllPred(f, fm, env)
 
     val errors = compareSuccWithPred(s, p, env)
     CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
