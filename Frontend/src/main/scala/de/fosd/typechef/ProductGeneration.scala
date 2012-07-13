@@ -243,18 +243,25 @@ object ProductGeneration {
                 }
         */
         /**Henard CSV configurations */
-
+/*
         {
             if (typecheckingTasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
             } else {
-                val productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
+                //Linux
+                //val productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
+                //val dimacsFM = new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
+                //Busybox
+                val productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
+                val dimacsFM = new File("../TypeChef-BusyboxAnalysis/BB_fm.dimacs")
+
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
-                    productsDir.list().map(new File(productsDir, _)).toList.sortBy({
-                        f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
+                    productsDir.list().map(new File(productsDir, _)).toList.
+                        filter(!_.getName.endsWith(".dat")).
+                        sortBy({f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
                     }),
-                    new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs"),
+                    dimacsFM,
                     features, fm)
                 typecheckingTasks :+= Pair("henard", configs)
 
@@ -264,7 +271,7 @@ object ProductGeneration {
             println(msg)
             log = log + msg
         }
-
+*/
         /**Single-wise */
         /*
                 {
@@ -283,7 +290,7 @@ object ProductGeneration {
                 }
         */
         /**Coverage Configurations */
-        /*
+
                 {
                     if (typecheckingTasks.find(_._1.equals("coverage")).isDefined) {
                         msg = "omitting coverage generation, because a serialized version was loaded"
@@ -297,9 +304,9 @@ object ProductGeneration {
                     println(msg)
                     log = log + msg
                 }
-        */
+
         /**Pairwise MAX */
-        /*
+/*
                 {
                     if (typecheckingTasks.find(_._1.equals("pairWiseMax")).isDefined) {
                         msg = "omitting pairWiseMax generation, because a serialized version was loaded"
@@ -313,7 +320,7 @@ object ProductGeneration {
                     println(msg)
                     log = log + msg
                 }
-        */
+*/
         /**Pairwise */
         /*
         if (typecheckingTasks.find(_._1.equals("pairWise")).isDefined) {
@@ -339,7 +346,12 @@ object ProductGeneration {
     }
 
     def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions) {
-        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+        var thisFilePath :String ="";
+        if (opt.getFile.contains("linux-2.6.33.3")) {
+            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+        } else if (opt.getFile.contains("busybox-1.18.5")) {
+            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
+        }
 
         val fm = fm_ts // I got false positives while using the other fm
         val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
@@ -358,26 +370,27 @@ object ProductGeneration {
 
         val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
-        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,opt, startLog = configGenLog)
+        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = configGenLog)
 
     }
 
-    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]], family_ast:TranslationUnit, fm: FeatureModel, ast: AST, opt: FrontendOptions, startLog:String="") {
+    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]],
+                                family_ast:TranslationUnit, fm: FeatureModel, ast: AST,
+                                fileID:String, startLog:String="") {
         val log:String = ""
-        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
         println("starting product typechecking.")
 
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
-        val outFilePrefix: String = "../reports/" + thisFilePath.substring(0, thisFilePath.length - 2)
+        val outFilePrefix: String = "../reports/" + fileID.substring(0, fileID.length - 2)
         for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
             var configurationsWithErrors = 0
             var current_config = 0
             var checkTimes : List[Long] = List()
             for (config <- configs) {
                 current_config += 1
-                println("checking configuration " + current_config + " of " + configs.size + " (" + thisFilePath + " , " + taskDesc + ")")
+                println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")")
                 val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
                     new Configuration(config.toFeatureExpr, fm))
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
@@ -427,7 +440,7 @@ object ProductGeneration {
         val file: File = new File(outFilePrefix + "_report.txt")
         file.getParentFile.mkdirs()
         val fw : FileWriter = new FileWriter(file)
-        fw.write("File : " + thisFilePath + "\n")
+        fw.write("File : " + fileID + "\n")
         fw.write("Features : " + features.size + "\n")
         fw.write(log + "\n")
 
@@ -705,8 +718,15 @@ object ProductGeneration {
         var choiceNodes: List[Choice[_]] = List()
         def collectAnnotationNodes(root : Any) : Unit = {
             root match {
-                case x: Opt[_] => optNodes ::= x
-                case x: Choice[_] => choiceNodes ::= x
+                case x: Opt[_] => {
+                    optNodes ::= x;
+                    collectAnnotationNodes(x.entry);
+                }
+                case x: Choice[_] => {
+                    choiceNodes ::= x;
+                    collectAnnotationNodes(x.thenBranch);
+                    collectAnnotationNodes(x.elseBranch);
+                }
                 case l: List[_] => {
                     for (x <- l) {
                         collectAnnotationNodes(x);
