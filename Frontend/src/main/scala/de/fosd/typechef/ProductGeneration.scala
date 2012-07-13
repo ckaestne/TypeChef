@@ -736,8 +736,15 @@ object ProductGeneration extends EnforceTreeHelper {
     // compared to manytd(query { ... } below
     def collectAnnotationNodes(root: Any) {
       root match {
-        case x: Opt[_] => optNodes ::= x
-        case x: Choice[_] => choiceNodes ::= x
+        case o@Opt(_, entry) => {
+          optNodes ::= o
+          collectAnnotationNodes(entry)
+        }
+        case c@Choice(_, thenBranch, elseBranch) => {
+          choiceNodes ::= c
+          collectAnnotationNodes(thenBranch)
+          collectAnnotationNodes(elseBranch)
+        }
         case l: List[_] => l.map(collectAnnotationNodes)
         case x: Product => x.productIterator.toList.map(collectAnnotationNodes)
         case o =>
@@ -815,16 +822,12 @@ object ProductGeneration extends EnforceTreeHelper {
     }
 
     for (optN <- optNodes) {
-      val fex: FeatureExpr = env.featureSet(optN).fold(optN.feature)({
-        (a: FeatureExpr, b: FeatureExpr) => a.and(b)
-      })
+      val fex: FeatureExpr = env.featureSet(optN).fold(optN.feature)(_ and _)
       handleFeatureExpression(fex)
     }
 
     for (choiceNode <- choiceNodes) {
-      val fex: FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({
-        (a: FeatureExpr, b: FeatureExpr) => a.and(b)
-      })
+      val fex: FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)(_ and _)
       handleFeatureExpression(fex.and(choiceNode.feature))
       handleFeatureExpression(fex.and(choiceNode.feature.not()))
     }
