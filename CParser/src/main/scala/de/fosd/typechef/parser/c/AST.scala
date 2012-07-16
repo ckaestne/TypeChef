@@ -82,7 +82,7 @@ case class PointerPostfixSuffix(kind: String, id: Id) extends PostfixSuffix
 case class FunctionCall(params: ExprList) extends PostfixSuffix {
     //hack to propagate position information
     override def setPositionRange(from: Position, to: Position) = {
-        if (!params.hasPosition) params.setPositionRange(from, to);
+        if (!params.hasPosition) params.setPositionRange(from, to)
         super.setPositionRange(from, to)
     }
 }
@@ -92,7 +92,7 @@ case class ArrayAccess(expr: Expr) extends PostfixSuffix
 case class PostfixExpr(p: Expr, s: PostfixSuffix) extends Expr {
     //hack to propagate position information
     override def setPositionRange(from: Position, to: Position) = {
-        if (!p.hasPosition) p.setPositionRange(from, to);
+        if (!p.hasPosition) p.setPositionRange(from, to)
         super.setPositionRange(from, to)
     }
 }
@@ -225,7 +225,7 @@ case class Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDecla
 
 
 abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {
-    def getName = declarator.getName;
+    def getName = declarator.getName
     def getExpr: Option[Expr]
     def hasInitializer: Boolean = getExpr.isDefined
 }
