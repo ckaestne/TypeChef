@@ -4,6 +4,8 @@ import org.sat4j.core.{VecInt, Vec}
 import org.sat4j.specs.{IVec, IVecInt}
 import scala.collection.{mutable, immutable}
 import java.net.URI
+import java.io.File
+import java.io.FileWriter
 import de.fosd.typechef.featureexpr.{FeatureModelFactory, FeatureExpr, FeatureModel}
 
 /**
@@ -89,6 +91,34 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
 
     writeToFile(fileName, res)
   }
+    def writeToDimacsFile(file : File) {
+        var fw : FileWriter = null
+        try {
+            fw = new FileWriter(file);
+            val vars :Array[(String,Int)] = new Array(variables.size)
+            variables.copyToArray(vars)
+            def sortFunction(a:Pair[String,Int],b:Pair[String,Int]):Boolean = {a._2<b._2}
+            for ((varname,varid) <-vars.sortWith(sortFunction)) {
+                val realVarname = if (varname.startsWith("CONFIG_")) varname.replaceFirst("CONFIG_","") else varname
+                fw.write("c " +  varid + " " + realVarname + "\n")
+            }
+            var numClauses = 0;
+            val clauseBuffer = new StringBuffer();
+            for (clause:IVecInt <- clauses.toArray) {
+                if (clause != null) {
+                    numClauses+=1;
+                    for (entry:Int <- clause.toArray) {
+                        clauseBuffer.append(entry + " ");
+                    }
+                    clauseBuffer.append("0\n");
+                }
+            }
+            fw.write("p cnf " + vars.length + " " + numClauses + "\n")
+            fw.write(clauseBuffer.toString)
+        } finally{
+            if (fw != null) fw.close()
+        }
+    }
 }
 
 /**

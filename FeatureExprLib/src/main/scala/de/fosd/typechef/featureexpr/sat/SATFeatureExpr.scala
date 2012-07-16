@@ -62,8 +62,10 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     import CastHelper._
 
     // have not implemented yet
-    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {assert(false, "method not implemented"); None }
-    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {assert(false, "method not implemented"); None }
+    /** NOT implemented, this method will always return None.*/
+    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = { None}
+    /** NOT implemented, this method will always return None.*/
+    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = { None }
 
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asSATFeatureExpr(that))
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asSATFeatureExpr(that))
@@ -921,7 +923,7 @@ object DefinedExpr {
         case x: DefinedMacro => Some(x)
         case _ => None
     }
-    def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "")
+    def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "", "invalid feature name: " + name)
 }
 
 /**

@@ -9,6 +9,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
 import featureexpr.{FeatureExpr, FeatureExprFactory}
+import featureexpr.sat.SATFeatureModel
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 import parser.Position
@@ -55,6 +56,16 @@ object Frontend {
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+/*
+        opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].
+            writeToDimacsFile(new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-BusyboxAnalysis/BB_fm.dimacs"))
+        if (FeatureExprFactory.True.and(FeatureExprFactory.True).isSatisfiable(fm)) {
+            println("TypeSystem FM is satisfiable")
+        } else {
+            println("TypeSystem FM is NOT satisfiable")
+        }
+        if (true) return
+*/
 
         val tokens = new lexer.Main().run(opt, opt.parse)
 
@@ -85,9 +96,8 @@ object Frontend {
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
-
                 if (opt.typecheck || opt.writeInterface) {
-                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt)
+                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt, logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
                     //println("type checking.")
