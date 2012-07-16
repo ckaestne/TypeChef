@@ -31,6 +31,8 @@ object ProductGeneration {
     /**List of all features found in the currently processed file */
     private var features: List[SingleFeatureExpr] = null
 
+    type Task = Pair[String, List[SimpleConfiguration]]
+
     class SimpleConfiguration(private val config: scala.collection.immutable.BitSet) extends scala.Serializable {
 
         def this(trueSet: List[SingleFeatureExpr], falseSet: List[SingleFeatureExpr]) = this(
@@ -361,25 +363,101 @@ object ProductGeneration {
         }
 
         val fm = fm_ts // I got false positives while using the other fm
-        val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
+        val cf = new CAnalysisFrontend(ast, fm)
         val family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-
-        /**write family ast */
-        /*
-            var fw: FileWriter = new FileWriter(new File("../ast_fam.txt"))
-            fw.write(family_ast.toString)
-            fw.close()
-        */
 
         println("starting product typechecking.")
 
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-        val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
+        val (configGenLog : String, typecheckingTasks : List[Task]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
         typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = (logMessage+configGenLog))
 
     }
+
+  def dataflowAnalysisProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
+    var caseStudy = ""
+    var thisFilePath :String =""
+    if (opt.getFile.contains("linux-2.6.33.3")) {
+      thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+      caseStudy = "linux"
+    } else if (opt.getFile.contains("busybox-1.18.5")) {
+      thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
+      caseStudy = "busybox"
+    } else {
+      thisFilePath=opt.getFile
+    }
+
+    val fm = fm_ts // I got false positives while using the other fm
+    val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
+    val family_ast = cf.prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
+
+    println("starting product dataflow analysis.")
+
+    val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
+
+    val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
+    saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
+    dataflowAnalysisConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = (logMessage+configGenLog))
+
+  }
+
+  def dataflowAnalysisConfigurations(tasks: List[Task],
+                              family_ast:TranslationUnit, fm: FeatureModel, ast: AST,
+                              fileID:String, startLog:String="") {
+    val log:String = startLog
+    println("starting product dataflow analysis.")
+
+    if (tasks.size > 0) println("start task - dataflow analysis (" + (tasks.size) + " tasks)")
+
+    var configCheckingResults: List[(String, (Int, Long, List[Long]))] = List()
+    val outFilePrefix: String = "../reports/" + fileID.substring(0, fileID.length - 2)
+
+    for ((taskDesc, configs) <- tasks) {
+      var current_config = 0
+      var checkTimes : List[Long] = List()
+      for (config <- configs) {
+        current_config += 1
+        println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")")
+        val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
+          new Configuration(config.toFeatureExpr, fm))
+        val ts = new CAnalysisFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+        val startTime: Long = System.currentTimeMillis()
+        ts.checkCfG(fileID)
+        val configTime: Long = System.currentTimeMillis() - startTime
+        checkTimes ::= configTime // append to the beginning of checkTimes
+      }
+      // reverse checkTimes to get the ordering correct
+      configCheckingResults ::= (taskDesc, (configs.size, checkTimes.sum, checkTimes.reverse))
+
+    }
+    // family base checking
+    println("family-based type dataflow analysis:")
+    val startTime : Long = System.currentTimeMillis()
+    val ts = new CAnalysisFrontend(family_ast, fm)
+    ts.checkCfG(fileID)
+    val familyTime: Long = System.currentTimeMillis() - startTime
+
+    val file: File = new File(outFilePrefix + "_report.txt")
+    file.getParentFile.mkdirs()
+    val fw : FileWriter = new FileWriter(file)
+    fw.write("File : " + fileID + "\n")
+    fw.write("Features : " + features.size + "\n")
+    fw.write(log + "\n")
+
+    for ((taskDesc, (numConfigs, totalTime, lstTimes)) <- configCheckingResults) {
+      fw.write("\n -- Task: " + taskDesc + "\n")
+      fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
+      fw.write("(" + taskDesc + ")TimeSum Products: " + totalTime + " ms\n")
+      fw.write("(" + taskDesc + ")Times Products: " + lstTimes.mkString(","))
+      fw.write("\n")
+    }
+
+    fw.write("Time Family:      " + familyTime + " ms\n")
+    fw.close()
+
+  }
 
     def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]],
                                 family_ast:TranslationUnit, fm: FeatureModel, ast: AST,
@@ -407,8 +485,6 @@ object ProductGeneration {
                 checkTimes ::= configTime // append to the beginning of checkTimes
                 if (!noErrors) {
                     var fw : FileWriter = null
-                    //if (true) {
-                    // log product with error
                     configurationsWithErrors += 1
                     var file: File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
                     file.getParentFile.mkdirs()
