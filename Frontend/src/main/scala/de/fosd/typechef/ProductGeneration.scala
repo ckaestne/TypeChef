@@ -299,6 +299,7 @@ object ProductGeneration {
                     if (typecheckingTasks.find(_._1.equals("coverage")).isDefined) {
                         msg = "omitting coverage generation, because a serialized version was loaded"
                     } else {
+                        println("generating coverage configurations")
                         startTime = System.currentTimeMillis()
                         val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurationCollection, preferDisabledFeatures = false)
                         typecheckingTasks :+= Pair("coverage", configs)

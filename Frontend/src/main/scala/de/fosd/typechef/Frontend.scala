@@ -60,6 +60,12 @@ object Frontend {
 /*
         opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].
             writeToDimacsFile(new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-BusyboxAnalysis/BB_fm.dimacs"))
+        if (FeatureExprFactory.True.and(FeatureExprFactory.True).isSatisfiable(fm)) {
+            println("TypeSystem FM is satisfiable")
+        } else {
+            println("TypeSystem FM is NOT satisfiable")
+        }
+        if (true) return
 */
 
         val tokens = new lexer.Main().run(opt, opt.parse)

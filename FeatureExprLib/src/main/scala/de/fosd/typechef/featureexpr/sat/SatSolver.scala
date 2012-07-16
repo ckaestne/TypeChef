@@ -2,9 +2,9 @@ package de.fosd.typechef.featureexpr.sat
 
 import org.sat4j.core.VecInt
 import collection.mutable.WeakHashMap
-import org.sat4j.specs.IConstr;
+import org.sat4j.specs.{IVecInt, IConstr, ContradictionException}
+;
 import org.sat4j.minisat.SolverFactory;
-import org.sat4j.specs.ContradictionException
 import scala.Predef._
 ;
 
@@ -145,6 +145,19 @@ private class SatSolverImpl(featureModel: SATFeatureModel, isReused: Boolean) {
                     print(";")
 
                 val result = solver.isSatisfiable(assumptions)
+                // print reason for unsatisfiability
+                /*
+                if (result == false) {
+                    println("Unsat Explanation:")
+                    val ex:IVecInt = solver.unsatExplanation()
+                    for ((fName, modelID) <- uniqueFlagIds) {
+                        if (ex.contains(modelID))
+                            println(fName + " &&")
+                        else if (ex.contains(-modelID))
+                            println("! " + fName + " &&")
+                    }
+                }
+                */
         if (result == true) {
           // scanning the model (storing the satisfiable assignment for later retrieval)
           val model = solver.model()
