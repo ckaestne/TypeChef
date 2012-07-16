@@ -39,7 +39,7 @@ class SatSolver {
       else
         new SatSolverImpl(nfm(featureModel), false))
 
-    if(solver.isSatisfiable(exprCNF)) {
+    if(solver.isSatisfiable(exprCNF, exprCNF!=True)) {
       return Some(solver.getLastModel())
     } else {return None}
   }
@@ -81,12 +81,14 @@ private class SatSolverImpl(featureModel: SATFeatureModel, isReused: Boolean) {
      *
      * featureModel is optional
      */
-    def isSatisfiable(exprCNF: CNF): Boolean = {
-    this.lastModel=null // remove model from last satisfiability check
+    def isSatisfiable(exprCNF: CNF, optimizeSimpleExpression:Boolean=true): Boolean = {
+        this.lastModel=null // remove model from last satisfiability check
         assert(CNFHelper.isCNF(exprCNF))
 
-        if (exprCNF == True) return true
-        if (exprCNF == False) return false
+        if (optimizeSimpleExpression) {
+            if (exprCNF == True) return true
+            if (exprCNF == False) return false
+        }
         //as long as we do not consider feature models, expressions with a single variable
         //are always satisfiable
         if ((featureModel == SATNoFeatureModel) && (CNFHelper.isLiteralExternal(exprCNF))) return true

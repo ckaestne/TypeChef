@@ -6,6 +6,7 @@ import featureexpr._
 
 import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
+import sat.FExprBuilder
 import typesystem.CTypeSystemFrontend
 import scala.collection.immutable.HashMap
 import scala.Predef._
@@ -409,6 +410,7 @@ object ProductGeneration {
                 val startTime: Long = System.currentTimeMillis()
                 val noErrors: Boolean = ts.checkAST
                 val configTime: Long = System.currentTimeMillis() - startTime
+
                 checkTimes ::= configTime // append to the beginning of checkTimes
                 if (!noErrors) {
                     var fw : FileWriter = null;
@@ -760,10 +762,12 @@ object ProductGeneration {
         collectAnnotationNodes_Kiama(astRoot)
         */
         collectAnnotationNodes(astRoot)
+
         // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
         // True node never needs to be handled
         val handledExpressions : HashSet[FeatureExpr] = HashSet(FeatureExprFactory.True)
         var retList : List[SimpleConfiguration] = List()
+
         //inner function
         def handleFeatureExpression(fex:FeatureExpr) = {
             if (! handledExpressions.contains(fex) && !(useUnsatCombinationsCache && unsatCombinationsCache.contains(fex.toTextExpr))) {
@@ -821,15 +825,33 @@ object ProductGeneration {
             }
         }
 
-        for (optN <- optNodes) {
-            val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
-            handleFeatureExpression(fex)
-        }
+        if (optNodes.isEmpty && choiceNodes.isEmpty) {
+            // no feature variables in this file, build one random config and return it
+            val completeConfig = completeConfiguration(FeatureExprFactory.True, features, fm, preferDisabledFeatures)
+            if (completeConfig != null) {
+                retList ::= completeConfig
+                //println("created config for fex " + fex.toTextExpr)
+            } else {
+                if (useUnsatCombinationsCache) {
+                    //unsatCombinationsCacheFile.getParentFile.mkdirs()
+                    val fw = new FileWriter(unsatCombinationsCacheFile, true)
+                    fw.write(FeatureExprFactory.True+"\n")
+                    fw.close()
+                }
+                unsatCombinations += 1
+                //println("no satisfiable configuration for fex " + fex.toTextExpr)
+            }
+        } else {
+            for (optN <- optNodes) {
+                val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                handleFeatureExpression(fex)
+            }
 
-        for (choiceNode <- choiceNodes) {
-            val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
-            handleFeatureExpression(fex.and(choiceNode.feature))
-            handleFeatureExpression(fex.and(choiceNode.feature.not()))
+            for (choiceNode <- choiceNodes) {
+                val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                handleFeatureExpression(fex.and(choiceNode.feature))
+                handleFeatureExpression(fex.and(choiceNode.feature.not()))
+            }
         }
         return (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +

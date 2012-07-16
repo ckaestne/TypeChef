@@ -8,9 +8,10 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
-import featureexpr.{FeatureExpr, FeatureExprFactory}
+import featureexpr.bdd.BDDFeatureModel
+import featureexpr.{FeatureExprParser, FeatureExpr, FeatureExprFactory}
 import featureexpr.sat.SATFeatureModel
-import lexer.options.OptionException
+import lexer.options.{FeatureModelOptions, OptionException}
 import java.io.{FileWriter, File}
 import parser.Position
 
@@ -56,17 +57,19 @@ object Frontend {
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-/*
-        opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].
-            writeToDimacsFile(new File("/home/rhein/Tools/TypeChef/GitClone/TypeChef-BusyboxAnalysis/BB_fm.dimacs"))
-        if (FeatureExprFactory.True.and(FeatureExprFactory.True).isSatisfiable(fm)) {
-            println("TypeSystem FM is satisfiable")
-        } else {
-            println("TypeSystem FM is NOT satisfiable")
-        }
-        if (true) return
-*/
-
+        /*
+                val pcs = new FeatureExprParser(FeatureExprFactory.sat).parseFile("../TypeChef-LinuxAnalysis/tmpFolder/pcs.txt")
+                opt.getFeatureModelTypeSystem.and(pcs).asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
+                    //"/home/rhein/Tools/TypeChef/GitClone/TypeChef-BusyboxAnalysis/BB_fm.dimacs"
+                    "/home/rhein/Tools/TypeChef/GitClone/TypeChef-LinuxAnalysis/tmpFolder/SuperFM.dimacs"
+                ))
+                if (pcs.and(FeatureExprFactory.True).isSatisfiable(fm)) {
+                    println("TypeSystem SuperFM is satisfiable")
+                } else {
+                    println("TypeSystem SuperFM is NOT satisfiable")
+                }
+                if (true) return
+        */
         val tokens = new lexer.Main().run(opt, opt.parse)
 
         //        val tokens = preprocessFile(filename, preprocOutputPath, extraOpt, opt.parse, fm)
@@ -91,6 +94,7 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getFeatureModelTypeSystem().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
