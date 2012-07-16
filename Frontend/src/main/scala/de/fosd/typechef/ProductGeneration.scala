@@ -352,7 +352,7 @@ object ProductGeneration {
 
 
 
-    def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions) {
+    def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
         var caseStudy = "";
         var thisFilePath :String ="";
         if (opt.getFile.contains("linux-2.6.33.3")) {
@@ -382,14 +382,14 @@ object ProductGeneration {
 
         val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy);
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
-        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = configGenLog)
+        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = (logMessage+configGenLog))
 
     }
 
     def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]],
                                 family_ast:TranslationUnit, fm: FeatureModel, ast: AST,
                                 fileID:String, startLog:String="") {
-        val log:String = ""
+        val log:String = startLog
         println("starting product typechecking.")
 
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
