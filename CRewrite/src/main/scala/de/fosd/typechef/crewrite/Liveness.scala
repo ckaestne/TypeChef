@@ -176,7 +176,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // in and out variability-aware versions
   val inrec: PartialFunction[(Product, FeatureModel, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     circular[(Product, FeatureModel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
-      case t@(FunctionDef(_, _, _, _), _) => Map()
+      case t@(FunctionDef(_, _, _, _), _, _) => Map()
       case t@(e, fm, env) => {
         val u = usesVar(e, env)
         val d = definesVar(e, env)
