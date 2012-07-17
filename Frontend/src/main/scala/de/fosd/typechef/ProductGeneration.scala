@@ -735,7 +735,8 @@ object ProductGeneration {
                               existingConfigs : List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean) : (List[SimpleConfiguration],String) = {
         val env = CASTEnv.createASTEnv(astRoot)
         val unsatCombinationsCacheFile = new File("unsatCombinationsCache.txt")
-        val useUnsatCombinationsCache = true
+        // using this is not correct when different files have different presence conditions
+        val useUnsatCombinationsCache = false
         val unsatCombinationsCache : scala.collection.immutable.HashSet[String] = if (useUnsatCombinationsCache && unsatCombinationsCacheFile.exists()) {
             new scala.collection.immutable.HashSet[String] ++ (Source.fromFile(unsatCombinationsCacheFile).getLines()).toSet
         } else { scala.collection.immutable.HashSet() }
@@ -760,7 +761,8 @@ object ProductGeneration {
                         collectAnnotationLeafNodes(x, previousOpt,previousChoice);
                     }
                 }
-                case x: Product => {
+                case x: AST => {
+                    if (x.getFile.isDefined && x.getFile.get.endsWith(".h")) return
                     if (x.productArity == 0) {// termination point of recursion
                         if (previousChoice != null) choiceNodes ::= previousChoice
                         if (previousOpt != null) optNodes ::= previousOpt
@@ -860,14 +862,14 @@ object ProductGeneration {
             //for ((optN,id) <- optNodes.zipWithIndex) {
                 //println("handling opt Node " + id)
             for (optN <- optNodes) {
-                val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)(_ and _)
                 handleFeatureExpression(fex)
             }
 
             //for ((choiceNode,id) <- choiceNodes.zipWithIndex) {
                 //println("handling choice Node " + id)
             for (choiceNode <- choiceNodes) {
-                val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)(_ and _)
                 handleFeatureExpression(fex.and(choiceNode.feature))
                 handleFeatureExpression(fex.and(choiceNode.feature.not()))
             }
