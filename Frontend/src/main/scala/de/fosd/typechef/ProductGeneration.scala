@@ -393,6 +393,24 @@ object ProductGeneration {
         val log:String = startLog
         println("starting product typechecking.")
 
+        // Warmup: we do a complete separate run of all tasks for warmup
+        {
+            val tsWarmup = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
+            val startTimeWarmup : Long = System.currentTimeMillis()
+            tsWarmup.checkASTSilent
+            println("warmupTimeFamily" + ": " + (System.currentTimeMillis() - startTimeWarmup))
+            for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
+                for (configID:Int <- 0 until configs.size-1) {
+                    val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
+                        new Configuration(configs(configID).toFeatureExpr, fm))
+                    val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+                    val startTime: Long = System.currentTimeMillis()
+                    ts.checkASTSilent
+                    println("warmupTime" + taskDesc + "_" + (configID+1) + ": " + (System.currentTimeMillis() - startTime))
+                }
+            }
+        }
+
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
@@ -410,7 +428,6 @@ object ProductGeneration {
                 val startTime: Long = System.currentTimeMillis()
                 val noErrors: Boolean = ts.checkAST
                 val configTime: Long = System.currentTimeMillis() - startTime
-
                 checkTimes ::= configTime // append to the beginning of checkTimes
                 if (!noErrors) {
                     var fw : FileWriter = null;
@@ -446,8 +463,8 @@ object ProductGeneration {
         }
         // family base checking
         println("family-based type checking:")
-        var startTime : Long = System.currentTimeMillis()
         val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
+        var startTime : Long = System.currentTimeMillis()
         val noErrors: Boolean = ts.checkAST
         val familyTime: Long = System.currentTimeMillis() - startTime
 
