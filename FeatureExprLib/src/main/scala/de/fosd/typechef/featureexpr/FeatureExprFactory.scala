@@ -32,6 +32,7 @@ object FeatureExprFactory {
         default.createFeatureExprFast(enabledFeatures, disabledFeatures)
     def True: FeatureExpr = default.True
     def False: FeatureExpr = default.False
+    def empty: FeatureModel = default.featureModelFactory.empty
 
 }
 
