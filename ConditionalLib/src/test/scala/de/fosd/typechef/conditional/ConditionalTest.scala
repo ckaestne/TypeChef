@@ -3,7 +3,7 @@ package de.fosd.typechef.conditional
 import org.junit._
 import Assert._
 import ConditionalLib._
-import de.fosd.typechef.featureexpr.{FeatureExpr, Configuration}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr, Configuration}
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
 
 class ConditionalTest {
@@ -199,15 +199,17 @@ class ConditionalTest {
 
   @Test
   def testConditionalInsert {
-    val t1: Conditional[Set[Int]] = One(Set())
+    var t1: Conditional[String] = One("true")
 
-    assertEquals(Choice(fa, One(Set(0)), One(Set())), ConditionalLib.insert(t1, True, fa, Set(0)))
-    assertEquals(One(Set(0)), ConditionalLib.insert(t1, fa, True, Set(0)))
-    assertEquals(One(Set(0)), ConditionalLib.insert(t1, True, True, Set(0)))
-    assertEquals(One(Set(0)), ConditionalLib.insert(t1, fa, fa, Set(0)))
+    t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
+    t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
 
-    val t2: Conditional[Set[Int]] = Choice(fa, One(Set(1)), One(Set(-1)))
+    var t2: Conditional[String] = One("true")
+    t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
+    t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
 
-    assertEquals(Choice(fa, One(Set(1)), One(Set(0))), ConditionalLib.insert(t2, fa, True, Set(0)))
+    println(t1)
+    println(t2)
+
     }
 }

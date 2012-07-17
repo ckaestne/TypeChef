@@ -199,20 +199,23 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
         val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl, env.scope)
         val varDecl: scala.List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] =
-            if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
-            else {
-                val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
+          if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
+        else {
+            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
 
-                for (Opt(f, init) <- decl.init) yield {
-                    val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
-                    val declKind = if (init.hasInitializer) KDefinition else KDeclaration
+            for (Opt(f, init) <- decl.init) yield {
+                val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
+                val declKind = if (init.hasInitializer) KDefinition else KDeclaration
 
-                    eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
-                        declKind,
-                        env.scope)
-                    init.getExpr map {
-                        checkInitializer(_, ctype, featureExpr and f, eenv)
-                    }
+                eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
+                    declKind,
+                    env.scope)
+                addDef(init, eenv)
+
+                init.getExpr map {
+                    checkInitializer(_, ctype, featureExpr and f, eenv)
+                }
+
 
                     //if we declare a variable or array (not pointer or function)
                     //ensure that structs are resolvable

@@ -13,12 +13,11 @@ import featureexpr.{FeatureExprParser, FeatureExpr, FeatureExprFactory}
 import featureexpr.sat.SATFeatureModel
 import lexer.options.{FeatureModelOptions, OptionException}
 import java.io.{FileWriter, File}
-import parser.Position
 
 object Frontend {
 
 
-    def main(args: Array[String]): Unit = {
+    def main(args: Array[String]) {
         // load options
         val opt = new FrontendOptionsWithConfigFiles()
         try {
@@ -93,20 +92,20 @@ object Frontend {
                 serializeAST(ast, opt.getSerializedASTFilename)
 
             if (ast != null) {
-                val fm_ts = opt.getFeatureModelTypeSystem().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-
+                val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                 val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
+
                 if (opt.typecheck || opt.writeInterface) {
                     ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt, logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
                     //println("type checking.")
                     //ts.checkAST
-					//ts.errors.map(errorXML.renderTypeError(_))
+                    //ts.errors.map(errorXML.renderTypeError(_))
                     t4 = System.currentTimeMillis();
                     t5 = t4
                     t6 = t4

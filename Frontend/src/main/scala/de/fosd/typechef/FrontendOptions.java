@@ -19,14 +19,14 @@ import java.util.List;
 
 public class FrontendOptions extends LexerOptions implements ParserOptions {
     boolean parse = true,
-            typecheck = true,
-            writeInterface = true,
+            typecheck = false,
+            writeInterface = false,
             conditionalControlFlow = false,
             serializeAST = false,
             writeDebugInterface = false,
             recordTiming = false,
             parserStatistics = false,
-            parserResults = true,
+            parserResults = false,
             writePI = false;
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");

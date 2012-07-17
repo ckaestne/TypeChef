@@ -138,8 +138,8 @@ object PrettyPrinter {
             case ReturnStatement(None) => "return;"
             case ReturnStatement(Some(e)) => "return" ~~ e ~ ";"
             case LabelStatement(id: Id, _) => id ~ ":"
-            case CaseStatement(c: Expr, s) => "case" ~~ c ~ ":" ~~ optCond(s)
-            case DefaultStatement(s) => "default:" ~~ optCond(s)
+            case CaseStatement(c: Expr) => "case" ~~ c ~ ":"
+            case DefaultStatement() => "default:"
             case IfStatement(condition, thenBranch, elifs, elseBranch) =>
                 "if (" ~ condition ~ ")" ~~ thenBranch ~~ sep(elifs, _ * _) ~~ optCondExt(elseBranch, line ~ "else" ~~ _)
             case ElifStatement(condition, thenBranch) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch
@@ -220,7 +220,7 @@ object PrettyPrinter {
             case LcurlyInitializer(inits) => "{" ~ commaSep(inits) ~ "}"
             case AlignOfExprT(typeName: TypeName) => "__alignof__(" ~ typeName ~ ")"
             case AlignOfExprU(expr: Expr) => "__alignof__" ~~ expr
-            case GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) => ""
+            case GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) => "asm"
             case RangeExpr(from: Expr, to: Expr) => from ~~ "..." ~~ to
             case TypeOfSpecifierT(typeName: TypeName) => "typeof(" ~ typeName ~ ")"
             case TypeOfSpecifierU(e: Expr) => "typeof(" ~ e ~ ")"

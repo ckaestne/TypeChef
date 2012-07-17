@@ -1,21 +1,52 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
-import java.util.IdentityHashMap
 import org.kiama.attribution.AttributionBase
-import de.fosd.typechef.conditional.{One, Conditional, Opt}
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
 trait Variables {
 
-  val usesVar: PartialFunction[Any, Conditional[Set[Id]]] = {
-    case a: Any => findUsesVar(a)
+  val usesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    case (a, env) => findUsesVar(a, env)
   }
 
-  private def findUsesVar(e: Any): Conditional[Set[Id]] = {
-    One(Set())
+  private def findUsesVar(e: Any, env: ASTEnv): Map[FeatureExpr, Set[Id]] = {
+    var res = Map[FeatureExpr, Set[Id]]()
+
+    for (r <- uses(e)) {
+      val rfexp = env.featureExpr(r)
+
+      val key = res.find(_._1 equivalentTo rfexp)
+      key match {
+        case None => res = res.+((rfexp, Set(r)))
+        case Some((k, v)) => res = res.+((k, v ++ Set(r)))
+      }
+    }
+
+    res
+  }
+
+  val definesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    case (a, env) => findDefinesVar(a, env)
+  }
+
+  private def findDefinesVar(e: Any, env: ASTEnv): Map[FeatureExpr, Set[Id]] = {
+    var res = Map[FeatureExpr, Set[Id]]()
+
+    for (r <- defines(e)) {
+      val rfexp = env.featureExpr(r)
+
+      val key = res.find(_._1 equivalentTo rfexp)
+      key match {
+        case None => res = res.+((rfexp, Set(r)))
+        case Some((k, v)) => res = res.+((k, v ++ Set(r)))
+      }
+    }
+
+    res
   }
 
   val uses: PartialFunction[Any, Set[Id]] = {
@@ -35,7 +66,7 @@ trait Variables {
       case Initializer(_, expr) => uses(expr)
       case i@Id(name) => Set(i)
       case PointerPostfixSuffix(kind, id) => Set(id)
-      case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
+      case FunctionCall(params) => params.exprs.map(_.entry).flatMap(findUses).toSet
       case ArrayAccess(expr) => uses(expr)
       case PostfixExpr(p, s) => uses(p) ++ uses(s)
       case UnaryExpr(_, ex) => uses(ex)
@@ -68,7 +99,7 @@ trait Variables {
 }
 
 class LivenessCache {
-  private val cache: IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]] = new IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]]()
+  private val cache: java.util.IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]] = new java.util.IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]]()
 
   def update(k: Any, v: Map[FeatureExpr, Set[Id]]) {
     cache.put(k, v)
@@ -92,6 +123,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
                         e: (FeatureExpr, Set[Id]),
                         op: (Set[Id], Set[Id]) => Set[Id]): Map[FeatureExpr, Set[Id]] = {
     val key = m.find(_._1.equivalentTo(e._1))
+
     key match {
       case None => m.+(e)
       // beware op is not symetric, first element of op application should always the current
@@ -103,7 +135,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // cache for in; we have to store all tuples of (a, env) their because using
   // (a, env) always creates a new one!!! and circular internally uses another
   // IdentityHashMap and uses (a, env) as a key there.
-  private val astIdenEnvHM = new IdentityHashMap[AST, (AST, ASTEnv)]()
+  private val astIdenEnvHM = new java.util.IdentityHashMap[AST, (AST, ASTEnv)]()
 
   private implicit def astIdenTup(a: AST) = astIdenEnvHM.get(a)
 
@@ -130,9 +162,9 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   val outsimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
     circular[(Product, ASTEnv), Set[Id]](Set()) {
       case t@(e, env) => {
-        val ss = succ(e, env).filterNot(_.isInstanceOf[FunctionDef])
+        val ss = succ(e, FeatureExprFactory.empty, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
-        for (s <- ss) {
+        for (s <- ss.map(_.entry)) {
           if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
           res = res.union(insimple(s))
         }
@@ -142,35 +174,37 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
-    circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
-      case t@(FunctionDef(_, _, _, _), _) => Map()
-      case t@(e, env) => {
-        val u = uses(e)
-        val d = defines(e)
+  val inrec: PartialFunction[(Product, FeatureModel, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    circular[(Product, FeatureModel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
+      case t@(FunctionDef(_, _, _, _), _, _) => Map()
+      case t@(e, fm, env) => {
+        val u = usesVar(e, env)
+        val d = definesVar(e, env)
         var res = out(t)
-        res = updateMap(res, (env.featureExpr(e), d), _.diff(_))
-        res = updateMap(res, (env.featureExpr(e), u), _.union(_))
+
+        for ((k, v) <- d) res = updateMap(res, (k, v), _.diff(_))
+        for ((k, v) <- u) res = updateMap(res, (k, v), _.union(_))
+
         res
       }
     }
   }
 
-  val outrec: PartialFunction[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]] =
-    circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
-      case t@(e, env) => {
-        val sl = succ(e, env).filterNot(_.isInstanceOf[FunctionDef])
+  val outrec: PartialFunction[(Product, FeatureModel, ASTEnv), Map[FeatureExpr, Set[Id]]] =
+    circular[(Product, FeatureModel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
+      case t@(e, fm, env) => {
+        val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[FeatureExpr, Set[Id]]()
-        for (a <- sl) {
-          if (!astIdenEnvHM.containsKey(a)) astIdenEnvHM.put(a, (a, env))
-          for (el <- in(a))
+        for (s <- ss.map(_.entry)) {
+          if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
+          for (el <- in((s, fm, env)))
             res = updateMap(res, el, _.union(_))
         }
         res
       }
     }
 
-  def out(a: (Product, ASTEnv)) = {
+  def out(a: (Product, FeatureModel, ASTEnv)) = {
     outcache.lookup(a._1) match {
       case Some(v) => v
       case None => {
@@ -181,7 +215,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  def in(a: (Product, ASTEnv)) = {
+  def in(a: (Product, FeatureModel, ASTEnv)) = {
     incache.lookup(a._1) match {
       case Some(v) => v
       case None => {
