@@ -252,10 +252,10 @@ object ProductGeneration {
                 var dimacsFM :File = null;
                 if (caseStudy=="linux") {
                     productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
-                    dimacsFM = new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
+                    dimacsFM = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
                 } else if(caseStudy=="busybox") {
                     productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
-                    dimacsFM = new File("../TypeChef-BusyboxAnalysis/BB_fm.dimacs")
+                    dimacsFM = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
                 } else {
                     throw new Exception("unknown case Study, give linux or busybox")
                 }
@@ -263,7 +263,7 @@ object ProductGeneration {
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
                     productsDir.list().map(new File(productsDir, _)).toList.
-                        filter(!_.getName.endsWith(".dat")).
+                        filter(!_.getName.endsWith(".dat")).filter(!_.getName.endsWith(".dimacs")).
                         sortBy({f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
                     }),
                     dimacsFM,
@@ -398,7 +398,7 @@ object ProductGeneration {
             val tsWarmup = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
             val startTimeWarmup : Long = System.currentTimeMillis()
             tsWarmup.checkASTSilent
-            println("warmupTimeFamily" + ": " + (System.currentTimeMillis() - startTimeWarmup))
+            println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
             for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
                 for (configID:Int <- 0 until configs.size-1) {
                     val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
@@ -406,7 +406,7 @@ object ProductGeneration {
                     val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
                     val startTime: Long = System.currentTimeMillis()
                     ts.checkASTSilent
-                    println("warmupTime" + taskDesc + "_" + (configID+1) + ": " + (System.currentTimeMillis() - startTime))
+                    println("warmupTime_" + taskDesc + "_" + (configID+1) + ": " + (System.currentTimeMillis() - startTime))
                 }
             }
         }
