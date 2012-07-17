@@ -6,6 +6,7 @@ import featureexpr._
 
 import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
+import sat.FExprBuilder
 import typesystem.CTypeSystemFrontend
 import scala.collection.immutable.HashMap
 import scala.Predef._
@@ -189,7 +190,7 @@ object ProductGeneration {
      * the configs-list contains pairs of the name of the config-generation method and the respective generated configs
      *
      */
-    def buildConfigurations(family_ast : TranslationUnit, fm:FeatureModel, configSerializationDir : File) : (String, List[Pair[String, List[SimpleConfiguration]]]) = {
+    def buildConfigurations(family_ast : TranslationUnit, fm:FeatureModel, configSerializationDir : File, caseStudy:String) : (String, List[Pair[String, List[SimpleConfiguration]]]) = {
         var msg : String = "";
         var log : String = "";
         println("generating configurations.")
@@ -243,18 +244,29 @@ object ProductGeneration {
                 }
         */
         /**Henard CSV configurations */
-
         {
             if (typecheckingTasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
             } else {
-                val productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
+                var productsDir :File=null;
+                var dimacsFM :File = null;
+                if (caseStudy=="linux") {
+                    productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
+                    dimacsFM = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
+                } else if(caseStudy=="busybox") {
+                    productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
+                    dimacsFM = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
+                } else {
+                    throw new Exception("unknown case Study, give linux or busybox")
+                }
+
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
-                    productsDir.list().map(new File(productsDir, _)).toList.sortBy({
-                        f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
+                    productsDir.list().map(new File(productsDir, _)).toList.
+                        filter(!_.getName.endsWith(".dat")).filter(!_.getName.endsWith(".dimacs")).
+                        sortBy({f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
                     }),
-                    new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs"),
+                    dimacsFM,
                     features, fm)
                 typecheckingTasks :+= Pair("henard", configs)
 
@@ -283,11 +295,12 @@ object ProductGeneration {
                 }
         */
         /**Coverage Configurations */
-        /*
+
                 {
                     if (typecheckingTasks.find(_._1.equals("coverage")).isDefined) {
                         msg = "omitting coverage generation, because a serialized version was loaded"
                     } else {
+                        println("generating coverage configurations")
                         startTime = System.currentTimeMillis()
                         val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurationCollection, preferDisabledFeatures = false)
                         typecheckingTasks :+= Pair("coverage", configs)
@@ -297,9 +310,9 @@ object ProductGeneration {
                     println(msg)
                     log = log + msg
                 }
-        */
+
         /**Pairwise MAX */
-        /*
+/*
                 {
                     if (typecheckingTasks.find(_._1.equals("pairWiseMax")).isDefined) {
                         msg = "omitting pairWiseMax generation, because a serialized version was loaded"
@@ -313,7 +326,7 @@ object ProductGeneration {
                     println(msg)
                     log = log + msg
                 }
-        */
+*/
         /**Pairwise */
         /*
         if (typecheckingTasks.find(_._1.equals("pairWise")).isDefined) {
@@ -338,8 +351,20 @@ object ProductGeneration {
         return (log,typecheckingTasks)
     }
 
-    def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions) {
-        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+
+
+    def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
+        var caseStudy = "";
+        var thisFilePath :String ="";
+        if (opt.getFile.contains("linux-2.6.33.3")) {
+            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+            caseStudy = "linux";
+        } else if (opt.getFile.contains("busybox-1.18.5")) {
+            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
+            caseStudy = "busybox";
+        } else {
+            thisFilePath=opt.getFile
+        }
 
         val fm = fm_ts // I got false positives while using the other fm
         val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm)
@@ -356,28 +381,47 @@ object ProductGeneration {
 
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-        val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir);
+        val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy);
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
-        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,opt, startLog = configGenLog)
+        typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = (logMessage+configGenLog))
 
     }
 
-    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]], family_ast:TranslationUnit, fm: FeatureModel, ast: AST, opt: FrontendOptions, startLog:String="") {
-        val log:String = ""
-        val thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]],
+                                family_ast:TranslationUnit, fm: FeatureModel, ast: AST,
+                                fileID:String, startLog:String="") {
+        val log:String = startLog
         println("starting product typechecking.")
+
+        // Warmup: we do a complete separate run of all tasks for warmup
+        {
+            val tsWarmup = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
+            val startTimeWarmup : Long = System.currentTimeMillis()
+            tsWarmup.checkASTSilent
+            println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
+            for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
+                for (configID:Int <- 0 until configs.size-1) {
+                    val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
+                        new Configuration(configs(configID).toFeatureExpr, fm))
+                    val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+                    val startTime: Long = System.currentTimeMillis()
+                    ts.checkASTSilent
+                    println("warmupTime_" + taskDesc + "_" + (configID+1) + ": " + (System.currentTimeMillis() - startTime))
+                }
+            }
+        }
 
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
-        val outFilePrefix: String = "../reports/" + thisFilePath.substring(0, thisFilePath.length - 2)
+        val outFilePrefix: String = "../reports/" + fileID.substring(0, fileID.length - 2)
         for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
             var configurationsWithErrors = 0
             var current_config = 0
             var checkTimes : List[Long] = List()
             for (config <- configs) {
                 current_config += 1
-                println("checking configuration " + current_config + " of " + configs.size + " (" + thisFilePath + " , " + taskDesc + ")")
+                println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")")
                 val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
                     new Configuration(config.toFeatureExpr, fm))
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
@@ -419,15 +463,15 @@ object ProductGeneration {
         }
         // family base checking
         println("family-based type checking:")
-        var startTime : Long = System.currentTimeMillis()
         val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
+        var startTime : Long = System.currentTimeMillis()
         val noErrors: Boolean = ts.checkAST
         val familyTime: Long = System.currentTimeMillis() - startTime
 
         val file: File = new File(outFilePrefix + "_report.txt")
         file.getParentFile.mkdirs()
         val fw : FileWriter = new FileWriter(file)
-        fw.write("File : " + thisFilePath + "\n")
+        fw.write("File : " + fileID + "\n")
         fw.write("Features : " + features.size + "\n")
         fw.write(log + "\n")
 
@@ -705,8 +749,15 @@ object ProductGeneration {
         var choiceNodes: List[Choice[_]] = List()
         def collectAnnotationNodes(root : Any) : Unit = {
             root match {
-                case x: Opt[_] => optNodes ::= x
-                case x: Choice[_] => choiceNodes ::= x
+                case x: Opt[_] => {
+                    optNodes ::= x;
+                    collectAnnotationNodes(x.entry);
+                }
+                case x: Choice[_] => {
+                    choiceNodes ::= x;
+                    collectAnnotationNodes(x.thenBranch);
+                    collectAnnotationNodes(x.elseBranch);
+                }
                 case l: List[_] => {
                     for (x <- l) {
                         collectAnnotationNodes(x);
@@ -728,10 +779,12 @@ object ProductGeneration {
         collectAnnotationNodes_Kiama(astRoot)
         */
         collectAnnotationNodes(astRoot)
+
         // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
         // True node never needs to be handled
         val handledExpressions : HashSet[FeatureExpr] = HashSet(FeatureExprFactory.True)
         var retList : List[SimpleConfiguration] = List()
+
         //inner function
         def handleFeatureExpression(fex:FeatureExpr) = {
             if (! handledExpressions.contains(fex) && !(useUnsatCombinationsCache && unsatCombinationsCache.contains(fex.toTextExpr))) {
@@ -789,15 +842,33 @@ object ProductGeneration {
             }
         }
 
-        for (optN <- optNodes) {
-            val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
-            handleFeatureExpression(fex)
-        }
+        if (optNodes.isEmpty && choiceNodes.isEmpty) {
+            // no feature variables in this file, build one random config and return it
+            val completeConfig = completeConfiguration(FeatureExprFactory.True, features, fm, preferDisabledFeatures)
+            if (completeConfig != null) {
+                retList ::= completeConfig
+                //println("created config for fex " + fex.toTextExpr)
+            } else {
+                if (useUnsatCombinationsCache) {
+                    //unsatCombinationsCacheFile.getParentFile.mkdirs()
+                    val fw = new FileWriter(unsatCombinationsCacheFile, true)
+                    fw.write(FeatureExprFactory.True+"\n")
+                    fw.close()
+                }
+                unsatCombinations += 1
+                //println("no satisfiable configuration for fex " + fex.toTextExpr)
+            }
+        } else {
+            for (optN <- optNodes) {
+                val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                handleFeatureExpression(fex)
+            }
 
-        for (choiceNode <- choiceNodes) {
-            val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
-            handleFeatureExpression(fex.and(choiceNode.feature))
-            handleFeatureExpression(fex.and(choiceNode.feature.not()))
+            for (choiceNode <- choiceNodes) {
+                val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                handleFeatureExpression(fex.and(choiceNode.feature))
+                handleFeatureExpression(fex.and(choiceNode.feature.not()))
+            }
         }
         return (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +

@@ -3,11 +3,14 @@ package de.fosd.typechef.featureexpr.sat
 import LazyLib._
 import scala.ref.WeakReference
 import java.io.Writer
-import de.fosd.typechef.featureexpr.{DefaultPrint, FeatureModel, FeatureProvider, FeatureExpr, SingleFeatureExpr}
+import de.fosd.typechef.featureexpr._
 import collection.immutable._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.ArrayBuffer
+import sat.NotReference
+import sat.StructuralEqualityWrapper
+import scala.Some
 
 
 object FeatureExprHelper {
@@ -62,8 +65,10 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     import CastHelper._
 
     // have not implemented yet
-    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {assert(false, "method not implemented"); None }
-    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {assert(false, "method not implemented"); None }
+    /** NOT implemented, this method will always return None.*/
+    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = { None}
+    /** NOT implemented, this method will always return None.*/
+    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = { None }
 
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asSATFeatureExpr(that))
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asSATFeatureExpr(that))
@@ -72,6 +77,11 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
 
   def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr],preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
     val fm = asSATFeatureModel(featureModel)
+    // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
+    // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
+    if (this.equals(FeatureExprFactory.True) && interestingFeatures.isEmpty) {
+        return Some(Pair(List(),List())) // is satisfiable, but no interesting features in solution
+    }
 
     // get one satisfying assignment (a list of features set to true, and a list of features set to false)
     val assignment : Option[(List[String], List[String])] = new SatSolver().getSatAssignment(fm, toCnfEquiSat)
@@ -921,7 +931,7 @@ object DefinedExpr {
         case x: DefinedMacro => Some(x)
         case _ => None
     }
-    def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "")
+    def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "", "invalid feature name: " + name)
 }
 
 /**

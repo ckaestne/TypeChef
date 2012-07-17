@@ -19,6 +19,7 @@ object BDDFeatureExprFactory extends AbstractFeatureExprFactory {
     def featureModelFactory = BDDFeatureModel
 
     def createFeatureExprFast(enabledFeatures: Set[SingleFeatureExpr], disabledFeatures: Set[SingleFeatureExpr]) : FeatureExpr = {
+        if (enabledFeatures.isEmpty && disabledFeatures.isEmpty) return True
         var retBDD = TrueB.bdd.id() // makes a copy of this bdd, so that it is not consumed by the andWith functions
         for (f <- enabledFeatures)
             if (! f.isInstanceOf[SingleBDDFeatureExpr])

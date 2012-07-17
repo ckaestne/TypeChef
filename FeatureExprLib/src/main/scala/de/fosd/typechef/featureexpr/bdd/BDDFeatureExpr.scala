@@ -153,6 +153,11 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
     def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr], preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
         val fm = asBDDFeatureModel(featureModel)
+        // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
+        // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
+        if (this.bdd.equals(TRUE) && interestingFeatures.isEmpty) {
+            return Some(Pair(List(),List())) // is satisfiable, but no interesting features in solution
+        }
         val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
         // get one satisfying assignment (a list of features set to true, and a list of features set to false)
         val assignment : Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
