@@ -6,6 +6,7 @@ import featureexpr._
 
 import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
 import parser.c.{AST, PrettyPrinter, TranslationUnit}
+import sat.FExprBuilder
 import typesystem.CTypeSystemFrontend
 import scala.collection.immutable.HashMap
 import scala.Predef._
@@ -14,6 +15,7 @@ import collection.mutable
 import collection.mutable.{ListBuffer, HashSet, BitSet}
 import io.Source
 import java.util.regex.Pattern
+import java.util.ArrayList
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
@@ -30,8 +32,6 @@ object ProductGeneration {
     private var featureIDHashmap: Map[SingleFeatureExpr, Int] = null
     /**List of all features found in the currently processed file */
     private var features: List[SingleFeatureExpr] = null
-
-    type Task = Pair[String, List[SimpleConfiguration]]
 
     class SimpleConfiguration(private val config: scala.collection.immutable.BitSet) extends scala.Serializable {
 
@@ -248,10 +248,10 @@ object ProductGeneration {
                 var dimacsFM :File = null
                 if (caseStudy=="linux") {
                     productsDir = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/")
-                    dimacsFM = new File("../TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
+                    dimacsFM = new File("../TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
                 } else if(caseStudy=="busybox") {
                     productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
-                    dimacsFM = new File("../TypeChef-BusyboxAnalysis/BB_fm.dimacs")
+                    dimacsFM = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
                 } else {
                     throw new Exception("unknown case Study, give linux or busybox")
                 }
@@ -259,7 +259,7 @@ object ProductGeneration {
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
                     productsDir.list().map(new File(productsDir, _)).toList.
-                        filter(!_.getName.endsWith(".dat")).
+                        filter(!_.getName.endsWith(".dat")).filter(!_.getName.endsWith(".dimacs")).
                         sortBy({f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
                     }),
                     dimacsFM,
@@ -465,6 +465,24 @@ object ProductGeneration {
         val log:String = startLog
         println("starting product typechecking.")
 
+        // Warmup: we do a complete separate run of all tasks for warmup
+        {
+            val tsWarmup = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
+            val startTimeWarmup : Long = System.currentTimeMillis()
+            tsWarmup.checkASTSilent
+            println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
+            for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
+                for (configID:Int <- 0 until configs.size-1) {
+                    val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
+                        new Configuration(configs(configID).toFeatureExpr, fm))
+                    val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+                    val startTime: Long = System.currentTimeMillis()
+                    ts.checkASTSilent
+                    println("warmupTime_" + taskDesc + "_" + (configID+1) + ": " + (System.currentTimeMillis() - startTime))
+                }
+            }
+        }
+
         if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
@@ -515,8 +533,8 @@ object ProductGeneration {
         }
         // family base checking
         println("family-based type checking:")
-        val startTime : Long = System.currentTimeMillis()
-        val ts = new CTypeSystemFrontend(family_ast, fm)
+        val ts = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
+        var startTime : Long = System.currentTimeMillis()
         val noErrors: Boolean = ts.checkAST
         val familyTime: Long = System.currentTimeMillis() - startTime
 
@@ -887,15 +905,33 @@ object ProductGeneration {
             }
         }
 
-        for (optN <- optNodes) {
-            val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
-            handleFeatureExpression(fex)
-        }
+        if (optNodes.isEmpty && choiceNodes.isEmpty) {
+            // no feature variables in this file, build one random config and return it
+            val completeConfig = completeConfiguration(FeatureExprFactory.True, features, fm, preferDisabledFeatures)
+            if (completeConfig != null) {
+                retList ::= completeConfig
+                //println("created config for fex " + fex.toTextExpr)
+            } else {
+                if (useUnsatCombinationsCache) {
+                    //unsatCombinationsCacheFile.getParentFile.mkdirs()
+                    val fw = new FileWriter(unsatCombinationsCacheFile, true)
+                    fw.write(FeatureExprFactory.True+"\n")
+                    fw.close()
+                }
+                unsatCombinations += 1
+                //println("no satisfiable configuration for fex " + fex.toTextExpr)
+            }
+        } else {
+            for (optN <- optNodes) {
+                val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                handleFeatureExpression(fex)
+            }
 
-        for (choiceNode <- choiceNodes) {
-            val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
-            handleFeatureExpression(fex.and(choiceNode.feature))
-            handleFeatureExpression(fex.and(choiceNode.feature.not()))
+            for (choiceNode <- choiceNodes) {
+                val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
+                handleFeatureExpression(fex.and(choiceNode.feature))
+                handleFeatureExpression(fex.and(choiceNode.feature.not()))
+            }
         }
         (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +

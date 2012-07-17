@@ -8,8 +8,12 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
-import lexer.options.OptionException
+import featureexpr.bdd.BDDFeatureModel
+import featureexpr.{FeatureExprParser, FeatureExpr, FeatureExprFactory}
+import featureexpr.sat.SATFeatureModel
+import lexer.options.{FeatureModelOptions, OptionException}
 import java.io.{FileWriter, File}
+import parser.Position
 
 object Frontend {
 
@@ -97,6 +101,7 @@ object Frontend {
                     ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
                       logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
+
                     //println("type checking.")
                     //ts.checkAST
 					          //ts.errors.map(errorXML.renderTypeError(_))
