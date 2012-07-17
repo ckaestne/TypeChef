@@ -244,6 +244,7 @@ object ProductGeneration {
                 }
         */
         /**Henard CSV configurations */
+        /*
         {
             if (typecheckingTasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
@@ -259,7 +260,6 @@ object ProductGeneration {
                 } else {
                     throw new Exception("unknown case Study, give linux or busybox")
                 }
-
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = loadConfigurationsFromHenardFiles(
                     productsDir.list().map(new File(productsDir, _)).toList.
@@ -269,14 +269,13 @@ object ProductGeneration {
                     dimacsFM,
                     features, fm)
                 typecheckingTasks :+= Pair("henard", configs)
-
                 configurationCollection ++= configs
                 msg = "Time for config generation (henard): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
             }
             println(msg)
             log = log + msg
         }
-
+*/
         /**Single-wise */
         /*
                 {
@@ -747,38 +746,37 @@ object ProductGeneration {
         var simpleAndNodes = 0
         var optNodes: List[Opt[_]] = List()
         var choiceNodes: List[Choice[_]] = List()
-        def collectAnnotationNodes(root : Any) : Unit = {
+        def collectAnnotationLeafNodes(root : Any, previousOpt:Opt[_]=null, previousChoice:Choice[_]=null) : Unit = {
             root match {
                 case x: Opt[_] => {
-                    optNodes ::= x;
-                    collectAnnotationNodes(x.entry);
+                    collectAnnotationLeafNodes(x.entry,x,null);
                 }
                 case x: Choice[_] => {
-                    choiceNodes ::= x;
-                    collectAnnotationNodes(x.thenBranch);
-                    collectAnnotationNodes(x.elseBranch);
+                    collectAnnotationLeafNodes(x.thenBranch,null,x);
+                    collectAnnotationLeafNodes(x.elseBranch,null,x);
                 }
                 case l: List[_] => {
                     for (x <- l) {
-                        collectAnnotationNodes(x);
+                        collectAnnotationLeafNodes(x, previousOpt,previousChoice);
                     }
                 }
                 case x: Product => {
-                    for (y <- x.productIterator.toList) {
-                        collectAnnotationNodes(y);
+                    if (x.productArity == 0) {// termination point of recursion
+                        if (previousChoice != null) choiceNodes ::= previousChoice
+                        if (previousOpt != null) optNodes ::= previousOpt
+                    } else {
+                        for (y <- x.productIterator.toList) {
+                            collectAnnotationLeafNodes(y);
+                        }
                     }
                 }
-                case o => {
+                case o => {// termination point of recursion
+                    if (previousChoice != null) choiceNodes ::= previousChoice
+                    if (previousOpt != null) optNodes ::= previousOpt
                 }
             }
         }
-        /*val collectAnnotationNodes_Kiama = manytd(query {
-            case o: Opt[_] => optNodes ::= o
-            case o: Choice[_] => choiceNodes ::= o
-        })
-        collectAnnotationNodes_Kiama(astRoot)
-        */
-        collectAnnotationNodes(astRoot)
+        collectAnnotationLeafNodes(astRoot)
 
         // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
         // True node never needs to be handled
@@ -788,7 +786,6 @@ object ProductGeneration {
         //inner function
         def handleFeatureExpression(fex:FeatureExpr) = {
             if (! handledExpressions.contains(fex) && !(useUnsatCombinationsCache && unsatCombinationsCache.contains(fex.toTextExpr))) {
-
                 //println("fex : " + fex.toTextExpr)
                 // search for configs that imply this node
                 var isCovered : Boolean = false
@@ -859,11 +856,16 @@ object ProductGeneration {
                 //println("no satisfiable configuration for fex " + fex.toTextExpr)
             }
         } else {
+            println("found " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes")
+            //for ((optN,id) <- optNodes.zipWithIndex) {
+                //println("handling opt Node " + id)
             for (optN <- optNodes) {
                 val fex : FeatureExpr = env.featureSet(optN).fold(optN.feature)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
                 handleFeatureExpression(fex)
             }
 
+            //for ((choiceNode,id) <- choiceNodes.zipWithIndex) {
+                //println("handling choice Node " + id)
             for (choiceNode <- choiceNodes) {
                 val fex : FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)({(a:FeatureExpr,b:FeatureExpr) => a.and(b)})
                 handleFeatureExpression(fex.and(choiceNode.feature))
@@ -874,6 +876,7 @@ object ProductGeneration {
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + retList.size + "\n" +
+                " LeafNodes: " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes\n" +
                 " found " + simpleAndNodes + " simpleAndNodes, " + simpleOrNodes + " simpleOrNodes and " + complexNodes + " complex nodes.\n")
     }
 
@@ -1016,11 +1019,12 @@ object ProductGeneration {
                 //println("no satisfiable solution for product: " + file)
                 unsat_configs ::= getConfigID(file.getName)
             } else {
-                println("Config" + getConfigID(file.getName) + " true Features : " + "%3d".format(trueFeatures.size) +" false Features : " + falseFeatures.size)
+                //println("Config" + getConfigID(file.getName) + " true Features : " + "%3d".format(trueFeatures.size) +" false Features : " + falseFeatures.size)
                 retList ::= config;
             }
         }
-        return (retList,"Unsat Configs:" + unsat_configs.mkString("{", ",", "}"));
+        return (retList,"Generated Configs: " + retList.size + "\n" +
+            "Unsat Configs:" + unsat_configs.mkString("{", ",", "}"));
     }
 
     def loadConfigurationsFromCSVFile(csvFile: File, features: List[SingleFeatureExpr], fm: FeatureModel): (List[SimpleConfiguration], String) = {
