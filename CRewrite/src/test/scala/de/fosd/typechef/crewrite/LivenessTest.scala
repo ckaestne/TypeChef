@@ -102,4 +102,17 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
     }
                """)
   }
+
+  @Test def test_simle3() {
+    runExample("""
+      int foo() {
+        int a;
+        #if definedEx(A)
+        int b;
+        int c = c + b;
+        #endif
+        return c;
+    }
+               """)
+  }
 }
