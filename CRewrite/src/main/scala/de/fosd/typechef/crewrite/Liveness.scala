@@ -195,10 +195,10 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       case t@(e, env) => {
         val ss = succ(e, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[FeatureExpr, Set[Id]]()
-        for (s <- ss.map(_.entry)) {
+        for (Opt(f, s) <- ss) {
           if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
-          for (el <- in(s))
-            res = updateMap(res, el, _.union(_))
+          for ((fexpin, el) <- in(s))
+            res = updateMap(res, (f and fexpin, el), _.union(_))
         }
         res
       }

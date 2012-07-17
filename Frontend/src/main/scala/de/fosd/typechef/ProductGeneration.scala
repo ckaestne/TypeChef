@@ -370,7 +370,7 @@ object ProductGeneration {
 
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-        val (configGenLog : String, typecheckingTasks : List[Task]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
+        val (configGenLog, typecheckingTasks) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
         typecheckConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = (logMessage+configGenLog))
 
@@ -397,7 +397,7 @@ object ProductGeneration {
 
     val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-    val (configGenLog : String, typecheckingTasks : List[Pair[String, List[SimpleConfiguration]]]) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
+    val (configGenLog, typecheckingTasks) = buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
     saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
     dataflowAnalysisConfigurations(typecheckingTasks,family_ast,fm,family_ast,thisFilePath, startLog = (logMessage+configGenLog))
 
@@ -469,7 +469,7 @@ object ProductGeneration {
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
         val outFilePrefix: String = "../reports/" + fileID.substring(0, fileID.length - 2)
-        for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
+        for ((taskDesc, configs) <- typecheckingTasks) {
             var configurationsWithErrors = 0
             var current_config = 0
             var checkTimes : List[Long] = List()
@@ -527,7 +527,7 @@ object ProductGeneration {
         fw.write("Features : " + features.size + "\n")
         fw.write(log + "\n")
 
-        for ((taskDesc, (numConfigs, errors, totalTime, lstTimes:List[Long])) <- configCheckingResults) {
+        for ((taskDesc, (numConfigs, errors, totalTime, lstTimes)) <- configCheckingResults) {
             fw.write("\n -- Task: " + taskDesc + "\n")
             fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
             fw.write("(" + taskDesc + ")Configurations with errors: " + errors + "\n")
