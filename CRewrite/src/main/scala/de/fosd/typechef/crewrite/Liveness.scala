@@ -68,6 +68,7 @@ trait Variables {
       case PointerPostfixSuffix(kind, id) => Set(id)
       case FunctionCall(params) => params.exprs.map(_.entry).flatMap(findUses).toSet
       case ArrayAccess(expr) => uses(expr)
+      case PostfixExpr(Id(_), f@FunctionCall(_)) => uses(f)
       case PostfixExpr(p, s) => uses(p) ++ uses(s)
       case UnaryExpr(_, ex) => uses(ex)
       case SizeOfExprU(expr) => uses(expr)
@@ -79,20 +80,27 @@ trait Variables {
       case NArySubExpr(_, ex) => uses(ex)
       case ConditionalExpr(condition, _, _) => uses(condition)
       case ExprStatement(expr) => uses(expr)
-      case AssignExpr(_, _, source) => uses(source)
+      case AssignExpr(target, op, source) => uses(source) ++ ({
+        op match {
+          case "=" => Set()
+          case _ => uses(target)
+        }
+      })
       case Opt(_, entry) => uses(entry)
       case _ => Set()
     }
   }
 
   val defines: PartialFunction[Any, Set[Id]] = {
-    case ExprStatement(expr) => defines(expr)
     case i@Id(_) => Set(i)
     case AssignExpr(target, _, source) => defines(target)
     case DeclarationStatement(d) => defines(d)
     case Declaration(_, init) => init.flatMap(defines).toSet
     case InitDeclaratorI(a, _, _) => defines(a)
     case AtomicNamedDeclarator(_, i, _) => Set(i)
+    case ExprStatement(expr) => defines(expr)
+    case PostfixExpr(i@Id(_), SimplePostfixSuffix(_)) => Set(i) // a++; or a--;
+    case UnaryExpr(_, i@Id(_)) => Set(i) // ++a; or --a;
     case Opt(_, entry) => defines(entry)
     case _ => Set()
   }
@@ -121,14 +129,17 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
 
   private def updateMap(m: Map[FeatureExpr, Set[Id]],
                         e: (FeatureExpr, Set[Id]),
-                        op: (Set[Id], Set[Id]) => Set[Id]): Map[FeatureExpr, Set[Id]] = {
+                        diff: Boolean): Map[FeatureExpr, Set[Id]] = {
     val key = m.find(_._1.equivalentTo(e._1))
 
     key match {
-      case None => m.+(e)
+      case None => if (diff) m else m.+(e)
       // beware op is not symetric, first element of op application should always the current
       // value element of the map (here v)
-      case Some((k, v)) => m.+((k, op(v, e._2)))
+      case Some((k, v)) => m.+((k, ({
+        if (diff) v.diff(e._2)
+        else v.union(e._2)
+      })))
     }
   }
 
@@ -182,8 +193,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val d = definesVar(e, env)
         var res = out(t)
 
-        for ((k, v) <- d) res = updateMap(res, (k, v), _.diff(_))
-        for ((k, v) <- u) res = updateMap(res, (k, v), _.union(_))
+        for ((k, v) <- d) res = updateMap(res, (k, v), true)
+        for ((k, v) <- u) res = updateMap(res, (k, v), false)
 
         res
       }
@@ -198,7 +209,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         for (s <- ss) {
           if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s.entry, (s.entry, env))
           for ((f, r) <- in((s.entry, fm, env)))
-            res = updateMap(res, (f and s.feature, r), _.union(_))
+            res = updateMap(res, (f and s.feature, r), false)
         }
         res
       }
