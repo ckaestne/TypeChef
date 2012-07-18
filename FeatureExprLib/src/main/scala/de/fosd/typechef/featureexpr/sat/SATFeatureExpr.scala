@@ -8,8 +8,6 @@ import collection.immutable._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.ArrayBuffer
-import sat.NotReference
-import sat.StructuralEqualityWrapper
 import scala.Some
 
 

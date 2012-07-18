@@ -1,8 +1,9 @@
 package de.fosd.typechef.crewrite
 
 import org.junit.Test
-import de.fosd.typechef.parser.c.{AST, TestHelper, PrettyPrinter, FunctionDef}
-import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.parser.c.{TestHelper, PrettyPrinter, FunctionDef}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr, FeatureExprFactory}
+import de.fosd.typechef.featureexpr.sat.DefinedExpr
 import de.fosd.typechef.conditional.Opt
 
 class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness {
@@ -11,14 +12,13 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
     val a = parseFunctionDef(code)
 
     val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).filterNot(x => x._1.isInstanceOf[FunctionDef])
+    val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
-    for (o:Opt[AST] <- ss)
-      println(PrettyPrinter.print(o.entry) + "  uses: " + usesVar(o.entry, env) + "   defines: " + definesVar(o.entry, env) +
-        "  in: " + in((o.entry, FeatureExprFactory.empty, env)) + "   out: " + out((o.entry, FeatureExprFactory.empty, env)))
+    for (s <- ss)
+      println(PrettyPrinter.print(s) + "  uses: " + usesVar(s, env) + "   defines: " + definesVar(s, env) +
+        "  in: " + in((s, FeatureExprFactory.empty, env)) + "   out: " + out((s, FeatureExprFactory.empty, env)))
     println("succs: " + DotGraph.map2file(getAllSucc(a, FeatureExprFactory.empty, env), env))
   }
-
 
   @Test def test_standard_liveness_example() {
     runExample("""
@@ -88,6 +88,31 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
         return c;
     }
     """)
+  }
+
+  @Test def test_simple_A() {
+    runExample("""
+      int foo(int a, int b) {
+        int c = a;
+        if (c) {
+          c = c + a;
+          c = c + b;
+        }
+        return c;
+    }
+               """)
+  }
+
+  @Test def test_simple_NA() {
+    runExample("""
+      int foo(int a, int b) {
+        int c = a;
+        if (c) {
+          c = c + a;
+        }
+        return c;
+    }
+               """)
   }
 
   @Test def test_simle2() {

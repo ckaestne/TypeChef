@@ -2,6 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.TestHelper
 import org.junit.Test
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class DefUseChainsTest extends TestHelper with DefUseChains with ConditionalControlFlow {
   @Test def test_ggt() {
@@ -22,8 +23,8 @@ class DefUseChainsTest extends TestHelper with DefUseChains with ConditionalCont
 
     val env = CASTEnv.createASTEnv(a)
 
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    println("succs: " + DotGraph.map2file(getAllSucc(a, FeatureExprFactory.empty, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, FeatureExprFactory.empty, env), env))
   }
 
 }

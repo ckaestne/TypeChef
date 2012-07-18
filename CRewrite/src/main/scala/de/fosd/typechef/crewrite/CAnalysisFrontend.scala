@@ -4,7 +4,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
-import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef, AST}
+import de.fosd.typechef.parser.c.{PrettyPrinter, FunctionDef, AST}
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
@@ -49,8 +49,8 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
   }
 
   private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val s = getAllSucc(f, env)
-    val p = getAllPred(f, env)
+    val s = getAllSucc(f, fm, env)
+    val p = getAllPred(f, fm, env)
 
     val errors = compareSuccWithPred(s, p, env)
     CCFGErrorOutput.printCCFGErrors(s, p, errors, env)

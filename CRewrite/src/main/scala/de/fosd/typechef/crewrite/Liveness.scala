@@ -195,10 +195,10 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       case t@(e, fm, env) => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[FeatureExpr, Set[Id]]()
-        for (s <- ss.map(_.entry)) {
-          if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
-          for (el <- in((s, fm, env)))
-            res = updateMap(res, el, _.union(_))
+        for (s <- ss) {
+          if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s.entry, (s.entry, env))
+          for ((f, r) <- in((s.entry, fm, env)))
+            res = updateMap(res, (f and s.feature, r), _.union(_))
         }
         res
       }
@@ -215,7 +215,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  def in(a: (Product, FeatureModel, ASTEnv)) = {
+  def in(a: (AST, FeatureModel, ASTEnv)) = {
     incache.lookup(a._1) match {
       case Some(v) => v
       case None => {
