@@ -18,6 +18,7 @@ import java.util.ArrayList
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
+import java.util
 
 /**
  *
@@ -160,19 +161,19 @@ object ProductGeneration extends EnforceTreeHelper {
                 }
             }
         }
-        def toJavaList[T](orig: List[T]): ArrayList[T] = {
-            val javaList: ArrayList[T] = new ArrayList[T]
+        def toJavaList[T](orig: List[T]): util.ArrayList[T] = {
+            val javaList: util.ArrayList[T] = new util.ArrayList[T]
             for (f: T <- orig) javaList.add(f)
             javaList
         }
         var taskList: ListBuffer[(String, List[SimpleConfiguration])] = ListBuffer()
         // it seems that the scala lists cannot be serialized, so i use java ArrayLists
-        val savedFeatures: ArrayList[String] = readObject[ArrayList[String]](new File(mainDir, "FeatureHashmap.ser"))
+        val savedFeatures: util.ArrayList[String] = readObject[util.ArrayList[String]](new File(mainDir, "FeatureHashmap.ser"))
         assert(savedFeatures.equals(toJavaList(featureList.map((_.feature)))))
         for (file <- mainDir.listFiles()) {
             val fn = file.getName
             if (!fn.equals("FeatureHashmap.ser") && fn.endsWith(".ser")) {
-                val configs = readObject[ArrayList[SimpleConfiguration]](file)
+                val configs = readObject[util.ArrayList[SimpleConfiguration]](file)
                 val taskName = fn.substring(0, fn.length - ".ser".length)
                 var taskConfigs: scala.collection.mutable.ListBuffer[SimpleConfiguration] = ListBuffer()
                 val iter = configs.iterator()
@@ -245,7 +246,7 @@ object ProductGeneration extends EnforceTreeHelper {
                 }
         */
         /**Henard CSV configurations */
-
+/*
         {
             if (tasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
@@ -278,7 +279,7 @@ object ProductGeneration extends EnforceTreeHelper {
             println(msg)
             log = log + msg
         }
-
+*/
         /**Single-wise */
         /*
                 {
@@ -421,7 +422,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
         // Warmup: we do a complete separate run of all tasks for warmup
         {
-            val tsWarmup = new CTypeSystemFrontend(family_ast.asInstanceOf[TranslationUnit], fm)
+            val tsWarmup = new CTypeSystemFrontend(family_ast, fm)
             val startTimeWarmup: Long = System.currentTimeMillis()
             tsWarmup.checkASTSilent
             println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
@@ -779,9 +780,9 @@ object ProductGeneration extends EnforceTreeHelper {
         var complexNodes = 0
         var simpleOrNodes = 0
         var simpleAndNodes = 0
-        var optNodes: List[Opt[_]] = List()
-        var choiceNodes: List[Choice[_]] = List()
-        def collectAnnotationLeafNodes(root: Any, previousOpt: Opt[_] = null, previousChoice: Choice[_] = null): Unit = {
+        var optNodes: Set[Opt[_]] = Set()
+        var choiceNodes: Set[Choice[_]] = Set()
+        def collectAnnotationLeafNodes(root: Any, previousOpt: Opt[_] = null, previousChoice: Choice[_] = null) {
             root match {
                 case x: Opt[_] => {
                     collectAnnotationLeafNodes(x.entry, x, null)
@@ -795,12 +796,10 @@ object ProductGeneration extends EnforceTreeHelper {
                         collectAnnotationLeafNodes(x, previousOpt, previousChoice)
                     }
                 case x: AST => {
-
-                    if (x.getFile.isDefined && x.getFile.get.endsWith(".h")) return
                     if (x.productArity == 0) {
                         // termination point of recursion
-                        if (previousChoice != null) choiceNodes ::= previousChoice
-                        if (previousOpt != null) optNodes ::= previousOpt
+                        if (previousChoice != null) choiceNodes += previousChoice
+                        if (previousOpt != null) optNodes += previousOpt
                     } else {
                         for (y <- x.productIterator.toList) {
                             collectAnnotationLeafNodes(y)
@@ -809,8 +808,8 @@ object ProductGeneration extends EnforceTreeHelper {
                 }
                 case o => {
                     // termination point of recursion
-                    if (previousChoice != null) choiceNodes ::= previousChoice
-                    if (previousOpt != null) optNodes ::= previousOpt
+                    if (previousChoice != null) choiceNodes += previousChoice
+                    if (previousOpt != null) optNodes += previousOpt
                 }
             }
         }
