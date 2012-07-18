@@ -57,6 +57,7 @@ object Frontend {
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         /*
+                //typechef must be run in SAT-Mode for this to work (not BDD)
                 val pcs = new FeatureExprParser(FeatureExprFactory.sat).parseFile("../TypeChef-LinuxAnalysis/tmpFolder/pcs.txt")
                 opt.getFeatureModelTypeSystem.and(pcs).asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
                     //"/home/rhein/Tools/TypeChef/GitClone/TypeChef-BusyboxAnalysis/BB_fm.dimacs"
