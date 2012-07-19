@@ -30,7 +30,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   private def runDeclaresExample(code: String) = {
-    val a = parseStmt(code)
+    val a = parseDecl(code)
     declaresVar(a, CASTEnv.createASTEnv(a))
   }
 
@@ -275,7 +275,6 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
 
   // http://www.exforsys.com/tutorials/c-language/c-expressions.html
   @Test def test_uses() {
-    // uses
     runUsesExample("a++;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("++a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("a[b];") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
@@ -322,9 +321,9 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runUsesExample("a > b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
     runUsesExample("a <= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
     runUsesExample("a >= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+  }
 
-
-    // defines
+  @Test def test_defines() {
     runDefinesExample("a++;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runDefinesExample("++a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runDefinesExample("a[b];") should be(Map())
@@ -371,5 +370,26 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runDefinesExample("a > b;") should be (Map())
     runDefinesExample("a <= b;") should be (Map())
     runDefinesExample("a >= b;") should be (Map())
+  }
+
+  // http://en.wikipedia.org/wiki/C_data_types
+  @Test def test_declares() {
+    runDeclaresExample("int a = 0;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDeclaresExample("int a, b = 0;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runDeclaresExample("int a[10];") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDeclaresExample("char *c;") should be(Map(FeatureExprFactory.True -> Set(Id("c"))))
+    runDeclaresExample("float f;") should be(Map(FeatureExprFactory.True -> Set(Id("f"))))
+    runDeclaresExample("""
+      struct {
+        int i;
+      } s;""") should be(Map(FeatureExprFactory.True -> Set(Id("s"))))
+    runDeclaresExample("""
+      struct k {
+        int i;
+      } s;""") should be(Map(FeatureExprFactory.True -> Set(Id("s"))))
+    runDeclaresExample("""
+      union {
+        int i;
+      } u;""") should be(Map(FeatureExprFactory.True -> Set(Id("u"))))
   }
 }
