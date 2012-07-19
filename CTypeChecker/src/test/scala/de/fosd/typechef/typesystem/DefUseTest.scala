@@ -13,22 +13,17 @@ class DefUseTest extends CTypeSystem with CEnvCache with TestHelper {
   @Test
   def test_def_use_chain() {
     val a = compileCode("""
-      int b;
-      int foo(); // forward declaration
-      int foo() {return 0;}
-      int bar() {foo(); foo(); return 0;}
-      struct a {
-        int x;
-      };
-      union b;
-      int spam() {
-        struct a k;
-        k.x = 2;
+      int foo() {
+        struct d e;
+        int a = 0;
+        int b = a;
+        if (b) {
+          int a = b;
+        }
+        a;
       }
                         """)
 
-    val lastdecl = lookupEnv(a.defs.last.entry)
-    println(a)
     println(getDefUseMap)
   }
 }

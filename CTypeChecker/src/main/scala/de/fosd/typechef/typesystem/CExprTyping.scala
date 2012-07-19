@@ -39,6 +39,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         else One(CSigned(CInt()))
                     //variable or function ref
                     case id@Id(name) =>
+                        addUse(id, env)
                         val ctype = env.varEnv(name)
                         ctype.mapf(featureExpr, {
                             (f, t) =>
@@ -114,8 +115,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
                             case Opt(f, e) => Opt(f, etF(e, featureExpr and f))
                         })
-
-                        addUse(pe, env)
 
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
