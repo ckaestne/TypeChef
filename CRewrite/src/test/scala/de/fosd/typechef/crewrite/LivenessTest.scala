@@ -273,6 +273,20 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
                """)
   }
 
+  @Test def test_shadowing() {
+    runExample("""
+      int foo() {
+        int a = 0;
+        int b = a;
+        if (b) {
+          int a = b;
+          b;
+        }
+        a;
+      }
+               """)
+  }
+
   // http://www.exforsys.com/tutorials/c-language/c-expressions.html
   @Test def test_uses() {
     runUsesExample("a++;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
