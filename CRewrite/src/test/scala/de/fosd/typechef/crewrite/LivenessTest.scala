@@ -84,6 +84,59 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     """)
   }
 
+  @Test def test_jens() {
+    runExample("""
+      int foo(int a, int b) {
+        int c = a;
+        if (c) {
+          #if definedEx(A) && definedEx(B)
+          c = c + a;
+          #endif
+          #if definedEx(B)
+          c = c + b;
+          #endif
+        }
+        return c;
+    }
+               """)
+  }
+
+  @Test def test_jens_NANB() {
+    runExample("""
+      int foo(int a, int b) {
+        int c = a;
+        if (c) {
+        }
+        return c;
+    }
+               """)
+  }
+
+  @Test def test_jens_AB() {
+    runExample("""
+      int foo(int a, int b) {
+        int c = a;
+        if (c) {
+          c = c + a;
+          c = c + b;
+        }
+        return c;
+    }
+               """)
+  }
+
+  @Test def test_jens_NAB() {
+    runExample("""
+      int foo(int a, int b) {
+        int c = a;
+        if (c) {
+          c = c + b;
+        }
+        return c;
+    }
+               """)
+  }
+
   @Test def test_simple() {
     runExample("""
       int foo(int a, int b) {
@@ -176,6 +229,30 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         x--;
         #endif
         x = 0;
+    }
+               """)
+  }
+
+  @Test def test_alternative() {
+    runExample("""
+      int foo() {
+        int x = 0;
+        #if definedEx(A)
+        int a = 0;
+        #else
+        int b = 0;
+        #endif
+        x = 0;
+    }
+               """)
+  }
+
+  @Test def test_kill() {
+    runExample("""
+      int foo(int a, int b, int c) {
+        c = b;
+        b = c;
+        c = a;
     }
                """)
   }
