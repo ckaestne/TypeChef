@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.{Conditional, One, Choice, Opt}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 
 // defines and uses we can jump to using succ
@@ -142,7 +142,55 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
+  // dataflow analysis requires to have unique names for all local declaring variables
+  // e.g.:
+  // void foo() {
+  //   int a = 0; // 3
+  //   int b = a;
+  //   if (b) {
+  //     int a = b; // 1
+  //   }
+  //   a; // 2
+  // dataflow determines that a (// 2) is used out of the statement in the if (// a), but a
+  // belongs to the declaration in // 3.
   def renameShadowingVariables[T <: AST](root: T): T = {
+
+    // compound statement working stack
+    // maintains a list of compound statements that each represent
+    // a map of existing Feature expressions to a Map[String, String]
+    // the last map holds Map[oldname, newname]
+    // entering a compoundstatement means adding a new empty Map to the working stack
+    // leaving a compoundstatement means popping the top element of the working stack
+    // within a compoundstatement we add new declarations and their names to the Map
+    // and look for conflicting elements that we rename to <newname> (see above).
+    // we also look for variable uses and change their names accordingly
+    type CmpStmtWStack = List[Map[FeatureExpr, Map[String, String]]]
+
+    // suffix we add to oldname to get newname; increased by one each time we use it
+    var lastsuffix = 1
+
+    // recursive function that make a pattern matting for each element
+    def handleElementAndRename(a: Any, ws: CmpStmtWStack): (Any, CmpStmtWStack) = {
+      a match {
+        case CompoundStatement(innerStatements) => {
+          val r = handleElementAndRename(innerStatements, Map()::ws)
+          (CompoundStatement(r._1.asInstanceOf[List[Opt[Statement]]]), ws)
+        }
+        case l: List[Opt[_]] => {
+          var cws = ws
+          var res = List[Opt[_]]()
+          for (i <- l) { val r = handleElementAndRename(i, cws);  res ::= r._1; cws = r._2}
+          (res.reverse, cws)
+        }
+        case Opt(feature, entry) => handleElementAndRename(entry, ws)
+        case Choice(feature, thenBranch, elseBranch) => {
+          val rt = handleElementAndRename(thenBranch, ws)
+          val re = handleElementAndRename(elseBranch, rt._2)
+          (Choice(feature, rt._1.asInstanceOf[Conditional[_]], re._1.asInstanceOf[Conditional[_]]), re._2)
+        }
+        case One(value) => val r = handleElementAndRename(value, ws); (One(r._1), r._2)
+      }
+    }
     declares(root)
     root
   }
@@ -195,7 +243,6 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       case t@(e, fm, env) => {
         val u = usesVar(e, env)
         val d = definesVar(e, env)
-        val r = declares(e)
         var res = out(t)
 
         for ((k, v) <- d) res = updateMap(res, (k, v), diff = true)
