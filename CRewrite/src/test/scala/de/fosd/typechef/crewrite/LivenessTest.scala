@@ -257,6 +257,17 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
                """)
   }
 
+  @Test def test_kill2() {
+    runExample("""
+      int foo(int a, int b, int c) {
+        c = b;
+        b = c;
+        c = a;
+        c = c;
+    }
+               """)
+  }
+
   // http://www.exforsys.com/tutorials/c-language/c-expressions.html
   @Test def test_uses() {
     // uses
