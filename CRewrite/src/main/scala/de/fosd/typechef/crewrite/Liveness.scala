@@ -203,37 +203,37 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         // if so, we need to remove all Ids from out(t)
         // that not belong to the same compoundstatement or nested
         // compoundstatements e belongs to also
-
-        val declares = prevASTElems(e, env).flatMap(
-          x => declaresVar(e, env).values.toList.map(_.toList).flatten
-        )
-
-        var declcomp = Map[Id, CompoundStatement]()
-
-        for (d <- declares) {
-          val cmpdecl = findPriorASTElem[CompoundStatement](d, env)
-          if (cmpdecl.isDefined) declcomp = declcomp.+((d, cmpdecl.get))
-        }
-
-        var res = out(t)
-        var newres = Map[FeatureExpr, Set[Id]]()
-
-        for ((k, v) <- res) {
-          var newset = Set[Id]()
-
-          for (i <- v) {
-            declcomp.find(x => x == i) match {
-              case None => newset += i
-              case Some((_, dcompdecl)) => {
-                if (findPriorASTElems[CompoundStatement](i, env).exists(x => x.eq(dcompdecl)))
-                  newset += i
-              }
-            }
-          }
-
-          newres = newres.+((k, newset))
-        }
-        res = newres
+//
+//        val declares = prevASTElems(e, env).flatMap(
+//          x => declaresVar(e, env).values.toList.map(_.toList).flatten
+//        )
+//
+//        var declcomp = Map[Id, CompoundStatement]()
+//
+//        for (d <- declares) {
+//          val cmpdecl = findPriorASTElem[CompoundStatement](d, env)
+//          if (cmpdecl.isDefined) declcomp = declcomp.+((d, cmpdecl.get))
+//        }
+//
+       var res = out(t)
+//        var newres = Map[FeatureExpr, Set[Id]]()
+//
+//        for ((k, v) <- res) {
+//          var newset = Set[Id]()
+//
+//          for (i <- v) {
+//            declcomp.find(x => x == i) match {
+//              case None => newset += i
+//              case Some((_, dcompdecl)) => {
+//                if (findPriorASTElems[CompoundStatement](i, env).exists(x => x.eq(dcompdecl)))
+//                  newset += i
+//              }
+//            }
+//          }
+//
+//          newres = newres.+((k, newset))
+//        }
+//        res = newres
 
         for ((k, v) <- defines) res = updateMap(res, (k, v), diff = true)
         for ((k, v) <- uses) res = updateMap(res, (k, v), diff = false)
