@@ -248,7 +248,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             if (! (eliffexp and ctx isContradiction(fm))) {
               elif match {
                 case ElifStatement(_, elif_thenBranch) => res ++= getCondStmtPred(elif_thenBranch, ctx, oldres, fm, env)
-                case _ => assert(1 != 0, "expected elif statement")
+                case _ => assert(assertion = false, message = "expected elif statement")
               }
             }
           }
@@ -302,7 +302,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       case t@LabelStatement(Id(n), _) => {
         findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(1 == 0, "label statements should always occur within a function definition"); List()
+          case None => assert(assertion = false, message = "label statements should always occur within a function definition"); List()
           case Some(f) => {
             val l_gotos = filterASTElems[GotoStatement](f, env.featureExpr(t), env)
             // filter gotostatements with the same id as the labelstatement
@@ -411,7 +411,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case t@ReturnStatement(Some(c: CompoundStatementExpr)) => getExprSucc(c, ctx, oldres, fm, env)
       case t@ReturnStatement(_) => {
         findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(1 == 0, "return statement should always occur within a function statement"); List()
+          case None => assert(assertion = false, message = "return statement should always occur within a function statement"); List()
           case Some(f) => {
             val newresctx = getNewResCtx(oldres, ctx, env.featureExpr(f))
             if (newresctx isContradiction(fm)) oldres
@@ -467,7 +467,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       }
       case t@GotoStatement(Id(l)) => {
         findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(1 == 0, "goto statement should always occur within a function definition"); oldres
+          case None => assert(assertion = false, message = "goto statement should always occur within a function definition"); oldres
           case Some(f) => {
             val l_list = filterAllASTElems[LabelStatement](f, env.featureExpr(t), env).filter(_.id.name == l)
             if (l_list.isEmpty) getStmtSucc(t, ctx, oldres, fm, env)
@@ -480,7 +480,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       // so fetch the function statement and filter for all label statements
       case t@GotoStatement(PointerDerefExpr(_)) => {
         findPriorASTElem[FunctionDef](t, env) match {
-          case None => assert(1 == 0, "goto statement should always occur within a function definition"); oldres
+          case None => assert(assertion = false, message = "goto statement should always occur within a function definition"); oldres
           case Some(f) => {
             val l_list = filterAllASTElems[LabelStatement](f, env.featureExpr(t))
             if (l_list.isEmpty) getStmtSucc(t, ctx, oldres, fm, env)
@@ -605,7 +605,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
   private def getReturnStatementSucc(t: AST, ctx: FeatureExpr, oldres: CCFGRes, fm: FeatureModel, env: ASTEnv): CCFGRes = {
     findPriorASTElem[FunctionDef](t, env) match {
-      case None => assert(1 == 0, "return statement should always occur within a function statement"); List()
+      case None => assert(assertion = false, message = "return statement should always occur within a function statement"); List()
       case Some(f) => oldres ++ {
         val newresctx = getNewResCtx(oldres, ctx, env.featureExpr(f))
         if (newresctx isContradiction(fm)) List()
@@ -685,7 +685,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                         else res ++= List(n)
                       }
                     }
-                    case _ => assert(1 != 0, "expected elif statement")
+                    case _ => assert(assertion = true, message = "expected elif statement")
                   }
                 }
               }
@@ -716,7 +716,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
                       else res ++= List(n)
                     }
                   }
-                  case _ => assert(1 != 0, "expected elif statement")
+                  case _ => assert(assertion = true, message = "expected elif statement")
                 }
               }
             }

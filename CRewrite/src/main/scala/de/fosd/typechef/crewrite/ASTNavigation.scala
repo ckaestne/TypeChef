@@ -2,7 +2,6 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional._
-import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 // simplified navigation support
