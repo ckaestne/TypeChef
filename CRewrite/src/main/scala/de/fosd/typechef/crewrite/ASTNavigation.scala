@@ -158,6 +158,15 @@ trait ASTNavigation {
     }
   }
 
+  // go up the AST hierarchy and loog for specific AST elements with type T
+  def findPriorASTElems[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case x if (m.erasure.isInstance(x)) => x.asInstanceOf[T] :: findPriorASTElems(parentAST(x, env), env)
+      case x: Product => findPriorASTElems(parentAST(x, env), env)
+      case null => Nil
+    }
+  }
+
   // recursively walk right branch of Choice structure until we hit an AST element
   private def lastChoice(x: Choice[_]): AST = {
     x.elseBranch match {

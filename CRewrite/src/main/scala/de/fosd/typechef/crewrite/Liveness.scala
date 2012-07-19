@@ -129,16 +129,22 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   private def updateMap(m: Map[FeatureExpr, Set[Id]],
                         e: (FeatureExpr, Set[Id]),
                         diff: Boolean): Map[FeatureExpr, Set[Id]] = {
-    val key = m.find(_._1.equivalentTo(e._1))
 
-    key match {
-      case None => if (diff) m else m.+(e)
-      // beware op is not symetric, first element of op application should always the current
-      // value element of the map (here v)
-      case Some((k, v)) => m.+((k, ({
-        if (diff) v.diff(e._2)
-        else v.union(e._2)
-      })))
+    if (diff) {
+      var cm = Map[FeatureExpr, Set[Id]]()
+
+      for ((k, v) <- m) {
+        val ns = v.diff(e._2)
+        if (! ns.isEmpty) cm = cm.+((k, ns))
+      }
+      cm
+    } else {
+      val key = m.find(_._1.equivalentTo(e._1))
+
+      key match {
+        case None => m.+(e)
+        case Some((k, v)) => m.+((k, v.union(e._2)))
+      }
     }
   }
 
@@ -169,28 +175,28 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     // suffix we add to oldname to get newname; increased by one each time we use it
     var lastsuffix = 1
 
-    // recursive function that make a pattern matting for each element
-    def handleElementAndRename(a: Any, ws: CmpStmtWStack): (Any, CmpStmtWStack) = {
-      a match {
-        case CompoundStatement(innerStatements) => {
-          val r = handleElementAndRename(innerStatements, Map()::ws)
-          (CompoundStatement(r._1.asInstanceOf[List[Opt[Statement]]]), ws)
-        }
-        case l: List[Opt[_]] => {
-          var cws = ws
-          var res = List[Opt[_]]()
-          for (i <- l) { val r = handleElementAndRename(i, cws);  res ::= r._1; cws = r._2}
-          (res.reverse, cws)
-        }
-        case Opt(feature, entry) => handleElementAndRename(entry, ws)
-        case Choice(feature, thenBranch, elseBranch) => {
-          val rt = handleElementAndRename(thenBranch, ws)
-          val re = handleElementAndRename(elseBranch, rt._2)
-          (Choice(feature, rt._1.asInstanceOf[Conditional[_]], re._1.asInstanceOf[Conditional[_]]), re._2)
-        }
-        case One(value) => val r = handleElementAndRename(value, ws); (One(r._1), r._2)
-      }
-    }
+//    // recursive function that make a pattern matting for each element
+//    def handleElementAndRename(a: Any, ws: CmpStmtWStack): (Any, CmpStmtWStack) = {
+//      a match {
+//        case CompoundStatement(innerStatements) => {
+//          val r = handleElementAndRename(innerStatements, Map()::ws)
+//          (CompoundStatement(r._1.asInstanceOf[List[Opt[Statement]]]), ws)
+//        }
+//        case l: List[Opt[_]] => {
+//          var cws = ws
+//          var res = List[Opt[_]]()
+//          for (i <- l) { val r = handleElementAndRename(i, cws);  res ::= r._1; cws = r._2}
+//          (res.reverse, cws)
+//        }
+//        case Opt(feature, entry) => handleElementAndRename(entry, ws)
+//        case Choice(feature, thenBranch, elseBranch) => {
+//          val rt = handleElementAndRename(thenBranch, ws)
+//          val re = handleElementAndRename(elseBranch, rt._2)
+//          (Choice(feature, rt._1.asInstanceOf[Conditional[_]], re._1.asInstanceOf[Conditional[_]]), re._2)
+//        }
+//        case One(value) => val r = handleElementAndRename(value, ws); (One(r._1), r._2)
+//      }
+//    }
     declares(root)
     root
   }
@@ -241,12 +247,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     circular[(Product, FeatureModel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(FunctionDef(_, _, _, _), _, _) => Map()
       case t@(e, fm, env) => {
-        val u = usesVar(e, env)
-        val d = definesVar(e, env)
+        val uses = usesVar(e, env)
+        val defines = definesVar(e, env)
+        val declares = declaresVar(e, env)
         var res = out(t)
 
-        for ((k, v) <- d) res = updateMap(res, (k, v), diff = true)
-        for ((k, v) <- u) res = updateMap(res, (k, v), diff = false)
+        for ((k, v) <- defines) res = updateMap(res, (k, v), diff = true)
+        for ((k, v) <- uses) res = updateMap(res, (k, v), diff = false)
 
         res
       }
