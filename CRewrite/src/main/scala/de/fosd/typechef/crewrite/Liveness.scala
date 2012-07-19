@@ -9,14 +9,13 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureEx
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
 trait Variables {
 
-  val usesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
-    case (a, env) => findUsesVar(a, env)
-  }
 
-  private def findUsesVar(e: Any, env: ASTEnv): Map[FeatureExpr, Set[Id]] = {
+  // add annotation to elements of a Set[Id]
+  // used for uses, defines, and declares
+  private def addAnnotation2ResultSet(in: Set[Id], env: ASTEnv): Map[FeatureExpr, Set[Id]] = {
     var res = Map[FeatureExpr, Set[Id]]()
 
-    for (r <- uses(e)) {
+    for (r <- in) {
       val rfexp = env.featureExpr(r)
 
       val key = res.find(_._1 equivalentTo rfexp)
@@ -29,68 +28,59 @@ trait Variables {
     res
   }
 
+  // returns all used variables with their annotation
+  val usesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]]= {
+    case (a, env) => addAnnotation2ResultSet(uses(a), env)
+  }
+
+  // returns all defined variables with their annotation
   val definesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
-    case (a, env) => findDefinesVar(a, env)
+    case (a, env) => addAnnotation2ResultSet(defines(a), env)
   }
 
-  private def findDefinesVar(e: Any, env: ASTEnv): Map[FeatureExpr, Set[Id]] = {
-    var res = Map[FeatureExpr, Set[Id]]()
-
-    for (r <- defines(e)) {
-      val rfexp = env.featureExpr(r)
-
-      val key = res.find(_._1 equivalentTo rfexp)
-      key match {
-        case None => res = res.+((rfexp, Set(r)))
-        case Some((k, v)) => res = res.+((k, v ++ Set(r)))
-      }
-    }
-
-    res
+  // returns all declared variables with their annotation
+  val declaresVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+    case (a, env) => addAnnotation2ResultSet(declares(a), env)
   }
 
+  // returns all used Ids independent of their annotation
   val uses: PartialFunction[Any, Set[Id]] = {
-    case a: Any => findUses(a)
+    case ForStatement(expr1, expr2, expr3, _) => uses(expr1) ++ uses(expr2) ++ uses(expr3)
+    case ReturnStatement(Some(x)) => uses(x)
+    case WhileStatement(expr, _) => uses(expr)
+    case DeclarationStatement(d) => uses(d)
+    case Declaration(_, init) => init.flatMap(uses).toSet
+    case InitDeclaratorI(_, _, Some(i)) => uses(i)
+    case AtomicNamedDeclarator(_, id, _) => Set(id)
+    case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
+    case Initializer(_, expr) => uses(expr)
+    case i@Id(name) => Set(i)
+    case PointerPostfixSuffix(kind, id) => Set(id)
+    case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
+    case ArrayAccess(expr) => uses(expr)
+    case PostfixExpr(Id(_), f@FunctionCall(_)) => uses(f)
+    case PostfixExpr(p, s) => uses(p) ++ uses(s)
+    case UnaryExpr(_, ex) => uses(ex)
+    case SizeOfExprU(expr) => uses(expr)
+    case CastExpr(_, expr) => uses(expr)
+    case PointerDerefExpr(castExpr) => uses(castExpr)
+    case PointerCreationExpr(castExpr) => uses(castExpr)
+    case UnaryOpExpr(kind, castExpr) => uses(castExpr)
+    case NAryExpr(ex, others) => uses(ex) ++ others.flatMap(uses).toSet
+    case NArySubExpr(_, ex) => uses(ex)
+    case ConditionalExpr(condition, _, _) => uses(condition)
+    case ExprStatement(expr) => uses(expr)
+    case AssignExpr(target, op, source) => uses(source) ++ ({
+      op match {
+        case "=" => Set()
+        case _ => uses(target)
+      }
+    })
+    case Opt(_, entry) => uses(entry)
+    case _ => Set()
   }
 
-  private def findUses(e: Any): Set[Id] = {
-    e match {
-      case ForStatement(expr1, expr2, expr3, _) => uses(expr1) ++ uses(expr2) ++ uses(expr3)
-      case ReturnStatement(Some(x)) => uses(x)
-      case WhileStatement(expr, _) => uses(expr)
-      case DeclarationStatement(d) => uses(d)
-      case Declaration(_, init) => init.flatMap(uses).toSet
-      case InitDeclaratorI(_, _, Some(i)) => uses(i)
-      case AtomicNamedDeclarator(_, id, _) => Set(id)
-      case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
-      case Initializer(_, expr) => uses(expr)
-      case i@Id(name) => Set(i)
-      case PointerPostfixSuffix(kind, id) => Set(id)
-      case FunctionCall(params) => params.exprs.map(_.entry).flatMap(findUses).toSet
-      case ArrayAccess(expr) => uses(expr)
-      case PostfixExpr(Id(_), f@FunctionCall(_)) => uses(f)
-      case PostfixExpr(p, s) => uses(p) ++ uses(s)
-      case UnaryExpr(_, ex) => uses(ex)
-      case SizeOfExprU(expr) => uses(expr)
-      case CastExpr(_, expr) => uses(expr)
-      case PointerDerefExpr(castExpr) => uses(castExpr)
-      case PointerCreationExpr(castExpr) => uses(castExpr)
-      case UnaryOpExpr(kind, castExpr) => uses(castExpr)
-      case NAryExpr(ex, others) => uses(ex) ++ others.flatMap(uses).toSet
-      case NArySubExpr(_, ex) => uses(ex)
-      case ConditionalExpr(condition, _, _) => uses(condition)
-      case ExprStatement(expr) => uses(expr)
-      case AssignExpr(target, op, source) => uses(source) ++ ({
-        op match {
-          case "=" => Set()
-          case _ => uses(target)
-        }
-      })
-      case Opt(_, entry) => uses(entry)
-      case _ => Set()
-    }
-  }
-
+  // returns all defined Ids independent of their annotation
   val defines: PartialFunction[Any, Set[Id]] = {
     case i@Id(_) => Set(i)
     case AssignExpr(target, _, source) => defines(target)
@@ -102,6 +92,16 @@ trait Variables {
     case PostfixExpr(i@Id(_), SimplePostfixSuffix(_)) => Set(i) // a++; or a--;
     case UnaryExpr(_, i@Id(_)) => Set(i) // ++a; or --a;
     case Opt(_, entry) => defines(entry)
+    case _ => Set()
+  }
+
+  // returns all declared Ids independent of their annotation
+  val declares: PartialFunction[Any, Set[Id]] = {
+    case DeclarationStatement(decl) => declares(decl)
+    case Declaration(_, init) => init.flatMap(declares).toSet
+    case InitDeclaratorI(declarator, _, _) => declares(declarator)
+    case AtomicNamedDeclarator(_, id, _) => Set(id)
+    case Opt(_, entry) => declares(entry)
     case _ => Set()
   }
 }
@@ -119,7 +119,6 @@ class LivenessCache {
     else None
   }
 }
-
 
 
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
@@ -141,6 +140,11 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         else v.union(e._2)
       })))
     }
+  }
+
+  def renameShadowingVariables[T <: AST](root: T): T = {
+    declares(root)
+    root
   }
 
   // cache for in; we have to store all tuples of (a, env) their because using
@@ -191,6 +195,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       case t@(e, fm, env) => {
         val u = usesVar(e, env)
         val d = definesVar(e, env)
+        val r = declares(e)
         var res = out(t)
 
         for ((k, v) <- d) res = updateMap(res, (k, v), diff = true)

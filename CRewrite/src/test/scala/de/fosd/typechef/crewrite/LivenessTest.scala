@@ -29,6 +29,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     usesVar(a, CASTEnv.createASTEnv(a))
   }
 
+  private def runDeclaresExample(code: String) = {
+    val a = parseStmt(code)
+    declaresVar(a, CASTEnv.createASTEnv(a))
+  }
+
   @Test def test_standard_liveness_example() {
     runExample("""
       void foo() {
