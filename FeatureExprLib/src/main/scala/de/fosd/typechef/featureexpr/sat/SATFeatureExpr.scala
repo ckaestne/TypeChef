@@ -8,8 +8,6 @@ import collection.immutable._
 import collection.mutable.Map
 import collection.mutable.WeakHashMap
 import collection.mutable.ArrayBuffer
-import sat.NotReference
-import sat.StructuralEqualityWrapper
 import scala.Some
 
 
@@ -89,11 +87,10 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     var remainingInterestingFeatures = interestingFeatures
     assignment match {
       case Some(Pair(trueFeatures, falseFeatures)) => {
-        remainingInterestingFeatures --= this.collectDistinctFeatureObjects
         if (preferDisabledFeatures) {
-            var enabledFeatures = this.collectDistinctFeatureObjects
+            var enabledFeatures: Set[SingleFeatureExpr] = Set()
             for (f <- trueFeatures) {
-              val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
+              remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
                 case Some(fex : SingleFeatureExpr) => {
                   remainingInterestingFeatures -= fex
                     enabledFeatures += fex
@@ -105,7 +102,7 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
         } else {
             var disabledFeatures : Set[SingleFeatureExpr] = Set()
             for (f <- falseFeatures) {
-                val res = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
+                remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
                     case Some(fex : SingleFeatureExpr) => {
                         remainingInterestingFeatures -= fex
                         disabledFeatures += fex

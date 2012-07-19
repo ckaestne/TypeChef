@@ -86,12 +86,28 @@ private class SatSolverImpl(featureModel: SATFeatureModel, isReused: Boolean) {
         assert(CNFHelper.isCNF(exprCNF))
 
         if (optimizeSimpleExpression) {
-            if (exprCNF == True) return true
+            if (exprCNF == True) {
+                // if the expression is True, then the result is true, and we need a model. The model is cached lazily.
+                if (this.trueModel == null) {
+                    isSatisfiable(exprCNF,false)
+                    this.trueModel=getLastModel()
+                } else {
+                    lastModel=trueModel
+                }
+                return true
+            }
             if (exprCNF == False) return false
         }
         //as long as we do not consider feature models, expressions with a single variable
         //are always satisfiable
-        if ((featureModel == SATNoFeatureModel) && (CNFHelper.isLiteralExternal(exprCNF))) return true
+        if ((featureModel == SATNoFeatureModel) && (CNFHelper.isLiteralExternal(exprCNF))){
+            exprCNF match { //one of these cases has to match, because we have a literal expression
+                case x: DefinedExternal => lastModel = Pair(List(x.satName),List())
+                case Not(x: DefinedExternal) => lastModel = Pair(List(),List(x.satName))
+                case _ => sys.error("This really should not be possible")
+            }
+            return true
+        }
 
     val startTime = System.currentTimeMillis();
 
@@ -191,6 +207,9 @@ private class SatSolverImpl(featureModel: SATFeatureModel, isReused: Boolean) {
    * The first element contains the names of the features set to true, the second contains the names of the false features.
    */
   var lastModel : Pair[List[String],List[String]] = null
+  // model that satisfies the FM (when a TRUE Expression is passed to the solver)
+  // this is cached after first creation
+  var trueModel : Pair[List[String],List[String]] = null
   def getLastModel() = lastModel
 }
 

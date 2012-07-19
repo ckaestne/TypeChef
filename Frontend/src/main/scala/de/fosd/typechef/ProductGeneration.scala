@@ -1,7 +1,7 @@
 package de.fosd.typechef
 
-import conditional.{Choice, Opt}
-import crewrite._
+import conditional.{One, Choice, Opt}
+import crewrite.{CAnalysisFrontend, EnforceTreeHelper, ProductDerivation}
 import featureexpr._
 
 import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
@@ -18,7 +18,6 @@ import java.util.ArrayList
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
-import java.util
 
 /**
  *
@@ -132,8 +131,8 @@ object ProductGeneration extends EnforceTreeHelper {
                 case i: IOException => i.printStackTrace()
             }
         }
-        def toJavaList[T](orig: List[T]): ArrayList[T] = {
-            val javaList: ArrayList[T] = new ArrayList[T]
+        def toJavaList[T](orig: List[T]): java.util.ArrayList[T] = {
+            val javaList: java.util.ArrayList[T] = new java.util.ArrayList[T]
             for (f: T <- orig) javaList.add(f)
             javaList
         }
@@ -161,19 +160,19 @@ object ProductGeneration extends EnforceTreeHelper {
                 }
             }
         }
-        def toJavaList[T](orig: List[T]): util.ArrayList[T] = {
-            val javaList: util.ArrayList[T] = new util.ArrayList[T]
+        def toJavaList[T](orig: List[T]): java.util.ArrayList[T] = {
+            val javaList: java.util.ArrayList[T] = new java.util.ArrayList[T]
             for (f: T <- orig) javaList.add(f)
             javaList
         }
         var taskList: ListBuffer[(String, List[SimpleConfiguration])] = ListBuffer()
         // it seems that the scala lists cannot be serialized, so i use java ArrayLists
-        val savedFeatures: util.ArrayList[String] = readObject[util.ArrayList[String]](new File(mainDir, "FeatureHashmap.ser"))
+        val savedFeatures: java.util.ArrayList[String] = readObject[java.util.ArrayList[String]](new File(mainDir, "FeatureHashmap.ser"))
         assert(savedFeatures.equals(toJavaList(featureList.map((_.feature)))))
         for (file <- mainDir.listFiles()) {
             val fn = file.getName
             if (!fn.equals("FeatureHashmap.ser") && fn.endsWith(".ser")) {
-                val configs = readObject[util.ArrayList[SimpleConfiguration]](file)
+                val configs = readObject[java.util.ArrayList[SimpleConfiguration]](file)
                 val taskName = fn.substring(0, fn.length - ".ser".length)
                 var taskConfigs: scala.collection.mutable.ListBuffer[SimpleConfiguration] = ListBuffer()
                 val iter = configs.iterator()
@@ -184,6 +183,11 @@ object ProductGeneration extends EnforceTreeHelper {
             }
         }
         taskList.toList
+    }
+
+    def initializeFeatureList(family_ast:AST) {
+        features = getAllFeatures(family_ast)
+        featureIDHashmap = new HashMap[SingleFeatureExpr, Int]().++(features.zipWithIndex)
     }
 
     /**
@@ -198,8 +202,7 @@ object ProductGeneration extends EnforceTreeHelper {
         println("generating configurations.")
         var startTime: Long = 0
 
-        features = getAllFeatures(family_ast)
-        featureIDHashmap = new HashMap[SingleFeatureExpr, Int]().++(features.zipWithIndex)
+        initializeFeatureList(family_ast)
         //println("features: ")
         //for (f <- features) println(f)
 
@@ -367,13 +370,14 @@ object ProductGeneration extends EnforceTreeHelper {
         }
 
         val fm = fm_ts // I got false positives while using the other fm
-        val family_ast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
+        //val family_ast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
+        val family_ast = ast.asInstanceOf[TranslationUnit]
 
         println("starting product typechecking.")
 
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
-        val (configGenLog: String, typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]]) =
+        val (configGenLog: String, typecheckingTasks: List[Task]) =
             buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir)
         typecheckConfigurations(typecheckingTasks, family_ast, fm, family_ast, thisFilePath, startLog = configGenLog)
@@ -414,7 +418,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     }
 
-    def typecheckConfigurations(typecheckingTasks: List[Pair[String, List[SimpleConfiguration]]],
+    def typecheckConfigurations(typecheckingTasks: List[Task],
                                 family_ast: TranslationUnit, fm: FeatureModel, ast: AST,
                                 fileID: String, startLog: String = "") {
         val log: String = startLog
@@ -765,8 +769,9 @@ object ProductGeneration extends EnforceTreeHelper {
     Configuration Coverage Method copied from Joerg and heavily modified :)
      */
     def configurationCoverage(astRoot: TranslationUnit, fm: FeatureModel, features: List[SingleFeatureExpr],
-                              existingConfigs: List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean): (List[SimpleConfiguration], String) = {
-        val env = CASTEnv.createASTEnv(astRoot)
+                              existingConfigs: List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean):
+                              (List[SimpleConfiguration], String) = {
+        //val env = CASTEnv.createASTEnv(astRoot)
         val unsatCombinationsCacheFile = new File("unsatCombinationsCache.txt")
         // using this is not correct when different files have different presence conditions
         val useUnsatCombinationsCache = false
@@ -780,40 +785,53 @@ object ProductGeneration extends EnforceTreeHelper {
         var complexNodes = 0
         var simpleOrNodes = 0
         var simpleAndNodes = 0
-        var optNodes: Set[Opt[_]] = Set()
-        var choiceNodes: Set[Choice[_]] = Set()
-        def collectAnnotationLeafNodes(root: Any, previousOpt: Opt[_] = null, previousChoice: Choice[_] = null) {
+        var nodeExpressions: Set[List[FeatureExpr]] = Set();
+        def collectAnnotationLeafNodes(root: Any, previousFeatureExprs: List[FeatureExpr] = List(FeatureExprFactory.True), previousFile:String = null) {
             root match {
                 case x: Opt[_] => {
-                    collectAnnotationLeafNodes(x.entry, x, null)
+                    if (x.feature.equals(previousFeatureExprs.head)){
+                        collectAnnotationLeafNodes(x.entry, previousFeatureExprs, previousFile)
+                    } else {
+                        collectAnnotationLeafNodes(x.entry, previousFeatureExprs.::(x.feature), previousFile)
+                    }
                 }
                 case x: Choice[_] => {
-                    collectAnnotationLeafNodes(x.thenBranch, null, x)
-                    collectAnnotationLeafNodes(x.elseBranch, null, x)
+                    collectAnnotationLeafNodes(x.thenBranch, previousFeatureExprs.::(x.feature), previousFile)
+                    collectAnnotationLeafNodes(x.elseBranch, previousFeatureExprs.::(x.feature.not()), previousFile)
                 }
                 case l: List[_] =>
                     for (x <- l) {
-                        collectAnnotationLeafNodes(x, previousOpt, previousChoice)
+                        collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)
                     }
                 case x: AST => {
+                    val newPreviousFile = (if (x.getFile.isDefined) x.getFile.get else previousFile)
                     if (x.productArity == 0) {
                         // termination point of recursion
-                        if (previousChoice != null) choiceNodes += previousChoice
-                        if (previousOpt != null) optNodes += previousOpt
+                        if (newPreviousFile == null || newPreviousFile.endsWith(".c")) {
+                            if (!nodeExpressions.contains(previousFeatureExprs)) {
+                                nodeExpressions += previousFeatureExprs
+                            }
+                        }
                     } else {
                         for (y <- x.productIterator.toList) {
-                            collectAnnotationLeafNodes(y)
+                            collectAnnotationLeafNodes(y, previousFeatureExprs, newPreviousFile)
                         }
                     }
                 }
+                case Some(x) => {collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)}
+                case None => {}
+                case One(x) => {collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)}
                 case o => {
                     // termination point of recursion
-                    if (previousChoice != null) choiceNodes += previousChoice
-                    if (previousOpt != null) optNodes += previousOpt
+                    if (previousFile == null || previousFile.endsWith(".c")) {
+                        if (!nodeExpressions.contains(previousFeatureExprs)) {
+                            nodeExpressions += previousFeatureExprs
+                        }
+                    }
                 }
             }
         }
-        collectAnnotationLeafNodes(astRoot)
+        collectAnnotationLeafNodes(astRoot, List(FeatureExprFactory.True), (if (astRoot.getFile.isDefined) astRoot.getFile.get else null))
 
         // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
         // True node never needs to be handled
@@ -822,7 +840,6 @@ object ProductGeneration extends EnforceTreeHelper {
         //inner function
         def handleFeatureExpression(fex: FeatureExpr) = {
             if (!handledExpressions.contains(fex) && !(useUnsatCombinationsCache && unsatCombinationsCache.contains(fex.toTextExpr))) {
-
                 //println("fex : " + fex.toTextExpr)
                 // search for configs that imply this node
                 var isCovered: Boolean = false
@@ -877,8 +894,8 @@ object ProductGeneration extends EnforceTreeHelper {
                 //println("retList.size = " + retList.size)
             }
         }
-
-        if (optNodes.isEmpty && choiceNodes.isEmpty) {
+        if (nodeExpressions.isEmpty ||
+            (nodeExpressions.size==1 && nodeExpressions.head.equals(List(FeatureExprFactory.True)))) {
             // no feature variables in this file, build one random config and return it
             val completeConfig = completeConfiguration(FeatureExprFactory.True, features, fm, preferDisabledFeatures)
             if (completeConfig != null) {
@@ -895,25 +912,21 @@ object ProductGeneration extends EnforceTreeHelper {
                 //println("no satisfiable configuration for fex " + fex.toTextExpr)
             }
         } else {
-            println("found " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes")
+            //println("found " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes")
+            //println("found " + nodeExpressions.size + " NodeExpressions")
             //for ((optN,id) <- optNodes.zipWithIndex) {
             //println("handling opt Node " + id)
-            for (optN <- optNodes) {
-                val fex: FeatureExpr = env.featureSet(optN).fold(optN.feature)(_ and _)
+            for (featureList:List[FeatureExpr] <- nodeExpressions) {
+                val fex: FeatureExpr = featureList.fold(FeatureExprFactory.True)(_ and _)
                 handleFeatureExpression(fex)
-            }
-
-            for (choiceNode <- choiceNodes) {
-                val fex: FeatureExpr = env.featureSet(choiceNode).fold(FeatureExprFactory.True)(_ and _)
-                handleFeatureExpression(fex.and(choiceNode.feature))
-                handleFeatureExpression(fex.and(choiceNode.feature.not()))
             }
         }
         (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + retList.size + "\n" +
-                " LeafNodes: " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes\n" +
+                //" LeafNodes: " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes\n" +
+                " found " + nodeExpressions.size + " NodeExpressions\n" +
                 " found " + simpleAndNodes + " simpleAndNodes, " + simpleOrNodes + " simpleOrNodes and " + complexNodes + " complex nodes.\n")
     }
 
@@ -1288,10 +1301,7 @@ object ProductGeneration extends EnforceTreeHelper {
      */
     def estimateNumberOfVariants(astRoot: AST, fm: FeatureModel): (Long, Long) = {
         // init features list and hashmap
-        if (features == null)
-            features = getAllFeatures(astRoot)
-        if (featureIDHashmap == null)
-            featureIDHashmap = new HashMap[SingleFeatureExpr, Int]().++(features.zipWithIndex)
+        initializeFeatureList(astRoot)
 
 
         val testedConfigs: HashSet[SimpleConfiguration] = new mutable.HashSet[SimpleConfiguration]()
