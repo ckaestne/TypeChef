@@ -193,8 +193,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val d = definesVar(e, env)
         var res = out(t)
 
-        for ((k, v) <- d) res = updateMap(res, (k, v), true)
-        for ((k, v) <- u) res = updateMap(res, (k, v), false)
+        for ((k, v) <- d) res = updateMap(res, (k, v), diff = true)
+        for ((k, v) <- u) res = updateMap(res, (k, v), diff = false)
 
         res
       }
@@ -209,7 +209,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         for (s <- ss) {
           if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s.entry, (s.entry, env))
           for ((f, r) <- in((s.entry, fm, env)))
-            res = updateMap(res, (f and s.feature, r), false)
+            res = updateMap(res, (f and s.feature, r), diff = false)
         }
         res
       }
