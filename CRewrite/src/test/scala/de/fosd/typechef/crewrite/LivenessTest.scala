@@ -2,6 +2,7 @@ package de.fosd.typechef.crewrite
 
 import org.junit.Test
 import de.fosd.typechef.parser.c.{TestHelper, PrettyPrinter, FunctionDef}
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness {
 
@@ -9,12 +10,12 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
     val a = parseFunctionDef(code)
 
     val env = CASTEnv.createASTEnv(a)
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+    val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  uses: " + usesVar(s, env) + "   defines: " + definesVar(s, env) +
-        "  in: " + in(s, env) + "   out: " + out(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+        "  in: " + in(s, FeatureExprFactory.empty, env) + "   out: " + out(s, FeatureExprFactory.empty, env))
+    println("succs: " + DotGraph.map2file(getAllSucc(a, FeatureExprFactory.empty, env), env))
   }
 
 
