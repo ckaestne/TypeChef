@@ -38,7 +38,6 @@ trait CDefUse extends CEnv {
         // if so we get an InitDeclarator instance back
         val id = declarator.getId
         val ext = declarator.extensions
-        println("Added id: " + id + "\nnode= " + env.varEnv.getAstOrElse(id.name, null))
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => defuse.put(declarator.getId, List())
           case One(null) => defuse.put(declarator.getId, List())
@@ -72,7 +71,6 @@ trait CDefUse extends CEnv {
       }
       case i: InitDeclarator => defuse.put(i.getId, List())
       case id: Id =>
-        println("getAstOrElse from struct: " + env.varEnv.getAstOrElse(id.name, null))
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => defuse.put(id, List())
           case One(null) => defuse.put(id, List())
@@ -113,30 +111,27 @@ trait CDefUse extends CEnv {
           case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
-
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
             addToDefUseMap(declarator.getId, i)
             addToDefUseMap(declarator2.getId, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
             addToDefUseMap(declarator.getId, i)
-
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
             addToDefUseMap(key, i)
             addToDefUseMap(key2, i)
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
             addToDefUseMap(key, i)
-
           case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
             // println("Test: " + c + "\nKey:" + key + ", Id: " + i)
             addToDefUseMap(key, i)
             addToDefUseMap(key2, i)
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             addToDefUseMap(key, i)
+          case One(null) => addToDefUseMap(i, i)
 
           case k => println("Missing: " + i + "\nElement " + k)
-          // TODO Conditional ID
         }
-      case _ =>
+      case k => println("Completly missing add use: " + k)
     }
   }
 
@@ -145,10 +140,14 @@ trait CDefUse extends CEnv {
       defuse.put(key, defuse.get(key) ++ List(target))
     } else {
       var fd: Id = null
-      for (k <- defuse.keySet().toArray)
-        for (v <- defuse.get(k))
-          if (v.eq(key)) fd = k.asInstanceOf[Id]
-      defuse.put(fd, defuse.get(fd) ++ List(target))
+      for (k <- defuse.keySet().toArray) {
+        for (v <- defuse.get(k)) {
+          if (v.eq(key)) {
+            fd = k.asInstanceOf[Id]
+            defuse.put(fd, defuse.get(fd) ++ List(target))
+          }
+        }
+      }
     }
   }
 }

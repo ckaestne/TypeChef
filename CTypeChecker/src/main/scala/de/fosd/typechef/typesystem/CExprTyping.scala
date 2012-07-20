@@ -72,6 +72,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             })
           //e.n notation
           case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
+            addUse(i, env)
             def lookup(fields: ConditionalTypeMap, fexpr: FeatureExpr): Conditional[CType] = {
               val rt = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))
               rt.mapf(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "unknown field " + id, i))
@@ -81,7 +82,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             et(expr).mapfr(featureExpr, {
               case (f, CObj(CAnonymousStruct(fields, _))) => lookup(fields, f).map(_.toObj)
               case (f, CAnonymousStruct(fields, _)) => lookup(fields, f)
-              case (f, CObj(CStruct(s, isUnion))) => structEnvLookup(env.structEnv, s, isUnion, id, p, f).map(_.toObj)
+              case (f, CObj(CStruct(s, isUnion))) =>
+                // TODO Ask Jörg
+                structEnvLookup(env.structEnv, s, isUnion, id, p, f).map(_.toObj)
               case (f, CStruct(s, isUnion)) => structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
                 case (f, e) if (arrayType(e)) =>
                   reportTypeError(f, "expression " + p + " must not have array " + e, p)
