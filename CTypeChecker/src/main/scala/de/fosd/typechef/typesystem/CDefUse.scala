@@ -33,11 +33,12 @@ trait CDefUse extends CEnv {
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
     f match {
-      case FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
+      case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
         val id = declarator.getId
         val ext = declarator.extensions
+        println("Added id: " + id + "\nnode= " + env.varEnv.getAstOrElse(id.name, null))
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => defuse.put(declarator.getId, List())
           case One(null) => defuse.put(declarator.getId, List())
@@ -45,6 +46,8 @@ trait CDefUse extends CEnv {
             val key = i.getId
             defuse.put(key, defuse.get(key) ++ List(id))
           }
+          case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => defuse.put(declarator.getId, List())
+          case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
         // Parameter Declaration
         ext.foreach(x => x match {
@@ -64,7 +67,7 @@ trait CDefUse extends CEnv {
             }
             case _ =>
           })
-          case _ =>
+          case mi => println("Completly missing: " + mi)
         })
       }
       case i: InitDeclarator => defuse.put(i.getId, List())
@@ -86,11 +89,26 @@ trait CDefUse extends CEnv {
           case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
+
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
             addToDefUseMap(declarator.getId, i)
             addToDefUseMap(declarator2.getId, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
             addToDefUseMap(declarator.getId, i)
+
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
+            addToDefUseMap(key, i)
+            addToDefUseMap(key2, i)
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
+            addToDefUseMap(key, i)
+
+          case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
+            // println("Test: " + c + "\nKey:" + key + ", Id: " + i)
+            addToDefUseMap(key, i)
+            addToDefUseMap(key2, i)
+          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
+            addToDefUseMap(key, i)
+
           case k => println("Missing: " + i + "\nElement " + k)
           // TODO Conditional ID
         }
