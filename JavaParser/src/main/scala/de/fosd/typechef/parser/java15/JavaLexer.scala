@@ -122,25 +122,29 @@ object PreprocessorParser extends StandardTokenParsers {
     def pendif = phrase("#" ~ "endif")
 
     def featureExpr: Parser[FeatureExpr] =
-        andExpr
+        orExpr
 
-    def andExpr = orExpr ~ opt("&&" ~> featureExpr) ^^ {
-        case a ~ None => a
-        case a ~ Some(b) => a and b
-    }
-    def orExpr = literal ~ (opt("||" ~> featureExpr)) ^^ {
+    def orExpr = andExpr ~ (opt("||" ~> featureExpr)) ^^ {
         case a ~ None => a
         case a ~ Some(b) => a or b
     }
+
+    def andExpr = literal ~ opt("&&" ~> featureExpr) ^^ {
+        case a ~ None => a
+        case a ~ Some(b) => a and b
+    }
+
     def literal =
         ("(" ~> featureExpr <~ ")" |
             "!" ~> featureExpr ^^ {
                 _.not
             }
             | atomicFeature)
-    def atomicFeature = ident ^^ {
-        FeatureExprFactory.createDefinedExternal(_)
-    }
+
+    def atomicFeature =
+        "1" ^^ {x => FeatureExprFactory.True} |
+            "0" ^^ {x => FeatureExprFactory.False} |
+            ident ^^ {FeatureExprFactory.createDefinedExternal(_)}
 
     def lex(s: String) =
         new lexical.Scanner(s)
