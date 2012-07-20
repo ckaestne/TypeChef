@@ -2,7 +2,8 @@ package de.fosd.typechef.typesystem
 
 import java.util.IdentityHashMap
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.conditional.{Choice, Opt, One}
+
 
 // store def use chains
 // we store Id elements of AST structures that represent a definition (key element of defuse)
@@ -12,11 +13,13 @@ import de.fosd.typechef.conditional.{Opt, One}
 // in Env instances; during the traversal of the typesystem visitor Env instances get filled
 // with information about names, AST entries and their corresponding types
 trait CDefUse extends CEnv {
+
   private val defuse: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
 
   private[typesystem] def clear() {
     defuse.clear()
   }
+
 
   def clearDefUseMap() {
     defuse.clear()
@@ -70,7 +73,6 @@ trait CDefUse extends CEnv {
   }
 
   def addUse(entry: AST, env: Env) {
-
     entry match {
       // TODO to remove?
       /*case PostfixExpr(i@Id(name), FunctionCall(params)) => {
@@ -84,7 +86,12 @@ trait CDefUse extends CEnv {
           case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
-          case k => println("Missing" + i + " Element " + k)
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+            addToDefUseMap(declarator.getId, i)
+            addToDefUseMap(declarator2.getId, i)
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
+            addToDefUseMap(declarator.getId, i)
+          case k => println("Missing: " + i + "\nElement " + k)
           // TODO Conditional ID
         }
       case _ =>
