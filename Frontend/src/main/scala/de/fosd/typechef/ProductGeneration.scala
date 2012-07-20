@@ -227,29 +227,23 @@ object ProductGeneration extends EnforceTreeHelper {
         var configurations: List[SimpleConfiguration] = List()
 
         /**Load config from file */
-        /*
+/*
                 {
-                    if (typecheckingTasks.find(_._1.equals("FileConfig")).isDefined) {
+                    if (tasks.find(_._1.equals("FileConfig")).isDefined) {
                         msg = "omitting FileConfig generation, because a serialized version was loaded"
                     } else {
                         startTime = System.currentTimeMillis()
                         val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("../Linux_allyes_modified.config"))
-                        typecheckingTasks :+= Pair("FileConfig", configs)
-                        configurationCollection ++= configs
+                        tasks :+= Pair("FileConfig", configs)
+                        configurations ++= configs
                         msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-
-                        //abort if no configuration could be loaded. No report file will be written in this case
-                        if (configs.isEmpty) {
-                            println(msg +"\n" + " aborting check of file \"" + thisFilePath + "\" because file config could not be loaded.")
-                            return
-                        }
                     }
                     println(msg)
                     log = log + msg
                 }
-        */
+*/
         /**Henard CSV configurations */
-/*
+
         {
             if (tasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
@@ -282,7 +276,7 @@ object ProductGeneration extends EnforceTreeHelper {
             println(msg)
             log = log + msg
         }
-*/
+
         /**Single-wise */
         /*
                 {
@@ -307,7 +301,7 @@ object ProductGeneration extends EnforceTreeHelper {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
-                val (configs, logmsg) = configurationCoverage(family_ast, fm, features, configurations, preferDisabledFeatures = false)
+                val (configs, logmsg) = configurationCoverage(family_ast, fm, features, List(), preferDisabledFeatures = false)
                 tasks :+= Pair("coverage", configs)
                 configurations ++= configs
                 msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
@@ -768,8 +762,24 @@ object ProductGeneration extends EnforceTreeHelper {
     /*
     Configuration Coverage Method copied from Joerg and heavily modified :)
      */
+    /**
+     * Creates configurations based on the variability nodes found in the given AST.
+     * Searches for variability nodes and generates enough configurations to cover all nodes.
+     * Configurations do always satisfy the FeatureModel fm.
+     * If existingConfigs is non-empty, no config will be created for nodes already covered by these configurations.
+     * @param astRoot root of the AST
+     * @param fm The Feature Model
+     * @param features The set of "interestingFeatures". Only these features will be set in the configs.
+     *                 (Normally the set of all features appearing in the file.)
+     * @param existingConfigs described above
+     * @param preferDisabledFeatures the sat solver will prefer (many) small configs instead of (fewer) large ones
+     * @param includeVariabilityFromHeaderFiles if set to false (default) we will ignore variability in files not ending with ".c".
+     *                                        This corresponds to the view of the developer of a ".c" file.
+     * @return
+     */
     def configurationCoverage(astRoot: TranslationUnit, fm: FeatureModel, features: List[SingleFeatureExpr],
-                              existingConfigs: List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean):
+                              existingConfigs: List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean,
+                              includeVariabilityFromHeaderFiles: Boolean = false):
                               (List[SimpleConfiguration], String) = {
         //val env = CASTEnv.createASTEnv(astRoot)
         val unsatCombinationsCacheFile = new File("unsatCombinationsCache.txt")
@@ -807,7 +817,8 @@ object ProductGeneration extends EnforceTreeHelper {
                     val newPreviousFile = (if (x.getFile.isDefined) x.getFile.get else previousFile)
                     if (x.productArity == 0) {
                         // termination point of recursion
-                        if (newPreviousFile == null || newPreviousFile.endsWith(".c")) {
+                        if (includeVariabilityFromHeaderFiles ||
+                            (newPreviousFile == null || newPreviousFile.endsWith(".c"))) {
                             if (!nodeExpressions.contains(previousFeatureExprs)) {
                                 nodeExpressions += previousFeatureExprs
                             }
@@ -823,7 +834,8 @@ object ProductGeneration extends EnforceTreeHelper {
                 case One(x) => {collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)}
                 case o => {
                     // termination point of recursion
-                    if (previousFile == null || previousFile.endsWith(".c")) {
+                    if (includeVariabilityFromHeaderFiles ||
+                        (previousFile == null || previousFile.endsWith(".c"))) {
                         if (!nodeExpressions.contains(previousFeatureExprs)) {
                             nodeExpressions += previousFeatureExprs
                         }
