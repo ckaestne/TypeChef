@@ -58,10 +58,10 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
   type StructData = (String, Boolean, FeatureExpr, ConditionalTypeMap)
 
   def getStructFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env, includeEmptyDecl: Boolean): List[StructData] = specifier match {
-    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) => {
-      List((name, isUnion, featureExpr, parseStructMembers(attributes, featureExpr, env))) ++ innerStructs(attributes, featureExpr, env)
+    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || attributes.isDefined) => {
+      List((name, isUnion, featureExpr, parseStructMembers(attributes.getOrElse(Nil), featureExpr, env))) ++ innerStructs(attributes.getOrElse(Nil), featureExpr, env)
     }
-    case e@StructOrUnionSpecifier(_, None, attributes) =>
+    case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
       innerStructs(attributes, featureExpr, env)
     case _ => Nil
   }
@@ -126,7 +126,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.False)))
           //recurse into structs
           case StructOrUnionSpecifier(_, _, fields) =>
-            fields.foldRight(b)(
+            fields.getOrElse(Nil).foldRight(b)(
               (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b, optField.entry.declaratorList.isEmpty)
             )
 

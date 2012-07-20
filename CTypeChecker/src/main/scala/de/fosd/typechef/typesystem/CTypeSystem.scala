@@ -626,7 +626,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
-                for (Opt(f, enumerator) <- enumerators)
+                for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
             // checked at call site (when declaring a variable or calling a function)
             //                val declExpr = env.structEnv.isDefined(id.name, isUnion)
@@ -634,7 +634,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case StructOrUnionSpecifier(_, None, enumerators) =>
-                for (Opt(f, enumerator) <- enumerators)
+                for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
 
             case _ =>

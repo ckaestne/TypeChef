@@ -144,16 +144,16 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             case isUnion ~ _ ~ ((id, list)) => StructOrUnionSpecifier(isUnion, id, list)
         }
 
-    private def structOrUnionSpecifierBody: MultiParser[(Option[Id], List[Opt[StructDeclaration]])] =
+    private def structOrUnionSpecifierBody: MultiParser[(Option[Id], Option[List[Opt[StructDeclaration]]])] =
     // XXX: PG: SEMI after LCURLY????
         (ID ~~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {
-            case id ~ _ ~ (_ ~ list ~ _) ~ _ => (Some(id), list)
+            case id ~ _ ~ (_ ~ list ~ _) ~ _ => (Some(id), Some(list))
         }) |
             (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {
-                case _ ~ _ ~ list ~ _ ~ _ => (None, list)
+                case _ ~ _ ~ list ~ _ ~ _ => (None, Some(list))
             }) |
             (ID ^^ {
-                case id => (Some(id), List())
+                case id => (Some(id), None)
             })
 
     def structOrUnion: MultiParser[Boolean] = // isUnion
