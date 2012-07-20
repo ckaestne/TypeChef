@@ -84,7 +84,8 @@ trait CDefUse extends CEnv {
           case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
-          case _ =>
+          case k => println("Missing" + i + " Element " + k)
+          // TODO Conditional ID
         }
       case _ =>
     }
