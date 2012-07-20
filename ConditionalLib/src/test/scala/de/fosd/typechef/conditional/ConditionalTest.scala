@@ -208,8 +208,24 @@ class ConditionalTest {
     t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
     t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
 
+    var t3: Conditional[String] = One("true")
+    t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa, "a")
+    t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa and fb, "ab")
+
     println(t1)
     println(t2)
+    println(t3)
 
-    }
+  }
+
+  @Test
+  def testConditionalSimplify {
+    var t1: Conditional[Option[String]] = Choice(fa, One(Some("fa")), One(None))
+
+    var t2 = Choice(fa, t1, One(Some("nfa")))
+
+    println(t2)
+    println(t2.simplify)
+
+  }
 }
