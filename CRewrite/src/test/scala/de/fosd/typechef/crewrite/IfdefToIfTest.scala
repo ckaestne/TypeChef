@@ -902,13 +902,24 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   @Test def test_struct_def_use {
     // TODO Verwendung struct variablen.
     val source_ast = getAST("""
+      struct leer;
+
       struct student {
         int id;
         char *name;
         float percentage;
       } student1, student2, student3;
+
+      struct withInnerStruct {
+      struct innerStruct{
+      int inner;
+      };
+      int outer;
+      };
+
       int main(void) {
         struct student st;
+        struct student st2 = {10, "Joerg Liebig", 0.99};
         st.id = 5;
         student1.id = 1;
         student2.name = "Joerg";
@@ -920,6 +931,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
                              """);
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
+    println("Source:\n" + source_ast + "\n")
 
     typecheckTranslationUnit(source_ast)
     val defUseMap = getDefUseMap
@@ -931,11 +943,18 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
   @Test def test_opt_def_use {
     val source_ast = getAST("""
-      #if definedEx(A)
-      const int konst = 55;
-      #else
-      const int konst = 100;
-      #endif
+      int o = 32;
+      int fooZ() {
+        #if definedEx(A)
+        const int konst = 55;
+        int c = 32;
+        #else
+        int c = 64;
+        const int konst = 100;
+        #endif
+        o = c+o;
+        return c;
+      }
       int foo(int z) {
         return z;
       }
@@ -960,7 +979,11 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       int main(void) {
         #if definedEx(A)
         int b = fooA(0);
+        int argInt = 2;
+        fooVariableArgument(argInt);
         #else
+        float argFloat = 2.0;
+        fooVariableArgument(argFloat);
         fooA(0);
         #endif
 

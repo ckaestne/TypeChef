@@ -33,6 +33,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
   private def checkExternalDef(externalDef: ExternalDef, featureExpr: FeatureExpr, env: Env): Env = {
     addEnv(externalDef, env)
     checkingExternal(externalDef)
+    println("Checking: " + externalDef)
     externalDef match {
       case _: EmptyExternalDef => env
       case _: Pragma => env //ignore

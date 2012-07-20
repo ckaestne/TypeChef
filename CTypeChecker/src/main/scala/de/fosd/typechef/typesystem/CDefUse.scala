@@ -71,7 +71,31 @@ trait CDefUse extends CEnv {
         })
       }
       case i: InitDeclarator => defuse.put(i.getId, List())
-      case _ =>
+      case id: Id =>
+        println("getAstOrElse from struct: " + env.varEnv.getAstOrElse(id.name, null))
+        env.varEnv.getAstOrElse(id.name, null) match {
+          case null => defuse.put(id, List())
+          case One(null) => defuse.put(id, List())
+          case One(i: InitDeclarator) => {
+            val key = i.getId
+            defuse.put(key, defuse.get(key) ++ List(id))
+          }
+        }
+      case st: StructDeclaration =>
+        st.declaratorList.foreach(x => x.entry match {
+          case
+            StructDeclarator(AtomicNamedDeclarator(_, id: Id, _), _, _) =>
+            env.varEnv.getAstOrElse(id.name, null) match {
+              case null => defuse.put(id, List())
+              case One(null) => defuse.put(id, List())
+              case One(i: InitDeclarator) => {
+                val key = i.getId
+                defuse.put(key, defuse.get(key) ++ List(id))
+              }
+            }
+          case k => println("Pattern StructDeclaration fail: " + k)
+        })
+      case k => println("Missing Add Def: " + f + " from " + k)
     }
   }
 
