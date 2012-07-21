@@ -34,6 +34,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     declaresVar(a, CASTEnv.createASTEnv(a))
   }
 
+  private def runUseDeclareRelationExample(code: String) = {
+    val a = parseFunctionDef(code)
+    determineUseDeclareRelation(a, CASTEnv.createASTEnv(a))
+  }
+
   @Test def test_standard_liveness_example() {
     runExample("""
       void foo() {
@@ -405,5 +410,38 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
       union {
         int i;
       } u;""") should be(Map(FeatureExprFactory.True -> Set(Id("u"))))
+  }
+
+  @Test def test_useDeclareRelation() {
+    runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+      }""")
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        int b = a;
+        if (b) {
+          int a = b;
+          a;
+        }
+        b;
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo(int argc) {
+        struct s {
+          int i;
+          int j;
+        };
+
+        struct s k;
+
+        if (argc) {
+          k.i = 0;
+        } else {
+          k.j = 1;
+        }
+        k.i = 2;
+      }"""))
   }
 }
