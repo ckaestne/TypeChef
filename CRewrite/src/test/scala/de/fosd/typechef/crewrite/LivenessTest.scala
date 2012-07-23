@@ -311,7 +311,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
       }""")
   }
 
-  @Test def test_shadowing_() {
+  @Test def test_shadowing2() {
     runExample("""
       int foo() {
         int a = 0;
@@ -324,6 +324,16 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         b;
         return a;
+      }""")
+  }
+
+  @Test def test_nameconflict() {
+    runExample("""
+      int foo() {
+        int a = 0;
+        int a1 = 0;
+        int a2 = 0;
+        int b = a + a1 + a2;
       }""")
   }
 
@@ -343,21 +353,6 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     """)
   }
 
-  @Test def test_stackoverflow() {
-    runExample("""
-      static void make_hash(const char *key, unsigned *start, unsigned *decrement, const int hash_prime) {
-      unsigned long hash_num = key[0];
-      int len = strlen(key);
-      int i;
-
-      for (i = 1; i < len; i++) {
-        hash_num += (key[i] + key[i-1]) << ((key[i] * i) % 24);
-      }
-      *start = (unsigned) hash_num % hash_prime;
-      *decrement = (unsigned) 1 + (hash_num % (hash_prime - 1));
-    }
-               """)
-  }
 
   // http://www.exforsys.com/tutorials/c-language/c-expressions.html
   @Test def test_uses() {
