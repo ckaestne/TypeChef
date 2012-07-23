@@ -18,7 +18,7 @@ trait CDefUse extends CEnv {
   private def addSimpleDeclaratorDef(decl: Declarator) {
     decl match {
       case AtomicNamedDeclarator(_, i, _) => defuse.put(i, List())
-      case x: NestedNamedDeclarator => assert(false, x + " is not supported yet; defuse")
+      case x: NestedNamedDeclarator => System.err.println(x + " is not supported yet; defuse")
     }
   }
 
