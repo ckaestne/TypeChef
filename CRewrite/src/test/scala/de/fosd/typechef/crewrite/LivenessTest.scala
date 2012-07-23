@@ -14,6 +14,8 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
     val udr = determineUseDeclareRelation(a, env)
 
+    println(udr)
+
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  uses: " + usesVar(s, env) + "   defines: " + definesVar(s, env) +
         "  in: " + in((s, FeatureExprFactory.empty, udr, env)) + "   out: " + out((s, FeatureExprFactory.empty, udr, env)))
@@ -293,6 +295,38 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
                """)
   }
 
+  @Test def test_shadowing_variable() {
+    runExample("""
+      int foo() {
+        int a = 0;
+        int b = a;
+        if (b) {
+          #if definedEx(A)
+          int a = b;
+          #endif
+          a;
+        }
+        b;
+        return a;
+      }""")
+  }
+
+  @Test def test_shadowing_() {
+    runExample("""
+      int foo() {
+        int a = 0;
+        int b = a;
+        if (b) {
+          #if definedEx(A)
+          int a = b;
+          #endif
+          a;
+        }
+        b;
+        return a;
+      }""")
+  }
+
   // http://www.exforsys.com/tutorials/c-language/c-expressions.html
   @Test def test_uses() {
     runUsesExample("a++;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
@@ -344,6 +378,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   @Test def test_defines() {
+    runDefinesExample("a;") should be(Map());
     runDefinesExample("a++;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runDefinesExample("++a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runDefinesExample("a[b];") should be(Map())

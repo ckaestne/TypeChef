@@ -97,7 +97,7 @@ object CASTEnv {
         case (prev, Some(elem), next) => {
           curenv = curenv.add(elem, (fexpset, parent, prev.getOrElse(null), next.getOrElse(null), elem.asInstanceOf[Product].productIterator.toList))
                 }
-                case _ =>;
+                case _ =>
             }
         }
 

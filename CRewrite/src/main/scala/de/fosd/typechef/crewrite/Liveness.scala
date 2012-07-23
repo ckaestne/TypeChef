@@ -123,6 +123,7 @@ trait Variables {
     case Declaration(_, init) => init.flatMap(defines).toSet
     case InitDeclaratorI(a, _, _) => defines(a)
     case AtomicNamedDeclarator(_, i, _) => Set(i)
+    case ExprStatement(_: Id) => Set()
     case ExprStatement(expr) => defines(expr)
     case PostfixExpr(i@Id(_), SimplePostfixSuffix(_)) => Set(i) // a++; or a--;
     case UnaryExpr(_, i@Id(_)) => Set(i) // ++a; or --a;
@@ -326,6 +327,24 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
+  private def explodeIdUse(s: Set[Id], sfexp: FeatureExpr, udr: UsesDeclaresRel, res: Map[FeatureExpr, Set[Id]], diff: Boolean) = {
+    var curres = res
+    for (i <- s) {
+      val newname = udr.get(i)
+      newname match {
+        case null => curres = updateMap(res, (sfexp, Set(i)), diff)
+        case None => curres = updateMap(res, (sfexp, Set(i)), diff)
+        case Some(c) => {
+          val leaves = ConditionalLib.items(c)
+          for ((nfexp, nid) <- leaves)
+            if (nid.isDefined) curres = updateMap(curres, (sfexp and nfexp, Set(nid.get)), diff)
+            else assert(assertion = false, message = "no declaration with new identifier found!")
+        }
+      }
+    }
+    curres
+  }
+
   // in and out variability-aware versions
   val inrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
@@ -335,9 +354,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val defines = definesVar(e, env)
 
         var res = out(t)
-        for ((k, v) <- defines) res = updateMap(res, (k, v), diff = true)
-        for ((k, v) <- uses) res = updateMap(res, (k, v), diff = false)
-
+        for ((k, v) <- defines) res = explodeIdUse(v, k, udr, res, diff = true)
+        for ((k, v) <- uses)    res = explodeIdUse(v, k, udr, res, diff = false)
         res
       }
     }
@@ -351,7 +369,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         for (s <- ss) {
           if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s.entry, (s.entry, env))
           for ((f, r) <- in((s.entry, fm, udr, env)))
-            res = updateMap(res, (f and s.feature, r), diff = false)
+            res = explodeIdUse(r, f, udr, res, diff = false)
         }
         res
       }
