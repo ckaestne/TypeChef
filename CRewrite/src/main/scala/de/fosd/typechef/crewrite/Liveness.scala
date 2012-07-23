@@ -30,12 +30,12 @@ trait Variables {
 
   // returns all used variables with their annotation
   val usesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]]= {
-    case (a, env) => addAnnotation2ResultSet(uses(a), env)
+    case (a, env) => addAnnotation2ResultSet(uses(a, dataflowUses = false), env)
   }
 
   // returns all used variables (apart from declarations) with their annotation
   val dataflowUsesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]]= {
-    case (a, env) => addAnnotation2ResultSet(dataflowUses(a), env)
+    case (a, env) => addAnnotation2ResultSet(uses(a, dataflowUses = true), env)
   }
 
   // returns all defined variables with their annotation
@@ -49,70 +49,41 @@ trait Variables {
   }
 
   // returns all used Ids independent of their annotation
-  val uses: PartialFunction[Any, Set[Id]] = {
-    case ForStatement(expr1, expr2, expr3, _) => uses(expr1) ++ uses(expr2) ++ uses(expr3)
-    case ReturnStatement(Some(x)) => uses(x)
-    case WhileStatement(expr, _) => uses(expr)
-    case DeclarationStatement(d) => uses(d)
-    case Declaration(_, init) => init.flatMap(uses).toSet
-    case InitDeclaratorI(_, _, Some(i)) => uses(i)
-    case AtomicNamedDeclarator(_, id, _) => Set(id)
-    case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
-    case Initializer(_, expr) => uses(expr)
-    case i@Id(name) => Set(i)
-    case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
-    case ArrayAccess(expr) => uses(expr)
-    case PostfixExpr(Id(_), f@FunctionCall(_)) => uses(f)
-    case PostfixExpr(p, s) => uses(p) ++ uses(s)
-    case UnaryExpr(_, ex) => uses(ex)
-    case SizeOfExprU(expr) => uses(expr)
-    case CastExpr(_, expr) => uses(expr)
-    case PointerDerefExpr(castExpr) => uses(castExpr)
-    case PointerCreationExpr(castExpr) => uses(castExpr)
-    case UnaryOpExpr(kind, castExpr) => uses(castExpr)
-    case NAryExpr(ex, others) => uses(ex) ++ others.flatMap(uses).toSet
-    case NArySubExpr(_, ex) => uses(ex)
-    case ConditionalExpr(condition, _, _) => uses(condition)
-    case ExprStatement(expr) => uses(expr)
-    case AssignExpr(target, op, source) => uses(source) ++ ({
-      op match {
-        case "=" => Set()
-        case _ => uses(target)
-      }
-    })
-    case Opt(_, entry) => uses(entry)
-    case _ => Set()
-  }
-
-  // returns all uses of variables, apart from declarations
-  val dataflowUses: PartialFunction[Any, Set[Id]] = {
-    case ForStatement(expr1, expr2, expr3, _) => dataflowUses(expr1) ++ dataflowUses(expr2) ++ dataflowUses(expr3)
-    case ReturnStatement(Some(x)) => dataflowUses(x)
-    case WhileStatement(expr, _) => dataflowUses(expr)
-    case DeclarationStatement(d) => dataflowUses(d)
-    case Declaration(_, init) => init.flatMap(dataflowUses).toSet
-    case InitDeclaratorI(_, _, Some(i)) => dataflowUses(i)
-    case AtomicNamedDeclarator(_, id, _) => Set(id)
-    case NestedNamedDeclarator(_, nestedDecl, _) => dataflowUses(nestedDecl)
-    case Initializer(_, expr) => dataflowUses(expr)
-    case i@Id(name) => Set(i)
-    case FunctionCall(params) => params.exprs.map(_.entry).flatMap(dataflowUses).toSet
-    case ArrayAccess(expr) => dataflowUses(expr)
-    case PostfixExpr(Id(_), f@FunctionCall(_)) => dataflowUses(f)
-    case PostfixExpr(p, s) => dataflowUses(p) ++ dataflowUses(s)
-    case UnaryExpr(_, ex) => dataflowUses(ex)
-    case SizeOfExprU(expr) => dataflowUses(expr)
-    case CastExpr(_, expr) => dataflowUses(expr)
-    case PointerDerefExpr(castExpr) => dataflowUses(castExpr)
-    case PointerCreationExpr(castExpr) => dataflowUses(castExpr)
-    case UnaryOpExpr(kind, castExpr) => dataflowUses(castExpr)
-    case NAryExpr(ex, others) => dataflowUses(ex) ++ others.flatMap(dataflowUses).toSet
-    case NArySubExpr(_, ex) => dataflowUses(ex)
-    case ConditionalExpr(condition, _, _) => dataflowUses(condition)
-    case ExprStatement(expr) => dataflowUses(expr)
-    case AssignExpr(target, op, source) => dataflowUses(source) ++ dataflowUses(target)
-    case Opt(_, entry) => dataflowUses(entry)
-    case _ => Set()
+  def uses(a: Any, dataflowUses: Boolean): Set[Id] = {
+    a match {
+      case ForStatement(expr1, expr2, expr3, _) => uses(expr1, dataflowUses) ++ uses(expr2, dataflowUses) ++ uses(expr3, dataflowUses)
+      case ReturnStatement(Some(x)) => uses(x, dataflowUses)
+      case WhileStatement(expr, _) => uses(expr, dataflowUses)
+      case DeclarationStatement(d) => uses(d, dataflowUses)
+      case Declaration(_, init) => init.flatMap(uses(_, dataflowUses)).toSet
+      case InitDeclaratorI(_, _, Some(i)) => uses(i, dataflowUses)
+      case AtomicNamedDeclarator(_, id, _) => Set(id)
+      case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl, dataflowUses)
+      case Initializer(_, expr) => uses(expr, dataflowUses)
+      case i@Id(name) => Set(i)
+      case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses(_, dataflowUses)).toSet
+      case ArrayAccess(expr) => uses(expr, dataflowUses)
+      case PostfixExpr(Id(_), f@FunctionCall(_)) => uses(f, dataflowUses)
+      case PostfixExpr(p, s) => uses(p, dataflowUses) ++ uses(s, dataflowUses)
+      case UnaryExpr(_, ex) => uses(ex, dataflowUses)
+      case SizeOfExprU(expr) => uses(expr, dataflowUses)
+      case CastExpr(_, expr) => uses(expr, dataflowUses)
+      case PointerDerefExpr(castExpr) => uses(castExpr, dataflowUses)
+      case PointerCreationExpr(castExpr) => uses(castExpr, dataflowUses)
+      case UnaryOpExpr(kind, castExpr) => uses(castExpr, dataflowUses)
+      case NAryExpr(ex, others) => uses(ex, dataflowUses) ++ others.flatMap(uses(_, dataflowUses)).toSet
+      case NArySubExpr(_, ex) => uses(ex, dataflowUses)
+      case ConditionalExpr(condition, _, _) => uses(condition, dataflowUses)
+      case ExprStatement(expr) => uses(expr, dataflowUses)
+      case AssignExpr(target, op, source) => uses(source, dataflowUses) ++ ({
+        op match {
+          case "=" if(!dataflowUses) => Set()
+          case _ => uses(target, dataflowUses)
+        }
+      })
+      case Opt(_, entry) => uses(entry, dataflowUses)
+      case _ => Set()
+    }
   }
 
   // returns all defined Ids independent of their annotation
@@ -207,7 +178,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     // current block is head
     // Map[Id, Conditional[Option[Id]]] maintains all variable declarations in the block that are visible
     type BlockDecls = Map[Id, Conditional[Option[Id]]]
-    var res: java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]] =
+    val res: java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]] =
       new java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]()
     var curIdSuffix = 1
 
@@ -303,7 +274,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     circular[(Product, ASTEnv), Set[Id]](Set()) {
       case t@(FunctionDef(_, _, _, _), _) => Set()
       case t@(e, env) => {
-        val u = uses(e)
+        val u = uses(e, dataflowUses = false)
         val d = defines(e)
         var res = outsimple(t)
 
