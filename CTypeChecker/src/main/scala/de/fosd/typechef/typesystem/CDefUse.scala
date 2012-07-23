@@ -127,7 +127,7 @@ trait CDefUse extends CEnv {
             addToDefUseMap(key2, i)
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             addToDefUseMap(key, i)
-          case One(null) => addToDefUseMap(i, i)
+          case One(null) => println("Struct env: " + env.structEnv + "\nFrom: " + i)
 
           case k => println("Missing: " + i + "\nElement " + k)
         }

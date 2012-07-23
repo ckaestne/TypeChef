@@ -84,6 +84,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
               case (f, CAnonymousStruct(fields, _)) => lookup(fields, f)
               case (f, CObj(CStruct(s, isUnion))) =>
                 // TODO Ask Jörg
+                println("et(expr).mapfr: " + s)
                 structEnvLookup(env.structEnv, s, isUnion, id, p, f).map(_.toObj)
               case (f, CStruct(s, isUnion)) => structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
                 case (f, e) if (arrayType(e)) =>
