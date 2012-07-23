@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr._
+import java.util
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
@@ -113,25 +114,20 @@ trait Variables {
   }
 }
 
-class LivenessCache {
-  private val cache: java.util.IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]] = new java.util.IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]]()
-
-  def update(k: Any, v: Map[FeatureExpr, Set[Id]]) {
-    cache.put(k, v)
-  }
-
-  def lookup(k: Any): Option[Map[FeatureExpr, Set[Id]]] = {
+class IdentityHashMapCache[A] {
+  private val cache: java.util.IdentityHashMap[Any, A] = new util.IdentityHashMap[Any, A]()
+  def update(k: Any, v: A) { cache.put(k, v) }
+  def lookup(k: Any): Option[A] = {
     val v = cache.get(k)
     if (v != null) Some(v)
     else None
   }
 }
 
-
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
-  private val incache = new LivenessCache()
-  private val outcache = new LivenessCache()
+  private val incache = new IdentityHashMapCache[Map[FeatureExpr, Set[Id]]]()
+  private val outcache = new IdentityHashMapCache[Map[FeatureExpr, Set[Id]]]()
 
   private def updateMap(m: Map[FeatureExpr, Set[Id]],
                         e: (FeatureExpr, Set[Id]),
@@ -260,11 +256,11 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // cache for in; we have to store all tuples of (a, env) their because using
   // (a, env) always creates a new one!!! and circular internally uses another
   // IdentityHashMap and uses (a, env) as a key there.
-  private val astIdenEnvHMVar = new java.util.IdentityHashMap[AST, (AST, FeatureModel, UsesDeclaresRel, ASTEnv)]()
-  private implicit def astIdenTupVar(a: AST) = astIdenEnvHMVar.get(a)
+  private val astIdenEnvHMVar = new IdentityHashMapCache[(AST, FeatureModel, UsesDeclaresRel, ASTEnv)]()
+  private def astIdenTupVar(a: AST) = astIdenEnvHMVar.lookup(a)
 
-  private val astIdenEnvHM = new java.util.IdentityHashMap[AST, (AST, ASTEnv)]()
-  private implicit def astIdenTup(a: AST) = astIdenEnvHM.get(a)
+  private val astIdenEnvHM = new IdentityHashMapCache[(AST, ASTEnv)]()
+  private def astIdenTup(a: AST) = astIdenEnvHM.lookup(a)
 
   type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
 
@@ -294,8 +290,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val ss = succ(e, FeatureExprFactory.empty, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
         for (s <- ss.map(_.entry)) {
-          if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
-          res = res.union(insimple(astIdenTup(s)))
+          if (astIdenEnvHM.lookup(s).isEmpty) astIdenEnvHM.update(s, (s, env))
+          res = res.union(insimple(astIdenTup(s).get))
         }
         res
       }
@@ -342,8 +338,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[FeatureExpr, Set[Id]]()
         for (s <- ss) {
-          if (!astIdenEnvHMVar.containsKey(s.entry)) astIdenEnvHMVar.put(s.entry, (s.entry, fm, udr, env))
-          for ((f, r) <- in(astIdenTupVar(s.entry)))
+          if (astIdenEnvHMVar.lookup(s.entry).isEmpty) astIdenEnvHMVar.update(s.entry, (s.entry, fm, udr, env))
+          for ((f, r) <- in(astIdenTupVar(s.entry).get))
             res = updateMap(res, (f and s.feature, r), diff = false)
         }
         res
