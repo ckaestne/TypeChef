@@ -12,10 +12,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
 
     val env = CASTEnv.createASTEnv(a)
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+    val udr = determineUseDeclareRelation(a, env)
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  uses: " + usesVar(s, env) + "   defines: " + definesVar(s, env) +
-        "  in: " + in((s, FeatureExprFactory.empty, env)) + "   out: " + out((s, FeatureExprFactory.empty, env)))
+        "  in: " + in((s, FeatureExprFactory.empty, udr, env)) + "   out: " + out((s, FeatureExprFactory.empty, udr, env)))
     println("succs: " + DotGraph.map2file(getAllSucc(a, FeatureExprFactory.empty, env), env))
   }
 

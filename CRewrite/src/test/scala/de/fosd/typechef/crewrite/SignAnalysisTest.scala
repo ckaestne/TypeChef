@@ -26,8 +26,10 @@ class SignAnalysisTest extends TestHelper with SignAnalysis with ConditionalCont
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     println("#################################################")
+    val udr = determineUseDeclareRelation(a, env)
 
     for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out((s, FeatureExprFactory.empty, env)) + "   in: " + in((s, FeatureExprFactory.empty, env)))
+      println(PrettyPrinter.print(s) + "  out: " + out((s, FeatureExprFactory.empty, udr, env)) +
+        "   in: " + in((s, FeatureExprFactory.empty, udr, env)))
   }
 }
