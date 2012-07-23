@@ -298,8 +298,8 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runUsesExample("++a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("a[b];") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
     runUsesExample("f(a, b, c);") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"), Id("c"))))
-    runUsesExample("a.b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a->b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a.b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("a->b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
 
     runUsesExample("&a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("*a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
@@ -407,16 +407,18 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         int i;
       } s;""") should be(Map(FeatureExprFactory.True -> Set(Id("s"))))
     runDeclaresExample("""
+      struct k s;""") should be(Map(FeatureExprFactory.True -> Set(Id("s"))))
+    runDeclaresExample("""
       union {
         int i;
       } u;""") should be(Map(FeatureExprFactory.True -> Set(Id("u"))))
   }
 
   @Test def test_useDeclareRelation() {
-    runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample("""
       void foo() {
         int a = 0;
-      }""")
+      }"""))
     println(runUseDeclareRelationExample("""
       void foo() {
         int a = 0;
@@ -442,6 +444,18 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           k.j = 1;
         }
         k.i = 2;
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        int b = a;
+        if (b) {
+          #if definedEx(A)
+          int a = b;
+          #endif
+          a;
+        }
+        b;
       }"""))
   }
 }

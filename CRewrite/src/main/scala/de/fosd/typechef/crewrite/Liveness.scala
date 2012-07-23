@@ -33,6 +33,11 @@ trait Variables {
     case (a, env) => addAnnotation2ResultSet(uses(a), env)
   }
 
+  // returns all used variables (apart from declarations) with their annotation
+  val dataflowUsesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]]= {
+    case (a, env) => addAnnotation2ResultSet(dataflowUses(a), env)
+  }
+
   // returns all defined variables with their annotation
   val definesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     case (a, env) => addAnnotation2ResultSet(defines(a), env)
@@ -55,7 +60,6 @@ trait Variables {
     case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
     case Initializer(_, expr) => uses(expr)
     case i@Id(name) => Set(i)
-    case PointerPostfixSuffix(kind, id) => Set(id)
     case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses).toSet
     case ArrayAccess(expr) => uses(expr)
     case PostfixExpr(Id(_), f@FunctionCall(_)) => uses(f)
@@ -77,6 +81,37 @@ trait Variables {
       }
     })
     case Opt(_, entry) => uses(entry)
+    case _ => Set()
+  }
+
+  // returns all uses of variables, apart from declarations
+  val dataflowUses: PartialFunction[Any, Set[Id]] = {
+    case ForStatement(expr1, expr2, expr3, _) => dataflowUses(expr1) ++ dataflowUses(expr2) ++ dataflowUses(expr3)
+    case ReturnStatement(Some(x)) => dataflowUses(x)
+    case WhileStatement(expr, _) => dataflowUses(expr)
+    case DeclarationStatement(d) => dataflowUses(d)
+    case Declaration(_, init) => init.flatMap(dataflowUses).toSet
+    case InitDeclaratorI(_, _, Some(i)) => dataflowUses(i)
+    case AtomicNamedDeclarator(_, id, _) => Set(id)
+    case NestedNamedDeclarator(_, nestedDecl, _) => dataflowUses(nestedDecl)
+    case Initializer(_, expr) => dataflowUses(expr)
+    case i@Id(name) => Set(i)
+    case FunctionCall(params) => params.exprs.map(_.entry).flatMap(dataflowUses).toSet
+    case ArrayAccess(expr) => dataflowUses(expr)
+    case PostfixExpr(Id(_), f@FunctionCall(_)) => dataflowUses(f)
+    case PostfixExpr(p, s) => dataflowUses(p) ++ dataflowUses(s)
+    case UnaryExpr(_, ex) => dataflowUses(ex)
+    case SizeOfExprU(expr) => dataflowUses(expr)
+    case CastExpr(_, expr) => dataflowUses(expr)
+    case PointerDerefExpr(castExpr) => dataflowUses(castExpr)
+    case PointerCreationExpr(castExpr) => dataflowUses(castExpr)
+    case UnaryOpExpr(kind, castExpr) => dataflowUses(castExpr)
+    case NAryExpr(ex, others) => dataflowUses(ex) ++ others.flatMap(dataflowUses).toSet
+    case NArySubExpr(_, ex) => dataflowUses(ex)
+    case ConditionalExpr(condition, _, _) => dataflowUses(condition)
+    case ExprStatement(expr) => dataflowUses(expr)
+    case AssignExpr(target, op, source) => dataflowUses(source) ++ dataflowUses(target)
+    case Opt(_, entry) => dataflowUses(entry)
     case _ => Set()
   }
 
@@ -179,7 +214,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       def handleCFGInstruction(i: AST) = {
         var curblock = curws.head
         val declares = declaresVar(i, env)
-        val uses = usesVar(i, env)
+        val uses = dataflowUsesVar(i, env)
 
         // first check uses then update curws using declares
         for ((k, v) <- uses) {
