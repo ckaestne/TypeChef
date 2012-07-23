@@ -106,7 +106,6 @@ object Frontend {
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
                 if (opt.conditionalControlFlow) {
-                    ProductGeneration.dataflowAnalysisProducts(fm, fm_ts, ast, opt, "")
                     cf.checkCfG(opt.getFile)
                     t6 = System.currentTimeMillis()
                 }

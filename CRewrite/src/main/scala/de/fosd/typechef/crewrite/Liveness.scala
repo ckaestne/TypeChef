@@ -260,8 +260,12 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // cache for in; we have to store all tuples of (a, env) their because using
   // (a, env) always creates a new one!!! and circular internally uses another
   // IdentityHashMap and uses (a, env) as a key there.
+  private val astIdenEnvHMVar = new java.util.IdentityHashMap[AST, (AST, FeatureModel, UsesDeclaresRel, ASTEnv)]()
+  private implicit def astIdenTupVar(a: AST) = astIdenEnvHMVar.get(a)
+
   private val astIdenEnvHM = new java.util.IdentityHashMap[AST, (AST, ASTEnv)]()
   private implicit def astIdenTup(a: AST) = astIdenEnvHM.get(a)
+
   type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
 
   // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
@@ -272,7 +276,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // of liveness determination
   val insimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
     circular[(Product, ASTEnv), Set[Id]](Set()) {
-      case t@(FunctionDef(_, _, _, _), _) => Set()
+      case (FunctionDef(_, _, _, _), _) => Set()
       case t@(e, env) => {
         val u = uses(e, dataflowUses = false)
         val d = defines(e)
@@ -286,12 +290,12 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
 
   val outsimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
     circular[(Product, ASTEnv), Set[Id]](Set()) {
-      case t@(e, env) => {
+      case (e, env) => {
         val ss = succ(e, FeatureExprFactory.empty, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
         for (s <- ss.map(_.entry)) {
           if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s, (s, env))
-          res = res.union(insimple(s))
+          res = res.union(insimple(astIdenTup(s)))
         }
         res
       }
@@ -319,7 +323,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // in and out variability-aware versions
   val inrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
-      case t@(FunctionDef(_, _, _, _), _, _, _) => Map()
+      case (FunctionDef(_, _, _, _), _, _, _) => Map()
       case t@(e, fm, udr, env) => {
         val uses = usesVar(e, env)
         val defines = definesVar(e, env)
@@ -338,9 +342,9 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[FeatureExpr, Set[Id]]()
         for (s <- ss) {
-          if (!astIdenEnvHM.containsKey(s)) astIdenEnvHM.put(s.entry, (s.entry, env))
-          for ((f, r) <- in((s.entry, fm, udr, env)))
-            res = explodeIdUse(r, f, udr, res, diff = false)
+          if (!astIdenEnvHMVar.containsKey(s.entry)) astIdenEnvHMVar.put(s.entry, (s.entry, fm, udr, env))
+          for ((f, r) <- in(astIdenTupVar(s.entry)))
+            res = updateMap(res, (f and s.feature, r), diff = false)
         }
         res
       }

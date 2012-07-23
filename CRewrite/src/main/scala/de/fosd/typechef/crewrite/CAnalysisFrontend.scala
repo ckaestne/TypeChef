@@ -41,14 +41,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
   }
 
   def checkCfG(fileName: String) {
-
-    val env = CASTEnv.createASTEnv(tunit)
     val fdefs = filterAllASTElems[FunctionDef](tunit)
-
-    fdefs.map(intraCfGFunctionDef(_, env))
+    fdefs.map(intraDataflowAnalysis(_))
   }
 
-  private def intraCfGFunctionDef(f: FunctionDef, env: ASTEnv) = {
+  private def intraCfGFunctionDef(f: FunctionDef) = {
+    val env = CASTEnv.createASTEnv(f)
     val s = getAllSucc(f, fm, env)
     val p = getAllPred(f, fm, env)
 
@@ -56,5 +54,15 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
 
     errors.size > 0
+  }
+
+  private def intraDataflowAnalysis(f: FunctionDef) {
+    val env = CASTEnv.createASTEnv(f)
+    val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+    val udr = determineUseDeclareRelation(f, env)
+
+    println("succ: " + DotGraph.map2file(getAllSucc(f, fm, env), env, List(), List()))
+
+    for (s <- ss) in((s, FeatureExprFactory.empty, udr, env))
   }
 }

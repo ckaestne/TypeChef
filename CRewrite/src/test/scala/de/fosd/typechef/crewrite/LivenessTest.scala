@@ -327,6 +327,38 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
       }""")
   }
 
+  @Test def test_make_hash() {
+    runExample("""
+      static void make_hash(const char *key, unsigned *start, unsigned *decrement, const int hash_prime) {
+      unsigned long hash_num = key[0];
+      int len = strlen(key);
+      int i;
+
+      for (i = 1; i < len; i++) {
+        hash_num += (key[i] + key[i-1]) << ((key[i] * i) % 24);
+      }
+      *start = (unsigned) hash_num % hash_prime;
+      *decrement = (unsigned) 1 + (hash_num % (hash_prime - 1));
+    }
+    """)
+  }
+
+  @Test def test_stackoverflow() {
+    runExample("""
+      static void make_hash(const char *key, unsigned *start, unsigned *decrement, const int hash_prime) {
+      unsigned long hash_num = key[0];
+      int len = strlen(key);
+      int i;
+
+      for (i = 1; i < len; i++) {
+        hash_num += (key[i] + key[i-1]) << ((key[i] * i) % 24);
+      }
+      *start = (unsigned) hash_num % hash_prime;
+      *decrement = (unsigned) 1 + (hash_num % (hash_prime - 1));
+    }
+               """)
+  }
+
   // http://www.exforsys.com/tutorials/c-language/c-expressions.html
   @Test def test_uses() {
     runUsesExample("a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
