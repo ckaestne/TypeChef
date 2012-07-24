@@ -14,11 +14,10 @@ import FeatureExprFactory.{True, False}
  *
  */
 
-trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn with CDefUse {
+trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
-        clearDefUseMap
         checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
 
@@ -76,7 +75,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         //add type to environment for remaining code
         val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
-        addDef(f)
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)

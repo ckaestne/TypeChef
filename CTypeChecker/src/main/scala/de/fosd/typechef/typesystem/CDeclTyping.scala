@@ -11,7 +11,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
  *
  * handling of typedef synonyms
  */
-trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUse {
+trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType]
 
