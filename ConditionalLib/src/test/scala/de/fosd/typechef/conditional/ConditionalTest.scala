@@ -226,6 +226,13 @@ class ConditionalTest {
 
     println(t2)
     println(t2.simplify)
+  }
 
+  @Test def testForLiveness {
+    var t1: Conditional[Set[String]] = One(Set())
+
+    println(t1)
+    t1 = ConditionalLib.conditionalFoldRight[Set[String], Set[String]](List(Opt(fa.not, Set("c"))), t1, _ ++ _)
+    println(t1)
   }
 }

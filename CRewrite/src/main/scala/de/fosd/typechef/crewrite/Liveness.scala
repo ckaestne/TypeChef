@@ -1,10 +1,10 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c._
 import org.kiama.attribution.AttributionBase
-import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr._
 import java.util
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.parser.c._
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
@@ -126,35 +126,16 @@ class IdentityHashMapCache[A] {
 
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
-  private val incache = new IdentityHashMapCache[Map[FeatureExpr, Set[Id]]]()
-  private val outcache = new IdentityHashMapCache[Map[FeatureExpr, Set[Id]]]()
+  private val incache = new IdentityHashMapCache[Conditional[Set[Id]]]()
+  private val outcache = new IdentityHashMapCache[Conditional[Set[Id]]]()
 
-  private def updateMap(m: Map[FeatureExpr, Set[Id]],
-                        e: (FeatureExpr, Set[Id]),
-                        diff: Boolean): Map[FeatureExpr, Set[Id]] = {
-
-    if (diff) {
-      var cm = Map[FeatureExpr, Set[Id]]()
-
-      for ((k, v) <- m) {
-        val ns = v.diff(e._2)
-        if (! ns.isEmpty) cm = cm.+((k, ns))
-      }
-      cm
-    } else {
-
-      m.get(e._1) match {
-        case Some(v) => m.+((e._1, v.union(e._2)))
-        case None => {
-          val key = m.find(_._1.equivalentTo(e._1))
-
-          key match {
-            case None => m.+(e)
-            case Some((k, v)) => m.+((k, v.union(e._2)))
-          }
-        }
-      }
-    }
+  private def updateMap(m: Conditional[Set[Id]],
+                        l: List[Opt[Set[Id]]],
+                        diff: Boolean): Conditional[Set[Id]] = {
+    if (diff)
+      ConditionalLib.conditionalFoldRight[Set[Id], Set[Id]](l, m, _ -- _)
+    else
+      ConditionalLib.conditionalFoldRight[Set[Id], Set[Id]](l, m, _ ++ _)
   }
 
   // TypeChef does not enforce us to be type-uniform,
@@ -315,18 +296,18 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // the use of a either has "int a = 0;" or "int a = 1;" as declaration
   // udr holds rename versions of both variables and runs the analysis with it (e.g., int a = 0; -> a1
   // and int a = 1; -> a2)
-  private def explodeIdUse(s: Set[Id], sfexp: FeatureExpr, udr: UsesDeclaresRel, res: Map[FeatureExpr, Set[Id]], diff: Boolean) = {
+  private def explodeIdUse(s: Set[Id], sfexp: FeatureExpr, udr: UsesDeclaresRel, res: Conditional[Set[Id]], diff: Boolean) = {
     var curres = res
     for (i <- s) {
       val newname = udr.get(i)
       newname match {
-        case null => curres = updateMap(res, (sfexp, Set(i)), diff)
-        case None => curres = updateMap(res, (sfexp, Set(i)), diff)
+        case null => curres = updateMap(res, List(Opt(sfexp, Set(i))), diff)
+        case None => curres = updateMap(res, List(Opt(sfexp, Set(i))), diff)
         case Some(c) => {
           val leaves = ConditionalLib.items(c)
           for ((nfexp, nid) <- leaves)
-            if (nid.isDefined) curres = updateMap(curres, (sfexp and nfexp, Set(nid.get)), diff)
-            else curres = updateMap(curres, (sfexp, Set(i)), diff)
+            if (nid.isDefined) curres = updateMap(curres, List(Opt(sfexp and nfexp, Set(nid.get))), diff)
+            else curres = updateMap(curres, List(Opt(sfexp, Set(i))), diff)
         }
       }
     }
@@ -334,9 +315,9 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
-    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
-      case (FunctionDef(_, _, _, _), _, _, _) => Map()
+  val inrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]] = {
+    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]](One(Set[Id]())) {
+      case (FunctionDef(_, _, _, _), _, _, _) => One(Set())
       case t@(e, fm, udr, env) => {
         val uses = usesVar(e, env)
         val defines = definesVar(e, env)
@@ -349,15 +330,15 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]] =
-    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
+  val outrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]] =
+    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]](One(Set[Id]())) {
       case t@(e, fm, udr, env) => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
-        var res = Map[FeatureExpr, Set[Id]]()
+        var res: Conditional[Set[Id]] = One(Set())
         for (s <- ss) {
           if (astIdenEnvHMVar.lookup(s.entry).isEmpty) astIdenEnvHMVar.update(s.entry, (s.entry, fm, udr, env))
-          for ((f, r) <- in(astIdenTupVar(s.entry).get))
-            res = updateMap(res, (f and s.feature, r), diff = false)
+          for ((f, r) <- ConditionalLib.items(in(astIdenTupVar(s.entry).get)))
+            res = updateMap(res, List(Opt(f and s.feature, r)), diff = false)
         }
         res
       }
