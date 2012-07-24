@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import java.io.{FileNotFoundException, InputStream}
-import org.junit.{Ignore, Test}
+import org.junit.Test
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{Configuration, FeatureExprFactory, FeatureModel}
 import org.kiama.rewriting.Rewriter._
@@ -107,8 +107,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   }
 
   private def intraCfgFunctionDef(f: FunctionDef, env: ASTEnv) = {
-    val s = getAllSucc(f, env)
-    val p = getAllPred(f, env)
+    val s = getAllSucc(f, FeatureExprFactory.empty, env)
+    val p = getAllPred(f, FeatureExprFactory.empty, env)
 
     println("succ: " + DotGraph.map2file(s, env, List(), List()))
     println("pred: " + DotGraph.map2file(p, env, List(), List()))
