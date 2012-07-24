@@ -198,13 +198,13 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExprFactory.False)(_ or _)
 
     /**
-     *  get a list of all declared variables from a declaration.
-     *  also checks that declarations are wellformed (e.g., structs are complete)
+     * get a list of all declared variables from a declaration.
+     * also checks that declarations are wellformed (e.g., structs are complete)
      */
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
-                                ): (Env,List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]) = {
-        var renv =env
+                                ): (Env, List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]) = {
+        var renv = env
         val enumDecl = enumDeclarations(decl.declSpecs, featureExpr, decl)
         val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl, env.scope)
@@ -229,12 +229,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                     //ensure that structs are resolvable
                     //there is an exception however: if it's a toplevel declaration check whether it's complete at the
                     //end of the compilation unit.
-                    val checkCompleteness: Env=>Unit =
-                        (environment)=>checkStructCompletenessC(ctype, featureExpr and f andNot isExtern, environment, decl)
-                    if (env.scope>0)
+                    val checkCompleteness: Env => Unit =
+                        (environment) => checkStructCompletenessC(ctype, featureExpr and f andNot isExtern, environment, decl)
+                    if (env.scope > 0)
                         checkCompleteness(env)
                     else
-                        renv=env.addCompletenessCheck(checkCompleteness)
+                        renv = env.addCompletenessCheck(checkCompleteness)
 
 
                     (init.declarator.getName, featureExpr and f, init, ctype, declKind)
@@ -380,6 +380,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         env = addStructDeclarationToEnv(structDeclaration, featureExpr, env)
                         //TODO xxx parsing cannot be separated from updating the environment here
                         checkStructCompletenessC(ctype, featureExpr and f and g, env, structDeclaration)
+
+                        //member should not have function type (pointer to function is okay)
+                        val isFunction = ctype.when({case CFunction(_, _) => true; case _ => false})
+                        if ((featureExpr and isFunction).isSatisfiable())
+                            reportTypeError(featureExpr and isFunction, "member " + decl.getName + " must not have function type", decl, Severity.OtherError)
+
                         result = result +(decl.getName, featureExpr and f and g, decl, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }

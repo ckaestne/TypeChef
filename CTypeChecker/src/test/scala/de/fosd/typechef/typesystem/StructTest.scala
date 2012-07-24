@@ -13,13 +13,13 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * structs are complicated:
  *
- * a tag gives a name to a struct. In "struct x", x is a tag for a struct.
+ * a tag gives a name to a struct. In "struct x", x is a tag for a struct. (definition)
  *
- * incomplete structs don't have a body, complete structs do.
+ * incomplete structs don't have a body, complete structs do. (definition)
  *
- * ignoring qualified types (const etc) of structs and members.
+ * ignoring qualified types (const etc) of structs and members. (impl. decision)
  *
- * members of struct shall not contain a member with incomplete or function type (pointers to those are okay though)
+ * members of struct shall not contain a member with incomplete or function type (pointers to those are okay though) -- tested below
  *
  * the presence of a struct-declaration-list in a struct-or-union-specifier declares a new type, within a translation unit
  *
@@ -75,6 +75,58 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
         val fields = env.getFieldsMerged("a", true)
         fields.whenDefined("x") should be(True)
         fields.whenDefined("y") should be(fa)
+    }
+
+    test("members of struct shall not contain a member with incomplete or function type") {
+        expect(true) {
+            check( """
+                     |struct a {
+                     |  int b;
+                     |};
+                   """.stripMargin)
+        }
+        expect(false) {
+            check( """
+                     |struct a {
+                     |  struct b x;
+                     |};
+                   """.stripMargin)
+        }
+        expect(false) {
+            check( """
+                     |struct a {
+                     |  struct a x;
+                     |};
+                   """.stripMargin)
+        }
+        expect(true) {
+            check( """
+                     |struct a {
+                     |  struct b * x;
+                     |};
+                   """.stripMargin)
+        }
+        expect(false) {
+                 check( """
+                          |struct a {
+                          |  int x(int);
+                          |};
+                        """.stripMargin)
+             }
+        expect(false) {
+                 check( """
+                          |struct a {
+                          |  int x(int b);
+                          |};
+                        """.stripMargin)
+             }
+        expect(true) {
+                       check( """
+                                |struct a {
+                                |  int (*x)(int);
+                                |};
+                              """.stripMargin)
+                   }
     }
 
     test("recursive structs") {
@@ -430,7 +482,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
 
     test("alternative struct declaration") {
         expect(true) {
-                    check( """
+            check( """
 #if defined( X)
 typedef unsigned long int stat_cnt_t;
 typedef struct reiserfs_proc_info_data {        int a; } reiserfs_proc_info_data_t;
@@ -441,23 +493,23 @@ struct reiserfs_sb_info {
     int b;
     reiserfs_proc_info_data_t s_proc_info_data;
 };
-                           """)
+                   """)
 
-                }
+        }
     }
 
     test("recursive structures") {
         expect(true) {
-            check("""
+            check( """
                      struct mtab_list {
                 		char *dir;
                 		char *device;
                 		struct mtab_list *next;
                 	} *mtl, *m;
-                 """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
          void foo(){
              struct mtab_list {
         		char *dir;
@@ -467,7 +519,7 @@ struct reiserfs_sb_info {
          }""")
         }
         expect(true) {
-            check("""
+            check( """
             #ifdef X
                  struct x { int b;};
             #endif
@@ -479,7 +531,7 @@ struct reiserfs_sb_info {
                     int e;
                  };
                  struct y test(){}
-                 """)
+                   """)
         }
     }
 }
