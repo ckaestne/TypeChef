@@ -18,6 +18,7 @@ import java.util.ArrayList
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
+import java.util.ResourceBundle.SingleFormatControl
 
 /**
  *
@@ -220,28 +221,34 @@ object ProductGeneration extends EnforceTreeHelper {
                 tasks = loadSerializedTasks(features, configSerializationDir)
                 msg = "Time for serialization loading: " + (System.currentTimeMillis() - startTime) + " ms\n"
                 println(msg)
-                log = log + msg
+                log = log + msg + "\n"
             }
         }
         /**Generate tasks */
         var configurations: List[SimpleConfiguration] = List()
 
         /**Load config from file */
-/*
+
                 {
                     if (tasks.find(_._1.equals("FileConfig")).isDefined) {
                         msg = "omitting FileConfig generation, because a serialized version was loaded"
                     } else {
+                        val configFile = if (caseStudy.equals("linux"))
+                            "../Linux_allyes_modified.config"
+                        else if (caseStudy.equals("busybox"))
+                            "../BusyboxBigConfig.config"
+                        else
+                            throw new Exception("unknown case Study, give linux or busybox")
                         startTime = System.currentTimeMillis()
-                        val (configs, logmsg) = getConfigsFromFiles(features, fm, new File("../Linux_allyes_modified.config"))
+                        val (configs, logmsg) = getConfigsFromFiles(features, fm, new File(configFile))
                         tasks :+= Pair("FileConfig", configs)
                         configurations ++= configs
                         msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
                     }
                     println(msg)
-                    log = log + msg
+                    log = log + msg + "\n"
                 }
-*/
+
         /**Henard CSV configurations */
 
         {
@@ -274,7 +281,7 @@ object ProductGeneration extends EnforceTreeHelper {
                 msg = "Time for config generation (henard): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
             }
             println(msg)
-            log = log + msg
+            log = log + msg + "\n"
         }
 
         /**Single-wise */
@@ -291,23 +298,40 @@ object ProductGeneration extends EnforceTreeHelper {
                         msg = "Time for config generation (singleWise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
                     }
                     println(msg)
-                    log = log + msg
+                    log = log + msg + "\n"
                 }
         */
-        /**Coverage Configurations */
+        /**Coverage Configurations - no Header files*/
 
+        {
+            if (tasks.find(_._1.equals("coverage")).isDefined) {
+                msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
+            } else {
+                startTime = System.currentTimeMillis()
+                val (configs, logmsg) = configurationCoverage(family_ast, fm, features, List(),
+                    preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = false)
+                tasks :+= Pair("coverage_noHeader", configs)
+                configurations ++= configs
+                msg = "Time for config generation (coverage_noHeader): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            }
+            println(msg)
+            log = log + msg + "\n"
+        }
+
+        /**Coverage Configurations - including Header files*/
         {
             if (tasks.find(_._1.equals("coverage")).isDefined) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
-                val (configs, logmsg) = configurationCoverage(family_ast, fm, features, List(), preferDisabledFeatures = false)
+                val (configs, logmsg) = configurationCoverage(family_ast, fm, features, List(),
+                    preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
                 tasks :+= Pair("coverage", configs)
                 configurations ++= configs
                 msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
             }
             println(msg)
-            log = log + msg
+            log = log + msg + "\n"
         }
 
         /**Pairwise MAX */
@@ -323,7 +347,7 @@ object ProductGeneration extends EnforceTreeHelper {
                         msg = "Time for config generation (pairwiseMax): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
                     }
                     println(msg)
-                    log = log + msg
+                    log = log + msg + "\n"
                 }
         */
         /**Pairwise */
@@ -336,7 +360,7 @@ object ProductGeneration extends EnforceTreeHelper {
             msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n"
         }
             println(msg)
-            log = log + msg
+            log = log + msg + "\n"
         */
 
         /**Just one hardcoded config */
@@ -795,7 +819,7 @@ object ProductGeneration extends EnforceTreeHelper {
         var complexNodes = 0
         var simpleOrNodes = 0
         var simpleAndNodes = 0
-        var nodeExpressions: Set[List[FeatureExpr]] = Set();
+        var nodeExpressions: Set[List[FeatureExpr]] = Set()
         def collectAnnotationLeafNodes(root: Any, previousFeatureExprs: List[FeatureExpr] = List(FeatureExprFactory.True), previousFile:String = null) {
             root match {
                 case x: Opt[_] => {
@@ -924,20 +948,25 @@ object ProductGeneration extends EnforceTreeHelper {
                 //println("no satisfiable configuration for fex " + fex.toTextExpr)
             }
         } else {
-            //println("found " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes")
-            //println("found " + nodeExpressions.size + " NodeExpressions")
-            //for ((optN,id) <- optNodes.zipWithIndex) {
-            //println("handling opt Node " + id)
             for (featureList:List[FeatureExpr] <- nodeExpressions) {
                 val fex: FeatureExpr = featureList.fold(FeatureExprFactory.True)(_ and _)
                 handleFeatureExpression(fex)
             }
         }
+        def getFeaturesInCoveredExpressions : Set[SingleFeatureExpr] = {
+            // how many features have been found in this file (only the .c files)?
+            var features : Set[SingleFeatureExpr] = Set()
+            for (exLst <- nodeExpressions)
+                for (ex <- exLst)
+                    for (feature <- ex.collectDistinctFeatureObjects)
+                        features += feature
+            return features
+        }
         (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + retList.size + "\n" +
-                //" LeafNodes: " + optNodes.size + " optNodes and " + choiceNodes.size + " ChoiceNodes\n" +
+                (if (!includeVariabilityFromHeaderFiles) (" Features in CFile: " + getFeaturesInCoveredExpressions.size + "\n") else "") +
                 " found " + nodeExpressions.size + " NodeExpressions\n" +
                 " found " + simpleAndNodes + " simpleAndNodes, " + simpleOrNodes + " simpleOrNodes and " + complexNodes + " complex nodes.\n")
     }
