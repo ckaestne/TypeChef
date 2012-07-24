@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.conditional.Conditional
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import de.fosd.typechef.parser.c.{AST, Declarator}
+import _root_.de.fosd.typechef.conditional._
+import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import _root_.de.fosd.typechef.parser.c.{AST, Declarator}
 import FeatureExprFactory._
 
 /**
@@ -80,28 +80,62 @@ trait CEnv {
      * for struct and union
      * ConditionalTypeMap represents for the fields of the struct
      *
-     * we store whether a structure with this name is defined (FeatureExpr) whereas
+     * structs do not need to be defined, but they can be complete (with fields) or incomplete
+     *
+     * we store whether a structure with this name is complete (FeatureExpr).
+     * a redeclaration in an inner scope may reduce completeness again
+     *
      * we do not distinguish between alternative structures. fields are merged in
      * one ConditionalTypeMap entry, but by construction they cannot overlap if
      * the structure declarations do not overlap variant-wise
+     *
+     * the structEnv maps a tag name to a conditional tuple (isComplete, fields, scope)
      */
-    class StructEnv(val env: Map[(String, Boolean), (FeatureExpr, ConditionalTypeMap)]) {
+    private case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int)
+
+    class StructEnv(private val env: Map[(String, Boolean), Conditional[StructTag]]) {
         def this() = this(Map())
-        //returns the condition under which a structure is defined
-        def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
-        def isDefined(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), (FeatureExprFactory.False, null))._1
-        def isDefinedUnion(name: String) = isDefined(name, true)
-        def isDefinedStruct(name: String) = isDefined(name, false)
-        def add(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap) = {
-            //TODO check distinct attribute names in each variant
-            //TODO check that there is not both a struct and a union with the same name
-            val oldCondition = isDefined(name, isUnion)
-            val oldFields = env.getOrElse((name, isUnion), (null, new ConditionalTypeMap()))._2
+        private val emptyFields = new ConditionalTypeMap()
+        private val incompleteTag = StructTag(false, emptyFields, -1)
+        //returns the condition under which a structure is complete
+        def isComplete(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), One(incompleteTag)).when(_.isComplete)
+        def isCompleteUnion(name: String) = isComplete(name, true)
+        def isCompleteStruct(name: String) = isComplete(name, false)
+
+        def addIncomplete(name: String, isUnion: Boolean, condition: FeatureExpr, scope: Int) = {
+            //overwrites complete tags in lower scopes, but has no effects otherwise
             val key = (name, isUnion)
-            val value = (oldCondition or condition, oldFields ++ fields)
-            new StructEnv(env + (key -> value))
+            val prevTag: Conditional[StructTag] = env.getOrElse(key,One(incompleteTag))
+            val newTag: Conditional[StructTag] = Choice(condition, One(StructTag(false, emptyFields, scope)), One(incompleteTag))
+            val result=ConditionalLib.mapCombination(prevTag, newTag, (p:StructTag, n:StructTag) => if (n.scope > p.scope) n else p)
+            new StructEnv(env + (key -> result))
         }
-        def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion))._2
+
+
+        def addComplete(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap, scope: Int) = {
+            // always override previous results, check elsewhere that not replace incorrectly
+            val key = (name, isUnion)
+            val prevTag: Conditional[StructTag] = env.getOrElse(key,One(incompleteTag))
+            val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope)), prevTag).simplify
+            new StructEnv(env + (key -> result))
+
+//            //TODO check distinct attribute names in each variant
+//            //TODO check that there is not both a struct and a union with the same name
+//            val key = (name, isUnion)
+//            val oldCondition = isComplete(name, isUnion)
+//            val oldFields = env.getOrElse(key, (null, new ConditionalTypeMap()))._2
+//            val value = (oldCondition or condition, oldFields ++ fields)
+//            new StructEnv(env + (key -> value))
+        }
+
+        def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env((name, isUnion)).map(_.fields)
+
+        def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
+            getFields(name, isUnion).flatten( (f,a,b)=> a.and(f) ++ b.and(f.not))
+
+
+//        def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion))._2
+
         override def toString = env.toString
     }
 
