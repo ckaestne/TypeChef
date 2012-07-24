@@ -36,16 +36,16 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     /***
      * Structs
      */
-    def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env)
-    def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env)
-    def addStructDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, initEnv: Env): Env = {
+    def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty)
+    def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
+    def addStructDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = {
         var env = initEnv
         for (Opt(specFeature, specifier) <- specifiers) {
-            env = addStructDeclarationToEnv(specifier, featureExpr and specFeature, env)
+            env = addStructDeclarationToEnv(specifier, featureExpr and specFeature, env, declareIncompleteTypes)
         }
         env
     }
-    def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env): Env = specifier match {
+    def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes:Boolean): Env = specifier match {
         case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), Some(attributes)) => {
             //for parsing the inner members, the struct itself is available incomplete
             var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
@@ -57,7 +57,11 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         }
         //incomplete struct
         case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
-            initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
+            //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
+            if (declareIncompleteTypes)
+                initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
+            else
+                initEnv
         }
         case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
             addInnerStructDeclarationsToEnv(attributes, featureExpr, initEnv)

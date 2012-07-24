@@ -128,7 +128,7 @@ trait CEnv {
 //            new StructEnv(env + (key -> value))
         }
 
-        def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env((name, isUnion)).map(_.fields)
+        def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion),One(incompleteTag)).map(_.fields)
 
         def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
             getFields(name, isUnion).flatten( (f,a,b)=> a.and(f) ++ b.and(f.not))
