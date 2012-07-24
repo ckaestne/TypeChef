@@ -62,7 +62,6 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     val env = CASTEnv.createASTEnv(f)
     val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
     val udr = determineUseDeclareRelation(f, env)
-    //println("succ: " + DotGraph.map2file(ss, env, List(), List()))
 
     val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
     for (s <- nss) in((s, FeatureExprFactory.empty, udr, env))

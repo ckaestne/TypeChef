@@ -126,16 +126,26 @@ class IdentityHashMapCache[A] {
 
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
-  private val incache = new IdentityHashMapCache[Conditional[Set[Id]]]()
-  private val outcache = new IdentityHashMapCache[Conditional[Set[Id]]]()
+  private val incache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
+  private val outcache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
 
-  private def updateMap(m: Conditional[Set[Id]],
-                        l: List[Opt[Set[Id]]],
-                        diff: Boolean): Conditional[Set[Id]] = {
-    if (diff)
-      ConditionalLib.conditionalFoldRight[Set[Id], Set[Id]](l, m, _ -- _)
-    else
-      ConditionalLib.conditionalFoldRight[Set[Id], Set[Id]](l, m, _ ++ _)
+  private def updateMap(map: Map[Id, FeatureExpr],
+                        e: (FeatureExpr, Set[Id]),
+                        diff: Boolean): Map[Id, FeatureExpr] = {
+    var curmap = map
+
+    if (diff) {
+      for (v <- e._2) curmap = curmap.-(v)
+    } else {
+      for (v <- e._2) {
+        curmap.get(v) match {
+          case None => curmap = curmap.+((v, e._1))
+          case Some(x) => curmap = curmap.+((v, e._1 or x))
+        }
+      }
+    }
+
+    curmap
   }
 
   // TypeChef does not enforce us to be type-uniform,
@@ -155,7 +165,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // in presence of A (// 2) shadows declaration (// 3)
   // we compute the relation between variable uses and declarations per function
   def determineUseDeclareRelation(func: FunctionDef, env: ASTEnv): java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]] = {
-    // we use a working stack to maintain in maintain scoping of nested compound statements
+    // we use a working stack to maintain scoping of nested compound statements
     // each element of the list refers to a block; if we enter a compound statement then we
     // add a Map to the stack; if we leave a compound statement we return the tail of wstack
     // current block is head
@@ -175,11 +185,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         for ((k, v) <- uses) {
           for (id <- v) {
             val prevblockswithid = curws.flatMap(_.get(id))
-            if (prevblockswithid.isEmpty) {
-              res.put(id, None)
-            } else {
-              res.put(id, Some(ConditionalLib.findSubtree(k, prevblockswithid.head)))
-            }
+            if (prevblockswithid.isEmpty) res.put(id, None)
+            else res.put(id, Some(ConditionalLib.findSubtree(k, prevblockswithid.head)))
           }
         }
 
@@ -190,7 +197,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
                 FeatureExprFactory.True, k, Some(Id(id.name+curIdSuffix.toString)))))
               curIdSuffix += 1
             } else {
-              // get previous block with declaring id
+              // get previous block with declaring id and embed that block in a choice
               val prevblockswithid = curws.tail.flatMap(_.get(id))
               if (prevblockswithid.isEmpty) {
                 curblock = curblock.+((id, Choice(k, One(Some(Id(id.name+curIdSuffix.toString))), One(None))))
@@ -236,8 +243,6 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       }
     }
     handleElement(func.stmt, List())
-    println("index up to: " + curIdSuffix)
-    println(res)
     res
   }
 
@@ -296,18 +301,18 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // the use of a either has "int a = 0;" or "int a = 1;" as declaration
   // udr holds rename versions of both variables and runs the analysis with it (e.g., int a = 0; -> a1
   // and int a = 1; -> a2)
-  private def explodeIdUse(s: Set[Id], sfexp: FeatureExpr, udr: UsesDeclaresRel, res: Conditional[Set[Id]], diff: Boolean) = {
+  private def explodeIdUse(s: Set[Id], sfexp: FeatureExpr, udr: UsesDeclaresRel, res: Map[Id, FeatureExpr], diff: Boolean) = {
     var curres = res
     for (i <- s) {
       val newname = udr.get(i)
       newname match {
-        case null => curres = updateMap(res, List(Opt(sfexp, Set(i))), diff)
-        case None => curres = updateMap(res, List(Opt(sfexp, Set(i))), diff)
+        case null => curres = updateMap(res, (sfexp, Set(i)), diff)
+        case None => curres = updateMap(res, (sfexp, Set(i)), diff)
         case Some(c) => {
           val leaves = ConditionalLib.items(c)
           for ((nfexp, nid) <- leaves)
-            if (nid.isDefined) curres = updateMap(curres, List(Opt(sfexp and nfexp, Set(nid.get))), diff)
-            else curres = updateMap(curres, List(Opt(sfexp, Set(i))), diff)
+            if (nid.isDefined) curres = updateMap(curres, (sfexp and nfexp, Set(nid.get)), diff)
+            else curres = updateMap(curres, (sfexp, Set(i)), diff)
         }
       }
     }
@@ -315,9 +320,9 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]] = {
-    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]](One(Set[Id]())) {
-      case (FunctionDef(_, _, _, _), _, _, _) => One(Set())
+  val inrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]] = {
+    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]](Map()) {
+      case (FunctionDef(_, _, _, _), _, _, _) => Map()
       case t@(e, fm, udr, env) => {
         val uses = usesVar(e, env)
         val defines = definesVar(e, env)
@@ -330,15 +335,15 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]] =
-    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Conditional[Set[Id]]](One(Set[Id]())) {
+  val outrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]] =
+    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]](Map()) {
       case t@(e, fm, udr, env) => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
-        var res: Conditional[Set[Id]] = One(Set())
+        var res: Map[Id, FeatureExpr] = Map()
         for (s <- ss) {
           if (astIdenEnvHMVar.lookup(s.entry).isEmpty) astIdenEnvHMVar.update(s.entry, (s.entry, fm, udr, env))
-          for ((f, r) <- ConditionalLib.items(in(astIdenTupVar(s.entry).get)))
-            res = updateMap(res, List(Opt(f and s.feature, r)), diff = false)
+          for ((r, f) <- in(astIdenTupVar(s.entry).get))
+            res = updateMap(res, (f and s.feature, Set(r)), diff = false)
         }
         res
       }

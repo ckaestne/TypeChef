@@ -288,6 +288,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         int b = a;
         if (b) {
           int a = b;
+          a;
           b;
         }
         a;
