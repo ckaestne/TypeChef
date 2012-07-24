@@ -64,12 +64,14 @@ object Frontend {
         var t4 = t2
         var t5 = t2
         var t6 = t2
+        var t7 = t2
         if (opt.parse) {
             println("parsing.")
             val in = CLexer.prepareTokens(tokens)
             val parserMain = new ParserMain(new CParser(fm))
             val ast = parserMain.parserMain(in, opt)
             t3 = System.currentTimeMillis()
+            t7 = t3
             t6 = t3
             t5 = t3
             t4 = t3
@@ -95,26 +97,35 @@ object Frontend {
                     t4 = System.currentTimeMillis()
                     t5 = t4
                     t6 = t4
+                    t7 = t4
                 }
                 if (opt.writeInterface) {
                     println("inferring interfaces.")
                     val interface = ts.getInferredInterface().and(opt.getFilePresenceCondition)
                     t5 = System.currentTimeMillis()
+                    t7 = t5
                     t6 = t5
                     ts.writeInterface(interface, new File(opt.getInterfaceFilename))
                     if (opt.writeDebugInterface)
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
                 if (opt.conditionalControlFlow) {
-                    cf.checkCfG(opt.getFile)
+                    cf.checkCfG()
                     t6 = System.currentTimeMillis()
+                    t7 = t6
                 }
+                if (opt.dataFlow) {
+                  ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
+                    logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
+                  t7 = System.currentTimeMillis()
+                }
+
             }
 
         }
         errorXML.write()
         if (opt.recordTiming)
-            println("timing (lexer, parser, type system, interface inference, conditional control flow)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4) + ";" + (t6 - t5))
+            println("timing (lexer, parser, type system, interface inference, conditional control flow, data flow)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4) + ";" + (t6 - t5) + ";" + (t7-t6))
 
     }
 

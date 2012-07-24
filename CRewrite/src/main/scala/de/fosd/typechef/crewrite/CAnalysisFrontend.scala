@@ -40,7 +40,12 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     x
   }
 
-  def checkCfG(fileName: String) {
+  def checkCfG() {
+    val fdefs = filterAllASTElems[FunctionDef](tunit)
+    fdefs.map(intraCfGFunctionDef(_))
+  }
+
+  def checkDataflow() {
     val fdefs = filterAllASTElems[FunctionDef](tunit)
     fdefs.map(intraDataflowAnalysis(_))
   }
