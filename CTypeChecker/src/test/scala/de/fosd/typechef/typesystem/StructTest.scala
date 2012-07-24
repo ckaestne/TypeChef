@@ -21,14 +21,14 @@ import org.scalatest.matchers.ShouldMatchers
  *
  * members of struct shall not contain a member with incomplete or function type (pointers to those are okay though) -- tested below
  *
- * the presence of a struct-declaration-list in a struct-or-union-specifier declares a new type, within a translation unit
+ * the presence of a struct-declaration-list in a struct-or-union-specifier declares a new type, within a translation unit -- tested below
  *
- * the struct type is incomplete until after the } that terminates the list.
+ * the struct type is incomplete until after the } that terminates the list.   -- tested below
  *
  * if "struct x" occurs in a declaration without a declarator, it declares tag x with an incomplete struct type; redeclarations
- * do not change the type
+ * do not change the type -- tested below
  *
- * structs may be redeclared in different scopes
+ * structs may be redeclared in different scopes -- tested below
  *
  * A specific type shall have its content defined at most once.
  *
@@ -107,26 +107,26 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                    """.stripMargin)
         }
         expect(false) {
-                 check( """
-                          |struct a {
-                          |  int x(int);
-                          |};
-                        """.stripMargin)
-             }
+            check( """
+                     |struct a {
+                     |  int x(int);
+                     |};
+                   """.stripMargin)
+        }
         expect(false) {
-                 check( """
-                          |struct a {
-                          |  int x(int b);
-                          |};
-                        """.stripMargin)
-             }
+            check( """
+                     |struct a {
+                     |  int x(int b);
+                     |};
+                   """.stripMargin)
+        }
         expect(true) {
-                       check( """
-                                |struct a {
-                                |  int (*x)(int);
-                                |};
-                              """.stripMargin)
-                   }
+            check( """
+                     |struct a {
+                     |  int (*x)(int);
+                     |};
+                   """.stripMargin)
+        }
     }
 
     test("recursive structs") {
@@ -260,6 +260,17 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                   |}
                 """.stripMargin)
         }
+    }
+
+    test("inner structs escape") {
+        expect(true){
+            check(
+                """
+                  |struct { int a; struct b { int x; } bb; } c;
+                  |struct b d;
+                """.stripMargin)
+        }
+
     }
 
     test("deref pointers to incomplete structs") {
@@ -533,5 +544,46 @@ struct reiserfs_sb_info {
                  struct y test(){}
                    """)
         }
+    }
+
+    ignore("A specific type shall have its content defined at most once") {
+        expect(true){
+            check(
+                """
+                  |typedef union
+                  |{
+                  |  struct y
+                  |  {
+                  |    int z;
+                  |  } yy;
+                  |} xx;
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |struct x;
+                  |struct x { };
+                  |struct x;
+                """.stripMargin)
+        }
+        expect(false) {
+            check(
+                """
+                  |struct x { };
+                  |struct x { };
+                """.stripMargin)
+        }
+        expect(true) {
+                    check(
+                        """
+                          |#ifdef X
+                          |struct x { };
+                          |#else
+                          |struct x { };
+                          |#endif
+                        """.stripMargin)
+                }
+
     }
 }

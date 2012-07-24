@@ -136,8 +136,12 @@ trait CEnv {
         def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
             getFields(name, isUnion).flatten((f, a, b) => a.and(f) ++ b.and(f.not))
 
-
-        //        def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion))._2
+        //returns whether already completed in the same scope. may only redeclare in higher scope or when incomplete
+        def mayDeclare(name: String, isUnion: Boolean, scope: Int):FeatureExpr = {
+            env.getOrElse((name,isUnion),One(incompleteTag)).when(
+                s=> !s.isComplete || scope>s.scope
+            )
+        }
 
         override def toString = env.toString
     }

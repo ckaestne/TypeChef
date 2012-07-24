@@ -45,6 +45,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         }
         env
     }
+
+    def checkStructRedeclaration(name: String, isUnion: Boolean, featureExpr: FeatureExpr, scope: Int, env: Env, where:AST) {
+        //TODO disabled for now. need to merge addStructDeclarationToEnv with getDeclaredVariables first
+//        val mayRedeclare=env.structEnv.mayDeclare(name, isUnion, scope)
+//        if ((featureExpr andNot mayRedeclare).isSatisfiable())
+//            reportTypeError(featureExpr andNot mayRedeclare,"redefinition of \"%s %s\"".format(if(isUnion)"union" else "struct", name),where, Severity.RedeclarationError)
+    }
+
     def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes:Boolean): Env = specifier match {
         case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), Some(attributes)) => {
             //for parsing the inner members, the struct itself is available incomplete
@@ -53,6 +61,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
 
             //collect inner struct declarations recursively
             env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
+            checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
             env.updateStructEnv(env.structEnv.addComplete(name, isUnion, featureExpr, members, env.scope))
         }
         //incomplete struct
