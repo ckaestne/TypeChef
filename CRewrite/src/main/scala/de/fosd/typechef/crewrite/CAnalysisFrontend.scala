@@ -57,12 +57,14 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
   }
 
   private def intraDataflowAnalysis(f: FunctionDef) {
+    if (f.stmt.innerStatements.isEmpty) return
+
     val env = CASTEnv.createASTEnv(f)
-    val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+    val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
     val udr = determineUseDeclareRelation(f, env)
+    //println("succ: " + DotGraph.map2file(ss, env, List(), List()))
 
-    println("succ: " + DotGraph.map2file(getAllSucc(f, fm, env), env, List(), List()))
-
-    for (s <- ss) in((s, FeatureExprFactory.empty, udr, env))
+    val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+    for (s <- nss) in((s, FeatureExprFactory.empty, udr, env))
   }
 }

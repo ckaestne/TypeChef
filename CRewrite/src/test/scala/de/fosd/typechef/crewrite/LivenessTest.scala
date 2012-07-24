@@ -197,8 +197,8 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         int b;
         #if definedEx(A)
         int c = c + b;
-        #endif
         return c;
+        #endif
     }
                """)
   }
@@ -210,8 +210,8 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         #if definedEx(A)
         int b;
         int c = c + b;
-        #endif
         return c;
+        #endif
     }
                """)
   }

@@ -142,11 +142,17 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       }
       cm
     } else {
-      val key = m.find(_._1.equivalentTo(e._1))
 
-      key match {
-        case None => m.+(e)
-        case Some((k, v)) => m.+((k, v.union(e._2)))
+      m.get(e._1) match {
+        case Some(v) => m.+((e._1, v.union(e._2)))
+        case None => {
+          val key = m.find(_._1.equivalentTo(e._1))
+
+          key match {
+            case None => m.+(e)
+            case Some((k, v)) => m.+((k, v.union(e._2)))
+          }
+        }
       }
     }
   }
@@ -248,8 +254,9 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         case x => println("not handling: " + x); curws
       }
     }
-
     handleElement(func.stmt, List())
+    println("index up to: " + curIdSuffix)
+    println(res)
     res
   }
 
@@ -298,6 +305,16 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
+  // this method internally explodes the use of a variable in case it has multiple declarations
+  // e.g.:
+  // int a = 0;
+  // {
+  //   #if A    int a = 1;
+  //   a;
+  // }
+  // the use of a either has "int a = 0;" or "int a = 1;" as declaration
+  // udr holds rename versions of both variables and runs the analysis with it (e.g., int a = 0; -> a1
+  // and int a = 1; -> a2)
   private def explodeIdUse(s: Set[Id], sfexp: FeatureExpr, udr: UsesDeclaresRel, res: Map[FeatureExpr, Set[Id]], diff: Boolean) = {
     var curres = res
     for (i <- s) {
@@ -309,7 +326,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
           val leaves = ConditionalLib.items(c)
           for ((nfexp, nid) <- leaves)
             if (nid.isDefined) curres = updateMap(curres, (sfexp and nfexp, Set(nid.get)), diff)
-            else assert(assertion = false, message = "no declaration with new identifier found!")
+            else curres = updateMap(curres, (sfexp, Set(i)), diff)
         }
       }
     }
