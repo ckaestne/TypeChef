@@ -69,19 +69,18 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         val env: StructEnv = lookupEnv(lastDecl).structEnv
 
 
-        println(env.env)
 
         //struct should be in environement
-        env.isDefined("account", false) should be(True)
-        env.isDefined("account", true) should be(False) //not a union
+        env.isComplete("account", false) should be(True)
+        env.isComplete("account", true) should be(False) //not a union
 
-        env.isDefined("uaccount", false) should be(False)
-        env.isDefined("uaccount", true) should be(True) //a union
+        env.isComplete("uaccount", false) should be(False)
+        env.isComplete("uaccount", true) should be(True) //a union
 
-        env.isDefined("announcedStruct", false) should be(True) //announced structs should be in the environement, but empty
-        env.get("announcedStruct", false) should be('isEmpty)
+        env.isComplete("announcedStruct", false) should be(True) //announced structs should be in the environement, but empty
+        env.getFieldsMerged("announcedStruct", false) should be('isEmpty)
 
-        val accountStruct = env.get("account", false)
+        val accountStruct = env.getFieldsMerged("account", false)
 
         //should have field "firstname"
         accountStruct contains "first_name" should be(true)
@@ -164,8 +163,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
         //structure definitons should be recognized despite typedefs
         val structenv: StructEnv = lookupEnv(ast.defs.last.entry).structEnv
-        structenv.isDefined("pair", false) should be(True)
-        structenv.isDefined("mystr", false) should be(False)
+        structenv.isComplete("pair", false) should be(True)
+        structenv.isComplete("mystr", false) should be(False)
 
         typedefs("transunion") should be(One(CIgnore()))
     }
@@ -429,21 +428,21 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
         println(structenv)
 
-        structenv.isDefined("s1", false) should be(True)
-        structenv.isDefined("s2", false) should be(fx)
-        structenv.isDefined("s3", false) should be(fx or fy)
+        structenv.isComplete("s1", false) should be(True)
+        structenv.isComplete("s2", false) should be(fx)
+        structenv.isComplete("s3", false) should be(fx or fy)
 
-        val structS1 = structenv.get("s1", false)
+        val structS1 = structenv.getFieldsMerged("s1", false)
         structS1("b") should be(_i)
         structS1("a") should be(x_i)
         structS1("c") should be(Choice(fx.not(), _l, _i))
         structS1("d") should be(Choice(fx.not and fy, _l, Choice(fx, _i, One(CUndefined))))
 
-        val structS2 = structenv.get("s2", false)
+        val structS2 = structenv.getFieldsMerged("s2", false)
         structS2("a") should be(Choice(fx, _i, One(CUndefined)))
         structS2("b") should be(Choice(fx and fy, _i, One(CUndefined)))
 
-        val structS3 = structenv.get("s3", false)
+        val structS3 = structenv.getFieldsMerged("s3", false)
         ConditionalLib.equals(
             structS3("a"),
             Choice(fx, _l, One(CUndefined))) should be(true)
@@ -552,8 +551,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env("m") should be(One(CPointer(CStruct("mtab_list", false))))
 
         val senv = lookupEnv(exprStmt.expr).structEnv
-        senv.get("mtab_list", false) should not be (null)
-        println(senv.get("mtab_list", false))
+        senv.getFieldsMerged("mtab_list", false) should not be (null)
+        println(senv.getFieldsMerged("mtab_list", false))
 
         println(exprStmt)
         val et = lookupExprType(exprStmt.expr)
@@ -592,14 +591,14 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env("m") should be(One(CPointer(CStruct("volume_descriptor", false))))
 
         val senv = lookupEnv(exprStmt.expr).structEnv
-        senv.get("volume_descriptor", false) should not be (null)
-        println(senv.get("volume_descriptor", false))
-        senv.get("descriptor_tag", false) should not be (null)
-        println(senv.get("descriptor_tag", false))
-        senv.get("X", false) should not be (null)
-        println(senv.get("X", false))
-        senv.get("Y", false) should not be (null)
-        println(senv.get("Y", false))
+        senv.getFieldsMerged("volume_descriptor", false) should not be (null)
+        println(senv.getFieldsMerged("volume_descriptor", false))
+        senv.getFieldsMerged("descriptor_tag", false) should not be (null)
+        println(senv.getFieldsMerged("descriptor_tag", false))
+        senv.getFieldsMerged("X", false) should not be (null)
+        println(senv.getFieldsMerged("X", false))
+        senv.getFieldsMerged("Y", false) should not be (null)
+        println(senv.getFieldsMerged("Y", false))
 
         println(exprStmt)
         val et = lookupExprType(exprStmt.expr)

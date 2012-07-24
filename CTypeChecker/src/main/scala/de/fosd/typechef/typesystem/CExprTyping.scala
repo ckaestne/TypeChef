@@ -1,9 +1,9 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import _root_.de.fosd.typechef.parser.c._
+import _root_.de.fosd.typechef.conditional._
+import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * typing C expressions
@@ -48,7 +48,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
-                                checkStructs(t, f, env, id)
+//                                //sure this should be checked here?
+//                                checkStructCompleteness(t, f, env, id)
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer
@@ -62,6 +63,12 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //*a: pointer dereferencing
                     case pd@PointerDerefExpr(expr) =>
                         et(expr).mapf(featureExpr, (f, x) => x.toValue match {
+                            case CPointer(s@CStruct(name, isUnion)) =>
+                                //dereferencing pointers to structures only for complete structures
+                                val whenComplete = env.structEnv.isComplete(name, isUnion)
+                                if ((f andNot whenComplete).isSatisfiable())
+                                    reportTypeError(f andNot whenComplete, "dereferencing pointer to incomplete type " + name + " (complete when " + whenComplete + ")", pd)
+                                s.toObj
                             case CPointer(t) if (t != CVoid) => t.toObj
                             case CArray(t, _) => t.toObj
                             case CIgnore() => CIgnore()
@@ -87,9 +94,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 case (f, e) => e
                             })
                             case (f, e) =>
-                                One(reportTypeError(f, "invalid ." + id + " on " + p + " (" + e + ")", p))
+                                One(reportTypeError(f, "request for member " + id + " in something not a structure or union (" + p + "; " + e + ")", p))
                         })
-                    //e->n (by rewrite to &e.n)
+                    //e->n (by rewrite to *e.n)
                     case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
                         val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
                         et(newExpr)
@@ -319,8 +326,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
     private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
                                  funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
-        checkStructs(retType, featureExpr, env, expr)
-        parameterTypes.map(checkStructs(_, featureExpr, env, expr))
+        //probably just checked on declaration: (??)
+//        checkStructs(retType, featureExpr, env, expr)
+//        parameterTypes.map(checkStructs(_, featureExpr, env, expr))
 
         var expectedTypes = parameterTypes
         var foundTypes = _foundTypes
@@ -363,13 +371,17 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
 
     private def structEnvLookup(strEnv: StructEnv, structName: String, isUnion: Boolean, fieldName: String, astNode: Expr, featureExpr: FeatureExpr): Conditional[CType] = {
-        assert(strEnv.someDefinition(structName, isUnion), "struct/union " + structName + " unknown") //should not occur by construction. system won't build a struct type if its name is not in the struct table
+        //sanity check, should not occur by construction
+        //completeness is checked when declaring the variable or when dereferencing a pointer
+        val whenComplete = strEnv.isComplete(structName, isUnion)
+        if ((featureExpr andNot whenComplete).isSatisfiable())
+            issueTypeError(Severity.FieldLookupError, featureExpr andNot whenComplete, "member access to incomplete or unknown structure/union " + structName, astNode)
 
-        val struct: ConditionalTypeMap = strEnv.get(structName, isUnion)
-        val ctype = struct.getOrElse(fieldName, CUnknown("field " + fieldName + " unknown in " + structName))
+        val struct: ConditionalTypeMap = strEnv.getFieldsMerged(structName, isUnion)
+        val ctype = struct.getOrElse(fieldName, CUnknown("member " + fieldName + " unknown in " + structName))
 
         ctype.mapf(featureExpr, {
-            (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "field " + fieldName + " unknown in " + structName, astNode)
+            (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "member " + fieldName + " unknown in " + structName, astNode)
         })
 
         ctype

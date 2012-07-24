@@ -1,10 +1,10 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.conditional._
+import _root_.de.fosd.typechef.conditional._
 import ConditionalLib._
-import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import _root_.de.fosd.typechef.parser.c._
+import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -165,24 +165,28 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     private def noInitCheck = (a: Expr, b: Conditional[CType], c: FeatureExpr, d: Env) => {}
 
 
-    protected def checkStructsC(ctype: Conditional[CType], expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype mapf(expr, {
-        (f, t) => checkStructs(t, f, env, where, checkedStructs)
+    protected def checkStructCompletenessC(ctype: Conditional[CType], expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype mapf(expr, {
+        (f, t) => checkStructCompleteness(t, f, env, where, checkedStructs)
     })
 
     /**
      * if we declare a variable or array (not pointer or function)
-     * ensure that structs are resolvable
+     * ensure that structs are complete
      */
-    protected def checkStructs(ctype: CType, expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype match {
-        case CObj(t) => checkStructs(t, expr, env, where, checkedStructs)
-        case CArray(t, _) => checkStructs(t, expr, env, where, checkedStructs)
+    protected def checkStructCompleteness(ctype: CType, expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype match {
+        case CObj(t) => checkStructCompleteness(t, expr, env, where, checkedStructs)
+        case CArray(t, _) => checkStructCompleteness(t, expr, env, where, checkedStructs)
         case CStruct(name, isUnion) =>
-            val declExpr = env.structEnv.isDefined(name, isUnion)
-            if ((expr andNot declExpr).isSatisfiable())
-                reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + name + " not defined. (defined only in context " + declExpr + ")", where, Severity.TypeLookupError)
+            val declExpr = env.structEnv.isComplete(name, isUnion)
+            if ((expr andNot declExpr).isSatisfiable()) {
+                val msg = (if (isUnion) "Union " else "Struct ") + name + " not defined or not complete." +
+                    (if ((expr and declExpr).isSatisfiable()) " (complete only in context " + declExpr + ")" else "")
+                reportTypeError(expr andNot declExpr, msg, where, Severity.TypeLookupError)
+            }
         case CAnonymousStruct(fields, _) => //check fields
             val fieldTypes = fields.keys.map(k => fields.getOrElse(k, CUnknown()))
-            fieldTypes.map(ct => checkStructsC(ct, expr, env, where, checkedStructs))
+            fieldTypes.map(ct => checkStructCompletenessC(ct, expr, env, where, checkedStructs))
+        case CPointer(_) => // do not check internals of pointers. pointers may point to incomplete structs
         case _ =>
     }
 
@@ -192,6 +196,10 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     def getIsExtern(list: List[Opt[Specifier]]): FeatureExpr =
         list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExprFactory.False)(_ or _)
 
+    /**
+     *  get a list of all declared variables from a declaration.
+     *  also checks that declarations are wellformed (e.g., structs are complete)
+     */
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
                                 ): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
@@ -216,7 +224,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
                     //if we declare a variable or array (not pointer or function)
                     //ensure that structs are resolvable
-                    checkStructsC(ctype, featureExpr and f andNot isExtern, env, decl)
+                    checkStructCompletenessC(ctype, featureExpr and f andNot isExtern, env, decl)
 
 
                     (init.declarator.getName, featureExpr and f, init, ctype, declKind)
@@ -348,7 +356,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         Conditional.flatten(r)
     }
 
-    def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): StructEnv;
+    def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env;
 
     def parseStructMembers(members: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, initialEnv: Env): ConditionalTypeMap = {
         var env = initialEnv
@@ -359,8 +367,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                     case StructDeclarator(decl, _, attr) =>
                         val ctype = declType(structDeclaration.qualifierList, decl, attr, featureExpr and f and g, env)
                         //for nested structs, we need to add the inner structs to the environment
-                        env = env.updateStructEnv(addStructDeclarationToEnv(structDeclaration, featureExpr, env))
-                        checkStructsC(ctype, featureExpr and f and g, env, structDeclaration)
+                        env = addStructDeclarationToEnv(structDeclaration, featureExpr, env)
+                        //TODO xxx parsing cannot be separated from updating the environment here
+                        checkStructCompletenessC(ctype, featureExpr and f and g, env, structDeclaration)
                         result = result +(decl.getName, featureExpr and f and g, decl, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }

@@ -91,7 +91,7 @@ trait CEnv {
      *
      * the structEnv maps a tag name to a conditional tuple (isComplete, fields, scope)
      */
-    private case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int)
+    case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int)
 
     class StructEnv(private val env: Map[(String, Boolean), Conditional[StructTag]]) {
         def this() = this(Map())

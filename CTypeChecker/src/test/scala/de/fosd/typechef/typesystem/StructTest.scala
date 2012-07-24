@@ -114,4 +114,47 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
       |}
     """.stripMargin
 
+    //deref pointers to incomplete structs
+
+
+//    void foo(){
+//    struct x{};
+//    struct x a;
+//    {
+//    struct x;
+//    struct x b;
+//    }
+//    }
+
+    """struct x foo() { return 0; }"""//incomplete type
+
+    """void foo(struct x b) { return 0; }"""//incomplete type
+
+    """struct x {
+      |        struct z { int a; } c;
+      |        struct z b;
+      |} y;
+    """
+
+    """
+      |void foo() {
+      |        int a;
+      |        {
+      |                struct x {};
+      |                struct x a;
+      |        }
+      |        struct x b;//struct x is incomplete
+      |}
+    """.stripMargin
+
+    """
+      |void foo() {
+      |        struct x *a;
+      |        //struct x { int b; };
+      |        int i;
+      |        i=a->b;//dereferencing to incomplete type
+      |}
+      |
+    """.stripMargin
+
 }

@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c._
+import _root_.de.fosd.typechef.featureexpr._
+import _root_.de.fosd.typechef.conditional._
+import _root_.de.fosd.typechef.parser.c._
 import FeatureExprFactory.{True, False}
 
 /**
@@ -54,8 +54,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //structs in signature defined?
         funType.mapf(featureExpr, (f, t) => t.toValue match {
             case CFunction(params, ret) =>
-                checkStructs(ret, f, env, declarator)
-                params.map(checkStructs(_, f, env, declarator))
+                //structs in both return type and parameters must be complete
+                checkStructCompleteness(ret, f, env, declarator)
+                params.map(checkStructCompleteness(_, f, env, declarator))
             case _ =>
                 issueTypeError(Severity.Crash, f, "not a function", declarator)
         })
@@ -148,7 +149,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def addDeclarationToEnvironment(d: Declaration, featureExpr: FeatureExpr, oldEnv: Env): Env = {
         var env = oldEnv
         //declared struct?
-        env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
+        env = addStructDeclarationToEnv(d, featureExpr, env)
 
         //declared enums?
         env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
