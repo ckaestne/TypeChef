@@ -43,6 +43,9 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
             check("struct s x;") //no forward declaration
         }
         expect(true) {
+            check("struct s {} x;") //empty struct declaration
+        }
+        expect(true) {
             check("struct s {int a;};\n" +
                 "void foo(){struct s b;}")
         }
@@ -113,6 +116,25 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
                 "void bar() { foo(); }")
         }
 
+    }
+
+
+    test("alternative struct declaration") {
+        expect(true) {
+                    check( """
+#if defined( X)
+typedef unsigned long int stat_cnt_t;
+typedef struct reiserfs_proc_info_data {        int a; } reiserfs_proc_info_data_t;
+#else
+typedef struct reiserfs_proc_info_data {} reiserfs_proc_info_data_t;
+#endif
+struct reiserfs_sb_info {
+    int b;
+    reiserfs_proc_info_data_t s_proc_info_data;
+};
+                           """)
+
+                }
     }
 
     test("recursive structures") {

@@ -8,7 +8,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface with CDefUse {
+trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface {
 
     /**
      * types an expression in an environment, returns a new

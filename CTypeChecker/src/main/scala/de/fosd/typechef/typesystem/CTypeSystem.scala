@@ -14,11 +14,10 @@ import FeatureExprFactory.{True, False}
  *
  */
 
-trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn with CDefUse {
+trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
-        clearDefUseMap()
         checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
 
@@ -75,8 +74,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
 
         //add type to environment for remaining code
-        val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
-        addDef(f, env)
+        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
@@ -242,7 +240,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 val t: Conditional[CType] = lastType.mapr({
                     case None => One(CVoid())
                     case Some(ctype) => ctype
-                }) simplify (featureExpr)
+                }) simplify (featureExpr);
 
                 //return original environment, definitions don't leave this scope
                 (t, env)
@@ -287,7 +285,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 }
                 nop
 
-            case CaseStatement(expr) => checkExprWithRange(expr); nop
+            case CaseStatement(expr, s) => checkExprWithRange(expr); checkOCStmt(s); nop
 
             //in the if statement we try to recognize dead code (and set the environment accordingly)
             case IfStatement(expr, tstmt, elifstmts, estmt) =>
@@ -308,7 +306,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
 
             case SwitchStatement(expr, s) => expectIntegral(expr); checkCStmt(s); nop //spec
-            case DefaultStatement() => nop
+            case DefaultStatement(s) => checkOCStmt(s); nop
 
             case EmptyStatement() => nop
             case ContinueStatement() => nop
@@ -626,7 +624,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
-                for (Opt(f, enumerator) <- enumerators)
+                for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
             // checked at call site (when declaring a variable or calling a function)
             //                val declExpr = env.structEnv.isDefined(id.name, isUnion)
@@ -634,7 +632,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case StructOrUnionSpecifier(_, None, enumerators) =>
-                for (Opt(f, enumerator) <- enumerators)
+                for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
 
             case _ =>
