@@ -60,10 +60,13 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     if (f.stmt.innerStatements.isEmpty) return
 
     val env = CASTEnv.createASTEnv(f)
+    setEnv(env)
     val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
-    val udr = determineUseDeclareRelation(f, env)
+    val udr = determineUseDeclareRelation(f)
+    setUdr(udr)
+    setFm(fm)
 
     val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
-    for (s <- nss) in((s, FeatureExprFactory.empty, udr, env))
+    for (s <- nss) in(s)
   }
 }

@@ -20,16 +20,19 @@ class SignAnalysisTest extends TestHelper with SignAnalysis with ConditionalCont
        """)
 
     val env = CASTEnv.createASTEnv(a)
+    setEnv(env)
     println("succs: " + DotGraph.map2file(getAllSucc(a, FeatureExprFactory.empty, env), env))
     println("preds: " + DotGraph.map2file(getAllPred(a, FeatureExprFactory.empty, env), env))
 
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     println("#################################################")
-    val udr = determineUseDeclareRelation(a, env)
+    val udr = determineUseDeclareRelation(a)
+    setUdr(udr)
+    setFm(FeatureExprFactory.empty)
 
     for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out((s, FeatureExprFactory.empty, udr, env)) +
-        "   in: " + in((s, FeatureExprFactory.empty, udr, env)))
+      println(PrettyPrinter.print(s) + "  out: " + out(s) +
+        "   in: " + in(s))
   }
 }

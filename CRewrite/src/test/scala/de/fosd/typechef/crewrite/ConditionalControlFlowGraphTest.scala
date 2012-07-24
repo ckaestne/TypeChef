@@ -2,9 +2,6 @@ package de.fosd.typechef.crewrite
 
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.{Opt, One}
-import de.fosd.typechef.featureexpr.FeatureExprFactory.True
-import org.junit.{Ignore, Test}
 
 class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with Variables {
 

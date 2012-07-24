@@ -128,6 +128,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
 
   private val incache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
   private val outcache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
+  private var env: ASTEnv = null
+  private var udr: UsesDeclaresRel = null
+  private var fm: FeatureModel = null
+
+  def setEnv(newenv: ASTEnv) { env = newenv }
+  def setUdr(newudr: UsesDeclaresRel) { udr = newudr }
+  def setFm(newfm: FeatureModel) { fm = newfm }
 
   private def updateMap(map: Map[Id, FeatureExpr],
                         e: (FeatureExpr, Set[Id]),
@@ -164,7 +171,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // a (// 1) has two different declarations: Choice(A, One(// 3), One(// 2))
   // in presence of A (// 2) shadows declaration (// 3)
   // we compute the relation between variable uses and declarations per function
-  def determineUseDeclareRelation(func: FunctionDef, env: ASTEnv): java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]] = {
+  def determineUseDeclareRelation(func: FunctionDef): java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]] = {
     // we use a working stack to maintain scoping of nested compound statements
     // each element of the list refers to a block; if we enter a compound statement then we
     // add a Map to the stack; if we leave a compound statement we return the tail of wstack
@@ -246,15 +253,6 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     res
   }
 
-  // cache for in; we have to store all tuples of (a, env) their because using
-  // (a, env) always creates a new one!!! and circular internally uses another
-  // IdentityHashMap and uses (a, env) as a key there.
-  private val astIdenEnvHMVar = new IdentityHashMapCache[(AST, FeatureModel, UsesDeclaresRel, ASTEnv)]()
-  private def astIdenTupVar(a: AST) = astIdenEnvHMVar.lookup(a)
-
-  private val astIdenEnvHM = new IdentityHashMapCache[(AST, ASTEnv)]()
-  private def astIdenTup(a: AST) = astIdenEnvHM.lookup(a)
-
   type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
 
   // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
@@ -263,13 +261,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // out(n) = for s in succ(n) r = r + in(s); r
   // insimple and outsimple are the non variability-aware in and out versiosn
   // of liveness determination
-  val insimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
-    circular[(Product, ASTEnv), Set[Id]](Set()) {
-      case (FunctionDef(_, _, _, _), _) => Set()
-      case t@(e, env) => {
+  val insimple: PartialFunction[Product, Set[Id]] = {
+    circular[Product, Set[Id]](Set()) {
+      case FunctionDef(_, _, _, _) => Set()
+      case e => {
         val u = uses(e, dataflowUses = false)
         val d = defines(e)
-        var res = outsimple(t)
+        var res = outsimple(e)
 
         res = u.union(res.diff(d))
         res
@@ -277,14 +275,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outsimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
-    circular[(Product, ASTEnv), Set[Id]](Set()) {
-      case (e, env) => {
+  val outsimple: PartialFunction[Product, Set[Id]] = {
+    circular[Product, Set[Id]](Set()) {
+      case e => {
         val ss = succ(e, FeatureExprFactory.empty, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
         for (s <- ss.map(_.entry)) {
-          if (astIdenEnvHM.lookup(s).isEmpty) astIdenEnvHM.update(s, (s, env))
-          res = res.union(insimple(astIdenTup(s).get))
+          res = res.union(insimple(s))
         }
         res
       }
@@ -320,12 +317,12 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]] = {
-    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]](Map()) {
+  val inrec: PartialFunction[Product, Map[Id, FeatureExpr]] = {
+    circular[Product, Map[Id, FeatureExpr]](Map()) {
       case (FunctionDef(_, _, _, _), _, _, _) => Map()
-      case t@(e, fm, udr, env) => {
-        val uses = usesVar(e, env)
-        val defines = definesVar(e, env)
+      case t => {
+        val uses = usesVar(t, env)
+        val defines = definesVar(t, env)
 
         var res = out(t)
         for ((k, v) <- defines) res = explodeIdUse(v, k, udr, res, diff = true)
@@ -335,37 +332,36 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outrec: PartialFunction[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]] =
-    circular[(Product, FeatureModel, UsesDeclaresRel, ASTEnv), Map[Id, FeatureExpr]](Map()) {
-      case t@(e, fm, udr, env) => {
+  val outrec: PartialFunction[Product, Map[Id, FeatureExpr]] =
+    circular[Product, Map[Id, FeatureExpr]](Map()) {
+      case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Map[Id, FeatureExpr] = Map()
         for (s <- ss) {
-          if (astIdenEnvHMVar.lookup(s.entry).isEmpty) astIdenEnvHMVar.update(s.entry, (s.entry, fm, udr, env))
-          for ((r, f) <- in(astIdenTupVar(s.entry).get))
+          for ((r, f) <- in(s.entry))
             res = updateMap(res, (f and s.feature, Set(r)), diff = false)
         }
         res
       }
     }
 
-  def out(a: (Product, FeatureModel, UsesDeclaresRel, ASTEnv)) = {
-    outcache.lookup(a._1) match {
+  def out(a: Product) = {
+    outcache.lookup(a) match {
       case Some(v) => v
       case None => {
         val r = outrec(a)
-        outcache.update(a._1, r)
+        outcache.update(a, r)
         r
       }
     }
   }
 
-  def in(a: (AST, FeatureModel, UsesDeclaresRel, ASTEnv)) = {
-    incache.lookup(a._1) match {
+  def in(a: AST) = {
+    incache.lookup(a) match {
       case Some(v) => v
       case None => {
         val r = inrec(a)
-        incache.update(a._1, r)
+        incache.update(a, r)
         r
       }
     }
