@@ -170,8 +170,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     })
 
     /**
-     * if we declare a variable or array (not pointer or function)
-     * ensure that structs are complete
+     * ensure that the type is complete in the given environment
+     *
+     * used for example when declaring or dereferencing a variable
      */
     protected def checkStructCompleteness(ctype: CType, expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype match {
         case CObj(t) => checkStructCompleteness(t, expr, env, where, checkedStructs)
@@ -202,7 +203,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
      */
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
-                                ): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
+                                ): (Env,List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]) = {
+        var renv =env
         val enumDecl = enumDeclarations(decl.declSpecs, featureExpr, decl)
         val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl, env.scope)
@@ -222,15 +224,23 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         checkInitializer(_, ctype, featureExpr and f, eenv)
                     }
 
+
                     //if we declare a variable or array (not pointer or function)
                     //ensure that structs are resolvable
-                    checkStructCompletenessC(ctype, featureExpr and f andNot isExtern, env, decl)
+                    //there is an exception however: if it's a toplevel declaration check whether it's complete at the
+                    //end of the compilation unit.
+                    val checkCompleteness: Env=>Unit =
+                        (environment)=>checkStructCompletenessC(ctype, featureExpr and f andNot isExtern, environment, decl)
+                    if (env.scope>0)
+                        checkCompleteness(env)
+                    else
+                        renv=env.addCompletenessCheck(checkCompleteness)
 
 
                     (init.declarator.getName, featureExpr and f, init, ctype, declKind)
                 }
             }
-        enumDecl ++ varDecl
+        (renv, enumDecl ++ varDecl)
     }
 
     //replace union types by CIgnore if attribute transparent_union is set

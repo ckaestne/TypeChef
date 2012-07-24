@@ -317,7 +317,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
 
     }
 
-    ignore("forward declaration struct from sched.c") {
+    test("forward declaration struct from sched.c") {
         /**
          * top level declarations can be declared with an incomplete type if the type is completed eventually
          * (in contrast declarations inside functions and function signatures must immediately contain complete types)
@@ -329,6 +329,15 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
         expect(true) {
             check("static __attribute__((section(\".data\" \"\"))) __typeof__(struct rt_rq) per_cpu__init_rt_rq_var ;" +
                 "struct rt_rq {};")
+        }
+        expect(true) {
+            check("struct x a;" +
+                "struct x {};")
+        }
+        expect(false) {
+            check("struct x a;" +
+                "void foo() { a; }" +
+                "struct x {};")
         }
 
     }

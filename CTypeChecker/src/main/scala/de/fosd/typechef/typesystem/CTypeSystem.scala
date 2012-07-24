@@ -27,6 +27,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         for (Opt(f, e) <- tunit.defs) {
             env = checkExternalDef(e, featureExpr and f, env)
         }
+        env.forceOpenCompletenessChecks()
         env
     }
 
@@ -156,7 +157,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //declared typedefs?
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
 
-        val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
+        val (newenv,vars) = getDeclaredVariables(d, featureExpr, env, checkInitializer)
+        env=newenv
 
         //check redeclaration
         for (v <- vars)
