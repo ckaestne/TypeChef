@@ -245,7 +245,6 @@ object ProductGeneration extends EnforceTreeHelper {
                 }
         */
         /**Henard CSV configurations */
-        /*
         {
             if (typecheckingTasks.find(_._1.equals("csv")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
@@ -278,7 +277,7 @@ object ProductGeneration extends EnforceTreeHelper {
             println(msg)
             log = log + msg
         }
-*/
+
         /**Single-wise */
         /*
                 {
@@ -366,7 +365,6 @@ object ProductGeneration extends EnforceTreeHelper {
         thisFilePath=opt.getFile
       }
 
-
       val famast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
       val configDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
       val r@(log: String, tasks: List[Task]) = buildConfigurations(famast, fm_ts, configDir, caseStudy)
@@ -391,7 +389,7 @@ object ProductGeneration extends EnforceTreeHelper {
         tsWarmup.checkDataflow()
         println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
         for ((taskDesc: String, configs : List[SimpleConfiguration]) <- tasks) {
-          for (configID:Int <- 0 until configs.size-1) {
+          for (configID:Int <- 0 until configs.size) {
             val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](famast,
               new Configuration(configs(configID).toFeatureExpr, fm))
             val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
@@ -498,7 +496,7 @@ object ProductGeneration extends EnforceTreeHelper {
             tsWarmup.checkASTSilent
             println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
             for ((taskDesc: String, configs : List[SimpleConfiguration]) <- typecheckingTasks) {
-                for (configID:Int <- 0 until configs.size-1) {
+                for (configID:Int <- 0 until configs.size) {
                     val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
                         new Configuration(configs(configID).toFeatureExpr, fm))
                     val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)

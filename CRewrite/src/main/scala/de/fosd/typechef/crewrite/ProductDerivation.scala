@@ -129,7 +129,7 @@ object ProductDerivation {
             case x : SignedSpecifier => x
             case x : UnsignedSpecifier => x
             case EnumSpecifier(id,enums) => new EnumSpecifier(deriveOptionalAST(id,c),deriveOptionalOptList(enums,c))
-            case StructOrUnionSpecifier(isu,id,enums) => new StructOrUnionSpecifier(isu,deriveOptionalAST(id,c),deriveOptList(enums,c))
+            case StructOrUnionSpecifier(isu,id,enums) => new StructOrUnionSpecifier(isu,deriveOptionalAST(id,c),deriveOptionalOptList(enums,c))
             case TypeOfSpecifierT(tn) => new TypeOfSpecifierT(deriveProd(tn,c))
             case TypeOfSpecifierU(tn) => new TypeOfSpecifierU(deriveProd(tn,c))
             // all OtherSpecifier - subclasses do not have individual properties or sub-elements. So we can reuse them directly.
