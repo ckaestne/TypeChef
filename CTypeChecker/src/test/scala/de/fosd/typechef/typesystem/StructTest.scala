@@ -317,5 +317,160 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
 
     }
 
+    ignore("forward declaration struct from sched.c") {
+        /**
+         * top level declarations can be declared with an incomplete type if the type is completed eventually
+         * (in contrast declarations inside functions and function signatures must immediately contain complete types)
+         */
+        expect(true) {
+            check("static __attribute__((section(\".data\" \"\"))) struct rt_rq per_cpu__init_rt_rq_var ;" +
+                "struct rt_rq {};")
+        }
+        expect(true) {
+            check("static __attribute__((section(\".data\" \"\"))) __typeof__(struct rt_rq) per_cpu__init_rt_rq_var ;" +
+                "struct rt_rq {};")
+        }
 
+    }
+
+
+
+    test("structure types without variability") {
+        expect(true) {
+            check("struct s;") //forward declaration
+        }
+        expect(false) {
+            check("struct s x;") //no forward declaration
+        }
+        expect(true) {
+            check("struct s {} x;") //empty struct declaration
+        }
+        expect(true) {
+            check("struct s {int a;};\n" +
+                "void foo(){struct s b;}")
+        }
+        expect(false) {
+            check("struct s { struct t x; };") // t is not a struct, check x like variable declaration
+        }
+        expect(true) {
+            check("struct s foo();")
+        }
+        expect(true) {
+            check("struct s { char x;} a[3];")
+        }
+        expect(true) {
+            check("struct r{ struct s { char x;} a[3]; };")
+        }
+        expect(true) {
+            check("struct s {int a;};\n" +
+                "void foo(){struct c {struct s x;} b;}")
+        }
+        expect(false) {
+            check("struct s foo(){}\n" +
+                "void bar() { foo(); }")
+        }
+        expect(false) {
+            check("struct s bar() { }")
+        }
+        expect(false) {
+            check("void bar(struct c x) { }")
+        }
+        expect(true) {
+            check("struct s {int a;};\n" +
+                "struct s foo(){}\n" +
+                "void bar() { foo(); }")
+        }
+        expect(false) {
+            check("void foo(){struct {int a; struct x b;} b;}")
+        }
+        expect(false) {
+            check("struct s {int a; struct x b;};\n" +
+                "void foo(){struct s b;}")
+        }
+        expect(true) {
+            check("extern struct s b;")
+        }
+        expect(false) {
+            check("extern struct s b;\n" +
+                "void foo() { b; }")
+        }
+    }
+    test("structure types with variability") {
+        expect(false) {
+            check("#ifdef X\n" +
+                "struct s {int a;};\n" +
+                "#endif\n" +
+                "void foo(){struct s b;}")
+        }
+        expect(false) {
+            check("#ifdef X\n" +
+                "struct s {int a;};\n" +
+                "#endif\n" +
+                "void foo(){struct c {struct s x;} b;}")
+        }
+        expect(false) {
+            check("#ifdef X\n" +
+                "struct s {int a;};\n" +
+                "#endif\n" +
+                "struct s foo(){}\n" +
+                "void bar() { foo(); }")
+        }
+
+    }
+
+
+    test("alternative struct declaration") {
+        expect(true) {
+                    check( """
+#if defined( X)
+typedef unsigned long int stat_cnt_t;
+typedef struct reiserfs_proc_info_data {        int a; } reiserfs_proc_info_data_t;
+#else
+typedef struct reiserfs_proc_info_data {} reiserfs_proc_info_data_t;
+#endif
+struct reiserfs_sb_info {
+    int b;
+    reiserfs_proc_info_data_t s_proc_info_data;
+};
+                           """)
+
+                }
+    }
+
+    test("recursive structures") {
+        expect(true) {
+            check("""
+                     struct mtab_list {
+                		char *dir;
+                		char *device;
+                		struct mtab_list *next;
+                	} *mtl, *m;
+                 """)
+        }
+        expect(true) {
+            check("""
+         void foo(){
+             struct mtab_list {
+        		char *dir;
+        		char *device;
+        		struct mtab_list *next;
+        	} *mtl, *m;
+         }""")
+        }
+        expect(true) {
+            check("""
+            #ifdef X
+                 struct x { int b;};
+            #endif
+                 struct y {
+                    int a;
+            #ifdef X
+                    struct x d;
+            #endif
+                    int e;
+                 };
+                 struct y test(){}
+                 """)
+        }
+    }
 }

@@ -77,7 +77,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         env.isComplete("uaccount", false) should be(False)
         env.isComplete("uaccount", true) should be(True) //a union
 
-        env.isComplete("announcedStruct", false) should be(True) //announced structs should be in the environement, but empty
+        env.isComplete("announcedStruct", false) should be(False) //announced structs should be in the environement, but empty
         env.getFieldsMerged("announcedStruct", false) should be('isEmpty)
 
         val accountStruct = env.getFieldsMerged("account", false)
