@@ -401,7 +401,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     private def dataflowAnalysisTasks(famast: TranslationUnit, tasks: List[Task], fm: FeatureModel, fileName: String, startLog: String = "") {
       val log:String = startLog
-      println("starting product typechecking.")
+      println("starting product dataflow analysis.")
 
       // Warmup: we do a complete separate run of all tasks for warmup
       {
@@ -413,9 +413,9 @@ object ProductGeneration extends EnforceTreeHelper {
           for (configID:Int <- 0 until configs.size) {
             val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](famast,
               new Configuration(configs(configID).toFeatureExpr, fm))
-            val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+            val ts = new CAnalysisFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
             val startTime: Long = System.currentTimeMillis()
-            ts.checkASTSilent
+            ts.checkDataflow()
             println("warmupTime_" + taskDesc + "_" + (configID+1) + ": " + (System.currentTimeMillis() - startTime))
           }
         }
@@ -489,7 +489,7 @@ object ProductGeneration extends EnforceTreeHelper {
         //val family_ast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
         val family_ast = ast.asInstanceOf[TranslationUnit]
 
-        println("starting product typechecking.")
+        println("starting product checking.")
 
         val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
@@ -503,7 +503,7 @@ object ProductGeneration extends EnforceTreeHelper {
                                 family_ast: TranslationUnit, fm: FeatureModel, ast: AST,
                                 fileID: String, startLog: String = "") {
         val log: String = startLog
-        println("starting product typechecking.")
+        println("starting product checking.")
 
         // Warmup: we do a complete separate run of all tasks for warmup
         {
@@ -523,14 +523,15 @@ object ProductGeneration extends EnforceTreeHelper {
             }
         }
 
-        if (typecheckingTasks.size > 0) println("start task - typechecking (" + (typecheckingTasks.size) + " tasks)")
+        if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
-        var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
+        var configCheckingResults: List[(String, (Int, Int, List[Long], List[Long]))] = List()
         val outFilePrefix: String = "../reports/" + fileID.substring(0, fileID.length - 2)
         for ((taskDesc: String, configs: List[SimpleConfiguration]) <- typecheckingTasks) {
             var configurationsWithErrors = 0
             var current_config = 0
-            var checkTimes: List[Long] = List()
+            var tcProductTimes: List[Long] = List()
+            var dfProductTimes: List[Long] = List()
             for (config <- configs) {
                 current_config += 1
                 println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")")
@@ -539,9 +540,16 @@ object ProductGeneration extends EnforceTreeHelper {
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
                 val startTime: Long = System.currentTimeMillis()
                 val noErrors: Boolean = ts.checkAST
-                val configTime: Long = System.currentTimeMillis() - startTime
-                checkTimes ::= configTime // append to the beginning of checkTimes
-                if (!noErrors) {
+                val productTime: Long = System.currentTimeMillis() - startTime
+                tcProductTimes ::= productTime // append to the beginning of tcProductTimes
+                if (noErrors) {
+                  val df = new CAnalysisFrontend(product, FeatureExprFactory.empty)
+                  val startTimeDataFlowProduct: Long = System.currentTimeMillis()
+                  df.checkDataflow()
+                  val timeDataFlowProduct = System.currentTimeMillis() - startTimeDataFlowProduct
+                  dfProductTimes ::= timeDataFlowProduct
+                } else {
+                  dfProductTimes ::= -1 // we add -1 to mark that we did not checkDataflow for a product with type errors
                     var fw: FileWriter = null
                     //if (true) {
                     // log product with error
@@ -569,15 +577,23 @@ object ProductGeneration extends EnforceTreeHelper {
                     fw.close()
                 }
             }
-            // reverse checkTimes to get the ordering correct
-            configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, checkTimes.sum, checkTimes.reverse))
+            // reverse tcProductTimes to get the ordering correct
+            configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))
         }
         // family base checking
-        println("family-based type checking:")
+        println("family-based checking:")
         val ts = new CTypeSystemFrontend(family_ast, fm)
         val startTime : Long = System.currentTimeMillis()
         val noErrors: Boolean = ts.checkAST
         val familyTime: Long = System.currentTimeMillis() - startTime
+
+        var timeDfFamily: Long = -1
+        if (noErrors) {
+          val df = new CAnalysisFrontend(family_ast, fm)
+          val startTimeDf: Long = System.currentTimeMillis()
+          df.checkDataflow()
+          timeDfFamily = System.currentTimeMillis() - startTimeDf
+        }
 
         val file: File = new File(outFilePrefix + "_report.txt")
         file.getParentFile.mkdirs()
@@ -586,17 +602,20 @@ object ProductGeneration extends EnforceTreeHelper {
         fw.write("Features : " + features.size + "\n")
         fw.write(log + "\n")
 
-        for ((taskDesc, (numConfigs, errors, totalTime, lstTimes: List[Long])) <- configCheckingResults) {
+        for ((taskDesc, (numConfigs, errors, dfProductTimes, tcProductTimes: List[Long])) <- configCheckingResults) {
             fw.write("\n -- Task: " + taskDesc + "\n")
             fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
             fw.write("(" + taskDesc + ")Configurations with errors: " + errors + "\n")
-            fw.write("(" + taskDesc + ")TimeSum Products: " + totalTime + " ms\n")
-            fw.write("(" + taskDesc + ")Times Products: " + lstTimes.mkString(","))
+            fw.write("(" + taskDesc + ")TimeSum Products: " + tcProductTimes.sum + " ms\n")
+            fw.write("(" + taskDesc + ")Times Products: " + tcProductTimes.mkString(","))
+            fw.write("(" + taskDesc + ")DataflowSum Products: " + dfProductTimes.sum + " ms\n")
+            fw.write("(" + taskDesc + ")Dataflow Products: " + dfProductTimes.mkString(","))
             fw.write("\n")
         }
 
         fw.write("Errors in family check: " + (if (noErrors) "No" else "Yes") + "\n")
         fw.write("Time Family:      " + familyTime + " ms\n")
+        fw.write("Dataflow Time Family:     " + timeDfFamily + " ms\n")
         fw.close()
 
     }
