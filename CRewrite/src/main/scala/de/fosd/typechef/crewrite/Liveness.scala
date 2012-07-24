@@ -137,17 +137,18 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   def setFm(newfm: FeatureModel) { fm = newfm }
 
   private def updateMap(map: Map[Id, FeatureExpr],
-                        e: (FeatureExpr, Set[Id]),
+                        fexp: FeatureExpr,
+                        difun: Set[Id],
                         diff: Boolean): Map[Id, FeatureExpr] = {
     var curmap = map
 
     if (diff) {
-      for (v <- e._2) curmap = curmap.-(v)
+      for (v <- difun) curmap = curmap.-(v)
     } else {
-      for (v <- e._2) {
+      for (v <- difun) {
         curmap.get(v) match {
-          case None => curmap = curmap.+((v, e._1))
-          case Some(x) => curmap = curmap.+((v, e._1 or x))
+          case None => curmap = curmap.+((v, fexp))
+          case Some(x) => curmap = curmap.+((v, fexp or x))
         }
       }
     }
@@ -278,11 +279,9 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   val outsimple: PartialFunction[Product, Set[Id]] = {
     circular[Product, Set[Id]](Set()) {
       case e => {
-        val ss = succ(e, FeatureExprFactory.empty, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
+        val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
-        for (s <- ss.map(_.entry)) {
-          res = res.union(insimple(s))
-        }
+        for (s <- ss.map(_.entry)) res = res.union(insimple(s))
         res
       }
     }
@@ -303,13 +302,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     for (i <- s) {
       val newname = udr.get(i)
       newname match {
-        case null => curres = updateMap(res, (sfexp, Set(i)), diff)
-        case None => curres = updateMap(res, (sfexp, Set(i)), diff)
+        case null => curres = updateMap(res, sfexp, Set(i), diff)
+        case None => curres = updateMap(res, sfexp, Set(i), diff)
         case Some(c) => {
           val leaves = ConditionalLib.items(c)
           for ((nfexp, nid) <- leaves)
-            if (nid.isDefined) curres = updateMap(curres, (sfexp and nfexp, Set(nid.get)), diff)
-            else curres = updateMap(curres, (sfexp, Set(i)), diff)
+            if (nid.isDefined) curres = updateMap(curres, sfexp and nfexp, Set(nid.get), diff)
+            else curres = updateMap(curres, sfexp, Set(i), diff)
         }
       }
     }
@@ -319,7 +318,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // in and out variability-aware versions
   val inrec: PartialFunction[Product, Map[Id, FeatureExpr]] = {
     circular[Product, Map[Id, FeatureExpr]](Map()) {
-      case (FunctionDef(_, _, _, _), _, _, _) => Map()
+      case FunctionDef(_, _, _, _) => Map()
       case t => {
         val uses = usesVar(t, env)
         val defines = definesVar(t, env)
@@ -336,10 +335,10 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     circular[Product, Map[Id, FeatureExpr]](Map()) {
       case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
-        var res: Map[Id, FeatureExpr] = Map()
+        var res = Map[Id, FeatureExpr]()
         for (s <- ss) {
           for ((r, f) <- in(s.entry))
-            res = updateMap(res, (f and s.feature, Set(r)), diff = false)
+            res = updateMap(res, f and s.feature, Set(r), diff = false)
         }
         res
       }
