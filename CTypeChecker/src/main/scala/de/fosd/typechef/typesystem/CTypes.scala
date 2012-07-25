@@ -185,7 +185,11 @@ case class CArray(t: CType, length: Int = -1) extends CType {
     </array>
 }
 
-/**struct and union are handled in the same construct but distinguished with a flag */
+/**struct and union are handled in the same construct but distinguished with a flag
+ *
+ * struct types have only a name. to decide whether a type is a complete type, we need
+ * an environment (a complete type has known content, an incomplete type only has a name)
+ * */
 case class CStruct(s: String, isUnion: Boolean = false) extends CType {
     override def toText = (if (isUnion) "union " else "struct ") + s
     def toXML = <struct isUnion={isUnion.toString}>
@@ -330,6 +334,7 @@ class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
     def ++(l: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
     def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, (a, t)))
+    def and(f:FeatureExpr ) = new ConditionalTypeMap(m.and(f))
 }
 
 class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int)])])

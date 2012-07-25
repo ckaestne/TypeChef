@@ -61,6 +61,9 @@ class FileTest extends TestHelper {
     @Test def busybox_modutils_pi {
         assert(check("modutils-24.pi"))
     }
+    @Test def busybox_smemcap_pi {
+        assert(check("smemcap.pi"))
+    }
     //
     //    val linux_fork_fm = ((d("CONFIG_SMP") implies d("CONFIG_X86_LOCAL_APIC")) and
     //            (d("CONFIG_PARAVIRT_SPINLOCKS") implies d("CONFIG_PARAVIRT")) and
