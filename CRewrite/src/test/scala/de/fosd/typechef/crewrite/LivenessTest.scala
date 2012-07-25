@@ -529,5 +529,115 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         b;
       }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        if (a) {
+          int a;
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        if (a) { }
+        else if (a) {
+          int a;
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        if (a) { }
+        else {
+          int a;
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        do {
+          int a;
+          a;
+        } while (a);
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        while (a) {
+          int a;
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        for (;a < 10;) {
+          int a;
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        if (a) {
+          int a;
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        if (a) { }
+        else if (a) {
+          #if definedEx(A)
+          int a;
+          #endif
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        if (a) { }
+        else {
+          #if definedEx(A)
+          int a;
+          #endif
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        do {
+          #if definedEx(A)
+          int a;
+          #endif
+          a;
+        } while (a);
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        while (a) {
+          #if definedEx(A)
+          int a;
+          #endif
+          a;
+        }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = 0;
+        for (;a < 10;) {
+          #if definedEx(A)
+          int a;
+          #endif
+          a;
+        }
+      }"""))
   }
 }

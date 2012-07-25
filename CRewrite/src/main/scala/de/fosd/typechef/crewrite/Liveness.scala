@@ -236,6 +236,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         case s: ElifStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
         case s: WhileStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
         case s: DoStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
+        case s: SwitchStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
 
         case s: Statement => handleCFGInstruction(s)
         case e: Expr => handleCFGInstruction(e)
