@@ -375,18 +375,19 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             for (Opt(g, structDeclarator) <- structDeclaration.declaratorList)
                 structDeclarator match {
                     case StructDeclarator(decl, _, attr) =>
-                        val ctype = declType(structDeclaration.qualifierList, decl, attr, featureExpr and f and g, env)
+                        val fexpr = featureExpr and f and g
+                        val ctype = declType(structDeclaration.qualifierList, decl, attr, fexpr, env)
                         //for nested structs, we need to add the inner structs to the environment
-                        env = addStructDeclarationToEnv(structDeclaration, featureExpr, env)
+                        env = addStructDeclarationToEnv(structDeclaration, fexpr, env)
                         //TODO xxx parsing cannot be separated from updating the environment here
-                        checkStructCompletenessC(ctype, featureExpr and f and g, env, structDeclaration)
+                        checkStructCompletenessC(ctype, fexpr, env, structDeclaration)
 
                         //member should not have function type (pointer to function is okay)
                         val isFunction = ctype.when({case CFunction(_, _) => true; case _ => false})
-                        if ((featureExpr and isFunction).isSatisfiable())
-                            reportTypeError(featureExpr and isFunction, "member " + decl.getName + " must not have function type", decl, Severity.OtherError)
+                        if ((fexpr and isFunction).isSatisfiable())
+                            reportTypeError(fexpr and isFunction, "member " + decl.getName + " must not have function type", decl, Severity.OtherError)
 
-                        result = result +(decl.getName, featureExpr and f and g, decl, ctype)
+                        result = result +(decl.getName, fexpr, decl, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
                 }
             //for unnamed fields, if they are struct or union inline their fields

@@ -127,6 +127,13 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |};
                    """.stripMargin)
         }
+        expect(true) {
+            check( """
+                     |typedef struct a {
+                     |  char (*x)(struct x *);
+                     |};
+                   """.stripMargin)
+        }
     }
 
     test("recursive structs") {
