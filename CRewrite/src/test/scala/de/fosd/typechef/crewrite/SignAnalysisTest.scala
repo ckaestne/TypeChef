@@ -19,8 +19,8 @@ class SignAnalysisTest extends TestHelper with SignAnalysis with ConditionalCont
        """)
 
     val env = CASTEnv.createASTEnv(a)
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
-    println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    // println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    // println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
 
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 

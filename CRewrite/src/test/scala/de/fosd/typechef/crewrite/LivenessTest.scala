@@ -26,7 +26,7 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    // println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability_f() {
@@ -49,7 +49,7 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    // println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability_notf() {
@@ -70,7 +70,7 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    // println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
   @Test def test_standard_liveness_variability() {
@@ -95,7 +95,7 @@ class LivenessTest extends TestHelper with ConditionalControlFlow with Liveness 
 
     for (s <- ss)
       println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
-    println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
+    // println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
   }
 
 }
