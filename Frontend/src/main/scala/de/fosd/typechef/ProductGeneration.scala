@@ -506,11 +506,12 @@ object ProductGeneration extends EnforceTreeHelper {
         println("starting product checking.")
 
         // Warmup: we do a complete separate run of all tasks for warmup
+        // typechecking
         {
             val tsWarmup = new CTypeSystemFrontend(family_ast, fm)
             val startTimeWarmup: Long = System.currentTimeMillis()
             tsWarmup.checkASTSilent
-            println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
+            println("warmupTime_Family_tc" + ": " + (System.currentTimeMillis() - startTimeWarmup))
             for ((taskDesc: String, configs: List[SimpleConfiguration]) <- typecheckingTasks) {
                 for (configID: Int <- 0 until configs.size - 1) {
                     val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
@@ -518,12 +519,30 @@ object ProductGeneration extends EnforceTreeHelper {
                     val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
                     val startTime: Long = System.currentTimeMillis()
                     ts.checkASTSilent
-                    println("warmupTime_" + taskDesc + "_" + (configID + 1) + ": " + (System.currentTimeMillis() - startTime))
+                    println("warmupTime_tc_" + taskDesc + "_" + (configID + 1) + ": " + (System.currentTimeMillis() - startTime))
                 }
             }
         }
+      // dataflow analysis
+      {
+        val dfWarmup = new CAnalysisFrontend(family_ast, fm)
+        val startTimeWarmup: Long = System.currentTimeMillis()
+        dfWarmup.checkDataflow()
+        println("warmupTime_Family_df" + ": " + (System.currentTimeMillis() - startTimeWarmup))
+        for ((taskDesc: String, configs: List[SimpleConfiguration]) <- typecheckingTasks) {
+          for (configID: Int <- 0 until configs.size - 1) {
+            val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
+              new Configuration(configs(configID).toFeatureExpr, fm))
+            val df = new CAnalysisFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+            val startTime: Long = System.currentTimeMillis()
+            df.checkDataflow()
+            println("warmupTime_df_" + taskDesc + "_" + (configID + 1) + ": " + (System.currentTimeMillis() - startTime))
+          }
+        }
+      }
 
-        if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
+
+      if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (Int, Int, List[Long], List[Long]))] = List()
         val outFilePrefix: String = "../reports/" + fileID.substring(0, fileID.length - 2)
@@ -607,9 +626,9 @@ object ProductGeneration extends EnforceTreeHelper {
             fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
             fw.write("(" + taskDesc + ")Configurations with errors: " + errors + "\n")
             fw.write("(" + taskDesc + ")TimeSum Products: " + tcProductTimes.sum + " ms\n")
-            fw.write("(" + taskDesc + ")Times Products: " + tcProductTimes.mkString(","))
+            fw.write("(" + taskDesc + ")Times Products: " + tcProductTimes.mkString(",") + "\n")
             fw.write("(" + taskDesc + ")DataflowSum Products: " + dfProductTimes.sum + " ms\n")
-            fw.write("(" + taskDesc + ")Dataflow Products: " + dfProductTimes.mkString(","))
+            fw.write("(" + taskDesc + ")Dataflow Products: " + dfProductTimes.mkString(",") + "\n")
             fw.write("\n")
         }
 
