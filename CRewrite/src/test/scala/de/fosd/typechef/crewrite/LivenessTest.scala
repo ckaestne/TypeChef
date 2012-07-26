@@ -14,6 +14,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
     setEnv(env)
     val udr = determineUseDeclareRelation(a)
+    println(udr)
     setUdr(udr)
     setFm(FeatureExprFactory.empty)
 

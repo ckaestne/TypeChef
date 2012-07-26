@@ -189,7 +189,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         val declares = declaresVar(i, env)
         val uses = dataflowUsesVar(i, env)
 
-        // first check uses then update curws using declares
+        // first check uses then update curws using declares (and update defines accordingly)
         for ((k, v) <- uses) {
           for (id <- v) {
             val prevblockswithid = curws.flatMap(_.get(id))
@@ -200,6 +200,10 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
 
         for ((k, v) <- declares) {
           for (id <- v) {
+            // adding the declaration itself
+            res.put(id, Some(One(Some(Id(id.name+curIdSuffix.toString)))))
+
+            // look for alternative types
             if (curblock.get(id).isDefined) {
               curblock = curblock.+((id, ConditionalLib.insert[Option[Id]](curblock.get(id).get,
                 FeatureExprFactory.True, k, Some(Id(id.name+curIdSuffix.toString)))))
@@ -217,6 +221,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
             }
           }
         }
+
         curblock :: curws.tail
       }
 
