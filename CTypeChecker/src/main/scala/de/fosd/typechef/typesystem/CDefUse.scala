@@ -135,6 +135,18 @@ trait CDefUse extends CEnv {
     }
   }
 
+  def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
+    entry match {
+      case i@Id(name) =>
+        env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
+          case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
+            addToDefUseMap(i2, i)
+          case _ =>
+        }
+      case _ =>
+    }
+  }
+
   private def addToDefUseMap(key: Id, target: Id) {
     if (defuse.containsKey(key)) {
       defuse.put(key, defuse.get(key) ++ List(target))

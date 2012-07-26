@@ -920,12 +920,17 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       int main(void) {
         struct student st;
         struct student st2 = {10, "Joerg Liebig", 0.99};
+
         st.id = 5;
-        student1.id = 1;
+        student3.id = 10;
+        int i = student1.id;
+
         student2.name = "Joerg";
+        student3.name = "Andi";
+
         student3.percentage = 90.0;
 
-        int i = student1.id;
+
         return 0;
       }
                              """);
