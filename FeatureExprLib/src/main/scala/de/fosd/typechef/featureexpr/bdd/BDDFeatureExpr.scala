@@ -1,6 +1,5 @@
 package de.fosd.typechef.featureexpr.bdd
 
-import sat.DefinedExternal
 import bdd.FExprBuilder._
 import net.sf.javabdd._
 import collection.mutable.{WeakHashMap, Map}
@@ -306,8 +305,6 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     collectDistinctFeatureIds.map({
       id: Int => new SingleBDDFeatureExpr(id)
     })
-
-  def collectDistinctFeatures2: Set[DefinedExternal] = Set()
 
   /**
    * counts the number of features in this expression for statistic

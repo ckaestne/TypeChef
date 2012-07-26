@@ -70,18 +70,18 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) => {
       // TODO: gültig ?
       addDef(i, env)
-      attributes.foreach(x => addDef(x.entry, env))
-      List((name, isUnion, featureExpr, parseStructMembers(attributes, featureExpr, env))) ++ innerStructs(attributes, featureExpr, env)
+      attributes.getOrElse(Nil).foreach(x => addDef(x.entry, env))
+      List((name, isUnion, featureExpr, parseStructMembers(attributes.getOrElse(Nil), featureExpr, env))) ++ innerStructs(attributes.getOrElse(Nil), featureExpr, env)
     }
     case e@StructOrUnionSpecifier(_, None, attributes) =>
-      innerStructs(attributes, featureExpr, env)
+      innerStructs(attributes.getOrElse(Nil), featureExpr, env)
     case _ => Nil
   }
 
   // TODO: entfernen?
   def getStructIdFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env, includeEmptyDecl: Boolean): Tuple2[Id, List[Opt[StructDeclaration]]] = specifier match {
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) => {
-      return (i, attributes)
+      return (i, attributes.getOrElse(Nil))
     }
     case _ => null
   }
@@ -146,7 +146,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.False)))
           //recurse into structs
           case StructOrUnionSpecifier(_, _, fields) =>
-            fields.foldRight(b)(
+            fields.getOrElse(Nil).foldRight(b)(
               (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b, optField.entry.declaratorList.isEmpty)
             )
 

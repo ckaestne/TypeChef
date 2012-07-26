@@ -1,7 +1,6 @@
 package de.fosd.typechef.featureexpr
 
 import java.io.Writer
-import sat.DefinedExternal
 
 
 trait FeatureExpr {
@@ -19,7 +18,9 @@ trait FeatureExpr {
   //or other ToString variations for debugging etc
   def collectDistinctFeatures: Set[String]
 
-  def collectDistinctFeatures2: Set[DefinedExternal]
+  def collectDistinctFeatureObjects: Set[SingleFeatureExpr]
+
+  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr], preferDisabledFeatures: Boolean): Option[Pair[List[SingleFeatureExpr], List[SingleFeatureExpr]]]
 
   def or(that: FeatureExpr): FeatureExpr
 
@@ -43,6 +44,16 @@ trait FeatureExpr {
   def xor(that: FeatureExpr) = (this or that) andNot (this and that)
 
   def equiv(that: FeatureExpr) = (this and that) or (this.not and that.not)
+
+  /**
+   * If this expr is a simple concatenation of SingleFeatureExpressions (and their negations),
+   * then this method returns the expression as a set of singleFeatureExpr that occur as enabled (disabled).
+   * If the expression is more complex, None is returned.
+   * @return
+   */
+  def getConfIfSimpleAndExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])]
+
+  def getConfIfSimpleOrExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])]
 
   final def orNot(that: FeatureExpr) = this or (that.not)
 

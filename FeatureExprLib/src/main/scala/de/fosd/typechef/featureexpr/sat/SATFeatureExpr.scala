@@ -960,7 +960,7 @@ object Not {
  * Leaf nodes of propositional feature expressions, either an external
  * feature defined by the user or another feature expression from a macro.
  */
-abstract class DefinedExpr extends SATFeatureExpr {
+abstract class DefinedExpr extends SATFeatureExpr with SingleFeatureExpr {
   /*
   * This method is overriden by children case classes to return the name.
   * It would be nice to have an actual field here, but that doesn't play nicely with case classes;
@@ -993,7 +993,7 @@ object DefinedExpr {
     case _ => None
   }
 
-  def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "")
+  def checkFeatureName(name: String) = assert(name != "1" && name != "0" && name != "", "invalid feature name: " + name)
 }
 
 /**
