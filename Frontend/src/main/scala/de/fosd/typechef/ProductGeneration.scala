@@ -14,7 +14,7 @@ import collection.mutable
 import collection.mutable.{ListBuffer, HashSet, BitSet}
 import io.Source
 import java.util.regex.Pattern
-import java.util.ArrayList
+import java.util.{Calendar, ArrayList}
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
@@ -209,7 +209,7 @@ object ProductGeneration extends EnforceTreeHelper {
         /**Starting with no tasks */
         var tasks: List[Task] = List()
 
-        val useSerialization = false
+        val useSerialization = true
         if (useSerialization &&
             configSerializationDir.exists() &&
             new File(configSerializationDir, "FeatureHashmap.ser").exists()) {
@@ -251,7 +251,7 @@ object ProductGeneration extends EnforceTreeHelper {
         /**Henard CSV configurations */
 
         {
-            if (tasks.find(_._1.equals("csv")).isDefined) {
+            if (tasks.find(_._1.equals("henard")).isDefined) {
                 msg = "omitting henard loading, because a serialized version was loaded from serialization"
             } else {
                 var productsDir: File = null
@@ -303,7 +303,7 @@ object ProductGeneration extends EnforceTreeHelper {
         /**Coverage Configurations - no Header files*/
 
         {
-            if (tasks.find(_._1.equals("coverage")).isDefined) {
+            if (tasks.find(_._1.equals("coverage_noHeader")).isDefined) {
                 msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
@@ -322,6 +322,7 @@ object ProductGeneration extends EnforceTreeHelper {
             if (tasks.find(_._1.equals("coverage")).isDefined) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
+                System.out.println("generating code coverage with header - " + Calendar.getInstance().getTime)
                 startTime = System.currentTimeMillis()
                 val (configs, logmsg) = configurationCoverage(family_ast, fm, features, List(),
                     preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
@@ -371,6 +372,18 @@ object ProductGeneration extends EnforceTreeHelper {
                       )
         */
         (log, tasks)
+    }
+
+    private def countNumberOfASTElements(ast: AST): Long = {
+      def countNumberOfASTElementsHelper(a: Any): Long = {
+        a match {
+          case l: List[_] => l.map(countNumberOfASTElementsHelper).sum
+          case _: FeatureExpr => 0
+          case p: Product => 1 + p.productIterator.toList.map(countNumberOfASTElementsHelper).sum
+          case _ => 1
+        }
+      }
+      countNumberOfASTElementsHelper(ast)
     }
 
     private def varAwareAnalysisSetup(fm_ts: FeatureModel, ast: AST, opt: FrontendOptions): (TranslationUnit, List[Task], String, String) = {
@@ -486,8 +499,7 @@ object ProductGeneration extends EnforceTreeHelper {
         }
 
         val fm = fm_ts // I got false positives while using the other fm
-        //val family_ast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-        val family_ast = ast.asInstanceOf[TranslationUnit]
+        val family_ast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
 
         println("starting product checking.")
 
@@ -503,44 +515,30 @@ object ProductGeneration extends EnforceTreeHelper {
                                 family_ast: TranslationUnit, fm: FeatureModel, ast: AST,
                                 fileID: String, startLog: String = "") {
         val log: String = startLog
+        val checkXTimes = 3
         println("starting product checking.")
 
-        // Warmup: we do a complete separate run of all tasks for warmup
-        // typechecking
-        {
-            val tsWarmup = new CTypeSystemFrontend(family_ast, fm)
-            val startTimeWarmup: Long = System.currentTimeMillis()
-            tsWarmup.checkASTSilent
-            println("warmupTime_Family_tc" + ": " + (System.currentTimeMillis() - startTimeWarmup))
-            for ((taskDesc: String, configs: List[SimpleConfiguration]) <- typecheckingTasks) {
-                for (configID: Int <- 0 until configs.size - 1) {
-                    val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
-                        new Configuration(configs(configID).toFeatureExpr, fm))
-                    val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
-                    val startTime: Long = System.currentTimeMillis()
-                    ts.checkASTSilent
-                    println("warmupTime_tc_" + taskDesc + "_" + (configID + 1) + ": " + (System.currentTimeMillis() - startTime))
-                }
-            }
-        }
-      // dataflow analysis
-      {
-        val dfWarmup = new CAnalysisFrontend(family_ast, fm)
-        val startTimeWarmup: Long = System.currentTimeMillis()
-        dfWarmup.checkDataflow()
-        println("warmupTime_Family_df" + ": " + (System.currentTimeMillis() - startTimeWarmup))
-        for ((taskDesc: String, configs: List[SimpleConfiguration]) <- typecheckingTasks) {
-          for (configID: Int <- 0 until configs.size - 1) {
-            val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
-              new Configuration(configs(configID).toFeatureExpr, fm))
-            val df = new CAnalysisFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
-            val startTime: Long = System.currentTimeMillis()
-            df.checkDataflow()
-            println("warmupTime_df_" + taskDesc + "_" + (configID + 1) + ": " + (System.currentTimeMillis() - startTime))
-          }
-        }
-      }
+      // family base checking
+      println("family-based checking: (" + countNumberOfASTElements(family_ast) + ")")
+      // analysis initialization and warmup
+      val ts = new CTypeSystemFrontend(family_ast, fm)
+      ts.checkASTSilent
 
+      // measurement
+      val startTime : Long = System.currentTimeMillis()
+      var noErrors: Boolean = false
+      for (_ <- 0 until checkXTimes) noErrors = ts.checkASTSilent
+      val familyTime: Long = (System.currentTimeMillis() - startTime) / checkXTimes
+
+      var timeDfFamily: Long = -1
+      if (noErrors) {
+        // analysis initalization and warmup
+        val df = new CAnalysisFrontend(family_ast, fm)
+        df.checkDataflow()
+        val startTimeDf: Long = System.currentTimeMillis()
+        for (_ <- 0 until checkXTimes) df.checkDataflow()
+        timeDfFamily = (System.currentTimeMillis() - startTimeDf) / checkXTimes
+      }
 
       if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
@@ -553,20 +551,38 @@ object ProductGeneration extends EnforceTreeHelper {
             var dfProductTimes: List[Long] = List()
             for (config <- configs) {
                 current_config += 1
-                println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")")
+
+                // product deriviation
                 val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
                     new Configuration(config.toFeatureExpr, fm))
+                println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")" + "(" + countNumberOfASTElements(product) + ")")
+
+                // analysis initialization
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+
+                // warmup
+                ts.checkASTSilent
+
+                // measurment
                 val startTime: Long = System.currentTimeMillis()
-                val noErrors: Boolean = ts.checkAST
-                val productTime: Long = System.currentTimeMillis() - startTime
+                var noErrors: Boolean = false
+                for (_ <- 0 until checkXTimes) noErrors = ts.checkASTSilent
+                val productTime: Long = (System.currentTimeMillis() - startTime) / checkXTimes
+
                 tcProductTimes ::= productTime // append to the beginning of tcProductTimes
                 if (noErrors) {
+                  // analysis initialization
                   val df = new CAnalysisFrontend(product, FeatureExprFactory.empty)
-                  val startTimeDataFlowProduct: Long = System.currentTimeMillis()
+
+                  // warmup
                   df.checkDataflow()
-                  val timeDataFlowProduct = System.currentTimeMillis() - startTimeDataFlowProduct
-                  dfProductTimes ::= timeDataFlowProduct
+
+                  // measurement
+                  val startTimeDataFlowProduct: Long = System.currentTimeMillis()
+                  for (_ <- 0 until checkXTimes) df.checkDataflow()
+                  val timeDataFlowProduct = (System.currentTimeMillis() - startTimeDataFlowProduct) / checkXTimes
+
+                  dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
                 } else {
                   dfProductTimes ::= -1 // we add -1 to mark that we did not checkDataflow for a product with type errors
                     var fw: FileWriter = null
@@ -597,29 +613,15 @@ object ProductGeneration extends EnforceTreeHelper {
                 }
             }
             // reverse tcProductTimes to get the ordering correct
-            configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))
-        }
-        // family base checking
-        println("family-based checking:")
-        val ts = new CTypeSystemFrontend(family_ast, fm)
-        val startTime : Long = System.currentTimeMillis()
-        val noErrors: Boolean = ts.checkAST
-        val familyTime: Long = System.currentTimeMillis() - startTime
-
-        var timeDfFamily: Long = -1
-        if (noErrors) {
-          val df = new CAnalysisFrontend(family_ast, fm)
-          val startTimeDf: Long = System.currentTimeMillis()
-          df.checkDataflow()
-          timeDfFamily = System.currentTimeMillis() - startTimeDf
+            configCheckingResults ::= (taskDesc, (configs.size, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))
         }
 
-        val file: File = new File(outFilePrefix + "_report.txt")
-        file.getParentFile.mkdirs()
-        val fw: FileWriter = new FileWriter(file)
-        fw.write("File : " + fileID + "\n")
-        fw.write("Features : " + features.size + "\n")
-        fw.write(log + "\n")
+      val file: File = new File(outFilePrefix + "_report.txt")
+      file.getParentFile.mkdirs()
+      val fw: FileWriter = new FileWriter(file)
+      fw.write("File : " + fileID + "\n")
+      fw.write("Features : " + features.size + "\n")
+      fw.write(log + "\n")
 
         for ((taskDesc, (numConfigs, errors, dfProductTimes, tcProductTimes: List[Long])) <- configCheckingResults) {
             fw.write("\n -- Task: " + taskDesc + "\n")
