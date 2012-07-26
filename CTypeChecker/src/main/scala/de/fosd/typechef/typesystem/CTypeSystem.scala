@@ -13,11 +13,19 @@ import de.fosd.typechef.parser.c._
  *
  */
 
-trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
+trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn with CDefUse {
 
-    def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
-        assert(tunit != null, "cannot type check Translation Unit, tunit is null")
-        checkTranslationUnit(tunit, featureModel, InitialEnv)
+  def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
+    assert(tunit != null, "cannot type check Translation Unit, tunit is null")
+    clearDefUseMap()
+    checkTranslationUnit(tunit, featureModel, InitialEnv)
+  }
+
+  private[typesystem] def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
+    var env = initialEnv
+    addEnv(tunit, env)
+    for (Opt(f, e) <- tunit.defs) {
+      env = checkExternalDef(e, featureExpr and f, env)
     }
     env
   }
@@ -65,8 +73,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //declared enums?
     val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
 
-        //add type to environment for remaining code
-        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
+    //add type to environment for remaining code
+    val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
+    addDef(f, env)
 
     //check body (add parameters to environment)
     val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
@@ -162,135 +171,19 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     checkArrayExpr(d, featureExpr, env: Env)
     checkTypeDeclaration(d, featureExpr, env)
 
-    /**
-     * returns a type and a changed environment for subsequent statements
-     *
-     * most statements do not have types; type information extracted from sparse (evaluate.c)
-     */
-    def getStmtType(stmt: Statement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
-        def checkStmtF(stmt: Statement, newFeatureExpr: FeatureExpr, newEnv: Env = env) = getStmtType(stmt, newFeatureExpr, newEnv)
-        def checkStmt(stmt: Statement) = checkStmtF(stmt, featureExpr)
-        def checkCStmtF(stmt: Conditional[Statement], newFeatureExpr: FeatureExpr, newEnv: Env = env) = stmt.mapf(newFeatureExpr, {
-            (f, t) => checkStmtF(t, f, newEnv)
-        })
-        def checkCStmt(stmt: Conditional[Statement], newEnv: Env = env) = checkCStmtF(stmt, featureExpr, newEnv)
-        def checkOCStmt(stmt: Option[Conditional[Statement]], newEnv: Env = env) = stmt.map(s => checkCStmt(s, newEnv))
+    env
+  }
 
-        def expectCScalar(expr: Conditional[Expr], ctx: FeatureExpr = featureExpr) = expr.mapf(ctx, (f, e) => expectScalar(e, f))
-        def expectScalar(expr: Expr, ctx: FeatureExpr = featureExpr) = checkExprX(expr, isScalar, {
-            c => "expected scalar, found " + c
-        }, ctx)
-        def expectIntegral(expr: Expr, ctx: FeatureExpr = featureExpr) = checkExprX(expr, isIntegral, {
-            c => "expected int, found " + c
-        }, ctx)
-        //        def checkFunctionCall(call: PostfixExpr) = checkExpr(call, !_.isUnknown, {ct => "cannot resolve function call, found " + ct})
-        //        def checkIdentifier(id: Id) = checkExpr(id, !_.isUnknown, {ct => "identifier " + id.name + " unknown: " + ct})
-        def checkExpr(expr: Expr) = checkExprF(expr, featureExpr)
-        //expect an expression or a RangeExpression
-        def checkExprWithRange(expr: Expr) = expr match {
-            case RangeExpr(from, to) => checkExpr(from); checkExpr(to)
-            case e => checkExprF(e, featureExpr)
-        }
-        def checkExprF(expr: Expr, ctx: FeatureExpr) = checkExprX(expr, !_.isUnknown, {
-            ct => "cannot resolve expression, found " + ct
-        }, ctx)
-        def checkExprX(expr: Expr, check: CType => Boolean, errorMsg: CType => String, featureExpr: FeatureExpr) =
-            performExprCheck(expr, check, errorMsg, featureExpr, env)
-        def nop = (One(CVoid()), env) //(One(CUnknown("no type for " + stmt)), env)
-
-        addEnv(stmt, env)
-
-        stmt match {
-            case CompoundStatement(innerStmts) =>
-                //get a type of every inner feature, propagate environments between siblings, collect OptList of types (with one type for every statement, under the same conditions)
-                var innerEnv = env.incScope()
-                val typeOptList: List[Opt[Conditional[CType]]] =
-                    for (Opt(stmtFeature, innerStmt) <- innerStmts) yield {
-                        val (stmtType, newEnv) = getStmtType(innerStmt, featureExpr and stmtFeature, innerEnv)
-                        innerEnv = newEnv
-                        Opt(stmtFeature, stmtType)
-                    }
-
-                //return last type
-                val lastType: Conditional[Option[Conditional[CType]]] = ConditionalLib.lastEntry(typeOptList)
-                val t: Conditional[CType] = lastType.mapr({
-                    case None => One(CVoid())
-                    case Some(ctype) => ctype
-                }) simplify (featureExpr);
-
-                //return original environment, definitions don't leave this scope
-                (t, env)
-
-
-            case ExprStatement(expr) =>
-                //expressions do not change the environment
-                (checkExpr(expr), env)
-
-            case DeclarationStatement(d) =>
-                val newEnv = addDeclarationToEnvironment(d, featureExpr, env)
-                checkTypeDeclaration(d, featureExpr, newEnv)
-                (One(CVoid()), newEnv)
-
-            case n@NestedFunctionDef(_, spec, decl, oldSP, s) =>
-                (One(CVoid()), checkFunction(n, spec, decl, oldSP, s, featureExpr, env)._2)
-
-            case WhileStatement(expr, s) => expectScalar(expr); checkCStmt(s); nop //spec
-            case DoStatement(expr, s) => expectScalar(expr); checkCStmt(s); nop //spec
-            case ForStatement(expr1, expr2, expr3, s) =>
-                if (expr1.isDefined) checkExpr(expr1.get)
-                if (expr2.isDefined) expectScalar(expr2.get) //spec
-                if (expr3.isDefined) checkExpr(expr3.get)
-                checkCStmt(s)
-                nop
-            //case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
-            case r@ReturnStatement(mexpr) =>
-                if (assertTypeSystemConstraint(env.expectedReturnType.isDefined, featureExpr, "return statement outside a function? " + mexpr, r)) {
-                    val expectedReturnType = env.expectedReturnType.get
-                    mexpr match {
-
-                        case None =>
-                            if (expectedReturnType map (_ == CVoid()) exists (!_))
-                                issueTypeError(Severity.OtherError, featureExpr, "no return expression, expected type " + expectedReturnType, r)
-                        case Some(expr) =>
-                            val foundReturnType = getExprType(expr, featureExpr, env)
-                            ConditionalLib.mapCombinationF(expectedReturnType, foundReturnType, featureExpr,
-                                (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
-                                    if (!coerce(etype, ftype) && !ftype.isUnknown)
-                                        issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr))
-                    }
-                }
-                nop
-
-            case CaseStatement(expr) => checkExprWithRange(expr); nop
-
-            //in the if statement we try to recognize dead code (and set the environment accordingly)
-            case IfStatement(expr, tstmt, elifstmts, estmt) =>
-                expectCScalar(expr) //spec
-
-                var (contradiction, tautology) = analyzeExprBounds(expr, featureExpr, env)
-
-                checkCStmt(tstmt, env.markDead(contradiction))
-
-                for (Opt(elifFeature, ElifStatement(elifExpr, elifStmt)) <- elifstmts) {
-                    expectCScalar(elifExpr, featureExpr and elifFeature)
-                    val (innercontradiction, innertautology) = analyzeExprBounds(elifExpr, featureExpr and elifFeature, env)
-                    checkCStmtF(elifStmt, featureExpr and elifFeature, env.markDead(innercontradiction or tautology))
-
-                    tautology = tautology or innertautology
-                }
-                checkOCStmt(estmt, env.markDead(tautology))
-                nop
-
-            case SwitchStatement(expr, s) => expectIntegral(expr); checkCStmt(s); nop //spec
-            case DefaultStatement () => nop
-
-            case EmptyStatement() => nop
-            case ContinueStatement() => nop
-            case BreakStatement() => nop
-
-            case GotoStatement(_) => nop //TODO check goto against labels
-            case LabelStatement(_, _) => nop
-            case LocalLabelDeclaration(ids) => nop
+  private def checkArrayExpr(d: Declaration, featureExpr: FeatureExpr, env: Env) {
+    //environment correct? or must be interleaved with reading declared variables
+    for (Opt(initFeature, init) <- d.init)
+      for (Opt(extFeature, ext) <- init.declarator.extensions)
+        ext match {
+          case DeclArrayAccess(Some(expr)) =>
+            performExprCheck(expr, isScalar, {
+              c => "expected scalar array size, found " + c
+            }, featureExpr and initFeature and extFeature, env)
+          case _ =>
         }
   }
 
@@ -393,7 +286,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         }
         nop
 
-      case CaseStatement(expr, s) => checkExprWithRange(expr); checkOCStmt(s); nop
+      case CaseStatement(expr) => checkExprWithRange(expr); nop
 
       //in the if statement we try to recognize dead code (and set the environment accordingly)
       case IfStatement(expr, tstmt, elifstmts, estmt) =>
@@ -414,7 +307,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         nop
 
       case SwitchStatement(expr, s) => expectIntegral(expr); checkCStmt(s); nop //spec
-      case DefaultStatement(s) => checkOCStmt(s); nop
+      case DefaultStatement() => nop
 
       case EmptyStatement() => nop
       case ContinueStatement() => nop
@@ -725,36 +618,22 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         if ((expr andNot declExpr).isSatisfiable())
           reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
-    private def checkTypeSpecifier(specifier: Specifier, expr: FeatureExpr, env: Env) {
-        specifier match {
-            case TypeDefTypeSpecifier(name) =>
-                val declExpr = env.typedefEnv.whenDefined(name.name)
-                if ((expr andNot declExpr).isSatisfiable())
-                    reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
+      case EnumSpecifier(Some(id), None) =>
+      // Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
+      //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExprFactory.False)
+      //                if ((expr andNot declExpr).isSatisfiable)
+      //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
-            case EnumSpecifier(Some(id), None) =>
-            // Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
-            //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExprFactory.False)
-            //                if ((expr andNot declExpr).isSatisfiable)
-            //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
-
-            case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
-                for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
-                    checkTypeStructDeclaration(enumerator, expr and f, env)
-            // checked at call site (when declaring a variable or calling a function)
-            //                val declExpr = env.structEnv.isDefined(id.name, isUnion)
-            //                if ((expr andNot declExpr).isSatisfiable)
-            //                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
-
-            case StructOrUnionSpecifier(_, None, enumerators) =>
-                for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
-                    checkTypeStructDeclaration(enumerator, expr and f, env)
-
-            case _ =>
-        }
+      case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
+        for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
+          checkTypeStructDeclaration(enumerator, expr and f, env)
+      // checked at call site (when declaring a variable or calling a function)
+      //                val declExpr = env.structEnv.isDefined(id.name, isUnion)
+      //                if ((expr andNot declExpr).isSatisfiable)
+      //                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
       case StructOrUnionSpecifier(_, None, enumerators) =>
-        for (Opt(f, enumerator) <- enumerators)
+        for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
           checkTypeStructDeclaration(enumerator, expr and f, env)
 
       case _ =>
@@ -764,7 +643,3 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
 }
-
-
-
-

@@ -4,7 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
-trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping /*with CBuiltIn*/ {
+trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping with CDefUse /*with CBuiltIn*/ {
 
 
   protected def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, AST, Conditional[CType])] = {
@@ -40,8 +40,17 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     e.declSpecs.foldRight(env.structEnv)({
       case (Opt(specFeature, specifier), b: StructEnv) =>
         var r = b
-        for (s <- (getStructFromSpecifier(specifier, featureExpr, env, e.init.isEmpty)))
+        // TODO: entfernen?
+        /*
+        val tuple = getStructIdFromSpecifier(specifier, featureExpr, env, e.init.isEmpty)
+        if (tuple != null) {
+          addDef(tuple._1, env)
+          tuple._2.foreach(x => addDef(x.entry, env))
+        }
+        */
+        for (s <- (getStructFromSpecifier(specifier, featureExpr, env, e.init.isEmpty))) {
           r = r.add(s._1, s._2, s._3, s._4)
+        }
         r
     })
 
@@ -58,12 +67,23 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
   type StructData = (String, Boolean, FeatureExpr, ConditionalTypeMap)
 
   def getStructFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env, includeEmptyDecl: Boolean): List[StructData] = specifier match {
-    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || attributes.isDefined) => {
-      List((name, isUnion, featureExpr, parseStructMembers(attributes.getOrElse(Nil), featureExpr, env))) ++ innerStructs(attributes.getOrElse(Nil), featureExpr, env)
+    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) => {
+      // TODO: gültig ?
+      addDef(i, env)
+      attributes.foreach(x => addDef(x.entry, env))
+      List((name, isUnion, featureExpr, parseStructMembers(attributes, featureExpr, env))) ++ innerStructs(attributes, featureExpr, env)
     }
-    case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
+    case e@StructOrUnionSpecifier(_, None, attributes) =>
       innerStructs(attributes, featureExpr, env)
     case _ => Nil
+  }
+
+  // TODO: entfernen?
+  def getStructIdFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env, includeEmptyDecl: Boolean): Tuple2[Id, List[Opt[StructDeclaration]]] = specifier match {
+    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) => {
+      return (i, attributes)
+    }
+    case _ => null
   }
 
   private def innerStructs(fields: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, env: Env): List[StructData] =
@@ -126,7 +146,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.False)))
           //recurse into structs
           case StructOrUnionSpecifier(_, _, fields) =>
-            fields.getOrElse(Nil).foldRight(b)(
+            fields.foldRight(b)(
               (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b, optField.entry.declaratorList.isEmpty)
             )
 
