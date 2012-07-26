@@ -33,6 +33,7 @@ object NoPosition extends Position {
  * position might not always be set. try parent nodes if not set
  */
 trait WithPosition {
+    def getFile:Option[String] = {if (range.isDefined) return Some(range.get._1.getFile) else None}
     var range: Option[(Position, Position)] = None
     def setPositionRange(from: Position, to: Position): WithPosition.this.type = {
         range = Some((from, to))

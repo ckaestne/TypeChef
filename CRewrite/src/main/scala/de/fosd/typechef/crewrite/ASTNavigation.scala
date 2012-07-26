@@ -2,7 +2,6 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional._
-import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 // simplified navigation support
@@ -155,6 +154,15 @@ trait ASTNavigation {
       case x if (m.erasure.isInstance(x)) => Some(x.asInstanceOf[T])
       case x: Product => findPriorASTElem[T](parentAST(x, env), env)
       case null => None
+    }
+  }
+
+  // go up the AST hierarchy and loog for specific AST elements with type T
+  def findPriorASTElems[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case x if (m.erasure.isInstance(x)) => x.asInstanceOf[T] :: findPriorASTElems(parentAST(x, env), env)
+      case x: Product => findPriorASTElems(parentAST(x, env), env)
+      case null => Nil
     }
   }
 

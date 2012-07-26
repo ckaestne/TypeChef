@@ -11,9 +11,10 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
+import org.junit.{Ignore, Test}
 
 @RunWith(classOf[JUnitRunner])
-class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper {
+class ASTNavigationTest extends ShouldMatchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper {
 
     private def functionDef(functionName: String): AST ==> List[FunctionDef] =
         attr {
@@ -39,7 +40,8 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
     private val gg = FeatureExprFactory.createDefinedExternal("g")
     private def o[T](o: T) = Option(FeatureExprFactory.True, o)
 
-    test("ast navigation nextOpt onlytrue") {
+    @Ignore
+    def test_ast_navigtition_nextopt_onlytrue {
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)
         val stmt2 = LabelStatement(Id("stmt2"), None)
@@ -52,7 +54,8 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
         nextOpt(optstmt1, env) should be(optstmt2)
     }
 
-    test("ast navigation nextOpt conditionals") {
+    @Ignore
+    def test_ast_navigation_nextopt_conditionals {
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)
         val stmt2 = LabelStatement(Id("stmt2"), None)
@@ -65,7 +68,8 @@ class ASTNavigationTest extends FunSuite with ShouldMatchers with ASTNavigation 
         nextOpt(optstmt0, env) should be(optstmt1)
     }
 
-    test("ast navigation (prev and next) with Opt and Choice (tree)") {
+    @Ignore
+    def test_ast_navigation_prev_and_next_with_Opt_and_Choice_tree {
         implicit def toOne[T](x: T): Conditional[T] = One(x)
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)

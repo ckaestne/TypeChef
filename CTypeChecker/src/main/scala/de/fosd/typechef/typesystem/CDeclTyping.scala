@@ -11,7 +11,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
  *
  * handling of typedef synonyms
  */
-trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUse {
+trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType]
 
@@ -92,7 +92,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
                 if (hasTransparentUnionAttribute(specifiers))
                     types = types :+ One(CIgnore()) //ignore transparent union for now
                 else
-                    types = types :+ One(CAnonymousStruct(parseStructMembers(members, featureExpr, env), isUnion))
+                    types = types :+ One(CAnonymousStruct(parseStructMembers(members.getOrElse(Nil), featureExpr, env), isUnion))
             case e@TypeDefTypeSpecifier(Id(typedefname)) => {
                 val typedefEnvironment = env.typedefEnv
                 //typedef name can be shadowed by variable
@@ -210,7 +210,6 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
                 eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
                     declKind,
                     env.scope)
-                addDef(init, eenv)
 
                 init.getExpr map {
                     checkInitializer(_, ctype, featureExpr and f, eenv)
@@ -256,7 +255,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDefUs
                 result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt())), KEnumVar) :: result
             //recurse into structs
             case StructOrUnionSpecifier(_, _, fields) =>
-                for (Opt(f2, structDeclaration) <- fields)
+                for (Opt(f2, structDeclaration) <- fields.getOrElse(Nil))
                     result = result ++ enumDeclarations(structDeclaration.qualifierList, featureExpr and f and f2, structDeclaration)
             case _ =>
         }

@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import java.io.InputStream
 import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.conditional.{One, Conditional}
 
 /**
  * common infrastructure for tests.
@@ -56,4 +57,10 @@ trait TestHelper {
         r.asInstanceOf[p.Success[FunctionDef]].result
     }
 
+    def parseStmt(code: String): Statement = {
+        val in = CLexer.lex(code, null).setContext(new CTypeContext())
+        val p = new CParser()
+        val r = p.phrase(p.statement)(in, FeatureExprFactory.True)
+        r.asInstanceOf[p.Success[One[Statement]]].result.value
+    }
 }

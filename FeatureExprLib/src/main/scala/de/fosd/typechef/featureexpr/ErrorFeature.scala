@@ -11,9 +11,10 @@ package de.fosd.typechef.featureexpr
 
 class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     def isSatisfiable(fm: FeatureModel) = error
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr],preferDisabledFeatures:Boolean) = error
     protected def calcSize = error
     def collectDistinctFeatures = error
-    def collectDistinctFeatures2 = error
+    def collectDistinctFeatureObjects = error
     def or(that: FeatureExpr) = error
     def and(that: FeatureExpr) = error
     def not() = error
@@ -24,4 +25,6 @@ class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     //    override def mapDefinedExpr(f: DefinedExpr => FeatureExpr, cache: Map[FeatureExpr, FeatureExpr]) = error
     override def debug_print(x: Int) = error
 
+    def getConfIfSimpleAndExpr() = error
+    def getConfIfSimpleOrExpr() = error
 }

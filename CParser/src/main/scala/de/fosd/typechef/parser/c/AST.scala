@@ -82,7 +82,7 @@ case class PointerPostfixSuffix(kind: String, id: Id) extends PostfixSuffix
 case class FunctionCall(params: ExprList) extends PostfixSuffix {
     //hack to propagate position information
     override def setPositionRange(from: Position, to: Position) = {
-        if (!params.hasPosition) params.setPositionRange(from, to);
+        if (!params.hasPosition) params.setPositionRange(from, to)
         super.setPositionRange(from, to)
     }
 }
@@ -146,9 +146,9 @@ case class ReturnStatement(expr: Option[Expr]) extends Statement
 
 case class LabelStatement(id: Id, attribute: Option[AttributeSpecifier]) extends Statement
 
-case class CaseStatement(c: Expr, s: Option[Conditional[Statement]]) extends Statement
+case class CaseStatement(c: Expr) extends Statement
 
-case class DefaultStatement(s: Option[Conditional[Statement]]) extends Statement
+case class DefaultStatement() extends Statement
 
 case class IfStatement(condition: Conditional[Expr], thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
 
@@ -323,7 +323,7 @@ case class EnumSpecifier(id: Option[Id], enumerators: Option[List[Opt[Enumerator
 
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST
 
-case class StructOrUnionSpecifier(isUnion: Boolean, id: Option[Id], enumerators: List[Opt[StructDeclaration]]) extends TypeSpecifier
+case class StructOrUnionSpecifier(isUnion: Boolean, id: Option[Id], enumerators: Option[List[Opt[StructDeclaration]]]) extends TypeSpecifier
 
 case class StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDecl]]) extends AST
 
