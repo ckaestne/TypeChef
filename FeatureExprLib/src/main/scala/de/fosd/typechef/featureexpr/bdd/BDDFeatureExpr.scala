@@ -1,6 +1,6 @@
 package de.fosd.typechef.featureexpr.bdd
 
-import bdd.FExprBuilder._
+import FExprBuilder._
 import net.sf.javabdd._
 import collection.mutable.{WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
