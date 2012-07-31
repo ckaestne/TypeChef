@@ -98,6 +98,7 @@ trait CDefUse extends CEnv {
   }
 
   def addUse(entry: AST, env: Env) {
+
     entry match {
       // TODO to remove?
       /*case PostfixExpr(i@Id(name), FunctionCall(params)) => {
@@ -152,14 +153,16 @@ trait CDefUse extends CEnv {
       defuse.put(key, defuse.get(key) ++ List(target))
     } else {
       var fd: Id = null
-      for (k <- defuse.keySet().toArray) {
-        for (v <- defuse.get(k)) {
-          if (v.eq(key)) {
-            fd = k.asInstanceOf[Id]
-            defuse.put(fd, defuse.get(fd) ++ List(target))
-          }
-        }
+      for (k <- defuse.keySet().toArray)
+        for (v <- defuse.get(k))
+          if (v.eq(key)) fd = k.asInstanceOf[Id]
+      if (fd == null) {
+        defuse.put(key, List(target))
+      } else {
+        defuse.put(fd, defuse.get(fd) ++ List(target))
       }
+
+
     }
   }
 }

@@ -40,14 +40,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     e.declSpecs.foldRight(env.structEnv)({
       case (Opt(specFeature, specifier), b: StructEnv) =>
         var r = b
-        // TODO: entfernen?
-        /*
-        val tuple = getStructIdFromSpecifier(specifier, featureExpr, env, e.init.isEmpty)
-        if (tuple != null) {
-          addDef(tuple._1, env)
-          tuple._2.foreach(x => addDef(x.entry, env))
-        }
-        */
+
         for (s <- (getStructFromSpecifier(specifier, featureExpr, env, e.init.isEmpty))) {
           r = r.add(s._1, s._2, s._3, s._4)
         }
