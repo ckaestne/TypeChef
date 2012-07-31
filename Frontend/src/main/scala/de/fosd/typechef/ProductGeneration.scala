@@ -14,7 +14,6 @@ import collection.mutable
 import collection.mutable.{ListBuffer, HashSet, BitSet}
 import io.Source
 import java.util.regex.Pattern
-import java.util.{Calendar, ArrayList}
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
@@ -318,6 +317,7 @@ object ProductGeneration extends EnforceTreeHelper {
         }
 
         /**Coverage Configurations - including Header files*/
+        /*
         {
             if (tasks.find(_._1.equals("coverage")).isDefined) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
@@ -333,6 +333,7 @@ object ProductGeneration extends EnforceTreeHelper {
             println(msg)
             log = log + msg + "\n"
         }
+        */
 
         /**Pairwise MAX */
         /*
@@ -401,7 +402,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
       val famast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
       val configDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
-      val r@(log: String, tasks: List[Task]) = buildConfigurations(famast, fm_ts, configDir, caseStudy)
+      val (log: String, tasks: List[Task]) = buildConfigurations(famast, fm_ts, configDir, caseStudy)
       saveSerializationOfTasks(tasks, features, configDir)
 
       (famast, tasks, thisFilePath, log)
@@ -439,7 +440,7 @@ object ProductGeneration extends EnforceTreeHelper {
       var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
       val outFilePrefix: String = "../reports/" + fileName.substring(0, fileName.length - 2)
       for ((taskDesc: String, configs : List[SimpleConfiguration]) <- tasks) {
-        var configurationsWithErrors = 0
+        val configurationsWithErrors = 0
         var current_config = 0
         var checkTimes : List[Long] = List()
         for (config <- configs) {
@@ -511,12 +512,18 @@ object ProductGeneration extends EnforceTreeHelper {
         typecheckConfigurations(typecheckingTasks, family_ast, fm, family_ast, thisFilePath, startLog = configGenLog)
     }
 
-    def typecheckConfigurations(typecheckingTasks: List[Task],
+  def median(s: Seq[Long]) = {
+    val (lower, upper) = s.sortWith(_ < _).splitAt(s.size / 2)
+    if (s.size % 2 == 0) (lower.last + upper.head) / 2 else upper.head
+  }
+
+  def typecheckConfigurations(typecheckingTasks: List[Task],
                                 family_ast: TranslationUnit, fm: FeatureModel, ast: AST,
                                 fileID: String, startLog: String = "") {
-        val log: String = startLog
-        val checkXTimes = 3
-        println("starting product checking.")
+      val log: String = startLog
+      val checkXTimes = 3
+      val nstoms = 1000000
+      println("starting product checking.")
 
       // family base checking
       println("family-based checking: (" + countNumberOfASTElements(family_ast) + ")")
@@ -525,19 +532,39 @@ object ProductGeneration extends EnforceTreeHelper {
       ts.checkASTSilent
 
       // measurement
-      val startTime : Long = System.currentTimeMillis()
+      val tb = java.lang.management.ManagementFactory.getThreadMXBean
       var noErrors: Boolean = false
-      for (_ <- 0 until checkXTimes) noErrors = ts.checkASTSilent
-      val familyTime: Long = (System.currentTimeMillis() - startTime) / checkXTimes
+      var times = Seq[Long]()
+      var lastTime: Long = 0
+      var curTime: Long = 0
+
+      for (_ <- 0 until checkXTimes) {
+        lastTime = tb.getCurrentThreadCpuTime
+        noErrors |= ts.checkASTSilent
+        curTime = (tb.getCurrentThreadCpuTime - lastTime)
+        times = times.:+(curTime)
+      }
+
+      val familyTime: Long = median(times) / nstoms
 
       var timeDfFamily: Long = -1
       if (noErrors) {
-        // analysis initalization and warmup
+        // analysis initialization and warm-up
         val df = new CAnalysisFrontend(family_ast, fm)
         df.checkDataflow()
-        val startTimeDf: Long = System.currentTimeMillis()
-        for (_ <- 0 until checkXTimes) df.checkDataflow()
-        timeDfFamily = (System.currentTimeMillis() - startTimeDf) / checkXTimes
+        var timesDf = Seq[Long]()
+        var lastTimeDf: Long = 0
+        var curTimeDf: Long = 0
+
+        for (_ <- 0 until checkXTimes) {
+          lastTimeDf = tb.getCurrentThreadCpuTime
+          df.checkDataflow()
+          curTimeDf = (tb.getCurrentThreadCpuTime - lastTime)
+          timesDf = timesDf.:+(curTimeDf)
+        }
+
+
+        timeDfFamily = median(timesDf) / nstoms
       }
 
       if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
@@ -552,35 +579,47 @@ object ProductGeneration extends EnforceTreeHelper {
             for (config <- configs) {
                 current_config += 1
 
-                // product deriviation
+                // product derivation
                 val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast,
                     new Configuration(config.toFeatureExpr, fm))
                 println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")" + "(" + countNumberOfASTElements(product) + ")")
 
-                // analysis initialization
+                // analysis initialization and warm-up
                 val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
-
-                // warmup
                 ts.checkASTSilent
 
-                // measurment
-                val startTime: Long = System.currentTimeMillis()
+                // measurement
                 var noErrors: Boolean = false
-                for (_ <- 0 until checkXTimes) noErrors = ts.checkASTSilent
-                val productTime: Long = (System.currentTimeMillis() - startTime) / checkXTimes
+                var lastTime: Long = 0
+                var curTime: Long = 0
+                var times = Seq[Long]()
+
+                for (_ <- 0 until checkXTimes) {
+                  lastTime = tb.getCurrentThreadCpuTime
+                  noErrors |= ts.checkASTSilent
+                  curTime = (tb.getCurrentThreadCpuTime - lastTime)
+                  times = times.:+(curTime)
+                }
+                val productTime: Long = median(times) / nstoms
 
                 tcProductTimes ::= productTime // append to the beginning of tcProductTimes
                 if (noErrors) {
-                  // analysis initialization
+                  // analysis initialization and warm-up
                   val df = new CAnalysisFrontend(product, FeatureExprFactory.empty)
-
-                  // warmup
                   df.checkDataflow()
 
                   // measurement
-                  val startTimeDataFlowProduct: Long = System.currentTimeMillis()
-                  for (_ <- 0 until checkXTimes) df.checkDataflow()
-                  val timeDataFlowProduct = (System.currentTimeMillis() - startTimeDataFlowProduct) / checkXTimes
+                  var lastTimeDf: Long = 0
+                  var curTimeDf: Long = 0
+                  var timesDf = Seq[Long]()
+
+                  for (_ <- 0 until checkXTimes) {
+                    lastTimeDf = tb.getCurrentThreadCpuTime
+                    df.checkDataflow()
+                    curTimeDf = (tb.getCurrentThreadCpuTime - lastTime)
+                    timesDf = timesDf.:+(curTimeDf)
+                  }
+                  val timeDataFlowProduct = median(timesDf) / nstoms
 
                   dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
                 } else {
@@ -1063,7 +1102,7 @@ object ProductGeneration extends EnforceTreeHelper {
                 for (ex <- exLst)
                     for (feature <- ex.collectDistinctFeatureObjects)
                         features += feature
-            return features
+            features
         }
         (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
