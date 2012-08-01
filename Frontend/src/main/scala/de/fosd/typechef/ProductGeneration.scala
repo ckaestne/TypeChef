@@ -548,7 +548,7 @@ object ProductGeneration extends EnforceTreeHelper {
       val familyTime: Long = median(times) / nstoms
 
       var timeDfFamily: Long = -1
-      if (noErrors) {
+      if (true) {
         // analysis initialization and warm-up
         val df = new CAnalysisFrontend(family_ast, fm)
         df.checkDataflow()
@@ -559,7 +559,7 @@ object ProductGeneration extends EnforceTreeHelper {
         for (_ <- 0 until checkXTimes) {
           lastTimeDf = tb.getCurrentThreadCpuTime
           df.checkDataflow()
-          curTimeDf = (tb.getCurrentThreadCpuTime - lastTime)
+          curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
           timesDf = timesDf.:+(curTimeDf)
         }
 
@@ -603,7 +603,7 @@ object ProductGeneration extends EnforceTreeHelper {
                 val productTime: Long = median(times) / nstoms
 
                 tcProductTimes ::= productTime // append to the beginning of tcProductTimes
-                if (noErrors) {
+                if (true) {
                   // analysis initialization and warm-up
                   val df = new CAnalysisFrontend(product, FeatureExprFactory.empty)
                   df.checkDataflow()
@@ -616,7 +616,7 @@ object ProductGeneration extends EnforceTreeHelper {
                   for (_ <- 0 until checkXTimes) {
                     lastTimeDf = tb.getCurrentThreadCpuTime
                     df.checkDataflow()
-                    curTimeDf = (tb.getCurrentThreadCpuTime - lastTime)
+                    curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
                     timesDf = timesDf.:+(curTimeDf)
                   }
                   val timeDataFlowProduct = median(timesDf) / nstoms
@@ -624,31 +624,31 @@ object ProductGeneration extends EnforceTreeHelper {
                   dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
                 } else {
                   dfProductTimes ::= -1 // we add -1 to mark that we did not checkDataflow for a product with type errors
-                    var fw: FileWriter = null
+//                    var fw: FileWriter = null
                     //if (true) {
                     // log product with error
                     configurationsWithErrors += 1
-                    var file: File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
-                    file.getParentFile.mkdirs()
-                    fw = new FileWriter(file)
-                    for (error <- ts.errors)
-                        fw.write("  - " + error + "\n")
-                    fw.close()
-                    // write product to file
-                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
-                    fw = new FileWriter(file)
-                    fw.write(PrettyPrinter.print(product))
-                    fw.close()
-                    //write configuration to file
-                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_config.txt")
-                    fw = new FileWriter(file)
-                    fw.write(config.toString().replace("&&", "&&\n"))
-                    fw.close()
-                    // write ast to file
-                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
-                    fw = new FileWriter(file)
-                    fw.write(product.toString)
-                    fw.close()
+//                    var file: File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
+//                    file.getParentFile.mkdirs()
+//                    fw = new FileWriter(file)
+//                    for (error <- ts.errors)
+//                        fw.write("  - " + error + "\n")
+//                    fw.close()
+//                    // write product to file
+//                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
+//                    fw = new FileWriter(file)
+//                    fw.write(PrettyPrinter.print(product))
+//                    fw.close()
+//                    //write configuration to file
+//                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_config.txt")
+//                    fw = new FileWriter(file)
+//                    fw.write(config.toString().replace("&&", "&&\n"))
+//                    fw.close()
+//                    // write ast to file
+//                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
+//                    fw = new FileWriter(file)
+//                    fw.write(product.toString)
+//                    fw.close()
                 }
             }
             // reverse tcProductTimes to get the ordering correct
@@ -666,9 +666,9 @@ object ProductGeneration extends EnforceTreeHelper {
             fw.write("\n -- Task: " + taskDesc + "\n")
             fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
             fw.write("(" + taskDesc + ")Configurations with errors: " + errors + "\n")
-            fw.write("(" + taskDesc + ")TimeSum Products: " + tcProductTimes.sum + " ms\n")
+            fw.write("(" + taskDesc + ")TimeSum Products: " + tcProductTimes.filter(_ > 0).sum + " ms\n")
             fw.write("(" + taskDesc + ")Times Products: " + tcProductTimes.mkString(",") + "\n")
-            fw.write("(" + taskDesc + ")DataflowSum Products: " + dfProductTimes.sum + " ms\n")
+            fw.write("(" + taskDesc + ")DataflowSum Products: " + dfProductTimes.filter(_ > 0).sum + " ms\n")
             fw.write("(" + taskDesc + ")Dataflow Products: " + dfProductTimes.mkString(",") + "\n")
             fw.write("\n")
         }

@@ -308,8 +308,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     for (i <- s) {
       val newname = udr.get(i)
       newname match {
-        case null => curres = updateMap(res, sfexp, Set(i), diff)
-        case None => curres = updateMap(res, sfexp, Set(i), diff)
+        case null => curres = updateMap(curres, sfexp, Set(i), diff)
+        case None => curres = updateMap(curres, sfexp, Set(i), diff)
         case Some(c) => {
           val leaves = ConditionalLib.items(c)
           for ((nfexp, nid) <- leaves)

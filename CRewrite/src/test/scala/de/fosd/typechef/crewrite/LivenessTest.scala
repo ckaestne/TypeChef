@@ -46,6 +46,14 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     determineUseDeclareRelation(a)
   }
 
+  @Test def test_return_function() {
+    runExample("""
+      void foo() {
+        return f(a, b, c);
+    }
+               """)
+  }
+
   @Test def test_standard_liveness_example() {
     runExample("""
       void foo() {
@@ -368,6 +376,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runUsesExample("f(a, b, c);") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"), Id("c"))))
     runUsesExample("a.b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("a->b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("return f(a,b,c);") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"), Id("c"))))
 
     runUsesExample("&a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("*a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
