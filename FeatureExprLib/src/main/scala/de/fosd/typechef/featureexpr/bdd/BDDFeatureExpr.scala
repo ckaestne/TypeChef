@@ -5,6 +5,7 @@ import net.sf.javabdd._
 import collection.mutable.{WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
 import annotation.tailrec
+import sat.DefinedExternal
 
 
 object FeatureExprHelper {
@@ -300,6 +301,8 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
   def collectDistinctFeatures: Set[String] =
     collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
+
+  def collectDistinctFeatures2: Set[DefinedExternal] = Set()
 
   def collectDistinctFeatureObjects: Set[SingleFeatureExpr] =
     collectDistinctFeatureIds.map({

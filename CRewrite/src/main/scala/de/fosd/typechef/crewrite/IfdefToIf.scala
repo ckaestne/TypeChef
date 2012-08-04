@@ -142,7 +142,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
       }
     }
     def structHeader(structDecl: List[Opt[StructDeclaration]]): List[Opt[Declaration]] = {
-      val struct = List(Opt(True, Declaration(List(Opt(True, StructOrUnionSpecifier(false, Some(Id("options")), structDecl))), List())))
+      val struct = List(Opt(True, Declaration(List(Opt(True, StructOrUnionSpecifier(false, Some(Id("options")), Some(structDecl)))), List())))
       struct
     }
 
@@ -463,6 +463,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     getCaseParent(filteredList)
   }
 
+  /*
   def setGoToFlags(a: AST, env: ASTEnv): AST = {
     var switchStatements = filterASTElems[SwitchStatement](a)
     var replaceMap: Map[Opt[_], List[Opt[_]]] = Map()
@@ -539,7 +540,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
 
       def replaceSingleOpt(opt: Opt[_]): List[Opt[_]] = {
         def replaceOptFeatures(caseStmt: CaseStatement, ft: FeatureExpr): CaseStatement = {
-          val core = caseStmt.s
+          //val core = caseStmt.s
           val r = manytd(rule {
             case l: List[Opt[_]] => l.flatMap({
               x => if (x.feature == ft) Opt(FeatureExprFactory.True, x.entry) :: Nil else x :: Nil
@@ -603,6 +604,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     val newAst = replaceWithMap(a, replaceMap)
     newAst
   }
+  */
 
   def replaceIfs(ast: AST, env: ASTEnv): AST = {
     val exprStmts = filterASTElems[ExprStatement](ast)

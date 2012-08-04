@@ -1,6 +1,7 @@
 package de.fosd.typechef.featureexpr
 
 import java.io.Writer
+import sat.DefinedExternal
 
 
 trait FeatureExpr {
@@ -17,6 +18,8 @@ trait FeatureExpr {
 
   //or other ToString variations for debugging etc
   def collectDistinctFeatures: Set[String]
+
+  def collectDistinctFeatures2: Set[DefinedExternal]
 
   def collectDistinctFeatureObjects: Set[SingleFeatureExpr]
 
