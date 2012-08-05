@@ -165,4 +165,19 @@ trait CDefUse extends CEnv {
 
     }
   }
+
+  private def compareToList(lst: List[Id]): Boolean = {
+    val flag = false
+    var idSet: Set[Id] = Set()
+
+    val it = defuse.keySet().iterator()
+    while (it.hasNext()) {
+      val current = it.next()
+      idSet += current
+      idSet = idSet ++ defuse.get(current)
+    }
+
+    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idSet.size + " Ids.")
+    return lst.size == idSet.size
+  }
 }
