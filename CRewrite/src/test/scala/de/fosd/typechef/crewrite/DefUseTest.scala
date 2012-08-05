@@ -4,8 +4,23 @@ import org.junit.Test
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
+import java.util.IdentityHashMap
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
+  private def compareToList(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]): Boolean = {
+    var idSet: Set[Id] = Set()
+    val lst = filterAllASTElems(ast)[Id]
+
+    val it = defUseMap.keySet().iterator()
+    while (it.hasNext()) {
+      val current = it.next()
+      idSet += current
+      idSet = idSet ++ defUseMap.get(current)
+    }
+
+    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idSet.size + " Ids.")
+    return lst.size == idSet.size
+  }
 
 
   @Test def test_int_def_use {
