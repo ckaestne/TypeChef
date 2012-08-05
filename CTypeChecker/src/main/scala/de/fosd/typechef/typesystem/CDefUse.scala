@@ -142,6 +142,9 @@ trait CDefUse extends CEnv {
         env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
           case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
             addToDefUseMap(i2, i)
+          case One(i2:Id) => {
+              println(i2)
+         }
           case _ =>
         }
       case _ =>
@@ -150,19 +153,22 @@ trait CDefUse extends CEnv {
 
   private def addToDefUseMap(key: Id, target: Id) {
     if (defuse.containsKey(key)) {
-      defuse.put(key, defuse.get(key) ++ List(target))
+      var isIncluded = false
+      defuse.get(key).foreach(x => if (x.eq(target)) isIncluded = true)
+      if (!isIncluded) {
+        defuse.put(key, defuse.get(key) ++ List(target))
+      }
     } else {
       var fd: Id = null
-      for (k <- defuse.keySet().toArray)
+      for (k <- defuse.keySet().toArray) {
         for (v <- defuse.get(k))
           if (v.eq(key)) fd = k.asInstanceOf[Id]
+      }
       if (fd == null) {
-        defuse.put(key, List(target))
+        defuse.put(key, List())
       } else {
         defuse.put(fd, defuse.get(fd) ++ List(target))
       }
-
-
     }
   }
 }

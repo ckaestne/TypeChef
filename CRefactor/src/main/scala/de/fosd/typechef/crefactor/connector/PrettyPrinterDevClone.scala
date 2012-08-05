@@ -1,4 +1,5 @@
-package de.fosd.typechef.crefactor.connector
+/**
+ package de.fosd.typechef.crefactor.connector
 
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.parser.c._
@@ -228,4 +229,4 @@ object PrettyPrinterDevClone {
   }
 
 
-}
+}  **/

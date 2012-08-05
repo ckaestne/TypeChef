@@ -36,7 +36,7 @@
     <orderEntry type="module" module-name="CRewrite" exported="" />
     <orderEntry type="module" module-name="TypeChef" exported="" />
     <orderEntry type="module" module-name="ConditionalLib" exported="" />
-    <orderEntry type="module" module-name="CTypeChecker" />
+    <orderEntry type="module" module-name="CTypeChecker" exported="" />
     <orderEntry type="module" module-name="FeatureExprLib" exported="" />
     <orderEntry type="module" module-name="Frontend" exported="" />
     <orderEntry type="module" module-name="JavaParser" exported="" />

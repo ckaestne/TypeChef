@@ -66,6 +66,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
       attributes.getOrElse(Nil).foreach(x => addDef(x.entry, env))
       List((name, isUnion, featureExpr, parseStructMembers(attributes.getOrElse(Nil), featureExpr, env))) ++ innerStructs(attributes.getOrElse(Nil), featureExpr, env)
     }
+    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) =>  {
+      addStructUse(i, env, i.name, isUnion)
+      Nil      }
     case e@StructOrUnionSpecifier(_, None, attributes) =>
       innerStructs(attributes.getOrElse(Nil), featureExpr, env)
     case _ => Nil
