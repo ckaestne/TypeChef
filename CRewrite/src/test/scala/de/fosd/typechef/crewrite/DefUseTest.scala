@@ -7,19 +7,37 @@ import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
-  private def compareToList(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]): Boolean = {
-    var idSet: Set[Id] = Set()
-    val lst = filterAllASTElems(ast)[Id]
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]) = {
+    var idLst: List[Id] = List()
+    val lst = filterASTElems[Id](ast)
 
     val it = defUseMap.keySet().iterator()
-    while (it.hasNext()) {
-      val current = it.next()
-      idSet += current
-      idSet = idSet ++ defUseMap.get(current)
+    def defUseLst(): List[Id] = {
+      if (it.hasNext()) {
+        val current = it.next()
+        val currentLst = defUseMap.get(current)
+        if (!lst.contains(current)) {
+          println("The following key Id is too much: " + current)
+        }
+        currentLst.foreach(x => {
+          if (!lst.contains(x)) {
+            println("The following value Id is too much: " + x)
+          }
+        })
+        List(current) ++ defUseMap.get(current) ++ defUseLst()
+      } else {
+        List()
+      }
     }
 
-    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idSet.size + " Ids.")
-    return lst.size == idSet.size
+    idLst = defUseLst()
+    lst.foreach(x => {
+      if (!idLst.contains(x)) {
+        println("The following Id is missing: " + x)
+      }
+    })
+
+    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids.")
   }
 
 
@@ -62,7 +80,9 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
+    println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + defUseMap)
+    checkDefuse(source_ast, defUseMap)
   }
 
   @Test def test_array_def_use {
@@ -160,7 +180,6 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
       }
                              """);
     val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast + "\n")
 
     typecheckTranslationUnit(source_ast)
     val defUseMap = getDefUseMap
@@ -168,6 +187,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
     println("\nDef Use Map:\n" + defUseMap)
+    checkDefuse(source_ast, defUseMap)
   }
 
   @Test def test_opt_def_use {
