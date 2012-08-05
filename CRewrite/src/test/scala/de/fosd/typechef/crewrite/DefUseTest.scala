@@ -167,6 +167,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         st.id = 5;
         student3.id = 10;
         int i = student1.id;
+        i = st2.id;
 
         student2.name = "Joerg";
         student3.name = "Andi";
@@ -174,7 +175,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         student3.percentage = 90.0;
 
 
-        return 0;
+        return i;
       }
                              """);
     val env = createASTEnv(source_ast)

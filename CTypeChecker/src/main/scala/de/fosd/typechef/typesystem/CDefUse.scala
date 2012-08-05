@@ -143,7 +143,7 @@ trait CDefUse extends CEnv {
           case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
             addToDefUseMap(i2, i)
           case One(i2:Id) => {
-              println(i2)
+              println("Zeile 146" + i2)
          }
           case _ =>
         }
@@ -165,7 +165,7 @@ trait CDefUse extends CEnv {
           if (v.eq(key)) fd = k.asInstanceOf[Id]
       }
       if (fd == null) {
-        defuse.put(key, List())
+        defuse.put(key, List(target))
       } else {
         defuse.put(fd, defuse.get(fd) ++ List(target))
       }

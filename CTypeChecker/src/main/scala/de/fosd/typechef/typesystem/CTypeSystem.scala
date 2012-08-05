@@ -150,6 +150,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     var env = oldEnv
     //declared struct?
     env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
+
     // TODO Get in for DefUSE
     //declared enums?
     env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
@@ -170,7 +171,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //check array initializers
     checkArrayExpr(d, featureExpr, env: Env)
     checkTypeDeclaration(d, featureExpr, env)
-
+    addDef(d, env)
+    println(d.getPositionFrom.getLine + "≤≤" +d.declSpecs)
     env
   }
 
