@@ -5,32 +5,30 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
+import collection.mutable.ListBuffer
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]) = {
-    var idLst: List[Id] = List()
+    var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
 
-    val it = defUseMap.keySet().iterator()
-    def defUseLst(): List[Id] = {
-      if (it.hasNext()) {
-        val current = it.next()
-        val currentLst = defUseMap.get(current)
-        if (!lst.contains(current)) {
-          println("The following key Id is too much: " + current)
+    defUseMap.keySet().toArray().foreach(x => {
+      idLB += x.asInstanceOf[Id]
+      idLB = idLB ++ defUseMap.get(x)
+    })
+    val idLst = idLB.toList
+
+    def filterDuplicates(lst: List[Id]): List[Id] = {
+      var tmpLB: ListBuffer[Id] = ListBuffer()
+      lst.foreach(x => {
+        if (!tmpLB.exists(y => x.eq(y))) {
+          tmpLB += x
         }
-        currentLst.foreach(x => {
-          if (!lst.contains(x)) {
-            println("The following value Id is too much: " + x)
-          }
-        })
-        List(current) ++ defUseMap.get(current) ++ defUseLst()
-      } else {
-        List()
-      }
+      })
+      return tmpLB.toList
     }
 
-    idLst = defUseLst()
+    println("FD: " + filterDuplicates(idLst).size)
     lst.foreach(x => {
       if (!idLst.contains(x)) {
         println("The following Id is missing: " + x)
@@ -186,6 +184,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
+
+    println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + defUseMap)
     checkDefuse(source_ast, defUseMap)
   }
