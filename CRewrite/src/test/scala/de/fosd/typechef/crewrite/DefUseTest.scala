@@ -6,10 +6,10 @@ import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 import collection.mutable.ListBuffer
-import java.io.{FilenameFilter, FileFilter, FileInputStream, File}
+import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]) : Boolean = {
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]): Boolean = {
     var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
 
@@ -36,9 +36,9 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     lst.foreach(x => {
       var contains = false
       idLst.foreach(y => {
-          if (y.eq(x)) {
-            contains = true
-          }
+        if (y.eq(x)) {
+          contains = true
+        }
       })
       if (!contains) {
         countMissing += 1;
@@ -263,26 +263,30 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("\nDef Use Map:\n" + defUseMap)
   }
 
- @Test def test_busybox_verfication_of_defUse {
-   // path to busybox dir with pi files to analyse
+  @Test def test_busybox_verfication_of_defUse {
+    // path to busybox dir with pi files to analyse
     val folderPath = "/Users/andi/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
     val folder = new File(folderPath)
     analyseDir(folder)
- }
 
-  private def runDefUseOnPi(fileToAnalyse :File) {
-       println("Analyse: " + fileToAnalyse.getName)
-       val fis = new FileInputStream(fileToAnalyse)
-       val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
-       fis.close()
-       typecheckTranslationUnit(ast)
-       val success = checkDefuse(ast, getDefUseMap)
-       println("DefUse" + getDefUseMap)
-       println("Success " + success)
-       //println("AST" + ast)
+    val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
+    val folder2 = new File(folderPath2)
+    analyseDir(folder2)
   }
 
-  private def analyseDir(dirToAnalyse :File) {
+  private def runDefUseOnPi(fileToAnalyse: File) {
+    println("Analyse: " + fileToAnalyse.getName)
+    val fis = new FileInputStream(fileToAnalyse)
+    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+    fis.close()
+    typecheckTranslationUnit(ast)
+    val success = checkDefuse(ast, getDefUseMap)
+    println("DefUse" + getDefUseMap)
+    println("Success " + success)
+    //println("AST" + ast)
+  }
+
+  private def analyseDir(dirToAnalyse: File) {
     // retrieve all pi from dir first
     if (dirToAnalyse.isDirectory) {
       val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
@@ -291,7 +295,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
       val dirs = dirToAnalyse.listFiles(new FilenameFilter {
         def accept(dir: File, file: String) = dir.isDirectory
       })
-      for(piFile <- piFiles) {
+      for (piFile <- piFiles) {
         runDefUseOnPi(piFile)
       }
       for (dir <- dirs) {
