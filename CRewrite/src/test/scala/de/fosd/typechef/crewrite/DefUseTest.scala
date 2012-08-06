@@ -24,6 +24,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
       lst.foreach(x => {
         if (!tmpLB.exists(y => x.eq(y))) {
           tmpLB += x
+        } else {
+          println("Duplicate " + x)
         }
       })
       return tmpLB.toList

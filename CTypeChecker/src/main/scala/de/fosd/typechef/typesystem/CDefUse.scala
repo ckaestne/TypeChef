@@ -99,12 +99,13 @@ trait CDefUse extends CEnv {
             defuse.put(key2, List())
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             defuse.put(key, List())
+          case Choice(feature, One(Enumerator(key,_)), _) =>
+            defuse.put(key, List())
           case k => println("Oh i forgot " + k)
         }
       case st: StructDeclaration =>
         st.declaratorList.foreach(x => x.entry match {
-          case
-            StructDeclarator(AtomicNamedDeclarator(_, id: Id, _), _, _) =>
+          case StructDeclarator(AtomicNamedDeclarator(_, id: Id, _), _, _) =>
             env.varEnv.getAstOrElse(id.name, null) match {
               case null => defuse.put(id, List())
               case One(null) => defuse.put(id, List())
@@ -113,6 +114,9 @@ trait CDefUse extends CEnv {
                 defuse.put(key, defuse.get(key) ++ List(id))
               }
             }
+          case StructDeclarator(NestedNamedDeclarator(pointers, nestedDecl, _),_, _) =>
+            pointers.foreach(x => addDecl(x, env))
+            defuse.put(nestedDecl.getId, List())
           case k => println("Pattern StructDeclaration fail: " + k)
         })
       case k => println("Missing Add Def: " + f + " from " + k)
@@ -150,8 +154,8 @@ trait CDefUse extends CEnv {
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             addToDefUseMap(key, i)
           case One(null) => println("Struct env: " + env.structEnv + "\nFrom: " + i)
-
-          case k => println("Missing: " + i + "\nElement " + k)
+          case One(Enumerator(key,_)) => addToDefUseMap(key, i)
+          case k => println("Missing:" + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
       case k => println("Completly missing add use: " + k)
@@ -169,7 +173,7 @@ trait CDefUse extends CEnv {
           case _ =>
         }
       } else {
-          println("Error struct " + structName)
+          println("Error struct " + structName + " entry " + entry)
         } }
       case _ =>
     }
@@ -274,6 +278,10 @@ trait CDefUse extends CEnv {
         addDecl(expr, env)
       case SizeOfExprT(typ) =>
         addDecl(typ.decl, env)
+      case ConditionalExpr(expr, thenExpr, elseExpr) =>
+        addDecl(expr, env)
+        thenExpr.foreach(x => addDecl(x, env))
+        addDecl(elseExpr, env)
       case k =>
         if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[Constant]) {
           println("M: " + k)
