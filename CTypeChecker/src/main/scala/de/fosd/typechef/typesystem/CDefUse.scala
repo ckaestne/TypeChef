@@ -32,6 +32,7 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
+    println("\nAddDef: " + f)
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
@@ -98,7 +99,7 @@ trait CDefUse extends CEnv {
   }
 
   def addUse(entry: AST, env: Env) {
-
+    println("\nAddUse: " + entry)
     entry match {
       // TODO to remove?
       /*case PostfixExpr(i@Id(name), FunctionCall(params)) => {
@@ -109,7 +110,8 @@ trait CDefUse extends CEnv {
       }*/
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
+          case One(InitDeclaratorI(declarator, _, _)) =>
+            addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
@@ -142,12 +144,19 @@ trait CDefUse extends CEnv {
         env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
           case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
             addToDefUseMap(i2, i)
-          case One(i2:Id) => {
-              println("Zeile 146" + i2)
-         }
           case _ =>
         }
       case _ =>
+    }
+  }
+
+  def addStructDecl(entry: AST, env: Env) = {
+    entry match {
+      case i@Id(name) =>
+        defuse.keySet().toArray().foreach(x => if (x.asInstanceOf[Id].name.equals(name)) {
+          addToDefUseMap(x.asInstanceOf[Id], i)
+        })
+      case k => println("AddStructDecl fail: " + k)
     }
   }
 
@@ -165,6 +174,7 @@ trait CDefUse extends CEnv {
           if (v.eq(key)) fd = k.asInstanceOf[Id]
       }
       if (fd == null) {
+        println("\nNaja das sollte wohl nicht so sein:\nkey: " + key + ", target: " + target)
         defuse.put(key, List(target))
       } else {
         defuse.put(fd, defuse.get(fd) ++ List(target))

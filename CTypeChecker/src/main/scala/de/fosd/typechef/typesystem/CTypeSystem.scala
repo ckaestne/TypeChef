@@ -33,6 +33,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
   private def checkExternalDef(externalDef: ExternalDef, featureExpr: FeatureExpr, env: Env): Env = {
     addEnv(externalDef, env)
     checkingExternal(externalDef)
+    println("\nExternalDef pattern matching: " + externalDef)
     externalDef match {
       case _: EmptyExternalDef => env
       case _: Pragma => env //ignore
@@ -147,6 +148,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
   private def addDeclarationToEnvironment(d: Declaration, featureExpr: FeatureExpr, oldEnv: Env): Env = {
+    println("AddDeclarationToEnv: " + d)
     var env = oldEnv
     //declared struct?
     env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
@@ -171,8 +173,22 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //check array initializers
     checkArrayExpr(d, featureExpr, env: Env)
     checkTypeDeclaration(d, featureExpr, env)
-    addDef(d, env)
-    println(d.getPositionFrom.getLine + "≤≤" +d.declSpecs)
+    d match {
+      case Declaration(decl, init) =>
+        decl.foreach(x => x match {
+          case Opt(ft, StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes)) =>
+            if (!d.init.isEmpty && attributes.isEmpty) {
+              addStructDecl(i, env)
+            }
+          case k => println("decl.foreach match fail: " + k)
+        })
+        init.foreach(x => x match {
+          case Opt(ft, i: InitDeclaratorI) =>
+            addDef(i, env)
+        })
+      case k => println("d match fail: " + k)
+    }
+    //addDef(d, env)
     env
   }
 
