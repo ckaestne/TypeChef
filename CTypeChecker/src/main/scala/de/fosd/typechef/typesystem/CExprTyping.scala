@@ -39,7 +39,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             else One(CSigned(CInt()))
           //variable or function ref
           case id@Id(name) =>
-            println("AddUse Id: " + id)
             addUse(id, env)
             val ctype = env.varEnv(name)
             ctype.mapf(featureExpr, {

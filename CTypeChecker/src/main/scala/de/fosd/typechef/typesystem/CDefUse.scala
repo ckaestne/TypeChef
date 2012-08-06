@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem
 import java.util.IdentityHashMap
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.{Choice, Opt, One}
+import de.fosd.typechef.conditional.Choice
 
 
 // store def use chains
@@ -83,8 +84,21 @@ trait CDefUse extends CEnv {
             }
           }
           case One(e: Enumerator) => defuse.put(id, List())
-          case Choice(_, then, otherwise) =>
-            addDecl(then, env)
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+            defuse.put(declarator.getId, List())
+            defuse.put(declarator2.getId, List())
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
+            defuse.put(declarator.getId, List())
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
+            defuse.put(key, List())
+            defuse.put(key2, List())
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
+            defuse.put(key, List())
+          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
+            defuse.put(key, List())
+            defuse.put(key2, List())
+          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
+            defuse.put(key, List())
           case k => println("Oh i forgot " + k)
         }
       case st: StructDeclaration =>
@@ -131,7 +145,6 @@ trait CDefUse extends CEnv {
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
             addToDefUseMap(key, i)
           case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
-            // println("Test: " + c + "\nKey:" + key + ", Id: " + i)
             addToDefUseMap(key, i)
             addToDefUseMap(key2, i)
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
@@ -140,6 +153,7 @@ trait CDefUse extends CEnv {
 
           case k => println("Missing: " + i + "\nElement " + k)
         }
+      case PointerDerefExpr(i) => addUse(i, env)
       case k => println("Completly missing add use: " + k)
     }
   }
@@ -197,7 +211,6 @@ trait CDefUse extends CEnv {
     current match {
       case Nil =>
       case None =>
-      case PlainParameterDeclaration(_) =>  println("Hi ich bin " + current)
       case Declaration(decl, init) =>
         decl.foreach(x => addDecl(x, env))
         init.foreach(x => addDecl(x, env))
@@ -224,6 +237,10 @@ trait CDefUse extends CEnv {
         for (e <- o) {
           addDecl(e.entry, env)
         }
+      case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
+      case ParameterDeclarationAD(spec, decl) =>
+        spec.foreach(x => addDecl(x.entry, env))
+        addDecl(decl, env)
       case Enumerator(i@Id(name), _) =>
         addDecl(i, env)
       case TypeDefTypeSpecifier(name) =>
@@ -246,10 +263,21 @@ trait CDefUse extends CEnv {
          pointers.foreach(x => addDecl(x, env))
          extension.foreach(x => addDecl(x, env))
          addDecl(nestedDecl, env)
-      //case One(o:InitDeclaratorI) =>   // TODO
-      //case One(o) => addDecl(o, env)
+      case One(o) => addDecl(o, env)
       case Some(o) => addDecl(o, env)
-      case k => println("M: " + k)
+      case NAryExpr(expr, others) =>
+        addDecl(expr, env)
+        others.foreach(x => addDecl(x.entry, env))
+      case NArySubExpr(_, expr) =>
+        addDecl(expr, env)
+      case CastExpr(typ, expr) =>
+        addDecl(expr, env)
+      case SizeOfExprT(typ) =>
+        addDecl(typ.decl, env)
+      case k =>
+        if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[Constant]) {
+          println("M: " + k)
+        }
     }
   }
 }
