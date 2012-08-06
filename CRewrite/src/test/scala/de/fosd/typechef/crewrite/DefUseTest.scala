@@ -267,8 +267,9 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
        fis.close()
        typecheckTranslationUnit(ast)
        val success = checkDefuse(ast, getDefUseMap)
-
+       println("DefUse" + getDefUseMap)
        println("Success " + success)
+       //println("AST" + ast)
   }
 
   private def analyseDir(dirToAnalyse :File) {

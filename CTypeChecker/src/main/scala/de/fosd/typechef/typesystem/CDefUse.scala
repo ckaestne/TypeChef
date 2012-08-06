@@ -32,7 +32,6 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
-    println("\nAddDef: " + f)
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
@@ -77,8 +76,16 @@ trait CDefUse extends CEnv {
           case One(null) => defuse.put(id, List())
           case One(i: InitDeclarator) => {
             val key = i.getId
-            defuse.put(key, defuse.get(key) ++ List(id))
+            if (defuse.containsKey(key)) {
+              defuse.put(key, defuse.get(key) ++ List(id))
+            } else {
+              defuse.put(id, List())
+            }
           }
+          case One(e: Enumerator) => defuse.put(id, List())
+          case Choice(_, then, otherwise) =>
+            addDecl(then, env)
+          case k => println("Oh i forgot " + k)
         }
       case st: StructDeclaration =>
         st.declaratorList.foreach(x => x.entry match {
@@ -99,7 +106,6 @@ trait CDefUse extends CEnv {
   }
 
   def addUse(entry: AST, env: Env) {
-    println("\nAddUse: " + entry)
     entry match {
       // TODO to remove?
       /*case PostfixExpr(i@Id(name), FunctionCall(params)) => {
@@ -184,6 +190,66 @@ trait CDefUse extends CEnv {
       } else {
         defuse.put(fd, defuse.get(fd) ++ List(target))
       }
+    }
+  }
+
+  def addDecl(current: Any, env: Env) {
+    current match {
+      case Nil =>
+      case None =>
+      case PlainParameterDeclaration(_) =>  println("Hi ich bin " + current)
+      case Declaration(decl, init) =>
+        decl.foreach(x => addDecl(x, env))
+        init.foreach(x => addDecl(x, env))
+      case o@ Opt(_, _) => addDecl(o.entry, env)
+      case InitDeclaratorI(decl, attr, opt) =>
+        addDecl(decl, env)
+        attr.foreach(x => addDecl(x, env))
+      case AtomicNamedDeclarator(pointers, id, extension) =>
+        pointers.foreach(x => addDecl(x, env))
+        extension.foreach(x => addDecl(x, env))
+        addDecl(id, env)
+      case i:Id =>
+        addDef(i, env)
+      case DeclParameterDeclList(decl) =>
+        decl.foreach(x => addDecl(x, env))
+      case ParameterDeclarationD(specs, decl) =>
+        specs.foreach(x => addDecl(x, env))
+        addDecl(decl, env)
+      case Pointer(specs) =>
+        specs.foreach(x => addDecl(x, env))
+      case EnumSpecifier(id, None) =>
+        addDecl(id, env)
+      case  EnumSpecifier(_, Some(o)) =>
+        for (e <- o) {
+          addDecl(e.entry, env)
+        }
+      case Enumerator(i@Id(name), _) =>
+        addDecl(i, env)
+      case TypeDefTypeSpecifier(name) =>
+        addDecl(name, env)
+      case DeclArrayAccess(Some(o)) =>
+        addDecl(o, env)
+      case StructOrUnionSpecifier(_, Some(o), Some(extensions)) =>
+        addDecl(o, env)
+        extensions.foreach(x => addDecl(x, env))
+      case StructOrUnionSpecifier(_, None, Some(extensions)) =>
+        extensions.foreach(x => addDecl(x, env))
+      case StructDeclaration(qualifiers, declarotors) =>
+        qualifiers.foreach(x => addDecl(x.entry, env))
+        declarotors.foreach(x => addDecl(x.entry, env))
+      case StructDeclarator(decl, _, _) =>
+          addDecl(decl, env)
+      case StructOrUnionSpecifier(_, Some(o), None) =>
+        addDecl(o, env)
+      case NestedNamedDeclarator(pointers, nestedDecl, extension) =>
+         pointers.foreach(x => addDecl(x, env))
+         extension.foreach(x => addDecl(x, env))
+         addDecl(nestedDecl, env)
+      //case One(o:InitDeclaratorI) =>   // TODO
+      //case One(o) => addDecl(o, env)
+      case Some(o) => addDecl(o, env)
+      case k => println("M: " + k)
     }
   }
 }
