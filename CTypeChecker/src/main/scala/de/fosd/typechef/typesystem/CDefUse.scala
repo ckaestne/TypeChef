@@ -140,12 +140,17 @@ trait CDefUse extends CEnv {
 
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
     entry match {
-      case i@Id(name) =>
+      case i@Id(name) =>  {
+        if (env.structEnv.someDefinition(structName, isUnion))  {
+
         env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
           case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
             addToDefUseMap(i2, i)
           case _ =>
         }
+      } else {
+          println("Error struct " + structName)
+        } }
       case _ =>
     }
   }
