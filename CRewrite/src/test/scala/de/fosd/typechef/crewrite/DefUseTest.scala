@@ -29,15 +29,23 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
       return tmpLB.toList
     }
 
-    // println("FD: " + filterDuplicates(idLst).size)
+    println("FD: " + filterDuplicates(idLst).size)
+    var countMissing = 0
     lst.foreach(x => {
-      if (!idLst.contains(x)) {
+      var contains = false
+      idLst.foreach(y => {
+          if (y.eq(x)) {
+            contains = true
+          }
+      })
+      if (!contains) {
+        countMissing += 1;
         println("The following Id is missing: " + x)
       }
     })
-
-    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids.")
-    return (lst.size == idLst.size)
+    println("Amount of ids missing: " + countMissing)
+    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids.", " contains filtered: " + filterDuplicates(idLst).size)
+    return (lst.size == filterDuplicates(idLst).size)
   }
 
 
