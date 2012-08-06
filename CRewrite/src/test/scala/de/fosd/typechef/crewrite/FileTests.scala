@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import java.io.{FileNotFoundException, InputStream}
+import java.io.{FileInputStream, File, FileNotFoundException, InputStream}
 import org.junit.Test
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{Configuration, FeatureExprFactory, FeatureModel}
@@ -9,7 +9,7 @@ import de.fosd.typechef.conditional.{Opt, Choice}
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation {
-  val folder = "testfiles/"
+  val folder = "/Users/andi/Dropbox/HiWi/Andi/Coding/TypeChef/CRewrite/src/test/resources/testfiles/"
 
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
     // manytd is crucial here; consider the following example
@@ -48,7 +48,10 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     var tfullcoverage: Long = 0
 
     println("analysis " + filename)
-    val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
+    val file = new File(folder + filename)
+    println(file.exists())
+
+    val inputStream: InputStream = new FileInputStream(file)
 
     if (inputStream == null)
       throw new FileNotFoundException("Input file not fould: " + filename)

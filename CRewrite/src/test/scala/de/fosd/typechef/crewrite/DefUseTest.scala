@@ -6,9 +6,10 @@ import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 import collection.mutable.ListBuffer
+import java.io.{FilenameFilter, FileFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]) = {
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]) : Boolean = {
     var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
 
@@ -28,7 +29,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
       return tmpLB.toList
     }
 
-    println("FD: " + filterDuplicates(idLst).size)
+    // println("FD: " + filterDuplicates(idLst).size)
     lst.foreach(x => {
       if (!idLst.contains(x)) {
         println("The following Id is missing: " + x)
@@ -36,6 +37,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     })
 
     println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids.")
+    return (lst.size == idLst.size)
   }
 
 
@@ -249,6 +251,42 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
     println("\nDef Use Map:\n" + defUseMap)
+  }
+
+ @Test def test_busybox_verfication_of_defUse {
+   // path to busybox dir with pi files to analyse
+    val folderPath = "/Users/andi/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
+    val folder = new File(folderPath)
+    analyseDir(folder)
+ }
+
+  private def runDefUseOnPi(fileToAnalyse :File) {
+       println("Analyse: " + fileToAnalyse.getName)
+       val fis = new FileInputStream(fileToAnalyse)
+       val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+       fis.close()
+       typecheckTranslationUnit(ast)
+       val success = checkDefuse(ast, getDefUseMap)
+
+       println("Success " + success)
+  }
+
+  private def analyseDir(dirToAnalyse :File) {
+    // retrieve all pi from dir first
+    if (dirToAnalyse.isDirectory) {
+      val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
+        def accept(dir: File, file: String): Boolean = file.endsWith(".pi")
+      })
+      val dirs = dirToAnalyse.listFiles(new FilenameFilter {
+        def accept(dir: File, file: String) = dir.isDirectory
+      })
+      for(piFile <- piFiles) {
+        runDefUseOnPi(piFile)
+      }
+      for (dir <- dirs) {
+        analyseDir(dir)
+      }
+    }
   }
 
 }
