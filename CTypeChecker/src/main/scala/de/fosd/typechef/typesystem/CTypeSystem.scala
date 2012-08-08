@@ -171,33 +171,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //check array initializers
     checkArrayExpr(d, featureExpr, env: Env)
     checkTypeDeclaration(d, featureExpr, env)
-    /**d match {
-      case Declaration(decl, init) =>
-        decl.foreach(x => x match {
-          case Opt(ft, StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes)) =>
-            if (!d.init.isEmpty && attributes.isEmpty) {
-              addStructDecl(i, env)
-            }
-          case Opt(_, EnumSpecifier(Some(i@Id(name)), _)) => {
-            addDef(i, env)
-          }
-          case Opt(_, EnumSpecifier(_, Some(o))) => {
-            for (e <- o) {
-              e.entry match {
-                case Enumerator(i@Id(name), _) => {
-                  addDef(i, env)
-                }
-              }
-            }
-          }
-          case k => println("decl.foreach match fail: " + k)
-        })
-        init.foreach(x => x match {
-          case Opt(ft, i: InitDeclaratorI) =>
-            addDef(i, env)
-        })
-      case k => println("d match fail: " + k)
-    }    */
     addDecl(d, env)
     //addDef(d, env)
     env

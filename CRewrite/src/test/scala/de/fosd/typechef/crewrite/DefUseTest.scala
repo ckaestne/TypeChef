@@ -6,7 +6,7 @@ import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 import collection.mutable.ListBuffer
-import java.io.{FilenameFilter, FileInputStream, File}
+import java.io.{FileWriter, FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]): Boolean = {
@@ -47,6 +47,10 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     })
     println("Amount of ids missing: " + countMissing)
     println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids.", " contains filtered: " + filterDuplicates(idLst).size)
+    val writer = new FileWriter("prettyPrint.txt")
+    writer.write(PrettyPrinter.print(ast))
+    writer.close()
+    //println(PrettyPrinter.print(ast))
     return (lst.size == filterDuplicates(idLst).size)
   }
 
@@ -201,6 +205,39 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + defUseMap)
     checkDefuse(source_ast, defUseMap)
+  }
+
+  @Test def test_typedef_def_use {
+    val ast = getAST( """
+      #define MAX 30
+      static int x;
+      struct adres {
+        char vname[MAX];
+        char nname[MAX];
+        long PLZ;
+        char ort[MAX];
+        int geburtsjahr;
+      } adressen[100];
+      typedef struct adres ADRESSE;
+
+      typedef unsigned int WORD;
+      typedef unsigned long DWORD;
+
+      static void bar()  {
+        WORD w2 = 3;
+        w2 = w2+1;
+        }
+
+      static void foo(WORD w, DWORD d) {
+        w += 3;
+        d += 2;
+      }
+                      """);
+
+    typecheckTranslationUnit(ast)
+    val success = checkDefuse(ast, getDefUseMap)
+    println("DefUse" + getDefUseMap)
+    println("Success " + success)
   }
 
   @Test def test_opt_def_use {

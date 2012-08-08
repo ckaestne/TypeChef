@@ -99,7 +99,7 @@ trait CDefUse extends CEnv {
             defuse.put(key2, List())
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             defuse.put(key, List())
-          case Choice(feature, One(Enumerator(key,_)), _) =>
+          case Choice(feature, One(Enumerator(key, _)), _) =>
             defuse.put(key, List())
           case k => println("Oh i forgot " + k)
         }
@@ -114,7 +114,7 @@ trait CDefUse extends CEnv {
                 defuse.put(key, defuse.get(key) ++ List(id))
               }
             }
-          case StructDeclarator(NestedNamedDeclarator(pointers, nestedDecl, _),_, _) =>
+          case StructDeclarator(NestedNamedDeclarator(pointers, nestedDecl, _), _, _) =>
             pointers.foreach(x => addDecl(x, env))
             defuse.put(nestedDecl.getId, List())
           case k => println("Pattern StructDeclaration fail: " + k)
@@ -154,7 +154,7 @@ trait CDefUse extends CEnv {
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             addToDefUseMap(key, i)
           case One(null) => println("Struct env: " + env.structEnv + "\nFrom: " + i)
-          case One(Enumerator(key,_)) => addToDefUseMap(key, i)
+          case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case k => println("Missing:" + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
@@ -164,17 +164,21 @@ trait CDefUse extends CEnv {
 
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
     entry match {
-      case i@Id(name) =>  {
-        if (env.structEnv.someDefinition(structName, isUnion))  {
+      case i@Id(name) => {
+        if (env.structEnv.someDefinition(structName, isUnion)) {
 
-        env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
-          case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
-            addToDefUseMap(i2, i)
-          case _ =>
+          env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
+            case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
+              addToDefUseMap(i2, i)
+            case _ =>
+          }
+        } else {
+          env.typedefEnv.getAstOrElse(i.name, null) match {
+            case One(i2: Id) => addToDefUseMap(i2, i)
+            case _ => println("Error struct " + structName + " entry " + entry)
+          }
         }
-      } else {
-          println("Error struct " + structName + " entry " + entry)
-        } }
+      }
       case _ =>
     }
   }
@@ -218,7 +222,7 @@ trait CDefUse extends CEnv {
       case Declaration(decl, init) =>
         decl.foreach(x => addDecl(x, env))
         init.foreach(x => addDecl(x, env))
-      case o@ Opt(_, _) => addDecl(o.entry, env)
+      case o@Opt(_, _) => addDecl(o.entry, env)
       case InitDeclaratorI(decl, attr, opt) =>
         addDecl(decl, env)
         attr.foreach(x => addDecl(x, env))
@@ -226,7 +230,7 @@ trait CDefUse extends CEnv {
         pointers.foreach(x => addDecl(x, env))
         extension.foreach(x => addDecl(x, env))
         addDecl(id, env)
-      case i:Id =>
+      case i: Id =>
         addDef(i, env)
       case DeclParameterDeclList(decl) =>
         decl.foreach(x => addDecl(x, env))
@@ -237,7 +241,7 @@ trait CDefUse extends CEnv {
         specs.foreach(x => addDecl(x, env))
       case EnumSpecifier(id, None) =>
         addDecl(id, env)
-      case  EnumSpecifier(_, Some(o)) =>
+      case EnumSpecifier(_, Some(o)) =>
         for (e <- o) {
           addDecl(e.entry, env)
         }
@@ -260,13 +264,13 @@ trait CDefUse extends CEnv {
         qualifiers.foreach(x => addDecl(x.entry, env))
         declarotors.foreach(x => addDecl(x.entry, env))
       case StructDeclarator(decl, _, _) =>
-          addDecl(decl, env)
+        addDecl(decl, env)
       case StructOrUnionSpecifier(_, Some(o), None) =>
         addDecl(o, env)
       case NestedNamedDeclarator(pointers, nestedDecl, extension) =>
-         pointers.foreach(x => addDecl(x, env))
-         extension.foreach(x => addDecl(x, env))
-         addDecl(nestedDecl, env)
+        pointers.foreach(x => addDecl(x, env))
+        extension.foreach(x => addDecl(x, env))
+        addDecl(nestedDecl, env)
       case One(o) => addDecl(o, env)
       case Some(o) => addDecl(o, env)
       case NAryExpr(expr, others) =>
