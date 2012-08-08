@@ -228,9 +228,10 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         w2 = w2+1;
         }
 
-      static void foo(WORD w, DWORD d) {
-        w += 3;
-        d += 2;
+      static void foo(WORD w) {
+        w = 3;
+        int d = 2;
+        w= 3;
       }
                       """);
 

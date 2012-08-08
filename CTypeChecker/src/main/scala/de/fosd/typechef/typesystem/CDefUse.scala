@@ -33,6 +33,7 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
+    println(f)
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
@@ -72,6 +73,9 @@ trait CDefUse extends CEnv {
       }
       case i: InitDeclarator => defuse.put(i.getId, List())
       case id: Id =>
+        if (id.name.equals("WORD")) {
+          println("ENV" + env.typedefEnv.getAstOrElse(id.name, null))
+        }
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => defuse.put(id, List())
           case One(null) => defuse.put(id, List())

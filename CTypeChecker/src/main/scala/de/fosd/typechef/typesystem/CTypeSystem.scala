@@ -155,7 +155,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //declared enums?
     env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
     //declared typedefs?
-    env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
+    val typedef = recognizeTypedefs(d, featureExpr, env)
+    env = env.addTypedefs(typedef)
 
     val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
 
@@ -171,6 +172,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //check array initializers
     checkArrayExpr(d, featureExpr, env: Env)
     checkTypeDeclaration(d, featureExpr, env)
+
+    if (isTypedef(d.declSpecs)) {
+      typedef.foreach(x => {
+        println(x._1 + oldEnv.typedefEnv.contains(x._1))
+      })
+    }
     addDecl(d, env)
     //addDef(d, env)
     env
