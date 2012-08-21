@@ -320,6 +320,8 @@ trait CDefUse extends CEnv {
         for (e <- o) {
           addDecl(e.entry, env)
         }
+      case IfStatement(cond, then, elif, els) =>
+        addDecl(cond, env)
       case EnumSpecifier(_, _) =>
         println()
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
@@ -388,7 +390,6 @@ trait CDefUse extends CEnv {
         addDecl(elseExpr, env)
       case Constant(_) =>
       case k =>
-      //println("M: " + k)
     }
   }
 }

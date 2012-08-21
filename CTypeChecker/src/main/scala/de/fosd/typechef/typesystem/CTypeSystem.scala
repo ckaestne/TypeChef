@@ -41,7 +41,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
       case d: Declaration =>
         addDeclarationToEnvironment(d, featureExpr, env)
       case fun@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
+        addDecl(declarator, env)
+        specifiers.foreach(x => addDecl(x.entry, env))
         val (funType, newEnv) = checkFunction(fun, specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
+        stmt.innerStatements.foreach(x => addDecl(x.entry, env))
         typedFunction(fun, funType, featureExpr)
         newEnv
     }

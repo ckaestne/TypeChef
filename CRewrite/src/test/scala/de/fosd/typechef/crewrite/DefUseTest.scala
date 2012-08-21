@@ -318,10 +318,17 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
     typecheckTranslationUnit(ast)
+
+    //val fw = new FileWriter(fileToAnalyse.getName + ".ast.txt")
+    //fw.write(ast.toString)
+    //fw.close()
+    //val fw2 = new FileWriter(fileToAnalyse.getName + ".pretty.txt")
+    //fw2.write(PrettyPrinter.print(ast))
+    //fw2.close()
     val success = checkDefuse(ast, getDefUseMap)
     println("DefUse" + getDefUseMap)
     println("Success " + success)
-    Thread.sleep(599999)
+    Thread.sleep(599)
     //println("AST" + ast)
   }
 
