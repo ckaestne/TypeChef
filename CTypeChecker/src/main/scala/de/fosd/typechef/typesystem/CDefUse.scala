@@ -144,9 +144,6 @@ trait CDefUse extends CEnv {
   }
 
   def addTypeUse(entry: AST, env: Env) {
-    if (entry.toString().equals("Id(security_context_t)")) {
-      println("TEMP: " + env.typedefEnv.getAstOrElse(entry.asInstanceOf[Id].name, null))
-    }
     entry match {
       case i@Id(name) =>
         env.typedefEnv.getAstOrElse(name, null) match {
