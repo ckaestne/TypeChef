@@ -313,6 +313,9 @@ trait CDefUse extends CEnv {
       case ParameterDeclarationAD(spec, decl) =>
         spec.foreach(x => addDecl(x.entry, env))
         addDecl(decl, env)
+      case Enumerator(i@Id(name), Some(o)) =>
+        addDecl(i, env)
+        addUse(o, env)
       case Enumerator(i@Id(name), _) =>
         addDecl(i, env)
       case TypeDefTypeSpecifier(name) =>
