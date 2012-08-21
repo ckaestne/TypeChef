@@ -175,7 +175,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     if (isTypedef(d.declSpecs)) {
       typedef.foreach(x => {
-        println(x._1 + oldEnv.typedefEnv.contains(x._1))
+        //println(x._1 + oldEnv.typedefEnv.contains(x._1))
       })
     }
     addDecl(d, env)

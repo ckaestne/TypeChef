@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import java.util.IdentityHashMap
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.{Choice, Opt, One}
+import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.conditional.Choice
 
 
@@ -33,7 +33,6 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
-    println(f)
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
@@ -42,7 +41,8 @@ trait CDefUse extends CEnv {
         val ext = declarator.extensions
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => defuse.put(declarator.getId, List())
-          case One(null) => defuse.put(declarator.getId, List())
+          case One(null) =>
+            defuse.put(declarator.getId, List())
           case One(i: InitDeclarator) => {
             val key = i.getId
             defuse.put(key, defuse.get(key) ++ List(id))
@@ -73,12 +73,12 @@ trait CDefUse extends CEnv {
       }
       case i: InitDeclarator => defuse.put(i.getId, List())
       case id: Id =>
-        if (id.name.equals("WORD")) {
-          println("ENV" + env.typedefEnv.getAstOrElse(id.name, null))
-        }
         env.varEnv.getAstOrElse(id.name, null) match {
-          case null => defuse.put(id, List())
-          case One(null) => defuse.put(id, List())
+          case null =>
+            println("HELLAS")
+            defuse.put(id, List())
+          case One(null) =>
+            defuse.put(id, List())
           case One(i: InitDeclarator) => {
             val key = i.getId
             if (defuse.containsKey(key)) {
@@ -123,7 +123,17 @@ trait CDefUse extends CEnv {
             defuse.put(nestedDecl.getId, List())
           case k => println("Pattern StructDeclaration fail: " + k)
         })
-      case k => println("Missing Add Def: " + f + " from " + k)
+      case and@AtomicNamedDeclarator(_, id: Id, _) =>
+        env.varEnv.getAstOrElse(id.name, null) match {
+          case null => defuse.put(id, List())
+          case One(null) => defuse.put(id, List())
+          case One(i: InitDeclarator) => {
+            val key = i.getId
+            defuse.put(key, defuse.get(key) ++ List(id))
+          }
+        }
+      case k =>
+        println("Missing Add Def: " + f + " from " + k)
     }
   }
 
@@ -167,6 +177,9 @@ trait CDefUse extends CEnv {
   }
 
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
+    if (entry.toString() == "Id(dirent)") {
+      println()
+    }
     entry match {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
@@ -174,16 +187,21 @@ trait CDefUse extends CEnv {
           env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
             case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
               addToDefUseMap(i2, i)
-            case _ =>
+            case One(i2: Id) =>
+              addToDefUseMap(i2, i)
+            case k => println("Error " + k)
           }
         } else {
           env.typedefEnv.getAstOrElse(i.name, null) match {
             case One(i2: Id) => addToDefUseMap(i2, i)
-            case _ => println("Error struct " + structName + " entry " + entry)
+            case One(null) =>
+              addDef(i, env)
+            case k => println("Error struct " + structName + " entry " + entry + " typedefEnv: " + k)
           }
         }
       }
-      case _ =>
+      case k =>
+        println("Missing Add Struct: " + k)
     }
   }
 
@@ -245,10 +263,13 @@ trait CDefUse extends CEnv {
         specs.foreach(x => addDecl(x, env))
       case EnumSpecifier(id, None) =>
         addDecl(id, env)
-      case EnumSpecifier(_, Some(o)) =>
+      case EnumSpecifier(id, Some(o)) =>
+        addDecl(id, env)
         for (e <- o) {
           addDecl(e.entry, env)
         }
+      case EnumSpecifier(_, _) =>
+        println()
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
       case ParameterDeclarationAD(spec, decl) =>
         spec.foreach(x => addDecl(x.entry, env))
@@ -259,14 +280,24 @@ trait CDefUse extends CEnv {
         addDecl(name, env)
       case DeclArrayAccess(Some(o)) =>
         addDecl(o, env)
-      case StructOrUnionSpecifier(_, Some(o), Some(extensions)) =>
-        addDecl(o, env)
+      case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) =>
+        addStructUse(i, env, i.name, isUnion)
+      /*
+      case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) =>
+        addDef(i, env)
+        attributes.getOrElse(Nil).foreach(x => addDef(x.entry, env))
+      */
+      case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(extensions)) =>
+        addStructUse(i, env, i.name, isUnion)
         extensions.foreach(x => addDecl(x, env))
       case StructOrUnionSpecifier(_, None, Some(extensions)) =>
         extensions.foreach(x => addDecl(x, env))
       case StructDeclaration(qualifiers, declarotors) =>
         qualifiers.foreach(x => addDecl(x.entry, env))
         declarotors.foreach(x => addDecl(x.entry, env))
+      case StructDeclarator(decl, i: Id, _) =>
+        addDecl(decl, env)
+        addDef(i, env)
       case StructDeclarator(decl, _, _) =>
         addDecl(decl, env)
       case StructOrUnionSpecifier(_, Some(o), None) =>
@@ -290,10 +321,9 @@ trait CDefUse extends CEnv {
         addDecl(expr, env)
         thenExpr.foreach(x => addDecl(x, env))
         addDecl(elseExpr, env)
+      case Constant(_) =>
       case k =>
-        if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[Constant]) {
-          println("M: " + k)
-        }
+      //println("M: " + k)
     }
   }
 }

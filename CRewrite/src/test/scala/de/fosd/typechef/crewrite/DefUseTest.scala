@@ -6,12 +6,13 @@ import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 import collection.mutable.ListBuffer
-import java.io.{FileWriter, FilenameFilter, FileInputStream, File}
+import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]): Boolean = {
     var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
+    var missingLB: ListBuffer[Id] = ListBuffer()
 
     defUseMap.keySet().toArray().foreach(x => {
       idLB += x.asInstanceOf[Id]
@@ -25,7 +26,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         if (!tmpLB.exists(y => x.eq(y))) {
           tmpLB += x
         } else {
-          println("Duplicate " + x)
+          //println("Duplicate " + x)
         }
       })
       return tmpLB.toList
@@ -41,22 +42,19 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         }
       })
       if (!contains) {
-        countMissing += 1;
-        println("The following Id is missing: " + x)
+        missingLB += x
       }
     })
-    println("Amount of ids missing: " + countMissing)
-    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids.", " contains filtered: " + filterDuplicates(idLst).size)
-    val writer = new FileWriter("prettyPrint.txt")
-    writer.write(PrettyPrinter.print(ast))
-    writer.close()
+    println("Amount of ids missing: " + missingLB.size + "\n" + missingLB)
+    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids." + " containing " + (idLst.size - filterDuplicates(idLst).size) + " duplicate IDs.")
+
     //println(PrettyPrinter.print(ast))
     return (lst.size == filterDuplicates(idLst).size)
   }
 
 
   @Test def test_int_def_use {
-    val source_ast = getAST( """
+    val source_ast = getAST("""
       int foo(int *x, int z) {
         int i2 = x + 5;
         i2 = 5;
@@ -100,7 +98,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_array_def_use {
-    val source_ast = getAST( """
+    val source_ast = getAST("""
       #ifdef awesome
         #define quadrat(q) ((q)*(q))
       #endif
@@ -160,7 +158,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
   @Test def test_struct_def_use {
     // TODO Verwendung struct variablen.
-    val source_ast = getAST( """
+    val source_ast = getAST("""
       struct leer;
 
       struct student {
@@ -208,7 +206,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_typedef_def_use {
-    val ast = getAST( """
+    val ast = getAST("""
       #define MAX 30
       static int x;
       struct adres {
@@ -234,7 +232,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         w= 3;
       }
                       """);
-
+    println("AST:\n" + ast)
+    println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
     typecheckTranslationUnit(ast)
     val success = checkDefuse(ast, getDefUseMap)
     println("DefUse" + getDefUseMap)
@@ -242,7 +241,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_opt_def_use {
-    val source_ast = getAST( """
+    val source_ast = getAST("""
       int o = 32;
       int fooZ() {
         #if definedEx(A)
@@ -321,6 +320,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val success = checkDefuse(ast, getDefUseMap)
     println("DefUse" + getDefUseMap)
     println("Success " + success)
+    Thread.sleep(5999999)
     //println("AST" + ast)
   }
 
