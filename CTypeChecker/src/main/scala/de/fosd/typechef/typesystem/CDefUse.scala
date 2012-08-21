@@ -33,6 +33,9 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
+    if (f.toString().equals("Id(security_context_t)")) {
+      println()
+    }
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
@@ -138,6 +141,9 @@ trait CDefUse extends CEnv {
   }
 
   def addTypeUse(entry: AST, env: Env) {
+    if (entry.toString().equals("Id(security_context_t)")) {
+      println("TEMP: " + env.typedefEnv.getAstOrElse(entry.asInstanceOf[Id].name, null))
+    }
     entry match {
       case i@Id(name) =>
         env.typedefEnv.getAstOrElse(name, null) match {
@@ -160,7 +166,12 @@ trait CDefUse extends CEnv {
             addToDefUseMap(key2, i)
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             addToDefUseMap(key, i)
-          case One(null) => println("Struct env: " + env.structEnv + "\nFrom: " + i)
+          case Choice(feature, One(Declaration(specs, init)), _) =>
+            init.foreach(x => x.entry match {
+              case InitDeclaratorI(AtomicNamedDeclarator(_, key, _), _, _) =>
+                addToDefUseMap(key, i)
+              case k => println("AddTypeUse Choice not exhaustive: " + k)
+            })
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case One(Declaration(init, decl)) =>
             decl.head match {
@@ -294,9 +305,9 @@ trait CDefUse extends CEnv {
       case i: Id =>
         addDef(i, env)
       case DeclParameterDeclList(decl) =>
-        decl.foreach(x => addDecl(x, env))
+        decl.foreach(x => addDecl(x.entry, env))
       case ParameterDeclarationD(specs, decl) =>
-        specs.foreach(x => addDecl(x, env))
+        specs.foreach(x => addDecl(x.entry, env))
         addDecl(decl, env)
       case Pointer(specs) =>
         specs.foreach(x => addDecl(x, env))
