@@ -222,14 +222,15 @@ trait CDefUse extends CEnv {
           case k => println("Missing:" + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
+      case NAryExpr(i, o) =>
+        addUse(i, env)
+        o.foreach(x => addUse(x.entry, env))
+      case NArySubExpr(_, e) => addUse(e, env)
       case k => println("Completly missing add use: " + k)
     }
   }
 
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
-    if (entry.toString() == "Id(dirent)") {
-      println()
-    }
     entry match {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
@@ -326,8 +327,17 @@ trait CDefUse extends CEnv {
         addDecl(decl, env)
       case Enumerator(i@Id(name), Some(o)) =>
         addDecl(i, env)
-        addUse(o, env)
+        o match {
+          case i: Id =>
+            addUse(i, env)
+          case k => addDecl(k, env)
+        }
       case Enumerator(i@Id(name), _) =>
+        addDecl(i, env)
+      case BuiltinOffsetof(typeName, members) =>
+        typeName.specifiers.foreach(x => addDecl(x.entry, env))
+        members.foreach(x => addDecl(x.entry, env))
+      case OffsetofMemberDesignatorID(i) =>
         addDecl(i, env)
       case TypeDefTypeSpecifier(name) =>
         addTypeUse(name, env)
