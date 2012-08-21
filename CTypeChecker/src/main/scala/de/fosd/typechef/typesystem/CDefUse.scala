@@ -103,6 +103,9 @@ trait CDefUse extends CEnv {
             defuse.put(key2, List())
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             defuse.put(key, List())
+          case Choice(feature, One(Enumerator(key, _)), One(Enumerator(key2, _))) =>
+            defuse.put(key, List())
+            defuse.put(key2, List())
           case Choice(feature, One(Enumerator(key, _)), _) =>
             defuse.put(key, List())
           case k => println("Oh i forgot " + k)
@@ -359,7 +362,7 @@ trait CDefUse extends CEnv {
         addDecl(expr, env)
       case SizeOfExprT(TypeName(spec, decl)) =>
         spec.foreach(x => addDecl(x.entry, env))
-        addDecl(decl, env)
+      // addDecl(decl, env)
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
         addDecl(expr, env)
         thenExpr.foreach(x => addDecl(x, env))
