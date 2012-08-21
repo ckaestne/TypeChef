@@ -181,6 +181,7 @@ trait CDefUse extends CEnv {
                 addToDefUseMap(key, i)
               case k => println("Fehlt: " + k)
             }
+          // TODO: Ask Jörg applet.pi ->  Id(__builtin_va_list) @ Line 38475
           case k => println("Missing:" + i + "\nElement " + k)
         }
 
@@ -219,7 +220,7 @@ trait CDefUse extends CEnv {
             addToDefUseMap(key, i)
           case One(null) => println("Struct env: " + env.structEnv + "\nFrom: " + i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
-          case k => println("Missing:" + i + "\nElement " + k)
+          case k => println("FLO PASS:" + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
       case NAryExpr(i, o) =>
@@ -240,7 +241,7 @@ trait CDefUse extends CEnv {
               addToDefUseMap(i2, i)
             case One(i2: Id) =>
               addToDefUseMap(i2, i)
-            case k => println("Error " + k)
+            case k => println("omg this should not have happend")
           }
         } else {
           env.typedefEnv.getAstOrElse(i.name, null) match {
