@@ -268,7 +268,7 @@ trait CDefUse extends CEnv {
           if (v.eq(key)) fd = k.asInstanceOf[Id]
       }
       if (fd == null) {
-        println("\nNaja das sollte wohl nicht so sein:\nkey: " + key + ", target: " + target)
+        // println("\nNaja das sollte wohl nicht so sein:\nkey: " + key + ", target: " + target)
         defuse.put(key, List(target))
       } else {
         defuse.put(fd, defuse.get(fd) ++ List(target))
@@ -357,8 +357,9 @@ trait CDefUse extends CEnv {
         addDecl(expr, env)
       case CastExpr(typ, expr) =>
         addDecl(expr, env)
-      case SizeOfExprT(typ) =>
-        addDecl(typ.decl, env)
+      case SizeOfExprT(TypeName(spec, decl)) =>
+        spec.foreach(x => addDecl(x.entry, env))
+        addDecl(decl, env)
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
         addDecl(expr, env)
         thenExpr.foreach(x => addDecl(x, env))

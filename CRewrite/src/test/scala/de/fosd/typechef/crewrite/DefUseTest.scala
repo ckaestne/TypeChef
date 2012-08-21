@@ -42,6 +42,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         }
       })
       if (!contains) {
+        println(x + x.getPositionFrom.getLine.toString)
         missingLB += x
       }
     })
@@ -54,7 +55,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
 
   @Test def test_int_def_use {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       int foo(int *x, int z) {
         int i2 = x + 5;
         i2 = 5;
@@ -98,7 +99,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_array_def_use {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       #ifdef awesome
         #define quadrat(q) ((q)*(q))
       #endif
@@ -158,7 +159,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
   @Test def test_struct_def_use {
     // TODO Verwendung struct variablen.
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       struct leer;
 
       struct student {
@@ -206,7 +207,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_typedef_def_use {
-    val ast = getAST("""
+    val ast = getAST( """
       #define MAX 30
       static int x;
       struct adres {
@@ -241,7 +242,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_opt_def_use {
-    val source_ast = getAST("""
+    val source_ast = getAST( """
       int o = 32;
       int fooZ() {
         #if definedEx(A)
