@@ -62,8 +62,8 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
   def getStructFromSpecifier(specifier: Specifier, featureExpr: FeatureExpr, env: Env, includeEmptyDecl: Boolean): List[StructData] = specifier match {
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) => {
       // TODO: gültig ?
-      //addDef(i, env)
-      //attributes.getOrElse(Nil).foreach(x => addDef(x.entry, env))
+      addDef(i, env)
+      attributes.getOrElse(Nil).foreach(x => addDef(x.entry, env))
       List((name, isUnion, featureExpr, parseStructMembers(attributes.getOrElse(Nil), featureExpr, env))) ++ innerStructs(attributes.getOrElse(Nil), featureExpr, env)
     }
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {

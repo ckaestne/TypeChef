@@ -137,6 +137,45 @@ trait CDefUse extends CEnv {
     }
   }
 
+  def addTypeUse(entry: AST, env: Env) {
+    entry match {
+      case i@Id(name) =>
+        env.typedefEnv.getAstOrElse(name, null) match {
+          case One(InitDeclaratorI(declarator, _, _)) =>
+            addToDefUseMap(declarator.getId, i)
+          case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
+          case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+            addToDefUseMap(declarator.getId, i)
+            addToDefUseMap(declarator2.getId, i)
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
+            addToDefUseMap(declarator.getId, i)
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
+            addToDefUseMap(key, i)
+            addToDefUseMap(key2, i)
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
+            addToDefUseMap(key, i)
+          case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
+            addToDefUseMap(key, i)
+            addToDefUseMap(key2, i)
+          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
+            addToDefUseMap(key, i)
+          case One(null) => println("Struct env: " + env.structEnv + "\nFrom: " + i)
+          case One(Enumerator(key, _)) => addToDefUseMap(key, i)
+          case One(Declaration(init, decl)) =>
+            decl.head match {
+              case Opt(ft, InitDeclaratorI(AtomicNamedDeclarator(_, key: Id, _), _, _)) =>
+                addToDefUseMap(key, i)
+              case Opt(ft, InitDeclaratorI(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, key, _), _), _, _)) =>
+                addToDefUseMap(key, i)
+              case k => println("Fehlt: " + k)
+            }
+          case k => println("Missing:" + i + "\nElement " + k)
+        }
+
+    }
+  }
+
   def addUse(entry: AST, env: Env) {
     entry match {
       // TODO to remove?
@@ -277,7 +316,7 @@ trait CDefUse extends CEnv {
       case Enumerator(i@Id(name), _) =>
         addDecl(i, env)
       case TypeDefTypeSpecifier(name) =>
-        addDecl(name, env)
+        addTypeUse(name, env)
       case DeclArrayAccess(Some(o)) =>
         addDecl(o, env)
       case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) =>
