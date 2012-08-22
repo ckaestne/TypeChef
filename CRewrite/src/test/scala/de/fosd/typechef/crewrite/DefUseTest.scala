@@ -43,6 +43,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
       })
       if (!contains) {
         println(x + x.getPositionFrom.getLine.toString)
+        println(x.getPositionFrom.toString)
         missingLB += x
       }
     })

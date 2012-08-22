@@ -2,8 +2,41 @@ package de.fosd.typechef.typesystem
 
 import java.util.IdentityHashMap
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.parser.c.PostfixExpr
+import de.fosd.typechef.parser.c.PlainParameterDeclaration
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.Constant
+import de.fosd.typechef.parser.c.PointerDerefExpr
+import de.fosd.typechef.parser.c.Enumerator
+import de.fosd.typechef.parser.c.AtomicNamedDeclarator
+import de.fosd.typechef.parser.c.StructDeclaration
+import de.fosd.typechef.parser.c.EnumSpecifier
+import scala.Some
+import de.fosd.typechef.parser.c.FunctionDef
+import de.fosd.typechef.parser.c.NAryExpr
+import de.fosd.typechef.parser.c.TypeDefTypeSpecifier
+import de.fosd.typechef.parser.c.StructOrUnionSpecifier
+import de.fosd.typechef.parser.c.PointerPostfixSuffix
+import de.fosd.typechef.parser.c.OffsetofMemberDesignatorID
+import de.fosd.typechef.parser.c.ParameterDeclarationD
 import de.fosd.typechef.conditional.Choice
+import de.fosd.typechef.parser.c.TypeName
+import de.fosd.typechef.parser.c.CastExpr
+import de.fosd.typechef.parser.c.ConditionalExpr
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.One
+import de.fosd.typechef.parser.c.DeclArrayAccess
+import de.fosd.typechef.parser.c.NestedNamedDeclarator
+import de.fosd.typechef.parser.c.IfStatement
+import de.fosd.typechef.parser.c.BuiltinOffsetof
+import de.fosd.typechef.parser.c.DeclParameterDeclList
+import de.fosd.typechef.parser.c.NArySubExpr
+import de.fosd.typechef.parser.c.ParameterDeclarationAD
+import de.fosd.typechef.parser.c.Pointer
+import de.fosd.typechef.parser.c.InitDeclaratorI
+import de.fosd.typechef.parser.c.SizeOfExprT
+import de.fosd.typechef.parser.c.Declaration
+import de.fosd.typechef.parser.c.StructDeclarator
 
 
 // store def use chains
@@ -386,6 +419,7 @@ trait CDefUse extends CEnv {
         addDecl(expr, env)
       case CastExpr(typ, expr) =>
         addDecl(expr, env)
+        typ.specifiers.foreach(x => addDecl(x, env))
       case SizeOfExprT(TypeName(spec, decl)) =>
         spec.foreach(x => addDecl(x.entry, env))
       // addDecl(decl, env)
@@ -394,6 +428,8 @@ trait CDefUse extends CEnv {
         thenExpr.foreach(x => addDecl(x, env))
         addDecl(elseExpr, env)
       case Constant(_) =>
+      case TypeName(a, _) =>
+        println("A" + a)
       case k =>
     }
   }
