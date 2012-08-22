@@ -72,7 +72,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             })
           //e.n notation
           case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
-            println("AddUse CExprT PostfixExpr: " + p)
             addUse(expr, env)
             def lookup(fields: ConditionalTypeMap, fexpr: FeatureExpr): Conditional[CType] = {
               val rt = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))

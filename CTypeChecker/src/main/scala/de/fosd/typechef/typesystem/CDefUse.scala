@@ -227,6 +227,10 @@ trait CDefUse extends CEnv {
         addUse(i, env)
         o.foreach(x => addUse(x.entry, env))
       case NArySubExpr(_, e) => addUse(e, env)
+      case PostfixExpr(p, s) =>
+        addUse(p, env)
+        addUse(s, env)
+      case PointerPostfixSuffix(_, id) => addUse(id, env)
       case k => println("Completly missing add use: " + k)
     }
   }

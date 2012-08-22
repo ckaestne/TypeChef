@@ -328,7 +328,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val success = checkDefuse(ast, getDefUseMap)
     println("DefUse" + getDefUseMap)
     println("Success " + success)
-    Thread.sleep(599)
+    Thread.sleep(1000)
     //println("AST" + ast)
   }
 
