@@ -218,7 +218,8 @@ trait CDefUse extends CEnv {
             addToDefUseMap(key2, i)
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             addToDefUseMap(key, i)
-          case One(null) => println("Struct env: " + env.structEnv + "\nFrom: " + i)
+          case Choice(feature, One(Enumerator(key, _)), _) => addToDefUseMap(key, i)
+          case One(null) => println("Struct env: " + /*env.structEnv + */ "\nFrom: " + i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case k => println("FLO PASS:" + i + "\nElement " + k)
         }
