@@ -402,6 +402,16 @@ trait CDefUse extends CEnv {
       case StructDeclarator(decl, i: Id, _) =>
         addDecl(decl, env)
         addDef(i, env)
+      case ExprStatement(expr) =>
+        addDecl(expr, env)
+      case pe@PostfixExpr(expr, suffix) =>
+        addUse(expr, env)
+        addDecl(suffix, env)
+      case pps@PointerPostfixSuffix(_, i: Id) =>
+
+        addUse(i, env)
+      case FunctionCall(expr) =>
+        expr.exprs.foreach(x => addDecl(x.entry, env))
       case StructDeclarator(decl, _, _) =>
         addDecl(decl, env)
       case StructOrUnionSpecifier(_, Some(o), None) =>

@@ -314,7 +314,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   private def runDefUseOnPi(fileToAnalyse: File) {
-    println("Analyse: " + fileToAnalyse.getName)
+    println("++Analyse: " + fileToAnalyse.getName + "++")
     val fis = new FileInputStream(fileToAnalyse)
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
@@ -328,8 +328,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     //fw2.close()
     val success = checkDefuse(ast, getDefUseMap)
     println("DefUse" + getDefUseMap)
-    println("Success " + success)
-    Thread.sleep(1000)
+    println("Success " + success + "\n\n")
+    Thread.sleep(2000)
     //println("AST" + ast)
   }
 
