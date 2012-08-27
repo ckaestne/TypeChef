@@ -84,6 +84,8 @@ trait CDefUse extends CEnv {
             defuse.put(key, defuse.get(key) ++ List(id))
           }
           case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => defuse.put(declarator.getId, List())
+          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) =>
+            addToDefUseMap(id2, declarator.getId)
           case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
         // Parameter Declaration
@@ -384,13 +386,23 @@ trait CDefUse extends CEnv {
         addTypeUse(name, env)
       case DeclArrayAccess(Some(o)) =>
         addDecl(o, env)
+
+      /* Diese folgenden Zeilen entfernen IDs aus der DefUseMap, warum??
+    case DeclarationStatement(decl) =>
+      addDecl(decl, env)
+      */
+      case ReturnStatement(expr) =>
+        addDecl(expr.get, env)
+      case AssignExpr(target, operation, source) =>
+        addDecl(source, env)
+        addDecl(target, env)
+      case UnaryOpExpr(_, expr) =>
+        addDecl(expr, env)
+      case DoStatement(expr, cond) =>
+        addDecl(expr, env)
+        addDecl(cond, env)
       case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) =>
         addStructUse(i, env, i.name, isUnion)
-      /*
-      case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), attributes) if (includeEmptyDecl || !attributes.isEmpty) =>
-        addDef(i, env)
-        attributes.getOrElse(Nil).foreach(x => addDef(x.entry, env))
-      */
       case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(extensions)) =>
         addStructUse(i, env, i.name, isUnion)
         extensions.foreach(x => addDecl(x, env))
@@ -408,7 +420,10 @@ trait CDefUse extends CEnv {
         addUse(expr, env)
         addDecl(suffix, env)
       case pps@PointerPostfixSuffix(_, i: Id) =>
-
+        if (i.toString().equals("Id(ar__name)")) {
+          println("\n++FLO++: " + env.varEnv.getAstOrElse(i.toString(), null))
+          println("\n++FLO2++: " + env.typedefEnv.getAstOrElse(i.toString(), null))
+        }
         addUse(i, env)
       case FunctionCall(expr) =>
         expr.exprs.foreach(x => addDecl(x.entry, env))
@@ -441,6 +456,9 @@ trait CDefUse extends CEnv {
       case TypeName(a, _) =>
         println("A" + a)
       case k =>
+        if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[DeclArrayAccess] && !k.isInstanceOf[VarArgs] && !k.isInstanceOf[AtomicAbstractDeclarator] && !k.isInstanceOf[StructInitializer]) {
+          println("Missing Case: " + k)
+        }
     }
   }
 }
