@@ -66,9 +66,6 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
-    if (f.toString().equals("Id(security_context_t)")) {
-      println()
-    }
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
@@ -232,6 +229,7 @@ trait CDefUse extends CEnv {
           case _ =>
         }
       }*/
+      case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) =>
@@ -254,11 +252,15 @@ trait CDefUse extends CEnv {
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
             addToDefUseMap(key, i)
           case Choice(feature, One(Enumerator(key, _)), _) => addToDefUseMap(key, i)
-          case One(null) => println("Struct env: " + /*env.structEnv + */ "\nFrom: " + i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
+          case One(null) =>
+            println("One(Null): " + i + /*env.structEnv + */ "\nFrom: " + i.getPositionFrom.toString)
           case k => println("FLO PASS:" + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
+      case AssignExpr(target, operation, source) =>
+        addUse(source, env)
+        addUse(target, env)
       case NAryExpr(i, o) =>
         addUse(i, env)
         o.foreach(x => addUse(x.entry, env))
@@ -267,8 +269,13 @@ trait CDefUse extends CEnv {
         addUse(p, env)
         addUse(s, env)
       case PointerPostfixSuffix(_, id) => addUse(id, env)
+      case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case k => println("Completly missing add use: " + k)
     }
+  }
+
+  def addOneNullIds(entry: AST, env: Env) = {
+
   }
 
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
@@ -309,11 +316,11 @@ trait CDefUse extends CEnv {
 
   private def addToDefUseMap(key: Id, target: Id) {
     if (defuse.containsKey(key)) {
-      var isIncluded = false
-      defuse.get(key).foreach(x => if (x.eq(target)) isIncluded = true)
-      if (!isIncluded) {
-        defuse.put(key, defuse.get(key) ++ List(target))
-      }
+      // var isIncluded = false
+      // defuse.get(key).foreach(x => if (x.eq(target)) isIncluded = true)
+      // if (!isIncluded) {
+      defuse.put(key, defuse.get(key) ++ List(target))
+      // }
     } else {
       var fd: Id = null
       for (k <- defuse.keySet().toArray) {
@@ -336,7 +343,7 @@ trait CDefUse extends CEnv {
       case Declaration(decl, init) =>
         decl.foreach(x => addDecl(x, env))
         init.foreach(x => addDecl(x, env))
-      case o@Opt(_, _) => addDecl(o.entry, env)
+      case Opt(_, e) => addDecl(e, env)
       case InitDeclaratorI(decl, attr, opt) =>
         addDecl(decl, env)
         attr.foreach(x => addDecl(x, env))
@@ -360,8 +367,9 @@ trait CDefUse extends CEnv {
         for (e <- o) {
           addDecl(e.entry, env)
         }
-      case IfStatement(cond, then, elif, els) =>
+      case i@IfStatement(cond, then, elif, els) =>
         addDecl(cond, env)
+        then.toOptList.foreach(x => addDecl(x.entry, env))
       case EnumSpecifier(_, _) =>
         println()
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
@@ -387,12 +395,15 @@ trait CDefUse extends CEnv {
       case DeclArrayAccess(Some(o)) =>
         addDecl(o, env)
 
-      /* Diese folgenden Zeilen entfernen IDs aus der DefUseMap, warum??
-    case DeclarationStatement(decl) =>
+      /* Diese folgenden Zeilen entfernen IDs aus der DefUseMap, warum??   */
+      /* case DeclarationStatement(decl) =>
       addDecl(decl, env)
       */
+
       case ReturnStatement(expr) =>
-        addDecl(expr.get, env)
+        if (!expr.isEmpty) {
+          addDecl(expr.get, env)
+        }
       case AssignExpr(target, operation, source) =>
         addDecl(source, env)
         addDecl(target, env)
@@ -417,12 +428,16 @@ trait CDefUse extends CEnv {
       case ExprStatement(expr) =>
         addDecl(expr, env)
       case pe@PostfixExpr(expr, suffix) =>
+        if (expr.isInstanceOf[Id] && expr.asInstanceOf[Id].name.equals("handle")) {
+          println("\n++ANDI2++: " + env.varEnv.getAstOrElse(expr.asInstanceOf[Id].name, null))
+        }
         addUse(expr, env)
         addDecl(suffix, env)
       case pps@PointerPostfixSuffix(_, i: Id) =>
         if (i.toString().equals("Id(ar__name)")) {
           println("\n++FLO++: " + env.varEnv.getAstOrElse(i.toString(), null))
           println("\n++FLO2++: " + env.typedefEnv.getAstOrElse(i.toString(), null))
+          println("\n++ANDI++: " + env.varEnv.lookup(i.toString()))
         }
         addUse(i, env)
       case FunctionCall(expr) =>
@@ -454,11 +469,20 @@ trait CDefUse extends CEnv {
         addDecl(elseExpr, env)
       case Constant(_) =>
       case TypeName(a, _) =>
-        println("A" + a)
+        println("TypeName" + a)
+      case LabelStatement(id, _) => addLabelStatement(id, env)
+      case CompoundStatement(statement) => statement.foreach(x => addDecl(x.entry, env))
+      case GotoStatement(id) => addLabelStatement(id, env)
       case k =>
         if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[DeclArrayAccess] && !k.isInstanceOf[VarArgs] && !k.isInstanceOf[AtomicAbstractDeclarator] && !k.isInstanceOf[StructInitializer]) {
           println("Missing Case: " + k)
         }
     }
+  }
+
+  def addLabelStatement(expr: Expr, env: Env) {
+    println("labelEnv" + env.labelEnv)
+    // TODO LabelMAP! -> Ask Jörg
+    addDecl(expr, env)
   }
 }
