@@ -13,6 +13,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
     var missingLB: ListBuffer[Id] = ListBuffer()
+    val env = createASTEnv(ast)
 
     defUseMap.keySet().toArray().foreach(x => {
       idLB += x.asInstanceOf[Id]
@@ -42,8 +43,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         }
       })
       if (!contains) {
-        println(x + x.getPositionFrom.getLine.toString)
-        println(x.getPositionFrom.toString)
+        println(x + " @ " + x.getPositionFrom.getLine.toString + "\n" + x.getPositionFrom.toString + "\nParent: " + env.parent(env.parent(env.parent(x))) + "\n")
         missingLB += x
       }
     })
