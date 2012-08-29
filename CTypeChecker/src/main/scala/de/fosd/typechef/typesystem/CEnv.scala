@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.conditional.Conditional
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import de.fosd.typechef.parser.c.{AST, Declarator}
+import _root_.de.fosd.typechef.conditional._
+import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import _root_.de.fosd.typechef.parser.c.{AST, Declarator}
 import FeatureExprFactory._
 
 /**
@@ -10,7 +10,7 @@ import FeatureExprFactory._
  */
 trait CEnv {
 
-    object EmptyEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), Map(), None, 0, False)
+    object EmptyEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), Map(), None, 0, False, Nil)
 
     protected class Env(
                            val typedefEnv: ConditionalTypeMap,
@@ -20,13 +20,13 @@ trait CEnv {
                            val labelEnv: LabelEnv,
                            val expectedReturnType: Option[Conditional[CType]], //for a function
                            val scope: Int,
-                           val isDeadCode: FeatureExpr
+                           val isDeadCode: FeatureExpr,
+                           val openCompletenessChecks: List[Env => Unit]
                            ) {
-
-        private def copy(typedefEnv: ConditionalTypeMap = this.typedefEnv, varEnv: VarTypingContext = this.varEnv, structEnv: StructEnv = this.structEnv, enumEnv: EnumEnv = this.enumEnv, labelEnv: LabelEnv = this.labelEnv, expectedReturnType: Option[Conditional[CType]] = this.expectedReturnType, scope: Int = this.scope, isDeadCode: FeatureExpr = this.isDeadCode) = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode)
+        private def copy(typedefEnv: ConditionalTypeMap = this.typedefEnv, varEnv: VarTypingContext = this.varEnv, structEnv: StructEnv = this.structEnv, enumEnv: EnumEnv = this.enumEnv, labelEnv: LabelEnv = this.labelEnv, expectedReturnType: Option[Conditional[CType]] = this.expectedReturnType, scope: Int = this.scope, isDeadCode: FeatureExpr = this.isDeadCode, openCompletenessChecks: List[Env => Unit] = this.openCompletenessChecks) = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode, openCompletenessChecks)
 
         //varenv
-        def updateVarEnv(newVarEnv: VarTypingContext) = if (newVarEnv == varEnv) this else new Env(typedefEnv, newVarEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode)
+        def updateVarEnv(newVarEnv: VarTypingContext) = if (newVarEnv == varEnv) this else copy(varEnv = newVarEnv)
         def addVar(name: String, f: FeatureExpr, d: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) = updateVarEnv(varEnv +(name, f, d, t, kind, scope))
         def addVars(vars: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)], scope: Int) =
             updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, v._5, scope)))
@@ -42,7 +42,7 @@ trait CEnv {
         def updateLabelEnv(s: LabelEnv) = if (s == labelEnv) this else copy(labelEnv = s)
 
         //typedefenv
-        private def updateTypedefEnv(newTypedefEnv: ConditionalTypeMap) = if (newTypedefEnv == typedefEnv) this else new Env(newTypedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode)
+        private def updateTypedefEnv(newTypedefEnv: ConditionalTypeMap) = if (newTypedefEnv == typedefEnv) this else copy(typedefEnv= newTypedefEnv)
         def addTypedefs(typedefs: ConditionalTypeMap) = updateTypedefEnv(typedefEnv ++ typedefs)
         def addTypedefs(typedefs: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = updateTypedefEnv(typedefEnv ++ typedefs)
         def addTypedef(name: String, f: FeatureExpr, d: AST, t: Conditional[CType]) = updateTypedefEnv(typedefEnv +(name, f, d, t))
@@ -50,9 +50,12 @@ trait CEnv {
         //expectedReturnType
         def setExpectedReturnType(newExpectedReturnType: Conditional[CType]) = this.copy(expectedReturnType = Some(newExpectedReturnType))
 
-        def incScope() = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope + 1, isDeadCode)
+        def incScope() = copy(scope = this.scope + 1)
 
         def markDead(condition: FeatureExpr) = this.copy(isDeadCode = this.isDeadCode or condition)
+
+        def addCompletenessCheck(check: Env => Unit) = this.copy(openCompletenessChecks = check :: this.openCompletenessChecks)
+        def forceOpenCompletenessChecks() { openCompletenessChecks.map(_(this)) }
     }
 
 
@@ -80,28 +83,66 @@ trait CEnv {
      * for struct and union
      * ConditionalTypeMap represents for the fields of the struct
      *
-     * we store whether a structure with this name is defined (FeatureExpr) whereas
+     * structs do not need to be defined, but they can be complete (with fields) or incomplete
+     *
+     * we store whether a structure with this name is complete (FeatureExpr).
+     * a redeclaration in an inner scope may reduce completeness again
+     *
      * we do not distinguish between alternative structures. fields are merged in
      * one ConditionalTypeMap entry, but by construction they cannot overlap if
      * the structure declarations do not overlap variant-wise
+     *
+     * the structEnv maps a tag name to a conditional tuple (isComplete, fields, scope)
      */
-    class StructEnv(val env: Map[(String, Boolean), (FeatureExpr, ConditionalTypeMap)]) {
+    case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int)
+
+    class StructEnv(private val env: Map[(String, Boolean), Conditional[StructTag]]) {
         def this() = this(Map())
-        //returns the condition under which a structure is defined
-        def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
-        def isDefined(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), (FeatureExprFactory.False, null))._1
-        def isDefinedUnion(name: String) = isDefined(name, true)
-        def isDefinedStruct(name: String) = isDefined(name, false)
-        def add(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap) = {
-            //TODO check distinct attribute names in each variant
-            //TODO check that there is not both a struct and a union with the same name
-            val oldCondition = isDefined(name, isUnion)
-            val oldFields = env.getOrElse((name, isUnion), (null, new ConditionalTypeMap()))._2
+        private val emptyFields = new ConditionalTypeMap()
+        private val incompleteTag = StructTag(false, emptyFields, -1)
+        //returns the condition under which a structure is complete
+        def isComplete(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), One(incompleteTag)).when(_.isComplete)
+        def isCompleteUnion(name: String) = isComplete(name, true)
+        def isCompleteStruct(name: String) = isComplete(name, false)
+
+        def addIncomplete(name: String, isUnion: Boolean, condition: FeatureExpr, scope: Int) = {
+            //overwrites complete tags in lower scopes, but has no effects otherwise
             val key = (name, isUnion)
-            val value = (oldCondition or condition, oldFields ++ fields)
-            new StructEnv(env + (key -> value))
+            val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
+            val newTag: Conditional[StructTag] = Choice(condition, One(StructTag(false, emptyFields, scope)), One(incompleteTag))
+            val result = ConditionalLib.mapCombination(prevTag, newTag, (p: StructTag, n: StructTag) => if (n.scope > p.scope) n else p)
+            new StructEnv(env + (key -> result))
         }
-        def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion))._2
+
+
+        def addComplete(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap, scope: Int) = {
+            // always override previous results, check elsewhere that not replace incorrectly
+            val key = (name, isUnion)
+            val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
+            val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope)), prevTag).simplify
+            new StructEnv(env + (key -> result))
+
+            //            //TODO check distinct attribute names in each variant
+            //            //TODO check that there is not both a struct and a union with the same name
+            //            val key = (name, isUnion)
+            //            val oldCondition = isComplete(name, isUnion)
+            //            val oldFields = env.getOrElse(key, (null, new ConditionalTypeMap()))._2
+            //            val value = (oldCondition or condition, oldFields ++ fields)
+            //            new StructEnv(env + (key -> value))
+        }
+
+        def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion), One(incompleteTag)).map(_.fields)
+
+        def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
+            getFields(name, isUnion).flatten((f, a, b) => a.and(f) ++ b.and(f.not))
+
+        //returns whether already completed in the same scope. may only redeclare in higher scope or when incomplete
+        def mayDeclare(name: String, isUnion: Boolean, scope: Int):FeatureExpr = {
+            env.getOrElse((name,isUnion),One(incompleteTag)).when(
+                s=> !s.isComplete || scope>s.scope
+            )
+        }
+
         override def toString = env.toString
     }
 

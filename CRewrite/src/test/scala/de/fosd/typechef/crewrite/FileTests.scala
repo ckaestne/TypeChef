@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import java.io.{FileNotFoundException, InputStream}
-import org.junit.Test
+import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{Configuration, FeatureExprFactory, FeatureModel}
 import org.kiama.rewriting.Rewriter._
@@ -17,7 +17,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     // all changes the elements top down, so the parent is changed before the children and this
     // way the lookup env.featureExpr(x) will not fail. Using topdown or everywherebu changes the children and so also the
     // parent before the parent is processed so we get a NullPointerExceptions calling env.featureExpr(x). Reason is
-    // changed children lead to changed parent and a new hashcode so a call to env fails.    a
+    // changed children lead to changed parent and a new hashcode so a call to env fails.
     val pconfig = manytd(rule {
       case Choice(feature, thenBranch, elseBranch) => if (c.config implies (if (env.containsASTElem(thenBranch)) env.featureExpr(thenBranch) else FeatureExprFactory.True) isTautology()) thenBranch else elseBranch
       case l: List[Opt[_]] => {
@@ -934,6 +934,6 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug80() {assert(checkCfg("bug80.c") == false)}
   @Test def test_bug81() {assert(checkCfg("bug81.c") == false)}
 
-  //  @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}
+//  @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}
 //  @Ignore def test_gzip() {assert(checkCfg("gzip.c") == false)}
 }

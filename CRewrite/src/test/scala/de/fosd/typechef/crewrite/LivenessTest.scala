@@ -94,7 +94,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   @Test def test_standard_liveness_variability() {
-    runExample("""
+    val a = parseFunctionDef("""
       void foo() {
         a = 0;
         l1: b = a + 1;
