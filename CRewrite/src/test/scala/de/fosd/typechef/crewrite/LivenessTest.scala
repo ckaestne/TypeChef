@@ -350,6 +350,26 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
       }""")
   }
 
+  @Test def test_DefAUseNotA() {
+    runExample("""
+      int foo() {
+        int a = 0;
+        int b = 0;
+        int c = 0;
+        int d = 0;
+        b = 3;
+        #if definedEx(A)
+        a = b;
+        d += 1;
+        #endif
+        c = 1;
+        #if !definedEx(A)
+        a;
+        d += 2;
+        #endif
+      }""")
+  }
+
   @Test def test_make_hash() {
     runExample("""
       static void make_hash(const char *key, unsigned *start, unsigned *decrement, const int hash_prime) {
@@ -377,6 +397,15 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runUsesExample("a.b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("a->b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("return f(a,b,c);") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"), Id("c"))))
+    runUsesExample("""return f(a,
+                       #if definedEx(B)
+                         b,
+                       #endif
+                       c);
+                   """) should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("c")), fb -> Set(Id("b"))))
+    runUsesExample("""a = (b < 2) ? c : d;
+
+                   """) should be (Map(FeatureExprFactory.True -> Set(Id("b")))) // TODO
 
     runUsesExample("&a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("*a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))

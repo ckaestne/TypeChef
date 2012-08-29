@@ -17,6 +17,7 @@ import java.util.regex.Pattern
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
+import java.util.Calendar
 
 /**
  *
@@ -317,7 +318,7 @@ object ProductGeneration extends EnforceTreeHelper {
         }
 
         /**Coverage Configurations - including Header files*/
-        /*
+
         {
             if (tasks.find(_._1.equals("coverage")).isDefined) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
@@ -333,7 +334,7 @@ object ProductGeneration extends EnforceTreeHelper {
             println(msg)
             log = log + msg + "\n"
         }
-        */
+
 
         /**Pairwise MAX */
         /*
@@ -533,39 +534,33 @@ object ProductGeneration extends EnforceTreeHelper {
 
       // measurement
       val tb = java.lang.management.ManagementFactory.getThreadMXBean
-      var noErrors: Boolean = false
+      var foundError: Boolean = false
       var times = Seq[Long]()
       var lastTime: Long = 0
       var curTime: Long = 0
 
       for (_ <- 0 until checkXTimes) {
         lastTime = tb.getCurrentThreadCpuTime
-        noErrors |= ts.checkASTSilent
+        foundError |= ts.checkASTSilent
         curTime = (tb.getCurrentThreadCpuTime - lastTime)
         times = times.:+(curTime)
       }
-
       val familyTime: Long = median(times) / nstoms
 
-      var timeDfFamily: Long = -1
-      if (true) {
-        // analysis initialization and warm-up
-        val df = new CAnalysisFrontend(family_ast, fm)
+      // analysis initialization and warm-up
+      val df = new CAnalysisFrontend(family_ast, fm)
+      df.checkDataflow()
+      var timesDf = Seq[Long]()
+      var lastTimeDf: Long = 0
+      var curTimeDf: Long = 0
+ 
+      for (_ <- 0 until checkXTimes) {
+        lastTimeDf = tb.getCurrentThreadCpuTime
         df.checkDataflow()
-        var timesDf = Seq[Long]()
-        var lastTimeDf: Long = 0
-        var curTimeDf: Long = 0
-
-        for (_ <- 0 until checkXTimes) {
-          lastTimeDf = tb.getCurrentThreadCpuTime
-          df.checkDataflow()
-          curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
-          timesDf = timesDf.:+(curTimeDf)
-        }
-
-
-        timeDfFamily = median(timesDf) / nstoms
+        curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+        timesDf = timesDf.:+(curTimeDf)
       }
+      val timeDfFamily = median(timesDf) / nstoms
 
       if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
@@ -589,45 +584,39 @@ object ProductGeneration extends EnforceTreeHelper {
                 ts.checkASTSilent
 
                 // measurement
-                var noErrors: Boolean = false
+                var foundError: Boolean = false
                 var lastTime: Long = 0
                 var curTime: Long = 0
                 var times = Seq[Long]()
 
                 for (_ <- 0 until checkXTimes) {
                   lastTime = tb.getCurrentThreadCpuTime
-                  noErrors |= ts.checkASTSilent
+                  foundError |= ts.checkASTSilent
                   curTime = (tb.getCurrentThreadCpuTime - lastTime)
                   times = times.:+(curTime)
                 }
                 val productTime: Long = median(times) / nstoms
 
                 tcProductTimes ::= productTime // append to the beginning of tcProductTimes
-                if (true) {
-                  // analysis initialization and warm-up
-                  val df = new CAnalysisFrontend(product, FeatureExprFactory.empty)
+                // analysis initialization and warm-up
+                val df = new CAnalysisFrontend(product, FeatureExprFactory.empty)
+                df.checkDataflow()
+
+                // measurement
+                var lastTimeDf: Long = 0
+                var curTimeDf: Long = 0
+                var timesDf = Seq[Long]()
+                for (_ <- 0 until checkXTimes) {
+                  lastTimeDf = tb.getCurrentThreadCpuTime
                   df.checkDataflow()
+                  curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+                  timesDf = timesDf.:+(curTimeDf)
+                }
+                val timeDataFlowProduct = median(timesDf) / nstoms
 
-                  // measurement
-                  var lastTimeDf: Long = 0
-                  var curTimeDf: Long = 0
-                  var timesDf = Seq[Long]()
+                dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
 
-                  for (_ <- 0 until checkXTimes) {
-                    lastTimeDf = tb.getCurrentThreadCpuTime
-                    df.checkDataflow()
-                    curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
-                    timesDf = timesDf.:+(curTimeDf)
-                  }
-                  val timeDataFlowProduct = median(timesDf) / nstoms
-
-                  dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
-                } else {
-                  dfProductTimes ::= -1 // we add -1 to mark that we did not checkDataflow for a product with type errors
-//                    var fw: FileWriter = null
-                    //if (true) {
-                    // log product with error
-                    configurationsWithErrors += 1
+                if (foundError) configurationsWithErrors += 1
 //                    var file: File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
 //                    file.getParentFile.mkdirs()
 //                    fw = new FileWriter(file)
@@ -649,7 +638,6 @@ object ProductGeneration extends EnforceTreeHelper {
 //                    fw = new FileWriter(file)
 //                    fw.write(product.toString)
 //                    fw.close()
-                }
             }
             // reverse tcProductTimes to get the ordering correct
             configCheckingResults ::= (taskDesc, (configs.size, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))
@@ -673,7 +661,7 @@ object ProductGeneration extends EnforceTreeHelper {
             fw.write("\n")
         }
 
-        fw.write("Errors in family check: " + (if (noErrors) "No" else "Yes") + "\n")
+        fw.write("Errors in family check: " + (if (foundError) "No" else "Yes") + "\n")
         fw.write("Time Family:      " + familyTime + " ms\n")
         fw.write("Dataflow Time Family:     " + timeDfFamily + " ms\n")
         fw.close()
