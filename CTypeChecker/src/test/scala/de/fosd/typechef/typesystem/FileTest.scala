@@ -27,7 +27,7 @@ class FileTest extends TestHelper {
     private def d(n: String) = FeatureExprFactory.createDefinedExternal(n)
 
     //async.i
-    @Test def test1 {
+    @Ignore def test1 {
         assert(check("test1.xi"))
     }
     @Test def busybox_ar {
