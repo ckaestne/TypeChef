@@ -491,6 +491,9 @@ trait CDefUse extends CEnv {
       case CompoundStatement(statement) => statement.foreach(x => addDecl(x.entry, env))
       case GotoStatement(id) => addLabelStatement(id, env)
       case PointerDerefExpr(expr) => addUse(expr, env)
+      case WhileStatement(expr, cond) =>
+        addDecl(expr, env)
+        cond.toOptList.foreach(x => addDecl(x.entry, env))
       case k =>
         if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[DeclArrayAccess] && !k.isInstanceOf[VarArgs] && !k.isInstanceOf[AtomicAbstractDeclarator] && !k.isInstanceOf[StructInitializer]) {
           println("Missing Case: " + k)
