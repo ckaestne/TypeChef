@@ -275,7 +275,7 @@ trait CDefUse extends CEnv {
       case SizeOfExprT(_) =>
       case StringLit(_) =>
       case SimplePostfixSuffix(_) =>
-      case k => //println("Completly missing add use: " + k)
+      case k => println("Completly missing add use: " + k)
     }
   }
 
@@ -353,6 +353,12 @@ trait CDefUse extends CEnv {
       case InitDeclaratorI(decl, attr, opt) =>
         addDecl(decl, env)
         attr.foreach(x => addDecl(x, env))
+        opt match {
+          case None =>
+          case k => addDecl(k.get, env)
+        }
+      case Initializer(label, element) =>
+        addDecl(element, env)
       case AtomicNamedDeclarator(pointers, id, extension) =>
         pointers.foreach(x => addDecl(x, env))
         extension.foreach(x => addDecl(x, env))
@@ -459,7 +465,10 @@ trait CDefUse extends CEnv {
       case One(o) => addDecl(o, env)
       case Some(o) => addDecl(o, env)
       case NAryExpr(expr, others) =>
-        addDecl(expr, env)
+        expr match {
+          case Id(_) => addUse(expr, env)
+          case k => addDecl(k, env)
+        }
         others.foreach(x => addDecl(x.entry, env))
       case NArySubExpr(_, expr) =>
         addDecl(expr, env)
