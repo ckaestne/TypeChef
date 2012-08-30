@@ -267,6 +267,10 @@ trait CDefUse extends CEnv {
 
   def addUse(entry: AST, env: Env) {
     entry match {
+      case ConditionalExpr(expr, thenExpr, elseExpr) =>
+        addUse(expr, env)
+        thenExpr.foreach(x => addUse(x, env))
+        addUse(elseExpr, env)
       case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
@@ -292,14 +296,9 @@ trait CDefUse extends CEnv {
           case Choice(feature, One(Enumerator(key, _)), _) => addToDefUseMap(key, i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case One(null) =>
-            // TODO workaround entfernen
+            // TODO workaround entfernen - causes missing ids
             println("One(Null) - AddUse" + i)
-            if (i.name.equals("to_fd")) {
-
-              //println(env.varEnv)
-              println("break")
-            }
-          //addDecl(i, env)
+          // addDecl(i, env)
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
