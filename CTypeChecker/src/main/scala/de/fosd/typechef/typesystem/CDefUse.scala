@@ -293,7 +293,13 @@ trait CDefUse extends CEnv {
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case One(null) =>
             // TODO workaround entfernen
-            addDecl(i, env)
+            println("One(Null) - AddUse" + i)
+            if (i.name.equals("to_fd")) {
+
+              //println(env.varEnv)
+              println("break")
+            }
+          //addDecl(i, env)
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
