@@ -66,10 +66,6 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
-    if (f.toString.equals("Id(filename)")) {
-      println(env.varEnv.getAstOrElse("filename", null))
-      print()
-    }
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
