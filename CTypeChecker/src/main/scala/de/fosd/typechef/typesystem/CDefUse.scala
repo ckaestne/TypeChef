@@ -37,6 +37,7 @@ import de.fosd.typechef.parser.c.InitDeclaratorI
 import de.fosd.typechef.parser.c.SizeOfExprT
 import de.fosd.typechef.parser.c.Declaration
 import de.fosd.typechef.parser.c.StructDeclarator
+import scala.collection.JavaConversions._
 
 
 // store def use chains
@@ -54,6 +55,57 @@ trait CDefUse extends CEnv {
     defuse.clear()
   }
 
+  private def putToDefUseMap(id: Id) = {
+    if (!defUseContainsId(id)) {
+      defuse.put(id, List())
+    } else {
+      println("++put faild!++")
+    }
+  }
+
+  private def defUseContainsId(id: Id): Boolean = {
+    if (defuse.containsKey(id)) {
+      println("DefuseMap has key: " + id)
+      return true
+    }
+    return defUseContainsIdAsValue(id)
+  }
+
+  private def defUseContainsIdAsValue(id: Id): Boolean = {
+    defuse.values().foreach(x => {
+      x.foreach(entry => {
+        if (entry.eq(id)) {
+          println("DefuseMap has Value: " + id)
+          return true
+        }
+      })
+    })
+    return false
+  }
+
+  private def addToDefUseMap(key: Id, target: Id): Any = {
+    if (defuse.containsKey(key)) {
+      if (defUseContainsId(target)) {
+        println("AddUse: Id already in map!" + target)
+        return
+      }
+      defuse.put(key, defuse.get(key) ++ List(target))
+    } else {
+      var fd: Id = null
+      for (k <- defuse.keySet().toArray) {
+        for (v <- defuse.get(k))
+          if (v.eq(key)) fd = k.asInstanceOf[Id]
+      }
+      if (fd == null) {
+        //println("\nNaja das sollte wohl nicht so sein:\nkey: " + key + ", target: " + target)
+        // defuse.put(key, List(target))
+        putToDefUseMap(key)
+        addToDefUseMap(key, target)
+      } else {
+        addToDefUseMap(fd, target)
+      }
+    }
+  }
 
   def clearDefUseMap() {
     defuse.clear()
@@ -73,15 +125,18 @@ trait CDefUse extends CEnv {
         val id = declarator.getId
         val ext = declarator.extensions
         env.varEnv.getAstOrElse(id.name, null) match {
-          case null => defuse.put(declarator.getId, List())
+          case null => putToDefUseMap(declarator.getId)
           case One(null) =>
-            defuse.put(declarator.getId, List())
+            putToDefUseMap(declarator.getId)
           case One(i: InitDeclarator) => {
             val key = i.getId
-            defuse.put(key, defuse.get(key) ++ List(id))
+            // TODO AddUse?
+            // defuse.put(key, defuse.get(key) ++ List(id))
+            putToDefUseMap(key)
           }
-          case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => defuse.put(declarator.getId, List())
+          case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => putToDefUseMap(declarator.getId)
           case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) =>
+            // TODO Wieso addToDefUseMap?
             addToDefUseMap(id2, declarator.getId)
           case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
@@ -93,11 +148,13 @@ trait CDefUse extends CEnv {
             case Opt(_, pd: ParameterDeclarationD) => {
               val paramID = pd.decl.getId
               env.varEnv.getAstOrElse(paramID.name, null) match {
-                case null => defuse.put(paramID, List())
-                case One(null) => defuse.put(paramID, List())
+                case null => putToDefUseMap(paramID)
+                case One(null) => putToDefUseMap(paramID)
                 case One(i: InitDeclarator) => {
                   val key = i.getId
-                  defuse.put(key, defuse.get(key) ++ List(id))
+                  // TODO AddUse?
+                  // defuse.put(key, defuse.get(key) ++ List(id))
+                  putToDefUseMap(key)
                 }
               }
             }
@@ -106,68 +163,72 @@ trait CDefUse extends CEnv {
           case mi => println("Completly missing: " + mi)
         })
       }
-      case i: InitDeclarator => defuse.put(i.getId, List())
+      case i: InitDeclarator => putToDefUseMap(i.getId)
       case id: Id =>
         env.varEnv.getAstOrElse(id.name, null) match {
-          case null =>
-            println("HELLAS")
-            defuse.put(id, List())
-          case One(null) =>
-            defuse.put(id, List())
+          case null => putToDefUseMap(id)
+          case One(null) => putToDefUseMap(id)
           case One(i: InitDeclarator) => {
             val key = i.getId
-            if (defuse.containsKey(key)) {
-              defuse.put(key, defuse.get(key) ++ List(id))
-            } else {
-              defuse.put(id, List())
-            }
+            // TODO: AddUse?
+            //if (defuse.containsKey(key)) {
+            //  defuse.put(key, defuse.get(key) ++ List(id))
+            //} else {
+            //  defuse.put(id, List())
+            //}
+            putToDefUseMap(key)
           }
-          case One(e: Enumerator) => defuse.put(id, List())
+          case One(e: Enumerator) => putToDefUseMap(id) // TODO ENUM Verification
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
-            defuse.put(declarator.getId, List())
-            defuse.put(declarator2.getId, List())
+            putToDefUseMap(declarator.getId)
+            putToDefUseMap(declarator2.getId)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
-            defuse.put(declarator.getId, List())
+            putToDefUseMap(declarator.getId)
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
-            defuse.put(key, List())
-            defuse.put(key2, List())
+            putToDefUseMap(key)
+            putToDefUseMap(key2)
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
-            defuse.put(key, List())
+            putToDefUseMap(key)
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
-            defuse.put(key, List())
-            defuse.put(key2, List())
+            putToDefUseMap(key)
+            putToDefUseMap(key2)
           case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
-            defuse.put(key, List())
+            putToDefUseMap(key)
           case Choice(feature, One(Enumerator(key, _)), One(Enumerator(key2, _))) =>
-            defuse.put(key, List())
-            defuse.put(key2, List())
+            putToDefUseMap(key)
+            putToDefUseMap(key2)
           case Choice(feature, One(Enumerator(key, _)), _) =>
-            defuse.put(key, List())
+            putToDefUseMap(key)
           case k => //println("Oh i forgot " + k)
         }
+      // TODO Check with new StructEnv!
       case st: StructDeclaration =>
         st.declaratorList.foreach(x => x.entry match {
           case StructDeclarator(AtomicNamedDeclarator(_, id: Id, _), _, _) =>
             env.varEnv.getAstOrElse(id.name, null) match {
-              case null => defuse.put(id, List())
-              case One(null) => defuse.put(id, List())
+              case null => putToDefUseMap(id)
+              case One(null) => putToDefUseMap(id)
               case One(i: InitDeclarator) => {
                 val key = i.getId
-                defuse.put(key, defuse.get(key) ++ List(id))
+                // TODO: AddUse?
+                putToDefUseMap(key)
               }
             }
           case StructDeclarator(NestedNamedDeclarator(pointers, nestedDecl, _), _, _) =>
             pointers.foreach(x => addDecl(x, env))
-            defuse.put(nestedDecl.getId, List())
+            putToDefUseMap(nestedDecl.getId)
+          // defuse.put(nestedDecl.getId, List())
           case k => println("Pattern StructDeclaration fail: " + k)
         })
       case and@AtomicNamedDeclarator(_, id: Id, _) =>
         env.varEnv.getAstOrElse(id.name, null) match {
-          case null => defuse.put(id, List())
-          case One(null) => defuse.put(id, List())
+          case null => putToDefUseMap(id)
+          case One(null) => putToDefUseMap(id)
           case One(i: InitDeclarator) => {
             val key = i.getId
-            defuse.put(key, defuse.get(key) ++ List(id))
+            // TODO AddUse?
+            // defuse.put(key, defuse.get(key) ++ List(id))
+            putToDefUseMap(key)
           }
         }
       case k =>
@@ -213,10 +274,9 @@ trait CDefUse extends CEnv {
                 addToDefUseMap(key, i)
               case k => println("Fehlt: " + k)
             }
-          // TODO: Ask Jörg applet.pi ->  Id(__builtin_va_list) @ Line 38475
           case k =>
             if (name.startsWith("__builtin")) {
-              defuse.put(i, List())
+              putToDefUseMap(i)
             } else {
               println("Missing: " + i + "\nElement " + k)
             }
@@ -331,28 +391,6 @@ trait CDefUse extends CEnv {
           addToDefUseMap(x.asInstanceOf[Id], i)
         })
       case k => println("AddStructDecl fail: " + k)
-    }
-  }
-
-  private def addToDefUseMap(key: Id, target: Id) {
-    if (defuse.containsKey(key)) {
-      // var isIncluded = false
-      // defuse.get(key).foreach(x => if (x.eq(target)) isIncluded = true)
-      // if (!isIncluded) {
-      defuse.put(key, defuse.get(key) ++ List(target))
-      // }
-    } else {
-      var fd: Id = null
-      for (k <- defuse.keySet().toArray) {
-        for (v <- defuse.get(k))
-          if (v.eq(key)) fd = k.asInstanceOf[Id]
-      }
-      if (fd == null) {
-        // println("\nNaja das sollte wohl nicht so sein:\nkey: " + key + ", target: " + target)
-        defuse.put(key, List(target))
-      } else {
-        defuse.put(fd, defuse.get(fd) ++ List(target))
-      }
     }
   }
 
