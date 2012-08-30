@@ -270,6 +270,7 @@ trait CDefUse extends CEnv {
         addUse(p, env)
         addUse(s, env)
       case PointerPostfixSuffix(_, id) => addUse(id, env)
+      case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
       case SizeOfExprT(_) =>
@@ -417,8 +418,8 @@ trait CDefUse extends CEnv {
           addDecl(expr.get, env)
         }
       case AssignExpr(target, operation, source) =>
-        addDecl(source, env)
-        addDecl(target, env)
+        addUse(source, env)
+        addUse(target, env)
       case UnaryOpExpr(_, expr) =>
         addDecl(expr, env)
       case DoStatement(expr, cond) =>
