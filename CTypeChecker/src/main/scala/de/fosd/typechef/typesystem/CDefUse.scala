@@ -119,35 +119,22 @@ trait CDefUse extends CEnv {
         val ext = declarator.extensions
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => putToDefUseMap(declarator.getId)
-          case One(null) =>
-            putToDefUseMap(declarator.getId)
-          case One(i: InitDeclarator) => {
-            val key = i.getId
-            // TODO AddUse?
-            addUse(id, env)
-          }
+          case One(null) => putToDefUseMap(declarator.getId)
+          case One(i: InitDeclarator) => addUse(id, env)
           case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => putToDefUseMap(declarator.getId)
-          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) =>
-            // TODO Wieso addToDefUseMap?
-            addToDefUseMap(id2, declarator.getId)
+          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id2, env)
           case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
         // Parameter Declaration
         ext.foreach(x => x match {
           case null =>
           case Opt(_, d: DeclParameterDeclList) => d.parameterDecls.foreach(pdL => pdL match {
-            case null =>
             case Opt(_, pd: ParameterDeclarationD) => {
               val paramID = pd.decl.getId
               env.varEnv.getAstOrElse(paramID.name, null) match {
                 case null => putToDefUseMap(paramID)
                 case One(null) => putToDefUseMap(paramID)
-                case One(i: InitDeclarator) => {
-                  val key = i.getId
-                  // TODO AddUse?
-                  // defuse.put(key, defuse.get(key) ++ List(id))
-                  addUse(id, env)
-                }
+                case One(i: InitDeclarator) => addUse(id, env)
               }
             }
             case _ =>
@@ -280,14 +267,7 @@ trait CDefUse extends CEnv {
 
   def addUse(entry: AST, env: Env) {
     entry match {
-      // TODO to remove?
-      /*case PostfixExpr(i@Id(name), FunctionCall(params)) => {
-        env.varEnv.getAstOrElse(name, null) match {
-          case One(FunctionDef(_, declarator, _, _)) => addToDefUseMap(declarator.getId, i)
-          case _ =>
-        }
-      }*/
-      case FunctionCall(param) => param.exprs.foreach(x => addDecl(x.entry, env))
+      case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) =>
