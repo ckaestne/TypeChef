@@ -66,6 +66,10 @@ trait CDefUse extends CEnv {
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
   def addDef(f: AST, env: Env) {
+    if (f.toString.equals("Id(filename)")) {
+      println(env.varEnv.getAstOrElse("filename", null))
+      print()
+    }
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
@@ -178,9 +182,6 @@ trait CDefUse extends CEnv {
   def addTypeUse(entry: AST, env: Env) {
     entry match {
       case i@Id(name) =>
-        if (name.startsWith("__builtin")) {
-          defuse.put(i, List())
-        }
         env.typedefEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) =>
             addToDefUseMap(declarator.getId, i)
@@ -217,7 +218,13 @@ trait CDefUse extends CEnv {
               case k => println("Fehlt: " + k)
             }
           // TODO: Ask Jörg applet.pi ->  Id(__builtin_va_list) @ Line 38475
-          case k => println("Missing:" + i + "\nElement " + k)
+          case k =>
+            if (name.startsWith("__builtin")) {
+              defuse.put(i, List())
+            } else {
+              println("Missing: " + i + "\nElement " + k)
+            }
+
         }
 
     }
@@ -282,6 +289,11 @@ trait CDefUse extends CEnv {
         addDecl(decl, env)
       case StringLit(_) =>
       case SimplePostfixSuffix(_) =>
+      case CastExpr(_, expr) =>
+        addUse(expr, env)
+      case ArrayAccess(_) =>
+      case UnaryExpr(_, i: Id) =>
+        addUse(i, env)
       case k => println("Completly missing add use: " + k)
     }
   }
@@ -502,8 +514,12 @@ trait CDefUse extends CEnv {
       case WhileStatement(expr, cond) =>
         addDecl(expr, env)
         cond.toOptList.foreach(x => addDecl(x.entry, env))
+      case ArrayAccess(expr) => addDecl(expr, env)
+      case Choice(ft, then, els) =>
+        addDecl(then, env)
+        addDecl(els, env)
       case k =>
-        if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[DeclArrayAccess] && !k.isInstanceOf[VarArgs] && !k.isInstanceOf[AtomicAbstractDeclarator] && !k.isInstanceOf[StructInitializer]) {
+        if (!k.isInstanceOf[ContinueStatement] && !k.isInstanceOf[SimplePostfixSuffix] && !k.isInstanceOf[Specifier] && !k.isInstanceOf[DeclArrayAccess] && !k.isInstanceOf[VarArgs] && !k.isInstanceOf[AtomicAbstractDeclarator] && !k.isInstanceOf[StructInitializer] && !k.isInstanceOf[StringLit]) {
           println("Missing Case: " + k)
         }
     }
@@ -514,4 +530,6 @@ trait CDefUse extends CEnv {
     // TODO LabelMAP! -> Ask Jörg
     addDecl(expr, env)
   }
+
+
 }
