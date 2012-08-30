@@ -58,14 +58,11 @@ trait CDefUse extends CEnv {
   private def putToDefUseMap(id: Id) = {
     if (!defUseContainsId(id)) {
       defuse.put(id, List())
-    } else {
-      //println("++put faild!++")
     }
   }
 
   private def defUseContainsId(id: Id): Boolean = {
     if (defuse.containsKey(id)) {
-      //println("DefuseMap has key: " + id)
       return true
     }
     return defUseContainsIdAsValue(id)
@@ -75,7 +72,6 @@ trait CDefUse extends CEnv {
     defuse.values().foreach(x => {
       x.foreach(entry => {
         if (entry.eq(id)) {
-          println("DefuseMap has Value: " + id)
           return true
         }
       })
@@ -86,7 +82,6 @@ trait CDefUse extends CEnv {
   private def addToDefUseMap(key: Id, target: Id): Any = {
     if (defuse.containsKey(key)) {
       if (defUseContainsId(target)) {
-        //println("AddUse: Id already in map!" + target)
         return
       }
       defuse.put(key, defuse.get(key) ++ List(target))
@@ -97,8 +92,6 @@ trait CDefUse extends CEnv {
           if (v.eq(key)) fd = k.asInstanceOf[Id]
       }
       if (fd == null) {
-        //println("\nNaja das sollte wohl nicht so sein:\nkey: " + key + ", target: " + target)
-        // defuse.put(key, List(target))
         putToDefUseMap(key)
         addToDefUseMap(key, target)
       } else {
@@ -168,14 +161,14 @@ trait CDefUse extends CEnv {
           case null => putToDefUseMap(id)
           case One(null) => putToDefUseMap(id)
           case One(i: InitDeclarator) => {
-            val key = i.getId
-            // TODO: AddUse?
+            // val key = i.getId
+            // TODO: Verify
             //if (defuse.containsKey(key)) {
             //  defuse.put(key, defuse.get(key) ++ List(id))
             //} else {
             //  defuse.put(id, List())
             //}
-            putToDefUseMap(key)
+            putToDefUseMap(id)
           }
           case One(e: Enumerator) => putToDefUseMap(id) // TODO ENUM Verification
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
@@ -565,8 +558,7 @@ trait CDefUse extends CEnv {
   }
 
   def addLabelStatement(expr: Expr, env: Env) {
-    // println("labelEnv " + env.labelEnv)
-    // TODO LabelMAP! -> Ask Jörg
+    // TODO LabelMap Env -> Waiting for solution by C. Kaestner
     addDecl(expr, env)
   }
 }
