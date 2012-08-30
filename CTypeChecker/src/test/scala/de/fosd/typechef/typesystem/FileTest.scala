@@ -27,7 +27,7 @@ class FileTest extends TestHelper {
     private def d(n: String) = FeatureExprFactory.createDefinedExternal(n)
 
     //async.i
-    @Test def test1 {
+    @Ignore def test1 {
         assert(check("test1.xi"))
     }
     @Test def busybox_ar {
@@ -60,6 +60,9 @@ class FileTest extends TestHelper {
     }
     @Test def busybox_modutils_pi {
         assert(check("modutils-24.pi"))
+    }
+    @Test def busybox_smemcap_pi {
+        assert(check("smemcap.pi"))
     }
     //
     //    val linux_fork_fm = ((d("CONFIG_SMP") implies d("CONFIG_X86_LOCAL_APIC")) and

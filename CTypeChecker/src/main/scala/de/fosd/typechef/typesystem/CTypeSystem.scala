@@ -1,8 +1,9 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c._
+import _root_.de.fosd.typechef.featureexpr._
+import _root_.de.fosd.typechef.conditional._
+import _root_.de.fosd.typechef.parser.c._
+import FeatureExprFactory.{True, False}
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -21,11 +22,14 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     checkTranslationUnit(tunit, featureModel, InitialEnv)
   }
 
-  private[typesystem] def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
-    var env = initialEnv
-    addEnv(tunit, env)
-    for (Opt(f, e) <- tunit.defs) {
-      env = checkExternalDef(e, featureExpr and f, env)
+    private[typesystem] def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
+        var env = initialEnv
+        addEnv(tunit, env)
+        for (Opt(f, e) <- tunit.defs) {
+            env = checkExternalDef(e, featureExpr and f, env)
+        }
+        env.forceOpenCompletenessChecks()
+        env
     }
     env
   }
@@ -54,14 +58,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
   private def checkFunction(f: CDef, specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
     val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
 
-    //structs in signature defined?
-    funType.mapf(featureExpr, (f, t) => t.toValue match {
-      case CFunction(params, ret) =>
-        checkStructs(ret, f, env, declarator)
-        params.map(checkStructs(_, f, env, declarator))
-      case _ =>
-        issueTypeError(Severity.Crash, f, "not a function", declarator)
-    })
+        //structs in signature defined?
+        funType.mapf(featureExpr, (f, t) => t.toValue match {
+            case CFunction(params, ret) =>
+                //structs in both return type and parameters must be complete
+                checkStructCompleteness(ret, f, env, declarator)
+                params.map(checkStructCompleteness(_, f, env, declarator))
+            case _ =>
+                issueTypeError(Severity.Crash, f, "not a function", declarator)
+        })
 
     val expectedReturnType: Conditional[CType] = funType.mapf(featureExpr, {
       case (f, CFunction(_, returnType)) => returnType

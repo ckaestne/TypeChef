@@ -22,7 +22,7 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
             //            (("nwf1", false) -> new ConditionalTypeMap(Map("a" -> Seq((True, CFloat()), (True, CDouble()))))),
             (("nwf2", false) -> (new ConditionalTypeMap() +("a", True, null, One(CVoid())) +("b", True, null, One(CDouble())))),
             (("nwf3", false) -> new ConditionalTypeMap())
-        ).mapValues(x => (True, x)))
+        ).mapValues(x => One(StructTag(true, x, 0))))
         val tEnv: PtrEnv = Set("Str", "wf2")
         val wf = wellformed(sEnv, tEnv, _: CType) should be(true)
         val nwf = wellformed(sEnv, tEnv, _: CType) should be(false)
