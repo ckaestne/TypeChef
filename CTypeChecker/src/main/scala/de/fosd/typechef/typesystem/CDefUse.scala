@@ -232,7 +232,7 @@ trait CDefUse extends CEnv {
           case _ =>
         }
       }*/
-      case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
+      case FunctionCall(param) => param.exprs.foreach(x => addDecl(x.entry, env))
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) =>
@@ -276,7 +276,10 @@ trait CDefUse extends CEnv {
       case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
-      case SizeOfExprT(_) =>
+      case SizeOfExprT(expr) => addUse(expr, env)
+      case TypeName(specs, decl) =>
+        specs.foreach(x => addDecl(x.entry, env))
+        addDecl(decl, env)
       case StringLit(_) =>
       case SimplePostfixSuffix(_) =>
       case k => println("Completly missing add use: " + k)
