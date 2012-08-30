@@ -383,6 +383,7 @@ trait CDefUse extends CEnv {
       case i@IfStatement(cond, then, elif, els) =>
         addDecl(cond, env)
         then.toOptList.foreach(x => addDecl(x.entry, env))
+        els.foreach(x => addDecl(x, env))
       case EnumSpecifier(_, _) =>
         println()
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
