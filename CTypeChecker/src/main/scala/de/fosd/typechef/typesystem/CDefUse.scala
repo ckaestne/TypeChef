@@ -482,6 +482,8 @@ trait CDefUse extends CEnv {
         addDecl(expr, env)
         thenExpr.foreach(x => addDecl(x, env))
         addDecl(elseExpr, env)
+      case PointerCreationExpr(expr) =>
+        addDecl(expr, env)
       case Constant(_) =>
       case TypeName(a, _) =>
         println("TypeName" + a)
@@ -490,7 +492,7 @@ trait CDefUse extends CEnv {
       case GotoStatement(id) => addLabelStatement(id, env)
       case k =>
         if (!k.isInstanceOf[Specifier] && !k.isInstanceOf[DeclArrayAccess] && !k.isInstanceOf[VarArgs] && !k.isInstanceOf[AtomicAbstractDeclarator] && !k.isInstanceOf[StructInitializer]) {
-          //println("Missing Case: " + k)
+          println("Missing Case: " + k)
         }
     }
   }
