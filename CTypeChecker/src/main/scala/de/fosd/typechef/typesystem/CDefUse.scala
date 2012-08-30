@@ -288,7 +288,7 @@ trait CDefUse extends CEnv {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
 
-          env.structEnv.get(structName, isUnion).getAstOrElse(i.name, i) match {
+          env.structEnv.getFieldsMerged(structName, isUnion).getAstOrElse(i.name, i) match {
             case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
               addToDefUseMap(i2, i)
             case One(i2: Id) =>

@@ -3,7 +3,6 @@ package de.fosd.typechef.typesystem
 import _root_.de.fosd.typechef.featureexpr._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.parser.c._
-import FeatureExprFactory.{True, False}
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -22,15 +21,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     checkTranslationUnit(tunit, featureModel, InitialEnv)
   }
 
-    private[typesystem] def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
-        var env = initialEnv
-        addEnv(tunit, env)
-        for (Opt(f, e) <- tunit.defs) {
-            env = checkExternalDef(e, featureExpr and f, env)
-        }
-        env.forceOpenCompletenessChecks()
-        env
+  private[typesystem] def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
+    var env = initialEnv
+    addEnv(tunit, env)
+    for (Opt(f, e) <- tunit.defs) {
+      env = checkExternalDef(e, featureExpr and f, env)
     }
+    env.forceOpenCompletenessChecks()
     env
   }
 
@@ -58,15 +55,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
   private def checkFunction(f: CDef, specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
     val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
 
-        //structs in signature defined?
-        funType.mapf(featureExpr, (f, t) => t.toValue match {
-            case CFunction(params, ret) =>
-                //structs in both return type and parameters must be complete
-                checkStructCompleteness(ret, f, env, declarator)
-                params.map(checkStructCompleteness(_, f, env, declarator))
-            case _ =>
-                issueTypeError(Severity.Crash, f, "not a function", declarator)
-        })
+    //structs in signature defined?
+    funType.mapf(featureExpr, (f, t) => t.toValue match {
+      case CFunction(params, ret) =>
+        //structs in both return type and parameters must be complete
+        checkStructCompleteness(ret, f, env, declarator)
+        params.map(checkStructCompleteness(_, f, env, declarator))
+      case _ =>
+        issueTypeError(Severity.Crash, f, "not a function", declarator)
+    })
 
     val expectedReturnType: Conditional[CType] = funType.mapf(featureExpr, {
       case (f, CFunction(_, returnType)) => returnType
@@ -157,16 +154,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
   private def addDeclarationToEnvironment(d: Declaration, featureExpr: FeatureExpr, oldEnv: Env): Env = {
     var env = oldEnv
     //declared struct?
-    env = env.updateStructEnv(addStructDeclarationToEnv(d, featureExpr, env))
+    env = addStructDeclarationToEnv(d, featureExpr, env)
 
-    // TODO Get in for DefUSE
     //declared enums?
     env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
     //declared typedefs?
-    val typedef = recognizeTypedefs(d, featureExpr, env)
-    env = env.addTypedefs(typedef)
+    env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
 
-    val vars = getDeclaredVariables(d, featureExpr, env, checkInitializer)
+    val (newenv, vars) = getDeclaredVariables(d, featureExpr, env, checkInitializer)
+    env = newenv
 
     //check redeclaration
     for (v <- vars)
@@ -180,14 +176,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //check array initializers
     checkArrayExpr(d, featureExpr, env: Env)
     checkTypeDeclaration(d, featureExpr, env)
-
-    if (isTypedef(d.declSpecs)) {
-      typedef.foreach(x => {
-        //println(x._1 + oldEnv.typedefEnv.contains(x._1))
-      })
-    }
     addDecl(d, env)
-    //addDef(d, env)
     env
   }
 
