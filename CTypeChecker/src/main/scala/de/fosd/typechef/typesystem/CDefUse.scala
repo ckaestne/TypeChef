@@ -95,6 +95,9 @@ trait CDefUse extends CEnv {
   }
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
+    if (target.toString().equals("Id(i2)")) {
+      println("Debugmarke hier!")
+    }
     if (defuse.containsKey(key)) {
       if (defUseContainsId(target)) {
         return
@@ -305,11 +308,12 @@ trait CDefUse extends CEnv {
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case One(null) =>
             // TODO workaround entfernen - causes missing ids
+            /*
             if (defUseContainsIdName(i.name)) {
               addToDefUseMap(getKeyByName(i.name), i)
-            } else {
-              println("One(Null) - AddUse" + i + env.varEnv(i.name))
-            }
+            } else {  */
+            println("One(Null) - AddUse" + i + env.varEnv(i.name))
+          // }
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
