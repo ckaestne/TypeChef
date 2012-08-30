@@ -178,6 +178,9 @@ trait CDefUse extends CEnv {
   def addTypeUse(entry: AST, env: Env) {
     entry match {
       case i@Id(name) =>
+        if (name.startsWith("__builtin")) {
+          defuse.put(i, List())
+        }
         env.typedefEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) =>
             addToDefUseMap(declarator.getId, i)
