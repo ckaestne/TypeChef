@@ -108,7 +108,8 @@ trait ASTNavigation {
     }
   }
 
-  // method recursively filters all AST elements for a given type T
+  // method recursively filters all AST elements for a given type
+  // base case is the element of type T
   def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
     a match {
       case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T])
@@ -118,6 +119,8 @@ trait ASTNavigation {
     }
   }
 
+  // method recursively filters all AST elements for a given type and feature expression
+  // base case is the element of type T with feature expression ctx
   def filterASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)(implicit m: ClassManifest[T]): List[T] = {
     a match {
       case p: Product if (m.erasure.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T])
@@ -127,6 +130,7 @@ trait ASTNavigation {
     }
   }
 
+  // in contrast to filterASTElems, filterAllASTElems visits all elements of the tree-wise input structure
   def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
     a match {
       case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T]) ++
@@ -137,6 +141,8 @@ trait ASTNavigation {
     }
   }
 
+  // in contrast to filterASTElems, filterAllASTElems visits all elements of the tree-wise input structure and
+  // checks feature expressions also
   def filterAllASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)
                                  (implicit m: ClassManifest[T]): List[T] = {
     a match {
