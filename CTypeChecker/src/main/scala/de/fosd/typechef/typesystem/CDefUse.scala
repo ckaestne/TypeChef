@@ -68,6 +68,21 @@ trait CDefUse extends CEnv {
     return defUseContainsIdAsValue(id)
   }
 
+  private def defUseContainsIdName(name: String): Boolean = {
+    if (defuse.keySet().exists(x => x.name.equals(name))) {
+      return true
+    }
+    return false
+  }
+
+  private def getKeyByName(name: String): Id = {
+    defuse.keySet().foreach(x =>
+      if (x.name.equals(name)) {
+        return x
+      })
+    return null
+  }
+
   private def defUseContainsIdAsValue(id: Id): Boolean = {
     defuse.values().foreach(x => {
       x.foreach(entry => {
@@ -148,13 +163,7 @@ trait CDefUse extends CEnv {
           case null => putToDefUseMap(id)
           case One(null) => putToDefUseMap(id)
           case One(i: InitDeclarator) => {
-            // val key = i.getId
             // TODO: Verify
-            //if (defuse.containsKey(key)) {
-            //  defuse.put(key, defuse.get(key) ++ List(id))
-            //} else {
-            //  defuse.put(id, List())
-            //}
             putToDefUseMap(id)
           }
           case One(e: Enumerator) => putToDefUseMap(id) // TODO ENUM Verification
@@ -206,7 +215,6 @@ trait CDefUse extends CEnv {
           case One(i: InitDeclarator) => {
             val key = i.getId
             // TODO AddUse?
-            // defuse.put(key, defuse.get(key) ++ List(id))
             putToDefUseMap(key)
           }
         }
@@ -297,8 +305,11 @@ trait CDefUse extends CEnv {
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case One(null) =>
             // TODO workaround entfernen - causes missing ids
-            println("One(Null) - AddUse" + i)
-          // addDecl(i, env)
+            if (defUseContainsIdName(i.name)) {
+              addToDefUseMap(getKeyByName(i.name), i)
+            } else {
+              println("One(Null) - AddUse" + i + env.varEnv(i.name))
+            }
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)

@@ -22,7 +22,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
     val resultType: Conditional[CType] =
       if (!featureExpr.isSatisfiable()) {
         One(CIgnore())
-      } else
+      } else {
         expr match {
           /**
            * The standard provides for methods of
@@ -238,7 +238,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
           //TODO initializers 6.5.2.5
           case e => One(reportTypeError(featureExpr, "unknown expression " + e + " (TODO)", e))
         }
-
+      }
     typedExpr(expr, resultType, featureExpr, env)
     addEnv(expr, env)
     addUse(expr, env)
