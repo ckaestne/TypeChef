@@ -327,6 +327,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     //fw2.write(PrettyPrinter.print(ast))
     //fw2.close()
     val success = checkDefuse(ast, getDefUseMap)
+    //val defUseMap = getDefUseMap
+    //defUseMap.keySet().toArray.foreach(x => print(x + "=" + defUseMap.get(x) + "\n"))
     println("DefUse" + getDefUseMap)
     println("Success " + success + "\n\n")
     Thread.sleep(2000)

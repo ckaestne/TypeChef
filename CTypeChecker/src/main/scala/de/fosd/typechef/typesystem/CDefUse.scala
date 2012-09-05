@@ -276,6 +276,62 @@ trait CDefUse extends CEnv {
     }
   }
 
+  def addUse2(i: Id, env: Env, no: Int): Boolean = {
+    no match {
+      case 1 =>
+        env.varEnv.getAstOrElse(i.name, null) match {
+          case One(InitDeclaratorI(declarator, _, _)) =>
+            addToDefUseMap(declarator.getId, i)
+            return true
+          case One(AtomicNamedDeclarator(_, key, _)) =>
+            addToDefUseMap(key, i)
+            return true
+          case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
+            addToDefUseMap(key, i)
+            return true
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+            addToDefUseMap(declarator.getId, i)
+            addToDefUseMap(declarator2.getId, i)
+            return true
+          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
+            addToDefUseMap(declarator.getId, i)
+            return true
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
+            addToDefUseMap(key, i)
+            addToDefUseMap(key2, i)
+            return true
+          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
+            addToDefUseMap(key, i)
+            return true
+          case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
+            addToDefUseMap(key, i)
+            addToDefUseMap(key2, i)
+            return true
+          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
+            addToDefUseMap(key, i)
+            return true
+          case Choice(feature, One(Enumerator(key, _)), _) =>
+            addToDefUseMap(key, i)
+            return true
+          case One(Enumerator(key, _)) =>
+            addToDefUseMap(key, i)
+            return true
+          case One(null) =>
+            // TODO workaround entfernen - causes missing ids
+            /*
+            if (defUseContainsIdName(i.name)) {
+              addToDefUseMap(getKeyByName(i.name), i)
+            } else {  */
+            println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
+            addUse2(i, env, (no + 1))
+          // }
+          case k =>
+            println("AddUse Id not exhaustive: " + i + "\nElement " + k)
+            return false
+        }
+    }
+  }
+
   def addUse(entry: AST, env: Env) {
     entry match {
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
@@ -312,7 +368,7 @@ trait CDefUse extends CEnv {
             if (defUseContainsIdName(i.name)) {
               addToDefUseMap(getKeyByName(i.name), i)
             } else {  */
-            println("One(Null) - AddUse" + i + env.varEnv(i.name))
+            println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
           // }
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
@@ -321,13 +377,13 @@ trait CDefUse extends CEnv {
         addUse(source, env)
         addUse(target, env)
       case NAryExpr(i, o) =>
-        addUse(i, env)
+        //addUse(i, env)
         o.foreach(x => addUse(x.entry, env))
       case NArySubExpr(_, e) => addUse(e, env)
       case PostfixExpr(p, s) =>
         addUse(p, env)
         addUse(s, env)
-      case PointerPostfixSuffix(_, id) => addUse(id, env)
+      case PointerPostfixSuffix(_, id) => //addUse(id, env)
       case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
@@ -425,11 +481,12 @@ trait CDefUse extends CEnv {
           addDecl(e.entry, env)
         }
       case i@IfStatement(cond, then, elif, els) =>
-        addDecl(cond, env)
-        then.toOptList.foreach(x => addDecl(x.entry, env))
-        elif.foreach(x => addDecl(x.entry.condition, env))
-        elif.foreach(x => x.entry.thenBranch.toOptList.foreach(x => addDecl(x, env)))
-        els.foreach(x => addDecl(x, env))
+      /*
+  addDecl(cond, env)
+  then.toOptList.foreach(x => addDecl(x.entry, env))
+  elif.foreach(x => addDecl(x.entry.condition, env))
+  elif.foreach(x => x.entry.thenBranch.toOptList.foreach(x => addDecl(x, env)))
+  els.foreach(x => addDecl(x, env)) */
       case EnumSpecifier(_, _) =>
         println()
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
@@ -461,9 +518,10 @@ trait CDefUse extends CEnv {
       */
 
       case ReturnStatement(expr) =>
-        if (!expr.isEmpty) {
-          addDecl(expr.get, env)
-        }
+      /*
+     if (!expr.isEmpty) {
+       addDecl(expr.get, env)
+     } */
       case AssignExpr(target, operation, source) =>
         addUse(source, env)
         addUse(target, env)
@@ -486,7 +544,7 @@ trait CDefUse extends CEnv {
         addDecl(decl, env)
         addDef(i, env)
       case ExprStatement(expr) =>
-        addDecl(expr, env)
+      //addDecl(expr, env)
       case pe@PostfixExpr(expr, suffix) =>
         if (expr.isInstanceOf[Id] && expr.asInstanceOf[Id].name.equals("handle")) {
           //println("\n++ANDI2++: " + env.varEnv.getAstOrElse(expr.asInstanceOf[Id].name, null))
@@ -499,13 +557,14 @@ trait CDefUse extends CEnv {
           //println("\n++FLO2++: " + env.typedefEnv.getAstOrElse(i.toString(), null))
           //println("\n++ANDI++: " + env.varEnv.lookup(i.toString()))
         }
-        addUse(i, env)
+      // addUse(i, env)
       case f@FunctionCall(expr) =>
-        expr.exprs.foreach(x =>
-          x.entry match {
-            case i: Id => addUse(x.entry, env)
-            case _ => addDecl(x.entry, env)
-          })
+      /*
+   expr.exprs.foreach(x =>
+     x.entry match {
+       case i: Id => addUse(x.entry, env)
+       case _ => addDecl(x.entry, env)
+     }) */
       case StructDeclarator(decl, _, _) =>
         addDecl(decl, env)
       case StructOrUnionSpecifier(_, Some(o), None) =>
@@ -542,7 +601,7 @@ trait CDefUse extends CEnv {
       case LabelStatement(id, _) => addLabelStatement(id, env)
       case CompoundStatement(statement) => statement.foreach(x => addDecl(x.entry, env))
       case GotoStatement(id) => addLabelStatement(id, env)
-      case PointerDerefExpr(expr) => addUse(expr, env)
+      case PointerDerefExpr(expr) => // addUse(expr, env)
       case WhileStatement(expr, cond) =>
         addDecl(expr, env)
         cond.toOptList.foreach(x => addDecl(x.entry, env))
