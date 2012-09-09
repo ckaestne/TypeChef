@@ -95,9 +95,9 @@ trait CDefUse extends CEnv {
   }
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
-    if (target.toString().equals("Id(i2)")) {
-      println("Debugmarke hier!")
-    }
+    // if (target.toString().equals("Id(i2)")) {
+    //  println("Debugmarke hier!")
+    // }
     if (defuse.containsKey(key)) {
       if (defUseContainsId(target)) {
         return
@@ -135,11 +135,15 @@ trait CDefUse extends CEnv {
         // if so we get an InitDeclarator instance back
         val id = declarator.getId
         val ext = declarator.extensions
+        checkFuncDeclForGOTOs(f, env)
         env.varEnv.getAstOrElse(id.name, null) match {
-          case null => putToDefUseMap(declarator.getId)
-          case One(null) => putToDefUseMap(declarator.getId)
+          case null =>
+            putToDefUseMap(declarator.getId)
+          case One(null) =>
+            putToDefUseMap(declarator.getId)
           case One(i: InitDeclarator) => addUse(id, env)
-          case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => putToDefUseMap(declarator.getId)
+          case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) =>
+            putToDefUseMap(declarator.getId)
           case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id2, env)
           case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
@@ -481,12 +485,6 @@ trait CDefUse extends CEnv {
         addTypeUse(name, env)
       case DeclArrayAccess(Some(o)) =>
         addDecl(o, env)
-
-      /* Diese folgenden Zeilen entfernen IDs aus der DefUseMap, warum??   */
-      /* case DeclarationStatement(decl) =>
-      addDecl(decl, env)
-      */
-
       case ReturnStatement(expr) =>
       /*
      if (!expr.isEmpty) {
@@ -559,9 +557,7 @@ trait CDefUse extends CEnv {
       case Constant(_) =>
       case TypeName(a, _) =>
         println("TypeName" + a)
-      case LabelStatement(id, _) => addLabelStatement(id, env)
       case CompoundStatement(statement) => statement.foreach(x => addDecl(x.entry, env))
-      case GotoStatement(id) => addLabelStatement(id, env)
       case PointerDerefExpr(expr) => // addUse(expr, env)
       case WhileStatement(expr, cond) =>
         addDecl(expr, env)
@@ -577,8 +573,32 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addLabelStatement(expr: Expr, env: Env) {
-    // TODO LabelMap Env -> Waiting for solution by C. Kaestner
-    addDecl(expr, env)
+  private def checkFuncDeclForGOTOs(f: AST, env: Env) {
+    // TODO Verify -> #ifdef gotos und verschachtelte gotos <- Überdeckung
+    val labels = filterASTElemts[LabelStatement](f)
+    val gotos = filterASTElemts[GotoStatement](f)
+
+    for (x <- labels) {
+      val id = x.id
+      putToDefUseMap(id)
+      gotos.foreach(y => y match {
+        case GotoStatement(id2) =>
+          if (id.equals(id2)) {
+            addToDefUseMap(id, id2.asInstanceOf[Id])
+          }
+        case _ =>
+      })
+    }
+  }
+
+  // method recursively filters all AST elements for a given type T
+  // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
+  private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    a match {
+      case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T])
+      case l: List[_] => l.flatMap(filterASTElemts[T])
+      case p: Product => p.productIterator.toList.flatMap(filterASTElemts[T])
+      case _ => List()
+    }
   }
 }
