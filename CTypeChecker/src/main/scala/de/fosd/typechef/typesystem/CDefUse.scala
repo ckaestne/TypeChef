@@ -307,6 +307,7 @@ trait CDefUse extends CEnv {
             addToDefUseMap(key, i)
           case Choice(feature, One(Enumerator(key, _)), _) => addToDefUseMap(key, i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
+          case One(NestedNamedDeclarator(_, nestedDecl, _)) => addToDefUseMap(nestedDecl.getId, i)
           case One(null) =>
             // TODO workaround entfernen - causes missing ids
             /*
@@ -344,7 +345,8 @@ trait CDefUse extends CEnv {
       case ArrayAccess(_) =>
       case UnaryExpr(_, i: Id) =>
         addUse(i, env)
-      case k => println("Completly missing add use: " + k)
+      case UnaryOpExpr(_, entry) => addUse(entry, env)
+      case k => println(" Completly missing add use: " + k + " " + k.getPositionFrom)
     }
   }
 
@@ -367,7 +369,7 @@ trait CDefUse extends CEnv {
               addToDefUseMap(id3, i)
             case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) =>
               addToDefUseMap(i2, i)
-            case k => // println("omg this should not have happend "+ k)
+            case k => println("omg this should not have happend " + k)
           }
         } else {
           env.typedefEnv.getAstOrElse(i.name, null) match {
