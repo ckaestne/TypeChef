@@ -190,7 +190,7 @@ trait CDefUse extends CEnv {
             putToDefUseMap(key2)
           case Choice(feature, One(Enumerator(key, _)), _) =>
             putToDefUseMap(key)
-          case k => //println("Oh i forgot " + k)
+          case k => // println("Oh i forgot " + k)
         }
       // TODO Check with new StructEnv!
       case st: StructDeclaration =>
@@ -276,61 +276,6 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addUse2(i: Id, env: Env, no: Int): Boolean = {
-    no match {
-      case 1 =>
-        env.varEnv.getAstOrElse(i.name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) =>
-            addToDefUseMap(declarator.getId, i)
-            return true
-          case One(AtomicNamedDeclarator(_, key, _)) =>
-            addToDefUseMap(key, i)
-            return true
-          case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
-            addToDefUseMap(key, i)
-            return true
-          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
-            addToDefUseMap(declarator.getId, i)
-            addToDefUseMap(declarator2.getId, i)
-            return true
-          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
-            addToDefUseMap(declarator.getId, i)
-            return true
-          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
-            addToDefUseMap(key, i)
-            addToDefUseMap(key2, i)
-            return true
-          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
-            addToDefUseMap(key, i)
-            return true
-          case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
-            addToDefUseMap(key, i)
-            addToDefUseMap(key2, i)
-            return true
-          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
-            addToDefUseMap(key, i)
-            return true
-          case Choice(feature, One(Enumerator(key, _)), _) =>
-            addToDefUseMap(key, i)
-            return true
-          case One(Enumerator(key, _)) =>
-            addToDefUseMap(key, i)
-            return true
-          case One(null) =>
-            // TODO workaround entfernen - causes missing ids
-            /*
-            if (defUseContainsIdName(i.name)) {
-              addToDefUseMap(getKeyByName(i.name), i)
-            } else {  */
-            println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
-            addUse2(i, env, (no + 1))
-          // }
-          case k =>
-            println("AddUse Id not exhaustive: " + i + "\nElement " + k)
-            return false
-        }
-    }
-  }
 
   def addUse(entry: AST, env: Env) {
     entry match {
@@ -383,7 +328,7 @@ trait CDefUse extends CEnv {
       case PostfixExpr(p, s) =>
         addUse(p, env)
         addUse(s, env)
-      case PointerPostfixSuffix(_, id) => //addUse(id, env)
+      case PointerPostfixSuffix(_, id) => // addUse(id, env)
       case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
@@ -393,7 +338,8 @@ trait CDefUse extends CEnv {
         addDecl(decl, env)
       case StringLit(_) =>
       case SimplePostfixSuffix(_) =>
-      case CastExpr(_, expr) =>
+      case CastExpr(typ, expr) =>
+        addUse(typ, env)
         addUse(expr, env)
       case ArrayAccess(_) =>
       case UnaryExpr(_, i: Id) =>
