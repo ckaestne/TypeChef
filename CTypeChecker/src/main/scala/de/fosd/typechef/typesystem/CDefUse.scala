@@ -133,6 +133,7 @@ trait CDefUse extends CEnv {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
+        // println(func)
         val id = declarator.getId
         val ext = declarator.extensions
         env.varEnv.getAstOrElse(id.name, null) match {
@@ -143,22 +144,7 @@ trait CDefUse extends CEnv {
           case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id2, env)
           case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
-        // Parameter Declaration
-        ext.foreach(x => x match {
-          case null =>
-          case Opt(_, d: DeclParameterDeclList) => d.parameterDecls.foreach(pdL => pdL match {
-            case Opt(_, pd: ParameterDeclarationD) => {
-              val paramID = pd.decl.getId
-              env.varEnv.getAstOrElse(paramID.name, null) match {
-                case null => putToDefUseMap(paramID)
-                case One(null) => putToDefUseMap(paramID)
-                case One(i: InitDeclarator) => addUse(id, env)
-              }
-            }
-            case _ =>
-          })
-          case mi => println("Completly missing: " + mi)
-        })
+        addFunctionParametersToDefUse(ext, env)
       }
       case i: InitDeclarator => putToDefUseMap(i.getId)
       case id: Id =>
@@ -224,6 +210,28 @@ trait CDefUse extends CEnv {
       case k =>
         println("Missing Add Def: " + f + " from " + k)
     }
+  }
+
+  private def addFunctionParametersToDefUse(ext: List[Opt[DeclaratorExtension]], env: Env) {
+    ext.foreach(x => x match {
+      case null =>
+      case Opt(_, d: DeclParameterDeclList) => d.parameterDecls.foreach(pdL => pdL match {
+        case Opt(_, pd: ParameterDeclarationD) => {
+          val paramID = pd.decl.getId
+          env.varEnv.getAstOrElse(paramID.name, null) match {
+            case null => putToDefUseMap(paramID)
+            case One(null) => putToDefUseMap(paramID)
+            case One(i: InitDeclarator) => addUse(paramID, env)
+            case m => println("pdl missed" + m)
+          }
+          // match extensions
+          val extensions = pd.decl.extensions
+          addFunctionParametersToDefUse(extensions, env)
+        }
+        case e => println("err " + e)
+      })
+      case mi => println("Completly missing: " + mi)
+    })
   }
 
   def addTypeUse(entry: AST, env: Env) {
@@ -343,9 +351,9 @@ trait CDefUse extends CEnv {
         addUse(typ, env)
         addUse(expr, env)
       case ArrayAccess(_) =>
-      case UnaryExpr(_, i: Id) =>
-        addUse(i, env)
-      case UnaryOpExpr(_, entry) => addUse(entry, env)
+      case UnaryExpr(_, expr) =>
+        addUse(expr, env)
+      case UnaryOpExpr(_, expr) => addUse(expr, env)
       case k => println(" Completly missing add use: " + k + " " + k.getPositionFrom)
     }
   }
