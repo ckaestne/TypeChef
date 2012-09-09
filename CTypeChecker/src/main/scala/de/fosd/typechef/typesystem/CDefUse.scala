@@ -133,7 +133,6 @@ trait CDefUse extends CEnv {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
-        // println(func)
         val id = declarator.getId
         val ext = declarator.extensions
         env.varEnv.getAstOrElse(id.name, null) match {
@@ -219,14 +218,18 @@ trait CDefUse extends CEnv {
         case Opt(_, pd: ParameterDeclarationD) => {
           val paramID = pd.decl.getId
           env.varEnv.getAstOrElse(paramID.name, null) match {
-            case null => putToDefUseMap(paramID)
-            case One(null) => putToDefUseMap(paramID)
+            case null =>
+              putToDefUseMap(paramID)
+            case One(null) =>
+              putToDefUseMap(paramID)
             case One(i: InitDeclarator) => addUse(paramID, env)
             case m => println("pdl missed" + m)
           }
           // match extensions
           val extensions = pd.decl.extensions
+          val specs = pd.specifiers
           addFunctionParametersToDefUse(extensions, env)
+          specs.foreach(x => addUse(x.entry, env))
         }
         case e => println("err " + e)
       })
@@ -354,7 +357,12 @@ trait CDefUse extends CEnv {
       case UnaryExpr(_, expr) =>
         addUse(expr, env)
       case UnaryOpExpr(_, expr) => addUse(expr, env)
-      case k => println(" Completly missing add use: " + k + " " + k.getPositionFrom)
+      case TypeDefTypeSpecifier(id) => addTypeUse(id, env)
+      case k =>
+        // TODO Wieso ist kein Pattern Matching auf Specifier möglich?
+        if (!k.isInstanceOf[Specifier]) {
+          println(" Completly missing add use: " + k + " " + k.getPositionFrom)
+        }
     }
   }
 
@@ -449,7 +457,8 @@ trait CDefUse extends CEnv {
   elif.foreach(x => x.entry.thenBranch.toOptList.foreach(x => addDecl(x, env)))
   els.foreach(x => addDecl(x, env)) */
       case EnumSpecifier(_, _) =>
-        println()
+      // TODO WTF?
+      // println()
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
       case ParameterDeclarationAD(spec, decl) =>
         spec.foreach(x => addDecl(x.entry, env))
@@ -507,18 +516,9 @@ trait CDefUse extends CEnv {
       case ExprStatement(expr) =>
       //addDecl(expr, env)
       case pe@PostfixExpr(expr, suffix) =>
-        if (expr.isInstanceOf[Id] && expr.asInstanceOf[Id].name.equals("handle")) {
-          //println("\n++ANDI2++: " + env.varEnv.getAstOrElse(expr.asInstanceOf[Id].name, null))
-        }
         addUse(expr, env)
         addDecl(suffix, env)
       case pps@PointerPostfixSuffix(_, i: Id) =>
-        if (i.toString().equals("Id(ar__name)")) {
-          //println("\n++FLO++: " + env.varEnv.getAstOrElse(i.toString(), null))
-          //println("\n++FLO2++: " + env.typedefEnv.getAstOrElse(i.toString(), null))
-          //println("\n++ANDI++: " + env.varEnv.lookup(i.toString()))
-        }
-      // addUse(i, env)
       case f@FunctionCall(expr) =>
       /*
    expr.exprs.foreach(x =>
