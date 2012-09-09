@@ -362,7 +362,12 @@ trait CDefUse extends CEnv {
               addToDefUseMap(i2, i)
             case One(i2: Id) =>
               addToDefUseMap(i2, i)
-            case k => // println("omg this should not have happend")
+            case Choice(_, One(AtomicNamedDeclarator(_, id2: Id, _)), One(id3: Id)) =>
+              addToDefUseMap(id2, i)
+              addToDefUseMap(id3, i)
+            case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) =>
+              addToDefUseMap(i2, i)
+            case k => // println("omg this should not have happend "+ k)
           }
         } else {
           env.typedefEnv.getAstOrElse(i.name, null) match {
