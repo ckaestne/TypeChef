@@ -134,8 +134,12 @@ trait CDefUse extends CEnv {
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
         val id = declarator.getId
+        if (id.name.equals("gunzip_main")) {
+          println("drin? " + id.getPositionFrom)
+          println(defUseContainsId(id))
+        }
         val ext = declarator.extensions
-        checkFuncDeclForGOTOs(f, env)
+        checkFuncDeclForGOTOs(f)
         env.varEnv.getAstOrElse(id.name, null) match {
           case null =>
             putToDefUseMap(declarator.getId)
@@ -573,7 +577,7 @@ trait CDefUse extends CEnv {
     }
   }
 
-  private def checkFuncDeclForGOTOs(f: AST, env: Env) {
+  private def checkFuncDeclForGOTOs(f: AST) {
     // TODO Verify -> #ifdef gotos und verschachtelte gotos <- Überdeckung
     val labels = filterASTElemts[LabelStatement](f)
     val gotos = filterASTElemts[GotoStatement](f)
