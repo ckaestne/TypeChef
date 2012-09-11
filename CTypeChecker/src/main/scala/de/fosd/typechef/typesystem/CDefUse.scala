@@ -95,9 +95,6 @@ trait CDefUse extends CEnv {
   }
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
-    // if (target.toString().equals("Id(i2)")) {
-    //  println("Debugmarke hier!")
-    // }
     if (defuse.containsKey(key)) {
       if (defUseContainsId(target)) {
         return
@@ -134,10 +131,6 @@ trait CDefUse extends CEnv {
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
         val id = declarator.getId
-        if (id.name.equals("gunzip_main")) {
-          println("drin? " + id.getPositionFrom)
-          println(defUseContainsId(id))
-        }
         val ext = declarator.extensions
         checkFuncDeclForGOTOs(f)
         env.varEnv.getAstOrElse(id.name, null) match {
@@ -148,8 +141,10 @@ trait CDefUse extends CEnv {
           case One(i: InitDeclarator) => addUse(id, env)
           case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) =>
             putToDefUseMap(declarator.getId)
-          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id2, env)
-          case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
+          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), One(null)) => addUse(id, env)
+          case k =>
+            println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
+            println("debug here")
         }
         addFunctionParametersToDefUse(ext, env)
       }
@@ -295,7 +290,6 @@ trait CDefUse extends CEnv {
     }
   }
 
-
   def addUse(entry: AST, env: Env) {
     entry match {
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
@@ -310,6 +304,12 @@ trait CDefUse extends CEnv {
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+            if (i.name.equals("gunzip_main")) {
+              println("in there")
+              println("dec1" + declarator + " ")
+              println("dec2" + declarator2)
+              println("id" + i)
+            }
             addToDefUseMap(declarator.getId, i)
             addToDefUseMap(declarator2.getId, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
