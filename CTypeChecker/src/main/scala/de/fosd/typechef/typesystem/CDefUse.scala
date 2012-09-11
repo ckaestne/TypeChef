@@ -141,7 +141,8 @@ trait CDefUse extends CEnv {
           case One(i: InitDeclarator) => addUse(id, env)
           case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) =>
             putToDefUseMap(declarator.getId)
-          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), One(null)) => addUse(id, env)
+          // TODO Look at second choice and double declariation
+          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id, env)
           case k =>
             println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
             println("debug here")
@@ -304,14 +305,19 @@ trait CDefUse extends CEnv {
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
-            if (i.name.equals("gunzip_main")) {
-              println("in there")
-              println("dec1" + declarator + " ")
-              println("dec2" + declarator2)
-              println("id" + i)
-            }
+            // TODO Verfiy Choice!
             addToDefUseMap(declarator.getId, i)
             addToDefUseMap(declarator2.getId, i)
+          /* if (i.name.equals("gunzip_main")) {
+          println("in there")
+          println("dec1" + declarator + " ")
+          println("dec2" + declarator2)
+          println("id" + i)
+          val debug = defuse.get(declarator.getId)
+          val debug2 = defuse.get(declarator2.getId)
+          println(debug)
+          println(debug2)
+        }  */
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
             addToDefUseMap(declarator.getId, i)
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
@@ -353,6 +359,7 @@ trait CDefUse extends CEnv {
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
       case SizeOfExprT(expr) => addUse(expr, env)
+      case SizeOfExprU(expr) => addUse(expr, env)
       case TypeName(specs, decl) =>
         specs.foreach(x => addDecl(x.entry, env))
         addDecl(decl, env)
