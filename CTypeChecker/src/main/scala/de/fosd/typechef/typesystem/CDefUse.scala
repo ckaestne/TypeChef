@@ -308,16 +308,6 @@ trait CDefUse extends CEnv {
             // TODO Verfiy Choice!
             addToDefUseMap(declarator.getId, i)
             addToDefUseMap(declarator2.getId, i)
-          /* if (i.name.equals("gunzip_main")) {
-          println("in there")
-          println("dec1" + declarator + " ")
-          println("dec2" + declarator2)
-          println("id" + i)
-          val debug = defuse.get(declarator.getId)
-          val debug2 = defuse.get(declarator2.getId)
-          println(debug)
-          println(debug2)
-        }  */
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
             addToDefUseMap(declarator.getId, i)
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
@@ -354,7 +344,7 @@ trait CDefUse extends CEnv {
       case PostfixExpr(p, s) =>
         addUse(p, env)
         addUse(s, env)
-      case PointerPostfixSuffix(_, id) => // addUse(id, env)
+      case PointerPostfixSuffix(_, id) =>
       case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
@@ -381,16 +371,9 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addOneNullIds(entry: AST, env: Env) = {
-
-  }
-
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
     entry match {
       case i@Id(name) => {
-        if (name.equals("v1")) {
-          println("struct")
-        }
         if (env.structEnv.someDefinition(structName, isUnion)) {
           env.structEnv.getFieldsMerged(structName, isUnion).getAstOrElse(i.name, i) match {
             case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
@@ -415,6 +398,13 @@ trait CDefUse extends CEnv {
       }
       case k =>
         println("Missing Add Struct: " + k)
+    }
+  }
+
+  def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
+    fields.getAstOrElse(id.name, null) match {
+      case Choice(_, One(AtomicNamedDeclarator(_, key, _)), One(null)) => addToDefUseMap(key, id)
+      case _ => println("Should not have entered here: " + id)
     }
   }
 
