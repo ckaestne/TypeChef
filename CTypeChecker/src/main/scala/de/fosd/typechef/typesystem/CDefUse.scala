@@ -235,6 +235,10 @@ trait CDefUse extends CEnv {
           addFunctionParametersToDefUse(extensions, env)
           specs.foreach(x => addUse(x.entry, env))
         }
+        case Opt(_, p: PlainParameterDeclaration) => p.specifiers.foreach(x => addDecl(x.entry, env))
+        case Opt(_, pad: ParameterDeclarationAD) =>
+          addDecl(pad.decl, env)
+          pad.specifiers.foreach(x => addDecl(x.entry, env))
         case e => println("err " + e)
       })
       case mi => println("Completly missing: " + mi)
@@ -347,6 +351,11 @@ trait CDefUse extends CEnv {
         addUse(p, env)
         addUse(s, env)
       case PointerPostfixSuffix(_, id) =>
+        // stop if id is not yet in env
+        // continue if in env
+        if (!env.varEnv.getAstOrElse(id.name, null).equals(One(null))) {
+          addUse(id, env)
+        }
       case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
@@ -415,7 +424,8 @@ trait CDefUse extends CEnv {
   def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
     fields.getAstOrElse(id.name, null) match {
       case Choice(_, One(AtomicNamedDeclarator(_, key, _)), One(null)) => addToDefUseMap(key, id)
-      case _ => println("Should not have entered here: " + id)
+      case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, id)
+      case k => println("Should not have entered here: " + id + "\n" + k)
     }
   }
 
