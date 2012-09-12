@@ -330,6 +330,7 @@ trait CDefUse extends CEnv {
               addToDefUseMap(getKeyByName(i.name), i)
             } else {  */
             println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
+          // try anonymous struct or union
           // }
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
@@ -338,9 +339,10 @@ trait CDefUse extends CEnv {
         addUse(source, env)
         addUse(target, env)
       case NAryExpr(i, o) =>
-        //addUse(i, env)
+        addUse(i, env)
         o.foreach(x => addUse(x.entry, env))
-      case NArySubExpr(_, e) => addUse(e, env)
+      case NArySubExpr(_, e) =>
+        addUse(e, env)
       case PostfixExpr(p, s) =>
         addUse(p, env)
         addUse(s, env)
@@ -363,6 +365,14 @@ trait CDefUse extends CEnv {
         addUse(expr, env)
       case UnaryOpExpr(_, expr) => addUse(expr, env)
       case TypeDefTypeSpecifier(id) => addTypeUse(id, env)
+      case BuiltinOffsetof(typeName, members) =>
+        typeName.specifiers.foreach(x => addUse(x.entry, env))
+        /**
+         * Workaround for buitlin_offset_ -> typechef inplementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
+         */
+        val structOrUnion = filterASTElemts[Id](typeName)
+        // addStructUse(entry, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false))
+        members.foreach(x => addStructUse(x.entry, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
       case k =>
         // TODO Wieso ist kein Pattern Matching auf Specifier möglich?
         if (!k.isInstanceOf[Specifier]) {
@@ -371,12 +381,12 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
+  def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) {
     entry match {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
           env.structEnv.getFieldsMerged(structName, isUnion).getAstOrElse(i.name, i) match {
-            case One(AtomicNamedDeclarator(_, i2: Id, List())) =>
+            case One(AtomicNamedDeclarator(_, i2: Id, _)) =>
               addToDefUseMap(i2, i)
             case One(i2: Id) =>
               addToDefUseMap(i2, i)
@@ -396,6 +406,7 @@ trait CDefUse extends CEnv {
           }
         }
       }
+      case OffsetofMemberDesignatorID(id) => addStructUse(id, env, structName, isUnion)
       case k =>
         println("Missing Add Struct: " + k)
     }
@@ -475,7 +486,7 @@ trait CDefUse extends CEnv {
         o match {
           case i: Id =>
             addUse(i, env)
-          case k => addDecl(k, env)
+          case k => addUse(k, env)
         }
       case Enumerator(i@Id(name), _) =>
         addDecl(i, env)
@@ -558,8 +569,6 @@ trait CDefUse extends CEnv {
       case PointerCreationExpr(expr) =>
         addDecl(expr, env)
       case Constant(_) =>
-      case TypeName(a, _) =>
-        println("TypeName" + a)
       case CompoundStatement(statement) => statement.foreach(x => addDecl(x.entry, env))
       case PointerDerefExpr(expr) => // addUse(expr, env)
       case WhileStatement(expr, cond) =>
