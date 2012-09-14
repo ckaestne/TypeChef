@@ -6,8 +6,16 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
+import java.io.{FileInputStream, FilenameFilter, File}
 
 class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
+  private def getAstFromPi(fileToAnalyse: File): TranslationUnit = {
+    println("++Analyse: " + fileToAnalyse.getName + "++")
+    val fis = new FileInputStream(fileToAnalyse)
+    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+    fis.close()
+    ast
+  }
 
   @Test def test_replace() {
     val e1 = Opt(True,
@@ -125,8 +133,6 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val env = createASTEnv(ast)
     val i = new IfdefToIf()
     println("Test:\n")
-
-    val fio = i.filterInvariableOpts(ast, env)
 
     val feat = i.filterFeatures(ast, env)
     println("++Distinct features in ast" + " (" + feat.size + ")" + "++")
@@ -1007,9 +1013,38 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("\nDef Use Map:\n" + defUseMap)
   }
 
+  @Test def test_applets_pi() {
+    val i = new IfdefToIf
+    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi"))
 
-  @Test def busy_box_test {
-    // Datei einlesen, Argumente mit Dateipfad -xCONFIG_ -c/AndyHiwi/Andi/Andi.properties String Array // FileActions
-    val args: Array[String] = Array("C:\\Users\\Flo\\Dropbox\\HiWi\\HelloWorld.c", "-xCONFIG_", "-C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\flo_properties")
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+
+    val feat = i.filterFeatures(source_ast, createASTEnv(source_ast))
+    println("++Distinct features in ast" + " (" + feat.size + ")" + "++")
+    println(feat)
+
+    val cstmt = i.definedExternalToStruct(feat)
+    println("++Pretty printed++")
+    println(PrettyPrinter.print(cstmt))
+  }
+
+  private def analyseDir(dirToAnalyse: File) {
+    // retrieve all pi from dir first
+    if (dirToAnalyse.isDirectory) {
+      val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
+        def accept(dir: File, file: String): Boolean = file.endsWith(".pi")
+      })
+      val dirs = dirToAnalyse.listFiles(new FilenameFilter {
+        def accept(dir: File, file: String) = dir.isDirectory
+      })
+      for (piFile <- piFiles) {
+        getAstFromPi(piFile)
+        Thread.sleep(5000)
+      }
+      for (dir <- dirs) {
+        analyseDir(dir)
+      }
+    }
   }
 }

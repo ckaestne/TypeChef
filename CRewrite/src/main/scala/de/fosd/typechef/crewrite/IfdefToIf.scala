@@ -182,6 +182,15 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
   }
 
+  def filterVariableOpts(a: Any, env: ASTEnv): List[Opt[_]] = {
+    a match {
+      case o: Opt[_] => if (o.feature != FeatureExprFactory.True) List(o) else List() ++ o.productIterator.toList.flatMap(filterVariableOpts(_, env))
+      case l: List[_] => l.flatMap(filterVariableOpts(_, env))
+      case p: Product => p.productIterator.toList.flatMap(filterVariableOpts(_, env))
+      case _ => List()
+    }
+  }
+
   def getNewFunctionDef(a: AST): List[List[FunctionDef]] = {
     val tempLst = filterASTElems[FunctionDef](a)
     val lst = tempLst.filter(x => x.specifiers.length > 1)
