@@ -82,18 +82,22 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
               rt.mapf(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "unknown field " + id, i))
               rt
             }
-
             et(expr).mapfr(featureExpr, {
-              case (f, CObj(CAnonymousStruct(fields, _))) => lookup(fields, f).map(_.toObj)
-              case (f, CAnonymousStruct(fields, _)) => lookup(fields, f)
+              case (f, CObj(CAnonymousStruct(fields, _))) =>
+                addAnonStructUse(i, fields)
+                lookup(fields, f).map(_.toObj)
+              case (f, CAnonymousStruct(fields, _)) =>
+                lookup(fields, f)
               case (f, CObj(CStruct(s, isUnion))) =>
                 addStructUse(i, env, s, isUnion)
                 structEnvLookup(env.structEnv, s, isUnion, id, p, f).map(_.toObj)
-              case (f, CStruct(s, isUnion)) => structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
-                case (f, e) if (arrayType(e)) =>
-                  reportTypeError(f, "expression " + p + " must not have array " + e, p)
-                case (f, e) => e
-              })
+              case (f, CStruct(s, isUnion)) =>
+                structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
+                  case (f, e) if (arrayType(e)) =>
+                    reportTypeError(f, "expression " + p + " must not have array " + e, p)
+                  case (f, e) =>
+                    e
+                })
               case (f, e) =>
                 One(reportTypeError(f, "request for member " + id + " in something not a structure or union (" + p + "; " + e + ")", p))
             })

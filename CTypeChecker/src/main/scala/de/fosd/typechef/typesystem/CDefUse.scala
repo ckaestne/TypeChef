@@ -95,9 +95,6 @@ trait CDefUse extends CEnv {
   }
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
-    // if (target.toString().equals("Id(i2)")) {
-    //  println("Debugmarke hier!")
-    // }
     if (defuse.containsKey(key)) {
       if (defUseContainsId(target)) {
         return
@@ -134,10 +131,6 @@ trait CDefUse extends CEnv {
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
         val id = declarator.getId
-        if (id.name.equals("gunzip_main")) {
-          println("drin? " + id.getPositionFrom)
-          println(defUseContainsId(id))
-        }
         val ext = declarator.extensions
         checkFuncDeclForGOTOs(f)
         env.varEnv.getAstOrElse(id.name, null) match {
@@ -148,8 +141,11 @@ trait CDefUse extends CEnv {
           case One(i: InitDeclarator) => addUse(id, env)
           case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) =>
             putToDefUseMap(declarator.getId)
-          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id2, env)
-          case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
+          // TODO Look at second choice and double declariation
+          case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id, env)
+          case k =>
+            println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
+            println("debug here")
         }
         addFunctionParametersToDefUse(ext, env)
       }
@@ -239,6 +235,10 @@ trait CDefUse extends CEnv {
           addFunctionParametersToDefUse(extensions, env)
           specs.foreach(x => addUse(x.entry, env))
         }
+        case Opt(_, p: PlainParameterDeclaration) => p.specifiers.foreach(x => addDecl(x.entry, env))
+        case Opt(_, pad: ParameterDeclarationAD) =>
+          addDecl(pad.decl, env)
+          pad.specifiers.foreach(x => addDecl(x.entry, env))
         case e => println("err " + e)
       })
       case mi => println("Completly missing: " + mi)
@@ -295,7 +295,6 @@ trait CDefUse extends CEnv {
     }
   }
 
-
   def addUse(entry: AST, env: Env) {
     entry match {
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
@@ -310,6 +309,7 @@ trait CDefUse extends CEnv {
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+            // TODO Verfiy Choice!
             addToDefUseMap(declarator.getId, i)
             addToDefUseMap(declarator2.getId, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
@@ -334,6 +334,7 @@ trait CDefUse extends CEnv {
               addToDefUseMap(getKeyByName(i.name), i)
             } else {  */
             println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
+          // try anonymous struct or union
           // }
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
@@ -342,17 +343,24 @@ trait CDefUse extends CEnv {
         addUse(source, env)
         addUse(target, env)
       case NAryExpr(i, o) =>
-        //addUse(i, env)
+        addUse(i, env)
         o.foreach(x => addUse(x.entry, env))
-      case NArySubExpr(_, e) => addUse(e, env)
+      case NArySubExpr(_, e) =>
+        addUse(e, env)
       case PostfixExpr(p, s) =>
         addUse(p, env)
         addUse(s, env)
-      case PointerPostfixSuffix(_, id) => // addUse(id, env)
+      case PointerPostfixSuffix(_, id) =>
+        // stop if id is not yet in env
+        // continue if in env
+        if (!env.varEnv.getAstOrElse(id.name, null).equals(One(null))) {
+          addUse(id, env)
+        }
       case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
       case Constant(_) =>
       case SizeOfExprT(expr) => addUse(expr, env)
+      case SizeOfExprU(expr) => addUse(expr, env)
       case TypeName(specs, decl) =>
         specs.foreach(x => addDecl(x.entry, env))
         addDecl(decl, env)
@@ -366,6 +374,14 @@ trait CDefUse extends CEnv {
         addUse(expr, env)
       case UnaryOpExpr(_, expr) => addUse(expr, env)
       case TypeDefTypeSpecifier(id) => addTypeUse(id, env)
+      case BuiltinOffsetof(typeName, members) =>
+        typeName.specifiers.foreach(x => addUse(x.entry, env))
+        /**
+         * Workaround for buitlin_offset_ -> typechef inplementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
+         */
+        val structOrUnion = filterASTElemts[Id](typeName)
+        // addStructUse(entry, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false))
+        members.foreach(x => addStructUse(x.entry, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
       case k =>
         // TODO Wieso ist kein Pattern Matching auf Specifier möglich?
         if (!k.isInstanceOf[Specifier]) {
@@ -374,15 +390,10 @@ trait CDefUse extends CEnv {
     }
   }
 
-  def addOneNullIds(entry: AST, env: Env) = {
-
-  }
-
-  def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) = {
+  def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) {
     entry match {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
-
           env.structEnv.getFieldsMerged(structName, isUnion).getAstOrElse(i.name, i) match {
             case One(AtomicNamedDeclarator(_, i2: Id, _)) =>
               addToDefUseMap(i2, i)
@@ -404,8 +415,17 @@ trait CDefUse extends CEnv {
           }
         }
       }
+      case OffsetofMemberDesignatorID(id) => addStructUse(id, env, structName, isUnion)
       case k =>
         println("Missing Add Struct: " + k)
+    }
+  }
+
+  def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
+    fields.getAstOrElse(id.name, null) match {
+      case Choice(_, One(AtomicNamedDeclarator(_, key, _)), One(null)) => addToDefUseMap(key, id)
+      case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, id)
+      case k => println("Should not have entered here: " + id + "\n" + k)
     }
   }
 
@@ -476,7 +496,7 @@ trait CDefUse extends CEnv {
         o match {
           case i: Id =>
             addUse(i, env)
-          case k => addDecl(k, env)
+          case k => addUse(k, env)
         }
       case Enumerator(i@Id(name), _) =>
         addDecl(i, env)
@@ -559,8 +579,6 @@ trait CDefUse extends CEnv {
       case PointerCreationExpr(expr) =>
         addDecl(expr, env)
       case Constant(_) =>
-      case TypeName(a, _) =>
-        println("TypeName" + a)
       case CompoundStatement(statement) => statement.foreach(x => addDecl(x.entry, env))
       case PointerDerefExpr(expr) => // addUse(expr, env)
       case WhileStatement(expr, cond) =>
