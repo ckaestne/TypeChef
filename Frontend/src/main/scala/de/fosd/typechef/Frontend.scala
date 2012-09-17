@@ -92,11 +92,12 @@ object Frontend {
         serializeAST(ast, opt.getSerializedASTFilename)
 
       if (ast != null) {
+        storedAst = ast
         val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
         val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
-        /**I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
+        /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
         //Debug_FeatureModelExperiments.experiment(fm_ts)
 
         if (opt.typecheck || opt.writeInterface) {
