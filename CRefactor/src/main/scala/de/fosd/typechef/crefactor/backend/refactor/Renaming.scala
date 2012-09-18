@@ -20,7 +20,7 @@ object Renaming {
       key = findDecl(defUSE, oldId)
     }
     // replace declaration first
-    result = replaceIDinAST(result, oldId, oldId.copy(name = newId))
+    result = replaceIDinAST(result, key, key.copy(name = newId))
 
     // replace uses
     defUSE.get(key).foreach(use => {
