@@ -12,6 +12,16 @@ import java.util
  */
 object Renaming {
 
+  // TODO Implement
+
+  def renamingIsPossible(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): Boolean = {
+    // check name first
+    if (!Helper.isValidName(newId)) {
+      return false
+    }
+    false
+  }
+
   def renameId(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
     // check first if id is declaration
     var key = oldId
