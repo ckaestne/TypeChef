@@ -109,7 +109,7 @@ public class InputBox extends JDialog {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if (textField.getText().trim().length() > 1) {
+                if (textField.getText().trim().length() > 0) {
                     input = textField.getText().trim();
                     dispose();
                 }

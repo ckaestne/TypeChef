@@ -3,11 +3,12 @@ package de.fosd.typechef.crefactor.frontend;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
+import de.fosd.typechef.typesystem.CEnv;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import scala.Tuple2;
+import scala.Tuple3;
 import scala.collection.immutable.List;
 
 import javax.swing.*;
@@ -30,14 +31,14 @@ public class Editor extends JFrame {
     /**
      * The analysed code by typechef.
      */
-    private Tuple2<AST, IdentityHashMap<Id, List<Id>>> parsedCode;
+    private Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> parsedCode;
 
     /**
      * Generates a new editor window instance.
      *
      * @param parsedCode the parsed Code by typechef, containing the ast and defUseMap
      */
-    public Editor(final Tuple2<AST, IdentityHashMap<Id, List<Id>>> parsedCode) {
+    public Editor(final Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> parsedCode) {
         super(Configuration.getInstance().getConfig("editor.title"));
         this.parsedCode = parsedCode;
         JPanel contentPane = new JPanel(new BorderLayout());
@@ -109,6 +110,15 @@ public class Editor extends JFrame {
     }
 
     /**
+     * Retrieves the current enviorement.
+     *
+     * @return the current enviorement
+     */
+    public CEnv.Env getEnv() {
+        return this.parsedCode._3();
+    }
+
+    /**
      * Retrieves the editor's textarea.
      *
      * @return the editor's textarea
@@ -122,7 +132,7 @@ public class Editor extends JFrame {
      *
      * @param parsedCode the new parsedCode
      */
-    public void updateParsedCode(final Tuple2<AST, IdentityHashMap<Id, List<Id>>> parsedCode) {
+    public void updateParsedCode(final Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> parsedCode) {
         this.parsedCode = parsedCode;
     }
 }

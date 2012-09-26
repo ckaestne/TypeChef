@@ -8,23 +8,26 @@ import java.util.IdentityHashMap
 /**
  * Connector class to interact between typechef and the editorwindow as frontend.
  */
-object Connector extends CDefUse with CTypeEnv with CTypeSystem {
+object Connector extends CDefUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
 
-  def parse(args: Array[String]): (AST, IdentityHashMap[Id, List[Id]]) = {
+  def parse(args: Array[String]): (AST, IdentityHashMap[Id, List[Id]], Env) = {
     // init, get ast and typecheck
     Frontend.main(args)
     var ast = Frontend.getAST()
     if (ast != null) {
+      // var featureModel = Frontend.getFeatureModel()
+      // TODO Feature Model
       typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
-      return (ast, getDefUseMap)
+      return (ast, getDefUseMap, lookupEnv(ast.asInstanceOf[TranslationUnit].defs.last.entry))
     }
-    (ast, null)
+    (ast, null, null)
   }
 
-  def doTypeCheck(ast: AST): (AST, IdentityHashMap[Id, List[Id]]) = {
+  def doTypeCheck(ast: AST): (AST, IdentityHashMap[Id, List[Id]], Env) = {
     typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
-    (ast, getDefUseMap)
+    // TODO Update env?
+    (ast, getDefUseMap, lookupEnv(ast.asInstanceOf[TranslationUnit].defs.last.entry))
   }
 
-
+  def getEnv(ast: AST): Env = lookupEnv(ast)
 }

@@ -6,7 +6,8 @@ import de.fosd.typechef.crefactor.frontend.loader.Loader;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
-import scala.Tuple2;
+import de.fosd.typechef.typesystem.CEnv;
+import scala.Tuple3;
 import scala.collection.immutable.List;
 
 import javax.swing.*;
@@ -52,7 +53,7 @@ public final class Launch {
                     System.exit(1);
                 }
                 // parse file
-                final Tuple2<AST, IdentityHashMap<Id, List<Id>>> result = Connector.parse(generateTypeChefArguments(
+                final Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> result = Connector.parse(generateTypeChefArguments(
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
                         loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel()));
 
