@@ -8,6 +8,7 @@ import de.fosd.typechef.featureexpr._
 import sat._
 import collection.mutable.ListBuffer
 import java.util
+import util.IdentityHashMap
 
 /**
  * strategies to rewrite ifdefs to ifs
@@ -22,6 +23,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   var IdSet: Set[FeatureExpr] = Set()
   var fctMap: Map[Id, Map[FeatureExpr, String]] = Map()
   var jmpMap: Map[String, Map[FeatureExpr, String]] = Map()
+  var replaceId: Map[Id, FeatureExpr] = Map()
+  var typeDefs: ListBuffer[Id] = ListBuffer()
 
 
   //    private val rewriteStrategy = everywherebu(rule {
@@ -44,6 +47,25 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
       })
     })
 
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceId[T <: Product](t: T, n: Id, o: Id): T = {
+    val r = oncebu(rule {
+      case x if (x.isInstanceOf[Id] && (o.eq(x.asInstanceOf[Id]))) => {
+        n
+      }
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceAny[T <: Product, U <: AST](t: T, n: U, o: U)(implicit m: ClassManifest[U]): T = {
+    val r = oncebu(rule {
+      // TODO: eq instead of equals
+      case x if (m.erasure.isInstance(x) && x.equals(o)) =>
+        println("Replaced!!")
+        n
+    })
     r(t).get.asInstanceOf[T]
   }
 
@@ -182,11 +204,35 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
   }
 
+  def fillIdMap(a: Any, env: ASTEnv) = {
+    filterVariableOpts(a, env).foreach(x => if (!IdMap.contains(x.feature)) {
+      IdMap += (x.feature -> IdMap.size)
+    })
+  }
+
   def filterVariableOpts(a: Any, env: ASTEnv): List[Opt[_]] = {
     a match {
       case o: Opt[_] => if (o.feature != FeatureExprFactory.True) List(o) else List() ++ o.productIterator.toList.flatMap(filterVariableOpts(_, env))
       case l: List[_] => l.flatMap(filterVariableOpts(_, env))
       case p: Product => p.productIterator.toList.flatMap(filterVariableOpts(_, env))
+      case _ => List()
+    }
+  }
+
+  def filterVariableFunctionDef(a: Any, env: ASTEnv): List[Opt[_]] = {
+    a match {
+      case o: Opt[_] => if (o.feature != FeatureExprFactory.True && o.entry.isInstanceOf[FunctionDef]) List(o) else List() ++ o.productIterator.toList.flatMap(filterVariableFunctionDef(_, env))
+      case l: List[_] => l.flatMap(filterVariableFunctionDef(_, env))
+      case p: Product => p.productIterator.toList.flatMap(filterVariableFunctionDef(_, env))
+      case _ => List()
+    }
+  }
+
+  def filterVariableDeclarations(a: Any, env: ASTEnv): List[Opt[Declaration]] = {
+    a match {
+      case d: Opt[_] => if (d.feature != FeatureExprFactory.True && d.entry.isInstanceOf[Declaration]) List(d.asInstanceOf[Opt[Declaration]]) else List() ++ d.productIterator.toList.flatMap(filterVariableDeclarations(_, env))
+      case l: List[_] => l.flatMap(filterVariableDeclarations(_, env))
+      case p: Product => p.productIterator.toList.flatMap(filterVariableDeclarations(_, env))
       case _ => List()
     }
   }
@@ -721,7 +767,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                   }
                 case _ =>
               })
-              replaceMap += (firstParent.asInstanceOf[Opt[_]] -> List(opt.copy(entry = decl.copy(init = newInit.asInstanceOf[List[Opt[InitDeclaratorI]]]))))
+              //replaceMap += (firstParent.asInstanceOf[Opt[_]] -> List(opt.copy(entry = decl.copy(init = newInit.asInstanceOf[List[Opt[InitDeclaratorI]]]))))
             } else {
               if (!IdMap.contains(ft)) {
                 IdMap += (ft -> IdMap.size)
@@ -784,5 +830,523 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     declarations.foreach(x => if (isVariableDeclaration(x)) convertSingleDeclaration(x))
     //println("\nReplaceMap is:\n" + replaceMap)
     replaceWithMap(ast, replaceMap)
+  }
+
+  def convertTranslationUnit(ast: TranslationUnit, env: ASTEnv, defuse: IdentityHashMap[Id, List[Id]]): TranslationUnit = {
+    def convertOptList(lOp: List[Opt[_]]): List[Opt[_]] = {
+      lOp.flatMap(x => convertOpt(x) :: Nil)
+    }
+    def convertOpt(op: Opt[_]): Opt[_] = {
+      if (op.feature != FeatureExprFactory.True) {
+        println("Current:\n" + PrettyPrinter.print(TranslationUnit(List(op.asInstanceOf[Opt[ExternalDef]]))))
+      }
+      op
+    }
+    //TranslationUnit(convertOptList(ast.defs).asInstanceOf[List[Opt[ExternalDef]]])
+    fillIdMap(ast, env)
+    convertDeclarations(ast, env, defuse)
+
+
+    ast
+  }
+
+  def convertDeclarations(ast: AST, env: ASTEnv, defuse: IdentityHashMap[Id, List[Id]]): AST = {
+    val declarationList = filterVariableDeclarations(ast, env)
+    def getIdFromDeclaration(decl: Opt[Declaration]): List[Id] = {
+      decl.entry match {
+        case Declaration(declSpecs, init) =>
+          init.flatMap(x => x.entry match {
+            case in@InitDeclaratorI(a@AtomicNamedDeclarator(pointers, id, extensions), attribute, i) =>
+              id :: Nil
+            case _ => List()
+          })
+      }
+    }
+    def convertSingleDeclaration(decl: Opt[Declaration]): Opt[Declaration] = {
+      def convertInitDeclarator(init: Opt[InitDeclarator]): Opt[InitDeclarator] = {
+        //println("Current:\n" + init)
+        init.entry match {
+          case in@InitDeclaratorI(a@AtomicNamedDeclarator(pointers, id, extensions), attribute, i) =>
+            init.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(in.copy(declarator = a.copy(id = Id("_" + IdMap.get(init.feature).get + "_" + id.name))), init.feature).asInstanceOf[InitDeclarator])
+        }
+      }
+      decl.copy(feature = FeatureExprFactory.True).copy(entry = Declaration(decl.entry.declSpecs.flatMap(x => x.copy(feature = FeatureExprFactory.True) :: Nil), decl.entry.init.flatMap(x => convertInitDeclarator(x) :: Nil)))
+    }
+    declarationList.foreach(x => println("Converting:\n" + x + "\nto: " + convertSingleDeclaration(x) + "\nwith usages: " + defuse.get(getIdFromDeclaration(x).head) + "\n"))
+    //println("Converting:\n" + declarationList.head + "\nto: " + convertSingleDeclaration(declarationList.head) + "\nwith usages: " + defuse.get(getIdFromDeclaration(declarationList.head).head))
+
+    ast
+  }
+
+  def removeFeature(ast: AST, feat: FeatureExpr): AST = {
+    ast match {
+      case t@TranslationUnit(ext) =>
+        println("This should not happen!")
+        t
+      case i@Id(name) => i
+      case c@Constant(v) => c
+      case c@StringLit(v) => c.copy(name = v.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True) :: Nil
+      } else {
+        x :: Nil
+      }))
+      case c@SimplePostfixSuffix(t) => c
+      case c@PointerPostfixSuffix(kind, id) => c
+      case c@FunctionCall(params) => c.copy(params = c.params.copy(exprs = params.exprs.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Expr]) :: Nil
+      } else {
+        x :: Nil
+      })))
+      case c@ArrayAccess(e) => c.copy(expr = removeFeature(e, feat).asInstanceOf[Expr])
+      case c@PostfixExpr(p, s) => c.copy(p = removeFeature(p, feat).asInstanceOf[Expr]).copy(s = removeFeature(s, feat).asInstanceOf[PostfixSuffix])
+      case c@UnaryExpr(p, s) => c.copy(e = removeFeature(s, feat).asInstanceOf[Expr])
+      case c@SizeOfExprT(typeName) => c.copy(typeName = removeFeature(typeName, feat).asInstanceOf[TypeName])
+      case c@SizeOfExprU(e) => c.copy(expr = removeFeature(e, feat).asInstanceOf[Expr])
+      case c@CastExpr(typeName, expr) => c.copy(typeName = removeFeature(typeName, feat).asInstanceOf[TypeName]).copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+
+      case c@PointerDerefExpr(castExpr) => c.copy(castExpr = removeFeature(castExpr, feat).asInstanceOf[Expr])
+      case c@PointerCreationExpr(castExpr) => c.copy(castExpr = removeFeature(castExpr, feat).asInstanceOf[Expr])
+
+      case c@UnaryOpExpr(kind, castExpr) => c.copy(castExpr = removeFeature(castExpr, feat).asInstanceOf[Expr])
+      case c@NAryExpr(e, others) => c.copy(e = removeFeature(e, feat).asInstanceOf[Expr]).copy(others = others.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True) :: Nil
+      } else {
+        x :: Nil
+      }))
+      case c@NArySubExpr(op: String, e: Expr) => c.copy(e = removeFeature(e, feat).asInstanceOf[Expr])
+      case c@ConditionalExpr(condition: Expr, thenExpr, elseExpr: Expr) => c.copy(condition = removeFeature(condition, feat).asInstanceOf[Expr]).copy(elseExpr = removeFeature(elseExpr, feat).asInstanceOf[Expr]).copy(thenExpr = if (thenExpr.isDefined) {
+        Some(removeFeature(thenExpr.get, feat).asInstanceOf[Expr])
+      } else {
+        thenExpr
+      })
+      case c@AssignExpr(target: Expr, operation: String, source: Expr) => c.copy(target = removeFeature(target, feat).asInstanceOf[Expr]).copy(source = removeFeature(source, feat).asInstanceOf[Expr])
+      case c@ExprList(exprs) => c.copy(exprs = exprs.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Expr]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Expr]) :: Nil
+      }))
+
+      case c@CompoundStatement(innerStatements) =>
+        c.copy(innerStatements = innerStatements.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Statement]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Statement]) :: Nil
+        }))
+      case c@EmptyStatement() => c
+      case c@ExprStatement(expr: Expr) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@WhileStatement(expr: Expr, s) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@DoStatement(expr: Expr, s) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@ForStatement(expr1, expr2, expr3, s) =>
+        c.copy(expr1 = if (expr1.isDefined) Some(removeFeature(expr1.get, feat).asInstanceOf[Expr]) else expr1)
+        c.copy(expr2 = if (expr2.isDefined) Some(removeFeature(expr2.get, feat).asInstanceOf[Expr]) else expr2)
+        c.copy(expr3 = if (expr3.isDefined) Some(removeFeature(expr3.get, feat).asInstanceOf[Expr]) else expr3)
+      case c@GotoStatement(target) => c.copy(target = removeFeature(target, feat).asInstanceOf[Expr])
+      case c@ContinueStatement() => c
+      case c@BreakStatement() => c
+      case c@ReturnStatement(None) => c
+      case c@ReturnStatement(Some(e)) => c
+      case c@LabelStatement(id: Id, _) => c
+      case c@CaseStatement(e: Expr) => c.copy(c = removeFeature(e, feat).asInstanceOf[Expr])
+      case c@DefaultStatement() => c
+      case c@IfStatement(condition, thenBranch, elifs, elseBranch) =>
+        c.copy(elifs = elifs.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[ElifStatement]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[ElifStatement]) :: Nil
+        }))
+      case c@ElifStatement(condition, thenBranch) => c
+      case c@SwitchStatement(expr, s) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@DeclarationStatement(decl: Declaration) => c.copy(decl = removeFeature(decl, feat).asInstanceOf[Declaration])
+      case c@NestedFunctionDef(isAuto, specifiers, declarator, parameters, stmt) =>
+        c.copy(specifiers = specifiers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        }))
+          .copy(declarator = removeFeature(declarator, feat).asInstanceOf[Declarator])
+          .copy(parameters = parameters.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Declaration]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Declaration]) :: Nil
+        }))
+          .copy(stmt = removeFeature(stmt, feat).asInstanceOf[CompoundStatement])
+      case c@LocalLabelDeclaration(ids) => c.copy(ids = ids.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Id]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Id]) :: Nil
+      }))
+      case c@OtherPrimitiveTypeSpecifier(typeName: String) => c
+      case c@VoidSpecifier() => c
+      case c@ShortSpecifier() => c
+      case c@IntSpecifier() => c
+      case c@FloatSpecifier() => c
+      case c@LongSpecifier() => c
+      case c@CharSpecifier() => c
+      case c@DoubleSpecifier() => c
+
+      case c@TypedefSpecifier() => c
+      case c@TypeDefTypeSpecifier(name: Id) => c
+      case c@SignedSpecifier() => c
+      case c@UnsignedSpecifier() => c
+
+      case c@InlineSpecifier() => c
+      case c@AutoSpecifier() => c
+      case c@RegisterSpecifier() => c
+      case c@VolatileSpecifier() => c
+      case c@ExternSpecifier() => c
+      case c@ConstSpecifier() => c
+      case c@RestrictSpecifier() => c
+      case c@StaticSpecifier() => c
+
+      case c@AtomicAttribute(n: String) => c
+      case c@AttributeSequence(attributes) => c.copy(attributes = attributes.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Attribute]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Attribute]) :: Nil
+      }))
+      case c@CompoundAttribute(inner) => c.copy(inner = inner.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSequence]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSequence]) :: Nil
+      }))
+
+      case c@Declaration(declSpecs, init) =>
+        c.copy(declSpecs = declSpecs.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        })).copy(init = init.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[InitDeclarator]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[InitDeclarator]) :: Nil
+        }))
+
+      case c@InitDeclaratorI(declarator, _, _) => c.copy(declarator = removeFeature(declarator, feat).asInstanceOf[Declarator])
+      case c@InitDeclaratorE(declarator, _, e: Expr) => c.copy(declarator = removeFeature(declarator, feat).asInstanceOf[Declarator]).copy(e = removeFeature(e, feat).asInstanceOf[Expr])
+
+      case c@AtomicNamedDeclarator(pointers, id, extensions) =>
+        c.copy(pointers = pointers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        }))
+          .copy(extensions = extensions.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorExtension]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorExtension]) :: Nil
+        }))
+      case c@NestedNamedDeclarator(pointers, nestedDecl, extensions) =>
+        c.copy(pointers = pointers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        }))
+          .copy(extensions = extensions.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorExtension]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorExtension]) :: Nil
+        }))
+          .copy(nestedDecl = removeFeature(nestedDecl, feat).asInstanceOf[Declarator])
+      case c@AtomicAbstractDeclarator(pointers, extensions) =>
+        c.copy(pointers = pointers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        }))
+          .copy(extensions = extensions.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorAbstrExtension]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorAbstrExtension]) :: Nil
+        }))
+      case c@NestedAbstractDeclarator(pointers, nestedDecl, extensions) =>
+        c.copy(pointers = pointers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Pointer]) :: Nil
+        }))
+          .copy(extensions = extensions.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorAbstrExtension]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[DeclaratorAbstrExtension]) :: Nil
+        }))
+          .copy(nestedDecl = removeFeature(nestedDecl, feat).asInstanceOf[AbstractDeclarator])
+
+      case c@DeclIdentifierList(idList) => c.copy(idList = idList.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True) :: Nil
+      } else {
+        x :: Nil
+      }))
+      case c@DeclParameterDeclList(parameterDecls) => c.copy(parameterDecls = parameterDecls.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[ParameterDeclaration]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[ParameterDeclaration]) :: Nil
+      }))
+      case c@DeclArrayAccess(expr) => c.copy(expr = if (expr.isDefined) Some(removeFeature(expr.get, feat).asInstanceOf[Expr]) else expr)
+      case c@Initializer(initializerElementLabel, expr: Expr) => c.copy(initializerElementLabel = if (initializerElementLabel.isDefined) {
+        Some(removeFeature(initializerElementLabel.get, feat).asInstanceOf[InitializerElementLabel])
+      } else {
+        initializerElementLabel
+      }).copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@Pointer(specifier) => c.copy(specifier = specifier.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+      }))
+      case c@PlainParameterDeclaration(specifiers) => c.copy(specifiers = specifiers.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+      }))
+      case c@ParameterDeclarationD(specifiers, decl) =>
+        c.copy(specifiers = specifiers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        }))
+          .copy(decl = removeFeature(decl, feat).asInstanceOf[Declarator])
+      case c@ParameterDeclarationAD(specifiers, decl) =>
+        c.copy(specifiers = specifiers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        }))
+          .copy(decl = removeFeature(decl, feat).asInstanceOf[AbstractDeclarator])
+      case c@VarArgs() => c
+      case c@EnumSpecifier(id, Some(enums)) => c.copy(enumerators = Some(enums.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Enumerator]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Enumerator]) :: Nil
+      })))
+      case c@EnumSpecifier(Some(id), None) => c
+      case c@Enumerator(id, Some(init)) => c.copy(assignment = Some(removeFeature(init, feat).asInstanceOf[Expr]))
+      case c@Enumerator(id, None) => c
+      case c@StructOrUnionSpecifier(isUnion, id, Some(structDeclaration)) => c.copy(enumerators = Some(structDeclaration.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[StructDeclaration]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[StructDeclaration]) :: Nil
+      })))
+      case c@StructOrUnionSpecifier(isUnion, id, None) => c
+      case c@StructDeclaration(qualifierList, declaratorList) =>
+        c.copy(qualifierList = qualifierList.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        }))
+          .copy(declaratorList = declaratorList.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[StructDecl]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[StructDecl]) :: Nil
+        }))
+      case c@StructDeclarator(decl, Some(expr), attributes) =>
+        c.copy(decl = removeFeature(decl, feat).asInstanceOf[Declarator])
+          .copy(initializer = Some(removeFeature(expr, feat).asInstanceOf[Expr]))
+          .copy(attributes = attributes.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSpecifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSpecifier]) :: Nil
+        }))
+      case c@StructDeclarator(decl, None, attributes) =>
+        c.copy(decl = removeFeature(decl, feat).asInstanceOf[Declarator])
+          .copy(attributes = attributes.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSpecifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSpecifier]) :: Nil
+        }))
+      case c@StructInitializer(expr, attributes) =>
+        c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+          .copy(attributes = attributes.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSpecifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSpecifier]) :: Nil
+        }))
+      case c@AsmExpr(isVolatile, expr) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
+        c.copy(declarator = removeFeature(declarator, feat).asInstanceOf[Declarator])
+          .copy(specifiers = specifiers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        }))
+          .copy(oldStyleParameters = oldStyleParameters.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[OldParameterDeclaration]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[OldParameterDeclaration]) :: Nil
+        }))
+
+      case c@EmptyExternalDef() => c
+      case c@TypelessDeclaration(declList) => c.copy(declList = declList.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[InitDeclarator]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[InitDeclarator]) :: Nil
+      }))
+      case c@TypeName(specifiers, Some(abstrDecl)) =>
+        c.copy(specifiers = specifiers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        }))
+          .copy(decl = Some(removeFeature(abstrDecl, feat).asInstanceOf[AbstractDeclarator]))
+      case c@TypeName(specifiers, None) =>
+        c.copy(specifiers = specifiers.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Specifier]) :: Nil
+        }))
+      case c@GnuAttributeSpecifier(attributeList) =>
+        c.copy(attributeList = attributeList.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSequence]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[AttributeSequence]) :: Nil
+        }))
+      case c@AsmAttributeSpecifier(stringConst) => c
+      case c@LcurlyInitializer(inits) =>
+        c.copy(inits = inits.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[Initializer]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[Initializer]) :: Nil
+        }))
+      case c@AlignOfExprT(typeName: TypeName) => c.copy(typeName = removeFeature(typeName, feat).asInstanceOf[TypeName])
+      case c@AlignOfExprU(expr: Expr) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[StringLit])
+      case c@RangeExpr(from: Expr, to: Expr) => c.copy(from = removeFeature(from, feat).asInstanceOf[Expr]).copy(to = removeFeature(to, feat).asInstanceOf[Expr])
+      case c@TypeOfSpecifierT(typeName: TypeName) => c.copy(typeName = removeFeature(typeName, feat).asInstanceOf[TypeName])
+      case c@TypeOfSpecifierU(e: Expr) => c.copy(expr = removeFeature(e, feat).asInstanceOf[Expr])
+      case c@InitializerArrayDesignator(expr: Expr) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@InitializerDesignatorD(id: Id) => c
+      case c@InitializerDesignatorC(id: Id) => c
+      case c@InitializerAssigment(desgs) => c.copy(designators = desgs.flatMap(x => if (x.feature == feat) {
+        x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[InitializerElementLabel]) :: Nil
+      } else {
+        x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[InitializerElementLabel]) :: Nil
+      }))
+      case c@BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator) =>
+        c.copy(offsetofMemberDesignator = offsetofMemberDesignator.flatMap(x => if (x.feature == feat) {
+          x.copy(feature = FeatureExprFactory.True).copy(entry = removeFeature(x.entry, feat).asInstanceOf[OffsetofMemberDesignator]) :: Nil
+        } else {
+          x.copy(entry = removeFeature(x.entry, feat).asInstanceOf[OffsetofMemberDesignator]) :: Nil
+        }))
+          .copy(typeName = removeFeature(typeName, feat).asInstanceOf[TypeName])
+      case c@OffsetofMemberDesignatorID(id: Id) => c
+      case c@OffsetofMemberDesignatorExpr(expr: Expr) => c.copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) =>
+        c.copy(typeName1 = removeFeature(typeName1, feat).asInstanceOf[TypeName])
+          .copy(typeName2 = removeFeature(typeName2, feat).asInstanceOf[TypeName])
+      case c@BuiltinVaArgs(expr: Expr, typeName: TypeName) =>
+        c.copy(typeName = removeFeature(typeName, feat).asInstanceOf[TypeName])
+          .copy(expr = removeFeature(expr, feat).asInstanceOf[Expr])
+      case c@CompoundStatementExpr(compoundStatement: CompoundStatement) => c.copy(compoundStatement = removeFeature(compoundStatement, feat).asInstanceOf[CompoundStatement])
+      case c@Pragma(command: StringLit) => c.copy(command = removeFeature(command, feat).asInstanceOf[StringLit])
+
+      case e =>
+        println("Missing case @ remove feature: " + e)
+        e
+    }
+  }
+
+  def removeFeature[T <: Product](t: T, feat: FeatureExpr, env: ASTEnv): T = {
+    val r = manytd(rule {
+      case o: Opt[_] =>
+        /* if (!env.featureExpr(o.entry).isSatisfiable) {
+          null
+        } else*/
+        if (feat.&(o.feature).isContradiction()) {
+          println("Feature " + feat + " and " + o.feature + " in Opt: " + o + "are not compatible.")
+          // TODO: remove this opt
+          o
+        } else if (o.feature.equivalentTo(feat)) {
+          o.copy(feature = FeatureExprFactory.True)
+        } else {
+          o
+        }
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def convertSingleDeclaration(decl: Opt[Declaration], env: ASTEnv): Opt[Declaration] = {
+    decl.entry match {
+      case d@Declaration(declSpecs, init) =>
+        val newDecl = decl.copy(entry = d.copy(declSpecs = declSpecs.map(x => x match {
+          case o@Opt(_, s: StructOrUnionSpecifier) => convertId(x, decl.feature)
+          case Opt(_, e: EnumSpecifier) => convertAllIds(x, decl.feature)
+          case z => z
+        }), init = init.map(x => x match {
+          case Opt(_, i: InitDeclaratorI) => convertId(x, decl.feature)
+          case z => z
+        })))
+        removeFeature(newDecl, decl.feature, env)
+      // TODO: Check for other features
+      case _ => removeFeature(decl, decl.feature, env)
+    }
+  }
+
+  def convertId[T <: Product](t: T, ft: FeatureExpr): T = {
+    val r = oncetd(rule {
+      case i: Id =>
+        if (i.name != "main") {
+          replaceId += (i -> ft)
+          Id("_" + IdMap.get(ft).get + "_" + i.name)
+        } else {
+          i
+        }
+
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def convertAllIds[T <: Product](t: T, ft: FeatureExpr): T = {
+    val r = manytd(rule {
+      case i: Id =>
+        if (i.name != "main") {
+          replaceId += (i -> ft)
+          Id("_" + IdMap.get(ft).get + "_" + i.name)
+        } else {
+          i
+        }
+
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def transformDeclarations[T <: Product](t: T, env: ASTEnv, defuse: IdentityHashMap[Id, List[Id]]): T = {
+    fillIdMap(t, env)
+    val r = alltd(rule {
+      case o@Opt(ft, decl: Declaration) =>
+        if (ft != FeatureExprFactory.True) {
+          val newDecl = convertSingleDeclaration(o.asInstanceOf[Opt[Declaration]], env)
+          println("Converted:\n" + o + "\nto: " + newDecl)
+          println("++Pretty old++\n" + PrettyPrinter.print(decl) + " @ " + decl.getPositionFrom + "\n++Pretty new++\n" + PrettyPrinter.print(newDecl.entry) + "\n")
+          //println("++Pretty old++\n" + PrettyPrinter.print(decl) + " @ " + decl.getPositionFrom + "\n\nSpecs: " + decl.declSpecs + "\nInit: " + decl.init + "\n\n")
+          //transformDeclarations(newDecl, env, defuse)
+          newDecl
+        } else {
+          o
+        }
+    })
+    var work = r(t).get.asInstanceOf[T]
+    var idsToReplace: IdentityHashMap[Id, List[FeatureExpr]] = new IdentityHashMap()
+
+    replaceId.keySet.foreach(y => if (!defuse.get(y).isEmpty) {
+      println("Defuse from: " + y + " is: " + defuse.get(y))
+      defuse.get(y).foreach(x =>
+        if (idsToReplace.containsKey(x)) {
+          idsToReplace.put(x, idsToReplace.get(x) ++ List(replaceId.get(x).get))
+        } else {
+          idsToReplace.put(x, List(replaceId.get(x).get))
+        })
+    })
+
+    idsToReplace.keySet.toArray().foreach(x => findPriorASTElem[TypeDefTypeSpecifier](x.asInstanceOf[Id], env) match {
+      case None => println("Missing: " + env.parent(x))
+      case Some(o: TypeDefTypeSpecifier) =>
+        val newId = Id("_" + IdMap.get(idsToReplace.get(x).head).get + "_" + o.name.name)
+        //println("Replaced " + o.name + " with " + newId)
+        work = replaceId(work, newId, o.name)
+    })
+
+    println("Defuse: " + defuse)
+    //println("ReplaceList: " + replaceId)
+    println("IdsToReplace: " + idsToReplace)
+    //println("\n\n" + idsToReplace.keySet.toArray.foreach(x => println(x.toString() + "\nParent: " + env.parent(x) + "\nParent of Parent: " + env.parent(env.parent(x)) + "\n")))
+    work
   }
 }
