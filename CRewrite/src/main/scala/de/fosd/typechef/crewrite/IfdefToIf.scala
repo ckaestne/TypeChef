@@ -25,7 +25,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   var jmpMap: Map[String, Map[FeatureExpr, String]] = Map()
   var replaceId: Map[Id, FeatureExpr] = Map()
   var typeDefs: ListBuffer[Id] = ListBuffer()
-
+  var alreadyReplaced: ListBuffer[Id] = ListBuffer()
+  val toBeReplaced: util.IdentityHashMap[Product, Product] = new IdentityHashMap()
 
   //    private val rewriteStrategy = everywherebu(rule {
   //        case Opt(f, stmt: Statement) if (!f.isTautology) =>
@@ -51,20 +52,55 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   }
 
   def replaceId[T <: Product](t: T, n: Id, o: Id): T = {
-    val r = oncebu(rule {
-      case x if (x.isInstanceOf[Id] && (o.eq(x.asInstanceOf[Id]))) => {
-        n
-      }
+    val r = manybu(rule {
+      case x: Id =>
+        if (o.eq(x)) {
+          n
+        } else {
+          o
+        }
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def replaceAny[T <: Product, U <: AST](t: T, n: U, o: U)(implicit m: ClassManifest[U]): T = {
+  def replaceAny[T <: Product, U <: Product](t: T, n: U, o: U)(implicit m: ClassManifest[U]): T = {
+    println("Start!")
     val r = oncebu(rule {
-      // TODO: eq instead of equals
-      case x if (m.erasure.isInstance(x) && x.equals(o)) =>
-        println("Replaced!!")
+      case x: Product if (x.eq(o)) =>
+        println("Replace!")
         n
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceAnyIdHashMap[T <: Product, U <: Product](t: T, ihm: util.IdentityHashMap[Product, Product])(implicit m: ClassManifest[U]): T = {
+    val r = manytd(rule {
+      case x: U =>
+        if (ihm.containsKey(x)) {
+          //println("Replacing " + x + " with " + ihm.get(x))
+          ihm.get(x)
+        } else {
+          x
+        }
+    })
+    if (ihm.size() > 0) {
+      r(t).get.asInstanceOf[T]
+    } else {
+      t
+    }
+
+  }
+
+  def replaceOpt[T <: Product](t: T, n: Opt[_], o: Opt[_]): T = {
+    println("Start!")
+    val r = manybu(rule {
+      case x: Opt[_] =>
+        if (x.eq(o)) {
+          println("Replace!")
+          n
+        } else {
+          o
+        }
     })
     r(t).get.asInstanceOf[T]
   }
@@ -1243,7 +1279,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  def removeFeature[T <: Product](t: T, feat: FeatureExpr, env: ASTEnv): T = {
+  def removeFeature2[T <: Product](t: T, feat: FeatureExpr, env: ASTEnv): T = {
     val r = manytd(rule {
       case o: Opt[_] =>
         /* if (!env.featureExpr(o.entry).isSatisfiable) {
@@ -1251,7 +1287,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         } else*/
         if (feat.&(o.feature).isContradiction()) {
           println("Feature " + feat + " and " + o.feature + " in Opt: " + o + "are not compatible.")
-          // TODO: remove this opt
+          // TODO: rewrite for List and remove this opt
           o
         } else if (o.feature.equivalentTo(feat)) {
           o.copy(feature = FeatureExprFactory.True)
@@ -1262,11 +1298,57 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     r(t).get.asInstanceOf[T]
   }
 
+  def removeFeature[T <: Product](t: T, feat: FeatureExpr, env: ASTEnv): T = {
+    val r = manytd(rule {
+      case l: List[Opt[_]] =>
+        l.flatMap(o =>
+          if (feat.&(o.feature).isContradiction()) {
+            // println("Feature " + feat + " and " + o.feature + " in Opt: " + o + "are not compatible.")
+            List()
+          } else if (o.feature.equivalentTo(feat)) {
+            List(o.copy(feature = FeatureExprFactory.True))
+          } else {
+            List(o)
+          })
+    })
+    t match {
+      case o: Opt[_] => r(o.copy(feature = FeatureExprFactory.True)).get.asInstanceOf[T]
+      case _ => r(t).get.asInstanceOf[T]
+    }
+  }
+
+
+  def rewriteFeatureAndIds[T <: Product](t: T, feat: FeatureExpr, id: Id): T = {
+    val r = manytd(rule {
+      case l: List[Opt[_]] =>
+        l.flatMap(o =>
+          if (feat.&(o.feature).isContradiction()) {
+            List()
+          } else if (o.feature.equivalentTo(feat)) {
+            List(o.copy(feature = FeatureExprFactory.True))
+          } else {
+            List(o)
+          })
+      case i: Id =>
+        if (i.name == id.name) {
+          alreadyReplaced += i
+          Id("_" + IdMap.get(feat).get + "_" + i.name)
+        } else {
+          i
+        }
+    })
+    t match {
+      case o: Opt[_] => r(o.copy(feature = FeatureExprFactory.True)).get.asInstanceOf[T]
+      case _ => r(t).get.asInstanceOf[T]
+    }
+  }
+
   def convertSingleDeclaration(decl: Opt[Declaration], env: ASTEnv): Opt[Declaration] = {
     decl.entry match {
       case d@Declaration(declSpecs, init) =>
+
         val newDecl = decl.copy(entry = d.copy(declSpecs = declSpecs.map(x => x match {
-          case o@Opt(_, s: StructOrUnionSpecifier) => convertId(x, decl.feature)
+          case o@Opt(_, StructOrUnionSpecifier(_, Some(i: Id), _)) => convertId(x, decl.feature)
           case Opt(_, e: EnumSpecifier) => convertAllIds(x, decl.feature)
           case z => z
         }), init = init.map(x => x match {
@@ -1296,6 +1378,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   def convertAllIds[T <: Product](t: T, ft: FeatureExpr): T = {
     val r = manytd(rule {
       case i: Id =>
+        // TODO auf Funktionen beschränken
         if (i.name != "main") {
           replaceId += (i -> ft)
           Id("_" + IdMap.get(ft).get + "_" + i.name)
@@ -1307,23 +1390,36 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     r(t).get.asInstanceOf[T]
   }
 
+  def eqContains[T <: AnyRef](seq: Seq[T], toCheck: T): Boolean = {
+    seq.foreach(x => if (x.eq(toCheck)) return true)
+    return false
+  }
+
   def transformDeclarations[T <: Product](t: T, env: ASTEnv, defuse: IdentityHashMap[Id, List[Id]]): T = {
     fillIdMap(t, env)
     val r = alltd(rule {
-      case o@Opt(ft, decl: Declaration) =>
+      case o@Opt(ft: DefinedExternal, entry) =>
         if (ft != FeatureExprFactory.True) {
-          val newDecl = convertSingleDeclaration(o.asInstanceOf[Opt[Declaration]], env)
-          println("Converted:\n" + o + "\nto: " + newDecl)
-          println("++Pretty old++\n" + PrettyPrinter.print(decl) + " @ " + decl.getPositionFrom + "\n++Pretty new++\n" + PrettyPrinter.print(newDecl.entry) + "\n")
-          //println("++Pretty old++\n" + PrettyPrinter.print(decl) + " @ " + decl.getPositionFrom + "\n\nSpecs: " + decl.declSpecs + "\nInit: " + decl.init + "\n\n")
-          //transformDeclarations(newDecl, env, defuse)
-          newDecl
+          entry match {
+            case decl: Declaration =>
+              val newDecl = convertSingleDeclaration(o.asInstanceOf[Opt[Declaration]], env)
+              println("Converted:\n" + o + "\nto: " + newDecl)
+              println("++Pretty old++\n" + PrettyPrinter.print(decl) + " @ " + decl.getPositionFrom + "\n++Pretty new++\n" + PrettyPrinter.print(newDecl.entry) + "\n")
+              //println("++Pretty old++\n" + PrettyPrinter.print(decl) + " @ " + decl.getPositionFrom + "\n\nSpecs: " + decl.declSpecs + "\nInit: " + decl.init + "\n\n")
+              //transformDeclarations(newDecl, env, defuse)
+              newDecl
+            case fd: FunctionDef =>
+              convertId(removeFeature(o, o.feature, env), o.feature)
+            case k =>
+              println("Missing Opt: " + entry)
+              o
+          }
         } else {
           o
         }
     })
-    var work = r(t).get.asInstanceOf[T]
     var idsToReplace: IdentityHashMap[Id, List[FeatureExpr]] = new IdentityHashMap()
+    val tmp = r(t).get.asInstanceOf[T]
 
     replaceId.keySet.foreach(y => if (!defuse.get(y).isEmpty) {
       println("Defuse from: " + y + " is: " + defuse.get(y))
@@ -1335,18 +1431,43 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         })
     })
 
-    idsToReplace.keySet.toArray().foreach(x => findPriorASTElem[TypeDefTypeSpecifier](x.asInstanceOf[Id], env) match {
-      case None => println("Missing: " + env.parent(x))
-      case Some(o: TypeDefTypeSpecifier) =>
-        val newId = Id("_" + IdMap.get(idsToReplace.get(x).head).get + "_" + o.name.name)
-        //println("Replaced " + o.name + " with " + newId)
-        work = replaceId(work, newId, o.name)
-    })
+
+    idsToReplace.keySet.toArray().foreach(x =>
+      if (!eqContains(alreadyReplaced, x)) {
+        findPriorASTElem[TypeDefTypeSpecifier](x.asInstanceOf[Id], env) match {
+          case None =>
+            findPriorASTElem[Statement](x.asInstanceOf[Id], env) match {
+              case Some(o: Statement) =>
+                if (!eqContains(alreadyReplaced, x)) {
+                  env.parent(o) match {
+                    case op: Opt[Statement] =>
+                      val ifStmt = IfStatement(One(featureToCExpr(op.feature)), One(CompoundStatement(List(rewriteFeatureAndIds(op, op.feature, x.asInstanceOf[Id])))), List(), None)
+                      toBeReplaced.put(op, Opt(FeatureExprFactory.True, ifStmt))
+                    case on@One(st: Statement) =>
+
+                  }
+
+                  //work = replaceOpt(work, rewriteFeatureAndIds(current, current.feature, x.asInstanceOf[Id]), current)
+                }
+              case None => println("Missing: " + env.parent(env.parent(x)))
+            }
+          case Some(o: TypeDefTypeSpecifier) =>
+            val newId = Id("_" + IdMap.get(idsToReplace.get(x).head).get + "_" + o.name.name)
+            //println("Replaced " + o.name + " with " + newId)
+            toBeReplaced.put(o.name, newId)
+
+          //work = replaceId(work, newId, o.name)
+        }
+      })
+    alreadyReplaced.clear()
+
+    val work = replaceAnyIdHashMap(t, toBeReplaced)
+    val result = r(work).get.asInstanceOf[T]
+    toBeReplaced.clear()
+
 
     println("Defuse: " + defuse)
-    //println("ReplaceList: " + replaceId)
-    println("IdsToReplace: " + idsToReplace)
     //println("\n\n" + idsToReplace.keySet.toArray.foreach(x => println(x.toString() + "\nParent: " + env.parent(x) + "\nParent of Parent: " + env.parent(env.parent(x)) + "\n")))
-    work
+    result
   }
 }
