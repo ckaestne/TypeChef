@@ -8,12 +8,14 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
+import featureexpr.FeatureExpr
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 
 object Frontend {
 
   private var storedAst = null.asInstanceOf[AST]
+  private var featureModel = null.asInstanceOf[FeatureExpr]
 
   def main(args: Array[String]) {
     // load options
@@ -54,6 +56,7 @@ object Frontend {
     val t1 = System.currentTimeMillis()
 
     val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+    // featureModel = fm.asInstanceOf[FeatureExpr]
     /*
             val pcs = new FeatureExprParser(FeatureExprFactory.sat).parseFile("../TypeChef-LinuxAnalysis/tmpFolder/pcs.txt")
             opt.getFeatureModelTypeSystem.and(pcs).asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
@@ -92,11 +95,12 @@ object Frontend {
         serializeAST(ast, opt.getSerializedASTFilename)
 
       if (ast != null) {
+        storedAst = ast
         val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
         val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
-        /**I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
+        /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
         //Debug_FeatureModelExperiments.experiment(fm_ts)
 
         if (opt.typecheck || opt.writeInterface) {
@@ -149,8 +153,8 @@ object Frontend {
     fw.close()
   }
 
-  def getAST(): AST = {
-    return storedAst
-  }
+  def getAST(): AST = storedAst
+
+  def getFeatureModel(): FeatureExpr = featureModel
 
 }

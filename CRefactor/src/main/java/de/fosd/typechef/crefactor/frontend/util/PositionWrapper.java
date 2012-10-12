@@ -1,4 +1,4 @@
-package de.fosd.typechef.crefactor.gui.util;
+package de.fosd.typechef.crefactor.frontend.util;
 
 
 import org.fife.ui.rtextarea.RTextArea;
@@ -12,8 +12,9 @@ public class PositionWrapper {
 
     /**
      * Gets the line of certain offset
+     *
      * @param textArea the current textarea
-     * @param offset the current offset
+     * @param offset   the current offset
      * @return the line number
      */
     public static int getLine(RTextArea textArea, int offset) {
@@ -27,8 +28,9 @@ public class PositionWrapper {
 
     /**
      * Gets the row of a certain offset
+     *
      * @param textArea the current textarea
-     * @param offset the current offset
+     * @param offset   the current offset
      * @return the row
      */
     public static int getRow(RTextArea textArea, int offset) {
