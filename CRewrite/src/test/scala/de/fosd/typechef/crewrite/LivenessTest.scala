@@ -407,6 +407,20 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
                """)
   }
 
+  @Test def test_rigorosum() {
+    runExample("""
+      void foo(int a, int b) {
+        int c = 1;
+        if (a) {
+          c += a;
+        #if definedEx(F)
+          c /= b;
+        #endif
+        }
+      }
+               """)
+  }
+
 
   // http://www.exforsys.com/tutorials/c-language/c-expressions.html
   @Test def test_uses() {
@@ -698,6 +712,10 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           #endif
           a;
         }
+      }"""))
+    println(runUseDeclareRelationExample("""
+      void foo() {
+        int a = ({int a = 2; a + 2;}) + 3;
       }"""))
   }
 }
