@@ -1050,6 +1050,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
     typecheckTranslationUnit(source_ast)
     val defUseMap = getDefUseMap
+    println("DefUse:\n" + defUseMap)
 
     val feat = i.filterFeatures(source_ast, createASTEnv(source_ast))
     println("++Distinct features in ast" + " (" + feat.size + ")" + "++")
@@ -1061,9 +1062,10 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
     //i.filterVariableOpts(source_ast, env).foreach(x => println(x.entry))
     //i.convertTranslationUnit(source_ast, env, defUseMap)
-    val tempAst = i.transformDeclarations(source_ast, env, defUseMap)
-    writeToFile(PrettyPrinter.print(tempAst), "ar_tmp.txt")
-    writeToFile(PrettyPrinter.print(source_ast), "ar_src.txt")
+    val tempAst = i.transformDeclarationsRecursive(source_ast, env, defUseMap)
+    writeToFile(PrettyPrinter.print(tempAst), "ar_tmp2.txt")
+    //writeToFile(PrettyPrinter.print(tempAst), "ar_tmp.txt")
+    //writeToFile(PrettyPrinter.print(source_ast), "ar_src.txt")
   }
 
   @Test def test_pi() {
@@ -1088,7 +1090,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_if_conditional() {
-    val source_ast = getAST( """
+    val source_ast2 = getAST( """
     int main(void) {
     int a = 0;
     int b = -2;
@@ -1099,8 +1101,55 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     ) {
       int i = 0;
     }}""")
+    val source_ast = getAST( """
+    int main(void) {
+    int a = 0;
+    int b = -2;
+    if (a < 0
+    #if definedEx(A)
+    && b < 0
+    #endif
+    #if !definedEx(A)
+    && b < 10
+    #endif
+    ) {
+      int i = 0;
+    }}""")
     println("Source: " + source_ast)
     println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
+
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    val tempAst = i.transformDeclarationsRecursive(source_ast, env, defUseMap)
+    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+
+
+    /*
+    val source_ast2 = getAST( """
+    int main(void) {
+    int a = 0;
+    int b = -2;
+    if (a < 0
+    #if definedEx(A)
+    && b < 0
+    #endif
+    #if !definedEx(A)
+    && c < 0
+    #endif
+    ) {
+      int i = 0;
+    }}""")
+    println("Source: " + source_ast2)
+    println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast2))
+
+    val env2 = createASTEnv(source_ast2)
+    typecheckTranslationUnit(source_ast2)
+    val defUseMap2 = getDefUseMap
+    val tempAst2 = i.transformDeclarationsRecursive(source_ast2, env2, defUseMap2)
+    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst2))
+    */
   }
 
   private def writeToFile(strg: String, name: String) {
@@ -1150,6 +1199,26 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     #endif
     #endif
                               """)
+
+    val source_ast3 = getAST( """
+    void foo() {
+      if (options.config_feature_ar_Create) {
+        if ((opt & (1 << 6))) {
+          return write_ar_archive(archive_handle);
+        }
+      } else if (opt) {
+        if ((opt)) {
+          return write_ar_archive();
+        }
+      } else if (opt) {
+        if (opt) {
+          return write_ar_archive();
+        }
+      } else {
+        return write_ar_archive();
+      }
+    }
+                              """)
     val i = new IfdefToIf
     val i1 = Id("i")
     val i2 = Id("i")
@@ -1171,5 +1240,10 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val m: util.IdentityHashMap[Product, Product] = new IdentityHashMap()
     m.put(i1, i2)
     println("Map contains: " + m.containsKey(i4))
+
+    println(source_ast3)
+    println(PrettyPrinter.print(source_ast3))
+
+
   }
 }
