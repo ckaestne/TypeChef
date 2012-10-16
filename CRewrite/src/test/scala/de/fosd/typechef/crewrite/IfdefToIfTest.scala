@@ -1090,17 +1090,6 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
   }
 
   @Test def test_if_conditional() {
-    val source_ast2 = getAST( """
-    int main(void) {
-    int a = 0;
-    int b = -2;
-    if (a < 0
-    #if definedEx(A)
-    && b < 0
-    #endif
-    ) {
-      int i = 0;
-    }}""")
     val source_ast = getAST( """
     int main(void) {
     int a = 0;
@@ -1112,8 +1101,21 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     #if !definedEx(A)
     && b < 10
     #endif
+    #if definedEx(B)
+    && b < 20
+    #endif
+    #if definedEx(C)
+                               || b < 12
+    #endif
     ) {
-      int i = 0;
+      int i = 1;
+    #if definedEx(A)
+      i = 5;
+    #endif
+    #if definedEx(C)
+      i = 10;
+    #endif
+    i = i*i;
     }}""")
     println("Source: " + source_ast)
     println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
@@ -1124,38 +1126,228 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val defUseMap = getDefUseMap
     val tempAst = i.transformDeclarationsRecursive(source_ast, env, defUseMap)
     println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+  }
 
+  @Test def enum_test() {
+    val i = new IfdefToIf
+    //val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\random\\enum.pi"))
+    val source_ast = getAST(
+      """
+        enum  {
+          PSSCAN_PID = (1 << 0),
+          PSSCAN_PPID = (1 << 1),
+          PSSCAN_PGID = (1 << 2),
+          PSSCAN_SID = (1 << 3),
+          PSSCAN_UIDGID = (1 << 4),
+          PSSCAN_COMM = (1 << 5),
+          PSSCAN_ARGV0 = (1 << 7),
+          PSSCAN_EXE = (1 << 8),
+          PSSCAN_STATE = (1 << 9),
+          PSSCAN_VSZ = (1 << 10),
+          PSSCAN_RSS = (1 << 11),
+          PSSCAN_STIME = (1 << 12),
+          PSSCAN_UTIME = (1 << 13),
+          PSSCAN_TTY = (1 << 14),
+          PSSCAN_SMAPS = ((1 << 15)
+          #if definedEx(CONFIG_FEATURE_TOPMEM)
+          * 1
+          #endif
 
-    /*
-    val source_ast2 = getAST( """
-    int main(void) {
-    int a = 0;
-    int b = -2;
-    if (a < 0
-    #if definedEx(A)
-    && b < 0
-    #endif
-    #if !definedEx(A)
-    && c < 0
-    #endif
-    ) {
-      int i = 0;
-    }}""")
-    println("Source: " + source_ast2)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast2))
+          #if !definedEx(CONFIG_FEATURE_TOPMEM)
+          * 0
+          #endif
+          ),
+          PSSCAN_ARGVN = ((1 << 16)
+          #if definedEx(CONFIG_KILLALL)
+          * (1
+          #if (definedEx(CONFIG_KILLALL) && definedEx(CONFIG_PGREP))
+        || 1
+          #endif
 
-    val env2 = createASTEnv(source_ast2)
-    typecheckTranslationUnit(source_ast2)
-    val defUseMap2 = getDefUseMap
-    val tempAst2 = i.transformDeclarationsRecursive(source_ast2, env2, defUseMap2)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst2))
-    */
+          #if (definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_PGREP) && (!definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_PGREP)))
+        || 0
+          #endif
+
+          #if (definedEx(CONFIG_KILLALL) && definedEx(CONFIG_PKILL))
+        || 1
+          #endif
+
+          #if (definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_PKILL) && (!definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_PKILL)))
+        || 0
+          #endif
+
+          #if (definedEx(CONFIG_KILLALL) && definedEx(CONFIG_PIDOF))
+        || 1
+          #endif
+
+          #if (definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_PIDOF) && (!definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_PIDOF)))
+        || 0
+          #endif
+
+          #if (definedEx(CONFIG_KILLALL) && definedEx(CONFIG_SESTATUS))
+        || 1
+          #endif
+
+          #if (definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_SESTATUS) && (!definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_SESTATUS)))
+        || 0
+          #endif
+          )
+          #endif
+
+          #if !definedEx(CONFIG_KILLALL)
+          * (0
+          #if (!definedEx(CONFIG_KILLALL) && definedEx(CONFIG_PGREP))
+        || 1
+          #endif
+
+          #if (!definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_PGREP) && (definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_PGREP)))
+        || 0
+          #endif
+
+          #if (!definedEx(CONFIG_KILLALL) && definedEx(CONFIG_PKILL))
+        || 1
+          #endif
+
+          #if (!definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_PKILL) && (definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_PKILL)))
+        || 0
+          #endif
+
+          #if (!definedEx(CONFIG_KILLALL) && definedEx(CONFIG_PIDOF))
+        || 1
+          #endif
+
+          #if (!definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_PIDOF) && (definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_PIDOF)))
+        || 0
+          #endif
+
+          #if (!definedEx(CONFIG_KILLALL) && definedEx(CONFIG_SESTATUS))
+        || 1
+          #endif
+
+          #if (!definedEx(CONFIG_KILLALL) && !definedEx(CONFIG_SESTATUS) && (definedEx(CONFIG_KILLALL) || !definedEx(CONFIG_SESTATUS)))
+        || 0
+          #endif
+          )
+          #endif
+          ),
+          PSSCAN_CONTEXT = ((1 << 17)
+          #if (definedEx(CONFIG_FEATURE_FIND_CONTEXT) || definedEx(CONFIG_SELINUX))
+          * 1
+          #endif
+
+          #if (!definedEx(CONFIG_FEATURE_FIND_CONTEXT) && !definedEx(CONFIG_SELINUX))
+          * 0
+          #endif
+          ),
+          PSSCAN_START_TIME = (1 << 18),
+          PSSCAN_CPU = ((1 << 19)
+          #if definedEx(CONFIG_FEATURE_TOP_SMP_PROCESS)
+          * 1
+          #endif
+
+          #if !definedEx(CONFIG_FEATURE_TOP_SMP_PROCESS)
+          * 0
+          #endif
+          ),
+          PSSCAN_NICE = ((1 << 20)
+          #if definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
+          * 1
+          #endif
+
+          #if !definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
+          * 0
+          #endif
+          ),
+          PSSCAN_RUIDGID = ((1 << 21)
+          #if definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
+          * 1
+          #endif
+
+          #if !definedEx(CONFIG_FEATURE_PS_ADDITIONAL_COLUMNS)
+          * 0
+          #endif
+          ),
+          PSSCAN_TASKS = ((1 << 22)
+          #if definedEx(CONFIG_FEATURE_SHOW_THREADS)
+          * 1
+          #endif
+
+          #if !definedEx(CONFIG_FEATURE_SHOW_THREADS)
+          * 0
+          #endif
+          ),
+          PSSCAN_STAT = (PSSCAN_PPID | PSSCAN_PGID | PSSCAN_SID | PSSCAN_COMM | PSSCAN_STATE | PSSCAN_VSZ | PSSCAN_RSS | PSSCAN_STIME | PSSCAN_UTIME | PSSCAN_START_TIME | PSSCAN_TTY | PSSCAN_NICE | PSSCAN_CPU)
+        } ;
+      """)
+    val env = createASTEnv(source_ast)
+
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+
+    val feat = i.filterFeatures(source_ast, createASTEnv(source_ast))
+    println("++Distinct features in ast" + " (" + feat.size + ")" + "++")
+    println(feat)
+
+    val cstmt = i.definedExternalToStruct(feat)
+    println("++Pretty printed++")
+    println(PrettyPrinter.print(cstmt))
+
+    println("Source:\n" + source_ast)
+    println("++Pretty printed++")
+    println(PrettyPrinter.print(source_ast))
+
+    val tempAst = i.transformDeclarationsRecursive(source_ast, env, defUseMap)
+    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+  }
+
+  @Test def struct_test() {
+    val i = new IfdefToIf
+    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\random\\struct.pi"))
+    val env = createASTEnv(source_ast)
+
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+
+    val feat = i.filterFeatures(source_ast, createASTEnv(source_ast))
+    println("++Distinct features in ast" + " (" + feat.size + ")" + "++")
+    println(feat)
+
+    val cstmt = i.definedExternalToStruct(feat)
+    println("++Pretty printed++")
+    println(PrettyPrinter.print(cstmt))
+
+    println("Source:\n" + source_ast)
+
+    val tempAst = i.transformDeclarationsRecursive(source_ast, env, defUseMap)
+    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
   }
 
   private def writeToFile(strg: String, name: String) {
     val fw = new FileWriter(name)
     fw.write(strg)
     fw.close()
+  }
+
+  @Test def function_test() {
+    val source_ast = getAST( """
+    void open_transformer(int fd,
+    #if definedEx(CONFIG_DESKTOP)
+    long long
+    #endif
+    #if !definedEx(CONFIG_DESKTOP)
+
+    #endif
+     int (*transformer)(int src_fd, int dst_fd)) ;
+                             """)
+    println("Source: " + source_ast)
+    println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
+
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    val tempAst = i.transformDeclarationsRecursive(source_ast, env, defUseMap)
+    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
   }
 
   private def analyseDir(dirToAnalyse: File) {
