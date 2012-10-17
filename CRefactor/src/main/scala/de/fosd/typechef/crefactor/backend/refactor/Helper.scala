@@ -1,14 +1,15 @@
 package de.fosd.typechef.crefactor.backend.refactor
 
-import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.{FunctionDef, Id}
 import de.fosd.typechef.crefactor.backend.Connector
-import de.fosd.typechef.conditional.One
+import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.typesystem.CUnknown
+import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation, ASTEnv}
 
 /**
  * Helper object providing some useful functions for refactorings.
  */
-object Helper {
+object Helper extends ASTNavigation with ConditionalNavigation {
 
   val languageKeywords = List(
     "auto",
@@ -102,6 +103,19 @@ object Helper {
       }
     } catch {
       case e: Exception => return false
+    }
+  }
+
+  def getFunctionDefOpt(entry: Product, astENV: ASTEnv): Opt[_] = {
+    val parent = parentOpt(entry, astENV)
+    parent match {
+      case o: Opt[_] => {
+        o.entry match {
+          case FunctionDef(_, _, _, _) => o
+          case _ => getFunctionDefOpt(parent, astENV)
+        }
+      }
+      case _ => null
     }
   }
 }

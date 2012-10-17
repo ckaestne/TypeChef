@@ -31,26 +31,7 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
     if (!Helper.isValidName(newId)) {
       return false
     }
-    /*
-    // check if name is in defuse map
-    var inDefUse = false
-    val it = defUSE.keySet().iterator()
-    while (it.hasNext && (!inDefUse)) {
-      if (it.next().name.equals(newId)) {
-        inDefUse = true
-      }
-    }
-    if (!inDefUse) {
-      return true
-    }
-    */
-    val varDef = isDeclaredVarInScope(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)
-    val typeDef = isDeclaredTypeDef(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)
-    val structDef = isDeclaredStructOrUnionDef(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)
-    // check in enviroment for shadowing
-    println("varDef?: " + newId + " " + varDef)
-    println("typeDef?. " + newId + " " + typeDef)
-    println("struct? " + newId + " " + structDef)
+
     !isDeclaredVarInScope(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)
   }
 
@@ -97,6 +78,7 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
       case e: NoSuchElementException => env = Connector.getEnv(ast.defs.last.entry)
       case _ => return false
     }
+    println(env.varEnv(newId))
     env.varEnv(newId) match {
       case One(CUnknown(_)) => return false
       case _ => return true

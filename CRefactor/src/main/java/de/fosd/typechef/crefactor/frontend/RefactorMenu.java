@@ -1,8 +1,11 @@
 package de.fosd.typechef.crefactor.frontend;
 
 import de.fosd.typechef.crefactor.backend.ASTPosition;
+import de.fosd.typechef.crefactor.backend.refactor.ExtractMethod;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.Rename;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
+import de.fosd.typechef.crefactor.util.Configuration;
+import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
 import scala.collection.Iterator;
 import scala.collection.immutable.List;
@@ -44,13 +47,20 @@ public class RefactorMenu implements MenuListener {
         this.menu.removeAll();
         final Selection selection = new Selection(editor);
 
-        // Retrieve all available ids
+        // Retrieve all available ids - Requiered for renamings
         final List<Id> selectedIDs = ASTPosition.getSelectedIDs(editor.getAST(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
         if (!selectedIDs.isEmpty()) {
-            addRenamingsToMenu(selectedIDs, this.menu);
+            JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
+            this.menu.add(rename);
+            addRenamingsToMenu(selectedIDs, rename);
         }
 
+        final List<AST> selectedAST = ASTPosition.getSelectedAST(editor.getAST(),
+                selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+        if (!selectedAST.isEmpty()) {
+            System.out.println("out" + ExtractMethod.isPartOfAFunction(selectedAST, editor.getAST()));
+        }
     }
 
     @Override
