@@ -20,6 +20,7 @@ object ExtractMethod extends ConditionalNavigation {
         case _ =>
       }
     }
+    println(isConditional(selection, ast))
     true
   }
 
@@ -31,8 +32,8 @@ object ExtractMethod extends ConditionalNavigation {
     for (entry <- selection) {
       println(parentOpt(entry, env).feature)
       parentOpt(entry, env).feature match {
-        case True => return true
-        case _ =>
+        case True =>
+        case _ => return true
       }
     }
     false
