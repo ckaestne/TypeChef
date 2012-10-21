@@ -9,7 +9,7 @@ object ASTPosition extends ASTNavigation {
   /**
    * Retrieves all ids in the selected range.
    */
-  def getSelectedIDs(ast: AST, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[Id] = {
+  def getSelectedIDs(ast: AST, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[Id] = {
     var result = List[Id]()
     filterASTElems[Id](ast).foreach(x => {
       if ((isInRange(x.getPositionFrom.getLine, startLine, endLine) || isInRange(x.getPositionTo.getLine, startLine, endLine))
@@ -17,7 +17,7 @@ object ASTPosition extends ASTNavigation {
         result = x :: result
       }
     })
-    result
+    result.filter(p => p.getFile.get.regionMatches(true, 5, file, 0, file.length()))
   }
 
   /**
@@ -81,5 +81,13 @@ object ASTPosition extends ASTNavigation {
       return true
     }
     false
+  }
+
+  /**
+   * Remove all ids except those from the specified file.
+   */
+  def filterFileId(selection: List[Id], file: String): List[Id] = {
+    // offset 5 because file path of id contains the string "file "
+    selection.filter(p => p.getFile.get.regionMatches(true, 5, file, 0, file.length()))
   }
 }

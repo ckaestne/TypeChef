@@ -34,6 +34,11 @@ public class Editor extends JFrame {
     private Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> parsedCode;
 
     /**
+     * The currently loaded file.
+     */
+    private File file;
+
+    /**
      * Generates a new editor window instance.
      *
      * @param parsedCode the parsed Code by typechef, containing the ast and defUseMap
@@ -79,7 +84,7 @@ public class Editor extends JFrame {
         }
 
         BufferedReader reader = null;
-
+        this.file = file;
         try {
             reader = new BufferedReader(new FileReader(file));
             this.textArea.read(reader, null);
@@ -134,5 +139,14 @@ public class Editor extends JFrame {
      */
     public void updateParsedCode(final Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> parsedCode) {
         this.parsedCode = parsedCode;
+    }
+
+    /**
+     * Retrieves the currently used file.
+     *
+     * @return the currently used file.
+     */
+    public File getFile() {
+        return this.file;
     }
 }

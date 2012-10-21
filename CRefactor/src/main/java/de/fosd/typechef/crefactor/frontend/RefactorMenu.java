@@ -1,11 +1,9 @@
 package de.fosd.typechef.crefactor.frontend;
 
 import de.fosd.typechef.crefactor.backend.ASTPosition;
-import de.fosd.typechef.crefactor.backend.refactor.ExtractMethod;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.Rename;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
 import de.fosd.typechef.crefactor.util.Configuration;
-import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
 import scala.collection.Iterator;
 import scala.collection.immutable.List;
@@ -48,7 +46,7 @@ public class RefactorMenu implements MenuListener {
         final Selection selection = new Selection(editor);
 
         // Retrieve all available ids - Requiered for renamings
-        final List<Id> selectedIDs = ASTPosition.getSelectedIDs(editor.getAST(),
+        final List<Id> selectedIDs = ASTPosition.getSelectedIDs(editor.getAST(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
         if (!selectedIDs.isEmpty()) {
             JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
@@ -56,11 +54,13 @@ public class RefactorMenu implements MenuListener {
             addRenamingsToMenu(selectedIDs, rename);
         }
 
-        final List<AST> selectedAST = ASTPosition.getSelectedAST(editor.getAST(),
+        /*final List<AST> selectedAST = ASTPosition.getSelectedAST(editor.getAST(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+        System.out.println("all ids" + ExtractMethod.getAllExternallyReferencedIds(ExtractMethod.getAllUsedIds(selectedAST), editor.getDefUseMap(), editor.getAST()));
+        ExtractMethod.doExtract("test", selectedAST, editor.getAST(), editor.getDefUseMap());
         if (!selectedAST.isEmpty()) {
             System.out.println("out" + ExtractMethod.isPartOfAFunction(selectedAST, editor.getAST()));
-        }
+        }  */
     }
 
     @Override
