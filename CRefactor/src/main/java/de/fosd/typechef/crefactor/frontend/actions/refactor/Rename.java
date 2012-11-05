@@ -44,7 +44,7 @@ public class Rename {
                         Configuration.getInstance().getConfig("refactor.rename.newName"), id.name());
                 if (box.getInput() != null) {
                     Renaming.renamingIsPossible(
-                            editor.getAST(), editor.getDefUseMap(), box.getInput(), id);
+                            Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id);
 
                     // Verify Input
                     if (!Renaming.validName(box.getInput())) {
@@ -53,30 +53,29 @@ public class Rename {
                         return;
                     }
 
-                    if (Renaming.isDeclaredVarInScope((TranslationUnit) editor.getAST(), editor.getDefUseMap(), box.getInput(), id)) {
+                    if (Renaming.isDeclaredVarInScope((TranslationUnit) Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id)) {
                         JOptionPane.showMessageDialog(
                                 null, "Der Name verdeckt eine weitere Variable", "Fehler", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     if (Helper.isStructOrUnion(id)
-                            && Renaming.isDeclaredStructOrUnionDef((TranslationUnit) editor.getAST(), editor.getDefUseMap(), box.getInput(), id)) {
+                            && Renaming.isDeclaredStructOrUnionDef((TranslationUnit) Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id)) {
                         JOptionPane.showMessageDialog(
                                 null, "Der Name verdeckt eine weitere Variable", "Fehler", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     if (Helper.isTypedef(id)
-                            && Renaming.isDeclaredTypeDef((TranslationUnit) editor.getAST(), editor.getDefUseMap(), box.getInput(), id)) {
+                            && Renaming.isDeclaredTypeDef((TranslationUnit) Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id)) {
                         JOptionPane.showMessageDialog(
                                 null, "Der Name verdeckt eine weitere Variable", "Fehler", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
-
-                    AST refactored = Renaming.renameId(editor.getAST(), editor.getDefUseMap(), box.getInput(), id);
+                    System.out.println("oldDefuse " + Connector.getDefUseMap());
+                    AST refactored = Renaming.renameId(Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id);
                     Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> updatedParsedCode = Connector.doTypeCheck(refactored);
-                    editor.updateParsedCode(updatedParsedCode);
                     // Pretty Print :)
                     editor.getRTextArea().setText(PrettyPrinter.print(refactored));
                     // TODO Verification!

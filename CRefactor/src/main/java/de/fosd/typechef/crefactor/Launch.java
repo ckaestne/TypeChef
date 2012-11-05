@@ -4,15 +4,9 @@ import de.fosd.typechef.crefactor.backend.Connector;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.loader.Loader;
 import de.fosd.typechef.crefactor.util.Configuration;
-import de.fosd.typechef.parser.c.AST;
-import de.fosd.typechef.parser.c.Id;
-import de.fosd.typechef.typesystem.CEnv;
-import scala.Tuple3;
-import scala.collection.immutable.List;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.IdentityHashMap;
 import java.util.LinkedList;
 
 /**
@@ -53,14 +47,14 @@ public final class Launch {
                     System.exit(1);
                 }
                 // parse file
-                final Tuple3<AST, IdentityHashMap<Id, List<Id>>, CEnv.Env> result = Connector.parse(generateTypeChefArguments(
+                Connector.parse(generateTypeChefArguments(
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
                         loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel()));
 
                 // show editor window
-                final Editor editor = new Editor(result);
+                final Editor editor = new Editor();
                 editor.loadFileInEditor(loadingWindow.getFileToAnalyse());
-                // editor.getRTextArea().setText(PrettyPrinter.print(result._1()));
+                // editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
                 editor.setVisible(true);
             }
         });

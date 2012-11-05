@@ -4,13 +4,17 @@ import de.fosd.typechef.Frontend
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c.{Id, AST, TranslationUnit}
 import java.util.IdentityHashMap
+import de.fosd.typechef.crewrite.{CASTEnv, ASTEnv}
 
 /**
  * Connector class to interact between typechef and the editorwindow as frontend.
  */
 object Connector extends CDefUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
 
-  def parse(args: Array[String]): (AST, IdentityHashMap[Id, List[Id]], Env) = {
+  private var astCached: AST = null
+  private var astEnvCached: ASTEnv = null
+
+  def parse(args: Array[String]): AST = {
     // init, get ast and typecheck
     Frontend.main(args)
     var ast = Frontend.getAST()
@@ -18,9 +22,11 @@ object Connector extends CDefUse with CTypeEnv with CEnvCache with CTypeCache wi
       // var featureModel = Frontend.getFeatureModel()
       // TODO Feature Model
       typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
-      return (ast, getDefUseMap, lookupEnv(ast.asInstanceOf[TranslationUnit].defs.last.entry))
+      astCached = ast
+      astEnvCached = CASTEnv.createASTEnv(astCached)
+      return ast
     }
-    (ast, null, null)
+    ast
   }
 
   def doTypeCheck(ast: AST): (AST, IdentityHashMap[Id, List[Id]], Env) = {
@@ -30,4 +36,9 @@ object Connector extends CDefUse with CTypeEnv with CEnvCache with CTypeCache wi
   }
 
   def getEnv(ast: AST): Env = lookupEnv(ast)
+
+  def getAST(): AST = astCached
+
+  def getASTEnv(): ASTEnv = astEnvCached
+
 }

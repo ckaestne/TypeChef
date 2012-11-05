@@ -1,10 +1,12 @@
 package de.fosd.typechef.crefactor.backend
 
-import de.fosd.typechef.parser.c.{Id, AST}
-import de.fosd.typechef.crewrite.{ASTEnv, CASTEnv, ASTNavigation}
+import de.fosd.typechef.parser.c.{Statement, Id, AST}
+import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTEnv, ASTNavigation}
+import collection.immutable.HashSet
+import de.fosd.typechef.conditional.Opt
 
 
-object ASTPosition extends ASTNavigation {
+object ASTPosition extends ASTNavigation with ConditionalNavigation {
 
   /**
    * Retrieves all ids in the selected range.
@@ -17,16 +19,14 @@ object ASTPosition extends ASTNavigation {
         result = x :: result
       }
     })
-    result.filter(p => p.getFile.get.regionMatches(true, 5, file, 0, file.length()))
+    filterFileId[Id](result, file)
   }
 
   /**
-   * Retrieves the ast of the selected statement.
+   * Retrieves all ast elements of the selected range.
    */
-  def getSelectedAST(ast: AST, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[AST] = {
-    val astEnv = CASTEnv.createASTEnv(ast)
-    var astElementsInRange = List[AST]()
-    // retrieve all ast elements in range
+  private def getElementsInRange(astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[AST] = {
+    var astElementsInRange: List[AST] = List[AST]()
     for (key <- astEnv.keys()) {
       if (key.isInstanceOf[AST]) {
         val x = key.asInstanceOf[AST]
@@ -35,59 +35,68 @@ object ASTPosition extends ASTNavigation {
         }
       }
     }
-    // sort ast elements for their length
-    astElementsInRange.sortWith(compareProductArity)
+    filterFileId(astElementsInRange, file)
+  }
 
-    // eliminate duplicates
-    var result = List[AST]()
-    for (entry <- astElementsInRange) {
-      if (!parentASTIsInRange(entry, astEnv, startLine, endLine, startRow, endRow)) {
-        result = entry :: result
+  /**
+   * Retrieves all selected opts.
+   */
+  def getSelectedOpts(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[Opt[_]] = {
+    var optElements = List[Opt[_]]()
+    for (element <- getSelectedStatements(ast, astEnv, file, startLine, endLine, startRow, endRow)) {
+      optElements = parentOpt(element, astEnv) :: optElements
+    }
+    optElements
+  }
+
+  /**
+   * Retrieves all selected statements.
+   */
+  def getSelectedStatements(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[Statement] = {
+    var statements = HashSet[Statement]()
+    for (element <- getElementsInRange(astEnv, file, startLine, endLine, startRow, endRow)) {
+      if (element.isInstanceOf[Statement]) {
+        statements = statements + element.asInstanceOf[Statement]
+      } else {
+        findPriorASTElem[Statement](element, astEnv) match {
+          case Some(x) => statements = statements + x
+          case _ => println("Debug - This should not have happend ")
+        }
       }
     }
-    result.sortWith(comparePosition)
+    statements.toList.sortWith(comparePosition)
   }
 
   /**
-   * Compares the product length of two ast elements
+   * Compares the position between two ast elements.
    */
-  private def compareProductArity(e1: AST, e2: AST) = e1.productArity < e2.productArity
-
-  private def comparePosition(e1: AST, e2: AST) = e1.getPositionFrom < e2.getPositionFrom
+  private def comparePosition(e1: AST, e2: AST) = (e1.getPositionFrom < e2.getPositionFrom)
 
   /**
-   * Checks if an ast element is in a certain position range
+   * Checks if an ast element is in a certain position range.
    */
-  private def isInRange(pos: Int, start: Int, end: Int): Boolean = ((start <= pos) && (pos <= end))
-
-  /**
-   * Checks if the parent of an ast element is in the same position range
-   */
-  private def parentASTIsInRange(entry: AST, astENV: ASTEnv, startLine: Int, endLine: Int, startRow: Int, endRow: Int): Boolean = {
-    val parent = parentAST(entry, astENV)
-    if ((parent != null) && isInRange(parent.getPositionFrom.getLine, startLine, endLine)
-      && isInRange(parent.getPositionFrom.getColumn, startRow, endRow)) {
-      return true
-    }
-    false
-  }
+  private def isInRange(pos: Int, start: Int, end: Int) = ((start <= pos) && (pos <= end))
 
   /**
    * Retrieves if element is in the selection range.
    */
   private def isElementOfSelectionRange(element: AST, startLine: Int, endLine: Int, startRow: Int, endRow: Int): Boolean = {
-    if ((isInRange(element.getPositionFrom.getLine, startLine, endLine) && isInRange(element.getPositionTo.getLine - 1, startLine, endLine))
-      && (isInRange(element.getPositionFrom.getColumn, startRow, endRow) || isInRange(element.getPositionTo.getColumn, startRow, endRow))) {
-      return true
+    if (!((isInRange(element.getPositionFrom.getLine, startLine, endLine) && isInRange(element.getPositionTo.getLine, startLine, endLine)))) {
+      return false
+    } else if (element.getPositionFrom.getLine == startLine) {
+      return isInRange(element.getPositionFrom.getColumn, startRow, endRow)
+    } else if (element.getPositionTo.getLine == endLine) {
+      return isInRange(element.getPositionTo.getColumn, startRow, endRow)
     }
-    false
+    true
   }
 
   /**
    * Remove all ids except those from the specified file.
    */
-  def filterFileId(selection: List[Id], file: String): List[Id] = {
+  private def filterFileId[T <: AST](selection: List[T], file: String): List[T] = {
     // offset 5 because file path of id contains the string "file "
-    selection.filter(p => p.getFile.get.regionMatches(true, 5, file, 0, file.length()))
+    val offset = 5
+    selection.filter(p => p.getFile.get.regionMatches(true, offset, file, 0, file.length()))
   }
 }

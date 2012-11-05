@@ -1,10 +1,13 @@
 package de.fosd.typechef.crefactor.backend.refactor
 
-import de.fosd.typechef.parser.c.{FunctionDef, Id}
 import de.fosd.typechef.crefactor.backend.Connector
-import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
+import java.util
+import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.typesystem.CUnknown
-import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation, ASTEnv}
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.One
 
 /**
  * Helper object providing some useful functions for refactorings.
@@ -106,16 +109,24 @@ object Helper extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  def getFunctionDefOpt(entry: Product, astENV: ASTEnv): Opt[_] = {
-    val parent = parentOpt(entry, astENV)
-    parent match {
-      case o: Opt[_] => {
-        o.entry match {
-          case FunctionDef(_, _, _, _) => o
-          case _ => getFunctionDefOpt(parent, astENV)
-        }
-      }
-      case _ => null
+
+  def findDecl(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): Id = {
+    if (defUSE.containsKey(Id)) {
+      return id
     }
+    for (currentKey <- defUSE.keySet().toArray())
+      for (key <- defUSE.get(currentKey))
+        if (key.eq(id))
+          return currentKey.asInstanceOf[Id]
+    id
+  }
+
+  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
+    val r = oncetd(rule {
+      case l: List[Opt[_]] => l.flatMap({
+        x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil
+      })
+    })
+    r(t).get.asInstanceOf[T]
   }
 }

@@ -40,7 +40,7 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
     var key = oldId
     var result = ast
     if (!defUSE.containsKey(key)) {
-      key = findDecl(defUSE, oldId)
+      key = Helper.findDecl(defUSE, oldId)
     }
     // replace declaration first
     result = replaceIDinAST(result, key, key.copy(name = newId))
@@ -50,14 +50,6 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
       result = replaceIDinAST(result, use, use.copy(name = newId))
     })
     result
-  }
-
-  private def findDecl(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): Id = {
-    for (currentKey <- defUSE.keySet().toArray())
-      for (key <- defUSE.get(currentKey))
-        if (key.eq(id))
-          return currentKey.asInstanceOf[Id]
-    id
   }
 
   private def replaceIDinAST[T <: Product](t: T, e: Id, n: Id): T = {
@@ -78,7 +70,6 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
       case e: NoSuchElementException => env = Connector.getEnv(ast.defs.last.entry)
       case _ => return false
     }
-    println(env.varEnv(newId))
     env.varEnv(newId) match {
       case One(CUnknown(_)) => return false
       case _ => return true
