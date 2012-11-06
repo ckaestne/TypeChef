@@ -151,6 +151,9 @@ trait CDefUse extends CEnv {
       }
       case i: InitDeclarator => putToDefUseMap(i.getId)
       case id: Id =>
+        if (id.name.equals("choice")) {
+          println("env.varEnv" + env.varEnv.getAstOrElse(id.name, null))
+        }
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => putToDefUseMap(id)
           case One(null) => putToDefUseMap(id)
@@ -159,9 +162,11 @@ trait CDefUse extends CEnv {
             putToDefUseMap(id)
           }
           case One(e: Enumerator) => putToDefUseMap(id) // TODO ENUM Verification
+          // TODO correct choice mapping
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
-            putToDefUseMap(declarator.getId)
             putToDefUseMap(declarator2.getId)
+            addToDefUseMap(declarator2.getId, declarator.getId)
+          //  putToDefUseMap(declarator.getId)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
             putToDefUseMap(declarator.getId)
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
