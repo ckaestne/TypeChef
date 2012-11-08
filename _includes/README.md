@@ -48,6 +48,17 @@ and several helper libraries.
   syntax tree. This will be supported by variability-aware 
   linker checks.
 
+* A **variability-aware control and data-flow implementation**
+  (subproject *CRewrite*) provides implementations for
+  successor/predecessor determination of abstract syntax tree
+  elements in the presence of choice nodes and on top of it
+  a variable liveness implementation. The implementation has been
+  evaluated in two case studies (BusyBox and Linux) and the result
+  of this evaluation is available from [http://fosd.net/vaa](http://fosd.net/vaa).
+  For an overview of variability-aware analysis, please refer to the
+  technical report from Thuem, Apel, Kaestner, Kuhlemann, Schaefer, and
+  Saake [http://www.cs.uni-magdeburg.de/inf_media/downloads/forschung/technical_reports_und_preprints/2012/04_2012.pdf](http://www.cs.uni-magdeburg.de/inf_media/downloads/forschung/technical_reports_und_preprints/2012/04_2012.pdf) and the corresponding website [http://fosd.net/spl-strategies](http://fosd.net/spl-strategies).
+
 * All tasks are supported by a library for feature 
   expressions and reasoning about feature expressions
   (subproject *FeatureExprLib*). Internally the library 
