@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import scala.StringBuilder
 
 object PrettyPrinter {
 
@@ -42,6 +43,22 @@ object PrettyPrinter {
         case Nest(i, Nest(j, x)) => layout(Nest(i + j, x))
     }
 
+    def layoutWithStringBuilder(d: Doc): String = {
+      val sb: StringBuilder = new StringBuilder()
+      def layoutRecursive(d: Doc): Unit = d match {
+        case Empty => ;
+        case Line => sb.append("\n")
+        case Text(s) => sb.append(s)
+        case Cons(l, r) => { layoutRecursive(l); layoutRecursive(r) }
+        case Nest(n, Empty) => ;
+        case Nest(n, Line) => sb.append("\n").append(" " * n)
+        case Nest(n, Text(s)) => sb.append(s)
+        case Nest(n, Cons(l, r)) => layoutRecursive(Cons(Nest(n, l), Nest(n, r)))
+        case Nest(i, Nest(j, x)) => layoutRecursive(Nest(i+j, x))
+      }
+      layoutRecursive(d)
+      sb.toString
+    }
 
     def print(ast: AST): String = layout(prettyPrint(ast))
 

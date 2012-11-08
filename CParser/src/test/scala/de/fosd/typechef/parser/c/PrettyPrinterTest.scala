@@ -282,7 +282,7 @@ class PrettyPrinterTest {
     private def parseFile(filename: String) {
         val ast = _parseFile(filename)
         val doc = prettyPrint(ast)
-        val printed = layout(doc)
+        val printed = layoutWithStringBuilder(doc).toString
 
         println("Pretty: " + printed)
 
@@ -655,5 +655,8 @@ class PrettyPrinterTest {
     @Test def test87() {
         parseFile("cgram/test87.c")
     }
+  @Test def largeFile() {
+    parseFile("cgram/largefile.c")
+  }
 
 }
