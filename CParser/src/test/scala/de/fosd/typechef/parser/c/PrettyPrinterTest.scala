@@ -10,7 +10,7 @@ import org.junit.{Ignore, Test}
 class PrettyPrinterTest {
     val p = new CParser()
 
-    @Test def testPP {
+    @Test def testPP() {
 
         //        val sp=new StringPrinter()
         //
@@ -24,12 +24,12 @@ class PrettyPrinterTest {
             Opt(f, Enumerator(Id("test2"), None))
         ))))
 
-        println(layout(doc))
+        println(pretty(doc))
     }
 
-    @Test def testEnum = parsePrintParse("enum e {  test,  test2}", p.enumSpecifier)
+    @Test def testEnum() { parsePrintParse("enum e {  test,  test2}", p.enumSpecifier) }
 
-    @Test def testString = parsePrintParse(""" "test" "b" """, p.stringConst)
+    @Test def testString() { parsePrintParse(""" "test" "b" """, p.stringConst) }
 
     @Test def testConstant() {
         def parseConstant(const: String) {
@@ -77,14 +77,14 @@ class PrettyPrinterTest {
         //        					|#endif""", List(p.primaryExpr, p.numConst))
     }
 
-    @Test def testEnumerator {
+    @Test def testEnumerator() {
         parsePrintParse("enum e", p.enumSpecifier)
         parsePrintParse("enum e { a }", p.enumSpecifier)
         parsePrintParse("enum { a }", p.enumSpecifier)
         parsePrintParse("enum e { a=1, b=3 }", p.enumSpecifier)
     }
 
-    @Test def testParameterDecl {
+    @Test def testParameterDecl() {
         parsePrintParse("void", p.parameterDeclaration)
         parsePrintParse("extern void", p.parameterDeclaration)
         parsePrintParse("extern void", p.parameterDeclaration)
@@ -98,12 +98,12 @@ class PrettyPrinterTest {
         parsePrintParse("void ****a", p.parameterDeclaration)
     }
 
-    @Test def testOptAndChoice {
+    @Test def testOptAndChoice() {
         val c = Choice(FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_UDHCP_RFC3397"), One(CaseStatement(Id("OPTION_DNS_STRING"))), One(LabelStatement(Id("test"), None)))
         ppConditional(c, List())
     }
 
-    @Test def testStatements {
+    @Test def testStatements() {
         parsePrintParseCond("a;", p.statement)
         parsePrintParse("{}", p.compoundStatement)
         parsePrintParseCond("{}", p.statement)
@@ -152,7 +152,7 @@ class PrettyPrinterTest {
     }
 
 
-    @Test def testStructOrUnion {
+    @Test def testStructOrUnion() {
         parsePrintParse("struct a", p.structOrUnionSpecifier)
         parsePrintParse("union a", p.structOrUnionSpecifier)
         parsePrintParse("x ", p.structDeclarator)
@@ -163,12 +163,12 @@ class PrettyPrinterTest {
     }
 
     @Ignore("not working right now, investigate TODO")
-    @Test def testAsmExpr {
+    @Test def testAsmExpr() {
         parsePrintParse("asm ( 3+3);", p.asm_expr)
         parsePrintParse("asm volatile ( 3+3);", p.asm_expr)
     }
 
-    @Test def testFunctionDef {
+    @Test def testFunctionDef() {
 
         parsePrintParse("void foo(){}", p.functionDef)
         parsePrintParse("void foo(){a;}", p.functionDef)
@@ -196,7 +196,7 @@ class PrettyPrinterTest {
         """, p.functionDef)
     }
 
-    @Test def testTypedefName {
+    @Test def testTypedefName() {
         parsePrintParse("int a;", p.translationUnit)
         parsePrintParse("typedef int foo; foo a;", p.translationUnit)
         parsePrintParse("__builtin_type a;", p.translationUnit)
@@ -205,14 +205,14 @@ class PrettyPrinterTest {
         parsePrintParse("3+(__builtin_type)", p.expr)
     }
 
-    @Test def testAttribute {
+    @Test def testAttribute() {
         parsePrintParse("__attribute__((a b))", p.attributeDecl)
         parsePrintParse("__attribute__(())", p.attributeDecl)
         parsePrintParse("__attribute__((a,b))", p.attributeDecl)
         parsePrintParse("__attribute__((a,(b,b)))", p.attributeDecl)
     }
 
-    @Test def testInitializer {
+    @Test def testInitializer() {
         parsePrintParse("a", p.initializer)
         parsePrintParse(".a = 3", p.initializer)
         parsePrintParse("a: 3", p.initializer)
@@ -237,11 +237,11 @@ class PrettyPrinterTest {
         parsePrintParseCond("sem = (int) { .lock = (int) { { .rlock = { .raw_lock = { 1 } } } } };", p.statement)
     }
 
-    @Test def testNAryExpr {
+    @Test def testNAryExpr() {
         parsePrintParse("a*b", p.multExpr)
         parsePrintParse("a*b*b", p.multExpr)
     }
-    @Test def testExprs {
+    @Test def testExprs() {
         parsePrintParse("a*b+c", p.expr)
         parsePrintParse("c+a*b", p.expr)
         parsePrintParse("(a+b)*c", p.expr)
@@ -269,7 +269,7 @@ class PrettyPrinterTest {
 
         //pretty print
         val doc = prettyPrint(ast.get.asInstanceOf[One[AST]].value) //temporary workaround with typecast
-        val printed = layout(doc)
+        val printed = pretty(doc)
 
         println("Pretty: " + printed)
 
@@ -282,7 +282,7 @@ class PrettyPrinterTest {
     private def parseFile(filename: String) {
         val ast = _parseFile(filename)
         val doc = prettyPrint(ast)
-        val printed = layoutWithStringBuilder(doc).toString
+        val printed = pretty(doc)
 
         println("Pretty: " + printed)
 
@@ -322,8 +322,8 @@ class PrettyPrinterTest {
     }
 
 
-    @Test def testDeclarations = {
-        def parsePrintParseDecl(str: String) = parsePrintParse(str, p.translationUnit)
+    @Test def testDeclarations() {
+        def parsePrintParseDecl(str: String) { parsePrintParse(str, p.translationUnit) }
         parsePrintParseDecl("int a;")
         parsePrintParseDecl("signed int a;")
         parsePrintParseDecl("unsigned int a;")
