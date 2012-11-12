@@ -17,7 +17,7 @@ object Connector extends CDefUse with CTypeEnv with CEnvCache with CTypeCache wi
   def parse(args: Array[String]): AST = {
     // init, get ast and typecheck
     Frontend.main(args)
-    var ast = Frontend.getAST()
+    val ast = Frontend.getAST()
     if (ast != null) {
       // var featureModel = Frontend.getFeatureModel()
       // TODO Feature Model

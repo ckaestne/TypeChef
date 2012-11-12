@@ -114,18 +114,29 @@ object Helper extends ASTNavigation with ConditionalNavigation {
     if (defUSE.containsKey(Id)) {
       return id
     }
-    for (currentKey <- defUSE.keySet().toArray())
-      for (key <- defUSE.get(currentKey))
-        if (key.eq(id))
-          return currentKey.asInstanceOf[Id]
+    defUSE.keySet().toArray().par.foreach(currentKey => {
+      defUSE.get(currentKey).foreach(key => if (key.eq(id)) return currentKey.asInstanceOf[Id])
+    })
     id
   }
 
-  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
+  def insertInAstBeforeTD[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
     val r = oncetd(rule {
-      case l: List[Opt[_]] => l.flatMap({
-        x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil
-      })
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceInAST[T <: Product](t: T, e: Opt[_], n: Opt[_]): T = {
+    val r = manytd(rule {
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(e)) n :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def removeFromAST[T <: Product](t: T, remove: Opt[_]): T = {
+    val r = manybu(rule {
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(remove)) Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }

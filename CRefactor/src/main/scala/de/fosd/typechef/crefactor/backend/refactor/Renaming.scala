@@ -38,12 +38,11 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
   def renameId(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
     // check first if id is declaration
     var key = oldId
-    var result = ast
     if (!defUSE.containsKey(key)) {
       key = Helper.findDecl(defUSE, oldId)
     }
     // replace declaration first
-    result = replaceIDinAST(result, key, key.copy(name = newId))
+    var result = replaceIDinAST(ast, key, key.copy(name = newId))
 
     // replace uses
     defUSE.get(key).foreach(use => {
@@ -68,7 +67,7 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
       // declared
     } catch {
       case e: NoSuchElementException => env = Connector.getEnv(ast.defs.last.entry)
-      case _ => return false
+      case _ =>
     }
     env.varEnv(newId) match {
       case One(CUnknown(_)) => return false
