@@ -32,7 +32,9 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
       return false
     }
 
-    !isDeclaredVarInScope(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)
+    ((!isDeclaredVarInScope(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)) &&
+      (!isDeclaredTypeDef(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)) &&
+      (!isDeclaredStructOrUnionDef(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)))
   }
 
   def renameId(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
