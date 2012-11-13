@@ -31,30 +31,40 @@ import de.fosd.typechef.parser.c.ConstSpecifier
 object ExtractFunction extends ASTNavigation with ConditionalNavigation {
 
   /**
+   * Retrieves if selected statements are eligable for extract function
+   */
+  def isEligableForExtraction(selection: List[Opt[_]], astEnv: ASTEnv): Boolean = {
+    // First Step - check parent function
+    val parentFunction = getParentFunction(selection, astEnv)
+    parentFunction match {
+      case null => return false
+      case _ =>
+    }
+    val condComplete = isConditionalComplete(selection, parentFunction, astEnv)
+
+    if (!condComplete)
+      return false
+
+    true
+  }
+
+  /**
    * Retrieves the parent function of the selection. Returns null if not definied in an function or different functions.
    */
   def getParentFunction(selection: List[Opt[_]], env: ASTEnv): FunctionDef = {
     var funcDef: FunctionDef = null
     for (entry <- selection) {
-      // TODO Null Pointer Fix
-      try {
-        findPriorASTElem[FunctionDef](entry, env) match {
-          case Some(f) => {
-            if (funcDef == null) {
-              funcDef = f
-            } else if (!f.eq(funcDef)) {
-              return null
-            }
+      findPriorASTElem[FunctionDef](entry, env) match {
+        case Some(f) => {
+          if (funcDef == null) {
+            funcDef = f
+          } else if (!f.eq(funcDef)) {
+            return null
           }
-          case none => return null
         }
-      } catch {
-        // TODO Ask Jörg
-        case e => println("Exception " + entry)
+        case none => return null
       }
-
     }
-    // TODO isConditionalComplete(selection, funcDef)
     funcDef
   }
 
@@ -118,11 +128,42 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Conditional complete?
    */
-  def isConditionalComplete(selection: List[Opt[_]], parentFunction: FunctionDef): Boolean = {
-    for (entry <- selection) {
-      println("Featrue" + entry.feature)
+  def isConditionalComplete(selection: List[Opt[_]], parentFunction: FunctionDef, astEnv: ASTEnv): Boolean = {
+    println("parent" + parentFunction)
+    selection.foreach(x => {
+      println("prev " + x)
+      // println(astEnv.previous(x))
+      // println("parent" + astEnv.parent(x))
+    })
+    if (!selectionIsConditional(selection)) {
+      // no variable configuration -> conditional complete
+      return true
     }
-    true
+    val fExpr = filterAllFeatureExpr(selection).toSet
+    println("fexpr" + filterAllFeatureExpr(selection).toSet)
+    if (!(fExpr.size > 1)) {
+      // only one and the same feature -> conditonal complete
+      return true
+    }
+
+    val expr1 = selection.head
+    val expr2 = selection.last
+
+    println("1" + expr1)
+    println("2" + expr2)
+    println("nested1? " + expr1.feature.implies(expr2.feature))
+    println("nested2? " + expr2.feature.implies(expr1.feature))
+    println("not " + expr2.feature.equiv(expr1.feature))
+
+    false
+  }
+
+  /**
+   * Selection is conditonal?
+   */
+  def selectionIsConditional(selection: List[Opt[_]]): Boolean = {
+    selection.par.foreach(x => if (isVariable(x)) return true)
+    false
   }
 
   /**
@@ -211,8 +252,15 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Inserts the extracted function in the ast.
    */
-  def insertNewFunction(oldFunc: FunctionDef, newFunc: Opt[FunctionDef], ast: AST, env: ASTEnv): AST = {
-    Helper.insertInAstBefore(ast, parentOpt(oldFunc, env), newFunc)
+  def insertNewFunction(oldFunc: FunctionDef, newFunc: Opt[FunctionDef], selection: List[Opt[_]], ast: AST, env: ASTEnv): AST = {
+    var refactoredAST = Helper.insertInAstBeforeTD(ast, parentOpt(oldFunc, env), newFunc)
+    // TODO External Vars
+    val functionCall = Opt[ExprStatement](newFunc.feature, ExprStatement(PostfixExpr(Id(newFunc.entry.getName), FunctionCall(ExprList(List[Opt[Expr]]())))))
+    refactoredAST = Helper.replaceInAST(refactoredAST, selection.head, functionCall)
+    selection.foreach(x => refactoredAST = Helper.removeFromAST(refactoredAST, x))
+
+    refactoredAST
+
   }
 
   /**

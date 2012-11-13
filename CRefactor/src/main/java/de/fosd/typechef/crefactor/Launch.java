@@ -47,9 +47,12 @@ public final class Launch {
                     System.exit(1);
                 }
                 // parse file
-                Connector.parse(generateTypeChefArguments(
+                if (Connector.parse(generateTypeChefArguments(
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
-                        loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel()));
+                        loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel())) == null) {
+                    System.err.println("Something really bad happend");
+                    System.exit(-1);
+                }
 
                 // show editor window
                 final Editor editor = new Editor();

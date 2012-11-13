@@ -23,6 +23,8 @@ public class PopupMenuFactory {
             return null;
         }
         menu.addSeparator();
+        // menu.add(getPrettyPrintedAST(editor));
+        menu.addSeparator();
         menu.add(getRefactorMenu(editor));
         return menu;
     }
@@ -31,5 +33,9 @@ public class PopupMenuFactory {
         final JMenu refactorMenu = new JMenu(Configuration.getInstance().getConfig("refactor.name"));
         refactorMenu.addMenuListener(new RefactorMenu(editor, refactorMenu));
         return refactorMenu;
+    }
+
+    public static JMenu getPrettyPrintedAST(final Editor editor) {
+        return null;
     }
 }

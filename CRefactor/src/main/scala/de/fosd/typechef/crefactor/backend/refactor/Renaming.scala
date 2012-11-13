@@ -43,6 +43,7 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
     if (!defUSE.containsKey(key)) {
       key = Helper.findDecl(defUSE, oldId)
     }
+
     // replace declaration first
     var result = replaceIDinAST(ast, key, key.copy(name = newId))
 

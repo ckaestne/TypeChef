@@ -7,7 +7,7 @@ import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.Rename;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
 import de.fosd.typechef.crefactor.util.Configuration;
-import de.fosd.typechef.parser.c.*;
+import de.fosd.typechef.parser.c.Id;
 import scala.collection.Iterator;
 import scala.collection.immutable.List;
 
@@ -56,9 +56,14 @@ public class RefactorMenu implements MenuListener {
             this.menu.add(rename);
             addRenamingsToMenu(selectedIDs, rename);
         }
+        List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
+                selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+        //List<Statement> selectedStatements = ASTPosition.getSelectedStatements(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
+        //        selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+        System.out.println("Eligable? " + ExtractFunction.isEligableForExtraction(selectedAST, Connector.getASTEnv()));
 
         // TODO Sweet it up!
-        List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
+        /*List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
         List<Statement> selectedStatements = ASTPosition.getSelectedStatements(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
@@ -71,7 +76,7 @@ public class RefactorMenu implements MenuListener {
         System.out.println("function " + newFunc);
         System.out.println(PrettyPrinter.print(newFunc.entry()));
         System.out.println("insert");
-        System.out.println(PrettyPrinter.print(ExtractFunction.insertNewFunction(parentFunc, newFunc, Connector.getAST(), Connector.getASTEnv())));
+        System.out.println(PrettyPrinter.print(ExtractFunction.insertNewFunction(parentFunc, newFunc, selectedAST, Connector.getAST(), Connector.getASTEnv())));  */
     }
 
     @Override

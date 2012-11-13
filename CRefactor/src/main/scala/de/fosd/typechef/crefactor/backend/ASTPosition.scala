@@ -38,7 +38,7 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
     for (element <- getSelectedStatements(ast, astEnv, file, startLine, endLine, startRow, endRow)) {
       optElements = parentOpt(element, astEnv) :: optElements
     }
-    optElements
+    optElements.reverse
   }
 
   /**

@@ -52,7 +52,7 @@ public class Rename {
                     }
 
                     AST refactored = Renaming.renameId(Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id);
-                    Connector.doTypeCheck(refactored);
+                    Connector.update(refactored);
                     // Pretty Print :)
                     editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
                     // TODO Verification!
