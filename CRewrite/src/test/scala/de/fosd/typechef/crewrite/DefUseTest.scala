@@ -249,6 +249,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         #if definedEx(A)
         const int konst = 55;
         int c = 32;
+        #elif definedEx(B)
+        int c = 42;
         #else
         int c = 64;
         const int konst = 100;

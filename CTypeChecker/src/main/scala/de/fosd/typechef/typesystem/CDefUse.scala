@@ -56,16 +56,17 @@ trait CDefUse extends CEnv {
   }
 
   private def putToDefUseMap(id: Id) = {
-    if (!defUseContainsId(id)) {
-      defuse.put(id, List())
-    }
+    // if (!defUseContainsIdAsValue(id)) {
+    defuse.put(id, List())
+    // }
   }
 
-  private def defUseContainsId(id: Id): Boolean = {
-    if (defuse.containsKey(id)) {
+  private def defUseContainsId(key: Id, target: Id): Boolean = {
+    if (defuse.containsKey(target)) {
       return true
     }
-    return defUseContainsIdAsValue(id)
+    defuse.get(key).foreach(id => if (id.eq(target)) return true)
+    false
   }
 
   private def defUseContainsIdName(name: String): Boolean = {
@@ -96,7 +97,7 @@ trait CDefUse extends CEnv {
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
     if (defuse.containsKey(key)) {
-      if (defUseContainsId(target)) {
+      if (defUseContainsId(key, target)) {
         return
       }
       defuse.put(key, defuse.get(key) ++ List(target))
@@ -145,15 +146,11 @@ trait CDefUse extends CEnv {
           case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id, env)
           case k =>
             println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
-            println("debug here")
         }
         addFunctionParametersToDefUse(ext, env)
       }
       case i: InitDeclarator => putToDefUseMap(i.getId)
       case id: Id =>
-        if (id.name.equals("choice")) {
-          println("env.varEnv" + env.varEnv.getAstOrElse(id.name, null))
-        }
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => putToDefUseMap(id)
           case One(null) => putToDefUseMap(id)
@@ -165,8 +162,8 @@ trait CDefUse extends CEnv {
           // TODO correct choice mapping
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
             putToDefUseMap(declarator2.getId)
-            addToDefUseMap(declarator2.getId, declarator.getId)
-          //  putToDefUseMap(declarator.getId)
+            //addToDefUseMap(declarator2.getId, declarator.getId)
+            putToDefUseMap(declarator.getId)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
             putToDefUseMap(declarator.getId)
           case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
@@ -215,6 +212,8 @@ trait CDefUse extends CEnv {
             putToDefUseMap(key)
           }
         }
+      case Declaration(specs, inits) =>
+        inits.foreach(x => putToDefUseMap(x.entry.getId))
       case k =>
         println("Missing Add Def: " + f + " from " + k)
     }
@@ -300,6 +299,43 @@ trait CDefUse extends CEnv {
     }
   }
 
+  private def addChoice(entry: Choice[AST], id: Id) {
+    entry match {
+      case Choice(feature, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        addChoice(c1, id)
+        addChoice(c2, id)
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), c@Choice(_, _, _)) =>
+        addChoice(c, id)
+        addToDefUseMap(declarator.getId, id)
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+        addToDefUseMap(declarator.getId, id)
+        addToDefUseMap(declarator2.getId, id)
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(null)) => addToDefUseMap(declarator.getId, id)
+      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), c@Choice(_, _, _)) =>
+        addChoice(c, id)
+        addToDefUseMap(key, id)
+      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
+        addToDefUseMap(key, id)
+        addToDefUseMap(key2, id)
+      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(null)) => addToDefUseMap(key, id)
+      case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), c@Choice(_, _, _)) =>
+        addChoice(c, id)
+        addToDefUseMap(key, id)
+      case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
+        addToDefUseMap(key, id)
+        addToDefUseMap(key2, id)
+      case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(null)) => addToDefUseMap(key, id)
+      case Choice(feature, One(Enumerator(key, _)), c@Choice(_, _, _)) =>
+        addChoice(c, id)
+        addToDefUseMap(key, id)
+      case Choice(feature, One(Enumerator(key, _)), One(Enumerator(key2, _))) =>
+        addToDefUseMap(key, id)
+        addToDefUseMap(key2, id)
+      case Choice(feature, One(Enumerator(key, _)), One(null)) => addToDefUseMap(key, id)
+      case _ => println("Missed Choice " + entry)
+    }
+  }
+
   def addUse(entry: AST, env: Env) {
     entry match {
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
@@ -313,23 +349,7 @@ trait CDefUse extends CEnv {
             addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
-          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
-            // TODO Verfiy Choice!
-            addToDefUseMap(declarator.getId, i)
-            addToDefUseMap(declarator2.getId, i)
-          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
-            addToDefUseMap(declarator.getId, i)
-          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
-            addToDefUseMap(key, i)
-            addToDefUseMap(key2, i)
-          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
-            addToDefUseMap(key, i)
-          case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
-            addToDefUseMap(key, i)
-            addToDefUseMap(key2, i)
-          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
-            addToDefUseMap(key, i)
-          case Choice(feature, One(Enumerator(key, _)), _) => addToDefUseMap(key, i)
+          case c@Choice(_, _, _) => addChoice(c, i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case One(NestedNamedDeclarator(_, nestedDecl, _)) => addToDefUseMap(nestedDecl.getId, i)
           case One(null) =>

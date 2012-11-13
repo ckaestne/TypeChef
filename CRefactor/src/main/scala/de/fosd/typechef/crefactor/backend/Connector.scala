@@ -29,7 +29,9 @@ object Connector extends CDefUse with CTypeEnv with CEnvCache with CTypeCache wi
     ast
   }
 
-  def doTypeCheck(ast: AST): (AST, IdentityHashMap[Id, List[Id]], Env) = {
+  def update(ast: AST): (AST, IdentityHashMap[Id, List[Id]], Env) = {
+    astCached = ast
+    astEnvCached = CASTEnv.createASTEnv(astCached)
     typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
     // TODO Update env?
     (ast, getDefUseMap, lookupEnv(ast.asInstanceOf[TranslationUnit].defs.last.entry))
