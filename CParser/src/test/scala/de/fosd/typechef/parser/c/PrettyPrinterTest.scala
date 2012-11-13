@@ -19,10 +19,10 @@ class PrettyPrinterTest {
         //        println(PrettyPrinter.print(sp,ast))
 
         val f = FeatureExprFactory.True
-        val doc = prettyPrint(EnumSpecifier(Some(Id("e")), Some(List(
+        val doc = EnumSpecifier(Some(Id("e")), Some(List(
             Opt(f, Enumerator(Id("test"), None)),
             Opt(f, Enumerator(Id("test2"), None))
-        ))))
+        )))
 
         println(pretty(doc))
     }
@@ -268,8 +268,7 @@ class PrettyPrinterTest {
 
 
         //pretty print
-        val doc = prettyPrint(ast.get.asInstanceOf[One[AST]].value) //temporary workaround with typecast
-        val printed = pretty(doc)
+        val printed = pretty(ast.get.asInstanceOf[One[AST]].value) //temporary workaround with typecast
 
         println("Pretty: " + printed)
 
@@ -281,10 +280,9 @@ class PrettyPrinterTest {
 
     private def parseFile(filename: String) {
         val ast = _parseFile(filename)
-        val doc = prettyPrint(ast)
-        val printed = pretty(doc)
+        val printed = pretty(ast)
 
-        println("Pretty: " + printed)
+        // println("Pretty: " + printed)
 
         val ast2 = parse(printed, p.translationUnit)
 
