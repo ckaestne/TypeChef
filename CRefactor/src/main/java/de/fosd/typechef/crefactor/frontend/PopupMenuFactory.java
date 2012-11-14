@@ -1,5 +1,6 @@
 package de.fosd.typechef.crefactor.frontend;
 
+import de.fosd.typechef.crefactor.frontend.actions.refactor.Analyse;
 import de.fosd.typechef.crefactor.util.Configuration;
 
 import javax.swing.*;
@@ -23,7 +24,7 @@ public class PopupMenuFactory {
             return null;
         }
         menu.addSeparator();
-        // menu.add(getPrettyPrintedAST(editor));
+        menu.add(getPrettyPrintedAST(editor));
         menu.addSeparator();
         menu.add(getRefactorMenu(editor));
         return menu;
@@ -35,7 +36,7 @@ public class PopupMenuFactory {
         return refactorMenu;
     }
 
-    public static JMenu getPrettyPrintedAST(final Editor editor) {
-        return null;
+    public static JMenuItem getPrettyPrintedAST(final Editor editor) {
+        return new JMenuItem(Analyse.getPrettyPrintASTAction(editor));
     }
 }

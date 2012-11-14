@@ -48,6 +48,9 @@ public class RefactorMenu implements MenuListener {
         this.menu.removeAll();
         final Selection selection = new Selection(editor);
 
+        /**
+         * Refactor Renaming
+         */
         // Retrieve all available ids - Requiered for renamings
         final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Connector.getAST(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
@@ -56,11 +59,18 @@ public class RefactorMenu implements MenuListener {
             this.menu.add(rename);
             addRenamingsToMenu(selectedIDs, rename);
         }
-        List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
+
+        /**
+         * Refactor Extract Method
+         */
+        final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-        //List<Statement> selectedStatements = ASTPosition.getSelectedStatements(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
-        //        selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-        System.out.println("Eligable? " + ExtractFunction.isEligableForExtraction(selectedAST, Connector.getASTEnv()));
+
+        final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Connector.getASTEnv());
+        this.menu.add(new JSeparator());
+        final JMenuItem extract = new JMenuItem("Extrahiere Funktion");
+        this.menu.add(extract);
+        extract.setEnabled(eligable);
 
         // TODO Sweet it up!
         /*List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),

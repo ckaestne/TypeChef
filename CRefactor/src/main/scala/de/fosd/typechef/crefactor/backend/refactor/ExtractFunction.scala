@@ -84,7 +84,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    * Checks if id is declared in the selection.
    */
   private def idIsDeclaredInSelection(id: Id, usedIds: List[Id], defuse: util.IdentityHashMap[Id, List[Id]]): Boolean = {
-    val decl = Helper.findDecl(defuse, id)
+    val decl = Helper.findFirstDecl(defuse, id)
     usedIds.foreach(x => if (x.eq(decl)) return true)
     false
   }
@@ -113,7 +113,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
       if (usedIds.isEmpty) {
         return List[Id]()
       }
-      val decl = Helper.findDecl(defUse, usedIds.head)
+      val decl = Helper.findFirstDecl(defUse, usedIds.head)
       val defUseIds = decl :: defUse.get(decl)
       val used = usedIds.diff(defUseIds).diff(List(usedIds.head))
       var filtered = result ::: defUseIds.diff(usedIds)
@@ -129,19 +129,17 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    * Conditional complete?
    */
   def isConditionalComplete(selection: List[Opt[_]], parentFunction: FunctionDef, astEnv: ASTEnv): Boolean = {
-    println("parent" + parentFunction)
-    selection.foreach(x => {
-      println("prev " + x)
-      // println(astEnv.previous(x))
-      // println("parent" + astEnv.parent(x))
-    })
+    if (selection.isEmpty) {
+      // an empty selection can not be extracted
+      return false
+    }
+
     if (!selectionIsConditional(selection)) {
       // no variable configuration -> conditional complete
       return true
     }
-    val fExpr = filterAllFeatureExpr(selection).toSet
-    println("fexpr" + filterAllFeatureExpr(selection).toSet)
-    if (!(fExpr.size > 1)) {
+
+    if (!(filterAllFeatureExpr(selection).toSet.size > 1)) {
       // only one and the same feature -> conditonal complete
       return true
     }
@@ -149,12 +147,22 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
     val expr1 = selection.head
     val expr2 = selection.last
 
-    println("1" + expr1)
-    println("2" + expr2)
-    println("nested1? " + expr1.feature.implies(expr2.feature))
-    println("nested2? " + expr2.feature.implies(expr1.feature))
-    println("not " + expr2.feature.equiv(expr1.feature))
+    if (expr1.feature.equivalentTo(expr2.feature)) {
+      // start and end feature are the same -> eligable
+      return true
+    }
 
+    val prevState = prevOpt(expr1, astEnv)
+    val nextState = nextOpt(expr2, astEnv)
+
+    if (((prevState != null) && (prevState.feature.equals(expr2.feature)))
+      || ((nextState != null) && (nextState.feature.equals(expr1.feature)))
+      || ((prevState != null) && (nextState != null) && nextState.feature.equals(prevState.feature))) {
+      // prev feature and next feature are the same -> eligable
+      return true
+    }
+
+    // TODO Null States!
     false
   }
 
@@ -299,7 +307,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
 
     var decls = List[Opt[ParameterDeclaration]]()
     params.foreach(id => {
-      decls = generateParameterDecl(Helper.findDecl(defUse, id)) :: decls
+      decls = generateParameterDecl(Helper.findFirstDecl(defUse, id)) :: decls
     })
     List[Opt[DeclaratorExtension]](Opt(parentOpt(funcDef, astEnv).feature, DeclParameterDeclList(decls)))
   }
