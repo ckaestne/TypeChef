@@ -207,6 +207,43 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     checkDefuse(source_ast, defUseMap)
   }
 
+  @Test def test_int {
+    val source_ast = getAST( """
+     int main(void) {
+       #if definedEx(A)
+       int i = 8;
+       #endif
+       #if definedEx(B)
+       int i = 16;
+       #endif
+
+       #if definedEx(C)
+       int i = 32;
+       #else
+       int i = 64;
+       #endif
+
+
+       #if definedEx(D)
+       int j = 32;
+       #else
+       int j = 64;
+       #endif
+
+       i = i*i;
+       j = 2*j;
+       return 0;
+     }
+                             """);
+    println("Source:\n" + source_ast + "\n")
+    println("\nPrettyPrinted:\n" + PrettyPrinter.print(source_ast))
+
+    val env = createASTEnv(source_ast)
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    println("DefUse: " + defUseMap)
+  }
+
   @Test def test_typedef_def_use {
     val ast = getAST( """
       #define MAX 30
@@ -320,19 +357,14 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val fis = new FileInputStream(fileToAnalyse)
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
+    val starttime = System.currentTimeMillis()
     typecheckTranslationUnit(ast)
+    val endtime = System.currentTimeMillis()
 
-    //val fw = new FileWriter(fileToAnalyse.getName + ".ast.txt")
-    //fw.write(ast.toString)
-    //fw.close()
-    //val fw2 = new FileWriter(fileToAnalyse.getName + ".pretty.txt")
-    //fw2.write(PrettyPrinter.print(ast))
-    //fw2.close()
     val success = checkDefuse(ast, getDefUseMap)
-    //val defUseMap = getDefUseMap
-    //defUseMap.keySet().toArray.foreach(x => print(x + "=" + defUseMap.get(x) + "\n"))
     println("DefUse" + getDefUseMap)
     println("Success " + success + "\n\n")
+    println("Runtime " + (endtime - starttime))
     Thread.sleep(2000)
     //println("AST" + ast)
   }
