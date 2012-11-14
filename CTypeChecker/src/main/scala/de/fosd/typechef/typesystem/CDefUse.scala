@@ -56,43 +56,16 @@ trait CDefUse extends CEnv {
   }
 
   private def putToDefUseMap(id: Id) = {
-    // if (!defUseContainsIdAsValue(id)) {
-    defuse.put(id, List())
-    // }
+    if (!defuse.contains(id)) {
+      defuse.put(id, List())
+    }
   }
 
   private def defUseContainsId(key: Id, target: Id): Boolean = {
-    if (defuse.containsKey(target)) {
-      return true
+    if (!defuse.contains(target)) {
+      defuse.get(key).foreach(id => if (id.eq(target)) return true)
     }
-    defuse.get(key).foreach(id => if (id.eq(target)) return true)
     false
-  }
-
-  private def defUseContainsIdName(name: String): Boolean = {
-    if (defuse.keySet().exists(x => x.name.equals(name))) {
-      return true
-    }
-    return false
-  }
-
-  private def getKeyByName(name: String): Id = {
-    defuse.keySet().foreach(x =>
-      if (x.name.equals(name)) {
-        return x
-      })
-    return null
-  }
-
-  private def defUseContainsIdAsValue(id: Id): Boolean = {
-    defuse.values().foreach(x => {
-      x.foreach(entry => {
-        if (entry.eq(id)) {
-          return true
-        }
-      })
-    })
-    return false
   }
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
@@ -102,16 +75,22 @@ trait CDefUse extends CEnv {
       }
       defuse.put(key, defuse.get(key) ++ List(target))
     } else {
-      var fd: Id = null
-      for (k <- defuse.keySet().toArray) {
-        for (v <- defuse.get(k))
-          if (v.eq(key)) fd = k.asInstanceOf[Id]
+
+      def lookupDecl(): Id = {
+        defuse.keySet().toArray.par.foreach(k => {
+          for (v <- defuse.get(k))
+            if (v.eq(key))
+              return k.asInstanceOf[Id]
+        })
+        null.asInstanceOf[Id]
       }
-      if (fd == null) {
+
+      val decl = lookupDecl()
+      if (decl == null) {
         putToDefUseMap(key)
         addToDefUseMap(key, target)
       } else {
-        addToDefUseMap(fd, target)
+        addToDefUseMap(decl, target)
       }
     }
   }
@@ -129,24 +108,24 @@ trait CDefUse extends CEnv {
   def addDef(f: AST, env: Env) {
     f match {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
+
         // lookup whether a prior function declaration exists
         // if so we get an InitDeclarator instance back
         val id = declarator.getId
         val ext = declarator.extensions
-        checkFuncDeclForGOTOs(f)
+
         env.varEnv.getAstOrElse(id.name, null) match {
-          case null =>
-            putToDefUseMap(declarator.getId)
-          case One(null) =>
-            putToDefUseMap(declarator.getId)
+          case null => putToDefUseMap(declarator.getId)
+          case One(null) => putToDefUseMap(declarator.getId)
           case One(i: InitDeclarator) => addUse(id, env)
-          case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) =>
-            putToDefUseMap(declarator.getId)
+          case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => putToDefUseMap(declarator.getId)
           // TODO Look at second choice and double declariation
           case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(id, env)
-          case k =>
-            println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
+          case k => println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
+        // check function definiton for goto statements and add them to defUse
+        addGotoStatements(f)
+        // add the function parameters to defuse
         addFunctionParametersToDefUse(ext, env)
       }
       case i: InitDeclarator => putToDefUseMap(i.getId)
@@ -159,10 +138,9 @@ trait CDefUse extends CEnv {
             putToDefUseMap(id)
           }
           case One(e: Enumerator) => putToDefUseMap(id) // TODO ENUM Verification
-          // TODO correct choice mapping
+          // TODO AddDef Choice
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
             putToDefUseMap(declarator2.getId)
-            //addToDefUseMap(declarator2.getId, declarator.getId)
             putToDefUseMap(declarator.getId)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
             putToDefUseMap(declarator.getId)
@@ -332,6 +310,9 @@ trait CDefUse extends CEnv {
         addToDefUseMap(key, id)
         addToDefUseMap(key2, id)
       case Choice(feature, One(Enumerator(key, _)), One(null)) => addToDefUseMap(key, id)
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(Enumerator(key, _))) =>
+        addToDefUseMap(key, id)
+        addToDefUseMap(declarator.getId, id)
       case _ => println("Missed Choice " + entry)
     }
   }
@@ -345,8 +326,7 @@ trait CDefUse extends CEnv {
       case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) =>
-            addToDefUseMap(declarator.getId, i)
+          case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case c@Choice(_, _, _) => addChoice(c, i)
@@ -399,6 +379,7 @@ trait CDefUse extends CEnv {
         addUse(expr, env)
       case UnaryOpExpr(_, expr) => addUse(expr, env)
       case TypeDefTypeSpecifier(id) => addTypeUse(id, env)
+      case Initializer(_, expr) => addUse(expr, env)
       case BuiltinOffsetof(typeName, members) =>
         typeName.specifiers.foreach(x => addUse(x.entry, env))
         /**
@@ -478,7 +459,7 @@ trait CDefUse extends CEnv {
         attr.foreach(x => addDecl(x.entry, env))
         opt match {
           case None =>
-          case _ => addDecl(opt.get, env)
+          case _ => addUse(opt.get, env)
         }
       case Initializer(label, element) =>
         addDecl(element, env)
@@ -620,7 +601,7 @@ trait CDefUse extends CEnv {
     }
   }
 
-  private def checkFuncDeclForGOTOs(f: AST) {
+  private def addGotoStatements(f: AST) {
     // TODO Verify -> #ifdef gotos und verschachtelte gotos <- Überdeckung
     val labels = filterASTElemts[LabelStatement](f)
     val gotos = filterASTElemts[GotoStatement](f)

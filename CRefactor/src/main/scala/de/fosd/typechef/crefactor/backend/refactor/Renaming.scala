@@ -37,21 +37,35 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
       (!isDeclaredStructOrUnionDef(ast.asInstanceOf[TranslationUnit], defUSE, newId, oldId)))
   }
 
+  /**
+   * Rename an variable according its uses in the ast.
+   */
   def renameId(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
-    // check first if id is declaration
-    var key = oldId
-    if (!defUSE.containsKey(key)) {
-      key = Helper.findDecl(defUSE, oldId)
+
+    def rename(ast: AST, decl: Id, decls: util.IdentityHashMap[Id, Boolean] = new util.IdentityHashMap[Id, Boolean]()): AST = {
+      // mark declaration as replaced
+      decls.put(decl, true)
+
+      // replace declaration first
+      var result = replaceIDinAST(ast, decl, decl.copy(name = newId))
+
+      if (defUSE.containsKey(decl)) {
+        // replace uses
+        defUSE.get(decl).foreach(use => {
+          result = replaceIDinAST(result, use, use.copy(name = newId))
+          // Look for further occurring declarations
+          Helper.findDecls(defUSE, use).foreach(foundDecl => if (!decls.containsKey(foundDecl)) decls.put(foundDecl, false))
+        })
+      }
+
+      // Recursively replace all further occurred declarations and uses
+      decls.keySet().toArray(Array[Id]()).foreach(key => if (!decls.get(key)) {
+        result = rename(result, key, decls)
+      })
+      result
     }
 
-    // replace declaration first
-    var result = replaceIDinAST(ast, key, key.copy(name = newId))
-
-    // replace uses
-    defUSE.get(key).foreach(use => {
-      result = replaceIDinAST(result, use, use.copy(name = newId))
-    })
-    result
+    rename(ast, Helper.findFirstDecl(defUSE, oldId))
   }
 
   private def replaceIDinAST[T <: Product](t: T, e: Id, n: Id): T = {

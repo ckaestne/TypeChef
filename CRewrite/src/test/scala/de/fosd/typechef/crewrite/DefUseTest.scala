@@ -48,7 +48,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
       }
     })
     println("Amount of ids missing: " + missingLB.size + "\n" + missingLB)
-    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids." + " containing " + (idLst.size - filterDuplicates(idLst).size) + " duplicate IDs.")
+    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids." + " containing " + (idLst.size - filterDuplicates(idLst).size) + " variable IDs.")
 
     //println(PrettyPrinter.print(ast))
     return (lst.size == filterDuplicates(idLst).size)

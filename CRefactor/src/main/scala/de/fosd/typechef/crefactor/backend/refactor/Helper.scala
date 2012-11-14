@@ -109,8 +109,18 @@ object Helper extends ASTNavigation with ConditionalNavigation {
     }
   }
 
+  def findDecls(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): List[Id] = {
+    defUSE.keySet().toArray(Array[Id]()).par.filter(
+      entry => ((entry.name.equals(id.name) && (entry.eq(id) || eqContains(defUSE.get(entry), id))))
+    ).toList
+  }
 
-  def findDecl(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): Id = {
+  def eqContains[T <: AnyRef](seq: Seq[T], toCheck: T): Boolean = {
+    seq.foreach(x => if (x.eq(toCheck)) return true)
+    false
+  }
+
+  def findFirstDecl(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): Id = {
     if (defUSE.containsKey(Id)) {
       return id
     }
