@@ -30,27 +30,24 @@ import de.fosd.typechef.parser.c.ConstSpecifier
  */
 object ExtractFunction extends ASTNavigation with ConditionalNavigation {
 
-  /* List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
-    selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-  List<Statement> selectedStatements = ASTPosition.getSelectedStatements(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
-    selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-  FunctionDef parentFunc = ExtractFunction.getParentFunction(selectedAST, Connector.getASTEnv());
-  List<Opt<Specifier>> specs = ExtractFunction.generateSpecifiers(parentFunc, Connector.getASTEnv());
-  List<Opt<DeclaratorExtension>> declExt = ExtractFunction.generateParameter(ExtractFunction.getParentFunction(selectedAST, Connector.getASTEnv()), ExtractFunction.getParameterIds(ExtractFunction.getAllUsedIds(selectedAST), Connector.getDefUseMap()), Connector.getASTEnv(), Connector.getDefUseMap());
-  Declarator decl = ExtractFunction.generateDeclarator("func", declExt);
-  CompoundStatement cs = ExtractFunction.generateCompoundStatement(selectedStatements, Connector.getASTEnv());
-  Opt<FunctionDef> newFunc = ExtractFunction.generateFuncOpt(parentFunc, ExtractFunction.generateFuncDef(specs, decl, cs), Connector.getASTEnv());
-  System.out.println("function " + newFunc);
-  System.out.println(PrettyPrinter.print(newFunc.entry()));
-  System.out.println("insert");
-  System.out.println(PrettyPrinter.print(ExtractFunction.insertNewFunction(parentFunc, newFunc, selectedAST, Connector.getAST(), Connector.getASTEnv())));   */
-
   def extract(selection: List[Opt[_]], functionName: String, ast: AST, astEnv: ASTEnv, defuse: util.IdentityHashMap[Id, List[Id]]): AST = {
     val parentFunction = getParentFunction(selection, astEnv)
     val specs = generateSpecifiers(parentFunction, astEnv)
     val parameterIds = getParameterIds(getAllUsedIds(selection), defuse)
     val parameter = generateParameter(parentFunction, parameterIds, astEnv, defuse)
-    ast
+    val declarator = generateDeclarator(functionName, parameter)
+
+    var statements = List[Statement]()
+    selection.foreach(opt => {
+      if (opt.entry.isInstanceOf[Statement]) {
+        statements = opt.entry.asInstanceOf[Statement] :: statements
+      }
+    })
+
+    val compundStatement = generateCompoundStatement(statements.reverse, astEnv)
+    val newFuncDef = generateFuncDef(specs, declarator, compundStatement)
+    val newFuncOpt = generateFuncOpt(parentFunction, newFuncDef, astEnv)
+    insertNewFunction(parentFunction, newFuncOpt, selection, ast, astEnv)
   }
 
   /**

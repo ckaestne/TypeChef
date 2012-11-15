@@ -74,10 +74,8 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
       } else {
         findPriorASTElem[Statement](element, astEnv) match {
           case Some(x) => statements = addToList(x, statements)
-          case _ => {
-            println("Debug - This should not have happend ")
-            return List[Statement]()
-          }
+          case _ => return List[Statement]()
+
         }
       }
     }
