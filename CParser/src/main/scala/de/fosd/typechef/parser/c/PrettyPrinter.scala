@@ -5,7 +5,10 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 object PrettyPrinter {
 
-    val s = new StringBuilder()
+    val s = new StringBuilder(1000000)
+    var indentation = 0
+
+    private def newLinePlusIndentation = "\n" + (" " * indentation)
 
     def pretty(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExprFactory.True)): String = {
       s.clear()
@@ -17,18 +20,18 @@ object PrettyPrinter {
       e match {
         case One(c: AST) => prettyPrint(c, list_feature_expr)
         case Choice(f, a: Conditional[_], b: Conditional[_]) => {
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           s.append("#if ")
           s.append(f.toTextExpr)
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           ppConditional(a, f :: list_feature_expr)
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           s.append("#else")
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           ppConditional(b, f.not :: list_feature_expr)
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           s.append("#endif")
-          s.append("\n")
+          s.append(newLinePlusIndentation)
         }
       }
     }
@@ -38,14 +41,14 @@ object PrettyPrinter {
           list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
           prettyPrint(e.entry, list_feature_expr)
         else {
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           s.append("#if ")
           s.append(e.feature.toTextExpr)
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           prettyPrint(e.entry, e.feature :: list_feature_expr)
-          s.append("\n")
+          s.append(newLinePlusIndentation)
           s.append("#endif")
-          s.append("\n")
+          s.append(newLinePlusIndentation)
         }
     }
 
@@ -54,14 +57,14 @@ object PrettyPrinter {
       list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
       s.append(e.entry)
     else {
-      s.append("\n")
+      s.append(newLinePlusIndentation)
       s.append("#if ")
       s.append(e.feature.toTextExpr)
-      s.append("\n")
+      s.append(newLinePlusIndentation)
       s.append(e.entry)
-      s.append("\n")
+      s.append(newLinePlusIndentation)
       s.append("#endif")
-      s.append("\n")
+      s.append(newLinePlusIndentation)
     }
   }
 
@@ -92,7 +95,7 @@ object PrettyPrinter {
         def optExt(o: Option[AST], ad: String) { if (o.isDefined) {s.append(ad); prettyPrint(o.get)} }
 
         ast match {
-            case TranslationUnit(ext) => sep(ext, "\n")
+            case TranslationUnit(ext) => sep(ext, newLinePlusIndentation)
             case Id(name) => s.append(name)
             case Constant(v) => s.append(v)
             case StringLit(v) => seps(v, "")
@@ -127,9 +130,12 @@ object PrettyPrinter {
             case ExprList(exprs) => sep(exprs, " , ")
 
             case CompoundStatement(innerStatements) => {
-              s.append("{\n")
-              sep(innerStatements, "\n")
-              s.append("\n")
+              s.append("{")
+              indentation += 4
+              s.append(newLinePlusIndentation)
+              sep(innerStatements, newLinePlusIndentation)
+              indentation -= 4
+              s.append(newLinePlusIndentation)
               s.append("}")
             }
             case EmptyStatement() => s.append(";")
@@ -160,7 +166,7 @@ object PrettyPrinter {
               s.append(") ")
               prettyCond(thenBranch)
               s.append(" ")
-              sep(elifs, "\n")
+              sep(elifs, newLinePlusIndentation)
               s.append(" ")
               if (elseBranch.isDefined) {
                 s.append(" else ")
@@ -168,7 +174,8 @@ object PrettyPrinter {
               }
             }
             case ElifStatement(condition, thenBranch) => {
-              s.append("\n else if (")
+              s.append(newLinePlusIndentation)
+              s.append("else if (")
               prettyCond(condition)
               s.append(") ")
               prettyCond(thenBranch)
@@ -308,8 +315,12 @@ object PrettyPrinter {
               opt(id)
               if (enumerators.isDefined) {
                 s.append(" {")
-                sep(enumerators.get, "\n")
-                s.append("\n}")
+                indentation += 4
+                s.append(newLinePlusIndentation)
+                sep(enumerators.get, newLinePlusIndentation)
+                indentation -= 4
+                s.append(newLinePlusIndentation)
+                s.append("}")
               }
             }
             case StructDeclaration(qualifierList, declaratorList) => {
