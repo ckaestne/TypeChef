@@ -93,7 +93,7 @@ public final class Launch {
             args.add("--featureModelFExpr".concat(featureModel.getAbsolutePath()));
         }
 
-        // args.add("--typecheck");
+        args.add("--lexNoStdout");
 
         return args.toArray(new String[args.size()]);
     }
