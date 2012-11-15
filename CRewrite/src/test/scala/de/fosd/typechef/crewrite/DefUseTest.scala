@@ -352,6 +352,17 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     analyseDir(folder2)
   }
 
+  @Test def test_cdrompi {
+    // path to busybox dir with pi files to analyse
+    val folderPath = "/Users/andi/Dropbox/HiWi/Flo/PiFiles/"
+    val folder = new File(folderPath)
+    analyseDir(folder)
+
+    val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/pifiles/"
+    val folder2 = new File(folderPath2)
+    analyseDir(folder2)
+  }
+
   private def runDefUseOnPi(fileToAnalyse: File) {
     println("++Analyse: " + fileToAnalyse.getName + "++")
     val fis = new FileInputStream(fileToAnalyse)
