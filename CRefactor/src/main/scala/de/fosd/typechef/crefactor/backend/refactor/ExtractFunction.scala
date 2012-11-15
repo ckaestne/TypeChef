@@ -47,7 +47,8 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
     val compundStatement = generateCompoundStatement(statements.reverse, astEnv)
     val newFuncDef = generateFuncDef(specs, declarator, compundStatement)
     val newFuncOpt = generateFuncOpt(parentFunction, newFuncDef, astEnv)
-    insertNewFunction(parentFunction, newFuncOpt, selection, ast, astEnv)
+    val funcCallParams = generateFuncCallParameter(parameterIds, astEnv, defuse)
+    insertNewFunction(parentFunction, newFuncOpt, funcCallParams, selection, ast, astEnv)
   }
 
   /**
@@ -202,7 +203,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
     specifiers = Opt(parentOpt(funcDef, astEnv).feature, VoidSpecifier()) :: specifiers
 
     // preserv specifiers from function definition except type specifiers
-    for (specifier <- funcDef.specifiers) {
+    funcDef.specifiers.foreach(f = specifier => {
       specifier.entry match {
         case InlineSpecifier() => specifiers = specifier :: specifiers
         case AutoSpecifier() => specifiers = specifier :: specifiers
@@ -214,7 +215,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
         case StaticSpecifier() => specifiers = specifier :: specifiers
         case _ =>
       }
-    }
+    })
     specifiers
   }
 
@@ -244,6 +245,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
         case i@Id(name) => PointerDerefExpr(i)
         case p@PointerDerefExpr(expr) => p.copy(castExpr = makePointer(expr))
         case p2@PointerCreationExpr(expr) => PointerDerefExpr(p2)
+        case p3@PostfixExpr(expr1, _) => p3.copy(p = makePointer(expr1))
         case _ => {
           println("missed expr " + expr)
           expr
@@ -265,8 +267,8 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Generates the function definition.
    */
-  private def generateFuncDef(specifiers: List[Opt[Specifier]], declarator: Declarator /*, oldStyleParameters: List[Opt[OldParameterDeclaration]] = List[Opt[OldParameterDeclaration]]() */ , stmt: CompoundStatement): FunctionDef = {
-    FunctionDef(specifiers, declarator, List[Opt[OldParameterDeclaration]](), stmt)
+  private def generateFuncDef(specifiers: List[Opt[Specifier]], declarator: Declarator, stmt: CompoundStatement, oldStyleParameters: List[Opt[OldParameterDeclaration]] = List[Opt[OldParameterDeclaration]]()): FunctionDef = {
+    FunctionDef(specifiers, declarator, oldStyleParameters, stmt)
   }
 
   /**
@@ -280,10 +282,13 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Inserts the extracted function in the ast.
    */
-  private def insertNewFunction(oldFunc: FunctionDef, newFunc: Opt[FunctionDef], selection: List[Opt[_]], ast: AST, env: ASTEnv): AST = {
+  private def insertNewFunction(oldFunc: FunctionDef, newFunc: Opt[FunctionDef], funcCallParams: List[Opt[Expr]], selection: List[Opt[_]], ast: AST, env: ASTEnv): AST = {
     var refactoredAST = Helper.insertInAstBeforeTD(ast, parentOpt(oldFunc, env), newFunc)
     // TODO External Vars
-    val functionCall = Opt[ExprStatement](newFunc.feature, ExprStatement(PostfixExpr(Id(newFunc.entry.getName), FunctionCall(ExprList(List[Opt[Expr]]())))))
+    println(newFunc.entry.declarator.extensions)
+    println(newFunc.entry.declarator.extensions.foreach(extension =>
+      extension.entry))
+    val functionCall = Opt[ExprStatement](newFunc.feature, ExprStatement(PostfixExpr(Id(newFunc.entry.getName), FunctionCall(ExprList(funcCallParams)))))
     refactoredAST = Helper.replaceInAST(refactoredAST, selection.head, functionCall)
     selection.foreach(x => refactoredAST = Helper.removeFromAST(refactoredAST, x))
 
@@ -318,7 +323,6 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
         case Some(_) => Opt(parentOpt(funcDef, astEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get)))
         case none => {
           val parameterDecl = findPriorASTElem[ParameterDeclarationD](param, astEnv)
-          // TODO Pointer
           Opt(parentOpt(funcDef, astEnv).feature, parameterDecl.get)
         }
       }
@@ -330,6 +334,19 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
       decls = generateParameterDecl(Helper.findFirstDecl(defUse, id)) :: decls
     })
     List[Opt[DeclaratorExtension]](Opt(parentOpt(funcDef, astEnv).feature, DeclParameterDeclList(decls)))
+  }
+
+  /**
+   * Generates the parameters requiered in the function call.
+   */
+  private def generateFuncCallParameter(params: Set[Id], astEnv: ASTEnv, defUse: util.IdentityHashMap[Id, List[Id]]): List[Opt[Expr]] = {
+    var funcCallParams = List[Opt[Expr]]()
+    params.foreach(id => {
+      // TODO Opt Null
+      val opt = parentOpt(id, astEnv)
+      funcCallParams = Opt(opt.feature, PointerCreationExpr(Id(id.name))) :: funcCallParams
+    })
+    funcCallParams
   }
 
 
