@@ -189,6 +189,7 @@ trait CDefUse extends CEnv {
                 // TODO: AddUse?
                 putToDefUseMap(key)
               }
+              case _ => println("match error " + env.varEnv.getAstOrElse(id.name, null))
             }
           case StructDeclarator(NestedNamedDeclarator(pointers, nestedDecl, _), _, _) =>
             pointers.foreach(x => addDecl(x, env))
