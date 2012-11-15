@@ -15,7 +15,7 @@ import java.awt.event.ActionEvent;
 /**
  * All actions required for renaming are found here.
  */
-public class Rename {
+public class RenameActions {
 
     /**
      * Retrieves the action for renaming a variable or function

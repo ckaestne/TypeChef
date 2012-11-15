@@ -2,42 +2,66 @@ package de.fosd.typechef.typesystem
 
 import java.util.IdentityHashMap
 import de.fosd.typechef.parser.c._
+import scala.collection.JavaConversions._
 import de.fosd.typechef.parser.c.PostfixExpr
 import de.fosd.typechef.parser.c.PlainParameterDeclaration
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.parser.c.Constant
-import de.fosd.typechef.parser.c.PointerDerefExpr
+import de.fosd.typechef.parser.c.ArrayAccess
+import de.fosd.typechef.parser.c.ReturnStatement
 import de.fosd.typechef.parser.c.Enumerator
 import de.fosd.typechef.parser.c.AtomicNamedDeclarator
-import de.fosd.typechef.parser.c.StructDeclaration
 import de.fosd.typechef.parser.c.EnumSpecifier
+import de.fosd.typechef.parser.c.VarArgs
+import de.fosd.typechef.parser.c.CompoundStatementExpr
 import scala.Some
-import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.NAryExpr
 import de.fosd.typechef.parser.c.TypeDefTypeSpecifier
+import de.fosd.typechef.parser.c.Initializer
+import de.fosd.typechef.parser.c.DoStatement
 import de.fosd.typechef.parser.c.StructOrUnionSpecifier
+import de.fosd.typechef.parser.c.PointerCreationExpr
 import de.fosd.typechef.parser.c.PointerPostfixSuffix
-import de.fosd.typechef.parser.c.OffsetofMemberDesignatorID
-import de.fosd.typechef.parser.c.ParameterDeclarationD
+import de.fosd.typechef.parser.c.AssignExpr
 import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.parser.c.TypeName
-import de.fosd.typechef.parser.c.CastExpr
 import de.fosd.typechef.parser.c.ConditionalExpr
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.FunctionCall
 import de.fosd.typechef.conditional.One
 import de.fosd.typechef.parser.c.DeclArrayAccess
-import de.fosd.typechef.parser.c.NestedNamedDeclarator
 import de.fosd.typechef.parser.c.IfStatement
 import de.fosd.typechef.parser.c.BuiltinOffsetof
 import de.fosd.typechef.parser.c.DeclParameterDeclList
 import de.fosd.typechef.parser.c.NArySubExpr
-import de.fosd.typechef.parser.c.ParameterDeclarationAD
+import de.fosd.typechef.parser.c.WhileStatement
 import de.fosd.typechef.parser.c.Pointer
 import de.fosd.typechef.parser.c.InitDeclaratorI
+import de.fosd.typechef.parser.c.SimplePostfixSuffix
 import de.fosd.typechef.parser.c.SizeOfExprT
+import de.fosd.typechef.parser.c.UnaryOpExpr
 import de.fosd.typechef.parser.c.Declaration
+import de.fosd.typechef.parser.c.LabelStatement
+import de.fosd.typechef.parser.c.ExprStatement
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.Constant
+import de.fosd.typechef.parser.c.DeclarationStatement
+import de.fosd.typechef.parser.c.PointerDerefExpr
+import de.fosd.typechef.parser.c.StructDeclaration
+import de.fosd.typechef.parser.c.GotoStatement
+import de.fosd.typechef.parser.c.FunctionDef
+import de.fosd.typechef.parser.c.SizeOfExprU
+import de.fosd.typechef.parser.c.BreakStatement
+import de.fosd.typechef.parser.c.ContinueStatement
+import de.fosd.typechef.parser.c.OffsetofMemberDesignatorID
+import de.fosd.typechef.parser.c.ParameterDeclarationD
+import de.fosd.typechef.parser.c.TypeName
+import de.fosd.typechef.parser.c.CastExpr
+import de.fosd.typechef.parser.c.CompoundStatement
+import de.fosd.typechef.parser.c.AtomicAbstractDeclarator
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.NestedNamedDeclarator
+import de.fosd.typechef.parser.c.StructInitializer
+import de.fosd.typechef.parser.c.ParameterDeclarationAD
+import de.fosd.typechef.parser.c.StringLit
 import de.fosd.typechef.parser.c.StructDeclarator
-import scala.collection.JavaConversions._
+import de.fosd.typechef.parser.c.UnaryExpr
 
 
 // store def use chains
@@ -75,7 +99,6 @@ trait CDefUse extends CEnv {
       }
       defuse.put(key, defuse.get(key) ++ List(target))
     } else {
-
       def lookupDecl(): Id = {
         defuse.keySet().toArray.par.foreach(k => {
           for (v <- defuse.get(k))
@@ -84,7 +107,6 @@ trait CDefUse extends CEnv {
         })
         null.asInstanceOf[Id]
       }
-
       val decl = lookupDecl()
       if (decl == null) {
         putToDefUseMap(key)
@@ -234,8 +256,7 @@ trait CDefUse extends CEnv {
     entry match {
       case i@Id(name) =>
         env.typedefEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) =>
-            addToDefUseMap(declarator.getId, i)
+          case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
@@ -354,11 +375,8 @@ trait CDefUse extends CEnv {
       case PointerPostfixSuffix(_, id) =>
         // stop if id is not yet in env
         // continue if in env
-        // TODO Missed Ids -> find it @structs!
         if (!env.varEnv.getAstOrElse(id.name, null).equals(One(null))) {
           addUse(id, env)
-        } else {
-          println("struct missed " + id)
         }
       case PointerCreationExpr(expr) => addUse(expr, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, env))
@@ -421,8 +439,7 @@ trait CDefUse extends CEnv {
         }
       }
       case OffsetofMemberDesignatorID(id) => addStructUse(id, env, structName, isUnion)
-      case k =>
-        println("Missing Add Struct: " + k)
+      case k => println("Missing Add Struct: " + k)
     }
   }
 

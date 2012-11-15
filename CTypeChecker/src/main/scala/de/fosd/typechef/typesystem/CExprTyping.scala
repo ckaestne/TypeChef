@@ -177,7 +177,26 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
             et(newExpr)
 
           case SizeOfExprT(_) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
-          case SizeOfExprU(_) => One(CUnsigned(CInt()))
+          case SizeOfExprU(x) =>
+            x match {
+              case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
+                et(expr).mapfr(featureExpr, {
+                  case (f, CObj(CAnonymousStruct(fields, _))) =>
+                    addAnonStructUse(i, fields)
+                    null
+                  case (f, CAnonymousStruct(fields, _)) =>
+                    null
+                  case (f, CObj(CStruct(s, isUnion))) =>
+                    addStructUse(i, env, s, isUnion)
+                    null
+                  case (f, CStruct(s, isUnion)) =>
+                    null
+                  case (f, e) =>
+                    null
+                })
+              case _ =>
+            }
+            One(CUnsigned(CInt()))
           case ue@UnaryOpExpr(kind, expr) =>
             if (kind == "&&")
             //label deref, TODO check that label is actually declared

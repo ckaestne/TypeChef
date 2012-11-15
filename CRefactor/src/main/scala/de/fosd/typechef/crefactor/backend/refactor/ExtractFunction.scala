@@ -30,6 +30,29 @@ import de.fosd.typechef.parser.c.ConstSpecifier
  */
 object ExtractFunction extends ASTNavigation with ConditionalNavigation {
 
+  /* List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
+    selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+  List<Statement> selectedStatements = ASTPosition.getSelectedStatements(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
+    selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+  FunctionDef parentFunc = ExtractFunction.getParentFunction(selectedAST, Connector.getASTEnv());
+  List<Opt<Specifier>> specs = ExtractFunction.generateSpecifiers(parentFunc, Connector.getASTEnv());
+  List<Opt<DeclaratorExtension>> declExt = ExtractFunction.generateParameter(ExtractFunction.getParentFunction(selectedAST, Connector.getASTEnv()), ExtractFunction.getParameterIds(ExtractFunction.getAllUsedIds(selectedAST), Connector.getDefUseMap()), Connector.getASTEnv(), Connector.getDefUseMap());
+  Declarator decl = ExtractFunction.generateDeclarator("func", declExt);
+  CompoundStatement cs = ExtractFunction.generateCompoundStatement(selectedStatements, Connector.getASTEnv());
+  Opt<FunctionDef> newFunc = ExtractFunction.generateFuncOpt(parentFunc, ExtractFunction.generateFuncDef(specs, decl, cs), Connector.getASTEnv());
+  System.out.println("function " + newFunc);
+  System.out.println(PrettyPrinter.print(newFunc.entry()));
+  System.out.println("insert");
+  System.out.println(PrettyPrinter.print(ExtractFunction.insertNewFunction(parentFunc, newFunc, selectedAST, Connector.getAST(), Connector.getASTEnv())));   */
+
+  def extract(selection: List[Opt[_]], functionName: String, ast: AST, astEnv: ASTEnv, defuse: util.IdentityHashMap[Id, List[Id]]): AST = {
+    val parentFunction = getParentFunction(selection, astEnv)
+    val specs = generateSpecifiers(parentFunction, astEnv)
+    val parameterIds = getParameterIds(getAllUsedIds(selection), defuse)
+    val parameter = generateParameter(parentFunction, parameterIds, astEnv, defuse)
+    ast
+  }
+
   /**
    * Retrieves if selected statements are eligable for extract function
    */
@@ -51,7 +74,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Retrieves the parent function of the selection. Returns null if not definied in an function or different functions.
    */
-  def getParentFunction(selection: List[Opt[_]], env: ASTEnv): FunctionDef = {
+  private def getParentFunction(selection: List[Opt[_]], env: ASTEnv): FunctionDef = {
     var funcDef: FunctionDef = null
     for (entry <- selection) {
       findPriorASTElem[FunctionDef](entry, env) match {
@@ -72,7 +95,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Retrieves all used ids of the selection.
    */
-  def getAllUsedIds(selection: List[Opt[_]]): List[Id] = {
+  private def getAllUsedIds(selection: List[Opt[_]]): List[Id] = {
     var result = List[Id]()
     for (entry <- selection) {
       result = result ::: filterASTElems[Id](entry)
@@ -92,14 +115,14 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Retrieves a parameter list.
    */
-  def getParameterIds(usedIds: List[Id], defuse: util.IdentityHashMap[Id, List[Id]]): Set[Id] = {
+  private def getParameterIds(usedIds: List[Id], defuse: util.IdentityHashMap[Id, List[Id]]): Set[Id] = {
     usedIds.filter(p => !idIsDeclaredInSelection(p, usedIds, defuse)).toSet
   }
 
   /**
    * Retrieves all externally referenced ids.
    */
-  def getAllExternallyReferencedIds(usedIds: List[Id], defUse: util.IdentityHashMap[Id, List[Id]], astEnv: ASTEnv): List[Id] = {
+  private def getAllExternallyReferencedIds(usedIds: List[Id], defUse: util.IdentityHashMap[Id, List[Id]], astEnv: ASTEnv): List[Id] = {
     // Filter function calls
     val ids = usedIds.filter(x => astEnv.parent(x) match {
       case PostfixExpr(_, FunctionCall(_)) => false
@@ -128,7 +151,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Conditional complete?
    */
-  def isConditionalComplete(selection: List[Opt[_]], parentFunction: FunctionDef, astEnv: ASTEnv): Boolean = {
+  private def isConditionalComplete(selection: List[Opt[_]], parentFunction: FunctionDef, astEnv: ASTEnv): Boolean = {
     if (selection.isEmpty) {
       // an empty selection can not be extracted
       return false
@@ -169,7 +192,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Selection is conditonal?
    */
-  def selectionIsConditional(selection: List[Opt[_]]): Boolean = {
+  private def selectionIsConditional(selection: List[Opt[_]]): Boolean = {
     selection.par.foreach(x => if (isVariable(x)) return true)
     false
   }
@@ -177,7 +200,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Generates the required specifiers.
    */
-  def generateSpecifiers(funcDef: FunctionDef, astEnv: ASTEnv /* , typeSpecifier: Opt[Specifier] = Opt(FeatureExprFactory.True, VoidSpecifier()) */): List[Opt[Specifier]] = {
+  private def generateSpecifiers(funcDef: FunctionDef, astEnv: ASTEnv /* , typeSpecifier: Opt[Specifier] = Opt(FeatureExprFactory.True, VoidSpecifier()) */): List[Opt[Specifier]] = {
     var specifiers = List[Opt[Specifier]]()
     specifiers = Opt(parentOpt(funcDef, astEnv).feature, VoidSpecifier()) :: specifiers
 
@@ -201,11 +224,11 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Genertates the declarator.
    */
-  def generateDeclarator(name: String /*, pointer: List[Opt[Pointer]] = List[Opt[Pointer]]()*/ , extensions: List[Opt[DeclaratorExtension]] = List[Opt[DeclaratorExtension]]()): Declarator = {
+  private def generateDeclarator(name: String /*, pointer: List[Opt[Pointer]] = List[Opt[Pointer]]()*/ , extensions: List[Opt[DeclaratorExtension]] = List[Opt[DeclaratorExtension]]()): Declarator = {
     AtomicNamedDeclarator(List[Opt[Pointer]](), Id(name), extensions)
   }
 
-  def generateCompoundStatement(statements: List[Statement], astEnv: ASTEnv): CompoundStatement = {
+  private def generateCompoundStatement(statements: List[Statement], astEnv: ASTEnv): CompoundStatement = {
     var statementElements = List[Opt[_]]()
 
     // TODO @ AST Position
@@ -245,14 +268,14 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Generates the function definition.
    */
-  def generateFuncDef(specifiers: List[Opt[Specifier]], declarator: Declarator /*, oldStyleParameters: List[Opt[OldParameterDeclaration]] = List[Opt[OldParameterDeclaration]]() */ , stmt: CompoundStatement): FunctionDef = {
+  private def generateFuncDef(specifiers: List[Opt[Specifier]], declarator: Declarator /*, oldStyleParameters: List[Opt[OldParameterDeclaration]] = List[Opt[OldParameterDeclaration]]() */ , stmt: CompoundStatement): FunctionDef = {
     FunctionDef(specifiers, declarator, List[Opt[OldParameterDeclaration]](), stmt)
   }
 
   /**
    * Generates the opt node for the ast.
    */
-  def generateFuncOpt(oldFunc: FunctionDef, newFunc: FunctionDef, env: ASTEnv): Opt[FunctionDef] = {
+  private def generateFuncOpt(oldFunc: FunctionDef, newFunc: FunctionDef, env: ASTEnv): Opt[FunctionDef] = {
     // TODO Extended Features
     Opt[FunctionDef](parentOpt(oldFunc, env).feature, newFunc)
   }
@@ -260,7 +283,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Inserts the extracted function in the ast.
    */
-  def insertNewFunction(oldFunc: FunctionDef, newFunc: Opt[FunctionDef], selection: List[Opt[_]], ast: AST, env: ASTEnv): AST = {
+  private def insertNewFunction(oldFunc: FunctionDef, newFunc: Opt[FunctionDef], selection: List[Opt[_]], ast: AST, env: ASTEnv): AST = {
     var refactoredAST = Helper.insertInAstBeforeTD(ast, parentOpt(oldFunc, env), newFunc)
     // TODO External Vars
     val functionCall = Opt[ExprStatement](newFunc.feature, ExprStatement(PostfixExpr(Id(newFunc.entry.getName), FunctionCall(ExprList(List[Opt[Expr]]())))))
@@ -274,7 +297,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   /**
    * Genereates the parameter.
    */
-  def generateParameter(funcDef: FunctionDef, params: Set[Id], astEnv: ASTEnv, defUse: util.IdentityHashMap[Id, List[Id]]): List[Opt[DeclaratorExtension]] = {
+  private def generateParameter(funcDef: FunctionDef, params: Set[Id], astEnv: ASTEnv, defUse: util.IdentityHashMap[Id, List[Id]]): List[Opt[DeclaratorExtension]] = {
 
     def generateParameterDecl(param: Id): Opt[ParameterDeclarationD] = {
 

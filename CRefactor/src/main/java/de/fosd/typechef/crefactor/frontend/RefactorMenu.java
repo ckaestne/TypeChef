@@ -4,7 +4,8 @@ import de.fosd.typechef.conditional.Opt;
 import de.fosd.typechef.crefactor.backend.ASTPosition;
 import de.fosd.typechef.crefactor.backend.Connector;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
-import de.fosd.typechef.crefactor.frontend.actions.refactor.Rename;
+import de.fosd.typechef.crefactor.frontend.actions.refactor.ExtractFunctionActions;
+import de.fosd.typechef.crefactor.frontend.actions.refactor.RenameActions;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.Id;
@@ -55,7 +56,7 @@ public class RefactorMenu implements MenuListener {
         final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Connector.getAST(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
         if (!selectedIDs.isEmpty()) {
-            JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
+            final JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
             this.menu.add(rename);
             addRenamingsToMenu(selectedIDs, rename);
         }
@@ -67,26 +68,12 @@ public class RefactorMenu implements MenuListener {
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
 
         final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Connector.getASTEnv());
-        this.menu.add(new JSeparator());
-        final JMenuItem extract = new JMenuItem("Extrahiere Funktion");
+        if (this.menu.getComponentCount() != 0) {
+            this.menu.add(new JSeparator());
+        }
+        final JMenuItem extract = new JMenuItem(ExtractFunctionActions.getExtractFunctionAction(editor, selectedAST));
         this.menu.add(extract);
         extract.setEnabled(eligable);
-
-        // TODO Sweet it up!
-        /*List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
-                selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-        List<Statement> selectedStatements = ASTPosition.getSelectedStatements(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
-                selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-        FunctionDef parentFunc = ExtractFunction.getParentFunction(selectedAST, Connector.getASTEnv());
-        List<Opt<Specifier>> specs = ExtractFunction.generateSpecifiers(parentFunc, Connector.getASTEnv());
-        List<Opt<DeclaratorExtension>> declExt = ExtractFunction.generateParameter(ExtractFunction.getParentFunction(selectedAST, Connector.getASTEnv()), ExtractFunction.getParameterIds(ExtractFunction.getAllUsedIds(selectedAST), Connector.getDefUseMap()), Connector.getASTEnv(), Connector.getDefUseMap());
-        Declarator decl = ExtractFunction.generateDeclarator("func", declExt);
-        CompoundStatement cs = ExtractFunction.generateCompoundStatement(selectedStatements, Connector.getASTEnv());
-        Opt<FunctionDef> newFunc = ExtractFunction.generateFuncOpt(parentFunc, ExtractFunction.generateFuncDef(specs, decl, cs), Connector.getASTEnv());
-        System.out.println("function " + newFunc);
-        System.out.println(PrettyPrinter.print(newFunc.entry()));
-        System.out.println("insert");
-        System.out.println(PrettyPrinter.print(ExtractFunction.insertNewFunction(parentFunc, newFunc, selectedAST, Connector.getAST(), Connector.getASTEnv())));  */
     }
 
     @Override
@@ -108,7 +95,7 @@ public class RefactorMenu implements MenuListener {
     private void addRenamingsToMenu(final List<Id> selectedIDs, final JMenu menu) {
         final Iterator<Id> it = selectedIDs.iterator();
         while (it.hasNext()) {
-            menu.add(Rename.getRenameAction(this.editor, it.next()));
+            menu.add(RenameActions.getRenameAction(this.editor, it.next()));
         }
     }
 }
