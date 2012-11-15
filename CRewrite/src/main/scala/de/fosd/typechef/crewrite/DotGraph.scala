@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
-import de.fosd.typechef.conditional.{Opt, ConditionalLib, Conditional}
+import de.fosd.typechef.conditional.Opt
 
 object DotGraph extends IOUtilities {
   import java.io.File
@@ -38,7 +38,7 @@ object DotGraph extends IOUtilities {
 
     // iterate ast elements and its successors and add nodes in for each ast element
     for ((o, csuccs) <- m) {
-      val op = esc(PrettyPrinter.print(o))
+      val op = esc(PrettyPrinter.pretty(o))
       dotstring += "\"" + System.identityHashCode(o) + "\""
       dotstring += "["
       dotstring += "label=\"{{" + op + "}|" + esc(env.featureExpr(o).toString()) + "}\", "
