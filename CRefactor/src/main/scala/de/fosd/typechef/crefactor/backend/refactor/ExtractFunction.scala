@@ -301,7 +301,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    */
   private def generateParameter(funcDef: FunctionDef, params: Set[Id], astEnv: ASTEnv, defUse: util.IdentityHashMap[Id, List[Id]]): List[Opt[DeclaratorExtension]] = {
 
-    def generateParameterDecl(param: Id): Opt[ParameterDeclarationD] = {
+    def generateParameterDecl(param: Id, use: Id): Opt[ParameterDeclarationD] = {
 
       /**
        * Generates the init declaration for variables declared in the method body.
@@ -320,10 +320,10 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
 
       val decl = findPriorASTElem[Declaration](param, astEnv)
       decl match {
-        case Some(_) => Opt(parentOpt(funcDef, astEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get)))
+        case Some(_) => Opt(parentOpt(use, astEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get)))
         case none => {
           val parameterDecl = findPriorASTElem[ParameterDeclarationD](param, astEnv)
-          Opt(parentOpt(funcDef, astEnv).feature, parameterDecl.get)
+          Opt(parentOpt(use, astEnv).feature, parameterDecl.get)
         }
       }
 
@@ -331,7 +331,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
 
     var decls = List[Opt[ParameterDeclaration]]()
     params.foreach(id => {
-      decls = generateParameterDecl(Helper.findFirstDecl(defUse, id)) :: decls
+      decls = generateParameterDecl(Helper.findFirstDecl(defUse, id), id) :: decls
     })
     List[Opt[DeclaratorExtension]](Opt(parentOpt(funcDef, astEnv).feature, DeclParameterDeclList(decls)))
   }
