@@ -425,4 +425,12 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     }
   }
 
+  @Test def test_minimal_stuff {
+    val folderPath = "/Users/andi/Dropbox/hiwi/busybox/minimalbeispiel/"
+    val folder = new File(folderPath)
+    analyseDir(folder)
+    val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
+    val folder2 = new File(folderPath2)
+    analyseDir(folder2)
+  }
 }
