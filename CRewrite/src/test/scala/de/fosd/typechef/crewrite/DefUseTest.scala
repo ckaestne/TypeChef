@@ -167,15 +167,16 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_random_stuff {
-    val source_ast = getAstFromPi(new File("/Users/andi/Dropbox/HiWi/flo/random/test.c"))
-    val env = createASTEnv(source_ast)
-    println("AST:\n" + source_ast)
-    println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
+    val source_ast = getAstFromPi(new File("/Users/andi/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/tar.pi"))
+    // val env = createASTEnv(source_ast)
+    // println("AST:\n" + source_ast)
+    //println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
     typecheckTranslationUnit(source_ast)
     val defUseMap = getDefUseMap
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
+    // println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    // println("Source:\n" + source_ast)
     println("\nDef Use Map:\n" + defUseMap)
+    val success = checkDefuse(source_ast, getDefUseMap2)
   }
 
   @Test def test_struct_def_use {

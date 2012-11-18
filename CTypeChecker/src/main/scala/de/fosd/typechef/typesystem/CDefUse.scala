@@ -144,7 +144,6 @@ trait CDefUse extends CEnv {
       case func@FunctionDef(specifiers, declarator, oldStyleParameters, _) => {
         val id = declarator.getId
         val ext = declarator.extensions
-
         env.varEnv.getAstOrElse(id.name, null) match {
           case null => putToDefUseMap(declarator.getId)
           case One(null) => putToDefUseMap(declarator.getId)
@@ -200,7 +199,7 @@ trait CDefUse extends CEnv {
           }
         }
       case Declaration(specs, inits) => inits.foreach(x => putToDefUseMap(x.entry.getId))
-      case k => // println("Missing Add Def: " + f + " from " + k)
+      case k => println("Missing Add Def: " + f + " from " + k)
     }
   }
 
@@ -393,7 +392,6 @@ trait CDefUse extends CEnv {
   }
 
   def addUseWrapper(entry: AST, env: Env) {
-    println("Wrapper " + entry + " " + entry.getPositionFrom)
     addUse(entry, env)
   }
 
@@ -405,6 +403,15 @@ trait CDefUse extends CEnv {
         addUse(elseExpr, env)
       case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
       case ExprList(exprs) => exprs.foreach(x => addUse(x.entry, env))
+      case LcurlyInitializer(inits) =>
+        inits.foreach(x => addUse(x.entry, env))
+      case InitializerAssigment(designators) =>
+        designators.foreach(x => addUse(x.entry, env))
+      case InitializerDesignatorD(i: Id) =>
+        addUse(i, env)
+      case Initializer(Some(x), expr) =>
+        addUse(x, env)
+        addUse(expr, env)
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) =>
@@ -512,7 +519,7 @@ trait CDefUse extends CEnv {
     fields.getAstOrElse(id.name, null) match {
       case Choice(_, One(AtomicNamedDeclarator(_, key, _)), One(null)) => addToDefUseMap(key, id)
       case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, id)
-      case k => // println("Should not have entered here: " + id + "\n" + k)
+      case k => println("Should not have entered here: " + id + "\n" + k)
     }
   }
 
