@@ -94,18 +94,10 @@ trait CDefUse extends CEnv {
   }
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
-    if (key.eq(target)) {
-      if (!defuse.containsKey(key)) {
-        putToDefUseMap(key)
-      }
+    if (key.eq(target) && !defuse.containsKey(key)) {
+      putToDefUseMap(key)
     }
     if (defuse.containsKey(key)) {
-      /*if (target.name.equals("pid")) {
-        println("debug")
-      } */
-      /*if (defUseContainsId(key, target)) {
-        return
-      }     */
       defuse.get(key).put(target, null)
       //defuse.put(key, defuse.get(key) ++ List(target))
     } else {
