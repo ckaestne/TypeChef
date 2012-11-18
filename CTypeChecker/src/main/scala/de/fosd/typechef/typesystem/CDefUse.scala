@@ -94,16 +94,15 @@ trait CDefUse extends CEnv {
   }
 
   private def addToDefUseMap(key: Id, target: Id): Any = {
-    if (key.eq(target) && !defuse.containsKey(key)) {
+    if (key.eq(target) && !defuse.contains(key)) {
       putToDefUseMap(key)
     }
-    if (defuse.containsKey(key)) {
+    if (defuse.contains(key)) {
       defuse.get(key).put(target, null)
-      //defuse.put(key, defuse.get(key) ++ List(target))
     } else {
       def lookupDecl(): Id = {
         defuse.keySet().toArray.foreach(k => {
-          for (v <- defuse.get(k))
+          for (v <- defuse.get(k).keySet().toArray())
             if (v.eq(key))
               return k.asInstanceOf[Id]
         })
@@ -114,8 +113,14 @@ trait CDefUse extends CEnv {
         putToDefUseMap(key)
         addToDefUseMap(key, target)
       } else {
-        // println("Current Defusemap: " + defuse)
-        addToDefUseMap(decl, target)
+        // Go away - do not look at this piece of code.
+        val temp = defuse.get(decl)
+        temp.remove(key)
+        defuse.remove(decl)
+        // temp.put(decl, null)
+        defuse.put(key, temp)
+        addToDefUseMap(key, decl)
+        addToDefUseMap(key, target)
       }
     }
   }
@@ -403,11 +408,16 @@ trait CDefUse extends CEnv {
              Special handling for forward declarations because the env gives us the function
              and not the first forward declaration when calling the function.
               */
-            defuse.remove(declarator.getId)
-            putToDefUseMap(i)
-            if (!i.eq(declarator.getId)) {
-              addToDefUseMap(i, declarator.getId)
-            }
+            /** if (defuse.contains(declarator.getId)) {
+              defuse.remove(declarator.getId)
+              putToDefUseMap(i)
+              if (!i.eq(declarator.getId)) {
+                addToDefUseMap(i, declarator.getId)
+              }
+            } else {   */
+            addToDefUseMap(declarator.getId, i)
+          //}
+
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
