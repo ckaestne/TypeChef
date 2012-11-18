@@ -99,6 +99,8 @@ trait CDefUse extends CEnv {
       }
       defuse.put(key, defuse.get(key) ++ List(target))
     } else {
+      /*println("key " + key)
+      println("target " + target)  */
       def lookupDecl(): Id = {
         defuse.keySet().toArray.par.foreach(k => {
           for (v <- defuse.get(k))
@@ -112,6 +114,7 @@ trait CDefUse extends CEnv {
         putToDefUseMap(key)
         addToDefUseMap(key, target)
       } else {
+        println("decl found")
         addToDefUseMap(decl, target)
       }
     }
@@ -343,6 +346,11 @@ trait CDefUse extends CEnv {
     }
   }
 
+  def addUseWrapper(entry: AST, env: Env) {
+    println("Wrapper" + entry + " " + entry.getPositionFrom)
+    addUse(entry, env)
+  }
+
   def addUse(entry: AST, env: Env) {
     entry match {
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
@@ -362,9 +370,9 @@ trait CDefUse extends CEnv {
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
-      case AssignExpr(target, operation, source) =>
+      /*case AssignExpr(target, operation, source) =>
         addUse(source, env)
-        addUse(target, env)
+        addUse(target, env) */
       case NAryExpr(i, o) =>
         addUse(i, env)
         o.foreach(x => addUse(x.entry, env))
@@ -425,7 +433,7 @@ trait CDefUse extends CEnv {
               addToDefUseMap(i2, i)
             case Choice(_, One(AtomicNamedDeclarator(_, id2: Id, _)), One(id3: Id)) =>
               addToDefUseMap(id2, i)
-              addToDefUseMap(id3, i)
+            // addToDefUseMap(id3, i)
             case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) =>
               addToDefUseMap(i2, i)
             case k => println("omg this should not have happend " + k)

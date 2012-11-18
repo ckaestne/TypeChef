@@ -264,7 +264,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
       }
     typedExpr(expr, resultType, featureExpr, env)
     addEnv(expr, env)
-    addUse(expr, env)
+    addUseWrapper(expr, env)
     resultType.simplify(featureExpr)
   }
 

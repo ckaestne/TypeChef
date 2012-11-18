@@ -158,6 +158,26 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("\nDef Use Map:\n" + defUseMap)
   }
 
+  private def getAstFromPi(fileToAnalyse: File): TranslationUnit = {
+    println("++Analyse: " + fileToAnalyse.getName + "++")
+    val fis = new FileInputStream(fileToAnalyse)
+    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+    fis.close()
+    ast
+  }
+
+  @Test def test_random_stuff {
+    val source_ast = getAstFromPi(new File("/Users/andi/Dropbox/HiWi/flo/random/test.c"))
+    val env = createASTEnv(source_ast)
+    println("AST:\n" + source_ast)
+    println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    println("Source:\n" + source_ast)
+    println("\nDef Use Map:\n" + defUseMap)
+  }
+
   @Test def test_struct_def_use {
     // TODO Verwendung struct variablen.
     val source_ast = getAST( """

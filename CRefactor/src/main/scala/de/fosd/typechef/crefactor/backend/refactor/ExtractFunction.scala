@@ -284,10 +284,6 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    */
   private def insertNewFunction(oldFunc: FunctionDef, newFunc: Opt[FunctionDef], funcCallParams: List[Opt[Expr]], selection: List[Opt[_]], ast: AST, env: ASTEnv): AST = {
     var refactoredAST = Helper.insertInAstBeforeTD(ast, parentOpt(oldFunc, env), newFunc)
-    // TODO External Vars
-    println(newFunc.entry.declarator.extensions)
-    println(newFunc.entry.declarator.extensions.foreach(extension =>
-      extension.entry))
     val functionCall = Opt[ExprStatement](newFunc.feature, ExprStatement(PostfixExpr(Id(newFunc.entry.getName), FunctionCall(ExprList(funcCallParams)))))
     refactoredAST = Helper.replaceInAST(refactoredAST, selection.head, functionCall)
     selection.foreach(x => refactoredAST = Helper.removeFromAST(refactoredAST, x))
@@ -317,7 +313,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
         }
         AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]]())
       }
-
+      // TODO Decl Choice
       val decl = findPriorASTElem[Declaration](param, astEnv)
       decl match {
         case Some(_) => Opt(parentOpt(use, astEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get)))
@@ -326,7 +322,6 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
           Opt(parentOpt(use, astEnv).feature, parameterDecl.get)
         }
       }
-
     }
 
     var decls = List[Opt[ParameterDeclaration]]()
