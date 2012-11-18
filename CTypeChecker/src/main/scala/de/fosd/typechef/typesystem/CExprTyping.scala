@@ -14,9 +14,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
    * types an expression in an environment, returns a new
    * environment for all subsequent tokens (eg in a sequence)
    */
-  def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
-    val et = getExprType(_: Expr, featureExpr, env)
-    def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprType(e, f, newEnv)
+
+  def getExprTypeRec(expr: Expr, featureExpr: FeatureExpr, env: Env, recurse: Boolean = false): Conditional[CType] = {
+    val et = getExprTypeRec(_: Expr, featureExpr, env, true)
+    def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprTypeRec(e, f, newEnv, true)
     //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
     val resultType: Conditional[CType] =
@@ -194,8 +195,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
                   case (f, e) =>
                     null
                 })
-              case p@PostfixExpr(expr, _) => addUse(expr, env)
-              case _ => addUse(x, env)
+              // case p@PostfixExpr(expr, _) => addUse(expr, env)
+              case _ => // addUse(x, env)
             }
             One(CUnsigned(CInt()))
           case ue@UnaryOpExpr(kind, expr) =>
@@ -265,8 +266,14 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
       }
     typedExpr(expr, resultType, featureExpr, env)
     addEnv(expr, env)
-    addUseWrapper(expr, env)
+    if (!recurse) {
+      addUseWrapper(expr, env)
+    }
     resultType.simplify(featureExpr)
+  }
+
+  def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+    getExprTypeRec(expr, featureExpr, env)
   }
 
   private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr, env: Env): (FeatureExpr, FeatureExpr)

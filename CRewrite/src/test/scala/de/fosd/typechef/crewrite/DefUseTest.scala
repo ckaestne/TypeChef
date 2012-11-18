@@ -9,7 +9,7 @@ import collection.mutable.ListBuffer
 import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]): Boolean = {
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Boolean = {
     var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
     var missingLB: ListBuffer[Id] = ListBuffer()
@@ -17,7 +17,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
     defUseMap.keySet().toArray().foreach(x => {
       idLB += x.asInstanceOf[Id]
-      idLB = idLB ++ defUseMap.get(x)
+      idLB = idLB ++ defUseMap.get(x).keySet().toArray(Array[Id]()).toList
     })
     val idLst = idLB.toList
 
@@ -90,7 +90,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDefUseMap2
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -217,7 +217,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDefUseMap2
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -294,7 +294,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("AST:\n" + ast)
     println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
     typecheckTranslationUnit(ast)
-    val success = checkDefuse(ast, getDefUseMap)
+    val success = checkDefuse(ast, getDefUseMap2)
     println("DefUse" + getDefUseMap)
     println("Success " + success)
   }
@@ -392,7 +392,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     typecheckTranslationUnit(ast)
     val endtime = System.currentTimeMillis()
 
-    val success = checkDefuse(ast, getDefUseMap)
+    val success = checkDefuse(ast, getDefUseMap2)
     println("DefUse" + getDefUseMap)
     println("Success " + success + "\n\n")
     println("Runtime " + (endtime - starttime))
