@@ -6,7 +6,7 @@ import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 import collection.mutable.ListBuffer
-import java.io.{FilenameFilter, FileInputStream, File}
+import java.io.{FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Boolean = {
@@ -388,6 +388,12 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val fis = new FileInputStream(fileToAnalyse)
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
+
+/*val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
+    val bytes = ast.toString.getBytes
+    /*fos.write(bytes)
+    fos.flush()
+    fos.close()  */
     val starttime = System.currentTimeMillis()
     typecheckTranslationUnit(ast)
     val endtime = System.currentTimeMillis()

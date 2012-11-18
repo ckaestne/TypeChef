@@ -165,28 +165,8 @@ trait CDefUse extends CEnv {
           case One(null) => putToDefUseMap(id)
           case One(i: InitDeclarator) => putToDefUseMap(id)
           case One(e: Enumerator) => putToDefUseMap(id) // TODO ENUM Verification
-          // TODO AddDef Choice
+          case c@Choice(_, _, _) => addDefChoice(c)
 
-          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
-            putToDefUseMap(declarator2.getId)
-            putToDefUseMap(declarator.getId)
-          case Choice(feature, One(InitDeclaratorI(declarator, _, _)), _) =>
-            putToDefUseMap(declarator.getId)
-          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
-            putToDefUseMap(key)
-            putToDefUseMap(key2)
-          case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), _) =>
-            putToDefUseMap(key)
-          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
-            putToDefUseMap(key)
-            putToDefUseMap(key2)
-          case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), _) =>
-            putToDefUseMap(key)
-          case Choice(feature, One(Enumerator(key, _)), One(Enumerator(key2, _))) =>
-            putToDefUseMap(key)
-            putToDefUseMap(key2)
-          case Choice(feature, One(Enumerator(key, _)), _) =>
-            putToDefUseMap(key)
           case k => // println("Oh i forgot " + k)
         }
       // TODO Check with new StructEnv!
@@ -354,6 +334,61 @@ trait CDefUse extends CEnv {
         addToDefUseMap(key, id)
         addToDefUseMap(declarator.getId, id)
       case _ => // println("Missed Choice " + entry)
+    }
+  }
+
+  private def addDefChoice(entry: Choice[AST]) {
+    entry match {
+      // Choice with two Choices
+      case Choice(feature, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        addDefChoice(c1)
+        addDefChoice(c2)
+
+      // Choice with One(something) and a Choice
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), c@Choice(_, _, _)) =>
+        putToDefUseMap(declarator.getId)
+        addDefChoice(c)
+      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), c@Choice(_, _, _)) =>
+        putToDefUseMap(key)
+        addDefChoice(c)
+      case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), c@Choice(_, _, _)) =>
+        putToDefUseMap(key)
+        addDefChoice(c)
+      case Choice(feature, One(Enumerator(key, _)), c@Choice(_, _, _)) =>
+        putToDefUseMap(key)
+        addDefChoice(c)
+
+      // Choice with One(something) and One(Null)
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(null)) =>
+        putToDefUseMap(declarator.getId)
+      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(null)) =>
+        putToDefUseMap(key)
+      case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(null)) =>
+        putToDefUseMap(key)
+      case Choice(feature, One(Enumerator(key, _)), One(null)) =>
+        putToDefUseMap(key)
+
+      // Choice with One(something) and One(something)
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
+        putToDefUseMap(declarator2.getId)
+        putToDefUseMap(declarator.getId)
+      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
+        putToDefUseMap(key)
+        putToDefUseMap(key2)
+      case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
+        putToDefUseMap(key)
+        putToDefUseMap(key2)
+      case Choice(feature, One(Enumerator(key, _)), One(Enumerator(key2, _))) =>
+        putToDefUseMap(key)
+        putToDefUseMap(key2)
+      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(Enumerator(key, _))) =>
+        putToDefUseMap(key)
+        putToDefUseMap(declarator.getId)
+      case Choice(feature, One(Enumerator(key, _)), One(InitDeclaratorI(declarator, _, _))) =>
+        putToDefUseMap(key)
+        putToDefUseMap(declarator.getId)
+      case k =>
+        println("Missed Def Choice " + k)
     }
   }
 

@@ -203,7 +203,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
                 addStructUsageFromSizeOfExprU(p)
               case pd@PointerDerefExpr(NAryExpr(p, expr)) =>
                 addStructUsageFromSizeOfExprU(p)
-              // TODO Verify
+              case pe@PostfixExpr(p: PostfixExpr, _) => addStructUsageFromSizeOfExprU(p)
               case _ => // println("missed " + x)
             }
             One(CUnsigned(CInt()))
