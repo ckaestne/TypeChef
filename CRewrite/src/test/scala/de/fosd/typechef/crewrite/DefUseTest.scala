@@ -389,11 +389,11 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
 
-/*val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
-    val bytes = ast.toString.getBytes
-    /*fos.write(bytes)
-    fos.flush()
-    fos.close()  */
+    /*val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
+  val bytes = ast.toString.getBytes
+  fos.write(bytes)
+  fos.flush()
+  fos.close()  */
     val starttime = System.currentTimeMillis()
     typecheckTranslationUnit(ast)
     val endtime = System.currentTimeMillis()
