@@ -33,9 +33,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
 
   }
 
-  /***
-   * Structs
-   */
+  /** *
+    * Structs
+    */
   def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty)
 
   def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
@@ -71,13 +71,13 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     //incomplete struct
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
       //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
-      addStructUse(i, initEnv, i.name, isUnion)
+      addStructDeclaration(i)
       if (declareIncompleteTypes) {
         val env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
-        addStructUse(i, env, i.name, isUnion)
+        addStructDeclaration(i)
       }
       else
-        addStructUse(i, initEnv, i.name, isUnion)
+        addStructDeclaration(i)
       initEnv
     }
     case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>

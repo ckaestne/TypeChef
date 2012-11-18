@@ -194,7 +194,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
                   case (f, e) =>
                     null
                 })
-              case _ =>
+              case p@PostfixExpr(expr, _) => addUse(expr, env)
+              case _ => addUse(x, env)
             }
             One(CUnsigned(CInt()))
           case ue@UnaryOpExpr(kind, expr) =>
