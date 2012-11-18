@@ -347,7 +347,7 @@ trait CDefUse extends CEnv {
   }
 
   def addUseWrapper(entry: AST, env: Env) {
-    //println("Wrapper " + entry + " " + entry.getPositionFrom)
+    println("Wrapper " + entry + " " + entry.getPositionFrom)
     addUse(entry, env)
   }
 
@@ -357,7 +357,7 @@ trait CDefUse extends CEnv {
         addUse(expr, env)
         thenExpr.foreach(x => addUse(x, env))
         addUse(elseExpr, env)
-      case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
+      case FunctionCall(param) => // param.exprs.foreach(x => addUse(x.entry, env))
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
           case One(InitDeclaratorI(declarator, _, _)) =>
@@ -366,8 +366,12 @@ trait CDefUse extends CEnv {
              and not the first forward declaration when calling the function.
               */
             defuse.remove(declarator.getId)
-            putToDefUseMap(i)
-            addToDefUseMap(i, declarator.getId)
+            if (!defuse.contains(i)) {
+              putToDefUseMap(i)
+              if (!i.eq(declarator.getId)) {
+                addToDefUseMap(i, declarator.getId)
+              }
+            }
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
@@ -376,18 +380,18 @@ trait CDefUse extends CEnv {
           case One(null) => println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
           case k => println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
-      case PointerDerefExpr(i) => addUse(i, env)
-      /*case AssignExpr(target, operation, source) =>
-        addUse(source, env)
-        addUse(target, env) */
+      case PointerDerefExpr(i) => /* addUse(i, env) */
+      case AssignExpr(target, operation, source) =>
+      /* addUse(source, env)
+    addUse(target, env) */
       case NAryExpr(i, o) =>
-        addUse(i, env)
-        o.foreach(x => addUse(x.entry, env))
+      /* addUse(i, env)
+ o.foreach(x => addUse(x.entry, env))  */
       case NArySubExpr(_, e) =>
         addUse(e, env)
       case PostfixExpr(p, s) =>
-        addUse(p, env)
-        addUse(s, env)
+      /* addUse(p, env)
+ addUse(s, env)    */
       case PointerPostfixSuffix(_, id) =>
         // stop if id is not yet in env
         // continue if in env
@@ -534,7 +538,7 @@ trait CDefUse extends CEnv {
         o match {
           case i: Id =>
             addUse(i, env)
-          case k => addUse(k, env)
+          case k => addDecl(k, env)
         }
       case Enumerator(i@Id(name), _) =>
         addDecl(i, env)
