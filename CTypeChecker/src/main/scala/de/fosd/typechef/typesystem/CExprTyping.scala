@@ -179,24 +179,32 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
 
           case SizeOfExprT(_) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
           case SizeOfExprU(x) =>
+            def addStructUsageFromSizeOfExprU(a: AST) = {
+              a match {
+                case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
+                  et(expr).mapfr(featureExpr, {
+                    case (f, CObj(CAnonymousStruct(fields, _))) =>
+                      addAnonStructUse(i, fields)
+                      null
+                    case (f, CAnonymousStruct(fields, _)) =>
+                      null
+                    case (f, CObj(CStruct(s, isUnion))) =>
+                      addStructUse(i, env, s, isUnion)
+                      null
+                    case (f, CStruct(s, isUnion)) =>
+                      null
+                    case (f, e) =>
+                      null
+                  })
+              }
+            }
             x match {
               case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
-                et(expr).mapfr(featureExpr, {
-                  case (f, CObj(CAnonymousStruct(fields, _))) =>
-                    addAnonStructUse(i, fields)
-                    null
-                  case (f, CAnonymousStruct(fields, _)) =>
-                    null
-                  case (f, CObj(CStruct(s, isUnion))) =>
-                    addStructUse(i, env, s, isUnion)
-                    null
-                  case (f, CStruct(s, isUnion)) =>
-                    null
-                  case (f, e) =>
-                    null
-                })
-              // case p@PostfixExpr(expr, _) => addUse(expr, env)
-              case _ => // addUse(x, env)
+                addStructUsageFromSizeOfExprU(p)
+              case pd@PointerDerefExpr(NAryExpr(p, expr)) =>
+                addStructUsageFromSizeOfExprU(p)
+              // TODO Verify
+              case _ => // println("missed " + x)
             }
             One(CUnsigned(CInt()))
           case ue@UnaryOpExpr(kind, expr) =>

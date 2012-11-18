@@ -125,12 +125,12 @@ trait CDefUse extends CEnv {
   }
 
   def getDefUseMap(): IdentityHashMap[Id, List[Id]] = {
-    val defuseList = new util.IdentityHashMap[Id, List[Id]]()
-    defuse.keySet().par.foreach(x => {
+    val defuseMap = new util.IdentityHashMap[Id, List[Id]]()
+    defuse.keySet().foreach(x => {
       val list = defuse.get(x).keySet().toArray(Array[Id]()).toList
-      defuseList.put(x, list)
+      defuseMap.put(x, list)
     })
-    defuseList
+    defuseMap
   }
 
   def getDefUseMap2 = defuse
@@ -358,7 +358,7 @@ trait CDefUse extends CEnv {
   }
 
   def addUseWrapper(entry: AST, env: Env) {
-    // filterASTElemts[Id](entry).par.foreach(id => addUse(id, env))
+    println("Wrapper " + entry + " " + entry.getPositionFrom)
     addUse(entry, env)
   }
 
@@ -378,11 +378,9 @@ trait CDefUse extends CEnv {
              and not the first forward declaration when calling the function.
               */
             defuse.remove(declarator.getId)
-            if (!defuse.contains(i)) {
-              putToDefUseMap(i)
-              if (!i.eq(declarator.getId)) {
-                addToDefUseMap(i, declarator.getId)
-              }
+            putToDefUseMap(i)
+            if (!i.eq(declarator.getId)) {
+              addToDefUseMap(i, declarator.getId)
             }
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
