@@ -100,9 +100,9 @@ trait CDefUse extends CEnv {
       defuse.put(key, defuse.get(key) ++ List(target))
     } else {
       /*println("key " + key)
-      println("target " + target)  */
+      println("target " + target)*/
       def lookupDecl(): Id = {
-        defuse.keySet().toArray.par.foreach(k => {
+        defuse.keySet().toArray.foreach(k => {
           for (v <- defuse.get(k))
             if (v.eq(key))
               return k.asInstanceOf[Id]
@@ -114,7 +114,7 @@ trait CDefUse extends CEnv {
         putToDefUseMap(key)
         addToDefUseMap(key, target)
       } else {
-        println("decl found")
+        println("Current Defusemap: " + defuse)
         addToDefUseMap(decl, target)
       }
     }
@@ -347,7 +347,7 @@ trait CDefUse extends CEnv {
   }
 
   def addUseWrapper(entry: AST, env: Env) {
-    println("Wrapper" + entry + " " + entry.getPositionFrom)
+    //println("Wrapper " + entry + " " + entry.getPositionFrom)
     addUse(entry, env)
   }
 
@@ -360,7 +360,13 @@ trait CDefUse extends CEnv {
       case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, env))
       case i@Id(name) =>
         env.varEnv.getAstOrElse(name, null) match {
-          case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, i)
+          case One(InitDeclaratorI(declarator, _, _)) =>
+            /*
+             Special handling for forward declarations because the env gives us the function
+             and not the first forward declaration when calling the function.
+              */
+            defuse.remove(declarator.getId)
+            addToDefUseMap(i, declarator.getId)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
