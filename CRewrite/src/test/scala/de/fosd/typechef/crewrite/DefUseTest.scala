@@ -6,7 +6,7 @@ import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 import collection.mutable.ListBuffer
-import java.io.{FileInputStream, File}
+import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Boolean = {
