@@ -366,6 +366,7 @@ trait CDefUse extends CEnv {
              and not the first forward declaration when calling the function.
               */
             defuse.remove(declarator.getId)
+            putToDefUseMap(i)
             addToDefUseMap(i, declarator.getId)
           case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
           case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, i)
