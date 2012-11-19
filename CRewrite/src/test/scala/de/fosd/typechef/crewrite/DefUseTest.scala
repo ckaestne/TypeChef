@@ -9,7 +9,7 @@ import collection.mutable.ListBuffer
 import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, List[Id]]): Boolean = {
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Boolean = {
     var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
     var missingLB: ListBuffer[Id] = ListBuffer()
@@ -17,7 +17,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
     defUseMap.keySet().toArray().foreach(x => {
       idLB += x.asInstanceOf[Id]
-      idLB = idLB ++ defUseMap.get(x)
+      idLB = idLB ++ defUseMap.get(x).keySet().toArray(Array[Id]()).toList
     })
     val idLst = idLB.toList
 
@@ -90,7 +90,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDefUseMap2
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -167,15 +167,16 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_random_stuff {
-    val source_ast = getAstFromPi(new File("/Users/andi/Dropbox/HiWi/flo/random/test.c"))
-    val env = createASTEnv(source_ast)
-    println("AST:\n" + source_ast)
-    println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
+    val source_ast = getAstFromPi(new File("/Users/andi/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/tar.pi"))
+    // val env = createASTEnv(source_ast)
+    // println("AST:\n" + source_ast)
+    //println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
     typecheckTranslationUnit(source_ast)
     val defUseMap = getDefUseMap
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
+    // println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+    // println("Source:\n" + source_ast)
     println("\nDef Use Map:\n" + defUseMap)
+    val success = checkDefuse(source_ast, getDefUseMap2)
   }
 
   @Test def test_struct_def_use {
@@ -217,7 +218,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDefUseMap2
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -294,7 +295,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("AST:\n" + ast)
     println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
     typecheckTranslationUnit(ast)
-    val success = checkDefuse(ast, getDefUseMap)
+    val success = checkDefuse(ast, getDefUseMap2)
     println("DefUse" + getDefUseMap)
     println("Success " + success)
   }
@@ -388,11 +389,17 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val fis = new FileInputStream(fileToAnalyse)
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
+
+    /*val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
+  val bytes = ast.toString.getBytes
+  fos.write(bytes)
+  fos.flush()
+  fos.close()  */
     val starttime = System.currentTimeMillis()
     typecheckTranslationUnit(ast)
     val endtime = System.currentTimeMillis()
 
-    val success = checkDefuse(ast, getDefUseMap)
+    val success = checkDefuse(ast, getDefUseMap2)
     println("DefUse" + getDefUseMap)
     println("Success " + success + "\n\n")
     println("Runtime " + (endtime - starttime))
@@ -418,4 +425,12 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     }
   }
 
+  @Test def test_minimal_stuff {
+    val folderPath = "/Users/andi/Dropbox/hiwi/busybox/minimalbeispiel/"
+    val folder = new File(folderPath)
+    analyseDir(folder)
+    val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
+    val folder2 = new File(folderPath2)
+    analyseDir(folder2)
+  }
 }

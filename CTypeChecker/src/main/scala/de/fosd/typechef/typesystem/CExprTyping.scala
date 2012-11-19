@@ -14,10 +14,35 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
    * types an expression in an environment, returns a new
    * environment for all subsequent tokens (eg in a sequence)
    */
-  def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
-    val et = getExprType(_: Expr, featureExpr, env)
-    def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprType(e, f, newEnv)
+
+  def getExprTypeRec(expr: Expr, featureExpr: FeatureExpr, env: Env, recurse: Boolean = false): Conditional[CType] = {
+    val et = getExprTypeRec(_: Expr, featureExpr, env, true)
+    def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprTypeRec(e, f, newEnv, true)
     //        TODO assert types in varCtx and funCtx are welltyped and non-void
+
+    def addStructUsageFromSizeOfExprU(a: AST) = {
+      a match {
+        case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
+          et(expr).mapfr(featureExpr, {
+            case (f, CObj(CAnonymousStruct(fields, _))) =>
+              addAnonStructUse(i, fields)
+              null
+            case (f, CAnonymousStruct(fields, _)) =>
+              null
+            case (f, CObj(CStruct(s, isUnion))) =>
+              addStructUse(i, env, s, isUnion)
+              null
+            case (f, CStruct(s, isUnion)) =>
+              null
+            case (f, CObj(CPointer(CStruct(name, isUnion)))) =>
+              addStructUse(i, env, name, isUnion)
+              null
+            case (f, e) =>
+              null
+          })
+        case _ =>
+      }
+    }
 
     val resultType: Conditional[CType] =
       if (!featureExpr.isSatisfiable()) {
@@ -176,25 +201,16 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
             val newExpr = AssignExpr(expr, "+=", Constant("1"))
             et(newExpr)
 
-          case SizeOfExprT(_) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
+          case SizeOfExprT(x) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
           case SizeOfExprU(x) =>
             x match {
-              case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
-                et(expr).mapfr(featureExpr, {
-                  case (f, CObj(CAnonymousStruct(fields, _))) =>
-                    addAnonStructUse(i, fields)
-                    null
-                  case (f, CAnonymousStruct(fields, _)) =>
-                    null
-                  case (f, CObj(CStruct(s, isUnion))) =>
-                    addStructUse(i, env, s, isUnion)
-                    null
-                  case (f, CStruct(s, isUnion)) =>
-                    null
-                  case (f, e) =>
-                    null
-                })
-              case _ =>
+              case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
+                addStructUsageFromSizeOfExprU(p)
+              case pd@PointerDerefExpr(NAryExpr(p, expr)) =>
+                addStructUsageFromSizeOfExprU(p)
+              case pe@PostfixExpr(p: PostfixExpr, _) => addStructUsageFromSizeOfExprU(p)
+
+              case _ => // println("missed " + x)
             }
             One(CUnsigned(CInt()))
           case ue@UnaryOpExpr(kind, expr) =>
@@ -250,7 +266,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
             //return original environment, definitions don't leave this scope
             t
 
-          case LcurlyInitializer(inits) => One(CCompound().toObj) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
+          case LcurlyInitializer(inits) =>
+            One(CCompound().toObj)
+          //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
           case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
           case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
           case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
@@ -264,8 +282,14 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
       }
     typedExpr(expr, resultType, featureExpr, env)
     addEnv(expr, env)
-    addUseWrapper(expr, env)
+    if (!recurse) {
+      addUse(expr, env)
+    }
     resultType.simplify(featureExpr)
+  }
+
+  def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+    getExprTypeRec(expr, featureExpr, env)
   }
 
   private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr, env: Env): (FeatureExpr, FeatureExpr)
