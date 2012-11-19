@@ -99,11 +99,11 @@ trait CDefUse extends CEnv {
     }
     if (defuse.contains(key)) {
       defuse.get(key).put(target, null)
-      if (!defuse.get(key).contains(target)) {
-        println()
-      }
+      //if (!defuse.get(key).contains(target)) {
+      // println()
+      // }
     } else {
-      println("This only happens in very rare cases.")
+      // println("This only happens in very rare cases.")
     }
   }
 
@@ -112,6 +112,7 @@ trait CDefUse extends CEnv {
   }
 
   def getDefUseMap(): IdentityHashMap[Id, List[Id]] = {
+    // TODO Optimize Datastructur & Performance
     val defuseMap = new util.IdentityHashMap[Id, List[Id]]()
     defuse.keySet().foreach(x => {
       val list = defuse.get(x).keySet().toArray(Array[Id]()).toList
@@ -149,7 +150,7 @@ trait CDefUse extends CEnv {
             } else {
               addUse(id, env)
             }
-          case c@Choice(_, _, _) => addFunctionChoiceDef(c, declarator, env)
+          case c@Choice(_, _, _) => addChoiceFunctionDef(c, declarator, env)
           case k => // println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
 
@@ -200,18 +201,33 @@ trait CDefUse extends CEnv {
           }
         }
       case Declaration(specs, inits) => inits.foreach(x => putToDefUseMap(x.entry.getId))
-      case k => println("Missing Add Def: " + f + " from " + k)
+      case k => // println("Missing Add Def: " + f + " from " + k)
     }
   }
 
-  private def addFunctionChoiceDef(c: Choice[AST], decl: Declarator, env: Env) {
+  private def addChoiceFunctionDef(c: Choice[AST], decl: Declarator, env: Env) {
+    def addOne(one: One[AST], decl: Declarator, env: Env) {
+      one match {
+        case One(FunctionDef(_, _, _, _)) => putToDefUseMap(decl.getId) // TODO Verify init
+        case One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)) => addUse(decl.getId, env)
+        case One(null) =>
+        case _ => println("FunctionDefChoice: This should not have happend: " + one)
+      }
+    }
     c match {
-      case Choice(_, One(FunctionDef(_, _, _, _)), One(null)) => putToDefUseMap(decl.getId)
-      case Choice(_, One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)), _) => addUse(decl.getId, env)
-      case Choice(_, One(FunctionDef(_, _, _, _)), One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _))) =>
-        putToDefUseMap(decl.getId)
-        addUse(id2, env)
-      case _ => // println("Missed FunctionDef Choice: " + c)
+      case Choice(_, o1@One(_), o2@One(_)) =>
+        addOne(o1, decl, env)
+        addOne(o2, decl, env)
+      case Choice(_, o@One(_), c@Choice(_, _, _)) =>
+        addOne(o, decl, env)
+        addChoiceFunctionDef(c, decl, env)
+      case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        addChoiceFunctionDef(c1, decl, env)
+        addChoiceFunctionDef(c2, decl, env)
+      case Choice(_, c@Choice(_, _, _), o@One(_)) =>
+        addOne(o, decl, env)
+        addChoiceFunctionDef(c, decl, env)
+      case _ => println("FunctionDefChoice: This should not have happend " + c)
     }
   }
 
@@ -334,7 +350,7 @@ trait CDefUse extends CEnv {
       case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(Enumerator(key, _))) =>
         addToDefUseMap(key, id)
         addToDefUseMap(declarator.getId, id)
-      case _ => println("Missed Choice " + entry)
+      case _ => // println("Missed Choice " + entry)
     }
   }
 
@@ -350,8 +366,7 @@ trait CDefUse extends CEnv {
         case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
           putToDefUseMap(key)
         case One(null) =>
-        case k =>
-          println("Missed add One " + k)
+        case k => println("DefChoice: Missed add One " + k)
       }
     }
     entry match {
@@ -508,7 +523,7 @@ trait CDefUse extends CEnv {
         }
         addToDefUseMap(key, id)
       case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, id)
-      case k => println("Should not have entered here: " + id + "\n" + k)
+      case k => // println("Should not have entered here: " + id + "\n" + k)
     }
   }
 
@@ -565,12 +580,6 @@ trait CDefUse extends CEnv {
           addDecl(e.entry, env)
         }
       case i@IfStatement(cond, then, elif, els) =>
-      /*
-  addDecl(cond, env)
-  then.toOptList.foreach(x => addDecl(x.entry, env))
-  elif.foreach(x => addDecl(x.entry.condition, env))
-  elif.foreach(x => x.entry.thenBranch.toOptList.foreach(x => addDecl(x, env)))
-  els.foreach(x => addDecl(x, env)) */
       case EnumSpecifier(_, _) =>
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, env))
       case ParameterDeclarationAD(spec, decl) =>
@@ -595,10 +604,6 @@ trait CDefUse extends CEnv {
       case DeclArrayAccess(Some(o)) =>
         addUse(o, env)
       case ReturnStatement(expr) =>
-      /*
-     if (!expr.isEmpty) {
-       addDecl(expr.get, env)
-     } */
       case AssignExpr(target, operation, source) =>
         addUse(source, env)
         addUse(target, env)
