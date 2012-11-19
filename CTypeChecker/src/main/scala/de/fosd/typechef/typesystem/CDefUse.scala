@@ -308,49 +308,33 @@ trait CDefUse extends CEnv {
     }
   }
 
+  private def addChoice(choice: Choice[AST], use: Id) {
+    def addOne(one: One[AST], use: Id) {
+      one match {
+        case One(InitDeclaratorI(declarator, _, _)) => addToDefUseMap(declarator.getId, use)
+        case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, use)
+        case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDefUseMap(key, use)
+        case One(Enumerator(key, _)) => addToDefUseMap(key, use)
+        case One(NestedNamedDeclarator(_, declarator, _)) => addToDefUseMap(declarator.getId, use)
+        case One(null) =>
+        case _ => println("AddChoices - should not have happend: " + one)
+      }
+    }
 
-  private def addChoice(entry: Choice[AST], id: Id) {
-    entry match {
-      case Choice(feature, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
-        addChoice(c1, id)
-        addChoice(c2, id)
-      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), c@Choice(_, _, _)) =>
-        addChoice(c, id)
-        addToDefUseMap(declarator.getId, id)
-      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(InitDeclaratorI(declarator2, _, _))) =>
-        addToDefUseMap(declarator.getId, id)
-        addToDefUseMap(declarator2.getId, id)
-      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(null)) => addToDefUseMap(declarator.getId, id)
-      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), c@Choice(_, _, _)) =>
-        addChoice(c, id)
-        addToDefUseMap(key, id)
-      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(AtomicNamedDeclarator(_, key2, _))) =>
-        addToDefUseMap(key, id)
-        addToDefUseMap(key2, id)
-      case Choice(feature, One(AtomicNamedDeclarator(_, key, _)), One(null)) => addToDefUseMap(key, id)
-      case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), c@Choice(_, _, _)) =>
-        addChoice(c, id)
-        addToDefUseMap(key, id)
-      case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(FunctionDef(_, AtomicNamedDeclarator(_, key2, _), _, _))) =>
-        addToDefUseMap(key, id)
-        addToDefUseMap(key2, id)
-      case c@Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(InitDeclaratorI(declarator, _, _))) =>
-        addToDefUseMap(key, id)
-        addToDefUseMap(declarator.getId, id)
-      case Choice(feature, One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)), One(null)) => addToDefUseMap(key, id)
-      case Choice(feature, One(Enumerator(key, _)), c@Choice(_, _, _)) =>
-        addChoice(c, id)
-        addToDefUseMap(key, id)
-      case Choice(feature, One(Enumerator(key, _)), One(Enumerator(key2, _))) =>
-        addToDefUseMap(key, id)
-        if (!key.eq(key2)) {
-          addToDefUseMap(key2, id)
-        }
-      case Choice(feature, One(Enumerator(key, _)), One(null)) => addToDefUseMap(key, id)
-      case Choice(feature, One(InitDeclaratorI(declarator, _, _)), One(Enumerator(key, _))) =>
-        addToDefUseMap(key, id)
-        addToDefUseMap(declarator.getId, id)
-      case _ => // println("Missed Choice " + entry)
+    choice match {
+      case Choice(_, o1@One(_), o2@One(_)) =>
+        addOne(o1, use)
+        addOne(o2, use)
+      case Choice(_, o@One(_), c@Choice(_, _, _)) =>
+        addOne(o, use)
+        addChoice(c, use)
+      case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        addChoice(c1, use)
+        addChoice(c2, use)
+      case Choice(_, c@Choice(_, _, _), o@One(_)) =>
+        addOne(o, use)
+        addChoice(c, use)
+      case _ => println("AddChoiceUse: This should not have happend " + choice)
     }
   }
 
@@ -476,12 +460,11 @@ trait CDefUse extends CEnv {
          * Workaround for buitlin_offset_ -> typechef implementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
          */
         val structOrUnion = filterASTElemts[Id](typeName)
-        // addStructUse(entry, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false))
         members.foreach(x => addStructUse(x.entry, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
       case k =>
-        if (!k.isInstanceOf[Specifier]) {
-          // println(" Completly missing add use: " + k + " " + k.getPositionFrom)
-        }
+      /* if (!k.isInstanceOf[Specifier]) {
+       // println(" Completly missing add use: " + k + " " + k.getPositionFrom)
+     } */
     }
   }
 
