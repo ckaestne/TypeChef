@@ -10,48 +10,36 @@ import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Boolean = {
-    var idLB: ListBuffer[Id] = ListBuffer()
     val lst = filterASTElems[Id](ast)
-    var missingLB: ListBuffer[Id] = ListBuffer()
+    val missingLB: ListBuffer[Id] = ListBuffer()
+    val duplicateLB: ListBuffer[Id] = ListBuffer()
+    val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
     val env = createASTEnv(ast)
+    val defuseKeyList = defUseMap.keySet().toArray().toList
 
-    defUseMap.keySet().toArray().foreach(x => {
-      idLB += x.asInstanceOf[Id]
-      idLB = idLB ++ defUseMap.get(x).keySet().toArray(Array[Id]()).toList
+    defuseKeyList.foreach(x => {
+      allIds.put(x.asInstanceOf[Id], null)
+      defUseMap.get(x).keySet().toArray.foreach(y => {
+        if (allIds.containsKey(y)) {
+          duplicateLB += y.asInstanceOf[Id]
+        }
+        allIds.put(y.asInstanceOf[Id], null)
+      })
     })
-    val idLst = idLB.toList
 
-    def filterDuplicates(lst: List[Id]): List[Id] = {
-      var tmpLB: ListBuffer[Id] = ListBuffer()
-      lst.foreach(x => {
-        if (!tmpLB.exists(y => x.eq(y))) {
-          tmpLB += x
-        } else {
-          //println("Duplicate " + x)
-        }
-      })
-      return tmpLB.toList
-    }
+    val numberOfIdsInAst = lst.size
+    val numberOfIdsInDefuse = allIds.keySet().size()
 
-    println("FD: " + filterDuplicates(idLst).size)
-    var countMissing = 0
+    println("FD: " + numberOfIdsInDefuse)
     lst.foreach(x => {
-      var contains = false
-      idLst.foreach(y => {
-        if (y.eq(x)) {
-          contains = true
-        }
-      })
-      if (!contains) {
-        println(x + " @ " + x.getPositionFrom.getLine.toString + "\n" + x.getPositionFrom.toString + "\nParent: " + env.parent(env.parent(env.parent(x))) + "\n")
+      if (!allIds.containsKey(x)) {
         missingLB += x
+        println(x + " @ " + x.getPositionFrom.getLine.toString + "\n" + x.getPositionFrom.toString + "\nParent: " + env.parent(env.parent(env.parent(x))) + "\n")
       }
     })
     println("Amount of ids missing: " + missingLB.size + "\n" + missingLB)
-    println("Filtered list size is: " + lst.size + ", the defuse map contains " + idLst.size + " Ids." + " containing " + (idLst.size - filterDuplicates(idLst).size) + " variable IDs.")
-
-    //println(PrettyPrinter.print(ast))
-    return (lst.size == filterDuplicates(idLst).size)
+    println("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
+    return (numberOfIdsInAst == numberOfIdsInDefuse)
   }
 
 
@@ -167,16 +155,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   }
 
   @Test def test_random_stuff {
-    val source_ast = getAstFromPi(new File("/Users/andi/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/tar.pi"))
-    // val env = createASTEnv(source_ast)
-    // println("AST:\n" + source_ast)
-    //println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-    // println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    // println("Source:\n" + source_ast)
-    println("\nDef Use Map:\n" + defUseMap)
-    val success = checkDefuse(source_ast, getDefUseMap2)
+    val source_ast = getAstFromPi(new File("/Users/flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/tar.pi"))
+    runDefUseOnAst(source_ast)
   }
 
   @Test def test_struct_def_use {
@@ -259,10 +239,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("Source:\n" + source_ast + "\n")
     println("\nPrettyPrinted:\n" + PrettyPrinter.print(source_ast))
 
-    val env = createASTEnv(source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-    println("DefUse: " + defUseMap)
+    runDefUseOnAst(source_ast)
   }
 
   @Test def test_typedef_def_use {
@@ -384,11 +361,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     analyseDir(folder2)
   }
 
-  private def runDefUseOnPi(fileToAnalyse: File) {
-    println("++Analyse: " + fileToAnalyse.getName + "++")
-    val fis = new FileInputStream(fileToAnalyse)
-    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
-    fis.close()
+  private def runDefUseOnAst(tu: TranslationUnit) {
 
     /*val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
   val bytes = ast.toString.getBytes
@@ -396,15 +369,30 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
   fos.flush()
   fos.close()  */
     val starttime = System.currentTimeMillis()
-    typecheckTranslationUnit(ast)
+    typecheckTranslationUnit(tu)
     val endtime = System.currentTimeMillis()
 
-    val success = checkDefuse(ast, getDefUseMap2)
-    println("DefUse" + getDefUseMap)
-    println("Success " + success + "\n\n")
-    println("Runtime " + (endtime - starttime))
+    val success = checkDefuse(tu, getDefUseMap2)
+    val defuse = getDefUseMap
+    println("DefUse" + defuse)
+
+    /*val sb = new StringBuilder
+    defuse.keySet().toArray().foreach(x => sb.append(x + "@" + x.asInstanceOf[Id].range + "\n"))
+    val fw = new FileWriter(fileToAnalyse.getAbsolutePath + ".defuse")
+    fw.write(sb.toString)
+    fw.close()*/
+
+    println("Success " + success)
+    println("Runtime " + (endtime - starttime) / 1000.0 + " seconds.\n\n")
     Thread.sleep(2000)
-    //println("AST" + ast)
+  }
+
+  private def runDefUseOnPi(fileToAnalyse: File) {
+    println("++Analyse: " + fileToAnalyse.getName + "++")
+    val fis = new FileInputStream(fileToAnalyse)
+    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+    fis.close()
+    runDefUseOnAst(ast)
   }
 
   private def analyseDir(dirToAnalyse: File) {
