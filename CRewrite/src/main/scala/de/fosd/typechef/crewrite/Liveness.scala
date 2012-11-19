@@ -2,7 +2,6 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c._
-import java.util.IdentityHashMap
 import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.conditional.{One, Conditional, Opt}
 
@@ -68,7 +67,7 @@ trait Variables {
 }
 
 class LivenessCache {
-  private val cache: IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]] = new IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]]()
+  private val cache: java.util.IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]] = new java.util.IdentityHashMap[Any, Map[FeatureExpr, Set[Id]]]()
 
   def update(k: Any, v: Map[FeatureExpr, Set[Id]]) {
     cache.put(k, v)
@@ -103,7 +102,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // cache for in; we have to store all tuples of (a, env) their because using
   // (a, env) always creates a new one!!! and circular internally uses another
   // IdentityHashMap and uses (a, env) as a key there.
-  private val astIdenEnvHM = new IdentityHashMap[AST, (AST, ASTEnv)]()
+  private val astIdenEnvHM = new java.util.IdentityHashMap[AST, (AST, ASTEnv)]()
 
   private implicit def astIdenTup(a: AST) = astIdenEnvHM.get(a)
 
@@ -113,13 +112,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // out(n) = for s in succ(n) r = r + in(s); r
   // insimple and outsimple are the non variability-aware in and out versiosn
   // of liveness determination
-  val insimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
+  val insimple = {
     circular[(Product, ASTEnv), Set[Id]](Set()) {
       case t@(FunctionDef(_, _, _, _), _) => Set()
       case t@(e, env) => {
         val u = uses(e)
         val d = defines(e)
-        var res = outsimple(t)
+        var res: Set[Id] = outsimple(t)
 
         res = u.union(res.diff(d))
         res
@@ -127,9 +126,9 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outsimple: PartialFunction[(Product, ASTEnv), Set[Id]] = {
+  val outsimple: ((Product, ASTEnv)) => Set[Id] = {
     circular[(Product, ASTEnv), Set[Id]](Set()) {
-      case t@(e, env) => {
+      case t@(e: Product, env: ASTEnv) => {
         val ss = succ(e, env).filterNot(_.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
         for (s <- ss) {
@@ -142,13 +141,13 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
+  val inrec = {
     circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(FunctionDef(_, _, _, _), _) => Map()
       case t@(e, env) => {
         val u = uses(e)
         val d = defines(e)
-        var res = out(t)
+        var res: Map[FeatureExpr, Set[Id]] = out(t)
         res = updateMap(res, (env.featureExpr(e), d), _.diff(_))
         res = updateMap(res, (env.featureExpr(e), u), _.union(_))
         res
@@ -156,7 +155,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outrec: PartialFunction[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]] =
+  val outrec =
     circular[(Product, ASTEnv), Map[FeatureExpr, Set[Id]]](Map()) {
       case t@(e, env) => {
         val sl = succ(e, env).filterNot(_.isInstanceOf[FunctionDef])
@@ -170,7 +169,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       }
     }
 
-  def out(a: (Product, ASTEnv)) = {
+  def out(a: (Product, ASTEnv)): Map[FeatureExpr, Set[Id]] = {
     outcache.lookup(a._1) match {
       case Some(v) => v
       case None => {

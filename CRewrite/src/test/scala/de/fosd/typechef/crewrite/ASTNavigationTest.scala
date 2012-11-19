@@ -4,9 +4,8 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import org.kiama.attribution.Attribution._
+import org.kiama.attribution.DynamicAttribution._
 import org.kiama._
-import attribution.Attributable
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
