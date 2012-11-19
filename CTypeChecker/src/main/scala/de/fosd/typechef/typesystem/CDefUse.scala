@@ -99,9 +99,6 @@ trait CDefUse extends CEnv {
     }
     if (defuse.contains(key)) {
       defuse.get(key).put(target, null)
-      //if (!defuse.get(key).contains(target)) {
-      // println()
-      // }
     } else {
       // println("This only happens in very rare cases.")
     }
@@ -257,7 +254,7 @@ trait CDefUse extends CEnv {
           pad.specifiers.foreach(x => addDecl(x.entry, env))
         case e => // println("err " + e)
       })
-      case mi => // println("Completly missing: " + mi)
+      case mi => println("Completly missing: " + mi)
     })
   }
 
@@ -462,9 +459,9 @@ trait CDefUse extends CEnv {
         val structOrUnion = filterASTElemts[Id](typeName)
         members.foreach(x => addStructUse(x.entry, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
       case k =>
-      /* if (!k.isInstanceOf[Specifier]) {
-       // println(" Completly missing add use: " + k + " " + k.getPositionFrom)
-     } */
+        if (!k.isInstanceOf[Specifier]) {
+          println(" Completly missing add use: " + k + " " + k.getPositionFrom)
+        }
     }
   }
 
@@ -473,40 +470,59 @@ trait CDefUse extends CEnv {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
           env.structEnv.getFieldsMerged(structName, isUnion).getAstOrElse(i.name, i) match {
-            case One(AtomicNamedDeclarator(_, i2: Id, _)) =>
-              addToDefUseMap(i2, i)
-            case One(i2: Id) =>
-              addToDefUseMap(i2, i)
-            case Choice(_, One(AtomicNamedDeclarator(_, id2: Id, _)), One(id3: Id)) =>
-              addToDefUseMap(id2, i)
-            // addToDefUseMap(id3, i)
-            case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) =>
-              addToDefUseMap(i2, i)
-            case k => // println("omg this should not have happend " + k)
+            case One(AtomicNamedDeclarator(_, i2: Id, _)) => addToDefUseMap(i2, i)
+            case One(i2: Id) => addToDefUseMap(i2, i)
+            case c@Choice(_, _, _) => addStructUseChoice(c, i)
+            case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) => addToDefUseMap(i2, i)
+            case k =>
           }
         } else {
           env.typedefEnv.getAstOrElse(i.name, null) match {
             case One(i2: Id) => addToDefUseMap(i2, i)
-            case One(null) =>
-              addDef(i, env)
-            case k => // println("Error struct " + structName + " entry " + entry + " typedefEnv: " + k)
+            case One(null) => addDef(i, env)
+            case c@Choice(_, _, _) => println("missed choice typedef " + c)
+            case k =>
           }
         }
       }
       case OffsetofMemberDesignatorID(id) => addStructUse(id, env, structName, isUnion)
-      case k => // println("Missing Add Struct: " + k)
+      case k =>
     }
   }
 
   def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
     fields.getAstOrElse(id.name, null) match {
-      case Choice(_, One(AtomicNamedDeclarator(_, key, _)), One(null)) =>
-        if (!defuse.contains(key)) {
-          putToDefUseMap(key)
-        }
-        addToDefUseMap(key, id)
+      case c@Choice(_, _, _) => addStructUseChoice(c, id)
       case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, id)
-      case k => // println("Should not have entered here: " + id + "\n" + k)
+      case One(NestedNamedDeclarator(_, declarator, _)) => addToDefUseMap(declarator.getId, id)
+      case k => println("Should not have entered here: " + id + "\n" + k)
+    }
+  }
+
+  private def addStructUseChoice(choice: Choice[AST], use: Id) {
+    def addOne(one: One[AST], use: Id) {
+      one match {
+        case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, use)
+        case One(NestedNamedDeclarator(_, declarator, _)) => addToDefUseMap(declarator.getId, use)
+        case One(null) =>
+        case _ => println("AddAnonStructChoice missed " + one)
+      }
+    }
+
+    choice match {
+      case Choice(_, o1@One(_), o2@One(_)) =>
+        addOne(o1, use)
+        addOne(o2, use)
+      case Choice(_, o@One(_), c@Choice(_, _, _)) =>
+        addOne(o, use)
+        addStructUseChoice(c, use)
+      case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        addStructUseChoice(c1, use)
+        addStructUseChoice(c2, use)
+      case Choice(_, c@Choice(_, _, _), o@One(_)) =>
+        addOne(o, use)
+        addStructUseChoice(c, use)
+      case _ => println("AddAnonStructChoice: This should not have happend " + choice)
     }
   }
 
@@ -667,21 +683,17 @@ trait CDefUse extends CEnv {
   }
 
   private def addGotoStatements(f: AST) {
-    // TODO Verify -> #ifdef gotos und verschachtelte gotos <- Überdeckung
     val labels = filterASTElemts[LabelStatement](f)
     val gotos = filterASTElemts[GotoStatement](f)
-
-    for (x <- labels) {
+    // TODO Refactor
+    labels.foreach(x => {
       val id = x.id
       putToDefUseMap(id)
       gotos.foreach(y => y match {
-        case GotoStatement(id2) =>
-          if (id.equals(id2)) {
-            addToDefUseMap(id, id2.asInstanceOf[Id])
-          }
+        case GotoStatement(id2) => if (id.equals(id2)) addToDefUseMap(id, id2.asInstanceOf[Id])
         case _ =>
       })
-    }
+    })
   }
 
   // method recursively filters all AST elements for a given type T
