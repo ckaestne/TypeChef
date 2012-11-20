@@ -21,7 +21,7 @@ object BuildSettings {
         scalaVersion := buildScalaVersion,
         shellPrompt := ShellPrompt.buildShellPrompt,
 
-//        testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
+        testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
 
         javacOptions ++= Seq("-source", "1.5", "-Xlint:unchecked"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
@@ -69,9 +69,7 @@ object ShellPrompt {
 
     object devnull extends ProcessLogger {
         def info(s: => String) {}
-
         def error(s: => String) {}
-
         def buffer[T](f: => T): T = f
     }
 
