@@ -717,6 +717,7 @@ trait CDefUse extends CEnv with CEnvCache {
             })
           case _ =>
         })
+      case _ =>
     }
   }
 
