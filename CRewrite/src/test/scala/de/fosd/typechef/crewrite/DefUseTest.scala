@@ -10,7 +10,7 @@ import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Boolean = {
-    val lst = filterASTElems[Id](ast)
+    val lst = filterASTElems[Id](ast).filterNot(x => x.name.startsWith("__builtin"))
     val missingLB: ListBuffer[Id] = ListBuffer()
     val duplicateLB: ListBuffer[Id] = ListBuffer()
     val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
@@ -387,15 +387,18 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     Thread.sleep(2000)
   }
 
-  private def runDefUseOnPi(fileToAnalyse: File) {
+  private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = false) {
     println("++Analyse: " + fileToAnalyse.getName + "++")
     val fis = new FileInputStream(fileToAnalyse)
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
+    if (printAst) {
+      println("Ast:\n" + ast)
+    }
     runDefUseOnAst(ast)
   }
 
-  private def analyseDir(dirToAnalyse: File) {
+  private def analyseDir(dirToAnalyse: File, printAst: Boolean = false) {
     // retrieve all pi from dir first
     if (dirToAnalyse.isDirectory) {
       val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
@@ -405,7 +408,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
         def accept(dir: File, file: String) = dir.isDirectory
       })
       for (piFile <- piFiles) {
-        runDefUseOnPi(piFile)
+        runDefUseOnPi(piFile, printAst)
       }
       for (dir <- dirs) {
         analyseDir(dir)

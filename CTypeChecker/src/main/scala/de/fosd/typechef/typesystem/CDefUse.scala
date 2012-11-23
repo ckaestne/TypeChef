@@ -296,7 +296,7 @@ trait CDefUse extends CEnv with CEnvCache {
             })
           case k =>
             if (name.startsWith("__builtin")) {
-              putToDefUseMap(i)
+              // putToDefUseMap(i)
             } else {
               // println("Missing: " + i + "\nElement " + k)
             }
@@ -378,7 +378,7 @@ trait CDefUse extends CEnv with CEnvCache {
         * Workaround: lookup for id and add.
         */
         if (env.enumEnv.contains(id.name)) {
-          for (key <- defuse.keys.par) {
+          for (key <- defuse.keys) {
             if (key.equals(id)) {
               addToDefUseMap(key, id)
             }
@@ -495,19 +495,19 @@ trait CDefUse extends CEnv with CEnvCache {
             case One(i2: Id) => addToDefUseMap(i2, i)
             case c@Choice(_, _, _) => addStructUseChoice(c, i)
             case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) => addToDefUseMap(i2, i)
-            case k =>
+            case k => println("Missed addStructUse")
           }
         } else {
           env.typedefEnv.getAstOrElse(i.name, null) match {
             case One(i2: Id) => addToDefUseMap(i2, i)
             case One(null) => addDef(i, env)
             case c@Choice(_, _, _) => println("missed choice typedef " + c)
-            case k =>
+            case k => println("Missed addStructUse")
           }
         }
       }
       case OffsetofMemberDesignatorID(id) => addStructUse(id, env, structName, isUnion)
-      case k =>
+      case k => println("Missed addStructUse")
     }
   }
 
@@ -571,11 +571,13 @@ trait CDefUse extends CEnv with CEnvCache {
         decl.foreach(x => addDecl(x, env))
         init.foreach(x => addDecl(x, env))
       case Opt(_, e) => addDecl(e, env)
-      case InitDeclaratorI(decl, attr, opt) =>
+      case i@InitDeclaratorI(decl, attr, opt) =>
         addDecl(decl, env)
         attr.foreach(x => addDecl(x.entry, env))
         opt match {
           case None =>
+          case Some(init@Initializer(_, l: LcurlyInitializer)) =>
+            addLcurlyInitializer(i.getId, init, env)
           case _ => // addUse(opt.get, env)
         }
       case Initializer(label, element) =>
@@ -701,6 +703,20 @@ trait CDefUse extends CEnv with CEnvCache {
         if (!k.isInstanceOf[BreakStatement] && !k.isInstanceOf[ContinueStatement] && !k.isInstanceOf[SimplePostfixSuffix] && !k.isInstanceOf[Specifier] && !k.isInstanceOf[DeclArrayAccess] && !k.isInstanceOf[VarArgs] && !k.isInstanceOf[AtomicAbstractDeclarator] && !k.isInstanceOf[StructInitializer] && !k.isInstanceOf[StringLit]) {
           // println("Missing Case: " + k)
         }
+    }
+  }
+
+  private def addLcurlyInitializer(id: Id, init: Initializer, env: Env) {
+    init match {
+      case Initializer(_, LcurlyInitializer(lst)) =>
+        lst.foreach(x => x.entry match {
+          case Initializer(Some(InitializerAssigment(lst2)), _) =>
+            lst2.foreach(y => y.entry match {
+              case idd@InitializerDesignatorD(i) =>
+                addStructUse(i, env, id.name, false)
+            })
+          case _ =>
+        })
     }
   }
 
