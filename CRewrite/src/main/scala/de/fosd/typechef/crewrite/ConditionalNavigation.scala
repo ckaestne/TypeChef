@@ -46,13 +46,32 @@ trait ConditionalNavigation {
   }
 
   def filterAllOptElems(e: Product): List[Opt[_]] = {
-    var res: List[Opt[_]] = List()
-    val filter = manytd(query {
-      case o: Opt[_] => res ::= o
-    })
+    def filterAllOptElemsHelper(a: Any): List[Opt[_]] = {
+      a match {
+        case o@Opt(_, entry) => List(o) ++ (if (entry.isInstanceOf[Product]) entry.asInstanceOf[Product].productIterator.toList.flatMap(filterAllOptElemsHelper)
+                                            else List())
+        case l: List[_] => l.flatMap(filterAllOptElemsHelper(_))
+        case x: Product => x.productIterator.toList.flatMap(filterAllOptElemsHelper(_))
+        case _ => List()
+      }
+    }
+    filterAllOptElemsHelper(e)
+  }
 
-    filter(e)
-    res
+  def filterAllFeatureExpr(e: Product): List[FeatureExpr] = {
+    def filterAllFeatureExprHelper(a: Any): List[FeatureExpr] = {
+      a match {
+        case Opt(feature, entry) => List(feature) ++ (if (entry.isInstanceOf[Product]) entry.asInstanceOf[Product].productIterator.toList.flatMap(filterAllFeatureExprHelper)
+                                                      else List())
+        case Choice(feature, thenBranch, elseBranch) => List(feature, feature.not) ++
+          thenBranch.asInstanceOf[Product].productIterator.toList.flatMap(filterAllFeatureExprHelper) ++
+          elseBranch.asInstanceOf[Product].productIterator.toList.flatMap(filterAllFeatureExprHelper)
+        case l: List[_] => l.flatMap(filterAllFeatureExprHelper)
+        case x: Product => x.productIterator.toList.flatMap(filterAllFeatureExprHelper)
+        case _ => List()
+      }
+    }
+    filterAllFeatureExprHelper(e)
   }
 
   // return all Opt and One elements

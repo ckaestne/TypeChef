@@ -2,6 +2,7 @@ package de.fosd.typechef.crewrite
 
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c.{FunctionDef, PrettyPrinter, TestHelper}
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class SignAnalysisTest extends TestHelper with SignAnalysis with ConditionalControlFlow with Liveness {
 
@@ -19,14 +20,19 @@ class SignAnalysisTest extends TestHelper with SignAnalysis with ConditionalCont
        """)
 
     val env = CASTEnv.createASTEnv(a)
-    // println("succs: " + DotGraph.map2file(getAllSucc(a, env), env))
-    // println("preds: " + DotGraph.map2file(getAllPred(a, env), env))
+    setEnv(env)
+    println("succs: " + DotGraph.map2file(getAllSucc(a, FeatureExprFactory.empty, env), env))
+    println("preds: " + DotGraph.map2file(getAllPred(a, FeatureExprFactory.empty, env), env))
 
-    val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+    val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
 
     println("#################################################")
+    val udr = determineUseDeclareRelation(a)
+    setUdr(udr)
+    setFm(FeatureExprFactory.empty)
 
     for (s <- ss)
-      println(PrettyPrinter.print(s) + "  out: " + out(s, env) + "   in: " + in(s, env))
+      println(PrettyPrinter.print(s) + "  out: " + out(s) +
+        "   in: " + in(s))
   }
 }

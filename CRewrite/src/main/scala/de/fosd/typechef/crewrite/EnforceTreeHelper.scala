@@ -19,7 +19,7 @@ trait EnforceTreeHelper {
    * unfortunately cloning loses position information, so we have to reassign it
    */
   private def copyPositions(source: Product, target: Product) {
-    assert(source.getClass() == target.getClass, "cloned tree should match exactly the original, typewise")
+    assert(source.getClass == target.getClass, "cloned tree should match exactly the original, typewise")
     if (source.isInstanceOf[WithPosition])
       target.asInstanceOf[WithPosition].range = source.asInstanceOf[WithPosition].range
 
@@ -76,7 +76,7 @@ trait EnforceTreeHelper {
     assert(ast != null)
 
     val rewrite = everywherebu(rule {
-      case f@ForStatement(None, None, None, _) =>
+      case f@ForStatement(_, None, _, _) =>
         f.copy(expr2 = Some(Constant("1")))
       case n: AST => n
     })

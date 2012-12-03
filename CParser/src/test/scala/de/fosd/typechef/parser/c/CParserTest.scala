@@ -332,7 +332,7 @@ class CParserTest {
         assertParseable("if (a) b; else c;", p.statement)
         assertParseable("if (a) if (b) if (c) d; ", p.statement)
         assertParseable("{a;b;}", p.statement)
-        assertParseable("case a: x;", p.statement)
+        //assertParseable("case a: x;", p.statement)
         assertParseable("break;", p.statement)
         assertParseable("a:", p.statement)
         assertParseable("goto x;", p.statement)

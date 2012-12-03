@@ -50,17 +50,25 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = Fe
         }
 
 
+    /**
+     * Returns true iff no errors were found.
+     * @return
+     */
     def checkAST: Boolean = {
 
+        errors = List() // clear error list
         typecheckTranslationUnit(iast)
-
-
         if (errors.isEmpty)
             println("No type errors found.")
         else {
             println("Found " + errors.size + " type errors: ");
         }
-        println("\n")
+        //println("\n")
+        return errors.isEmpty
+    }
+    def checkASTSilent: Boolean = {
+        errors = List() // clear error list
+        typecheckTranslationUnit(iast)
         return errors.isEmpty
     }
 }

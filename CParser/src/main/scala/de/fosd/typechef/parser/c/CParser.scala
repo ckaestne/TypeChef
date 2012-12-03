@@ -341,11 +341,11 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         case i ~ a => LabelStatement(i, a)
     })
         // GNU allows range expressions in case statements
-        | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ~ opt(statement) ^^ {
-        case _ ~ e ~ _ ~ s => CaseStatement(e, s)
+        | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ^^ {
+        case _ ~ e ~ _ => CaseStatement(e)
     })
-        | (textToken("default") ~! COLON ~> opt(statement) ^^ {
-        DefaultStatement(_)
+        | (textToken("default") ~! COLON ^^ {
+      case _ => DefaultStatement()
     })
         //// Selection statements:
         | (textToken("if") ~! LPAREN ~ (expr !) ~ RPAREN ~ statement ~

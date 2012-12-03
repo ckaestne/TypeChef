@@ -82,7 +82,7 @@ case class PointerPostfixSuffix(kind: String, id: Id) extends PostfixSuffix
 case class FunctionCall(params: ExprList) extends PostfixSuffix {
     //hack to propagate position information
     override def setPositionRange(from: Position, to: Position) = {
-        if (!params.hasPosition) params.setPositionRange(from, to);
+        if (!params.hasPosition) params.setPositionRange(from, to)
         super.setPositionRange(from, to)
     }
 }
@@ -146,9 +146,9 @@ case class ReturnStatement(expr: Option[Expr]) extends Statement
 
 case class LabelStatement(id: Id, attribute: Option[AttributeSpecifier]) extends Statement
 
-case class CaseStatement(c: Expr, s: Option[Conditional[Statement]]) extends Statement
+case class CaseStatement(c: Expr) extends Statement
 
-case class DefaultStatement(s: Option[Conditional[Statement]]) extends Statement
+case class DefaultStatement() extends Statement
 
 case class IfStatement(condition: Conditional[Expr], thenBranch: Conditional[Statement], elifs: List[Opt[ElifStatement]], elseBranch: Option[Conditional[Statement]]) extends Statement
 
@@ -224,8 +224,9 @@ case class CompoundAttribute(inner: List[Opt[AttributeSequence]]) extends Attrib
 case class Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) extends ExternalDef with OldParameterDeclaration
 
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {
-    def getName = declarator.getName;
+abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST with CDef {
+    def getId = declarator.getId
+    def getName = declarator.getName
     def getExpr: Option[Expr]
     def hasInitializer: Boolean = getExpr.isDefined
 }
@@ -258,15 +259,18 @@ case class InitDeclaratorE(override val declarator: Declarator, override val att
 sealed abstract class AbstractDeclarator(val pointers: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AST
 
 sealed abstract class Declarator(val pointers: List[Opt[Pointer]], val extensions: List[Opt[DeclaratorExtension]]) extends AST {
+    def getId: Id
     def getName: String
 }
 
 
 case class AtomicNamedDeclarator(override val pointers: List[Opt[Pointer]], id: Id, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {
+    def getId = id
     def getName = id.name
 }
 
 case class NestedNamedDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: Declarator, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {
+    def getId = nestedDecl.getId
     def getName = nestedDecl.getName
 }
 
