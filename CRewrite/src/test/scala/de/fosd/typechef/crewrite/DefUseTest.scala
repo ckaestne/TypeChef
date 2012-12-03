@@ -204,8 +204,8 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     println("Source:\n" + source_ast)
 
     println("Ids:\n" + filterASTElems[Id](source_ast))
-    println("\nDef Use Map:\n" + defUseMap)
-    checkDefuse(source_ast, defUseMap)
+    println("\nDef Use Map:\n" + getDefUseMap)
+    checkDefuse(source_ast, getDefUseMap2)
   }
 
   @Test def test_int {
@@ -374,16 +374,18 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
   private def runDefUseOnAst(tu: TranslationUnit) {
 
-    /*val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
-  val bytes = ast.toString.getBytes
-  fos.write(bytes)
-  fos.flush()
-  fos.close()  */
+    /* val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
+       val bytes = ast.toString.getBytes
+       fos.write(bytes)
+       fos.flush()
+       fos.close()  */
+    println("start typecheck")
     val starttime = System.currentTimeMillis()
     typecheckTranslationUnit(tu)
     val endtime = System.currentTimeMillis()
 
     val success = checkDefuse(tu, getDefUseMap2)
+    val defuse2 = getDefUseMap2
     val defuse = getDefUseMap
 
     /*val sb = new StringBuilder
@@ -397,7 +399,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     Thread.sleep(2000)
   }
 
-  private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = false) {
+  private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = true) {
     println("++Analyse: " + fileToAnalyse.getName + "++")
     val fis = new FileInputStream(fileToAnalyse)
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
@@ -431,6 +433,16 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     val folder = new File(folderPath)
     analyseDir(folder)
     val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
+    val folder2 = new File(folderPath2)
+    analyseDir(folder2, true)
+  }
+
+  @Test def test_testpi {
+    // path to busybox dir with pi files to analyse
+    val folderPath = "/Users/andi/Dropbox/HiWi/Flo/test/"
+    val folder = new File(folderPath)
+    analyseDir(folder, true)
+    val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/test/"
     val folder2 = new File(folderPath2)
     analyseDir(folder2, true)
   }

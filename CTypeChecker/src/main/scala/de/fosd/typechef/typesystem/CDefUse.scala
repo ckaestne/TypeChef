@@ -63,6 +63,7 @@ import de.fosd.typechef.parser.c.StringLit
 import de.fosd.typechef.parser.c.StructDeclarator
 import de.fosd.typechef.parser.c.UnaryExpr
 import java.util
+import de.fosd.typechef.parser.~
 
 
 // store def use chains
@@ -467,10 +468,12 @@ trait CDefUse extends CEnv with CEnvCache {
       case SizeOfExprT(expr) => addUse(expr, env)
       case SizeOfExprU(expr) => addUse(expr, env)
       case TypeName(specs, decl) =>
-        specs.foreach(x => addDecl(x.entry, env))
+        specs.foreach(x => addUse(x.entry, env))
         addDecl(decl, env)
       case StringLit(_) =>
       case SimplePostfixSuffix(_) =>
+      case GnuAsmExpr(isVolatile, isGoto, expr, Some(stuff)) =>
+        filterASTElemts[AST](stuff).foreach(x => addUse(x, env))
 
       //TODO: Workaround bei castexpr die __missing Id einfangen
       case CastExpr(typ, LcurlyInitializer(lst)) =>
@@ -535,6 +538,8 @@ trait CDefUse extends CEnv with CEnvCache {
       case TypeDefTypeSpecifier(id) => addTypeUse(id, env)
       case Initializer(_, expr) => addUse(expr, env)
       case CompoundStatementExpr(expr) => addUse(expr, env)
+      case StructOrUnionSpecifier(union, Some(i: Id), _) =>
+        addStructUse(i, env, i.name, union)
       case BuiltinOffsetof(typeName, members) =>
         typeName.specifiers.foreach(x => addUse(x.entry, env))
         /**
