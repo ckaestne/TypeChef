@@ -9,7 +9,7 @@ import collection.mutable.ListBuffer
 import java.io.{FilenameFilter, FileInputStream, File}
 
 class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Boolean = {
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Tuple2[Int, Int] = {
     val lst = filterASTElems[Id](ast).filterNot(x => x.name.startsWith("__builtin"))
     val missingLB: ListBuffer[Id] = ListBuffer()
     val duplicateLB: ListBuffer[Id] = ListBuffer()
@@ -39,7 +39,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     })
     println("Amount of ids missing: " + missingLB.size + "\n" + missingLB)
     println("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
-    return (numberOfIdsInAst == numberOfIdsInDefuse)
+    return (numberOfIdsInDefuse, numberOfIdsInAst)
   }
 
 
@@ -274,7 +274,7 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     typecheckTranslationUnit(ast)
     val success = checkDefuse(ast, getDefUseMap2)
     println("DefUse" + getDefUseMap)
-    println("Success " + success)
+    println("Found " + success._1 + " / " + success._2 + " Ids.")
   }
 
   @Test def test_opt_def_use {
@@ -361,6 +361,17 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     analyseDir(folder2)
   }
 
+  @Test def test_tarpi {
+    // path to busybox dir with pi files to analyse
+    val folderPath = "/Users/andi/Dropbox/HiWi/Flo/gzip/"
+    val folder = new File(folderPath)
+    analyseDir(folder)
+
+    val folderPath2 = "C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\gzip"
+    val folder2 = new File(folderPath2)
+    analyseDir(folder2)
+  }
+
   private def runDefUseOnAst(tu: TranslationUnit) {
 
     /*val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
@@ -374,7 +385,6 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
 
     val success = checkDefuse(tu, getDefUseMap2)
     val defuse = getDefUseMap
-    println("DefUse" + defuse)
 
     /*val sb = new StringBuilder
     defuse.keySet().toArray().foreach(x => sb.append(x + "@" + x.asInstanceOf[Id].range + "\n"))
@@ -422,6 +432,6 @@ class DefUseTest extends ConditionalNavigation with ASTNavigation with CDefUse w
     analyseDir(folder)
     val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
     val folder2 = new File(folderPath2)
-    analyseDir(folder2)
+    analyseDir(folder2, true)
   }
 }

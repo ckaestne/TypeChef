@@ -75,6 +75,7 @@ import java.util
 trait CDefUse extends CEnv with CEnvCache {
 
   private val defuse: IdentityHashMap[Id, IdentityHashMap[Id, Id]] = new IdentityHashMap()
+  var stringToIdMap: Map[String, Id] = Map()
 
   private[typesystem] def clear() {
     defuse.clear()
@@ -100,7 +101,7 @@ trait CDefUse extends CEnv with CEnvCache {
     if (defuse.contains(key)) {
       defuse.get(key).put(target, null)
     } else {
-      // println("This only happens in very rare cases.")
+      //println("This only happens in very rare cases.")
     }
   }
 
@@ -147,7 +148,9 @@ trait CDefUse extends CEnv with CEnvCache {
             } else {
               addUse(id, env)
             }
-          case c@Choice(_, _, _) => addChoiceFunctionDef(c, declarator, env)
+          case c@Choice(_, _, _) =>
+            putToDefUseMap(id)
+          // addChoiceFunctionDef(c, declarator, env)
           case k => // println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
         }
         // check function definiton for goto statements and add them to defUse
@@ -253,6 +256,10 @@ trait CDefUse extends CEnv with CEnvCache {
           pad.specifiers.foreach(x => addDecl(x.entry, env))
         case e =>
       })
+      case Opt(_, DeclArrayAccess(Some(x))) =>
+        addUse(x, env)
+      case Opt(_, DeclArrayAccess(None)) =>
+      // ignore
       case mi => println("Completly missing: " + mi)
     })
   }
@@ -401,7 +408,7 @@ trait CDefUse extends CEnv with CEnvCache {
         * Workaround: lookup for id and add.
         */
         if (env.enumEnv.contains(id.name)) {
-          for (key <- defuse.keys.par) {
+          for (key <- defuse.keys) {
             if (key.equals(id)) {
               addToDefUseMap(key, id)
             }
@@ -436,8 +443,10 @@ trait CDefUse extends CEnv with CEnvCache {
           case One(Enumerator(key, _)) => addToDefUseMap(key, i)
           case One(NestedNamedDeclarator(_, nestedDecl, _)) => addToDefUseMap(nestedDecl.getId, i)
           case c@Choice(_, _, _) => addChoice(c, i)
-          case One(null) => //  println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
-          case k => // println("AddUse Id not exhaustive: " + i + "\nElement " + k)
+          case One(null) =>
+          // println("addUse varEnv.getAstOrElse is One(null) from " + i + " @ " + i.getPositionFrom)
+          case k =>
+          // println("AddUse Id not exhaustive: " + i + "\nElement " + k)
         }
       case PointerDerefExpr(i) => addUse(i, env)
       case AssignExpr(target, operation, source) =>
@@ -462,6 +471,60 @@ trait CDefUse extends CEnv with CEnvCache {
         addDecl(decl, env)
       case StringLit(_) =>
       case SimplePostfixSuffix(_) =>
+
+      //TODO: Workaround bei castexpr die __missing Id einfangen
+      case CastExpr(typ, LcurlyInitializer(lst)) =>
+        typ match {
+          case TypeName(lst, _) =>
+            lst.foreach(x => x.entry match {
+              case StructOrUnionSpecifier(_, _, Some(innerLst)) =>
+                innerLst.foreach(y => y.entry match {
+                  case StructDeclaration(inits, decls) =>
+                    inits.foreach(j => addUse(j.entry, env))
+                    decls.foreach(z => z.entry match {
+                      case StructDeclarator(a: AtomicNamedDeclarator, _, _) =>
+                        if (!defuse.containsKey(a.getId)) {
+                          putToDefUseMap(a.getId)
+                        }
+                        stringToIdMap += (a.getName -> a.getId)
+                      case k => addUse(k, env)
+                    })
+                })
+              case k => addUse(k, env)
+            })
+        }
+        lst.foreach(x => x.entry match {
+          case Initializer(Some(InitializerAssigment(lst2)), expr) =>
+            addUse(expr, env)
+            lst2.foreach(y => y.entry match {
+              case idd@InitializerDesignatorD(i) =>
+                env.varEnv.getAstOrElse(i.name, null) match {
+                  case One(InitDeclaratorI(declarator, _, _)) =>
+                    if (!defuse.contains(declarator.getId)) {
+                      putToDefUseMap(declarator.getId)
+                    }
+                    addToDefUseMap(declarator.getId, i)
+
+                  case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, i)
+                  case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
+                    if (!defuse.contains(key)) {
+                      putToDefUseMap(key)
+                    }
+                    addToDefUseMap(key, i)
+                  case One(Enumerator(key, _)) => addToDefUseMap(key, i)
+                  case One(NestedNamedDeclarator(_, nestedDecl, _)) => addToDefUseMap(nestedDecl.getId, i)
+                  case c@Choice(_, _, _) => addChoice(c, i)
+                  case One(null) =>
+                    if (stringToIdMap.containsKey(i.name) && defuse.containsKey(stringToIdMap.get(i.name).get)) {
+                      addToDefUseMap(stringToIdMap.get(i.name).get, i)
+                    }
+                  case k => // println("AddUse Id not exhaustive: " + i + "\nElement " + k)
+                }
+            })
+          case k => addUse(k, env)
+        })
+        stringToIdMap = stringToIdMap.empty
+
       case CastExpr(typ, expr) =>
         addUse(typ, env)
         addUse(expr, env)
@@ -514,7 +577,12 @@ trait CDefUse extends CEnv with CEnvCache {
   def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
     fields.getAstOrElse(id.name, null) match {
       case c@Choice(_, _, _) => addStructUseChoice(c, id)
-      case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, id)
+      case One(AtomicNamedDeclarator(_, key, _)) =>
+        // TODO: workaround für fehlende Definition in den nächsten 3 Zeilen entfernen
+        if (!defuse.containsKey(key)) {
+          putToDefUseMap(key)
+        }
+        addToDefUseMap(key, id)
       case One(NestedNamedDeclarator(_, declarator, _)) => addToDefUseMap(declarator.getId, id)
       case k => println("Should not have entered here: " + id + "\n" + k)
     }
@@ -523,7 +591,12 @@ trait CDefUse extends CEnv with CEnvCache {
   private def addStructUseChoice(choice: Choice[AST], use: Id) {
     def addOne(one: One[AST], use: Id) {
       one match {
-        case One(AtomicNamedDeclarator(_, key, _)) => addToDefUseMap(key, use)
+        case One(AtomicNamedDeclarator(_, key, _)) =>
+          // TODO: workaround für fehlende Definition in den nächsten 3 Zeilen entfernen
+          if (!defuse.containsKey(key)) {
+            putToDefUseMap(key)
+          }
+          addToDefUseMap(key, use)
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDefUseMap(declarator.getId, use)
         case One(i@Id(_)) => addToDefUseMap(i, use) // TODO Missing case, but @defuse?
         case One(null) =>
@@ -657,7 +730,8 @@ trait CDefUse extends CEnv with CEnvCache {
       case pe@PostfixExpr(expr, suffix) =>
         addUse(expr, env)
         addDecl(suffix, env)
-      case pps@PointerPostfixSuffix(_, id: Id) => addUse(id, env)
+      case pps@PointerPostfixSuffix(_, id: Id) =>
+        addUse(id, env)
       case f@FunctionCall(expr) =>
       case StructDeclarator(decl, _, _) =>
         addDecl(decl, env)

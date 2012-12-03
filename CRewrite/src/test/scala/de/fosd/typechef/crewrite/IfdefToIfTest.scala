@@ -41,6 +41,40 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     }
   }
 
+  def getFileNameWithoutExtension(file: File): String = {
+    file.getName().replaceFirst("[.][^.]+$", "")
+  }
+
+  def testFile(file: File, i: IfdefToIf) {
+    val fileNameWithoutExtension = getFileNameWithoutExtension(file)
+
+    val source_ast = getAstFromPi(file)
+    val env = createASTEnv(source_ast)
+
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+
+    val optionsAst = i.getOptionFile(source_ast)
+    println("++Pretty printed++")
+    println(PrettyPrinter.print(optionsAst))
+
+    val tempAst = i.transformAst(source_ast, env, defUseMap)
+    writeToTextFile(fileNameWithoutExtension ++ "_tmp.txt", PrettyPrinter.print(tempAst))
+    writeToTextFile(fileNameWithoutExtension ++ "_src.txt", PrettyPrinter.print(source_ast))
+  }
+
+  def testFolder(path: String) {
+    val i = new IfdefToIf
+    val folder = new File(path)
+    val asts = analyseDir(folder)
+
+    asts.foreach(x => writeToTextFile(x._2 ++ "_tmp", PrettyPrinter.print(i.transformAst(x._1, createASTEnv(x._1), getDefUse(x._1)))))
+
+    /*val quad = asts.map(x => (x._1, createASTEnv(x._1), getDefUse(x._1), x._2))
+    val newAsts = i.transformAsts(quad)
+    newAsts.foreach(x => writeToTextFile(PrettyPrinter.print(x._1), x._2 ++ "_tmp"))*/
+  }
+
   private def getAstFromPi(fileToAnalyse: File): TranslationUnit = {
     println("++Analyse: " + fileToAnalyse.getName + "++")
     val fis = new FileInputStream(fileToAnalyse)
@@ -62,7 +96,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
     val quad = asts.map(x => (x._1, createASTEnv(x._1), getDefUse(x._1), x._2))
     val newAsts = i.transformAsts(quad)
-    newAsts.foreach(x => writeToTextFile(PrettyPrinter.print(x._1), x._2 ++ "_tmp"))
+    newAsts.foreach(x => writeToTextFile(x._2 ++ "_tmp", PrettyPrinter.print(x._1)))
   }
 
   @Test def test_replace() {
@@ -373,14 +407,14 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         }
       }
                              """)
-    val i = new IfdefToIf
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    println("Defuse: " + defUseMap)
+    val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast)
-    //println("\n\nTarget:\n" + target_ast)
-    //println("\n\nTarget:\n" + PrettyPrinter.print(source_ast))
 
-    //val newAst = i.setGoToFlags(source_ast, env)
-    //println("\n++PrettyPrinted++\n" + PrettyPrinter.print(newAst) + "\n")
+    val newAst = i.transformAst(source_ast, env, defUseMap)
+    println(PrettyPrinter.print(newAst))
   }
 
 
@@ -415,14 +449,14 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       }
                              """)
 
-    val i = new IfdefToIf
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    println("Defuse: " + defUseMap)
+    val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast)
-    //println("\n\nTarget:\n" + target_ast)
-    //println("\n\nTarget:\n" + PrettyPrinter.print(source_ast))
 
-    //val newAst = i.setGoToFlags(source_ast, env)
-    //println("\n++PrettyPrinted++\n" + PrettyPrinter.print(newAst) + "\n")
+    val newAst = i.transformAst(source_ast, env, defUseMap)
+    println(PrettyPrinter.print(newAst))
   }
 
 
@@ -464,14 +498,14 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         }
       }
                              """)
-    val i = new IfdefToIf
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    println("Defuse: " + defUseMap)
+    val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast)
-    //println("\n\nTarget:\n" + target_ast)
-    //println("\n\nTarget:\n" + PrettyPrinter.print(source_ast))
 
-    //val newAst = i.setGoToFlags(source_ast, env)
-    //println("\n++PrettyPrinted++\n" + PrettyPrinter.print(newAst) + "\n")
+    val newAst = i.transformAst(source_ast, env, defUseMap)
+    println(PrettyPrinter.print(newAst))
   }
 
 
@@ -511,14 +545,14 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
         }
       }
                              """)
-    val i = new IfdefToIf
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDefUseMap
+    println("Defuse: " + defUseMap)
+    val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast)
-    //println("\n\nTarget:\n" + target_ast)
-    //println("\n\nTarget:\n" + PrettyPrinter.print(source_ast))
 
-    //val newAst = i.setGoToFlags(source_ast, env)
-    //println("\n++PrettyPrinted++\n" + PrettyPrinter.print(newAst) + "\n")
+    val newAst = i.transformAst(source_ast, env, defUseMap)
+    println(PrettyPrinter.print(newAst))
   }
 
   @Test def if_test {
@@ -1057,161 +1091,74 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
   @Test def test_applets_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi"))
-    val env = createASTEnv(source_ast)
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    testFile(file, i)
+  }
 
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+  @Test def test_cpio_pi() {
+    val i = new IfdefToIf
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\cpio.pi")
+    testFile(file, i)
+  }
 
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
+  @Test def test_tar_pi() {
+    val i = new IfdefToIf
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\tar.pi")
+    testFile(file, i)
+  }
 
-    //i.filterVariableOpts(source_ast, env).foreach(x => println(x.entry))
-    //i.convertTranslationUnit(source_ast, env, defUseMap)
-    val tempAst = i.transformDeclarations(source_ast, env, defUseMap)
-    writeToTextFile(PrettyPrinter.print(tempAst), "applets_tmp.txt")
-    writeToTextFile(PrettyPrinter.print(source_ast), "applets_src.txt")
+  @Test def test_lzop_pi() {
+    val i = new IfdefToIf
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\lzop.pi")
+    testFile(file, i)
+  }
+
+  @Test def test_rpm2cpio_pi() {
+    val i = new IfdefToIf
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\rpm2cpio.pi")
+    testFile(file, i)
   }
 
   @Test def test_ar_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\ar.pi"))
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-    println("DefUse:\n" + defUseMap)
-
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-    //i.filterVariableOpts(source_ast, env).foreach(x => println(x.entry))
-    //i.convertTranslationUnit(source_ast, env, defUseMap)
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    //writeToTextFile(PrettyPrinter.print(tempAst), "ar_tmp2.txt")
-    //writeToTextFile(PrettyPrinter.print(tempAst), "ar_tmp.txt")
-    //writeToTextFile(PrettyPrinter.print(source_ast), "ar_src.txt")
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\ar.pi")
+    testFile(file, i)
   }
 
   @Test def test_bbunzip_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\bbunzip.pi"))
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-    println("DefUse:\n" + defUseMap)
-
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-    //i.filterVariableOpts(source_ast, env).foreach(x => println(x.entry))
-    //i.convertTranslationUnit(source_ast, env, defUseMap)
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    writeToTextFile(PrettyPrinter.print(tempAst), "bunzip_tmp.txt")
-    //writeToTextFile(PrettyPrinter.print(source_ast), "bbunzip_src.txt")
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\bbunzip.pi")
+    testFile(file, i)
   }
 
   @Test def test_chpst_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\runit\\chpst.pi"))
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-    println("DefUse:\n" + defUseMap)
-
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-    //i.filterVariableOpts(source_ast, env).foreach(x => println(x.entry))
-    //i.convertTranslationUnit(source_ast, env, defUseMap)
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    //writeToTextFile(source_ast.toString(), "chpst.pi.ast.txt")
-    writeToTextFile(PrettyPrinter.print(tempAst), "chpst_tmp.txt")
-    //writeToTextFile(PrettyPrinter.print(source_ast), "chpst_src.txt")
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\runit\\chpst.pi")
+    testFile(file, i)
   }
 
   @Test def test_cdrom_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi"))
-    val env = createASTEnv(source_ast)
-
-    //typecheckTranslationUnit(source_ast)
-    //val defUseMap = getDefUseMap
-    //println("DefUse:\n" + defUseMap)
-
-    println("FilterFeatures")
-    val optionsAst = i.getOptionFile(source_ast)
-
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-    i.writeOptionFile(source_ast)
-
-    //val tempAst = i.transformAst(source_ast, env, new IdentityHashMap[Id, List[Id]])
-    //writeToTextFile(PrettyPrinter.print(tempAst), "cdrom_tmp.txt")
-    //writeToTextFile(PrettyPrinter.print(source_ast), "cdrom_src.txt")
-    val sb = new StringBuilder
-    val optList = i.filterVariableOpts(source_ast, env)
-    println("OptList size is: " + optList.size)
-    writeToFile("cdrom_ast.txt", source_ast.toString())
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi")
+    testFile(file, i)
   }
 
   @Test def test_mpt2sas_base_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi"))
-    val env = createASTEnv(source_ast)
-    /*
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-    println("DefUse:\n" + defUseMap)
-    */
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-    //val tempAst = i.transformAst(source_ast, env, defUseMap)
-    //writeToTextFile(PrettyPrinter.print(tempAst), "mpt2sas_base_tmp.txt")
-    writeToTextFile(PrettyPrinter.print(source_ast), "mpt2sas_base_src.txt")
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi")
+    testFile(file, i)
   }
 
   @Test def test_mpt2sas_config_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\TypeChef\\ifdeftoif\\cdrom.pi"))
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-    println("DefUse:\n" + defUseMap)
-
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    writeToTextFile(PrettyPrinter.print(tempAst), "mpt2sas_config_tmp.txt")
-    writeToTextFile(PrettyPrinter.print(source_ast), "mpt2sas_config_src.txt")
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\TypeChef\\ifdeftoif\\cdrom.pi")
+    testFile(file, i)
   }
 
-  @Test def test_pi() {
+  @Test def test_bbunzuo_pi() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\bbunzip.pi"))
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
-
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-    i.filterVariableFunctionDef(source_ast, env).foreach(x => PrettyPrinter.print((x.entry.asInstanceOf[AST])))
-
-    //i.convertTranslationUnit(source_ast, env)
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\bbunzip.pi")
+    testFile(file, i)
   }
 
   @Test def test_if_conditional() {
@@ -1474,9 +1421,9 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
   }
 
-  private def writeToTextFile(strg: String, name: String) {
+  private def writeToTextFile(name: String, content: String) {
     val fw = new FileWriter(name)
-    fw.write(strg)
+    fw.write(content)
     fw.close()
   }
 
@@ -1520,6 +1467,51 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     } else {
       List()
     }
+  }
+
+  private def transformDir(dirToAnalyse: File, printAst: Boolean = false) {
+    // retrieve all pi from dir first
+    if (dirToAnalyse.isDirectory) {
+      val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
+        def accept(dir: File, file: String): Boolean = file.endsWith(".pi")
+      })
+      val dirs = dirToAnalyse.listFiles(new FilenameFilter {
+        def accept(dir: File, file: String) = dir.isDirectory
+      })
+      for (piFile <- piFiles) {
+        runIfdefToIfOnPi(piFile, printAst)
+      }
+      for (dir <- dirs) {
+        transformDir(dir)
+      }
+    }
+  }
+
+  private def runIfdefToIfOnPi(fileToAnalyse: File, printAst: Boolean = false) {
+    println("++Analyse: " + fileToAnalyse.getName + "++")
+    val fis = new FileInputStream(fileToAnalyse)
+    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+    fis.close()
+    if (printAst) {
+      println("Ast:\n" + ast)
+    }
+    val i = new IfdefToIf
+    val startTypeChecking = System.currentTimeMillis()
+    typecheckTranslationUnit(ast)
+    val endTypeChecking = System.currentTimeMillis()
+    println((endTypeChecking - startTypeChecking) / 1000.0 + "s used for TypeChecking.")
+
+    val defuse = getDefUseMap()
+
+    val startTransformation = System.currentTimeMillis()
+    val newAst = i.transformAst(ast, createASTEnv(ast), defuse)
+    val endTransformation = System.currentTimeMillis()
+    println((endTransformation - startTransformation) / 1000.0 + "s used for transformation.")
+
+    val startPrinting = System.currentTimeMillis()
+    writeToFile(getFileNameWithoutExtension(fileToAnalyse) ++ "_tmp.txt", PrettyPrinter.print(newAst))
+    val endPrinting = System.currentTimeMillis()
+    println((endPrinting - startPrinting) / 1000.0 + "s used for writing the file.\n\n")
   }
 
   @Test def funct_test() {
@@ -1630,6 +1622,15 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("+++Pretty printed+++\n" + PrettyPrinter.print(declaration))
     val declaration2 = Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("printf_main"), List(Opt(True, DeclParameterDeclList(List(Opt(True, ParameterDeclarationD(List(Opt(True, IntSpecifier())), AtomicNamedDeclarator(List(), Id("argc"), List()))), Opt(True, ParameterDeclarationD(List(Opt(True, CharSpecifier())), AtomicNamedDeclarator(List(Opt(True, Pointer(List())), Opt(True, Pointer(List()))), Id("argv"), List())))))))), List(), None))))
     println("+++Pretty printed+++\n" + PrettyPrinter.print(declaration2))
+  }
+
+  @Test def flo_ast_test() {
+    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\test\\test.pi"))
+    println(source_ast)
+  }
+
+  @Test def busy_box_test() {
+    transformDir(new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"))
   }
 
   @Test def random_test() {

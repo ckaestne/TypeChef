@@ -134,6 +134,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDefUse with CT
           case ce@CastExpr(targetTypeName, expr) =>
             val targetTypes = getTypenameType(targetTypeName, featureExpr, env)
             val sourceTypes = et(expr).map(_.toValue)
+            //TODO: Workaround bei castexpr die __missing Id einfangen
+
             ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
               (fexpr: FeatureExpr, sourceType: CType, targetType: CType) =>
                 if (targetType == CVoid() ||
