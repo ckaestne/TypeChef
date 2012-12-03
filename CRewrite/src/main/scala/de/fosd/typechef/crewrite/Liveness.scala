@@ -1,10 +1,11 @@
 package de.fosd.typechef.crewrite
 
-import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.featureexpr._
 import java.util
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
+import org.kiama.attribution.AttributionBase
+import de.fosd.typechef.conditional.{One, Conditional, Opt}
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
@@ -270,7 +271,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // out(n) = for s in succ(n) r = r + in(s); r
   // insimple and outsimple are the non variability-aware in and out versiosn
   // of liveness determination
-  val insimple: PartialFunction[AST, Set[Id]] = {
+  val insimple: AST => Set[Id] = {
     circular[AST, Set[Id]](Set()) {
       case FunctionDef(_, _, _, _) => Set()
       case e => {
@@ -284,7 +285,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outsimple: PartialFunction[AST, Set[Id]] = {
+  val outsimple: AST => Set[Id] = {
     circular[AST, Set[Id]](Set()) {
       case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
@@ -324,7 +325,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[AST, Map[Id, FeatureExpr]] = {
+  val inrec: AST => Map[Id, FeatureExpr] = {
     circular[AST, Map[Id, FeatureExpr]](Map()) {
       case FunctionDef(_, _, _, _) => Map()
       case t => {
@@ -339,7 +340,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outrec: PartialFunction[AST, Map[Id, FeatureExpr]] =
+  val outrec: AST => Map[Id, FeatureExpr] =
     circular[AST, Map[Id, FeatureExpr]](Map()) {
       case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
