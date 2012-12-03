@@ -60,9 +60,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   }
 
   def transformAsts(asts: List[Tuple4[TranslationUnit, ASTEnv, IdentityHashMap[Id, List[Id]], String]]): List[Tuple2[AST, String]] = {
-    asts.foreach(x =>
-      fillIdMap(x._1, x._2)
-    )
     asts.map(x => (transformAst(x._1, x._2, x._3), x._4))
   }
 
@@ -278,7 +275,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     var lst: ListBuffer[FeatureExpr] = ListBuffer()
     val r = breadthfirst(query {
       case Opt(f, _) =>
-        if (!f.equivalentTo(FeatureExprFactory.True) && !lst.contains(f)) {
+        if (!f.equivalentTo(FeatureExprFactory.True) && !f.equivalentTo(FeatureExprFactory.False) && !lst.contains(f)) {
           lst += f
         }
     })
@@ -307,6 +304,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     })
   }
 
+  def getDistinctFeatures(lst: List[FeatureExpr]): List[FeatureExpr] = {
+    lst.filterNot(x => x.equals(FeatureExprFactory.True)).flatMap(x => x.collectDistinctFeatures2).toSet.toList
+  }
+
   /*
   Creates all possible 2^n combinations for a list of n raw feature expressions. List(def(x64), def(x86)) becomes
   List(def(x64)&def(x86),!def(x64)&def(x86),def(x64)&!def(x86),!def(x64)&!def(x86).
@@ -319,6 +320,23 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     } else {
       getFeatureCombinations(lst.tail).flatMap(x => x.&(lst.head) :: List(x.&(lst.head.not())))
     }
+  }
+
+  /*
+ Creates all possible 2^n combinations for a list of n raw feature expressions. List(def(x64), def(x86)) becomes
+ List(def(x64)&def(x86),!def(x64)&def(x86),def(x64)&!def(x86),!def(x64)&!def(x86).
+  */
+  def isExclusion(lst: List[FeatureExpr]): Boolean = {
+    def isExclusionRecursive(lst: List[FeatureExpr]): Boolean = {
+      if (lst.size == 2) {
+        lst.head.mex(lst.tail.head).isTautology()
+      } else if (lst.size > 2) {
+        lst.head.mex(lst.tail.head).isTautology().&&(isExclusionRecursive(lst.tail))
+      } else {
+        false
+      }
+    }
+    isExclusionRecursive(lst)
   }
 
   def filterVariableOpts(a: Any, env: ASTEnv): List[Opt[_]] = {
@@ -1368,10 +1386,23 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
           })
     })
     t match {
-      case o: Opt[_] =>
-        r(o.copy(feature = FeatureExprFactory.True)) match {
-          case None => t
-          case _ => r(o.copy(feature = FeatureExprFactory.True)).get.asInstanceOf[T]
+      case o@Opt(ft, entry) =>
+        if (ft.equals(FeatureExprFactory.True)) {
+          r(o) match {
+            case None => t
+            case _ => r(o).get.asInstanceOf[T]
+          }
+        } else if (ft.equals(feat)) {
+          val newOpt = Opt(FeatureExprFactory.True, entry)
+          r(newOpt) match {
+            case None => newOpt.asInstanceOf[T]
+            case _ => r(newOpt).get.asInstanceOf[T]
+          }
+        } else {
+          r(o) match {
+            case None => t
+            case _ => r(o).get.asInstanceOf[T]
+          }
         }
       case _ => r(t).get.asInstanceOf[T]
     }
@@ -1605,6 +1636,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
             case i: InitDeclaratorI =>
               println("WWW: " + env.parent(env.parent(i)))
               o
+
+            case cmpdStmt: CompoundStatement =>
+              List(Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(ft)), One(cmpdStmt), List(), None)))
+
             case s: Specifier =>
               o.copy(feature = FeatureExprFactory.True)
             case s: String =>
@@ -1612,7 +1647,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
             case p: Pragma =>
               o.copy(feature = FeatureExprFactory.True)
             case k =>
-              println("Missing Opt: " + o + "\nFrom: " + PrettyPrinter.print(k.asInstanceOf[AST]))
+              println("Missing Opt: " + o + "\nFrom: " + k.asInstanceOf[AST].getPositionFrom + "\n")
+              //println("Missing Opt: " + o + "\nFrom: " + PrettyPrinter.print(k.asInstanceOf[AST]))
               o
           }
         } else {
@@ -1681,7 +1717,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
             case o@Opt(ft: FeatureExpr, entry) =>
               if (ft != FeatureExprFactory.True) {
                 entry match {
-
                   case declStmt@DeclarationStatement(decl: Declaration) =>
                     val newDecl = Opt(FeatureExprFactory.True, DeclarationStatement(replaceFeatureByTrue(convertId(decl, o.feature, defuse), o.feature)))
                     List(newDecl)
@@ -1695,11 +1730,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     List(o)
                   case label: LabelStatement =>
                     if (containsIdUsage(label)) {
-                      List(IfStatement(One(featureToCExpr(ft)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, convertIdUsagesFromDefuse(label, ft))))), List(), None))
+                      List(Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(ft)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, convertIdUsagesFromDefuse(label, ft))))), List(), None)))
                     } else {
-
+                      List(Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(ft)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, label)))), List(), None)))
                     }
-                    List(IfStatement(One(featureToCExpr(ft)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, label)))), List(), None))
 
                   case fd: FunctionDef =>
                     var tmpFunctDef = convertId(replaceFeatureByTrue(o, o.feature), o.feature, defuse).asInstanceOf[Opt[FunctionDef]]
@@ -1741,8 +1775,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     }
 
                   case e: Enumerator =>
-                    List(transformDeclarationsRecursive(convertId(replaceFeatureByTrue(o, o.feature), o.feature, defuse), env, defuse))
-
+                    val result = List(transformDeclarationsRecursive(convertId(replaceFeatureByTrue(o, o.feature), o.feature, defuse), env, defuse))
+                    result
                   case sd: StructDeclaration =>
                     List(convertAllIds(replaceFeatureByTrue(o, o.feature), o.feature, defuse))
 
@@ -1778,11 +1812,18 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
 
                   case r: ReturnStatement =>
                     if (containsIdUsage(r)) {
-                      List(IfStatement(One(featureToCExpr(ft)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, convertIdUsagesFromDefuse(r, ft))))), List(), None))
-                      List(o)
+                      //TODO: IdUsage
+                      List(Opt(FeatureExprFactory.True, transformDeclarationsRecursive(removeContraryOptsByFeature(statementToIf(r, ft), ft), env, defuse)))
                     } else {
-                      List(o)
+                      List(Opt(FeatureExprFactory.True, transformDeclarationsRecursive(removeContraryOptsByFeature(statementToIf(r, ft), ft), env, defuse)))
                     }
+
+                  case w: WhileStatement =>
+                    val result = List(Opt(FeatureExprFactory.True, transformDeclarationsRecursive(removeContraryOptsByFeature(statementToIf(w, ft), ft), env, defuse)))
+                    result
+
+                  case elif@ElifStatement(One(expr: Expr), then) =>
+                    List(Opt(FeatureExprFactory.True, transformDeclarationsRecursive(removeContraryOptsByFeature(ElifStatement(One(NAryExpr(featureToCExpr(ft), List(Opt(FeatureExprFactory.True, NArySubExpr("&&", expr))))), then), ft), env, defuse)))
 
                   case p: Pragma =>
                     // TODO: Eventuell variabel lassen
@@ -1791,19 +1832,41 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     List(o.copy(feature = FeatureExprFactory.True))
                   case s: String =>
                     List(o.copy(feature = FeatureExprFactory.True))
+                  case es: EmptyStatement =>
+                    List()
+                  case ee: EmptyExternalDef =>
+                    List()
                   case k =>
-                    println("Missing Opt: " + o + "\nFrom: " + PrettyPrinter.print(k.asInstanceOf[AST]) + "\nParent = " + PrettyPrinter.print(env.parent(o).asInstanceOf[AST]))
+                    println("Missing Opt: " + o + "\nFrom: " + k.asInstanceOf[AST].getPositionFrom + "\n")
+                    //println("Missing Opt: " + o + "\nFrom: " + PrettyPrinter.print(k.asInstanceOf[AST]) + "\nParent = " + PrettyPrinter.print(env.parent(o).asInstanceOf[AST]))
                     List(o)
                 }
               } else {
                 entry match {
+                  case ss: SwitchStatement =>
+                    if (isVariable(ss)) {
+                      // println("Test: " + getFeatureCombinations(getFeatureExpressions(ss, env)))
+                      val features = getFeatureCombinations(getFeatureExpressions(ss, env).flatMap(x => x.collectDistinctFeatures2).toSet.toList)
+                      features.map(x => {
+                        optStatementToIf(Opt(x, transformDeclarationsRecursive(removeContraryOptsByFeature(replaceFeatureByTrue(o, o.feature), x), env, defuse).entry).asInstanceOf[Opt[Statement]])
+                      })
+                    } else {
+                      List(o)
+                    }
                   case fd: FunctionDef =>
                     if (isVariable(fd.specifiers) || isVariable(fd.declarator)) {
-                      val features = getFeatureCombinations(removeList(getNextFeatures(fd).flatMap(x => x.collectDistinctFeatures2).toList, ft.collectDistinctFeatures2.toList))
-                      val result = features.map(x => {
-                        transformDeclarationsRecursive(removeContraryOptsByFeature(convertId(replaceFeatureByTrue(o, o.feature), x.&(ft), defuse), x), env, defuse)
-                      })
-                      result
+                      val specifierFeatures = getNextFeatures(fd).toList.filterNot(x => x.equals(FeatureExprFactory.True))
+                      if (isExclusion(specifierFeatures)) {
+                        getNextFeatures(fd).toList.filterNot(x => x.equals(FeatureExprFactory.True)).map(x => {
+                          transformDeclarationsRecursive(removeContraryOptsByFeature(convertId(replaceFeatureByTrue(o, o.feature), x, defuse), x), env, defuse)
+                        })
+                      } else {
+                        val features = getFeatureCombinations(removeList(getNextFeatures(fd).flatMap(x => x.collectDistinctFeatures2).toList, ft.collectDistinctFeatures2.toList))
+                        val result = features.map(x => {
+                          transformDeclarationsRecursive(removeContraryOptsByFeature(convertId(replaceFeatureByTrue(o, o.feature), x.&(ft), defuse), x), env, defuse)
+                        })
+                        result
+                      }
                     } else {
                       if (isVariable(fd.stmt) || containsIdUsage(fd.stmt)) {
                         List(transformDeclarationsRecursive(o, env, defuse))
@@ -1842,21 +1905,34 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     }
                   case sd: StructDeclaration =>
                     if (isVariable(sd)) {
-                      val features = getSingleFeatureSet(sd, env)
-                      val newStructDecls = features.map(x => Opt(FeatureExprFactory.True, convertId(filterOptsByFeature(sd, x), x, defuse)))
-                      newStructDecls
+                      val features = getNextVariableFeatures(sd, env)
+                      if (!features.isEmpty) {
+                        if (sd.qualifierList.exists(x => (x.entry.isInstanceOf[StructOrUnionSpecifier]))) {
+                          features.map(x => Opt(FeatureExprFactory.True, transformDeclarationsRecursive(filterOptsByFeature(sd, x), env, defuse)))
+                        } else {
+                          features.map(x => Opt(FeatureExprFactory.True, transformDeclarationsRecursive(convertId(filterOptsByFeature(sd, x), x, defuse), env, defuse)))
+                        }
+                      } else {
+                        List(transformDeclarationsRecursive(o, env, defuse))
+                      }
                     } else {
                       List(o)
                     }
                   case d@Declaration(declSpecs, init) =>
                     if (isVariable(d)) {
-                      //println("Current Declaration:\n" + d + "\n" + PrettyPrinter.print(d))
-                      val features = getSingleFeatureSet(d, env)
-                      if (declSpecs.exists(x => x.entry.isInstanceOf[EnumSpecifier] || (x.entry.isInstanceOf[StructOrUnionSpecifier] && x.feature.equivalentTo(FeatureExprFactory.True)))) {
+                      if (declSpecs.exists(x => (x.entry.isInstanceOf[EnumSpecifier] || (x.entry.isInstanceOf[StructOrUnionSpecifier]) && x.feature.equivalentTo(FeatureExprFactory.True)))) {
                         List(transformDeclarationsRecursive(o, env, defuse))
                       } else {
-                        val newDecls = Opt(FeatureExprFactory.True, Declaration(filterOptsByFeature(declSpecs, FeatureExprFactory.True), filterOptsByFeature(init, FeatureExprFactory.True))) :: features.map(x => Opt(FeatureExprFactory.True, Declaration(filterOptsByFeature(declSpecs, x), convertId(filterOptsByFeature(init, x), x, defuse)))).toList
-                        newDecls
+                        // val features = getSingleFeatureSet(d, env).toList
+                        val features = getNextVariableFeaturesCondition(d)
+                        if (isExclusion(features)) {
+                          features.map(x => Opt(FeatureExprFactory.True, Declaration(filterOptsByFeature(declSpecs, x), convertId(filterOptsByFeature(init, x), x, defuse))))
+                        } else {
+                          getFeatureCombinations(features).map(x => Opt(FeatureExprFactory.True, Declaration(filterOptsByFeature(declSpecs, x), convertId(filterOptsByFeature(init, x), x, defuse))))
+                        }
+                        //val features = getFeatureCombinations(getNextVariableFeaturesCondition(d))
+                        //val newDecls = features.map(x => Opt(FeatureExprFactory.True, Declaration(filterOptsByFeature(declSpecs, x), convertId(filterOptsByFeature(init, x), x, defuse))))
+                        //newDecls
                       }
                       /*}
                     if (init.exists(i => !(i.feature.equivalentTo(FeatureExprFactory.True)))) {
@@ -1867,15 +1943,17 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                       List(o)
                     }
                   case i@IfStatement(c@Choice(ft, cThen, cEls), then, elif, els) =>
-                    val if1 = Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(ft)), One(filterOptsByFeature(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(cThen, transformDeclarationsRecursive(then, env, defuse), transformDeclarationsRecursive(elif, env, defuse), transformDeclarationsRecursive(els, env, defuse))))), ft)), List(), Some(One(filterOptsByFeature(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(cEls, transformDeclarationsRecursive(then, env, defuse), transformDeclarationsRecursive(elif, env, defuse), transformDeclarationsRecursive(els, env, defuse))))), getFeatureExpressions(cEls, env).head)))))
-                    filterOptsByFeature(o, ft)
-                    List(if1)
+                    if (getFeatureExpressions(cEls, env).isEmpty) {
+                      List(Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(ft)), One(filterOptsByFeature(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(cThen, transformDeclarationsRecursive(then, env, defuse), transformDeclarationsRecursive(elif, env, defuse), transformDeclarationsRecursive(els, env, defuse))))), ft)), List(), Some(One(filterOptsByFeature(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(cEls, transformDeclarationsRecursive(then, env, defuse), transformDeclarationsRecursive(elif, env, defuse), transformDeclarationsRecursive(els, env, defuse))))), ft.not()))))))
+                    } else {
+                      List(Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(ft)), One(filterOptsByFeature(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(cThen, transformDeclarationsRecursive(then, env, defuse), transformDeclarationsRecursive(elif, env, defuse), transformDeclarationsRecursive(els, env, defuse))))), ft)), List(), Some(One(filterOptsByFeature(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(cEls, transformDeclarationsRecursive(then, env, defuse), transformDeclarationsRecursive(elif, env, defuse), transformDeclarationsRecursive(els, env, defuse))))), getFeatureExpressions(cEls, env).head))))))
+                    }
                   case i@IfStatement(One(cond), One(then), elif, els) =>
                     if (isVariable(i)) {
                       var tmp = o.asInstanceOf[Opt[IfStatement]]
                       if (isVariable(cond)) {
                         val featureCombinations = getFeatureCombinations(filterFeatures(cond, env).toList)
-                        val newIfStmt = IfStatement(One(featureToCExpr(featureCombinations.head)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, featureCombinations.head)), filterOptsByFeature(One(then), featureCombinations.head), elif.map(j => filterOptsByFeature(j, featureCombinations.head)), filterOptsByFeature(els, featureCombinations.head)))))), featureCombinations.tail.map(x => Opt(FeatureExprFactory.True, ElifStatement(One(featureToCExpr(x)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, x)), filterOptsByFeature(One(then), x), elif.map(j => filterOptsByFeature(j, x)), filterOptsByFeature(els, x))))))))).toList, Some(One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, FeatureExprFactory.True)), filterOptsByFeature(One(then), FeatureExprFactory.True), elif.map(j => filterOptsByFeature(j, FeatureExprFactory.True)), filterOptsByFeature(els, FeatureExprFactory.True))))))))
+                        val newIfStmt = IfStatement(One(featureToCExpr(featureCombinations.head)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, featureCombinations.head)), filterOptsByFeature(One(then), featureCombinations.head), elif.map(j => transformDeclarationsRecursive(filterOptsByFeature(j, featureCombinations.head), env, defuse)), filterOptsByFeature(els, featureCombinations.head)))))), featureCombinations.tail.map(x => Opt(FeatureExprFactory.True, ElifStatement(One(featureToCExpr(x)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, x)), filterOptsByFeature(One(then), x), elif.map(j => filterOptsByFeature(j, x)), filterOptsByFeature(els, x))))))))).toList, Some(One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, FeatureExprFactory.True)), filterOptsByFeature(One(then), FeatureExprFactory.True), elif.map(j => filterOptsByFeature(j, FeatureExprFactory.True)), filterOptsByFeature(els, FeatureExprFactory.True))))))))
                         tmp = tmp.copy(entry = newIfStmt)
                       }
                       if (isVariable(then)) {
@@ -1884,6 +1962,28 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                       if (isVariable(els)) {
                         tmp = tmp.copy(entry = tmp.entry.copy(elseBranch = transformDeclarationsRecursive(els, env, defuse)))
                       }
+                      if (isVariable(elif)) {
+                        tmp = tmp.copy(entry = tmp.entry.copy(elifs = transformDeclarationsRecursive(elif, env, defuse)))
+                      }
+                      List(tmp)
+                    } else {
+                      List(o)
+                    }
+                  case i@IfStatement(One(cond), c: Choice[Statement], elif, els) =>
+                    if (isVariable(i)) {
+                      val newThen = choiceToIf(c)
+                      var tmp = o.asInstanceOf[Opt[IfStatement]].copy(entry = i.copy(thenBranch = newThen))
+                      if (isVariable(cond)) {
+                        val featureCombinations = getFeatureCombinations(filterFeatures(cond, env).toList)
+                        val newIfStmt = IfStatement(One(featureToCExpr(featureCombinations.head)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, featureCombinations.head)), filterOptsByFeature(newThen, featureCombinations.head), elif.map(j => transformDeclarationsRecursive(filterOptsByFeature(j, featureCombinations.head), env, defuse)), filterOptsByFeature(els, featureCombinations.head)))))), featureCombinations.tail.map(x => Opt(FeatureExprFactory.True, ElifStatement(One(featureToCExpr(x)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, x)), filterOptsByFeature(newThen, x), elif.map(j => filterOptsByFeature(j, x)), filterOptsByFeature(els, x))))))))).toList, Some(One(CompoundStatement(List(Opt(FeatureExprFactory.True, IfStatement(One(filterOptsByFeature(cond, FeatureExprFactory.True)), filterOptsByFeature(newThen, FeatureExprFactory.True), elif.map(j => filterOptsByFeature(j, FeatureExprFactory.True)), filterOptsByFeature(els, FeatureExprFactory.True))))))))
+                        tmp = tmp.copy(entry = newIfStmt)
+                      }
+                      if (isVariable(els)) {
+                        tmp = tmp.copy(entry = tmp.entry.copy(elseBranch = transformDeclarationsRecursive(els, env, defuse)))
+                      }
+                      if (isVariable(elif)) {
+                        tmp = tmp.copy(entry = tmp.entry.copy(elifs = transformDeclarationsRecursive(elif, env, defuse)))
+                      }
                       List(tmp)
                     } else {
                       List(o)
@@ -1891,7 +1991,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                   case e: ExprStatement =>
                     if (containsIdUsage(e)) {
                       val features = getIdUsageFeatureList(e)
-                      features.map(x => Opt(True, exprStatementToIf(e, x)))
+                      val res = features.map(x => Opt(True, transformDeclarationsRecursive(exprStatementToIf(e, x), env, defuse)))
+                      res
                     } else if (isVariable(e)) {
                       val features = getSingleFeatureSet(e, env)
                       features.map(x => Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(x)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, transformDeclarationsRecursive(filterOptsByFeature(e, x), env, defuse))))), List(), None)))
@@ -2012,7 +2113,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  def getNextFeatures(a: Any): Set[FeatureExpr] = {
+  def getNextFeatures(a: Any): List[FeatureExpr] = {
     def getNextFeatureHelp(a: Any): List[FeatureExpr] = {
       a match {
         case d@Opt(ft, entry) => List(ft)
@@ -2021,7 +2122,32 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         case _ => List()
       }
     }
-    getNextFeatureHelp(a).toSet
+    getNextFeatureHelp(a).toSet.toList
+  }
+
+  def getNextVariableFeatures(a: Any): List[FeatureExpr] = {
+    def getNextFeatureHelp(a: Any): List[FeatureExpr] = {
+      a match {
+        case d@Opt(ft, entry) => if (!ft.equals(FeatureExprFactory.True)) List(ft) else List()
+        case l: List[_] => l.flatMap(getNextFeatureHelp(_))
+        case p: Product => p.productIterator.toList.flatMap(getNextFeatureHelp(_))
+        case _ => List()
+      }
+    }
+    getNextFeatureHelp(a).toSet.toList
+  }
+
+  def getNextVariableFeaturesCondition(a: Any): List[FeatureExpr] = {
+    def getNextFeatureHelp(a: Any): List[FeatureExpr] = {
+      a match {
+        case d@Opt(ft, entry: InitDeclaratorI) => (if (!ft.equals(FeatureExprFactory.True)) List(ft) else List()) ++ entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+        case d@Opt(ft, entry) => if (!ft.equals(FeatureExprFactory.True)) List(ft) else List()
+        case l: List[_] => l.flatMap(getNextFeatureHelp(_))
+        case p: Product => p.productIterator.toList.flatMap(getNextFeatureHelp(_))
+        case _ => List()
+      }
+    }
+    getNextFeatureHelp(a).toSet.toList
   }
 
   /*
@@ -2076,4 +2202,65 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   def exprStatementToIf(e: ExprStatement, ft: FeatureExpr): IfStatement = {
     IfStatement(One(featureToCExpr(ft)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, convertIdUsagesFromDefuse(removeContraryOptsByFeature(e, ft), ft))))), List(), None)
   }
+
+  def statementToIf(e: Statement, ft: FeatureExpr): IfStatement = {
+    IfStatement(One(featureToCExpr(ft)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, convertIdUsagesFromDefuse(removeContraryOptsByFeature(e, ft), ft))))), List(), None)
+  }
+
+  def optStatementToIf(o: Opt[Statement]): Opt[IfStatement] = {
+    Opt(FeatureExprFactory.True, IfStatement(One(featureToCExpr(o.feature)), One(CompoundStatement(List(Opt(FeatureExprFactory.True, convertIdUsagesFromDefuse(removeContraryOptsByFeature(o.entry, o.feature), o.feature))))), List(), None))
+  }
+
+  def choiceToIf(c: Choice[Statement]): One[Statement] = {
+    c match {
+      case Choice(ft, One(first: Statement), One(second: Statement)) =>
+        One(CompoundStatement(List(Opt(FeatureExprFactory.True, statementToIf(first, ft)), Opt(FeatureExprFactory.True, statementToIf(second, ft.not())))))
+      case _ =>
+        println("ChoiceToIf not exhaustive: " + c)
+        null
+    }
+  }
+
+  /*def categorizeCaseStatements(ss: SwitchStatement) : List[Statement] = {
+    def innerStatementsToList(lst: List[Opt[Statement]]) = List[List[Opt[Statement]]] {
+      def innerStatementsToListRecursive(lst: List[Opt[Statement]], newList: Boolean = true) = List[Opt[_]] {
+        if (lst.size > 0) {
+          lst.head.entry match {
+            case CaseStatement =>
+              if (newList) {
+                List(lst.head) ++ innerStatementsToListRecursive(lst.tail, false).asInstanceOf[List[Opt[_]]]
+              } else {
+                List()
+              }
+            case DefaultStatement =>
+              if (newList) {
+                List(lst.head) ++ innerStatementsToListRecursive(lst.tail, false).asInstanceOf[List[Opt[_]]]
+              } else {
+                List()
+              }
+            case st: Statement =>
+              if (newList) {
+                println("List head is: " + st)
+                List()
+              } else {
+                List(lst.head) ++ innerStatementsToListRecursive(lst.tail, false).asInstanceOf[List[Opt[_]]]
+              }
+            case k =>
+              if (newList) {
+                println("List head is: " + k)
+                List()
+              } else {
+                List(lst.head) ++ innerStatementsToListRecursive(lst.tail, false).asInstanceOf[List[Opt[_]]]
+              }
+          }
+        } else {
+          List()
+        }
+      }
+    }
+    ss.s match {
+      case One(c: CompoundStatement) =>
+        // c.innerStatements.
+    }
+  }*/
 }
