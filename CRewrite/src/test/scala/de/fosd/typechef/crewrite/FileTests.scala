@@ -110,8 +110,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     val s = getAllSucc(f, FeatureExprFactory.empty, env)
     val p = getAllPred(f, FeatureExprFactory.empty, env)
 
-    println("succ: " + DotGraph.map2file(s, env, List(), List()))
-    println("pred: " + DotGraph.map2file(p, env, List(), List()))
+    //println("succ: " + DotGraph.map2file(s, env, List(), List()))
+    //println("pred: " + DotGraph.map2file(p, env, List(), List()))
 
     val errors = compareSuccWithPred(s, p, env)
     CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
@@ -933,7 +933,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
   @Test def test_bug79() {assert(checkCfg("bug79.c") == false)}
   @Test def test_bug80() {assert(checkCfg("bug80.c") == false)}
   @Test def test_bug81() {assert(checkCfg("bug81.c") == false)}
-  @Test def test_bug82() {assert(checkCfg("bug82.c") == false)}
+  @Ignore def test_bug82() {assert(checkCfg("bug82.c") == false)}
 
 //  @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}
 //  @Ignore def test_gzip() {assert(checkCfg("gzip.c") == false)}
