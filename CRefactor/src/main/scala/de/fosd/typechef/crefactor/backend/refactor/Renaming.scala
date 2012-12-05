@@ -40,7 +40,7 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
   /**
    * Rename an variable according its uses in the ast.
    */
-  def renameId(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
+  /* def renameId(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
 
     def rename(ast: AST, decl: Id, decls: util.IdentityHashMap[Id, Boolean] = new util.IdentityHashMap[Id, Boolean]()): AST = {
       // mark declaration as replaced
@@ -66,6 +66,34 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
     }
 
     rename(ast, Helper.findFirstDecl(defUSE, oldId))
+  } */
+
+  /**
+   * Rename an variable according its uses in the ast.
+   */
+  def renameId(ast: AST, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
+    // first step: determine all ids to replace
+    var decls = new util.IdentityHashMap[Id, Boolean]()
+
+    if (useDecl.containsKey(oldId)) {
+      useDecl.get(oldId).foreach(x => decls.put(x, false))
+    } else {
+      // id is decl - search for further occuring decls
+      declUse.get(oldId).foreach(x => if (useDecl.containsKey(x)) useDecl.get(x).foreach(id => decls.put(id, false)))
+    }
+
+    def rename(ast: AST, newId: String, decl: Id): AST = {
+      var result = replaceIDinAST(ast, decl, decl.copy(name = newId))
+      if (declUse.containsKey(decl)) {
+        // replace uses
+        declUse.get(decl).foreach(use => result = replaceIDinAST(result, use, use.copy(name = newId)))
+      }
+      result
+    }
+
+    var result = ast
+    decls.keySet().toArray(Array[Id]()).foreach(decl => result = rename(result, newId, decl))
+    result
   }
 
   private def replaceIDinAST[T <: Product](t: T, e: Id, n: Id): T = {

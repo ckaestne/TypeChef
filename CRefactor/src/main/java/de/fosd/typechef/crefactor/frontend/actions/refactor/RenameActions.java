@@ -45,13 +45,13 @@ public class RenameActions {
                     }
 
                     if (!Renaming.renamingIsPossible(
-                            Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id)) {
+                            Connector.getAST(), Connector.getDeclUseMap(), box.getInput(), id)) {
                         JOptionPane.showMessageDialog(
                                 null, "Umbenennen nicht möglich!", "Fehler", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
-                    AST refactored = Renaming.renameId(Connector.getAST(), Connector.getDefUseMap(), box.getInput(), id);
+                    AST refactored = Renaming.renameId(Connector.getAST(), Connector.getDeclUseMap(), Connector.getUseDeclMap(), box.getInput(), id);
                     Connector.update(refactored);
                     // Pretty Print :)
                     editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
