@@ -9,11 +9,10 @@ import collection.mutable.ListBuffer
 import java.io.{FilenameFilter, FileInputStream, File}
 
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Tuple2[Int, Int] = {
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): String = {
+    val resultString = new StringBuilder()
     val gnu = filterASTElems[GnuAsmExpr](ast)
-    println("GNU Size: " + gnu.size)
     val gnuID = filterASTElems[Id](gnu)
-    println("GNUID Size: " + gnuID.size)
     var lst = filterASTElems[Id](ast).filterNot(x => (x.name.startsWith("__builtin")))
     //var lst2 = lst.diff(gnuID)
 
@@ -42,16 +41,16 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val numberOfIdsInAst = lst.size
     val numberOfIdsInDefuse = allIds.keySet().size()
 
-    println("FD: " + numberOfIdsInDefuse)
+    resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
     lst.foreach(x => {
       if (!allIds.containsKey(x)) {
         missingLB += x
         println(x + " @ " + x.getPositionFrom.getLine.toString + "\n" + x.getPositionFrom.toString + "\nParent: " + env.parent(env.parent(env.parent(x))) + "\n")
       }
     })
-    println("Amount of ids missing: " + missingLB.size + "\n" + missingLB)
-    println("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
-    return (numberOfIdsInDefuse, numberOfIdsInAst)
+    resultString.append("Amount of ids missing: " + missingLB.size + "\n" + missingLB)
+    resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
+    return (resultString.toString())
   }
 
 
@@ -96,7 +95,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     println("Source:\n" + source_ast)
     println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + defUseMap)
-    checkDefuse(source_ast, defUseMap)
+    println(checkDefuse(source_ast, defUseMap))
   }
 
   @Test def test_array_def_use {
@@ -217,7 +216,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
     println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + getDeclUseMap)
-    checkDefuse(source_ast, getDeclUseMap2)
+    println(checkDefuse(source_ast, getDeclUseMap2))
   }
 
   @Test def test_int {
@@ -286,7 +285,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     typecheckTranslationUnit(ast)
     val success = checkDefuse(ast, getDeclUseMap2)
     println("DefUse" + getDeclUseMap)
-    println("Found " + success._1 + " / " + success._2 + " Ids.")
+    println(success)
   }
 
   @Test def test_opt_def_use {
@@ -406,9 +405,9 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val fw = new FileWriter(fileToAnalyse.getAbsolutePath + ".defuse")
     fw.write(sb.toString)
     fw.close()*/
-    println("TypeChecking Runtime:\t" + (endtime - starttime) / 1000.0 + " seconds.\n\n")
+    println("TypeChecking Runtime:\t" + (endtime - starttime) / 1000.0 + " seconds.\n")
     println("DeclUseMap: " + defuse)
-    println("Success " + success)
+    println(success + "\n\n")
     Thread.sleep(2000)
   }
 
@@ -419,7 +418,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
     if (printAst) {
-      println("Ast:\n" + ast)
+      println("Ast: " + ast)
     }
     val endtime = System.currentTimeMillis()
     val parsingRuntimeString = "Parsing Runtime:\t\t" + (endtime - starttime) / 1000.0 + " seconds."
@@ -450,7 +449,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     analyseDir(folder)
     val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
     val folder2 = new File(folderPath2)
-    analyseDir(folder2, true)
+    analyseDir(folder2)
   }
 
   @Test def test_testpi {
