@@ -66,11 +66,11 @@ public class Loader extends JDialog {
         super.getContentPane().setLayout(new BoxLayout(super.getContentPane(), BoxLayout.Y_AXIS));
 
         super.getContentPane().add(makeFileChoosePanel(
-                Configuration.getInstance().getConfig("loader.loadFile"), 0, fileToAnalyse, false));
+                Configuration.getInstance().getConfig("loader.loadFile"), 7, fileToAnalyse, false));
         super.getContentPane().add(new JSeparator());
         // TODO Refactor for correct alingement of correction value -> remove magic numbers
         super.getContentPane().add(makeFileChoosePanel(
-                Configuration.getInstance().getConfig("loader.includeDir"), 55, includeDir, true));
+                Configuration.getInstance().getConfig("loader.includeDir"), 40, includeDir, true));
         super.getContentPane().add(new JSeparator());
         super.getContentPane().add(makeFileChoosePanel(
                 Configuration.getInstance().getConfig("loader.includePre"), 38, includeHeader, false));
