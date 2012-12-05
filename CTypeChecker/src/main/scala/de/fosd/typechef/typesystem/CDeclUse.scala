@@ -21,10 +21,9 @@ import de.fosd.typechef.parser.c.StructOrUnionSpecifier
 import de.fosd.typechef.parser.c.PointerCreationExpr
 import de.fosd.typechef.parser.c.PointerPostfixSuffix
 import de.fosd.typechef.parser.c.AssignExpr
-import de.fosd.typechef.conditional.Choice
+import de.fosd.typechef.conditional.{Choice, One, Opt}
 import de.fosd.typechef.parser.c.ConditionalExpr
 import de.fosd.typechef.parser.c.FunctionCall
-import de.fosd.typechef.conditional.One
 import de.fosd.typechef.parser.c.DeclArrayAccess
 import de.fosd.typechef.parser.c.IfStatement
 import de.fosd.typechef.parser.c.BuiltinOffsetof
@@ -55,7 +54,6 @@ import de.fosd.typechef.parser.c.TypeName
 import de.fosd.typechef.parser.c.CastExpr
 import de.fosd.typechef.parser.c.CompoundStatement
 import de.fosd.typechef.parser.c.AtomicAbstractDeclarator
-import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.parser.c.NestedNamedDeclarator
 import de.fosd.typechef.parser.c.StructInitializer
 import de.fosd.typechef.parser.c.ParameterDeclarationAD
@@ -364,6 +362,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         case k => println("DefChoice: Missed add One " + k)
       }
     }
+
     entry match {
       case Choice(feature, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
         addDefChoice(c1)
@@ -562,9 +561,6 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) {
-    if (entry.toString().equals("Id(selinux_callback)")) {
-      println()
-    }
     entry match {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
@@ -575,7 +571,6 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(i2: Id) =>
               addToDeclUseMap(i2, i)
             case c@Choice(_, _, _) =>
-              println("Choice is: " + c)
               addStructUseChoice(c, i)
             case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) => addToDeclUseMap(i2, i)
             case k => println("Missed addStructUse " + env.varEnv.getAstOrElse(i.name, null))
@@ -585,7 +580,11 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(i2: Id) => addToDeclUseMap(i2, i)
             case One(null) => addDef(i, env)
             case c@Choice(_, _, _) => println("missed choice typedef " + c)
-            case k => println("Missed addStructUse")
+            case One(Declaration(List(Opt(_, _), Opt(_, s@StructOrUnionSpecifier(_, Some(id), _))), _)) =>
+              //addStructUse(id, env, structName, isUnion)
+              println(" halt")
+            case k =>
+              println("Missed addStructUse" + k)
           }
         }
       }
@@ -643,17 +642,33 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def addStructDeclUse(entry: Id, env: Env, isUnion: Boolean) {
+
+    def addOne(one: One[AST], use: Id) = {
+      one match {
+        case One(id: Id) => addToDeclUseMap(id, use)
+        case One(null) =>
+        case _ =>
+      }
+    }
+
     entry match {
-      case i@Id(name) => {
+      case use@Id(name) => {
         if (env.structEnv.someDefinition(name, isUnion)) {
           env.structEnv.getId(name, isUnion) match {
-            case One(key: Id) =>
-              addToDeclUseMap(key, i)
-            case Choice(_, One(key1: Id), One(key2: Id)) =>
-              addToDeclUseMap(key1, i)
-              addToDeclUseMap(key2, i)
+            case o@One(_) => addOne(o, use)
+            case Choice(_, o1@One(_), o2@One(_)) =>
+              addOne(o1, use)
+              addOne(o2, use)
+            case Choice(_, o@One(_), c@Choice(_, _, _)) =>
+              addOne(o, use)
+              addStructUseChoice(c, use)
+            case Choice(_, c@Choice(_, _, _), o@One(_)) =>
+              addOne(o, use)
+              addStructUseChoice(c, use)
+            case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+              addStructUseChoice(c1, use)
+              addStructUseChoice(c2, use)
             case k =>
-              println("KKK: " + k)
           }
         }
       }

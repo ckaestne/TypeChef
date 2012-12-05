@@ -1,9 +1,13 @@
 package de.fosd.typechef.typesystem
 
-import _root_.de.fosd.typechef.conditional._
+import de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import FeatureExprFactory._
-import de.fosd.typechef.parser.c.{Id, AST}
+import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.parser.c.Id
+import scala.Some
+import de.fosd.typechef.conditional.Choice
+import de.fosd.typechef.conditional.One
 
 /**
  * bundles all environments during type checking
@@ -152,15 +156,17 @@ trait CEnv {
     def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion), One(incompleteTag)).map(_.fields)
 
     def getId(name: String, isUnion: Boolean): Conditional[Id] = {
-      env.get(name, isUnion).get match {
-        case One(StructTag(_, _, _, i: Id)) =>
-          One(i)
-        case Choice(ft, One(StructTag(_, _, _, i1: Id)), One(StructTag(_, _, _, i2: Id))) =>
-          Choice(ft, One(i1), One(i2))
-        case x =>
-          println("XXX: " + x)
-          One(null)
+      def extractId(entry: Conditional[StructTag]): Conditional[Id] = {
+        entry match {
+          case One(StructTag(_, _, _, i: Id)) => One(i)
+          case One(StructTag(_, _, _, Some(i: Id))) => One(i)
+          case One(StructTag(_, _, _, null)) => One(null)
+          case One(StructTag(_, _, _, none)) => One(null)
+          case Choice(ft, entry1, entry2) => Choice(ft, extractId(entry1), extractId(entry2))
+          case x => One(null)
+        }
       }
+      extractId(env.get(name, isUnion).get)
     }
 
     def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
