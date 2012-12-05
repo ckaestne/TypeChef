@@ -267,7 +267,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       case Opt(_, DeclArrayAccess(None)) =>
       // ignore
       case Opt(_, d: DeclIdentifierList) =>
-        //TODO: ignore?
+      //TODO: ignore?
       case mi => println("Completly missing: " + mi)
     })
   }
@@ -562,6 +562,9 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def addStructUse(entry: AST, env: Env, structName: String, isUnion: Boolean) {
+    if (entry.toString().equals("Id(selinux_callback)")) {
+      println()
+    }
     entry match {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
@@ -571,7 +574,9 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(AtomicNamedDeclarator(_, i2: Id, _)) => addToDeclUseMap(i2, i)
             case One(i2: Id) =>
               addToDeclUseMap(i2, i)
-            case c@Choice(_, _, _) => addStructUseChoice(c, i)
+            case c@Choice(_, _, _) =>
+              println("Choice is: " + c)
+              addStructUseChoice(c, i)
             case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) => addToDeclUseMap(i2, i)
             case k => println("Missed addStructUse " + env.varEnv.getAstOrElse(i.name, null))
           }
@@ -615,6 +620,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
         case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @defuse?
         case One(null) =>
+        //addStructDeclUse(use, env, isUnion)
         case _ => println("AddAnonStructChoice missed " + one)
       }
     }
@@ -641,9 +647,13 @@ trait CDeclUse extends CEnv with CEnvCache {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(name, isUnion)) {
           env.structEnv.getId(name, isUnion) match {
-            case Some(key: Id) =>
+            case One(key: Id) =>
               addToDeclUseMap(key, i)
-            case _ =>
+            case Choice(_, One(key1: Id), One(key2: Id)) =>
+              addToDeclUseMap(key1, i)
+              addToDeclUseMap(key2, i)
+            case k =>
+              println("KKK: " + k)
           }
         }
       }

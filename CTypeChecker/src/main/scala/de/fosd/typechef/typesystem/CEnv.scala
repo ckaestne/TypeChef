@@ -69,10 +69,10 @@ trait CEnv {
   }
 
 
-  /*****
-   * Variable-Typing context (collects all top-level and local declarations)
-   * variables with local scope overwrite variables with global scope
-   */
+  /** ***
+    * Variable-Typing context (collects all top-level and local declarations)
+    * variables with local scope overwrite variables with global scope
+    */
   //Variable-Typing Context: identifier to its non-void wellformed type
   type VarTypingContext = ConditionalVarEnv
 
@@ -104,7 +104,7 @@ trait CEnv {
    *
    * the structEnv maps a tag name to a conditional tuple (isComplete, fields, scope)
    */
-  case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int, id: Id = null)
+  case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int, id: Option[Id] = None)
 
   class StructEnv(private val env: Map[(String, Boolean), Conditional[StructTag]]) {
     def this() = this(Map())
@@ -137,7 +137,7 @@ trait CEnv {
       val name = id.name
       val key = (name, isUnion)
       val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
-      val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope, id)), prevTag).simplify
+      val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope, Some(id))), prevTag).simplify
       new StructEnv(env + (key -> result))
 
       //            //TODO check distinct attribute names in each variant
@@ -151,11 +151,16 @@ trait CEnv {
 
     def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion), One(incompleteTag)).map(_.fields)
 
-    def getId(name: String, isUnion: Boolean) : Option[Id] = env.get(name, isUnion).get match {
-      case One(StructTag(_, _, _, i: Id)) =>
-        Some(i)
-      case _ =>
-        None
+    def getId(name: String, isUnion: Boolean): Conditional[Id] = {
+      env.get(name, isUnion).get match {
+        case One(StructTag(_, _, _, i: Id)) =>
+          One(i)
+        case Choice(ft, One(StructTag(_, _, _, i1: Id)), One(StructTag(_, _, _, i2: Id))) =>
+          Choice(ft, One(i1), One(i2))
+        case x =>
+          println("XXX: " + x)
+          One(null)
+      }
     }
 
     def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
