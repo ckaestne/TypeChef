@@ -581,6 +581,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(null) => addDef(i, env)
             case c@Choice(_, _, _) => println("missed choice typedef " + c)
             case One(Declaration(List(Opt(_, _), Opt(_, s@StructOrUnionSpecifier(_, Some(id), _))), _)) =>
+              // TODO typedef name name
               //addStructUse(id, env, structName, isUnion)
               println(" halt")
             case k =>
