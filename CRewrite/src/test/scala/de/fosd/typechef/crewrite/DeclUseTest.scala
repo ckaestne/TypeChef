@@ -11,9 +11,9 @@ import java.io.{FilenameFilter, FileInputStream, File}
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): Tuple2[Int, Int] = {
     val gnu = filterASTElems[GnuAsmExpr](ast)
-    println("GNU Size" + gnu.size)
+    println("GNU Size: " + gnu.size)
     val gnuID = filterASTElems[Id](gnu)
-    println("GNUID Size" + gnuID.size)
+    println("GNUID Size: " + gnuID.size)
     var lst = filterASTElems[Id](ast).filterNot(x => (x.name.startsWith("__builtin")))
     //var lst2 = lst.diff(gnuID)
 
@@ -391,7 +391,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
        fos.write(bytes)
        fos.flush()
        fos.close()  */
-    println("start typecheck")
+    println("TypeChecking now.")
     val starttime = System.currentTimeMillis()
     typecheckTranslationUnit(tu)
     val endtime = System.currentTimeMillis()
@@ -405,20 +405,23 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val fw = new FileWriter(fileToAnalyse.getAbsolutePath + ".defuse")
     fw.write(sb.toString)
     fw.close()*/
-
+    println("DeclUseMap: " + defuse)
     println("Success " + success)
-    println("Runtime " + (endtime - starttime) / 1000.0 + " seconds.\n\n")
+    println("TypeChecking Runtime:\t" + (endtime - starttime) / 1000.0 + " seconds.\n\n")
     Thread.sleep(2000)
   }
 
   private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = true) {
     println("++Analyse: " + fileToAnalyse.getName + "++")
+    val starttime = System.currentTimeMillis()
     val fis = new FileInputStream(fileToAnalyse)
     val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
     fis.close()
     if (printAst) {
       println("Ast:\n" + ast)
     }
+    val endtime = System.currentTimeMillis()
+    println("Parsing Runtime:\t\t" + (endtime - starttime) / 1000.0 + " seconds.")
     runDefUseOnAst(ast)
   }
 

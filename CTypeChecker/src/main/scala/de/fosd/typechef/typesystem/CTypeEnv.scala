@@ -66,17 +66,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
       checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
       addDef(i, env)
       attributes.foreach(x => addDef(x.entry, env))
-      env.updateStructEnv(env.structEnv.addComplete(name, isUnion, featureExpr, members, env.scope))
+      env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
     }
     //incomplete struct
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
       //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
       if (declareIncompleteTypes) {
         val env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
-        addStructDeclaration(i)
       }
-      else
-        addStructDeclaration(i)
       initEnv
     }
     case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>

@@ -53,8 +53,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 lst2.foreach(y => y.entry match {
                   case ParameterDeclarationD(lst3, _) =>
                     lst3.foreach(z => z.entry match {
-                      case StructOrUnionSpecifier(_, Some(i: Id), _) =>
-                        addDef(i, newEnv)
+                      case StructOrUnionSpecifier(isUnion, Some(i: Id), _) =>
+                        addStructDeclUse(i, newEnv, isUnion)
                       case TypeDefTypeSpecifier(i: Id) =>
                         addDef(i, newEnv)
                       case _ =>

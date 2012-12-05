@@ -266,6 +266,8 @@ trait CDeclUse extends CEnv with CEnvCache {
         addUse(x, env)
       case Opt(_, DeclArrayAccess(None)) =>
       // ignore
+      case Opt(_, d: DeclIdentifierList) =>
+        //TODO: ignore?
       case mi => println("Completly missing: " + mi)
     })
   }
@@ -564,8 +566,11 @@ trait CDeclUse extends CEnv with CEnvCache {
       case i@Id(name) => {
         if (env.structEnv.someDefinition(structName, isUnion)) {
           env.structEnv.getFieldsMerged(structName, isUnion).getAstOrElse(i.name, null) match {
+            case One(null) =>
+              addStructDeclUse(i, env, isUnion)
             case One(AtomicNamedDeclarator(_, i2: Id, _)) => addToDeclUseMap(i2, i)
-            case One(i2: Id) => addToDeclUseMap(i2, i)
+            case One(i2: Id) =>
+              addToDeclUseMap(i2, i)
             case c@Choice(_, _, _) => addStructUseChoice(c, i)
             case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) => addToDeclUseMap(i2, i)
             case k => println("Missed addStructUse " + env.varEnv.getAstOrElse(i.name, null))
@@ -631,6 +636,21 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
+  def addStructDeclUse(entry: Id, env: Env, isUnion: Boolean) {
+    entry match {
+      case i@Id(name) => {
+        if (env.structEnv.someDefinition(name, isUnion)) {
+          env.structEnv.getId(name, isUnion) match {
+            case Some(key: Id) =>
+              addToDeclUseMap(key, i)
+            case _ =>
+          }
+        }
+      }
+      case _ =>
+    }
+  }
+
   def addStructDeclaration(entry: Id) = {
     putToDeclUseMap(entry)
   }
@@ -641,8 +661,8 @@ trait CDeclUse extends CEnv with CEnvCache {
       case None =>
       case DeclarationStatement(_) =>
       case Declaration(decl, init) =>
-        decl.foreach(x => addDecl(x, env))
-        init.foreach(x => addDecl(x, env))
+        decl.foreach(x => addDecl(x.entry, env))
+        init.foreach(x => addDecl(x.entry, env))
       case Opt(_, e) => addDecl(e, env)
       case i@InitDeclaratorI(decl, attr, opt) =>
         addDecl(decl, env)
@@ -709,9 +729,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         addDecl(expr, env)
         addDecl(cond, env)
       case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) =>
-        if (!declUseMap.contains(i)) {
-          putToDeclUseMap(i)
-        }
+        addStructUse(i, env, name, isUnion)
       case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(extensions)) =>
         if (!declUseMap.contains(i)) {
           putToDeclUseMap(i)
