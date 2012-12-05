@@ -2,8 +2,8 @@ package de.fosd.typechef.typesystem
 
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import _root_.de.fosd.typechef.parser.c.AST
 import FeatureExprFactory._
+import de.fosd.typechef.parser.c.{Id, AST}
 
 /**
  * bundles all environments during type checking
@@ -104,7 +104,7 @@ trait CEnv {
    *
    * the structEnv maps a tag name to a conditional tuple (isComplete, fields, scope)
    */
-  case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int)
+  case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int, id: Id = null)
 
   class StructEnv(private val env: Map[(String, Boolean), Conditional[StructTag]]) {
     def this() = this(Map())
@@ -132,11 +132,12 @@ trait CEnv {
     }
 
 
-    def addComplete(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap, scope: Int) = {
+    def addComplete(id: Id, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap, scope: Int) = {
       // always override previous results, check elsewhere that not replace incorrectly
+      val name = id.name
       val key = (name, isUnion)
       val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
-      val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope)), prevTag).simplify
+      val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope, id)), prevTag).simplify
       new StructEnv(env + (key -> result))
 
       //            //TODO check distinct attribute names in each variant
@@ -149,6 +150,13 @@ trait CEnv {
     }
 
     def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion), One(incompleteTag)).map(_.fields)
+
+    def getId(name: String, isUnion: Boolean) : Option[Id] = env.get(name, isUnion).get match {
+      case One(StructTag(_, _, _, i: Id)) =>
+        Some(i)
+      case _ =>
+        None
+    }
 
     def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
       getFields(name, isUnion).flatten((f, a, b) => a.and(f) ++ b.and(f.not))
