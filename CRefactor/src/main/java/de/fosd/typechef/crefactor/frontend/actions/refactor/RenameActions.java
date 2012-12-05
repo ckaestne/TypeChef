@@ -40,14 +40,14 @@ public class RenameActions {
                     // Verify Input
                     if (!Renaming.validName(box.getInput())) {
                         JOptionPane.showMessageDialog(
-                                null, "Der Name entspricht nicht dem ISO C Standard.", "Fehler", JOptionPane.WARNING_MESSAGE);
+                                null, Configuration.getInstance().getConfig("default.error.invalidName"), Configuration.getInstance().getConfig("default.error"), JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     if (!Renaming.renamingIsPossible(
                             Connector.getAST(), Connector.getDeclUseMap(), box.getInput(), id)) {
                         JOptionPane.showMessageDialog(
-                                null, "Umbenennen nicht möglich!", "Fehler", JOptionPane.WARNING_MESSAGE);
+                                null, "Umbenennen nicht möglich!", Configuration.getInstance().getConfig("default.error"), JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
