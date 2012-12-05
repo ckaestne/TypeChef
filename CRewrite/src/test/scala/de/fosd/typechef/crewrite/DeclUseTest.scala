@@ -384,14 +384,15 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     analyseDir(folder2)
   }
 
-  private def runDefUseOnAst(tu: TranslationUnit) {
+  private def runDefUseOnAst(tu: TranslationUnit, parsingRunTimeString: String = "Parsing done.") {
 
     /* val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
        val bytes = ast.toString.getBytes
        fos.write(bytes)
        fos.flush()
        fos.close()  */
-    println("TypeChecking now.")
+
+    println(parsingRunTimeString)
     val starttime = System.currentTimeMillis()
     typecheckTranslationUnit(tu)
     val endtime = System.currentTimeMillis()
@@ -405,9 +406,9 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val fw = new FileWriter(fileToAnalyse.getAbsolutePath + ".defuse")
     fw.write(sb.toString)
     fw.close()*/
+    println("TypeChecking Runtime:\t" + (endtime - starttime) / 1000.0 + " seconds.\n\n")
     println("DeclUseMap: " + defuse)
     println("Success " + success)
-    println("TypeChecking Runtime:\t" + (endtime - starttime) / 1000.0 + " seconds.\n\n")
     Thread.sleep(2000)
   }
 
@@ -421,8 +422,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
       println("Ast:\n" + ast)
     }
     val endtime = System.currentTimeMillis()
-    println("Parsing Runtime:\t\t" + (endtime - starttime) / 1000.0 + " seconds.")
-    runDefUseOnAst(ast)
+    val parsingRuntimeString = "Parsing Runtime:\t\t" + (endtime - starttime) / 1000.0 + " seconds."
+    runDefUseOnAst(ast, parsingRuntimeString)
   }
 
   private def analyseDir(dirToAnalyse: File, printAst: Boolean = false) {
