@@ -15,7 +15,7 @@ import de.fosd.typechef.conditional.One
 import de.fosd.typechef.conditional.Opt
 import scala.Tuple2
 
-class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUse with CTypeSystem with TestHelper {
+class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
   /**
    * Used for reading/writing to database, files, etc.
    * Code From the book "Beginning Scala"
@@ -52,7 +52,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
 
     val optionsAst = i.getOptionFile(source_ast)
     println("++Pretty printed++")
@@ -85,7 +85,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
   private def getDefUse(ast: TranslationUnit): IdentityHashMap[Id, List[Id]] = {
     typecheckTranslationUnit(ast)
-    getDefUseMap
+    getDeclUseMap
   }
 
   @Test def test_folder() {
@@ -336,7 +336,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
 
     println()
     typecheckTranslationUnit(ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("Defuse: " + defUseMap)
     val i = new IfdefToIf()
     val env = createASTEnv(ast)
@@ -408,7 +408,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       }
                              """)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("Defuse: " + defUseMap)
     val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
@@ -450,7 +450,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
                              """)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("Defuse: " + defUseMap)
     val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
@@ -499,7 +499,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       }
                              """)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("Defuse: " + defUseMap)
     val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
@@ -546,7 +546,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
       }
                              """)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("Defuse: " + defUseMap)
     val i = new IfdefToIf()
     val env = createASTEnv(source_ast)
@@ -572,7 +572,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val env = createASTEnv(source_ast)
     println("Source:\n" + source_ast)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("DefUse: " + defUseMap)
 
     println("\n\nPrettyPrinted:\n" + PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
@@ -608,7 +608,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("Source:\n" + source_ast)
     println("\n\nTarget:\n" + target_ast + "\n")
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("DefUse: " + defUseMap)
 
     println("\n\n" + PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
@@ -717,7 +717,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("DefUse: " + defUseMap)
     println(PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
   }
@@ -749,7 +749,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     println("DefUse: " + defUseMap)
     println(PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
   }
@@ -914,7 +914,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -974,7 +974,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -1021,7 +1021,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("Source:\n" + source_ast + "\n")
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -1082,7 +1082,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -1195,7 +1195,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     val tempAst = i.transformAst(source_ast, env, defUseMap)
     println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
   }
@@ -1229,7 +1229,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     val tempAst = i.transformAst(source_ast, env, defUseMap)
     println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
   }
@@ -1388,7 +1388,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
 
     val optionsAst = i.getOptionFile(source_ast)
     println("++Pretty printed++")
@@ -1408,7 +1408,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
 
     val optionsAst = i.getOptionFile(source_ast)
     println("++Pretty printed++")
@@ -1444,7 +1444,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     val tempAst = i.transformAst(source_ast, env, defUseMap)
     println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
   }
@@ -1501,7 +1501,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val endTypeChecking = System.currentTimeMillis()
     println((endTypeChecking - startTypeChecking) / 1000.0 + "s used for TypeChecking.")
 
-    val defuse = getDefUseMap()
+    val defuse = getDeclUseMap()
 
     val startTransformation = System.currentTimeMillis()
     val newAst = i.transformAst(ast, createASTEnv(ast), defuse)
@@ -1552,7 +1552,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDefUs
     val i = new IfdefToIf
     val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDefUseMap
+    val defUseMap = getDeclUseMap
     val tempAst = i.transformAst(source_ast, env, defUseMap)
     println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
   }

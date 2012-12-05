@@ -191,7 +191,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    * Selection is conditonal?
    */
   private def selectionIsConditional(selection: List[Opt[_]]): Boolean = {
-    selection.par.foreach(x => if (isVariable(x)) return true)
+    selection.foreach(x => if (isVariable(x)) return true)
     false
   }
 

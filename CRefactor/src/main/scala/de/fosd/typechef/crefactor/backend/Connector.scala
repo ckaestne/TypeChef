@@ -9,7 +9,7 @@ import de.fosd.typechef.crewrite.{CASTEnv, ASTEnv}
 /**
  * Connector class to interact between typechef and the editorwindow as frontend.
  */
-object Connector extends CDefUse with CDefUse2 with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
+object Connector extends CDeclUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
 
   private var astCached: AST = null
   private var astEnvCached: ASTEnv = null
@@ -23,7 +23,6 @@ object Connector extends CDefUse with CDefUse2 with CTypeEnv with CEnvCache with
       // TODO Feature Model
       typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
       astCached = ast
-      fillMap(ast.asInstanceOf[TranslationUnit])
       astEnvCached = CASTEnv.createASTEnv(astCached)
       return ast
     }
@@ -35,7 +34,7 @@ object Connector extends CDefUse with CDefUse2 with CTypeEnv with CEnvCache with
     astEnvCached = CASTEnv.createASTEnv(astCached)
     typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
     // TODO Update env?
-    (ast, getDefUseMap, lookupEnv(ast.asInstanceOf[TranslationUnit].defs.last.entry))
+    (ast, getDeclUseMap, lookupEnv(ast.asInstanceOf[TranslationUnit].defs.last.entry))
   }
 
   def getEnv(ast: AST): Env = lookupEnv(ast)

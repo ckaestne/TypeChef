@@ -27,7 +27,7 @@ public class ExtractFunctionActions {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 // TODO Show window & Name Verification
-                final AST ast = ExtractFunction.extract(selectedAST, "newFunc", Connector.getAST(), Connector.getASTEnv(), Connector.getDefUseMap());
+                final AST ast = ExtractFunction.extract(selectedAST, "newFunc", Connector.getAST(), Connector.getASTEnv(), Connector.getDeclUseMap());
                 Connector.update(ast);
                 editor.getRTextArea().setText(PrettyPrinter.print(ast));
             }
