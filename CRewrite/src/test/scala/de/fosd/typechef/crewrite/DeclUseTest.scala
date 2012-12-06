@@ -7,21 +7,26 @@ import de.fosd.typechef.typesystem._
 import java.util.IdentityHashMap
 import collection.mutable.ListBuffer
 import java.io.{FilenameFilter, FileInputStream, File}
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.GnuAsmExpr
+import de.fosd.typechef.parser.c.TranslationUnit
 
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
   private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): String = {
-    val resultString = new StringBuilder()
-    val gnu = filterASTElems[GnuAsmExpr](ast)
-    val gnuID = filterASTElems[Id](gnu)
-    var lst = filterASTElems[Id](ast).filterNot(x => (x.name.startsWith("__builtin")))
-    //var lst2 = lst.diff(gnuID)
-
-    def isGNUID(id: Id): Boolean = {
-      gnuID.foreach(x => if (x.eq(id)) return true)
-      false
+    def getAllRelevantIds(a: Any): List[Id] = {
+      a match {
+        case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
+        case gae: GnuAsmExpr => List()
+        case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
+        case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
+        case k =>
+          List()
+      }
     }
 
-    lst = lst.filterNot(x => isGNUID(x))
+    val resultString = new StringBuilder()
+    var relevantIds = getAllRelevantIds(ast)
+
     val missingLB: ListBuffer[Id] = ListBuffer()
     val duplicateLB: ListBuffer[Id] = ListBuffer()
     val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
@@ -38,11 +43,11 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
       })
     })
 
-    val numberOfIdsInAst = lst.size
+    val numberOfIdsInAst = relevantIds.size
     val numberOfIdsInDefuse = allIds.keySet().size()
 
     resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
-    lst.foreach(x => {
+    relevantIds.foreach(x => {
       if (!allIds.containsKey(x)) {
         missingLB += x
         println(x + " @ " + x.getPositionFrom.getLine.toString + "\n" + x.getPositionFrom.toString + "\nParent: " + env.parent(env.parent(env.parent(x))) + "\n")
@@ -50,6 +55,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     })
     resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB)
     resultString.append("\nFiltered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
+    // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
     return (resultString.toString())
   }
 
