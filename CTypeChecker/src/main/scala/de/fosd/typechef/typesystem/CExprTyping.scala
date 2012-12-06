@@ -30,12 +30,12 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
             case (f, CAnonymousStruct(fields, _)) =>
               null
             case (f, CObj(CStruct(s, isUnion))) =>
-              addStructUse(i, env, s, isUnion)
+              addStructUse(i, featureExpr, env, s, isUnion)
               null
             case (f, CStruct(s, isUnion)) =>
               null
             case (f, CObj(CPointer(CStruct(name, isUnion)))) =>
-              addStructUse(i, env, name, isUnion)
+              addStructUse(i, featureExpr, env, name, isUnion)
               null
             case (f, e) =>
               null
@@ -114,7 +114,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
               case (f, CAnonymousStruct(fields, _)) =>
                 lookup(fields, f)
               case (f, CObj(CStruct(s, isUnion))) =>
-                addStructUse(i, env, s, isUnion)
+                addStructUse(i, featureExpr, env, s, isUnion)
                 structEnvLookup(env.structEnv, s, isUnion, id, p, f).map(_.toObj)
               case (f, CStruct(s, isUnion)) =>
                 structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
@@ -285,7 +285,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
     typedExpr(expr, resultType, featureExpr, env)
     addEnv(expr, env)
     if (!recurse) {
-      addUse(expr, env)
+      addUse(expr, featureExpr, env)
     }
     resultType.simplify(featureExpr)
   }

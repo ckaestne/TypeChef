@@ -66,8 +66,8 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
       //collect inner struct declarations recursively
       env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
       checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
-      addDef(i, env)
-      attributes.foreach(x => addDef(x.entry, env))
+      addDef(i, featureExpr, env)
+      attributes.foreach(x => addDef(x.entry, featureExpr, env))
       env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
     }
     //incomplete struct
