@@ -96,6 +96,8 @@ trait CDeclUse extends CEnv with CEnvCache {
     if (declUseMap.contains(decl)) {
       declUseMap.get(decl).put(use, null)
       addToUseDeclMap(use, decl)
+    } else {
+      println("fail")
     }
   }
 
@@ -136,8 +138,6 @@ trait CDeclUse extends CEnv with CEnvCache {
         val id = declarator.getId
         val ext = declarator.extensions
         env.varEnv.getAstOrElse(id.name, null) match {
-          case null => putToDeclUseMap(declarator.getId)
-          case One(null) => putToDeclUseMap(declarator.getId)
           case One(i: InitDeclarator) =>
             /*
            Special handling for forward declarations because the env gives us the function
@@ -153,10 +153,9 @@ trait CDeclUse extends CEnv with CEnvCache {
             } else {
               addUse(id, featureExpr, env)
             }
-          case c@Choice(_, _, _) =>
-            putToDeclUseMap(id)
-          // addChoiceFunctionDef(c, declarator, env)
-          case k => // println("Missing AddDef " + id + "\nentry " + k + "\nfuncdef " + func + "\n" + defuse.containsKey(declarator.getId))
+          case c@Choice(_, _, _) => addChoiceFunctionDef(c, declarator, featureExpr, env)
+          case One(null) => putToDeclUseMap(declarator.getId)
+          case _ =>
         }
         // check function definiton for goto statements and add them to defUse
         addGotoStatements(f)
@@ -212,10 +211,19 @@ trait CDeclUse extends CEnv with CEnvCache {
   private def addChoiceFunctionDef(c: Choice[AST], decl: Declarator, featureExpr: FeatureExpr, env: Env) {
     def addOne(one: One[AST], decl: Declarator, env: Env) {
       one match {
-        case One(FunctionDef(_, _, _, _)) => putToDeclUseMap(decl.getId) // TODO Verify init
-        case One(InitDeclaratorI(AtomicNamedDeclarator(_, id2: Id, _), _, _)) => addUse(decl.getId, featureExpr, env)
+        case One(FunctionDef(_, _, _, _)) => putToDeclUseMap(decl.getId)
+        case One(InitDeclaratorI(AtomicNamedDeclarator(_, id: Id, _), _, _)) =>
+          if (declUseMap.contains(id)) {
+            val temp = declUseMap.get(id)
+            declUseMap.remove(id)
+            putToDeclUseMap(decl.getId)
+            addToDeclUseMap(decl.getId, id)
+            temp.keySet().toArray().foreach(x => addToDeclUseMap(decl.getId, x.asInstanceOf[Id]))
+          } else {
+            addUse(id, featureExpr, env)
+          }
         case One(null) =>
-        case _ => println("FunctionDefChoice: This should not have happend: " + one)
+        case _ =>
       }
     }
     c match {
@@ -272,6 +280,7 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def addTypeUse(entry: AST, env: Env) {
+    // TODO Correct it!
     entry match {
       case i@Id(name) =>
         env.typedefEnv.getAstOrElse(name, null) match {
@@ -681,10 +690,6 @@ trait CDeclUse extends CEnv with CEnvCache {
       }
       case _ =>
     }
-  }
-
-  def addStructDeclaration(entry: Id) = {
-    putToDeclUseMap(entry)
   }
 
   def addDecl(current: Any, featureExpr: FeatureExpr, env: Env) {
