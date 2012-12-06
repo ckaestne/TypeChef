@@ -332,13 +332,13 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
     choice match {
-      case Choice(feature1, o1@One(_), o2@One(_)) =>
-        if (feature1.equivalentTo(FeatureExprFactory.True)) {
+      case Choice(choiceFeature, o1@One(_), o2@One(_)) =>
+        if (featureExpr.equivalentTo(FeatureExprFactory.True)) {
           addOne(o1, use)
           addOne(o2, use)
-        } else if (featureExpr.implies(feature1).isTautology()) {
+        } else if (featureExpr.implies(choiceFeature).isTautology()) {
           addOne(o1, use)
-        } else if (feature1.not.implies(featureExpr).isTautology()) {
+        } else if (featureExpr.implies(choiceFeature.not).isTautology()) {
           addOne(o2, use)
         } else {
           addOne(o1, use)
