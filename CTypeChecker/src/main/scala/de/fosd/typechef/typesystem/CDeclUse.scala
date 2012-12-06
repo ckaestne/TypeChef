@@ -582,8 +582,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case c@Choice(_, _, _) => println("missed choice typedef " + c)
             case One(Declaration(List(Opt(_, _), Opt(_, s@StructOrUnionSpecifier(_, Some(id), _))), _)) =>
               // TODO typedef name name
-              //addStructUse(id, env, structName, isUnion)
-              println(" halt")
+              putToDeclUseMap(i)
             case k =>
               println("Missed addStructUse" + k)
           }
@@ -643,7 +642,6 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def addStructDeclUse(entry: Id, env: Env, isUnion: Boolean) {
-
     def addOne(one: One[AST], use: Id) = {
       one match {
         case One(id: Id) => addToDeclUseMap(id, use)

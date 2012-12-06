@@ -126,11 +126,12 @@ trait CEnv {
 
     def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
 
-    def addIncomplete(name: String, isUnion: Boolean, condition: FeatureExpr, scope: Int) = {
+    def addIncomplete(id: Id, isUnion: Boolean, condition: FeatureExpr, scope: Int) = {
       //overwrites complete tags in lower scopes, but has no effects otherwise
+      val name = id.name
       val key = (name, isUnion)
       val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
-      val newTag: Conditional[StructTag] = Choice(condition, One(StructTag(false, emptyFields, scope)), One(incompleteTag))
+      val newTag: Conditional[StructTag] = Choice(condition, One(StructTag(false, emptyFields, scope, Some(id))), One(incompleteTag))
       val result = ConditionalLib.mapCombination(prevTag, newTag, (p: StructTag, n: StructTag) => if (n.scope > p.scope) n else p)
       new StructEnv(env + (key -> result))
     }

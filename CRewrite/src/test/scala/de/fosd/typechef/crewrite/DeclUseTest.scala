@@ -48,8 +48,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println(x + " @ " + x.getPositionFrom.getLine.toString + "\n" + x.getPositionFrom.toString + "\nParent: " + env.parent(env.parent(env.parent(x))) + "\n")
       }
     })
-    resultString.append("Amount of ids missing: " + missingLB.size + "\n" + missingLB)
-    resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
+    resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB)
+    resultString.append("\nFiltered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
     return (resultString.toString())
   }
 

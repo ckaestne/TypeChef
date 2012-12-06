@@ -36,7 +36,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
   /** *
     * Structs
     */
-  def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty)
+  def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = {
+    addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty || (e.init.size == 1 && e.declSpecs.exists(x => x.entry.isInstanceOf[TypedefSpecifier])))
+  }
 
   def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
 
@@ -58,7 +60,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
   def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes)) => {
       //for parsing the inner members, the struct itself is available incomplete
-      var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
+      var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
       val members = parseStructMembers(attributes, featureExpr, env)
 
       //collect inner struct declarations recursively
@@ -72,7 +74,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
       //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
       if (declareIncompleteTypes) {
-        val env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
+        val env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
       }
       initEnv
     }
