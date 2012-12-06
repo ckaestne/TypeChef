@@ -1,13 +1,15 @@
 package de.fosd.typechef.crefactor.backend.refactor
 
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.parser.c.{TranslationUnit, AST}
+import de.fosd.typechef.parser.c.AST
 import java.util
-import de.fosd.typechef.typesystem.{CUnknown, CEnvCache}
+import de.fosd.typechef.typesystem.CEnvCache
 import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
-import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.crefactor.backend.Connector
 import util.NoSuchElementException
+import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.typesystem.CUnknown
+import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.conditional.One
 
 
@@ -40,60 +42,11 @@ object Renaming extends CEnvCache with ASTNavigation with ConditionalNavigation 
   /**
    * Rename an variable according its uses in the ast.
    */
-  /* def renameId(ast: AST, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
-
-    def rename(ast: AST, decl: Id, decls: util.IdentityHashMap[Id, Boolean] = new util.IdentityHashMap[Id, Boolean]()): AST = {
-      // mark declaration as replaced
-      decls.put(decl, true)
-
-      // replace declaration first
-      var result = replaceIDinAST(ast, decl, decl.copy(name = newId))
-
-      if (defUSE.containsKey(decl)) {
-        // replace uses
-        defUSE.get(decl).foreach(use => {
-          result = replaceIDinAST(result, use, use.copy(name = newId))
-          // Look for further occurring declarations
-          Helper.findDecls(defUSE, use).foreach(foundDecl => if (!decls.containsKey(foundDecl)) decls.put(foundDecl, false))
-        })
-      }
-
-      // Recursively replace all further occurred declarations and uses
-      decls.keySet().toArray(Array[Id]()).foreach(key => if (!decls.get(key)) {
-        result = rename(result, key, decls)
-      })
-      result
-    }
-
-    rename(ast, Helper.findFirstDecl(defUSE, oldId))
-  } */
-
-  /**
-   * Rename an variable according its uses in the ast.
-   */
   def renameId(ast: AST, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]], newId: String, oldId: Id): AST = {
-    // first step: determine all ids to replace
-    var decls = new util.IdentityHashMap[Id, Boolean]()
-
-    if (useDecl.containsKey(oldId)) {
-      useDecl.get(oldId).foreach(x => decls.put(x, false))
-    } else {
-      // id is decl - search for further occuring decls
-      declUse.get(oldId).foreach(x => if (useDecl.containsKey(x)) useDecl.get(x).foreach(id => decls.put(id, false)))
-    }
-
-    def rename(ast: AST, newId: String, decl: Id): AST = {
-      var result = replaceIDinAST(ast, decl, decl.copy(name = newId))
-      if (declUse.containsKey(decl)) {
-        // replace uses
-        declUse.get(decl).foreach(use => result = replaceIDinAST(result, use, use.copy(name = newId)))
-      }
-      result
-    }
-
-    var result = ast
-    decls.keySet().toArray(Array[Id]()).foreach(decl => result = rename(result, newId, decl))
-    result
+    var refactored = ast
+    Helper.findAllConnectedIds(oldId, declUse, useDecl).foreach(entry =>
+      refactored = replaceIDinAST(refactored, entry, entry.copy(name = newId)))
+    refactored
   }
 
   private def replaceIDinAST[T <: Product](t: T, e: Id, n: Id): T = {

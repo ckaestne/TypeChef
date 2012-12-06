@@ -8,6 +8,7 @@ import de.fosd.typechef.typesystem.CUnknown
 import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.conditional.One
+import util.Collections
 
 /**
  * Helper object providing some useful functions for refactorings.
@@ -107,6 +108,33 @@ object Helper extends ASTNavigation with ConditionalNavigation {
     } catch {
       case e: Exception => return false
     }
+  }
+
+  def findAllConnectedIds(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
+    val occurrences = Collections.newSetFromMap[Id](new util.IdentityHashMap())
+
+    // find all uses of an id
+    def addOccurrence(occurrence: Id) {
+      if (!occurrences.contains(occurrence)) {
+        occurrences.add(occurrence)
+        declUse.get(occurrence).foreach(use => {
+          occurrences.add(use)
+          if (useDecl.containsKey(use)) {
+            useDecl.get(use).foreach(entry => addOccurrence(entry))
+          }
+        })
+      }
+    }
+
+    if (useDecl.containsKey(lookup)) {
+      // lookup declarations and search for further referenced declarations
+      useDecl.get(lookup).foreach(id => addOccurrence(id))
+    } else {
+      // id is decl - search for further referenced declarations
+      addOccurrence(lookup)
+    }
+
+    occurrences.toArray(Array[Id]()).toList
   }
 
   def findDecls(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): List[Id] = {
