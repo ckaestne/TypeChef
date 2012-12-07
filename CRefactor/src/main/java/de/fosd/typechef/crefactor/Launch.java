@@ -1,6 +1,6 @@
 package de.fosd.typechef.crefactor;
 
-import de.fosd.typechef.crefactor.backend.Connector;
+import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.loader.Loader;
 import de.fosd.typechef.crefactor.util.Configuration;
@@ -47,7 +47,7 @@ public final class Launch {
                     System.exit(1);
                 }
                 // parse file
-                if (Connector.parse(generateTypeChefArguments(
+                if (Cache.parse(generateTypeChefArguments(
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
                         loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel())) == null) {
                     System.err.println("Something really bad happend");

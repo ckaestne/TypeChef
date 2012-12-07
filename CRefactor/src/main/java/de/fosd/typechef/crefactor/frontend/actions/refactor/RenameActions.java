@@ -1,7 +1,7 @@
 package de.fosd.typechef.crefactor.frontend.actions.refactor;
 
-import de.fosd.typechef.crefactor.backend.Connector;
-import de.fosd.typechef.crefactor.backend.refactor.Renaming;
+import de.fosd.typechef.crefactor.backend.Cache;
+import de.fosd.typechef.crefactor.backend.refactor.Rename;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.util.InputBox;
 import de.fosd.typechef.crefactor.util.Configuration;
@@ -38,23 +38,22 @@ public class RenameActions {
                         Configuration.getInstance().getConfig("refactor.rename.newName"), id.name());
                 if (box.getInput() != null) {
                     // Verify Input
-                    if (!Renaming.validName(box.getInput())) {
+                    if (!Rename.isValidName(box.getInput())) {
                         JOptionPane.showMessageDialog(
                                 null, Configuration.getInstance().getConfig("default.error.invalidName"), Configuration.getInstance().getConfig("default.error"), JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
-                    if (!Renaming.renamingIsPossible(
-                            Connector.getAST(), Connector.getDeclUseMap(), box.getInput(), id)) {
+                    if (!Rename.refactorIsPossible(id, Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap(), Cache.getUseDeclMap(), box.getInput())) {
                         JOptionPane.showMessageDialog(
                                 null, "Umbenennen nicht möglich!", Configuration.getInstance().getConfig("default.error"), JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
-                    AST refactored = Renaming.renameId(Connector.getAST(), Connector.getDeclUseMap(), Connector.getUseDeclMap(), box.getInput(), id);
-                    Connector.update(refactored);
+                    AST refactored = Rename.performRefactor(id, Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap(), Cache.getUseDeclMap(), box.getInput());
+                    Cache.update(refactored);
                     // Pretty Print :)
-                    editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
+                    editor.getRTextArea().setText(PrettyPrinter.print(Cache.getAST()));
                     // TODO Verification!
                 }
             }

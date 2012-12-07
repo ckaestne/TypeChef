@@ -2,7 +2,7 @@ package de.fosd.typechef.crefactor.frontend;
 
 import de.fosd.typechef.conditional.Opt;
 import de.fosd.typechef.crefactor.backend.ASTPosition;
-import de.fosd.typechef.crefactor.backend.Connector;
+import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.ExtractFunctionActions;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.RenameActions;
@@ -53,7 +53,7 @@ public class RefactorMenu implements MenuListener {
          * Refactor Renaming
          */
         // Retrieve all available ids - Requiered for renamings
-        final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Connector.getAST(), editor.getFile().getAbsolutePath(),
+        final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Cache.getAST(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
         if (!selectedIDs.isEmpty()) {
             final JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
@@ -64,10 +64,10 @@ public class RefactorMenu implements MenuListener {
         /**
          * Refactor Extract Method
          */
-        final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Connector.getAST(), Connector.getASTEnv(), editor.getFile().getAbsolutePath(),
+        final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Cache.getAST(), Cache.getASTEnv(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
 
-        final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Connector.getASTEnv());
+        final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Cache.getASTEnv());
         if (this.menu.getComponentCount() != 0) {
             this.menu.add(new JSeparator());
         }

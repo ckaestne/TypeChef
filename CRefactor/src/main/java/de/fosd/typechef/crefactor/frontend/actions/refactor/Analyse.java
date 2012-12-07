@@ -1,6 +1,6 @@
 package de.fosd.typechef.crefactor.frontend.actions.refactor;
 
-import de.fosd.typechef.crefactor.backend.Connector;
+import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.PrettyPrinter;
@@ -29,7 +29,7 @@ public class Analyse {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
+                editor.getRTextArea().setText(PrettyPrinter.print(Cache.getAST()));
             }
         };
         return action;

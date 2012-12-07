@@ -302,6 +302,11 @@ trait CDeclUse extends CEnv with CEnvCache {
         } else if (featureExpr.implies(choiceFeature).isTautology()) {
           func(o1, id, env)
         } else if (featureExpr.implies(choiceFeature.not).isTautology()) {
+          // TODO Verfiy
+          /** o1 match {
+            case One(FunctionDef(_,_,_,_)) => func(o1, id, env)
+            case _ =>
+          }    */
           o2 match {
             case One(null) => func(o1, id, env)
             case _ => func(o2, id, env)
@@ -328,7 +333,14 @@ trait CDeclUse extends CEnv with CEnvCache {
   private def addChoiceFunctionDef(c: Choice[AST], decl: Declarator, featureExpr: FeatureExpr, env: Env) {
     def addOne(one: One[AST], decl: Id, env: Env) {
       one match {
-        case One(FunctionDef(_, _, _, _)) => putToDeclUseMap(decl)
+        case One(FunctionDef(_, declarator, _, _)) =>
+
+          /** if (decl.eq(declarator.getId)) { */
+          putToDeclUseMap(decl)
+
+        /** } else {
+            addToDeclUseMap(declarator.getId, decl)
+          } */
         case One(InitDeclaratorI(AtomicNamedDeclarator(_, id: Id, _), _, _)) =>
           if (declUseMap.contains(id)) {
             val temp = declUseMap.get(id)

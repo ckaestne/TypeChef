@@ -1,7 +1,7 @@
 package de.fosd.typechef.crefactor.frontend.actions.refactor;
 
 import de.fosd.typechef.conditional.Opt;
-import de.fosd.typechef.crefactor.backend.Connector;
+import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.util.Configuration;
@@ -27,8 +27,8 @@ public class ExtractFunctionActions {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 // TODO Show window & Name Verification
-                final AST ast = ExtractFunction.extract(selectedAST, "newFunc", Connector.getAST(), Connector.getASTEnv(), Connector.getDeclUseMap());
-                Connector.update(ast);
+                final AST ast = ExtractFunction.extract(selectedAST, "newFunc", Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap());
+                Cache.update(ast);
                 editor.getRTextArea().setText(PrettyPrinter.print(ast));
             }
         };

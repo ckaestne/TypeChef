@@ -1,21 +1,19 @@
 package de.fosd.typechef.crefactor.backend.refactor
 
-import de.fosd.typechef.crefactor.backend.Cache
-import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
-import java.util
+import de.fosd.typechef.parser.c.{TranslationUnit, Id, AST}
+import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation, ASTEnv}
+import de.fosd.typechef.conditional.{One, Opt}
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.typesystem.CUnknown
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
+import java.util
 import util.Collections
+import de.fosd.typechef.typesystem.{CEnvCache, CUnknown}
+import scala.NoSuchElementException
+import de.fosd.typechef.crefactor.backend.Cache
 
-/**
- * Helper object providing some useful functions for refactorings.
- */
-object Helper extends ASTNavigation with ConditionalNavigation {
 
-  val languageKeywords = List(
+trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
+
+  private val languageKeywords = List(
     "auto",
     "break",
     "case",
@@ -62,6 +60,10 @@ object Helper extends ASTNavigation with ConditionalNavigation {
     "_Thread_local"
   )
 
+  def refactorIsPossible(selection: Any, ast: AST, astEnv: ASTEnv, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]], name: String): Boolean
+
+  def performRefactor(selection: Any, ast: AST, astEnv: ASTEnv, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]], name: String): AST
+
   /**
    * Checks if the name of a variable is compatible to the iso c standard. See 6.4.2 of the iso standard
    *
@@ -85,29 +87,52 @@ object Helper extends ASTNavigation with ConditionalNavigation {
    * @param name the name to check
    * @return <code>true</code> if language keyword
    */
-  def isReservedLanguageKeyword(name: String): Boolean = {
+  private def isReservedLanguageKeyword(name: String): Boolean = {
     languageKeywords.contains(name)
   }
 
-  def isStructOrUnion(id: Id): Boolean = {
+  def isDeclaredVarInScope(ast: TranslationUnit, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldID: Id): Boolean = {
+    var env = null.asInstanceOf[Env]
     try {
-      val env = Cache.getEnv(id)
-      env.structEnv.someDefinition(id.name, true) || env.structEnv.someDefinition(id.name, false)
+      env = Cache.getEnv(oldID).asInstanceOf[Env]
+      // declared
     } catch {
-      case e: Exception => return false
+      case e: NoSuchElementException => env = Cache.getEnv(ast.defs.last.entry).asInstanceOf[Env]
+      case _ =>
     }
+    env.varEnv(newId) match {
+      case One(CUnknown(_)) => return false
+      case _ => return true
+    }
+    false
   }
 
-  def isTypedef(id: Id): Boolean = {
+  def isDeclaredTypeDef(ast: TranslationUnit, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldID: Id): Boolean = {
+    var env = null.asInstanceOf[Env]
     try {
-      val env = Cache.getEnv(id)
-      env.typedefEnv(id.name) match {
-        case One(CUnknown(_)) => return false
-        case _ => return true
-      }
+      env = Cache.getEnv(oldID).asInstanceOf[Env]
+      // declared
     } catch {
-      case e: Exception => return false
+      case e: NoSuchElementException => env = Cache.getEnv(ast.defs.last.entry).asInstanceOf[Env]
+      case _ => return false
     }
+    env.typedefEnv(newId) match {
+      case One(CUnknown(_)) => return false
+      case _ => return true
+    }
+    false
+  }
+
+  def isDeclaredStructOrUnionDef(ast: TranslationUnit, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldID: Id): Boolean = {
+    var env = null.asInstanceOf[Env]
+    try {
+      env = Cache.getEnv(oldID).asInstanceOf[Env]
+      // declared
+    } catch {
+      case e: NoSuchElementException => env = Cache.getEnv(ast.defs.last.entry).asInstanceOf[Env]
+      case _ => return false
+    }
+    env.structEnv.someDefinition(newId, true) || env.structEnv.someDefinition(newId, false)
   }
 
   def findAllConnectedIds(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
@@ -137,28 +162,7 @@ object Helper extends ASTNavigation with ConditionalNavigation {
     occurrences.toArray(Array[Id]()).toList
   }
 
-  def findDecls(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): List[Id] = {
-    defUSE.keySet().toArray(Array[Id]()).filter(
-      entry => ((entry.name.equals(id.name) && (entry.eq(id) || eqContains(defUSE.get(entry), id))))
-    ).toList
-  }
-
-  def eqContains[T <: AnyRef](seq: Seq[T], toCheck: T): Boolean = {
-    seq.foreach(x => if (x.eq(toCheck)) return true)
-    false
-  }
-
-  def findFirstDecl(defUSE: util.IdentityHashMap[Id, List[Id]], id: Id): Id = {
-    if (defUSE.containsKey(Id)) {
-      return id
-    }
-    defUSE.keySet().toArray().foreach(currentKey => {
-      defUSE.get(currentKey).foreach(key => if (key.eq(id)) return currentKey.asInstanceOf[Id])
-    })
-    id
-  }
-
-  def insertInAstBeforeTD[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
+  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil)
     })
@@ -166,8 +170,15 @@ object Helper extends ASTNavigation with ConditionalNavigation {
   }
 
   def replaceInAST[T <: Product](t: T, e: Opt[_], n: Opt[_]): T = {
-    val r = manytd(rule {
+    val r = manybu(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(e)) n :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceInAST[T <: Product](t: T, e: T, n: T): T = {
+    val r = manybu(rule {
+      case i: T => if (i.eq(e)) n else i
     })
     r(t).get.asInstanceOf[T]
   }
@@ -178,4 +189,5 @@ object Helper extends ASTNavigation with ConditionalNavigation {
     })
     r(t).get.asInstanceOf[T]
   }
+
 }
