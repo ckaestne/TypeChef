@@ -837,9 +837,11 @@ trait CDeclUse extends CEnv with CEnvCache {
       case Initializer(_, LcurlyInitializer(lst)) =>
         lst.foreach(x => x.entry match {
           case Initializer(Some(InitializerAssigment(lst2)), _) =>
+            // TODO Match Error @ od.pi
             lst2.foreach(y => y.entry match {
               case idd@InitializerDesignatorD(i) =>
                 addStructUse(i, feature, env, id.name, false)
+              case _ =>
             })
           case _ =>
         })
