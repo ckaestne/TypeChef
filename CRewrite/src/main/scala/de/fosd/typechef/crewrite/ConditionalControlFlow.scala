@@ -491,16 +491,17 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       case t: DefaultStatement => getStmtSucc(t, ctx, oldres, fm, env)
 
-      case t: Statement => {
-        val condexprs = filterAllASTElems[ConditionalExpr](t)
-        if (condexprs.size > 0) {
-          val fexpcondexprs = env.featureExpr(condexprs.head.condition)
-          val newresctx = getNewResCtx(oldres, ctx, fexpcondexprs)
-          if (newresctx isContradiction(fm)) List()
-          else List((newresctx, fexpcondexprs, condexprs.head.condition))
-        }
-        else getStmtSucc(t, ctx, oldres, fm, env)
-      }
+      case t: Statement => getStmtSucc(t, ctx, oldres, fm, env)
+//      case t: Statement => {
+//        val condexprs = filterAllASTElems[ConditionalExpr](t)
+//        if (condexprs.size > 0) {
+//          val fexpcondexprs = env.featureExpr(condexprs.head.condition)
+//          val newresctx = getNewResCtx(oldres, ctx, fexpcondexprs)
+//          if (newresctx isContradiction(fm)) List()
+//          else List((newresctx, fexpcondexprs, condexprs.head.condition))
+//        }
+//        else getStmtSucc(t, ctx, oldres, fm, env)
+//      }
       case t => followSucc(t, ctx, oldres, fm, env)
     }
   }
@@ -759,15 +760,15 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             res
           }
 
-          case t@ConditionalExpr(condition, thenExpr, elseExpr) => {
-            // condition
-            if (isPartOf(nested_ast_elem, condition)) {
-              (if (thenExpr.isDefined) getExprSucc(thenExpr.get, ctx, oldres, fm, env) else List()) ++
-              getExprSucc(elseExpr, ctx, oldres, fm, env)
-            } else {
-              followSucc(t, ctx, oldres, fm, env)
-            }
-          }
+//          case t@ConditionalExpr(condition, thenExpr, elseExpr) => {
+//            // condition
+//            if (isPartOf(nested_ast_elem, condition)) {
+//              (if (thenExpr.isDefined) getExprSucc(thenExpr.get, ctx, oldres, fm, env) else List()) ++
+//              getExprSucc(elseExpr, ctx, oldres, fm, env)
+//            } else {
+//              followSucc(t, ctx, oldres, fm, env)
+//            }
+//          }
 
           case t: Expr => followSucc(t, ctx, oldres, fm, env)
           case t: ReturnStatement => getReturnStatementSucc(t, ctx, oldres, fm, env)
