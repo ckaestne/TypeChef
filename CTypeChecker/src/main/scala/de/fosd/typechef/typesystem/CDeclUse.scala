@@ -208,40 +208,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
-  private def addChoiceFunctionDef(c: Choice[AST], decl: Declarator, featureExpr: FeatureExpr, env: Env) {
-    def addOne(one: One[AST], decl: Declarator, env: Env) {
-      one match {
-        case One(FunctionDef(_, _, _, _)) => putToDeclUseMap(decl.getId)
-        case One(InitDeclaratorI(AtomicNamedDeclarator(_, id: Id, _), _, _)) =>
-          if (declUseMap.contains(id)) {
-            val temp = declUseMap.get(id)
-            declUseMap.remove(id)
-            putToDeclUseMap(decl.getId)
-            addToDeclUseMap(decl.getId, id)
-            temp.keySet().toArray().foreach(x => addToDeclUseMap(decl.getId, x.asInstanceOf[Id]))
-          } else {
-            addUse(id, featureExpr, env)
-          }
-        case One(null) =>
-        case _ =>
-      }
-    }
-    c match {
-      case Choice(_, o1@One(_), o2@One(_)) =>
-        addOne(o1, decl, env)
-        addOne(o2, decl, env)
-      case Choice(_, o@One(_), c@Choice(_, _, _)) =>
-        addOne(o, decl, env)
-        addChoiceFunctionDef(c, decl, featureExpr, env)
-      case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
-        addChoiceFunctionDef(c1, decl, featureExpr, env)
-        addChoiceFunctionDef(c2, decl, featureExpr, env)
-      case Choice(_, c@Choice(_, _, _), o@One(_)) =>
-        addOne(o, decl, env)
-        addChoiceFunctionDef(c, decl, featureExpr, env)
-      case _ => println("FunctionDefChoice: This should not have happend " + c)
-    }
-  }
 
   private def addFunctionParametersToDefUse(ext: List[Opt[DeclaratorExtension]], featureExpr: FeatureExpr, env: Env) {
     ext.foreach(x => x match {
@@ -327,8 +293,63 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
-  private def addChoice(choice: Choice[AST], featureExpr: FeatureExpr, use: Id) {
-    def addOne(one: One[AST], use: Id) {
+  private def abstractAddChoice(choice: Choice[AST], id: Id, env: Env, featureExpr: FeatureExpr, func: (One[AST], Id, Env) => Unit) {
+    choice match {
+      case Choice(choiceFeature, o1@One(_), o2@One(_)) =>
+        if (featureExpr.equivalentTo(FeatureExprFactory.True)) {
+          func(o1, id, env)
+          func(o2, id, env)
+        } else if (featureExpr.implies(choiceFeature).isTautology()) {
+          func(o1, id, env)
+        } else if (featureExpr.implies(choiceFeature.not).isTautology()) {
+          o2 match {
+            case One(null) => func(o1, id, env)
+            case _ => func(o2, id, env)
+          }
+        } else {
+          func(o1, id, env)
+          func(o2, id, env)
+        }
+      case Choice(feature1, o@One(_), c@Choice(feature2, _, _)) =>
+        func(o, id, env)
+        if (!featureExpr.equivalentTo(feature1)) {
+          abstractAddChoice(c, id, env, featureExpr, func)
+        }
+      case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        abstractAddChoice(c1, id, env, featureExpr, func)
+        abstractAddChoice(c2, id, env, featureExpr, func)
+      case Choice(_, c@Choice(_, _, _), o@One(_)) =>
+        func(o, id, env)
+        abstractAddChoice(c, id, env, featureExpr, func)
+      case _ => println("Choice: This should not have happend " + choice)
+    }
+  }
+
+  private def addChoiceFunctionDef(c: Choice[AST], decl: Declarator, featureExpr: FeatureExpr, env: Env) {
+    def addOne(one: One[AST], decl: Id, env: Env) {
+      one match {
+        case One(FunctionDef(_, _, _, _)) => putToDeclUseMap(decl)
+        case One(InitDeclaratorI(AtomicNamedDeclarator(_, id: Id, _), _, _)) =>
+          if (declUseMap.contains(id)) {
+            val temp = declUseMap.get(id)
+            declUseMap.remove(id)
+            putToDeclUseMap(decl)
+            addToDeclUseMap(decl, id)
+            temp.keySet().toArray().foreach(x => addToDeclUseMap(decl, x.asInstanceOf[Id]))
+          } else {
+            addUse(id, featureExpr, env)
+          }
+        case One(null) =>
+        case _ =>
+      }
+    }
+
+    abstractAddChoice(c, decl.getId, env, featureExpr, addOne)
+
+  }
+
+  private def addChoice(choice: Choice[AST], env: Env, featureExpr: FeatureExpr, use: Id) {
+    def addOne(one: One[AST], use: Id, env: Env) {
       one match {
         case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
         case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
@@ -340,32 +361,8 @@ trait CDeclUse extends CEnv with CEnvCache {
       }
     }
 
-    choice match {
-      case Choice(choiceFeature, o1@One(_), o2@One(_)) =>
-        if (featureExpr.equivalentTo(FeatureExprFactory.True)) {
-          addOne(o1, use)
-          addOne(o2, use)
-        } else if (featureExpr.implies(choiceFeature).isTautology()) {
-          addOne(o1, use)
-        } else if (featureExpr.implies(choiceFeature.not).isTautology()) {
-          addOne(o2, use)
-        } else {
-          addOne(o1, use)
-          addOne(o2, use)
-        }
-      case Choice(feature1, o@One(_), c@Choice(feature2, _, _)) =>
-        addOne(o, use)
-        if (!featureExpr.equivalentTo(feature1)) {
-          addChoice(c, featureExpr, use)
-        }
-      case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
-        addChoice(c1, featureExpr, use)
-        addChoice(c2, featureExpr, use)
-      case Choice(_, c@Choice(_, _, _), o@One(_)) =>
-        addOne(o, use)
-        addChoice(c, featureExpr, use)
-      case _ => println("AddChoiceUse: This should not have happend " + choice)
-    }
+    abstractAddChoice(choice, use, env, featureExpr, addOne)
+
   }
 
   private def addDefChoice(entry: Choice[AST]) {
@@ -469,7 +466,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             addToDeclUseMap(key, i)
           case One(Enumerator(key, _)) => addToDeclUseMap(key, i)
           case One(NestedNamedDeclarator(_, nestedDecl, _)) => addToDeclUseMap(nestedDecl.getId, i)
-          case c@Choice(_, _, _) => addChoice(c, feature, i)
+          case c@Choice(_, _, _) => addChoice(c, env, feature, i)
           case _ =>
         }
       case PointerDerefExpr(i) => addUse(i, feature, env)
@@ -539,7 +536,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                     addToDeclUseMap(key, i)
                   case One(Enumerator(key, _)) => addToDeclUseMap(key, i)
                   case One(NestedNamedDeclarator(_, nestedDecl, _)) => addToDeclUseMap(nestedDecl.getId, i)
-                  case c@Choice(_, _, _) => addChoice(c, feature, i)
+                  case c@Choice(_, _, _) => addChoice(c, env, feature, i)
                   case One(null) =>
                     if (stringToIdMap.containsKey(i.name) && declUseMap.containsKey(stringToIdMap.get(i.name).get)) {
                       addToDeclUseMap(stringToIdMap.get(i.name).get, i)
