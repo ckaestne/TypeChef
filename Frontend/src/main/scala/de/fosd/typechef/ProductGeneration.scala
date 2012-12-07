@@ -236,8 +236,10 @@ object ProductGeneration extends EnforceTreeHelper {
                             "../Linux_allyes_modified.config"
                         else if (caseStudy.equals("busybox"))
                             "../BusyboxBigConfig.config"
+                        else if (caseStudy.equals("openssl"))
+                            "/local/joliebig/OpenSSL.config"
                         else
-                            throw new Exception("unknown case Study, give linux or busybox")
+                            throw new Exception("unknown case Study, give linux, busybox, or openssl")
                         startTime = System.currentTimeMillis()
                         val (configs, logmsg) = getConfigsFromFiles(features, fm, new File(configFile))
                         tasks :+= Pair("FileConfig", configs)
@@ -391,12 +393,16 @@ object ProductGeneration extends EnforceTreeHelper {
     private def varAwareAnalysisSetup(fm_ts: FeatureModel, ast: AST, opt: FrontendOptions): (TranslationUnit, List[Task], String, String) = {
       var caseStudy = ""
       var thisFilePath = ""
-      if (opt.getFile.contains("linux-2.6.33.3")) {
-        thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+      val fileAbsPath = new File(".").getAbsolutePath + opt.getFile
+      if (fileAbsPath.contains("linux-2.6.33.3")) {
+        thisFilePath = fileAbsPath.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
         caseStudy = "linux"
-      } else if (opt.getFile.contains("busybox-1.18.5")) {
-        thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
+      } else if (fileAbsPath.contains("busybox-1.18.5")) {
+        thisFilePath = fileAbsPath.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
         caseStudy = "busybox"
+      } else if (fileAbsPath.contains("openssl-1.0.1c")) {
+        thisFilePath = fileAbsPath.substring(opt.getFile.lastIndexOf("openssl-1.0.1c"))
+        caseStudy = "openssl"
       } else {
         thisFilePath=opt.getFile
       }
@@ -490,12 +496,16 @@ object ProductGeneration extends EnforceTreeHelper {
     def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
         var caseStudy = ""
         var thisFilePath: String = ""
-        if (opt.getFile.contains("linux-2.6.33.3")) {
-            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+        val fileAbsPath = new File(".").getAbsolutePath + opt.getFile
+        if (fileAbsPath.contains("linux-2.6.33.3")) {
+            thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("linux-2.6.33.3"))
             caseStudy = "linux"
-        } else if (opt.getFile.contains("busybox-1.18.5")) {
-            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
+        } else if (fileAbsPath.contains("busybox-1.18.5")) {
+            thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("busybox-1.18.5"))
             caseStudy = "busybox"
+        } else if (fileAbsPath.contains("openssl-1.0.1c")) {
+          thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("openssl-1.0.1c"))
+          caseStudy = "openssl"
         } else {
             thisFilePath = opt.getFile
         }
