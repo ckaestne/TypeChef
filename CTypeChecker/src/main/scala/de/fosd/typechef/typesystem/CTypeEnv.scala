@@ -40,7 +40,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty || (e.init.size == 1 && e.declSpecs.exists(x => x.entry.isInstanceOf[TypedefSpecifier])))
   }
 
-  def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
+  def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = {
+    addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
+  }
 
   def addStructDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = {
     var env = initEnv
@@ -57,30 +59,37 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     //            reportTypeError(featureExpr andNot mayRedeclare,"redefinition of \"%s %s\"".format(if(isUnion)"union" else "struct", name),where, Severity.RedeclarationError)
   }
 
-  def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
-    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes)) => {
-      //for parsing the inner members, the struct itself is available incomplete
-      var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
-      val members = parseStructMembers(attributes, featureExpr, env)
+  def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = {
+    // debug
+    specifier match {
+      case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes)) => {
+        var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+        addDefinition(i, env)
+        attributes.foreach(x => addDefinition(x.entry, env))
+        //for parsing the inner members, the struct itself is available incomplete
+        val members = parseStructMembers(attributes, featureExpr, env)
 
-      //collect inner struct declarations recursively
-      env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
-      checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
-      addDef(i, featureExpr, env)
-      attributes.foreach(x => addDef(x.entry, featureExpr, env))
-      env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
-    }
-    //incomplete struct
-    case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
-      //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
-      if (declareIncompleteTypes) {
-        val env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+        //collect inner struct declarations recursively
+        env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
+        checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
+
+        env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
       }
-      initEnv
+      //incomplete struct
+      case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
+        //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
+        if (declareIncompleteTypes) {
+          val env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+          addStructDeclUse(i, initEnv, isUnion, featureExpr)
+        } else {
+          addStructDeclUse(i, initEnv, isUnion, featureExpr)
+        }
+        initEnv
+      }
+      case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
+        addInnerStructDeclarationsToEnv(attributes, featureExpr, initEnv)
+      case _ => initEnv
     }
-    case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
-      addInnerStructDeclarationsToEnv(attributes, featureExpr, initEnv)
-    case _ => initEnv
   }
 
   private def addInnerStructDeclarationsToEnv(fields: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, initEnv: Env): Env = {
@@ -139,11 +148,17 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
   def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, enumEnv: EnumEnv, isHeadless: Boolean): EnumEnv =
     specifiers.foldRight(enumEnv)({
       (opt, b) => {
+
         val specFeature = opt.feature
         val typeSpec = opt.entry
         typeSpec match {
-          case EnumSpecifier(Some(Id(name)), l) if (isHeadless || !l.isEmpty) =>
-            b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.False)))
+          case EnumSpecifier(Some(i@Id(name)), l) if (isHeadless || !l.isEmpty) =>
+            var ft = FeatureExprFactory.False
+            b.getOrElse(name, FeatureExprFactory.False) match {
+              case f: FeatureExpr => ft = f
+              case Tuple2(feat: FeatureExpr, id) => ft = feat
+            }
+            b + (name ->((featureExpr and specFeature or ft), i))
           //recurse into structs
           case StructOrUnionSpecifier(_, _, fields) =>
             fields.getOrElse(Nil).foldRight(b)(

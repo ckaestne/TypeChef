@@ -54,9 +54,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                   case ParameterDeclarationD(lst3, _) =>
                     lst3.foreach(z => z.entry match {
                       case StructOrUnionSpecifier(isUnion, Some(i: Id), _) =>
-                        addStructDeclUse(i, newEnv, isUnion)
+                        addStructDeclUse(i, newEnv, isUnion, featureExpr)
                       case TypeDefTypeSpecifier(i: Id) =>
-                        addDef(i, featureExpr, newEnv)
+                        addTypeUse(i, env, z.feature)
+                      //addDefinition(i,  newEnv)
                       case _ =>
                     })
                   case _ =>
@@ -67,7 +68,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         }
         // addDecl(declarator, newEnv)
         specifiers.foreach(x => x.entry match {
-          case TypeDefTypeSpecifier(i: Id) => addDef(i, featureExpr, newEnv)
+          case TypeDefTypeSpecifier(i: Id) => addDefinition(i, newEnv)
           case _ =>
         })
         newEnv
@@ -103,7 +104,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     //add type to environment for remaining code
     val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
-    addDef(f, featureExpr, env)
+    addDecl(declarator, featureExpr, env)
 
     //check body (add parameters to environment)
     val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
@@ -200,6 +201,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     checkArrayExpr(d, featureExpr, env: Env)
     checkTypeDeclaration(d, featureExpr, env)
     addDecl(d, featureExpr, env)
+    //addDeclaration(d, featureExpr, env)
     env
   }
 
@@ -342,8 +344,18 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
       case ContinueStatement() => nop
       case BreakStatement() => nop
 
-      case GotoStatement(_) => nop //TODO check goto against labels
-      case LabelStatement(_, _) => nop
+      // TODO: handle labels and gotos in declusemap
+      case GotoStatement(i: Id) =>
+        addDefinition(i, env)
+        nop
+      case LabelStatement(i: Id, _) =>
+        addDefinition(i, env)
+        nop
+
+      case GotoStatement(_) =>
+        nop //TODO check goto against labels
+      case LabelStatement(_, _) =>
+        nop
       case LocalLabelDeclaration(ids) => nop
     }
   }

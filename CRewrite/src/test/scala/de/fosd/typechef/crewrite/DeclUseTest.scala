@@ -50,11 +50,10 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     relevantIds.foreach(x => {
       if (!allIds.containsKey(x)) {
         missingLB += x
-        println(x + " @ " + x.getPositionFrom.getLine.toString + "\n" + x.getPositionFrom.toString + "\nParent: " + env.parent(env.parent(env.parent(x))) + "\n")
       }
     })
-    resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB)
-    resultString.append("\nFiltered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB)
+    resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)))
+    resultString.append("\nFiltered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)))
     // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
     return (resultString.toString())
   }

@@ -193,7 +193,8 @@ trait CEnv {
    * No need to remember fields etc, because they are integers anyway and no further checking is done in C
    */
 
-  type EnumEnv = Map[String, FeatureExpr]
+  type EnumEnv = Map[String, Tuple2[FeatureExpr, Id]]
+  //type EnumEnv = Map[String, FeatureExpr]
 
   /**
    * label environment: stores which labels are reachable from a goto.
