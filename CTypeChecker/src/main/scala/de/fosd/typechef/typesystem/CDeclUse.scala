@@ -130,10 +130,40 @@ trait CDeclUse extends CEnv with CEnvCache {
   //   - function: function declarations (forward declarations) and function definitions are handled
   //               if a function declaration exists, we add it as def and the function definition as its use
   //               if no function declaration exists, we add the function definition as def
-  def addDefinition(definition: AST, env: Env) {
+  def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
     definition match {
       case id: Id =>
-        putToDeclUseMap(id)
+        if (isFunctionDeclarator) {
+          println("ENV SAYS: " + env.varEnv.getAstOrElse(id.name, null))
+          env.varEnv.getAstOrElse(id.name, null) match {
+            case One(i: InitDeclarator) =>
+              val temp = declUseMap.get(i.getId)
+              declUseMap.remove(i.getId)
+              putToDeclUseMap(id)
+              addToDeclUseMap(id, i.getId)
+              temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+            case c@Choice(_, _, _) =>
+              val tuple = choiceToTuple(c)
+              tuple.foreach(x => {
+                x._2 match {
+                  case i: InitDeclarator =>
+                    val temp = declUseMap.get(i.getId)
+                    if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology())) {
+                      declUseMap.remove(i.getId)
+                      putToDeclUseMap(id)
+                      addToDeclUseMap(id, i.getId)
+                      temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+                    } else {
+                      // kein plan?
+                    }
+                  case _ =>
+                }
+              })
+            case k => println("Missing: " + k)
+          }
+        } else {
+          putToDeclUseMap(id)
+        }
       case StructDeclaration(quals, decls) =>
         decls.foreach(x => addDecl(x.entry, x.feature, env))
       case k => println("FLOO: " + k)
@@ -695,46 +725,6 @@ trait CDeclUse extends CEnv with CEnvCache {
           handleAtomicNamedDeclaratorExtensions(declarator)
       }
     }
-
-    /*for (Opt(specFeature, specs) <- decl.declSpecs) {
-      specs match {
-        case StructOrUnionSpecifier(isUnion, Some(i: Id), None) =>
-          if (isIncompleteStruct) {
-            putToDeclUseMap(i)
-          } else {
-            env.structEnv.getId(i.name, isUnion) match {
-              case One(key: Id) =>
-                addToDeclUseMap(key, i)
-              case Choice(ft, One(key1: Id), One(key2: Id)) =>
-                if (specFeature.equivalentTo(FeatureExprFactory.True)) {
-                  addToDeclUseMap(key1, i)
-                  addToDeclUseMap(key2, i)
-                } else if (ft.implies(specFeature).isTautology()) {
-                  addToDeclUseMap(key1, i)
-                } else if (ft.not().implies(specFeature).isTautology()) {
-                  addToDeclUseMap(key2, i)
-                } else {
-                  addToDeclUseMap(key1, i)
-                  addToDeclUseMap(key2, i)
-                }
-            }
-          }
-        case StructOrUnionSpecifier(isUnion, Some(i: Id), Some(structDeclarations)) =>
-          putToDeclUseMap(i)
-          for (Opt(structDeclFeature, structDecls) <- structDeclarations) {
-            structDecls match {
-              case StructDeclaration(qualifiers, structDeclarators) =>
-                for (Opt(structDeclaratorFeature, structDeclarator) <- structDeclarators) {
-                  structDeclarator match {
-                    case StructDeclarator(a: AtomicNamedDeclarator, ini, attr) =>
-                      putToDeclUseMap(a.getId)
-                  }
-                }
-            }
-          }
-        case _ =>
-      }
-    }*/
   }
 
   def addStructUse(entry: AST, featureExpr: FeatureExpr, env: Env, structName: String, isUnion: Boolean) {
