@@ -140,6 +140,9 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
     definition match {
       case id: Id =>
+        if (id.name.equals("handle_vm86_trap")) {
+          println("break")
+        }
         if (isFunctionDeclarator) {
           addFunctionDeclaration(env, id, feature)
         } else {
@@ -173,6 +176,8 @@ trait CDeclUse extends CEnv with CEnvCache {
                   putToDeclUseMap(id)
                   addToDeclUseMap(id, i.getId)
                   temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+                } else {
+                  addToDeclUseMap(i.getId, id)
                 }
               } else {
                 putToDeclUseMap(id)
