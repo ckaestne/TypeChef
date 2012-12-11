@@ -201,6 +201,8 @@ trait CDeclUse extends CEnv with CEnvCache {
           if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(enumDeclarationFeature).isTautology())) {
             addToDeclUseMap(enumDeclarationId, i)
           }
+        } else {
+          println("else")
         }
       case _ => assert(false, println("Match Error"))
     }
@@ -302,20 +304,6 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def addUse(entry: AST, feature: FeatureExpr, env: Env) {
-    def addUseEnum(x: Option[Id], env: CDeclUse.this.type#Env) {
-      x.foreach(id => {
-        /* Enum typespecifier are not correctly implemented @ CTypeSystem
-          * Workaround: lookup for id and add.
-          */
-        if (env.enumEnv.contains(id.name)) {
-          for (key <- declUseMap.keys) {
-            if (key.equals(id)) {
-              addToDeclUseMap(key, id)
-            }
-          }
-        }
-      })
-    }
 
     def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
       typ match {
@@ -387,7 +375,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         addUse(expr, feature, env)
         thenExpr.foreach(x => addUse(x, feature, env))
         addUse(elseExpr, feature, env)
-      case EnumSpecifier(x, _) => addUseEnum(x, env)
+      case EnumSpecifier(x, _) => println("enumUse!")
       case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, feature, env))
       case ExprList(exprs) => exprs.foreach(x => addUse(x.entry, feature, env))
       case LcurlyInitializer(inits) => inits.foreach(x => addUse(x.entry, feature, env))
@@ -891,13 +879,43 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addJumpStatements(compoundStatement: CompoundStatement) = addGotoStatements(compoundStatement)
 
   private def addGotoStatements(f: AST) {
-    val gotos = filterASTElemts[GotoStatement](f)
-    filterASTElemts[LabelStatement](f).foreach(x => {
-      putToDeclUseMap(x.id)
-      gotos.foreach(y => y match {
-        case GotoStatement(id2) => if (x.id.equals(id2)) addToDeclUseMap(x.id, id2.asInstanceOf[Id])
-        case _ => assert(false, println("Match Error"))
-      })
+    val labelMap: IdentityHashMap[Id, FeatureExpr] = new IdentityHashMap
+
+    def getLabels(a: Any): List[Opt[_]] = {
+      a match {
+        case o@Opt(ft, entry: LabelStatement) =>
+          List(o)
+        case l: List[_] => l.flatMap(x => getLabels(x))
+        case p: Product => p.productIterator.toList.flatMap(x => getLabels(x))
+        case _ => List()
+      }
+    }
+    def getGotos(a: Any): List[Opt[_]] = {
+      a match {
+        case o@Opt(ft, entry: GotoStatement) =>
+          List(o)
+        case l: List[_] => l.flatMap(x => getGotos(x))
+        case p: Product => p.productIterator.toList.flatMap(x => getGotos(x))
+        case _ => List()
+      }
+    }
+    getLabels(f).foreach(x => {
+      val label = x.entry.asInstanceOf[LabelStatement]
+      putToDeclUseMap(label.id)
+      labelMap.put(label.id, x.feature)
+    })
+    getGotos(f).foreach(x => {
+      val goto = x.entry.asInstanceOf[GotoStatement]
+      goto.target match {
+        case usage@Id(name) =>
+          labelMap.keySet().toArray().foreach(declaration => {
+            if (declaration.asInstanceOf[Id].name.equals(name) &&
+              (x.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(x.feature).isTautology)) {
+              addToDeclUseMap(declaration.asInstanceOf[Id], usage)
+            }
+          })
+        case k => println("Missing GotoStatement match: " + k)
+      }
     })
   }
 
