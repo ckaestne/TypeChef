@@ -105,6 +105,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //add type to environment for remaining code
     val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
     addDefinition(declarator.getId, env, featureExpr, true)
+    addGotoStatements(f)
 
     //check body (add parameters to environment)
     val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
@@ -343,14 +344,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
       case EmptyStatement() => nop
       case ContinueStatement() => nop
       case BreakStatement() => nop
-
-      // TODO: handle labels and gotos in declusemap
-      case GotoStatement(i: Id) =>
-        addDefinition(i, env)
-        nop
-      case LabelStatement(i: Id, _) =>
-        addDefinition(i, env)
-        nop
 
       case GotoStatement(_) =>
         nop //TODO check goto against labels

@@ -126,6 +126,8 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   def getDeclUseMap2 = declUseMap
 
+  def addGotos(functionDef: FunctionDef)
+
   // add definition:
   //   - function: function declarations (forward declarations) and function definitions are handled
   //               if a function declaration exists, we add it as def and the function definition as its use
@@ -1087,7 +1089,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
-  private def addGotoStatements(f: AST) {
+  def addGotoStatements(f: AST) {
     val labels = filterASTElemts[LabelStatement](f)
     val gotos = filterASTElemts[GotoStatement](f)
     labels.foreach(x => {
