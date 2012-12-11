@@ -57,7 +57,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                         addStructDeclUse(i, newEnv, isUnion, featureExpr)
                       case TypeDefTypeSpecifier(i: Id) =>
                         addTypeUse(i, env, z.feature)
-                      //addDefinition(i,  newEnv)
                       case _ =>
                     })
                   case _ =>
@@ -66,9 +65,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             })
           case _ =>
         }
-        // addDecl(declarator, newEnv)
         specifiers.foreach(x => x.entry match {
-          case TypeDefTypeSpecifier(i: Id) => addDefinition(i, newEnv)
+          case TypeDefTypeSpecifier(i: Id) => addTypeUse(i, env, x.feature)
           case _ =>
         })
         newEnv
@@ -105,7 +103,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     //add type to environment for remaining code
     val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
     addDecl(declarator, featureExpr, env, false)
-    addGotos(stmt)
+    addJumpStatements(stmt)
 
     //check body (add parameters to environment)
     val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)

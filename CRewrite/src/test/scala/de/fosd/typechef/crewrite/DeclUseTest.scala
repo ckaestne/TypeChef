@@ -461,7 +461,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     // path to busybox dir with pi files to analyse
     val folderPath = "/Users/andi/Dropbox/HiWi/Flo/test/"
     val folder = new File(folderPath)
-    analyseDir(folder, true)
+    analyseDir(folder, false)
     val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/test/"
     val folder2 = new File(folderPath2)
     analyseDir(folder2)
