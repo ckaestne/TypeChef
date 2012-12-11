@@ -126,7 +126,9 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   def getDeclUseMap2 = declUseMap
 
-  def addGotos(functionDef: FunctionDef)
+  def addGotos(compoundStatement: CompoundStatement) = {
+    addGotoStatements(compoundStatement)
+  }
 
   // add definition:
   //   - function: function declarations (forward declarations) and function definitions are handled
@@ -136,7 +138,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     definition match {
       case id: Id =>
         if (isFunctionDeclarator) {
-          println("ENV SAYS: " + env.varEnv.getAstOrElse(id.name, null))
+          val test = env.varEnv.getAstOrElse(id.name, null)
           env.varEnv.getAstOrElse(id.name, null) match {
             case One(i: InitDeclarator) =>
               val temp = declUseMap.get(i.getId)
@@ -146,18 +148,26 @@ trait CDeclUse extends CEnv with CEnvCache {
               temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
             case c@Choice(_, _, _) =>
               val tuple = choiceToTuple(c)
+              var currentForwardDeclaration: Id = null
               tuple.foreach(x => {
                 x._2 match {
                   case i: InitDeclarator =>
-                    val temp = declUseMap.get(i.getId)
-                    if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology())) {
-                      declUseMap.remove(i.getId)
+                    if (declUseMap.containsKey(i.getId)) {
+                      currentForwardDeclaration = i.getId
+                      val temp = declUseMap.get(i.getId)
+                      if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology())) {
+                        declUseMap.remove(i.getId)
+                        putToDeclUseMap(id)
+                        addToDeclUseMap(id, i.getId)
+                        temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+                      } else {
+                        // kein plan?
+                      }
+                    } else {
                       putToDeclUseMap(id)
                       addToDeclUseMap(id, i.getId)
-                      temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
-                    } else {
-                      // kein plan?
                     }
+
                   case _ =>
                 }
               })
@@ -168,7 +178,8 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
       case StructDeclaration(quals, decls) =>
         decls.foreach(x => addDecl(x.entry, x.feature, env))
-      case k => println("FLOO: " + k)
+      case k =>
+        println("Missing AddDefinition: " + k)
     }
   }
 
@@ -1089,7 +1100,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
-  def addGotoStatements(f: AST) {
+  private def addGotoStatements(f: AST) {
     val labels = filterASTElemts[LabelStatement](f)
     val gotos = filterASTElemts[GotoStatement](f)
     labels.foreach(x => {
