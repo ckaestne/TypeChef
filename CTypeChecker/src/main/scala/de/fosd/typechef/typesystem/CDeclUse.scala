@@ -140,6 +140,8 @@ trait CDeclUse extends CEnv with CEnvCache {
         if (isFunctionDeclarator) {
           val test = env.varEnv.getAstOrElse(id.name, null)
           env.varEnv.getAstOrElse(id.name, null) match {
+            case One(null) =>
+              putToDeclUseMap(id)
             case One(i: InitDeclarator) =>
               val temp = declUseMap.get(i.getId)
               declUseMap.remove(i.getId)
