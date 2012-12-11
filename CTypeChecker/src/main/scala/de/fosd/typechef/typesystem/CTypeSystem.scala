@@ -104,7 +104,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     //add type to environment for remaining code
     val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
-    addDefinition(declarator.getId, env, featureExpr, true)
+    addDecl(declarator, featureExpr, env, false)
     addGotos(stmt)
 
     //check body (add parameters to environment)

@@ -169,8 +169,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                       putToDeclUseMap(id)
                       addToDeclUseMap(id, i.getId)
                     }
-
-                  case _ =>
+                  case k =>
                 }
               })
             case k => println("Missing: " + k)
@@ -935,10 +934,16 @@ trait CDeclUse extends CEnv with CEnvCache {
       case Initializer(label, element) =>
         addDecl(element, featureExpr, env)
       case AtomicNamedDeclarator(pointers, id, extension) =>
-        pointers.foreach(x => addDecl(x, featureExpr, env))
-        extension.foreach(x => addDecl(x, featureExpr, env))
-        // addDef(id, featureExpr, env)
-        addDefinition(id, env)
+        if (isDefinition) {
+          pointers.foreach(x => addDecl(x, featureExpr, env))
+          extension.foreach(x => addDecl(x, featureExpr, env))
+          addDefinition(id, env)
+        } else {
+          pointers.foreach(x => addDecl(x, featureExpr, env))
+          extension.foreach(x => addDecl(x, featureExpr, env))
+          addDefinition(id, env, featureExpr, true)
+        }
+
       case i: Id =>
         if (isDefinition) {
           addDefinition(i, env)

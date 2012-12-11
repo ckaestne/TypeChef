@@ -464,6 +464,6 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     analyseDir(folder, true)
     val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/test/"
     val folder2 = new File(folderPath2)
-    analyseDir(folder2, true)
+    analyseDir(folder2)
   }
 }
