@@ -156,7 +156,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       if (declUseMap.containsKey(i)) {
         currentForwardDeclaration = i
         val temp = declUseMap.get(i)
-        if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology())) {
+        if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology()) || feature.implies(x._1).isTautology) {
           declUseMap.remove(i)
           putToDeclUseMap(id)
           addToDeclUseMap(id, i)
@@ -623,10 +623,10 @@ trait CDeclUse extends CEnv with CEnvCache {
             case c@Choice(_, _, _) =>
               val tuple = choiceToTuple(c)
               tuple.foreach(x => {
-                if (feature.equivalentTo(FeatureExprFactory.True)) {
+                if (feature.equivalentTo(FeatureExprFactory.True) || x._1.implies(feature).isTautology || feature.implies(x._1).isTautology) {
                   addToDeclUseMap(x._2.asInstanceOf[Id], use)
-                } else if (x._1.implies(feature).isTautology) {
-                  addToDeclUseMap(x._2.asInstanceOf[Id], use)
+                } else {
+                  // nothing to do
                 }
               })
           }
