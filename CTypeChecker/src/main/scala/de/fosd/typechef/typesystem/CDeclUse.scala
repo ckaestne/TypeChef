@@ -140,9 +140,6 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
     definition match {
       case id: Id =>
-        if (id.name.equals("handle_vm86_trap")) {
-          println("break")
-        }
         if (isFunctionDeclarator) {
           addFunctionDeclaration(env, id, feature)
         } else {
@@ -154,6 +151,25 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   private def addFunctionDeclaration(env: Env, id: Id, feature: FeatureExpr) {
+    def addForwardDeclartion(i: Id, _currentForwardDeclaration: Id, x: (FeatureExpr, AST)): Any = {
+      var currentForwardDeclaration: Id = _currentForwardDeclaration
+      if (declUseMap.containsKey(i)) {
+        currentForwardDeclaration = i
+        val temp = declUseMap.get(i)
+        if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology())) {
+          declUseMap.remove(i)
+          putToDeclUseMap(id)
+          addToDeclUseMap(id, i)
+          temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+        } else {
+          putToDeclUseMap(id)
+        }
+      } else {
+        putToDeclUseMap(id)
+        addToDeclUseMap(id, i)
+      }
+    }
+
     env.varEnv.getAstOrElse(id.name, null) match {
       case One(null) => putToDeclUseMap(id)
       case One(i: InitDeclarator) =>
@@ -167,22 +183,8 @@ trait CDeclUse extends CEnv with CEnvCache {
         var currentForwardDeclaration: Id = null
         tuple.foreach(x => {
           x._2 match {
-            case i: InitDeclarator =>
-              if (declUseMap.containsKey(i.getId)) {
-                currentForwardDeclaration = i.getId
-                val temp = declUseMap.get(i.getId)
-                if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology())) {
-                  declUseMap.remove(i.getId)
-                  putToDeclUseMap(id)
-                  addToDeclUseMap(id, i.getId)
-                  temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
-                } else {
-                  addToDeclUseMap(i.getId, id)
-                }
-              } else {
-                putToDeclUseMap(id)
-                addToDeclUseMap(id, i.getId)
-              }
+            case i: InitDeclarator => addForwardDeclartion(i.getId, currentForwardDeclaration, x)
+            case f: FunctionDef => addForwardDeclartion(f.declarator.getId, currentForwardDeclaration, x)
             case k =>
           }
         })
