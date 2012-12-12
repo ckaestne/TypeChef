@@ -4,17 +4,21 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.lexer._
 
+
+
 /**
  * thin wrapper around jccp tokens to make them accessible to MultiFeatureParser
  * @author kaestner
  *
  */
-class TokenWrapper(token: Token, number: Int) extends /*AbstractToken*/ ProfilingToken {
+class TokenWrapper(token: Token, number: Int) extends /*AbstractToken*/ ProfilingToken with AbstractToken {
     def getFeature = token.getFeature()
     def isInteger = token.getType == Token.INTEGER
     def isIdentifier = token.getType == Token.IDENTIFIER && !CLexer.keywords.contains(token.getText)
     def getText: String = token.getText
-    def getType = token.getType
+    def isString: Boolean = token.getText == Token.STRING
+    def isCharacter: Boolean = token.getText == Token.CHARACTER
+
     override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isTautology) getFeature else "")
     private lazy val pos = new TokenPosition(
         if (token.getSource == null) null else token.getSource.toString,

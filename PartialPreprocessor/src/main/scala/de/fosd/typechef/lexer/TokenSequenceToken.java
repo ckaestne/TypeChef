@@ -91,7 +91,7 @@ class TokenSequenceToken extends Token {
     }
 
     @Override
-    void setLocation(int line, int column) {
+    public void setLocation(int line, int column) {
         firstToken().setLocation(line, column);
     }
 

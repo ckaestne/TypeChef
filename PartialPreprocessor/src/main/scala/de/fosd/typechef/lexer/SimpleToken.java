@@ -77,7 +77,7 @@ public class SimpleToken extends Token {
         return type;
     }
 
-    /* pp */void setLocation(int line, int column) {
+    public void setLocation(int line, int column) {
         this.line = line;
         this.column = column;
     }

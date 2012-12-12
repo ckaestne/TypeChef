@@ -7,6 +7,11 @@ trait AbstractToken {
     def getText: String
     def getPosition: Position
 
+    def isInteger: Boolean
+    def isIdentifier: Boolean
+    def isString: Boolean
+    def isCharacter: Boolean
+
     // profiling
     def countSuccess(context: FeatureExpr) = {}
     def countFailure = {}

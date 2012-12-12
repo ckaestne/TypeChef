@@ -39,7 +39,7 @@ public abstract class Token {
      */
     public abstract int getType();
 
-    abstract void setLocation(int line, int column);
+    public abstract void setLocation(int line, int column);
 
     /**
      * Returns the line at which this token started.
