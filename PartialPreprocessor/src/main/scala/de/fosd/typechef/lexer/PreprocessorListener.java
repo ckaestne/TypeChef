@@ -72,7 +72,7 @@ public class PreprocessorListener {
     public void handleWarning(Source source, int line, int column, String msg)
             throws LexerException {
         warnings++;
-        print(source.getName() + ":" + line + ":" + column + ": warning: "
+        print((source==null?"":source.getName()) + ":" + line + ":" + column + ": warning: "
                 + msg, Level.WARNING);
     }
 
