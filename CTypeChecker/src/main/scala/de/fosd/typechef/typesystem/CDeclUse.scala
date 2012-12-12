@@ -156,7 +156,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       if (declUseMap.containsKey(i)) {
         currentForwardDeclaration = i
         val temp = declUseMap.get(i)
-        if (feature.equivalentTo(FeatureExprFactory.True) || (x._1.implies(feature).isTautology()) || feature.implies(x._1).isTautology) {
+        if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(x._1).isTautology())) {
           declUseMap.remove(i)
           putToDeclUseMap(id)
           addToDeclUseMap(id, i)
@@ -201,8 +201,6 @@ trait CDeclUse extends CEnv with CEnvCache {
           if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(enumDeclarationFeature).isTautology())) {
             addToDeclUseMap(enumDeclarationId, i)
           }
-        } else {
-          println("else")
         }
       case _ => assert(false, println("Match Error"))
     }
@@ -375,7 +373,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         addUse(expr, feature, env)
         thenExpr.foreach(x => addUse(x, feature, env))
         addUse(elseExpr, feature, env)
-      case EnumSpecifier(x, _) => println("enumUse!")
+      case EnumSpecifier(x, _) =>
       case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, feature, env))
       case ExprList(exprs) => exprs.foreach(x => addUse(x.entry, feature, env))
       case LcurlyInitializer(inits) => inits.foreach(x => addUse(x.entry, feature, env))
@@ -481,7 +479,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                                 tuple.foreach(x => {
                                   if (specFeature.equivalentTo(FeatureExprFactory.True)) {
                                     addToDeclUseMap(x._2.asInstanceOf[Id], i)
-                                  } else if (x._1.implies(specFeature).isTautology) {
+                                  } else if (specFeature.implies(x._1).isTautology) {
                                     addToDeclUseMap(x._2.asInstanceOf[Id], i)
                                   }
                                 })
@@ -623,10 +621,8 @@ trait CDeclUse extends CEnv with CEnvCache {
             case c@Choice(_, _, _) =>
               val tuple = choiceToTuple(c)
               tuple.foreach(x => {
-                if (feature.equivalentTo(FeatureExprFactory.True) || x._1.implies(feature).isTautology || feature.implies(x._1).isTautology) {
+                if (feature.equivalentTo(FeatureExprFactory.True) || feature.implies(x._1).isTautology) {
                   addToDeclUseMap(x._2.asInstanceOf[Id], use)
-                } else {
-                  // nothing to do
                 }
               })
           }
