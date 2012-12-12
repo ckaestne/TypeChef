@@ -303,7 +303,7 @@ public class TypeChefVsXtc {
         List<Token> xtcTokens = getXtcTokens(filename);
 
         List<Token> typechefTokens = new PartialPPLexer().parseStream(getClass().getResourceAsStream(
-                "/" + folder + filename), filename, folder, FeatureExprLib.featureModelFactory().empty());
+                "/" + folder + filename), filename, null, FeatureExprLib.featureModelFactory().empty());
 
 
         Assert.assertEquals(xtcTokens.size(), typechefTokens.size());

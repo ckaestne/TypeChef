@@ -1,7 +1,7 @@
 package de.fosd.typechef.deltaxtc
 
 import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.lexer.{Token,FeatureExprLib, PartialPPLexer, LexerException}
+import de.fosd.typechef.lexer.{Token, FeatureExprLib, PartialPPLexer, LexerException}
 import org.junit._
 import java.io.{FileOutputStream, File}
 
@@ -13,6 +13,7 @@ import java.io.{FileOutputStream, File}
  * @author kaestner
  */
 class BruteForceTest {
+
     import scala.collection.JavaConversions._
 
     @Test def testNestingDead {
@@ -169,59 +170,85 @@ class BruteForceTest {
     }
     val folder = "tc_data/";
 
-    def testFile(filename:String, a:Boolean=false,b:Boolean=false)  {
-        val typechefTokens = new PartialPPLexer().parseStream(getClass().getResourceAsStream(
-            "/" + folder + filename), filename, folder, FeatureExprLib.featureModelFactory().empty);
+
+    @Test
+    def testXtcTestCases {
+
+        val testfolders = new File("/usr0/home/ckaestne/work/TypeChef/xtc/tests/cpp") ::
+            new File("/usr0/home/ckaestne/work/TypeChef/xtc/tests/preprocessor") :: Nil
+        for (testfolder<-testfolders; file <- testfolder.listFiles())
+            if (file.isFile && file.getName.endsWith(".c")) {
+                println("*** " + file)
+                testFileBruteForce(file)
+            }
+
+    }
+
+    def testFile(filename: String, a: Boolean = false, b: Boolean = false) {
+        val in = File.createTempFile("typechef", ".c")
+        val s = getClass().getResourceAsStream(
+            "/" + folder + filename)
+        Help.copyStream(s, new FileOutputStream(in))
+
+        testFileBruteForce(in)
+
+        in.delete()
+    }
+
+    val sysIncludePath: java.util.List[String] = List(
+        "/usr0/home/ckaestne/work/TypeChef/xtc/tests/cpp/include1",
+        "/usr0/home/ckaestne/work/TypeChef/xtc/tests/cpp/include2",
+    "/usr0/home/ckaestne/work/TypeChef/xtc/tests/cpp/sys"
+    )
+
+
+    def testFileBruteForce(file: File) {
+        val typechefTokens = new PartialPPLexer().parseFile(file.getAbsolutePath, sysIncludePath, FeatureExprLib.featureModelFactory().empty);
 
         println(typechefTokens)
 
 
-        val features=typechefTokens.foldRight(Set[String]())((t,a)=>a ++ t.getFeature.collectDistinctFeatures)
+        val features = typechefTokens.foldRight(Set[String]())((t, a) => a ++ t.getFeature.collectDistinctFeatures)
         println(features)
 
 
-        assert(features.size<6,"too many features: "+features.size)
+        assert(features.size <= 8, "too many features: " + features.size)
 
         //copy file
-        val in = File.createTempFile("typechef",".c")
-        val out = File.createTempFile("typechef",".i")
-        val s=getClass().getResourceAsStream(
-            "/" + folder + filename)
-        Help.copyStream(s,new FileOutputStream(in))
+        val out = File.createTempFile("typechef", ".i")
 
         for (config <- features.subsets) {
-            println("Config: "+config)
+            println("Config: " + config)
 
-            val cmd="cpp -P "+in+" "+config.map("-D "+_).mkString(" ")//+" > "+out
+            val cmd = "cpp -P " + file.getAbsolutePath + " " + config.map("-D " + _).mkString(" ") +" "+ sysIncludePath.map("-I "+_).mkString(" ") //+" > "+out
 
             println(cmd)
-            val sr=exec2out(cmd)
-            Help.copyStream(sr,new FileOutputStream(out))
+            val sr = exec2out(cmd)
+            Help.copyStream(sr, new FileOutputStream(out))
 
 
             val expectedConfigTokens = typechefTokens.filter(
                 _.getFeature.evaluate(config)
             )
 
-            val configTokens = new PartialPPLexer().parseFile(out.getAbsolutePath, out.getParent, FeatureExprLib.featureModelFactory().empty);
+            val configTokens = new PartialPPLexer().parseFile(out.getAbsolutePath, sysIncludePath, FeatureExprLib.featureModelFactory().empty);
 
-            Assert.assertEquals(configTokens.size(),expectedConfigTokens.size)
-            for (i <- 0 until (configTokens.size()-1)) {
+            Assert.assertEquals(configTokens.size(), expectedConfigTokens.size)
+            for (i <- 0 until (configTokens.size() - 1)) {
                 Assert.assertEquals(configTokens.get(i).getText(), expectedConfigTokens.get(i).getText());
             }
 
         }
 
 
-        in.delete()
         out.delete()
 
     }
 
-    def exec(cmd:String) = Runtime.getRuntime exec cmd
+    def exec(cmd: String) = Runtime.getRuntime exec cmd
     /* result to System.out */
-    def exec2out(cmd:String) = {
-        val process = exec (cmd)
+    def exec2out(cmd: String) = {
+        val process = exec(cmd)
         process.getInputStream
     }
 

@@ -18,14 +18,14 @@ public class PartialPPLexer {
 
     public boolean debug = false;
 
-    public List<Token> parse(String code, String folderPath, FeatureModel featureModel) throws LexerException,
+    public List<Token> parse(String code, List<String>  systemIncludePath, FeatureModel featureModel) throws LexerException,
             IOException {
-        return parse(new StringLexerSource(code, true), folderPath, featureModel);
+        return parse(new StringLexerSource(code, true), systemIncludePath, featureModel);
     }
 
-    public List<Token> parseFile(String fileName, String folderPath, FeatureModel featureModel)
+    public List<Token> parseFile(String fileName, List<String>  systemIncludePath, FeatureModel featureModel)
             throws LexerException, IOException {
-        return parse(new FileLexerSource(new File(fileName)), folderPath, featureModel);
+        return parse(new FileLexerSource(new File(fileName)), systemIncludePath, featureModel);
     }
 
     /**
@@ -36,12 +36,12 @@ public class PartialPPLexer {
      * @throws LexerException
      * @throws IOException
      */
-    public List<Token> parseStream(InputStream stream, String filePath, String folderPath, FeatureModel featureModel)
+    public List<Token> parseStream(InputStream stream, String  filePath, List<String> systemIncludePath, FeatureModel featureModel)
             throws LexerException, IOException {
-        return parse(new FileLexerSource(stream, filePath), folderPath, featureModel);
+        return parse(new FileLexerSource(stream, filePath), systemIncludePath, featureModel);
     }
 
-    public List<Token> parse(Source source, String folderPath, FeatureModel featureModel)
+    public List<Token> parse(Source source, List<String> systemIncludePath, FeatureModel featureModel)
             throws LexerException, IOException {
         Preprocessor pp = new Preprocessor(featureModel);
         pp.addFeature(Feature.DIGRAPHS);
@@ -59,8 +59,8 @@ public class PartialPPLexer {
         pp.addMacro("__JCPP__", FeatureExprLib.True());
 
         // include path
-        if (folderPath != null)
-            pp.getSystemIncludePath().add(folderPath);
+        if (systemIncludePath != null)
+            pp.getSystemIncludePath().addAll(systemIncludePath);
 
         pp.addInput(source);
 
