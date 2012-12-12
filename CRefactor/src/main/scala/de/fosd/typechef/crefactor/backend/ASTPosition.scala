@@ -35,12 +35,11 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
    */
   def getSelectedExprOrStatement(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[AST] = {
     val statements = getSelectedStatements(ast, astEnv, file, startLine, endLine, startRow, endRow)
-    var expressions = filterASTElems[Expr](statements)
-    expressions = expressions.filter(expr =>
-      (expr.getPositionFrom.getLine >= startLine) &&
-        (expr.getPositionTo.getLine <= endLine) &&
-        (expr.getPositionFrom.getColumn == startRow) &&
-        (expr.getPositionTo.getColumn == endRow))
+    val expressions = filterASTElems[Expr](statements).filter(expr => {
+      var inExpr = false
+      filterASTElems[Id](expr).foreach(id => if (isIdOfSelectionRange(id, startLine, endLine, startRow, endRow)) inExpr = true)
+      inExpr
+    })
     println("exür" + expressions)
     statements
   }
@@ -110,21 +109,7 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
     /**
      * Annotated ids have often the same starting line. As workaround we only identify the id by its end value.
      */
-    ((id.getPositionTo.getLine == endLine) && ((endRow <= id.getPositionTo.getColumn) || (startRow <= id.getPositionTo.getColumn)))
-  }
-
-  /**
-   * Retrieves if element is in the selection range.
-   */
-  private def isIdInSelectionRange(id: Id, startLine: Int, endLine: Int, startRow: Int, endRow: Int): Boolean = {
-    if (!((isInRange(id.getPositionFrom.getLine, startLine, endLine) || isInRange(id.getPositionTo.getLine, startLine, endLine)))) {
-      return false
-    } else if (id.getPositionFrom.getLine == startLine) {
-      return isInRange(id.getPositionFrom.getColumn, startRow, endRow)
-    } else if (id.getPositionTo.getLine == endLine) {
-      return isInRange(id.getPositionTo.getColumn, startRow, endRow)
-    }
-    true
+    (isInRange(id.getPositionTo.getLine, startLine, endLine) && ((endRow <= id.getPositionTo.getColumn) || (startRow <= id.getPositionTo.getColumn)))
   }
 
   /**
