@@ -1,7 +1,9 @@
 package de.fosd.typechef.crefactor.backend
 
-import de.fosd.typechef.parser.c.{Statement, Id, AST}
+import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTEnv, ASTNavigation}
+import de.fosd.typechef.parser.c.Id
+import scala.Some
 import de.fosd.typechef.conditional.Opt
 
 
@@ -11,16 +13,15 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
    * Retrieves all ids in the selected range.
    */
   def getSelectedIDs(ast: AST, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[Id] = {
-    val result = filterASTElems[Id](ast).par.filter(x => isIdInSelectionRange(x, startLine, endLine, startRow, endRow)).toList
-    //(isInRange(x.getPositionFrom.getLine, startLine, endLine) || isInRange(x.getPositionTo.getLine, startLine, endLine)) && (isInRange(x.getPositionFrom.getColumn, startRow, endRow) || isInRange(x.getPositionTo.getColumn, startRow, endRow)))
+    val result = filterASTElems[Id](ast).par.filter(x => isIdOfSelectionRange(x, startLine, endLine, startRow, endRow)).toList
     filterFileId[Id](result, file)
   }
 
   /**
    * Retrieves all ast elements of the selected range.
    */
-  private def getElementsInRange(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[AST] = {
-    val result = filterAllASTElems[Statement](ast).par.filter(x => {
+  def getElementsInRange(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[AST] = {
+    val result = astEnv.keys().par.filter(x => {
       x match {
         case key: AST => isElementOfSelectionRange(key, startLine, endLine, startRow, endRow)
         case _ => false
@@ -30,11 +31,18 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
   }
 
   /**
-   * Retrieves the selected statements and their respective opt nodes.
+   * Retrieves the selected statements or selected nested expression
    */
-  def getSelectedStatementOpts(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[Opt[_]] = {
-    val statements = filterAllASTElems[Statement](ast).foreach(entry => entry.range.)
-    List[Opt[_]]()
+  def getSelectedExprOrStatement(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[AST] = {
+    val statements = getSelectedStatements(ast, astEnv, file, startLine, endLine, startRow, endRow)
+    var expressions = filterASTElems[Expr](statements)
+    expressions = expressions.filter(expr =>
+      (expr.getPositionFrom.getLine >= startLine) &&
+        (expr.getPositionTo.getLine <= endLine) &&
+        (expr.getPositionFrom.getColumn == startRow) &&
+        (expr.getPositionTo.getColumn == endRow))
+    println("exür" + expressions)
+    statements
   }
 
   /**
@@ -94,15 +102,22 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
   private def comparePosition(e1: AST, e2: AST) = (e1.getPositionFrom < e2.getPositionFrom)
 
   /**
-   * Checks if an ast element is in a certain position range.
+   * Checks if an ast element is in a certain range.
    */
   private def isInRange(pos: Int, start: Int, end: Int) = ((start <= pos) && (pos <= end))
+
+  private def isIdOfSelectionRange(id: Id, startLine: Int, endLine: Int, startRow: Int, endRow: Int): Boolean = {
+    /**
+     * Annotated ids have often the same starting line. As workaround we only identify the id by its end value.
+     */
+    ((id.getPositionTo.getLine == endLine) && ((endRow <= id.getPositionTo.getColumn) || (startRow <= id.getPositionTo.getColumn)))
+  }
 
   /**
    * Retrieves if element is in the selection range.
    */
   private def isIdInSelectionRange(id: Id, startLine: Int, endLine: Int, startRow: Int, endRow: Int): Boolean = {
-    if (!((isInRange(id.getPositionFrom.getLine, startLine, endLine) || isInRange(id.getPositionTo.getLine, startLine, endLine - 1)))) {
+    if (!((isInRange(id.getPositionFrom.getLine, startLine, endLine) || isInRange(id.getPositionTo.getLine, startLine, endLine)))) {
       return false
     } else if (id.getPositionFrom.getLine == startLine) {
       return isInRange(id.getPositionFrom.getColumn, startRow, endRow)
