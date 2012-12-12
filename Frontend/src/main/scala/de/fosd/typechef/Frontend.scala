@@ -99,13 +99,13 @@ object Frontend {
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
                 if (opt.typecheck || opt.writeInterface) {
-                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
-                      logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
+                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
+                      //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
-                    //println("type checking.")
-                    //ts.checkAST
-					          //ts.errors.map(errorXML.renderTypeError(_))
+                    println("type checking.")
+                    ts.checkAST
+					          ts.errors.map(errorXML.renderTypeError(_))
                     t4 = System.currentTimeMillis()
                     t5 = t4
                     t6 = t4
