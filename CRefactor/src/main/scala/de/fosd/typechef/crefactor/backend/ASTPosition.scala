@@ -20,14 +20,21 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
    * Retrieves all ast elements of the selected range.
    */
   private def getElementsInRange(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[AST] = {
-    val result = astEnv.keys().par.filter(x => {
-      if (x.isInstanceOf[AST]) {
-        isElementOfSelectionRange(x.asInstanceOf[AST], startLine, endLine, startRow, endRow)
-      } else {
-        false
+    val result = filterAllASTElems[Statement](ast).par.filter(x => {
+      x match {
+        case key: AST => isElementOfSelectionRange(key, startLine, endLine, startRow, endRow)
+        case _ => false
       }
     })
     filterFileId[AST](result.toList.asInstanceOf[List[AST]], file)
+  }
+
+  /**
+   * Retrieves the selected statements and their respective opt nodes.
+   */
+  def getSelectedStatementOpts(ast: AST, astEnv: ASTEnv, file: String, startLine: Int, endLine: Int, startRow: Int, endRow: Int): List[Opt[_]] = {
+    val statements = filterAllASTElems[Statement](ast).foreach(entry => entry.range.)
+    List[Opt[_]]()
   }
 
   /**
@@ -56,8 +63,7 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
         /**
          * Check first if statements are the same - if so, check if position range is the same.
          */
-        // TODO ASK Jörg for better solution
-        val sameStatements = statements.par.filter(x => (x.eq(statement) && x.range.eq(statement.range)))
+        val sameStatements = statements.filter(x => (x.eq(statement) && x.range.eq(statement.range)))
         if (sameStatements.isEmpty) {
           statement :: statements
         } else {
@@ -126,6 +132,6 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
   private def filterFileId[T <: AST](selection: List[T], file: String): List[T] = {
     // offset 5 because file path of id contains the string "file "
     val offset = 5
-    selection.par.filter(p => p.getFile.get.regionMatches(true, offset, file, 0, file.length())).toList
+    selection.filter(p => p.getFile.get.regionMatches(true, offset, file, 0, file.length())).toList
   }
 }

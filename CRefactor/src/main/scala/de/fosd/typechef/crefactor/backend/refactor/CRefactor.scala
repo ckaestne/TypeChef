@@ -11,7 +11,7 @@ import scala.NoSuchElementException
 import de.fosd.typechef.crefactor.backend.Cache
 
 
-trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
+trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
   private val languageKeywords = List(
     "auto",
