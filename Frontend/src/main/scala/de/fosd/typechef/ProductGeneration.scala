@@ -5,7 +5,7 @@ import crewrite.{CAnalysisFrontend, EnforceTreeHelper, ProductDerivation}
 import featureexpr._
 
 import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
-import parser.c.{AST, PrettyPrinter, TranslationUnit}
+import parser.c.{AST, TranslationUnit}
 import typesystem.CTypeSystemFrontend
 import scala.collection.immutable.HashMap
 import scala.Predef._
@@ -264,18 +264,22 @@ object ProductGeneration extends EnforceTreeHelper {
                 } else if (caseStudy == "busybox") {
                     productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
                     dimacsFM = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
+                } else if (caseStudy == "openssl") {
+                  productsDir = new File("/local/joliebig/TypeChef-OpenSSLAnalysis/openssl-1.0.1c/generatedConfigs_Henard/")
+                  dimacsFM = new File ("/local/joliebig/TypeChef-OpenSSLAnalysis/openssl-1.0.1c/generatedConfigs_Henard/Openssl.dimacs")
                 } else {
-                    throw new Exception("unknown case Study, give linux or busybox")
+                    throw new Exception("unknown case Study, give linux, busybox, or openssl")
                 }
                 startTime = System.currentTimeMillis()
-                val (configs, logmsg) = loadConfigurationsFromHenardFiles(
-                    productsDir.list().map(new File(productsDir, _)).toList.
-                        filter(!_.getName.endsWith(".dat")).filter(!_.getName.endsWith(".dimacs")).
-                        sortBy({
-                        f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
-                    }),
-                    dimacsFM,
-                    features, fm)
+                val (configs, logmsg) = loadConfigurationsFromCSVFile(new File("/local/joliebig/TypeChef-OpenSSLAnalysis/openssl-1.0.1c/generatedConfigs_Henard/henard.csv"), features, fm)
+//                val (configs, logmsg) = loadConfigurationsFromHenardFiles(
+//                    productsDir.list().map(new File(productsDir, _)).toList.
+//                        filter(!_.getName.endsWith(".dat")).filter(!_.getName.endsWith(".dimacs")).
+//                        sortBy({
+//                        f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
+//                    }),
+//                    dimacsFM,
+//                    features, fm)
                 tasks :+= Pair("henard", configs)
 
                 configurations ++= configs
@@ -286,6 +290,7 @@ object ProductGeneration extends EnforceTreeHelper {
         }
 
         /**Single-wise */
+
         /*
                 {
                     if (typecheckingTasks.find(_._1.equals("singleWise")).isDefined) {
@@ -445,7 +450,7 @@ object ProductGeneration extends EnforceTreeHelper {
       if (tasks.size > 0) println("start task - dataflow (" + (tasks.size) + " tasks)")
       // results (taskName, (NumConfigs, errors, timeSum))
       var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
-      val outFilePrefix: String = "../reports/" + fileName.substring(0, fileName.length - 2)
+      val outFilePrefix: String = "/local/joliebig/output/reports/" + fileName.substring(0, fileName.length - 2)
       for ((taskDesc: String, configs : List[SimpleConfiguration]) <- tasks) {
         val configurationsWithErrors = 0
         var current_config = 0
@@ -515,7 +520,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
         println("starting product checking.")
 
-        val configSerializationDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
+        val configSerializationDir = new File("/local/joliebig/output/savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
 
         val (configGenLog: String, typecheckingTasks: List[Task]) =
             buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
