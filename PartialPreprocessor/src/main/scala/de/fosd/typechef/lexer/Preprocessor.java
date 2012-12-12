@@ -2014,6 +2014,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             case '-':
                 lhs = new ExprOrValue(FeatureExprLib.l().createNeg(parse_featureExprOrValue(11, false).assumeValue(tok)));
                 break;
+            case '+':
+                lhs = new ExprOrValue((parse_featureExprOrValue(11, false).assumeValue(tok)));
+                break;
             case INTEGER:
                 lhs = new ExprOrValue(FeatureExprLib.l().createInteger(
                         ((Number) tok.getValue()).longValue()));
