@@ -4,6 +4,7 @@ import de.fosd.typechef.conditional.Opt;
 import de.fosd.typechef.crefactor.backend.ASTPosition;
 import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
+import de.fosd.typechef.crefactor.backend.refactor.ExtractMethod;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.ExtractFunctionActions;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.RenameActions;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
@@ -67,6 +68,7 @@ public class RefactorMenu implements MenuListener {
         final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Cache.getAST(), Cache.getASTEnv(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
 
+        final boolean extractionPossible = ExtractMethod.refactorIsPossible(selectedAST, Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap(), Cache.getUseDeclMap(), "newFunc");
         final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Cache.getASTEnv());
         if (this.menu.getComponentCount() != 0) {
             this.menu.add(new JSeparator());

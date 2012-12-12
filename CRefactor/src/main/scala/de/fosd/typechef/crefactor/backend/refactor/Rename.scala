@@ -9,7 +9,7 @@ import java.util
  *
  * @author Andreas Janker
  */
-object Rename extends Refactor {
+object Rename extends CRefactor {
 
   def refactorIsPossible(selection: Any, ast: AST, astEnv: ASTEnv, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]], name: String): Boolean = {
 
