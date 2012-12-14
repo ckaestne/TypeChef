@@ -2,20 +2,16 @@ package de.fosd.typechef.deltaxtc;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
-import de.fosd.typechef.jcpp.AbstractCheckTests;
-import de.fosd.typechef.featureexpr.*;
 import de.fosd.typechef.lexer.*;
+import de.fosd.typechef.xtclexer.XtcPreprocessor;
 import junit.framework.Assert;
-import net.sf.javabdd.BDD;
 import org.junit.Ignore;
 import org.junit.Test;
 import xtc.TestLexer;
-import xtc.lang.cpp.PresenceConditionManager;
 import xtc.lang.cpp.Stream;
 import xtc.lang.cpp.Syntax;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -317,80 +313,6 @@ public class TypeChefVsXtc {
     }
 
 
-    static class XtcToken extends Token {
-        public XtcToken(Syntax t, FeatureExpr f) {
-            xtcToken = t;
-            fexpr = f;
-        }
-
-        Syntax xtcToken;
-        FeatureExpr fexpr;
-
-        @Override
-        public int getType() {
-            return 0;
-        }
-
-        @Override
-        public int getLine() {
-            return xtcToken.getLocation().line;
-        }
-
-        @Override
-        public int getColumn() {
-            return xtcToken.getLocation().column;
-        }
-
-        @Override
-        public String getText() {
-            return xtcToken.toLanguage().getTokenText();
-        }
-
-        @Override
-        public Object getValue() {
-            return xtcToken;
-        }
-
-        @Override
-        public FeatureExpr getFeature() {
-            return fexpr;
-        }
-
-        @Override
-        public void setFeature(FeatureExpr expr) {
-            fexpr = expr;
-        }
-
-        @Override
-        public String toString() {
-            return getText();
-        }
-
-        @Override
-        public void setNoFurtherExpansion() {
-        }
-
-        @Override
-        public boolean mayExpand() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Source getSource() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Token clone() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setLocation(int line, int column) {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     private List<Token> getXtcTokens(String filename) throws IOException {
         InputStream inputStream = getClass().getResourceAsStream(
                 "/" + folder + filename);
@@ -411,15 +333,15 @@ public class TypeChefVsXtc {
             if (s.kind() == Syntax.Kind.CONDITIONAL) {
                 Syntax.Conditional c = s.toConditional();
                 if (c.tag() == Syntax.ConditionalTag.START)
-                    stack.push(stack.peek().and(translate(c.presenceCondition())));
+                    stack.push(stack.peek().and(XtcPreprocessor.translate(c.presenceCondition())));
                 else if (c.tag() == Syntax.ConditionalTag.NEXT) {
                     stack.pop();
-                    stack.push(stack.peek().and(translate(c.presenceCondition())));
+                    stack.push(stack.peek().and(XtcPreprocessor.translate(c.presenceCondition())));
                 } else stack.pop();
             }
 
             if (s.kind() == Syntax.Kind.LANGUAGE)
-                result.add(new XtcToken(s, stack.peek()));
+                result.add(new XtcPreprocessor.XtcToken(s, stack.peek()));
 
             s = lexer.scan();
         }
@@ -428,46 +350,7 @@ public class TypeChefVsXtc {
     }
 
 
-    private FeatureExpr translate(PresenceConditionManager.PresenceCondition pc) {
 
-        BDD bdd = pc.getBDD();
-
-        List allsat;
-        boolean firstTerm;
-
-        if (bdd.isOne())
-            return FeatureExprLib.True();
-        if (bdd.isZero()) return FeatureExprLib.False();
-
-        allsat = (List) bdd.allsat();
-
-        FeatureExpr result = FeatureExprLib.False();
-
-        firstTerm = true;
-        for (Object o : allsat) {
-            byte[] sat;
-            boolean first;
-
-            FeatureExpr innerResult = FeatureExprLib.True();
-
-
-            sat = (byte[]) o;
-            first = true;
-            for (int i = 0; i < sat.length; i++) if (sat[i] == 0 || sat[i] == 1) {
-                String fname =pc.getPCManager().vars.getName(i);
-                fname=fname.substring(9,fname.length()-1);
-                FeatureExpr var = FeatureExprLib.l().createDefinedExternal(fname);
-                if (sat[i] == 0) var = var.not();
-
-                    innerResult = innerResult.and(var);
-            }
-
-            result = result.or(innerResult);
-        }
-        return result;
-
-
-    }
 
 
     static class ExtraLinebreakInputStream extends InputStream {

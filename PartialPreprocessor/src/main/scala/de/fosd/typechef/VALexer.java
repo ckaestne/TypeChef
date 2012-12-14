@@ -40,7 +40,7 @@ public interface VALexer {
         /**
          *
          * @param inputStream
-         * @param fileName for error reporting only
+         * @param fileName used to find headers in the same directory and for error reporting
          */
         public StreamSource(InputStream inputStream, String fileName) {
             this.filename=fileName;

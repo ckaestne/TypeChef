@@ -4,10 +4,12 @@ import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.lexer.*;
 import de.fosd.typechef.lexer.macrotable.MacroContext$;
+import de.fosd.typechef.xtclexer.XtcPreprocessor;
 import junit.framework.Assert;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,8 @@ public class AbstractCheckTests {
 
         InputStream inputStream = getClass().getResourceAsStream(
                 "/" + folder + filename);
+        URL inputURI= getClass().getResource(
+                "/" + folder + filename);
         if (inputStream == null) {
             throw new FileNotFoundException("Input file not found: " + filename);
         }
@@ -52,7 +56,7 @@ public class AbstractCheckTests {
         try {
             //getResource() returns an URL containing escapes. toURI().getPath() is needed to unescape them.
             //Otherwise one gets a path where, e.g., spaces are represented by %20!
-            output = lex(new VALexer.StreamSource(inputStream, folder+filename),
+            output = lex(new VALexer.StreamSource(inputStream, inputURI.getFile()),
                     debug, getClass().getResource("/" + folder).toURI().getPath(), ignoreWarning);
         } catch (LexerException e) {
             ex = e;
@@ -188,7 +192,7 @@ public class AbstractCheckTests {
         // XXX Why here? And isn't the whole thing duplicated from elsewhere?
         MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
 
-        pp = new Preprocessor();
+        pp = new XtcPreprocessor();
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);
