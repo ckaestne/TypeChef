@@ -399,7 +399,7 @@ public class TypeChefVsXtc {
                 new ExtraLinebreakInputStream(inputStream)));
 
 
-        Stream lexer = TestLexer.createLexer(checkFile, new File(filename));
+        Stream lexer = TestLexer.createLexer(checkFile, new File(filename), new TestLexer.ExceptionErrorHandler());
 
         //create TypeChef style token stream
         List<Token> result = new ArrayList<Token>();

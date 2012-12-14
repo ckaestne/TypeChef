@@ -34,9 +34,12 @@ import de.fosd.typechef.lexer.macrotable.MacroExpansion;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import static de.fosd.typechef.lexer.Token.*;
+import de.fosd.typechef.VALexer;
+
 
 /**
  * modified C preprocessor with the following changes
@@ -91,7 +94,7 @@ import static de.fosd.typechef.lexer.Token.*;
  * being wrapped in an implicit extern "C" block.
  */
 
-public class Preprocessor extends DebuggingPreprocessor implements Closeable {
+public class Preprocessor extends DebuggingPreprocessor implements Closeable, VALexer {
 
     @SuppressWarnings("serial")
     private class ParseParamException extends Exception {
@@ -232,6 +235,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     public Set<Feature> getFeatures() {
         return features;
     }
+
 
     /**
      * Adds a feature to the feature-set of this Preprocessor.
@@ -422,6 +426,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             throws LexerException {
         addMacro(name, feature, "1");
     }
+
 
     /**
      * Sets the user include path used by this Preprocessor.
@@ -2789,4 +2794,35 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             return tok.getText();
         }
     }
+
+
+    /**
+     * for compatibility with the VALexer interface
+     *
+     * @param folder
+     */
+    @Override
+    public void addSystemIncludePath(String folder) {
+        getSystemIncludePath().add(folder);
+    }
+
+
+    /**
+     * * for compatibility with the VALexer interface
+     *
+     * @param source
+     */
+    @Override
+    public void addInput(LexerInput source) throws IOException {
+        //ugly but will do for now
+        if (source instanceof FileSource)
+            addInput(new FileLexerSource(((FileSource)source).file));
+        else if (source instanceof StreamSource)
+            addInput(new FileLexerSource(((StreamSource)source).inputStream,((StreamSource)source).filename));
+        else if (source instanceof TextSource)
+            addInput(new StringLexerSource(((TextSource)source).code,true));
+        else
+            throw new RuntimeException("unexpected input");
+    }
+
 }
