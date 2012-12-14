@@ -27,7 +27,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writeDebugInterface = false,
             recordTiming = false,
             parserStatistics = false,
-            parserResults = false,
+            parserResults = true,
             writePI = false;
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");
