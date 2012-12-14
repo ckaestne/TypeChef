@@ -60,7 +60,7 @@ public class NestedMacroTest extends AbstractCheckTests {
 
     private void checkStr(String orig, String expected)
             throws LexerException, IOException {
-        String result = parseCodeFragment(orig);
+        String result = preprocessCodeFragment(orig);
 
         Assert.assertTrue("found " + result + ", but expected " + expected,
                 result.trim().endsWith(expected));

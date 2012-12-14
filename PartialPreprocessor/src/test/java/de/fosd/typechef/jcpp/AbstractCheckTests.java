@@ -51,7 +51,7 @@ public class AbstractCheckTests {
         try {
             //getResource() returns an URL containing escapes. toURI().getPath() is needed to unescape them.
             //Otherwise one gets a path where, e.g., spaces are represented by %20!
-            output = parse(new FileLexerSource(inputStream, folder + filename),
+            output = lex(new FileLexerSource(inputStream, folder + filename),
                     debug, getClass().getResource("/" + folder).toURI().getPath(), ignoreWarning);
         } catch (LexerException e) {
             ex = e;
@@ -67,9 +67,9 @@ public class AbstractCheckTests {
 
     }
 
-    protected String parseCodeFragment(String code) throws LexerException,
+    protected String preprocessCodeFragment(String code) throws LexerException,
             IOException {
-        return serialize(parse(new StringLexerSource(code, true), false, null, false));
+        return serialize(lex(new StringLexerSource(code, true), false, null, false));
     }
 
     private boolean check(String filename, String folder,
@@ -182,7 +182,7 @@ public class AbstractCheckTests {
             pp.debugPreprocessorDone();
     }
 
-    private List<Token> parse(Source source, boolean debug, String folder, final boolean ignoreWarnings)
+    private List<Token> lex(Source source, boolean debug, String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
         // XXX Why here? And isn't the whole thing duplicated from elsewhere?
         MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
