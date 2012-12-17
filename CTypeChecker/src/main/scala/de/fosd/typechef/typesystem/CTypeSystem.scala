@@ -65,10 +65,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             })
           case _ =>
         }
-        specifiers.foreach(x => x.entry match {
-          case TypeDefTypeSpecifier(i: Id) => addTypeUse(i, env, x.feature)
-          case _ =>
-        })
+        specifiers.foreach(x => addUse(x.entry, x.feature, newEnv))
         newEnv
     }
   }

@@ -209,10 +209,14 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addTypeUse(entry: AST, env: Env, feature: FeatureExpr) {
     def addOne(one: One[AST], use: Id, env: Env) {
       one match {
-        case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
-        case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
-        case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
-        case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
+        case One(InitDeclaratorI(declarator, _, _)) =>
+          addToDeclUseMap(declarator.getId, use)
+        case One(AtomicNamedDeclarator(_, key, _)) =>
+          addToDeclUseMap(key, use)
+        case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
+          addToDeclUseMap(key, use)
+        case One(Enumerator(key, _)) =>
+          addToDeclUseMap(key, use)
         case One(Declaration(specifiers, inits)) =>
           inits.foreach(x => x match {
             case Opt(_, entry) => addOne(One(entry), use, env)
@@ -226,8 +230,10 @@ trait CDeclUse extends CEnv with CEnvCache {
       case i@Id(name) =>
         if (env.typedefEnv.contains(name)) {
           env.typedefEnv.getAstOrElse(name, null) match {
-            case o@One(_) => addOne(o, i, env)
-            case c@Choice(_, _, _) => addChoice(c, feature, i, env, addOne)
+            case o@One(_) =>
+              addOne(o, i, env)
+            case c@Choice(_, _, _) =>
+              addChoice(c, feature, i, env, addOne)
             case _ =>
           }
         }
@@ -304,6 +310,7 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addUse(entry: AST, feature: FeatureExpr, env: Env) {
 
     def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
+      var typedefspecifier: Id = null
       typ match {
         case TypeName(lst, _) =>
           lst.foreach(x => x.entry match {
@@ -320,6 +327,9 @@ trait CDeclUse extends CEnv with CEnvCache {
                     case k => addUse(k, feature, env)
                   })
               })
+            case TypeDefTypeSpecifier(i@Id(name)) =>
+              typedefspecifier = i
+              addTypeUse(i, env, x.feature)
             case k => addUse(k, feature, env)
           })
       }
@@ -347,11 +357,28 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(null) =>
                   if (stringToIdMap.containsKey(i.name) && declUseMap.containsKey(stringToIdMap.get(i.name).get)) {
                     addToDeclUseMap(stringToIdMap.get(i.name).get, i)
+                  } else if (!typedefspecifier.equals(null)) {
+                    println(typedefspecifier)
+                    env.typedefEnv.getAstOrElse(typedefspecifier.name, null) match {
+                      case One(Declaration(specs, decl)) =>
+                        for (Opt(_, StructOrUnionSpecifier(_, None, Some(lst))) <- specs) {
+                          for (Opt(_, StructDeclaration(qualis, structDecls)) <- lst) {
+                            for (Opt(innerFeature, StructDeclarator(a: AtomicNamedDeclarator, _, _)) <- structDecls) {
+                              val declaration = a.getId
+                              if (declaration.name.equals(i.name) && feature.implies(innerFeature).isTautology()) {
+                                addToDeclUseMap(declaration, i)
+                              }
+                            }
+                          }
+                        }
+                      case _ =>
+                    }
                   }
                 case k => // println("AddUse Id not exhaustive: " + i + "\nElement " + k)
               }
           })
-        case k => addUse(k, feature, env)
+        case k =>
+          addUse(k, feature, env)
       })
       stringToIdMap = stringToIdMap.empty
     }
@@ -378,7 +405,8 @@ trait CDeclUse extends CEnv with CEnvCache {
       case ExprList(exprs) => exprs.foreach(x => addUse(x.entry, feature, env))
       case LcurlyInitializer(inits) => inits.foreach(x => addUse(x.entry, feature, env))
       case InitializerAssigment(designators) => designators.foreach(x => addUse(x.entry, feature, env))
-      case InitializerDesignatorD(i: Id) => addUse(i, feature, env)
+      case InitializerDesignatorD(i: Id) =>
+        addUse(i, feature, env)
       case Initializer(Some(x), expr) =>
         addUse(x, feature, env)
         addUse(expr, feature, env)
