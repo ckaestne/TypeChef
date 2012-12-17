@@ -46,14 +46,19 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val numberOfIdsInAst = relevantIds.size
     val numberOfIdsInDefuse = allIds.keySet().size()
 
-    resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
     relevantIds.foreach(x => {
       if (!allIds.containsKey(x)) {
         missingLB += x
       }
     })
-    resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)))
-    resultString.append("\nFiltered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.\nVariable Ids are: " + duplicateLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)))
+    if (!missingLB.isEmpty) {
+      resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
+      resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)) + "\n")
+    }
+    resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.")
+    if (!duplicateLB.isEmpty) {
+      resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)))
+    }
     // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
     return (resultString.toString())
   }
@@ -464,6 +469,6 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     analyseDir(folder, false)
     val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/test/"
     val folder2 = new File(folderPath2)
-    analyseDir(folder2)
+    analyseDir(folder2, true)
   }
 }

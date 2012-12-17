@@ -835,6 +835,8 @@ trait CDeclUse extends CEnv with CEnvCache {
         typ.specifiers.foreach(x => addDecl(x, featureExpr, env))
       case SizeOfExprT(TypeName(spec, decl)) =>
         spec.foreach(x => addDecl(x.entry, featureExpr, env, false))
+      case TypeOfSpecifierT(TypeName(spec, decl)) =>
+        spec.foreach(x => addDecl(x.entry, featureExpr, env, false))
       // addDecl(decl, env)
       case ConditionalExpr(expr, thenExpr, elseExpr) =>
         addDecl(expr, featureExpr, env)
