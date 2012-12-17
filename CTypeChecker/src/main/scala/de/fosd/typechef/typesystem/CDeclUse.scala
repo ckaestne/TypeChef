@@ -358,7 +358,6 @@ trait CDeclUse extends CEnv with CEnvCache {
                   if (stringToIdMap.containsKey(i.name) && declUseMap.containsKey(stringToIdMap.get(i.name).get)) {
                     addToDeclUseMap(stringToIdMap.get(i.name).get, i)
                   } else if (!(typedefspecifier == null)) {
-                    println(typedefspecifier)
                     env.typedefEnv.getAstOrElse(typedefspecifier.name, null) match {
                       case One(Declaration(specs, decl)) =>
                         for (Opt(_, StructOrUnionSpecifier(_, None, Some(lst))) <- specs) {
