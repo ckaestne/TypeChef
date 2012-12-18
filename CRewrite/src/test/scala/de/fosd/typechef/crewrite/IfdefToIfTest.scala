@@ -63,6 +63,17 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     writeToTextFile(fileNameWithoutExtension ++ "_src.txt", PrettyPrinter.print(source_ast))
   }
 
+  def testAst(source_ast: TranslationUnit): String = {
+    val i = new IfdefToIf
+    val env = createASTEnv(source_ast)
+
+    typecheckTranslationUnit(source_ast)
+    val defUseMap = getDeclUseMap
+
+    val optionsAst = i.getOptionFile(source_ast)
+    ("+++Feature Struct+++\n" + PrettyPrinter.print(optionsAst) + "\n\n+++New Code+++\n" + PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
+  }
+
   def testFolder(path: String) {
     val i = new IfdefToIf
     val folder = new File(path)
@@ -206,96 +217,6 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
 
   }
 
-  @Test def test_struct() {
-    val ast = getAST( """
-    main {
-    int a;
-    #if definedEx(A)
-    a = 2;
-    #elif !definedEx(B)
-    a = 4;
-    #elif definedEx(C)
-    a = 8;
-    #elif definedEx(D)
-    a = 16;
-    #elif definedEx(E)
-    a = 32;
-    #elif definedEx(F)
-    a = 64;
-    #elif definedEx(G)
-    a = 128;
-    #elif definedEx(H)
-    a = 256;
-    #endif
-    }
-                      """)
-    val env = createASTEnv(ast)
-    val i = new IfdefToIf()
-    println("Test:\n")
-
-    val feat = i.filterFeatures(ast, env)
-    println("++Distinct features in ast" + " (" + feat.size + ")" + "++")
-    println(feat)
-    val optionsAst = i.getOptionFile(ast)
-    println()
-    println("++CompoundStatement++")
-    println(optionsAst)
-    println()
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-  }
-
-  @Test def test_map() {
-    val ast = getAST( """
-      #if definedEx(A)
-      int
-      #elif definedEx(B)
-      double
-      #else
-      short
-      #endif
-      foo1()  {
-      return 0;
-      }
-
-      #if definedEx(A)
-      int
-      #elif definedEx(B)
-      double
-      #else
-      short
-      #endif
-      foo2()  {
-      return 0;
-      }
-
-      #if definedEx(A)
-      int
-      #else
-      short
-      #endif
-      foo3()  {
-      return 0;
-      }
-
-      int foo4() {
-      return 0;
-      }
-                      """)
-    val env = createASTEnv(ast)
-    val i = new IfdefToIf()
-    println(i.functionMap(ast))
-    println()
-    println("Id map:")
-    println(i.IdMap)
-    for (c <- 0 until i.IdMap.size - 1) {
-      println("getFeatureForId(" + c + ") = " + i.getFeatureForId(c))
-    }
-
-    //println(i.featureToCExpr(i.getFeatureForId(2)))
-  }
-
   @Test def test_function() {
     val ast = getAST( """
       #if definedEx(A)
@@ -330,22 +251,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         foo(5);
       }
                       """)
-    println("++ Vorgabe ++")
-    println(ast)
-    println("Pretty Printed:\n" + PrettyPrinter.print(ast))
-
-    println()
-    typecheckTranslationUnit(ast)
-    val defUseMap = getDeclUseMap
-    println("Defuse: " + defUseMap)
-    val i = new IfdefToIf()
-    val env = createASTEnv(ast)
-
-    val newAst = i.transformAst(ast, env, defUseMap)
-    println(PrettyPrinter.print(newAst))
-
-    //val newAst2 = i.replaceConvertFunctionsNew(ast, env)
-    //println("\n\n" + PrettyPrinter.print(newAst2))
+    println(testAst(ast))
   }
 
   @Test def test_text2() {
@@ -366,16 +272,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         foo();
       }
                       """)
-    println(ast.toString() + "\n")
-    val i = new IfdefToIf()
-    val env = createASTEnv(ast)
-    val newAst = i.replaceFunctionDef(ast, env)
-    println(PrettyPrinter.print(newAst))
-    println("FeatureExpr 0: " + i.getFeatureForId(0))
-    println("FeatureExpr 1: " + i.getFeatureForId(1))
-    println("FeatureExpr 2: " + i.getFeatureForId(2))
-    println("\n\nConverting feature:\n" + i.getFeatureForId(2))
-    println("To:\n" + PrettyPrinter.print(i.featureToCExpr(i.getFeatureForId(2))))
+    println(testAst(ast))
   }
 
   @Test def test_switch1 {
@@ -407,14 +304,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         }
       }
                              """)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("Defuse: " + defUseMap)
-    val i = new IfdefToIf()
-    val env = createASTEnv(source_ast)
-
-    val newAst = i.transformAst(source_ast, env, defUseMap)
-    println(PrettyPrinter.print(newAst))
+    println(testAst(source_ast))
   }
 
 
@@ -449,14 +339,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
       }
                              """)
 
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("Defuse: " + defUseMap)
-    val i = new IfdefToIf()
-    val env = createASTEnv(source_ast)
-
-    val newAst = i.transformAst(source_ast, env, defUseMap)
-    println(PrettyPrinter.print(newAst))
+    println(testAst(source_ast))
   }
 
 
@@ -498,14 +381,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         }
       }
                              """)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("Defuse: " + defUseMap)
-    val i = new IfdefToIf()
-    val env = createASTEnv(source_ast)
-
-    val newAst = i.transformAst(source_ast, env, defUseMap)
-    println(PrettyPrinter.print(newAst))
+    println(testAst(source_ast))
   }
 
 
@@ -545,14 +421,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         }
       }
                              """)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("Defuse: " + defUseMap)
-    val i = new IfdefToIf()
-    val env = createASTEnv(source_ast)
-
-    val newAst = i.transformAst(source_ast, env, defUseMap)
-    println(PrettyPrinter.print(newAst))
+    println(testAst(source_ast))
   }
 
   @Test def if_test {
@@ -568,14 +437,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
       #endif
       }
                              """)
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("DefUse: " + defUseMap)
-
-    println("\n\nPrettyPrinted:\n" + PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
+    println(testAst(source_ast))
 
   }
 
@@ -603,15 +465,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         }
       }
                              """)
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast)
-    println("\n\nTarget:\n" + target_ast + "\n")
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("DefUse: " + defUseMap)
-
-    println("\n\n" + PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
+    println(testAst(source_ast))
 
   }
 
@@ -679,12 +533,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return 0;
       }
                              """);
-    println("Source:\n" + source_ast)
-    //println("\n\nTarget:\n" + target_ast + "\n\n")
-
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    println("++ Pretty printed: +++\n" + PrettyPrinter.print(i.replaceLabelsGotos(source_ast, env)))
+    println(testAst(source_ast))
   }
 
   @Test def test_int {
@@ -712,14 +561,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return 0;
       }
                              """);
-    println("Source:\n" + source_ast + "\n")
-
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("DefUse: " + defUseMap)
-    println(PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
+    println(testAst(source_ast))
   }
 
   @Test def test_int2 {
@@ -743,15 +585,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return 0;
       }
                              """);
-    println("Source:\n" + source_ast + "\n")
-    //println("\n\nTarget:\n" + target_ast + "\n\n")
-
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    println("DefUse: " + defUseMap)
-    println(PrettyPrinter.print(i.transformAst(source_ast, env, defUseMap)))
+    println(testAst(source_ast))
   }
 
   @Test def ac_test {
@@ -766,12 +600,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         };
         #endif
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println(PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
+    println(testAst(source_ast))
   }
 
   @Test def normal_struct {
@@ -784,12 +613,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         .release = single_release,
         };
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println(i.transformVariableDeclarations(source_ast, env))
+    println(testAst(source_ast))
   }
 
   @Test def test_opt_in_struct {
@@ -817,12 +641,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     };
 
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("+++PrettyPrinted result+++\n" + PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
+    println(testAst(source_ast))
   }
 
   @Test def test_opt_struct {
@@ -836,12 +655,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
       };
       #endif
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("+++PrettyPrinted result+++\n" + PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
+    println(testAst(source_ast))
   }
 
   @Test def test_opt_int {
@@ -870,12 +684,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return 0;
       }
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("+++PrettyPrinted result+++\n" + PrettyPrinter.print(i.transformVariableDeclarations(source_ast, env)))
+    println(testAst(source_ast))
   }
 
   @Test def test_int_def_use {
@@ -910,15 +719,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return (i > j) ? i : j;
       }
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("\nDef Use Map:\n" + defUseMap)
+    println(testAst(source_ast))
   }
 
   @Test def test_array_def_use {
@@ -970,15 +771,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return plusgleich;
       }
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("\nDef Use Map:\n" + defUseMap)
+    println(testAst(source_ast))
   }
 
   @Test def test_struct_def_use {
@@ -1016,16 +809,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return 0;
       }
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    println("Source:\n" + source_ast + "\n")
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("\nDef Use Map:\n" + defUseMap)
+    println(testAst(source_ast))
   }
 
   @Test def test_opt_def_use {
@@ -1077,16 +861,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         return 0;
       }
                              """);
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("\nDef Use Map:\n" + defUseMap)
+    println(testAst(source_ast))
   }
 
   @Test def test_applets_pi() {
@@ -1189,15 +964,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     #endif
     i = i*i;
     }}""")
-    println("Source: " + source_ast)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
-
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+    println(testAst(source_ast))
   }
 
   @Test def test_if_choice() {
@@ -1223,20 +990,10 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
     #endif
     }""")
-    println("Source: " + source_ast)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
-
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+    println(testAst(source_ast))
   }
 
   @Test def enum_test() {
-    val i = new IfdefToIf
-    //val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\random\\enum.pi"))
     val source_ast = getAST(
       """
         enum  {
@@ -1385,40 +1142,13 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
           PSSCAN_STAT = (PSSCAN_PPID | PSSCAN_PGID | PSSCAN_SID | PSSCAN_COMM | PSSCAN_STATE | PSSCAN_VSZ | PSSCAN_RSS | PSSCAN_STIME | PSSCAN_UTIME | PSSCAN_START_TIME | PSSCAN_TTY | PSSCAN_NICE | PSSCAN_CPU)
         } ;
       """)
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(optionsAst))
-
-    println("Source:\n" + source_ast)
-    println("++Pretty printed++")
-    println(PrettyPrinter.print(source_ast))
-
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+    println(testAst(source_ast))
   }
 
   @Test def struct_test() {
     val i = new IfdefToIf
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\random\\struct.pi"))
-    val env = createASTEnv(source_ast)
-
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-
-    val optionsAst = i.getOptionFile(source_ast)
-    println("++Pretty printed++")
-    println(optionsAst)
-    println(PrettyPrinter.print(optionsAst))
-
-    println("Source:\n" + source_ast)
-
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\random\\struct.pi")
+    testFile(file, i)
   }
 
   private def writeToTextFile(name: String, content: String) {
@@ -1438,15 +1168,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     #endif
      int (*transformer)(int src_fd, int dst_fd)) ;
                              """)
-    println("Source: " + source_ast)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
-
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+    println(testAst(source_ast))
   }
 
   private def analyseDir(dirToAnalyse: File): List[Tuple2[TranslationUnit, String]] = {
@@ -1547,14 +1269,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         }
         #endif
       """)
-    println(source_ast)
-
-    val i = new IfdefToIf
-    val env = createASTEnv(source_ast)
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    val tempAst = i.transformAst(source_ast, env, defUseMap)
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(tempAst))
+    println(testAst(source_ast))
   }
 
   @Test def lift_opt_test() {

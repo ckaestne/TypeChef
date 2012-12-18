@@ -192,7 +192,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
-  private def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {
+  def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {
     entry match {
       case i@Id(name) =>
         if (env.enumEnv.containsKey(name)) {

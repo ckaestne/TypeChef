@@ -12,7 +12,7 @@ import de.fosd.typechef.parser.c.GnuAsmExpr
 import de.fosd.typechef.parser.c.TranslationUnit
 
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]]): String = {
+  private def checkDefuse(ast: AST, defUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]], useDeclMap: IdentityHashMap[Id, List[Id]]): String = {
     def getAllRelevantIds(a: Any): List[Id] = {
       a match {
         case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
@@ -30,7 +30,6 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val missingLB: ListBuffer[Id] = ListBuffer()
     val duplicateLB: ListBuffer[Id] = ListBuffer()
     val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
-    val env = createASTEnv(ast)
     val defuseKeyList = defUseMap.keySet().toArray().toList
 
     defuseKeyList.foreach(x => {
@@ -57,7 +56,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     }
     resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.")
     if (!duplicateLB.isEmpty) {
-      resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)))
+      resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x.name + "@ " + x.range.get._1.getLine + " from @ " + useDeclMap.get(x).map(y => y.range.get._1.getLine))))
     }
     // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
     return (resultString.toString())
@@ -100,12 +99,13 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
     typecheckTranslationUnit(source_ast)
     val defUseMap = getDeclUseMap2
+    val useDeclMap = getUseDeclMap
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
     println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + defUseMap)
-    println(checkDefuse(source_ast, defUseMap))
+    println(checkDefuse(source_ast, defUseMap, useDeclMap))
   }
 
   @Test def test_array_def_use {
@@ -226,7 +226,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
     println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + getDeclUseMap)
-    println(checkDefuse(source_ast, getDeclUseMap2))
+    val useDeclMap = getUseDeclMap
+    println(checkDefuse(source_ast, getDeclUseMap2, useDeclMap))
   }
 
   @Test def test_int {
@@ -293,7 +294,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     println("AST:\n" + ast)
     println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
     typecheckTranslationUnit(ast)
-    val success = checkDefuse(ast, getDeclUseMap2)
+    val useDeclMap = getUseDeclMap
+    val success = checkDefuse(ast, getDeclUseMap2, useDeclMap)
     println("DefUse" + getDeclUseMap)
     println(success)
   }
@@ -406,7 +408,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     typecheckTranslationUnit(tu)
     val endtime = System.currentTimeMillis()
 
-    val success = checkDefuse(tu, getDeclUseMap2)
+    val useDeclMap = getUseDeclMap
+    val success = checkDefuse(tu, getDeclUseMap2, useDeclMap)
     val defuse2 = getDeclUseMap2
     val defuse = getDeclUseMap
 

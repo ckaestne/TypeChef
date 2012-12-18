@@ -57,6 +57,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                         addStructDeclUse(i, newEnv, isUnion, featureExpr)
                       case TypeDefTypeSpecifier(i: Id) =>
                         addTypeUse(i, env, z.feature)
+                      case EnumSpecifier(Some(i: Id), _) =>
+                        addEnumUse(i, env, z.feature)
                       case _ =>
                     })
                   case _ =>
