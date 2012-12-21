@@ -1126,13 +1126,13 @@ object ProductGeneration extends EnforceTreeHelper {
         var trueFeatures: Set[SingleFeatureExpr] = Set()
         var falseFeatures: Set[SingleFeatureExpr] = Set()
 
-        val enabledPattern: Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=y")
-        val disabledPattern: Pattern = java.util.regex.Pattern.compile("CONFIG_([^=]*)=n")
+        val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=y")
+        val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=n")
         for (line <- Source.fromFile(file).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)) {
             totalFeatures += 1
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
-                val name = "CONFIG_" + matcher.group(1)
+                val name = matcher.group(1)
                 val feature = FeatureExprFactory.createDefinedExternal(name)
                 var fileExTmp = fileEx.and(feature)
                 if (correctFeatureModelIncompatibility) {
@@ -1154,7 +1154,7 @@ object ProductGeneration extends EnforceTreeHelper {
             } else {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
-                    val name = "CONFIG_" + matcher.group(1)
+                    val name = matcher.group(1)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
                     var fileExTmp = fileEx.andNot(feature)
                     if (correctFeatureModelIncompatibility) {
@@ -1179,7 +1179,7 @@ object ProductGeneration extends EnforceTreeHelper {
             }
             //println(line)
         }
-        println("features mentioned in c-file but not in config: ")
+        println("features mentioned in c-file but not in config2: ")
         for (x <- features.filterNot((trueFeatures ++ falseFeatures).contains)) {
             println(x.feature)
         }
@@ -1264,7 +1264,63 @@ object ProductGeneration extends EnforceTreeHelper {
             "Unsat Configs:" + unsat_configs.mkString("{", ",", "}"))
     }
 
-  def loadConfigurationsFromCSVFile(csvFile: File, features: List[SingleFeatureExpr],
+  def loadConfigurationsFromCSVFile(csvFile: File, features: List[SingleFeatureExpr], fm: FeatureModel): (List[SimpleConfiguration], String) = {
+    var retList: List[SimpleConfiguration] = List()
+    val lines = Source.fromFile(csvFile).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)
+    val headline = lines.next()
+    val featureNames: Array[String] = headline.split(";")
+    val interestingFeaturesMap: scala.collection.mutable.HashMap[Int, SingleFeatureExpr] = new scala.collection.mutable.HashMap()
+    /*
+            println("myList:")
+            println(features.slice(0,10).map(_.feature).mkString(";"))
+
+            println("csv:")
+            println(featureNames.slice(0,10).mkString(";"))
+    */
+
+    for (i <- 0.to(featureNames.length - 1)) {
+      val searchResult = features.find(_.feature.equals(featureNames(i).substring(featureNames(i).indexOf(":") + 1)))
+      if (searchResult.isDefined) {
+        interestingFeaturesMap.update(i, searchResult.get)
+      }
+    }
+    println("interestingFsize: " + interestingFeaturesMap.size)
+    println("first feature: " + featureNames(0))
+    println("last feature: " + featureNames(featureNames.length - 1))
+    var line = 0
+    while (lines.hasNext) {
+      line += 1
+      val currentLineElements: Array[String] = lines.next().split(";")
+      var trueFeatures: List[SingleFeatureExpr] = List()
+      var falseFeatures: List[SingleFeatureExpr] = List()
+      for (i <- 0.to(currentLineElements.length - 1)) {
+        if (currentLineElements(i).toUpperCase.equals("X")) {
+          //println("on: " + featureNames(i))
+          if (featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("X86_32") || featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("64BIT"))
+            println("active: " + featureNames(i))
+          if (interestingFeaturesMap.contains(i))
+            trueFeatures ::= interestingFeaturesMap(i)
+        } else if (currentLineElements(i).equals("-")) {
+          //println("off: " + featureNames(i))
+          if (featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("X86_32") || featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("64BIT"))
+            println("deactivated: " + featureNames(i))
+          if (interestingFeaturesMap.contains(i))
+            falseFeatures ::= interestingFeaturesMap(i)
+        } else
+          println("csv file contains an element that is not \"X\" and not \"-\"! " + csvFile + " element: " + currentLineElements(i))
+      }
+      println("true Features : " + trueFeatures.size)
+      println("false Features : " + falseFeatures.size)
+      println("all: " + features.size)
+      if (!FeatureExprFactory.True.getSatisfiableAssignment(fm, features.toSet, 1 == 1).isDefined) {
+        println("no satisfiable solution for product in line " + line)
+      }
+      retList ::= new SimpleConfiguration(trueFeatures, falseFeatures)
+    }
+    (retList, "")
+  }
+
+  def loadConfigurationsFromCSVFile2(csvFile: File, features: List[SingleFeatureExpr],
                                     fm: FeatureModel, kconfigonly: Boolean = true): List[SimpleConfiguration] = {
     var retlist: List[SimpleConfiguration] = List()
 
@@ -1304,8 +1360,8 @@ object ProductGeneration extends EnforceTreeHelper {
         val productconf: Array[String] = curline.split(";")
 
         for (featureid <- productconf) {
-          if (featureid(0) == '-') falsefeatures ::= interestingfeaturesmap.get(featureid.substring(1).toInt)
-          else truefeatures ::= interestingfeaturesmap.get(featureid.toInt)
+          if (featureid(0) == '-') falsefeatures ::= interestingfeaturesmap.get(featureid.substring(1).toInt).get
+          else truefeatures ::= interestingfeaturesmap.get(featureid.toInt).get
         }
 
         retlist ::= new SimpleConfiguration(truefeatures, falsefeatures)
@@ -1336,12 +1392,12 @@ object ProductGeneration extends EnforceTreeHelper {
             totalFeatures += 1
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
-                val name = "CONFIG_" + matcher.group(1)
+                val name = matcher.group(1)
                 trueFeatures += name
             } else {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
-                    val name = "CONFIG_" + matcher.group(1)
+                    val name = matcher.group(1)
                     falseFeatures += name
                 } else {
                     ignoredFeatures += 1
