@@ -604,6 +604,12 @@ struct reiserfs_sb_info {
         expect(true) {
             check("extern struct x a; void foo() { &a; }".stripMargin)    // valid in gcc, do not recheck at pointer creation
         }
+        expect(false) {
+            check("extern struct x a; void foo() { a; }".stripMargin)    // valid in gcc, do not recheck at pointer creation
+        }
+        expect(false) {
+            check("extern struct x a; void bar(struct x b){} void foo() { bar(a); }".stripMargin)    // valid in gcc, do not recheck at pointer creation
+        }
 
 
 

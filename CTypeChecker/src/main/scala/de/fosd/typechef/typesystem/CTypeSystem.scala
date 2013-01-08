@@ -327,6 +327,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             val ct = getExprType(expr, context, env).simplify(context)
             ct.mapf(context, {
                 (f, c) =>
+                    checkStructCompleteness(c, f, env, expr)   // check struct completeness here, see issue #12
                     if (!check(c) && !c.isUnknown && !c.isIgnore) reportTypeError(f, errorMsg(c), expr) else c
             })
         } else One(CUnknown("unsatisfiable condition for expression"))
