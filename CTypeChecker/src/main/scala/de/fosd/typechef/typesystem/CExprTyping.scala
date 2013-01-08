@@ -48,7 +48,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
-                                checkStructCompleteness(t, f, env, id)
+                                //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer
