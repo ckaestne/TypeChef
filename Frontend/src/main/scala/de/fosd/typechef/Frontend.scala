@@ -53,6 +53,10 @@ object Frontend {
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
+            println("file has contradictory presence condition. existing.")//otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
+            return;
+        }
         /*
                 val pcs = new FeatureExprParser(FeatureExprFactory.sat).parseFile("../TypeChef-LinuxAnalysis/tmpFolder/pcs.txt")
                 opt.getFeatureModelTypeSystem.and(pcs).asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
