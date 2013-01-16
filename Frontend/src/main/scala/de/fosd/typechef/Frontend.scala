@@ -53,6 +53,7 @@ object Frontend {
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setFeatureModel(fm)//otherwise the lexer does not get the updated feature model with file presence conditions
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.")//otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return;
