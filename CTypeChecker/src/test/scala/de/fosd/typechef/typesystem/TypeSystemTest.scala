@@ -878,5 +878,17 @@ return 1;
 
     }
 
+
+    test("functions returning a function") {
+        expect(true) {
+            //function foo returns a pointer to a function that accepts an int pointer and returns an int
+            check(
+                """
+                  |int (*foo(long f))(int*) { if (f); return 0; }
+                """.stripMargin)
+        }
+
+    }
+
 }
 

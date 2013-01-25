@@ -7,7 +7,18 @@ import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping /*with CBuiltIn*/ {
 
 
-    protected def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, AST, Conditional[CType])] = {
+    /**
+     * get the parameters from the innermost declarator. all outer (nested) declarators describe only
+     * arrays or parameters of the return type, if the function returns a function
+     */
+    protected final def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, AST, Conditional[CType])] =
+        decl match {
+            case NestedNamedDeclarator(_, nestedDecl, _) => parameterTypes(nestedDecl, featureExpr, env)
+            case atomicDecl: AtomicNamedDeclarator => parameterTypesAtomic(atomicDecl, featureExpr, env)
+        }
+
+
+    private def parameterTypesAtomic(decl: AtomicNamedDeclarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, AST, Conditional[CType])] = {
         var result = List[(String, FeatureExpr, AST, Conditional[CType])]()
         for (Opt(extensionFeature, extension) <- decl.extensions) extension match {
             case DeclIdentifierList(List()) => //declarations with empty parameter lists

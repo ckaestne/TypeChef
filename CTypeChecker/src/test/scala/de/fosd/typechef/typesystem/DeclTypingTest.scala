@@ -75,6 +75,9 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
         declT("double (*a)[];") should be(CPointer(CArray(CDouble())))
         declT("double *(*a[1])();") should be(CArray(CPointer(CFunction(Seq(), CPointer(CDouble())))))
 
+        declT("float (*a)(double*);") should be(CPointer(CFunction(Seq(CPointer(CDouble())), CFloat())))
+        declT("float (*a())(double*);") should be(CFunction(Seq(), CPointer(CFunction(Seq(CPointer(CDouble())), CFloat()))))
+
         declT("unsigned *out_len;") should be(CPointer(CUnsigned(CInt())))
     }
 
