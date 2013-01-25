@@ -400,7 +400,7 @@ trait CTypes extends COptionProvider {
         case _ => false
     }
 
-    def isScalar(t: CType): Boolean = isArithmetic(t) || isPointer(t)
+    def isScalar(t: CType): Boolean = isArithmetic(t) || isPointer(t) || isFunction(t)
 
     def isZero(t: CType): Boolean = t.toValue match {
         case CZero() => true
@@ -411,6 +411,11 @@ trait CTypes extends COptionProvider {
         case CPointer(_) => true
         case CZero() => true
         //case function references => true
+        case _ => false
+    }
+
+    def isFunction(t: CType): Boolean = t.toValue match {
+        case CFunction(_,_) => true
         case _ => false
     }
 

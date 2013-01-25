@@ -805,5 +805,77 @@ return 1;
         }
     }
 
+    test("function parameters etc") {
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a y) { return y(); }
+                  |int main() {
+                  |  int x = bar(foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a* y) { return y(); }
+                  |int main() {
+                  |  int x = bar(foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a y) { return y(); }
+                  |int main() {
+                  |  int x = bar(&foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a* y) { return y(); }
+                  |int main() {
+                  |  int x = bar(&foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int foo() { return 3; }
+                  |int main() {
+                  |  if (&foo) ;
+                  |  return 0;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int foo() { return 3; }
+                  |int main() {
+                  |  if (foo) ;
+                  |  return 0;
+                  |}
+                """.stripMargin)
+        }
+
+    }
+
 }
 
