@@ -10,6 +10,8 @@ import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
  */
 trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface {
 
+
+
     /**
      * types an expression in an environment, returns a new
      * environment for all subsequent tokens (eg in a sequence)
@@ -48,7 +50,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
-                                checkStructCompleteness(t, f, env, id)
+                                //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer
@@ -169,9 +171,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case p@UnaryExpr(_, expr) =>
                         val newExpr = AssignExpr(expr, "+=", Constant("1"))
                         et(newExpr)
-
-                    case SizeOfExprT(_) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
-                    case SizeOfExprU(_) => One(CUnsigned(CInt()))
+                    //sizeof()
+                    case SizeOfExprT(_) => sizeofType(env)
+                    case SizeOfExprU(_) => sizeofType(env)
                     case ue@UnaryOpExpr(kind, expr) =>
                         if (kind == "&&")
                         //label deref, TODO check that label is actually declared
@@ -389,6 +391,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
     //implemented by CTypeSystem
     def getStmtType(stmt: Statement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env)
+
+    /**
+     * sizeof() has type Any->size_t. Type size_t is defined in individual header files (e.g. stddef.h) of the system though
+     * and may not be defined in all cases. here we look up the type of size_t and return an int in case it fails
+     */
+    def sizeofType(env: Env): Conditional[CType] =
+        env.typedefEnv.getOrElse("size_t", CUnsigned(CInt()))
 
 
 }

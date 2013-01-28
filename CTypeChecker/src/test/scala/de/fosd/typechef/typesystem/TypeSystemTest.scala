@@ -690,9 +690,10 @@ return 1;
         expect(false) {
             check("enum x {a,b}; int a=3;")
         }
-        expect(false) {
-            check("enum x {a,b}; int a;")
-        }
+        //TODO checking of different kinds currently not implemented
+//        expect(false) {
+//            check("enum x {a,b}; int a;")
+//        }
         expect(false) {
             check("enum x {a,b}; enum y {a,c};")
         }
@@ -803,6 +804,78 @@ return 1;
               } xx;
                    """)
         }
+    }
+
+    test("function parameters etc") {
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a y) { return y(); }
+                  |int main() {
+                  |  int x = bar(foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a* y) { return y(); }
+                  |int main() {
+                  |  int x = bar(foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a y) { return y(); }
+                  |int main() {
+                  |  int x = bar(&foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a* y) { return y(); }
+                  |int main() {
+                  |  int x = bar(&foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int foo() { return 3; }
+                  |int main() {
+                  |  if (&foo) ;
+                  |  return 0;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int foo() { return 3; }
+                  |int main() {
+                  |  if (foo) ;
+                  |  return 0;
+                  |}
+                """.stripMargin)
+        }
+
     }
 
 }
