@@ -1,17 +1,16 @@
 package de.fosd.typechef.crefactor.backend.refactor
 
-import de.fosd.typechef.parser.c.{TranslationUnit, Id, AST}
-import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation, ASTEnv}
-import de.fosd.typechef.conditional.{One, Opt}
-import org.kiama.rewriting.Rewriter._
 import java.util
 import util.Collections
-import de.fosd.typechef.typesystem.{CEnvCache, CUnknown}
-import scala.NoSuchElementException
-import de.fosd.typechef.crefactor.backend.Cache
+import de.fosd.typechef.typesystem.CEnvCache
+import de.fosd.typechef.crefactor.Morpheus
+import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.parser.c.{AST, TranslationUnit, Id}
+import de.fosd.typechef.typesystem.CUnknown
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.One
 
-
-trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
+trait Refactor extends CEnvCache {
 
   private val languageKeywords = List(
     "auto",
@@ -60,10 +59,6 @@ trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation 
     "_Thread_local"
   )
 
-  def refactorIsPossible(selection: Any, ast: AST, astEnv: ASTEnv, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]], name: String): Boolean
-
-  def performRefactor(selection: Any, ast: AST, astEnv: ASTEnv, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]], name: String): AST
-
   /**
    * Checks if the name of a variable is compatible to the iso c standard. See 6.4.2 of the iso standard
    *
@@ -87,53 +82,7 @@ trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation 
    * @param name the name to check
    * @return <code>true</code> if language keyword
    */
-  private def isReservedLanguageKeyword(name: String): Boolean = {
-    languageKeywords.contains(name)
-  }
-
-  def isDeclaredVarInScope(ast: TranslationUnit, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldID: Id): Boolean = {
-    var env = null.asInstanceOf[Env]
-    try {
-      env = Cache.getEnv(oldID).asInstanceOf[Env]
-      // declared
-    } catch {
-      case e: NoSuchElementException => env = Cache.getEnv(ast.defs.last.entry).asInstanceOf[Env]
-      case _ =>
-    }
-    env.varEnv(newId) match {
-      case One(CUnknown(_)) => return false
-      case _ => return true
-    }
-    false
-  }
-
-  def isDeclaredTypeDef(ast: TranslationUnit, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldID: Id): Boolean = {
-    var env = null.asInstanceOf[Env]
-    try {
-      env = Cache.getEnv(oldID).asInstanceOf[Env]
-      // declared
-    } catch {
-      case e: NoSuchElementException => env = Cache.getEnv(ast.defs.last.entry).asInstanceOf[Env]
-      case _ => return false
-    }
-    env.typedefEnv(newId) match {
-      case One(CUnknown(_)) => return false
-      case _ => return true
-    }
-    false
-  }
-
-  def isDeclaredStructOrUnionDef(ast: TranslationUnit, defUSE: util.IdentityHashMap[Id, List[Id]], newId: String, oldID: Id): Boolean = {
-    var env = null.asInstanceOf[Env]
-    try {
-      env = Cache.getEnv(oldID).asInstanceOf[Env]
-      // declared
-    } catch {
-      case e: NoSuchElementException => env = Cache.getEnv(ast.defs.last.entry).asInstanceOf[Env]
-      case _ => return false
-    }
-    env.structEnv.someDefinition(newId, true) || env.structEnv.someDefinition(newId, false)
-  }
+  def isReservedLanguageKeyword(name: String) = languageKeywords.contains(name)
 
   def findAllConnectedIds(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
     val occurrences = Collections.newSetFromMap[Id](new util.IdentityHashMap())
@@ -167,6 +116,45 @@ trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation 
     occurrences.toArray(Array[Id]()).toList
   }
 
+  def isDeclaredVarInScope(morph: Morpheus, newId: String, oldID: Id, scopeEnd: AST): Boolean = {
+    // TODO Optimize!
+    lookupEnv(morph, oldID).varEnv(newId) match {
+      case One(CUnknown(_)) =>
+        lookupEnv(morph, scopeEnd).varEnv(newId) match {
+          case One(CUnknown(_)) => false
+          case _ => true
+        }
+      case _ => true
+    }
+  }
+
+  def isDeclaredTypeDef(morph: Morpheus, newId: String, oldID: Id): Boolean = {
+    val env = lookupEnv(morph, oldID)
+    env.typedefEnv(newId) match {
+      case One(CUnknown(_)) => return false
+      case _ => return true
+    }
+    false
+  }
+
+  def isDeclaredStructOrUnionDef(morph: Morpheus, newId: String, oldID: Id): Boolean = {
+    val env = lookupEnv(morph, oldID)
+    env.structEnv.someDefinition(newId, true) || env.structEnv.someDefinition(newId, false)
+  }
+
+  private def lookupEnv(morph: Morpheus, oldID: AST): Env = {
+    var env: Env = null
+    val ast = morph.getAST().asInstanceOf[TranslationUnit]
+    try {
+      env = morph.getEnv(oldID).asInstanceOf[Env]
+      // declared
+    } catch {
+      case e: NoSuchElementException => env = morph.getEnv(ast.defs.last.entry).asInstanceOf[Env]
+      case _ => null
+    }
+    env
+  }
+
   def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil)
@@ -174,9 +162,23 @@ trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation 
     r(t).get.asInstanceOf[T]
   }
 
-  def replaceInAST[T <: Product](t: T, e: Opt[_], n: Opt[_]): T = {
+  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: List[Opt[_]]): T = {
+    val r = oncetd(rule {
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert ::: x :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceInAST[T <: Product](t: T, mark: Opt[_], replace: Opt[_]): T = {
     val r = manybu(rule {
-      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(e)) n :: Nil else x :: Nil)
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) replace :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceInASTOnceTD[T <: Product](t: T, mark: Opt[_], replace: Opt[_]): T = {
+    val r = oncetd(rule {
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) replace :: Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
@@ -189,10 +191,9 @@ trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation 
   }
 
   def removeFromAST[T <: Product](t: T, remove: Opt[_]): T = {
-    val r = manybu(rule {
+    val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(remove)) Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
-
 }

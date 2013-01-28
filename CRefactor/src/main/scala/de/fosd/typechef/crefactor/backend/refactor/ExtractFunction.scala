@@ -56,6 +56,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    */
   def isEligableForExtraction(selection: List[Opt[_]], astEnv: ASTEnv): Boolean = {
     // First Step - check parent function
+    println("oldselection" + selection)
     val parentFunction = getParentFunction(selection, astEnv)
     parentFunction match {
       case null => return false
@@ -75,15 +76,19 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   private def getParentFunction(selection: List[Opt[_]], env: ASTEnv): FunctionDef = {
     var funcDef: FunctionDef = null
     for (entry <- selection) {
-      findPriorASTElem[FunctionDef](entry, env) match {
-        case Some(f) => {
-          if (funcDef == null) {
-            funcDef = f
-          } else if (!f.eq(funcDef)) {
-            return null
+      try {
+        findPriorASTElem[FunctionDef](entry, env) match {
+          case Some(f) => {
+            if (funcDef == null) {
+              funcDef = f
+            } else if (!f.eq(funcDef)) {
+              return null
+            }
           }
+          case none => return null
         }
-        case none => return null
+      } catch {
+        case _ => return null
       }
     }
     funcDef

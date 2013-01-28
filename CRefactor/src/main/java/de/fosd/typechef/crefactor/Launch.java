@@ -76,7 +76,6 @@ public final class Launch {
             final File toLoad, final File toInclude, final File includeHeader, final File featureModel) {
         final LinkedList<String> args = new LinkedList<String>();
         args.add(toLoad.getAbsolutePath());
-        // TODO Ask Jörg -> Prefix
         args.add("-xCONFIG_");
         args.add("-c".concat(Configuration.getInstance().getTypeChefConfigFilePath()));
 

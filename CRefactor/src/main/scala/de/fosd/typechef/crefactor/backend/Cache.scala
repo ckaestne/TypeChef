@@ -25,6 +25,7 @@ object Cache extends CDeclUse with CTypeEnv with CEnvCache with CTypeCache with 
       astEnvCached = CASTEnv.createASTEnv(astCached)
       return ast
     }
+    astCached = ast
     ast
   }
 

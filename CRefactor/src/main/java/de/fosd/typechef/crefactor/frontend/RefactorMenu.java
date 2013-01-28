@@ -1,15 +1,18 @@
 package de.fosd.typechef.crefactor.frontend;
 
 import de.fosd.typechef.conditional.Opt;
+import de.fosd.typechef.crefactor.Morpheus;
 import de.fosd.typechef.crefactor.backend.ASTPosition;
 import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
-import de.fosd.typechef.crefactor.backend.refactor.ExtractMethod;
+import de.fosd.typechef.crefactor.backend.refactor.InlineFunction;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.ExtractFunctionActions;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.RenameActions;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
 import de.fosd.typechef.crefactor.util.Configuration;
+import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
+import de.fosd.typechef.parser.c.PrettyPrinter;
 import scala.collection.Iterator;
 import scala.collection.immutable.List;
 
@@ -50,9 +53,11 @@ public class RefactorMenu implements MenuListener {
         this.menu.removeAll();
         final Selection selection = new Selection(editor);
 
+
         /**
          * Refactor Renaming
          */
+
         // Retrieve all available ids - Requiered for renamings
         final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Cache.getAST(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
@@ -67,8 +72,9 @@ public class RefactorMenu implements MenuListener {
          */
         final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Cache.getAST(), Cache.getASTEnv(), editor.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-
-        final boolean extractionPossible = ExtractMethod.refactorIsPossible(selectedAST, Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap(), Cache.getUseDeclMap(), "newFunc");
+        // List<AST> selectedElements = ASTPosition.getSelectedExprOrStatements(Cache.getAST(), Cache.getASTEnv(), editor.getFile().getAbsolutePath(),
+        //        selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+        // final boolean extractionPossible = ExtractMethod.refactorIsPossible(selectedElements, Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap(), Cache.getUseDeclMap(), "newFunc");
         final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Cache.getASTEnv());
         if (this.menu.getComponentCount() != 0) {
             this.menu.add(new JSeparator());
@@ -76,6 +82,18 @@ public class RefactorMenu implements MenuListener {
         final JMenuItem extract = new JMenuItem(ExtractFunctionActions.getExtractFunctionAction(editor, selectedAST));
         this.menu.add(extract);
         extract.setEnabled(eligable);
+
+        /**
+         * Inline function
+         */
+        Morpheus morpheus = new Morpheus(Cache.getAST());
+        long time = System.currentTimeMillis();
+        final List<Id> availableIdentifiers = InlineFunction.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
+        AST inlinevar = InlineFunction.inline(morpheus, availableIdentifiers.head(), true);
+        System.out.println("Duration1: " + (System.currentTimeMillis() - time));
+        editor.getRTextArea().setText(PrettyPrinter.print(inlinevar));
+        System.out.println("Duration2: " + (System.currentTimeMillis() - time));
+
     }
 
     @Override

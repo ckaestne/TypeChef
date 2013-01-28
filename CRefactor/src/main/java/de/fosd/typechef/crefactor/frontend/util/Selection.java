@@ -2,6 +2,8 @@ package de.fosd.typechef.crefactor.frontend.util;
 
 import de.fosd.typechef.crefactor.frontend.Editor;
 
+import javax.swing.text.BadLocationException;
+
 /**
  * Selection object for storing the current selection start and end.
  *
@@ -29,7 +31,8 @@ public class Selection {
      * @return the starting line of the current selection.
      */
     public int getLineStart() {
-        return PositionWrapper.getLine(editor.getRTextArea(), editor.getRTextArea().getSelectionStart()) + 1;
+        return PositionWrapper.getLine(editor.getRTextArea(),
+                previousSymbolOccurence(editor.getRTextArea().getSelectionStart())) + 1;
     }
 
     /**
@@ -38,7 +41,8 @@ public class Selection {
      * @return the ending line of the current selection.
      */
     public int getLineEnd() {
-        return PositionWrapper.getLine(editor.getRTextArea(), editor.getRTextArea().getSelectionEnd()) + 1;
+        return PositionWrapper.getLine(editor.getRTextArea(),
+                nextSymblOccurence(editor.getRTextArea().getSelectionEnd())) + 1;
     }
 
     /**
@@ -47,7 +51,8 @@ public class Selection {
      * @return the starting row of the current selection.
      */
     public int getRowStart() {
-        return PositionWrapper.getRow(editor.getRTextArea(), editor.getRTextArea().getSelectionStart());
+        return PositionWrapper.getRow(editor.getRTextArea(),
+                previousSymbolOccurence(editor.getRTextArea().getSelectionStart()));
     }
 
     /**
@@ -56,6 +61,58 @@ public class Selection {
      * @return the ending row of the current selection.
      */
     public int getRowEnd() {
-        return PositionWrapper.getRow(editor.getRTextArea(), editor.getRTextArea().getSelectionEnd());
+        return PositionWrapper.getRow(editor.getRTextArea(),
+                nextSymblOccurence(editor.getRTextArea().getSelectionEnd()));
+    }
+
+    /**
+     * Retrieves the previous offset where a symbol occurs
+     *
+     * @param offset the offstet to start
+     * @return the previous offset where a symbol occurs
+     */
+    public int previousSymbolOccurence(final int offset) {
+        final int step = -1;
+        return findSymbolOccurence(offset, step);
+    }
+
+    /**
+     * Retrieves the next offset where a symbol occurs.
+     *
+     * @param offset the offset to start
+     * @return the next offset where a symbol occurs
+     */
+    public int nextSymblOccurence(final int offset) {
+        final int step = 1;
+        return findSymbolOccurence(offset, step);
+    }
+
+    /**
+     * Retrieves the path of the file loaded into the editor
+     *
+     * @return the absolute filepath
+     */
+    public String getFilePath() {
+        return editor.getFile().getAbsolutePath();
+    }
+
+    /**
+     * Finds the offset where as in a certain step a symbol occurs
+     *
+     * @param offset the start offset
+     * @param step   the step size
+     * @return the found offset
+     */
+    private int findSymbolOccurence(final int offset, final int step) {
+        try {
+            final int nextOffset = offset + step;
+            final String symbol = editor.getRTextArea().getText(nextOffset, 1);
+            if (symbol.matches("\\s")) {
+                return findSymbolOccurence(nextOffset, step);
+            }
+            return nextOffset;
+        } catch (final BadLocationException e) {
+            return offset;
+        }
     }
 }
