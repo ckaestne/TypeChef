@@ -744,6 +744,21 @@ return 1;
 
     }
 
+    test("default types") {
+      expect(true) {
+        check(
+          """
+            static x = 0;
+          """.stripMargin)
+      }
+      expect(true) {
+        check(
+          """
+            foo() { return 0; }
+          """.stripMargin)
+      }
+    }
+
 
     test("nested structs") {
         expect(true) {
