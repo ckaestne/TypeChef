@@ -27,11 +27,6 @@ public class Editor extends JFrame implements Observer {
     private RSyntaxTextArea textArea;
 
     /**
-     * The currently loaded file.
-     */
-    private File file;
-
-    /**
      * The current morph object
      */
     private Morpheus morpheus;
@@ -82,7 +77,6 @@ public class Editor extends JFrame implements Observer {
         }
 
         BufferedReader reader = null;
-        this.file = file;
         try {
             reader = new BufferedReader(new FileReader(file));
             this.textArea.read(reader, null);
@@ -103,16 +97,6 @@ public class Editor extends JFrame implements Observer {
         return this.textArea;
     }
 
-
-    /**
-     * Retrieves the currently used file.
-     *
-     * @return the currently used file.
-     */
-    public final File getFile() {
-        return this.file;
-    }
-
     /**
      * Retrieves the morpheus morph object.
      *
@@ -123,10 +107,9 @@ public class Editor extends JFrame implements Observer {
     }
 
     @Override
-    public void update(Observable observable, Object o) {
+    public void update(final Observable observable, final Object o) {
         final long time = System.currentTimeMillis();
         this.textArea.setText(PrettyPrinter.print(this.morpheus.getAST()));
         System.out.println("PrettyPrinting duration: " + (System.currentTimeMillis() - time));
-
     }
 }

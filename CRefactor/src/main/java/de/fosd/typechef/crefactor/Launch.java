@@ -68,9 +68,9 @@ public final class Launch {
                 }
 
                 // show editor window
-                final Editor editor = new Editor(new Morpheus(ast));
+                final Editor editor = new Editor(new Morpheus(ast, loadingWindow.getFileToAnalyse()));
                 editor.loadFileInEditor(loadingWindow.getFileToAnalyse());
-                // editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
+                editor.pack();
                 editor.setVisible(true);
             }
         });

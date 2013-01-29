@@ -64,19 +64,10 @@ public class RefactorMenu implements MenuListener {
             addRenamingsToMenu(availableIds, rename);
         }
 
-        // Retrieve all available ids - Requiered for renamings
-        /**final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Cache.getAST(), editor.getFile().getAbsolutePath(),
-         selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-         if (!selectedIDs.isEmpty()) {
-         final JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
-         this.menu.add(rename);
-         addRenamingsToMenu(selectedIDs, rename);
-         }  */
-
         /**
          * Refactor Extract Method
          */
-        final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Cache.getAST(), Cache.getASTEnv(), editor.getFile().getAbsolutePath(),
+        final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Cache.getAST(), Cache.getASTEnv(), morpheus.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
         // List<AST> selectedElements = ASTPosition.getSelectedExprOrStatements(Cache.getAST(), Cache.getASTEnv(), editor.getFile().getAbsolutePath(),
         //        selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
@@ -128,6 +119,5 @@ public class RefactorMenu implements MenuListener {
         while (it.hasNext()) {
             menu.add(RefactorAction.getInlineFunction(this.editor.getMorpheus(), it.next()));
         }
-
     }
 }

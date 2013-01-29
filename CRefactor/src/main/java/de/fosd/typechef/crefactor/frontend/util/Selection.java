@@ -93,7 +93,7 @@ public class Selection {
      * @return the absolute filepath
      */
     public String getFilePath() {
-        return editor.getFile().getAbsolutePath();
+        return editor.getMorpheus().getFile().getAbsolutePath();
     }
 
     /**
