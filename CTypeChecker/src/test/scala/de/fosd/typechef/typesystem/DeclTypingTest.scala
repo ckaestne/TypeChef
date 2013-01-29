@@ -61,7 +61,10 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
 
         declT("int double a;").isUnknown should be(true)
         declT("signed unsigned char a;").isUnknown should be(true)
-        declT("auto a;").isUnknown should be(true)
+
+        //default to int
+        declT("auto a;") should be(CSigned(CInt()))
+        declT("static a;") should be(CSigned(CInt()))
     }
 
     test("variable declarations") {
