@@ -1,6 +1,9 @@
 package de.fosd.typechef.crefactor.frontend;
 
+import de.fosd.typechef.crefactor.Morpheus;
 import de.fosd.typechef.crefactor.util.Configuration;
+import de.fosd.typechef.parser.c.AST;
+import de.fosd.typechef.parser.c.PrettyPrinter;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextArea;
@@ -28,12 +31,17 @@ public class Editor extends JFrame {
     private File file;
 
     /**
+     * The current morph object
+     */
+    private Morpheus morpheus;
+
+    /**
      * Generates a new editor window instance.
      */
     public Editor() {
         super(Configuration.getInstance().getConfig("editor.title"));
 
-        JPanel contentPane = new JPanel(new BorderLayout());
+        final JPanel contentPane = new JPanel(new BorderLayout());
 
         // make textarea
         this.textArea = new RSyntaxTextArea(Configuration.getInstance().getConfigAsInt("editor.rows"),
@@ -45,13 +53,13 @@ public class Editor extends JFrame {
         this.textArea.setEditable(false);
 
         // Enable Scrolling
-        RTextScrollPane scrollPane = new RTextScrollPane(textArea);
+        final RTextScrollPane scrollPane = new RTextScrollPane(this.textArea);
         scrollPane.setFoldIndicatorEnabled(true);
         contentPane.add(scrollPane, BorderLayout.CENTER);
         setContentPane(contentPane);
 
         // make context menu
-        JPopupMenu menu = this.textArea.getPopupMenu();
+        final JPopupMenu menu = this.textArea.getPopupMenu();
         PopupMenuFactory.addRefactorMenuToPopupMenu(menu, this);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -65,7 +73,7 @@ public class Editor extends JFrame {
      *
      * @param file the file to load into the editor window
      */
-    public void loadFileInEditor(final File file) {
+    public final void loadFileInEditor(final File file, final AST ast) {
         if (!file.isFile()) {
             return;
         }
@@ -75,12 +83,21 @@ public class Editor extends JFrame {
         try {
             reader = new BufferedReader(new FileReader(file));
             this.textArea.read(reader, null);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             UIManager.getLookAndFeel().provideErrorFeedback(this.textArea);
         } finally {
             org.apache.commons.io.IOUtils.closeQuietly(reader);
         }
+        this.morpheus = new Morpheus(ast);
+    }
+
+    /**
+     * Loads in an ast and shows its pretty printed output in the editor.
+     */
+    public final void loadASTinEditor(final AST ast) {
+        this.textArea.setText(PrettyPrinter.print(ast));
+        this.morpheus = new Morpheus(ast);
     }
 
     /**
@@ -88,7 +105,7 @@ public class Editor extends JFrame {
      *
      * @return the editor's textarea
      */
-    public RTextArea getRTextArea() {
+    public final RTextArea getRTextArea() {
         return this.textArea;
     }
 
@@ -98,7 +115,16 @@ public class Editor extends JFrame {
      *
      * @return the currently used file.
      */
-    public File getFile() {
+    public final File getFile() {
         return this.file;
+    }
+
+    /**
+     * Retrieves the morpheus morph object.
+     *
+     * @return the morph object
+     */
+    public final Morpheus getMorpheus() {
+        return this.morpheus;
     }
 }

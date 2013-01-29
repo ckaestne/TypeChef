@@ -7,12 +7,11 @@ import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
 import de.fosd.typechef.crefactor.backend.refactor.InlineFunction;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.ExtractFunctionActions;
+import de.fosd.typechef.crefactor.frontend.actions.refactor.RefactorAction;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.RenameActions;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
 import de.fosd.typechef.crefactor.util.Configuration;
-import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
-import de.fosd.typechef.parser.c.PrettyPrinter;
 import scala.collection.Iterator;
 import scala.collection.immutable.List;
 
@@ -52,6 +51,7 @@ public class RefactorMenu implements MenuListener {
     public void menuSelected(MenuEvent menuEvent) {
         this.menu.removeAll();
         final Selection selection = new Selection(editor);
+        final Morpheus morpheus = this.editor.getMorpheus();
 
 
         /**
@@ -86,6 +86,7 @@ public class RefactorMenu implements MenuListener {
         /**
          * Inline function
          */
+        /*
         Morpheus morpheus = new Morpheus(Cache.getAST());
         long time = System.currentTimeMillis();
         final List<Id> availableIdentifiers = InlineFunction.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
@@ -93,7 +94,17 @@ public class RefactorMenu implements MenuListener {
         System.out.println("Duration1: " + (System.currentTimeMillis() - time));
         editor.getRTextArea().setText(PrettyPrinter.print(inlinevar));
         System.out.println("Duration2: " + (System.currentTimeMillis() - time));
+        **/
 
+        /**
+         * Inline Function
+         */
+        final List<Id> availableIdentifiers = InlineFunction.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
+        if (!availableIdentifiers.isEmpty()) {
+            final JMenu inline = new JMenu(Configuration.getInstance().getConfig("refactor.inline.name"));
+            this.menu.add(inline);
+            addInliningToMenu(availableIdentifiers, inline);
+        }
     }
 
     @Override
@@ -117,5 +128,13 @@ public class RefactorMenu implements MenuListener {
         while (it.hasNext()) {
             menu.add(RenameActions.getRenameAction(this.editor, it.next()));
         }
+    }
+
+    private void addInliningToMenu(final List<Id> selectedIDs, final JMenu menu) {
+        final Iterator<Id> it = selectedIDs.iterator();
+        while (it.hasNext()) {
+            menu.add(RefactorAction.getInlineFunction(editor, it.next()));
+        }
+
     }
 }

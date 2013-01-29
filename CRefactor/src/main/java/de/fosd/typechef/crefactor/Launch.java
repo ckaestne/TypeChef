@@ -1,9 +1,11 @@
 package de.fosd.typechef.crefactor;
 
+import de.fosd.typechef.Frontend;
 import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.loader.Loader;
 import de.fosd.typechef.crefactor.util.Configuration;
+import de.fosd.typechef.parser.c.AST;
 
 import javax.swing.*;
 import java.io.File;
@@ -46,17 +48,28 @@ public final class Launch {
                     // Exit System
                     System.exit(1);
                 }
-                // parse file
-                if (Cache.parse(generateTypeChefArguments(
+
+                final String[] typeChefConfig = generateTypeChefArguments(
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
-                        loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel())) == null) {
+                        loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel());
+
+                final AST ast = parse(typeChefConfig);
+
+                if (ast == null) {
+                    // Parsing failed.
+                    JOptionPane.showMessageDialog(null, Configuration.getInstance().getConfig("default.error.parsing"), Configuration.getInstance().getConfig("default.error"), JOptionPane.ERROR_MESSAGE);
+                    System.exit(-1);
+                }
+
+                // parse file
+                if (Cache.parse(typeChefConfig) == null) {
                     System.err.println("Something really bad happend");
                     System.exit(-1);
                 }
 
                 // show editor window
                 final Editor editor = new Editor();
-                editor.loadFileInEditor(loadingWindow.getFileToAnalyse());
+                editor.loadFileInEditor(loadingWindow.getFileToAnalyse(), ast);
                 // editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
                 editor.setVisible(true);
             }
@@ -72,7 +85,7 @@ public final class Launch {
      * @param featureModel  feature model to include
      * @return arguments to run typechef :)
      */
-    private static String[] generateTypeChefArguments(
+    private final static String[] generateTypeChefArguments(
             final File toLoad, final File toInclude, final File includeHeader, final File featureModel) {
         final LinkedList<String> args = new LinkedList<String>();
         args.add(toLoad.getAbsolutePath());
@@ -95,5 +108,16 @@ public final class Launch {
         args.add("--lexNoStdout");
 
         return args.toArray(new String[args.size()]);
+    }
+
+    /**
+     * Inits the typechef and parses the input under a certain configuration.
+     *
+     * @param configuration the configuration passed to the typechef framework
+     * @return the resulted ast  or <code>null</code> if something bad happend
+     */
+    private final static AST parse(final String[] configuration) {
+        Frontend.main(configuration);
+        return Frontend.getAST();
     }
 }
