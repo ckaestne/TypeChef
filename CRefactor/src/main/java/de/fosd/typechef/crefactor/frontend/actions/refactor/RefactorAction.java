@@ -23,11 +23,11 @@ public class RefactorAction {
 
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
-                boolean rename = true;
                 if (InlineFunction.isFunctionCall(editor.getMorpheus(), id)) {
                     System.out.println("InlineOnce");
                 }
-                final InlineDialog dialog = new InlineDialog(editor, Configuration.getInstance().getConfig("refactor.inline") + " " + id.name(),
+                final InlineDialog dialog = new InlineDialog(editor,
+                        Configuration.getInstance().getConfig("refactor.inline.name") + " " + id.name() + "()",
                         InlineFunction.isFunctionCall(editor.getMorpheus(), id));
                 dialog.pack();
                 dialog.setVisible(true);
@@ -37,7 +37,7 @@ public class RefactorAction {
                 }
 
                 try {
-                    long start = System.currentTimeMillis();
+                    final long start = System.currentTimeMillis();
                     final AST refactored = InlineFunction.inline(editor.getMorpheus(), id, dialog.isRename());
                     System.out.println("Duration for transforming: " + (System.currentTimeMillis() - start));
                     editor.loadASTinEditor(refactored);

@@ -17,25 +17,26 @@ public class InlineDialog extends JDialog {
     public InlineDialog(final JFrame frame, final String title, final boolean call) {
         super(frame, title);
         setLocationRelativeTo(null);
-        setContentPane(contentPane);
+        setContentPane(this.contentPane);
+        setResizable(false);
         setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
+        getRootPane().setDefaultButton(this.buttonOK);
 
         this.inlineEveryOccurenceCheckBox.setEnabled(call);
 
-        buttonOK.addActionListener(new ActionListener() {
+        this.buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
             }
         });
 
-        buttonCancel.addActionListener(new ActionListener() {
+        this.buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
             }
         });
 
-// call onCancel() when cross is clicked
+        // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -43,8 +44,8 @@ public class InlineDialog extends JDialog {
             }
         });
 
-// call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
+        // call onCancel() on ESCAPE
+        this.contentPane.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
             }
@@ -52,14 +53,14 @@ public class InlineDialog extends JDialog {
     }
 
     private void onOK() {
-        once = !this.inlineEveryOccurenceCheckBox.isSelected();
-        rename = this.renameShadowedVariablesCheckBox.isSelected();
-        refactor = true;
+        this.once = !this.inlineEveryOccurenceCheckBox.isSelected();
+        this.rename = this.renameShadowedVariablesCheckBox.isSelected();
+        this.refactor = true;
         dispose();
     }
 
     private void onCancel() {
-        refactor = false;
+        this.refactor = false;
         dispose();
     }
 
@@ -73,18 +74,5 @@ public class InlineDialog extends JDialog {
 
     public boolean isRename() {
         return this.rename;
-    }
-
-    /**
-     * public static void main(String[] args) {
-     * InlineDialog dialog = new InlineDialog("Inline Function", false);
-     * dialog.pack();
-     * dialog.setVisible(true);
-     * System.exit(0);
-     * }
-     */
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 }
