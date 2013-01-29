@@ -2,7 +2,6 @@ package de.fosd.typechef.crefactor.frontend;
 
 import de.fosd.typechef.crefactor.Morpheus;
 import de.fosd.typechef.crefactor.util.Configuration;
-import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.PrettyPrinter;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -14,11 +13,13 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * The main editor window.
  */
-public class Editor extends JFrame {
+public class Editor extends JFrame implements Observer {
 
     /**
      * Reference to the textarea.
@@ -38,10 +39,12 @@ public class Editor extends JFrame {
     /**
      * Generates a new editor window instance.
      */
-    public Editor() {
+    public Editor(final Morpheus morph) {
         super(Configuration.getInstance().getConfig("editor.title"));
 
         final JPanel contentPane = new JPanel(new BorderLayout());
+        this.morpheus = morph;
+        morph.addObserver(this);
 
         // make textarea
         this.textArea = new RSyntaxTextArea(Configuration.getInstance().getConfigAsInt("editor.rows"),
@@ -73,7 +76,7 @@ public class Editor extends JFrame {
      *
      * @param file the file to load into the editor window
      */
-    public final void loadFileInEditor(final File file, final AST ast) {
+    public final void loadFileInEditor(final File file) {
         if (!file.isFile()) {
             return;
         }
@@ -89,15 +92,6 @@ public class Editor extends JFrame {
         } finally {
             org.apache.commons.io.IOUtils.closeQuietly(reader);
         }
-        this.morpheus = new Morpheus(ast);
-    }
-
-    /**
-     * Loads in an ast and shows its pretty printed output in the editor.
-     */
-    public final void loadASTinEditor(final AST ast) {
-        this.textArea.setText(PrettyPrinter.print(ast));
-        this.morpheus = new Morpheus(ast);
     }
 
     /**
@@ -126,5 +120,13 @@ public class Editor extends JFrame {
      */
     public final Morpheus getMorpheus() {
         return this.morpheus;
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        final long time = System.currentTimeMillis();
+        this.textArea.setText(PrettyPrinter.print(this.morpheus.getAST()));
+        System.out.println("PrettyPrinting duration: " + (System.currentTimeMillis() - time));
+
     }
 }

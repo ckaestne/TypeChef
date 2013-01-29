@@ -6,9 +6,9 @@ import de.fosd.typechef.crefactor.backend.ASTPosition;
 import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
 import de.fosd.typechef.crefactor.backend.refactor.InlineFunction;
+import de.fosd.typechef.crefactor.backend.refactor.RenameIdentifier;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.ExtractFunctionActions;
 import de.fosd.typechef.crefactor.frontend.actions.refactor.RefactorAction;
-import de.fosd.typechef.crefactor.frontend.actions.refactor.RenameActions;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.Id;
@@ -57,15 +57,21 @@ public class RefactorMenu implements MenuListener {
         /**
          * Refactor Renaming
          */
-
-        // Retrieve all available ids - Requiered for renamings
-        final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Cache.getAST(), editor.getFile().getAbsolutePath(),
-                selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-        if (!selectedIDs.isEmpty()) {
+        final List<Id> availableIds = RenameIdentifier.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
+        if (!availableIds.isEmpty()) {
             final JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
             this.menu.add(rename);
-            addRenamingsToMenu(selectedIDs, rename);
+            addRenamingsToMenu(availableIds, rename);
         }
+
+        // Retrieve all available ids - Requiered for renamings
+        /**final List<Id> selectedIDs = ASTPosition.getSelectedIDs(Cache.getAST(), editor.getFile().getAbsolutePath(),
+         selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+         if (!selectedIDs.isEmpty()) {
+         final JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
+         this.menu.add(rename);
+         addRenamingsToMenu(selectedIDs, rename);
+         }  */
 
         /**
          * Refactor Extract Method
@@ -84,26 +90,13 @@ public class RefactorMenu implements MenuListener {
         extract.setEnabled(eligable);
 
         /**
-         * Inline function
-         */
-        /*
-        Morpheus morpheus = new Morpheus(Cache.getAST());
-        long time = System.currentTimeMillis();
-        final List<Id> availableIdentifiers = InlineFunction.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
-        AST inlinevar = InlineFunction.inline(morpheus, availableIdentifiers.head(), true);
-        System.out.println("Duration1: " + (System.currentTimeMillis() - time));
-        editor.getRTextArea().setText(PrettyPrinter.print(inlinevar));
-        System.out.println("Duration2: " + (System.currentTimeMillis() - time));
-        **/
-
-        /**
          * Inline Function
          */
-        final List<Id> availableIdentifiers = InlineFunction.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
-        if (!availableIdentifiers.isEmpty()) {
+        final List<Id> availableFuncIDs = InlineFunction.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
+        if (!availableFuncIDs.isEmpty()) {
             final JMenu inline = new JMenu(Configuration.getInstance().getConfig("refactor.inline.name"));
             this.menu.add(inline);
-            addInliningToMenu(availableIdentifiers, inline);
+            addInliningToMenu(availableFuncIDs, inline);
         }
     }
 
@@ -126,14 +119,14 @@ public class RefactorMenu implements MenuListener {
     private void addRenamingsToMenu(final List<Id> selectedIDs, final JMenu menu) {
         final Iterator<Id> it = selectedIDs.iterator();
         while (it.hasNext()) {
-            menu.add(RenameActions.getRenameAction(this.editor, it.next()));
+            menu.add(RefactorAction.getRenameAction(this.editor.getMorpheus(), it.next()));
         }
     }
 
     private void addInliningToMenu(final List<Id> selectedIDs, final JMenu menu) {
         final Iterator<Id> it = selectedIDs.iterator();
         while (it.hasNext()) {
-            menu.add(RefactorAction.getInlineFunction(editor, it.next()));
+            menu.add(RefactorAction.getInlineFunction(this.editor.getMorpheus(), it.next()));
         }
 
     }

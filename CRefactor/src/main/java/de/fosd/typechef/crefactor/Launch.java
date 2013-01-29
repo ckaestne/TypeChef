@@ -68,8 +68,8 @@ public final class Launch {
                 }
 
                 // show editor window
-                final Editor editor = new Editor();
-                editor.loadFileInEditor(loadingWindow.getFileToAnalyse(), ast);
+                final Editor editor = new Editor(new Morpheus(ast));
+                editor.loadFileInEditor(loadingWindow.getFileToAnalyse());
                 // editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
                 editor.setVisible(true);
             }

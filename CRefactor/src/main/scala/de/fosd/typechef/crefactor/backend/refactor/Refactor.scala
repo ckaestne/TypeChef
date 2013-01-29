@@ -2,15 +2,14 @@ package de.fosd.typechef.crefactor.backend.refactor
 
 import java.util
 import util.Collections
-import de.fosd.typechef.typesystem.CEnvCache
+import de.fosd.typechef.typesystem.{CEnvCache, CUnknown}
 import de.fosd.typechef.crefactor.Morpheus
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.parser.c.{AST, TranslationUnit, Id}
-import de.fosd.typechef.typesystem.CUnknown
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
+import de.fosd.typechef.parser.c.{CompoundStatement, AST, TranslationUnit, Id}
+import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
 
-trait Refactor extends CEnvCache {
+trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
   private val languageKeywords = List(
     "auto",
@@ -140,6 +139,30 @@ trait Refactor extends CEnvCache {
   def isDeclaredStructOrUnionDef(morph: Morpheus, newId: String, oldID: Id): Boolean = {
     val env = lookupEnv(morph, oldID)
     env.structEnv.someDefinition(newId, true) || env.structEnv.someDefinition(newId, false)
+  }
+
+  def isShadowed(name: String, element: AST, morpheus: Morpheus): Boolean = {
+
+    val lookupValue = findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv()) match {
+      case s@Some(x) => x.innerStatements.last.entry
+      case _ => morpheus.getAST().asInstanceOf[TranslationUnit].defs.last.entry
+    }
+
+    val env = morpheus.getEnv(lookupValue)
+
+    isDeclaredVarInEnv(name, env.asInstanceOf[Env])
+  }
+
+  def isDeclaredVarInEnv(name: String, env: Env) = env.varEnv(name) match {
+    case One(CUnknown(_)) => false
+    case _ => true
+  }
+
+  def isDeclaredStructOrUnionInEnv(name: String, env: Env) = env.structEnv.someDefinition(name, false) || env.structEnv.someDefinition(name, true)
+
+  def isDeclaredTypeDefInEnv(name: String, env: Env) = env.typedefEnv(name) match {
+    case One(CUnknown(_)) => false
+    case _ => true
   }
 
   private def lookupEnv(morph: Morpheus, oldID: AST): Env = {

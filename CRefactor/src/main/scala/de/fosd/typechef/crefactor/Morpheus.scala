@@ -4,8 +4,9 @@ import de.fosd.typechef.crewrite.{CASTEnv, ASTEnv}
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 import de.fosd.typechef.parser.c.{TranslationUnit, AST}
 import de.fosd.typechef.typesystem._
+import java.util.Observable
 
-class Morpheus(ast: AST, fm: FeatureExpr) extends CDeclUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
+class Morpheus(ast: AST, fm: FeatureExpr) extends Observable with CDeclUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
   def this(ast: AST) = this(ast, FeatureExprFactory.True)
 
   private var astCached: AST = ast
@@ -16,6 +17,8 @@ class Morpheus(ast: AST, fm: FeatureExpr) extends CDeclUse with CTypeEnv with CE
     astCached = ast
     astEnvCached = CASTEnv.createASTEnv(astCached)
     typecheckTranslationUnit(astCached.asInstanceOf[TranslationUnit], fm)
+    setChanged()
+    notifyObservers()
   }
 
   def getEnv(ast: AST): Env = lookupEnv(ast)
