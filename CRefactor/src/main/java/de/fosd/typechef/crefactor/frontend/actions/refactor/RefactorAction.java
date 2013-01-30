@@ -40,7 +40,7 @@ public class RefactorAction {
 
                 try {
                     final long start = System.currentTimeMillis();
-                    final AST refactored = InlineFunction.inline(morpheus, id, dialog.isRename());
+                    final AST refactored = InlineFunction.inline(morpheus, id, dialog.isRename(), dialog.isOnce());
                     System.out.println("Duration for transforming: " + (System.currentTimeMillis() - start));
                     morpheus.update(refactored);
                 } catch (final AssertionError e) {

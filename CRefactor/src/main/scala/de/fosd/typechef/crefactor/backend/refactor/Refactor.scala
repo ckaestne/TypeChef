@@ -115,37 +115,11 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     occurrences.toArray(Array[Id]()).toList
   }
 
-  def isDeclaredVarInScope(morph: Morpheus, newId: String, oldID: Id, scopeEnd: AST): Boolean = {
-    // TODO Optimize!
-    lookupEnv(morph, oldID).varEnv(newId) match {
-      case One(CUnknown(_)) =>
-        lookupEnv(morph, scopeEnd).varEnv(newId) match {
-          case One(CUnknown(_)) => false
-          case _ => true
-        }
-      case _ => true
-    }
-  }
-
-  def isDeclaredTypeDef(morph: Morpheus, newId: String, oldID: Id): Boolean = {
-    val env = lookupEnv(morph, oldID)
-    env.typedefEnv(newId) match {
-      case One(CUnknown(_)) => return false
-      case _ => return true
-    }
-    false
-  }
-
-  def isDeclaredStructOrUnionDef(morph: Morpheus, newId: String, oldID: Id): Boolean = {
-    val env = lookupEnv(morph, oldID)
-    env.structEnv.someDefinition(newId, true) || env.structEnv.someDefinition(newId, false)
-  }
-
   def isShadowed(name: String, element: AST, morpheus: Morpheus): Boolean = {
 
-    val lookupValue = findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv()) match {
+    val lookupValue = findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv) match {
       case s@Some(x) => x.innerStatements.last.entry
-      case _ => morpheus.getAST().asInstanceOf[TranslationUnit].defs.last.entry
+      case _ => morpheus.getAST.asInstanceOf[TranslationUnit].defs.last.entry
     }
 
     val env = morpheus.getEnv(lookupValue)
@@ -167,7 +141,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
   private def lookupEnv(morph: Morpheus, oldID: AST): Env = {
     var env: Env = null
-    val ast = morph.getAST().asInstanceOf[TranslationUnit]
+    val ast = morph.getAST.asInstanceOf[TranslationUnit]
     try {
       env = morph.getEnv(oldID).asInstanceOf[Env]
       // declared

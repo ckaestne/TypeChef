@@ -6,6 +6,7 @@ import de.fosd.typechef.parser.c.{TranslationUnit, AST}
 import de.fosd.typechef.typesystem._
 import java.util.Observable
 import java.io.File
+import de.fosd.typechef.Frontend
 
 class Morpheus(ast: AST, fm: FeatureExpr, file: File) extends Observable with CDeclUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
   def this(ast: AST) = this(ast, FeatureExprFactory.True, null)
@@ -26,14 +27,21 @@ class Morpheus(ast: AST, fm: FeatureExpr, file: File) extends Observable with CD
     notifyObservers()
   }
 
-  def getEnv(ast: AST): Env = lookupEnv(ast)
+  def getEnv(ast: AST) = lookupEnv(ast)
 
-  def getAST(): AST = astCached
+  def getAST = astCached
 
-  def getASTEnv(): ASTEnv = astEnvCached
+  def getASTEnv = astEnvCached
 
-  def getFeatureModel(): FeatureExpr = fm
+  def getFeatureModel = fm
 
-  def getFile(): File = file
+  def getFile = file
+}
 
+object Parse {
+
+  def parse(configuration: Array[String]): AST = {
+    Frontend.main(configuration)
+    Frontend.getAST
+  }
 }

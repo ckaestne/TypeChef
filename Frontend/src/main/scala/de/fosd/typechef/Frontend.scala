@@ -153,8 +153,8 @@ object Frontend {
     fw.close()
   }
 
-  def getAST(): AST = storedAst
+  def getAST = storedAst
 
-  def getFeatureModel(): FeatureExpr = featureModel
+  def getFeatureModel = featureModel
 
 }

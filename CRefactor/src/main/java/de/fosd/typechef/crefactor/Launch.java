@@ -1,6 +1,5 @@
 package de.fosd.typechef.crefactor;
 
-import de.fosd.typechef.Frontend;
 import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.loader.Loader;
@@ -53,7 +52,9 @@ public final class Launch {
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
                         loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel());
 
-                final AST ast = parse(typeChefConfig);
+                final long parseStart = System.currentTimeMillis();
+                final AST ast = Parse.parse(typeChefConfig);
+                System.out.println("Parsing duration: " + (System.currentTimeMillis() - parseStart) + "ms");
 
                 if (ast == null) {
                     // Parsing failed.
@@ -108,16 +109,5 @@ public final class Launch {
         args.add("--lexNoStdout");
 
         return args.toArray(new String[args.size()]);
-    }
-
-    /**
-     * Inits the typechef and parses the input under a certain configuration.
-     *
-     * @param configuration the configuration passed to the typechef framework
-     * @return the resulted ast  or <code>null</code> if something bad happend
-     */
-    private final static AST parse(final String[] configuration) {
-        Frontend.main(configuration);
-        return Frontend.getAST();
     }
 }

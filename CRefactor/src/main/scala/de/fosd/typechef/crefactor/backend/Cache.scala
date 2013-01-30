@@ -16,10 +16,8 @@ object Cache extends CDeclUse with CTypeEnv with CEnvCache with CTypeCache with 
   def parse(args: Array[String]): AST = {
     // init, get ast and typecheck
     Frontend.main(args)
-    val ast = Frontend.getAST()
+    val ast = Frontend.getAST
     if (ast != null) {
-      // var featureModel = Frontend.getFeatureModel()
-      // TODO Feature Model
       typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
       astCached = ast
       astEnvCached = CASTEnv.createASTEnv(astCached)
