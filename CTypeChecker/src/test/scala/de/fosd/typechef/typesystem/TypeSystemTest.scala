@@ -744,6 +744,21 @@ return 1;
 
     }
 
+    test("default types") {
+      expect(true) {
+        check(
+          """
+            static x = 0;
+          """.stripMargin)
+      }
+      expect(true) {
+        check(
+          """
+            foo() { return 0; }
+          """.stripMargin)
+      }
+    }
+
 
     test("nested structs") {
         expect(true) {
@@ -873,6 +888,18 @@ return 1;
                   |  if (foo) ;
                   |  return 0;
                   |}
+                """.stripMargin)
+        }
+
+    }
+
+
+    test("functions returning a function") {
+        expect(true) {
+            //function foo returns a pointer to a function that accepts an int pointer and returns an int
+            check(
+                """
+                  |int (*foo(long f))(int*) { if (f); return 0; }
                 """.stripMargin)
         }
 

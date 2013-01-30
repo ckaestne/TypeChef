@@ -69,7 +69,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         }
 
 
-    /**variability ignored for now*/
+    /** variability ignored for now */
     private def containsAtomicAttribute(f: String => Boolean, attrs: List[Opt[AttributeSequence]]): Boolean =
         (for (Opt(f1, attrSeq) <- attrs; Opt(f2, attr) <- attrSeq.attributes)
         yield attr match {
@@ -156,9 +156,16 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
         if (types.size == 1)
             types.head
-        else if (types.size == 0)
-            One(reportTypeError(featureExpr, "no type specifier found", locationForErrorMsg))
-        else
+        else if (types.size == 0) {
+            //            if no type is given the default type for functions in C is int
+            //        (http://publications.gbdirect.co.uk/c_book/chapter4/function_types.html).
+            //            According to standard C this should not be exploited by programmers.
+            //            However, from time to time people use it. We could either add int to
+            //            all occurences or add this rule to the typesystem.
+            //TODO we might want to issue a warning here.
+            sign(CInt())
+            //was:            One(reportTypeError(featureExpr, "no type specifier found", locationForErrorMsg))
+        } else
             One(reportTypeError(featureExpr, "multiple types found " + types, locationForErrorMsg))
     }
 
@@ -209,21 +216,21 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl, env.scope)
         val varDecl: scala.List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] =
-          if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
-        else {
-            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
+            if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
+            else {
+                val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
 
-            for (Opt(f, init) <- decl.init) yield {
-                val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
-                val declKind = if (init.hasInitializer) KDefinition else KDeclaration
+                for (Opt(f, init) <- decl.init) yield {
+                    val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
+                    val declKind = if (init.hasInitializer) KDefinition else KDeclaration
 
-                eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
-                    declKind,
-                    env.scope)
+                    eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
+                        declKind,
+                        env.scope)
 
-                init.getExpr map {
-                    checkInitializer(_, ctype, featureExpr and f, eenv)
-                }
+                    init.getExpr map {
+                        checkInitializer(_, ctype, featureExpr and f, eenv)
+                    }
 
 
 
@@ -259,13 +266,13 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             case x => x
         })
 
-    /**define all fields from enum type specifiers as int values
-     *
-     * enum is always interpreted as definition, not declaration. it conflicts with other definitions and
-     * other declarations.
-     *
-     * important: this recurses into structures!
-     **/
+    /** define all fields from enum type specifiers as int values
+      *
+      * enum is always interpreted as definition, not declaration. it conflicts with other definitions and
+      * other declarations.
+      *
+      * important: this recurses into structures!
+      * */
     protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
         var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
@@ -385,7 +392,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         checkStructCompletenessC(ctype, fexpr, env, structDeclaration)
 
                         //member should not have function type (pointer to function is okay)
-                        val isFunction = ctype.when({case CFunction(_, _) => true; case _ => false})
+                        val isFunction = ctype.when({ case CFunction(_, _) => true; case _ => false })
                         if ((fexpr and isFunction).isSatisfiable())
                             reportTypeError(fexpr and isFunction, "member " + decl.getName + " must not have function type", decl, Severity.OtherError)
 
