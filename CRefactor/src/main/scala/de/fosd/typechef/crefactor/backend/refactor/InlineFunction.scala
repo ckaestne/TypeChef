@@ -149,8 +149,8 @@ object InlineFunction extends ASTSelection with Refactor {
       val feature = call.feature.and(statement.feature)
       if (!feature.isSatisfiable()) return cStatement
       val rDecl = decl.copy(declSpecs.reverse, initDecls.reverse)
-
-      replaceInAST(cStatement.asInstanceOf[AST], statement, call.copy(feature, declStatement.copy(rDecl))).asInstanceOf[CompoundStatement]
+      // TODO ReplaceStrategy
+      replaceInASTOnceTD(cStatement.asInstanceOf[AST], statement, call.copy(feature, declStatement.copy(rDecl))).asInstanceOf[CompoundStatement]
     }
 
     def assignStatement(statement: Opt[Statement], cStatement: CompoundStatement, call: Opt[Statement], entry: Expr): CompoundStatement = {
@@ -192,9 +192,9 @@ object InlineFunction extends ASTSelection with Refactor {
     workingStatement
   }
 
-  def generateValidName(id: Id, morph: Morpheus, scope: AST, appendix: Int = 1): String = {
+  def generateValidName(id: Id, call: Opt[Statement], morph: Morpheus, appendix: Int = 1): String = {
     val newName = id.name + "_" + appendix
-    if (isShadowed(newName, id, morph)) generateValidName(id, morph, scope, (appendix + 1))
+    if (isShadowed(newName, call.entry, morph)) generateValidName(id, call, morph, (appendix + 1))
     else newName
   }
 
@@ -212,8 +212,8 @@ object InlineFunction extends ASTSelection with Refactor {
     if (!rename && !idsToRename.isEmpty) assert(false, "Can not inline - variables need to be renamed")
 
     // rename ids
-    var statements = idsToRename.foldLeft(funcDef.stmt.innerStatements)((statement, id) => replaceInAST(statement, id, id.copy(name = generateValidName(id, morph, ccStatement.innerStatements.last.entry))).asInstanceOf[List[Opt[Statement]]])
-    val parameters = idsToRename.foldLeft(funcDef.declarator.extensions)((extension, id) => replaceInAST(extension, id, id.copy(name = generateValidName(id, morph, ccStatement.innerStatements.last.entry))).asInstanceOf[List[Opt[DeclaratorExtension]]])
+    var statements = idsToRename.foldLeft(funcDef.stmt.innerStatements)((statement, id) => replaceInAST(statement, id, id.copy(name = generateValidName(id, call, morph))).asInstanceOf[List[Opt[Statement]]])
+    val parameters = idsToRename.foldLeft(funcDef.declarator.extensions)((extension, id) => replaceInAST(extension, id, id.copy(name = generateValidName(id, call, morph))).asInstanceOf[List[Opt[DeclaratorExtension]]])
 
     def generateInitializer(parameter: Opt[DeclaratorExtension], exprList: List[Opt[Expr]]): List[Opt[DeclarationStatement]] = {
       var exprs = exprList

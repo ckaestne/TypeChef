@@ -107,7 +107,6 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
   }
 
   def isShadowed(name: String, element: AST, morpheus: Morpheus): Boolean = {
-
     val lookupValue = findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv) match {
       case s@Some(x) => x.innerStatements.last.entry
       case _ => morpheus.getAST.asInstanceOf[TranslationUnit].defs.last.entry
