@@ -90,27 +90,18 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     def addOccurrence(occurrence: Id) {
       if (!occurrences.contains(occurrence)) {
         occurrences.add(occurrence)
-        if (!declUse.containsKey(occurrence)) {
-          // workaround to avoid null pointer @ wrong forward declarations
-          occurrences.clear()
-          return
-        }
+        if (!declUse.containsKey(occurrence)) return
+        // workaround to avoid null pointer @ wrong forward declarations
+        // occurrences.clear()
         declUse.get(occurrence).foreach(use => {
           occurrences.add(use)
-          if (useDecl.containsKey(use)) {
-            useDecl.get(use).foreach(entry => addOccurrence(entry))
-          }
+          if (useDecl.containsKey(use)) useDecl.get(use).foreach(entry => addOccurrence(entry))
         })
       }
     }
 
-    if (useDecl.containsKey(lookup)) {
-      // lookup declarations and search for further referenced declarations
-      useDecl.get(lookup).foreach(id => addOccurrence(id))
-    } else {
-      // id is decl - search for further referenced declarations
-      addOccurrence(lookup)
-    }
+    if (useDecl.containsKey(lookup)) useDecl.get(lookup).foreach(id => addOccurrence(id)) // lookup declarations and search for further referenced declarations
+    else addOccurrence(lookup) // id is decl - search for further referenced declarations
 
     occurrences.toArray(Array[Id]()).toList
   }

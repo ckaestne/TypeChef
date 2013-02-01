@@ -68,6 +68,10 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     val morpheus2 = new Morpheus(refactored, piFile)
     resultBuilder.append("++Typecheck refactored ast time: " + (System.currentTimeMillis() - startTypeCheck2) + "ms ++\n")
 
+    val prettyPrint = System.currentTimeMillis()
+    val prettyPrinter = PrettyPrinter.print(refactored)
+    resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (System.currentTimeMillis() - prettyPrint) + "ms ++\n")
+
     val newAmount = analyeDeclUse(morpheus2.getDeclUseMap()).sorted
     val succ = originAmount == newAmount
     resultBuilder.append("++Refactoring was succesful: " + succ + " ++\n")
