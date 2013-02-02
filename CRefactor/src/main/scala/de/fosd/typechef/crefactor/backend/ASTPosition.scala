@@ -117,7 +117,6 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
     } else {
       parents = uniqueSelectedExpressions.toArray(Array[Expr]()).toList
     }
-    println("parents" + parents.sortWith(comparePosition))
 
 
     parents.sortWith(comparePosition)

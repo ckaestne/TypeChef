@@ -11,6 +11,7 @@ import de.fosd.typechef.crefactor.frontend.actions.refactor.ExtractFunctionActio
 import de.fosd.typechef.crefactor.frontend.actions.refactor.RefactorAction;
 import de.fosd.typechef.crefactor.frontend.util.Selection;
 import de.fosd.typechef.crefactor.util.Configuration;
+import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
 import scala.collection.Iterator;
 import scala.collection.immutable.List;
@@ -53,6 +54,7 @@ public class RefactorMenu implements MenuListener {
         final Selection selection = new Selection(editor);
         final Morpheus morpheus = this.editor.getMorpheus();
 
+        // TODO Apply a nice design pattern
 
         /**
          * Refactor Renaming
@@ -69,8 +71,9 @@ public class RefactorMenu implements MenuListener {
          */
         final List<Opt<?>> selectedAST = ASTPosition.getSelectedOpts(Cache.getAST(), Cache.getASTEnv(), morpheus.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-        // List<AST> selectedElements = ASTPosition.getSelectedExprOrStatements(Cache.getAST(), Cache.getASTEnv(), editor.getFile().getAbsolutePath(),
-        //        selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+        List<AST> selectedElements = ASTPosition.getSelectedExprOrStatements(Cache.getAST(), Cache.getASTEnv(), morpheus.getFile().getAbsolutePath(),
+                selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
+        System.out.println("Selection:" + selectedElements.toString());
         // final boolean extractionPossible = ExtractMethod.refactorIsPossible(selectedElements, Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap(), Cache.getUseDeclMap(), "newFunc");
         final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Cache.getASTEnv());
         if (this.menu.getComponentCount() != 0) {

@@ -7,11 +7,14 @@ import de.fosd.typechef.crefactor.Morpheus
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c.{CompoundStatement, AST, TranslationUnit, Id}
 import de.fosd.typechef.conditional.{Opt, One}
-import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
+import de.fosd.typechef.crewrite.{ASTEnv, ConditionalNavigation, ASTNavigation}
+import de.fosd.typechef.crefactor.frontend.util.Selection
 
 trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
-  private val languageKeywords = List(
+  private val VALID_NAME_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*"
+
+  private val LANGUAGE_KEYWORDS = List(
     "auto",
     "break",
     "case",
@@ -58,22 +61,15 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     "_Thread_local"
   )
 
+  def isAvailable(ast: AST, astEnv: ASTEnv, selection: Selection): Boolean
+
   /**
    * Checks if the name of a variable is compatible to the iso c standard. See 6.4.2 of the iso standard
    *
    * @param name name to check
    * @return <code>true</code> if valid, <code>false</code> if not
    */
-  def isValidName(name: String): Boolean = {
-    if (!name.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
-      return false
-    }
-    if (name.startsWith("__")) {
-      // reserved
-      return false
-    }
-    !isReservedLanguageKeyword(name)
-  }
+  def isValidName(name: String): Boolean = (name.matches(VALID_NAME_PATTERN) && !name.startsWith("__") && !isReservedLanguageKeyword(name))
 
   /**
    * Checks if the name is a language keyword.
@@ -81,9 +77,9 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
    * @param name the name to check
    * @return <code>true</code> if language keyword
    */
-  def isReservedLanguageKeyword(name: String) = languageKeywords.contains(name)
+  def isReservedLanguageKeyword(name: String) = LANGUAGE_KEYWORDS.contains(name)
 
-  def findAllConnectedIds(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
+  def getAllConnectedIdentifier(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
     val occurrences = Collections.newSetFromMap[Id](new util.IdentityHashMap())
 
     // find all uses of an id
@@ -129,18 +125,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     case _ => true
   }
 
-  private def lookupEnv(morph: Morpheus, oldID: AST): Env = {
-    var env: Env = null
-    val ast = morph.getAST.asInstanceOf[TranslationUnit]
-    try {
-      env = morph.getEnv(oldID).asInstanceOf[Env]
-      // declared
-    } catch {
-      case e: NoSuchElementException => env = morph.getEnv(ast.defs.last.entry).asInstanceOf[Env]
-      case _ => null
-    }
-    env
-  }
+  // TODO Clean up ast rewrite strategies
 
   def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
     val r = oncetd(rule {

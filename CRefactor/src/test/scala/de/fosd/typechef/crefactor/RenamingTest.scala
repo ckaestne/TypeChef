@@ -60,6 +60,8 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     if (morpheus.getDeclUseMap().containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getDeclUseMap().get(id) + " +++\n")
     if (morpheus.getUseDeclMap.containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getUseDeclMap.get(id) + " +++\n")
 
+    resultBuilder.append("++Ids to rename: " + RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).size + " +++\n")
+
     val startRenaming = System.currentTimeMillis()
     val refactored = RenameIdentifier.rename(id, rename, morpheus)
     resultBuilder.append("++Renaming time: " + (System.currentTimeMillis() - startRenaming) + "ms ++\n")

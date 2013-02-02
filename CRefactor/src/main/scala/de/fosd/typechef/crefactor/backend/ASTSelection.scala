@@ -40,4 +40,16 @@ trait ASTSelection {
 
   def isElementOfFile[T <: AST](element: T, file: String) = element.getFile.get.regionMatches(true, 5, file, 0, file.length())
 
+  def isElementOfSelectionRange(element: AST, selection: Selection): Boolean = {
+    val startLine = selection.getLineStart
+    val endLine = selection.getLineEnd
+    val startRow = selection.getRowStart
+    val endRow = selection.getRowEnd
+
+    if (!((isInRange(element.getPositionFrom.getLine, startLine, endLine) && isInRange(element.getPositionTo.getLine, startLine, endLine)))) false
+    else if (element.getPositionFrom.getLine == startLine) isInRange(element.getPositionFrom.getColumn, scala.math.min(startRow, endRow), scala.math.max(startRow, endRow))
+    else if (element.getPositionTo.getLine == endLine) isInRange(element.getPositionTo.getColumn, scala.math.min(startRow, endRow), scala.math.max(startRow, endRow))
+    else true
+  }
+
 }

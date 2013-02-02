@@ -28,6 +28,8 @@ object InlineFunction extends ASTSelection with Refactor {
     ids.sortWith(comparePosition)
   }
 
+  def isAvailable(ast: AST, astEnv: ASTEnv, selection: Selection): Boolean = !getAvailableIdentifiers(ast, astEnv, selection).isEmpty
+
   def isFunctionCall(morph: Morpheus, id: Id): Boolean = {
     parentAST(id, morph.getASTEnv) match {
       case p: PostfixExpr => true
@@ -327,7 +329,7 @@ object InlineFunction extends ASTSelection with Refactor {
     var decl = List[Opt[_]]()
     var defs = List[Opt[FunctionDef]]()
 
-    findAllConnectedIds(id, morph.getDeclUseMap(), morph.getUseDeclMap).foreach(id => {
+    getAllConnectedIdentifier(id, morph.getDeclUseMap(), morph.getUseDeclMap).foreach(id => {
       val parent = parentOpt(id, morph.getASTEnv)
       parent.entry match {
         case p: Statement => calls ::= parent.asInstanceOf[Opt[Statement]]

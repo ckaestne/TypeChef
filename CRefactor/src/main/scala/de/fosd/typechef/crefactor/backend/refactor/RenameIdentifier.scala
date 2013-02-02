@@ -21,9 +21,11 @@ object RenameIdentifier extends ASTSelection with Refactor {
     })
   }
 
+  def isAvailable(ast: AST, astEnv: ASTEnv, selection: Selection): Boolean = !getAvailableIdentifiers(ast, astEnv, selection).isEmpty
+
   def rename(id: Id, newName: String, morpheus: Morpheus): AST = {
     assert(isValidName(newName), Configuration.getInstance().getConfig("default.error.invalidName"))
-    findAllConnectedIds(id, morpheus.getDeclUseMap(), morpheus.getUseDeclMap).foldLeft(morpheus.getAST)((ast, id) => {
+    getAllConnectedIdentifier(id, morpheus.getDeclUseMap(), morpheus.getUseDeclMap).foldLeft(morpheus.getAST)((ast, id) => {
       assert(!isShadowed(newName, id, morpheus), Configuration.getInstance().getConfig("refactor.rename.failed.shadowing"))
       replaceInAST(ast, id, id.copy(name = newName))
     })
