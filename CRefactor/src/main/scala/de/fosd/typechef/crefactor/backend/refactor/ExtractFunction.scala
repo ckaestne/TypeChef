@@ -107,7 +107,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   }
 
   /**
-   * Checks if id is declared in the selection.
+   * Checks if callId is declared in the selection.
    */
   private def idIsDeclaredInSelection(id: Id, usedIds: List[Id], defuse: util.IdentityHashMap[Id, List[Id]]): Boolean = {
     val decl = Helper.findFirstDecl(defuse, id)
@@ -337,7 +337,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   }
 
   /**
-   * Generates the parameters requiered in the function call.
+   * Generates the parameters requiered in the function stmt.
    */
   private def generateFuncCallParameter(params: Set[Id], astEnv: ASTEnv, defUse: util.IdentityHashMap[Id, List[Id]]): List[Opt[Expr]] = {
     var funcCallParams = List[Opt[Expr]]()

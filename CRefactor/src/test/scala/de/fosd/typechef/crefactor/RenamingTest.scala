@@ -60,6 +60,7 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     if (morpheus.getDeclUseMap().containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getDeclUseMap().get(id) + " +++\n")
     if (morpheus.getUseDeclMap.containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getUseDeclMap.get(id) + " +++\n")
 
+    resultBuilder.append("++Amount of ids: " + getAllRelevantIds(ast).length + " +++\n")
     resultBuilder.append("++Ids to rename: " + RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).size + " +++\n")
 
     val startRenaming = System.currentTimeMillis()
@@ -70,9 +71,12 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     val morpheus2 = new Morpheus(refactored, piFile)
     resultBuilder.append("++Typecheck refactored ast time: " + (System.currentTimeMillis() - startTypeCheck2) + "ms ++\n")
 
+    /**
     val prettyPrint = System.currentTimeMillis()
     val prettyPrinter = PrettyPrinter.print(refactored)
     resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (System.currentTimeMillis() - prettyPrint) + "ms ++\n")
+      */
+
 
     val newAmount = analyeDeclUse(morpheus2.getDeclUseMap()).sorted
     val succ = originAmount == newAmount
@@ -101,5 +105,15 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     val ast: AST = new ParserMain(new CParser).parserMain(
       () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, SilentParserOptions)
     ast.asInstanceOf[TranslationUnit]
+  }
+
+  private def getAllRelevantIds(a: Any): List[Id] = {
+    a match {
+      case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
+      case gae: GnuAsmExpr => List()
+      case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
+      case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
+      case k => List()
+    }
   }
 }

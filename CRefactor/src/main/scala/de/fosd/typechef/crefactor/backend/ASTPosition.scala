@@ -185,9 +185,9 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
 
   private def isIdOfSelectionRange(id: Id, startLine: Int, endLine: Int, startRow: Int, endRow: Int): Boolean = {
     /**
-     * Annotated ids have often the same starting line. As workaround we only identify the id by its end value.
+     * Annotated ids have often the same starting line. As workaround we only identify the callId by its end value.
      */
-    (isInRange(id.getPositionTo.getLine, startLine, endLine)) // && ((endRow <= id.getPositionTo.getColumn) || (startRow <= id.getPositionTo.getColumn)))
+    (isInRange(id.getPositionTo.getLine, startLine, endLine)) // && ((endRow <= callId.getPositionTo.getColumn) || (startRow <= callId.getPositionTo.getColumn)))
   }
 
   /**
@@ -208,7 +208,7 @@ object ASTPosition extends ASTNavigation with ConditionalNavigation {
    * Remove all ast elements except those from the specified file.
    */
   private def filterASTElementsForFile[T <: AST](selection: List[T], file: String): List[T] = {
-    // offset 5 because file path of id contains the string "file "
+    // offset 5 because file path of callId contains the string "file "
     val offset = 5
     selection.filter(p => p.getFile.get.regionMatches(true, offset, file, 0, file.length())).toList
   }

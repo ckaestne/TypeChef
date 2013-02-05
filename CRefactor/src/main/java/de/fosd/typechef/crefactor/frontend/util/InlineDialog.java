@@ -7,10 +7,10 @@ public class InlineDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JCheckBox inlineEveryOccurenceCheckBox;
+    private JCheckBox inlineEveryOccurrenceCheckBox;
     private JCheckBox renameShadowedVariablesCheckBox;
-    private boolean refactor;
     private boolean once;
+    private boolean refactor;
     private boolean rename;
 
 
@@ -22,7 +22,7 @@ public class InlineDialog extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(this.buttonOK);
 
-        this.inlineEveryOccurenceCheckBox.setEnabled(call);
+        this.inlineEveryOccurrenceCheckBox.setEnabled(call);
 
         this.buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -36,7 +36,7 @@ public class InlineDialog extends JDialog {
             }
         });
 
-        // call onCancel() when cross is clicked
+        // stmt onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -44,7 +44,7 @@ public class InlineDialog extends JDialog {
             }
         });
 
-        // call onCancel() on ESCAPE
+        // stmt onCancel() on ESCAPE
         this.contentPane.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
@@ -53,7 +53,7 @@ public class InlineDialog extends JDialog {
     }
 
     private void onOK() {
-        this.once = !this.inlineEveryOccurenceCheckBox.isSelected();
+        this.once = !this.inlineEveryOccurrenceCheckBox.isSelected();
         this.rename = this.renameShadowedVariablesCheckBox.isSelected();
         this.refactor = true;
         dispose();

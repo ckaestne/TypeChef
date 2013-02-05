@@ -48,7 +48,7 @@ public class Editor extends JFrame implements Observer {
         this.textArea.setWhitespaceVisible(true);
         this.textArea.setCodeFoldingEnabled(true);
         this.textArea.setAntiAliasingEnabled(true);
-        this.textArea.setEditable(false);
+        this.textArea.setEditable(true);
 
         // Enable Scrolling
         final RTextScrollPane scrollPane = new RTextScrollPane(this.textArea);

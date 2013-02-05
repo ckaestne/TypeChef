@@ -19,8 +19,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         case gae: GnuAsmExpr => List()
         case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
         case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
-        case k =>
-          List()
+        case k => List()
       }
     }
 

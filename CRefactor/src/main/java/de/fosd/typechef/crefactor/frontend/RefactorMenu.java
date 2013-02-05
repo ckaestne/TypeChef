@@ -73,7 +73,7 @@ public class RefactorMenu implements MenuListener {
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
         List<AST> selectedElements = ASTPosition.getSelectedExprOrStatements(Cache.getAST(), Cache.getASTEnv(), morpheus.getFile().getAbsolutePath(),
                 selection.getLineStart(), selection.getLineEnd(), selection.getRowStart(), selection.getRowEnd());
-        System.out.println("Selection:" + selectedElements.toString());
+        // System.out.println("Selection:" + selectedElements.toString());
         // final boolean extractionPossible = ExtractMethod.refactorIsPossible(selectedElements, Cache.getAST(), Cache.getASTEnv(), Cache.getDeclUseMap(), Cache.getUseDeclMap(), "newFunc");
         final boolean eligable = ExtractFunction.isEligableForExtraction(selectedAST, Cache.getASTEnv());
         if (this.menu.getComponentCount() != 0) {

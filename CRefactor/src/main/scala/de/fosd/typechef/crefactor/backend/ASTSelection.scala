@@ -33,7 +33,7 @@ trait ASTSelection {
    * Remove all ast elements except those from the specified file.
    */
   protected def filterASTElementsForFile[T <: AST](selection: List[T], file: String): List[T] = {
-    // offset 5 because file path of id contains the string "file "
+    // offset 5 because file path of callId contains the string "file "
     val offset = 5
     selection.filter(p => p.getFile.get.regionMatches(true, offset, file, 0, file.length())).toList
   }

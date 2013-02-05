@@ -2,13 +2,19 @@ package de.fosd.typechef.crefactor.backend.refactor
 
 import java.util
 import util.Collections
-import de.fosd.typechef.typesystem.{CEnvCache, CUnknown}
+import de.fosd.typechef.typesystem.CEnvCache
 import de.fosd.typechef.crefactor.Morpheus
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.parser.c.{CompoundStatement, AST, TranslationUnit, Id}
-import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.{ASTEnv, ConditionalNavigation, ASTNavigation}
 import de.fosd.typechef.crefactor.frontend.util.Selection
+import de.fosd.typechef.parser.c.Id
+import scala.Some
+import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.typesystem.CUnknown
+import de.fosd.typechef.parser.c.CompoundStatement
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.One
 
 trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
@@ -71,6 +77,12 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
    */
   def isValidName(name: String): Boolean = (name.matches(VALID_NAME_PATTERN) && !name.startsWith("__") && !isReservedLanguageKeyword(name))
 
+  def generateValidName(id: Id, stmt: Opt[Statement], morph: Morpheus, appendix: Int = 1): String = {
+    val newName = id.name + "_" + appendix
+    if (isShadowed(newName, stmt.entry, morph)) generateValidName(id, stmt, morph, (appendix + 1))
+    else newName
+  }
+
   /**
    * Checks if the name is a language keyword.
    *
@@ -82,7 +94,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
   def getAllConnectedIdentifier(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
     val occurrences = Collections.newSetFromMap[Id](new util.IdentityHashMap())
 
-    // find all uses of an id
+    // find all uses of an callId
     def addOccurrence(occurrence: Id) {
       if (!occurrences.contains(occurrence)) {
         occurrences.add(occurrence)
@@ -97,7 +109,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     }
 
     if (useDecl.containsKey(lookup)) useDecl.get(lookup).foreach(id => addOccurrence(id)) // lookup declarations and search for further referenced declarations
-    else addOccurrence(lookup) // id is decl - search for further referenced declarations
+    else addOccurrence(lookup) // callId is decl - search for further referenced declarations
 
     occurrences.toArray(Array[Id]()).toList
   }
@@ -151,6 +163,13 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
   def replaceInASTOnceTD[T <: Product](t: T, mark: Opt[_], replace: Opt[_]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) replace :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceInASTOnceTD[T <: Product](t: T, mark: T, replace: T): T = {
+    val r = oncetd(rule {
+      case i: T => if (i.eq(mark)) replace else i
     })
     r(t).get.asInstanceOf[T]
   }

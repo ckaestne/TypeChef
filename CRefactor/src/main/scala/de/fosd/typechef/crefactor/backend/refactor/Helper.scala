@@ -113,7 +113,7 @@ object Helper extends ASTNavigation with ConditionalNavigation {
   def findAllConnectedIds(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
     val occurrences = Collections.newSetFromMap[Id](new util.IdentityHashMap())
 
-    // find all uses of an id
+    // find all uses of an callId
     def addOccurrence(occurrence: Id) {
       if (!occurrences.contains(occurrence)) {
         occurrences.add(occurrence)
@@ -130,7 +130,7 @@ object Helper extends ASTNavigation with ConditionalNavigation {
       // lookup declarations and search for further referenced declarations
       useDecl.get(lookup).foreach(id => addOccurrence(id))
     } else {
-      // id is decl - search for further referenced declarations
+      // callId is decl - search for further referenced declarations
       addOccurrence(lookup)
     }
 

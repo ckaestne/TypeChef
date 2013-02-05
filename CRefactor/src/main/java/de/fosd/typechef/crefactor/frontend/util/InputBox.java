@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 /**
- * Inputbox for renaming an id.
+ * Inputbox for renaming an callId.
  */
 public class InputBox extends JDialog {
 

@@ -389,8 +389,8 @@ trait CDeclUse extends CEnv with CEnvCache {
         case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
         case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
+        case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
         case One(null) =>
-        // TODO Nested FuncDef
         case _ => assert(false, println("Match Error" + one))
       }
     }
