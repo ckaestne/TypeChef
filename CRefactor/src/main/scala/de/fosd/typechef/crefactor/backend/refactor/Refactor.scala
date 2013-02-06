@@ -13,8 +13,8 @@ import scala.Some
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.typesystem.CUnknown
 import de.fosd.typechef.parser.c.CompoundStatement
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
+import de.fosd.typechef.conditional.{Choice, Conditional, Opt, One}
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
@@ -90,6 +90,12 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
    * @return <code>true</code> if language keyword
    */
   def isReservedLanguageKeyword(name: String) = LANGUAGE_KEYWORDS.contains(name)
+
+  def buildChoice[T <: AST](attribute: List[(T, FeatureExpr)]): Conditional[T] = {
+    if (attribute.isEmpty) One(null.asInstanceOf[T])
+    else if (attribute.length == 1) One(attribute.head._1)
+    else Choice(attribute.head._2, One(attribute.head._1), buildChoice(attribute.tail))
+  }
 
   def getAllConnectedIdentifier(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
     val occurrences = Collections.newSetFromMap[Id](new util.IdentityHashMap())

@@ -180,21 +180,26 @@ object InlineFunction extends ASTSelection with Refactor {
           funcDef match {
             case f: Opt[FunctionDef] => inlineFuncDefInCompStmt(workingStatement, morph, call, f, rename)
             case _ =>
-              assert(false, "Missed case!")
-              null
+              println("Forgotten definition")
+              workingStatement
           })
         // Remove stmt
         workingCallCompStmt = removeFromAST(workingCallCompStmt, call)
       case i: IfStatement =>
-        workingCallCompStmt = funcDefs.foldLeft(workingCallCompStmt)((workingStatement, funcDef) =>
+        val inlineExprStatements = funcDefs.flatMap(funcDef =>
           funcDef match {
-            case f: Opt[FunctionDef] => inlineFuncDefInIfStmt(workingStatement, i, morph, call, f, rename)
+            case f: Opt[FunctionDef] =>
+              val inlineStmt = inlineFuncDefInIfStmt(workingCallCompStmt, i, morph, call, f, rename)
+              inlineStmt match {
+                case null => None
+                case _ => Some(inlineStmt, funcDef.feature.and(call.feature))
+              }
             case _ =>
-              assert(false, "Missed case!")
-              null
+              println("Forgotten definition")
+              None
           })
-        // Remove stmt
-        workingCallCompStmt = removeFromAST(workingCallCompStmt, parentOpt(i, morph.getASTEnv))
+        // Remove call and inline function
+        workingCallCompStmt = replaceInAST(workingCallCompStmt, morph.getASTEnv.parent(call.entry), buildChoice(inlineExprStatements)).asInstanceOf[CompoundStatement]
       case _ => println("forgotten")
     }
 
@@ -305,8 +310,8 @@ object InlineFunction extends ASTSelection with Refactor {
     workingStatement
   }
 
-  private def inlineFuncDefInIfStmt(compStmt: CompoundStatement, ifStmt: IfStatement, morpheus: Morpheus, call: Opt[Statement], funcDef: Opt[FunctionDef], rename: Boolean): CompoundStatement = {
-    if (!isValidFuncDef(funcDef, call, compStmt, morpheus)) return compStmt
+  private def inlineFuncDefInIfStmt(compStmt: CompoundStatement, ifStmt: IfStatement, morpheus: Morpheus, call: Opt[Statement], funcDef: Opt[FunctionDef], rename: Boolean): ExprStatement = {
+    if (!isValidFuncDef(funcDef, call, compStmt, morpheus)) return null
 
     var workingStatement = compStmt
 
@@ -315,14 +320,22 @@ object InlineFunction extends ASTSelection with Refactor {
 
     val renamed = renameShadowedIds(idsToRename, funcDef, call, morpheus)
     val initializer = getInitializers(call, renamed._2)
-    val statements = applyFeaturesOnInlineStmts(renamed._1, call)
+    var statements = applyFeaturesOnInlineStmts(renamed._1, call)
     val returnStmts = getReturnStmts(statements)
 
-    val insert = ExprStatement(CompoundStatementExpr(CompoundStatement(initializer ::: statements)))
-    val ifOpt = parentOpt(ifStmt, morpheus.getASTEnv)
-    workingStatement = insertInAstBefore(compStmt, ifOpt, ifOpt.copy(feature = call.feature.and(ifOpt.feature), entry = ifStmt.copy(thenBranch = One(insert))))
-    // TODO Return Statement
-    workingStatement
+    // remove return statements
+    statements = returnStmts.foldLeft(statements)((stmts, returnStmt) => removeFromAST(stmts, returnStmt))
+
+    val compoundStmtExpr = CompoundStatementExpr(CompoundStatement(initializer ::: statements))
+
+    call.entry match {
+      case ExprStatement(p@PostfixExpr(pe, FunctionCall(_))) => ExprStatement(compoundStmtExpr)
+      case ExprStatement(AssignExpr(target, op, _)) => ExprStatement(AssignExpr(target, op, compoundStmtExpr))
+      case _ =>
+        assert(false, "An error occured. Unable to assign return statemeents")
+        null
+    }
+
   }
 
   private def isDeclared(id: Id, env: Env, statement: CompoundStatement, morpheus: Morpheus): Boolean = {

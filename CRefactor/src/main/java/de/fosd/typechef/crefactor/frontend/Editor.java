@@ -77,6 +77,7 @@ public class Editor extends JFrame implements Observer {
         }
 
         BufferedReader reader = null;
+
         try {
             reader = new BufferedReader(new FileReader(file));
             this.textArea.read(reader, null);
