@@ -83,7 +83,7 @@ object InlineFunction extends ASTSelection with Refactor {
             case _ => calls ::= parentOpt(parent, morph.getASTEnv).asInstanceOf[Opt[DeclarationStatement]]
           }
         case iE: InitDeclaratorE => decl ::= parentOpt(parent, morph.getASTEnv)
-        case e: Expr => callExpr ::= parent // TODO Inline them!
+        case e: Expr => callExpr ::= parent
         case _ => assert(false, "Invalid function found!")
       }
     })
@@ -201,8 +201,9 @@ object InlineFunction extends ASTSelection with Refactor {
     val parentFunc = parentOpt(getCallCompStatement(call, morph.getASTEnv), morph.getASTEnv)
     parentFunc.entry match {
       case f: FunctionDef => replaceInASTOnceTD(ast, parentFunc, parentFunc.copy(entry = f.copy(stmt = workingCallCompStmt)))
-      case _ =>
-        assert(false, "Somethings bad happend - i am going to cry.")
+      case c: CompoundStatement => replaceInAST(ast, c, c.copy(innerStatements = workingCallCompStmt.innerStatements))
+      case x =>
+        assert(false, "Something bad happend - i am going to cry.")
         ast
     }
   }
