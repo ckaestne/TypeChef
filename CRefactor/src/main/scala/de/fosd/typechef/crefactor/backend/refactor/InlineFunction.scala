@@ -56,7 +56,8 @@ object InlineFunction extends ASTSelection with Refactor {
 
     // Do inlining.
     // TODO Inline once
-    val refactoredAST = calls.foldLeft(morph.getAST)((workingAST, call) => inlineFuncCall(workingAST, new Morpheus(workingAST), call, defs, rename))
+    var refactoredAST = calls.foldLeft(morph.getAST)((workingAST, call) => inlineFuncCall(workingAST, new Morpheus(workingAST), call, defs, rename))
+    callExpr.foldLeft(refactoredAST)((workingAST, expr) => inlineFuncCallExpr(workingAST, new Morpheus(workingAST), expr, defs, rename))
 
     // Remove inlined function stmt's declaration and definitions
     val removedDecls = decl.foldLeft(refactoredAST)((workingAST, x) => removeFromAST(workingAST, x))
@@ -70,7 +71,6 @@ object InlineFunction extends ASTSelection with Refactor {
     var defs = List[Opt[FunctionDef]]()
     var callExpr = List[Opt[_]]()
 
-    // TODO Refactor
     getAllConnectedIdentifier(callId, morph.getDeclUseMap(), morph.getUseDeclMap).foreach(id => {
       val parent = parentOpt(id, morph.getASTEnv)
       parent.entry match {
@@ -169,43 +169,52 @@ object InlineFunction extends ASTSelection with Refactor {
     })
   }
 
+  private def inlineFuncCallExpr(ast: AST, morph: Morpheus, expr: Opt[_], funcDefs: List[Opt[_]], rename: Boolean): AST = {
+    null
+  }
+
   private def inlineFuncCall(ast: AST, morph: Morpheus, call: Opt[Statement], funcDefs: List[Opt[_]], rename: Boolean): AST = {
     var workingCallCompStmt = getCallCompStatement(call, morph.getASTEnv)
 
-    // TODO Handling for other occurences
-    // TODO Refactor for further abstraction
-    parentAST(call.entry, morph.getASTEnv) match {
-      case c: CompoundStatement =>
-        workingCallCompStmt = funcDefs.foldLeft(workingCallCompStmt)((workingStatement, funcDef) =>
-          funcDef match {
-            case f: Opt[FunctionDef] => inlineFuncDefInCompStmt(workingStatement, morph, call, f, rename)
-            case _ =>
-              println("Forgotten definition")
-              workingStatement
-          })
-        // Remove stmt
-        workingCallCompStmt = removeFromAST(workingCallCompStmt, call)
-      case i: IfStatement =>
-        val inlineExprStatements = funcDefs.flatMap(funcDef =>
-          funcDef match {
-            case f: Opt[FunctionDef] =>
-              val inlineStmt = inlineFuncDefInIfStmt(workingCallCompStmt, i, morph, call, f, rename)
-              inlineStmt match {
-                case null => None
-                case _ => Some(inlineStmt, funcDef.feature.and(call.feature))
-              }
-            case _ =>
-              println("Forgotten definition")
-              None
-          })
-        // Remove call and inline function
-        workingCallCompStmt = replaceInAST(workingCallCompStmt, morph.getASTEnv.parent(call.entry), buildChoice(inlineExprStatements)).asInstanceOf[CompoundStatement]
-      case _ => println("forgotten")
+    def inlineIfStmt(funcDefs: List[Opt[_]], callCompStmt: CompoundStatement): CompoundStatement = {
+      val inlineExprStatements = funcDefs.flatMap(funcDef =>
+        funcDef match {
+          case f: Opt[FunctionDef] =>
+            val inlineStmt = inlineFuncDefInExpr(callCompStmt, morph, call, f, rename)
+            inlineStmt match {
+              case null => None
+              case _ => Some(inlineStmt, funcDef.feature.and(call.feature))
+            }
+          case _ =>
+            println("Forgotten definition")
+            None
+        })
+      // Remove call and inline function
+      replaceInAST(callCompStmt, morph.getASTEnv.parent(call.entry), buildChoice(inlineExprStatements)).asInstanceOf[CompoundStatement]
     }
 
-    val parentFunc = parentOpt(getCallCompStatement(call, morph.getASTEnv), morph.getASTEnv)
-    parentFunc.entry match {
-      case f: FunctionDef => replaceInASTOnceTD(ast, parentFunc, parentFunc.copy(entry = f.copy(stmt = workingCallCompStmt)))
+    def inlineCompStmt(funcDefs: List[Opt[_]], callCompStmt: CompoundStatement): CompoundStatement = {
+      val workingCallCompStmt = funcDefs.foldLeft(callCompStmt)((workingStatement, funcDef) =>
+        funcDef match {
+          case f: Opt[FunctionDef] => inlineFuncDefInCompStmt(workingStatement, morph, call, f, rename)
+          case _ =>
+            println("Forgotten definition")
+            workingStatement
+        })
+      // Remove stmt
+      removeFromAST(workingCallCompStmt, call)
+    }
+
+    parentAST(call.entry, morph.getASTEnv) match {
+      case c: CompoundStatement => workingCallCompStmt = inlineCompStmt(funcDefs, workingCallCompStmt)
+      case i: IfStatement => workingCallCompStmt = inlineIfStmt(funcDefs, workingCallCompStmt)
+      case e: ElifStatement => workingCallCompStmt = inlineIfStmt(funcDefs, workingCallCompStmt)
+      case x => println("forgotten " + x)
+    }
+
+    val parent = parentOpt(getCallCompStatement(call, morph.getASTEnv), morph.getASTEnv)
+    parent.entry match {
+      case f: FunctionDef => replaceInASTOnceTD(ast, parent, parent.copy(entry = f.copy(stmt = workingCallCompStmt)))
       case c: CompoundStatement => replaceInAST(ast, c, c.copy(innerStatements = workingCallCompStmt.innerStatements))
       case x =>
         assert(false, "Something bad happend - i am going to cry.")
@@ -310,7 +319,7 @@ object InlineFunction extends ASTSelection with Refactor {
     workingStatement
   }
 
-  private def inlineFuncDefInIfStmt(compStmt: CompoundStatement, ifStmt: IfStatement, morpheus: Morpheus, call: Opt[Statement], funcDef: Opt[FunctionDef], rename: Boolean): ExprStatement = {
+  private def inlineFuncDefInExpr(compStmt: CompoundStatement, morpheus: Morpheus, call: Opt[Statement], funcDef: Opt[FunctionDef], rename: Boolean): ExprStatement = {
     if (!isValidFuncDef(funcDef, call, compStmt, morpheus)) return null
 
     var workingStatement = compStmt
@@ -324,7 +333,12 @@ object InlineFunction extends ASTSelection with Refactor {
     val returnStmts = getReturnStmts(statements)
 
     // remove return statements
-    statements = returnStmts.foldLeft(statements)((stmts, returnStmt) => removeFromAST(stmts, returnStmt))
+    statements = returnStmts.foldLeft(statements)((stmts, returnStmt) =>
+      returnStmt.entry.expr match {
+        case None => removeFromAST(stmts, returnStmt)
+        case Some(_) => replaceInAST(stmts, returnStmt, Opt(returnStmt.feature, ExprStatement(returnStmt.entry.expr.get)))
+      }
+    )
 
     val compoundStmtExpr = CompoundStatementExpr(CompoundStatement(initializer ::: statements))
 
@@ -332,7 +346,7 @@ object InlineFunction extends ASTSelection with Refactor {
       case ExprStatement(p@PostfixExpr(pe, FunctionCall(_))) => ExprStatement(compoundStmtExpr)
       case ExprStatement(AssignExpr(target, op, _)) => ExprStatement(AssignExpr(target, op, compoundStmtExpr))
       case _ =>
-        assert(false, "An error occured. Unable to assign return statemeents")
+        assert(false, "An error occured. Unable to assign return statements")
         null
     }
 
