@@ -100,7 +100,6 @@ object Frontend {
             if (ast != null) {
                 val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -129,6 +128,7 @@ object Frontend {
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
                 if (opt.conditionalControlFlow) {
+                    val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     cf.checkCfG()
                     t6 = System.currentTimeMillis()
                     t7 = t6
