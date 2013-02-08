@@ -82,6 +82,8 @@ object Frontend {
         var t5 = t2
         var t6 = t2
         var t7 = t2
+//        ProductGeneration.generateAndTestRandomConfigurations(opt.getSATFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition),
+//                                                              opt.getSATFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition))
         if (opt.parse) {
             println("parsing.")
             val in = CLexer.prepareTokens(tokens)
@@ -104,13 +106,13 @@ object Frontend {
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
                 if (opt.typecheck || opt.writeInterface) {
-                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
-                      //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
-                    //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
+                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
+                      logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
 
-                    println("type checking.")
-                    ts.checkAST
-					          ts.errors.map(errorXML.renderTypeError(_))
+
+//                    println("type checking.")
+//                    ts.checkAST
+//					          ts.errors.map(errorXML.renderTypeError(_))
                     t4 = System.currentTimeMillis()
                     t5 = t4
                     t6 = t4
@@ -131,12 +133,6 @@ object Frontend {
                     t6 = System.currentTimeMillis()
                     t7 = t6
                 }
-                if (opt.dataFlow) {
-                  ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                    logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
-                  t7 = System.currentTimeMillis()
-                }
-
             }
 
         }

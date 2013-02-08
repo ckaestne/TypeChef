@@ -1,9 +1,8 @@
 package de.fosd.typechef.lexer.options;
 
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprParser;
-import de.fosd.typechef.featureexpr.FeatureModel;
-import de.fosd.typechef.featureexpr.FeatureModelFactory;
+import de.fosd.typechef.featureexpr.*;
+import de.fosd.typechef.featureexpr.sat.SATFeatureExprFactory;
+import de.fosd.typechef.featureexpr.sat.SATFeatureModel;
 import de.fosd.typechef.lexer.FeatureExprLib;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -22,6 +21,21 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
     protected FeatureModel featureModel_typeSystem = null;
     protected PartialConfiguration partialConfig = null;
 
+    // for linux we have two different feature models
+    // a small one satFM (used for parsing)
+    // and a big one satFMTypeSystem (used later for typechecking)
+    protected FeatureModel satFM           = null;
+    protected FeatureModel satFMTypeSystem = null;
+
+    public FeatureModel getSATFeatureModel() {
+        if (satFMTypeSystem == null)
+            satFMTypeSystem = SATFeatureModel.empty();
+        return satFMTypeSystem;
+    }
+
+    public FeatureModel getSATFeatureModelTypeSystem() {
+        return satFMTypeSystem;
+    }
 
     @Override
     public FeatureModel getFeatureModel() {
@@ -79,6 +93,12 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             if (featureModel == null)
                 featureModel = FeatureExprLib.featureModelFactory().create(f);
             else featureModel = featureModel.and(f);
+
+            if (satFM == null)
+                satFM = SATFeatureModel.empty();
+            FeatureExpr fsat = new FeatureExprParser(FeatureExprFactory$.MODULE$.sat()).parseFile(g.getOptarg());
+            satFM = satFM.and(fsat);
+
 //        } else if (c == FM_CLASS) {//--featureModelClass
 //            try {
 //                FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
@@ -89,6 +109,8 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
         } else if (c == FM_TSDIMACS) {
             checkFileExists(g.getOptarg());
             featureModel_typeSystem = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+
+            satFMTypeSystem = SATFeatureExprFactory.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
         } else if (c == FM_PARTIALCONFIG) {
             checkFileExists(g.getOptarg());
             if (partialConfig != null)
@@ -98,10 +120,15 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             if (featureModel_typeSystem == null)
                 featureModel_typeSystem = FeatureExprLib.featureModelFactory().empty();
 
-            for (String featureName : partialConfig.getDefinedFeatures())
+            for (String featureName : partialConfig.getDefinedFeatures()){
                 featureModel_typeSystem = featureModel_typeSystem.assumeTrue(featureName);
-            for (String featureName : partialConfig.getUndefinedFeatures())
+                satFMTypeSystem = satFMTypeSystem.assumeTrue(featureName);
+            }
+
+            for (String featureName : partialConfig.getUndefinedFeatures()) {
                 featureModel_typeSystem = featureModel_typeSystem.assumeFalse(featureName);
+                satFMTypeSystem = satFMTypeSystem.assumeTrue(featureName);
+            }
         } else
             return super.interpretOption(c, g);
         return true;

@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory$;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
 import de.fosd.typechef.featureexpr.FeatureModel;
+import de.fosd.typechef.featureexpr.sat.SATFeatureModel;
 import de.fosd.typechef.lexer.options.LexerOptions;
 import de.fosd.typechef.lexer.options.OptionException;
 import de.fosd.typechef.lexer.options.Options;
@@ -222,7 +223,6 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     public void setRenderParserError(Function3<FeatureExpr, String, Position, Object> r) {
         _renderParserError = r;
     }
-
 
     public boolean printParserResult() {
         return parserResults;
