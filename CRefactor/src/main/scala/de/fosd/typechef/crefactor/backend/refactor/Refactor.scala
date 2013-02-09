@@ -77,7 +77,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
    */
   def isValidName(name: String): Boolean = (name.matches(VALID_NAME_PATTERN) && !name.startsWith("__") && !isReservedLanguageKeyword(name))
 
-  def generateValidName(id: Id, stmt: Opt[Statement], morph: Morpheus, appendix: Int = 1): String = {
+  def generateValidName(id: Id, stmt: Opt[AST], morph: Morpheus, appendix: Int = 1): String = {
     val newName = id.name + "_" + appendix
     if (isShadowed(newName, stmt.entry, morph)) generateValidName(id, stmt, morph, (appendix + 1))
     else newName
@@ -95,6 +95,15 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     if (attribute.isEmpty) One(null.asInstanceOf[T])
     else if (attribute.length == 1) One(attribute.head._1)
     else Choice(attribute.head._2, One(attribute.head._1), buildChoice(attribute.tail))
+  }
+
+  def buildVariableCompoundStatement(stmts: List[(CompoundStatementExpr, FeatureExpr)]): CompoundStatementExpr = {
+    // move several compoundStatement into one and apply their feature.
+    val innerstmts = stmts.foldLeft(List[Opt[Statement]]())((innerstmts, stmtEntry) => stmtEntry._1 match {
+      case CompoundStatementExpr(CompoundStatement(inner)) => innerstmts ::: inner.map(stmt => stmt.copy(feature = stmt.feature.and(stmtEntry._2)))
+      case _ => innerstmts
+    })
+    CompoundStatementExpr(CompoundStatement(innerstmts))
   }
 
   def getAllConnectedIdentifier(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
@@ -199,5 +208,16 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(remove)) Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
+  }
+
+  def insertRefactoredAST(morpheus: Morpheus, callCompStmt: CompoundStatement, workingCallCompStmt: CompoundStatement): AST = {
+    val parent = parentOpt(callCompStmt, morpheus.getASTEnv)
+    parent.entry match {
+      case f: FunctionDef => replaceInASTOnceTD(morpheus.getAST, parent, parent.copy(entry = f.copy(stmt = workingCallCompStmt)))
+      case c: CompoundStatement => replaceInAST(morpheus.getAST, c, c.copy(innerStatements = workingCallCompStmt.innerStatements))
+      case x =>
+        assert(false, "Something bad happend - i am going to cry.")
+        morpheus.getAST
+    }
   }
 }

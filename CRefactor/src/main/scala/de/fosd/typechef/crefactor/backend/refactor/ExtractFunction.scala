@@ -252,7 +252,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
         case p2@PointerCreationExpr(expr) => PointerDerefExpr(p2)
         case p3@PostfixExpr(expr1, _) => p3.copy(p = makePointer(expr1))
         case _ => {
-          println("missed expr " + expr)
+          println("missed call " + expr)
           expr
         }
       }
