@@ -12,34 +12,36 @@ import conditional.Choice
 import conditional.Conditional
 import conditional.One
 import conditional.Opt
-import de.fosd.typechef.parser.c.PostfixExpr
-import de.fosd.typechef.parser.c.ArrayAccess
-import de.fosd.typechef.parser.c.ReturnStatement
+import scala._
 import de.fosd.typechef.parser.c.SwitchStatement
-import de.fosd.typechef.parser.c.CompoundStatementExpr
 import scala.Some
+import de.fosd.typechef.parser.c.NAryExpr
 import de.fosd.typechef.parser.c.DoStatement
 import de.fosd.typechef.parser.c.Initializer
 import de.fosd.typechef.parser.c.AssignExpr
+import de.fosd.typechef.parser.c.DeclParameterDeclList
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.DeclarationStatement
+import de.fosd.typechef.parser.c.CompoundStatement
+import de.fosd.typechef.parser.c.CaseStatement
+import de.fosd.typechef.parser.c.InitDeclaratorE
+import de.fosd.typechef.parser.c.PostfixExpr
+import de.fosd.typechef.parser.c.ArrayAccess
+import de.fosd.typechef.parser.c.ReturnStatement
+import de.fosd.typechef.parser.c.CompoundStatementExpr
 import de.fosd.typechef.typesystem.CUnknown
 import de.fosd.typechef.typesystem.CFunction
 import de.fosd.typechef.parser.c.FunctionCall
 import de.fosd.typechef.parser.c.IfStatement
 import de.fosd.typechef.parser.c.NArySubExpr
-import de.fosd.typechef.parser.c.DeclParameterDeclList
 import de.fosd.typechef.parser.c.WhileStatement
 import de.fosd.typechef.parser.c.InitDeclaratorI
 import de.fosd.typechef.parser.c.Declaration
 import de.fosd.typechef.parser.c.ExprStatement
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.parser.c.DeclarationStatement
 import de.fosd.typechef.parser.c.ElifStatement
 import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.NestedFunctionDef
 import de.fosd.typechef.parser.c.ParameterDeclarationD
-import de.fosd.typechef.parser.c.CompoundStatement
-import de.fosd.typechef.parser.c.CaseStatement
-import de.fosd.typechef.parser.c.InitDeclaratorE
 
 /**
  * Implements the technique of inlining a function
@@ -154,6 +156,8 @@ object InlineFunction extends ASTSelection with Refactor {
    */
   private def hasBadReturns(func: FunctionDef, morpheus: Morpheus): Boolean = {
 
+    // TODO Optimize Runtime
+
     def codeAfterStatement(feature: FeatureExpr, opt: Opt[_]): Boolean = {
       val next = nextOpt(opt, morpheus.getASTEnv)
       next match {
@@ -254,6 +258,8 @@ object InlineFunction extends ASTSelection with Refactor {
       }
     }
 
+    def inlineInExpr(expr: Expr, inlineExprStatements: List[(CompoundStatementExpr, FeatureExpr)]) = replaceInAST(expr, call.entry, buildVariableCompoundStatement(inlineExprStatements)).asInstanceOf[Expr]
+
     findPriorASTElem[Statement](call.entry, morpheus.getASTEnv) match {
       case None =>
         assert(false, "This should not have happend!")
@@ -281,15 +287,15 @@ object InlineFunction extends ASTSelection with Refactor {
               replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = i.copy(elifs = refactoredElifs)))
             }
           case w: WhileStatement =>
-            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = w.copy(expr = buildVariableCompoundStatement(inlineExprStatements))))
+            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = w.copy(expr = inlineInExpr(w.expr, inlineExprStatements))))
           case s: SwitchStatement =>
-            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = s.copy(expr = buildVariableCompoundStatement(inlineExprStatements))))
+            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = s.copy(expr = inlineInExpr(s.expr, inlineExprStatements))))
           case d: DoStatement =>
-            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = d.copy(expr = buildVariableCompoundStatement(inlineExprStatements))))
+            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = d.copy(expr = inlineInExpr(d.expr, inlineExprStatements))))
           case e: ExprStatement =>
-            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = e.copy(expr = buildVariableCompoundStatement(inlineExprStatements))))
+            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = e.copy(expr = inlineInExpr(e.expr, inlineExprStatements))))
           case c: CaseStatement =>
-            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = c.copy(c = buildVariableCompoundStatement(inlineExprStatements))))
+            replaceStmt = replaceInASTOnceTD(workingCallCompStmt, parent, parent.copy(entry = c.copy(c = inlineInExpr(c.c, inlineExprStatements))))
           case x =>
             println("Missed InlineStatementExpr" + x)
             assert(false, "Refactoring failed - missed InlineStatementExpr")
@@ -394,7 +400,8 @@ object InlineFunction extends ASTSelection with Refactor {
         case ReturnStatement(Some(entry)) =>
           val feature = statement.feature.and(call.feature)
           if (assign) wStatement = assignStatement(statement, wStatement, call, entry)
-          else if (feature.isSatisfiable()) wStatement = insertInAstBefore(wStatement, call, Opt(feature, ExprStatement(entry)))
+          else if (feature.isSatisfiable())
+            wStatement = replaceInASTOnceTD(wStatement, statement, Opt(feature, ExprStatement(entry)))
         case _ => assert(false, "Missed Pattern!")
       })
       wStatement
