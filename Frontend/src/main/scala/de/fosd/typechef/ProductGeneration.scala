@@ -237,7 +237,7 @@ object ProductGeneration extends EnforceTreeHelper {
         else if (caseStudy.equals("busybox"))
           "../BusyboxBigConfig.config"
         else if (caseStudy.equals("openssl"))
-          "/mnt/ramdisk/OpenSSL.config"
+          "/local/joliebig/OpenSSL.config"
         else
           throw new Exception("unknown case Study, give linux, busybox, or openssl")
         startTime = System.currentTimeMillis()
@@ -265,8 +265,8 @@ object ProductGeneration extends EnforceTreeHelper {
           productsDir = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/")
           dimacsFM = new File("../TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
         } else if (caseStudy == "openssl") {
-          productsDir = new File("/mnt/ramdisk/TypeChef-OpenSSLAnalysis/openssl-1.0.1c/generatedConfigs_Henard/")
-          dimacsFM = new File("/mnt/ramdisk/TypeChef-OpenSSLAnalysis/openssl-1.0.1c/generatedConfigs_Henard/Openssl.dimacs")
+          productsDir = new File("/local/joliebig/TypeChef-OpenSSLAnalysis/openssl-1.0.1c/generatedConfigs_Henard/")
+          dimacsFM = new File("/local/joliebig/TypeChef-OpenSSLAnalysis/openssl-1.0.1c/generatedConfigs_Henard/Openssl.dimacs")
         } else {
           throw new Exception("unknown case Study, give linux, busybox, or openssl")
         }
@@ -383,6 +383,44 @@ object ProductGeneration extends EnforceTreeHelper {
     (log, tasks)
   }
 
+  private def loadConfigurationsFromCSV(csvFile: File, dimacsFile: File,
+                                        features: List[SingleFeatureExpr],
+                                        fm: FeatureModel, fnamePrefix: String = "") : (List[SimpleConfiguration], String) = {
+    var retList: List[SimpleConfiguration] = List()
+
+    // determine the feature ids used by the sat solver from the dimacs file
+    // dimacs format (c stands for comment) is "c 3779 AT76C50X_USB"
+    // we have to pre-set index 0, so that the real indices start with 1
+    var featureNamesTmp: List[String] = List("--dummy--")
+    var currentLine: Int = 1
+    for (line: String <- Source.fromFile(dimacsFile).getLines().takeWhile(_.startsWith("c"))) {
+      val lineElements: Array[String] = line.split(" ")
+      if (!lineElements(1).endsWith("$")) {
+        // feature indices ending with $ are artificial and can be ignored here
+        assert(augmentString(lineElements(1)).toInt.equals(currentLine), "\"" + lineElements(1) + "\"" + " != " + currentLine)
+        featureNamesTmp ::= lineElements(2)
+      }
+      currentLine += 1
+    }
+
+    // maintain a hashmap that maps feature ids to correspondig feature expressions
+    val featureNames: Array[String] = featureNamesTmp.reverse.toArray
+    featureNamesTmp = null
+    val interestingFeaturesMap: scala.collection.mutable.HashMap[Int, SingleFeatureExpr] = new scala.collection.mutable.HashMap()
+    for (i <- 0.to(featureNames.length - 1)) {
+      val searchResult = features.find(_.feature.equals(fnamePrefix + featureNames(i)))
+      if (searchResult.isDefined) {
+        interestingFeaturesMap.update(i, searchResult.get)
+      }
+    }
+
+    // parse configurations
+    // format is:
+    //
+
+    (retList, "Generated Configs: " + retList.size + "\n")
+  }
+
   private def countNumberOfASTElements(ast: AST): Long = {
     def countNumberOfASTElementsHelper(a: Any): Long = {
       a match {
@@ -393,31 +431,6 @@ object ProductGeneration extends EnforceTreeHelper {
       }
     }
     countNumberOfASTElementsHelper(ast)
-  }
-
-  private def varAwareAnalysisSetup(fm_ts: FeatureModel, ast: AST, opt: FrontendOptions): (TranslationUnit, List[Task], String, String) = {
-    var caseStudy = ""
-    var thisFilePath = ""
-    val fileAbsPath = new File(".").getAbsolutePath + opt.getFile
-    if (fileAbsPath.contains("linux-2.6.33.3")) {
-      thisFilePath = fileAbsPath.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
-      caseStudy = "linux"
-    } else if (fileAbsPath.contains("busybox-1.18.5")) {
-      thisFilePath = fileAbsPath.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
-      caseStudy = "busybox"
-    } else if (fileAbsPath.contains("openssl-1.0.1c")) {
-      thisFilePath = fileAbsPath.substring(opt.getFile.lastIndexOf("openssl-1.0.1c"))
-      caseStudy = "openssl"
-    } else {
-      thisFilePath = opt.getFile
-    }
-
-    val famast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-    val configDir = new File(thisFilePath.substring(0, thisFilePath.length - 2))
-    val (log: String, tasks: List[Task]) = buildConfigurations(famast, fm_ts, configDir, caseStudy)
-    saveSerializationOfTasks(tasks, features, configDir, opt.getFile)
-
-    (famast, tasks, thisFilePath, log)
   }
 
   def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
@@ -1130,22 +1143,18 @@ object ProductGeneration extends EnforceTreeHelper {
   }
 
   def loadConfigurationsFromHenardFiles(files: List[File], dimacsFile: File, features: List[SingleFeatureExpr], fm: FeatureModel): (List[SimpleConfiguration], String) = {
-    def getConfigID(filename: String): Int = {
-      // this is specific for the files generated by henard
-      // example: "2.6.33.3-2var.dimacs_GA-SimpleGAProducts-200prods-60000ms-run1.product4"
-      (filename.substring(filename.lastIndexOf("product") + "product".length)).toInt
-    }
     var retList: List[SimpleConfiguration] = List()
-    var featureNamesTmp: List[String] = List("--dummy--") // we have to pre-set index 0, so that the real indices start with 1
+
+    // we have to pre-set index 0, so that the real indices start with 1
+    var featureNamesTmp: List[String] = List("--dummy--")
     var currentLine: Int = 1
     for (line: String <- Source.fromFile(dimacsFile).getLines().takeWhile(_.startsWith("c"))) {
-      //format: "c 3779 AT76C50X_USB"
+      // dimacs-format: comment line "c 3779 AT76C50X_USB"
       val lineElements: Array[String] = line.split(" ")
       if (!lineElements(1).endsWith("$")) {
         // feature indices ending with $ are artificial and can be ignored here
         assert(augmentString(lineElements(1)).toInt.equals(currentLine), "\"" + lineElements(1) + "\"" + " != " + currentLine)
         featureNamesTmp ::= lineElements(2)
-        //assert (featureNamesTmp.head.equals(lineElements(2)))
       }
       currentLine += 1
     }
@@ -1159,21 +1168,19 @@ object ProductGeneration extends EnforceTreeHelper {
         interestingFeaturesMap.update(i, searchResult.get)
       }
     }
-    var unsat_configs: List[Int] = List()
+
     for (file: File <- files) {
-      // load
+
       var trueFeatures: List[SingleFeatureExpr] = List()
       var falseFeatures: List[SingleFeatureExpr] = List()
-      //var fex = FeatureExprFactory.True;
+
       for (line: String <- Source.fromFile(file).getLines()) {
         val lineContent: Int = augmentString(line).toInt
         if (interestingFeaturesMap.contains(math.abs(lineContent))) {
           if (lineContent > 0) {
             trueFeatures ::= interestingFeaturesMap(math.abs(lineContent))
-            //println(interestingFeaturesMap(math.abs(lineContent)) +  " := true (" + (lineContent) + ")")
           } else {
             falseFeatures ::= interestingFeaturesMap(math.abs(lineContent))
-            //println(interestingFeaturesMap(math.abs(lineContent)) +  " := false (" + (lineContent) + ")")
           }
         }
       }
