@@ -111,8 +111,11 @@ private object SatSolverCache {
         val c= cache.get(fm)
         if (c.isDefined && !c.get.invalid)
             c.get
-        else
-            new SatSolverImpl(fm)
+        else {
+            val s=new SatSolverImpl(fm)
+            cache.put(fm, s)
+            s
+        }
     }
 }
 
@@ -213,6 +216,7 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
                     if (!succeeded)
                         invalidateCache()
                 } catch {
+                    case e: AssertionError=>invalidateCache()
                     case e: NullPointerException=>invalidateCache()
                 }
             }
