@@ -32,7 +32,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
     class SeqCommitParser[T, U](thisParser: => MultiParser[T], thatParser: => MultiParser[U]) extends SeqParser[T, U](thisParser, thatParser) {
         name = "~!"
         override def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
-            thisParser(in, parserState).seq2(parserState, (next: Input , fs: FeatureExpr) => thatParser(next, fs).commit)
+            thisParser(in, parserState).seq2(parserState, (next: Input, fs: FeatureExpr) => thatParser(next, fs).commit)
     }
 
     class AltParser[T, U >: T](thisParser: => MultiParser[T], alternativeParser: => MultiParser[U]) extends MultiParser[U] {
@@ -304,7 +304,15 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
       * feature may be used and is conjuncted to all elements on list inA and (inA.each.and(feature))
       * and negated to inB (inB.each.and(feature.note))
       *
-      * XXX check whether there can be problems due to comparing two AST nodes. if a list produces
+      * Note the checks for satisfiability are necessary as long as we allow crosstree joins, because:
+      * During a split we simply replicate all previous entries, which may include entires that
+      * are actually not allowed in that branch. We do not filter right away, because it is probably
+      * faster to join the entire list again, and there it does not matter that it was temporarily invalid.
+      * However, wenn we perform crosstree joins, invalid entries suddenly can matter and should be filtered.
+      * (This indicates potential inefficienties where we actually perform replication in the AST)
+      *
+      *
+      * Not a problem!: check whether there can be problems due to comparing two AST nodes. if a list produces
       * several equal AST nodes, can joinLists swallow some of them?
       *
       * nonprivate only for test cases
@@ -322,17 +330,24 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
             //check for identity first, because its faster
             if (!a.isEmpty && !b.isEmpty &&
                 ((a.head.entry.asInstanceOf[AnyRef] eq b.head.entry.asInstanceOf[AnyRef]) || (a.head.entry == b.head.entry))) {
-                val newCondition = (a.head.feature and feature)  or (b.head.feature andNot feature)
-                result = Opt(newCondition, a.head.entry) :: result
+
+                //                assert((a.head.feature and feature).isSatisfiable(featureModel))
+                //                assert((b.head.feature andNot feature).isSatisfiable(featureModel))
+
+                val newCondition = (a.head.feature and feature) or (b.head.feature andNot feature)
+                if (newCondition.isSatisfiable(featureModel))
+                    result = Opt(newCondition, a.head.entry) :: result
                 a = a.tail
                 b = b.tail
             } else if (a.size > b.size) {
-                //                if ((a.head.feature and feature).isSatisfiable(featureModel))
-                result = a.head.and(feature) :: result
+                //                assert((a.head.feature and feature).isSatisfiable(featureModel))
+                if ((a.head.feature and feature).isSatisfiable(featureModel))
+                    result = a.head.and(feature) :: result
                 a = a.tail
             } else {
-                //                if ((a.head.feature andNot feature).isSatisfiable(featureModel))
-                result = b.head.andNot(feature) :: result
+                //                assert((b.head.feature andNot feature).isSatisfiable(featureModel))
+                if ((b.head.feature andNot feature).isSatisfiable(featureModel))
+                    result = b.head.andNot(feature) :: result
                 b = b.tail
             }
 
@@ -363,13 +378,13 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]])
 
         //join anything, data does not matter, only position in tokenstream
-        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]): MultiParseResult[Sealable] =  {
-            val joinedRes:  MultiParseResult[Conditional[Sealable]] = res.join(ctx)
+        private def join(ctx: FeatureExpr, res: MultiParseResult[Sealable]): MultiParseResult[Sealable] = {
+            val joinedRes: MultiParseResult[Conditional[Sealable]] = res.join(ctx)
 
             joinedRes.map(_.flatten(flattenConditionalSealable))
         }
 
-        private def flattenConditionalSealable(f:FeatureExpr, a: Sealable, b: Sealable):Sealable =
+        private def flattenConditionalSealable(f: FeatureExpr, a: Sealable, b: Sealable): Sealable =
             Sealable(a.isSealed && b.isSealed, joinOptLists(a.resultList, b.resultList, f))
 
 
@@ -406,11 +421,12 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                                 case None =>
                                     //default case, use normal mechanism
                                     // extend unsealed lists with the next result (if there is no next result, seal the list)
-                                    lastSuccess.seq2(ctx, opt(p)) map {
+                                    val newResult = lastSuccess.seq2(ctx, opt(p))
+                                    newResult map {
                                         case Sealable(_, resultList) ~ Some(t) => {
                                             if (debugOutput && productionName == "externalDef")
                                                 println("next externalDef @ " + lastSuccess.next.first.getPosition) //+"   "+t+"/"+f)
-                                            Sealable(false, Opt(True,t) :: resultList) //opt true, because it will be qualified anywhen when joining
+                                            Sealable(false, Opt(True, t) :: resultList) //opt true, because it will be qualified anywhen when joining
                                         }
                                         case Sealable(_, resultList) ~ None => Sealable(true, resultList)
                                     }

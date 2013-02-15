@@ -37,6 +37,8 @@ class ConsistencyTest {
 
         for (Opt(f, ext) <- ast.defs) {
 
+            assert(f.isSatisfiable(featureModel),"unsatisfiable code in AST: "+ext.getPositionFrom.getLine + " for " + ext)
+
             if (f.isSatisfiable(featureModel))
                 if (!knownExternals.containsKey(ext)) {
                     knownExternals.put(ext, f);
