@@ -491,13 +491,13 @@ try {
                 a = a.tail
                 b = b.tail
             } else if (a.size > b.size) {
-//                if ((a.head.feature and feature).isSatisfiable(featureModel))
-                  result = a.head.and(feature) :: result
+                //                if ((a.head.feature and feature).isSatisfiable(featureModel))
+                result = a.head.and(feature) :: result
                 a = a.tail
             } else {
-//                if ((a.head.feature andNot feature).isSatisfiable(featureModel))
-                    result = b.head.andNot(feature) :: result
-                b= b.tail
+                //                if ((a.head.feature andNot feature).isSatisfiable(featureModel))
+                result = b.head.andNot(feature) :: result
+                b = b.tail
             }
 
         }
@@ -609,12 +609,12 @@ try {
                 //aggressive joins
                 val res2 = join(ctx, res)
 
-//                if (!check(res2)){
-//                    println(res0)
-//                    res=join(ctx,res);
-//                    assert(false)
-//                }
-                res=res2
+                //                if (!check(res2)){
+                //                    println(res0)
+                //                    res=join(ctx,res);
+                //                    assert(false)
+                //                }
+                res = res2
                 //                if (productionName == "externalDef")
                 //                    println("after join\n" + debug_printResult(res, 0))
             }
@@ -622,15 +622,15 @@ try {
             res.map(_.resultList.reverse)
         }
 
-        private def check(r:MultiParseResult[Sealable]) = r match {
+        private def check(r: MultiParseResult[Sealable]) = r match {
             case Success(seal, next) =>
                 check2(seal.resultList)
             case _ => true
         }
-        private def check2(l:List[Opt[T]]):Boolean = {
-            val knownExternals = new java.util.IdentityHashMap[T,FeatureExpr]();
+        private def check2(l: List[Opt[T]]): Boolean = {
+            val knownExternals = new java.util.IdentityHashMap[T, FeatureExpr]();
 
-            for (Opt(f,ext) <- l) {
+            for (Opt(f, ext) <- l) {
 
                 if (!knownExternals.containsKey(ext)) {
                     knownExternals.put(ext, f);
@@ -639,7 +639,7 @@ try {
 
                     if (!(f mex priorFexpr).isTautology(featureModel))
                         return false
-                        //assert(false,"!"+priorFexpr + " mex "+f+" in "+ext )
+                    //assert(false,"!"+priorFexpr + " mex "+f+" in "+ext )
 
                     knownExternals.put(ext, f or priorFexpr)
                 }
@@ -1087,7 +1087,7 @@ try {
      */
     sealed abstract class MultiParseResult[+T] {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U]
-        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[~[T, U]]
+        def seq2[U](context: FeatureExpr, p: (Input, FeatureExpr) => MultiParseResult[U]): MultiParseResult[~[T, U]]
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U]
         def map[U](f: T => U): MultiParseResult[U]
         def mapf[U](feature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U]
@@ -1127,8 +1127,8 @@ try {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U] = {
             SplittedParseResult(feature, resultA.seqAllSuccessful(context.and(feature), f), resultB.seqAllSuccessful(context.and(feature.not), f))
         }
-        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[~[T, U]] =
-            SplittedParseResult[~[T, U]](feature, resultA.seq2(context and feature, p), resultB.seq2(context andNot feature, p))
+        def seq2[U](context: FeatureExpr, thatParser: (Input, FeatureExpr) => MultiParseResult[U]): MultiParseResult[~[T, U]] =
+            SplittedParseResult[~[T, U]](feature, resultA.seq2(context and feature, thatParser), resultB.seq2(context andNot feature, thatParser))
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U] = {
             SplittedParseResult(feature, resultA.replaceAllFailure(context.and(feature), f), resultB.replaceAllFailure(context.and(feature.not), f))
         }
@@ -1315,7 +1315,7 @@ try {
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, Nothing) => U): MultiParseResult[U] = this
         def isSuccess: Boolean = false
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[Nothing]) => MultiParseResult[U]): MultiParseResult[U] = this
-        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[Nothing] = this
+        def seq2[U](context: FeatureExpr, p: (Input, FeatureExpr) => MultiParseResult[U]): MultiParseResult[Nothing] = this
         def allFailed = true
         def exists(predicate: Nothing => Boolean) = false
         def changeContext(ctx: FeatureExpr, contextModification: (Nothing, FeatureExpr, TypeContext) => TypeContext) = this
@@ -1354,11 +1354,11 @@ try {
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U] = Success(f(inFeature, result), next)
         def isSuccess: Boolean = true
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U] = f(context, this)
-        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[~[T, U]] = {
-            val pResult = p(context, nextInput)
+        def seq2[U](context: FeatureExpr, p: (Input, FeatureExpr) => MultiParseResult[U]): MultiParseResult[~[T, U]] = {
+            val pResult = p(nextInput, context)
             concat(pResult)
         }
-        private def concat[U](pResult: MultiParseResult[U]):MultiParseResult[~[T, U]] = pResult match {
+        private def concat[U](pResult: MultiParseResult[U]): MultiParseResult[~[T, U]] = pResult match {
             case s: Success[U] => Success(new ~(result, s.result), s.next)
             case n: NoSuccess => n
             case s: SplittedParseResult[U] => SplittedParseResult(s.feature, concat(s.resultA), concat(s.resultB))
