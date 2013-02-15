@@ -1,0 +1,60 @@
+oneOf(defined(CONFIG_X86_32),defined(CONFIG_64BIT))
+oneOf(defined(CONFIG_FLATMEM), defined(CONFIG_DISCONTIGMEM), defined(CONFIG_SPARSEMEM)) //not all in FM!
+(defined(CONFIG_DISCONTIGMEM) => defined(CONFIG_NEED_MULTIPLE_NODES)) //from FM
+(defined(CONFIG_DISCONTIGMEM) => defined(CONFIG_SMP)) //from FM
+(defined(CONFIG_DISCONTIGMEM) => defined(CONFIG_X86_PAE)) //from FM
+(defined(CONFIG_MEMORY_HOTPLUG) => defined(CONFIG_SPARSEMEM)) //from FM
+(defined(CONFIG_HOTPLUG_CPU) => defined(CONFIG_SMP)) //from FM
+(defined(CONFIG_PROC_KCORE) => defined(CONFIG_PROC_FS)) //from FM
+(defined(CONFIG_NEED_MULTIPLE_NODES) => defined(CONFIG_SMP)) //from FM
+(defined(CONFIG_BLK_DEV_DRBD) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_BLK_DEV_INTEGRITY) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_BLK_DEV_LOOP) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_BLK_DEV_RAM) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_BLK_DEV_IO_TRACE) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_EXT3_FS) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_EXT4_FS) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_JBD) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_JBD2) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_DM_LOG_USERSPACE) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_DM_MULTIPATH_ST) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MD_FAULTY) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MD_LINEAR) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_BLK_DEV_MD) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MD_MULTIPATH) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MD_RAID0) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MD_RAID10) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MD_RAID1) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MD_RAID456) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_NFTL) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_NILFS2_FS) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_OCFS2_FS) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_EXOFS_FS) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_BOUNCE) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_I2C_SCMI) => defined(CONFIG_ACPI)) //from FM
+(defined(CONFIG_MD) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_GFS2_FS) => defined(CONFIG_BLOCK)) //from FM
+(defined(CONFIG_MTD_UBI_DEBUG_PARANOID) => defined(CONFIG_MTD_UBI_DEBUG)) //from FM
+(defined(CONFIG_GENERIC_PENDING_IRQ) => defined(CONFIG_SMP)) //from FM
+(defined(CONFIG_PROVE_LOCKING) => defined(CONFIG_DEBUG_SPINLOCK)) //from FM
+(defined(CONFIG_NET_EMATCH_U32) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_NET_EMATCH_CMP) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_NET_EMATCH_META) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_NET_EMATCH_NBYTE) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_NET_EMATCH_TEXT) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_X86_USE_3DNOW) mex defined(CONFIG_KMEMCHECK)) //from FM
+(defined(CONFIG_TOUCHSCREEN_AD7879) => (defined(CONFIG_TOUCHSCREEN_AD7879_I2C) or defined(CONFIG_TOUCHSCREEN_AD7879_SPI))) //from FM
+(defined(CONFIG_TOUCHSCREEN_AD7879) <=> (defined(CONFIG_TOUCHSCREEN_AD7879_I2C) or defined(CONFIG_TOUCHSCREEN_AD7879_SPI))) //from FM
+(defined(CONFIG_NET_EMATCH_CMP) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_NET_EMATCH_NBYTE) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_NET_EMATCH_TEXT) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_NET_EMATCH_U32) => defined(CONFIG_NET_EMATCH)) //from FM
+(defined(CONFIG_DEBUG_LOCK_ALLOC) => defined(CONFIG_LOCKDEP)) //from FM
+(defined(CONFIG_IRQSOFF_TRACER) => defined(CONFIG_TRACE_IRQFLAGS)) //from FM
+atLeastOne(defined(CONFIG_M586), defined(CONFIG_M586TSC), defined(CONFIG_M586MMX), defined(CONFIG_M686), defined(CONFIG_MPENTIUMII), defined(CONFIG_MPENTIUMIII), defined(CONFIG_MPENTIUMM), defined(CONFIG_MPENTIUM4),                defined(CONFIG_MK6), defined(CONFIG_MK7), defined(CONFIG_MK8), defined(CONFIG_MCRUSOE), defined(CONFIG_MEFFICEON), defined(CONFIG_MWINCHIPC6),                defined(CONFIG_MWINCHIP3D), defined(CONFIG_MGEODEGX1), defined(CONFIG_MGEODE_LX), defined(CONFIG_MCYRIXIII), defined(CONFIG_MVIAC3_2),                defined(CONFIG_MVIAC7), defined(CONFIG_MCORE2), defined(CONFIG_MATOM))
+(defined(CONFIG_HUGETLBFS) <=> defined(CONFIG_HUGETLB_PAGE)) //from FM
+defined(CONFIG_HOTPLUG_PCI_ACPI) => defined(CONFIG_ACPI)
+defined(CONFIG_X86_32_SMP) => defined(CONFIG_SMP)
+oneOf(defined(CONFIG_SLUB),defined(CONFIG_SLOB),defined(CONFIG_SLAB))//for type checking, temporarily
+oneOf(defined(CONFIG_TREE_RCU),defined(CONFIG_TREE_PREEMT_RCU),defined(CONFIG_TINY_RCU))//for type checking, temporarily
+defined(CONFIG_RFKILL_LEDS) => defined(CONFIG_LEDS_TRIGGERS) // not in feature model (bug)
