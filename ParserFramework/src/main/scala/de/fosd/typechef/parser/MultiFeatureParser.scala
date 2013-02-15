@@ -1087,6 +1087,7 @@ try {
      */
     sealed abstract class MultiParseResult[+T] {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U]
+        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[~[T, U]]
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U]
         def map[U](f: T => U): MultiParseResult[U]
         def mapf[U](feature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U]
@@ -1126,6 +1127,8 @@ try {
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U] = {
             SplittedParseResult(feature, resultA.seqAllSuccessful(context.and(feature), f), resultB.seqAllSuccessful(context.and(feature.not), f))
         }
+        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[~[T, U]] =
+            SplittedParseResult[~[T, U]](feature, resultA.seq2(context and feature, p), resultB.seq2(context andNot feature, p))
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U] = {
             SplittedParseResult(feature, resultA.replaceAllFailure(context.and(feature), f), resultB.replaceAllFailure(context.and(feature.not), f))
         }
@@ -1312,6 +1315,7 @@ try {
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, Nothing) => U): MultiParseResult[U] = this
         def isSuccess: Boolean = false
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[Nothing]) => MultiParseResult[U]): MultiParseResult[U] = this
+        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[Nothing] = this
         def allFailed = true
         def exists(predicate: Nothing => Boolean) = false
         def changeContext(ctx: FeatureExpr, contextModification: (Nothing, FeatureExpr, TypeContext) => TypeContext) = this
@@ -1350,6 +1354,15 @@ try {
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): MultiParseResult[U] = Success(f(inFeature, result), next)
         def isSuccess: Boolean = true
         def seqAllSuccessful[U](context: FeatureExpr, f: (FeatureExpr, Success[T]) => MultiParseResult[U]): MultiParseResult[U] = f(context, this)
+        def seq2[U](context: FeatureExpr, p: (FeatureExpr, TokenReader[Elem, TypeContext]) => MultiParseResult[U]): MultiParseResult[~[T, U]] = {
+            val pResult = p(context, nextInput)
+            concat(pResult)
+        }
+        private def concat[U](pResult: MultiParseResult[U]):MultiParseResult[~[T, U]] = pResult match {
+            case s: Success[U] => Success(new ~(result, s.result), s.next)
+            case n: NoSuccess => n
+            case s: SplittedParseResult[U] => SplittedParseResult(s.feature, concat(s.resultA), concat(s.resultB))
+        }
         def seq[U](context: FeatureExpr, thatResult: MultiParseResult[U]): MultiParseResult[~[T, U]] =
             thatResult.seqAllSuccessful[~[T, U]](context, (fs: FeatureExpr, x: Success[U]) => Success(new ~(result, x.result), x.next))
         def replaceAllFailure[U >: T](context: FeatureExpr, f: FeatureExpr => MultiParseResult[U]): MultiParseResult[U] = this
