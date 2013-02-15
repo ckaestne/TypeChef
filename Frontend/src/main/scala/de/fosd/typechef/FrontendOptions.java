@@ -201,8 +201,12 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private FeatureExpr localFM = null;
 
     FeatureExpr getLocalFeatureModel() {
-        if (localFM == null)
-            localFM = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getLocalFeatureModelFilename());
+        if (localFM == null) {
+            File file = new File(getLocalFeatureModelFilename());
+            if (file.exists())
+                localFM = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(file);
+            else localFM = FeatureExprFactory$.MODULE$.dflt().True();
+        }
         return localFM;
     }
 
