@@ -1186,9 +1186,9 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
             concat(pResult)
         }
         private def concat[U](pResult: MultiParseResult[U]): MultiParseResult[~[T, U]] = pResult match {
-            case s: Success[U] => Success(new ~(result, s.result), s.next)
+            case s: Success => Success(new ~(result, s.result.asInstanceOf[U]), s.next)
             case n: NoSuccess => n
-            case s: SplittedParseResult[U] => SplittedParseResult(s.feature, concat(s.resultA), concat(s.resultB))
+            case s: SplittedParseResult => SplittedParseResult(s.feature, concat(s.resultA.asInstanceOf[MultiParseResult[U]]), concat(s.resultB.asInstanceOf[MultiParseResult[U]]))
         }
         def seq[U](context: FeatureExpr, thatResult: MultiParseResult[U]): MultiParseResult[~[T, U]] =
             thatResult.seqAllSuccessful[~[T, U]](context, (fs: FeatureExpr, x: Success[U]) => Success(new ~(result, x.result), x.next))
