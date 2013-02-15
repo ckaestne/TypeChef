@@ -126,7 +126,6 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
-                true
                 //TODO check struct welltypeness
                 if (structEnv.isComplete(name, isUnion).isSatisfiable())
                     nonEmptyWellformedEnv(structEnv.getFieldsMerged(name, isUnion), Some(name))

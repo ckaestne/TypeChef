@@ -1,1 +1,1 @@
-libraryDependencies += "com.googlecode.kiama" %% "kiama" % "1.2.0"
+libraryDependencies += "com.googlecode.kiama" % "kiama_2.10" % "1.4.0"

@@ -10,8 +10,8 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.3"
-    val buildScalaVersion = "2.9.1"
+    val buildVersion = "0.3.4"
+    val buildScalaVersion = "2.10.0"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
@@ -93,8 +93,8 @@ object ShellPrompt {
 object Dependencies {
     val junit = "junit" % "junit" % "4.8.2" % "test"
     val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test"
-    val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test"
-    val scalatest = "org.scalatest" %% "scalatest" % "1.6.1" % "test"
+    val scalacheck = "org.scalacheck" % "scalacheck_2.10" % "1.10.0" % "test"
+    val scalatest = "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
 }
 
 object VersionGen {

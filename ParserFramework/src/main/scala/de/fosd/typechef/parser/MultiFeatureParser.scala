@@ -824,7 +824,6 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
     def matchInput(p: (Elem, FeatureExpr, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
         private def err(e: Option[Elem], ctx: TypeContext) = errorMsg(kind, e, ctx)
-        @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
             parseResult.mapfr(context, {
@@ -1186,9 +1185,9 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
             concat(pResult)
         }
         private def concat[U](pResult: MultiParseResult[U]): MultiParseResult[~[T, U]] = pResult match {
-            case s: Success => Success(new ~(result, s.result.asInstanceOf[U]), s.next)
+            case s: Success[_] => Success(new ~(result, s.result.asInstanceOf[U]), s.next)
             case n: NoSuccess => n
-            case s: SplittedParseResult => SplittedParseResult(s.feature, concat(s.resultA.asInstanceOf[MultiParseResult[U]]), concat(s.resultB.asInstanceOf[MultiParseResult[U]]))
+            case s: SplittedParseResult[_] => SplittedParseResult(s.feature, concat(s.resultA.asInstanceOf[MultiParseResult[U]]), concat(s.resultB.asInstanceOf[MultiParseResult[U]]))
         }
         def seq[U](context: FeatureExpr, thatResult: MultiParseResult[U]): MultiParseResult[~[T, U]] =
             thatResult.seqAllSuccessful[~[T, U]](context, (fs: FeatureExpr, x: Success[U]) => Success(new ~(result, x.result), x.next))
