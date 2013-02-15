@@ -6,6 +6,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
 import org.junit.{Ignore, Test}
+import FeatureExprFactory._
 
 class CParserTest {
     val p = new CParser()
@@ -301,7 +302,7 @@ class CParserTest {
         					|#else
         					|b
         					|#endif""", p.expr !)
-        assertParseResult(Choice(fa, NAryExpr(a, List(Opt(fa, NArySubExpr("+", c)))), NAryExpr(b, List(Opt(fa.not, (NArySubExpr("+", c)))))),
+        assertParseResult(Choice(fa, NAryExpr(a, List(Opt(True, NArySubExpr("+", c)))), NAryExpr(b, List(Opt(True, (NArySubExpr("+", c)))))),
             """|#ifdef a
         					|a +
         					|#else

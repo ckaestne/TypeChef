@@ -57,13 +57,18 @@ class ConsistencyTest {
 
     @Test
     def testRz1000() {
+        val oldDefault = FeatureExprFactory.dflt
         FeatureExprFactory.setDefault(FeatureExprFactory.bdd)
+        try {
         //had serious problems with this file during type checking
         //        val fmStream = getClass.getResourceAsStream("/other/approx.fm")
         //        val f: FeatureExpr = new FeatureExprParser(FeatureExprFactory.dflt).parse(new InputStreamReader( fmStream))
         val f: FeatureExpr = new FeatureExprParser(FeatureExprFactory.dflt).parseFile("other/approx.fm")
         val fm = FeatureExprFactory.dflt.featureModelFactory.create(f and FeatureExprFactory.createDefinedExternal("CONFIG_BLK_DEV_RZ1000") and FeatureExprFactory.createDefinedExternal("CONFIG_IDE"))
         parseFile("other/rz1000.pi", fm)
+        } finally {
+            FeatureExprFactory.setDefault(oldDefault)
+        }
     }
 
 }
