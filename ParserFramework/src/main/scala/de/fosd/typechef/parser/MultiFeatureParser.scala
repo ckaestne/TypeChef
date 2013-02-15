@@ -118,7 +118,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
          */
         def ~![U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqCommitParser(this, thatParser)
 
-        /**allows backtracking */
+        /** allows backtracking */
         def ~~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqParser(this, thatParser)
 
 
@@ -197,31 +197,31 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                 }
             }
         }.named("<~~")
-        /**Returns a parser that repeatedly parses what this parser parses
-         *
-         * @return rep(this)
-         */
+        /** Returns a parser that repeatedly parses what this parser parses
+          *
+          * @return rep(this)
+          */
         def * = repOpt(this)
 
-        /**Returns a parser that repeatedly parses what this parser parses, interleaved with the `sep' parser.
-         * The `sep' parser specifies how the results parsed by this parser should be combined.
-         *
-         * @return chainl1(this, sep)
-         */
+        /** Returns a parser that repeatedly parses what this parser parses, interleaved with the `sep' parser.
+          * The `sep' parser specifies how the results parsed by this parser should be combined.
+          *
+          * @return chainl1(this, sep)
+          */
         def *[U >: T](sep: => MultiParser[(U, U) => U]) = repSep(this, sep)
 
         // TODO: improve precedence? a ~ b*(",") = a ~ (b*(","))  should be true
 
-        /**Returns a parser that repeatedly (at least once) parses what this parser parses.
-         *
-         * @return rep1(this)
-         */
+        /** Returns a parser that repeatedly (at least once) parses what this parser parses.
+          *
+          * @return rep1(this)
+          */
         def + = rep1(this)
 
-        /**Returns a parser that optionally parses what this parser parses.
-         *
-         * @return opt(this)
-         */
+        /** Returns a parser that optionally parses what this parser parses.
+          *
+          * @return opt(this)
+          */
         def ? = opt(this)
 
     }
@@ -340,7 +340,7 @@ while (true) {
     }
 
     */
-    /**strategy 2: parse normally and merge alternative results */
+    /** strategy 2: parse normally and merge alternative results */
     /*
             if (!skip) {
                 val parseResult = (p0.!(joinFunction))(in0, parserState)
@@ -377,8 +377,8 @@ try {
     continue(in)
 } catch {
     */
-    /**fallback (try to avoid for long lists!):
-     * normal repetition, where each is wrapped in an Opt(True,_) */
+    /** fallback (try to avoid for long lists!):
+      * normal repetition, where each is wrapped in an Opt(True,_) */
     /*
               case e: ListHandlingException => {
                   e.printStackTrace
@@ -449,23 +449,23 @@ try {
     }
 
 
-    /**joins two optList with two special features:
-     *
-     * common elements at the end of the list (eq) are joined (they originated from replication in ~)
-     *
-     * if the first element of both lists is the same (==) they are joined as well. this originates
-     * from parsing elements after optional elements twice (e.g., 2 in "1_A 2")
-     *
-     * this is a heuristic to reduce the size of the produced AST. it does not affect correctness
-     *
-     * feature may be used and is conjuncted to all elements on list inA and (inA.each.and(feature))
-     * and negated to inB (inB.each.and(feature.note))
-     *
-     * XXX check whether there can be problems due to comparing two AST nodes. if a list produces
-     * several equal AST nodes, can joinLists swallow some of them?
-     *
-     * nonprivate only for test cases
-     */
+    /** joins two optList with two special features:
+      *
+      * common elements at the end of the list (eq) are joined (they originated from replication in ~)
+      *
+      * if the first element of both lists is the same (==) they are joined as well. this originates
+      * from parsing elements after optional elements twice (e.g., 2 in "1_A 2")
+      *
+      * this is a heuristic to reduce the size of the produced AST. it does not affect correctness
+      *
+      * feature may be used and is conjuncted to all elements on list inA and (inA.each.and(feature))
+      * and negated to inB (inB.each.and(feature.note))
+      *
+      * XXX check whether there can be problems due to comparing two AST nodes. if a list produces
+      * several equal AST nodes, can joinLists swallow some of them?
+      *
+      * nonprivate only for test cases
+      */
     protected def joinOptLists[T](a: List[Opt[T]], b: List[Opt[T]], feature: FeatureExpr = null): List[Opt[T]] = {
         if (!a.isEmpty && !b.isEmpty && a.head.entry == b.head.entry) {
             //== needed because the ASTs were constructed independently
@@ -474,18 +474,35 @@ try {
         } else
             _joinOptLists(a, b, feature)
     }
-    //@tailrec
-    private def _joinOptLists[T](a: List[Opt[T]], b: List[Opt[T]], feature: FeatureExpr): List[Opt[T]] = {
-        if (a eq b)
-            a
-        else if (a.isEmpty && b.isEmpty)
-            a
-        else if (!a.isEmpty && !b.isEmpty && a.head.entry == b.head.entry)
-            Opt(a.head.feature or b.head.feature, a.head.entry) :: _joinOptLists(a.tail, b.tail, feature)
-        else if (a.size > b.size)
-            a.head.and(feature) :: _joinOptLists(a.tail, b, feature)
-        else
-            b.head.andNot(feature) :: _joinOptLists(a, b.tail, feature)
+
+    //iterative version to avoid deep recursion
+    private def _joinOptLists[T](al: List[Opt[T]], bl: List[Opt[T]], feature: FeatureExpr): List[Opt[T]] = {
+        var a: List[Opt[T]] = al
+        var b: List[Opt[T]] = bl
+        var result: List[Opt[T]] = Nil
+
+        while (!(a.isEmpty && b.isEmpty)) {
+            if (a eq b) {
+                return result.reverse ++ a
+            }
+
+            if (!a.isEmpty && !b.isEmpty && (a.head.entry.asInstanceOf[AnyRef] eq b.head.entry.asInstanceOf[AnyRef])) {
+                result = Opt(a.head.feature or b.head.feature, a.head.entry) :: result
+                a = a.tail
+                b = b.tail
+            } else if (a.size > b.size) {
+//                if ((a.head.feature and feature).isSatisfiable(featureModel))
+                  result = a.head.and(feature) :: result
+                a = a.tail
+            } else {
+//                if ((a.head.feature andNot feature).isSatisfiable(featureModel))
+                    result = b.head.andNot(feature) :: result
+                b= b.tail
+            }
+
+        }
+
+        return result.reverse
     }
 
 
@@ -565,6 +582,7 @@ try {
                         case (x, _) => x
                     })
 
+                val res0 = res;
                 res = res.seqAllSuccessful(ctx,
                     (fs, x) =>
                     //only extend the firstmost unsealed result
@@ -589,12 +607,44 @@ try {
                             }
                         })
                 //aggressive joins
-                res = join(ctx, res)
+                val res2 = join(ctx, res)
+
+//                if (!check(res2)){
+//                    println(res0)
+//                    res=join(ctx,res);
+//                    assert(false)
+//                }
+                res=res2
                 //                if (productionName == "externalDef")
                 //                    println("after join\n" + debug_printResult(res, 0))
             }
             //return all sealed lists
             res.map(_.resultList.reverse)
+        }
+
+        private def check(r:MultiParseResult[Sealable]) = r match {
+            case Success(seal, next) =>
+                check2(seal.resultList)
+            case _ => true
+        }
+        private def check2(l:List[Opt[T]]):Boolean = {
+            val knownExternals = new java.util.IdentityHashMap[T,FeatureExpr]();
+
+            for (Opt(f,ext) <- l) {
+
+                if (!knownExternals.containsKey(ext)) {
+                    knownExternals.put(ext, f);
+                } else {
+                    val priorFexpr = knownExternals.get(ext)
+
+                    if (!(f mex priorFexpr).isTautology(featureModel))
+                        return false
+                        //assert(false,"!"+priorFexpr + " mex "+f+" in "+ext )
+
+                    knownExternals.put(ext, f or priorFexpr)
+                }
+            }
+            true
         }
 
         private def debug_printResult(res: MultiParseResult[Sealable], indent: Int): String =
@@ -710,11 +760,11 @@ try {
         }
     }
 
-    /**see repSepOptIntern, consumes tailing separator(!) **/
+    /** see repSepOptIntern, consumes tailing separator(!) **/
     def repSepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] =
         repSepOptIntern(true, p, separator, productionName) ^^ (_._1)
 
-    /**see repSepOptIntern, consumes tailing separator(!) **/
+    /** see repSepOptIntern, consumes tailing separator(!) **/
     def rep1SepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] =
         repSepOptIntern(false, p, separator, productionName) ^^ (_._1)
 
@@ -1267,8 +1317,8 @@ try {
         def changeContext(ctx: FeatureExpr, contextModification: (Nothing, FeatureExpr, TypeContext) => TypeContext) = this
     }
 
-    /**An extractor so NoSuccess(msg, next) can be used in matches.
-     */
+    /** An extractor so NoSuccess(msg, next) can be used in matches.
+      */
     object NoSuccess {
         def unapply(x: NoSuccess) = x match {
             case Failure(msg, next, inner) => Some(msg, next, inner)
@@ -1322,19 +1372,19 @@ try {
      */
     var lastNoSuccess: NoSuccess = null
 
-    /**<p>
-     * A parser generator delimiting whole phrases (i.e. programs).
-     * </p>
-     * <p>
-     * <code>phrase(p)</code> succeeds if <code>p</code> succeeds and
-     * no input is left over after <code>p</code>.
-     * </p>
-     *
-     * @param p the parser that must consume all input for the resulting parser
-     *          to succeed.
-     * @return a parser that has the same result as `p', but that only succeeds
-     *         if <code>p</code> consumed all the input.
-     */
+    /** <p>
+      * A parser generator delimiting whole phrases (i.e. programs).
+      * </p>
+      * <p>
+      * <code>phrase(p)</code> succeeds if <code>p</code> succeeds and
+      * no input is left over after <code>p</code>.
+      * </p>
+      *
+      * @param p the parser that must consume all input for the resulting parser
+      *          to succeed.
+      * @return a parser that has the same result as `p', but that only succeeds
+      *         if <code>p</code> consumed all the input.
+      */
     def phrase[T](p: MultiParser[T]) = new MultiParser[T] {
         lastNoSuccess = null
 
@@ -1371,7 +1421,7 @@ try {
         }
     }
 
-    /**overwrite for all reasonable contexts */
+    /** overwrite for all reasonable contexts */
     def joinContext(a: TypeContext, b: TypeContext): TypeContext = a
 }
 
