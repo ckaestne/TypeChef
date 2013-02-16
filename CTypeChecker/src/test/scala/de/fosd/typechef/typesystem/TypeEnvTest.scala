@@ -321,6 +321,28 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         fields("c")               should be(_i)
     }
 
+    test("anonymous union vs struct") {
+        //a special hell for developers using this
+        val ast2 = compileCode( """struct xx {
+                                  |  int a;
+                                  |#ifdef X
+                                  |  union {
+                                  |#else
+                                  |  struct {
+                                  |#endif
+                                  |    int c;
+                                  |    int d;
+                                  |  };
+                                  |} a;
+                                  |
+                                  |int x;
+                                """.stripMargin)
+        val env2 = lookupEnv(ast2.defs.last.entry).structEnv
+        println(env2)
+        val fields=env2.getFieldsMerged("xx",false)
+        fields("a")               should be(_i)
+        fields("c")               should be(_i)
+    }
 
     test("typedef environment") {
         val ast = (compileCode( """
