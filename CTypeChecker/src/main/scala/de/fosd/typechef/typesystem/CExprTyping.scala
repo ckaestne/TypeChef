@@ -100,6 +100,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //e->n (by rewrite to *e.n)
                     case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
                         val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
+                        newExpr.setPositionRange(p.getPositionFrom,p.getPositionTo)//enable line reporting in error messages
+                        newExpr.p.setPositionRange(expr.getPositionFrom,expr.getPositionTo)//enable line reporting in error messages
+                        newExpr.s.setPositionRange(i.getPositionFrom,i.getPositionTo)//enable line reporting in error messages
                         et(newExpr)
                     //(a)b
                     case ce@CastExpr(targetTypeName, expr) =>
