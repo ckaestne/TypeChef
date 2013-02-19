@@ -20,8 +20,6 @@ import java.lang.SuppressWarnings
 import java.io._
 import util.Random
 import scala.Some
-import scala.Some
-import scala.Some
 
 /**
  *
@@ -36,7 +34,7 @@ object ProductGeneration extends EnforceTreeHelper {
   /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
   private var featureIDHashmap: Map[SingleFeatureExpr, Int] = null
 
-  private val rootFolder = "/local/joliebig/"
+  private val rootFolder = "/mnt/ramdisk/"
 
   /** List of all features found in the currently processed file */
   private var features: List[SingleFeatureExpr] = null
@@ -278,17 +276,20 @@ object ProductGeneration extends EnforceTreeHelper {
         }
         startTime = System.currentTimeMillis()
 
-//        val (configs, logmsg) = loadConfigurationsFromHenardFiles(
-//          productsDir.list().map(new File(productsDir, _)).toList.
-//            filter(!_.getName.endsWith(".dimacs")).
-//            sortBy({
-//            f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
-//          }),
-//          dimacsFM,
-//          features, fm)
-//        tasks :+= Pair("henard", configs)
+        val (configs, logmsg) =
+          if (caseStudy == "linux") {
+            loadConfigurationsFromHenardFiles(
+              productsDir.list().map(new File(productsDir, _)).toList.
+                filter(!_.getName.endsWith(".dimacs")).
+                sortBy({
+                f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
+              }),
+              dimacsFM,
+              features, fm)
+          } else {
+            loadConfigurationsFromCSVFile(productsFile, dimacsFM, features, fm, featureprefix)
+          }
 
-        val (configs, logmsg) = loadConfigurationsFromCSVFile(productsFile, dimacsFM, features, fm, featureprefix)
         tasks :+= Pair("pairwise", configs)
         msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
       }
@@ -333,18 +334,22 @@ object ProductGeneration extends EnforceTreeHelper {
     /** code coverage - including Header files */
 
     {
-      if (tasks.find(_._1.equals("coverage")).isDefined) {
-        msg = "omitting coverage generation, because a serialized version was loaded"
+      if (caseStudy != "linux") {
+        if (tasks.find(_._1.equals("coverage")).isDefined) {
+          msg = "omitting coverage generation, because a serialized version was loaded"
+        } else {
+          startTime = System.currentTimeMillis()
+          val (configs, logmsg) = configurationCoverage(family_ast, fm, features, List(),
+            preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
+          tasks :+= Pair("coverage", configs)
+          configurations ++= configs
+          msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+        }
+        println(msg)
+        log = log + msg + "\n"
       } else {
-        startTime = System.currentTimeMillis()
-        val (configs, logmsg) = configurationCoverage(family_ast, fm, features, List(),
-          preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
-        tasks :+= Pair("coverage", configs)
-        configurations ++= configs
-        msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+        println("omit code coverage for case study linux; computation is too expensive!")
       }
-      println(msg)
-      log = log + msg + "\n"
     }
 
 
@@ -531,7 +536,7 @@ object ProductGeneration extends EnforceTreeHelper {
                               family_ast: TranslationUnit, fm: FeatureModel, ast: AST,
                               fileID: String, startLog: String = "") {
     val log: String = startLog
-    val checkXTimes = 3
+    val checkXTimes = 1
     val nstoms = 1000000
     println("starting product checking.")
 
@@ -558,7 +563,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     for (_ <- 0 until checkXTimes) {
       lastTime    = tb.getCurrentThreadCpuTime
-      foundError |= ts.checkASTSilent
+      foundError |= ! ts.checkASTSilent
       curTime     = (tb.getCurrentThreadCpuTime - lastTime)
       times       = times.:+(curTime)
     }
@@ -595,7 +600,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
         // product derivation
         val productDerivationStart = tb.getCurrentThreadCpuTime
-        val product: TranslationUnit = prepareAST(ProductDerivation.deriveProd[TranslationUnit](family_ast, new Configuration(config.toFeatureExpr, fm)))
+        val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](family_ast, new Configuration(config.toFeatureExpr, fm))
         val productDerivationDiff = (tb.getCurrentThreadCpuTime - productDerivationStart)
         productDerivationTimes ::= (productDerivationDiff / nstoms)
         println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")" + "(" + countNumberOfASTElements(product) + ")")
@@ -611,7 +616,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
         for (_ <- 0 until checkXTimes) {
           lastTime = tb.getCurrentThreadCpuTime
-          foundError |= ts.checkASTSilent
+          foundError |= ! ts.checkASTSilent
           curTime = (tb.getCurrentThreadCpuTime - lastTime)
           times = times.:+(curTime)
         }
