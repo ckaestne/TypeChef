@@ -1,10 +1,74 @@
 package de.fosd.typechef.typesystem
 
 
-import _root_.de.fosd.typechef.conditional._
+import de.fosd.typechef.conditional._
 import ConditionalLib._
 import _root_.de.fosd.typechef.parser.c._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.parser.c.AttributeSequence
+import de.fosd.typechef.parser.c.PlainParameterDeclaration
+import de.fosd.typechef.typesystem.CVoid
+import de.fosd.typechef.parser.c.UnsignedSpecifier
+import de.fosd.typechef.parser.c.EnumSpecifier
+import de.fosd.typechef.typesystem.CLong
+import de.fosd.typechef.parser.c.VarArgs
+import scala.Some
+import de.fosd.typechef.parser.c.TypeDefTypeSpecifier
+import de.fosd.typechef.parser.c.VoidSpecifier
+import de.fosd.typechef.parser.c.DoubleSpecifier
+import de.fosd.typechef.typesystem.CDouble
+import de.fosd.typechef.conditional.One
+import de.fosd.typechef.typesystem.CFloat
+import de.fosd.typechef.typesystem.CVarArgs
+import de.fosd.typechef.parser.c.DeclParameterDeclList
+import de.fosd.typechef.parser.c.Pointer
+import de.fosd.typechef.parser.c.CharSpecifier
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.ShortSpecifier
+import de.fosd.typechef.typesystem.CShort
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.TypeOfSpecifierU
+import de.fosd.typechef.parser.c.LongSpecifier
+import de.fosd.typechef.parser.c.GnuAttributeSpecifier
+import de.fosd.typechef.parser.c.StructInitializer
+import de.fosd.typechef.typesystem.CObj
+import de.fosd.typechef.typesystem.CStruct
+import de.fosd.typechef.parser.c.ParameterDeclarationAD
+import de.fosd.typechef.typesystem.CInt
+import de.fosd.typechef.parser.c.StructDeclarator
+import de.fosd.typechef.parser.c.TypedefSpecifier
+import de.fosd.typechef.typesystem.CSigned
+import de.fosd.typechef.typesystem.CChar
+import de.fosd.typechef.parser.c.AtomicNamedDeclarator
+import de.fosd.typechef.typesystem.CLongDouble
+import de.fosd.typechef.parser.c.OtherPrimitiveTypeSpecifier
+import de.fosd.typechef.parser.c.StructOrUnionSpecifier
+import de.fosd.typechef.parser.c.ExternSpecifier
+import de.fosd.typechef.conditional.Choice
+import de.fosd.typechef.typesystem.CUnknown
+import de.fosd.typechef.parser.c.AtomicAttribute
+import de.fosd.typechef.typesystem.CFunction
+import de.fosd.typechef.parser.c.DeclArrayAccess
+import de.fosd.typechef.typesystem.CIgnore
+import de.fosd.typechef.typesystem.CSignUnspecified
+import de.fosd.typechef.parser.c.Declaration
+import de.fosd.typechef.parser.c.NestedAbstractDeclarator
+import de.fosd.typechef.typesystem.CAnonymousStruct
+import de.fosd.typechef.parser.c.DeclIdentifierList
+import de.fosd.typechef.parser.c.TypeOfSpecifierT
+import de.fosd.typechef.parser.c.SignedSpecifier
+import de.fosd.typechef.typesystem.CUnsigned
+import de.fosd.typechef.parser.c.StructDeclaration
+import de.fosd.typechef.parser.c.IntSpecifier
+import de.fosd.typechef.typesystem.CArray
+import de.fosd.typechef.typesystem.CLongLong
+import de.fosd.typechef.typesystem.CPointer
+import de.fosd.typechef.parser.c.ParameterDeclarationD
+import de.fosd.typechef.parser.c.TypeName
+import de.fosd.typechef.parser.c.AtomicAbstractDeclarator
+import de.fosd.typechef.typesystem.CBool
+import de.fosd.typechef.parser.c.NestedNamedDeclarator
+import de.fosd.typechef.parser.c.FloatSpecifier
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -69,7 +133,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         }
 
 
-    /**variability ignored for now*/
+    /** variability ignored for now */
     private def containsAtomicAttribute(f: String => Boolean, attrs: List[Opt[AttributeSequence]]): Boolean =
         (for (Opt(f1, attrSeq) <- attrs; Opt(f2, attr) <- attrSeq.attributes)
         yield attr match {
@@ -156,9 +220,16 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
         if (types.size == 1)
             types.head
-        else if (types.size == 0)
-            One(reportTypeError(featureExpr, "no type specifier found", locationForErrorMsg))
-        else
+        else if (types.size == 0) {
+            //            if no type is given the default type for functions in C is int
+            //        (http://publications.gbdirect.co.uk/c_book/chapter4/function_types.html).
+            //            According to standard C this should not be exploited by programmers.
+            //            However, from time to time people use it. We could either add int to
+            //            all occurences or add this rule to the typesystem.
+            //TODO we might want to issue a warning here.
+            sign(CInt())
+            //was:            One(reportTypeError(featureExpr, "no type specifier found", locationForErrorMsg))
+        } else
             One(reportTypeError(featureExpr, "multiple types found " + types, locationForErrorMsg))
     }
 
@@ -209,21 +280,21 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl, env.scope)
         val varDecl: scala.List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] =
-          if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
-        else {
-            val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
+            if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
+            else {
+                val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
 
-            for (Opt(f, init) <- decl.init) yield {
-                val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
-                val declKind = if (init.hasInitializer) KDefinition else KDeclaration
+                for (Opt(f, init) <- decl.init) yield {
+                    val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
+                    val declKind = if (init.hasInitializer) KDefinition else KDeclaration
 
-                eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
-                    declKind,
-                    env.scope)
+                    eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
+                        declKind,
+                        env.scope)
 
-                init.getExpr map {
-                    checkInitializer(_, ctype, featureExpr and f, eenv)
-                }
+                    init.getExpr map {
+                        checkInitializer(_, ctype, featureExpr and f, eenv)
+                    }
 
 
 
@@ -259,13 +330,13 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             case x => x
         })
 
-    /**define all fields from enum type specifiers as int values
-     *
-     * enum is always interpreted as definition, not declaration. it conflicts with other definitions and
-     * other declarations.
-     *
-     * important: this recurses into structures!
-     **/
+    /** define all fields from enum type specifiers as int values
+      *
+      * enum is always interpreted as definition, not declaration. it conflicts with other definitions and
+      * other declarations.
+      *
+      * important: this recurses into structures!
+      * */
     protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
         var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
@@ -385,7 +456,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         checkStructCompletenessC(ctype, fexpr, env, structDeclaration)
 
                         //member should not have function type (pointer to function is okay)
-                        val isFunction = ctype.when({case CFunction(_, _) => true; case _ => false})
+                        val isFunction = ctype.when({ case CFunction(_, _) => true; case _ => false })
                         if ((fexpr and isFunction).isSatisfiable())
                             reportTypeError(fexpr and isFunction, "member " + decl.getName + " must not have function type", decl, Severity.OtherError)
 
@@ -394,10 +465,17 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 }
             //for unnamed fields, if they are struct or union inline their fields
             //cf. http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html#Unnamed-Fields
-            if (structDeclaration.declaratorList.isEmpty) constructType(structDeclaration.qualifierList, featureExpr and f, env, structDeclaration) match {
-                case One(CAnonymousStruct(fields, _)) => result = result ++ fields
-                //                case CStruct(name, _) => //TODO inline as well
-                case _ => //don't care about other types
+            if (structDeclaration.declaratorList.isEmpty) {
+                def inlineAnonymousStructs(t: Conditional[CType]) {
+                    t match {
+                        case Choice(f, x, y) => inlineAnonymousStructs(x); inlineAnonymousStructs(y)
+                        case One(CAnonymousStruct(fields, _)) => result = result ++ fields
+                        //                case CStruct(name, _) => //TODO inline as well
+                        case e => //don't care about other types
+                    }
+                }
+
+                inlineAnonymousStructs(constructType(structDeclaration.qualifierList, featureExpr and f, env, structDeclaration))
             }
         }
         result

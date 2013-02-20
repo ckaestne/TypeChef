@@ -53,6 +53,11 @@ object Frontend {
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setFeatureModel(fm)//otherwise the lexer does not get the updated feature model with file presence conditions
+        if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
+            println("file has contradictory presence condition. existing.")//otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
+            return;
+        }
         /*
                 val pcs = new FeatureExprParser(FeatureExprFactory.sat).parseFile("../TypeChef-LinuxAnalysis/tmpFolder/pcs.txt")
                 opt.getFeatureModelTypeSystem.and(pcs).asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
@@ -93,7 +98,6 @@ object Frontend {
             if (ast != null) {
                 val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -122,6 +126,7 @@ object Frontend {
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
                 if (opt.conditionalControlFlow) {
+                    val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     cf.checkCfG()
                     t6 = System.currentTimeMillis()
                     t7 = t6

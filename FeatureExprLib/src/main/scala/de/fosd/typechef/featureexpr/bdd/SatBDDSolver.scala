@@ -107,9 +107,16 @@ object SatSolver {
 
 private object SatSolverCache {
     val cache: WeakHashMap[BDDFeatureModel, SatSolverImpl] = new WeakHashMap()
-    def get(fm: BDDFeatureModel) =
-    /*if (fm == NoFeatureModel) new SatSolverImpl(fm)
-   else */ cache.getOrElseUpdate(fm, new SatSolverImpl(fm))
+    def get(fm: BDDFeatureModel) ={
+        val c= cache.get(fm)
+        if (c.isDefined && !c.get.invalid)
+            c.get
+        else {
+            val s=new SatSolverImpl(fm)
+            cache.put(fm, s)
+            s
+        }
+    }
 }
 
 class SatSolverImpl(featureModel: BDDFeatureModel) {
@@ -203,8 +210,16 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
                 print(result + ";")
             return result
         } finally {
-            for (constr <- constraintGroup.filter(_ != null))
-                assert(solver.removeConstr(constr))
+            for (constr <- constraintGroup.filter(_ != null)) {
+                try {
+                    val succeeded=solver.removeConstr(constr)
+                    if (!succeeded)
+                        invalidateCache()
+                } catch {
+                    case e: AssertionError=>invalidateCache()
+                    case e: NullPointerException=>invalidateCache()
+                }
+            }
 
             if (PROFILING)
                 println(" in " + (System.currentTimeMillis() - startTimeSAT) + " ms>")
@@ -217,4 +232,7 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
    */
     var lastModel : Pair[List[String],List[String]] = null
     def getLastModel() = lastModel
+
+    var invalid:Boolean = false
+    def invalidateCache() { invalid = true }
 }

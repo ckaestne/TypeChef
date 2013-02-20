@@ -126,8 +126,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         }
 
 
+        //TODO the actual behavior with tentative definitions is more complex: http://stackoverflow.com/a/1987495/2008779
+        //for now, simple approximation here: if either the old or the new variable is not initialized, we are fine (that does not account for internal linkage etc but okay)
         //global variables
-        if (newScope == 0 && prevScope == 0 && (newKind == KDeclaration || newKind == KDefinition) && prevKind == KDeclaration) {
+        if (newScope == 0 && prevScope == 0 && (newKind == KDeclaration || prevKind == KDeclaration)) {
             //valid if exact same type
             return newType.toValue == prevType.toValue
         }
@@ -327,6 +329,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             val ct = getExprType(expr, context, env).simplify(context)
             ct.mapf(context, {
                 (f, c) =>
+                    checkStructCompleteness(c, f, env, expr)   // check struct completeness here, see issue #12
                     if (!check(c) && !c.isUnknown && !c.isIgnore) reportTypeError(f, errorMsg(c), expr) else c
             })
         } else One(CUnknown("unsatisfiable condition for expression"))
