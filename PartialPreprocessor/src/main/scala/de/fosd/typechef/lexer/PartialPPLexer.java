@@ -1,6 +1,7 @@
 package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.featureexpr.FeatureModel;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class PartialPPLexer {
 
     public List<Token> parse(Source source, List<String> systemIncludePath, FeatureModel featureModel)
             throws LexerException, IOException {
-        Preprocessor pp = new Preprocessor(featureModel);
+        Preprocessor pp = new Preprocessor(new MacroFilter(), featureModel);
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);

@@ -10,6 +10,7 @@ import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
+import parser.{TokenReader, AbstractToken}
 
 object Frontend {
 
@@ -65,7 +66,7 @@ object Frontend {
             currentPeriod = period
         }
 
-        def get(period: String): Long = times.getOrElse(0)
+        def get(period: String): Long = times.getOrElse(period, 0)
 
     }
 
@@ -85,8 +86,7 @@ object Frontend {
         }
 
         stopWatch.start("lexing")
-        val tokens = new lexer.Main().run(opt, opt.parse)
-        val in = CLexer.prepareTokens(tokens)
+        val in: TokenReader[AbstractToken, CTypeContext] = lex(opt)
 
 
         if (opt.parse) {
@@ -147,6 +147,12 @@ object Frontend {
 
     }
 
+
+    def lex(opt: FrontendOptions): TokenReader[AbstractToken, CTypeContext] = {
+        val tokens = new lexer.Main().run(opt.xtc, opt, opt.parse)
+        val in = CLexer.prepareTokens(tokens)
+        in
+    }
 
     def serializeAST(ast: AST, filename: String) {
         val fw = new FileWriter(filename)

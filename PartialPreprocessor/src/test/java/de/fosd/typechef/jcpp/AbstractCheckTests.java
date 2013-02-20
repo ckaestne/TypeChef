@@ -3,8 +3,7 @@ package de.fosd.typechef.jcpp;
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.lexer.*;
-import de.fosd.typechef.lexer.macrotable.MacroContext$;
-import de.fosd.typechef.xtclexer.XtcPreprocessor;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import junit.framework.Assert;
 
 import java.io.*;
@@ -44,7 +43,7 @@ public class AbstractCheckTests {
 
         InputStream inputStream = getClass().getResourceAsStream(
                 "/" + folder + filename);
-        URL inputURI= getClass().getResource(
+        URL inputURI = getClass().getResource(
                 "/" + folder + filename);
         if (inputStream == null) {
             throw new FileNotFoundException("Input file not found: " + filename);
@@ -171,7 +170,7 @@ public class AbstractCheckTests {
 
     private FeatureExpr parseFeatureExpr(String expectedFeature) {
         try {
-            return new Preprocessor(new StringLexerSource(expectedFeature
+            return new Preprocessor(new MacroFilter(),new StringLexerSource(expectedFeature
                     + "\n"), null).parse_featureExpr();
         } catch (IOException e) {
             e.printStackTrace();
@@ -190,14 +189,15 @@ public class AbstractCheckTests {
     private List<Token> lex(VALexer.LexerInput source, boolean debug, String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
         // XXX Why here? And isn't the whole thing duplicated from elsewhere?
-        MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
 
-        pp = new Preprocessor();
+
+        pp = new Preprocessor(new MacroFilter().setPrefixFilter("CONFIG_"),null);
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);
         pp.addFeature(Feature.GNUCEXTENSIONS);
-        pp.addWarnings(Warning.allWarnings());
+        for (Warning w : Warning.allWarnings())
+            pp.addWarning(w);
         pp.setListener(new PreprocessorListener(pp) {
             @Override
             public void handleWarning(Source source, int line, int column,

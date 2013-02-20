@@ -31,14 +31,12 @@ import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
 import de.fosd.typechef.lexer.macrotable.MacroExpansion;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
 import static de.fosd.typechef.lexer.Token.*;
 import de.fosd.typechef.VALexer;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 
 
 /**
@@ -156,9 +154,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
 
     private List<MacroConstraint> macroConstraints = new ArrayList<MacroConstraint>();
 
-    public Preprocessor(FeatureModel fm) {
+    public Preprocessor(MacroFilter macroFilter, FeatureModel fm) {
         this.featureModel = fm;
-        macros = new MacroContext<MacroData>(featureModel);
+        macros = new MacroContext<MacroData>(featureModel, macroFilter);
         for (String name : new String[]{
                 "__LINE__", "__FILE__", "__BASE_FILE__", "__COUNTER__", "__TIME__", "__DATE__"
         }) {
@@ -179,19 +177,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
     }
 
     public Preprocessor() {
-        this(null);
+        this(new MacroFilter(), null);
     }
 
-    public Preprocessor(Source initial, FeatureModel fm) {
-        this(fm);
+    public Preprocessor(MacroFilter macroFilter, Source initial, FeatureModel fm) {
+        this(macroFilter,fm);
         addInput(initial);
     }
 
     /**
      * Equivalent to 'new Preprocessor(new {@link FileLexerSource}(file))'
      */
-    public Preprocessor(File file, FeatureModel fm) throws IOException {
-        this(new FileLexerSource(file), fm);
+    public Preprocessor(MacroFilter macroFilter, File file, FeatureModel fm) throws IOException {
+        this(macroFilter,new FileLexerSource(file), fm);
     }
 
     /**
@@ -2658,7 +2656,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
                             // return source_skipline(false);
                     }
                 default:
-                    throw new InternalException("Bad token, type: " + tok.getType() + ", token: " + tok + ", source: " + tok.getSource());
+                    throw new InternalException("Bad token, type: " + tok.getType() + ", token: " + tok + ", source: " + tok.getSourceName());
                     // break;
             }
         }
@@ -2806,6 +2804,16 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         getSystemIncludePath().add(folder);
     }
 
+    /**
+     * for compatibility with the VALexer interface
+     *
+     * @param folder
+     */
+    @Override
+    public void addQuoteIncludePath(String folder) {
+        getQuoteIncludePath().add(folder);
+    }
+
 
     /**
      * * for compatibility with the VALexer interface
@@ -2823,6 +2831,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
             addInput(new StringLexerSource(((TextSource)source).code,true));
         else
             throw new RuntimeException("unexpected input");
+    }
+
+    @Override
+    public void printSourceStack(PrintStream stream) {
+        Source s = getSource();
+        while (s != null) {
+            stream.println(" -> " + s);
+            s = s.getParent();
+        }
     }
 
 }

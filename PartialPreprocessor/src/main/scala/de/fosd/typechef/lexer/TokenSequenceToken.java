@@ -53,7 +53,10 @@ class TokenSequenceToken extends Token {
     public Source getSource() {
         return source;
     }
-
+    @Override
+    public String getSourceName() {
+        return source.toString();
+    }
     @Override
     public String getText() {
         StringWriter strWriter = new StringWriter();

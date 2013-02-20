@@ -1,12 +1,16 @@
 package de.fosd.typechef;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.*;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * interface to the variability-aware lexer (or partial preprocessor)
@@ -16,6 +20,11 @@ import java.util.Collection;
 public interface VALexer {
 
     void addInput(LexerInput source) throws IOException;
+
+
+    public static interface LexerFactory {
+        public VALexer create(FeatureModel featureModel);
+    }
 
     public static interface LexerInput {}
     public static class TextSource implements  LexerInput{
@@ -51,15 +60,26 @@ public interface VALexer {
 
     void debugPreprocessorDone();
 
-    void addFeature(Feature digraphs);
+    void addFeature(Feature feature);
+    void addWarning(Warning warning);
 
-    void addWarnings(Collection<Warning> warnings);
-
-    void addMacro(String jcpp__, FeatureExpr aTrue)  throws LexerException ;
+    void addMacro(String macro, FeatureExpr fexpr)  throws LexerException ;
+    void addMacro(String macro, FeatureExpr fexpr, String value)  throws LexerException ;
+    void removeMacro(String macro, FeatureExpr fexpr);
 
     void addSystemIncludePath(String folder);
+    void addQuoteIncludePath(String folder);
+    public List<String> getSystemIncludePath();//readonly
+    public List<String> getQuoteIncludePath();//readonly
 
     Token getNextToken() throws IOException, LexerException;
 
     void setListener(PreprocessorListener preprocessorListener);
+
+
+    // debugging only
+    void printSourceStack(PrintStream err);
+
+    //typechef specific for .dbgSrc and .macroDbg files
+    void openDebugFiles(String lexOutputFile);
 }

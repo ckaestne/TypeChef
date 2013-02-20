@@ -390,6 +390,7 @@ public abstract class Token {
     public abstract boolean mayExpand();
 
     public abstract Source getSource();
+    public abstract String getSourceName();
 
     /**
      * "Lazily print" this token, i.e. print it without constructing a full in-memory representation. This is just a

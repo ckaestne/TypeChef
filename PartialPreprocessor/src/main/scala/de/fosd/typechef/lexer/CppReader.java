@@ -23,6 +23,8 @@
 
 package de.fosd.typechef.lexer;
 
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
+
 import java.io.IOException;
 import java.io.Reader;
 
@@ -44,7 +46,7 @@ public class CppReader extends Reader {
     private int idx;
 
     public CppReader(final Reader r) {
-        cpp = new Preprocessor(new LexerSource(r, true) {
+        cpp = new Preprocessor(new MacroFilter(), new LexerSource(r, true) {
             @Override
             public String getName() {
                 return "<CppReader Input@" + System.identityHashCode(r) + ">";

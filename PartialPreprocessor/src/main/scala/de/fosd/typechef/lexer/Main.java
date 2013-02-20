@@ -23,10 +23,11 @@
 
 package de.fosd.typechef.lexer;
 
+import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureModel;
-import de.fosd.typechef.lexer.macrotable.MacroContext$;
 import de.fosd.typechef.lexer.options.ILexerOptions;
 import de.fosd.typechef.lexer.options.LexerOptions;
+import de.fosd.typechef.xtclexer.XtcPreprocessor;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -48,22 +49,33 @@ public class Main {
         options.setFeatureModel(featureModel);
         options.setPrintToStdOutput(printToStdOutput);
         options.parseOptions(args);
-        return run(options, returnTokenList);
+        return run(false, options, returnTokenList);
     }
 
-    public List<Token> run(ILexerOptions options, boolean returnTokenList) throws Exception {
+    public List<Token> run(final boolean isXtcLexer, final ILexerOptions options, boolean returnTokenList) throws Exception {
+                   return run(new VALexer.LexerFactory() {
+                       @Override
+                       public VALexer create(FeatureModel featureModel) {
+                           if (isXtcLexer)
+                               return new XtcPreprocessor(options.getMacroFilter());
+                           return new Preprocessor(options.getMacroFilter(), featureModel);
+                       }
+                   },options,returnTokenList);
+    }
+
+    public List<Token> run(VALexer.LexerFactory lexerFactory, ILexerOptions options, boolean returnTokenList) throws Exception {
         if (options.isPrintVersion()) {
             version(System.out);
             return new ArrayList<Token>();
         }
 
 
-        Preprocessor pp = new Preprocessor(options.getFeatureModel());
+        VALexer pp = lexerFactory.create(options.getFeatureModel());
 
-        pp.getWarnings().clear();
-        pp.addWarnings(options.getWarnings());
-        pp.getFeatures().clear();
-        pp.addFeatures(options.getFeatures());
+        for (Warning w : options.getWarnings())
+            pp.addWarning(w);
+        for (Feature f : options.getFeatures())
+            pp.addFeature(f);
 
         pp.setListener(new PreprocessorListener(pp));
         pp.addMacro("__TYPECHEF__", FeatureExprLib.True());
@@ -86,35 +98,23 @@ public class Main {
         for (String undef : options.getUndefMacros())
             pp.removeMacro(undef, FeatureExprLib.True());
 
-        pp.getSystemIncludePath().addAll(options.getIncludePaths());
-        pp.getQuoteIncludePath().addAll(options.getQuoteIncludePath());
+        for (String sysInclPath : options.getIncludePaths())
+            pp.addSystemIncludePath(sysInclPath);
+        for (String quoInclPath : options.getQuoteIncludePath())
+            pp.addQuoteIncludePath(quoInclPath);
 
-        for (String filter : options.getMacroFilter())
-            switch (filter.charAt(0)) {
-                case 'p':
-                    MacroContext$.MODULE$.setPrefixFilter(filter.substring(2));
-                    break;
-                case 'P':
-                    MacroContext$.MODULE$.setPostfixFilter(filter.substring(2));
-                    break;
-                case 'x':
-                    MacroContext$.MODULE$.setPrefixOnlyFilter(filter.substring(2));
-                    break;
-                case '4':
-                    MacroContext$.MODULE$.setListFilter(filter.substring(2));
-                    break;
-            }
+
 
         for (String include : options.getIncludedHeaders())
-            pp.addInput(new File(include));
+            pp.addInput(new VALexer.FileSource(new File(include)));
 
 
         for (String file : options.getFiles())
-            pp.addInput(new FileLexerSource(new File(file)));
+            pp.addInput(new VALexer.FileSource(new File(file)));
         if (options.getFiles().isEmpty())
-            pp.addInput(new InputLexerSource(System.in));
+            pp.addInput(new VALexer.StreamSource(System.in, "<console>"));
 
-        if (pp.getFeature(Feature.DEBUG_INCLUDEPATH)) {
+        if (options.getFeatures().contains(Feature.DEBUG_INCLUDEPATH)) {
             System.err.println("#" + "include \"...\" search starts here:");
             for (String dir : pp.getQuoteIncludePath())
                 System.err.println("  " + dir);
@@ -154,11 +154,7 @@ public class Main {
         } catch (Throwable e) {
             Preprocessor.logger.severe(e.toString());
             e.printStackTrace(System.err);
-            Source s = pp.getSource();
-            while (s != null) {
-                System.err.println(" -> " + s);
-                s = s.getParent();
-            }
+            pp.printSourceStack(System.err);
         } finally {
             pp.debugPreprocessorDone();
             if (output != null)

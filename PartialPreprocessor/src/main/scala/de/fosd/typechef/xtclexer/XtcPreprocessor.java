@@ -8,12 +8,12 @@ import de.fosd.typechef.lexer.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import net.sf.javabdd.BDD;
-import xtc.TestLexer;
+import xtc.LexerInterface;
 import xtc.lang.cpp.*;
 
 
@@ -21,57 +21,34 @@ import xtc.lang.cpp.*;
  * wrapper class around the Xtc/SuperC preprocessor to have a somewhat compatible interface with
  * the original Typechef Preprocessor
  */
-public class XtcPreprocessor  implements VALexer {
-
-    /*
-            Stream lexer = TestLexer.createLexer(checkFile, new File(filename), new TestLexer.ExceptionErrorHandler());
-
-        //create TypeChef style token stream
-        List<Token> result = new ArrayList<Token>();
-
-        Syntax s = lexer.scan();
-        Stack<FeatureExpr> stack = new Stack<FeatureExpr>();
-        stack.push(FeatureExprFactory.True());
-        while (s.kind() != Syntax.Kind.EOF) {
-            if (s.kind() == Syntax.Kind.CONDITIONAL) {
-                Syntax.Conditional c = s.toConditional();
-                if (c.tag() == Syntax.ConditionalTag.START)
-                    stack.push(stack.peek().and(translate(c.presenceCondition())));
-                else if (c.tag() == Syntax.ConditionalTag.NEXT) {
-                    stack.pop();
-                    stack.push(stack.peek().and(translate(c.presenceCondition())));
-                } else stack.pop();
-            }
-
-            if (s.kind() == Syntax.Kind.LANGUAGE)
-                result.add(new XtcToken(s, stack.peek()));
-
-            s = lexer.scan();
-        }
-        return result;
-
-     */
+public class XtcPreprocessor implements VALexer {
 
 
-    private File file=null;
-    private Reader fileReader=null;
-    private List<String> sysIncludes=new ArrayList<String>();
+    private File file = null;
+    private Reader fileReader = null;
+    private List<String> sysIncludes = new ArrayList<String>();
+    private List<String> I = new ArrayList<String>();
+    private List<String> iquIncludes = new ArrayList<String>();
     private PreprocessorListener listener;
+    private StringBuilder commandLine = new StringBuilder();
+    private final MacroFilter macroFilter;
+
+    public XtcPreprocessor(MacroFilter macroFilter) {
+        this.macroFilter=macroFilter;
+    }
 
 
     @Override
     public void addInput(LexerInput source) throws IOException {
         if (source instanceof FileSource) {
-            assert file==null: "File already set";
-            file=                        ((FileSource)source).file;
-            fileReader=new FileReader(file);
-        }
-        else if (source instanceof StreamSource) {
-            file=new File(((StreamSource)source).filename);
-            fileReader=new InputStreamReader(((StreamSource)source).inputStream);
-        }
-//        else if (source instanceof TextSource)
-//            addInput(new StringLexerSource(((TextSource)source).code,true));
+            assert file == null : "no file";
+            file = ((FileSource) source).file;
+            commandLine.append("#include \"" + file.getAbsolutePath() + "\"\n");
+//        } else if (source instanceof StreamSource) {
+//            file = new File(((StreamSource) source).filename);
+//            fileReader = new InputStreamReader(((StreamSource) source).inputStream);
+        } else if (source instanceof TextSource)
+            commandLine.append(((TextSource) source).code);
         else
             throw new RuntimeException("unexpected input");
     }
@@ -87,13 +64,35 @@ public class XtcPreprocessor  implements VALexer {
     }
 
     @Override
-    public void addWarnings(Collection<Warning> warnings) {
-        //nothing to do (no configuration accepted)
+    public void addWarning(Warning warning) {
+        //ignore
+    }
+
+
+    @Override
+    public void addMacro(String macro, FeatureExpr fexpr) {
+        wrapFExpr("#define " + macro + "\n", fexpr);
     }
 
     @Override
-    public void addMacro(String macro, FeatureExpr pc) {
-        //TODO not supported yet, possibly fake as prescript
+    public void addMacro(String macro, FeatureExpr fexpr, String value) throws LexerException {
+        wrapFExpr("#define " + macro + " " + value + "\n", fexpr);
+    }
+
+    @Override
+    public void removeMacro(String macro, FeatureExpr fexpr) {
+        wrapFExpr("#undef " + macro + "\n", fexpr);
+    }
+
+
+    private void wrapFExpr(String command, FeatureExpr fexpr) {
+        if (!fexpr.isTautology())
+            commandLine.append("#if " + fexpr.toTextExpr().replace("definedEx(", "defined(") + "\n");
+
+        commandLine.append(command);
+
+        if (!fexpr.isTautology())
+            commandLine.append("#endif\n");
     }
 
     @Override
@@ -101,22 +100,42 @@ public class XtcPreprocessor  implements VALexer {
         sysIncludes.add(folder);
     }
 
+    @Override
+    public void addQuoteIncludePath(String folder) {
+        iquIncludes.add(folder);
+    }
 
-    Stream lexer =null;
-    Stack<FeatureExpr> stack ;
-    private Stream getLexer() throws FileNotFoundException {
-        if (lexer==null) {
-            assert file!=null:"no file given";
-                lexer = TestLexer.createLexer(fileReader, file, new TestLexer.ExceptionErrorHandler());
-                stack= new Stack<FeatureExpr>();
-                stack.push(FeatureExprFactory.True());
+    @Override
+    public List<String> getSystemIncludePath() {
+        return sysIncludes;
+    }
+
+    @Override
+    public List<String> getQuoteIncludePath() {
+        return iquIncludes;
+    }
+
+
+    List<Stream> lexers = null;
+    Stack<FeatureExpr> stack;
+
+    private List<Stream> getLexer() throws FileNotFoundException {
+        if (lexers == null) {
+            assert file != null : "no file given";
+
+            I.add(file.getParentFile().getAbsolutePath());
+
+            lexers = LexerInterface.createLexer(commandLine.toString(), fileReader, file, new LexerInterface.ExceptionErrorHandler(), iquIncludes, I, sysIncludes);
+            stack = new Stack<FeatureExpr>();
+            stack.push(FeatureExprFactory.True());
         }
-        return lexer;
+        return lexers;
     }
 
     @Override
     public Token getNextToken() throws IOException {
-        Syntax s = getLexer().scan();
+        Stream lexer = getLexer().get(0);
+        Syntax s = lexer.scan();
         while (s.kind() != Syntax.Kind.EOF) {
             if (s.kind() == Syntax.Kind.CONDITIONAL) {
                 Syntax.Conditional c = s.toConditional();
@@ -135,12 +154,26 @@ public class XtcPreprocessor  implements VALexer {
 
             s = lexer.scan();
         }
-        return new SimpleToken(Token.EOF,0,0,"EOF",null);
+        getLexer().remove(0);
+        if (getLexer().isEmpty())
+            return new SimpleToken(Token.EOF, 0, 0, "EOF", null);
+        else
+            return getNextToken();
     }
 
     @Override
     public void setListener(PreprocessorListener preprocessorListener) {
-        listener=preprocessorListener;
+        listener = preprocessorListener;
+    }
+
+    @Override
+    public void printSourceStack(PrintStream err) {
+        //nothing to do, specific to typechef
+    }
+
+    @Override
+    public void openDebugFiles(String lexOutputFile) {
+        //nothing to do, specific to typechef
     }
 
 
@@ -169,14 +202,15 @@ public class XtcPreprocessor  implements VALexer {
 
             sat = (byte[]) o;
             first = true;
-            for (int i = 0; i < sat.length; i++) if (sat[i] == 0 || sat[i] == 1) {
-                String fname =pc.getPCManager().vars.getName(i);
-                fname=fname.substring(9,fname.length()-1);
-                FeatureExpr var = FeatureExprLib.l().createDefinedExternal(fname);
-                if (sat[i] == 0) var = var.not();
+            for (int i = 0; i < sat.length; i++)
+                if (sat[i] == 0 || sat[i] == 1) {
+                    String fname = pc.getPCManager().vars.getName(i);
+                    fname = fname.substring(9, fname.length() - 1);
+                    FeatureExpr var = FeatureExprLib.l().createDefinedExternal(fname);
+                    if (sat[i] == 0) var = var.not();
 
-                innerResult = innerResult.and(var);
-            }
+                    innerResult = innerResult.and(var);
+                }
 
             result = result.or(innerResult);
         }
@@ -201,21 +235,18 @@ public class XtcPreprocessor  implements VALexer {
 
         @Override
         public int getLine() {
+            if (xtcToken==null || xtcToken.getLocation()==null)return -1;
             return xtcToken.getLocation().line;
         }
 
         @Override
         public int getColumn() {
+            if (xtcToken==null || xtcToken.getLocation()==null)return -1;
             return xtcToken.getLocation().column;
         }
 
         @Override
         public String getText() {
-//            if (xtcToken.kind()== Syntax.Kind.LANGUAGE)
-//                return xtcToken.toLanguage().getTokenText();
-//            else if (xtcToken.kind()== Syntax.Kind.LAYOUT)
-//                return xtcToken.toLayout().getTokenText();
-//            return "<unknown>";
 //            if (xtcToken.testFlag(xtc.lang.cpp.Preprocessor.PREV_WHITE))
 //                return " "+xtcToken.toString();
             return xtcToken.getTokenText();
@@ -252,7 +283,13 @@ public class XtcPreprocessor  implements VALexer {
 
         @Override
         public Source getSource() {
-            throw new UnsupportedOperationException();
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public String getSourceName() {
+            if (xtcToken==null || xtcToken.getLocation()==null)return null;
+            return xtcToken.getLocation().file;
         }
 
         @Override

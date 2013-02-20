@@ -3,6 +3,7 @@ package de.fosd.typechef.lexer.options;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
@@ -242,8 +243,24 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
     }
 
     @Override
-    public List<String> getMacroFilter() {
-        return macroFilter;
+    public MacroFilter getMacroFilter() {
+        MacroFilter result = new MacroFilter();
+        for (String filter : macroFilter)
+            switch (filter.charAt(0)) {
+                case 'p':
+                    result = result.setPrefixFilter(filter.substring(2));
+                    break;
+                case 'P':
+                    result = result.setPostfixFilter(filter.substring(2));
+                    break;
+                case 'x':
+                    result = result.setPrefixOnlyFilter(filter.substring(2));
+                    break;
+                case '4':
+                    result = result.setListFilter(filter.substring(2));
+                    break;
+            }
+        return result;
     }
 
     @Override

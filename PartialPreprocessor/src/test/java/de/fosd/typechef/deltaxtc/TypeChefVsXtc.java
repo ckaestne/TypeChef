@@ -7,17 +7,14 @@ import de.fosd.typechef.xtclexer.XtcPreprocessor;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import xtc.TestLexer;
+import xtc.LexerInterface;
 import xtc.lang.cpp.Stream;
 import xtc.lang.cpp.Syntax;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * the goal of this test is to compare the lexers of
@@ -217,7 +214,8 @@ public class TypeChefVsXtc {
         testFile("stringify.c");
     }
 
-    @Test@Ignore("typechef problem?")
+    @Test
+    @Ignore("typechef problem?")
     public void testAlternativeDifferentArities1() throws LexerException, IOException {
         testFile("alternDiffArities1.c");
     }
@@ -259,7 +257,8 @@ public class TypeChefVsXtc {
         testFile("linebreaks.c", false, true);
     }
 
-    @Test@Ignore("cpp warning. reported as error by Xtc. not so important I guess")
+    @Test
+    @Ignore("cpp warning. reported as error by Xtc. not so important I guess")
     public void testLinebreaks2() throws LexerException, IOException {
         testFile("linebreaks2.c", false, true);
     }
@@ -309,7 +308,7 @@ public class TypeChefVsXtc {
     protected void testFile(String filename, boolean debug, boolean ignoreWarning) throws LexerException, IOException {
         File file = getFile(filename);
 
-        List<Token> xtcTokens=null, typechefTokens=null;
+        List<Token> xtcTokens = null, typechefTokens = null;
         Exception xtcException = null, typechefException = null;
         try {
             xtcTokens = getXtcTokens(filename);
@@ -327,7 +326,7 @@ public class TypeChefVsXtc {
             typechefException = e;
         }
 
-        if (xtcException!=null && typechefException!=null) return;
+        if (xtcException != null && typechefException != null) return;
         Assert.assertTrue("either both succeed or both should fail " + xtcException + " vs " + typechefException, (xtcException == null) == (typechefException == null));
         Assert.assertEquals(xtcTokens.size(), typechefTokens.size());
         for (int i = 0; i < xtcTokens.size(); i++) {
@@ -336,7 +335,7 @@ public class TypeChefVsXtc {
         }
 
 
-//        TestLexer.print(lexer);
+//        LexerInterface.print(lexer);
     }
 
     private File getFile(String filename) {
@@ -360,29 +359,32 @@ public class TypeChefVsXtc {
                 new ExtraLinebreakInputStream(inputStream)));
 
 
-        Stream lexer = TestLexer.createLexer(checkFile, getFile(filename), new TestLexer.ExceptionErrorHandler());
+        List<Stream> lexers = LexerInterface.createLexer("", checkFile, getFile(filename), new LexerInterface.ExceptionErrorHandler(),
+                Collections.EMPTY_LIST, Collections.singletonList(getFile(filename).getParent()), Collections.EMPTY_LIST);
 
         //create TypeChef style token stream
         List<Token> result = new ArrayList<Token>();
 
-        Syntax s = lexer.scan();
         Stack<FeatureExpr> stack = new Stack<FeatureExpr>();
         stack.push(FeatureExprFactory.True());
-        while (s.kind() != Syntax.Kind.EOF) {
-            if (s.kind() == Syntax.Kind.CONDITIONAL) {
-                Syntax.Conditional c = s.toConditional();
-                if (c.tag() == Syntax.ConditionalTag.START)
-                    stack.push(stack.peek().and(XtcPreprocessor.translate(c.presenceCondition())));
-                else if (c.tag() == Syntax.ConditionalTag.NEXT) {
-                    stack.pop();
-                    stack.push(stack.peek().and(XtcPreprocessor.translate(c.presenceCondition())));
-                } else stack.pop();
+        for (Stream lexer : lexers) {
+            Syntax s = lexer.scan();
+            while (s.kind() != Syntax.Kind.EOF) {
+                if (s.kind() == Syntax.Kind.CONDITIONAL) {
+                    Syntax.Conditional c = s.toConditional();
+                    if (c.tag() == Syntax.ConditionalTag.START)
+                        stack.push(stack.peek().and(XtcPreprocessor.translate(c.presenceCondition())));
+                    else if (c.tag() == Syntax.ConditionalTag.NEXT) {
+                        stack.pop();
+                        stack.push(stack.peek().and(XtcPreprocessor.translate(c.presenceCondition())));
+                    } else stack.pop();
+                }
+
+                if (s.kind() == Syntax.Kind.LANGUAGE)
+                    result.add(new XtcPreprocessor.XtcToken(s, stack.peek()));
+
+                s = lexer.scan();
             }
-
-            if (s.kind() == Syntax.Kind.LANGUAGE)
-                result.add(new XtcPreprocessor.XtcToken(s, stack.peek()));
-
-            s = lexer.scan();
         }
         return result;
 

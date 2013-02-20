@@ -170,6 +170,11 @@ public class SimpleToken extends Token {
         return mayExpand;
     }
 
+    @Override
+    public String getSourceName() {
+        return getSource().toString();
+    }
+
     public Source getSource() {
         return source;
     }
