@@ -4,6 +4,7 @@ import junit.framework._;
 import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.junit.Test
+import java.util.Collections
 
 class TestErrorReporting extends TestCase {
     //XXX duplicate of CGramFilesTest.parseFile
@@ -12,7 +13,7 @@ class TestErrorReporting extends TestCase {
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser()
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExprFactory.True)
+            CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {

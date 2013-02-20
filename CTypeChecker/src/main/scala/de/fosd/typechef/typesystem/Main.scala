@@ -2,6 +2,7 @@ package de.fosd.typechef.typesystem
 
 import java.io.File
 import de.fosd.typechef.parser.c._
+import java.util.Collections
 
 object Main {
     def main(args: Array[String]): Unit = {
@@ -9,7 +10,7 @@ object Main {
         for (path <- args.take(if (createInterface) 1 else 0)) {
             val folder = new File(path).getParent
 
-            val ast = new ParserMain(new CParser).parserMain(path, folder)
+            val ast = new ParserMain(new CParser).parserMain(path, Collections.singletonList(folder))
             if (ast != null && ast.isInstanceOf[TranslationUnit]) {
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit])
                 ts.checkAST

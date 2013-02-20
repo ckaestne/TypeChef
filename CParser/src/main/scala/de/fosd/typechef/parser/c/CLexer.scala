@@ -6,6 +6,7 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.lexer._
 import scala.collection.mutable.ListBuffer
 import de.fosd.typechef.featureexpr.FeatureModel
+import java.util
 
 /**
  * wrapper for the partial preprocessor, which does most of the lexing for us
@@ -14,14 +15,14 @@ import de.fosd.typechef.featureexpr.FeatureModel
  */
 object CLexer {
 
-    def lexFile(fileName: String, directory: String, featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
-        prepareTokens(new PartialPPLexer().parseFile(fileName, directory, featureModel))
+    def lexFile(fileName: String, systemIncludePath: java.util.List[String], featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
+        prepareTokens(new PartialPPLexer().parseFile(fileName, systemIncludePath, featureModel))
 
-    def lexStream(stream: InputStream, filePath: String, directory: String, featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
-        prepareTokens(new PartialPPLexer().parseStream(stream, filePath, directory, featureModel))
+    def lexStream(stream: InputStream, filePath: String, systemIncludePath: java.util.List[String], featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
+        prepareTokens(new PartialPPLexer().parseStream(stream, filePath, systemIncludePath, featureModel))
 
     def lex(text: String, featureModel: FeatureModel): TokenReader[TokenWrapper, CTypeContext] =
-        prepareTokens(new PartialPPLexer().parse(text, null, featureModel))
+        prepareTokens(new PartialPPLexer().parse(text, new java.util.ArrayList[String](), featureModel))
 
     def prepareTokens(tokenList: java.util.List[Token]): TokenReader[TokenWrapper, CTypeContext] = {
         val tokens = tokenList.iterator

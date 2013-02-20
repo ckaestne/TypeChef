@@ -45,7 +45,7 @@ class CParserTest {
             assertParseResult(expected, code, production)
     }
 
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]): Unit = {
+    def assertParseable(code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]): Unit = {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -63,7 +63,7 @@ class CParserTest {
         }
     }
 
-    def assertParseableAST[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
+    def assertParseableAST[T](code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
         val actual = p.parse(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -78,7 +78,7 @@ class CParserTest {
         }
     }
 
-    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
+    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -91,7 +91,7 @@ class CParserTest {
         }
     }
 
-    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
+    def assertParseError(code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -103,7 +103,7 @@ class CParserTest {
         }
     }
 
-    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
+    def assertParseError(code: String, productions: List[(TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
         for (production <- productions)
             assertParseError(code, production)
     }

@@ -14,6 +14,14 @@ class MyToken(val text: String, val feature: FeatureExpr) extends ProfilingToken
     }
 
     override def toString = "\"" + text + "\"" + (if (!feature.isTautology()) feature else "")
+
+    def isInteger: Boolean = false
+
+    def isIdentifier: Boolean = false
+
+    def isString: Boolean = false
+
+    def isCharacter: Boolean = false
 }
 
 object EofToken extends MyToken("EOF", FeatureExprFactory.True)

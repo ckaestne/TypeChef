@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.io.{FileWriter, File}
 import FeatureExprFactory.True
+import java.util.Collections
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -21,8 +22,8 @@ object ParserMain {
             println("**************************************************************************")
             println("** Processing file: " + filename)
             println("**************************************************************************")
-            val parentPath = new File(filename).getParent()
-            parserMain.parserMain(filename, parentPath)
+            val currentDir = new File(filename).getParent()
+            parserMain.parserMain(filename, Collections.singletonList(currentDir))
             println("**************************************************************************")
             println("** End of processing for: " + filename)
             println("**************************************************************************")
@@ -33,8 +34,8 @@ object ParserMain {
 
 class ParserMain(p: CParser) {
 
-    def parserMain(filePath: String, parentPath: String, parserOptions: ParserOptions = DefaultParserOptions): AST = {
-        val lexer = (() => CLexer.lexFile(filePath, parentPath, p.featureModel))
+    def parserMain(filePath: String, systemIncludePath: java.util.List[String], parserOptions: ParserOptions = DefaultParserOptions): AST = {
+        val lexer = (() => CLexer.lexFile(filePath, systemIncludePath, p.featureModel))
         parserMain(lexer, new CTypeContext(), parserOptions)
     }
 
