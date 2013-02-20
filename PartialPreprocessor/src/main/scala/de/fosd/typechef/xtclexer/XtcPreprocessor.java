@@ -216,9 +216,9 @@ public class XtcPreprocessor  implements VALexer {
 //            else if (xtcToken.kind()== Syntax.Kind.LAYOUT)
 //                return xtcToken.toLayout().getTokenText();
 //            return "<unknown>";
-            if (xtcToken.testFlag(xtc.lang.cpp.Preprocessor.PREV_WHITE))
-                return " "+xtcToken.toString();
-            return xtcToken.toString();
+//            if (xtcToken.testFlag(xtc.lang.cpp.Preprocessor.PREV_WHITE))
+//                return " "+xtcToken.toString();
+            return xtcToken.getTokenText();
         }
 
         @Override
