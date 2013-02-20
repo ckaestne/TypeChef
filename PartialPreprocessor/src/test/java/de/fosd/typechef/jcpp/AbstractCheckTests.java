@@ -192,7 +192,7 @@ public class AbstractCheckTests {
         // XXX Why here? And isn't the whole thing duplicated from elsewhere?
         MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
 
-        pp = new XtcPreprocessor();
+        pp = new Preprocessor();
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);
