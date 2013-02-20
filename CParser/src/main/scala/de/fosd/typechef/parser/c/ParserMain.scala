@@ -39,15 +39,15 @@ class ParserMain(p: CParser) {
         parserMain(lexer, new CTypeContext(), parserOptions)
     }
 
-    def parserMain(tokenstream: TokenReader[TokenWrapper, CTypeContext], parserOptions: ParserOptions): AST = {
+    def parserMain(tokenstream: TokenReader[AbstractToken, CTypeContext], parserOptions: ParserOptions): AST = {
         parserMain((() => tokenstream), new CTypeContext(), parserOptions)
     }
 
 
-    def parserMain(lexer: () => TokenReader[TokenWrapper, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): AST = {
+    def parserMain(lexer: () => TokenReader[AbstractToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): AST = {
         assert(parserOptions != null)
         //        val logStats = MyUtil.runnable(() => {
-        //            if (TokenWrapper.profiling) {
+        //            if (AbstractToken.profiling) {
         //                val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
         //                LineInformation.printStatistics(statistics)
         //                statistics.close()
@@ -150,10 +150,10 @@ class ParserMain(p: CParser) {
     }
 
 
-    def countConditionalTokens(tokens: List[TokenWrapper]): Int =
+    def countConditionalTokens(tokens: List[AbstractToken]): Int =
         tokens.count(_.getFeature != FeatureExprFactory.True)
 
-    def getDistinctFeatures(tokens: List[TokenWrapper]): Set[String] = {
+    def getDistinctFeatures(tokens: List[AbstractToken]): Set[String] = {
         var features: Set[String] = Set()
         for (t <- tokens)
             features ++= t.getFeature.collectDistinctFeatures
@@ -161,13 +161,13 @@ class ParserMain(p: CParser) {
     }
 
 
-    def printDistinctFeatures(tokens: List[TokenWrapper], filename: String) {
+    def printDistinctFeatures(tokens: List[AbstractToken], filename: String) {
         val w = new FileWriter(new File(filename))
         w.write(getDistinctFeatures(tokens).toList.sorted.mkString("\n"))
         w.close()
     }
 
-    def countFeatureExpr(tokens: List[TokenWrapper]): Int =
+    def countFeatureExpr(tokens: List[AbstractToken]): Int =
         tokens.foldLeft[Set[FeatureExpr]](Set())(_ + _.getFeature).size
 
     def countChoiceNodes(ast: p.MultiParseResult[AST]): Int = ast match {
@@ -194,7 +194,7 @@ class ParserMain(p: CParser) {
     }
 
     /* match {
-        case x: TokenWrapper => 0
+        case x: AbstractToken => 0
         case a ~ b => countCoices(a, ctx) + countCoices(b, ctx)
         case l: List[Any] => l.foldLeft[Int](0)(_ + countCoices(_, ctx))
         case Opt(f, r) =>

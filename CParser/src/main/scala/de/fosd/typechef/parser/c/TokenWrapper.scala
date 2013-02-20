@@ -21,7 +21,7 @@ class TokenWrapper(token: Token, number: Int) extends /*AbstractToken*/ Profilin
 
     override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isTautology) getFeature else "")
     private lazy val pos = new TokenPosition(
-        if (token.getSource == null) null else token.getSource.toString,
+        if (token.getSourceName() == null) null else token.getSourceName(),
         token.getLine,
         token.getColumn,
         number
