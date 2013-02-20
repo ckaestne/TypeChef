@@ -69,18 +69,21 @@ class ParserMain(p: CParser) {
 
         if (parserOptions.printParserStatistics) {
             val distinctFeatures = getDistinctFeatures(in.tokens) //expensive to calculate with bdds (at least the current implementation)
-            println("Parsing statistics: \n" +
+            print("Parsing statistics: \n" +
                 "  Duration parsing: " + (endTime - parserStartTime) + " ms\n" +
-                "  Tokens: " + in.tokens.size + "\n" +
-                "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in) + "\n" +
-                "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in) + "\n" +
-                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in) + "\n" +
+                "  Tokens: " + in.tokens.size + "\n")
+            if (in.first.isInstanceOf[ProfilingToken])
+                print(
+                "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in.asInstanceOf[TokenReader[ProfilingToken,CTypeContext]]) + "\n" +
+                "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in.asInstanceOf[TokenReader[ProfilingToken,CTypeContext]]) + "\n" +
+                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in.asInstanceOf[TokenReader[ProfilingToken,CTypeContext]]) + "\n" );
                 //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
+            print(
                 "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
                 "  Distinct Features#: " + distinctFeatures.size + "\n" +
                 "  Distinct Features: " + distinctFeatures.toList.sorted.mkString(";") + "\n" +
                 "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
-                "  Choice Nodes: " + countChoiceNodes(result) + "\n")
+                "  Choice Nodes: " + countChoiceNodes(result) + "\n\n")
         }
 
         //        checkParseResult(result, FeatureExprFactory.True)
