@@ -34,7 +34,7 @@ object ProductGeneration extends EnforceTreeHelper {
   /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
   private var featureIDHashmap: Map[SingleFeatureExpr, Int] = null
 
-  private val rootFolder = "/mnt/ramdisk/"
+  private val rootFolder = "/local/joliebig/"
 
   /** List of all features found in the currently processed file */
   private var features: List[SingleFeatureExpr] = null
@@ -1260,9 +1260,13 @@ object ProductGeneration extends EnforceTreeHelper {
       }
       val config = new SimpleConfiguration(trueFeatures, falseFeatures)
 
-      // no need to check the configuration here again, since the pairwise configuration tool by henard et al.
-      // already checks the configurations.
-      retList ::= config
+      // need to check the configuration here again.
+      if (!config.toFeatureExpr.getSatisfiableAssignment(fm, features.toSet, 1 == 1).isDefined) {
+        println("no satisfiable solution for product: " + file)
+      } else {
+        retList ::= config
+      }
+//      retList ::= config
     }
     (retList, "Generated Configs: " + retList.size + "\n")
   }
