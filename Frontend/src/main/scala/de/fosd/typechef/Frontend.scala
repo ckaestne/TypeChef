@@ -86,7 +86,7 @@ object Frontend {
         }
 
         stopWatch.start("lexing")
-        val in: TokenReader[AbstractToken, CTypeContext] = lex(opt)
+        val in = lex(opt)
 
 
         if (opt.parse) {
