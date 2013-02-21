@@ -16,8 +16,8 @@ class TokenWrapper(token: Token, number: Int) extends /*AbstractToken*/ Profilin
     def isInteger = token.getType == Token.INTEGER
     def isIdentifier = token.getType == Token.IDENTIFIER && !CLexer.keywords.contains(token.getText)
     def getText: String = token.getText
-    def isString: Boolean = token.getText == Token.STRING
-    def isCharacter: Boolean = token.getText == Token.CHARACTER
+    def isString: Boolean = token.getType == Token.STRING
+    def isCharacter: Boolean = token.getType == Token.CHARACTER
 
     override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isTautology) getFeature else "")
     private lazy val pos = new TokenPosition(
