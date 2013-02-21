@@ -14,6 +14,7 @@ import java.util.Stack;
 import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import net.sf.javabdd.BDD;
 import xtc.LexerInterface;
+import xtc.XtcMacroFilter;
 import xtc.lang.cpp.*;
 
 
@@ -31,10 +32,15 @@ public class XtcPreprocessor implements VALexer {
     private List<String> iquIncludes = new ArrayList<String>();
     private PreprocessorListener listener;
     private StringBuilder commandLine = new StringBuilder();
-    private final MacroFilter macroFilter;
+    private final XtcMacroFilter macroFilter;
 
-    public XtcPreprocessor(MacroFilter macroFilter) {
-        this.macroFilter=macroFilter;
+    public XtcPreprocessor(final MacroFilter tcMacroFilter) {
+        this.macroFilter=new XtcMacroFilter() {
+            @Override
+            public boolean isVariable(String macroName) {
+                return tcMacroFilter.flagFilter(macroName);
+            }
+        };
     }
 
 
@@ -124,8 +130,7 @@ public class XtcPreprocessor implements VALexer {
             assert file != null : "no file given";
 
             I.add(file.getParentFile().getAbsolutePath());
-
-            lexers = LexerInterface.createLexer(commandLine.toString(), fileReader, file, new LexerInterface.ExceptionErrorHandler(), iquIncludes, I, sysIncludes);
+            lexers = LexerInterface.createLexer(commandLine.toString(), fileReader, file, new LexerInterface.ExceptionErrorHandler(), iquIncludes, I, sysIncludes, macroFilter);
             stack = new Stack<FeatureExpr>();
             stack.push(FeatureExprFactory.True());
         }

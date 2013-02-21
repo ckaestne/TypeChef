@@ -360,7 +360,7 @@ public class TypeChefVsXtc {
 
 
         List<Stream> lexers = LexerInterface.createLexer("", checkFile, getFile(filename), new LexerInterface.ExceptionErrorHandler(),
-                Collections.EMPTY_LIST, Collections.singletonList(getFile(filename).getParent()), Collections.EMPTY_LIST);
+                Collections.EMPTY_LIST, Collections.singletonList(getFile(filename).getParent()), Collections.EMPTY_LIST, null);
 
         //create TypeChef style token stream
         List<Token> result = new ArrayList<Token>();
