@@ -172,7 +172,8 @@ public class SimpleToken extends Token {
 
     @Override
     public String getSourceName() {
-        return getSource().toString();
+        if (source == null) return null;
+        return source.toString();
     }
 
     public Source getSource() {
