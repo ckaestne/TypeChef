@@ -35,7 +35,12 @@ public final class Launch {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        /*
+        Locale.setDefault(Locale.US);
+        ResourceBundle.clearCache();
+        JComponent.setDefaultLocale(Locale.US);
+        ResourceBundle.clearCache();
+        */
         // show file and include loading window.
         SwingUtilities.invokeLater(new Runnable() {
             @Override

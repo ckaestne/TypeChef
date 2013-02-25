@@ -23,6 +23,8 @@ import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
  */
 class RenamingTest extends ASTNavigation with ConditionalNavigation {
 
+  val nsToMs = 1000000
+
   val rename = "refactored_Variable"
 
   val busyBox_folderPath = "/Users/and1/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
@@ -40,16 +42,18 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
   private def renameRandomIdInPiFile(piFile: File) {
     val resultBuilder = new StringBuilder
     resultBuilder.append("++Analyse: " + piFile.getName + "++\n")
+    val tb = java.lang.management.ManagementFactory.getThreadMXBean
 
-    val startParsing = System.currentTimeMillis()
+
+    val startParsing = tb.getCurrentThreadCpuTime
     val fis = new FileInputStream(piFile)
     val ast = parseFile(fis, piFile.getName, piFile.getParent)
     fis.close()
-    resultBuilder.append("++Parsing time: " + (System.currentTimeMillis() - startParsing) + "ms ++\n")
+    resultBuilder.append("++Parsing time: " + (tb.getCurrentThreadCpuTime - startParsing) / nsToMs + "ms ++\n")
 
-    val startTypeCheck = System.currentTimeMillis()
+    val startTypeCheck = tb.getCurrentThreadCpuTime
     val morpheus = new Morpheus(ast, piFile)
-    resultBuilder.append("++Typecheck .pi file time: " + (System.currentTimeMillis() - startTypeCheck) + "ms ++\n")
+    resultBuilder.append("++Typecheck .pi file time: " + (tb.getCurrentThreadCpuTime - startTypeCheck) / nsToMs + "ms ++\n")
 
     val originAmount = analyeDeclUse(morpheus.getDeclUseMap()).sorted
 
@@ -63,18 +67,18 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     resultBuilder.append("++Amount of ids: " + getAllRelevantIds(ast).length + " +++\n")
     resultBuilder.append("++Ids to rename: " + RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).size + " +++\n")
 
-    val startRenaming = System.currentTimeMillis()
+    val startRenaming = tb.getCurrentThreadCpuTime
     val refactored = RenameIdentifier.rename(id, rename, morpheus)
-    resultBuilder.append("++Renaming time: " + (System.currentTimeMillis() - startRenaming) + "ms ++\n")
+    resultBuilder.append("++Renaming time: " + (tb.getCurrentThreadCpuTime - startRenaming) / nsToMs + "ms ++\n")
 
-    val startTypeCheck2 = System.currentTimeMillis()
+    val startTypeCheck2 = tb.getCurrentThreadCpuTime
     val morpheus2 = new Morpheus(refactored, piFile)
-    resultBuilder.append("++Typecheck refactored ast time: " + (System.currentTimeMillis() - startTypeCheck2) + "ms ++\n")
+    resultBuilder.append("++Typecheck refactored ast time: " + (tb.getCurrentThreadCpuTime - startTypeCheck2) / nsToMs + "ms ++\n")
 
     /**
-    val prettyPrint = System.currentTimeMillis()
+    val prettyPrint = tb.getCurrentThreadCpuTime
     val prettyPrinter = PrettyPrinter.print(refactored)
-    resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (System.currentTimeMillis() - prettyPrint) + "ms ++\n")
+    resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (tb.getCurrentThreadCpuTime - prettyPrint) + "ms ++\n")
       */
 
 

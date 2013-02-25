@@ -59,7 +59,7 @@ public class RefactorAction {
         return new AbstractAction() {
 
             {
-                putValue(Action.NAME, Configuration.getInstance().getConfig("refactor.rename") + " " + id.name());
+                putValue(Action.NAME, Configuration.getInstance().getConfig("refactor.rename") + " \"" + id.name() + "\"");
             }
 
             @Override

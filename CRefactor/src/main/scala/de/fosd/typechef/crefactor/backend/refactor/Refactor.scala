@@ -137,7 +137,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
     val env = morpheus.getEnv(lookupValue)
 
-    isDeclaredVarInEnv(name, env.asInstanceOf[Env])
+    isDeclaredVarInEnv(name, env.asInstanceOf[Env]) || isDeclaredStructOrUnionInEnv(name, env.asInstanceOf[Env]) || isDeclaredTypeDefInEnv(name, env.asInstanceOf[Env])
   }
 
   def isDeclaredVarInEnv(name: String, env: Env) = env.varEnv(name) match {

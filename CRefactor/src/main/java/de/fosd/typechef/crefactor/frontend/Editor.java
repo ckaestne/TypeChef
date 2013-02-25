@@ -36,7 +36,6 @@ public class Editor extends JFrame implements Observer {
      */
     public Editor(final Morpheus morph) {
         super(Configuration.getInstance().getConfig("editor.title"));
-
         final JPanel contentPane = new JPanel(new BorderLayout());
         this.morpheus = morph;
         morph.addObserver(this);
@@ -45,7 +44,7 @@ public class Editor extends JFrame implements Observer {
         this.textArea = new RSyntaxTextArea(Configuration.getInstance().getConfigAsInt("editor.rows"),
                 Configuration.getInstance().getConfigAsInt("editor.columns"));
         this.textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_C);
-        this.textArea.setWhitespaceVisible(true);
+        this.textArea.setWhitespaceVisible(false);
         this.textArea.setCodeFoldingEnabled(true);
         this.textArea.setAntiAliasingEnabled(true);
         this.textArea.setEditable(true);
