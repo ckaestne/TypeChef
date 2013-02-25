@@ -29,6 +29,8 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
 
   val busyBox_folderPath = "/Users/and1/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
 
+  val prettyPrint_Output = "/Users/and1/Dropbox/Bachelorarbeit/Evaluation/Rename/"
+
 
   @Test def evaluate_random_ids_in_busybox() {
     analyseDir(new File(busyBox_folderPath))
@@ -75,12 +77,18 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     val morpheus2 = new Morpheus(refactored, piFile)
     resultBuilder.append("++Typecheck refactored ast time: " + (tb.getCurrentThreadCpuTime - startTypeCheck2) / nsToMs + "ms ++\n")
 
-    /**
+
     val prettyPrint = tb.getCurrentThreadCpuTime
     val prettyPrinter = PrettyPrinter.print(refactored)
-    resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (tb.getCurrentThreadCpuTime - prettyPrint) + "ms ++\n")
-      */
-
+    resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (tb.getCurrentThreadCpuTime - prettyPrint) / nsToMs + "ms ++\n")
+    val file = new File(prettyPrint_Output + piFile.getName)
+    file.createNewFile()
+    val out_file = new java.io.FileOutputStream(file)
+    val out_stream = new java.io.PrintStream(out_file)
+    out_stream.print(prettyPrinter)
+    out_stream.flush()
+    out_file.flush()
+    out_file.close()
 
     val newAmount = analyeDeclUse(morpheus2.getDeclUseMap()).sorted
     val succ = originAmount == newAmount
