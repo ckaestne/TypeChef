@@ -60,41 +60,43 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     val originAmount = analyeDeclUse(morpheus.getDeclUseMap()).sorted
 
     val ids = morpheus.getUseDeclMap.values().toArray(Array[List[Id]]()).par.foldLeft(List[Id]())((list, entry) => list ::: entry).toList
-    val id = ids.apply((math.random * ids.size).toInt)
+    for (i <- 0 to 2) {
+      val id = ids.apply((math.random * ids.size).toInt)
 
-    resultBuilder.append("++Refactoring " + id + " " + id.range + " +++\n")
-    if (morpheus.getDeclUseMap().containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getDeclUseMap().get(id) + " +++\n")
-    if (morpheus.getUseDeclMap.containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getUseDeclMap.get(id) + " +++\n")
+      resultBuilder.append("++Refactoring " + id + " " + id.range + " +++\n")
+      if (morpheus.getDeclUseMap().containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getDeclUseMap().get(id) + " +++\n")
+      if (morpheus.getUseDeclMap.containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getUseDeclMap.get(id) + " +++\n")
 
-    resultBuilder.append("++Amount of ids: " + getAllRelevantIds(ast).length + " +++\n")
-    resultBuilder.append("++Ids to rename: " + RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).size + " +++\n")
+      resultBuilder.append("++Amount of ids: " + getAllRelevantIds(ast).length + " +++\n")
+      resultBuilder.append("++Ids to rename: " + RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).size + " +++\n")
 
-    val startRenaming = tb.getCurrentThreadCpuTime
-    val refactored = RenameIdentifier.rename(id, rename, morpheus)
-    resultBuilder.append("++Renaming time: " + (tb.getCurrentThreadCpuTime - startRenaming) / nsToMs + "ms ++\n")
+      val startRenaming = tb.getCurrentThreadCpuTime
+      val refactored = RenameIdentifier.rename(id, rename, morpheus)
+      resultBuilder.append("++Renaming time: " + (tb.getCurrentThreadCpuTime - startRenaming) / nsToMs + "ms ++\n")
 
-    val startTypeCheck2 = tb.getCurrentThreadCpuTime
-    val morpheus2 = new Morpheus(refactored, piFile)
-    resultBuilder.append("++Typecheck refactored ast time: " + (tb.getCurrentThreadCpuTime - startTypeCheck2) / nsToMs + "ms ++\n")
+      val startTypeCheck2 = tb.getCurrentThreadCpuTime
+      val morpheus2 = new Morpheus(refactored, piFile)
+      resultBuilder.append("++Typecheck refactored ast time: " + (tb.getCurrentThreadCpuTime - startTypeCheck2) / nsToMs + "ms ++\n")
 
 
-    val prettyPrint = tb.getCurrentThreadCpuTime
-    val prettyPrinter = PrettyPrinter.print(refactored)
-    resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (tb.getCurrentThreadCpuTime - prettyPrint) / nsToMs + "ms ++\n")
-    val file = new File(prettyPrint_Output + piFile.getName)
-    file.createNewFile()
-    val out_file = new java.io.FileOutputStream(file)
-    val out_stream = new java.io.PrintStream(out_file)
-    out_stream.print(prettyPrinter)
-    out_stream.flush()
-    out_file.flush()
-    out_file.close()
+      val prettyPrint = tb.getCurrentThreadCpuTime
+      val prettyPrinter = PrettyPrinter.print(refactored)
+      resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (tb.getCurrentThreadCpuTime - prettyPrint) / nsToMs + "ms ++\n")
+      val file = new File(prettyPrint_Output + piFile.getName + "_" + i)
+      file.createNewFile()
+      val out_file = new java.io.FileOutputStream(file)
+      val out_stream = new java.io.PrintStream(out_file)
+      out_stream.print(prettyPrinter)
+      out_stream.flush()
+      out_file.flush()
+      out_file.close()
 
-    val newAmount = analyeDeclUse(morpheus2.getDeclUseMap()).sorted
-    val succ = originAmount == newAmount
-    resultBuilder.append("++Refactoring was succesful: " + succ + " ++\n")
+      val newAmount = analyeDeclUse(morpheus2.getDeclUseMap()).sorted
+      val succ = originAmount == newAmount
+      resultBuilder.append("++Refactoring was succesful: " + succ + " ++\n")
+      assert(succ, "DeclUse is not the same anymore")
+    }
     println(resultBuilder.toString())
-    assert(succ, "DeclUse is not the same anymore")
   }
 
   private def analyseDir(dirToAnalyse: File) {

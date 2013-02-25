@@ -12,6 +12,8 @@ import de.fosd.typechef.parser.c.Id;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 
 public class RefactorAction {
 
@@ -72,9 +74,10 @@ public class RefactorAction {
                 }
 
                 try {
-                    final long start = System.currentTimeMillis();
+                    final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
+                    final long time = tb.getCurrentThreadCpuTime();
                     final AST refactored = RenameIdentifier.rename(id, box.getInput(), morpheus);
-                    System.out.println("Duration for transforming: " + (System.currentTimeMillis() - start));
+                    System.out.println("Duration for transforming: " + (tb.getCurrentThreadCpuTime() - time) / 1000000);
                     morpheus.update(refactored);
                 } catch (final AssertionError e) {
                     JOptionPane.showMessageDialog(null, Configuration.getInstance().getConfig("refactor.rename.failed") + " "

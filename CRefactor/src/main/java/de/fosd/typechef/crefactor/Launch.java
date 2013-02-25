@@ -8,6 +8,8 @@ import de.fosd.typechef.parser.c.AST;
 
 import javax.swing.*;
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.util.LinkedList;
 
 /**
@@ -35,12 +37,7 @@ public final class Launch {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*
-        Locale.setDefault(Locale.US);
-        ResourceBundle.clearCache();
-        JComponent.setDefaultLocale(Locale.US);
-        ResourceBundle.clearCache();
-        */
+
         // show file and include loading window.
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -57,9 +54,10 @@ public final class Launch {
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
                         loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel());
 
-                final long parseStart = System.currentTimeMillis();
+                final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
+                final long parseStart = tb.getCurrentThreadCpuTime();
                 final AST ast = Parse.parse(typeChefConfig);
-                System.out.println("Parsing duration: " + (System.currentTimeMillis() - parseStart) + "ms");
+                System.out.println("Parsing duration: " + (tb.getCurrentThreadCpuTime() - parseStart) / 1000000 + "ms");
 
                 if (ast == null) {
                     // Parsing failed.
