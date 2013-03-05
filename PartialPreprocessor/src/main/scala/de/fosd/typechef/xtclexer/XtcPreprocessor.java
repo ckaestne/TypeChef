@@ -4,6 +4,7 @@ package de.fosd.typechef.xtclexer;
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.*;
 
 import java.io.*;
@@ -16,6 +17,7 @@ import net.sf.javabdd.BDD;
 import xtc.LexerInterface;
 import xtc.XtcMacroFilter;
 import xtc.lang.cpp.*;
+import xtc.tree.Locatable;
 
 
 /**
@@ -33,14 +35,23 @@ public class XtcPreprocessor implements VALexer {
     private PreprocessorListener listener;
     private StringBuilder commandLine = new StringBuilder();
     private final XtcMacroFilter macroFilter;
+    private final FeatureModel featureModel;
+    private LexerInterface.ErrorHandler exceptionErrorHandler = new LexerInterface.ExceptionErrorHandler() {
+        public void error(PresenceConditionManager.PresenceCondition pc, String msg, Locatable location) {
+            FeatureExpr fexpr=translate(pc);
+            if (fexpr.isSatisfiable(featureModel))
+                super.error(pc,msg,location);
+        }
+    } ;
 
-    public XtcPreprocessor(final MacroFilter tcMacroFilter) {
+    public XtcPreprocessor(final MacroFilter tcMacroFilter, FeatureModel featureModel) {
         this.macroFilter=new XtcMacroFilter() {
             @Override
             public boolean isVariable(String macroName) {
                 return tcMacroFilter.flagFilter(macroName);
             }
         };
+        this.featureModel=featureModel;
     }
 
 
@@ -130,7 +141,7 @@ public class XtcPreprocessor implements VALexer {
             assert file != null : "no file given";
 
             I.add(file.getParentFile().getAbsolutePath());
-            lexers = LexerInterface.createLexer(commandLine.toString(), fileReader, file, new LexerInterface.ExceptionErrorHandler(), iquIncludes, I, sysIncludes, macroFilter);
+            lexers = LexerInterface.createLexer(commandLine.toString(), fileReader, file, exceptionErrorHandler, iquIncludes, I, sysIncludes, macroFilter);
             stack = new Stack<FeatureExpr>();
             stack.push(FeatureExprFactory.True());
         }

@@ -57,7 +57,7 @@ public class Main {
                        @Override
                        public VALexer create(FeatureModel featureModel) {
                            if (isXtcLexer)
-                               return new XtcPreprocessor(options.getMacroFilter());
+                               return new XtcPreprocessor(options.getMacroFilter(), featureModel);
                            return new Preprocessor(options.getMacroFilter(), featureModel);
                        }
                    },options,returnTokenList);
