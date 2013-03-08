@@ -38,6 +38,7 @@ import de.fosd.typechef.crefactor.util.Configuration
  */
 // TODO Replace original ExtractFunction -> Delete and Refactor
 object ExtractMethod extends ASTSelection with Refactor {
+
   def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST] = {
     // TODO Missed Control Statements
     val ids = filterASTElementsForFile[Id](filterASTElems[Id](morpheus.getAST).par.filter(x => isInSelectionRange(x, selection)).toList, selection.getFilePath)
@@ -144,6 +145,12 @@ object ExtractMethod extends ASTSelection with Refactor {
     true
   }
 
+  def extract(morpheus: Morpheus, selection: List[AST], funcName: String): AST = {
+    verifyFunctionName(funcName, selection, morpheus)
+
+    morpheus.getAST
+  }
+
   private def isPartOfAFunction(toValidate: AST, morpheus: Morpheus): Boolean = {
     findPriorASTElem[FunctionDef](toValidate, morpheus.getASTEnv) match {
       case Some(f) => true
@@ -160,10 +167,9 @@ object ExtractMethod extends ASTSelection with Refactor {
     }
   }
 
-  def extract(morpheus: Morpheus, selection: List[AST], funcName: String): AST = {
+  private def verifyFunctionName(funcName: String, selection: List[AST], morpheus: Morpheus) {
     assert(isValidName(funcName), Configuration.getInstance().getConfig("refactor.extractFunction.failed.shadowing"))
+    // Check for shadowing with last statement of the extraction compound statement
     assert(!isShadowed(funcName, getCompoundStatement(selection.head, morpheus).innerStatements.last.entry, morpheus), Configuration.getInstance().getConfig("default.error.invalidName"))
-    morpheus.getAST
   }
-
 }
