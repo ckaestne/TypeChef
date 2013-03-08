@@ -31,7 +31,7 @@ import de.fosd.typechef.parser.c.UnaryExpr
 import java.util.Collections
 import java.util
 import de.fosd.typechef.crefactor.Morpheus
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crefactor.util.Configuration
 
 /**
  * Implements the strategy of extracting a function.
@@ -121,7 +121,7 @@ object ExtractMethod extends ASTSelection with Refactor {
       parents = uniqueSelectedStatements.toArray(Array[Statement]()).toList
     } else parents = uniqueSelectedExpressions.toArray(Array[Expr]()).toList
 
-    logger.info("Selection " + parents.sortWith(comparePosition))
+    logger.info("InlineFuncOptionSelector " + parents.sortWith(comparePosition))
     parents.sortWith(comparePosition)
   }
 
@@ -132,27 +132,38 @@ object ExtractMethod extends ASTSelection with Refactor {
 
   def isAvailable(morpheus: Morpheus, selection: Selection): Boolean = {
     val selectedElements = getSelectedElements(morpheus, selection)
+    // Validate selection
     if (selectedElements.isEmpty) return false
     if (!selectedElements.par.forall(element => isPartOfAFunction(element, morpheus))) return false
-    val ccStmt = findPriorASTElem[CompoundStatement](selectedElements.head, morpheus.getASTEnv)
-    if (!selectedElements.par.forall(element => isElementOfEqCompStmt(element, ccStmt, morpheus))) return false
+
+    // retrieve if selected elements are part of the same compound stmts
+    findPriorASTElem[CompoundStatement](selectedElements.head, morpheus.getASTEnv) match {
+      case Some(c) => if (!selectedElements.par.forall(element => isElementOfEqCompStmt(element, c, morpheus))) return false
+      case _ => return false // not element of an ccStmt
+    }
     true
   }
 
-  def isPartOfAFunction(toValidate: AST, morpheus: Morpheus): Boolean = {
+  private def isPartOfAFunction(toValidate: AST, morpheus: Morpheus): Boolean = {
     findPriorASTElem[FunctionDef](toValidate, morpheus.getASTEnv) match {
       case Some(f) => true
       case _ => false
     }
   }
 
-  def isElementOfEqCompStmt(element: AST, compStmt: Opt[CompoundStatement], morpheus: Morpheus): Boolean = {
-    val elementCompStmt = findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv)
-    elementCompStmt.eq(compStmt)
+  private def isElementOfEqCompStmt(element: AST, compStmt: CompoundStatement, morpheus: Morpheus): Boolean = getCompoundStatement(element, morpheus).eq(compStmt)
+
+  private def getCompoundStatement(element: AST, morpheus: Morpheus): CompoundStatement = {
+    findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv) match {
+      case Some(c) => c
+      case _ => null
+    }
   }
 
-  def extract(morph: Morpheus, selection: List[AST], name: String): AST = {
-    morph.getAST
+  def extract(morpheus: Morpheus, selection: List[AST], funcName: String): AST = {
+    assert(isValidName(funcName), Configuration.getInstance().getConfig("refactor.extractFunction.failed.shadowing"))
+    assert(!isShadowed(funcName, getCompoundStatement(selection.head, morpheus).innerStatements.last.entry, morpheus), Configuration.getInstance().getConfig("default.error.invalidName"))
+    morpheus.getAST
   }
 
 }

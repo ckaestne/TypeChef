@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 /**
  * Inputbox for renaming an callId.
  */
-public class InputBox extends JDialog {
+public class RefactorNameInputBox extends JDialog {
 
     /**
      * Entered text.
@@ -19,7 +19,7 @@ public class InputBox extends JDialog {
     /**
      * Constructs a new inputbox.
      */
-    public InputBox() {
+    public RefactorNameInputBox() {
         this.input = null;
     }
 

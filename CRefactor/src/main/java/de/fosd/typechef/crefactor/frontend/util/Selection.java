@@ -32,7 +32,7 @@ public class Selection {
      */
     public int getLineStart() {
         return PositionWrapper.getLine(editor.getRTextArea(),
-                previousSymbolOccurence(editor.getRTextArea().getSelectionStart())) + 1;
+                previousSymbolOccurrence(editor.getRTextArea().getSelectionStart())) + 1;
     }
 
     /**
@@ -42,7 +42,7 @@ public class Selection {
      */
     public int getLineEnd() {
         return PositionWrapper.getLine(editor.getRTextArea(),
-                nextSymblOccurence(editor.getRTextArea().getSelectionEnd())) + 1;
+                nextSymblOccurrence(editor.getRTextArea().getSelectionEnd())) + 1;
     }
 
     /**
@@ -52,7 +52,7 @@ public class Selection {
      */
     public int getRowStart() {
         return PositionWrapper.getRow(editor.getRTextArea(),
-                previousSymbolOccurence(editor.getRTextArea().getSelectionStart()));
+                previousSymbolOccurrence(editor.getRTextArea().getSelectionStart()));
     }
 
     /**
@@ -62,7 +62,7 @@ public class Selection {
      */
     public int getRowEnd() {
         return PositionWrapper.getRow(editor.getRTextArea(),
-                nextSymblOccurence(editor.getRTextArea().getSelectionEnd()));
+                nextSymblOccurrence(editor.getRTextArea().getSelectionEnd()));
     }
 
     /**
@@ -71,9 +71,9 @@ public class Selection {
      * @param offset the offstet to start
      * @return the previous offset where a symbol occurs
      */
-    public int previousSymbolOccurence(final int offset) {
+    public int previousSymbolOccurrence(final int offset) {
         final int step = -1;
-        return findSymbolOccurence(offset, step);
+        return findSymbolOccurrence(offset, step);
     }
 
     /**
@@ -82,9 +82,9 @@ public class Selection {
      * @param offset the offset to start
      * @return the next offset where a symbol occurs
      */
-    public int nextSymblOccurence(final int offset) {
+    public int nextSymblOccurrence(final int offset) {
         final int step = 1;
-        return findSymbolOccurence(offset, step);
+        return findSymbolOccurrence(offset, step);
     }
 
     /**
@@ -103,12 +103,12 @@ public class Selection {
      * @param step   the step size
      * @return the found offset
      */
-    private int findSymbolOccurence(final int offset, final int step) {
+    private int findSymbolOccurrence(final int offset, final int step) {
         try {
             final int nextOffset = offset + step;
             final String symbol = editor.getRTextArea().getText(nextOffset, 1);
             if (symbol.matches("\\s")) {
-                return findSymbolOccurence(nextOffset, step);
+                return findSymbolOccurrence(nextOffset, step);
             }
             return nextOffset;
         } catch (final BadLocationException e) {

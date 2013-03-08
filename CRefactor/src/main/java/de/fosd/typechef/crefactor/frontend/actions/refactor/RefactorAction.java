@@ -6,7 +6,7 @@ import de.fosd.typechef.crefactor.backend.refactor.ExtractMethod;
 import de.fosd.typechef.crefactor.backend.refactor.InlineFunction;
 import de.fosd.typechef.crefactor.backend.refactor.RenameIdentifier;
 import de.fosd.typechef.crefactor.frontend.util.InlineDialog;
-import de.fosd.typechef.crefactor.frontend.util.InputBox;
+import de.fosd.typechef.crefactor.frontend.util.RefactorNameInputBox;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
@@ -33,7 +33,7 @@ public class RefactorAction {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                final InputBox box = new InputBox();
+                final RefactorNameInputBox box = new RefactorNameInputBox();
                 box.createAndShowInputBox(Configuration.getInstance().getConfig("refactor.extractFunction"),
                         Configuration.getInstance().getConfig("refactor.extractFunction.name"),
                         Configuration.getInstance().getConfig("refactor.extractFunction.defaultFuncName"));
@@ -108,7 +108,7 @@ public class RefactorAction {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                final InputBox box = new InputBox();
+                final RefactorNameInputBox box = new RefactorNameInputBox();
                 box.createAndShowInputBox(Configuration.getInstance().getConfig("refactor.rename.name"),
                         Configuration.getInstance().getConfig("refactor.rename.newName"), id.name());
                 if (box.getInput() == null) {

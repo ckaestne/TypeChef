@@ -193,7 +193,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   }
 
   /**
-   * Selection is conditonal?
+   * InlineFuncOptionSelector is conditonal?
    */
   private def selectionIsConditional(selection: List[Opt[_]]): Boolean = {
     selection.foreach(x => if (isVariable(x)) return true)
