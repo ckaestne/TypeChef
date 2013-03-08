@@ -64,13 +64,25 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     def getFunctionType(
                            specifiers: List[Opt[Specifier]],
                            declarator: Declarator,
-                           oldStyleParameters: List[Opt[OldParameterDeclaration]],
+                           oldStyleParameters: ConditionalTypeMap,
                            featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
-        if (!oldStyleParameters.isEmpty) One(CUnknown("alternative parameter notation not supported yet"))
-        else if (isTypedef(specifiers)) One(CUnknown("Invalid typedef specificer for function definition (?)"))
-        else declType(specifiers, declarator, List(), featureExpr, env)
+
+
+        //        if (!oldStyleParameters.isEmpty) One(CUnknown("alternative parameter notation not supported yet"))
+        if (isTypedef(specifiers)) One(CUnknown("Invalid typedef specificer for function definition (?)"))
+        else declType(specifiers, declarator, List(), featureExpr, env, oldStyleParameters)
     }
 
+
+    protected def getOldStyleParameters(oldStyleParameters: List[Opt[OldParameterDeclaration]], featureExpr: FeatureExpr, env: Env): ConditionalTypeMap = {
+        var result = new ConditionalTypeMap()
+        for (Opt(f, oldParam) <- oldStyleParameters)
+            if (oldParam.isInstanceOf[Declaration]) {
+                for ((name, fexpr, ast, ptype, _) <- getDeclaredVariables(oldParam.asInstanceOf[Declaration], featureExpr and f, env)._2)
+                    result = result.+(name, fexpr, ast, ptype)
+            }
+        result
+    }
 
     def getTypenameType(typename: TypeName, featureExpr: FeatureExpr, env: Env): Conditional[CType] = typename match {
         case TypeName(specs, None) => constructType(specs, featureExpr, env, typename)
@@ -330,8 +342,11 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     }
 
 
-    def declType(specs: List[Opt[Specifier]], decl: Declarator, attributes: List[Opt[AttributeSpecifier]], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
-        var ctype = getDeclaratorType(decl, constructType(specs, featureExpr, env, decl), featureExpr, env)
+    /**
+     * @param oldStyleParameterTypes only used when resolving a function
+     */
+    def declType(specs: List[Opt[Specifier]], decl: Declarator, attributes: List[Opt[AttributeSpecifier]], featureExpr: FeatureExpr, env: Env, oldStyleParameterTypes: ConditionalTypeMap = null): Conditional[CType] = {
+        var ctype = getDeclaratorType(decl, constructType(specs, featureExpr, env, decl), featureExpr, env, oldStyleParameterTypes)
         //postprocessing filters for __attribute__
         ctype = filterTransparentUnion(ctype, attributes)
         if (contains__mode__attribute(attributes))
@@ -364,8 +379,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     protected def getDeclarationType(specifiers: List[Opt[Specifier]], decl: Declarator, featureExpr: FeatureExpr, env: Env) =
         getDeclaratorType(decl, constructType(specifiers, featureExpr, env, decl), featureExpr, env)
 
-    protected def getDeclaratorType(decl: Declarator, returnType: Conditional[CType], featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
-        val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions, featureExpr, env)
+    protected def getDeclaratorType(decl: Declarator, returnType: Conditional[CType], featureExpr: FeatureExpr, env: Env, oldStyleParameterTypes: ConditionalTypeMap = null): Conditional[CType] = {
+        val rtype = decorateDeclaratorExt(decorateDeclaratorPointer(returnType, decl.pointers), decl.extensions, featureExpr, env, oldStyleParameterTypes)
 
         //this is an absurd order but seems to be as specified
         //cf. http://www.ericgiguere.com/articles/reading-c-declarations.html
@@ -386,15 +401,16 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         }
     }
 
-    private def decorateDeclaratorExt(t: Conditional[CType], extensions: List[Opt[DeclaratorExtension]], featureExpr: FeatureExpr, env: Env): Conditional[CType] =
+    private def decorateDeclaratorExt(t: Conditional[CType], extensions: List[Opt[DeclaratorExtension]], featureExpr: FeatureExpr, env: Env, oldStyleParameterTypes: ConditionalTypeMap = null): Conditional[CType] =
         conditionalFoldRightFR(extensions.reverse, t, featureExpr,
             (fexpr: FeatureExpr, ext: DeclaratorExtension, rtype: CType) => ext match {
-                case o@DeclIdentifierList(idList) => One(
-                    if (idList.isEmpty) CFunction(List(), rtype)
-                    else {
-                        assertTypeSystemConstraint(false, fexpr, "cannot derive type of function in this style yet", o);
-                        CUnknown("unsupported")
-                    })
+                case o@DeclIdentifierList(idList) =>
+                    if (!idList.isEmpty)
+                        assert(oldStyleParameterTypes != null)
+                    val parameterTypes: List[Opt[CType]] = idList.flatMap({ case Opt(f, id) => oldStyleParameterTypes.getOrElse(id.name, CUnsigned(CInt())).toOptList.map(_.and(f and fexpr)) })
+                    var paramLists: Conditional[List[CType]] =
+                        ConditionalLib.explodeOptList(parameterTypes)
+                    paramLists.map(CFunction(_, rtype))
                 case DeclParameterDeclList(parameterDecls) =>
                     var paramLists: Conditional[List[CType]] =
                         ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, fexpr, env))
