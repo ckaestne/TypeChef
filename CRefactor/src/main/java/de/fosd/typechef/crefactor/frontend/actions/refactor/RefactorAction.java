@@ -9,6 +9,7 @@ import de.fosd.typechef.crefactor.frontend.util.InputBox;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
+import scala.collection.immutable.List;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -17,7 +18,21 @@ import java.lang.management.ThreadMXBean;
 
 public class RefactorAction {
 
-    public static Action getInlineFunction(final Morpheus morpheus, final Id id) {
+    public static Action getExtractFunction(final Morpheus morpheus, final List<AST> selection) {
+
+        return new AbstractAction() {
+
+            {
+                putValue(Action.NAME, Configuration.getInstance().getConfig("refactor.extractFunction"));
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+            }
+        };
+    }
+
+    public static Action getInlineFunctionAction(final Morpheus morpheus, final Id id) {
 
         return new AbstractAction() {
 

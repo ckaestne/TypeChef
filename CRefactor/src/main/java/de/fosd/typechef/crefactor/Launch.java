@@ -5,6 +5,8 @@ import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.loader.Loader;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.AST;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.io.File;
@@ -12,12 +14,15 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.LinkedList;
 
+
 /**
  * Launch up class for starting up CRefactor in combination with typechef.
  *
  * @author Andreas Janker
  */
 public final class Launch {
+
+    private static Logger logger = LogManager.getLogger(Launch.class.getSimpleName());
 
     /**
      * Do not allow an instance of this class.
@@ -57,7 +62,7 @@ public final class Launch {
                 final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
                 final long parseStart = tb.getCurrentThreadCpuTime();
                 final AST ast = Parse.parse(typeChefConfig);
-                System.out.println("Parsing duration: " + (tb.getCurrentThreadCpuTime() - parseStart) / 1000000 + "ms");
+                logger.info("Parsing duration: " + (tb.getCurrentThreadCpuTime() - parseStart) / 1000000 + "ms");
 
                 if (ast == null) {
                     // Parsing failed.

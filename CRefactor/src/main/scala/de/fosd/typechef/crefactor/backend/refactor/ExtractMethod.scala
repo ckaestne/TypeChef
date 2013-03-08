@@ -121,6 +121,7 @@ object ExtractMethod extends ASTSelection with Refactor {
       parents = uniqueSelectedStatements.toArray(Array[Statement]()).toList
     } else parents = uniqueSelectedExpressions.toArray(Array[Expr]()).toList
 
+    println("Selection " + parents.sortWith(comparePosition))
     parents.sortWith(comparePosition)
   }
 
