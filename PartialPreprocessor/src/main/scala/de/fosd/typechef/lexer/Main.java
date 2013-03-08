@@ -143,7 +143,7 @@ public class Main {
                 }
 
                 if (returnTokenList && PartialPPLexer.isResultToken(tok)) {
-                    if (tok instanceof SimpleToken)
+                    if (tok instanceof SimpleToken && output!=null)
                         ((SimpleToken) tok).setLine(outputLine);
                     resultTokenList.add(tok);
                 }
