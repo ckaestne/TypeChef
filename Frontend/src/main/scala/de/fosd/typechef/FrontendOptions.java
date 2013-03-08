@@ -189,8 +189,13 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private FeatureExpr filePC = null;
 
     FeatureExpr getFilePresenceCondition() {
-        if (filePC == null)
-            filePC = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getFilePresenceConditionFilename());
+        if (filePC == null) {
+            File pcFile = new File(getFilePresenceConditionFilename());
+            if (pcFile.exists())
+                filePC = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(pcFile);
+            else
+                filePC = FeatureExprFactory$.MODULE$.dflt().True();
+        }
         return filePC;
     }
 
