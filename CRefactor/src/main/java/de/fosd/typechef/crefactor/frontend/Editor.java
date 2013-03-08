@@ -13,7 +13,6 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Observable;
@@ -113,7 +112,7 @@ public class Editor extends JFrame implements Observer {
     public void update(final Observable observable, final Object o) {
         final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
         final long time = tb.getCurrentThreadCpuTime();
-        this.textArea.setText(PrettyPrinter.printW(this.morpheus.getAST(), new StringWriter()).toString());
+        this.textArea.setText(PrettyPrinter.print(this.morpheus.getAST()));
         System.out.println("PrettyPrinting duration: " + (tb.getCurrentThreadCpuTime() - time) / 1000000);
     }
 }

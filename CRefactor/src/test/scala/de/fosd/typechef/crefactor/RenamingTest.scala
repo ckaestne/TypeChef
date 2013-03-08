@@ -80,9 +80,8 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
       val morpheus2 = new Morpheus(refactored, piFile)
       resultBuilder.append("++Typecheck refactored ast time: " + (tb.getCurrentThreadCpuTime - startTypeCheck2) / nsToMs + "ms ++\n")
 
-
       val prettyPrint = tb.getCurrentThreadCpuTime
-      val prettyPrinter = PrettyPrinter.printW(refactored, new StringWriter()).toString
+      val prettyPrinter = PrettyPrinter.print(refactored)
       resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (tb.getCurrentThreadCpuTime - prettyPrint) / nsToMs + "ms ++\n")
       val file = new File(prettyPrint_Output + piFile.getName + "_" + i)
       file.createNewFile()

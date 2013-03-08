@@ -2,7 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import java.io.Writer
+import java.io.{StringWriter, Writer}
 
 object PrettyPrinter {
 
@@ -49,8 +49,10 @@ object PrettyPrinter {
     case Nest(i, Nest(j, x)) => layout(Nest(i + j, x))
   }
 
-
-  def print(ast: AST): String = layout(prettyPrint(ast))
+  // old version causing stack overflows and pretty slow
+  // def print(ast: AST): String = layout(prettyPrint(ast))
+  // new awesome fast version using a string writer instance
+  def print(ast: AST): String = printW(ast, new StringWriter()).toString
 
   def layoutW(d: Doc, p: Writer): Unit = d match {
     case Empty => p.write("")
