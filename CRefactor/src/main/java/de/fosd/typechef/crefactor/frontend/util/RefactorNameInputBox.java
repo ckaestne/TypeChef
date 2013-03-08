@@ -4,7 +4,7 @@ import de.fosd.typechef.crefactor.util.Configuration;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 
 /**
  * Inputbox for renaming an callId.
@@ -36,7 +36,6 @@ public class RefactorNameInputBox extends JDialog {
         super.setModal(true);
         super.setModalityType(ModalityType.APPLICATION_MODAL);
         super.setResizable(false);
-        // TODO Config
         super.setSize(new Dimension(Configuration.getInstance().getConfigAsInt("inputbox.width"),
                 Configuration.getInstance().getConfigAsInt("inputbox.height")));
 
@@ -47,6 +46,27 @@ public class RefactorNameInputBox extends JDialog {
         super.getContentPane().add(makeInputPanel(description, textField));
         super.getContentPane().add(new JSeparator());
         super.getContentPane().add(makeControlButtons(textField));
+
+        // stmt onCancel() when cross is clicked
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                onCancel();
+            }
+        });
+
+        textField.registerKeyboardAction(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onOk(textField);
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        // stmt onCancel() on ESCAPE
+        textField.registerKeyboardAction(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onCancel();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         super.setLocationRelativeTo(null);
         super.setLocationByPlatform(true);
@@ -66,6 +86,7 @@ public class RefactorNameInputBox extends JDialog {
                 Configuration.getInstance().getConfigAsInt("loader.buttonsHeight"));
         final JButton ok = new JButton("OK");
         ok.addActionListener(getOKAction(textField));
+
         final JButton cancel = new JButton("Cancel");
         cancel.addActionListener(getCancelAction());
 
@@ -109,14 +130,16 @@ public class RefactorNameInputBox extends JDialog {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if (textField.getText().trim().length() > 0) {
-                    input = textField.getText().trim();
-                    dispose();
-                }
-                // TODO else case
-
+                onOk(textField);
             }
         };
+    }
+
+    private void onOk(JTextField textField) {
+        if (textField.getText().trim().length() > 0) {
+            input = textField.getText().trim();
+            dispose();
+        }
     }
 
     /**
@@ -128,10 +151,14 @@ public class RefactorNameInputBox extends JDialog {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                input = null;
-                dispose();
+                onCancel();
             }
         };
+    }
+
+    private void onCancel() {
+        input = null;
+        dispose();
     }
 
     /**
