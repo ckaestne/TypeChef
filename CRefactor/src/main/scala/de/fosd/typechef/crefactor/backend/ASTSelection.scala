@@ -2,9 +2,9 @@ package de.fosd.typechef.crefactor.backend
 
 import de.fosd.typechef.parser.c.{Id, AST}
 import de.fosd.typechef.crefactor.frontend.util.Selection
-import de.fosd.typechef.crefactor.Morpheus
+import de.fosd.typechef.crefactor.{Logging, Morpheus}
 
-trait ASTSelection {
+trait ASTSelection extends Logging {
 
   def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST]
 
