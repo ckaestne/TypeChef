@@ -8,7 +8,7 @@ import java.util.Observable
 import java.io.File
 import de.fosd.typechef.Frontend
 
-class Morpheus(ast: AST, fm: FeatureExpr, file: File) extends Observable with CDeclUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem {
+class Morpheus(ast: AST, fm: FeatureExpr, file: File) extends Observable with CDeclUse with CTypeEnv with CEnvCache with CTypeCache with CTypeSystem with Logging {
   def this(ast: AST) = this(ast, FeatureExprFactory.True, null)
 
   def this(ast: AST, fm: FeatureExpr) = this(ast, fm, null)

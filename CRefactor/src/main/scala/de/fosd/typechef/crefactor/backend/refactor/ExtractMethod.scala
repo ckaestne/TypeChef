@@ -31,6 +31,7 @@ import de.fosd.typechef.parser.c.UnaryExpr
 import java.util.Collections
 import java.util
 import de.fosd.typechef.crefactor.Morpheus
+import de.fosd.typechef.conditional.Opt
 
 /**
  * Implements the strategy of extracting a function.
@@ -38,7 +39,7 @@ import de.fosd.typechef.crefactor.Morpheus
 // TODO Replace original ExtractFunction -> Delete and Refactor
 object ExtractMethod extends ASTSelection with Refactor {
   def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST] = {
-
+    // TODO Missed Control Statements
     val ids = filterASTElementsForFile[Id](filterASTElems[Id](morpheus.getAST).par.filter(x => isInSelectionRange(x, selection)).toList, selection.getFilePath)
 
     def findMostUpwardExpr(element: Expr): Expr = {
@@ -130,9 +131,24 @@ object ExtractMethod extends ASTSelection with Refactor {
   }
 
   def isAvailable(morpheus: Morpheus, selection: Selection): Boolean = {
-    if (getSelectedElements(morpheus, selection).isEmpty) return false
-
+    val selectedElements = getSelectedElements(morpheus, selection)
+    if (selectedElements.isEmpty) return false
+    if (!selectedElements.par.forall(element => isPartOfAFunction(element, morpheus))) return false
+    val ccStmt = findPriorASTElem[CompoundStatement](selectedElements.head, morpheus.getASTEnv)
+    if (!selectedElements.par.forall(element => isElementOfEqCompStmt(element, ccStmt, morpheus))) return false
     true
+  }
+
+  def isPartOfAFunction(toValidate: AST, morpheus: Morpheus): Boolean = {
+    findPriorASTElem[FunctionDef](toValidate, morpheus.getASTEnv) match {
+      case Some(f) => true
+      case _ => false
+    }
+  }
+
+  def isElementOfEqCompStmt(element: AST, compStmt: Opt[CompoundStatement], morpheus: Morpheus): Boolean = {
+    val elementCompStmt = findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv)
+    elementCompStmt.eq(compStmt)
   }
 
   def extract(morph: Morpheus, selection: List[AST], name: String): AST = {
