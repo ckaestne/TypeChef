@@ -55,7 +55,7 @@ public class RefactorMenu implements MenuListener {
         /**
          * Refactor Renaming
          */
-        final List<Id> availableIds = RenameIdentifier.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
+        final List<Id> availableIds = RenameIdentifier.getAvailableIdentifiers(morpheus, selection);
         if (!availableIds.isEmpty()) {
             final JMenu rename = new JMenu(Configuration.getInstance().getConfig("refactor.rename.name"));
             this.menu.add(rename);
@@ -79,15 +79,15 @@ public class RefactorMenu implements MenuListener {
         this.menu.add(extract);
         extract.setEnabled(eligable);*/
 
-        final List<AST> extractSelection = ExtractMethod.getSelectedElements(morpheus.getAST(), morpheus.getASTEnv(), selection);
+        final List<AST> extractSelection = ExtractMethod.getSelectedElements(morpheus, selection);
         final JMenuItem extract = new JMenuItem(RefactorAction.getExtractFunction(morpheus, extractSelection));
         this.menu.add(extract);
-        extract.setEnabled(ExtractMethod.isAvailable(morpheus.getAST(), morpheus.getASTEnv(), selection));
+        extract.setEnabled(ExtractMethod.isAvailable(morpheus, selection));
 
         /**
          * Inline Function
          */
-        final List<Id> availableFuncIDs = InlineFunction.getAvailableIdentifiers(morpheus.getAST(), morpheus.getASTEnv(), selection);
+        final List<Id> availableFuncIDs = InlineFunction.getAvailableIdentifiers(morpheus, selection);
         if (!availableFuncIDs.isEmpty()) {
             final JMenu inline = new JMenu(Configuration.getInstance().getConfig("refactor.inline.name"));
             this.menu.add(inline);

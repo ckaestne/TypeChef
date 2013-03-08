@@ -1,21 +1,21 @@
 package de.fosd.typechef.crefactor.backend
 
-import de.fosd.typechef.crewrite.ASTEnv
 import de.fosd.typechef.parser.c.{Id, AST}
 import de.fosd.typechef.crefactor.frontend.util.Selection
+import de.fosd.typechef.crefactor.Morpheus
 
 trait ASTSelection {
 
-  def getSelectedElements(ast: AST, astEnv: ASTEnv, selection: Selection): List[AST]
+  def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST]
 
-  def getAvailableIdentifiers(ast: AST, astEnv: ASTEnv, selection: Selection): List[Id]
+  def getAvailableIdentifiers(morpheus: Morpheus, selection: Selection): List[Id]
 
   protected def isInSelectionRange(value: AST, selection: Selection): Boolean = {
     /**
      * Annotated ast elements have often the same starting line. As workaround we only identify the element by its end value.
      */
-    (isInRange(value.getPositionTo.getLine, selection.getLineStart, selection.getLineEnd))
-    // TODO ROW!
+    (isInRange(value.getPositionTo.getLine, selection.getLineStart + 1, (selection.getLineEnd - 1)))
+    // TODO FIX IT -> Broken!
     // && ((selection.getRowEnd <= value.getPositionTo.getColumn) || (selection.getRowEnd <= value.getPositionTo.getColumn)))
   }
 

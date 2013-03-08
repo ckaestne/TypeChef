@@ -2,7 +2,6 @@ package de.fosd.typechef.crefactor.backend.refactor
 
 import de.fosd.typechef.crefactor.backend.ASTSelection
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.crewrite.ASTEnv
 import de.fosd.typechef.crefactor.frontend.util.Selection
 import de.fosd.typechef.parser.c.PostfixExpr
 import de.fosd.typechef.parser.c.Id
@@ -38,12 +37,12 @@ import de.fosd.typechef.crefactor.Morpheus
  */
 // TODO Replace original ExtractFunction -> Delete and Refactor
 object ExtractMethod extends ASTSelection with Refactor {
-  def getSelectedElements(ast: AST, astEnv: ASTEnv, selection: Selection): List[AST] = {
+  def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST] = {
 
-    val ids = filterASTElementsForFile[Id](filterASTElems[Id](ast).par.filter(x => isInSelectionRange(x, selection)).toList, selection.getFilePath)
+    val ids = filterASTElementsForFile[Id](filterASTElems[Id](morpheus.getAST).par.filter(x => isInSelectionRange(x, selection)).toList, selection.getFilePath)
 
     def findMostUpwardExpr(element: Expr): Expr = {
-      parentAST(element, astEnv) match {
+      parentAST(element, morpheus.getASTEnv) match {
         case e: Id => findMostUpwardExpr(e)
         case e: Constant => findMostUpwardExpr(e)
         case e: StringLit => findMostUpwardExpr(e)
@@ -64,7 +63,7 @@ object ExtractMethod extends ASTSelection with Refactor {
     }
 
     def findParent(id: Id): Some[AST] = {
-      val priorElement = findPriorASTElem[Statement](id, astEnv)
+      val priorElement = findPriorASTElem[Statement](id, morpheus.getASTEnv)
       priorElement match {
         case None => null
         case _ => priorElement.get match {
@@ -85,7 +84,7 @@ object ExtractMethod extends ASTSelection with Refactor {
     def exploitStatements(statement: Statement): Statement = {
       try {
         // val parentStatement = parentAST(statement, astEnv) // debug purpose only
-        parentAST(statement, astEnv) match {
+        parentAST(statement, morpheus.getASTEnv) match {
           case null =>
             assert(false, "An error during determine the preconditions occured.")
             statement
@@ -125,14 +124,19 @@ object ExtractMethod extends ASTSelection with Refactor {
     parents.sortWith(comparePosition)
   }
 
-  def getAvailableIdentifiers(ast: AST, astEnv: ASTEnv, selection: Selection): List[Id] = getSelectedElements(ast, astEnv, selection).isEmpty match {
+  def getAvailableIdentifiers(morpheus: Morpheus, selection: Selection): List[Id] = getSelectedElements(morpheus, selection).isEmpty match {
     case true => null
     case false => List[Id]() // returns a empty list to signalize a valid selection was found
   }
 
-  def isAvailable(ast: AST, astEnv: ASTEnv, selection: Selection): Boolean = !getSelectedElements(ast, astEnv, selection).isEmpty // TODO Check if selection is valid for extraction
+  def isAvailable(morpheus: Morpheus, selection: Selection): Boolean = {
+    if (getSelectedElements(morpheus, selection).isEmpty) return false
+
+    true
+  }
 
   def extract(morph: Morpheus, selection: List[AST]): AST = {
     null
   }
+
 }

@@ -2,12 +2,14 @@ package de.fosd.typechef.crefactor
 
 import backend.refactor.RenameIdentifier
 import org.junit.Test
-import java.io.{InputStream, FileInputStream, FilenameFilter, File}
+import java.io._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.parser.c.TranslationUnit
-import de.fosd.typechef.parser.c.CTypeContext
 import java.util.IdentityHashMap
 import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.GnuAsmExpr
+import de.fosd.typechef.parser.c.CTypeContext
+import de.fosd.typechef.parser.c.TranslationUnit
 
 
 /**
@@ -80,7 +82,7 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
 
 
       val prettyPrint = tb.getCurrentThreadCpuTime
-      val prettyPrinter = PrettyPrinter.print(refactored)
+      val prettyPrinter = PrettyPrinter.printW(refactored, new StringWriter()).toString
       resultBuilder.append("++Pretty printing (size:" + prettyPrinter.length + ") time: " + (tb.getCurrentThreadCpuTime - prettyPrint) / nsToMs + "ms ++\n")
       val file = new File(prettyPrint_Output + piFile.getName + "_" + i)
       file.createNewFile()

@@ -6,7 +6,7 @@ import de.fosd.typechef.typesystem.CEnvCache
 import de.fosd.typechef.crefactor.Morpheus
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.crewrite.{ASTEnv, ConditionalNavigation, ASTNavigation}
+import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
 import de.fosd.typechef.crefactor.frontend.util.Selection
 import de.fosd.typechef.parser.c.Id
 import scala.Some
@@ -67,7 +67,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     "_Thread_local"
   )
 
-  def isAvailable(ast: AST, astEnv: ASTEnv, selection: Selection): Boolean
+  def isAvailable(morpheus: Morpheus, selection: Selection): Boolean
 
   /**
    * Checks if the name of a variable is compatible to the iso c standard. See 6.4.2 of the iso standard

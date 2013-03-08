@@ -1,6 +1,5 @@
 package de.fosd.typechef.crefactor;
 
-import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.loader.Loader;
 import de.fosd.typechef.crefactor.util.Configuration;
@@ -71,10 +70,10 @@ public final class Launch {
                 }
 
                 // parse file
-                if (Cache.parse(typeChefConfig) == null) {
-                    System.err.println("Something really bad happend");
-                    System.exit(-1);
-                }
+                /**if (Cache.parse(typeChefConfig) == null) {
+                 System.err.println("Something really bad happend");
+                 System.exit(-1);
+                 }  */
 
                 // show editor window
                 final Editor editor = new Editor(new Morpheus(ast, loadingWindow.getFileToAnalyse()));

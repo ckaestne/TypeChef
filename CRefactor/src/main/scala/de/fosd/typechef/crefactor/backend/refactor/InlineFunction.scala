@@ -48,18 +48,18 @@ import de.fosd.typechef.parser.c.ParameterDeclarationD
  */
 object InlineFunction extends ASTSelection with Refactor {
 
-  def getSelectedElements(ast: AST, astEnv: ASTEnv, selection: Selection): List[AST] = {
-    val functions = (filterASTElems[FunctionDef](ast) ::: filterASTElems[FunctionCall](ast)
-      ::: filterAllASTElems[NestedFunctionDef](ast)).filter(x => isSelected(x, astEnv, selection))
+  def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST] = {
+    val functions = (filterASTElems[FunctionDef](morpheus.getAST) ::: filterASTElems[FunctionCall](morpheus.getAST)
+      ::: filterAllASTElems[NestedFunctionDef](morpheus.getAST)).filter(x => isSelected(x, morpheus.getASTEnv, selection))
     filterASTElementsForFile(functions, selection.getFilePath).sortWith(comparePosition)
   }
 
-  def getAvailableIdentifiers(ast: AST, astEnv: ASTEnv, selection: Selection): List[Id] = {
-    val ids = getSelectedElements(ast, astEnv, selection).map(x => getFunctionIdentifier(x, astEnv))
+  def getAvailableIdentifiers(morpheus: Morpheus, selection: Selection): List[Id] = {
+    val ids = getSelectedElements(morpheus, selection).map(x => getFunctionIdentifier(x, morpheus.getASTEnv))
     ids.sortWith(comparePosition)
   }
 
-  def isAvailable(ast: AST, astEnv: ASTEnv, selection: Selection): Boolean = !getAvailableIdentifiers(ast, astEnv, selection).isEmpty
+  def isAvailable(morpheus: Morpheus, selection: Selection): Boolean = !getAvailableIdentifiers(morpheus, selection).isEmpty
 
   def isFunctionCall(morpheus: Morpheus, id: Id): Boolean = {
     parentAST(id, morpheus.getASTEnv) match {
