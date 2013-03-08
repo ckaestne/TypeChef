@@ -3,6 +3,8 @@ package de.fosd.typechef.crefactor.frontend;
 import de.fosd.typechef.crefactor.Morpheus;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.PrettyPrinter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextArea;
@@ -22,6 +24,8 @@ import java.util.Observer;
  * The main editor window.
  */
 public class Editor extends JFrame implements Observer {
+
+    private static Logger logger = LogManager.getLogger(Editor.class);
 
     /**
      * Reference to the textarea.
@@ -113,6 +117,6 @@ public class Editor extends JFrame implements Observer {
         final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
         final long time = tb.getCurrentThreadCpuTime();
         this.textArea.setText(PrettyPrinter.print(this.morpheus.getAST()));
-        System.out.println("PrettyPrinting duration: " + (tb.getCurrentThreadCpuTime() - time) / 1000000);
+        logger.info("PrettyPrinting duration: " + (tb.getCurrentThreadCpuTime() - time) / 1000000);
     }
 }

@@ -21,7 +21,8 @@ import java.util.LinkedList;
  */
 public final class Launch {
 
-    private static Logger logger = LogManager.getLogger(Launch.class.getSimpleName());
+
+    private static Logger logger = LogManager.getLogger(Launch.class);
 
     /**
      * Do not allow an instance of this class.

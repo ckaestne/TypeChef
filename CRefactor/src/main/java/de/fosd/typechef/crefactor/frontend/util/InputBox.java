@@ -66,7 +66,7 @@ public class InputBox extends JDialog {
                 Configuration.getInstance().getConfigAsInt("loader.buttonsHeight"));
         final JButton ok = new JButton("OK");
         ok.addActionListener(getOKAction(textField));
-        final JButton cancel = new JButton("Abbrechen");
+        final JButton cancel = new JButton("Cancel");
         cancel.addActionListener(getCancelAction());
 
         buttons.add(ok);

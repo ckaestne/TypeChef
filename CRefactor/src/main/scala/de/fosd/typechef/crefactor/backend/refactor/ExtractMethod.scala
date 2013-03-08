@@ -135,8 +135,8 @@ object ExtractMethod extends ASTSelection with Refactor {
     true
   }
 
-  def extract(morph: Morpheus, selection: List[AST]): AST = {
-    null
+  def extract(morph: Morpheus, selection: List[AST], name: String): AST = {
+    morph.getAST
   }
 
 }
