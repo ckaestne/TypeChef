@@ -79,10 +79,11 @@ public class RefactorMenu implements MenuListener {
         this.menu.add(extract);
         extract.setEnabled(eligable);*/
 
-        final List<AST> extractSelection = ExtractMethod.getSelectedElements(morpheus, selection);
-        final JMenuItem extract = new JMenuItem(RefactorAction.getExtractFunction(morpheus, extractSelection));
-        this.menu.add(extract);
-        extract.setEnabled(ExtractMethod.isAvailable(morpheus, selection));
+        if (ExtractMethod.isAvailable(morpheus, selection)) {
+            final List<AST> extractSelection = ExtractMethod.getSelectedElements(morpheus, selection);
+            final JMenuItem extract = new JMenuItem(RefactorAction.getExtractFunction(morpheus, extractSelection));
+            this.menu.add(extract);
+        }
 
         /**
          * Inline Function

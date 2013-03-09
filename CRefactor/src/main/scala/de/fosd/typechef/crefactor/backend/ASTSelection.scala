@@ -10,7 +10,7 @@ trait ASTSelection extends Logging {
 
   def getAvailableIdentifiers(morpheus: Morpheus, selection: Selection): List[Id]
 
-  protected def isInSelectionRange(value: AST, selection: Selection): Boolean = {
+  def isInSelectionRange(value: AST, selection: Selection): Boolean = {
     /**
      * Annotated ast elements have often the same starting line. As workaround we only identify the element by its end value.
      */
@@ -22,17 +22,17 @@ trait ASTSelection extends Logging {
   /**
    * Compares the position between two ast elements.
    */
-  protected def comparePosition(e1: AST, e2: AST) = (e1.getPositionFrom < e2.getPositionFrom)
+  def comparePosition(e1: AST, e2: AST) = (e1.getPositionFrom < e2.getPositionFrom)
 
   /**
    * Checks if an ast element is in a certain range.
    */
-  protected def isInRange(pos: Int, start: Int, end: Int) = ((start <= pos) && (pos <= end))
+  def isInRange(pos: Int, start: Int, end: Int) = ((start <= pos) && (pos <= end))
 
   /**
    * Remove all ast elements except those from the specified file.
    */
-  protected def filterASTElementsForFile[T <: AST](selection: List[T], file: String): List[T] = {
+  def filterASTElementsForFile[T <: AST](selection: List[T], file: String): List[T] = {
     // offset 5 because file path of callId contains the string "file "
     val offset = 5
     selection.filter(p => p.getFile.get.regionMatches(true, offset, file, 0, file.length())).toList
@@ -51,5 +51,7 @@ trait ASTSelection extends Logging {
     else if (element.getPositionTo.getLine == endLine) isInRange(element.getPositionTo.getColumn, scala.math.min(startRow, endRow), scala.math.max(startRow, endRow))
     else true
   }
+
+  def compareByName(id1: Id, id2: Id) = (id1.name < id2.name)
 
 }

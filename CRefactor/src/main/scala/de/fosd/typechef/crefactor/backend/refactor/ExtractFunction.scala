@@ -155,38 +155,28 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    * Conditional complete?
    */
   private def isConditionalComplete(selection: List[Opt[_]], parentFunction: FunctionDef, astEnv: ASTEnv): Boolean = {
-    if (selection.isEmpty) {
-      // an empty selection can not be extracted
-      return false
-    }
+    if (selection.isEmpty) return false
 
-    if (!selectionIsConditional(selection)) {
-      // no variable configuration -> conditional complete
-      return true
-    }
+    if (!selectionIsConditional(selection)) return true
+    // no variable configuration -> conditional complete
 
-    if (!(filterAllFeatureExpr(selection).toSet.size > 1)) {
-      // only one and the same feature -> conditonal complete
-      return true
-    }
+    if (!(filterAllFeatureExpr(selection).toSet.size > 1)) return true
+    // only one and the same feature -> conditonal complete
 
     val expr1 = selection.head
     val expr2 = selection.last
 
-    if (expr1.feature.equivalentTo(expr2.feature)) {
-      // start and end feature are the same -> eligable
-      return true
-    }
+    if (expr1.feature.equivalentTo(expr2.feature)) return true
+    // start and end feature are the same -> eligable
+
 
     val prevState = prevOpt(expr1, astEnv)
     val nextState = nextOpt(expr2, astEnv)
 
     if (((prevState != null) && (prevState.feature.equals(expr2.feature)))
       || ((nextState != null) && (nextState.feature.equals(expr1.feature)))
-      || ((prevState != null) && (nextState != null) && nextState.feature.equals(prevState.feature))) {
-      // prev feature and next feature are the same -> eligable
-      return true
-    }
+      || ((prevState != null) && (nextState != null) && nextState.feature.equals(prevState.feature))) return true
+    // prev feature and next feature are the same -> eligible
 
     // TODO Null States!
     false
@@ -225,7 +215,7 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
   }
 
   /**
-   * Genertates the declarator.
+   * Genertates the decl.
    */
   private def generateDeclarator(name: String /*, pointer: List[Opt[Pointer]] = List[Opt[Pointer]]()*/ , extensions: List[Opt[DeclaratorExtension]] = List[Opt[DeclaratorExtension]]()): Declarator = {
     AtomicNamedDeclarator(List[Opt[Pointer]](), Id(name), extensions)
@@ -280,7 +270,6 @@ object ExtractFunction extends ASTNavigation with ConditionalNavigation {
    * Generates the opt node for the ast.
    */
   private def generateFuncOpt(oldFunc: FunctionDef, newFunc: FunctionDef, env: ASTEnv): Opt[FunctionDef] = {
-    // TODO Extended Features
     Opt[FunctionDef](parentOpt(oldFunc, env).feature, newFunc)
   }
 

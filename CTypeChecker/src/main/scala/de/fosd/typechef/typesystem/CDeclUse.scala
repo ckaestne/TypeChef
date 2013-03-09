@@ -88,22 +88,15 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   private val useDeclMap: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
 
-  var stringToIdMap: Map[String, Id] = Map()
+  private var stringToIdMap: Map[String, Id] = Map()
 
-  private[typesystem] def clear() {
-    clearDeclUseMap()
-  }
+  private[typesystem] def clear() = clearDeclUseMap()
 
-  private def putToDeclUseMap(decl: Id) = {
-    if (!declUseMap.contains(decl)) {
-      declUseMap.put(decl, new IdentityHashMap())
-    }
-  }
+  private def putToDeclUseMap(decl: Id) = if (!declUseMap.contains(decl)) declUseMap.put(decl, new IdentityHashMap())
 
   private def addToDeclUseMap(decl: Id, use: Id): Any = {
-    if (decl.eq(use) && !declUseMap.containsKey(decl)) {
-      putToDeclUseMap(decl)
-    }
+    if (decl.eq(use) && !declUseMap.containsKey(decl)) putToDeclUseMap(decl)
+
     if (declUseMap.containsKey(decl) && !declUseMap.get(decl).containsKey(use)) {
       declUseMap.get(decl).put(use, null)
       addToUseDeclMap(use, decl)
@@ -111,11 +104,8 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   private def addToUseDeclMap(use: Id, decl: Id) = {
-    if (useDeclMap.contains(use)) {
-      useDeclMap.put(use, decl :: useDeclMap.get(use))
-    } else {
-      useDeclMap.put(use, List(decl))
-    }
+    if (useDeclMap.contains(use)) useDeclMap.put(use, decl :: useDeclMap.get(use))
+    else useDeclMap.put(use, List(decl))
   }
 
   def clearDeclUseMap() {
@@ -124,23 +114,20 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def getDeclUseMap(): IdentityHashMap[Id, List[Id]] = {
-    // TODO Optimize Datastructur & Performance
     val tb = ManagementFactory.getThreadMXBean
     val startTime = tb.getCurrentThreadCpuTime
 
-    val defuseMap = new util.IdentityHashMap[Id, List[Id]]()
-    declUseMap.keySet().foreach(x => {
-      val list = declUseMap.get(x).keySet().toArray(Array[Id]()).toList
-      defuseMap.put(x, list)
-    })
+    // TODO Optimize data structur
+    val declUseMapMorphed = new util.IdentityHashMap[Id, List[Id]]()
+    declUseMap.keySet().foreach(x => declUseMapMorphed.put(x, declUseMap.get(x).keySet().toList))
 
-    logger.debug("CDeclUse transformation: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + " ms");
-    defuseMap
+    logger.debug("CDeclUse transformation: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + " ms")
+    declUseMapMorphed
   }
 
   def getUseDeclMap = useDeclMap
 
-  def getDeclUseMap2 = declUseMap
+  def getUntouchedDeclUseMap = declUseMap
 
   // add definition:
   //   - function: function declarations (forward declarations) and function definitions are handled
@@ -149,11 +136,8 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
     definition match {
       case id: Id =>
-        if (isFunctionDeclarator) {
-          addFunctionDeclaration(env, id, feature)
-        } else {
-          putToDeclUseMap(id)
-        }
+        if (isFunctionDeclarator) addFunctionDeclaration(env, id, feature)
+        else putToDeclUseMap(id)
       case StructDeclaration(quals, decls) => decls.foreach(x => addDecl(x.entry, x.feature, env))
       case _ =>
     }
