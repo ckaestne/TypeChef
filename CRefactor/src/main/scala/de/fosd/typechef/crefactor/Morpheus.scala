@@ -19,7 +19,7 @@ class Morpheus(ast: AST, fm: FeatureExpr, file: File) extends Observable with CD
   private var astEnvCached: ASTEnv = CASTEnv.createASTEnv(ast)
   typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit], fm)
 
-  def update(ast: AST) = {
+  def update(ast: AST) {
     astCached = ast
     astEnvCached = CASTEnv.createASTEnv(astCached)
     typecheckTranslationUnit(astCached.asInstanceOf[TranslationUnit], fm)

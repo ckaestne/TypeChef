@@ -42,7 +42,7 @@ public class Selection {
      */
     public int getLineEnd() {
         return PositionWrapper.getLine(editor.getRTextArea(),
-                nextSymbolOccurrence(editor.getRTextArea().getSelectionEnd())) + 1;
+                nextSymblOccurrence(editor.getRTextArea().getSelectionEnd())) + 1;
     }
 
     /**
@@ -62,7 +62,7 @@ public class Selection {
      */
     public int getRowEnd() {
         return PositionWrapper.getRow(editor.getRTextArea(),
-                nextSymbolOccurrence(editor.getRTextArea().getSelectionEnd()));
+                nextSymblOccurrence(editor.getRTextArea().getSelectionEnd()));
     }
 
     /**
@@ -82,7 +82,7 @@ public class Selection {
      * @param offset the offset to start
      * @return the next offset where a symbol occurs
      */
-    public int nextSymbolOccurrence(final int offset) {
+    public int nextSymblOccurrence(final int offset) {
         final int step = 1;
         return findSymbolOccurrence(offset, step);
     }

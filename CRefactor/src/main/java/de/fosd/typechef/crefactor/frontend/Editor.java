@@ -118,6 +118,6 @@ public class Editor extends JFrame implements Observer {
         final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
         final long startTime = tb.getCurrentThreadCpuTime();
         this.textArea.setText(PrettyPrinter.print(this.morpheus.getAST()));
-        logger.info("PrettyPrinting duration: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000);
+        logger.info("PrettyPrinting duration: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + "ms");
     }
 }

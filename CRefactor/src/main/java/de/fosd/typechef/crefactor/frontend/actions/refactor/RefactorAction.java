@@ -43,9 +43,9 @@ public class RefactorAction {
 
                 try {
                     final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
-                    final long time = tb.getCurrentThreadCpuTime();
+                    final long startTime = tb.getCurrentThreadCpuTime();
                     final AST refactored = ExtractMethod.extract(morpheus, selection, box.getInput());
-                    logger.info("Duration for transforming: " + (tb.getCurrentThreadCpuTime() - time) / 1000000);
+                    logger.info("Duration for transforming: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + "ms");
                     morpheus.update(refactored);
                 } catch (final AssertionError e) {
                     JOptionPane.showMessageDialog(null, Configuration.getInstance().getConfig("refactor.extractFunction.failed") + " "
@@ -83,9 +83,10 @@ public class RefactorAction {
                 }
 
                 try {
-                    final long start = System.currentTimeMillis();
+                    final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
+                    final long startTime = tb.getCurrentThreadCpuTime();
                     final AST refactored = InlineFunction.inline(morpheus, id, dialog.isRename(), dialog.isOnce());
-                    logger.info("Duration for transforming: " + (System.currentTimeMillis() - start));
+                    logger.info("Duration for transforming: " + ((tb.getCurrentThreadCpuTime() - startTime) / 1000000) + "ms");
                     morpheus.update(refactored);
                 } catch (final AssertionError e) {
                     JOptionPane.showMessageDialog(null, Configuration.getInstance().getConfig("refactor.inline.failed") + " "
@@ -119,7 +120,7 @@ public class RefactorAction {
                     final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
                     final long time = tb.getCurrentThreadCpuTime();
                     final AST refactored = RenameIdentifier.rename(id, box.getInput(), morpheus);
-                    logger.info("Duration for transforming: " + (tb.getCurrentThreadCpuTime() - time) / 1000000);
+                    logger.info("Duration for transforming: " + (tb.getCurrentThreadCpuTime() - time) / 1000000 + "ms");
                     morpheus.update(refactored);
                 } catch (final AssertionError e) {
                     JOptionPane.showMessageDialog(null, Configuration.getInstance().getConfig("refactor.rename.failed") + " "

@@ -13,12 +13,8 @@ object RenameIdentifier extends ASTSelection with Refactor {
 
   def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST] = getAvailableIdentifiers(morpheus, selection)
 
-  def getAvailableIdentifiers(morpheus: Morpheus, selection: Selection): List[Id] = {
-    filterASTElems[Id](morpheus.getAST).par.filter(x => isInSelectionRange(x, selection)).toList.flatMap(x => {
-      if (isElementOfFile(x, selection.getFilePath)) Some(x)
-      else None
-    })
-  }
+  def getAvailableIdentifiers(morpheus: Morpheus, selection: Selection): List[Id] =
+    filterASTElems[Id](morpheus.getAST).par.filter(x => isInSelectionRange(x, selection)).toList.filter(x => isElementOfFile(x, selection.getFilePath))
 
   def isAvailable(morpheus: Morpheus, selection: Selection): Boolean = !getAvailableIdentifiers(morpheus, selection).isEmpty
 
