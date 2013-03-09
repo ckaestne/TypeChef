@@ -126,7 +126,7 @@ trait CDeclUse extends CEnv with CEnvCache {
   def getDeclUseMap(): IdentityHashMap[Id, List[Id]] = {
     // TODO Optimize Datastructur & Performance
     val tb = ManagementFactory.getThreadMXBean
-    val time = tb.getCurrentThreadCpuTime
+    val startTime = tb.getCurrentThreadCpuTime
 
     val defuseMap = new util.IdentityHashMap[Id, List[Id]]()
     declUseMap.keySet().foreach(x => {
@@ -134,7 +134,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       defuseMap.put(x, list)
     })
 
-    logger.debug("CDeclUse transformation: " + (tb.getCurrentThreadCpuTime() - time) / 1000000 + " ms");
+    logger.debug("CDeclUse transformation: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + " ms");
     defuseMap
   }
 

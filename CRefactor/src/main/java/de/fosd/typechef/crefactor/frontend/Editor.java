@@ -42,7 +42,7 @@ public class Editor extends JFrame implements Observer {
      */
     public Editor(final Morpheus morph) {
         super(Configuration.getInstance().getConfig("editor.title"));
-        final JPanel contentPane = new JPanel(new BorderLayout());
+
         this.morpheus = morph;
         morph.addObserver(this);
 
@@ -56,6 +56,7 @@ public class Editor extends JFrame implements Observer {
         this.textArea.setEditable(true);
 
         // Enable Scrolling
+        final JPanel contentPane = new JPanel(new BorderLayout());
         final RTextScrollPane scrollPane = new RTextScrollPane(this.textArea);
         scrollPane.setFoldIndicatorEnabled(true);
         contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -115,8 +116,8 @@ public class Editor extends JFrame implements Observer {
     @Override
     public void update(final Observable observable, final Object o) {
         final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
-        final long time = tb.getCurrentThreadCpuTime();
+        final long startTime = tb.getCurrentThreadCpuTime();
         this.textArea.setText(PrettyPrinter.print(this.morpheus.getAST()));
-        logger.info("PrettyPrinting duration: " + (tb.getCurrentThreadCpuTime() - time) / 1000000);
+        logger.info("PrettyPrinting duration: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000);
     }
 }
