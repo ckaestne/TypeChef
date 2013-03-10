@@ -121,7 +121,8 @@ trait CDeclUse extends CEnv with CEnvCache {
     val declUseMapMorphed = new util.IdentityHashMap[Id, List[Id]]()
     declUseMap.keySet().foreach(x => declUseMapMorphed.put(x, declUseMap.get(x).keySet().toList))
 
-    logger.debug("CDeclUse transformation: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + " ms")
+    val time = (tb.getCurrentThreadCpuTime() - startTime) / 1000000
+    // logger.debug("CDeclUse transformation: " + time + " ms")
     declUseMapMorphed
   }
 

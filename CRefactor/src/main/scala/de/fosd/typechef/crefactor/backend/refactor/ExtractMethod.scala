@@ -31,9 +31,10 @@ import de.fosd.typechef.parser.c.UnaryExpr
 import java.util
 import de.fosd.typechef.crefactor.Morpheus
 import de.fosd.typechef.crefactor.util.Configuration
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.{One, Opt}
 import util.Collections
 import management.ManagementFactory
+import de.fosd.typechef.typesystem.{CPointer, CStruct, CSigned}
 
 /**
  * Implements the strategy of extracting a function.
@@ -49,7 +50,7 @@ object ExtractMethod extends ASTSelection with Refactor {
     if (lastSelection.eq(selection)) return cachedSelectedElements
     lastSelection = selection
 
-    // TODO Missed Control Statements
+    // TODO Better solution for Control Statements
     val ids = filterASTElementsForFile[Id](filterASTElems[Id](morpheus.getAST).par.filter(x => isInSelectionRange(x, selection)).toList, selection.getFilePath)
 
     def findMostUpwardExpr(element: Expr): Expr = {
@@ -228,8 +229,10 @@ object ExtractMethod extends ASTSelection with Refactor {
     logger.debug("Parameters " + extRefIds)
 
     val specifiers = generateSpecifiers(parentFunction, morpheus)
-    val decl = generateDeclarator(funcName)
-    // val newFunc = generateFuncDef(specifiers, decl)
+    val parameters = generateParameters(parentFunction, extRefIds, selectedOptStatements, morpheus)
+    val declarator = generateDeclarator(funcName, parameters)
+    val newFunc = generateFuncDef(specifiers, declarator, CompoundStatement(List[Opt[Statement]]()))
+    println(PrettyPrinter.print(newFunc))
     // val funcOpt = generateFuncOpt(parentFunction, newFunc, morpheus)
     morpheus.getAST
   }
@@ -377,4 +380,58 @@ object ExtractMethod extends ASTSelection with Refactor {
    */
   private def generateDeclarator(name: String /*, pointer: List[Opt[Pointer]] = List[Opt[Pointer]]()*/ , extensions: List[Opt[DeclaratorExtension]] = List[Opt[DeclaratorExtension]]()) =
     AtomicNamedDeclarator(List[Opt[Pointer]](), Id(name), extensions)
+
+  private def generateParameters(funcDef: FunctionDef, params: List[Id], selection: List[Opt[_]], morpheus: Morpheus): List[Opt[DeclaratorExtension]] = {
+
+    /**
+     * Generates the init declaration for variables declared in the method body.
+     */
+    def generateInit(decl: Declaration, param: Id): Declarator = {
+      // make pointer
+      var pointer = List[Opt[Pointer]]()
+      decl.declSpecs.foreach(declSpec => pointer :::= List[Opt[Pointer]](Opt(declSpec.feature, Pointer(List[Opt[Specifier]]()))))
+      decl.init.foreach(declInit => pointer :::= declInit.entry.declarator.pointers)
+      AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]]())
+    }
+
+    var declarations = List[Opt[ParameterDeclaration]]()
+    params.foreach(param => {
+      try {
+        // only lookUp variables
+        // TODO Refactor & Choices
+        morpheus.getEnv(param).varEnv.lookup(param.name) match {
+          case o@One((CSigned(x), _, _)) =>
+            logger.debug("CSignedentry for  " + param + " " + x)
+            val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
+            decl match {
+              case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
+              case x => logger.debug("Missed " + x)
+            }
+          case o@One((CStruct(_, _), _, _)) => {
+            logger.debug("Struct" + findPriorASTElem[Declaration](param, morpheus.getASTEnv))
+            val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
+            decl match {
+              case Some(_) =>
+                logger.debug(Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param))))
+                declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
+              case x => logger.debug("Missed " + x)
+            }
+          }
+          case o@One((CPointer(x), _, _)) =>
+            logger.debug("CPointer for  " + param + " " + x)
+            val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
+            decl match {
+              case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
+              case x => logger.debug("Missed " + x)
+            }
+          case x =>
+            logger.warn("Missed " + x)
+            logger.debug(morpheus.getEnv(param).varEnv.lookup(param.name))
+        }
+      } catch {
+        case e: Exception => logger.warn("No entry found for: " + param)
+      }
+    })
+    List[Opt[DeclaratorExtension]](Opt(parentOpt(funcDef, morpheus.getASTEnv).feature, DeclParameterDeclList(declarations.reverse)))
+  }
 }
