@@ -127,7 +127,9 @@ object Frontend {
                 }
                 if (opt.conditionalControlFlow) {
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    cf.checkCfG()
+                    val cfgFile = new FileWriter(new File(opt.outputStem+".ast"))
+                    cf.writeCFG(cfgFile, opt.outputStem)
+
                     t6 = System.currentTimeMillis()
                     t7 = t6
                 }

@@ -4,7 +4,7 @@ import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c.{FunctionDef, PrettyPrinter, TestHelper}
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 
-class SignAnalysisTest extends TestHelper with SignAnalysis with ConditionalControlFlow with Liveness {
+class SignAnalysisTest extends TestHelper with SignAnalysis with ConditionalControlFlow with Liveness with NoFunctionLookup {
 
   @Test def test_simple() {
     val a = parseFunctionDef("""

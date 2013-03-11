@@ -5,7 +5,7 @@ import de.fosd.typechef.parser.c.{Id, TestHelper, PrettyPrinter, FunctionDef}
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.scalatest.matchers.ShouldMatchers
 
-class LivenessTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness {
+class LivenessTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with NoFunctionLookup{
 
   private def runExample(code: String) {
     val a = parseFunctionDef(code)

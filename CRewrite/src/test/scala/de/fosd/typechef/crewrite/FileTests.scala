@@ -8,7 +8,7 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
 
 
-class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation {
+class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation with NoFunctionLookup{
   val folder = "testfiles/"
 
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {

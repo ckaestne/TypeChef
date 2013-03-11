@@ -64,6 +64,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   private val predCCFGCache = new CCFGCache()
   private val succCCFGCache = new CCFGCache()
 
+    // provide a lookup mechanism for function defs (from the type system or selfimplemented)
+    //return None if function cannot be found
+  def lookupFunctionDef(name:String): Conditional[Option[ExternalDef]]
+
   // result type of pred/succ determination
   // List[(computed annotation, given annotation, ast node)]
   type CCFGRes = List[(FeatureExpr, FeatureExpr, AST)]
@@ -333,10 +337,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  def succ(source: AST, fm: FeatureModel, env: ASTEnv): CCFG = {
+  def succ(source: AST, fm: FeatureModel, env: ASTEnv): CCFG =
     succCCFGCache.lookup(source) match {
       case Some(v) => v
-      case None => {
+      case None if (env.isKnown(source)) => {
         var newres: CCFGRes = List()
         val ctx = env.featureExpr(source)
 
@@ -348,8 +352,9 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         succCCFGCache.update(source, res)
         res
       }
+      case _ => List() //other element outside the method that we do not care about
     }
-  }
+
 
   // checks whether a given AST element is a succ instruction or not
   private def isCFGInstructionSucc(elem: AST): Boolean = {
@@ -492,14 +497,38 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       case t: DefaultStatement => getStmtSucc(t, ctx, oldres, fm, env)
 
       case t: Statement => {
-        val condexprs = filterAllASTElems[ConditionalExpr](t)
-        if (condexprs.size > 0) {
-          val fexpcondexprs = env.featureExpr(condexprs.head.condition)
-          val newresctx = getNewResCtx(oldres, ctx, fexpcondexprs)
-          if (newresctx isContradiction(fm)) List()
-          else List((newresctx, fexpcondexprs, condexprs.head.condition))
-        }
-        else getStmtSucc(t, ctx, oldres, fm, env)
+          //ChK: deactivate conditional expressions for now, since they do not contain variability and are
+          //not fully implemented anyway
+
+//        val condexprs = filterAllASTElems[ConditionalExpr](t)
+//        if (condexprs.size > 0) {
+//          val fexpcondexprs = env.featureExpr(condexprs.head.condition)
+//          val newresctx = getNewResCtx(oldres, ctx, fexpcondexprs)
+//          if (newresctx isContradiction(fm)) List()
+//          else List((newresctx, fexpcondexprs, condexprs.head.condition))
+//        }
+//        else
+//            getStmtSucc(t, ctx, oldres, fm, env)
+
+
+          //ChK: search for function calls. we will never be able to be precise here, but we can detect
+          //standard function calls "a(...)" at least. The type system will also detect types of parameters
+          //and pointers, but that should not be necessary (with pointers we won't get the precise target
+          //anyway without expensive dataflow analysis and parameters do not matter since C has no overloading)
+          var res=getStmtSucc(t, ctx, oldres, fm, env)
+          val postfixExprs = filterAllASTElems[PostfixExpr](t)
+          for (pf@PostfixExpr(Id(funName),FunctionCall(_))<-postfixExprs) {
+              val fexpr = env.featureExpr(pf)
+              val newresctx = getNewResCtx(oldres, ctx, fexpr)
+              val targetFun = lookupFunctionDef(funName)
+              targetFun.mapf(fexpr,  {
+                  case (f,Some(target)) => res=(newresctx and f, f, target)::res
+                  case _    =>
+              })
+          }
+
+
+          res
       }
       case t => followSucc(t, ctx, oldres, fm, env)
     }
@@ -759,15 +788,15 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
             res
           }
 
-          case t@ConditionalExpr(condition, thenExpr, elseExpr) => {
-            // condition
-            if (isPartOf(nested_ast_elem, condition)) {
-              (if (thenExpr.isDefined) getExprSucc(thenExpr.get, ctx, oldres, fm, env) else List()) ++
-              getExprSucc(elseExpr, ctx, oldres, fm, env)
-            } else {
-              followSucc(t, ctx, oldres, fm, env)
-            }
-          }
+//          case t@ConditionalExpr(condition, thenExpr, elseExpr) => {
+//            // condition
+//            if (isPartOf(nested_ast_elem, condition)) {
+//              (if (thenExpr.isDefined) getExprSucc(thenExpr.get, ctx, oldres, fm, env) else List()) ++
+//              getExprSucc(elseExpr, ctx, oldres, fm, env)
+//            } else {
+//              followSucc(t, ctx, oldres, fm, env)
+//            }
+//          }
 
           case t: Expr => followSucc(t, ctx, oldres, fm, env)
           case t: ReturnStatement => getReturnStatementSucc(t, ctx, oldres, fm, env)
@@ -1227,7 +1256,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 
   // determine recursively all succs check
-  def getAllSucc(i: AST, fm: FeatureModel, env: ASTEnv) = {
+  def getAllSucc(i: AST, fm: FeatureModel, env: ASTEnv): List[(AST, List[Opt[AST]])] = {
     var r = List[(AST, List[Opt[AST]])]()
     var s = List(i)
     var d = List[AST]()
@@ -1284,10 +1313,10 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
       if (lsuccsast.filter(x => p.eq(x)).isEmpty)
         pdiff ::= p
 
-    for (sdelem <- sdiff)
+    for (sdelem <- sdiff if env.isKnown(sdelem))
       errors = new CCFGErrorMis("is not present in preds!", sdelem, env.featureExpr(sdelem)) :: errors
 
-    for (pdelem <- pdiff)
+    for (pdelem <- pdiff if env.isKnown(pdelem))
       errors = new CCFGErrorMis("is not present in succs!", pdelem, env.featureExpr(pdelem)) :: errors
 
     // check that number of edges match
@@ -1309,7 +1338,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     //   b
     // we check (a1, b1) successor
     // against  (b2, a2) predecessor
-    for ((a1, b1) <- succ_edges) {
+    for ((a1, b1) <- succ_edges  if env.isKnown(a1)  if env.isKnown(b1)) {
       var isin = false
       for ((b2, a2) <- pred_edges) {
         if (a1.eq(a2) && b1.eq(b2))
@@ -1326,7 +1355,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     //  b
     // we check (b1, a1) predecessor
     // against  (a2, b2) successor
-    for ((b1, a1) <- pred_edges) {
+    for ((b1, a1) <- pred_edges if env.isKnown(a1)  if env.isKnown(b1)) {
       var isin = false
       for ((a2, b2) <- succ_edges) {
         if (a1.eq(a2) && b1.eq(b2))
@@ -1341,3 +1370,6 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
   }
 }
 
+trait NoFunctionLookup {
+    def lookupFunctionDef(name:String): Conditional[Option[ExternalDef]] =      One(None)
+}

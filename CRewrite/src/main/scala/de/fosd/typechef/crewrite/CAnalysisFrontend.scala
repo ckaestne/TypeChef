@@ -3,10 +3,35 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.conditional.{Opt, Choice}
-import de.fosd.typechef.parser.c.{PrettyPrinter, FunctionDef, AST}
+import de.fosd.typechef.conditional.{ConditionalMap, Conditional, Opt, Choice}
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.parser.c.FunctionDef
+import de.fosd.typechef.conditional.Choice
+import de.fosd.typechef.conditional.Opt
+import java.io.Writer
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
+
+    var functionDefs: ConditionalMap[String, Option[ExternalDef]] = new ConditionalMap[String,Option[ExternalDef]]
+    var functionFExpr: Map[ExternalDef, FeatureExpr] = Map()
+
+        for (Opt(f,externalDef)<-tunit.defs) {
+            functionFExpr= functionFExpr +(externalDef -> f)
+            externalDef match {
+                case FunctionDef(_ , decl, _,_) =>
+                    functionDefs = functionDefs + (decl.getName, f, Some(externalDef))
+                case Declaration(_, initDecls) =>
+                    for (Opt(fi,initDecl)<-initDecls) {
+                        functionDefs = functionDefs + (initDecl.getName, f and fi, Some(externalDef))
+                    }
+                case _ =>
+            }
+        }
+
+
+    def lookupFunctionDef(name:String): Conditional[Option[ExternalDef]] =      functionDefs.getOrElse(name,None)
+
+
 
   // derive a specific product from a given configuration
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
@@ -40,9 +65,26 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     x
   }
 
+
+  def writeCFG(out: Writer, title: String) {
+
+      val dot=new DotGraph2(out)
+          dot.writeHeader(title)
+
+      val fdefs = filterAllASTElems[FunctionDef](tunit)
+      for (fun<-fdefs) {
+          val env = CASTEnv.createASTEnv(fun)
+          val cfg= getAllSucc(fun, fm, env)
+          dot.writeMethodGraph(cfg, env, functionFExpr)
+      }
+
+      dot.writeFooter()
+      dot.close()
+  }
+
   def checkCfG() {
     val fdefs = filterAllASTElems[FunctionDef](tunit)
-    fdefs.map(intraCfGFunctionDef(_))
+    fdefs.takeRight(1).map(intraCfGFunctionDef(_))
   }
 
   def checkDataflow() {
@@ -60,6 +102,10 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
 
     errors.size > 0
   }
+
+
+
+
 
   private def intraDataflowAnalysis(f: FunctionDef) {
     if (f.stmt.innerStatements.isEmpty) return
