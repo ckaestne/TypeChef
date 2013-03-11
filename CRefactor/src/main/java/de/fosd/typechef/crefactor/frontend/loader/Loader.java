@@ -153,6 +153,7 @@ public class Loader extends JDialog {
      * @param fileReference the file reference
      */
     private void assignFile(final File toAssign, final File fileReference) {
+        // TODO Correct assigning! Bug @ reassignment of files.
         if (fileReference == fileToAnalyse) {
             fileToAnalyse = toAssign;
         } else if (fileReference == includeDir) {

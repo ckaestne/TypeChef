@@ -13,6 +13,7 @@ object BuildSettings {
   val buildVersion = "0.3.3"
   val buildScalaVersion = "2.9.1"
 
+
   val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
@@ -29,6 +30,9 @@ object BuildSettings {
     libraryDependencies ++= testEnvironment,
 
     parallelExecution := false, //run into memory problems on hudson otherwise
+
+    // error occured in scalatest
+    checksums in update := Nil,
 
     homepage := Some(url("https://github.com/ckaestne/TypeChef")),
     licenses := Seq("GNU General Public License v3.0" -> url("http://www.gnu.org/licenses/gpl.txt")),

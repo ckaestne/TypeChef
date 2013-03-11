@@ -10,6 +10,8 @@ import javax.swing.text.BadLocationException;
  */
 public class PositionWrapper {
 
+    public static final int INVALID_POSITION = -1;
+
     /**
      * Gets the line of certain offset
      *
@@ -17,12 +19,12 @@ public class PositionWrapper {
      * @param offset   the current offset
      * @return the line number
      */
-    public static int getLine(RTextArea textArea, int offset) {
+    public final static int getLine(final RTextArea textArea, final int offset) {
         try {
             return textArea.getLineOfOffset(offset);
         } catch (BadLocationException e) {
             // never happens
-            return -1;
+            return INVALID_POSITION;
         }
     }
 
@@ -33,13 +35,13 @@ public class PositionWrapper {
      * @param offset   the current offset
      * @return the row
      */
-    public static int getRow(RTextArea textArea, int offset) {
+    public final static int getRow(final RTextArea textArea, final int offset) {
         int line = getLine(textArea, offset);
         try {
             return offset - textArea.getLineStartOffset(line);
         } catch (BadLocationException e) {
             // never happens
-            return -1;
+            return INVALID_POSITION;
         }
     }
 }

@@ -9,9 +9,10 @@ import util.Collections
 import de.fosd.typechef.typesystem.{CEnvCache, CUnknown}
 import scala.NoSuchElementException
 import de.fosd.typechef.crefactor.backend.Cache
+import de.fosd.typechef.crefactor.Logging
 
 
-trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
+trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation with Logging {
 
   private val languageKeywords = List(
     "auto",
@@ -138,10 +139,15 @@ trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation 
   def findAllConnectedIds(lookup: Id, declUse: util.IdentityHashMap[Id, List[Id]], useDecl: util.IdentityHashMap[Id, List[Id]]) = {
     val occurrences = Collections.newSetFromMap[Id](new util.IdentityHashMap())
 
-    // find all uses of an id
+    // find all uses of an callId
     def addOccurrence(occurrence: Id) {
       if (!occurrences.contains(occurrence)) {
         occurrences.add(occurrence)
+        if (!declUse.containsKey(occurrence)) {
+          // workaround to avoid null pointer @ wrong forward declarations
+          occurrences.clear()
+          return
+        }
         declUse.get(occurrence).foreach(use => {
           occurrences.add(use)
           if (useDecl.containsKey(use)) {
@@ -155,7 +161,7 @@ trait CRefactor extends CEnvCache with ASTNavigation with ConditionalNavigation 
       // lookup declarations and search for further referenced declarations
       useDecl.get(lookup).foreach(id => addOccurrence(id))
     } else {
-      // id is decl - search for further referenced declarations
+      // callId is decl - search for further referenced declarations
       addOccurrence(lookup)
     }
 

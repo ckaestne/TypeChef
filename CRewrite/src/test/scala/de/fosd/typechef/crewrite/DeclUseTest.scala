@@ -19,8 +19,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         case gae: GnuAsmExpr => List()
         case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
         case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
-        case k =>
-          List()
+        case k => List()
       }
     }
 
@@ -98,7 +97,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap2
+    val defUseMap = getUntouchedDeclUseMap
     val useDeclMap = getUseDeclMap
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
@@ -219,7 +218,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val env = createASTEnv(source_ast)
 
     typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap2
+    val defUseMap = getUntouchedDeclUseMap
 
     println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
     println("Source:\n" + source_ast)
@@ -227,7 +226,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     println("Ids:\n" + filterASTElems[Id](source_ast))
     println("\nDef Use Map:\n" + getDeclUseMap)
     val useDeclMap = getUseDeclMap
-    println(checkDefuse(source_ast, getDeclUseMap2, useDeclMap))
+    println(checkDefuse(source_ast, getUntouchedDeclUseMap, useDeclMap))
   }
 
   @Test def test_int {
@@ -295,7 +294,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
     typecheckTranslationUnit(ast)
     val useDeclMap = getUseDeclMap
-    val success = checkDefuse(ast, getDeclUseMap2, useDeclMap)
+    val success = checkDefuse(ast, getUntouchedDeclUseMap, useDeclMap)
     println("DefUse" + getDeclUseMap)
     println(success)
   }
@@ -409,8 +408,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     val endtime = System.currentTimeMillis()
 
     val useDeclMap = getUseDeclMap
-    val success = checkDefuse(tu, getDeclUseMap2, useDeclMap)
-    val defuse2 = getDeclUseMap2
+    val success = checkDefuse(tu, getUntouchedDeclUseMap, useDeclMap)
+    val defuse2 = getUntouchedDeclUseMap
     val defuse = getDeclUseMap
 
     /*val sb = new StringBuilder

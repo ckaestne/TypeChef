@@ -69,6 +69,8 @@ import de.fosd.typechef.parser.c.NestedNamedDeclarator
 import scala.Tuple2
 import de.fosd.typechef.parser.c.StringLit
 import de.fosd.typechef.parser.c.UnaryExpr
+import org.apache.logging.log4j.LogManager
+import management.ManagementFactory
 
 
 // store def use chains
@@ -80,26 +82,21 @@ import de.fosd.typechef.parser.c.UnaryExpr
 // with information about names, AST entries and their corresponding types
 trait CDeclUse extends CEnv with CEnvCache {
 
+  private lazy val logger = LogManager.getLogger(this.getClass.getName)
+
   private val declUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]] = new IdentityHashMap()
 
   private val useDeclMap: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
 
-  var stringToIdMap: Map[String, Id] = Map()
+  private var stringToIdMap: Map[String, Id] = Map()
 
-  private[typesystem] def clear() {
-    clearDeclUseMap()
-  }
+  private[typesystem] def clear() = clearDeclUseMap()
 
-  private def putToDeclUseMap(decl: Id) = {
-    if (!declUseMap.contains(decl)) {
-      declUseMap.put(decl, new IdentityHashMap())
-    }
-  }
+  private def putToDeclUseMap(decl: Id) = if (!declUseMap.contains(decl)) declUseMap.put(decl, new IdentityHashMap())
 
   private def addToDeclUseMap(decl: Id, use: Id): Any = {
-    if (decl.eq(use) && !declUseMap.containsKey(decl)) {
-      putToDeclUseMap(decl)
-    }
+    if (decl.eq(use) && !declUseMap.containsKey(decl)) putToDeclUseMap(decl)
+
     if (declUseMap.containsKey(decl) && !declUseMap.get(decl).containsKey(use)) {
       declUseMap.get(decl).put(use, null)
       addToUseDeclMap(use, decl)
@@ -107,11 +104,8 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   private def addToUseDeclMap(use: Id, decl: Id) = {
-    if (useDeclMap.contains(use)) {
-      useDeclMap.put(use, decl :: useDeclMap.get(use))
-    } else {
-      useDeclMap.put(use, List(decl))
-    }
+    if (useDeclMap.contains(use)) useDeclMap.put(use, decl :: useDeclMap.get(use))
+    else useDeclMap.put(use, List(decl))
   }
 
   def clearDeclUseMap() {
@@ -120,18 +114,21 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   def getDeclUseMap(): IdentityHashMap[Id, List[Id]] = {
-    // TODO Optimize Datastructur & Performance
-    val defuseMap = new util.IdentityHashMap[Id, List[Id]]()
-    declUseMap.keySet().foreach(x => {
-      val list = declUseMap.get(x).keySet().toArray(Array[Id]()).toList
-      defuseMap.put(x, list)
-    })
-    defuseMap
+    val tb = ManagementFactory.getThreadMXBean
+    val startTime = tb.getCurrentThreadCpuTime
+
+    // TODO Optimize data structur
+    val declUseMapMorphed = new util.IdentityHashMap[Id, List[Id]]()
+    declUseMap.keySet().foreach(x => declUseMapMorphed.put(x, declUseMap.get(x).keySet().toList))
+
+    val time = (tb.getCurrentThreadCpuTime() - startTime) / 1000000
+    // logger.debug("CDeclUse transformation: " + time + " ms")
+    declUseMapMorphed
   }
 
   def getUseDeclMap = useDeclMap
 
-  def getDeclUseMap2 = declUseMap
+  def getUntouchedDeclUseMap = declUseMap
 
   // add definition:
   //   - function: function declarations (forward declarations) and function definitions are handled
@@ -140,11 +137,8 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
     definition match {
       case id: Id =>
-        if (isFunctionDeclarator) {
-          addFunctionDeclaration(env, id, feature)
-        } else {
-          putToDeclUseMap(id)
-        }
+        if (isFunctionDeclarator) addFunctionDeclaration(env, id, feature)
+        else putToDeclUseMap(id)
       case StructDeclaration(quals, decls) => decls.foreach(x => addDecl(x.entry, x.feature, env))
       case _ =>
     }
@@ -188,7 +182,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case k =>
           }
         })
-      case _ => assert(false, println("Match Error"))
+      case _ => assert(false, logger.error("Match Error"))
     }
   }
 
@@ -202,7 +196,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             addToDeclUseMap(enumDeclarationId, i)
           }
         }
-      case _ => assert(false, println("Match Error"))
+      case _ => assert(false, logger.error("Match Error"))
     }
   }
 
@@ -265,7 +259,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       case Choice(_, c@Choice(_, _, _), o@One(_)) =>
         oneFunc(o, use, env)
         addChoice(c, featureExpr, use, env, oneFunc)
-      case _ => assert(false, println("Match Error"))
+      case _ => assert(false, logger.error("Match Error"))
     }
   }
 
@@ -281,7 +275,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
           putToDeclUseMap(key)
         case One(null) =>
-        case k => println("DefChoice: Missed add One " + k)
+        case k => logger.error("DefChoice: Missed add One " + k)
       }
     }
 
@@ -303,7 +297,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         addOne(o)
 
       case k =>
-        println("Missed Def Choice " + k)
+        logger.error("Missed Def Choice " + k)
     }
   }
 
@@ -373,7 +367,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                       case _ =>
                     }
                   }
-                case k => // println("AddUse Id not exhaustive: " + i + "\nElement " + k)
+                case k => // logger.error("AddUse Id not exhaustive: " + i + "\nElement " + k)
               }
           })
         case k =>
@@ -389,8 +383,9 @@ trait CDeclUse extends CEnv with CEnvCache {
         case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
         case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
+        case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
         case One(null) =>
-        case _ => assert(false, println("Match Error"))
+        case _ => assert(false, logger.error("Match Error" + one))
       }
     }
 
@@ -489,7 +484,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             extensionEntry match {
               case DeclIdentifierList(ids) =>
                 for (Opt(idFeature, id: Id) <- ids) {
-                  println("DeclIdentifierId: " + id)
+                  logger.debug("DeclIdentifierId: " + id)
                 }
               case DeclParameterDeclList(paraDecls) =>
                 for (Opt(paraDeclFeature, paraDeclEntry) <- paraDecls) {
@@ -510,15 +505,15 @@ trait CDeclUse extends CEnv with CEnvCache {
                                     addToDeclUseMap(x._2.asInstanceOf[Id], i)
                                   }
                                 })
-                              case _ => assert(false, println("Match Error"))
+                              case _ => assert(false, logger.error("Match Error"))
                             }
-                          case _ => assert(false, println("Match Error"))
+                          case _ => assert(false, logger.error("Match Error"))
                         }
                       }
                       putToDeclUseMap(paraDeclDecl.getId)
                   }
                 }
-              case _ => assert(false, println("Match Error"))
+              case _ => assert(false, logger.error("Match Error"))
             }
           }
       }
@@ -536,7 +531,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         case InitDeclaratorE(declarator: AtomicNamedDeclarator, attributes, expr) =>
           putToDeclUseMap(declarator.getId)
           handleAtomicNamedDeclaratorExtensions(declarator)
-        case _ => assert(false, println("Match Error"))
+        case _ => assert(false, logger.error("Match Error"))
       }
     }
   }
@@ -557,7 +552,7 @@ trait CDeclUse extends CEnv with CEnvCache {
               addStructUseChoice(c, i)
             case One(NestedNamedDeclarator(_, AtomicNamedDeclarator(_, i2: Id, _), _)) =>
               addToDeclUseMap(i2, i)
-            case k => println("Missed addStructUse " + env.varEnv.getAstOrElse(i.name, null))
+            case k => logger.error("Missed addStructUse " + env.varEnv.getAstOrElse(i.name, null))
           }
         } else {
           env.typedefEnv.getAstOrElse(i.name, null) match {
@@ -566,18 +561,18 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(null) =>
               addDefinition(i, env)
             case c@Choice(_, _, _) =>
-              println("missed choice typedef " + c)
+              logger.error("missed choice typedef " + c)
             case One(Declaration(List(Opt(_, _), Opt(_, s@StructOrUnionSpecifier(_, Some(id), _))), _)) =>
               // TODO typedef name name
               putToDeclUseMap(i)
             case k =>
-              println("Missed addStructUse" + k)
+              logger.error("Missed addStructUse" + k)
           }
         }
       }
       case OffsetofMemberDesignatorID(id) =>
         addStructUse(id, featureExpr, env, structName, isUnion)
-      case k => println("Missed addStructUse")
+      case k => logger.error("Missed addStructUse")
     }
   }
 
@@ -591,7 +586,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
         addToDeclUseMap(key, id)
       case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, id)
-      case k => println("Should not have entered here: " + id + "\n" + k)
+      case k => logger.error("Should not have entered here: " + id + "\n" + k)
     }
   }
 
@@ -608,7 +603,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @defuse?
         case One(null) =>
         //addStructDeclUse(use, env, isUnion)
-        case _ => println("AddAnonStructChoice missed " + one)
+        case _ => logger.error("AddAnonStructChoice missed " + one)
       }
     }
 
@@ -625,7 +620,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       case Choice(_, c@Choice(_, _, _), o@One(_)) =>
         addOne(o, use)
         addStructUseChoice(c, use)
-      case _ => println("AddAnonStructChoice: This should not have happend " + choice)
+      case _ => logger.error("AddAnonStructChoice: This should not have happend " + choice)
     }
   }
 
@@ -881,7 +876,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       case Choice(ft, then, els) =>
         addDecl(then, featureExpr, env)
         addDecl(els, featureExpr, env)
-      case _ => // assert(false, println("Match Error"))
+      case _ => // assert(false, logger.error("Match Error"))
     }
   }
 
@@ -893,11 +888,11 @@ trait CDeclUse extends CEnv with CEnvCache {
             lst2.foreach(y => y.entry match {
               case idd@InitializerDesignatorD(i) =>
                 addStructUse(i, feature, env, id.name, false)
-              case _ => // assert(false, println("Match Error"))
+              case _ => // assert(false, logger.error("Match Error"))
             })
-          case _ => // assert(false, println("Match Error"))
+          case _ => // assert(false, logger.error("Match Error"))
         })
-      case _ => // assert(false, println("Match Error"))
+      case _ => // assert(false, logger.error("Match Error"))
     }
   }
 
@@ -939,7 +934,7 @@ trait CDeclUse extends CEnv with CEnvCache {
               addToDeclUseMap(declaration.asInstanceOf[Id], usage)
             }
           })
-        case k => println("Missing GotoStatement match: " + k)
+        case k => logger.error("Missing GotoStatement match: " + k)
       }
     })
   }

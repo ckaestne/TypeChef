@@ -1,13 +1,18 @@
 package de.fosd.typechef.crefactor;
 
-import de.fosd.typechef.crefactor.backend.Cache;
 import de.fosd.typechef.crefactor.frontend.Editor;
 import de.fosd.typechef.crefactor.frontend.loader.Loader;
 import de.fosd.typechef.crefactor.util.Configuration;
+import de.fosd.typechef.parser.c.AST;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.util.LinkedList;
+
 
 /**
  * Launch up class for starting up CRefactor in combination with typechef.
@@ -15,6 +20,9 @@ import java.util.LinkedList;
  * @author Andreas Janker
  */
 public final class Launch {
+
+
+    private static Logger logger = LogManager.getLogger(Launch.class);
 
     /**
      * Do not allow an instance of this class.
@@ -46,18 +54,32 @@ public final class Launch {
                     // Exit System
                     System.exit(1);
                 }
-                // parse file
-                if (Cache.parse(generateTypeChefArguments(
+
+                final String[] typeChefConfig = generateTypeChefArguments(
                         loadingWindow.getFileToAnalyse(), loadingWindow.getIncludeDir(),
-                        loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel())) == null) {
-                    System.err.println("Something really bad happend");
+                        loadingWindow.getIncludeHeader(), loadingWindow.getFeatureModel());
+
+                final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
+                final long parseStart = tb.getCurrentThreadCpuTime();
+                final AST ast = Parse.parse(typeChefConfig);
+                logger.info("Parsing duration: " + (tb.getCurrentThreadCpuTime() - parseStart) / 1000000 + "ms");
+
+                if (ast == null) {
+                    // Parsing failed.
+                    JOptionPane.showMessageDialog(null, Configuration.getInstance().getConfig("default.error.parsing"), Configuration.getInstance().getConfig("default.error"), JOptionPane.ERROR_MESSAGE);
                     System.exit(-1);
                 }
 
+                // parse file
+                /**if (Cache.parse(typeChefConfig) == null) {
+                 System.err.println("Something really bad happend");
+                 System.exit(-1);
+                 }  */
+
                 // show editor window
-                final Editor editor = new Editor();
+                final Editor editor = new Editor(new Morpheus(ast, loadingWindow.getFileToAnalyse()));
                 editor.loadFileInEditor(loadingWindow.getFileToAnalyse());
-                // editor.getRTextArea().setText(PrettyPrinter.print(Connector.getAST()));
+                editor.pack();
                 editor.setVisible(true);
             }
         });
@@ -72,11 +94,10 @@ public final class Launch {
      * @param featureModel  feature model to include
      * @return arguments to run typechef :)
      */
-    private static String[] generateTypeChefArguments(
+    private final static String[] generateTypeChefArguments(
             final File toLoad, final File toInclude, final File includeHeader, final File featureModel) {
         final LinkedList<String> args = new LinkedList<String>();
         args.add(toLoad.getAbsolutePath());
-        // TODO Ask Jörg -> Prefix
         args.add("-xCONFIG_");
         args.add("-c".concat(Configuration.getInstance().getTypeChefConfigFilePath()));
 

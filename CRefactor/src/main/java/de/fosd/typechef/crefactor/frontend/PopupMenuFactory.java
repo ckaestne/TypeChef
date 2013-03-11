@@ -24,9 +24,26 @@ public class PopupMenuFactory {
             return null;
         }
         menu.addSeparator();
-        menu.add(getPrettyPrintedAST(editor));
+
+        final Action prettyPrint = Analyse.getPrettyPrintASTAction(editor);
+        final JMenuItem prettyPrintMenu = new JMenuItem(prettyPrint);
+        prettyPrintMenu.setEnabled(prettyPrint.isEnabled());
+        menu.add(prettyPrintMenu);
+
+        final Action printAST = Analyse.getPrintASTAction(editor);
+        final JMenuItem printASTMenu = new JMenuItem(printAST);
+        printASTMenu.setEnabled(printAST.isEnabled());
+        menu.add(printASTMenu);
+
+        final Action original = Analyse.getPrintOriginalAction(editor);
+        final JMenuItem originalMenu = new JMenuItem(original);
+        originalMenu.setEnabled(original.isEnabled());
+        menu.add(originalMenu);
+
         menu.addSeparator();
+
         menu.add(getRefactorMenu(editor));
+
         return menu;
     }
 
@@ -34,9 +51,5 @@ public class PopupMenuFactory {
         final JMenu refactorMenu = new JMenu(Configuration.getInstance().getConfig("refactor.name"));
         refactorMenu.addMenuListener(new RefactorMenu(editor, refactorMenu));
         return refactorMenu;
-    }
-
-    public static JMenuItem getPrettyPrintedAST(final Editor editor) {
-        return new JMenuItem(Analyse.getPrettyPrintASTAction(editor));
     }
 }

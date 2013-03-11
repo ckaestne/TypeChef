@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import java.io.{StringWriter, Writer}
 
 object PrettyPrinter {
 
@@ -48,8 +49,30 @@ object PrettyPrinter {
     case Nest(i, Nest(j, x)) => layout(Nest(i + j, x))
   }
 
+  // old version causing stack overflows and pretty slow
+  // def print(ast: AST): String = layout(prettyPrint(ast))
+  // new awesome fast version using a string writer instance
+  def print(ast: AST): String = printW(ast, new StringWriter()).toString
 
-  def print(ast: AST): String = layout(prettyPrint(ast))
+  def layoutW(d: Doc, p: Writer): Unit = d match {
+    case Empty => p.write("")
+    case Line => p.write("\n")
+    case Text(s) => p.write(s)
+    case Cons(l, r) =>
+      layoutW(l, p)
+      layoutW(r, p)
+    case Nest(n, Empty) => layoutW(Empty, p)
+    case Nest(n, Line) => p.write("\n" + (" " * n))
+    case Nest(n, Text(s)) => layoutW(Text(s), p)
+    case Nest(n, Cons(l, r)) => layoutW(Cons(Nest(n, l), Nest(n, r)), p)
+    case Nest(i, Nest(j, x)) => layoutW(Nest(i + j, x), p)
+    case _ =>
+  }
+
+  def printW(ast: AST, writer: Writer): Writer = {
+    layoutW(prettyPrint(ast), writer)
+    writer
+  }
 
 
   def ppConditional(e: Conditional[_], list_feature_expr: List[FeatureExpr]): Doc = e match {
