@@ -10,6 +10,7 @@ import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.parser.c.GnuAsmExpr
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
+import java.lang.Thread
 
 
 /**
@@ -23,7 +24,11 @@ import de.fosd.typechef.parser.c.TranslationUnit
  * not - something bad happend. In case of variable shadowing we log the occurence. Furthermore we save the time it took to refactor.
  *
  */
-class RenamingTest extends ASTNavigation with ConditionalNavigation {
+class RenamingTest extends ASTNavigation with ConditionalNavigation with Logging {
+
+  var filesAnalyzed = 0
+
+  val runs = 3
 
   val nsToMs = 1000000
 
@@ -35,7 +40,9 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
 
 
   @Test def evaluate_random_ids_in_busybox() {
+    logger.info("Started Test")
     analyseDir(new File(busyBox_folderPath))
+    logger.info("Finished Test")
   }
 
   private def analyeDeclUse(map: IdentityHashMap[Id, List[Id]]): List[Int] = {
@@ -44,9 +51,12 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
   }
 
   private def renameRandomIdInPiFile(piFile: File) {
+    val tb = java.lang.management.ManagementFactory.getThreadMXBean
+    val testStart = tb.getCurrentThreadCpuTime
+
+    filesAnalyzed += 1
     val resultBuilder = new StringBuilder
     resultBuilder.append("++Analyse: " + piFile.getName + "++\n")
-    val tb = java.lang.management.ManagementFactory.getThreadMXBean
 
 
     val startParsing = tb.getCurrentThreadCpuTime
@@ -62,10 +72,10 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
     val originAmount = analyeDeclUse(morpheus.getDeclUseMap()).sorted
 
     val ids = morpheus.getUseDeclMap.values().toArray(Array[List[Id]]()).par.foldLeft(List[Id]())((list, entry) => list ::: entry).toList
-    for (i <- 0 to 2) {
+    for (i <- 0 to (runs - 1)) {
       val id = ids.apply((math.random * ids.size).toInt)
 
-      resultBuilder.append("++Refactoring " + id + " " + id.range + " +++\n")
+      resultBuilder.append("\n++Refactoring " + id + " " + id.range + " +++\n")
       if (morpheus.getDeclUseMap().containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getDeclUseMap().get(id) + " +++\n")
       if (morpheus.getUseDeclMap.containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getUseDeclMap.get(id) + " +++\n")
 
@@ -97,7 +107,9 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
       resultBuilder.append("++Refactoring was succesful: " + succ + " ++\n")
       assert(succ, "DeclUse is not the same anymore")
     }
-    println(resultBuilder.toString())
+    resultBuilder.append("\n++Finished: " + piFile.getName + " (" + (tb.getCurrentThreadCpuTime - testStart) / nsToMs + "ms) ++\n")
+    logger.info(resultBuilder.toString())
+    Thread.sleep(5000) // make a small pause before each run to keep system noise low @ bib
   }
 
   private def analyseDir(dirToAnalyse: File) {
@@ -111,6 +123,13 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation {
       })
 
       piFiles.foreach(piFile => renameRandomIdInPiFile(piFile))
+
+      // make a small pause before each run to keep system noise low @ bib
+      if (filesAnalyzed > 10) {
+        logger.info("Going to sleep!")
+        Thread.sleep(90000)
+        filesAnalyzed = 0
+      }
 
       dirs.foreach(dir => analyseDir(dir))
     }
