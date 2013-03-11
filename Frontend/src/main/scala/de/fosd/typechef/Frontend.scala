@@ -11,6 +11,7 @@ import de.fosd.typechef.crewrite._
 import featureexpr.FeatureExpr
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
+import parser.c.TranslationUnit
 
 object Frontend {
 
@@ -49,6 +50,7 @@ object Frontend {
     }
 
     processFile(opt)
+    println("finished.")
   }
 
 
@@ -104,17 +106,34 @@ object Frontend {
         //Debug_FeatureModelExperiments.experiment(fm_ts)
 
         if (opt.typecheck || opt.writeInterface) {
-          ProductGeneration.typecheckProducts(fm, fm_ts, ast, opt,
-            logMessage = ("Time for lexing(ms): " + (t2 - t1) + "\nTime for parsing(ms): " + (t3 - t2) + "\n"))
-          //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
-
-          //println("type checking.")
-          //ts.checkAST
-          //ts.errors.map(errorXML.renderTypeError(_))
-          t4 = System.currentTimeMillis()
-          t5 = t4
-          t6 = t4
-          t7 = t4
+          //ProductGeneration.typecheckProducts(fm, fm_ts, ast, opt,
+          //logMessage = ("Time for lexing(ms): " + (t2 - t1) + "\nTime for parsing(ms): " + (t3 - t2) + "\n"))
+          if (opt.ifdeftoif) {
+            if (ts.checkAST) {
+              val i = new IfdefToIf
+              val defUseMap = ts.getDeclUseMap
+              //println(("+++Feature Struct+++\n" + PrettyPrinter.print(optionsAst) + "\n\n+++New Code+++\n" + PrettyPrinter.print(i.transformAst(ast, env, defUseMap))))
+              if (opt.outputStem.isEmpty) {
+                //write to console
+                println(PrettyPrinter.print(i.transformAst(ast, null, defUseMap)._1))
+              } else {
+                // write to file
+                val fw: FileWriter = new FileWriter(new File(opt.outputStem + ".ifdeftoif"))
+                fw.write(PrettyPrinter.print(i.transformAst(ast, null, defUseMap)._1))
+                fw.close() // don't know the safe writer closing pattern in scala
+              }
+            } else {
+              println("#ifdef to if transformation unsuccessful because of type errors")
+            }
+          } else {
+            println("type checking.")
+            ts.checkAST
+            ts.errors.map(errorXML.renderTypeError(_))
+            t4 = System.currentTimeMillis()
+            t5 = t4
+            t6 = t4
+            t7 = t4
+          }
         }
         if (opt.writeInterface) {
           println("inferring interfaces.")

@@ -3,7 +3,6 @@ package de.fosd.typechef;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory$;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
-import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.options.LexerOptions;
 import de.fosd.typechef.lexer.options.OptionException;
 import de.fosd.typechef.lexer.options.Options;
@@ -20,6 +19,7 @@ import java.util.List;
 public class FrontendOptions extends LexerOptions implements ParserOptions {
     boolean parse = true,
             typecheck = false,
+            ifdeftoif = false,
             writeInterface = false,
             conditionalControlFlow = false,
             dataFlow = false,
@@ -48,6 +48,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
     private final static char F_BDD = Options.genOptionId();
     private final static char F_ERRORXML = Options.genOptionId();
+    private final static char F_IFDEFTOIF = Options.genOptionId();
     private Function3<FeatureExpr, String, Position, Object> _renderParserError;
 
 
@@ -64,6 +65,9 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                         "Lex, parse, and type check; but do not create interfaces."),
                 new Option("interface", LongOpt.NO_ARGUMENT, F_INTERFACE, null,
                         "Lex, parse, type check, and create interfaces (default)."),
+
+                new Option("ifdeftoif", LongOpt.NO_ARGUMENT, F_IFDEFTOIF, null,
+                        "Make #ifdef to if transformation."),
 
                 new Option("conditionalControlFlow", LongOpt.NO_ARGUMENT, F_CONDITIONALCONTROLFLOW, null,
                         "Lex, parse, and check conditional control flow"),
@@ -117,6 +121,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writeInterface = false;
         } else if (c == F_INTERFACE) {//--interface
             parse = typecheck = writeInterface = true;
+        } else if (c == F_IFDEFTOIF) {
+            parse = typecheck = ifdeftoif = true;
         } else if (c == F_CONDITIONALCONTROLFLOW) {
             parse = conditionalControlFlow = true;
         } else if (c == F_DATAFLOW) {
