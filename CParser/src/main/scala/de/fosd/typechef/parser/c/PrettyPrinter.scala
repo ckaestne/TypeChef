@@ -2,7 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import java.io.{StringWriter, Writer}
+import java.io.{FileWriter, StringWriter, Writer}
 
 object PrettyPrinter {
 
@@ -72,6 +72,12 @@ object PrettyPrinter {
   def printW(ast: AST, writer: Writer): Writer = {
     layoutW(prettyPrint(ast), writer)
     writer
+  }
+
+  def printF(ast: AST, path: String) = {
+    val writer = new FileWriter(path)
+    layoutW(prettyPrint(ast), writer)
+    writer.close()
   }
 
 
