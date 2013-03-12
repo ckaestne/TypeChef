@@ -115,11 +115,11 @@ object Frontend {
               //println(("+++Feature Struct+++\n" + PrettyPrinter.print(optionsAst) + "\n\n+++New Code+++\n" + PrettyPrinter.print(i.transformAst(ast, env, defUseMap))))
               if (opt.outputStem.isEmpty) {
                 //write to console
-                println(PrettyPrinter.print(i.transformAst(ast, null, defUseMap)._1))
+                println(PrettyPrinter.print(i.transformAst(ast, defUseMap)._1))
               } else {
                 // write to file
                 val fw: FileWriter = new FileWriter(new File(opt.outputStem + ".ifdeftoif"))
-                fw.write(PrettyPrinter.print(i.transformAst(ast, null, defUseMap)._1))
+                fw.write(PrettyPrinter.print(i.transformAst(ast, defUseMap)._1))
                 fw.close() // don't know the safe writer closing pattern in scala
               }
             } else {
