@@ -53,9 +53,9 @@ object Frontend {
         val t1 = System.currentTimeMillis()
 
         val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-        opt.setFeatureModel(fm)//otherwise the lexer does not get the updated feature model with file presence conditions
+        opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
-            println("file has contradictory presence condition. existing.")//otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
+            println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return;
         }
         /*
@@ -104,12 +104,12 @@ object Frontend {
 
                 if (opt.typecheck || opt.writeInterface) {
                     //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
-                      //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
+                    //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
                     println("type checking.")
                     ts.checkAST
-					          ts.errors.map(errorXML.renderTypeError(_))
+                    ts.errors.map(errorXML.renderTypeError(_))
                     t4 = System.currentTimeMillis()
                     t5 = t4
                     t6 = t4
@@ -127,16 +127,20 @@ object Frontend {
                 }
                 if (opt.conditionalControlFlow) {
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    val cfgFile = new FileWriter(new File(opt.outputStem+".ast"))
-                    cf.writeCFG(cfgFile, opt.outputStem)
+
+                    val writer = new CFGCSVWriter(new FileWriter(new File(opt.outputStem + ".cfg")))
+                    cf.writeCFG(opt.outputStem, writer)
+
+                    val dotwriter = new DotGraph2(new FileWriter(new File(opt.outputStem + ".cfg.dot")))
+                    cf.writeCFG(opt.outputStem, dotwriter)
 
                     t6 = System.currentTimeMillis()
                     t7 = t6
                 }
                 if (opt.dataFlow) {
-                  ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                    logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
-                  t7 = System.currentTimeMillis()
+                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
+                        logMessage = ("Time for lexing(ms): " + (t2 - t1) + "\nTime for parsing(ms): " + (t3 - t2) + "\n"))
+                    t7 = System.currentTimeMillis()
                 }
 
             }
@@ -144,7 +148,7 @@ object Frontend {
         }
         errorXML.write()
         if (opt.recordTiming)
-            println("timing (lexer, parser, type system, interface inference, conditional control flow, data flow)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4) + ";" + (t6 - t5) + ";" + (t7-t6))
+            println("timing (lexer, parser, type system, interface inference, conditional control flow, data flow)\n" + (t2 - t1) + ";" + (t3 - t2) + ";" + (t4 - t3) + ";" + (t5 - t4) + ";" + (t6 - t5) + ";" + (t7 - t6))
 
     }
 
