@@ -1,6 +1,9 @@
 package de.fosd.typechef.crewrite
 
 import org.junit.Test
+import io.Source
+import java.io.{FileWriter, File}
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,5 +52,36 @@ class WholeProjectCFGTest {
 
         assert(ff == (f2 link f1))
     }
+
+}
+
+
+/**
+ * TODO should be moved to Busyboxproject eventually
+ * currently here to avoid complication with rebuilding all ivy/maven packages
+ *
+ * run in busybox directory
+ */
+object LinkBusyboxCFG extends App {
+
+    FeatureExprFactory.setDefault(FeatureExprFactory.bdd)
+
+    var bigCFG = new FileCFG(Set(), Set())
+
+    for (file <- Source.fromFile("filelist").getLines()) {
+
+        val cfgFile = file + ".cfg"
+        print("linking " + cfgFile)
+        val cfg = WholeProjectCFG.loadFileCFG(new File(cfgFile))
+        println(".")
+
+        bigCFG = bigCFG link cfg
+    }
+
+    println("writing result")
+
+    bigCFG.write(new FileWriter("finalcfg.cfg"))
+
+    println("done.")
 
 }
