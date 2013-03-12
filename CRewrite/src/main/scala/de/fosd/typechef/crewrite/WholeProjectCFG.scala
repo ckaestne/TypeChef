@@ -6,7 +6,7 @@ import java.io.{Writer, FileReader, BufferedReader, File}
 
 class CFGNode(val kind: String, file: File, line: Int, val name: String, val fexpr: FeatureExpr) {
     def write(writer: Writer) {
-        writer.write("N;" + IdGen.genId() + ";" + kind + ";" + line + ";" + name + ";" + fexpr.toTextExpr)
+        writer.write("N;" + IdGen.genId() + ";" + kind + ";" + line + ";" + name + ";" + fexpr.toTextExpr+"\n")
     }
     def and(f: FeatureExpr) = new CFGNode(kind, file, line, name, fexpr and f)
     override def toString(): String = kind + "-" + name
@@ -74,7 +74,7 @@ case class FileCFG(val nodes: Set[CFGNode], val edges: Set[(CFGNode, CFGNode, Fe
  *
  * it loads all graphs and subsequently matches declarations with functions. all IDs are rewritten to unique IDs
  */
-class WholeProjectCFG {
+object WholeProjectCFG {
 
     val featureExprParser = new FeatureExprParser(FeatureExprFactory.dflt)
 
@@ -100,7 +100,7 @@ class WholeProjectCFG {
         var line = reader.readLine()
         while (line != null) {
             if (line.charAt(0) == 'N') {
-                val node = loadNode(line, cfgFile)
+                val node = loadNode(line.replace("declaration","declaration;"), cfgFile)
                 nodes = nodes + node
             }
             if (line.charAt(0) == 'E') {

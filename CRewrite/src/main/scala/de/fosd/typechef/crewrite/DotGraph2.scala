@@ -162,8 +162,8 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
         case FunctionDef(_, decl, _, _) => "function;" + o.getPositionFrom.getLine + ";" + decl.getName
         case s: Statement => "statement;" + s.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(s).take(20))
         case e: Expr => "expression;" + e.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(e).take(20))
-        case Declaration(_, initDecl) => "declaration" + o.getPositionFrom.getLine + ";" + initDecl.map(_.entry.getName).mkString(",")
-        case o => "unknown" + o.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(o).take(20))
+        case Declaration(_, initDecl) => "declaration;" + o.getPositionFrom.getLine + ";" + initDecl.map(_.entry.getName).mkString(",")
+        case o => "unknown;" + o.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(o).take(20))
     }
 
     private def lookupFExpr(e: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]): FeatureExpr = e match {
