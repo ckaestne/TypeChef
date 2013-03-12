@@ -114,6 +114,7 @@ object Frontend {
                     t5 = t4
                     t6 = t4
                     t7 = t4
+
                 }
                 if (opt.writeInterface) {
                     println("inferring interfaces.")
@@ -129,10 +130,8 @@ object Frontend {
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.outputStem + ".cfg")))
-                    cf.writeCFG(opt.outputStem, writer)
-
                     val dotwriter = new DotGraph2(new FileWriter(new File(opt.outputStem + ".cfg.dot")))
-                    cf.writeCFG(opt.outputStem, dotwriter)
+                    cf.writeCFG(opt.outputStem, new ComposedWriter(List(dotwriter, writer)))
 
                     t6 = System.currentTimeMillis()
                     t7 = t6

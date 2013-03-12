@@ -9,8 +9,8 @@ import java.util
 
 trait CFGWriter {
 
-    protected def writeNode(node: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr])
-    protected def writeEdge(source: AST, target: AST, fexpr: FeatureExpr)
+    def writeNode(node: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr])
+    def writeEdge(source: AST, target: AST, fexpr: FeatureExpr)
     def writeFooter()
     def writeHeader(filename: String)
     def close()
@@ -196,5 +196,24 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
 
     def close() {
         fwriter.close()
+    }
+}
+
+
+class ComposedWriter(writers: List[CFGWriter]) extends CFGWriter {
+    def writeNode(node: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
+        writers.map(_.writeNode(node, env, externalDefFExprs))
+    }
+    def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
+        writers.map(_.writeEdge(source, target, fexpr))
+    }
+    def writeFooter() {
+        writers.map(_.writeFooter())
+    }
+    def writeHeader(filename: String) {
+        writers.map(_.writeHeader(filename))
+    }
+    def close() {
+        writers.map(_.close())
     }
 }
