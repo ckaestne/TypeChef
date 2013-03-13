@@ -3,6 +3,7 @@ package de.fosd.typechef;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory$;
 import de.fosd.typechef.featureexpr.FeatureExprParser;
+import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.options.LexerOptions;
 import de.fosd.typechef.lexer.options.OptionException;
 import de.fosd.typechef.lexer.options.Options;
@@ -27,7 +28,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writeDebugInterface = false,
             recordTiming = false,
             parserStatistics = false,
-            parserResults = false,
+            parserResults = true,
             writePI = false;
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");
@@ -60,11 +61,11 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                 new Option("lex", LongOpt.NO_ARGUMENT, 'E', null,
                         "Stop after lexing; no parsing."),
                 new Option("parse", LongOpt.NO_ARGUMENT, F_PARSE, null,
-                        "Lex and parse the file; no type checking."),
+                        "Lex and parse the file; no type checking (default)."),
                 new Option("typecheck", LongOpt.NO_ARGUMENT, 't', null,
                         "Lex, parse, and type check; but do not create interfaces."),
                 new Option("interface", LongOpt.NO_ARGUMENT, F_INTERFACE, null,
-                        "Lex, parse, type check, and create interfaces (default)."),
+                        "Lex, parse, type check, and create interfaces."),
 
                 new Option("ifdeftoif", LongOpt.NO_ARGUMENT, F_IFDEFTOIF, null,
                         "Make #ifdef to if transformation."),
@@ -195,8 +196,13 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private FeatureExpr filePC = null;
 
     FeatureExpr getFilePresenceCondition() {
-        if (filePC == null)
-            filePC = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getFilePresenceConditionFilename());
+        if (filePC == null) {
+            File pcFile = new File(getFilePresenceConditionFilename());
+            if (pcFile.exists())
+                filePC = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(pcFile);
+            else
+                filePC = FeatureExprFactory$.MODULE$.dflt().True();
+        }
         return filePC;
     }
 
@@ -207,8 +213,12 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private FeatureExpr localFM = null;
 
     FeatureExpr getLocalFeatureModel() {
-        if (localFM == null)
-            localFM = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(getLocalFeatureModelFilename());
+        if (localFM == null) {
+            File file = new File(getLocalFeatureModelFilename());
+            if (file.exists())
+                localFM = new FeatureExprParser(FeatureExprFactory$.MODULE$.dflt()).parseFile(file);
+            else localFM = FeatureExprFactory$.MODULE$.dflt().True();
+        }
         return localFM;
     }
 

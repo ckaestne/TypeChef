@@ -56,9 +56,9 @@ class ErrorXML(errorFile: File) {
 
     def write() {
         if (errorFile != null)
-            if (errorFile.exists() && errors.isEmpty)
+            /*if (errorFile.exists() && errors.isEmpty)
                 errorFile.delete();
-            else {
+            else*/ {
                 val output = <errors>
                     {errors}
                 </errors>

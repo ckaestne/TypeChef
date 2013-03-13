@@ -333,7 +333,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     }
   }
 
-  def succ(source: Product, fm: FeatureModel, env: ASTEnv): CCFG = {
+  def succ(source: AST, fm: FeatureModel, env: ASTEnv): CCFG = {
     succCCFGCache.lookup(source) match {
       case Some(v) => v
       case None => {
@@ -401,7 +401,7 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
     ctx equivalentTo curresctx
   }
 
-  private def succHelper(source: Product, ctx: FeatureExpr, oldres: CCFGRes, fm: FeatureModel, env: ASTEnv): CCFGRes = {
+  private def succHelper(source: AST, ctx: FeatureExpr, oldres: CCFGRes, fm: FeatureModel, env: ASTEnv): CCFGRes = {
     source match {
       // ENTRY element
       case f@FunctionDef(_, _, _, CompoundStatement(List())) => List((env.featureExpr(f), env.featureExpr(f), f))
@@ -491,7 +491,16 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
 
       case t: DefaultStatement => getStmtSucc(t, ctx, oldres, fm, env)
 
-      case t: Statement => getStmtSucc(t, ctx, oldres, fm, env)
+      case t: Statement => {
+        val condexprs = filterAllASTElems[ConditionalExpr](t)
+        if (condexprs.size > 0) {
+          val fexpcondexprs = env.featureExpr(condexprs.head.condition)
+          val newresctx = getNewResCtx(oldres, ctx, fexpcondexprs)
+          if (newresctx isContradiction(fm)) List()
+          else List((newresctx, fexpcondexprs, condexprs.head.condition))
+        }
+        else getStmtSucc(t, ctx, oldres, fm, env)
+      }
       case t => followSucc(t, ctx, oldres, fm, env)
     }
   }
@@ -547,6 +556,8 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
         }
       }
       case _ => {
+        // check if exp is part of an ConditionalExpr
+
         val fexpexp = env.featureExpr(exp)
         if (! (ctx and fexpexp isContradiction(fm))) oldres ++ {
           val newresctx = getNewResCtx(oldres, ctx, fexpexp)
@@ -746,6 +757,16 @@ trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
               else res ++= dcase
             }
             res
+          }
+
+          case t@ConditionalExpr(condition, thenExpr, elseExpr) => {
+            // condition
+            if (isPartOf(nested_ast_elem, condition)) {
+              (if (thenExpr.isDefined) getExprSucc(thenExpr.get, ctx, oldres, fm, env) else List()) ++
+              getExprSucc(elseExpr, ctx, oldres, fm, env)
+            } else {
+              followSucc(t, ctx, oldres, fm, env)
+            }
           }
 
           case t: Expr => followSucc(t, ctx, oldres, fm, env)

@@ -1,10 +1,11 @@
 package de.fosd.typechef.crewrite
 
-import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.featureexpr._
 import java.util
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
+import org.kiama.attribution.AttributionBase
+import de.fosd.typechef.conditional.{One, Conditional, Opt}
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
@@ -126,6 +127,8 @@ class IdentityHashMapCache[A] {
 
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
+  type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
+
   private val incache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
   private val outcache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
   private var env: ASTEnv = null
@@ -172,7 +175,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // a (// 1) has two different declarations: Choice(A, One(// 3), One(// 2))
   // in presence of A (// 2) shadows declaration (// 3)
   // we compute the relation between variable uses and declarations per function
-  def determineUseDeclareRelation(func: FunctionDef): java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]] = {
+  def determineUseDeclareRelation(func: FunctionDef): UsesDeclaresRel = {
     // we use a working stack to maintain scoping of nested compound statements
     // each element of the list refers to a block; if we enter a compound statement then we
     // add a Map to the stack; if we leave a compound statement we return the tail of wstack
@@ -260,7 +263,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     res
   }
 
-  type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
+
 
   // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
   // page 5
@@ -268,8 +271,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // out(n) = for s in succ(n) r = r + in(s); r
   // insimple and outsimple are the non variability-aware in and out versiosn
   // of liveness determination
-  val insimple: PartialFunction[Product, Set[Id]] = {
-    circular[Product, Set[Id]](Set()) {
+  val insimple: AST => Set[Id] = {
+    circular[AST, Set[Id]](Set()) {
       case FunctionDef(_, _, _, _) => Set()
       case e => {
         val u = uses(e, dataflowUses = false)
@@ -282,8 +285,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outsimple: PartialFunction[Product, Set[Id]] = {
-    circular[Product, Set[Id]](Set()) {
+  val outsimple: AST => Set[Id] = {
+    circular[AST, Set[Id]](Set()) {
       case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
@@ -322,8 +325,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[Product, Map[Id, FeatureExpr]] = {
-    circular[Product, Map[Id, FeatureExpr]](Map()) {
+  val inrec: AST => Map[Id, FeatureExpr] = {
+    circular[AST, Map[Id, FeatureExpr]](Map()) {
       case FunctionDef(_, _, _, _) => Map()
       case t => {
         val uses = usesVar(t, env)
@@ -337,8 +340,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outrec: PartialFunction[Product, Map[Id, FeatureExpr]] =
-    circular[Product, Map[Id, FeatureExpr]](Map()) {
+  val outrec: AST => Map[Id, FeatureExpr] =
+    circular[AST, Map[Id, FeatureExpr]](Map()) {
       case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[Id, FeatureExpr]()
@@ -350,7 +353,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       }
     }
 
-  def out(a: Product) = {
+  def out(a: AST) = {
     outcache.lookup(a) match {
       case Some(v) => v
       case None => {

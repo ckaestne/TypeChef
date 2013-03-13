@@ -100,7 +100,7 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
     }
     def testParseInterleaved2() {
         val input = List(t("("), t("(", f1), t("1"), t("2"), t(")", f1), t("3"), t(")"))
-        val expected = DigitList2(List(Opt(f1, DigitList2(List(Opt(f1, Lit(1)), Opt(f1, Lit(2))))), Opt(f1.not, Lit(1)), Opt(f1.not, Lit(2)), o(Lit(3))))
+        val expected = DigitList2(List(Opt(f1, DigitList2(List(Opt(True, Lit(1)), Opt(True, Lit(2))))), Opt(f1.not, Lit(1)), Opt(f1.not, Lit(2)), o(Lit(3))))
         assertParseResult(expected, newParser.parse(input))
     }
 

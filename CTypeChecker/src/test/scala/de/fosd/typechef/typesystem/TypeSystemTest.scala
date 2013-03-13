@@ -690,9 +690,10 @@ return 1;
         expect(false) {
             check("enum x {a,b}; int a=3;")
         }
-        expect(false) {
-            check("enum x {a,b}; int a;")
-        }
+        //TODO checking of different kinds currently not implemented
+        //        expect(false) {
+        //            check("enum x {a,b}; int a;")
+        //        }
         expect(false) {
             check("enum x {a,b}; enum y {a,c};")
         }
@@ -741,6 +742,21 @@ return 1;
                            }""")
         }
 
+    }
+
+    test("default types") {
+        expect(true) {
+            check(
+                """
+            static x = 0;
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+            foo() { return 0; }
+                """.stripMargin)
+        }
     }
 
 
@@ -803,6 +819,140 @@ return 1;
               } xx;
                    """)
         }
+    }
+
+    test("function parameters etc") {
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a y) { return y(); }
+                  |int main() {
+                  |  int x = bar(foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a* y) { return y(); }
+                  |int main() {
+                  |  int x = bar(foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a y) { return y(); }
+                  |int main() {
+                  |  int x = bar(&foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |typedef int (a)();
+                  |int foo() { return 3; }
+                  |int bar(a* y) { return y(); }
+                  |int main() {
+                  |  int x = bar(&foo);
+                  |  return x;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int foo() { return 3; }
+                  |int main() {
+                  |  if (&foo) ;
+                  |  return 0;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int foo() { return 3; }
+                  |int main() {
+                  |  if (foo) ;
+                  |  return 0;
+                  |}
+                """.stripMargin)
+        }
+
+    }
+
+
+    test("old style function parameters") {
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |     int a;
+                  |     int b;
+                  |{
+                  |  a++;
+                  |  return b;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |     int a;
+                  |     int b;
+                  |{
+                  |  a++;
+                  |  return b;
+                  |}
+                  |int foo() {
+                  |     main(3,5);
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |{
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |{
+                  |     b++;
+                  |}
+                """.stripMargin)
+        }
+
+    }
+
+
+
+    test("functions returning a function") {
+        expect(true) {
+            //function foo returns a pointer to a function that accepts an int pointer and returns an int
+            check(
+                """
+                  |int (*foo(long f))(int*) { if (f); return 0; }
+                """.stripMargin)
+        }
+
     }
 
 }

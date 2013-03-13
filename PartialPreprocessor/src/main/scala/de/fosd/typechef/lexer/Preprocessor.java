@@ -1789,6 +1789,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             }
             tok = retrieveTokenFromSource();
         }
+        if (is_error)
+            error(pptok, buf.toString());
+        else
+            warning(pptok, buf.toString());
         return new SimpleToken(P_LINE, pptok.getLine(), pptok.getColumn(), buf
                 .toString(), null);
     }
@@ -2013,6 +2017,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 break;
             case '-':
                 lhs = new ExprOrValue(FeatureExprLib.l().createNeg(parse_featureExprOrValue(11, false).assumeValue(tok)));
+                break;
+            case '+':
+                lhs = new ExprOrValue((parse_featureExprOrValue(11, false).assumeValue(tok)));
                 break;
             case INTEGER:
                 lhs = new ExprOrValue(FeatureExprLib.l().createInteger(
