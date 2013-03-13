@@ -25,7 +25,6 @@ package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
-import de.fosd.typechef.featureexpr.FeatureExprValue$;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
