@@ -50,6 +50,11 @@ class TokenSequenceToken extends Token {
     }
 
     @Override
+    public void setLine(int Line) {
+        line=Line;
+    }
+
+    @Override
     public Source getSource() {
         return source;
     }

@@ -49,6 +49,11 @@ public abstract class Token {
     public abstract int getLine();
 
     /**
+     * setLine can be used to overwrite the line location
+     */
+    public abstract void setLine(int line);
+
+    /**
      * Returns the column at which this token started.
      * <p/>
      * Columns are numbered from zero.

@@ -135,20 +135,22 @@ public class Main {
                     break;
 
 
-                String image = tok.getText();
-                while (image.indexOf('\n') >= 0) {
-                    outputLine++;
-                    image = image.substring(image.indexOf('\n') + 1);
-                }
-
                 if (returnTokenList && PartialPPLexer.isResultToken(tok)) {
-                    if (tok instanceof SimpleToken && output != null)
-                        ((SimpleToken) tok).setLine(outputLine);
                     resultTokenList.add(tok);
                 }
 
-                if (output != null)
+                if (output != null) {
+                    //adjust line numbers to .pi file for debugging
+                    String image = tok.getText();
+                    while (image.indexOf('\n') >= 0) {
+                        outputLine++;
+                        image = image.substring(image.indexOf('\n') + 1);
+                    }
+                    tok.setLine(outputLine);
+
+                    //write to .pi file
                     tok.lazyPrint(output);
+                }
             }
         } catch (Throwable e) {
             Preprocessor.logger.severe(e.toString());
