@@ -2,8 +2,8 @@ package de.fosd.typechef.crewrite
 
 import org.junit.Test
 import io.Source
-import java.io.{FileWriter, File}
-import de.fosd.typechef.featureexpr.FeatureExprFactory
+import java.io.{FileInputStream, FileWriter, File}
+import de.fosd.typechef.featureexpr.{FeatureExprParser, FeatureExprFactory}
 
 /**
  * Created with IntelliJ IDEA.
@@ -64,15 +64,20 @@ class WholeProjectCFGTest {
  */
 object LinkBusyboxCFG extends App {
 
+    import FeatureExprFactory._
+
     FeatureExprFactory.setDefault(FeatureExprFactory.bdd)
 
     var bigCFG = new FileCFG(Set(), Set())
 
     for (file <- Source.fromFile("filelist").getLines()) {
-
         val cfgFile = file + ".cfg"
         print("linking " + cfgFile)
-        val cfg = WholeProjectCFG.loadFileCFG(new File(cfgFile))
+
+        val pcFile = new File(file + ".pc")
+        val filePC = if (pcFile.exists()) new FeatureExprParser().parseFile(new FileInputStream(pcFile)) else True
+        val cfg_ = WholeProjectCFG.loadFileCFG(new File(cfgFile))
+        val cfg = cfg_ and filePC
         println(".")
 
         bigCFG = bigCFG link cfg

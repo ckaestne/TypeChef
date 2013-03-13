@@ -6,7 +6,7 @@ import java.io.{Writer, FileReader, BufferedReader, File}
 
 class CFGNode(val kind: String, file: File, line: Int, val name: String, val fexpr: FeatureExpr) {
     def write(writer: Writer) {
-        writer.write("N;" + IdGen.genId() + ";" + kind + ";" + line + ";" + name + ";" + fexpr.toTextExpr+"\n")
+        writer.write("N;" + IdGen.genId() + ";" + kind + ";" + line + ";" + name + ";" + fexpr.toTextExpr + "\n")
     }
     def and(f: FeatureExpr) = new CFGNode(kind, file, line, name, fexpr and f)
     override def toString(): String = kind + "-" + name
@@ -100,7 +100,7 @@ object WholeProjectCFG {
         var line = reader.readLine()
         while (line != null) {
             if (line.charAt(0) == 'N') {
-                val node = loadNode(line.replace("declaration","declaration;"), cfgFile)
+                val node = loadNode(line, cfgFile)
                 nodes = nodes + node
             }
             if (line.charAt(0) == 'E') {
