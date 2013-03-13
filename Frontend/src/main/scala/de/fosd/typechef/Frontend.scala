@@ -100,6 +100,7 @@ object Frontend {
         serializeAST(ast, opt.getSerializedASTFilename)
 
       if (ast != null) {
+        storedAst = ast
         val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
