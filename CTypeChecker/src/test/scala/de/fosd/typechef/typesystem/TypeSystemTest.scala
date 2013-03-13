@@ -691,9 +691,9 @@ return 1;
             check("enum x {a,b}; int a=3;")
         }
         //TODO checking of different kinds currently not implemented
-//        expect(false) {
-//            check("enum x {a,b}; int a;")
-//        }
+        //        expect(false) {
+        //            check("enum x {a,b}; int a;")
+        //        }
         expect(false) {
             check("enum x {a,b}; enum y {a,c};")
         }
@@ -745,18 +745,18 @@ return 1;
     }
 
     test("default types") {
-      expect(true) {
-        check(
-          """
+        expect(true) {
+            check(
+                """
             static x = 0;
-          """.stripMargin)
-      }
-      expect(true) {
-        check(
-          """
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
             foo() { return 0; }
-          """.stripMargin)
-      }
+                """.stripMargin)
+        }
     }
 
 
@@ -892,6 +892,56 @@ return 1;
         }
 
     }
+
+
+    test("old style function parameters") {
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |     int a;
+                  |     int b;
+                  |{
+                  |  a++;
+                  |  return b;
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |     int a;
+                  |     int b;
+                  |{
+                  |  a++;
+                  |  return b;
+                  |}
+                  |int foo() {
+                  |     main(3,5);
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |{
+                  |}
+                """.stripMargin)
+        }
+        expect(true) {
+            check(
+                """
+                  |int main(a, b)
+                  |{
+                  |     b++;
+                  |}
+                """.stripMargin)
+        }
+
+    }
+
 
 
     test("functions returning a function") {

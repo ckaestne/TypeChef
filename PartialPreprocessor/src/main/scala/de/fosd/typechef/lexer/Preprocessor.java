@@ -23,20 +23,22 @@
 
 package de.fosd.typechef.lexer;
 
+import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
-import de.fosd.typechef.featureexpr.FeatureExprValue$;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
 import de.fosd.typechef.lexer.macrotable.MacroExpansion;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.*;
 
 import static de.fosd.typechef.lexer.Token.*;
-import de.fosd.typechef.VALexer;
-import de.fosd.typechef.lexer.macrotable.MacroFilter;
 
 
 /**
@@ -181,7 +183,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
     }
 
     public Preprocessor(MacroFilter macroFilter, Source initial, FeatureModel fm) {
-        this(macroFilter,fm);
+        this(macroFilter, fm);
         addInput(initial);
     }
 
@@ -189,7 +191,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
      * Equivalent to 'new Preprocessor(new {@link FileLexerSource}(file))'
      */
     public Preprocessor(MacroFilter macroFilter, File file, FeatureModel fm) throws IOException {
-        this(macroFilter,new FileLexerSource(file), fm);
+        this(macroFilter, new FileLexerSource(file), fm);
     }
 
     /**
@@ -1793,9 +1795,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
             tok = retrieveTokenFromSource();
         }
         if (is_error)
-            error(pptok,buf.toString());
+            error(pptok, buf.toString());
         else
-            warning(pptok,buf.toString());
+            warning(pptok, buf.toString());
 
         return new SimpleToken(P_LINE, pptok.getLine(), pptok.getColumn(), buf
                 .toString(), null);
@@ -2829,11 +2831,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
     public void addInput(LexerInput source) throws IOException {
         //ugly but will do for now
         if (source instanceof FileSource)
-            addInput(new FileLexerSource(((FileSource)source).file));
+            addInput(new FileLexerSource(((FileSource) source).file));
         else if (source instanceof StreamSource)
-            addInput(new FileLexerSource(((StreamSource)source).inputStream,((StreamSource)source).filename));
+            addInput(new FileLexerSource(((StreamSource) source).inputStream, ((StreamSource) source).filename));
         else if (source instanceof TextSource)
-            addInput(new StringLexerSource(((TextSource)source).code,true));
+            addInput(new StringLexerSource(((TextSource) source).code, true));
         else
             throw new RuntimeException("unexpected input");
     }

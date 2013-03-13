@@ -53,14 +53,14 @@ public class Main {
     }
 
     public List<Token> run(final boolean isXtcLexer, final ILexerOptions options, boolean returnTokenList) throws Exception {
-                   return run(new VALexer.LexerFactory() {
-                       @Override
-                       public VALexer create(FeatureModel featureModel) {
-                           if (isXtcLexer)
-                               return new XtcPreprocessor(options.getMacroFilter(), featureModel);
-                           return new Preprocessor(options.getMacroFilter(), featureModel);
-                       }
-                   },options,returnTokenList);
+        return run(new VALexer.LexerFactory() {
+            @Override
+            public VALexer create(FeatureModel featureModel) {
+                if (isXtcLexer)
+                    return new XtcPreprocessor(options.getMacroFilter(), featureModel);
+                return new Preprocessor(options.getMacroFilter(), featureModel);
+            }
+        }, options, returnTokenList);
     }
 
     public List<Token> run(VALexer.LexerFactory lexerFactory, ILexerOptions options, boolean returnTokenList) throws Exception {
@@ -104,7 +104,6 @@ public class Main {
             pp.addQuoteIncludePath(quoInclPath);
 
 
-
         for (String include : options.getIncludedHeaders())
             pp.addInput(new VALexer.FileSource(new File(include)));
 
@@ -143,7 +142,7 @@ public class Main {
                 }
 
                 if (returnTokenList && PartialPPLexer.isResultToken(tok)) {
-                    if (tok instanceof SimpleToken)
+                    if (tok instanceof SimpleToken && output != null)
                         ((SimpleToken) tok).setLine(outputLine);
                     resultTokenList.add(tok);
                 }
