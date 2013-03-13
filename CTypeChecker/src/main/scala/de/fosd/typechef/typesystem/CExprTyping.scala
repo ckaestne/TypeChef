@@ -11,7 +11,6 @@ import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface {
 
 
-
     /**
      * types an expression in an environment, returns a new
      * environment for all subsequent tokens (eg in a sequence)
@@ -50,7 +49,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
-                                //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
+                            //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer
@@ -58,7 +57,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         et(expr).mapf(featureExpr, {
                             case (f, CObj(t)) => CPointer(t)
                             case (f, t: CFunction) => CPointer(t)
-                            case (f, e) =>
+                            case (f, e) => if (e.isIgnore) e
+                            else
                                 reportTypeError(f, "invalid & on " + expr + " (" + e + ")", pc)
                         })
                     //*a: pointer dereferencing
@@ -72,9 +72,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 s.toObj
                             case CPointer(t) if (t != CVoid) => t.toObj
                             case CArray(t, _) => t.toObj
-                            case CIgnore() => CIgnore()
                             case fun: CFunction => fun // for some reason deref of a function still yields a valid function in gcc
-                            case e =>
+                            case e => if (e.isIgnore) e
+                            else
                                 reportTypeError(f, "invalid * on " + expr + " (" + e + ")", pd)
                         })
                     //e.n notation
@@ -94,15 +94,16 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     reportTypeError(f, "expression " + p + " must not have array " + e, p)
                                 case (f, e) => e
                             })
-                            case (f, e) =>
+                            case (f, e) => if (e.isIgnore) One(e)
+                            else
                                 One(reportTypeError(f, "request for member " + id + " in something not a structure or union (" + p + "; " + e + ")", p))
                         })
                     //e->n (by rewrite to *e.n)
                     case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
                         val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
-                        newExpr.setPositionRange(p.getPositionFrom,p.getPositionTo)//enable line reporting in error messages
-                        newExpr.p.setPositionRange(expr.getPositionFrom,expr.getPositionTo)//enable line reporting in error messages
-                        newExpr.s.setPositionRange(i.getPositionFrom,i.getPositionTo)//enable line reporting in error messages
+                        newExpr.setPositionRange(p.getPositionFrom, p.getPositionTo) //enable line reporting in error messages
+                        newExpr.p.setPositionRange(expr.getPositionFrom, expr.getPositionTo) //enable line reporting in error messages
+                        newExpr.s.setPositionRange(i.getPositionFrom, i.getPositionTo) //enable line reporting in error messages
                         et(newExpr)
                     //(a)b
                     case ce@CastExpr(targetTypeName, expr) =>
@@ -133,7 +134,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     case CPointer(CFunction(parameterTypes, retType)) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr, env)
                                     case CFunction(parameterTypes, retType) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr, env)
                                     case u: CUnknown => u
-                                    case e =>
+                                    case e => if (e.isIgnore) e
+                                    else
                                         reportTypeError(fexpr, expr + " is not a function, but has type " + e, pe)
                                 }
                         )
@@ -145,8 +147,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 val opType = operationType(op, ltype, rtype, ae, fexpr)
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
-                                    case u: CUnknown => u.toValue
-                                    case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
+                                    case e => if (e.isIgnore || e.isUnknown) e.toValue else reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                                 }
                             })
                     //a++, a--
@@ -155,7 +156,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     } mapf(featureExpr, {
                         case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
                         //TODO check?: not on function references
-                        case (f, e) => reportTypeError(f, "wrong type argument to increment " + e, pe)
+                        case (f, e) => if (e.isIgnore) e else reportTypeError(f, "wrong type argument to increment " + e, pe)
                     })
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
@@ -331,8 +332,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
                                  funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
         //probably just checked on declaration: (??)
-//        checkStructs(retType, featureExpr, env, expr)
-//        parameterTypes.map(checkStructs(_, featureExpr, env, expr))
+        //        checkStructs(retType, featureExpr, env, expr)
+        //        parameterTypes.map(checkStructs(_, featureExpr, env, expr))
 
         var expectedTypes = parameterTypes
         var foundTypes = _foundTypes
