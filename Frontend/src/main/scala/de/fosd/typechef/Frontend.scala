@@ -15,8 +15,8 @@ import parser.c.TranslationUnit
 
 object Frontend {
 
-  private var storedAst = null.asInstanceOf[AST]
-  private var featureModel = null.asInstanceOf[FeatureExpr]
+  private var storedAst: AST = null
+  private var featureModel: FeatureExpr = null
 
   def main(args: Array[String]) {
     // load options
