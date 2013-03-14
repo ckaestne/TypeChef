@@ -21,11 +21,12 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
   val checkForExistingFiles = true
   val typeCheckResult = false
 
+  val filesToAnalysePerRun = 15
   var filesTransformed = 0
 
   val i = new IfdefToIf
-  val path = new File(".").getCanonicalPath() ++ "\\ifdeftoif\\"
-  val singleFilePath = new File(".").getCanonicalPath() ++ "\\single_files\\"
+  val path = new File("..").getCanonicalPath() ++ "\\ifdeftoif\\"
+  val singleFilePath = new File("..").getCanonicalPath() ++ "\\single_files\\"
 
   /* val tb = java.lang.management.ManagementFactory.getThreadMXBean
 val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
@@ -43,11 +44,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     }
 
   def computeDifference(before: Int, after: Int): Double = {
-    math.round((((after - before) / (before.toDouble)) * 10000).toInt) / 100.0
-  }
-
-  def msToSeconds(time: Long): String = {
-    (time / 1000.0).toString() + " s"
+    ((after - before) / (before.toDouble))
   }
 
   def getCSVHeader(): String = {
@@ -105,9 +102,9 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
       //}
       val linesOfCodeBefore = Source.fromFile(new File(singleFilePath ++ fileNameWithoutExtension ++ ".src")).getLines().size
       val linesOfCodeAfter = Source.fromFile(new File(singleFilePath ++ fileNameWithoutExtension ++ ".ifdeftoif")).getLines().size
-      val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter).toString() + "%"
+      val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter)
       val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","
-      val csvEnding = "," + msToSeconds(timeToParseAndTypeCheck) + "," + msToSeconds(timeToTransform) + "," + msToSeconds(timeToPrettyPrint)
+      val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint
       writeToTextFile(singleFilePath ++ fileNameWithoutExtension ++ ".csv", getCSVHeader() + csvBeginning + tempAst._2 + csvEnding)
     }
   }
@@ -1053,6 +1050,11 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     testFile(file)
   }
 
+  @Test def test_tr_pi() {
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\tr.pi")
+    testFile(file)
+  }
+
   @Test def test_fold_pi() {
     val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\fold.pi")
     testFile(file)
@@ -1450,7 +1452,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
 
   private def transformDir(dirToAnalyse: File) {
     def transformPiFiles(dirToAnalyse: File) {
-      if (filesTransformed < 10) {
+      if (filesTransformed < filesToAnalysePerRun) {
         // retrieve all pi from dir first
         if (dirToAnalyse.isDirectory) {
           val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
@@ -1466,6 +1468,8 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             transformPiFiles(dir)
           }
         }
+      } else {
+        println("--Finished--")
       }
     }
     new File(path).mkdirs()
@@ -1477,7 +1481,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   private def runIfdefToIfOnPi(file: File) {
-    if (filesTransformed < 10) {
+    if (filesTransformed < filesToAnalysePerRun) {
       val filePathWithoutExtension = getFileNameWithoutExtension(file.getPath())
       val fileNameWithoutExtension = getFileNameWithoutExtension(file)
       val transformedFileExists = (writeFilesIntoIfdeftoifFolder && new File(path ++ fileNameWithoutExtension ++ ".ifdeftoif").exists) || (!writeFilesIntoIfdeftoifFolder && new File(filePathWithoutExtension ++ ".ifdeftoif").exists)
@@ -1528,9 +1532,9 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             }
             val linesOfCodeBefore = Source.fromFile(new File(path ++ fileNameWithoutExtension ++ ".src")).getLines().size
             val linesOfCodeAfter = Source.fromFile(new File(path ++ fileNameWithoutExtension ++ ".ifdeftoif")).getLines().size
-            val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter).toString() + "%"
+            val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter)
             val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","
-            val csvEnding = "," + msToSeconds(timeToParseAndTypeCheck) + "," + msToSeconds(timeToTransform) + "," + msToSeconds(timeToPrettyPrint) + "\n"
+            val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint + "\n"
             appendToFile(path ++ "results.csv", csvBeginning + tempAst._2 + csvEnding)
           } else {
             if (!(new File(filePathWithoutExtension ++ ".src")).exists) {
@@ -1538,9 +1542,9 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             }
             val linesOfCodeBefore = Source.fromFile(new File(filePathWithoutExtension ++ ".src")).getLines().size
             val linesOfCodeAfter = Source.fromFile(new File(filePathWithoutExtension ++ ".ifdeftoif")).getLines().size
-            val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter).toString() + "%"
+            val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter)
             val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","
-            val csvEnding = "," + msToSeconds(timeToParseAndTypeCheck) + "," + msToSeconds(timeToTransform) + "," + msToSeconds(timeToPrettyPrint) + "\n"
+            val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint + "\n"
             appendToFile(path ++ "results.csv", csvBeginning + tempAst._2 + csvEnding)
           }
         }
