@@ -1,10 +1,11 @@
 package de.fosd.typechef.crewrite
 
-import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.featureexpr._
 import java.util
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
+import org.kiama.attribution.AttributionBase
+import de.fosd.typechef.conditional.{One, Conditional, Opt}
 
 // defines and uses we can jump to using succ
 // beware of List[Opt[_]]!! all list elements can possibly have a different annotation
@@ -30,12 +31,12 @@ trait Variables {
   }
 
   // returns all used variables with their annotation
-  val usesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]]= {
+  val usesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     case (a, env) => addAnnotation2ResultSet(uses(a, dataflowUses = false), env)
   }
 
   // returns all used variables (apart from declarations) with their annotation
-  val dataflowUsesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]]= {
+  val dataflowUsesVar: PartialFunction[(Any, ASTEnv), Map[FeatureExpr, Set[Id]]] = {
     case (a, env) => addAnnotation2ResultSet(uses(a, dataflowUses = true), env)
   }
 
@@ -78,7 +79,7 @@ trait Variables {
       case ExprStatement(expr) => uses(expr, dataflowUses)
       case AssignExpr(target, op, source) => uses(source, dataflowUses) ++ ({
         op match {
-          case "=" if(!dataflowUses) => Set()
+          case "=" if (!dataflowUses) => Set()
           case _ => uses(target, dataflowUses)
         }
       })
@@ -116,7 +117,11 @@ trait Variables {
 
 class IdentityHashMapCache[A] {
   private val cache: java.util.IdentityHashMap[Any, A] = new util.IdentityHashMap[Any, A]()
-  def update(k: Any, v: A) { cache.put(k, v) }
+
+  def update(k: Any, v: A) {
+    cache.put(k, v)
+  }
+
   def lookup(k: Any): Option[A] = {
     val v = cache.get(k)
     if (v != null) Some(v)
@@ -126,15 +131,25 @@ class IdentityHashMapCache[A] {
 
 trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
 
+  type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
+
   private val incache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
   private val outcache = new IdentityHashMapCache[Map[Id, FeatureExpr]]()
   private var env: ASTEnv = null
   private var udr: UsesDeclaresRel = null
   private var fm: FeatureModel = null
 
-  def setEnv(newenv: ASTEnv) { env = newenv }
-  def setUdr(newudr: UsesDeclaresRel) { udr = newudr }
-  def setFm(newfm: FeatureModel) { fm = newfm }
+  def setEnv(newenv: ASTEnv) {
+    env = newenv
+  }
+
+  def setUdr(newudr: UsesDeclaresRel) {
+    udr = newudr
+  }
+
+  def setFm(newfm: FeatureModel) {
+    fm = newfm
+  }
 
   private def updateMap(map: Map[Id, FeatureExpr],
                         fexp: FeatureExpr,
@@ -172,7 +187,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // a (// 1) has two different declarations: Choice(A, One(// 3), One(// 2))
   // in presence of A (// 2) shadows declaration (// 3)
   // we compute the relation between variable uses and declarations per function
-  def determineUseDeclareRelation(func: FunctionDef): java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]] = {
+  def determineUseDeclareRelation(func: FunctionDef): UsesDeclaresRel = {
     // we use a working stack to maintain scoping of nested compound statements
     // each element of the list refers to a block; if we enter a compound statement then we
     // add a Map to the stack; if we leave a compound statement we return the tail of wstack
@@ -201,21 +216,21 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         for ((k, v) <- declares) {
           for (id <- v) {
             // adding the declaration itself
-            res.put(id, Some(One(Some(Id(id.name+curIdSuffix.toString)))))
+            res.put(id, Some(One(Some(Id(id.name + curIdSuffix.toString)))))
 
             // look for alternative types
             if (curblock.get(id).isDefined) {
               curblock = curblock.+((id, ConditionalLib.insert[Option[Id]](curblock.get(id).get,
-                FeatureExprFactory.True, k, Some(Id(id.name+curIdSuffix.toString)))))
+                FeatureExprFactory.True, k, Some(Id(id.name + curIdSuffix.toString)))))
               curIdSuffix += 1
             } else {
               // get previous block with declaring id and embed that block in a choice
               val prevblockswithid = curws.tail.flatMap(_.get(id))
               if (prevblockswithid.isEmpty) {
-                curblock = curblock.+((id, Choice(k, One(Some(Id(id.name+curIdSuffix.toString))), One(None))))
+                curblock = curblock.+((id, Choice(k, One(Some(Id(id.name + curIdSuffix.toString))), One(None))))
                 curIdSuffix += 1
               } else {
-                curblock = curblock.+((id, Choice(k, One(Some(Id(id.name+curIdSuffix.toString))), prevblockswithid.head).simplify))
+                curblock = curblock.+((id, Choice(k, One(Some(Id(id.name + curIdSuffix.toString))), prevblockswithid.head).simplify))
                 curIdSuffix += 1
               }
             }
@@ -227,7 +242,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
 
       e match {
         // add map to ws when entering a {}; remove when leaving {}
-        case CompoundStatement(innerStatements) => handleElement(innerStatements, Map[Id, Conditional[Option[Id]]]()::curws); curws
+        case CompoundStatement(innerStatements) => handleElement(innerStatements, Map[Id, Conditional[Option[Id]]]() :: curws); curws
         case l: List[_] => {
           var newws = curws
           for (s <- l)
@@ -236,12 +251,12 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
         }
 
         // statements with special treatment of statements with compound statements in it
-        case s: IfStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
-        case s: ForStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
-        case s: ElifStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
-        case s: WhileStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
-        case s: DoStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
-        case s: SwitchStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]()::curws)); curws
+        case s: IfStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]() :: curws)); curws
+        case s: ForStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]() :: curws)); curws
+        case s: ElifStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]() :: curws)); curws
+        case s: WhileStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]() :: curws)); curws
+        case s: DoStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]() :: curws)); curws
+        case s: SwitchStatement => s.productIterator.toList.map(x => handleElement(x, Map[Id, Conditional[Option[Id]]]() :: curws)); curws
 
         case s: Statement => handleCFGInstruction(s)
         case e: Expr => handleCFGInstruction(e)
@@ -260,7 +275,6 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     res
   }
 
-  type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
 
   // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
   // page 5
@@ -268,8 +282,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   // out(n) = for s in succ(n) r = r + in(s); r
   // insimple and outsimple are the non variability-aware in and out versiosn
   // of liveness determination
-  val insimple: PartialFunction[Product, Set[Id]] = {
-    circular[Product, Set[Id]](Set()) {
+  val insimple: AST => Set[Id] = {
+    circular[AST, Set[Id]](Set()) {
       case FunctionDef(_, _, _, _) => Set()
       case e => {
         val u = uses(e, dataflowUses = false)
@@ -282,8 +296,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
     }
   }
 
-  val outsimple: PartialFunction[Product, Set[Id]] = {
-    circular[Product, Set[Id]](Set()) {
+  val outsimple: AST => Set[Id] = {
+    circular[AST, Set[Id]](Set()) {
       case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res: Set[Id] = Set()
@@ -322,8 +336,8 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
   }
 
   // in and out variability-aware versions
-  val inrec: PartialFunction[Product, Map[Id, FeatureExpr]] = {
-    circular[Product, Map[Id, FeatureExpr]](Map()) {
+  val inrec: AST => Map[Id, FeatureExpr] = {
+    circular[AST, Map[Id, FeatureExpr]](Map()) {
       case FunctionDef(_, _, _, _) => Map()
       case t => {
         val uses = usesVar(t, env)
@@ -331,14 +345,14 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
 
         var res = out(t)
         for ((k, v) <- defines) res = explodeIdUse(v, k, udr, res, diff = true)
-        for ((k, v) <- uses)    res = explodeIdUse(v, k, udr, res, diff = false)
+        for ((k, v) <- uses) res = explodeIdUse(v, k, udr, res, diff = false)
         res
       }
     }
   }
 
-  val outrec: PartialFunction[Product, Map[Id, FeatureExpr]] =
-    circular[Product, Map[Id, FeatureExpr]](Map()) {
+  val outrec: AST => Map[Id, FeatureExpr] =
+    circular[AST, Map[Id, FeatureExpr]](Map()) {
       case e => {
         val ss = succ(e, fm, env).filterNot(x => x.entry.isInstanceOf[FunctionDef])
         var res = Map[Id, FeatureExpr]()
@@ -350,7 +364,7 @@ trait Liveness extends AttributionBase with Variables with ConditionalControlFlo
       }
     }
 
-  def out(a: Product) = {
+  def out(a: AST) = {
     outcache.lookup(a) match {
       case Some(v) => v
       case None => {

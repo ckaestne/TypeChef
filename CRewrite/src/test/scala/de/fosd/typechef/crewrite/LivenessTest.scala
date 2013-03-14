@@ -47,15 +47,15 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   @Test def test_return_function() {
-    runExample("""
+    runExample( """
       void foo() {
         return f(a, b, c);
     }
-               """)
+                """)
   }
 
   @Test def test_standard_liveness_example() {
-    runExample("""
+    runExample( """
       void foo() {
         a = 0;
         l1: b = a + 1;
@@ -64,11 +64,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         if (a < 20) goto l1;
         return c;
     }
-    """)
+                """)
   }
 
   @Test def test_standard_liveness_variability_f() {
-    runExample("""
+    runExample( """
       void foo(int a, int b, int c) {
         a = 0;
         l1: b = a + 1;
@@ -78,11 +78,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           goto l1;
         return c;
     }
-    """)
+                """)
   }
 
   @Test def test_standard_liveness_variability_notf() {
-    runExample("""
+    runExample( """
       void foo() {
         a = 0;
         l1: b = a + 1;
@@ -90,11 +90,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         a = b + 2;
         return c;
     }
-    """)
+                """)
   }
 
   @Test def test_standard_liveness_variability() {
-    val a = parseFunctionDef("""
+    val a = parseFunctionDef( """
       void foo() {
         a = 0;
         l1: b = a + 1;
@@ -106,11 +106,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         #endif
         return c;
     }
-    """)
+                              """)
   }
 
   @Test def test_jens() {
-    runExample("""
+    runExample( """
       int foo(int a, int b) {
         int c = a;
         if (c) {
@@ -123,22 +123,22 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         return c;
     }
-               """)
+                """)
   }
 
   @Test def test_jens_NANB() {
-    runExample("""
+    runExample( """
       int foo(int a, int b) {
         int c = a;
         if (c) {
         }
         return c;
     }
-               """)
+                """)
   }
 
   @Test def test_jens_AB() {
-    runExample("""
+    runExample( """
       int foo(int a, int b) {
         int c = a;
         if (c) {
@@ -147,11 +147,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         return c;
     }
-               """)
+                """)
   }
 
   @Test def test_jens_NAB() {
-    runExample("""
+    runExample( """
       int foo(int a, int b) {
         int c = a;
         if (c) {
@@ -159,11 +159,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         return c;
     }
-               """)
+                """)
   }
 
   @Test def test_simple() {
-    runExample("""
+    runExample( """
       int foo(int a, int b) {
         int c = a;
         if (c) {
@@ -174,11 +174,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         return c;
     }
-    """)
+                """)
   }
 
   @Test def test_simple_A() {
-    runExample("""
+    runExample( """
       int foo(int a, int b) {
         int c = a;
         if (c) {
@@ -187,11 +187,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         return c;
     }
-               """)
+                """)
   }
 
   @Test def test_simple_NA() {
-    runExample("""
+    runExample( """
       int foo(int a, int b) {
         int c = a;
         if (c) {
@@ -199,11 +199,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         return c;
     }
-               """)
+                """)
   }
 
   @Test def test_simle2() {
-    runExample("""
+    runExample( """
       int foo() {
         int a;
         int b;
@@ -212,11 +212,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         return c;
         #endif
     }
-               """)
+                """)
   }
 
   @Test def test_simle3() {
-    runExample("""
+    runExample( """
       int foo() {
         int a;
         #if definedEx(A)
@@ -225,11 +225,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         return c;
         #endif
     }
-               """)
+                """)
   }
 
   @Test def test_simle4() {
-    runExample("""
+    runExample( """
       int foo(int a, int b, int c, int d, int e) {
         int f = a;
         #if definedEx(A)
@@ -241,11 +241,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         #endif
         f = e;
     }
-               """)
+                """)
   }
 
   @Test def test_sign() {
-    runExample("""
+    runExample( """
       int foo() {
         int x = 0;
         #if definedEx(A)
@@ -255,11 +255,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         #endif
         x = 0;
     }
-               """)
+                """)
   }
 
   @Test def test_alternative() {
-    runExample("""
+    runExample( """
       int foo() {
         int x = 0;
         #if definedEx(A)
@@ -269,32 +269,32 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         #endif
         x = 0;
     }
-               """)
+                """)
   }
 
   @Test def test_kill() {
-    runExample("""
+    runExample( """
       int foo(int a, int b, int c) {
         c = b;
         b = c;
         c = a;
     }
-               """)
+                """)
   }
 
   @Test def test_kill2() {
-    runExample("""
+    runExample( """
       int foo(int a, int b, int c) {
         c = b;
         b = c;
         c = a;
         c = c;
     }
-               """)
+                """)
   }
 
   @Test def test_shadowing() {
-    runExample("""
+    runExample( """
       int foo() {
         int a = 0;
         int b = a;
@@ -305,11 +305,11 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         a;
       }
-               """)
+                """)
   }
 
   @Test def test_shadowing_variable() {
-    runExample("""
+    runExample( """
       int foo() {
         int a = 0;
         int b = a;
@@ -325,7 +325,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   @Test def test_shadowing2() {
-    runExample("""
+    runExample( """
       int foo() {
         int a = 0;
         int b = a;
@@ -341,7 +341,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   @Test def test_nameconflict() {
-    runExample("""
+    runExample( """
       int foo() {
         int a = 0;
         int a1 = 0;
@@ -351,7 +351,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   @Test def test_DefAUseNotA() {
-    runExample("""
+    runExample( """
       int foo() {
         int a = 0;
         int b = 0;
@@ -371,7 +371,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
   }
 
   @Test def test_make_hash() {
-    runExample("""
+    runExample( """
       static void make_hash(const char *key, unsigned *start, unsigned *decrement, const int hash_prime) {
       unsigned long hash_num = key[0];
       int len = strlen(key);
@@ -383,7 +383,42 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
       *start = (unsigned) hash_num % hash_prime;
       *decrement = (unsigned) 1 + (hash_num % (hash_prime - 1));
     }
-    """)
+                """)
+  }
+
+  @Test def test_sven() {
+    runExample( """
+      void foo() {
+        int a = 1;
+        int b = 0;
+        #if definedEx(A)
+        int c = a;
+        #endif
+        #if !definedEx(A)
+        char c = a;
+        #endif
+        if (c) {
+          c += a;
+        #if definedEx(B)
+          c /= b;
+        #endif
+        }
+      }
+                """)
+  }
+
+  @Test def test_rigorosum() {
+    runExample( """
+      void foo(int a, int b) {
+        int c = 1;
+        if (a) {
+          c += a;
+        #if definedEx(F)
+          c /= b;
+        #endif
+        }
+      }
+                """)
   }
 
 
@@ -397,55 +432,55 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runUsesExample("a.b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("a->b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("return f(a,b,c);") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"), Id("c"))))
-    runUsesExample("""return f(a,
+    runUsesExample( """return f(a,
                        #if definedEx(B)
                          b,
                        #endif
                        c);
-                   """) should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("c")), fb -> Set(Id("b"))))
-    runUsesExample("""a = (b < 2) ? c : d;
+                    """) should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("c")), fb -> Set(Id("b"))))
+    runUsesExample( """a = (b < 2) ? c : d;
 
-                   """) should be (Map(FeatureExprFactory.True -> Set(Id("b")))) // TODO
+                    """) should be(Map(FeatureExprFactory.True -> Set(Id("b")))) // TODO
 
-    runUsesExample("&a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runUsesExample("*a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runUsesExample("!a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runUsesExample("~a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runUsesExample("-a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runUsesExample("+a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("&a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("*a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("!a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("~a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("-a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runUsesExample("+a;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
 
-    runUsesExample("a * b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a - b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a / b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a % b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a & b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a ^ b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a * b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a - b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a / b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a % b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a & b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a ^ b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
 
-    runUsesExample("a && b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a || b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a | b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a << b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a >> b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a && b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a || b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a | b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a << b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a >> b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
 
     runUsesExample("a = b;") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
     runUsesExample("a = b++;") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-    runUsesExample("a *= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a += b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a -= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a /= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a %= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a &= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a ^= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a |= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a >>= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a <<= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a *= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a += b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a -= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a /= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a %= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a &= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a ^= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a |= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a >>= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a <<= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
 
-    runUsesExample("a == b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a != b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a < b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a > b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a <= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-    runUsesExample("a >= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a == b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a != b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a < b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a > b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a <= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+    runUsesExample("a >= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
   }
 
   @Test def test_defines() {
@@ -457,45 +492,45 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runDefinesExample("a.b;") should be(Map())
     runDefinesExample("a->b;") should be(Map())
 
-    runDefinesExample("&a;") should be (Map())
-    runDefinesExample("*a;") should be (Map())
-    runDefinesExample("!a;") should be (Map())
-    runDefinesExample("~a;") should be (Map())
-    runDefinesExample("-a;") should be (Map())
-    runDefinesExample("+a;") should be (Map())
+    runDefinesExample("&a;") should be(Map())
+    runDefinesExample("*a;") should be(Map())
+    runDefinesExample("!a;") should be(Map())
+    runDefinesExample("~a;") should be(Map())
+    runDefinesExample("-a;") should be(Map())
+    runDefinesExample("+a;") should be(Map())
 
-    runDefinesExample("a * b;") should be (Map())
-    runDefinesExample("a - b;") should be (Map())
-    runDefinesExample("a / b;") should be (Map())
-    runDefinesExample("a % b;") should be (Map())
-    runDefinesExample("a & b;") should be (Map())
-    runDefinesExample("a ^ b;") should be (Map())
+    runDefinesExample("a * b;") should be(Map())
+    runDefinesExample("a - b;") should be(Map())
+    runDefinesExample("a / b;") should be(Map())
+    runDefinesExample("a % b;") should be(Map())
+    runDefinesExample("a & b;") should be(Map())
+    runDefinesExample("a ^ b;") should be(Map())
 
-    runDefinesExample("a && b;") should be (Map())
-    runDefinesExample("a || b;") should be (Map())
-    runDefinesExample("a | b;") should be (Map())
-    runDefinesExample("a << b;") should be (Map())
-    runDefinesExample("a >> b;") should be (Map())
+    runDefinesExample("a && b;") should be(Map())
+    runDefinesExample("a || b;") should be(Map())
+    runDefinesExample("a | b;") should be(Map())
+    runDefinesExample("a << b;") should be(Map())
+    runDefinesExample("a >> b;") should be(Map())
 
     runDefinesExample("a = b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runDefinesExample("a = b++;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a *= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a += b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a -= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a /= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a %= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a &= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a ^= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a |= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a >>= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
-    runDefinesExample("a <<= b;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a *= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a += b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a -= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a /= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a %= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a &= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a ^= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a |= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a >>= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+    runDefinesExample("a <<= b;") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
 
-    runDefinesExample("a == b;") should be (Map())
-    runDefinesExample("a != b;") should be (Map())
-    runDefinesExample("a < b;") should be (Map())
-    runDefinesExample("a > b;") should be (Map())
-    runDefinesExample("a <= b;") should be (Map())
-    runDefinesExample("a >= b;") should be (Map())
+    runDefinesExample("a == b;") should be(Map())
+    runDefinesExample("a != b;") should be(Map())
+    runDefinesExample("a < b;") should be(Map())
+    runDefinesExample("a > b;") should be(Map())
+    runDefinesExample("a <= b;") should be(Map())
+    runDefinesExample("a >= b;") should be(Map())
   }
 
   // http://en.wikipedia.org/wiki/C_data_types
@@ -505,32 +540,32 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
     runDeclaresExample("int a[10];") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
     runDeclaresExample("char *c;") should be(Map(FeatureExprFactory.True -> Set(Id("c"))))
     runDeclaresExample("float f;") should be(Map(FeatureExprFactory.True -> Set(Id("f"))))
-    runDeclaresExample("""
+    runDeclaresExample( """
       struct {
         int i;
       } s;""") should be(Map(FeatureExprFactory.True -> Set(Id("s"))))
-    runDeclaresExample("""
+    runDeclaresExample( """
       struct k {
         int i;
       } s;""") should be(Map(FeatureExprFactory.True -> Set(Id("s"))))
-    runDeclaresExample("""
+    runDeclaresExample( """
       struct k {
         int i;
       };""") should be(Map())
-    runDeclaresExample("""
+    runDeclaresExample( """
       struct k s;""") should be(Map(FeatureExprFactory.True -> Set(Id("s"))))
-    runDeclaresExample("""
+    runDeclaresExample( """
       union {
         int i;
       } u;""") should be(Map(FeatureExprFactory.True -> Set(Id("u"))))
   }
 
   @Test def test_useDeclareRelation() {
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         int b = a;
@@ -540,7 +575,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         b;
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo(int argc) {
         struct s {
           int i;
@@ -556,7 +591,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         k.i = 2;
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         int b = a;
@@ -568,7 +603,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
         }
         b;
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         if (a) {
@@ -576,7 +611,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         if (a) { }
@@ -585,7 +620,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         if (a) { }
@@ -594,7 +629,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         do {
@@ -602,7 +637,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         } while (a);
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         while (a) {
@@ -610,7 +645,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         for (;a < 10;) {
@@ -618,7 +653,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         if (a) {
@@ -626,7 +661,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         if (a) { }
@@ -637,7 +672,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         if (a) { }
@@ -648,7 +683,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         do {
@@ -658,7 +693,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         } while (a);
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         while (a) {
@@ -668,7 +703,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           a;
         }
       }"""))
-    println(runUseDeclareRelationExample("""
+    println(runUseDeclareRelationExample( """
       void foo() {
         int a = 0;
         for (;a < 10;) {
@@ -677,6 +712,10 @@ class LivenessTest extends TestHelper with ShouldMatchers with ConditionalContro
           #endif
           a;
         }
+      }"""))
+    println(runUseDeclareRelationExample( """
+      void foo() {
+        int a = ({int a = 2; a + 2;}) + 3;
       }"""))
   }
 }

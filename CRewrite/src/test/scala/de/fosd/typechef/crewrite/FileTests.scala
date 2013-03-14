@@ -1,8 +1,7 @@
 package de.fosd.typechef.crewrite
 
-
-import java.io.{File, FileInputStream, FileNotFoundException, InputStream}
-import org.junit.Test
+import java.io.{FileNotFoundException, InputStream}
+import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{Configuration, FeatureExprFactory, FeatureModel}
 import org.kiama.rewriting.Rewriter._
@@ -10,7 +9,7 @@ import de.fosd.typechef.conditional.{Opt, Choice}
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation {
-  val folder = "/Users/andi/Dropbox/HiWi/Andi/Coding/TypeChef/CRewrite/src/test/resources/testfiles/"
+  val folder = "testfiles/"
 
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
     // manytd is crucial here; consider the following example
@@ -49,10 +48,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     var tfullcoverage: Long = 0
 
     println("analysis " + filename)
-    val file = new File(folder + filename)
-    println(file.exists())
-
-    val inputStream: InputStream = new FileInputStream(file)
+    val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 
     if (inputStream == null)
       throw new FileNotFoundException("Input file not fould: " + filename)
@@ -114,8 +110,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     val s = getAllSucc(f, FeatureExprFactory.empty, env)
     val p = getAllPred(f, FeatureExprFactory.empty, env)
 
-    println("succ: " + DotGraph.map2file(s, env, List(), List()))
-    println("pred: " + DotGraph.map2file(p, env, List(), List()))
+    //println("succ: " + DotGraph.map2file(s, env, List(), List()))
+    //println("pred: " + DotGraph.map2file(p, env, List(), List()))
 
     val errors = compareSuccWithPred(s, p, env)
     CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
@@ -1178,6 +1174,10 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
 
   @Test def test_bug81() {
     assert(checkCfg("bug81.c") == false)
+  }
+
+  @Ignore def test_bug82() {
+    assert(checkCfg("bug82.c") == false)
   }
 
   //  @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}

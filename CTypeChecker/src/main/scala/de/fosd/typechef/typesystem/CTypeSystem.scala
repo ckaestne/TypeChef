@@ -74,7 +74,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
   private def checkFunction(f: CDef, specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
-    val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
+    val oldStyleParam = getOldStyleParameters(oldStyleParameters, featureExpr, env)
+    val funType = getFunctionType(specifiers, declarator, oldStyleParam, featureExpr, env).simplify(featureExpr)
 
     //structs in signature defined?
     funType.mapf(featureExpr, (f, t) => t.toValue match {
@@ -100,12 +101,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
 
     //add type to environment for remaining code
-    val newEnv = env.addVar(declarator.getName, featureExpr, f, funType, kind, env.scope)
+    val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
     addDecl(declarator, featureExpr, env, false)
     addJumpStatements(stmt)
 
     //check body (add parameters to environment)
-    val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
+    val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
     getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
     checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
 
@@ -152,8 +153,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     }
 
 
+    //TODO the actual behavior with tentative definitions is more complex: http://stackoverflow.com/a/1987495/2008779
+    //for now, simple approximation here: if either the old or the new variable is not initialized, we are fine (that does not account for internal linkage etc but okay)
     //global variables
-    if (newScope == 0 && prevScope == 0 && (newKind == KDeclaration || newKind == KDefinition) && prevKind == KDeclaration) {
+    if (newScope == 0 && prevScope == 0 && (newKind == KDeclaration || prevKind == KDeclaration)) {
       //valid if exact same type
       return newType.toValue == prevType.toValue
     }
@@ -270,7 +273,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val t: Conditional[CType] = lastType.mapr({
           case None => One(CVoid())
           case Some(ctype) => ctype
-        }) simplify (featureExpr)
+        }) simplify (featureExpr);
 
         //return original environment, definitions don't leave this scope
         (t, env)
@@ -342,10 +345,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
       case ContinueStatement() => nop
       case BreakStatement() => nop
 
-      case GotoStatement(_) =>
-        nop //TODO check goto against labels
-      case LabelStatement(_, _) =>
-        nop
+      case GotoStatement(_) => nop //TODO check goto against labels
+      case LabelStatement(_, _) => nop
       case LocalLabelDeclaration(ids) => nop
     }
   }
@@ -356,6 +357,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
       val ct = getExprType(expr, context, env).simplify(context)
       ct.mapf(context, {
         (f, c) =>
+          checkStructCompleteness(c, f, env, expr) // check struct completeness here, see issue #12
           if (!check(c) && !c.isUnknown && !c.isIgnore) reportTypeError(f, errorMsg(c), expr) else c
       })
     } else One(CUnknown("unsatisfiable condition for expression"))
@@ -674,3 +676,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
 }
+
+
+
+

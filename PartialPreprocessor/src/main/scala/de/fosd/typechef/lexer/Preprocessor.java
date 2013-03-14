@@ -25,7 +25,6 @@ package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
-import de.fosd.typechef.featureexpr.FeatureExprValue$;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
@@ -1789,6 +1788,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             }
             tok = retrieveTokenFromSource();
         }
+        if (is_error)
+            error(pptok, buf.toString());
+        else
+            warning(pptok, buf.toString());
         return new SimpleToken(P_LINE, pptok.getLine(), pptok.getColumn(), buf
                 .toString(), null);
     }
@@ -2013,6 +2016,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                 break;
             case '-':
                 lhs = new ExprOrValue(FeatureExprLib.l().createNeg(parse_featureExprOrValue(11, false).assumeValue(tok)));
+                break;
+            case '+':
+                lhs = new ExprOrValue((parse_featureExprOrValue(11, false).assumeValue(tok)));
                 break;
             case INTEGER:
                 lhs = new ExprOrValue(FeatureExprLib.l().createInteger(

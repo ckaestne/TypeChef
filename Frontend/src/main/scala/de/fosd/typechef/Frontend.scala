@@ -50,7 +50,6 @@ object Frontend {
     }
 
     processFile(opt)
-    println("finished.")
   }
 
 
@@ -58,7 +57,11 @@ object Frontend {
     val t1 = System.currentTimeMillis()
 
     val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-    // featureModel = fm.asInstanceOf[FeatureExpr]
+    opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
+    if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
+      println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
+      return;
+    }
     /*
             val pcs = new FeatureExprParser(FeatureExprFactory.sat).parseFile("../TypeChef-LinuxAnalysis/tmpFolder/pcs.txt")
             opt.getFeatureModelTypeSystem.and(pcs).asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
@@ -100,14 +103,14 @@ object Frontend {
         storedAst = ast
         val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-        val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
         /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
         //Debug_FeatureModelExperiments.experiment(fm_ts)
 
         if (opt.typecheck || opt.writeInterface) {
-          //ProductGeneration.typecheckProducts(fm, fm_ts, ast, opt,
-          //logMessage = ("Time for lexing(ms): " + (t2 - t1) + "\nTime for parsing(ms): " + (t3 - t2) + "\n"))
+          //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
+          //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
+          //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
           if (opt.ifdeftoif) {
             if (ts.checkAST) {
               val i = new IfdefToIf
@@ -134,6 +137,7 @@ object Frontend {
             t6 = t4
             t7 = t4
           }
+
         }
         if (opt.writeInterface) {
           println("inferring interfaces.")
@@ -146,6 +150,7 @@ object Frontend {
             ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
         }
         if (opt.conditionalControlFlow) {
+          val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
           cf.checkCfG()
           t6 = System.currentTimeMillis()
           t7 = t6

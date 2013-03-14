@@ -8,46 +8,26 @@ import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with CTypeSystemInterface {
+trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface with CDeclUse {
+
 
   /**
    * types an expression in an environment, returns a new
    * environment for all subsequent tokens (eg in a sequence)
    */
+  def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
+    getExprTypeRec(expr, featureExpr, env)
+  }
 
   def getExprTypeRec(expr: Expr, featureExpr: FeatureExpr, env: Env, recurse: Boolean = false): Conditional[CType] = {
     val et = getExprTypeRec(_: Expr, featureExpr, env, true)
     def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprTypeRec(e, f, newEnv, true)
     //        TODO assert types in varCtx and funCtx are welltyped and non-void
 
-    def addStructUsageFromSizeOfExprU(a: AST) = {
-      a match {
-        case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
-          et(expr).mapfr(featureExpr, {
-            case (f, CObj(CAnonymousStruct(fields, _))) =>
-              addAnonStructUse(i, fields)
-              null
-            case (f, CAnonymousStruct(fields, _)) =>
-              null
-            case (f, CObj(CStruct(s, isUnion))) =>
-              addStructUse(i, featureExpr, env, s, isUnion)
-              null
-            case (f, CStruct(s, isUnion)) =>
-              null
-            case (f, CObj(CPointer(CStruct(name, isUnion)))) =>
-              addStructUse(i, featureExpr, env, name, isUnion)
-              null
-            case (f, e) =>
-              null
-          })
-        case _ =>
-      }
-    }
-
     val resultType: Conditional[CType] =
       if (!featureExpr.isSatisfiable()) {
         One(CIgnore())
-      } else {
+      } else
         expr match {
           /**
            * The standard provides for methods of
@@ -73,7 +53,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
                     (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                     expr)
                 }
-                checkStructCompleteness(t, f, env, id)
+              //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
             })
             ctype.map(_.toObj)
           //&a: create pointer
@@ -107,6 +87,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
               rt.mapf(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "unknown field " + id, i))
               rt
             }
+
             et(expr).mapfr(featureExpr, {
               case (f, CObj(CAnonymousStruct(fields, _))) =>
                 addAnonStructUse(i, fields)
@@ -120,8 +101,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
                 structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
                   case (f, e) if (arrayType(e)) =>
                     reportTypeError(f, "expression " + p + " must not have array " + e, p)
-                  case (f, e) =>
-                    e
+                  case (f, e) => e
                 })
               case (f, e) =>
                 One(reportTypeError(f, "request for member " + id + " in something not a structure or union (" + p + "; " + e + ")", p))
@@ -129,13 +109,14 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
           //e->n (by rewrite to *e.n)
           case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
             val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
+            newExpr.setPositionRange(p.getPositionFrom, p.getPositionTo) //enable line reporting in error messages
+            newExpr.p.setPositionRange(expr.getPositionFrom, expr.getPositionTo) //enable line reporting in error messages
+            newExpr.s.setPositionRange(i.getPositionFrom, i.getPositionTo) //enable line reporting in error messages
             et(newExpr)
           //(a)b
           case ce@CastExpr(targetTypeName, expr) =>
             val targetTypes = getTypenameType(targetTypeName, featureExpr, env)
             val sourceTypes = et(expr).map(_.toValue)
-            //TODO: Workaround bei castexpr die __missing Id einfangen
-
             ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
               (fexpr: FeatureExpr, sourceType: CType, targetType: CType) =>
                 if (targetType == CVoid() ||
@@ -202,19 +183,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
           case p@UnaryExpr(_, expr) =>
             val newExpr = AssignExpr(expr, "+=", Constant("1"))
             et(newExpr)
-
-          case SizeOfExprT(x) => One(CUnsigned(CInt())) //actual type should be "size_t" as defined in stddef.h on the target system.
-          case SizeOfExprU(x) =>
-            x match {
-              case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
-                addStructUsageFromSizeOfExprU(p)
-              case pd@PointerDerefExpr(NAryExpr(p, expr)) =>
-                addStructUsageFromSizeOfExprU(p)
-              case pe@PostfixExpr(p: PostfixExpr, _) => addStructUsageFromSizeOfExprU(p)
-
-              case _ => // println("missed " + x)
-            }
-            One(CUnsigned(CInt()))
+          //sizeof()
+          case SizeOfExprT(x) => sizeofType(env, x, featureExpr)
+          case SizeOfExprU(x) => sizeofType(env, x, featureExpr)
           case ue@UnaryOpExpr(kind, expr) =>
             if (kind == "&&")
             //label deref, TODO check that label is actually declared
@@ -268,9 +239,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
             //return original environment, definitions don't leave this scope
             t
 
-          case LcurlyInitializer(inits) =>
-            One(CCompound().toObj)
-          //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
+          case LcurlyInitializer(inits) => One(CCompound().toObj) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
           case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
           case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
           case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
@@ -281,17 +250,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
           //TODO initializers 6.5.2.5
           case e => One(reportTypeError(featureExpr, "unknown expression " + e + " (TODO)", e))
         }
-      }
+
     typedExpr(expr, resultType, featureExpr, env)
     addEnv(expr, env)
     if (!recurse) {
       addUse(expr, featureExpr, env)
     }
     resultType.simplify(featureExpr)
-  }
-
-  def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
-    getExprTypeRec(expr, featureExpr, env)
   }
 
   private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr, env: Env): (FeatureExpr, FeatureExpr)
@@ -441,6 +406,47 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CDeclUse with C
 
   //implemented by CTypeSystem
   def getStmtType(stmt: Statement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env)
+
+  /**
+   * sizeof() has type Any->size_t. Type size_t is defined in individual header files (e.g. stddef.h) of the system though
+   * and may not be defined in all cases. here we look up the type of size_t and return an int in case it fails
+   */
+  def sizeofType(env: Env, x: AST, featureExpr: FeatureExpr): Conditional[CType] = {
+    x match {
+      case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
+      case pd@PointerDerefExpr(NAryExpr(p, expr)) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
+      case pe@PostfixExpr(p: PostfixExpr, _) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
+
+
+      case _ => // println("missed " + x)
+    }
+    env.typedefEnv.getOrElse("size_t", CUnsigned(CInt()))
+  }
+
+  private def addStructUsageFromSizeOfExprU(a: AST, featureExpr: FeatureExpr, env: Env) = {
+    val et = getExprTypeRec(_: Expr, featureExpr, env, true)
+    a match {
+      case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
+        et(expr).mapfr(featureExpr, {
+          case (f, CObj(CAnonymousStruct(fields, _))) =>
+            addAnonStructUse(i, fields)
+            null
+          case (f, CAnonymousStruct(fields, _)) =>
+            null
+          case (f, CObj(CStruct(s, isUnion))) =>
+            addStructUse(i, featureExpr, env, s, isUnion)
+            null
+          case (f, CStruct(s, isUnion)) =>
+            null
+          case (f, CObj(CPointer(CStruct(name, isUnion)))) =>
+            addStructUse(i, featureExpr, env, name, isUnion)
+            null
+          case (f, e) =>
+            null
+        })
+      case _ =>
+    }
+  }
 
 
 }

@@ -10,9 +10,8 @@ object BuildSettings {
   import Dependencies._
 
   val buildOrganization = "de.fosd.typechef"
-  val buildVersion = "0.3.3"
+  val buildVersion = "0.3.4"
   val buildScalaVersion = "2.9.1"
-
 
   val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
@@ -30,9 +29,6 @@ object BuildSettings {
     libraryDependencies ++= testEnvironment,
 
     parallelExecution := false, //run into memory problems on hudson otherwise
-
-    // error occured in scalatest
-    checksums in update := Nil,
 
     homepage := Some(url("https://github.com/ckaestne/TypeChef")),
     licenses := Seq("GNU General Public License v3.0" -> url("http://www.gnu.org/licenses/gpl.txt")),
@@ -210,11 +206,5 @@ object TypeChef extends Build {
     file("CRewrite"),
     settings = buildSettings
   ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib)
-
-  lazy val crefactor = Project(
-    "CRefactor",
-    file("CRefactor"),
-    settings = buildSettings
-  ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib, crewrite, frontend)
 }
 

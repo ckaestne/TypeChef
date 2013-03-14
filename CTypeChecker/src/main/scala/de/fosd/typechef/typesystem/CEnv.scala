@@ -1,13 +1,9 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.conditional._
+import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.parser.c.{Id, AST}
 import FeatureExprFactory._
-import de.fosd.typechef.parser.c.AST
-import de.fosd.typechef.parser.c.Id
-import scala.Some
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.conditional.One
 
 /**
  * bundles all environments during type checking
@@ -116,15 +112,12 @@ trait CEnv {
     private val emptyFields = new ConditionalTypeMap()
     private val incompleteTag = StructTag(false, emptyFields, -1)
 
-    // def get(name: String, isUnion: Boolean): ConditionalTypeMap = env((name, isUnion)).map(_.fields)
     //returns the condition under which a structure is complete
     def isComplete(name: String, isUnion: Boolean): FeatureExpr = env.getOrElse((name, isUnion), One(incompleteTag)).when(_.isComplete)
 
     def isCompleteUnion(name: String) = isComplete(name, true)
 
     def isCompleteStruct(name: String) = isComplete(name, false)
-
-    def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
 
     def addIncomplete(id: Id, isUnion: Boolean, condition: FeatureExpr, scope: Int) = {
       //overwrites complete tags in lower scopes, but has no effects otherwise
@@ -143,6 +136,7 @@ trait CEnv {
       val key = (name, isUnion)
       val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
       val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope, Some(id))), prevTag).simplify
+
       new StructEnv(env + (key -> result))
 
       //            //TODO check distinct attribute names in each variant
@@ -155,6 +149,8 @@ trait CEnv {
     }
 
     def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion), One(incompleteTag)).map(_.fields)
+
+    def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
 
     def getId(name: String, isUnion: Boolean): Conditional[Id] = {
       def extractId(entry: Conditional[StructTag]): Conditional[Id] = {
@@ -194,7 +190,7 @@ trait CEnv {
    */
 
   type EnumEnv = Map[String, Tuple2[FeatureExpr, Id]]
-  //type EnumEnv = Map[String, FeatureExpr]
+  // type EnumEnv = Map[String, FeatureExpr]
 
   /**
    * label environment: stores which labels are reachable from a goto.
