@@ -901,36 +901,25 @@ trait CDeclUse extends CEnv with CEnvCache {
   private def addGotoStatements(f: AST) {
     val labelMap: IdentityHashMap[Id, FeatureExpr] = new IdentityHashMap
 
-    def getLabels(a: Any): List[Opt[_]] = {
+    def get[T](a: Any)(implicit m: ClassManifest[T]): List[Opt[T]] = {
       a match {
-        case o@Opt(ft, entry: LabelStatement) =>
-          List(o)
-        case l: List[_] => l.flatMap(x => getLabels(x))
-        case p: Product => p.productIterator.toList.flatMap(x => getLabels(x))
+        case o: Opt[T] if (m.erasure.isInstance(o.entry)) => List(o)
+        case l: List[_] => l.flatMap(x => get[T](x))
+        case p: Product => p.productIterator.toList.flatMap(x => get[T](x))
         case _ => List()
       }
     }
-    def getGotos(a: Any): List[Opt[_]] = {
-      a match {
-        case o@Opt(ft, entry: GotoStatement) =>
-          List(o)
-        case l: List[_] => l.flatMap(x => getGotos(x))
-        case p: Product => p.productIterator.toList.flatMap(x => getGotos(x))
-        case _ => List()
-      }
-    }
-    getLabels(f).foreach(x => {
-      val label = x.entry.asInstanceOf[LabelStatement]
-      putToDeclUseMap(label.id)
-      labelMap.put(label.id, x.feature)
+
+    get[LabelStatement](f).foreach(label => {
+      putToDeclUseMap(label.entry.id)
+      labelMap.put(label.entry.id, label.feature)
     })
-    getGotos(f).foreach(x => {
-      val goto = x.entry.asInstanceOf[GotoStatement]
-      goto.target match {
+    get[GotoStatement](f).foreach(goto => {
+      goto.entry.target match {
         case usage@Id(name) =>
           labelMap.keySet().toArray().foreach(declaration => {
             if (declaration.asInstanceOf[Id].name.equals(name) &&
-              (x.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(x.feature).isTautology)) {
+              (goto.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(goto.feature).isTautology)) {
               addToDeclUseMap(declaration.asInstanceOf[Id], usage)
             }
           })
