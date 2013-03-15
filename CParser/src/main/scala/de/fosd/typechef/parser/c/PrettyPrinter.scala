@@ -31,6 +31,7 @@ object PrettyPrinter {
 
   val line = Line
   val space = Text(" ")
+  var newLineForIfdefs = true
 
   def nest(n: Int, d: Doc) = Nest(n, d)
 
@@ -74,7 +75,8 @@ object PrettyPrinter {
     writer
   }
 
-  def printF(ast: AST, path: String) = {
+  def printF(ast: AST, path: String, newLines: Boolean = false) = {
+    newLineForIfdefs = newLines
     val writer = new FileWriter(path)
     layoutW(prettyPrint(ast), writer)
     writer.close()
@@ -84,33 +86,56 @@ object PrettyPrinter {
   def ppConditional(e: Conditional[_], list_feature_expr: List[FeatureExpr]): Doc = e match {
     case One(c: AST) => prettyPrint(c, list_feature_expr)
     case Choice(f, a: AST, b: AST) =>
-      line ~
+      if (newLineForIfdefs) {
+        line ~
+          "#if" ~~ f.toTextExpr *
+          prettyPrint(a, f :: list_feature_expr) *
+          "#else" *
+          prettyPrint(b, f.not :: list_feature_expr) *
+          "#endif" ~
+            line
+      } else {
         "#if" ~~ f.toTextExpr *
-        prettyPrint(a, f :: list_feature_expr) *
-        "#else" *
-        prettyPrint(b, f.not :: list_feature_expr) *
-        "#endif" ~
-          line
+          prettyPrint(a, f :: list_feature_expr) *
+          "#else" *
+          prettyPrint(b, f.not :: list_feature_expr) *
+          "#endif"
+      }
+
     case Choice(f, a: Conditional[_], b: Conditional[_]) =>
-      line ~
+      if (newLineForIfdefs) {
+        line ~
+          "#if" ~~ f.toTextExpr *
+          ppConditional(a, f :: list_feature_expr) *
+          "#else" *
+          ppConditional(b, f.not :: list_feature_expr) *
+          "#endif" ~
+            line
+      } else {
         "#if" ~~ f.toTextExpr *
-        ppConditional(a, f :: list_feature_expr) *
-        "#else" *
-        ppConditional(b, f.not :: list_feature_expr) *
-        "#endif" ~
-          line
+          ppConditional(a, f :: list_feature_expr) *
+          "#else" *
+          ppConditional(b, f.not :: list_feature_expr) *
+          "#endif"
+      }
   }
 
   private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
     if (e.feature == FeatureExprFactory.True ||
       list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
       prettyPrint(e.entry, list_feature_expr)
-    else
+    else if (newLineForIfdefs) {
       line ~
         "#if" ~~ e.feature.toTextExpr *
         prettyPrint(e.entry, e.feature :: list_feature_expr) *
         "#endif" ~
           line
+    } else {
+      "#if" ~~ e.feature.toTextExpr *
+        prettyPrint(e.entry, e.feature :: list_feature_expr) *
+        "#endif"
+    }
+
   }
 
   def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExprFactory.True)): Doc = {
