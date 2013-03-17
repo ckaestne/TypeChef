@@ -4,6 +4,7 @@ import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import org.junit.{Assert, Ignore, Test}
+import java.util.Collections
 
 class PPFilesTest {
     def parseFile(fileName: String) {
@@ -11,7 +12,7 @@ class PPFilesTest {
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser()
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/boa/", null), FeatureExprFactory.True)
+            CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/boa/"), null), FeatureExprFactory.True)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 val emptyLocation = checkPositionInformation(ast.asInstanceOf[Product])

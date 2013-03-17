@@ -8,10 +8,11 @@ Parameters:
 
   General processing options (lexing, parsing, type checking, interfaces; select only highest)
     --lex (-E)                     Stop after lexing; no parsing.
-    --parse                        Lex and parse the file; no type checking.
+    --parse                        Lex and parse the file; no type checking (default).
     --typecheck (-t)               Lex, parse, and type check; but do not create interfaces.
-    --interface                    Lex, parse, type check, and create interfaces (default).
+    --interface                    Lex, parse, type check, and create interfaces.
     --conditionalControlFlow       Lex, parse, and check conditional control flow
+    --dataFlow                     Lex, parse, and check data flow
     --output=file (-o)             Path to output files (no extension, creates .pi, .macrodbg etc files).
     --writePI                      Write lexer output into .pi file
     --debugInterface               Write interface in human readable format (requires --interface)
@@ -33,6 +34,7 @@ Parameters:
     --incdir=dir (-I)              Adds the directory dir to the list of directories to be searched for header files.
     --iquote=dir                   Adds the directory dir to the list of directories to be searched for header files included using "".
     --lexOutput=file               Output file (typically .pi).
+    --xtc                          Use xtc/SuperC lexer instead of TypeChef lexer (experimental).
 
   Preprocessor flag filter
     --prefixfilter=text (-p)       Analysis excludes all flags beginning with this prefix.
@@ -60,4 +62,4 @@ Parameters:
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.3_20120626151917
+TypeChef version 0.3.4_20130317161420

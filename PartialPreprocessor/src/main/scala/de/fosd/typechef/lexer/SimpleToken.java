@@ -77,7 +77,7 @@ public class SimpleToken extends Token {
         return type;
     }
 
-    /* pp */void setLocation(int line, int column) {
+    public void setLocation(int line, int column) {
         this.line = line;
         this.column = column;
     }
@@ -103,6 +103,7 @@ public class SimpleToken extends Token {
     public int getColumn() {
         return column;
     }
+
 
     /**
      * Returns the original or generated text of this token.
@@ -168,6 +169,12 @@ public class SimpleToken extends Token {
 
     public boolean mayExpand() {
         return mayExpand;
+    }
+
+    @Override
+    public String getSourceName() {
+        if (source == null) return null;
+        return source.toString();
     }
 
     public Source getSource() {

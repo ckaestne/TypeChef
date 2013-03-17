@@ -405,8 +405,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         conditionalFoldRightFR(extensions.reverse, t, featureExpr,
             (fexpr: FeatureExpr, ext: DeclaratorExtension, rtype: CType) => ext match {
                 case o@DeclIdentifierList(idList) =>
-                    if (!idList.isEmpty)
-                        assert(oldStyleParameterTypes != null)
+                    if (!idList.isEmpty && oldStyleParameterTypes == null)
+                        return One(reportTypeError(fexpr, "invalid function signature (parameter types missing)", o, Severity.Crash))
                     val parameterTypes: List[Opt[CType]] = idList.flatMap({ case Opt(f, id) => oldStyleParameterTypes.getOrElse(id.name, CUnsigned(CInt())).toOptList.map(_.and(f and fexpr)) })
                     var paramLists: Conditional[List[CType]] =
                         ConditionalLib.explodeOptList(parameterTypes)

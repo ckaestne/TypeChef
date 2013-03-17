@@ -6,6 +6,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
 import org.junit.{Ignore, Test}
+import java.util.Collections
 
 class PrettyPrinterTest {
     val p = new CParser()
@@ -29,7 +30,7 @@ class PrettyPrinterTest {
 
     @Test def testEnum = parsePrintParse("enum e {  test,  test2}", p.enumSpecifier)
 
-    @Test def testString = parsePrintParse(""" "test" "b" """, p.stringConst)
+    @Test def testString = parsePrintParse( """ "test" "b" """, p.stringConst)
 
     @Test def testConstant() {
         def parseConstant(const: String) {
@@ -183,7 +184,7 @@ class PrettyPrinterTest {
         //                           |void x(){}""", p.translationUnit)
         parsePrintParse("main(){}", p.functionDef)
         parsePrintParse("main(){int T=100, a=(T)+1;}", p.functionDef)
-        parsePrintParse("""
+        parsePrintParse( """
         main() {
           int a;
           #ifdef A
@@ -193,7 +194,7 @@ class PrettyPrinterTest {
           #endif
           int c;
         }
-        """, p.functionDef)
+                         """, p.functionDef)
     }
 
     @Test def testTypedefName {
@@ -292,7 +293,7 @@ class PrettyPrinterTest {
     }
 
 
-    private def parse[T](code: String, production: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
+    private def parse[T](code: String, production: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
         val actual = p.parse(code.stripMargin, production)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -308,7 +309,7 @@ class PrettyPrinterTest {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
         assertNotNull("file not found " + fileName, inputStream)
         val result = p.phrase(p.translationUnit)(
-            CLexer.lexStream(inputStream, fileName, "testfiles/cgram/", null), FeatureExprFactory.True)
+            CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
 
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
