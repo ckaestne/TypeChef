@@ -34,7 +34,7 @@ and several helper libraries.
   allows to scale reasoning even to feature models the size of the Linux kernel.
   The library can be (and is) reused in very different contexts also in Java code.
 
-* A library of *conditional data structures* for variational programming 
+* A library of **conditional data structures** for variational programming 
   (subproject *ConditionalLib*) with several useful operations on
   conditional structures. Used heavily in all other subprojects.
   For a short introduction see [VariationalProgramming.md](https://github.com/ckaestne/TypeChef/blob/XtcIntegration/VariationalProgramming.md).
@@ -182,23 +182,23 @@ Fork the project, write bug reports, contact us, .... We are open for collaborat
 Publications
 ------------
 
-An indepth discussion of the parsing approach and our experience with parsing Linux was published at OOPSLA 2011:
+An indepth discussion of the **parsing** approach and our experience with parsing Linux was published at OOPSLA 2011:
 
 > Christian Kaestner, Paolo G. Giarrusso, Tillmann Rendel, Sebastian Erdweg, Klaus Ostermann, and Thorsten Berger. [Variability-Aware Parsing in the Presence of Lexical Macros and Conditional Compilation](http://www.cs.cmu.edu/~ckaestne/pdf/oopsla11_typechef.pdf). In Proceedings of the 26th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA) (Portland, OR), New York, NY, October 2011. ACM Press.
 
-In the context of a variability-aware module system, we discussed type checking and linker checks on the example of Busybox, published at OOPSLA 2012:
+In the context of a variability-aware **module system**, we discussed **type checking** and **linker checks** on the example of Busybox, published at OOPSLA 2012:
 
 > Christian Kästner, Klaus Ostermann, and Sebastian Erdweg. [A Variability-Aware Module System](http://www.cs.cmu.edu/~ckaestne/pdf/oopsla12.pdf). In Proceedings of the 27th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA), pages 773--792, New York, NY: ACM Press, October 2012.
 
-A more detailed discussion of the variability-aware lexer (or partial preprocessor) was presented at VaMoS 2011:
+A more detailed discussion of the variability-aware **lexer** (or partial preprocessor) was presented at VaMoS 2011:
 
 > Christian Kästner, Paolo G. Giarrusso, and Klaus Ostermann. [Partial Preprocessing C Code for Variability Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/vamos11.pdf). In Proceedings of the Fifth International Workshop on Variability Modelling of Software-intensive Systems (VaMoS) (Namur, Belgium), pages 137-140, New York, NY, USA, January 2011. ACM Press.
 
-More information on the performance of our type system and data-flow analysis can be found here:
+More information on the performance of our **type system** and **data-flow analysis** can be found here:
 
 > J. Liebig, A. von Rhein, C. Kästner, S. Apel, J. Dörre, and C. Lengauer. [Large-Scale Variability-Aware Type Checking and Dataflow Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/mip-1212.pdf). Technical Report MIP-1212, Passau, Germany: Department of Informatics and Mathematics, University of Passau, November 2012.
 
-A simple variability-aware interpreter for executing test cases was build on top of TypeChef and published at FOSD 2012:
+A simple variability-aware **interpreter** for executing test cases was build on top of TypeChef and published at FOSD 2012:
 
 > C. Kästner, A. von Rhein, S. Erdweg, J. Pusch, S. Apel, T. Rendel, and K. Ostermann. [Toward Variability-Aware Testing](http://www.cs.cmu.edu/~ckaestne/pdf/FOSD12_testing.pdf). In Proceedings of the 4th International Workshop on Feature-Oriented Software Development (FOSD), pages 1--8, New York, NY: ACM Press, September 2012. 
 
