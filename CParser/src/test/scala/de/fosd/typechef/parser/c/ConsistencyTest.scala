@@ -37,7 +37,7 @@ class ConsistencyTest {
 
         for (Opt(f, ext) <- ast.defs) {
 
-            assert(f.isSatisfiable(featureModel),"unsatisfiable code in AST: "+ext.getPositionFrom.getLine + " for " + ext)
+            assert(f.isSatisfiable(featureModel), "unsatisfiable code in AST: " + ext.getPositionFrom.getLine + " for " + ext)
 
             if (f.isSatisfiable(featureModel))
                 if (!knownExternals.containsKey(ext)) {
@@ -60,12 +60,12 @@ class ConsistencyTest {
         val oldDefault = FeatureExprFactory.dflt
         FeatureExprFactory.setDefault(FeatureExprFactory.bdd)
         try {
-        //had serious problems with this file during type checking
-        //        val fmStream = getClass.getResourceAsStream("/other/approx.fm")
-        //        val f: FeatureExpr = new FeatureExprParser(FeatureExprFactory.dflt).parse(new InputStreamReader( fmStream))
-        val f: FeatureExpr = new FeatureExprParser(FeatureExprFactory.dflt).parseFile("other/approx.fm")
-        val fm = FeatureExprFactory.dflt.featureModelFactory.create(f and FeatureExprFactory.createDefinedExternal("CONFIG_BLK_DEV_RZ1000") and FeatureExprFactory.createDefinedExternal("CONFIG_IDE"))
-        parseFile("other/rz1000.pi", fm)
+            //had serious problems with this file during type checking
+            val fmStream = getClass.getResourceAsStream("/other/approx.fm")
+            val f: FeatureExpr = new FeatureExprParser(FeatureExprFactory.dflt).parseFile(fmStream)
+            //        val f: FeatureExpr = new FeatureExprParser(FeatureExprFactory.dflt).parseFile("other/approx.fm")
+            val fm = FeatureExprFactory.dflt.featureModelFactory.create(f and FeatureExprFactory.createDefinedExternal("CONFIG_BLK_DEV_RZ1000") and FeatureExprFactory.createDefinedExternal("CONFIG_IDE"))
+            parseFile("other/rz1000.pi", fm)
         } finally {
             FeatureExprFactory.setDefault(oldDefault)
         }

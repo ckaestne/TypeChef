@@ -3,7 +3,6 @@ package de.fosd.typechef.typesystem
 import _root_.de.fosd.typechef.featureexpr._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.parser.c._
-import FeatureExprFactory.{True, False}
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -50,7 +49,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
     private def checkFunction(f: CDef, specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
-        val funType = getFunctionType(specifiers, declarator, oldStyleParameters, featureExpr, env).simplify(featureExpr)
+        val oldStyleParam = getOldStyleParameters(oldStyleParameters, featureExpr, env)
+        val funType = getFunctionType(specifiers, declarator, oldStyleParam, featureExpr, env).simplify(featureExpr)
 
         //structs in signature defined?
         funType.mapf(featureExpr, (f, t) => t.toValue match {
@@ -79,7 +79,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
 
         //check body (add parameters to environment)
-        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope()), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
+        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KDeclaration, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
 
@@ -159,8 +159,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //declared typedefs?
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
 
-        val (newenv,vars) = getDeclaredVariables(d, featureExpr, env, checkInitializer)
-        env=newenv
+        val (newenv, vars) = getDeclaredVariables(d, featureExpr, env, checkInitializer)
+        env = newenv
 
         //check redeclaration
         for (v <- vars)
@@ -311,7 +311,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
 
             case SwitchStatement(expr, s) => expectIntegral(expr); checkCStmt(s); nop //spec
-            case DefaultStatement () => nop
+            case DefaultStatement() => nop
 
             case EmptyStatement() => nop
             case ContinueStatement() => nop
@@ -329,7 +329,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             val ct = getExprType(expr, context, env).simplify(context)
             ct.mapf(context, {
                 (f, c) =>
-                    checkStructCompleteness(c, f, env, expr)   // check struct completeness here, see issue #12
+                    checkStructCompleteness(c, f, env, expr) // check struct completeness here, see issue #12
                     if (!check(c) && !c.isUnknown && !c.isIgnore) reportTypeError(f, errorMsg(c), expr) else c
             })
         } else One(CUnknown("unsatisfiable condition for expression"))
