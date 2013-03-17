@@ -39,12 +39,12 @@ class ParserMain(p: CParser) {
         parserMain(lexer, new CTypeContext(), parserOptions)
     }
 
-    def parserMain(tokenstream: TokenReader[AbstractToken, CTypeContext], parserOptions: ParserOptions): AST = {
+    def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions): AST = {
         parserMain((() => tokenstream), new CTypeContext(), parserOptions)
     }
 
 
-    def parserMain(lexer: () => TokenReader[AbstractToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): AST = {
+    def parserMain(lexer: () => TokenReader[CToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): AST = {
         assert(parserOptions != null)
         //        val logStats = MyUtil.runnable(() => {
         //            if (AbstractToken.profiling) {
@@ -57,7 +57,7 @@ class ParserMain(p: CParser) {
         //        Runtime.getRuntime().addShutdownHook(new Thread(logStats))
 
         val lexerStartTime = System.currentTimeMillis
-        val in = lexer().setContext(initialContext)
+        val in: p.Input = lexer().setContext(initialContext)
 
         val parserStartTime = System.currentTimeMillis
         val result: p.MultiParseResult[AST] = p.phrase(p.translationUnit)(in, FeatureExprFactory.True)
@@ -74,16 +74,16 @@ class ParserMain(p: CParser) {
                 "  Tokens: " + in.tokens.size + "\n")
             if (in.first.isInstanceOf[ProfilingToken])
                 print(
-                "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in.asInstanceOf[TokenReader[ProfilingToken,CTypeContext]]) + "\n" +
-                "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in.asInstanceOf[TokenReader[ProfilingToken,CTypeContext]]) + "\n" +
-                "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in.asInstanceOf[TokenReader[ProfilingToken,CTypeContext]]) + "\n" );
-                //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
+                    "  Tokens Consumed: " + ProfilingTokenHelper.totalConsumed(in.asInstanceOf[TokenReader[ProfilingToken, CTypeContext]]) + "\n" +
+                        "  Tokens Backtracked: " + ProfilingTokenHelper.totalBacktracked(in.asInstanceOf[TokenReader[ProfilingToken, CTypeContext]]) + "\n" +
+                        "  Tokens Repeated: " + ProfilingTokenHelper.totalRepeated(in.asInstanceOf[TokenReader[ProfilingToken, CTypeContext]]) + "\n");
+            //                "  Repeated Distribution: " + ProfilingTokenHelper.repeatedDistribution(in) + "\n" +
             print(
                 "  Conditional Tokens: " + countConditionalTokens(in.tokens) + "\n" +
-                "  Distinct Features#: " + distinctFeatures.size + "\n" +
-                "  Distinct Features: " + distinctFeatures.toList.sorted.mkString(";") + "\n" +
-                "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
-                "  Choice Nodes: " + countChoiceNodes(result) + "\n\n")
+                    "  Distinct Features#: " + distinctFeatures.size + "\n" +
+                    "  Distinct Features: " + distinctFeatures.toList.sorted.mkString(";") + "\n" +
+                    "  Distinct Feature Expressions: " + countFeatureExpr(in.tokens) + "\n" +
+                    "  Choice Nodes: " + countChoiceNodes(result) + "\n\n")
         }
 
         //        checkParseResult(result, FeatureExprFactory.True)

@@ -1,5 +1,6 @@
 package de.fosd.typechef.lexer;
 
+import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.macrotable.MacroFilter;
 
@@ -19,12 +20,12 @@ public class PartialPPLexer {
 
     public boolean debug = false;
 
-    public List<Token> parse(String code, List<String>  systemIncludePath, FeatureModel featureModel) throws LexerException,
+    public List<LexerToken> parse(String code, List<String> systemIncludePath, FeatureModel featureModel) throws LexerException,
             IOException {
         return parse(new StringLexerSource(code, true), systemIncludePath, featureModel);
     }
 
-    public List<Token> parseFile(String fileName, List<String>  systemIncludePath, FeatureModel featureModel)
+    public List<LexerToken> parseFile(String fileName, List<String> systemIncludePath, FeatureModel featureModel)
             throws LexerException, IOException {
         return parse(new FileLexerSource(new File(fileName)), systemIncludePath, featureModel);
     }
@@ -37,12 +38,12 @@ public class PartialPPLexer {
      * @throws LexerException
      * @throws IOException
      */
-    public List<Token> parseStream(InputStream stream, String  filePath, List<String> systemIncludePath, FeatureModel featureModel)
+    public List<LexerToken> parseStream(InputStream stream, String filePath, List<String> systemIncludePath, FeatureModel featureModel)
             throws LexerException, IOException {
         return parse(new FileLexerSource(stream, filePath), systemIncludePath, featureModel);
     }
 
-    public List<Token> parse(Source source, List<String> systemIncludePath, FeatureModel featureModel)
+    public List<LexerToken> parse(Source source, List<String> systemIncludePath, FeatureModel featureModel)
             throws LexerException, IOException {
         Preprocessor pp = new Preprocessor(new MacroFilter(), featureModel);
         pp.addFeature(Feature.DIGRAPHS);
@@ -65,7 +66,7 @@ public class PartialPPLexer {
 
         pp.addInput(source);
 
-        ArrayList<Token> result = new ArrayList<Token>();
+        ArrayList<LexerToken> result = new ArrayList<LexerToken>();
         PrintWriter stdOut = new PrintWriter(new OutputStreamWriter(System.out));
         for (; ; ) {
             Token tok = pp.getNextToken();
@@ -78,7 +79,7 @@ public class PartialPPLexer {
                 System.err.println("Invalid token: " + tok);
             // throw new LexerException(...)
 
-            if (isResultToken(tok))
+            if (tok.isLanguageToken())
                 result.add(tok);
             if (debug)
                 tok.lazyPrint(stdOut);
@@ -86,14 +87,5 @@ public class PartialPPLexer {
         return result;
     }
 
-    static boolean isResultToken(Token tok) {
-        return tok.getType() != Token.P_LINE
-                && tok.getType() != Token.WHITESPACE
-                && !(tok.getType() != Token.P_FEATUREEXPR && tok.getText().equals("__extension__"))
-                && tok.getType() != Token.NL && tok.getType() != Token.P_IF
-                && tok.getType() != Token.CCOMMENT
-                && tok.getType() != Token.CPPCOMMENT
-                && tok.getType() != Token.P_ENDIF
-                && tok.getType() != Token.P_ELIF;
-    }
+
 }

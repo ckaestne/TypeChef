@@ -3,14 +3,14 @@ package de.fosd.typechef.parser
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 trait AbstractToken {
+    // used to determine splitting and joining
     def getFeature: FeatureExpr
-    def getText: String
-    def getPosition: Position
 
-    def isInteger: Boolean
-    def isIdentifier: Boolean
-    def isString: Boolean
-    def isCharacter: Boolean
+    // used by ParserFramework only to produce error messages
+    def getText: String
+
+    // used to propagate position information to AST elements
+    def getPosition: Position
 
     // profiling
     def countSuccess(context: FeatureExpr) = {}

@@ -104,6 +104,7 @@ public class SimpleToken extends Token {
         return column;
     }
 
+
     /**
      * Returns the original or generated text of this token.
      * <p/>

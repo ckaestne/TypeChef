@@ -1,25 +1,24 @@
 package de.fosd.typechef.xtclexer;
 
 
+import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.*;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
 import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import net.sf.javabdd.BDD;
 import xtc.LexerInterface;
 import xtc.XtcMacroFilter;
-import xtc.lang.cpp.*;
-import xtc.lang.cpp.Preprocessor;
+import xtc.lang.cpp.CTag;
+import xtc.lang.cpp.PresenceConditionManager;
+import xtc.lang.cpp.Stream;
+import xtc.lang.cpp.Syntax;
 import xtc.tree.Locatable;
-import xtc.tree.Location;
+
+import java.io.*;
+import java.util.*;
 
 
 /**
@@ -151,9 +150,8 @@ public class XtcPreprocessor implements VALexer {
     }
 
 
-
     @Override
-    public Token getNextToken() throws IOException {
+    public LexerToken getNextToken() throws IOException {
         Stream lexer = getCurrentLexer().get(0);
         Syntax s = lexer.scan();
         while (s.kind() != Syntax.Kind.EOF) {
@@ -175,7 +173,7 @@ public class XtcPreprocessor implements VALexer {
 
             if (s.kind() == Syntax.Kind.CONDITIONAL)
                 return new XtcToken(s, stack.peek());
-            Boolean visible=stack.peek().isSatisfiable();
+            Boolean visible = stack.peek().isSatisfiable();
             if (visible) {
                 if (s.kind() == Syntax.Kind.LANGUAGE)
                     return new XtcToken(s, stack.peek());
@@ -187,7 +185,7 @@ public class XtcPreprocessor implements VALexer {
         }
         getCurrentLexer().remove(0);
         if (getCurrentLexer().isEmpty())
-            return new SimpleToken(Token.EOF, 0, 0, "EOF", null);
+            return new EOFToken();
         else
             return getNextToken();
     }
@@ -268,7 +266,8 @@ public class XtcPreprocessor implements VALexer {
         return res;  //To change body of created methods use File | Settings | File Templates.
     }
 
-    public static class XtcToken extends Token {
+    public static class XtcToken implements LexerToken {
+
         public XtcToken(Syntax t, FeatureExpr f) {
             xtcToken = t;
             fexpr = f;
@@ -277,37 +276,6 @@ public class XtcPreprocessor implements VALexer {
         Syntax xtcToken;
         FeatureExpr fexpr;
 
-        @Override
-        public int getType() {
-            if (xtcToken.kind() == Syntax.Kind.CONDITIONAL)
-                return Token.P_IF;
-            if (xtcToken.kind() == Syntax.Kind.LAYOUT)
-                return Token.WHITESPACE;
-            if (xtcToken.kind() == Syntax.Kind.EOF)
-                return Token.EOF;
-            if (xtcToken.kind() == Syntax.Kind.DIRECTIVE)
-                return Token.P_LINE;
-            if (xtcToken.kind() == Syntax.Kind.ERROR)
-                return Token.P_LINE;
-            if (xtcToken.kind() == Syntax.Kind.MARKER)
-                return Token.P_LINE;
-            if (xtcToken.kind() == Syntax.Kind.LANGUAGE) {
-                //TODO this is unnecessarily slow and stupid. check on demand
-                if (xtcToken.getTokenText().startsWith("'"))
-                    return Token.CHARACTER;
-                if (xtcToken.getTokenText().startsWith("\""))
-                    return Token.STRING;
-                try {
-                    Double.valueOf(xtcToken.getTokenText());
-                    return Token.INTEGER;
-                } catch (NumberFormatException e){
-                }
-                return Token.IDENTIFIER;
-            }
-            if (xtcToken.kind() == Syntax.Kind.PREPROCESSOR)
-                return Token.P_LINE;
-            throw new RuntimeException("unknown token kind");
-        }
 
         int localLine = Integer.MIN_VALUE;
 
@@ -330,6 +298,161 @@ public class XtcPreprocessor implements VALexer {
             return xtcToken.getLocation().column;
         }
 
+
+//        @Override
+//        public int getType() {
+//            if (xtcToken.kind() == Syntax.Kind.CONDITIONAL)
+//                return Token.P_IF;
+//            if (xtcToken.kind() == Syntax.Kind.LAYOUT)
+//                return Token.WHITESPACE;
+//            if (xtcToken.kind() == Syntax.Kind.EOF)
+//                return Token.EOF;
+//            if (xtcToken.kind() == Syntax.Kind.DIRECTIVE)
+//                return Token.P_LINE;
+//            if (xtcToken.kind() == Syntax.Kind.ERROR)
+//                return Token.P_LINE;
+//            if (xtcToken.kind() == Syntax.Kind.MARKER)
+//                return Token.P_LINE;
+//            if (xtcToken.kind() == Syntax.Kind.LANGUAGE) {
+//                //TODO this is unnecessarily slow and stupid. check on demand
+//                if (xtcToken.toLanguage().tag()==CTag.CHARACTERconstant)
+//                    return Token.CHARACTER;
+//                if (xtcToken.toLanguage().tag()==CTag.STRINGliteral)
+//                    return Token.STRING;
+//                if (xtcToken.toLanguage().tag()==CTag.INTEGERconstant)
+//                    return Token.INTEGER;
+//                if (xtcToken.toLanguage().tag()==CTag.IDENTIFIER ||
+//                        xtcToken.toLanguage().tag()==CTag.__BUILTIN_VA_LIST)
+//                    return Token.IDENTIFIER;
+//                return 0;
+//            }
+//            if (xtcToken.kind() == Syntax.Kind.PREPROCESSOR)
+//                return Token.P_LINE;
+//            throw new RuntimeException("unknown token kind");
+//        }
+
+        @Override
+        public boolean isLanguageToken() {
+            return xtcToken.kind() == Syntax.Kind.LANGUAGE &&
+                    !xtcToken.toLanguage().getTokenText().equals("__extension__");
+        }
+
+        @Override
+        public boolean isEOF() {
+            return xtcToken.kind() == Syntax.Kind.EOF;
+        }
+
+        /**
+         * is a language identifier (or type in C)
+         * <p/>
+         * essentially only excludes brackets, commas, literals, and such
+         */
+        @Override
+        public boolean isKeywordOrIdentifier() {
+            return isLanguageToken() && (xtcToken.toLanguage().tag() == CTag.IDENTIFIER ||
+                    xtcToken.toLanguage().tag() == CTag.TYPEDEFname ||
+                    keywords.contains(xtcToken.toLanguage().tag()));
+
+        }
+
+        static Set<CTag> keywords = new HashSet<CTag>();
+
+        static {
+            keywords.add(CTag.AUTO);
+            keywords.add(CTag.BREAK);
+            keywords.add(CTag.CASE);
+            keywords.add(CTag.CHAR);
+            keywords.add(CTag.CONST);
+            keywords.add(CTag.CONTINUE);
+            keywords.add(CTag.DEFAULT);
+            keywords.add(CTag.DO);
+            keywords.add(CTag.DOUBLE);
+            keywords.add(CTag.ELSE);
+            keywords.add(CTag.ENUM);
+            keywords.add(CTag.EXTERN);
+            keywords.add(CTag.FLOAT);
+            keywords.add(CTag.FOR);
+            keywords.add(CTag.GOTO);
+            keywords.add(CTag.IF);
+            keywords.add(CTag.INT);
+            keywords.add(CTag.LONG);
+            keywords.add(CTag.REGISTER);
+            keywords.add(CTag.RETURN);
+            keywords.add(CTag.SHORT);
+            keywords.add(CTag.SIGNED);
+            keywords.add(CTag.SIZEOF);
+            keywords.add(CTag.STATIC);
+            keywords.add(CTag.STRUCT);
+            keywords.add(CTag.SWITCH);
+            keywords.add(CTag.TYPEDEF);
+            keywords.add(CTag.UNION);
+            keywords.add(CTag.UNSIGNED);
+            keywords.add(CTag.VOID);
+            keywords.add(CTag.VOLATILE);
+            keywords.add(CTag.WHILE);
+            keywords.add(CTag._BOOL);
+            keywords.add(CTag._COMPLEX);
+            keywords.add(CTag.INLINE);
+            keywords.add(CTag.__ALIGNOF);
+            keywords.add(CTag.__ALIGNOF__);
+            keywords.add(CTag.ASM);
+            keywords.add(CTag.__ASM);
+            keywords.add(CTag.__ASM__);
+            keywords.add(CTag.__ATTRIBUTE);
+            keywords.add(CTag.__ATTRIBUTE__);
+            keywords.add(CTag.__BUILTIN_OFFSETOF);
+            keywords.add(CTag.__BUILTIN_TYPES_COMPATIBLE_P);
+            keywords.add(CTag.__BUILTIN_VA_ARG);
+            keywords.add(CTag.__BUILTIN_VA_LIST);
+            keywords.add(CTag.__COMPLEX__);
+            keywords.add(CTag.__CONST);
+            keywords.add(CTag.__CONST__);
+            keywords.add(CTag.__EXTENSION__);
+            keywords.add(CTag.__INLINE);
+            keywords.add(CTag.__INLINE__);
+            keywords.add(CTag.__LABEL__);
+            keywords.add(CTag.__RESTRICT);
+            keywords.add(CTag.__RESTRICT__);
+            keywords.add(CTag.__SIGNED);
+            keywords.add(CTag.__SIGNED__);
+            keywords.add(CTag.__THREAD);
+            keywords.add(CTag.TYPEOF);
+            keywords.add(CTag.__TYPEOF);
+            keywords.add(CTag.__TYPEOF__);
+            keywords.add(CTag.__VOLATILE);
+            keywords.add(CTag.__VOLATILE__);
+        }
+
+        @Override
+        public boolean isNumberLiteral() {
+            return isLanguageToken() && (
+                    xtcToken.toLanguage().tag() == CTag.INTEGERconstant ||
+                            xtcToken.toLanguage().tag() == CTag.OCTALconstant ||
+                            xtcToken.toLanguage().tag() == CTag.HEXconstant ||
+                            xtcToken.toLanguage().tag() == CTag.FLOATINGconstant);
+        }
+
+        @Override
+        public boolean isStringLiteral() {
+            return isLanguageToken() && xtcToken.toLanguage().tag() == CTag.STRINGliteral;
+        }
+
+        @Override
+        public boolean isCharacterLiteral() {
+            return isLanguageToken() && xtcToken.toLanguage().tag() == CTag.CHARACTERconstant;
+        }
+
+        /**
+         * "Lazily print" this token, i.e. print it without constructing a full in-memory representation. This is just a
+         * default implementation, override it for tokens with a potentially huge string representation.
+         *
+         * @param writer The { @link java.io.PrintWriter} to print onto.
+         */
+        @Override
+        public void lazyPrint(PrintWriter writer) {
+            writer.write(getText());
+        }
+
         @Override
         public String getText() {
 //            if (xtcToken.testFlag(Preprocessor.PREV_WHITE))
@@ -340,18 +463,8 @@ public class XtcPreprocessor implements VALexer {
         }
 
         @Override
-        public Object getValue() {
-            return xtcToken;
-        }
-
-        @Override
         public FeatureExpr getFeature() {
             return fexpr;
-        }
-
-        @Override
-        public void setFeature(FeatureExpr expr) {
-            fexpr = expr;
         }
 
         @Override
@@ -359,34 +472,11 @@ public class XtcPreprocessor implements VALexer {
             return getText();
         }
 
-        @Override
-        public void setNoFurtherExpansion() {
-        }
 
-        @Override
-        public boolean mayExpand() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Source getSource() {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        @Override
         public String getSourceName() {
             if (xtcToken == null || xtcToken.getLocation() == null) return null;
             return xtcToken.getLocation().file;
         }
 
-        @Override
-        public Token clone() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setLocation(int line, int column) {
-            throw new UnsupportedOperationException();
-        }
     }
 }

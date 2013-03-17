@@ -1,8 +1,11 @@
 package de.fosd.typechef.deltaxtc;
 
+import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
-import de.fosd.typechef.lexer.*;
+import de.fosd.typechef.lexer.FeatureExprLib;
+import de.fosd.typechef.lexer.LexerException;
+import de.fosd.typechef.lexer.PartialPPLexer;
 import de.fosd.typechef.xtclexer.XtcPreprocessor;
 import junit.framework.Assert;
 import org.junit.Ignore;
@@ -14,7 +17,10 @@ import xtc.lang.cpp.Syntax;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * the goal of this test is to compare the lexers of
@@ -285,6 +291,11 @@ public class TypeChefVsXtc {
         testFile("varargs.c", false, true);
     }
 
+    @Test
+    public void testLinuxPI() throws LexerException, IOException {
+        testFile("pi/blk-core.pi", false, true);
+    }
+
 
     /**
      * parses a file and checks the result against the results specified in the
@@ -308,7 +319,7 @@ public class TypeChefVsXtc {
     protected void testFile(String filename, boolean debug, boolean ignoreWarning) throws LexerException, IOException {
         File file = getFile(filename);
 
-        List<Token> xtcTokens = null, typechefTokens = null;
+        List<LexerToken> xtcTokens = null, typechefTokens = null;
         Exception xtcException = null, typechefException = null;
         try {
             xtcTokens = getXtcTokens(filename);
@@ -328,9 +339,15 @@ public class TypeChefVsXtc {
 
         if (xtcException != null && typechefException != null) return;
         Assert.assertTrue("either both succeed or both should fail " + xtcException + " vs " + typechefException, (xtcException == null) == (typechefException == null));
-        Assert.assertEquals(xtcTokens.size(), typechefTokens.size());
+        Assert.assertEquals("number of tokens", xtcTokens.size(), typechefTokens.size());
         for (int i = 0; i < xtcTokens.size(); i++) {
             Assert.assertEquals(xtcTokens.get(i).getText(), typechefTokens.get(i).getText());
+            Assert.assertEquals("character", typechefTokens.get(i).isCharacterLiteral(), xtcTokens.get(i).isCharacterLiteral());
+            Assert.assertEquals("integer", typechefTokens.get(i).isNumberLiteral(), xtcTokens.get(i).isNumberLiteral());
+            Assert.assertEquals("string", typechefTokens.get(i).isStringLiteral(), xtcTokens.get(i).isStringLiteral());
+            Assert.assertEquals("identifier or keyword", typechefTokens.get(i).isKeywordOrIdentifier(), xtcTokens.get(i).isKeywordOrIdentifier());
+            Assert.assertEquals("<eof>", typechefTokens.get(i).isEOF(), xtcTokens.get(i).isEOF());
+            Assert.assertEquals("language token", typechefTokens.get(i).isLanguageToken(), xtcTokens.get(i).isLanguageToken());
             Assert.assertTrue("feature expressions mismatch: " + xtcTokens.get(i).getFeature() + " - " + typechefTokens.get(i).getFeature(), xtcTokens.get(i).getFeature().equivalentTo(typechefTokens.get(i).getFeature()));
         }
 
@@ -351,7 +368,7 @@ public class TypeChefVsXtc {
     }
 
 
-    private List<Token> getXtcTokens(String filename) throws IOException {
+    private List<LexerToken> getXtcTokens(String filename) throws IOException {
         InputStream inputStream = getClass().getResourceAsStream(
                 "/" + folder + filename);
         Assert.assertNotNull("cannot load file /" + folder + filename + ".check", inputStream);
@@ -363,7 +380,7 @@ public class TypeChefVsXtc {
                 Collections.EMPTY_LIST, Collections.singletonList(getFile(filename).getParent()), Collections.EMPTY_LIST, null);
 
         //create TypeChef style token stream
-        List<Token> result = new ArrayList<Token>();
+        List<LexerToken> result = new ArrayList<LexerToken>();
 
         Stack<FeatureExpr> stack = new Stack<FeatureExpr>();
         stack.push(FeatureExprFactory.True());
@@ -380,8 +397,9 @@ public class TypeChefVsXtc {
                     } else stack.pop();
                 }
 
-                if (s.kind() == Syntax.Kind.LANGUAGE)
-                    result.add(new XtcPreprocessor.XtcToken(s, stack.peek()));
+                LexerToken t = new XtcPreprocessor.XtcToken(s, stack.peek());
+                if (t.isLanguageToken())
+                    result.add(t);
 
                 s = lexer.scan();
             }

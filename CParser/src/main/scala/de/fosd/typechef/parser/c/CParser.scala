@@ -1,6 +1,5 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.lexer.Token
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
@@ -13,7 +12,8 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
  */
 
 class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) extends MultiFeatureParser(featureModel, debugOutput) {
-    type Elem = AbstractToken
+    type Elem = CToken
+    type AbstractToken = CToken
     type TypeContext = CTypeContext
 
     def parse[T](code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
@@ -345,7 +345,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         case _ ~ e ~ _ => CaseStatement(e)
     })
         | (textToken("default") ~! COLON ^^ {
-      case _ => DefaultStatement()
+        case _ => DefaultStatement()
     })
         //// Selection statements:
         | (textToken("if") ~! LPAREN ~ (expr !) ~ RPAREN ~ statement ~
@@ -575,8 +575,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         t => Id(t.getText)
     }
 
-    def isIdentifier(token: AbstractToken) = token.isIdentifier &&
-        !keywords.contains(token.getText)
+    def isIdentifier(token: AbstractToken) = token.isKeywordOrIdentifier && !CLexer.isKeyword(token.getText)
 
     def stringConst: MultiParser[StringLit] =
         (rep1(token("string literal", _.isString))

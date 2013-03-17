@@ -41,7 +41,7 @@ object ParserBenchmark extends App {
     println("grep: " + ProfilingTokenHelper.totalConsumed(in) + ", backtracked " + ProfilingTokenHelper.totalBacktracked(in) + ", repeated " + ProfilingTokenHelper.totalRepeated(in) + " in " + (System.currentTimeMillis - start) + " ms")
 
 
-    def reportUnparsedTokens(in: TokenReader[TokenWrapper, CTypeContext]) {
+    def reportUnparsedTokens(in: TokenReader[CToken, CTypeContext]) {
         for (t <- in.tokens)
             if (t.profile_consumed == 0)
                 println("not consumed: " + t)

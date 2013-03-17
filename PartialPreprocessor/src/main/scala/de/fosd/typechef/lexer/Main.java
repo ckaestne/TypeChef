@@ -23,6 +23,7 @@
 
 package de.fosd.typechef.lexer;
 
+import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.options.ILexerOptions;
@@ -44,7 +45,7 @@ public class Main {
         (new Main()).run(args, false, true, null);
     }
 
-    public List<Token> run(String[] args, boolean returnTokenList, boolean printToStdOutput, FeatureModel featureModel) throws Exception {
+    public List<LexerToken> run(String[] args, boolean returnTokenList, boolean printToStdOutput, FeatureModel featureModel) throws Exception {
         LexerOptions options = new LexerOptions();
         options.setFeatureModel(featureModel);
         options.setPrintToStdOutput(printToStdOutput);
@@ -52,7 +53,7 @@ public class Main {
         return run(false, options, returnTokenList);
     }
 
-    public List<Token> run(final boolean isXtcLexer, final ILexerOptions options, boolean returnTokenList) throws Exception {
+    public List<LexerToken> run(final boolean isXtcLexer, final ILexerOptions options, boolean returnTokenList) throws Exception {
         return run(new VALexer.LexerFactory() {
             @Override
             public VALexer create(FeatureModel featureModel) {
@@ -63,10 +64,10 @@ public class Main {
         }, options, returnTokenList);
     }
 
-    public List<Token> run(VALexer.LexerFactory lexerFactory, ILexerOptions options, boolean returnTokenList) throws Exception {
+    public List<LexerToken> run(VALexer.LexerFactory lexerFactory, ILexerOptions options, boolean returnTokenList) throws Exception {
         if (options.isPrintVersion()) {
             version(System.out);
-            return new ArrayList<Token>();
+            return new ArrayList<LexerToken>();
         }
 
 
@@ -123,19 +124,19 @@ public class Main {
             System.err.println("End of search list.");
         }
 
-        List<Token> resultTokenList = new ArrayList<Token>();
+        List<LexerToken> resultTokenList = new ArrayList<LexerToken>();
         int outputLine = 1;
         try {
             // TokenFilter tokenFilter = new TokenFilter();
             for (; ; ) {
-                Token tok = pp.getNextToken();
+                LexerToken tok = pp.getNextToken();
                 if (tok == null)
                     break;
-                if (tok.getType() == Token.EOF)
+                if (tok.isEOF())
                     break;
 
 
-                if (returnTokenList && PartialPPLexer.isResultToken(tok)) {
+                if (returnTokenList && tok.isLanguageToken()) {
                     resultTokenList.add(tok);
                 }
 

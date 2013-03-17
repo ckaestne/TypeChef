@@ -1,5 +1,6 @@
 package de.fosd.typechef.jcpp;
 
+import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.lexer.*;
@@ -49,7 +50,7 @@ public class AbstractCheckTests {
             throw new FileNotFoundException("Input file not found: " + filename);
         }
 
-        List<Token> output = null;
+        List<LexerToken> output = null;
         String error = null;
         LexerException ex = null;
         try {
@@ -77,7 +78,7 @@ public class AbstractCheckTests {
     }
 
     private boolean check(String filename, String folder,
-                          List<Token> tokenStream, String errorMsg)
+                          List<LexerToken> tokenStream, String errorMsg)
             throws FileNotFoundException, IOException {
         boolean containsErrorCheck = false;
         InputStream inputStream = getClass().getResourceAsStream(
@@ -139,7 +140,7 @@ public class AbstractCheckTests {
                 FeatureExpr expectedExpr = parseFeatureExpr(expectedFeature);
                 boolean foundToken = false;
 
-                for (Token t : tokenStream) {
+                for (LexerToken t : tokenStream) {
                     if (t.getText().equals(expectedName)) {
                         foundToken = true;
                         // expect equivalent presence conditions
@@ -170,7 +171,7 @@ public class AbstractCheckTests {
 
     private FeatureExpr parseFeatureExpr(String expectedFeature) {
         try {
-            return new Preprocessor(new MacroFilter(),new StringLexerSource(expectedFeature
+            return new Preprocessor(new MacroFilter(), new StringLexerSource(expectedFeature
                     + "\n"), null).parse_featureExpr();
         } catch (IOException e) {
             e.printStackTrace();
@@ -186,12 +187,12 @@ public class AbstractCheckTests {
             pp.debugPreprocessorDone();
     }
 
-    private List<Token> lex(VALexer.LexerInput source, boolean debug, String folder, final boolean ignoreWarnings)
+    private List<LexerToken> lex(VALexer.LexerInput source, boolean debug, String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
         // XXX Why here? And isn't the whole thing duplicated from elsewhere?
 
 
-        pp = new Preprocessor(new MacroFilter().setPrefixFilter("CONFIG_"),null);
+        pp = new Preprocessor(new MacroFilter().setPrefixFilter("CONFIG_"), null);
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);
@@ -216,12 +217,12 @@ public class AbstractCheckTests {
 
         pp.addInput(source);
 
-        List<Token> output = new ArrayList<Token>();
+        List<LexerToken> output = new ArrayList<LexerToken>();
         for (; ; ) {
-            Token tok = pp.getNextToken();
+            LexerToken tok = pp.getNextToken();
             if (tok == null)
                 break;
-            if (tok.getType() == Token.EOF)
+            if (tok.isEOF())
                 break;
 
             output.add(tok);
@@ -231,11 +232,11 @@ public class AbstractCheckTests {
         return output;
     }
 
-    private String serialize(List<Token> tokenstream) {
+    private String serialize(List<LexerToken> tokenstream) {
         StringWriter strWriter = new StringWriter();
         PrintWriter writer = new PrintWriter(strWriter);
         if (tokenstream != null)
-            for (Token t : tokenstream)
+            for (LexerToken t : tokenstream)
                 t.lazyPrint(writer);
         return strWriter.getBuffer().toString();
     }

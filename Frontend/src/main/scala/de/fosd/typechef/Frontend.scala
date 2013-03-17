@@ -10,7 +10,7 @@ import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
-import parser.{TokenReader, AbstractToken}
+import parser.TokenReader
 
 object Frontend {
 
@@ -148,7 +148,7 @@ object Frontend {
     }
 
 
-    def lex(opt: FrontendOptions): TokenReader[AbstractToken, CTypeContext] = {
+    def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
         val tokens = new lexer.Main().run(opt.xtc, opt, opt.parse)
         val in = CLexer.prepareTokens(tokens)
         in
