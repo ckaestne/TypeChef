@@ -34,10 +34,10 @@ and several helper libraries.
   allows to scale reasoning even to feature models the size of the Linux kernel.
   The library can be (and is) reused in very different contexts also in Java code.
 
-* A library of conditional data structures for variational programming 
+* A library of *conditional data structures* for variational programming 
   (subproject *ConditionalLib*) with several useful operations on
   conditional structures. Used heavily in all other subprojects.
-  For a short introduction see VariationalProgramming.md.
+  For a short introduction see [VariationalProgramming.md](https://github.com/ckaestne/TypeChef/blob/XtcIntegration/VariationalProgramming.md).
 
 * A **variability-aware lexer** (also called partial preprocessor;
   subproject *PartialPreprocessor*) that
@@ -75,8 +75,7 @@ and several helper libraries.
 Installation and Usage
 ----------------------
 
-For simple experimentation, try our online version at 
-[http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
+For simple experimentation, try our [online version](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
 
 Alternatively, you can download a .jar file including
 all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.3.jar). Run as usual
