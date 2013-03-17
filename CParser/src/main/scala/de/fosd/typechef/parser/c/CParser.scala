@@ -575,7 +575,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         t => Id(t.getText)
     }
 
-    def isIdentifier(token: AbstractToken) = token.isKeywordOrIdentifier && !CLexer.isKeyword(token.getText)
+    def isIdentifier(token: AbstractToken) = token.isKeywordOrIdentifier && !keywords.contains(token.getText)
 
     def stringConst: MultiParser[StringLit] =
         (rep1(token("string literal", _.isString))

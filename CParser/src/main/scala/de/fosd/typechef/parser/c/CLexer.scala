@@ -36,42 +36,43 @@ object CLexer {
         }
         new TokenReader(result.toList, 0, new CTypeContext(), CToken.EOF)
     }
-
-    /** used to recognize identifiers in the token implementation **/
-
-    def isKeyword(s: String): Boolean = keywords contains s
-    val keywords = Set(
-        "auto",
-        "break",
-        "case",
-        "char",
-        "const",
-        "continue",
-        "default",
-        "do",
-        "double",
-        "else",
-        "enum",
-        "extern",
-        "float",
-        "for",
-        "goto",
-        "if",
-        "int",
-        "long",
-        "register",
-        "return",
-        "short",
-        "signed",
-        "sizeof",
-        "static",
-        "struct",
-        "switch",
-        "typedef",
-        "union",
-        "unsigned",
-        "void",
-        "volatile",
-        "while")
+//
+//    /** used to recognize identifiers in the token implementation **/
+//
+//    def isKeyword(s: String): Boolean = keywords contains s
+//    val keywords = Set(
+//        "asm",
+//        "auto",
+//        "break",
+//        "case",
+//        "char",
+//        "const",
+//        "continue",
+//        "default",
+//        "do",
+//        "double",
+//        "else",
+//        "enum",
+//        "extern",
+//        "float",
+//        "for",
+//        "goto",
+//        "if",
+//        "int",
+//        "long",
+//        "register",
+//        "return",
+//        "short",
+//        "signed",
+//        "sizeof",
+//        "static",
+//        "struct",
+//        "switch",
+//        "typedef",
+//        "union",
+//        "unsigned",
+//        "void",
+//        "volatile",
+//        "while")
 
 }
