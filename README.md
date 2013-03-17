@@ -1,27 +1,36 @@
 TypeChef
 ========
 
-TypeChef is a research project with the goal of type checking 
-ifdef variability in C code with the target of
-type checking the entire Linux kernel with several thousand 
+TypeChef is a research project with the goal of analyzing 
+ifdef variability in C code with the goal of finding
+variability-induced bugs in large-scale real-world systems,
+such as the Linux kernel with several thousand 
 features (or configuration options).
 
-Instead of type checking each variant for each feature 
+Instead of analyzing each variant for each feature 
 combination in isolation, TypeChef parses the
 entire source code containing all variability in a 
 variability-aware fashion without preprocessing.
 The resulting abstract syntax tree contains the 
 variability in form of choice nodes. Eventually, a
 variability-aware type system performs type checking 
-on these trees.
+on these trees, variability-aware data-flow analysis
+performs data-flow analysis and so forth.
 
-TypeChef detects syntax and type errors in all possible 
-feature combinations. TypeChef was originally short for 
+TypeChef was started with the goal of building a type
+system for C code with compile-time configurations.
+TypeChef was originally short for
 *Type Checking Ifdef Variability*.
+Over time it has grown into an infrastructure of all
+kinds of analyses.
+In all cases, the goal is to detect errors in all possible 
+feature combinations, without resorting to a brute-force approach. 
 
 
 Architecture and Subprojects
 ----------------------------
+
+<a href="http://ckaestne.github.com/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="http://ckaestne.github.com/TypeChef/typechef-poster-small.png" /></a>
 
 The TypeChef project contains of four main components 
 and several helper libraries.
