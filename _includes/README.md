@@ -30,6 +30,8 @@ feature combinations, without resorting to a brute-force approach.
 Architecture and Subprojects
 ----------------------------
 
+<a href="http://ckaestne.github.com/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="http://ckaestne.github.com/TypeChef/typechef-poster-small.png" /></a>
+
 The TypeChef project contains of four main components 
 and several helper libraries.
 
