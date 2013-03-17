@@ -296,6 +296,10 @@ public class TypeChefVsXtc {
         testFile("pi/blk-core.pi", false, true);
     }
 
+    @Test
+    public void testLinuxPI2() throws LexerException, IOException {
+        testFile("pi/blk-core2.pi", false, true);
+    }
 
     /**
      * parses a file and checks the result against the results specified in the
@@ -339,17 +343,22 @@ public class TypeChefVsXtc {
 
         if (xtcException != null && typechefException != null) return;
         Assert.assertTrue("either both succeed or both should fail " + xtcException + " vs " + typechefException, (xtcException == null) == (typechefException == null));
-        Assert.assertEquals("number of tokens", xtcTokens.size(), typechefTokens.size());
-        for (int i = 0; i < xtcTokens.size(); i++) {
-            Assert.assertEquals(xtcTokens.get(i).getText(), typechefTokens.get(i).getText());
-            Assert.assertEquals("character", typechefTokens.get(i).isCharacterLiteral(), xtcTokens.get(i).isCharacterLiteral());
-            Assert.assertEquals("integer", typechefTokens.get(i).isNumberLiteral(), xtcTokens.get(i).isNumberLiteral());
-            Assert.assertEquals("string", typechefTokens.get(i).isStringLiteral(), xtcTokens.get(i).isStringLiteral());
-            Assert.assertEquals("identifier or keyword", typechefTokens.get(i).isKeywordOrIdentifier(), xtcTokens.get(i).isKeywordOrIdentifier());
-            Assert.assertEquals("<eof>", typechefTokens.get(i).isEOF(), xtcTokens.get(i).isEOF());
-            Assert.assertEquals("language token", typechefTokens.get(i).isLanguageToken(), xtcTokens.get(i).isLanguageToken());
-            Assert.assertTrue("feature expressions mismatch: " + xtcTokens.get(i).getFeature() + " - " + typechefTokens.get(i).getFeature(), xtcTokens.get(i).getFeature().equivalentTo(typechefTokens.get(i).getFeature()));
+        for (int i = 0; i < Math.min(xtcTokens.size(), typechefTokens.size()); i++) {
+            try {
+                Assert.assertEquals(xtcTokens.get(i).getText(), typechefTokens.get(i).getText());
+                Assert.assertEquals("character", typechefTokens.get(i).isCharacterLiteral(), xtcTokens.get(i).isCharacterLiteral());
+                Assert.assertEquals("integer", typechefTokens.get(i).isNumberLiteral(), xtcTokens.get(i).isNumberLiteral());
+                Assert.assertEquals("string", typechefTokens.get(i).isStringLiteral(), xtcTokens.get(i).isStringLiteral());
+                Assert.assertEquals("identifier or keyword", typechefTokens.get(i).isKeywordOrIdentifier(), xtcTokens.get(i).isKeywordOrIdentifier());
+                Assert.assertEquals("<eof>", typechefTokens.get(i).isEOF(), xtcTokens.get(i).isEOF());
+                Assert.assertEquals("language token", typechefTokens.get(i).isLanguageToken(), xtcTokens.get(i).isLanguageToken());
+                Assert.assertTrue("feature expressions mismatch: " + xtcTokens.get(i).getFeature() + " - " + typechefTokens.get(i).getFeature(), xtcTokens.get(i).getFeature().equivalentTo(typechefTokens.get(i).getFeature()));
+            } catch (AssertionError e) {
+                System.err.println("token " + i + " at " + xtcTokens.get(i).getLine() + "/" + typechefTokens.get(i).getLine() + ": " + xtcTokens.get(i).getText() + "/" + typechefTokens.get(i).getText());
+                throw e;
+            }
         }
+        Assert.assertEquals("number of tokens", xtcTokens.size(), typechefTokens.size());
 
 
 //        LexerInterface.print(lexer);
